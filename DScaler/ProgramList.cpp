@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.48 2002-02-11 21:23:54 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.49 2002-02-24 20:20:12 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/02/11 21:23:54  laurentg
+// Grayed certain items in the Channels menu when the current input is not the tuner
+//
 // Revision 1.47  2002/02/09 02:51:38  laurentg
 // Grayed the channels when the source has no tuner
 //
@@ -540,6 +543,16 @@ void ChangeChannelInfo(HWND hDlg)
     InUpdate = FALSE;
 }
 
+eVideoFormat SelectedVideoFormat(HWND hDlg)
+{
+    int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
+    if(Format == -1)
+    {
+        Format = VIDEOFORMAT_LASTONE;
+    }
+
+    return (eVideoFormat)Format;
+}
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -616,7 +629,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 --Freq;
                 sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
             else if(LOWORD(wParam) == SB_RIGHT ||
@@ -629,7 +642,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 ++Freq;
                 sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
         }
@@ -727,7 +740,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 sprintf(sbuf, "%10.4f", Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
                 ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
-                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
             break;
@@ -741,7 +754,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 long Freq = (long)(dFreq * 16.0);
                 sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
             break;
@@ -763,17 +776,11 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_FORMAT:
             if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
-                if(Format != -1)
-                {
-                    Format = VIDEOFORMAT_LASTONE;
-                }
-
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 char* cLast;
                 double dFreq = strtod(sbuf, &cLast);
                 long Freq = (long)(dFreq * 16.0);
-                Providers_GetCurrentSource()->SetTunerFrequency(Freq, (eVideoFormat)Format);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
             break;

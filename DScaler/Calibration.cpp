@@ -64,23 +64,23 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
 		RGB2YUV(ref_R_val, ref_G_val, ref_B_val, &ref_Y_val, &ref_U_val, &ref_V_val);
 	}
 //	Y = 100; U = 50; V = 75;
-//	LOG("Y = %d U = %d V = %d", Y, U, V);
+//	LOG(5, "Y = %d U = %d V = %d", Y, U, V);
 //	YUV2RGB(Y, U, V, &R, &G, &B);
-//	LOG("=> YUV2RGB R = %d G = %d B = %d", R, G, B);
+//	LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
 //	RGB2YUV(R, G, B, &Y, &U, &V);
-//	LOG("=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+//	LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
 //	Y = 50; U = 100; V = 125;
-//	LOG("Y = %d U = %d V = %d", Y, U, V);
+//	LOG(5, "Y = %d U = %d V = %d", Y, U, V);
 //	YUV2RGB(Y, U, V, &R, &G, &B);
-//	LOG("=> YUV2RGB R = %d G = %d B = %d", R, G, B);
+//	LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
 //	RGB2YUV(R, G, B, &Y, &U, &V);
-//	LOG("=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+//	LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
 //	Y = 200; U = 225; V = 175;
-//	LOG("Y = %d U = %d V = %d", Y, U, V);
+//	LOG(5, "Y = %d U = %d V = %d", Y, U, V);
 //	YUV2RGB(Y, U, V, &R, &G, &B);
-//	LOG("=> YUV2RGB R = %d G = %d B = %d", R, G, B);
+//	LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
 //	RGB2YUV(R, G, B, &Y, &U, &V);
-//	LOG("=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+//	LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
 }
 
 void CColorBar::GetRefPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V)
@@ -234,7 +234,7 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
 	cr = (  131808*R - 24110*G - 34516*B + 8388608)>>16;
 	cb = (    9713*R - 19068*G + 28781*B + 8388608)>>16;
 
-//	LOG("RGB2YUV %d %d %d", y, cb, cr);
+//	LOG(5, "RGB2YUV %d %d %d", y, cb, cr);
 
 	*pY = LIMIT(y);
 	*pU = LIMIT(cb);

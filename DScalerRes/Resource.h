@@ -681,6 +681,7 @@
 #define IDC_SBLEND                      1778
 #define IDC_SCAN                        1779
 #define IDC_SCROLLBAR1                  1780
+#define IDC_SEEK                        1780
 #define IDC_SETTINGS_CHECK              1781
 #define IDC_SETTINGS_DEFAULT            1782
 #define IDC_SETTINGS_EDIT               1783
@@ -1146,7 +1147,7 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.17 2002-08-01 20:24:19 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.18 2002-08-04 17:25:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/08/01 20:24:19  tobbej
+// implemented AvgSyncOffset counter in dsrend
+//
 // Revision 1.16  2002/07/06 16:50:08  tobbej
 // new field buffering
 // some small changes to resolution changing
@@ -164,12 +167,16 @@ CDShowGraph::~CDShowGraph()
 
 void CDShowGraph::initGraph()
 {
-	HRESULT hr=m_pBuilder.CoCreateInstance(CLSID_CaptureGraphBuilder2);
-	HRESULT hr1=m_pGraph.CoCreateInstance(CLSID_FilterGraph);
-
-	if(FAILED(hr) || FAILED(hr1))
+	HRESULT hr=m_pGraph.CoCreateInstance(CLSID_FilterGraph);
+	if(FAILED(hr))
 	{
-		throw CDShowException("Failed to create graph");
+		throw CDShowException("Failed to create Filter Graph",hr);
+	}
+
+	hr=m_pBuilder.CoCreateInstance(CLSID_CaptureGraphBuilder2);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Failed to create Capture graph builder",hr);
 	}
 	
 	//connect capture graph builder with the graph

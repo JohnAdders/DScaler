@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.101 2003-10-27 10:39:54 adcockj Exp $
+// $Id: StillSource.cpp,v 1.102 2004-08-31 15:54:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.100  2003/06/14 19:38:10  laurentg
 // Preview mode improved
 //
@@ -2407,7 +2410,7 @@ BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* 
 			movd	dword ptr[ebx+eax], mm3	// save in our work area
 
 			lea     eax, [eax+4]
-			loop	vloopMMX
+			loop	vLoopMMX
 	
 
 // We've taken care of the vertical scaling, now do horizontal

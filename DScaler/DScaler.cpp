@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.247 2002-10-20 21:51:30 laurentg Exp $
+// $Id: DScaler.cpp,v 1.248 2002-10-20 23:51:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.247  2002/10/20 21:51:30  laurentg
+// Don't show window border when in full screen mode
+//
 // Revision 1.246  2002/10/15 18:14:36  kooiman
 // Added 'use overlay controls' to Overlay settings dialog.
 //
@@ -848,6 +851,7 @@ BOOL bUseAutoSave = FALSE;
 BOOL bScreensaverOff = FALSE;
 BOOL bVTAutoCodePage = FALSE;
 BOOL bMinimized = FALSE;
+BOOL bReverseChannelScroll = FALSE;
 
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
@@ -2315,7 +2319,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
-                Channel_Increment();
+                if (!bReverseChannelScroll)
+                {
+                    Channel_Increment();
+                }
+                else
+                {
+                    Channel_Decrement();
+                }
             }
             break;
 
@@ -2326,7 +2337,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
-                Channel_Decrement();
+                if (!bReverseChannelScroll)
+                {
+                    Channel_Decrement();
+                }
+                else
+                {
+                    Channel_Increment();
+                }
             }
             break;
 
@@ -5348,6 +5366,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "Show", "AutoHideCursor", NULL,
+    },
+    {
+        "Reverse channel scrolling", ONOFF, 0, (long*)&bReverseChannelScroll,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "ReverseChannelScroll", NULL,
     },
     {
         "Lock keyboard", ONOFF, 0, (long*)&bKeyboardLock,

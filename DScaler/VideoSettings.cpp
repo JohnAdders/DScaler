@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.15 2002-03-13 13:36:45 tobbej Exp $
+// $Id: VideoSettings.cpp,v 1.16 2003-01-06 20:46:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/03/13 13:36:45  tobbej
+// fixed video settings dialog so it doesnt crash if SaturationU or SaturationV is NULL
+//
 // Revision 1.14  2002/02/09 02:44:55  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -80,19 +83,10 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "AspectRatio.h"
-#include "Audio.h"
 #include "VideoSettings.h"
 #include "Providers.h"
 #include "Setting.h"
 #include "Slider.h"
-
-BOOL bSavePerInput = FALSE;
-BOOL bSavePerFormat = FALSE;
-BOOL bSaveTVFormatPerInput = FALSE;
-
-char szSection[50];
-char szSection2[50];
 
 BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -206,16 +200,12 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             Edit_Enable(GetDlgItem(hDlg, IDC_D7), FALSE);
             Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER7), FALSE);
         }
-
-        Button_SetCheck(GetDlgItem(hDlg, IDC_BYFORMAT), bSavePerFormat?BST_CHECKED:BST_UNCHECKED);
-        Button_SetCheck(GetDlgItem(hDlg, IDC_BYINPUT), bSavePerInput?BST_CHECKED:BST_UNCHECKED);
+        break;
 
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {
         case IDOK:
-            bSavePerFormat = Button_GetCheck(GetDlgItem(hDlg, IDC_BYFORMAT)) == BST_CHECKED;
-            bSavePerInput = Button_GetCheck(GetDlgItem(hDlg, IDC_BYINPUT)) == BST_CHECKED;
             EndDialog(hDlg, TRUE);
             break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.7 2001-11-24 17:58:06 laurentg Exp $
+// $Id: StillSource.cpp,v 1.8 2001-11-24 22:51:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/24 17:58:06  laurentg
+// Still source
+//
 // Revision 1.6  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -79,6 +82,9 @@ CStillSource::CStillSource(LPCSTR FilePath) :
     m_StillFrame.pData = NULL;
     m_StillFrame.Flags = PICTURE_PROGRESSIVE;
     m_StillFrame.IsFirstInSeries = FALSE;
+    m_FieldFrequency = 50.0;
+    m_FrameDuration = 1000.0 / m_FieldFrequency;
+    m_AlreadyTryToRead = FALSE;
 }
 
 CStillSource::~CStillSource()
@@ -91,11 +97,9 @@ void CStillSource::CreateSettings(LPCSTR IniSection)
 
 void CStillSource::Start()
 {
-    if (strlen(m_FilePath) > 0)
-    {
-        ReadStillFile();
-    }
+    m_StillFrame.pData = NULL;
     m_LastTickCount = 0;
+    m_AlreadyTryToRead = FALSE;
 }
 
 void CStillSource::Stop()
@@ -105,8 +109,6 @@ void CStillSource::Stop()
         free(m_StillFrame.pData);
         m_StillFrame.pData = NULL;
     }
-    m_Width = 0;
-    m_Height = 0;
 }
 
 void CStillSource::Reset()
@@ -118,21 +120,23 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     BOOL bSlept = FALSE;
     DWORD CurrentTickCount;
     int Diff;
-    int FrameDuration = 1000 / m_FieldFrequency;
+    
+    ReadNextFrameInFile();
 
     CurrentTickCount = GetTickCount();
     if (m_LastTickCount == 0)
     {
         m_LastTickCount = CurrentTickCount;
     }
-    while((CurrentTickCount - m_LastTickCount) < FrameDuration)
+    Diff = (int)((double)(CurrentTickCount - m_LastTickCount) / m_FrameDuration);
+    while(Diff < 1)
     {
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         CurrentTickCount = GetTickCount();
+        Diff = (int)((double)(CurrentTickCount - m_LastTickCount) / m_FrameDuration);
     }
-
-    Diff = (CurrentTickCount - m_LastTickCount) / FrameDuration;
+    m_LastTickCount += (int)floor((double)Diff * m_FrameDuration + 0.5);
     if(Diff > 1)
     {
         // delete all history
@@ -149,17 +153,15 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
             Timing_AddDroppedFields(1);
             LOG(2, "Running Late");
         }
-
-        pInfo->LineLength = m_Width * 2;
-        pInfo->FrameWidth = m_Width;
-        pInfo->FrameHeight = m_Height;
-        pInfo->FieldHeight = m_Height;
-        pInfo->InputPitch = pInfo->LineLength;
-        pInfo->PictureHistory[0] = &m_StillFrame;
-        pInfo->PictureHistory[1] = &m_StillFrame;
     }
 
-    m_LastTickCount += Diff * FrameDuration;
+    pInfo->LineLength = m_Width * 2;
+    pInfo->FrameWidth = m_Width;
+    pInfo->FrameHeight = m_Height;
+    pInfo->FieldHeight = m_Height;
+    pInfo->InputPitch = pInfo->LineLength;
+    pInfo->PictureHistory[0] = &m_StillFrame;
+    pInfo->PictureHistory[1] = &m_StillFrame;
 }
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -169,7 +171,18 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 LPCSTR CStillSource::GetStatus()
 {
-    return "Still Picture";
+    LPCSTR FileName;
+
+    FileName = strrchr(m_FilePath, '\\');
+    if (FileName == NULL)
+    {
+        FileName = m_FilePath;
+    }
+    else
+    {
+        ++FileName;
+    }
+    return FileName;
 }
 
 eVideoFormat CStillSource::GetFormat()

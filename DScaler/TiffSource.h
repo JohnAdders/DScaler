@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffSource.h,v 1.1 2001-11-24 17:55:23 laurentg Exp $
+// $Id: TiffSource.h,v 1.2 2001-11-24 22:51:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/24 17:55:23  laurentg
+// CTiffSource class added
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +34,7 @@ class CTiffSource : public CStillSource
 public:
     CTiffSource(LPCSTR FilePath);
 private:
-    void ReadStillFile();
+    BOOL ReadNextFrameInFile();
 };
 
 #endif

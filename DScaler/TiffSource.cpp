@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffSource.cpp,v 1.1 2001-11-24 17:55:23 laurentg Exp $
+// $Id: TiffSource.cpp,v 1.2 2001-11-24 22:51:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/24 17:55:23  laurentg
+// CTiffSource class added
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -87,10 +90,9 @@ typedef struct
 CTiffSource::CTiffSource(LPCSTR FilePath) :
     CStillSource(FilePath)
 {
-    m_FieldFrequency = 50;
 }
 
-void CTiffSource::ReadStillFile()
+BOOL CTiffSource::ReadNextFrameInFile()
 {
     FILE* file;
     TTiffHeader head;
@@ -100,13 +102,20 @@ void CTiffSource::ReadStillFile()
     int y1, y2, cr, cb, r, g, b;
     BYTE*   pBuf;
 
+    if (m_AlreadyTryToRead)
+    {
+        return (m_StillFrame.pData != NULL);
+    }
+
+    m_AlreadyTryToRead = TRUE;
+
     memset(&head, 0, sizeof(head));
 
     LOG(2, "Graphic file %s", m_FilePath);
     file = fopen(m_FilePath,"rb");
     if (!file)
     {
-        return;
+        return FALSE;
     }
     LOG(2, "Graphic file opened");
 
@@ -116,35 +125,35 @@ void CTiffSource::ReadStillFile()
     if (fread(head.byteOrder, sizeof(head.byteOrder), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(&(head.version), sizeof(head.version), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(&(head.firstDirOffset), sizeof(head.firstDirOffset), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     i = fread(buf, head.firstDirOffset - sizeof(head.byteOrder) - sizeof(head.version) - sizeof(head.firstDirOffset), 1, file);
     if ((i != 0) && (i != 1))
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(&(head.numDirEntries), sizeof(head.numDirEntries), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     for (i=0 ; i<head.numDirEntries ; i++)
     {
         if (fread(&entry, sizeof(entry), 1, file) != 1)
         {
             fclose(file);
-            return;
+            return FALSE;
         }
         switch (entry.Tag)
         {
@@ -197,37 +206,37 @@ void CTiffSource::ReadStillFile()
     if (fread(&(head.nextDirOffset), sizeof(head.nextDirOffset), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(head.descriptionText, sizeof(head.descriptionText), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(head.makeText, sizeof(head.makeText), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(head.modelText, sizeof(head.modelText), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(&(head.bitCounts[0]), sizeof(head.bitCounts[0]), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(&(head.bitCounts[1]), sizeof(head.bitCounts[1]), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     if (fread(&(head.bitCounts[2]), sizeof(head.bitCounts[2]), 1, file) != 1)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     LOG(2, "Graphic file header read");
 
@@ -243,7 +252,7 @@ void CTiffSource::ReadStillFile()
      || (head.width.Value > DSCALER_MAX_WIDTH))
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     LOG(2, "Graphic file header verified");
 
@@ -255,7 +264,7 @@ void CTiffSource::ReadStillFile()
     if (m_StillFrame.pData == NULL)
     {
         fclose(file);
-        return;
+        return FALSE;
     }
     LOG(2, "Frame buffer allocated");
 
@@ -272,7 +281,7 @@ void CTiffSource::ReadStillFile()
                 fclose(file);
                 free(m_StillFrame.pData);
                 m_StillFrame.pData = NULL;
-                return;
+                return FALSE;
             }
 
             r = buf[0];
@@ -287,7 +296,7 @@ void CTiffSource::ReadStillFile()
                 fclose(file);
                 free(m_StillFrame.pData);
                 m_StillFrame.pData = NULL;
-                return;
+                return FALSE;
             }
 
             r = buf[0];
@@ -308,7 +317,9 @@ void CTiffSource::ReadStillFile()
         }
     }
 
+    fclose(file);
     LOG(1, "Graphic file loaded");
+    return TRUE;
 }
 /*
     BYTE*   pBuf;

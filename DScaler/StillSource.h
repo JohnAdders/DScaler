@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.5 2001-11-24 17:58:06 laurentg Exp $
+// $Id: StillSource.h,v 1.6 2001-11-24 22:51:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,11 +59,13 @@ protected:
     int         m_Height;
     TPicture    m_StillFrame;
     char        m_FilePath[256];
+    BOOL        m_AlreadyTryToRead;
 
 private:
-    virtual void ReadStillFile() = 0;
+    virtual BOOL    ReadNextFrameInFile() = 0;
 
     DWORD       m_LastTickCount;
+    double      m_FrameDuration;
 };
 
 #endif

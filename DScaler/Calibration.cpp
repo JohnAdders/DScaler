@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.43 2002-02-09 21:12:28 laurentg Exp $
+// $Id: Calibration.cpp,v 1.44 2002-02-10 09:25:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/02/09 21:12:28  laurentg
+// Old test patterns restored
+// Loading of d3u files improved (absolute or relative path)
+//
 // Revision 1.42  2002/02/09 18:06:27  laurentg
 // Avoid to start calibration if there is no control on needed settings
 //
@@ -368,10 +372,10 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
     int height = pInfo->FieldHeight;
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = SourceOverscan*  width / (height*  2);
-    left_crop = ((LeftCropping*  width) + 500) / 1000;
-    total_crop = (((LeftCropping + RightCropping)*  width) + 500) / 1000;
-    left = (width + total_crop - 2*  overscan)*  m_LeftBorder / 10000 - left_crop + overscan;
+    overscan = SourceOverscan * width / (height * 2);
+    left_crop = ((LeftCropping * width) + 500) / 1000;
+    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
+    left = (width + total_crop - 2 * overscan) * m_LeftBorder / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -380,7 +384,7 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
     {
         left = width - 1;
     }
-    right = (width + total_crop - 2*  overscan)*  m_RightBorder / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2 * overscan) * m_RightBorder / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -390,8 +394,8 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
         right = width - 1;
     }
     overscan = SourceOverscan;
-    top = (height - overscan)*  m_TopBorder / 10000 + overscan / 2;
-    bottom = (height - overscan)*  m_BottomBorder / 10000 + overscan / 2;
+    top = (height - overscan) * m_TopBorder / 10000 + overscan / 2;
+    bottom = (height - overscan) * m_BottomBorder / 10000 + overscan / 2;
 
     if ((left % 2) == 1)
     {
@@ -822,16 +826,6 @@ CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
 
 void CTestPattern::Draw(BYTE* buffer)
 {
-    // Background
-    for (int i = 0 ; i < m_Height ; i++)
-    {
-        for (int j = 0 ; j < m_Width ; j++)
-        {
-            buffer[i*m_Width*2+j*2  ] = 235;
-            buffer[i*m_Width*2+j*2+1] = 128;
-        }
-    }
-
     // Do the job for each defined color bar
     for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
         it != m_ColorBars.end(); 

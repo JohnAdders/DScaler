@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.68 2002-07-02 20:00:05 adcockj Exp $
+// $Id: DS_Control.h,v 1.69 2002-07-08 13:53:35 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/07/02 20:00:05  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.67  2002/06/24 21:45:42  laurentg
 // New option to use or not WSS data when doing AR detection
 //
@@ -309,6 +312,7 @@ typedef enum
 #define INDEX_VIDEO_GREEDY2FRAME          18
 #define INDEX_VIDEO_GREEDYH               19
 #define INDEX_OLD_GAME                    20
+#define INDEX_VIDEO_TOMSMOCOMP            21
 
 /////////////////////////////////////////////////////////////////////////////
 // Allow callers to convert a WM code to do other operations
@@ -1169,5 +1173,21 @@ typedef enum
 #define WM_ANTIPLOP_GETVALUE     (WM_APP + 43)
 #define WM_ANTIPLOP_SETVALUE     (WM_APP + 143)
 #define WM_ANTIPLOP_CHANGEVALUE  (WM_APP + 243)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in DI_TOMSMOCOMP.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    TOMSMOCOMPSEARCHEFFORT = 0,
+    DI_TOMSMOCOMP_SETTING_LASTONE,
+} DI_TOMSMOCOMP_SETTING;
+
+#define WM_DI_TOMSMOCOMP_GETVALUE     (WM_USER + 42)
+#define WM_DI_TOMSMOCOMP_SETVALUE     (WM_USER + 141)
+#define WM_DI_TOMSMOCOMP_CHANGEVALUE  (WM_USER + 241)
+
+
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.8 2002-07-11 17:41:37 tobbej Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.9 2002-07-19 11:59:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/07/11 17:41:37  tobbej
+// dont allow focus to change if Show() failed
+//
 // Revision 1.7  2002/07/03 00:45:41  laurentg
 // Add a new section in the Change Settings dialog box to set the thread priorities
 //
@@ -61,6 +64,7 @@
 #include "ProgramList.h"
 #include "StillSource.h"
 #include "DScaler.h"
+#include "OSD.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -473,6 +477,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	dlg.AddPage(pPage, Root);
 
     pPage = DScaler_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_ADVANCED);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = OSD_GetTreeSettingsPage();
 	pPage->SetHelpID(IDH_ADVANCED);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);

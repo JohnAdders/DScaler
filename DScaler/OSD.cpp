@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.63 2002-06-13 12:10:22 adcockj Exp $
+// $Id: OSD.cpp,v 1.64 2002-07-19 11:59:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/06/13 12:10:22  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.62  2002/06/02 09:43:23  laurentg
 // Settings restore at end of automatic calibration was broken
 //
@@ -331,6 +334,13 @@ static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
 static BOOL bRestoreScreen = FALSE; // Restore Info screen when clear OSD
 
 BOOL        bOverride = FALSE;
+
+static const char *BackgroundNames[OSDBACK_LASTONE] = 
+{
+    "Transparent",
+    "Block",
+    "Shaded",
+};
 
 //---------------------------------------------------------------------------
 // Clean the list of texts for OSD
@@ -2045,49 +2055,49 @@ BOOL OSD_AutoHide_OnChange(long NewValue)
 SETTING OSDSettings[OSD_SETTING_LASTONE] =
 {
     {
-        "OSD Outline Color", SLIDER, 0, (long*)&OutlineColor,
+        "Outline Color", SLIDER, 0, (long*)&OutlineColor,
          RGB(0,0,0), 0, RGB(255,255,255), 1, 1,
          NULL,
         "OSD", "OutlineColor", NULL,
     },
     {
-        "OSD Text Color", SLIDER, 0, (long*)&TextColor,
+        "Text Color", SLIDER, 0, (long*)&TextColor,
          RGB(0,255,0), 0, RGB(255,255,255), 1, 1,
          NULL,
         "OSD", "TextColor", NULL,
     },
     {
-        "OSD Default Size", SLIDER, 0, (long*)&DefaultSizePerc,
-         10, 0, 100, 1, 1,
+        "Default Size", SLIDER, 0, (long*)&DefaultSizePerc,
+         10, 2, 15, 1, 1,
          NULL,
         "OSD", "DefaultSizePerc", NULL,
     },
     {
-        "OSD Default Small Size", SLIDER, 0, (long*)&DefaultSmallSizePerc,
-         5, 0, 100, 1, 1,
+        "Default Small Size", SLIDER, 0, (long*)&DefaultSmallSizePerc,
+         5, 2, 7, 1, 1,
          NULL,
         "OSD", "DefaultSmallSizePerc", NULL,
     },
     {
-        "OSD Anti Alias", ONOFF, 0, (long*)&bAntiAlias,
+        "Anti Alias", ONOFF, 0, (long*)&bAntiAlias,
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "AntiAlias", NULL,
     },
     {
-        "OSD Background", SLIDER, 0, (long*)&Background,
+        "Background Type", ITEMFROMLIST, 0, (long*)&Background,
          OSDB_TRANSPARENT, 0, OSDBACK_LASTONE - 1, 1, 1,
-         NULL,
+         BackgroundNames,
         "OSD", "Background", NULL,
     },
     {
-        "OSD Outline Text", ONOFF, 0, (long*)&bOutline,
+        "Outline Text", ONOFF, 0, (long*)&bOutline,
          TRUE, 0,  1, 1, 1,
          NULL,
         "OSD", "Outline", NULL,
     },
     {
-        "OSD Auto Hide Texts", ONOFF, 0, (long*)&bAutoHide,
+        "Auto Hide Screens", ONOFF, 0, (long*)&bAutoHide,
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "AutoHide", OSD_AutoHide_OnChange,

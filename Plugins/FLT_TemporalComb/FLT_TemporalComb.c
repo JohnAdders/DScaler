@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.15 2002-10-13 07:42:55 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.16 2002-10-14 01:37:14 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/13 07:42:55  lindsey
+// Changed name of "trade speed for accuracy" to "high quality"
+// Corrected the reported HistoryRequired
+// Removed an unnecessary check for all fields when in "high quality" mode
+//
 // Revision 1.14  2002/08/29 23:52:54  lindsey
 // Corrected comb filter for PAL video
 //
@@ -191,6 +196,10 @@ void            CleanupTemporalComb( void );
 BYTE*           DumbAlignedMalloc(int siz);
 BYTE*           DumbAlignedFree(BYTE* x);
 
+void            UpdateRequiredHistory(void);
+BOOL            ChangeFieldBuffering(long NewValue);
+BOOL            ChangeVideoMode(long NewValue);
+
 __declspec(dllexport) FILTER_METHOD*    GetFilterPluginInfo( long CpuFeatureFlags );
 long            DispatchTemporalComb( TDeinterlaceInfo *pInfo );
 
@@ -312,13 +321,13 @@ static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         "High Quality", ONOFF, 0, &gDoFieldBuffering,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "TCombFilter", "SpeedForAccuracy", NULL,
+        "TCombFilter", "SpeedForAccuracy", ChangeFieldBuffering,
     },
     {
         "Video Mode", ITEMFROMLIST, 0, (LONG*)&gMode,
         MODE_NTSC, MODE_NTSC, MODE_LASTONE -1, 1, 1,
         ModeList,
-        "TCombFilter", "DisplayMode", NULL,
+        "TCombFilter", "DisplayMode", ChangeVideoMode,
     },
 };
 
@@ -344,6 +353,49 @@ static FILTER_METHOD    TemporalCombMethod =
     9,                                      // Required past fields (9 are only necessary with PAL low quality mode)
     IDH_TEMPORAL_COMB,
 };
+
+
+
+// Change the HistoryRequired field to match what is really necessary
+// This is important since DScaler will otherwise skip the filter even when it could
+// really run just fine.
+
+BOOL ChangeFieldBuffering(long NewValue)
+{
+    gDoFieldBuffering = NewValue;
+    UpdateRequiredHistory();
+    return FALSE;
+}
+
+
+BOOL ChangeVideoMode(long NewValue)
+{
+    gMode = NewValue;
+    UpdateRequiredHistory();
+    return FALSE;
+}
+
+
+void UpdateRequiredHistory(void)
+{
+    if(gDoFieldBuffering == TRUE)
+    {
+        TemporalCombMethod.HistoryRequired = 1;
+    }
+    else
+    {
+        if(gMode == MODE_PAL)
+        {
+            TemporalCombMethod.HistoryRequired = 9;
+        }
+        else // gMode == MODE_NTSC
+        {
+            TemporalCombMethod.HistoryRequired = 5;
+        }
+    }
+    return;
+}
+
 
 
 long DispatchTemporalComb( TDeinterlaceInfo *pInfo )
@@ -540,6 +592,7 @@ LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
 
     }
 
+
     // Roll the field history along
 
     pTempBuffer = gppFieldBuffer[kUsedBuffers[gMode] - 1];
@@ -548,6 +601,13 @@ LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
         gppFieldBuffer[Index] = gppFieldBuffer[Index - 1];
     }
     gppFieldBuffer[0] = pTempBuffer;
+
+    // Verify that we have data for this field
+
+    if(pInfo->PictureHistory[0] == NULL)
+    {
+        return 1000;
+    }
 
     // Copy current field to gppFieldBuffer[0] so we can compare against it without feedback
     for(Index = 0; Index < pInfo->FieldHeight; ++Index)

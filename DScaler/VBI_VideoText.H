@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.29 2003-01-02 11:20:24 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.30 2003-01-02 12:03:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,220 +33,96 @@
 // 08 Jan 2001   John Adcock           Global Variable Tidy up
 //                                     Got rid of global.h structs.h defines.h
 //
+// 02 Jan 2003   Atsushi Nakagawa      Redid VBI_VideoText.* to link in
+//                                     with the new and updated CVTDecoder and
+//                                     CVTDrawer classes.  CVS Log entries
+//                                     prior to and including rev 1.27 may
+//                                     no longer have direct validity but
+//                                     their cumulative changes still remain
+//                                     valid.
+//
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __VT_H___
-#define __VT_H___
-
+#ifndef __VBI_VIDEOTEXT_H___
+#define __VBI_VIDEOTEXT_H___
 
 #include "settings.h"
-
-SETTING* VT_GetSetting(VT_SETTING Setting);
-void VT_ReadSettingsFromIni();
-void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void VT_SetMenu(HMENU hMenu);
 
 
 enum eVTState
 {
     VT_OFF,
     VT_BLACK,
-    VT_MIX,
-    VT_LASTSTATE,
+    VT_MIXED
 };
 
-// control bits in a VT header
-enum
-{
-    VTCONTROL_ERASEPAGE     = 1 << 4,
-    VTCONTROL_NEWSFLASH     = 1 << 5,
-    VTCONTROL_SUBTITLE      = 1 << 6,
-    VTCONTROL_SUPRESSHEADER = 1 << 7,
-    VTCONTROL_UPDATE        = 1 << 8,
-    VTCONTROL_INTERRUPTED   = 1 << 9,
-    VTCONTROL_INHIBITDISP   = 1 << 10,
-    VTCONTROL_MAGSERIAL     = 1 << 11,
-    VTCONTROL_RESERVED0     = 1 << 12,
-    VTCONTROL_RESERVED1     = 1 << 13,
-    VTCONTROL_RESERVED2     = 1 << 14,
-};
-
-enum eVTCodePage
-{
-    VT_UK_CODE_PAGE,
-    VT_FRENCH_CODE_PAGE,
-    VT_CZECH_CODE_PAGE,
-    VT_GREEK_CODE_PAGE,
-    VT_RUSSIAN_CODE_PAGE,
-    VT_GERMAN_CODE_PAGE,
-    VT_HUNGARIAN_CODE_PAGE,
-    VT_HEBREW_CODE_PAGE,
-    VT_SWEDISH_CODE_PAGE,
-    VT_ITALIAN_CODE_PAGE,
-    VT_SPANISH_CODE_PAGE,
-    VT_POLISH_CODE_PAGE,
-    VT_CODE_PAGE_LASTONE,
-};
-
-typedef struct
-{
-    // Type 0 data
-    struct
-    {
-        unsigned nMag:3;
-        unsigned nPage:8;
-        unsigned:5; // Unused
-        WORD nSubcode;
-    } HomePage;
-    WORD NetId;
-    struct
-    {
-        char Offset;
-        DWORD JulianDay;
-        BYTE Hour;
-        BYTE Min;
-        BYTE Sec;
-    } UTC;
-    char Unknown[5];
-    char Identifier[21];
-
-    // Type 2 data
-
-    struct
-    {
-        unsigned LCI:2;
-        unsigned LUF:1;
-        unsigned PRF:1;
-        unsigned PCS:2;
-        unsigned MI:1;
-        unsigned day:5;
-        unsigned month:4;
-        unsigned hour:5;
-        unsigned minute:6;
-        unsigned:5;
-        WORD CNI;
-        WORD PTY;
-    } PDC;
-} TPacket30;
-
-#define NUM_FLOF    6
-#define FLOF_RED    0
-#define FLOF_GREEN  1
-#define FLOF_YELLOW 2
-#define FLOF_BLUE   3
-typedef struct tagVTPage
-{
-    WORD wCtrl;
-    BOOL Fill;
-    BYTE Frame[25][40];
-    BYTE LineUpdate[25];
-    BYTE bUpdated;
-    BYTE bFlofUpdated;
-    BYTE CommentaryRow;
-    int FlofPage[NUM_FLOF];
-    int FlofSubPage[NUM_FLOF];
-    unsigned short SubPage;
-    int MostRecentSubPage;
-    unsigned short Page;
-    tagVTPage *Next;
-} TVTPage;
-
-typedef struct 
-{
-    BOOL Line[25];
-    BOOL PageErase;
-} TVTRedrawCache;
-
-#define LARGE_WIDTH 15
-#define LARGE_HEIGHT 18
-
-#define VTTimeout 60000
-
-#define VT_LARGE_BITMAP_HEIGHT (LARGE_HEIGHT*25)
-#define VT_LARGE_BITMAP_WIDTH (LARGE_WIDTH*40)
-
-
-#define ROUNDUP(w) (((w)+3)&~3)
-#define _BitmapDataP(bmp)   (bmp->bmiHeader.biBitCount==8?(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)+sizeof(WORD)*256):(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)))
-#define _BitmapDataR(bmp)   (((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256)
-#define _BitmapPalR(bmp)    ((RGBQUAD*)(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)))
-
-#define _BitmapLargeRowR(bmp,row) (_BitmapDataR(bmp)+ROUNDUP(bmp->bmiHeader.biWidth)*(bmp->bmiHeader.biHeight-(row)*LARGE_HEIGHT))
-#define _BitmapLargeChar(bmp,c) (_BitmapLargeRowR(bmp,(c)/32)+((c)&0x1f)*LARGE_WIDTH)
-
-#define _BitmapLargeRowP(bmp,row) ((_BitmapDataP(bmp))+VT_LARGE_BITMAP_WIDTH*((row)*LARGE_HEIGHT))
-#define _BitmapLargeText(bmp,row,c) (_BitmapLargeRowP(bmp,row)+((c)*LARGE_WIDTH*2))
-
-
-#define _BitmapSmallRowR(bmp,row) (_BitmapDataR(bmp)+ROUNDUP(bmp->bmiHeader.biWidth)*(bmp->bmiHeader.biHeight-(row)*SMALL_HEIGHT))
-#define _BitmapSmallChar(bmp,c) (_BitmapSmallRowR(bmp,(c)/32)+((c)&0x1f)*SMALL_WIDTH)
-
-#define _BitmapSmallRowP(bmp,row) ((_BitmapDataP(bmp))+VT_SMALL_BITMAP_WIDTH*((row)*SMALL_HEIGHT))
-#define _BitmapSmallText(bmp,row,c) (_BitmapSmallRowP(bmp,row)+((c)*SMALL_WIDTH*2))
 
 void VBI_VT_Init();
 void VBI_VT_Exit();
 
-BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-
-BYTE DeHam(BYTE byte);
-BYTE ReverseDeHam(BYTE b);
-void StorePage(BYTE mag, BYTE page);
-void StorePacket30(BYTE* p);
-
-unsigned char unham(unsigned char* d);
-unsigned char unham2(unsigned char* d);
-unsigned char VBI_Scan(BYTE* Buffer, unsigned int step);
-
-void VBI_decode_vt(unsigned char* dat);
-void VBI_decode_line(unsigned char* d, int line);
+void VT_SetState(HDC hDC, LPRECT lpRect, eVTState State);
+eVTState VT_GetState();
 
 void VT_ChannelChange();
 
-void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd);
-void VTS_DecodeLine(BYTE* VBI_Buffer);
-void VT_DoUpdate_Page(int Page, int SubPage);
-void VT_UpdateFlashTimerStatus();
-int VT_MostRecentSubPage(int Page);
-int VT_GetNextPage(int Page);
-int VT_GetPreviousPage(int Page);
-int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle);
-int VT_CompleteSubPages(int Page);
-TVTPage* VT_PageGet(int Page, int SubPage);
+BOOL VT_SetAutoCodepage(HDC hDC, LPRECT lpRect, BOOL bAuto);
+BOOL VT_GetAutoCodepage();
+void VT_SetAntialias(HDC hDC, LPRECT lpRect, BOOL bAntialias);
+BOOL VT_GetAntialias();
+void VT_SetShowHidden(HDC hDC, LPRECT lpRect, BOOL bShowHidden);
+BOOL VT_GetShowHidden();
 
-int VT_MakePage(int mag, int page);
-int VT_MakeHexPage(int mag, int page);
+void VT_SetOverlayColour(COLORREF ColorRef);
 
-bool VT_ContainsUpdatedPage();
-void VT_CreateTestPage();
-void VT_SetPageOSD(HWND hWnd, HDC hDC, int Page, BOOL bShow);
-void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed);
-void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader);
-void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed);
-void VT_ProcessRedrawCache(HWND hWnd, HDC hDC);
-void VT_PurgeRedrawCache();
-void VT_ResetStation();
-LPCSTR VT_GetStation();
-void VT_SetCodePage(eVTCodePage Codepage);
+BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode = 0xFFFF);
+BOOL VT_PageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards);
+BOOL VT_SubPageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards);
+BOOL VT_PerformSearch(HDC hDC, LPRECT lpRect, BOOL bInclusive, BOOL bReverse = FALSE);
+BOOL VT_ShowTestPage(HDC hDC, LPRECT lpRect);
+BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey);
 
-int VT_GetPageNumberAt(int Page, int SubPage, int x, int y);
-int VT_GetFlofPageNumber(int Page, int SubPage, int flof);
+void VT_SetPageOSD(char OSD[3]);
+void VT_SetPageOSD(char OSD[3], BOOL bOSDModeOn);
+void VT_ShowHeader(HDC hDC, LPRECT lpRect, char OSD[3] = NULL);
 
-extern eVTState VTState;
+BOOL VT_IsSearchStringValid(BOOL bBeepOnCorrection = FALSE);
+BOOL VT_IsTransparencyInPage();
 
-extern int VTPage;
-extern int VTSubPage;
-extern bool VTSubPageLocked;
-extern bool VTShowHidden;
-extern bool VTAntiAlias;
+BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput);
+void VT_ClearInput();
+void VT_OnInputTimer(HDC hDC, LPRECT lpRect);
 
-extern int VTSearchPage;
-extern int VTSearchSubPage;
-extern char VTSearchString[41];
+void VT_RedrawFlash(HDC hDC, LPRECT lpRect);
+void VT_Redraw(HDC hDC, LPRECT lpRect, WORD uVTDFFlags = 0);
 
-BOOL VT_SearchAllPages();
-BOOL VT_SearchFrom(int Page, int SubPage);
-BOOL bSearchHighlight_OnChange(long NewValue);
+void VT_ProcessHeaderUpdate(HDC hDC, LPRECT lpRect);
+BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode);
+BOOL VT_ProcessPageRefresh(HDC hDC, LPRECT lpRect, DWORD dwPageCode);
+
+void VT_UpdateFlashTimer();
+
+BOOL VT_ClickAtPosition(HDC hDC, LPRECT lpRect, WORD xPos, WORD yPos);
+BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, LPPOINT lpPoint);
+BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, WORD xPos, WORD yPos);
+
+void VT_GetStation(LPSTR lpBuffer, LONG nLength);
+
+BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
+SETTING* VT_GetSetting(VT_SETTING Setting);
+void VT_ReadSettingsFromIni();
+void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void VT_UpdateMenu(HMENU hMenu);
+void VT_SetMenu(HMENU hMenu);
+
+CTreeSettingsGeneric* VideoText_GetTreeSettingsPage();
+
+BOOL ProcessVTCodepageSelection(HWND hWnd, WORD wMenuID);
+
+BOOL VT_HilightSearchOnChange(long NewValue);
+
+void VBI_DecodeLine_VT(BYTE* VBI_Buffer);
+
 
 #endif

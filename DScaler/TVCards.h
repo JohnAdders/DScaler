@@ -218,10 +218,6 @@ typedef struct
 	BYTE UHF;
 	BYTE config; 
 	WORD IFPCoff;
-	BYTE mode; /* mode change value (tested PHILIPS_SECAM only) */
-			/* 0x01 -> ??? no change ??? */
-			/* 0x02 -> PAL BDGHI / SECAM L */
-			/* 0x04 -> ??? PAL others / SECAM others ??? */
 } TVTUNERSETUP;
 
 TVCARDID Card_AutoDetect();

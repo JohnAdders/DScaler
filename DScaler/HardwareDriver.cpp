@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.11 2002-05-27 07:22:09 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.12 2002-05-27 11:27:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/05/27 07:22:09  robmuller
+// Corrected detection of network drives.
+// Use short file name for driver passed to CreateService().
+//
 // Revision 1.10  2002/05/26 19:04:13  robmuller
 // Implemented debug log level 0 (for critical errors).
 //
@@ -155,14 +159,25 @@ BOOL CHardwareDriver::LoadDriver()
             if(StartService(m_hService, 0, NULL) == FALSE)
             {
                 DWORD Err = GetLastError();
-                if(Err != ERROR_SERVICE_ALREADY_RUNNING)
+                
+                // uninstall the driver if the driver location in the registry is incorrect.
+                if(Err == ERROR_PATH_NOT_FOUND || Err == ERROR_FILE_NOT_FOUND)
                 {
-                    LOG(0, "StartService() failed 0x%X", Err);
+                    LOG(0, "Driver location in the registry is incorrect.0x%X", Err);
+
+                    ErrorBox("Please exit and restart DScaler");
+
+                    UnInstallNTDriver();
                     bError = TRUE;
+                }
+                else if(Err == ERROR_SERVICE_ALREADY_RUNNING)
+                {
+                    LOG(1, "Service already started");
                 }
                 else
                 {
-                    LOG(1, "Service already started");
+                    LOG(0, "StartService() failed 0x%X", Err);
+                    bError = TRUE;
                 }
             }
             if(!bError)
@@ -219,6 +234,7 @@ BOOL CHardwareDriver::LoadDriver()
 
             if(dwVersion != DSDRV_VERSION)
             {
+                ErrorBox("Please exit and restart DScaler");
                 LOG(0, "We've loaded up the wrong version of the driver");
                 bError = TRUE;
 

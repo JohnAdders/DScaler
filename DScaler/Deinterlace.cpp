@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.18 2001-08-02 16:43:05 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.19 2001-08-14 07:06:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.17  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -355,7 +358,7 @@ void IncrementDeinterlaceMode()
     {
         Mode = gFilmPulldownMode;
         Mode++;
-        if(Mode == FILMPULLDOWNMODES_LAST_ONE)
+        if(Mode == FILM_32_PULLDOWN_4 + 1)
         {
             SetVideoDeinterlaceMode(0);
         }
@@ -370,7 +373,7 @@ void IncrementDeinterlaceMode()
         Mode++;
         if(Mode == NumVideoModes)
         {
-            SetFilmDeinterlaceMode(FILM_22_PULLDOWN_ODD);
+            SetFilmDeinterlaceMode((eFilmPulldownMode)(0));
         }
         else
         {
@@ -401,7 +404,7 @@ void DecrementDeinterlaceMode()
         Mode--;
         if(Mode < 0)
         {
-            SetFilmDeinterlaceMode(FILM_32_PULLDOWN_4);
+            SetFilmDeinterlaceMode((eFilmPulldownMode)(FILM_32_PULLDOWN_4));
         }
         else
         {

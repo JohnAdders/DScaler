@@ -35,6 +35,21 @@
 #include "audio.h"
 #include "tvcards.h"
 #include "Status.h"
+#include "resource.h"
+
+BOOL Volume_OnChange(long nVolume);
+BOOL Balance_OnChange(long nBalance);
+BOOL Bass_OnChange(long nBass);
+BOOL Treble_OnChange(long nTreble);
+BOOL Loudness_OnChange(long nLoudness);
+BOOL SuperBass_OnChange(long bSuperBass);
+BOOL Spatial_OnChange(long nSpatial);
+BOOL Equalizer1_OnChange(long nLevel);
+BOOL Equalizer2_OnChange(long nLevel);
+BOOL Equalizer3_OnChange(long nLevel);
+BOOL Equalizer4_OnChange(long nLevel);
+BOOL Equalizer5_OnChange(long nLevel);
+BOOL MSPMode_OnChange(long NewValue);
 
 BYTE AudioDeviceWrite;
 BYTE AudioDeviceRead;
@@ -157,15 +172,257 @@ int MSPMajorMode = 0; // MAE 8 Dec 2000 Added default
 int MSPMinorMode = 0; // MAE 8 Dec 2000 Added default
 BOOL AutoStereoSelect = FALSE; // MAE 8 Dec 2000 Changed default
 
+BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+	static BOOL TSuperBass;
+	static int  TVolume;
+	static char TBalance;
+	static char TSpatial;
+	static char TLoudness;
+	static char TBass;
+	static char TTreble;
+
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		if (Audio_MSP_IsPresent() == FALSE)
+		{
+			ErrorBox("No MSP Audio Device found");
+			EndDialog(hDlg, 0);
+		}
+
+		TVolume = InitialVolume;
+		TSpatial = InitialSpatial;
+		TLoudness = InitialLoudness;
+		TBass = InitialBass;
+		TTreble = InitialTreble;
+		TBalance = InitialBalance;
+		TSuperBass = InitialSuperBass;
+
+		SetDlgItemInt(hDlg, IDC_D1, TVolume, FALSE);
+		SetDlgItemInt(hDlg, IDC_D2, TSpatial, TRUE);
+		SetDlgItemInt(hDlg, IDC_D3, TLoudness, TRUE);
+		SetDlgItemInt(hDlg, IDC_D4, TBass, TRUE);
+		SetDlgItemInt(hDlg, IDC_D5, TTreble, TRUE);
+		SetDlgItemInt(hDlg, IDC_D6, TBalance, TRUE);
+
+		CheckDlgButton(hDlg, IDC_CHECK1, TSuperBass);
+
+		Setting_SetupSlider(Audio_GetSetting(VOLUME), GetDlgItem(hDlg, IDC_SLIDER1));
+		Setting_SetupSlider(Audio_GetSetting(SPATIAL), GetDlgItem(hDlg, IDC_SLIDER2));
+		Setting_SetupSlider(Audio_GetSetting(LOUDNESS), GetDlgItem(hDlg, IDC_SLIDER3));
+		Setting_SetupSlider(Audio_GetSetting(BASS), GetDlgItem(hDlg, IDC_SLIDER4));
+		Setting_SetupSlider(Audio_GetSetting(TREBLE), GetDlgItem(hDlg, IDC_SLIDER5));
+		Setting_SetupSlider(Audio_GetSetting(BALANCE), GetDlgItem(hDlg, IDC_SLIDER6));
+
+		break;
+
+	case WM_VSCROLL:
+	case WM_HSCROLL:
+		if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER1))
+		{
+			Setting_SetFromControl(Audio_GetSetting(VOLUME), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D1, Setting_GetValue(Audio_GetSetting(VOLUME)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER2))
+		{
+			Setting_SetFromControl(Audio_GetSetting(SPATIAL), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D2, Setting_GetValue(Audio_GetSetting(SPATIAL)), FALSE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER3))
+		{
+			Setting_SetFromControl(Audio_GetSetting(LOUDNESS), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D3, Setting_GetValue(Audio_GetSetting(LOUDNESS)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
+		{
+			Setting_SetFromControl(Audio_GetSetting(BASS), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D4, Setting_GetValue(Audio_GetSetting(BASS)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
+		{
+			Setting_SetFromControl(Audio_GetSetting(TREBLE), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D5, Setting_GetValue(Audio_GetSetting(TREBLE)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER6))
+		{
+			Setting_SetFromControl(Audio_GetSetting(BALANCE), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D5, Setting_GetValue(Audio_GetSetting(BALANCE)), TRUE);
+		}
+		break;
+	case WM_COMMAND:
+		switch(LOWORD(wParam))
+		{
+		case IDC_CHECK1:
+			SuperBass_OnChange(IsDlgButtonChecked(hDlg, IDC_CHECK1));
+			break;
+
+		case IDOK:
+			EndDialog(hDlg, TRUE);
+			break;
+		
+		case IDCANCEL:
+			Audio_SetSource(AUDIOMUX_MUTE);
+			SuperBass_OnChange(TSuperBass);
+			Volume_OnChange(TVolume);
+			Spatial_OnChange(TSpatial);
+			Loudness_OnChange(TLoudness);
+			Bass_OnChange(TBass);
+			Treble_OnChange(TTreble);
+			Balance_OnChange(TBalance);
+			Audio_SetSource(AudioSource);
+			EndDialog(hDlg, TRUE);
+			break;
+		
+		case IDDEFAULT:
+			Audio_SetSource(AUDIOMUX_MUTE);
+			Setting_SetDefault(Audio_GetSetting(VOLUME));
+			Setting_SetDefault(Audio_GetSetting(SPATIAL));
+			Setting_SetDefault(Audio_GetSetting(LOUDNESS));
+			Setting_SetDefault(Audio_GetSetting(BASS));
+			Setting_SetDefault(Audio_GetSetting(TREBLE));
+			Setting_SetDefault(Audio_GetSetting(BALANCE));
+			Setting_SetDefault(Audio_GetSetting(SUPERBASS));
+
+			Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK1), InitialSuperBass?BST_CHECKED:BST_UNCHECKED);
+			SetDlgItemInt(hDlg, IDC_D1, InitialVolume, FALSE);
+			SetDlgItemInt(hDlg, IDC_D2, InitialSpatial, TRUE);
+			SetDlgItemInt(hDlg, IDC_D3, InitialLoudness, TRUE);
+			SetDlgItemInt(hDlg, IDC_D4, InitialBass, TRUE);
+			SetDlgItemInt(hDlg, IDC_D5, InitialTreble, TRUE);
+			SetDlgItemInt(hDlg, IDC_D6, InitialBalance, TRUE);
+
+			Setting_SetControlValue(Audio_GetSetting(VOLUME), GetDlgItem(hDlg, IDC_SLIDER1));
+			Setting_SetControlValue(Audio_GetSetting(SPATIAL), GetDlgItem(hDlg, IDC_SLIDER2));
+			Setting_SetControlValue(Audio_GetSetting(LOUDNESS), GetDlgItem(hDlg, IDC_SLIDER3));
+			Setting_SetControlValue(Audio_GetSetting(BASS), GetDlgItem(hDlg, IDC_SLIDER4));
+			Setting_SetControlValue(Audio_GetSetting(TREBLE), GetDlgItem(hDlg, IDC_SLIDER5));
+			Setting_SetControlValue(Audio_GetSetting(BALANCE), GetDlgItem(hDlg, IDC_SLIDER6));
+
+			Audio_SetSource(AudioSource);
+			break;
+		default:
+			break;
+
+		}
+		break;
+	}
+
+	return (FALSE);
+}
+
+BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+	static char TEqualizer[5] = { 0, 0, 0, 0, 0};
+	int i;
+
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		if (Audio_MSP_IsPresent() == FALSE)
+		{
+			ErrorBox("No MSP Audio Device found");
+			EndDialog(hDlg, 0);
+		}
+
+		for (i = 0; i < 5; i++)
+		{
+			Setting_SetupSlider(Audio_GetSetting((AUDIO_SETTING)(MSPEQ1 + i)), GetDlgItem(hDlg, IDC_SLIDER1 + i));
+			TEqualizer[i] = InitialEqualizer[i];
+		}
+		break;
+	case WM_VSCROLL:
+	case WM_HSCROLL:
+		if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER1))
+		{
+			Setting_SetFromControl(Audio_GetSetting(MSPEQ1), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D1, Setting_GetValue(Audio_GetSetting(MSPEQ1)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER2))
+		{
+			Setting_SetFromControl(Audio_GetSetting(MSPEQ2), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D2, Setting_GetValue(Audio_GetSetting(MSPEQ2)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER3))
+		{
+			Setting_SetFromControl(Audio_GetSetting(MSPEQ3), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D3, Setting_GetValue(Audio_GetSetting(MSPEQ3)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
+		{
+			Setting_SetFromControl(Audio_GetSetting(MSPEQ4), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D4, Setting_GetValue(Audio_GetSetting(MSPEQ4)), TRUE);
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
+		{
+			Setting_SetFromControl(Audio_GetSetting(MSPEQ5), (HWND)lParam);
+			SetDlgItemInt(hDlg, IDC_D5, Setting_GetValue(Audio_GetSetting(MSPEQ5)), TRUE);
+		}
+		break;
+
+	case WM_COMMAND:
+		switch(LOWORD(wParam))
+		{
+		case IDOK:
+			EndDialog(hDlg, TRUE);
+			break;
+
+		case IDCANCEL:
+			Audio_SetSource(AUDIOMUX_MUTE);
+			Equalizer1_OnChange(TEqualizer[0]);
+			Equalizer2_OnChange(TEqualizer[1]);
+			Equalizer3_OnChange(TEqualizer[2]);
+			Equalizer4_OnChange(TEqualizer[3]);
+			Equalizer5_OnChange(TEqualizer[4]);
+			Audio_SetSource(AudioSource);
+			EndDialog(hDlg, TRUE);
+			break;
+
+		case IDDEFAULT:
+			Audio_SetSource(AUDIOMUX_MUTE);
+
+			Setting_SetDefault(Audio_GetSetting(MSPEQ1));
+			Setting_SetDefault(Audio_GetSetting(MSPEQ2));
+			Setting_SetDefault(Audio_GetSetting(MSPEQ3));
+			Setting_SetDefault(Audio_GetSetting(MSPEQ4));
+			Setting_SetDefault(Audio_GetSetting(MSPEQ5));
+
+			SetDlgItemInt(hDlg, IDC_D1, InitialEqualizer[0], TRUE);
+			SetDlgItemInt(hDlg, IDC_D2, InitialEqualizer[1], TRUE);
+			SetDlgItemInt(hDlg, IDC_D3, InitialEqualizer[2], TRUE);
+			SetDlgItemInt(hDlg, IDC_D4, InitialEqualizer[3], TRUE);
+			SetDlgItemInt(hDlg, IDC_D5, InitialEqualizer[4], TRUE);
+
+			Setting_SetControlValue(Audio_GetSetting(MSPEQ1), GetDlgItem(hDlg, IDC_SLIDER1));
+			Setting_SetControlValue(Audio_GetSetting(MSPEQ2), GetDlgItem(hDlg, IDC_SLIDER2));
+			Setting_SetControlValue(Audio_GetSetting(MSPEQ3), GetDlgItem(hDlg, IDC_SLIDER3));
+			Setting_SetControlValue(Audio_GetSetting(MSPEQ4), GetDlgItem(hDlg, IDC_SLIDER4));
+			Setting_SetControlValue(Audio_GetSetting(MSPEQ5), GetDlgItem(hDlg, IDC_SLIDER5));
+
+			Audio_SetSource(AudioSource);
+			break;
+		}
+
+		break;
+	}
+
+	return (FALSE);
+}
+
 // MAE Added 8 Dec 200 
-BOOL Audio_Mute(void)
+void Audio_Mute(void)
 {
 	int nVolume;
 	nVolume = MulDiv(400, 0x7f0, 1400);
 	WriteDSP(0, nVolume << 4);
 	WriteDSP(6, nVolume << 4);
-	return TRUE;
 }
+
+void Audio_Unmute(void)
+{
+	Volume_OnChange(InitialVolume);
+}
+
 
 BOOL Audio_SetSource(AUDIOMUXTYPE nChannel)
 {
@@ -224,8 +481,6 @@ const char* Audio_MSP_VersionString()
 
 BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
 {
-	int i;
-
 	AudioDeviceWrite = DWrite;
 	AudioDeviceRead = DRead;
 
@@ -262,24 +517,24 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
 	}
 	else
 	{
-		Audio_MSP_SetMode(MSPMode);
+		MSPMode_OnChange(MSPMode);
 		Sleep(4);
 		Audio_MSP_Set_MajorMinor_Mode(MSPMajorMode, MSPMinorMode);
 		Sleep(4);
 	}
 
-	Audio_SetVolume(InitialVolume);
-	Audio_SetBalance(InitialBalance);
-	Audio_SetSuperBass(InitialSuperBass);
-	Audio_SetBass(InitialBass);
-	Audio_SetTreble(InitialTreble);
-	Audio_SetLoudness(InitialLoudness);
-	Audio_SetSpatial(InitialSpatial);
-	for(i = 0; i < 5; i++)
-	{
-		Audio_SetEqualizer(i, InitialEqualizer[i]);
-	}
-
+	Volume_OnChange(InitialVolume);
+	Balance_OnChange(InitialBalance);
+	SuperBass_OnChange(InitialSuperBass);
+	Bass_OnChange(InitialBass);
+	Treble_OnChange(InitialTreble);
+	Loudness_OnChange(InitialLoudness);
+	Spatial_OnChange(InitialSpatial);
+	Equalizer1_OnChange(InitialEqualizer[0]);
+	Equalizer2_OnChange(InitialEqualizer[1]);
+	Equalizer3_OnChange(InitialEqualizer[2]);
+	Equalizer4_OnChange(InitialEqualizer[3]);
+	Equalizer5_OnChange(InitialEqualizer[4]);
 	Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, MSPStereo);
 
 	return (TRUE);
@@ -332,7 +587,7 @@ WORD Audio_ReadMSP(BYTE bSubAddr, WORD wAddr)
 	return wResult;
 }
 
-BOOL Audio_SetVolume(int nVolume)
+BOOL Volume_OnChange(long nVolume)
 {
 	Audio_SetToneControl();
 	if (nVolume < 0 || nVolume > 1000)
@@ -343,19 +598,19 @@ BOOL Audio_SetVolume(int nVolume)
 	WriteDSP(0, nVolume << 4);
 	WriteDSP(6, nVolume << 4);
 
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetBalance(char nBalance)
+BOOL Balance_OnChange(long nBalance)
 {
 	Audio_SetToneControl();
 	InitialBalance = nBalance;
 	WriteDSP(1, nBalance << 8);
 	WriteDSP(0x30, nBalance << 8);
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetBass(char nBass)
+BOOL Bass_OnChange(long nBass)
 {
 	Audio_SetToneControl();
 	if (nBass < -96)
@@ -363,10 +618,10 @@ BOOL Audio_SetBass(char nBass)
 	InitialBass = nBass;
 	WriteDSP(2, nBass << 8);
 	WriteDSP(0x31, nBass << 8);
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetTreble(char nTreble)
+BOOL Treble_OnChange(long nTreble)
 {
 	Audio_SetToneControl();
 	if (nTreble < -96)
@@ -374,10 +629,10 @@ BOOL Audio_SetTreble(char nTreble)
 	InitialTreble = nTreble;
 	WriteDSP(3, nTreble << 8);
 	WriteDSP(0x32, nTreble << 8);
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetLoudness(BYTE nLoudness)
+BOOL Loudness_OnChange(long nLoudness)
 {
 	Audio_SetToneControl();
 	if (nLoudness > 68)
@@ -385,34 +640,74 @@ BOOL Audio_SetLoudness(BYTE nLoudness)
 	InitialLoudness = nLoudness;
 	WriteDSP(4, (nLoudness << 8) + (InitialSuperBass ? 0x4 : 0));
 	WriteDSP(0x33, (nLoudness << 8) + (InitialSuperBass ? 0x4 : 0));
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetSuperBass(BOOL bSuperBass)
+BOOL SuperBass_OnChange(long bSuperBass)
 {
 	Audio_SetToneControl();
 	InitialSuperBass = bSuperBass;
 	WriteDSP(4, (InitialLoudness << 8) + (bSuperBass ? 0x4 : 0));
 	WriteDSP(0x33, (InitialLoudness << 8) + (bSuperBass ? 0x4 : 0));
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetSpatial(char nSpatial)
+BOOL Spatial_OnChange(long nSpatial)
 {
 	Audio_SetToneControl();
 	InitialSpatial = nSpatial;
 	WriteDSP(0x5, (nSpatial << 8) + 0x8);	// Mode A, Automatic high pass gain
-	return TRUE;
+	return FALSE;
 }
 
-BOOL Audio_SetEqualizer(int nIndex, char nLevel)
+BOOL Equalizer1_OnChange(long nLevel)
 {
 	Audio_SetToneControl();
 	if (nLevel < -96 || nLevel > 96)
 		return FALSE;
-	InitialEqualizer[nIndex] = nLevel;
-	WriteDSP(0x21 + nIndex, nLevel << 8);
-	return TRUE;
+	InitialEqualizer[0] = nLevel;
+	WriteDSP(0x21, nLevel << 8);
+	return FALSE;
+}
+
+BOOL Equalizer2_OnChange(long nLevel)
+{
+	Audio_SetToneControl();
+	if (nLevel < -96 || nLevel > 96)
+		return FALSE;
+	InitialEqualizer[1] = nLevel;
+	WriteDSP(0x22, nLevel << 8);
+	return FALSE;
+}
+
+BOOL Equalizer3_OnChange(long nLevel)
+{
+	Audio_SetToneControl();
+	if (nLevel < -96 || nLevel > 96)
+		return FALSE;
+	InitialEqualizer[2] = nLevel;
+	WriteDSP(0x23, nLevel << 8);
+	return FALSE;
+}
+
+BOOL Equalizer4_OnChange(long nLevel)
+{
+	Audio_SetToneControl();
+	if (nLevel < -96 || nLevel > 96)
+		return FALSE;
+	InitialEqualizer[3] = nLevel;
+	WriteDSP(0x24, nLevel << 8);
+	return FALSE;
+}
+
+BOOL Equalizer5_OnChange(long nLevel)
+{
+	Audio_SetToneControl();
+	if (nLevel < -96 || nLevel > 96)
+		return FALSE;
+	InitialEqualizer[4] = nLevel;
+	WriteDSP(0x25, nLevel << 8);
+	return FALSE;
 }
 
 void Audio_SetToneControl()
@@ -463,37 +758,37 @@ void Audio_MSP_SetCarrier(int cdo1, int cdo2)
 	WriteDem(0x56, 0);
 }
 
-void Audio_MSP_SetMode(int type)
+BOOL MSPMode_OnChange(long NewValue)
 {
 	int i;
 
-	MSPMode = type;
+	MSPMode = NewValue;
 
-	WriteDem(0xbb, MSP_init_data[type].ad_cv);
+	WriteDem(0xbb, MSP_init_data[MSPMode].ad_cv);
 
 	for (i = 5; i >= 0; i--)
-		WriteDem(0x01, MSP_init_data[type].fir1[i]);
+		WriteDem(0x01, MSP_init_data[MSPMode].fir1[i]);
 
 	WriteDem(0x05, 0x0004);		/* fir 2 */
 	WriteDem(0x05, 0x0040);
 	WriteDem(0x05, 0x0000);
 
 	for (i = 5; i >= 0; i--)
-		WriteDem(0x05, MSP_init_data[type].fir2[i]);
+		WriteDem(0x05, MSP_init_data[MSPMode].fir2[i]);
 
-	WriteDem(0x83, MSP_init_data[type].mode_reg);
+	WriteDem(0x83, MSP_init_data[MSPMode].mode_reg);
 
-	Audio_MSP_SetCarrier(MSP_init_data[type].cdo1, MSP_init_data[type].cdo2);
+	Audio_MSP_SetCarrier(MSP_init_data[MSPMode].cdo1, MSP_init_data[MSPMode].cdo2);
 
-	WriteDSP(0x08, MSP_init_data[type].dfp_src);
-	WriteDSP(0x09, MSP_init_data[type].dfp_src);
-	WriteDSP(0x0a, MSP_init_data[type].dfp_src);
-	WriteDSP(0x0e, MSP_init_data[type].dfp_matrix);
+	WriteDSP(0x08, MSP_init_data[MSPMode].dfp_src);
+	WriteDSP(0x09, MSP_init_data[MSPMode].dfp_src);
+	WriteDSP(0x0a, MSP_init_data[MSPMode].dfp_src);
+	WriteDSP(0x0e, MSP_init_data[MSPMode].dfp_matrix);
 
-// msp3410 needs some more initialization
+	// msp3410 needs some more initialization
 	if (MSPNicam)
 		WriteDSP(0x10, 0x5a00);
-
+	return FALSE;
 }
 
 void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
@@ -754,7 +1049,7 @@ void Audio_MSP_Watch_Mode()
 	int val;
 	int newstereo = MSPStereo;
 	
-	if(!Has_MSP) return;
+	if(!Has_MSP || !AutoStereoSelect) return;
 
 	Sleep(2);
 	switch (MSPMode)
@@ -801,3 +1096,209 @@ void Audio_MSP_Watch_Mode()
 	}
 }
 
+BOOL AudioSource_OnChange(long NewValue)
+{
+	AudioSource = (AUDIOMUXTYPE)NewValue;
+	Audio_SetSource(AudioSource);
+	return FALSE;
+}
+
+BOOL MSPMajorMode_OnChange(long NewValue)
+{
+	Audio_MSP_Set_MajorMinor_Mode(NewValue, MSPMinorMode);
+	return FALSE;
+}
+
+BOOL MSPMinorMode_OnChange(long NewValue)
+{
+	Audio_MSP_Set_MajorMinor_Mode(MSPMajorMode, NewValue);
+	return FALSE;
+}
+
+BOOL MSPStereo_OnChange(long NewValue)
+{
+	Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, NewValue);
+	return FALSE;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// Start of Settings related code
+/////////////////////////////////////////////////////////////////////////////
+SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
+{
+	{
+		"AudioSource", SLIDER, 0, (long*)&AudioSource,
+		AUDIOMUX_MUTE, AUDIOMUX_TUNER, AUDIOMUX_STEREO, 1, 1,
+		NULL,
+		"Sound", "AudioSource", AudioSource_OnChange,
+	},
+	{
+		"MSPMode", SLIDER, 0, (long*)&MSPMode,
+		MSP_MODE_FM_TERRA, MSP_MODE_AM_DETECT, MSP_MODE_FM_NICAM2, 1, 1,
+		NULL,
+		"MSP", "MSPMode", MSPMode_OnChange,
+	},
+	{
+		"MSPMajorMode", SLIDER, 0, (long*)&MSPMajorMode,
+		0, 0, 3, 1, 1,
+		NULL,
+		"MSP", "MSPMajorMode", MSPMajorMode_OnChange,
+	},
+	{
+		"MSPMinorMode", SLIDER, 0, (long*)&MSPMinorMode,
+		0, 0, 7, 1, 1,
+		NULL,
+		"MSP", "MSPMinorMode", MSPMinorMode_OnChange,
+	},
+	{
+		"MSPStereo", SLIDER, 0, (long*)&MSPStereo,
+		VIDEO_SOUND_STEREO, VIDEO_SOUND_MONO, VIDEO_SOUND_LANG2, 1, 1,
+		NULL,
+		"MSP", "MSPStereo", MSPStereo_OnChange,
+	},
+	{
+		"AutoStereoSelect", SLIDER, 0, (long*)&AutoStereoSelect,
+		FALSE, 0, 1, 1, 1,
+		NULL,
+		"MSP", "MSPStereo", NULL,
+	},
+	{
+		"Volume", SLIDER, 0, (long*)&InitialVolume,
+		900, 0, 1000, 20, 1,
+		NULL,
+		"MSP", "Volume", Volume_OnChange,
+	},
+	{
+		"Spatial", SLIDER, 0, (long*)&InitialSpatial,
+		0, -127, 128, 1, 1,
+		NULL,
+		"MSP", "Spatial", Spatial_OnChange,
+	},
+	{
+		"Loudness", SLIDER, 0, (long*)&InitialLoudness,
+		0, 0, 68, 1, 1,
+		NULL,
+		"MSP", "Loudness", Loudness_OnChange,
+	},
+	{
+		"Bass", SLIDER, 0, (long*)&InitialBass,
+		0, -96, 127, 1, 1,
+		NULL,
+		"MSP", "Bass", Bass_OnChange,
+	},
+	{
+		"Treble", SLIDER, 0, (long*)&InitialTreble,
+		0, -96, 127, 1, 1,
+		NULL,
+		"MSP", "Treble", Treble_OnChange,
+	},
+	{
+		"Balance", SLIDER, 0, (long*)&InitialBalance,
+		0, -127, 128, 1, 1,
+		NULL,
+		"MSP", "Balance", Balance_OnChange,
+	},
+	{
+		"SuperBass", SLIDER, 0, (long*)&InitialSuperBass,
+		FALSE, 0, 1, 1, 1,
+		NULL,
+		"MSP", "SuperBass", SuperBass_OnChange,
+	},
+	{
+		"Equalizer 1", SLIDER, 0, (long*)&InitialEqualizer[0],
+		0, -69, 69, 1, 1,
+		NULL,
+		"MSP", "Equalizer 1", Equalizer1_OnChange,
+	},
+	{
+		"Equalizer 2", SLIDER, 0, (long*)&InitialEqualizer[1],
+		0, -69, 69, 1, 1,
+		NULL,
+		"MSP", "Equalizer 2", Equalizer2_OnChange,
+	},
+	{
+		"Equalizer 3", SLIDER, 0, (long*)&InitialEqualizer[2],
+		0, -69, 69, 1, 1,
+		NULL,
+		"MSP", "Equalizer 3", Equalizer3_OnChange,
+	},
+	{
+		"Equalizer 4", SLIDER, 0, (long*)&InitialEqualizer[3],
+		0, -69, 69, 1, 1,
+		NULL,
+		"MSP", "Equalizer 4", Equalizer4_OnChange,
+	},
+	{
+		"Equalizer 5", SLIDER, 0, (long*)&InitialEqualizer[4],
+		0, -69, 69, 1, 1,
+		NULL,
+		"MSP", "Equalizer 5", Equalizer5_OnChange,
+	},
+};
+
+SETTING* Audio_GetSetting(AUDIO_SETTING Setting)
+{
+	if(Setting > -1 && Setting < AUDIO_SETTING_LASTONE)
+	{
+		return &(AudioSettings[Setting]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void Audio_ReadSettingsFromIni()
+{
+	int i;
+	for(i = 0; i < AUDIO_SETTING_LASTONE; i++)
+	{
+		Setting_ReadFromIni(&(AudioSettings[i]));
+	}
+}
+
+void Audio_WriteSettingsToIni()
+{
+	int i;
+	for(i = 0; i < AUDIO_SETTING_LASTONE; i++)
+	{
+		Setting_WriteToIni(&(AudioSettings[i]));
+	}
+}
+
+void Audio_SetMenu(HMENU hMenu)
+{
+	CheckMenuItem(hMenu, IDM_AUDIO_0, (AudioSource == 0)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_AUDIO_1, (AudioSource == 1)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_AUDIO_2, (AudioSource == 2)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_AUDIO_3, (AudioSource == 3)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_AUDIO_4, (AudioSource == 4)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_AUDIO_5, (AudioSource == 5)?MF_CHECKED:MF_UNCHECKED);
+
+	CheckMenuItem(hMenu, IDM_MSPMODE_2, (MSPMode == 2)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPMODE_3, (MSPMode == 3)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPMODE_4, (MSPMode == 4)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPMODE_5, (MSPMode == 5)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPMODE_6, (MSPMode == 6)?MF_CHECKED:MF_UNCHECKED);
+
+	CheckMenuItem(hMenu, IDM_MSPSTEREO_1, (MSPStereo == 1)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPSTEREO_2, (MSPStereo == 2)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPSTEREO_3, (MSPStereo == 3)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MSPSTEREO_4, (MSPStereo == 4)?MF_CHECKED:MF_UNCHECKED);
+
+	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_0, (MSPMajorMode == 0)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_1, (MSPMajorMode == 1)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_2, (MSPMajorMode == 2)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_3, (MSPMajorMode == 3)?MF_CHECKED:MF_UNCHECKED);
+
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_0, (MSPMinorMode == 0)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_1, (MSPMinorMode == 1)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_2, (MSPMinorMode == 2)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_3, (MSPMinorMode == 3)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_4, (MSPMinorMode == 4)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_5, (MSPMinorMode == 5)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_6, (MSPMinorMode == 6)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_7, (MSPMinorMode == 7)?MF_CHECKED:MF_UNCHECKED);
+
+	CheckMenuItem(hMenu, IDM_AUTOSTEREO,        AutoStereoSelect?MF_CHECKED:MF_UNCHECKED);
+}

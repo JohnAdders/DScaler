@@ -178,6 +178,18 @@ TFileWithSettings Settings[] =
         Channels_ReadSettingsFromIni,
         Channels_WriteSettingsToIni,
     },
+    {
+        WM_AUDIO_GETVALUE,
+        (GENERICGETSETTING*)Audio_GetSetting,
+        Audio_ReadSettingsFromIni,
+        Audio_WriteSettingsToIni,
+    },
+    {
+        WM_DEBUG_GETVALUE,
+        (GENERICGETSETTING*)Debug_GetSetting,
+        Debug_ReadSettingsFromIni,
+        Debug_WriteSettingsToIni,
+    },
 };
 
 #define NUMSETTINGS (sizeof(Settings)/ sizeof(TFileWithSettings))
@@ -205,41 +217,10 @@ LPCSTR GetIniFileForSettings()
 
 void LoadSettingsFromIni()
 {
-	char szKey[128];
-	int i;
-
-    for(i = 0; i < NUMSETTINGS; ++i)
+    for(int i(0); i < NUMSETTINGS; ++i)
     {
         Settings[i].pfnReadSettings();
     }
-
-	GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, szIniFile);
-	DebugLogEnabled = GetPrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
-
-	Capture_VBI = (GetPrivateProfileInt("Show", "CaptureVBI", Capture_VBI, szIniFile) != 0);  
-
-	AudioSource = (AUDIOMUXTYPE)GetPrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
-		
-	bSaveSettings = (GetPrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile) != 0);
-
-	MSPMode = GetPrivateProfileInt("MSP", "MSPMode", MSPMode, szIniFile);	
-	MSPMajorMode = GetPrivateProfileInt("MSP", "MSPMajorMode", MSPMajorMode, szIniFile);	
-	MSPMinorMode = GetPrivateProfileInt("MSP", "MSPMinorMode", MSPMinorMode, szIniFile);	
-	MSPStereo = GetPrivateProfileInt("MSP", "MSPStereo", MSPStereo, szIniFile);	
-	AutoStereoSelect = (GetPrivateProfileInt("MSP", "MSPAutoStereo", AutoStereoSelect, szIniFile) != 0);	
-	InitialVolume = GetPrivateProfileInt("MSP", "Volume", InitialVolume, szIniFile);	
-	InitialSpatial = GetPrivateProfileInt("MSP", "Spatial", InitialSpatial, szIniFile);	
-	InitialLoudness = GetPrivateProfileInt("MSP", "Loudness", InitialLoudness, szIniFile);	
-	InitialBass = GetPrivateProfileInt("MSP", "Bass", InitialBass, szIniFile);	
-	InitialTreble = GetPrivateProfileInt("MSP", "Treble", InitialTreble, szIniFile);	
-	InitialBalance = GetPrivateProfileInt("MSP", "Balance", InitialBalance, szIniFile);	
-	InitialSuperBass = (GetPrivateProfileInt("MSP", "SuperBass", InitialSuperBass, szIniFile) != 0);	
-
-	for(i = 0; i < 5; i++)
-	{
-		sprintf(szKey, "Equalizer%d", i + 1);
-		InitialEqualizer[i] = GetPrivateProfileInt("MSP", szKey, 0, szIniFile);
-	}
 }
 
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
@@ -272,45 +253,14 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 
 void WriteSettingsToIni()
 {
-	char szKey[128];
-	int i;
-
-    for(i = 0; i < NUMSETTINGS; ++i)
+    for(int i(0); i < NUMSETTINGS; ++i)
     {
         Settings[i].pfnWriteSettings();
     }
 
 	Deinterlace_WriteSettingsToIni();
 	Filter_WriteSettingsToIni();
-
-	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, szIniFile);
-	WritePrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
-
-	WritePrivateProfileInt("Show", "CaptureVBI", Capture_VBI, szIniFile);
-
-	WritePrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
-
-	WritePrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile);
-
-	WritePrivateProfileInt("MSP", "MSPMode", MSPMode, szIniFile);	
-	WritePrivateProfileInt("MSP", "MSPMajorMode", MSPMajorMode, szIniFile);	
-	WritePrivateProfileInt("MSP", "MSPMinorMode", MSPMinorMode, szIniFile);	
-	WritePrivateProfileInt("MSP", "MSPStereo", MSPStereo, szIniFile);	
-	WritePrivateProfileInt("MSP", "MSPAutoStereo", AutoStereoSelect, szIniFile);	
-	WritePrivateProfileInt("MSP", "Volume", InitialVolume, szIniFile);	
-	WritePrivateProfileInt("MSP", "Spatial", InitialSpatial, szIniFile);	
-	WritePrivateProfileInt("MSP", "Loudness", InitialLoudness, szIniFile);	
-	WritePrivateProfileInt("MSP", "Bass", InitialBass, szIniFile);	
-	WritePrivateProfileInt("MSP", "Treble", InitialTreble, szIniFile);	
-	WritePrivateProfileInt("MSP", "Balance", InitialBalance, szIniFile);	
-	WritePrivateProfileInt("MSP", "SuperBass", InitialSuperBass, szIniFile);	
-
-	for(i = 0; i < 5; i++)
-	{
-		sprintf(szKey, "Equalizer%d", i + 1);
-		WritePrivateProfileInt("MSP", szKey, InitialEqualizer[i], szIniFile);
-	}
-   
+  
 	// These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
     

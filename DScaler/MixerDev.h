@@ -44,6 +44,8 @@
 SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting);
 void MixerDev_ReadSettingsFromIni();
 void MixerDev_WriteSettingsToIni();
+void MixerDev_SetMenu(HMENU hMenu);
+
 
 class CMixerLineSource
 {

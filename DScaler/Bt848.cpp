@@ -98,8 +98,6 @@ char BTVendorID[10] = "";
 char BTDeviceID[10] = "";
 char BTChipType[10] = "";
 
-BOOL bSaveSettings = FALSE;
-
 // MAE 2 Nov 2000 - Start of change for Macrovision fix
 // If non-zero in .ini file, will override TV table setting
 long InitialBDelay = 0x00;  // Original hardware default value was 0x5D
@@ -358,11 +356,6 @@ BOOL BT848_FindTVCard(HWND hWnd)
 	if (ret != 0)
 	{
 		return (FALSE);
-	}
-
-	if (bSaveSettings == TRUE)
-	{
-		BT848_SaveSettings("Setting.BT");
 	}
 
 	return (TRUE);

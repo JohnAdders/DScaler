@@ -804,3 +804,9 @@ void MixerDev_WriteSettingsToIni()
 		Setting_WriteToIni(&(MixerDevSettings[i]));
 	}
 }
+
+
+void MixerDev_SetMenu(HMENU hMenu)
+{
+	CheckMenuItem(hMenu, IDM_MUTE,    bSystemInMute?MF_CHECKED:MF_UNCHECKED);
+}

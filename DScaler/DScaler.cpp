@@ -788,7 +788,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				// JA 8 Jan 20001 Changed to use function
 				if (Audio_MSP_IsPresent())
 				{
-					Audio_SetVolume(InitialVolume);
+					Audio_Unmute();
 				}
 				// MAE 8 Dec 2000 End of change
 				ShowText(hWnd,"UNMUTE");
@@ -798,32 +798,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_L_BALANCE:
 			if (bUseMixer == FALSE)
 			{
-				if (InitialBalance > -127)
-					InitialBalance--;
-				Audio_SetBalance(InitialBalance);	// -127 - +128
-				sprintf(Text, "BT-Balance %d", InitialBalance);
+				Setting_Down(Audio_GetSetting(BALANCE));
+				sprintf(Text, "BT-Balance %d", Setting_GetValue(Audio_GetSetting(BALANCE)));
+				ShowText(hWnd, Text);
 			}
-			ShowText(hWnd, Text);
 			break;
 
 		case IDM_R_BALANCE:
 			if (bUseMixer == FALSE)
 			{
-				if (InitialBalance < 128)
-					InitialBalance++;
-				Audio_SetBalance(InitialBalance);	// -127 - +128
-				sprintf(Text, "BT-Balance %d", InitialBalance);
+				Setting_Up(Audio_GetSetting(BALANCE));
+				sprintf(Text, "BT-Balance %d", Setting_GetValue(Audio_GetSetting(BALANCE)));
+				ShowText(hWnd, Text);
 			}
-			ShowText(hWnd, Text);
 			break;
 
 		case IDM_VOLUMEPLUS:
 			if (bUseMixer == FALSE)
 			{
-				if (InitialVolume < 1000)
-					InitialVolume += 20;
-				Audio_SetVolume(InitialVolume);
-				sprintf(Text, "BT-Volume %d", InitialVolume / 10);
+				Setting_Up(Audio_GetSetting(VOLUME));
+				sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
 			}
 			else
 			{
@@ -836,10 +830,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VOLUMEMINUS:
 			if (bUseMixer == FALSE)
 			{
-				if (InitialVolume > 20)
-					InitialVolume -= 20;
-				Audio_SetVolume(InitialVolume);
-				sprintf(Text, "BT-Volume %d", InitialVolume / 10);
+				Setting_Down(Audio_GetSetting(VOLUME));
+				sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
 			}
 			else
 			{
@@ -872,14 +864,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_MSPMODE_4:
 		case IDM_MSPMODE_5:
 		case IDM_MSPMODE_6:
-			Audio_MSP_SetMode(LOWORD(wParam) - (IDM_MSPMODE_2 - 2));
+			Setting_SetValue(Audio_GetSetting(MSPMODE), LOWORD(wParam) - (IDM_MSPMODE_2 - 2));
 			break;
 
 		case IDM_MAJOR_CARRIER_0:
 		case IDM_MAJOR_CARRIER_1:
 		case IDM_MAJOR_CARRIER_2:
 		case IDM_MAJOR_CARRIER_3:
-			Audio_MSP_Set_MajorMinor_Mode(LOWORD(wParam) - IDM_MAJOR_CARRIER_0, MSPMinorMode);
+			Setting_SetValue(Audio_GetSetting(MSPMAJORMODE), LOWORD(wParam) - IDM_MAJOR_CARRIER_0);
 			break;
 
 		case IDM_MINOR_CARRIER_0:
@@ -890,18 +882,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_MINOR_CARRIER_5:
 		case IDM_MINOR_CARRIER_6:
 		case IDM_MINOR_CARRIER_7:
-			Audio_MSP_Set_MajorMinor_Mode(MSPMajorMode, LOWORD(wParam) - IDM_MINOR_CARRIER_0);
+			Setting_SetValue(Audio_GetSetting(MSPMINORMODE), LOWORD(wParam) - IDM_MINOR_CARRIER_0);
 			break;
 
 		case IDM_MSPSTEREO_1:
 		case IDM_MSPSTEREO_2:
 		case IDM_MSPSTEREO_3:
 		case IDM_MSPSTEREO_4:
-			Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, LOWORD(wParam) - (IDM_MSPSTEREO_1 - 1));
+			Setting_SetValue(Audio_GetSetting(MSPSTEREO), LOWORD(wParam) - (IDM_MSPSTEREO_1 - 1));
 			break;
 
 		case IDM_AUTOSTEREO:
-			AutoStereoSelect = !AutoStereoSelect;
+			Setting_SetValue(Audio_GetSetting(AUTOSTEREOSELECT), 
+				!Setting_GetValue(Audio_GetSetting(AUTOSTEREOSELECT)));
 			break;
 
 		case IDM_AUDIO_0:
@@ -1473,8 +1466,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_MSP:
 			if (bDisplayStatusBar == TRUE)
 				Audio_MSP_Print_Mode();
-			if (AutoStereoSelect == TRUE)
-				Audio_MSP_Watch_Mode();
+			Audio_MSP_Watch_Mode();
             break;
         //-------------------------------
         case TIMER_STATUS:
@@ -1814,7 +1806,7 @@ void MainWndOnInitBT(HWND hWnd)
 		if (Audio_MSP_Init(0x80, 0x81) == TRUE)
 		{
 			AddSplashTextLine("MSP Device OK");
-			Audio_SetVolume(InitialVolume);
+			Audio_Unmute();
 		}
 		else
 		{
@@ -2056,45 +2048,11 @@ void SetMenuAnalog()
 	CheckMenuItem(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1)?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2)?MF_CHECKED:MF_UNCHECKED);
 
-	CheckMenuItem(hMenu, IDM_MUTE,    bSystemInMute?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUDIO_0, (AudioSource == 0)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUDIO_1, (AudioSource == 1)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUDIO_2, (AudioSource == 2)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUDIO_3, (AudioSource == 3)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUDIO_4, (AudioSource == 4)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUDIO_5, (AudioSource == 5)?MF_CHECKED:MF_UNCHECKED);
-
-	CheckMenuItem(hMenu, IDM_MSPMODE_2, (MSPMode == 2)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPMODE_3, (MSPMode == 3)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPMODE_4, (MSPMode == 4)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPMODE_5, (MSPMode == 5)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPMODE_6, (MSPMode == 6)?MF_CHECKED:MF_UNCHECKED);
-
-	CheckMenuItem(hMenu, IDM_MSPSTEREO_1, (MSPStereo == 1)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPSTEREO_2, (MSPStereo == 2)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPSTEREO_3, (MSPStereo == 3)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MSPSTEREO_4, (MSPStereo == 4)?MF_CHECKED:MF_UNCHECKED);
-
-	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_0, (MSPMajorMode == 0)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_1, (MSPMajorMode == 1)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_2, (MSPMajorMode == 2)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_3, (MSPMajorMode == 3)?MF_CHECKED:MF_UNCHECKED);
-
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_0, (MSPMinorMode == 0)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_1, (MSPMinorMode == 1)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_2, (MSPMinorMode == 2)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_3, (MSPMinorMode == 3)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_4, (MSPMinorMode == 4)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_5, (MSPMinorMode == 5)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_6, (MSPMinorMode == 6)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_7, (MSPMinorMode == 7)?MF_CHECKED:MF_UNCHECKED);
-
 	CheckMenuItem(hMenu, IDM_TOGGLECURSOR,      bShowCursor?MF_CHECKED:MF_UNCHECKED);
 	EnableMenuItem(hMenu,IDM_TOGGLECURSOR,      bAutoHideCursor?MF_GRAYED:MF_ENABLED);
 	CheckMenuItem(hMenu, IDM_AUTOHIDE_CURSOR,   bAutoHideCursor?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_STATUSBAR,         bDisplayStatusBar?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_ON_TOP,            bAlwaysOnTop?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_AUTOSTEREO,        AutoStereoSelect?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUTOHIDE_OSD,      Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN))?MF_CHECKED:MF_UNCHECKED);
 
@@ -2110,6 +2068,8 @@ void SetMenuAnalog()
 	OSD_SetMenu(hMenu);
 	FD_Common_SetMenu(hMenu);
 	Timing_SetMenu(hMenu);
+	MixerDev_SetMenu(hMenu);
+	Audio_SetMenu(hMenu);
 }
 
 HMENU GetFiltersSubmenu()

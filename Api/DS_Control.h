@@ -314,7 +314,6 @@ typedef enum
 	WAITFORFLIP,
 	DOACCURATEFLIPS,
 	AUTODETECT,
-	PULLDOWNMODE_DEPRECATED,
 	REFRESHRATE,
 	WAITFORVSYNC,
 	REVERSEPOLARITY,
@@ -705,5 +704,50 @@ typedef enum
 #define WM_CHANNELS_GETVALUE			(WM_USER + 27)
 #define WM_CHANNELS_SETVALUE			(WM_USER + 127)
 #define WM_CHANNELS_CHANGEVALUE	        (WM_USER + 227)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in Audio.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	AUDIOSOURCE = 0,
+	MSPMODE,
+	MSPMAJORMODE,
+	MSPMINORMODE,
+	MSPSTEREO,
+	AUTOSTEREOSELECT,
+	VOLUME,
+	SPATIAL,
+	LOUDNESS,
+	BASS,
+	TREBLE,
+	BALANCE,
+	SUPERBASS,
+	MSPEQ1,
+	MSPEQ2,
+	MSPEQ3,
+	MSPEQ4,
+	MSPEQ5,
+	AUDIO_SETTING_LASTONE,
+} AUDIO_SETTING;
+
+#define WM_AUDIO_GETVALUE				(WM_USER + 28)
+#define WM_AUDIO_SETVALUE				(WM_USER + 128)
+#define WM_AUDIO_CHANGEVALUE	        (WM_USER + 228)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in Debug.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	DEBUGLOG = 0,
+	DEBUG_SETTING_LASTONE,
+} DEBUG_SETTING;
+
+#define WM_DEBUG_GETVALUE				(WM_USER + 29)
+#define WM_DEBUG_SETVALUE				(WM_USER + 129)
+#define WM_DEBUG_CHANGEVALUE	        (WM_USER + 229)
 
 #endif

@@ -34,6 +34,15 @@
 #ifndef __AUDIO_H___
 #define __AUDIO_H___
 
+#include "settings.h"
+
+// Get Hold of the Audio.cpp file settings
+SETTING* Audio_GetSetting(AUDIO_SETTING Setting);
+void Audio_ReadSettingsFromIni();
+void Audio_WriteSettingsToIni();
+void Audio_SetMenu(HMENU hMenu);
+
+
 typedef enum
 {
 	AUDIOMUX_TUNER = 0,
@@ -44,20 +53,16 @@ typedef enum
 	AUDIOMUX_STEREO
 } AUDIOMUXTYPE;
 
+BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
 BOOL Audio_SetSource(AUDIOMUXTYPE nChannel);
 void Audio_Autodetect();
 BOOL Audio_WriteMSP(BYTE bSubAddr, int wAddr, int wData);
-BOOL Audio_SetVolume(int nVolume);
-BOOL Audio_SetBalance(char nBalance);
-BOOL Audio_SetBass(char nBass);
-BOOL Audio_SetTreble(char nTreble);
-BOOL Audio_SetLoudness(BYTE nLoudness);
-BOOL Audio_SetSpatial(char nSpatial);
-BOOL Audio_SetSuperBass(BOOL bSuperBass);
 void Audio_SetToneControl();
-BOOL Audio_SetEqualizer(int nIndex, char nLevel);
 int Audio_GetStereoMode(BOOL bHardwareMode);
-BOOL Audio_Mute(void); // MAE 8 Dec 2000
+void Audio_Mute(void); // MAE 8 Dec 2000
+void Audio_Unmute(void);
 
 BOOL Audio_MSP_Init(BYTE DRead, BYTE DWrite);
 BOOL Audio_MSP_IsPresent();
@@ -66,7 +71,6 @@ const char* Audio_MSP_VersionString();
 BOOL Audio_MSP_Reset();
 BOOL Audio_MSP_Version();
 void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode);
-void Audio_MSP_SetMode(int type);
 void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode);
 void Audio_MSP_Watch_Mode();
 void Audio_MSP_Print_Mode();
@@ -96,22 +100,6 @@ BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
 /* This macro is allowed for *constants* only, gcc must calculate it
    at compile time.  Remember -- no floats in kernel mode */
 #define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
-
-extern BOOL AutoStereoSelect;
-
-extern int InitialVolume;
-extern char InitialBalance;
-extern char InitialLoudness;
-extern char InitialBass;
-extern char InitialTreble;
-extern BOOL InitialSuperBass;
-extern char InitialEqualizer[5];
-extern char InitialSpatial;
-
-extern int MSPMajorMode;
-extern int MSPMinorMode;
-extern int MSPMode;
-extern int MSPStereo;
 
 extern AUDIOMUXTYPE AudioSource;
 

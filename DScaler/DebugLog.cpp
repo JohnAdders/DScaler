@@ -55,3 +55,48 @@ LOGD(LPCSTR format, ...)
 }
 
 
+////////////////////////////////////////////////////////////////////////////
+// Start of Settings related code
+/////////////////////////////////////////////////////////////////////////////
+SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
+{
+	{
+		"Debug Log", ONOFF, 0, (long*)&DebugLogEnabled,
+		FALSE, 0, 1, 1, 1,
+		NULL,
+		"Files", "DebugLogEnabled", NULL,
+	},
+};
+
+SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
+{
+	if(Setting > -1 && Setting < DEBUG_SETTING_LASTONE)
+	{
+		return &(DebugSettings[Setting]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void Debug_ReadSettingsFromIni()
+{
+	int i;
+	for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
+	{
+		Setting_ReadFromIni(&(DebugSettings[i]));
+	}
+
+	GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
+}
+
+void Debug_WriteSettingsToIni()
+{
+	int i;
+	for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
+	{
+		Setting_WriteToIni(&(DebugSettings[i]));
+	}
+	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
+}

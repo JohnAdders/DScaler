@@ -495,7 +495,6 @@ void BT848_SaveSettings(LPCSTR szFileName);
 
 #define VBI_SPL 2044
 
-extern BOOL bSaveSettings;
 extern BYTE* pDisplay[5];
 extern BYTE* pVBILines[5];
 

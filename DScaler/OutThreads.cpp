@@ -755,13 +755,6 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 		NULL,
 		"Pulldown", "bAutoDetectMode", NULL,
 	},
-	// don't use gPulldownMethiod anymore
-	{
-		NULL, ITEMFROMLIST, 0, NULL,
-		0, 0, 0, 1, 1,
-		NULL,
-		NULL, NULL, NULL,
-	},
 	{
 		"Refresh Rate", SLIDER, 0, (long*)&RefreshRate,
 		0, 0, 120, 1, 1,

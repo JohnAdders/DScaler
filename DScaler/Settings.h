@@ -62,7 +62,6 @@ void Setting_Down(SETTING* pSetting);
 void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue);
 void Setting_SetSection(SETTING* pSetting, LPSTR NewValue);
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
-
 // End of new UI code header
 
 void SetIniFileForSettings(LPSTR Name);

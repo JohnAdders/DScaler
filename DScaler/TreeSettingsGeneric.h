@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.6 2002-09-28 13:34:36 kooiman Exp $
+// $Id: TreeSettingsGeneric.h,v 1.7 2002-10-15 15:04:01 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +61,7 @@ public:
      * @param count size of settings array
 	 */
     CTreeSettingsGeneric(CString name,SETTING* settings,long count);
+    CTreeSettingsGeneric(CString name,SETTINGEX* settings,long count);
     CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> settings); 
     ~CTreeSettingsGeneric();
 
@@ -110,16 +111,16 @@ protected:
 	afx_msg void OnCheckAudioInputClick();
 	afx_msg void OnCheckVideoFormatClick();
 	afx_msg void OnCheckChannelClick();
+    afx_msg void OnSize(UINT nType, int cx, int cy);
 	//}}AFX_MSG
     DECLARE_MESSAGE_MAP()
 	void OnOK();
 private:
     void UpdateControls();
-    long m_SettingsCount;
-    vector<SETTING*> m_Settings;
-	vector<SETTINGEXPLUS*> m_SettingsExPlus;
-    vector<CSimpleSetting*> m_CSettings;
+    long m_SettingsCount;    
+    CSettingsHolderStandAlone m_Settings;
     long m_CurrentSetting;
+    BOOL m_DeleteSettingsOnExit;
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.14 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Source.cpp,v 1.15 2001-12-16 10:14:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.13  2001/12/03 19:33:59  adcockj
 // Bug fixes for settings and memory
 //
@@ -520,6 +523,8 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FieldHeight = m_CurrentY / 2;
     pInfo->InputPitch = 4096;
 
+    Timing_IncrementUsedFields();
+
     // auto input detect
     Timimg_AutoFormatDetect(pInfo);
 }
@@ -790,7 +795,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
-        LOG(1, " Dropped Frame");
+        LOG(2, " Dropped Frame");
         Timing_Reset();
     }
 

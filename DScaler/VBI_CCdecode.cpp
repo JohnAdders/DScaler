@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.11 2001-11-23 10:49:17 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.12 2002-11-28 21:29:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.10  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -416,7 +419,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
         b1 = data & 0x7f;
         b2 = (data>>8) & 0x7f;
 
-        if (b1&0x60 && data != LastCode) // text
+        if (b1&0x60) // text (characters not repeated)
         {
             if(bCaptureText)
             {
@@ -429,6 +432,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                 }
                 else 
                 {
+					// Not enough room - Shift characters over one row
                     for(x = 1; x < CC_CHARS_PER_LINE;x++)
                     {
                         memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
@@ -450,6 +454,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     }
                     else 
                     {
+					    // Not enough room - Shift characters over one row
                         for(x = 1; x < CC_CHARS_PER_LINE;x++)
                         {
                             memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
@@ -463,7 +468,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                 bPaintNow = (ScreenToWrite == 0);
             }
         }
-        else if ((b1&0x10) && (b2>0x1F) && (data != LastCode)) //codes are always transmitted twice (apparently not, ignore the second occurance)
+        else if ((b1&0x10) && (b2>0x1F) && (data != LastCode)) //codes are always transmitted twice (ignore the second occurance)
         {
             // if we have been asked for the other channel
             // need to ignore any text that follows
@@ -481,10 +486,10 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     // reset state
                     memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
 
-                    // row inofrmation ignored in text Mode
+                    // row information ignored in text Mode
                     if(Mode != ROLL_UP)
                     {
-                        CursorRow = RowData[((b1<<1)&14)|((b2>>5)&1)];
+                        CursorRow = RowData[((b1<<1)&0x0E)|((b2>>5)&0x01)];
                     }
                     
                     CursorPos = 0;
@@ -497,9 +502,9 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     {
                         //row contains indent flag
                         CurrentState.ForeColor = CC_WHITE;
-                        CursorPos = b2&0x0E << 1; 
+                        CursorPos = (b2&0x0E) << 1; 
                         // there seems to be a problem with the pop on captions
-                        // when you get the second or thrid line of data
+                        // when you get the second or third line of data
 
                         for(x=0; x<CursorPos; x++)
                         {
@@ -510,13 +515,13 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     else
                     {
                         // get color and indent Info
-                        if(b2&0x0E >> 1 == 0x8)
+                        if(((b2&0x0E) >> 1) == 0x07)
                         {
                             CurrentState.bItalics = TRUE;
                         }
                         else
                         {
-                            CurrentState.ForeColor = (eCCColor)(b2&0x0E >> 1);
+                            CurrentState.ForeColor = (eCCColor)((b2&0x0E) >> 1);
                         }
                     }
                 }               
@@ -528,7 +533,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     case 0x00:  //attribute
                         if(bCaptureText == TRUE)
                         {
-                            CurrentState.BackColor = (eCCColor)(b2&0x0E >> 1);
+                            CurrentState.BackColor = (eCCColor)((b2&0x0E) >> 1);
                             memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = ' ';
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
@@ -546,7 +551,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                             CurrentState.bItalics = TRUE;
                                             break;
                                         default:
-                                            CurrentState.ForeColor = (eCCColor)(b2&0x0E >> 1);
+                                            CurrentState.ForeColor = (eCCColor)((b2&0x0E) >> 1);
                                             CurrentState.bItalics = FALSE;
                                             break;
                                     }
@@ -576,7 +581,8 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             {
                                 ScreenToWrite = 1;
                                 Mode = POP_ON;
-                                memset(&Screens[1],0,sizeof(TCCScreen));
+								// Only reset on the first pop_on command
+                                if (!bCaptureText) memset(&Screens[1],0,sizeof(TCCScreen));
                                 memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 14;
@@ -636,14 +642,13 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             }
                             break;
 
-                        // reset screen becase we've gone into paint on Mode
+                        // reset screen because we've gone into paint on Mode
                         case 0x29: //resume direct caption
                             if(CaptionMode)
                             {
                                 ScreenToWrite = 0;
                                 Mode = PAINT_ON;
                                 memset(&Screens[0],0,sizeof(TCCScreen));
-                                ScreenToWrite = 0;
                                 memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 14;
@@ -701,7 +706,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                     }
                                     else
                                     {
-                                        for(x = 14 - ModeRows; x < 14; x++)
+                                        for(x = 14 - ModeRows + 1; x < 14; x++)
                                         {
                                             memcpy(Screens[ScreenToWrite].ScreenData[x], Screens[ScreenToWrite].ScreenData[x + 1], CC_CHARS_PER_LINE * sizeof(TCCChar));
                                         }
@@ -834,9 +839,9 @@ COLORREF CC_GetColor(eCCColor Color)
     case CC_RED:
         return RGB(255,0,0);
     case CC_YELLOW:
-        return RGB(0,255,255);
+        return RGB(255,255,0);
     case CC_MAGENTA:
-        return RGB(0,128,128);
+        return RGB(255,0,255);
     case CC_BLACK:
         return RGB(0,0,0);
     default:

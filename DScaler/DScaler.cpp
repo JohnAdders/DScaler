@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.368 2005-03-04 20:23:33 laurentg Exp $
+// $Id: DScaler.cpp,v 1.369 2005-03-04 20:40:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.368  2005/03/04 20:23:33  laurentg
+// Message box added when exiting and snapshots are only in memory
+//
 // Revision 1.367  2004/12/25 22:40:18  to_see
 // Changed the card list to an ini file
 //
@@ -3878,7 +3881,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				req.type = REQ_STILL;
 				req.param1 = 1;
 				PutRequest(&req);
-                SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 1000, NULL);
+				// The setting value is changed from a number of seconds to a number of 1/10 of seconds
+                SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 100, NULL);
             }
             break;
 

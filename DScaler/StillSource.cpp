@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.103 2005-03-04 20:23:34 laurentg Exp $
+// $Id: StillSource.cpp,v 1.104 2005-03-04 20:40:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2005/03/04 20:23:34  laurentg
+// Message box added when exiting and snapshots are only in memory
+//
 // Revision 1.102  2004/08/31 15:54:57  adcockj
 // Patch from emu
 //
@@ -2177,8 +2180,8 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
         "Pattern", "PatternWidth", Pattern_Width_OnChange,
     },
     {
-        "Delay between stills", SLIDER, 0, (long*)&DelayBetweenStills,
-         60, 1, 3600, 1, 1,
+        "Delay between stills (1/10 seconds", SLIDER, 0, (long*)&DelayBetweenStills,
+         600, 1, 36000, 1, 1,
          NULL,
         "Still", "DelayBetweenStills", NULL,
     },

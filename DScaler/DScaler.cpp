@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.204 2002-08-02 18:56:27 robmuller Exp $
+// $Id: DScaler.cpp,v 1.205 2002-08-02 21:59:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.204  2002/08/02 18:56:27  robmuller
+// 'EasyMove' feature added.
+//
 // Revision 1.203  2002/07/31 20:23:54  laurentg
 // no message
 //
@@ -670,6 +673,7 @@ long WStyle;
 
 BOOL    bShowMenu=TRUE;
 HMENU   hMenu;
+HMENU   hSubMenuChannels = NULL;
 HACCEL  hAccel;
 
 char ChannelString[10];
@@ -942,6 +946,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
     hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_DSCALERMENU));
 
+    hSubMenuChannels = GetSubMenuWithName(hMenu, 2, "&Channels");
+
 
     // 2000-10-31 Added by Mark: Changed to WS_POPUP for more cosmetic direct-to-full-screen startup,
     // let UpdateWindowState() handle initialization of windowed dTV instead.
@@ -1026,6 +1032,7 @@ HMENU CreateDScalerPopupMenu()
         MENUITEMINFO MenuItemInfo;
         HMENU hSubMenu;
         char string[128];
+        int reduc1;
 
         // update the name of the source
         if(GetMenuString(hMenu, 1, string, sizeof(string), MF_BYPOSITION) != 0)
@@ -1058,7 +1065,11 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,2, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 3, "&View");
+        string[0] = '\0';
+        GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+        reduc1 = !strcmp(string, "&Channels") ? 0 : 1;
+
+        hSubMenu = GetSubMenuWithName(hMenu, 3-reduc1, "&View");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -1079,21 +1090,21 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 6, "S&ettings");
+        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, "S&ettings");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,6, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 7, "Ac&tions");
+        hSubMenu = GetSubMenuWithName(hMenu, 7-reduc1, "Ac&tions");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,7, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 8, "&Datacasting");
+        hSubMenu = GetSubMenuWithName(hMenu, 8-reduc1, "&Datacasting");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -3058,7 +3069,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 int MenuIndex = 0;
 
                 // first get the right name for the chosen input
-                hSubMenu = GetSubMenu(hMenu, 6);
+                hSubMenu = GetSubMenu(hMenu, 1);
                 hSubMenu = GetSubMenuWithName(hSubMenu, 0, "Video &Input");
                 if(hSubMenu != NULL)
                 {
@@ -3719,7 +3730,13 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
 
 HMENU GetFiltersSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 5, "&Filters");
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+
+    HMENU hmenu = GetSubMenuWithName(hMenu, 5-reduc, "&Filters");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3728,7 +3745,13 @@ HMENU GetFiltersSubmenu()
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 4, "Deinter&lace");
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+
+    HMENU hmenu = GetSubMenuWithName(hMenu, 4-reduc, "Deinter&lace");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3736,15 +3759,20 @@ HMENU GetVideoDeinterlaceSubmenu()
 
 HMENU GetChannelsSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 2, "&Channels");
-    ASSERT(hmenu != NULL);
+    ASSERT(hSubMenuChannels != NULL);
 
-    return hmenu;
+    return hSubMenuChannels;
 }
 
 HMENU GetOSDSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 3, "&View");
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+
+    HMENU hmenu = GetSubMenuWithName(hMenu, 3-reduc, "&View");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3752,7 +3780,13 @@ HMENU GetOSDSubmenu()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(6, 1, 0, "Test &Patterns");
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+
+    HMENU hmenu = GetOrCreateSubSubSubMenu(6-reduc, 1, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

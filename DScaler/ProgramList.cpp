@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.64 2002-08-02 20:33:52 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.65 2002-08-02 21:59:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/08/02 20:33:52  laurentg
+// Menu for channels without inactive channels and cut on several columns
+//
 // Revision 1.63  2002/08/02 19:33:24  robmuller
 // Hide disabled channels from the menu.
 //
@@ -1588,10 +1591,10 @@ void Channels_SetMenu(HMENU hMenu)
     BOOL bHasTuner = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->HasTuner() : FALSE;
     BOOL bInTunerMode = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->IsInTunerMode() : FALSE;
 
-    EnableMenuItem(hMenu, IDM_CHANNELPLUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenuChannels, IDM_CHANNELPLUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenuChannels, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenuChannels, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenuChannels, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
 
     i = j = 0;
     for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
@@ -1603,6 +1606,25 @@ void Channels_SetMenu(HMENU hMenu)
             j++;
         }
         i++;
+    }
+
+    // Hide the menu "Channels" from the menu bar
+    // when the source has no tuner or when the tuner
+    // is not the selected input
+    HMENU hSubMenu = GetSubMenu(hMenu, 2);
+    if (!bHasTuner || !bInTunerMode)
+    {
+        if (hSubMenu == hMenuChannels)
+        {
+            RemoveMenu(hMenu, 2, MF_BYPOSITION);
+        }
+    }
+    else
+    {
+        if (hSubMenu != hMenuChannels)
+        {
+            InsertMenu(hMenu, 2, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)hMenuChannels, "&Channels");
+        }
     }
 }
 

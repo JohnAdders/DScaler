@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.47 2002-09-18 11:38:05 kooiman Exp $
+// $Id: AspectGUI.cpp,v 1.48 2002-10-15 18:56:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/09/18 11:38:05  kooiman
+// Preparations for skinned dscaler look.
+//
 // Revision 1.46  2002/08/13 19:35:01  laurentg
 // Change menu label to "Non Anamorphic" and "Anamorphic" when AR autodetection is ON
 //
@@ -544,7 +547,14 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         else
         {
-            sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            if (AspectSettings.ZoomFactorX < 100)
+            {
+                sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            }
+            else
+            {
+                sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            }
             ShowText(hWnd, Text);
         }
         break;
@@ -562,12 +572,27 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomFactorX = 1000;
         }
-        AspectSettings.ZoomFactorY += 50;
+
+        if(AspectSettings.ZoomFactorY >= 50)
+        {
+            AspectSettings.ZoomFactorY += 50;
+        }
+        else
+        {
+            AspectSettings.ZoomFactorY = 50;
+        }        
         if (AspectSettings.ZoomFactorY > 1000)
         {
             AspectSettings.ZoomFactorY = 1000;
         }
-        sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
+        if (AspectSettings.ZoomFactorX < 100)
+        {
+            sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+        }
+        else
+        {
+            sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
+        }
         ShowText(hWnd, Text);
         break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.15 2001-08-14 11:36:03 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.16 2001-08-18 17:24:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/08/14 11:36:03  adcockj
+// Mixer change to allow restore of initial mixer settings
+//
 // Revision 1.14  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -360,7 +363,6 @@ void CMixer::ResetToOriginal()
         {
             m_DestLines[i]->ResetToOriginal();
         }
-        free(m_DestLines);
     }
 }
 
@@ -376,6 +378,7 @@ CSoundSystem::~CSoundSystem()
     if(m_Mixer != NULL)
     {
         delete m_Mixer;
+        m_Mixer = NULL;
     }
 }
 

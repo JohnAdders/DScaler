@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.94 2005-03-06 00:35:26 robmuller Exp $
+// $Id: SAA7134Source.cpp,v 1.95 2005-03-06 15:53:03 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2005/03/06 00:35:26  robmuller
+// Changed default value for automatic volume leveling.
+//
 // Revision 1.93  2004/11/20 14:23:55  atnak
 // Added SAA7134 card name setting for storing the card selection as text.
 //
@@ -1325,6 +1328,13 @@ void CSAA7134Source::SetupCard()
         // try to detect the card
         m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());
         m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)m_CardType->GetValue()));
+
+		// Synchronize m_CardName to match the auto-detected m_CardType value.
+		if (m_CardType->GetValue() != SAA7134CARDID_UNKNOWN)
+		{
+			m_CardName->SetValue(reinterpret_cast<long>(
+				m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
+		}
 
         // then display the hardware setup dialog
         m_bSelectCardCancelButton = FALSE;

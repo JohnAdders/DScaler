@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.18 2002-03-25 20:37:29 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.19 2003-01-01 20:56:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/03/25 20:37:29  adcockj
+// Changed support page
+//
 // Revision 1.17  2002/03/11 22:28:38  robmuller
 // Set cursor to hand cursor when over a URL.
 //
@@ -199,31 +202,6 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     return (FALSE);
 }
 
-BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        ShowVPSInfo = hDlg;
-        SetTimer(hDlg, 100, 1000, NULL);
-        break;
-    case WM_TIMER:
-        SetDlgItemInt(hDlg, IDC_VBI_FPS, VBIFPS, FALSE);
-        break;
-
-    case WM_COMMAND:
-        if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
-        {
-            ShowVPSInfo = NULL;
-            KillTimer(hDlg, 100);
-            EndDialog(hDlg, TRUE);
-        }
-        break;
-    }
-
-    return (FALSE);
-}
 
 LPCSTR GetProductNameAndVersion()
 {

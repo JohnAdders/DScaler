@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.13 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Audio.cpp,v 1.14 2001-08-02 07:45:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.12  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -1300,10 +1303,10 @@ SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
         "MSP", "MSPStereo", MSPStereo_OnChange,
     },
     {
-        "AutoStereoSelect", SLIDER, 0, (long*)&AutoStereoSelect,
+        "Auto Stereo Select", YESNO, 0, (long*)&AutoStereoSelect,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "MSP", "MSPStereo", NULL,
+        "MSP", "AutoStereoSelect", NULL,
     },
     {
         "Volume", SLIDER, 0, (long*)&InitialVolume,

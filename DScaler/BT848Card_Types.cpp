@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.24 2002-09-12 21:58:13 ittarnavsky Exp $
+// $Id: BT848Card_Types.cpp,v 1.25 2002-10-11 13:35:49 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/09/12 21:58:13  ittarnavsky
+// Added new card AventMedia TVPhone Old
+// Changes due to the new AudioDecoder handling
+//
 // Revision 1.23  2002/09/11 18:19:36  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -4016,7 +4020,31 @@ eTVCardId CBT848Card::AutoDetectCardType()
         {
             if (m_AutoDectect878[i].ID  == Id)
             {
-                return m_AutoDectect878[i].CardId;
+                //Try to detect PRO models
+                eTVCardId CardID = m_AutoDectect878[i].CardId;
+                switch (CardID)
+                {
+                case TVCARD_MIRO:                
+                    if (AutoDetectMSP3400())
+                    {
+                         CardID = TVCARD_MIROPRO;
+                    }
+                    break;
+                case TVCARD_PINNACLERAVE:
+                    if (AutoDetectMSP3400())
+                    {
+                         CardID = TVCARD_PINNACLEPRO;
+                    }
+                    break;
+                case TVCARD_FLYVIDEO2000:                            
+                    //if (TDA9874)
+                    //{
+                    //     CardID = TVCARD_FLYVIDEO2000S;
+                    //}
+                    break;
+                }
+                
+                return CardID;
             }
         }
     }
@@ -4038,6 +4066,57 @@ eTVCardId CBT848Card::AutoDetectCardType()
     return TVCARD_UNKNOWN;
 }
 
+#define I2C_MSP3400C_0 0x80
+
+bool CBT848Card::AutoDetectMSP3400()
+{
+    BYTE writebf[4];
+	BYTE readbf[3];
+    
+    bool HasMSP34xx = false;
+
+    writebf[0] = I2C_MSP3400C_0; //address
+			
+    if (m_I2CBus->Read(writebf, 1, readbf, 1))
+    {
+     	// It´s responding ... Try a better check!
+		// Reset MSP!
+
+        static BYTE reset_off[4] = { I2C_MSP3400C_0, 0x00, 0x80, 0x00 };
+        static BYTE reset_on[4]  = { I2C_MSP3400C_0, 0x00, 0x00, 0x00 };	
+        
+        m_I2CBus->Write(reset_off, 4);		
+		if (m_I2CBus->Write(reset_on, 4)) 
+        {
+			// If Reset went ok, Get revision            			
+            writebf[1] = 0x12 + 1;       //DFP
+			writebf[2] = 0x1e >> 8;
+			writebf[3] = 0x1e & 0xff;            
+            if (m_I2CBus->Read(writebf, 4, readbf, 2))
+            {
+				WORD rev1;
+                WORD rev2;
+
+                rev1 = ( WORD(readbf[0]) << 8) | readbf[1] ;
+				writebf[2] = 0x1f >> 8;
+				writebf[3] = 0x1f & 0xff;
+				if (m_I2CBus->Read(writebf, 4, readbf, 2))
+                {
+					rev2 = ( WORD(readbf[0]) << 8) | readbf[1] ;
+					if ( (rev1 != rev2) || (rev1 != 0 && rev1 != 0xFFFF) ) 
+                    {
+						// Revision seems to be OK! ... Accept!
+						HasMSP34xx = true;					
+					}
+				}
+			}
+		}
+	}
+    return HasMSP34xx;
+}
+
+#undef I2C_MSP3400C_0
+        
 void CBT848Card::RSBTCardInputSelect(int nInput)
 {
     StandardBT848InputSelect(nInput);

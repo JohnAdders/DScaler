@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.10 2002-10-16 21:42:36 kooiman Exp $
+// $Id: MT2032.cpp,v 1.11 2002-10-31 21:42:56 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/16 21:42:36  kooiman
+// Created seperate class for External IF Demodulator chips like TDA9887
+//
 // Revision 1.9  2002/10/11 13:38:14  kooiman
 // Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
 //
@@ -550,7 +553,10 @@ eTunerAFCStatus CMT2032::GetAFCStatus(long &nFreqDeviation)
                 nFreqDeviation = 100000 * ((int)result - 2);
                 AFCStatus = TUNER_AFC_CARRIER;
             }
-            AFCStatus = TUNER_AFC_NOTSUPPORTED;
+            else
+            {
+                AFCStatus = TUNER_AFC_NOTSUPPORTED;
+            }
         }
     }
     return AFCStatus;

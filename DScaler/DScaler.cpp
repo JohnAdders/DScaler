@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.120 2002-02-03 10:31:22 tobbej Exp $
+// $Id: DScaler.cpp,v 1.121 2002-02-03 22:48:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.120  2002/02/03 10:31:22  tobbej
+// fixed so its posibel to open popup menu from keyboard
+//
 // Revision 1.119  2002/02/02 01:31:18  laurentg
 // Access to the files of the playlist added in the menus
 // Save Playlist added
@@ -385,6 +388,7 @@
 #include "Providers.h"
 #include "OverlaySettings.h"
 #include "Perf.h"
+#include "hardwaredriver.h"
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -497,48 +501,92 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // Required to use slider control
     InitCommonControls();
 
-
     // setup default ini file
 	SetIniFileForSettings("");
     
+    LoadSettingsFromIni();
+
 	// Process the command line arguments.
     // The following arguments are supported
-    // -i<inifile>     specification of the ini file.
-    // -c<channel>     the starting channel (0-x).
-    // -p<page>        the starting videotext page (100-y).
+    // -i<inifile>      specification of the ini file.
+    // -c<channel>      the starting channel (0-x).
+    // -p<page>         the starting videotext page (100-y).
+    // -driverinstall   (un)install the NT driver. These arguments are mainly intended to be
+    // -driveruninstall used by the installation program. When the user has not enough rights to
+    //                  complete (un)installation a messagebox is shown. With other errors there
+    //                  is no feedback.
     // For backwards compatibility an argument not starting with a - or / is
     // processed as -i<parameter> (ini file specification).
     char* ArgValues[20];
     int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
     for (int i = 0; i < ArgCount; ++i)
     {
-       if (ArgValues[i][0] != '-' && ArgValues[i][0] != '/')
-       {
-          SetIniFileForSettings(ArgValues[i]);
-       }
-       else if(strlen(ArgValues[i]) > 2)
-       {
-          char* szParameter = &ArgValues[i][2];
-          switch (tolower(ArgValues[i][1]))
-          {
-          case 'i':
-            SetIniFileForSettings(szParameter);
-            break;
-          case 'c':
-             sscanf(szParameter, "%d", &InitialChannel);
-             break;
-          case 'p':
-             sscanf(szParameter, "%d", &InitialTextPage);
-             break;
-          default:
-             // Unknown
-             break;
-          }
-       }
+        if (ArgValues[i][0] != '-' && ArgValues[i][0] != '/')
+        {
+            SetIniFileForSettings(ArgValues[i]);
+        }
+        else if(strlen(ArgValues[i]) > 2)
+        {
+            char* szParameter = &ArgValues[i][2];
+            switch (tolower(ArgValues[i][1]))
+            {
+            case 'd':
+                if(strcmp(szParameter, "riverinstall") == 0)
+                {
+                    DWORD result = 0;                  
+                    CHardwareDriver* HardwareDriver = NULL;
+                    
+                    HardwareDriver = new CHardwareDriver();
+                    if(!HardwareDriver->InstallNTDriver())
+                    {
+                        // if access denied
+                        if(GetLastError() == 5)
+                        {
+                            RealErrorBox("You must have administrative rights to install the driver.");
+                        }
+                        result = 1;
+                    }
+                    
+                    delete HardwareDriver;
+                    
+                    return result;
+                }
+                else if(strcmp(szParameter, "riveruninstall") == 0)
+                {
+                    DWORD result = 0;                  
+                    CHardwareDriver* HardwareDriver = NULL;
+                    
+                    HardwareDriver = new CHardwareDriver();
+                    if(!HardwareDriver->UnInstallNTDriver())
+                    {
+                        // if access denied
+                        if(GetLastError() == 5)
+                        {
+                            RealErrorBox("You must have administrative rights to uninstall the driver.");
+                        }
+                        result = 1;
+                    }
+                    
+                    delete HardwareDriver;
+                    
+                    return result;
+                }
+            case 'i':
+                SetIniFileForSettings(szParameter);              
+                break;
+            case 'c':
+                sscanf(szParameter, "%d", &InitialChannel);
+                break;
+            case 'p':
+                sscanf(szParameter, "%d", &InitialTextPage);
+                break;
+            default:
+                // Unknown
+                break;
+            }
+        }
     }
-
-    LoadSettingsFromIni();
-
+    
     if(bDisplaySplashScreen)
     {
         ShowSpashScreen();

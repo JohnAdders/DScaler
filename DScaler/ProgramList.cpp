@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.84 2002-10-26 07:37:54 atnak Exp $
+// $Id: ProgramList.cpp,v 1.85 2002-10-28 08:09:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2002/10/26 07:37:54  atnak
+// Fixed "pre switch mute delay".  (Reverted to the way it was in Rev 1.77)
+//
 // Revision 1.83  2002/10/25 15:04:39  adcockj
 // Made sure current channels are loaded in the list
 //
@@ -763,6 +766,8 @@ void ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode, BOOL Alw
     ASSERT(iCountryCode >= 0);
     ASSERT(iCountryCode < MyCountries.GetSize());
 
+
+
     MyInUpdate = TRUE; 
 
     CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
@@ -771,22 +776,35 @@ void ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode, BOOL Alw
 
     // add channel if frequency found
     // or if we want all the channels
-    if (ReturnedFreq == 0 && AlwaysAdd == FALSE)
+    CChannel* NewChannel = NULL;
+    if (ReturnedFreq == 0)
     {        
+        if (TRUE == AlwaysAdd) 
+        {
+            NewChannel = new CChannel(
+                                        channel->GetName(),
+                                        channel->GetFrequency(),
+                                        channel->GetChannelNumber(),
+                                        channel->GetFormat(),
+                                        FALSE
+                                     );
+        }        
     }
     else
     {               
-        AddScannedChannel(
-                            hDlg,
-                            new CChannel(
-                                            channel->GetName(),
-                                            ReturnedFreq,
-                                            channel->GetChannelNumber(),
-                                            channel->GetFormat(),
-                                            (ReturnedFreq != 0)
-                                        )
-                         );    
+        NewChannel = new CChannel(
+                                    channel->GetName(),
+                                    ReturnedFreq,
+                                    channel->GetChannelNumber(),
+                                    channel->GetFormat(),
+                                    TRUE
+                                 );
     }   
+
+    if (NULL != NewChannel) 
+    {
+        AddScannedChannel(hDlg, NewChannel);
+    }
 
     MyInUpdate = FALSE;
 }

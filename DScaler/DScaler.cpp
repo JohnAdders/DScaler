@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.160 2002-05-26 09:21:48 robmuller Exp $
+// $Id: DScaler.cpp,v 1.161 2002-05-26 10:33:35 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.160  2002/05/26 09:21:48  robmuller
+// Patch #560680 by PietOO:
+// Added option to disable screensaver.
+//
 // Revision 1.159  2002/05/24 18:22:46  robmuller
 // Turn off VideoText when VideoText capturing is disabled.
 //
@@ -2810,7 +2814,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             EndPaint(hWnd, &sPaint);
         }
-        break;
+        return 0;
 
     case WM_VIDEOTEXT:
         {

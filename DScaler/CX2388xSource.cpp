@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.6 2002-11-06 11:11:23 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.7 2002-11-06 20:14:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/11/06 11:11:23  adcockj
+// Added new Settings and applied Laurent's filter setup suggestions
+//
 // Revision 1.5  2002/11/03 15:54:10  adcockj
 // Added cx2388x register tweaker support
 //
@@ -307,7 +310,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_HDelay);
 
     m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pVideoGroup, FlagsAll);
-    m_VDelay->SetStepValue(2);
+    m_VDelay->SetStepValue(4);
     m_Settings.push_back(m_VDelay);
 
     m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 25, 0, 100, IniSection, pH3DGroup, FlagsAll);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.8 2002-11-06 11:11:23 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.9 2002-11-06 20:15:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/11/06 11:11:23  adcockj
+// Added new Settings and applied Laurent's filter setup suggestions
+//
 // Revision 1.7  2002/11/03 18:38:32  adcockj
 // Fixes for cx2388x and PAL & NTSC
 //
@@ -680,7 +683,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             if (CurrentY == 576)
             {
-                VertDelay = 0x20;
+                VertDelay = 0x24;
             }
             else
             {
@@ -704,7 +707,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             if (CurrentY == 576)
             {
-                HorzDelay = 0x8A;
+                HorzDelay = 0x82;
             }
             else
             {
@@ -880,7 +883,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             if (CurrentY == 576)
             {
-                HorzDelay = 0x8A;
+                HorzDelay = 0x82;
             }
             else
             {

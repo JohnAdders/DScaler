@@ -236,8 +236,8 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
 		SearchEffortW = SearchEffort;
 		prevSrc = child->GetFrame(useFrame-1, env);
 		pWeaveSrcP = TopFirst
-			? prevSrc->GetReadPtr()
-			: prevSrc->GetReadPtr() + src_pitch;
+			? prevSrc->GetReadPtr() + src_pitch
+			: prevSrc->GetReadPtr();
 		pCopySrcP = TopFirst
 			? prevSrc->GetReadPtr() + src_pitch
 			: prevSrc->GetReadPtr();
@@ -251,15 +251,25 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
 		pCopySrc = srcp;
 		pWeaveDest = dstp;
 		pCopyDest = dstp;
-		Fieldcopy(pWeaveDest, pCopySrc, rowsize,				// copy top line
+		Fieldcopy(pWeaveDest+dst_pitch, pCopySrc, rowsize,				// copy top ODD line
 					1, dst_pitch, src_pitch);
-//		Fieldcopy(pWeaveDest+(height-1)*dst_pitch,			// copy bottom line	
-//			pCopySrc+(height-1)*src_pitch, rowsize, 
-//					1, dst_pitch, src_pitch);
-		Fieldcopy(pCopyDest, pCopySrc, rowsize,					// copy all odd lines (base 0)
-					FldHeight, dst_pitch*2, src_pitch);
+		Fieldcopy(pWeaveDest + (height-1)*dst_pitch,			// copy bottom ODD line	
+			pCopySrc+(FldHeight-1)*src_pitch, rowsize, 
+					1, dst_pitch, src_pitch);
+		if (Use_Vertical_Filter)
+		{
+			Fieldcopy(pWeaveDest, pCopySrc, rowsize,				// copy top EVEN line
+						1, dst_pitch, src_pitch);
+			Fieldcopy(pWeaveDest + (height-2)*dst_pitch,			// copy bottom EVEN line	
+				pCopySrc+(FldHeight-1)*src_pitch, rowsize, 
+						1, dst_pitch, src_pitch);
+		}
+		else
+		{
+			Fieldcopy(pCopyDest, pCopySrc, rowsize,			// copy all EVEN lines (base 0)
+					FldHeight, dst_pitch*2, src_pitch);		// I don't remember why???
+		}
 	}
-
     else if (TopFirst)
     {
 		pWeaveSrc = srcp+src_pitch;
@@ -271,10 +281,21 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
 		Fieldcopy(pWeaveDest+(FldHeight-1)*dst_pitch*2,
 			pCopySrc+(FldHeight-1)*src_pitch*2, rowsize, 
 					1, dst_pitch*2, src_pitch*2);
-		Fieldcopy(pCopyDest, pCopySrc, rowsize, 
-					FldHeight, dst_pitch*2, src_pitch*2);
+		if (Use_Vertical_Filter)
+		{
+			Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+						1, dst_pitch*2, src_pitch*2);
+			Fieldcopy(pCopyDest+(FldHeight-1)*dst_pitch*2,		// copy last bob line
+						pCopySrc+(FldHeight-1)*src_pitch*2, rowsize, 
+						1, dst_pitch*2, src_pitch*2);
+		}
+		else
+		{
+			Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+						FldHeight, dst_pitch*2, src_pitch*2);
+		}
 	}
-    else                    // not Top First
+    else             // not Top First
 	{
 		pWeaveSrc = srcp;
 		pCopySrc = srcp + src_pitch;
@@ -285,10 +306,21 @@ int __stdcall TomsMoComp::ProcessFrame(PVideoFrame dst, unsigned char* dstp,
 		Fieldcopy(pWeaveDest+(FldHeight-1)*dst_pitch*2,			// bob this later
 			pCopySrc+(FldHeight-1)*src_pitch*2, rowsize, 
 					1, dst_pitch*2, src_pitch*2);
-		Fieldcopy(pCopyDest, pCopySrc, rowsize, 
-					FldHeight, dst_pitch*2, src_pitch*2);
+		if (Use_Vertical_Filter)
+		{	
+			Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+						1, dst_pitch*2, src_pitch*2);			// copy first bob line
+			Fieldcopy(pCopyDest+(FldHeight-1)*dst_pitch*2,
+				pCopySrc+(FldHeight-1)*src_pitch*2, rowsize,	// copy last bob line
+						1, dst_pitch*2, src_pitch*2);
+			pWeaveDest += 2*dst_pitch;		// bug, adj for poor planning
+		}
+		else
+		{
+			Fieldcopy(pCopyDest, pCopySrc, rowsize, 
+						FldHeight, dst_pitch*2, src_pitch*2);
+		}
 	}
-	
 	if (Use_Vertical_Filter)
 	{
 		if (SSEMMXenabled)

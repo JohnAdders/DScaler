@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,1,0
+ FILEVERSION 0,0,1,2
  PRODUCTVERSION 0,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -47,7 +47,7 @@ BEGIN
             VALUE "Comments", "This Sentience has tree errors.\0"
             VALUE "CompanyName", " trbarry@trbarry.com\0"
             VALUE "FileDescription", "DI_TomsMoComp\0"
-            VALUE "FileVersion", "0, 0, 1, 0\0"
+            VALUE "FileVersion", "0, 0, 1, 2\0"
             VALUE "InternalName", "DI_TomsMoComp (DScaler motion compensated deinterlacer)\0"
             VALUE "LegalCopyright", "Copyright © 2002 Tom Barry\0"
             VALUE "LegalTrademarks", "Open Source subject to GNU GPL\0"
@@ -55,7 +55,7 @@ BEGIN
             VALUE "PrivateBuild", "This module is for DScaler, not Avisynth\0"
             VALUE "ProductName", "  DI_TomsMoComp\0"
             VALUE "ProductVersion", "0, 4, 0, 0\0"
-            VALUE "SpecialBuild", "First released version\0"
+            VALUE "SpecialBuild", "Fix bugs, mostly for Avisynth flavor\0"
         END
     END
     BLOCK "VarFileInfo"

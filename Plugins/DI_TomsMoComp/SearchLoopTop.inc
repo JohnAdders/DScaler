@@ -25,16 +25,28 @@ int		SaveMotion = 0;
 int		dst_pitchw = dst_pitch; // local stor so asm can ref
 	pSrc  = pWeaveSrc;			// points 1 weave line above
 	pSrcP = pWeaveSrcP;			// " 
+
+#ifdef DBL_RESIZE
 	        
-#if defined(USE_VERTICAL_FILTER) || defined(DBL_RESIZE)
+#ifdef USE_VERTICAL_FILTER
+	pDest = pWeaveDest + dst_pitch2;
+#else
+	pDest = pWeaveDest + 3*dst_pitch;
+#endif
+
+#else
+
+#ifdef USE_VERTICAL_FILTER
 	pDest = pWeaveDest + dst_pitch;
 #else
 	pDest = pWeaveDest + dst_pitch2;
 #endif
 
+#endif
+
 	if (TopFirst)
 	{
-		pBob = pCopySrc + src_pitch2;
+		pBob = pCopySrc + src_pitch2;      // remember one weave line just copied previously
 		pBobP = pCopySrcP + src_pitch2;
 	}
 	else
@@ -43,7 +55,7 @@ int		dst_pitchw = dst_pitch; // local stor so asm can ref
 		pBobP =  pCopySrcP;
 	}
 
-	for (y=1; y < FldHeight; y++)	
+	for (y=1; y < FldHeight-1; y++)	
 	{
 
 		// pretend it's indented -->>

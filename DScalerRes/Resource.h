@@ -988,7 +988,6 @@
 #define IDM_SKIN_FIRST                  2391
 #define IDM_SKIN_LAST                   2490
 #define IDM_VT_CODEPAGE_FIRST           2491
-// ___ These are provided for external reference.
 #define IDM_VT_CODEPAGE_ENGLISH         2491
 #define IDM_VT_CODEPAGE_FRENCH          2492
 #define IDM_VT_CODEPAGE_SWEDISH         2493
@@ -1008,7 +1007,6 @@
 #define IDM_VT_CODEPAGE_GREEK           2507
 #define IDM_VT_CODEPAGE_ARABIC          2510
 #define IDM_VT_CODEPAGE_HEBREW          2511
-// ^^^ These are provided for external reference.
 #define IDM_VT_CODEPAGE_LAST            2525
 #define IDC_MIXER_INPUT0NAME            8000
 #define IDC_MIXER_INPUT1NAME            8001
@@ -1148,6 +1146,7 @@
 #define IDM_ANALOGUE_BLANKING           32841
 #define IDM_LUMA_AGC                    32842
 #define IDM_VT_SEARCHPREV               32845
+#define IDM_SASPECT_AUTO2_TOGGLE        32846
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1169,7 +1168,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        254
-#define _APS_NEXT_COMMAND_VALUE         32846
+#define _APS_NEXT_COMMAND_VALUE         32847
 #define _APS_NEXT_CONTROL_VALUE         8069
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

@@ -574,7 +574,7 @@ BEGIN
                     IDC_STATIC,7,222,279,8
 END
 
-IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 182
+IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 169
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TimeShift Options (under construction)"
 FONT 8, "MS Sans Serif"
@@ -591,21 +591,19 @@ BEGIN
     RTEXT           "Wave Out:",IDC_STATIC,8,69,36,8
     COMBOBOX        IDC_TSWAVEOUTCOMBO,47,66,146,70,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Recording Height",IDC_STATIC,39,85,160,68
+    GROUPBOX        "Recording Height",IDC_STATIC,39,85,160,56
     CONTROL         "Full-height",IDC_TSFULLHEIGHTRADIO,"Button",
-                    BS_AUTORADIOBUTTON,50,95,48,10
+                    BS_AUTORADIOBUTTON,51,95,48,10
     CONTROL         "1/2-height Even lines",IDC_TSHALFEVENRADIO,"Button",
-                    BS_AUTORADIOBUTTON,50,116,83,10
+                    BS_AUTORADIOBUTTON,51,105,83,10
     CONTROL         "1/2-height Odd lines",IDC_TSHALFODDRADIO,"Button",
-                    BS_AUTORADIOBUTTON,50,127,80,10
+                    BS_AUTORADIOBUTTON,51,116,80,10
     CONTROL         "1/2-height Even and Odd Averaged",
-                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,50,
-                    138,129,10
+                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,51,127,129,10
     PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,202,108,30,14
-    DEFPUSHBUTTON   "OK",IDOK,63,161,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,119,161,50,14
-    CONTROL         "1/2-height",IDC_TSHALFHEIGHTRADIO,"Button",
-                    BS_AUTORADIOBUTTON | WS_DISABLED,50,106,49,10
+    DEFPUSHBUTTON   "OK",IDOK,63,148,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,119,148,50,14
 END
 
 IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 372, 202
@@ -1344,16 +1342,16 @@ BEGIN
         MENUITEM "Take &Consecutive Still Pictures\tAlt+L", 
                                                 IDM_TAKECONSECUTIVESTILL
         MENUITEM "Take &Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
-        POPUP "&TimeShift (under construction)"
+        POPUP "Recor&ding"
         BEGIN
             MENUITEM "&Record\tShift+R",            IDM_TSRECORD
-            MENUITEM "Pl&ay\tShift+P",              IDM_TSPLAY
-            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE
+            MENUITEM "Pl&ay\tShift+P",              IDM_TSPLAY, GRAYED
+            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE, GRAYED
             MENUITEM "&Stop\tShift+S",              IDM_TSSTOP
             MENUITEM "Fast &Forward\t}",            IDM_TSFFWD, GRAYED
             MENUITEM "Fast &Backward\t{",           IDM_TSRWND, GRAYED
-            MENUITEM "&Next\t>",                    IDM_TSNEXT
-            MENUITEM "&Previous\t<",                IDM_TSPREV
+            MENUITEM "&Next\t>",                    IDM_TSNEXT, GRAYED
+            MENUITEM "&Previous\t<",                IDM_TSPREV, GRAYED
             MENUITEM SEPARATOR
             MENUITEM "&Options...",                 IDM_TSOPTIONS
         END
@@ -1897,7 +1895,7 @@ BEGIN
 
     IDD_TSOPTIONS, DIALOG
     BEGIN
-        BOTTOMMARGIN, 175
+        BOTTOMMARGIN, 162
     END
 
     IDD_OVERLAYSETTINGS, DIALOG

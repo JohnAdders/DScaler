@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.h,v 1.5 2002-10-26 15:37:57 adcockj Exp $
+// $Id: ITuner.h,v 1.6 2003-02-06 19:47:29 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/26 15:37:57  adcockj
+// Made ITuner more abstract by removing inheritance from CI2CDevice
+// New class II2CTuner created for tuners that are controled by I2C
+//
 // Revision 1.4  2002/10/16 21:42:36  kooiman
 // Created seperate class for External IF Demodulator chips like TDA9887
 //
@@ -44,7 +48,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BT848_Defines.h"
+#include "TunerID.h"
 #include "TVFormats.h"
 #include "I2CDevice.h"
 

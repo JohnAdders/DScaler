@@ -43,14 +43,21 @@
 // Maximum value
 #define MAX_VALUE               1000000000
 
-#define PIXEL_CROPPING_G        6
-#define PIXEL_CROPPING_D        10
+#define PIXEL_CROPPING_G        8
+#define PIXEL_CROPPING_D        16
 
 // Macro to restrict range to [0,255]
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
 // Macro to return the absolute value
 #define ABSOLUTE_VALUE(x) ((x) < 0) ? -(x) : (x)
+
+
+static long SourceOverscan = 0;
+static long LeftCropping = 8;
+static long RightCropping = 16;
+static BOOL ShowRGBDelta = TRUE;
+static BOOL ShowYUVDelta = TRUE;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -183,6 +190,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     unsigned int Y, U, V, nb_Y, nb_U, nb_V;
     BYTE *buf;
     int overscan;
+    int left_crop, right_crop;
 
     if (reinit)
     {
@@ -193,9 +201,29 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
-    left = (width - 2 * overscan) * left_border / 10000 + overscan;
-    right = (width - 2 * overscan) * right_border / 10000 + overscan;
+    SourceOverscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+    overscan = SourceOverscan * width / (height * 2);
+    left_crop = ((LeftCropping * width) + 500) / 1000;
+    right_crop = ((RightCropping * width) + 500) / 1000;
+    left = (width + left_crop + right_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
+    if (left < 0)
+    {
+        left = 0;
+    }
+    else if (left >= width)
+    {
+        left = width - 1;
+    }
+    right = (width + left_crop + right_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
+    if (right < 0)
+    {
+        right = 0;
+    }
+    else if (right >= width)
+    {
+        right = width - 1;
+    }
+    overscan = SourceOverscan;
     top = (height - overscan) * top_border / 10000 + overscan / 2;
     bottom = (height - overscan) * bottom_border / 10000 + overscan / 2;
 
@@ -283,11 +311,32 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
     int left, right, top, bottom, i;
     BYTE *buf;
     int overscan;
+    int left_crop, right_crop;
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
-    left = (width - 2 * overscan) * left_border / 10000 + overscan;
-    right = (width - 2 * overscan) * right_border / 10000 + overscan;
+    SourceOverscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+    overscan = SourceOverscan * width / (height * 2);
+    left_crop = ((LeftCropping * width) + 500) / 1000;
+    right_crop = ((RightCropping * width) + 500) / 1000;
+    left = (width + left_crop + right_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
+    if (left < 0)
+    {
+        left = 0;
+    }
+    else if (left >= width)
+    {
+        left = width - 1;
+    }
+    right = (width + left_crop + right_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
+    if (right < 0)
+    {
+        right = 0;
+    }
+    else if (right >= width)
+    {
+        right = width - 1;
+    }
+    overscan = SourceOverscan;
     top = (height - overscan) * top_border / 10000 + overscan / 2;
     bottom = (height - overscan) * bottom_border / 10000 + overscan / 2;
 
@@ -1227,21 +1276,21 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 10 - color bars", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 15 C 5 - color bars", FORMAT_NTSC);
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar( 417, 1111, 2500, 5208, FALSE, 190, 190, 190);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 2500, 5208, FALSE, 198, 199,   0);
+    color_bar = new CColorBar(1806, 2500, 2500, 5208, FALSE, 188, 190,   0);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(3194, 3889, 2500, 5208, FALSE,   0, 190, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 2500, 5208, FALSE,   0, 190,   0);
+    color_bar = new CColorBar(4611, 5306, 2500, 5208, FALSE,   0, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 2500, 5208, FALSE, 190,   0, 189);
+    color_bar = new CColorBar(6069, 6764, 2500, 5208, FALSE, 190,   0, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 8125, 2500, 5208, FALSE, 188,   0,   0);
+    color_bar = new CColorBar(7458, 8153, 2500, 5208, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(8889, 9583, 2500, 5208, FALSE,   0,   0, 187);
     sub_pattern->AddColorBar(color_bar);
@@ -1253,16 +1302,16 @@ void CCalibration::LoadTestPatterns()
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7431, 8125, 2500, 5208, FALSE, 188,   0,   0);
+    color_bar = new CColorBar(7458, 8153, 2500, 5208, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_HUE);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar(3194, 3889, 2500, 5208, FALSE,   0, 190, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 2500, 5208, FALSE,   0, 190,   0);
+    color_bar = new CColorBar(4611, 5306, 2500, 5208, FALSE,   0, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 2500, 5208, FALSE, 190,   0, 189);
+    color_bar = new CColorBar(6069, 6764, 2500, 5208, FALSE, 190,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1455,9 +1504,9 @@ void CCalibration::LoadTestPatterns()
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar( 278,  833, 2500, 7500, FALSE,   0,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1736, 2500, 7500, FALSE,  20,  23,  20);
+    color_bar = new CColorBar(1153, 1708, 2500, 7500, FALSE,  20,  23,  20);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2569, 2500, 7500, FALSE,  46,  49,  45);
+    color_bar = new CColorBar(2042, 2597, 2500, 7500, FALSE,  46,  49,  45);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,  72,  75,  71);
     sub_pattern->AddColorBar(color_bar);
@@ -1465,9 +1514,9 @@ void CCalibration::LoadTestPatterns()
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(4722, 5278, 2500, 7500, FALSE, 123, 125, 122);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5556, 6111, 2500, 7500, FALSE, 149, 151, 148);
+    color_bar = new CColorBar(5597, 6153, 2500, 7500, FALSE, 149, 151, 148);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 174, 177, 173);
+    color_bar = new CColorBar(6486, 7042, 2500, 7500, FALSE, 174, 177, 173);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(7361, 7917, 2500, 7500, FALSE, 201, 203, 200);
     sub_pattern->AddColorBar(color_bar);
@@ -1480,16 +1529,16 @@ void CCalibration::LoadTestPatterns()
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar( 278,  833, 2500, 7500, FALSE,   0,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1736, 2500, 7500, FALSE,  20,  23,  20);
+    color_bar = new CColorBar(1153, 1708, 2500, 7500, FALSE,  20,  23,  20);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2569, 2500, 7500, FALSE,  46,  49,  45);
+    color_bar = new CColorBar(2042, 2597, 2500, 7500, FALSE,  46,  49,  45);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,  72,  75,  71);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 174, 177, 173);
+    color_bar = new CColorBar(6486, 7042, 2500, 7500, FALSE, 174, 177, 173);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(7361, 7917, 2500, 7500, FALSE, 201, 203, 200);
     sub_pattern->AddColorBar(color_bar);
@@ -1516,9 +1565,9 @@ void CCalibration::LoadTestPatterns()
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(4097, 4653, 2500, 7500, FALSE,   0, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5278, 5833, 2500, 7500, FALSE, 189,   0, 189);
+    color_bar = new CColorBar(5319, 5875, 2500, 7500, FALSE, 189,   0, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 189,   0,   0);
+    color_bar = new CColorBar(6500, 7056, 2500, 7500, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(7708, 8264, 2500, 7500, FALSE,   0,   0, 189);
     sub_pattern->AddColorBar(color_bar);
@@ -1532,7 +1581,7 @@ void CCalibration::LoadTestPatterns()
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 189,   0,   0);
+    color_bar = new CColorBar(6500, 7056, 2500, 7500, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_HUE);
@@ -1541,7 +1590,7 @@ void CCalibration::LoadTestPatterns()
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(4097, 4653, 2500, 7500, FALSE,   0, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5278, 5833, 2500, 7500, FALSE, 189,   0, 189);
+    color_bar = new CColorBar(5319, 5875, 2500, 7500, FALSE, 189,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -2292,3 +2341,71 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
 
 CCalibration *pCalibration = NULL;
 
+/////////////////////////////////////////////////////////////////////////////
+// Start of Settings related code
+/////////////////////////////////////////////////////////////////////////////
+
+SETTING CalibrSettings[CALIBR_SETTING_LASTONE] =
+{
+    {
+        "Overscan for calibration", SLIDER, 0, (long*)&SourceOverscan,
+         0, 0, 150, 1, 1,
+         NULL,
+        "Calibration", "SourceOverscan", NULL,
+    },
+    {
+        "Left source cropping", SLIDER, 0, (long*)&LeftCropping,
+         8, 0, 50, 1, 1,
+         NULL,
+        "Calibration", "LeftSourceCropping", NULL,
+    },
+    {
+        "Right source cropping", SLIDER, 0, (long*)&RightCropping,
+         16, 0, 50, 1, 1,
+         NULL,
+        "Calibration", "RightSourceCropping", NULL,
+    },
+    {
+        "Show RGB delta in OSD", ONOFF, 0, (long*)&ShowRGBDelta,
+         TRUE, 0, 1, 1, 1,
+         NULL,
+        "Calibration", "ShowRGBDelta", NULL,
+    },
+    {
+        "Show YUV delta in OSD", ONOFF, 0, (long*)&ShowYUVDelta,
+         TRUE, 0, 1, 1, 1,
+         NULL,
+        "Calibration", "ShowYUVDelta", NULL,
+    },
+};
+
+
+SETTING* Calibr_GetSetting(CALIBR_SETTING Setting)
+{
+    if(Setting > -1 && Setting < CALIBR_SETTING_LASTONE)
+    {
+        return &(CalibrSettings[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void Calibr_ReadSettingsFromIni()
+{
+    int i;
+    for(i = 0; i < CALIBR_SETTING_LASTONE; i++)
+    {
+        Setting_ReadFromIni(&(CalibrSettings[i]));
+    }
+}
+
+void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+{
+    int i;
+    for(i = 0; i < CALIBR_SETTING_LASTONE; i++)
+    {
+        Setting_WriteToIni(&(CalibrSettings[i]), bOptimizeFileAccess);
+    }
+}

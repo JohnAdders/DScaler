@@ -384,4 +384,9 @@ private:
 extern CCalibration *pCalibration;
 
 
+SETTING* Calibr_GetSetting(CALIBR_SETTING Setting);
+void Calibr_ReadSettingsFromIni();
+void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+
+
 #endif

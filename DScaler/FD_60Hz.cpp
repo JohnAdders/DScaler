@@ -231,7 +231,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
                 if(ThresholdPulldownMismatch > 0 &&
 			        pInfo->FieldDiff >= ThresholdPulldownMismatch &&
 			        DoWeWantToFlip(pInfo) &&
-			        pInfo->CombFactor > LastCombFactor + 200) 
+			        pInfo->CombFactor > LastCombFactor + ThresholdPulldownComb) 
 		        {
 			        NextPulldownRepeatCount = 1;
 			        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
@@ -255,7 +255,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
                 if(ThresholdPulldownMismatch > 0 &&
 			        pInfo->FieldDiff >= ThresholdPulldownMismatch &&
 			        DoWeWantToFlip(pInfo) &&
-			        pInfo->CombFactor > LastCombFactor + 200) 
+			        pInfo->CombFactor > LastCombFactor + ThresholdPulldownComb) 
 		        {
 			        NextPulldownRepeatCount = 1;
                     // Reset the paramters of the Comb method
@@ -333,8 +333,11 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
 					// we should stay in pulldown mode, we don't want to
 					// bail out of film mode if we subsequently decide that
 					// the film mode we just dropped out of was correct.
-					if (bFallbackToVideo &&
-						TrackModeSwitches())
+                    //
+                    // JA Changed so that we always track the changes
+                    // even if bFallbackToVideo is FALSE
+					if (TrackModeSwitches() &&
+                        bFallbackToVideo)
 					{
 						SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
 						MOVIE_VERIFY_CYCLE = 0;
@@ -394,7 +397,8 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
 								LOG(" Switching too fast go back to video");
 								SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
 								NextPulldownRepeatCount = PulldownRepeatCount * 2;
-
+						        MOVIE_VERIFY_CYCLE = 0;
+						        LAST_FILM_MODE = NewFilmMode;
 							}
 							else
 							{
@@ -592,7 +596,8 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO *pInfo)
 	LOG(" Comb method %d %d", LastComb, pInfo->CombFactor);
     // if we can weave these frames together without too
     // much weaving then go ahead
-    if(pInfo->CombFactor < LastComb)
+    if(pInfo->CombFactor < LastComb &&
+        pInfo->CombFactor < ThresholdPulldownComb)
     {
         NumSkipped = 0;
 		LastComb = pInfo->CombFactor;

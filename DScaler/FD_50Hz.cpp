@@ -45,7 +45,9 @@ long PulldownThresholdHigh = 10;
 long PALPulldownRepeatCount = 3;
 long PALPulldownRepeatCount2 = 1;
 
-
+long MovementThreshold = 100;
+long CombThreshold = 150;
+extern BOOL bFallbackToVideo;
 ///////////////////////////////////////////////////////////////////////////////
 // UpdatePALPulldownMode
 //
@@ -74,7 +76,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 		return;
 	}
     
-    if(pInfo->CombFactor < 0)
+    if(pInfo->CombFactor < 0 || pInfo->FieldDiff < 0)
     {
         return;
     }
@@ -84,7 +86,10 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 
 	if(!IsFilmMode())
 	{
-		if(PercentDecrease < PulldownThresholdLow && LastDiff > PulldownThresholdLow)
+		if(PercentDecrease < PulldownThresholdLow && 
+            LastDiff > PulldownThresholdLow &&
+            pInfo->FieldDiff > MovementThreshold &&
+            LastCombFactor > CombThreshold)
 		{
 			if(LastPolarity == pInfo->IsOdd)
 			{
@@ -135,12 +140,35 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	{
 		if(PercentDecrease < PulldownThresholdLow)
 		{
+            if(pInfo->CombFactor > CombThreshold &&
+                pInfo->FieldDiff > MovementThreshold)
+            {
+                if(bFallbackToVideo)
+                {
+        			SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+					LOG(" Gone back to video");
+                }
+                else
+                {
+			        if(LastPolarity != pInfo->IsOdd)
+			        {
+					    RepeatCount--;
+					    LOG(" Downed RepeatCount 1 %d", RepeatCount);
+                    }
+                    else
+                    {
+				        if(RepeatCount < PALPulldownRepeatCount)
+				        {
+					        RepeatCount++;
+					        LOG(" Upped RepeatCount 1 %d", RepeatCount);
+                        }
+                    }
+                }
+            }
 			if(LastPolarity != pInfo->IsOdd)
 			{
 				if(LastDiff > PulldownThresholdLow)
 				{
-					RepeatCount--;
-					LOG(" Downed RepeatCount 1 %d", RepeatCount);
 				}
 			}
 			else

@@ -73,7 +73,7 @@ ChannelHigh=14
       216250000
       223250000
 
-[Czech Republic Air Frequency]
+[Czech Republic Air and Cable Frequency]
 ChannelLow=1
 ChannelHigh=113
     ;

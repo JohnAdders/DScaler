@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.2 2002-01-19 12:53:00 temperton Exp $
+// $Id: VTDrawer.h,v 1.3 2002-02-24 16:41:40 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/01/19 12:53:00  temperton
+// Teletext pages updates at correct time.
+// Teletext can use variable-width font.
+//
 // Revision 1.1  2002/01/15 11:16:03  temperton
 // New teletext drawing code.
 //
@@ -63,6 +67,7 @@ public:
     int GetAvgWidth();
     int GetAvgHeight();
 private:
+    void DestroyFonts();  
     HFONT MakeFont(HDC hDC, int iSize, int iWidth, char* szFaceName);
     HBRUSH m_hBrushes[9];
     RECT m_Rect;

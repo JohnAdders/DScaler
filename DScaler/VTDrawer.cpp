@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.3 2002-01-19 19:52:47 temperton Exp $
+// $Id: VTDrawer.cpp,v 1.4 2002-02-24 16:41:40 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/01/19 19:52:47  temperton
+// Transparent background in mix mode fix
+//
 // Revision 1.2  2002/01/19 12:53:00  temperton
 // Teletext pages updates at correct time.
 // Teletext can use variable-width font.
@@ -75,14 +78,11 @@ CVTDrawer::CVTDrawer()
 
 CVTDrawer::~CVTDrawer()
 {
-    if(m_hFont)
+    for(int a=0; a<9; a++)
     {
-        DeleteObject(m_hFont);
+        DeleteObject(m_hBrushes[a]);
     }
-    if(m_hDoubleFont)
-    {
-        DeleteObject(m_hFont);
-    }
+    DestroyFonts();
 }
 
 bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, 
@@ -369,6 +369,8 @@ void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)
         return;
     }
 
+    DestroyFonts();
+
     m_AvgWidth = AvgWidth;
     m_AvgHeight = AvgHeight;
 
@@ -412,3 +414,16 @@ HFONT CVTDrawer::MakeFont(HDC hDC, int iSize, int iWidth, char* szFaceName)
     return hFont;
 }
 
+void CVTDrawer::DestroyFonts()
+{
+    if(m_hFont)
+    {
+        DeleteObject(m_hFont);
+        m_hFont = NULL;
+    }
+    if(m_hDoubleFont)
+    {
+        DeleteObject(m_hDoubleFont);
+        m_hDoubleFont = NULL;
+    }
+}

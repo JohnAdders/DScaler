@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.8 2002-10-16 22:10:56 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.9 2002-10-26 04:41:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/16 22:10:56  atnak
+// fixed some cards to available FM1216ME_MK3 tuner
+//
 // Revision 1.7  2002/10/16 11:40:09  atnak
 // Added KWORLD KW-TV713XRF card.  Thanks "b"
 //
@@ -62,9 +65,9 @@
 #include "DebugLog.h"
 
 
-const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] = 
+const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] = 
 {
-    // Card Number 0 - Unknown Card
+    // SAA7134CARD_UNKNOWN - Unknown Card
     {
         "*Unknown Card*",
         4,
@@ -72,25 +75,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
         },
@@ -99,7 +102,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 1 - Proteus Pro [philips reference design]
+    // SAA7134CARD_PROTEUSPRO - Proteus Pro [philips reference design]
     {
         "Proteus Pro [philips reference design]",
         2,
@@ -107,13 +110,13 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
         },
@@ -122,7 +125,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 2 - LifeView FlyVIDEO3000
+    // SAA7134CARD_FLYVIDEO3000 - LifeView FlyVIDEO3000
     {
         "LifeView FlyVIDEO3000",
         5,
@@ -130,31 +133,31 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
-                0,
+                VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -163,7 +166,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 3 - LifeView FlyVIDEO2000 (saa7130)
+    // SAA7134CARD_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
     {
         "LifeView FlyVIDEO2000",
         4,
@@ -171,25 +174,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -198,7 +201,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         FLYVIDEO2000CardInputSelect,
     },
-    // Card Number 4 - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
+    // SAA7134CARD_EMPRESS - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
     {
         "EMPRESS",
         4,
@@ -206,25 +209,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
-                0,
+                VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -233,7 +236,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 5 - SKNet Monster TV
+    // SAA7134CARD_MONSTERTV - SKNet Monster TV
     {
         "SKNet Monster TV",
         4,
@@ -241,25 +244,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -268,7 +271,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 6 - Tevion MD 9717
+    // SAA7134CARD_TEVIONMD9717 - Tevion MD 9717
     {
         "Tevion MD 9717",
         4,
@@ -276,25 +279,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                2,
+                VIDEOINPUTSOURCE_PIN2,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
-                0,
+                VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -303,7 +306,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 7 - KNC One TV-Station RDS
+    // SAA7134CARD_TVSTATIONRDS - KNC One TV-Station RDS
     {
         "KNC One TV-Station RDS",
         4,
@@ -311,25 +314,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                2,
+                VIDEOINPUTSOURCE_PIN2,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
-                0,
+                VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -338,7 +341,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 8 - Terratec Cinergy 400 TV
+    // SAA7134CARD_CINERGY400 - Terratec Cinergy 400 TV
     {
         "Terratec Cinergy 400 TV",
         4,
@@ -346,25 +349,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                4,
+                VIDEOINPUTSOURCE_PIN4,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
             },
         },
@@ -373,7 +376,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 9 - Medion 5044
+    // SAA7134CARD_MEDION5044 - Medion 5044
     {
         "Medion 5044",
         5,
@@ -381,31 +384,31 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                0,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
-                8,
+                VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -414,8 +417,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         MEDION5044CardInputSelect,
     },
-    // Card Number 10 - KWORLD KW-TV713XRF (saa7130)
-    // Thanks to "b" <b@ki...>
+    // SAA7134CARD_KWTV713XRF - KWORLD KW-TV713XRF (saa7130)
+    // Thanks "b" <b@ki...>
     {
         "KWORLD KW-TV713XRF / KUROUTO SHIKOU",
         3,
@@ -423,19 +426,19 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
-                1,
+                VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                3,
+                VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                8,
+                VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -447,29 +450,71 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
 };
 
 
+const CSAA7134Card::TAutoDetectSAA7134 CSAA7134Card::m_AutoDetectSAA7134[] =
+{
+    // DeviceId, Subsystem vendor Id, Subsystem Id, Card Id
+    { 0x7134, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN     },
+    { 0x7130, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN     },
+    { 0x7134, 0x1131, 0x2001, SAA7134CARDID_PROTEUSPRO  },
+    { 0x7134, 0x1131, 0x6752, SAA7134CARDID_EMPRESS     },
+    { 0x7134, 0x1131, 0x4E85, SAA7134CARDID_MONSTERTV   },
+    { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400  },
+};
+
+
 int CSAA7134Card::GetMaxCards()
 {
-    return sizeof(m_TVCards)/sizeof(TCardType);
+    return sizeof(m_SAA7134Cards)/sizeof(TCardType);
 }
 
 
-eTunerId CSAA7134Card::AutoDetectTuner(eTVCardId CardId)
+CSAA7134Card::eSAA7134CardId CSAA7134Card::AutoDetectCardType()
 {
-    return m_TVCards[CardId].TunerId;
+    WORD DeviceId           = GetDeviceId();
+    WORD SubSystemId        = (GetSubSystemId() & 0xFFFF0000) << 16;
+    WORD SubSystemVendorId  = (GetSubSystemId() & 0x0000FFFF);
+
+    int ListSize = sizeof(m_AutoDetectSAA7134)/sizeof(TAutoDetectSAA7134);
+
+    for (int i(0); i < ListSize; i++)
+    {
+        if (m_AutoDetectSAA7134[i].DeviceId == DeviceId &&
+            m_AutoDetectSAA7134[i].SubSystemId == SubSystemId &&
+            m_AutoDetectSAA7134[i].SubSystemVendorId == SubSystemVendorId)
+        {
+            LOG(0, "SAA713x: Autodetect found %s.",
+                GetCardName(m_AutoDetectSAA7134[i].CardId));
+            return m_AutoDetectSAA7134[i].CardId;
+        }
+    }
+
+    LOG(0, "SAA713x: Autodetect found an unknown card with the following");
+    LOG(0, "SAA713x: properties.  Please email the author and quote the");
+    LOG(0, "SAA713x: following numbers, as well as which card you have,");
+    LOG(0, "SAA713x: so it can be added to the list:");
+    LOG(0, "SAA713x: DeviceId: 0x%04x, SubVendorSystemId: 0x%04x%04x,",
+        DeviceId, SubSystemVendorId, SubSystemId);
+
+    return SAA7134CARDID_UNKNOWN;
+}
+
+eTunerId CSAA7134Card::AutoDetectTuner(eSAA7134CardId CardId)
+{
+    return m_SAA7134Cards[CardId].TunerId;
 }
 
 
 int CSAA7134Card::GetNumInputs()
 {
-    return m_TVCards[m_CardType].NumInputs;
+    return m_SAA7134Cards[m_CardType].NumInputs;
 }
 
 
 LPCSTR CSAA7134Card::GetInputName(int nInput)
 {
-    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    if(nInput < m_SAA7134Cards[m_CardType].NumInputs && nInput >= 0)
     {
-        return m_TVCards[m_CardType].Inputs[nInput].szName;
+        return m_SAA7134Cards[m_CardType].Inputs[nInput].szName;
     }
     return "Error";
 }
@@ -477,19 +522,19 @@ LPCSTR CSAA7134Card::GetInputName(int nInput)
 
 BOOL CSAA7134Card::IsInputATuner(int nInput)
 {
-    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
+    return (m_SAA7134Cards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
 }
 
 
 BOOL CSAA7134Card::IsCCIRSource(int nInput)
 {
-    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
+    return (m_SAA7134Cards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
 }
 
 
-LPCSTR CSAA7134Card::GetCardName(eTVCardId CardId)
+LPCSTR CSAA7134Card::GetCardName(eSAA7134CardId CardId)
 {
-    return m_TVCards[CardId].szName;
+    return m_SAA7134Cards[CardId].szName;
 }
 
 
@@ -499,13 +544,13 @@ void CSAA7134Card::SetVideoSource(int nInput)
     // this funny syntax is the only one that works
     // if you want help understanding what is going on
     // I suggest you read http://www.newty.de/
-    (*this.*m_TVCards[m_CardType].pInputSwitchFunction)(nInput);
+    (*this.*m_SAA7134Cards[m_CardType].pInputSwitchFunction)(nInput);
 }
 
 
 const CSAA7134Card::TCardType* CSAA7134Card::GetCardSetup()
 {
-    return &(m_TVCards[m_CardType]);
+    return &(m_SAA7134Cards[m_CardType]);
 }
 
 
@@ -557,16 +602,18 @@ void CSAA7134Card::KWTV713XRFCardInputSelect(int nInput)
     StandardSAA7134InputSelect(nInput);
 
     // this card probably needs GPIO changes but I don't
-    // know what to do
+    // know what they are
 }
 
 
 void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
 {
-    if(nInput >= m_TVCards[m_CardType].NumInputs)
+    eVideoInputSource VideoInput;
+    
+    if(nInput >= m_SAA7134Cards[m_CardType].NumInputs)
     {
         LOG(1, "Input Select Called for invalid input");
-        nInput = m_TVCards[m_CardType].NumInputs - 1;
+        nInput = m_SAA7134Cards[m_CardType].NumInputs - 1;
     }
     if(nInput < 0)
     {
@@ -574,10 +621,28 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
         nInput = 0;
     }
 
-    switch (m_TVCards[m_CardType].Inputs[nInput].InputType)
+    VideoInput = m_SAA7134Cards[m_CardType].Inputs[nInput].VideoInputPin;
+
+    /// There is a 1:1 correlation between (int)eVideoInputSource
+    /// and SAA7134_ANALOG_IN_CTRL1_MODE
+    BYTE Mode = (VideoInput == VIDEOINPUTSOURCE_NONE) ? 0x00 : VideoInput;
+
+    switch (m_SAA7134Cards[m_CardType].Inputs[nInput].InputType)
     {
     case INPUTTYPE_SVIDEO:
         OrDataByte(SAA7134_LUMA_CTRL, SAA7134_LUMA_CTRL_BYPS);
+
+        switch (VideoInput)
+        {
+        // This new mode sets Y-channel with automatic
+        // gain control and gain control for C-channel
+        // linked to Y-channel
+        case VIDEOINPUTSOURCE_PIN0: Mode = 0x08; break;
+        case VIDEOINPUTSOURCE_PIN1: Mode = 0x09; break;
+        default:
+            // NEVER_GET_HERE;
+            break;
+        }
         break;
     case INPUTTYPE_TUNER:
     case INPUTTYPE_COMPOSITE:
@@ -587,7 +652,6 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
         break;
     }
 
-    BYTE MuxSelect = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
-    MaskDataByte(SAA7134_ANALOG_IN_CTRL1, MuxSelect, 0x0F);
+    MaskDataByte(SAA7134_ANALOG_IN_CTRL1, Mode, 0x0F);
 }
 

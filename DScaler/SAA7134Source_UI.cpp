@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.12 2002-10-20 07:41:04 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.13 2002-10-26 04:41:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/20 07:41:04  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.11  2002/10/16 11:38:46  atnak
 // cleaned up audio standard stuff
 //
@@ -169,7 +172,7 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         for(i = 0; i < pThis->m_pSAA7134Card->GetMaxCards(); i++)
         {
             int nIndex;
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pSAA7134Card->GetCardName((eTVCardId)i));
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i));
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == pThis->m_CardType->GetValue())
             {
@@ -190,11 +193,11 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         // because SetFocus modifies this combobox
         for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
         {
-          i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-          if (i == pThis->m_TunerType->GetValue() )
-          {          
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
-          }
+            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+            if (i == pThis->m_TunerType->GetValue() )
+            {          
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+            }
         }
         break;
     case WM_COMMAND:
@@ -219,13 +222,50 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         case IDC_CARDSSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);                        
-            i = pThis->m_pSAA7134Card->AutoDetectTuner((eTVCardId)i);
+            i = pThis->m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)i);
             for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
             {   
-              if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
-              {
-                 ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-              }
+                if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
+                {
+                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+                }
+            }
+            break;
+        case IDC_AUTODETECT:
+            {
+                eSAA7134CardId CardId = pThis->m_pSAA7134Card->AutoDetectCardType();
+                eTunerId TunerId = pThis->m_pSAA7134Card->AutoDetectTuner(CardId);
+                
+                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+                for(i = 0; i < pThis->m_pSAA7134Card->GetMaxCards(); i++)
+                {
+                    int nIndex;
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i));
+                    SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
+                    if(i == (int)CardId)
+                    {
+                        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
+                    }
+                }
+                
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
+                for(i = 0; i < TUNER_LASTONE; i++)
+                {
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+                    SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
+                }
+                SetFocus(hDlg);
+                // Update the tuner combobox after the SetFocus
+                // because SetFocus modifies this combobox
+                for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+                {
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+                    if (i == (int)TunerId)
+                    {          
+                        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+                    }
+                }
+                
             }
             break;
         default:
@@ -891,7 +931,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
 
 BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    static CSAA7134Source* pThis;
+/*    static CSAA7134Source* pThis;
 
     static char LeftGain = 0;
     static char RightGain = 0;
@@ -942,30 +982,6 @@ BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {
-/*        case IDC_CARRIER1_AM:
-            pThis->m_pSAA7134Card->SetAudioCarrier1Mode(AUDIOCHANNELMODE_AM);
-            break;
-
-        case IDC_CARRIER1_FM:
-            pThis->m_pSAA7134Card->SetAudioCarrier1Mode(AUDIOCHANNELMODE_FM);
-            break;
-
-        case IDC_CARRIER1_NICAM:
-            pThis->m_pSAA7134Card->SetAudioCarrier1Mode(AUDIOCHANNELMODE_NICAM);
-            break;
-
-        case IDC_CARRIER2_AM:
-            pThis->m_pSAA7134Card->SetAudioCarrier2Mode(AUDIOCHANNELMODE_AM);
-            break;
-
-        case IDC_CARRIER2_FM:
-            pThis->m_pSAA7134Card->SetAudioCarrier2Mode(AUDIOCHANNELMODE_FM);
-            break;
-
-        case IDC_CARRIER2_NICAM:
-            pThis->m_pSAA7134Card->SetAudioCarrier2Mode(AUDIOCHANNELMODE_NICAM);
-            break;
-*/
         case IDC_LINKED_CHECK:
             bLinked = (BST_CHECKED == IsDlgButtonChecked(hDlg, LOWORD(wParam)));
             break;
@@ -1023,126 +1039,9 @@ BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam
 
     default:
         break;
-    }
+    }*/
     return (FALSE);
 }
-
-
-/*
-BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    static CSAA7134Source* pThis;
-
-    static char LeftGain = 0;
-    static char RightGain = 0;
-    static char NicamGain = 0;
-    static BOOL bLinked = TRUE;
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        pThis = (CSAA7134Source*)lParam;
-
-        LeftGain = pThis->m_pSAA7134Card->GetAudioLeftVolume();
-        RightGain = pThis->m_pSAA7134Card->GetAudioRightVolume();
-        NicamGain = pThis->m_pSAA7134Card->GetAudioNicamVolume();
-
-        Slider_ClearTicks(GetDlgItem(hDlg, IDC_LEFT_SLIDER), TRUE);
-        Slider_SetRangeMax(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 15);
-        Slider_SetRangeMin(GetDlgItem(hDlg, IDC_LEFT_SLIDER), -16);
-        Slider_SetPageSize(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 1);
-        Slider_SetLineSize(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 1);
-        Slider_SetTic(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 0);
-        Slider_SetPos(GetDlgItem(hDlg, IDC_LEFT_SLIDER), LeftGain);
-        SetDlgItemInt(hDlg, IDC_LEFT_EDIT, LeftGain, TRUE);
-
-        Slider_ClearTicks(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), TRUE);
-        Slider_SetRangeMax(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 15);
-        Slider_SetRangeMin(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), -16);
-        Slider_SetPageSize(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 1);
-        Slider_SetLineSize(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 1);
-        Slider_SetTic(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 0);
-        Slider_SetPos(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), RightGain);
-        SetDlgItemInt(hDlg, IDC_RIGHT_EDIT, RightGain, TRUE);
-
-        Slider_ClearTicks(GetDlgItem(hDlg, IDC_NICAM_SLIDER), TRUE);
-        Slider_SetRangeMax(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 15);
-        Slider_SetRangeMin(GetDlgItem(hDlg, IDC_NICAM_SLIDER), -16);
-        Slider_SetPageSize(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 1);
-        Slider_SetLineSize(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 1);
-        Slider_SetTic(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 0);
-        Slider_SetPos(GetDlgItem(hDlg, IDC_NICAM_SLIDER), NicamGain);
-        SetDlgItemInt(hDlg, IDC_NICAM_EDIT, NicamGain, TRUE);
-
-        CheckDlgButton(hDlg, IDC_LINKED_CHECK, bLinked);
-
-        SetFocus(hDlg);
-        break;
-
-    case WM_COMMAND:
-        switch(LOWORD(wParam))
-        {
-        case IDC_LINKED_CHECK:
-            bLinked = (BST_CHECKED == IsDlgButtonChecked(hDlg, LOWORD(wParam)));
-            break;
-
-        case IDOK:
-        case IDCANCEL:
-            EndDialog(hDlg, TRUE);
-            break;
-
-        default:
-            break;
-        }
-        break;
-
-    case WM_VSCROLL:
-    case WM_HSCROLL:
-        if((HWND)lParam == GetDlgItem(hDlg, IDC_LEFT_SLIDER))
-        {
-            LeftGain = Slider_GetPos(GetDlgItem(hDlg, IDC_LEFT_SLIDER));
-            SetDlgItemInt(hDlg, IDC_LEFT_EDIT, LeftGain, TRUE);
-            pThis->m_pSAA7134Card->SetAudioLeftVolume(LeftGain);
-
-            if (bLinked)
-            {
-                RightGain = LeftGain;
-                Slider_SetPos(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), RightGain);
-                SetDlgItemInt(hDlg, IDC_RIGHT_EDIT, RightGain, TRUE);
-                pThis->m_pSAA7134Card->SetAudioRightVolume(RightGain);
-            }
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_RIGHT_SLIDER))
-        {
-            RightGain = Slider_GetPos(GetDlgItem(hDlg, IDC_RIGHT_SLIDER));
-            SetDlgItemInt(hDlg, IDC_RIGHT_EDIT, RightGain, TRUE);
-            pThis->m_pSAA7134Card->SetAudioRightVolume(RightGain);
-
-            if (bLinked)
-            {
-                LeftGain = RightGain;
-                Slider_SetPos(GetDlgItem(hDlg, IDC_LEFT_SLIDER), LeftGain);
-                SetDlgItemInt(hDlg, IDC_LEFT_EDIT, LeftGain, TRUE);
-                pThis->m_pSAA7134Card->SetAudioLeftVolume(LeftGain);
-            }
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_NICAM_SLIDER))
-        {
-            NicamGain = Slider_GetPos(GetDlgItem(hDlg, IDC_NICAM_SLIDER));
-            SetDlgItemInt(hDlg, IDC_NICAM_EDIT, NicamGain, TRUE);
-            pThis->m_pSAA7134Card->SetAudioNicamVolume(NicamGain);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_BLUR_SLIDER))
-        {
-        }
-        break;
-
-    default:
-        break;
-    }
-    return (FALSE);
-}
-*/
 
 void CSAA7134Source::SetMenu(HMENU hMenu)
 {

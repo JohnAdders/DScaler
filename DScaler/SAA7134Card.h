@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.16 2002-10-23 17:05:20 atnak Exp $
+// $Id: SAA7134Card.h,v 1.17 2002-10-26 04:41:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/23 17:05:20  atnak
+// Added variable VBI sample rate scaling
+//
 // Revision 1.15  2002/10/20 07:41:04  atnak
 // custom audio standard setup + etc
 //
@@ -122,7 +125,19 @@ private:
         INPUTTYPE_MUTE,
     };
 
-    // Possible clock crystals a card could have
+    /// SAA7134's video input pins
+    enum eVideoInputSource
+    {
+        VIDEOINPUTSOURCE_NONE = -1,     // reserved for radio
+        VIDEOINPUTSOURCE_PIN0 = 0,
+        VIDEOINPUTSOURCE_PIN1,
+        VIDEOINPUTSOURCE_PIN2,
+        VIDEOINPUTSOURCE_PIN3,
+        VIDEOINPUTSOURCE_PIN4,
+        VIDEOINPUTSOURCE_PIN5,
+    };
+
+    /// Possible clock crystals a card could have
     enum eAudioCrystal
     {
         AUDIOCRYSTAL_NONE = 0,          // only on saa7130
@@ -137,8 +152,8 @@ private:
         LPCSTR szName;
         /// Type of the input
         eInputType InputType;
-        /// Which mux on the card is to be used
-        BYTE MuxSelect;
+        /// Which video pin on the card is to be used
+        eVideoInputSource VideoInputPin;
         /// Which line on the card is to be default
         eAudioInputSource AudioLineSelect;
     } TInputType;
@@ -161,28 +176,70 @@ private:
         void (CSAA7134Card::*pInputSwitchFunction)(int);
     } TCardType;
 
-    /// used to store the ID for autodection
+    /// used to store the ID for autodetection
     typedef struct
     {
-        DWORD ID;
-        eTVCardId CardId;
-        char* szName;
-    } TAutoDectect878;
+        WORD DeviceId;
+        WORD SubSystemVendorId;
+        WORD SubSystemId;
+        eSAA7134CardId CardId;
+    } TAutoDetectSAA7134;
+
 
 public:
-
-    void SetACPIStatus(int ACPIStatus);
-    int GetACPIStatus();
-    void HandleTimerMessages(int TimerId);
     CSAA7134Card(CHardwareDriver* pDriver);
     ~CSAA7134Card();
     
-    void SetCardType(int CardType);
-    eTVCardId GetCardType();
-    
-    void SetVideoSource(int nInput);
+
+    /** General card setup
+     */
+    int     GetMaxCards();
+    LPCSTR  GetCardName(eSAA7134CardId CardId);
+
+    void            SetCardType(int CardType);
+    eSAA7134CardId  GetCardType();
+
+    eTunerId        AutoDetectTuner(eSAA7134CardId CardId);
+    eSAA7134CardId  AutoDetectCardType();
+
+    LPCSTR  GetChipType();
+    LPCSTR  GetTunerType();
+    ITuner* GetTuner() const;
+
+    int     GetNumInputs();
+    LPCSTR  GetInputName(int nVideoSource);
+    BOOL    IsInputATuner(int nInput);
+
+    /** Tuner
+     */
+    BOOL InitTuner(eTunerId tunerId);
+
+
+    /** General capture setup
+     */
+    void StopCapture();
+    void StartCapture(BOOL bCaptureVBI);
 
     void ResetHardware();
+
+    void SetDMA(eRegionID RegionID, BOOL bState);
+    BOOL GetDMA(eRegionID RegionID);
+
+    void SetPageTable(eRegionID RegionID, DWORD pPhysical, DWORD nPages);
+    void SetBaseOffsets(eRegionID RegionID, DWORD dwEvenOffset, DWORD dwOddOffset, DWORD dwPitch);
+    void SetBSwapAndWSwap(eRegionID RegionID, BOOL bBSwap, BOOL bWSwap);
+
+    BOOL GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
+    BOOL GetIRQEventRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
+
+
+    /** Video
+     */
+    void SetVideoSource(int nInput);
+
+    void SetVideoStandard(eVideoStandard VideoStandard, long& VBILines, long& VideoWidth, long& VideoHeight, long HDelayShift, long VDelayShift, long VBIUpscaleDivisor);
+    void SetGeometry(WORD ScaleWidth, WORD ScaleHeight, long HDelayShift, long VDelayShift);
+    void SetVBIGeometry(WORD UpscaleDivisor);
 
     void SetBrightness(BYTE Brightness);
     BYTE GetBrightness();
@@ -198,36 +255,44 @@ public:
     void SetColorPeak(BOOL ColorPeak);
     BOOL GetColorPeak();
 
+    void SetCombFilter(BOOL bEnable);
+    void SetVideoMirror(BOOL bMirror);
+
+    void SetAutomaticGainControl(BOOL bAGC);
+    void SetGainControl(WORD GainControl);
+
+    /* Video sync
+     */
     void SetHPLLMode(eHPLLMode HPLLMode);
     void SetVSyncRecovery(eVSyncRecovery VSyncRecovery);
 
-    void SetCombFilter(BOOL bEnable);
-
-    LPCSTR GetChipType();
-    LPCSTR GetTunerType();
-
-    void SetVideoStandard(eVideoStandard VideoStandard, long& VBILines, long& VideoWidth, long& VideoHeight, long HDelayShift, long VDelayShift, long VBIUpscaleDivisor);
-    void SetGeometry(WORD ScaleWidth, WORD ScaleHeight, long HDelayShift, long VDelayShift);
-    void SetVBIGeometry(WORD UpscaleDivisor);
-    
-    void SetTaskGeometry(eTaskID TaskID, WORD Width, WORD Height, WORD HDelay, WORD VDelay, WORD ScaleWidth, WORD ScaleHeight);
-    void SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart, WORD VStop, WORD UpscaleDivisor);
-
+    /** Miscellaneous video
+     */
     long GetMinimumVDelay();
     long GetMinimumVDelayWithVBI();
 
     BOOL IsVideoPresent();
-    void SetDMA(eRegionID RegionID, BOOL bState);
-    BOOL GetDMA(eRegionID RegionID);
-    void StopCapture();
-    void StartCapture(BOOL bCaptureVBI);
-
     BOOL Is25fpsSignalDetected();
     BOOL IsInterlacedSignalDetected();
 
+
+    /** Miscellaneous card
+     */
+    void SetACPIStatus(int ACPIStatus);
+    int GetACPIStatus();
+
+
+    /** Audio
+     */
     void InitAudio();
 
-    void SetAudioLockToVideo(BOOL bLockAudio);
+    void SetAudioSource(eAudioInputSource InputSource);
+    void SetAudioStandard(eAudioStandard AudioStandard);
+    void SetAudioChannel(eAudioChannel AudioChannel);
+
+    int GetInputAudioLine(int nInput);
+    LPCSTR GetAudioStandardName(eAudioStandard AudioStandard);
+    eAudioChannel GetAudioChannel();
 
     void SetAudioMute();
     void SetAudioUnMute(long nVolume);
@@ -235,69 +300,6 @@ public:
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);
     void SetAudioTreble(WORD nTreble);
-
-    // \todo remove these
-    void SetAudioLeftVolume(BYTE nGain);
-    void SetAudioRightVolume(BYTE nGain);
-    void SetAudioNicamVolume(BYTE nGain);
-    int GetAudioLeftVolume();
-    int GetAudioRightVolume();
-    int GetAudioNicamVolume();
-
-    void SetAudioSource(eAudioInputSource InputSource);
-    void SetAudioStandard(eAudioStandard AudioStandard);
-    void SetAudioChannel(eAudioChannel AudioChannel);
-    eAudioChannel GetAudioChannel();
-
-    BOOL IsAudioChannelDetected(eAudioChannel AudioChannel);
-    
-    void SetAudioSampleRate(eAudioSampleRate SampleRate);
-
-    eTunerId AutoDetectTuner(eTVCardId CardId);
-    eTVCardId AutoDetectCardType();
-
-    BOOL InitTuner(eTunerId tunerId);
-    LPCSTR GetInputName(int nVideoSource);
-    int GetMaxCards();
-    LPCSTR GetCardName(eTVCardId CardId);
-    int GetNumInputs();
-    BOOL IsInputATuner(int nInput);
-
-    int GetInputAudioLine(int nInput);
-
-    LPCSTR GetAudioStandardName(eAudioStandard AudioStandard);
-
-    static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-
-    void StatGPIO();
-    void EnableI2SAudioOutput(WORD wRate);
-    void EnableCCIR656VideoOut();
-    void ResetHPrescale(eTaskID TaskID);
-
-    void SetPageTable(eRegionID RegionID, DWORD pPhysical, DWORD nPages);
-    void SetBaseOffsets(eRegionID RegionID, DWORD dwEvenOffset, DWORD dwOddOffset, DWORD dwPitch);
-    void SetBSwapAndWSwap(eRegionID RegionID, BOOL bBSwap, BOOL bWSwap);
-
-    BOOL GetIRQEventRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
-    BOOL GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
-
-    void SetHPrescale(eTaskID TaskID, WORD wSourceSize, WORD wScaleSize);
-
-    void CheckRegisters(DWORD* AOdd, DWORD* AEven, DWORD* BOdd, DWORD* BEven);
-
-    void DumpRegisters();
-
-    ITuner* GetTuner() const;
-
-    // I2C stuff
-    BYTE GetI2CStatus();
-    void SetI2CStatus(BYTE Status);
-    void SetI2CCommand(BYTE Command);
-    void SetI2CData(BYTE Data);
-    BYTE GetI2CData();
-
-    BYTE DirectGetByte(DWORD dwAddress);
-    void DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet);
 
     void SetAudioCarrier1Freq(DWORD Carrier);
     void SetAudioCarrier2Freq(DWORD Carrier);
@@ -307,30 +309,71 @@ public:
     void SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
     void SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
 
+    void SetAudioFMDematrix(eAudioFMDematrix FMDematrix);
+    void SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth);
+
+    void SetAudioSampleRate(eAudioSampleRate SampleRate);
+    void SetAutomaticVolume(eAutomaticVolume AVL);
+
+    /** Miscellaneous audio
+     */
+    void SetAudioLockToVideo(BOOL bLockAudio);
+    BOOL IsAudioChannelDetected(eAudioChannel AudioChannel);
     void GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize);
+
+
+    /** I2C
+     */
+    BYTE GetI2CStatus();
+    void SetI2CStatus(BYTE Status);
+    void SetI2CCommand(BYTE Command);
+    void SetI2CData(BYTE Data);
+    BYTE GetI2CData();
+
+
+    /** Miscellaneous hardware
+     */
+    void StatGPIO();
+    void EnableI2SAudioOutput(WORD wRate);
+    void EnableCCIR656VideoOut();
+
+
+    /** Windows messages
+     */
+    void HandleTimerMessages(int TimerId);
+    static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
+
+    /** DEBUG
+     */
+    void CheckRegisters(DWORD* AOdd, DWORD* AEven, DWORD* BOdd, DWORD* BEven);
+    void DumpRegisters();
+
+    BYTE DirectGetByte(DWORD dwAddress);
+    void DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet);
+
 
 protected:
     void SetTypicalSettings();
     void SetupTasks();
 
-    void CheckVBIAndVideoOverlap(eTaskID TaskID);
+    void SetTaskGeometry(eTaskID TaskID, WORD Width, WORD Height, WORD HDelay, WORD VDelay, WORD ScaleWidth, WORD ScaleHeight);
+    void SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart, WORD VStop, WORD UpscaleDivisor);
+
+    void ResetHPrescale(eTaskID TaskID);
+    void SetHPrescale(eTaskID TaskID, WORD wSourceSize, WORD wScaleSize);
+
     BOOL IsVBIActive();
+    void CheckVBIAndVideoOverlap(eTaskID TaskID);
 
     void VerifyMemorySize(eRegionID RegionID);
     WORD CalculateLinesAvailable(eRegionID RegionID, WORD wBytePerLine);
 
-    int RegionID2Channel(eRegionID RegionID);
-    BYTE TaskID2TaskMask(eTaskID TaskID);
-
     void UpdateAudioClocksPerField(eVideoStandard VideoStandard);
     void CheckScalerError(BOOL bErrorOccurred, WORD ScalerStatus);
 
-private:
-    void InitializeI2C();
-
-    DWORD m_I2CSleepCycle;
-    DWORD m_I2CRegister;
-    bool m_I2CInitialized;
+    int RegionID2Channel(eRegionID RegionID);
+    BYTE TaskID2TaskMask(eTaskID TaskID);
 
 
 private:
@@ -343,31 +386,27 @@ private:
     void MEDION5044CardInputSelect(int nInput);
     void KWTV713XRFCardInputSelect(int nInput);
 
-    void SetAudioFMDematrix(eAudioFMDematrix FMDematrix);
-    void SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth);
-
 
 private:
-    eTVCardId           m_CardType;
+    /// Holds the list of all cards
+    static const TCardType m_SAA7134Cards[];
+    /// Holds auto detection identities
+    static const TAutoDetectSAA7134 m_AutoDetectSAA7134[];
+
+    eSAA7134CardId      m_CardType;
     char                m_TunerType[32];
 
     CI2CBus*            m_I2CBus;
     ITuner*             m_Tuner;
-    IAudioControls*     m_AudioControls;
+
+    /// Stores amount of memory assigned to DMA
+    DWORD               m_DMAChannelMemorySize[7];
+    /// Stores regions prepared for DMA
+    BYTE                m_PreparedRegions;
 
     DWORD               m_LastTriggerError;
 
-private:
-    static const TCardType m_TVCards[];
-
-    // Keeps track of the amount of memory assigned to DMA
-    DWORD               m_DMAChannelMemorySize[7];
-
-    // Keep track of the regions for which DMA is prepared
-    BYTE                m_PreparedRegions;
-
     eVideoStandard      m_VideoStandard;
-
     eAudioInputSource   m_AudioInputSource;
 };
 

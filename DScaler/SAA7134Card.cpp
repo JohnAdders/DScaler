@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.18 2002-10-23 17:05:56 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.19 2002-10-26 04:41:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/23 17:05:56  atnak
+// Fix to trigger error recovery
+//
 // Revision 1.17  2002/10/20 07:41:50  atnak
 // minor syncs
 //
@@ -105,14 +108,13 @@ static char THIS_FILE[]=__FILE__;
 
 CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
-    m_CardType(TVCARD_UNKNOWN),
+    m_CardType(SAA7134CARDID_UNKNOWN),
     m_Tuner(NULL),
     m_PreparedRegions(0x00),
     m_VideoStandard(VIDEOSTANDARD_INVALID)
 {
     m_LastTriggerError = 0UL;
 
-    m_I2CInitialized = false;
     m_I2CBus = new CSAA7134I2CBus(this);
 }
 
@@ -880,22 +882,22 @@ void CSAA7134Card::SetCardType(int CardType)
 {
     if(m_CardType != CardType)
     {
-        m_CardType = (eTVCardId)CardType;
+        m_CardType = (eSAA7134CardId)CardType;
 
         // perform card specific init
-        if(m_TVCards[m_CardType].pInitCardFunction != NULL)
+        if(m_SAA7134Cards[m_CardType].pInitCardFunction != NULL)
         {
             // call correct function
             // this funny syntax is the only one that works
             // if you want help understanding what is going on
             // I suggest you read http://www.newty.de/
-            (*this.*m_TVCards[m_CardType].pInitCardFunction)();
+            (*this.*m_SAA7134Cards[m_CardType].pInitCardFunction)();
         }
     }
 }
 
 
-eTVCardId CSAA7134Card::GetCardType()
+CSAA7134Card::eSAA7134CardId CSAA7134Card::GetCardType()
 {
     return m_CardType;
 }

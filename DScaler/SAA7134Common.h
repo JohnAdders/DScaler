@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.4 2002-10-20 07:41:04 atnak Exp $
+// $Id: SAA7134Common.h,v 1.5 2002-10-26 04:41:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/20 07:41:04  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.3  2002/10/16 11:38:46  atnak
 // cleaned up audio standard stuff
 //
@@ -57,6 +60,23 @@ protected:
         kMAX_VBI_PAGETABLES          = kMAX_FRAMEBUFFERS,
         kMAX_VID_PAGETABLES          = kMAX_FRAMEBUFFERS,
         kMAX_PAGETABLES              = kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES,
+    };
+
+    /// SAA713x Card Ids
+    enum eSAA7134CardId
+    {
+        SAA7134CARDID_UNKNOWN = 0,
+        SAA7134CARDID_PROTEUSPRO,
+        SAA7134CARDID_FLYVIDEO3000,
+        SAA7134CARDID_FLYVIDEO2000,
+        SAA7134CARDID_EMPRESS,
+        SAA7134CARDID_MONSTERTV,
+        SAA7134CARDID_TEVIONMD9717,
+        SAA7134CARDID_TVSTATIONRDS,
+        SAA7134CARDID_CINERGY400,
+        SAA7134CARDID_MEDION5044,
+        SAA7134CARDID_KWTV713XRF,
+        SAA7134CARDID_LASTONE,
     };
 
     enum eTaskID
@@ -230,6 +250,14 @@ protected:
         };
     #undef AUDIO_CARRIER
 
+    enum eAutomaticVolume
+    {
+        AUTOMATICVOLUME_OFF = 0,
+        AUTOMATICVOLUME_SHORTDECAY,
+        AUTOMATICVOLUME_MEDIUMDECAY,
+        AUTOMATICVOLUME_LONGDECAY,
+    };
+
 protected:
 
     typedef struct
@@ -291,7 +319,6 @@ protected:
 
     // Audio standards table
     static TAudioStandardDefinition m_AudioStandards[];
-
 };
 
 

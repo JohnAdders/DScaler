@@ -1534,16 +1534,14 @@ BEGIN
         END
         POPUP "Audio Sta&ndard"
         BEGIN
-            MENUITEM "PAL-B/G FM-stereo",           IDM_AUDIOSTANDARD_1
-            MENUITEM "PAL-D/K1 FM-stereo",          IDM_AUDIOSTANDARD_2
-            MENUITEM "PAL-D/K2 FM-stereo",          IDM_AUDIOSTANDARD_3
-            MENUITEM "PAL-D/K3 FM-stereo",          IDM_AUDIOSTANDARD_4
-            MENUITEM "PAL-B/G NICAM",               IDM_AUDIOSTANDARD_5
-            MENUITEM "PAL-I NICAM",                 IDM_AUDIOSTANDARD_6
-            MENUITEM "PAL-D/K NICAM",               IDM_AUDIOSTANDARD_7
-            MENUITEM "SECAM-L NICAM",               IDM_AUDIOSTANDARD_8
-            MENUITEM "NTSC-M",                      IDM_AUDIOSTANDARD_9
-            MENUITEM "NTSC-A2 FM-stereo",           IDM_AUDIOSTANDARD_10
+            MENUITEM SEPARATOR
+            MENUITEM "Passthrough Sample Rate",     IDC_STATIC, GRAYED
+            MENUITEM "Sample Rate: 32000 Hz",       IDM_AUDIOSTANDARD_32000
+            , GRAYED
+            MENUITEM "Sample Rate: 44100 Hz",       IDM_AUDIOSTANDARD_44100
+            , GRAYED
+            MENUITEM "Sample Rate: 48000 Hz",       IDM_AUDIOSTANDARD_48000
+            , GRAYED
         END
         POPUP "Audio &Channel"
         BEGIN

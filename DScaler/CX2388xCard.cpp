@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.50 2004-02-06 08:01:21 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.51 2004-02-08 13:08:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2004/02/06 08:01:21  adcockj
+// Fixed a couple of minor issues with Torsten's changes
+//
 // Revision 1.49  2004/02/05 21:47:53  to_see
 // Starting/Stopping connexant-drivers while dscaler is running.
 // To Enable/Disable it, go to Settings->Advanced Settings->
@@ -970,8 +973,9 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // Bits 12, 16, and 18 must be set to 1 for SECAM
             // It seems to work even for PAL with these bits
             // TODO : check that they must be set for all the video formats
+            // turn of QCIF filter as suggested by MidiMaker
             // QCIF HFilter
-            m_FilterDefault |= (1<<11);
+            //m_FilterDefault |= (1<<11);
             // 29 Tap first chroma demod
             m_FilterDefault |= (1<<15);
             // Third Chroma Demod - on
@@ -1009,11 +1013,20 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         RegValue = (DWORD)((8.0 * 4.406250 / PLL) * (double)(1<<22));
         WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
-        // set up burst gate delay and AGC gate delay
-        RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
-        RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
+        if(IsSECAMVideoFormat(TVFormat))
+        {
+            // set up burst gate delay and AGC gate delay
+            RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
+            // value suggested by midimaker
+            RegValue |= 0xA000;
+        }
+        else
+        {
+            // set up burst gate delay and AGC gate delay
+            RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
+            RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
+        }
         WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
-
         HorzScale = 0x00;
     }
     // if not using 720 or a CCIR source then 
@@ -1021,17 +1034,18 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     else
     {
         DWORD HTotal(0);
+        DWORD RegValue;
 
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
         WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
+        double PLL;
+
         if(GetTVFormat(TVFormat)->NeedsPLL == TRUE)
         {
-            DWORD RegValue;
-
-            double PLL = SetPLL(GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc * 8);
+            PLL = SetPLL(GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc * 8);
 
             // set up subcarrier frequency
             // Comments from Laurent
@@ -1055,18 +1069,13 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
             WriteDword( CX2388X_SAMPLERATECONV, 0x19D5F);
-
-            // set up burst gate delay and AGC gate delay
-            RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
-            RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
-            WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
         }
         else
         {
-            double PLL = SetPLL(28.636363);
+            PLL = SetPLL(28.636363);
 
             // set up subcarrier frequency
-            DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
+            RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
             WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
             // Subcarrier frequency Dr, for SECAM only but lets
             // set it anyway
@@ -1074,12 +1083,22 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
             WriteDword( CX2388X_SAMPLERATECONV, 0x20000);
+       }
 
+        if(IsSECAMVideoFormat(TVFormat))
+        {
+            // set up burst gate delay and AGC gate delay
+            RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
+            // value suggested by midimaker
+            RegValue |= 0xA000;
+        }
+        else
+        {
             // set up burst gate delay and AGC gate delay
             RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
             RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
-            WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
         }
+        WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
 
         // set up HorzScaling factor
         if(CurrentX <= GetTVFormat(TVFormat)->wHActivex1)
@@ -1173,7 +1192,8 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // It seems to work even for PAL with these bits
             // TODO : check that they must be set for all the video formats
             // QCIF HFilter
-            m_FilterDefault |= (1<<11);
+            // turn of QCIF filter as suggested by MidiMaker
+            //m_FilterDefault |= (1<<11);
             // 29 Tap first chroma demod
             m_FilterDefault |= (1<<15);
             // Third Chroma Demod - on

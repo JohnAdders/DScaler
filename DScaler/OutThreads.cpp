@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.76 2002-08-06 21:03:53 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.77 2002-08-06 21:35:08 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2002/08/06 21:03:53  robmuller
+// Duplicate #include statement removed.
+//
 // Revision 1.75  2002/08/05 21:01:56  laurentg
 // Square pixels mode updated
 //
@@ -798,7 +801,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 pPerf->StopCount(PERF_TIMESHIFT);
 
-                if(!Info.bMissedFrame && VTState != VT_BLACK && !bMinimized)
+                if(!Info.bMissedFrame && !bMinimized && 
+                    ((VTState != VT_BLACK)  || VTPageContainsTransparency))
                 {
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
 
@@ -867,7 +871,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 __try
                 {
-                    if (!Info.bRunningLate  && VTState != VT_BLACK && !bMinimized)
+                    if(!Info.bRunningLate && !bMinimized && 
+                        ((VTState != VT_BLACK)  || VTPageContainsTransparency))
                     {
                         BOOL bFlipNow = FALSE;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.8 2002-06-20 20:00:32 robmuller Exp $
+// $Id: VTDrawer.cpp,v 1.9 2002-08-06 21:35:08 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/20 20:00:32  robmuller
+// Implemented videotext search highlighting.
+//
 // Revision 1.7  2002/05/29 18:44:50  robmuller
 // Added option to disable font anti-aliasing in Teletext.
 //
@@ -75,6 +78,7 @@ unsigned long VTColourTable[9] =
 
 char VTDrawerFontName[32] = "Arial";
 
+BOOL VTPageContainsTransparency = TRUE;
 
 CVTDrawer::CVTDrawer()
     :m_hFont(0),
@@ -108,6 +112,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal;
     BOOL bHasDouble = false;
     BOOL bHighLightChar = false;
+    BOOL bTransparencyPresent = false;
     int CurrentFg, CurrentBkg;
     int DefaultBkg = 0;
     int n;
@@ -338,6 +343,11 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 continue;
             }
 
+            if(CurrentBkg == 8)
+            {
+                bTransparencyPresent = TRUE;
+            }
+
             if((bGraph) && (ch & 0x20))
             {
                 nLastGraph = ch;
@@ -412,6 +422,8 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     SelectObject(hDC, hBrushSave);
     SelectObject(hDC, hFontSave);
     SetBkMode(hDC, SaveBkMode);
+
+    VTPageContainsTransparency = bTransparencyPresent;
 
     return true;
 }

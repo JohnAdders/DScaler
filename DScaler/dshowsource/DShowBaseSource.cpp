@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowBaseSource.cpp,v 1.1 2002-02-07 22:05:43 tobbej Exp $
+// $Id: DShowBaseSource.cpp,v 1.2 2002-09-24 17:18:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +41,7 @@
 
 #include "dscaler.h"
 #include "DShowBaseSource.h"
+#include "DevEnum.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -53,6 +58,40 @@ CDShowBaseSource::CDShowBaseSource(IGraphBuilder *pGraph)
 CDShowBaseSource::~CDShowBaseSource()
 {
 
+}
+
+void CDShowBaseSource::SetAudioDevice(std::string device)
+{
+	m_AudioDevice=device;
+}
+
+CComPtr<IBaseFilter> CDShowBaseSource::GetNewAudioRenderer()
+{
+	if(m_AudioDevice.size()==0)
+	{
+		return NULL;
+	}
+	else
+	{
+		CComPtr<IBaseFilter> pAudioDevice;
+		try
+		{
+			CDShowDevEnum::createDevice(m_AudioDevice,IID_IBaseFilter,&pAudioDevice);
+		}
+		catch(CDShowDevEnumException e)
+		{
+			//the audio device coud not be created, change the error message
+			//to something less cryptic
+			throw CDShowDevEnumException("The selected audio device coud not be created, please change audio device in settings",e.getErrNo());
+		}
+
+		HRESULT hr=m_pGraph->AddFilter(pAudioDevice,L"Audio Renderer");
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to add audio renderer to filter graph",hr);
+		}
+		return pAudioDevice;
+	}
 }
 
 #endif

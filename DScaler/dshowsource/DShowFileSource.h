@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.h,v 1.5 2002-09-14 17:04:24 tobbej Exp $
+// $Id: DShowFileSource.h,v 1.6 2002-09-24 17:18:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/14 17:04:24  tobbej
+// implemented audio output device selection.
+// added a safety check for .grf files when copying settings from dsrend
+//
 // Revision 1.4  2002/08/01 20:22:13  tobbej
 // improved error messages when opening files.
 // corrected some smal problems when opening .grf files
@@ -77,9 +81,9 @@ public:
 	virtual ~CDShowFileSource();
 	
 	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
-	void Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter);
-	bool isConnected() {return m_bIsConnected;};
-	long getNumDroppedFrames(){return 0;};
+	void Connect(CComPtr<IBaseFilter> VideoFilter);
+	bool IsConnected() {return m_bIsConnected;};
+	long GetNumDroppedFrames(){return 0;};
 	
 	string getFileName() {return m_file;}
 

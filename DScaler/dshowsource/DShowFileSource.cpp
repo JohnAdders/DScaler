@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.7 2002-09-21 16:33:30 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.8 2002-09-24 17:18:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/21 16:33:30  tobbej
+// render all audio streams, this makes suround work
+//
 // Revision 1.6  2002/09/14 17:04:24  tobbej
 // implemented audio output device selection.
 // added a safety check for .grf files when copying settings from dsrend
@@ -102,7 +105,7 @@ CDShowFileSource::~CDShowFileSource()
 
 }
 
-void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter)
+void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
 {
 	USES_CONVERSION;
 	HRESULT hr;
@@ -162,21 +165,22 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFil
 		/*
 		Connect all audio streams, not sure if this is a good idea, but it 
 		looks like IGraphBuilder::RenderFile also tries to connect all audio
-		streams. This will not work if the user has selected a specific audio
-		renderer (AudioFilter!=NULL)
+		streams.
+		This will always add one extra unconnected audio renderer when using
+		a user specified audio renderer
 		*/
-		while(hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,AudioFilter),SUCCEEDED(hr))
+		while(hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,GetNewAudioRenderer()),SUCCEEDED(hr))
 		{
 			bAudioRendered=true;
 			AudioStreamCount++;
 		}
 		if(bAudioRendered)
 		{
-			LOG(2,"%d Audio streams rendered",AudioStreamCount);
+			LOG(2,"DShowFileSource: %d Audio streams rendered",AudioStreamCount);
 		}
 		else
 		{
-			LOG(2,"Unsupported audio or no audio found, error code: 0x%x",hr);
+			LOG(2,"DShowFileSource: Unsupported audio or no audio found, error code: 0x%x",hr);
 		}
 	}
 	else
@@ -266,7 +270,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFil
 				GUID NewGUID;
 				if(FAILED(pPStrmOld->GetClassID(&OldGUID)) || FAILED(pPStrmNew->GetClassID(&NewGUID)))
 				{
-					LOG(2,"Failed to get ClassID of new or old renderer filter");
+					LOG(2,"DShowFileSource: Failed to get ClassID of new or old renderer filter");
 				}
 				else
 				{
@@ -291,7 +295,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFil
 					}
 					else
 					{
-						LOG(2,"Old and new renderer filter is not of the same type, will not copy setting");
+						LOG(2,"DShowFileSource: Old and new renderer filter is not of the same type, will not copy setting");
 					}
 				}
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowBaseSource.h,v 1.3 2002-09-14 17:03:11 tobbej Exp $
+// $Id: DShowBaseSource.h,v 1.4 2002-09-24 17:18:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.2  2002/03/15 23:01:53  tobbej
 // changed dropped frames counter to include dropped frames in source filter
 //
@@ -61,19 +64,27 @@ public:
 	 * @param VideoFilter video renderer filter to connect to
 	 * @param AudioFilter audio renderer filter to connect to, or null to let the source decide.
 	 */
-	virtual void Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter)=0;
+	virtual void Connect(CComPtr<IBaseFilter> VideoFilter)=0;
 
 	/**
 	 * Checks if this source is connected
 	 * @return true if this source is connected
 	 */
-	virtual bool isConnected()=0;
+	virtual bool IsConnected()=0;
 
 	/**
 	 * Gets number of dropped frames.
 	 * @return number of dropped frames
 	 */
-	virtual long getNumDroppedFrames()=0;
+	virtual long GetNumDroppedFrames()=0;
+
+protected:
+	friend class CDShowGraph;
+	void SetAudioDevice(std::string device);
+	CComPtr<IBaseFilter> GetNewAudioRenderer();
+
+private:
+	std::string m_AudioDevice;
 };
 
 #endif // !defined(AFX_DSHOWBASESOURCE_H__AB8F10EC_CF36_4398_8F9F_68144D830D0D__INCLUDED_)

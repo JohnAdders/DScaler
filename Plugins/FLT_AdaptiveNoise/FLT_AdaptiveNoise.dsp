@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "FLT_ADAPTIVENOISE_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /Ox /Ot /Ow /Og /Oi /Ob2 /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "FLT_AdaptiveNoise_EXPORTS" /FD /c
+# ADD CPP /nologo /MT /W3 /Ox /Ot /Ow /Og /Oi /Ob2 /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "FLT_AdaptiveNoise_EXPORTS" /FR /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -102,6 +102,10 @@ SOURCE=.\FLT_AdaptiveNoise.c
 # Begin Source File
 
 SOURCE=.\FLT_AdaptiveNoise.asm
+# End Source File
+# Begin Source File
+
+SOURCE=.\info.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

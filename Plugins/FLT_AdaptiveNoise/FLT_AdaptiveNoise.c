@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/08/06 21:26:03  lindsey
+// Made prefetching a user option
+//
 // Revision 1.12  2002/06/18 19:46:08  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -69,11 +72,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-//#define ADAPTIVE_NOISE_DEBUG
+// #define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>
+#include <stdio.h>
 
+#include "info.h"
 #include "windows.h"
 #include "DS_Filter.h"
 #include "..\help\helpids.h"
@@ -148,7 +153,7 @@
 
 // Total length of the histogram
 // If gDecayCoefficient is increased above ~95%, this should be increased, too
-// This must be evenly divisible by sizeof(DOUBLE) because of the way it is cleared
+// This must be evenly divisible by sizeof(DOUBLE) = 8 because of the way it is cleared
 
 #define HISTOGRAM_LENGTH                        1024
 
@@ -167,10 +172,15 @@
 long            FilterAdaptiveNoise( TDeinterlaceInfo* pInfo );
 long            FilterAdaptiveNoise_PREFETCH( TDeinterlaceInfo* pInfo );
 long            FilterAdaptiveNoise_DEBUG( TDeinterlaceInfo* pInfo );
+long            FilterAdaptiveNoise_SPATIAL( TDeinterlaceInfo* pInfo );
+long            FilterAdaptiveNoise_PREFETCH_SPATIAL( TDeinterlaceInfo* pInfo );
+long            FilterAdaptiveNoise_DEBUG_SPATIAL( TDeinterlaceInfo* pInfo );
 
 void            AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBaseline,
                     DOUBLE* pCumDifferencePeak, BOOLEAN* pDoShowDot );
 
+__declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
+long            DispatchAdaptiveNoise( TDeinterlaceInfo *pInfo );
 void __cdecl    ExitAdaptiveNoise( void );
 void            CleanupAdaptiveNoise( void );
 
@@ -195,22 +205,28 @@ static BYTE*    gpHistogram = NULL;
 // Percent (well, sort of a percent) of spatially and temporally shared motion
 // evidence
 
-// This setting is currently hidden, since it doesn't have much useful play.
-// 83 looks like the best compromise between keeping old information (which improves
-// detection of motion) and stability of the motion estimate. (If the decay is any
-// higher, the peak becomes bimodal as ~half of it is displaced downward.)
+// This setting is currently hidden, since it's very hard for the user to judge how to set it.
+// 83 looks like a good compromise between keeping old information (which improves
+// detection of moving textures) and avoiding artifacts.  But really, anything from 70 to 95 will
+// do.
 
-long            gDecayCoefficient = 83;
+long            gDecayCoeff = 83;
 
 // Determines the placement toward the "start" of the N histogram at which we completely
 // compensate for noise
 
-long            gStability = 25;
+long            gStability = 20;
 
 // Determines the placement after the peak of the N histogram where we decide that there
 // must be motion in a block
 
-long            gNoiseReduction = 55;
+long            gNoiseReduction = 35;
+
+// Determines the strength of spatial smoothing, relative to the strength of temporal smoothing.
+// If gDoSmoothing is turned off, the filter runs much faster.
+
+long            gDoSmoothing = FALSE;
+long            gSmoothing = 100;
 
 // Turn on a histogram and statistics readout
 
@@ -221,6 +237,9 @@ long            gIndicator = FALSE;
 
 long            gShowLockDot = FALSE;
 
+// Show an estimate of the expected sum of absolute color component difference per pixel
+
+long            gShowReadout = FALSE;
 
 #ifdef ADAPTIVE_NOISE_DEBUG
 // Toggle pink pixel flashing
@@ -266,7 +285,7 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 {
     {
         "Stability", SLIDER, 0, &gStability,
-        25, 0, 100, 1, 1,
+        20, 0, 100, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AStability", NULL,
     },
@@ -278,7 +297,7 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
     {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
-        55, 0, 200, 1, 1,
+        35, 0, 200, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveNoiseReduction", NULL,
     },
@@ -289,11 +308,13 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
         "AdaptiveNoiseFilter", "LockDot", NULL,
     },
     {
-#ifdef ADAPTIVE_NOISE_DEBUG
+        "Readout", ONOFF, 0, &gShowReadout,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "AdaptiveNoiseFilter", "Readout", NULL,
+    },
+    {
         "Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
-#else
-        "Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
-#endif // Show "activate" flag when testing
         FALSE, 0, 1, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "ActivateANoiseFilter", NULL,
@@ -311,13 +332,25 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
         {
 #ifdef ADAPTIVE_NOISE_DEBUG
-        "Motion Memory (Percent)", SLIDER, 0, &gDecayCoefficient,
+        "Motion Memory (Percent)", SLIDER, 0, &gDecayCoeff,
 #else
-        "Motion Memory (Percent)", NOT_PRESENT, 0, &gDecayCoefficient,
+        "Motion Memory (Percent)", NOT_PRESENT, 0, &gDecayCoeff,
 #endif // Show motion memory slider when testing
-        83, 0, 99, 1, 1,
+        80, 0, 99, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "MotionSharing", NULL,
+    },
+    {
+        "Spatial Smoothing (Enable)", ONOFF, 0, &gDoSmoothing,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "AdaptiveNoiseFilter", "AdaptiveDoSmoothing", NULL,
+    },
+    {
+        "Spatial Smoothing (Percent)", SLIDER, 0, &gSmoothing,
+        100, 0, 400, 1, 1,
+        NULL,
+        "AdaptiveNoiseFilter", "AdaptiveSmoothing", NULL,
     },
 #ifdef ADAPTIVE_NOISE_DEBUG
     {
@@ -351,7 +384,7 @@ FILTER_METHOD AdaptiveNoiseMethod =
     "Noise Reduction (Adaptive)",           // For consistency with the Temporal Noise filter
     FALSE,                                  // Not initially active
     TRUE,                                   // Call on input so pulldown/deinterlacing can benefit
-    FilterAdaptiveNoise,                    // Algorithm to use (really decided by GetFilterPluginInfo)
+    DispatchAdaptiveNoise,                  // Algorithm to use (really decided by GetFilterPluginInfo)
     0,                                      // Menu: assign automatically
     FALSE,                                  // Does not run if we've run out of time
     NULL,                                   // No initialization procedure
@@ -365,7 +398,7 @@ FILTER_METHOD AdaptiveNoiseMethod =
     FLT_AdaptiveNoiseSettings,
     WM_FLT_ANOISE_GETVALUE - WM_APP,        // Settings offset
     TRUE,                                   // Can handle interlaced material
-    2,                                      // Requires field before last (for interlaced material)
+    3,                                      // Requires field before last (for interlaced material)
     IDH_ADAPTIVE_NOISE,
 };
 
@@ -374,6 +407,41 @@ FILTER_METHOD AdaptiveNoiseMethod =
 // Main code (included from FLT_AdaptiveNoise.asm)
 /////////////////////////////////////////////////////////////////////////////
 
+// Include the main code from a different file to allow for easy comparisons of
+// different algorithms, versions for different processors or as a workaround
+// for PCI bus problems
+
+#undef USE_SPATIAL
+#undef USE_PREFETCH
+
+#include "FLT_AdaptiveNoise.asm"
+
+#define USE_PREFETCH
+#include "FLT_AdaptiveNoise.asm"
+
+#ifdef ADAPTIVE_NOISE_DEBUG
+    #define IS_DEBUG_FLAG
+    #include "FLT_AdaptiveNoise.asm"
+    #undef IS_DEBUG_FLAG
+#endif  // Debug switch version of code
+
+
+#define USE_SPATIAL
+#undef USE_PREFETCH
+
+#include "FLT_AdaptiveNoise.asm"
+
+#define USE_PREFETCH
+#include "FLT_AdaptiveNoise.asm"
+
+#ifdef ADAPTIVE_NOISE_DEBUG
+    #define IS_DEBUG_FLAG
+    #include "FLT_AdaptiveNoise.asm"
+    #undef IS_DEBUG_FLAG
+#endif  // Debug switch version of code
+
+
+
 long DispatchAdaptiveNoise( TDeinterlaceInfo *pInfo )
 {
     long    FilterResult = 1000;
@@ -381,37 +449,42 @@ long DispatchAdaptiveNoise( TDeinterlaceInfo *pInfo )
 #ifdef ADAPTIVE_NOISE_DEBUG
     if( gTestingFlag == TRUE )
     {
-        FilterResult = FilterAdaptiveNoise_DEBUG( pInfo );
+        if( gDoSmoothing == TRUE )
+        {
+            FilterResult = FilterAdaptiveNoise_DEBUG_SPATIAL( pInfo );
+        }
+        else
+        {
+            FilterResult = FilterAdaptiveNoise_DEBUG( pInfo );
+        }
     }
     else
 #endif // Function for the debug version
-    if( gUsePrefetching == TRUE )
+    if( gDoSmoothing == TRUE )
     {
-        FilterResult = FilterAdaptiveNoise_PREFETCH( pInfo );
+        if( gUsePrefetching == TRUE )
+        {
+            FilterResult = FilterAdaptiveNoise_PREFETCH_SPATIAL( pInfo );
+        }
+        else
+        {
+            FilterResult = FilterAdaptiveNoise_SPATIAL( pInfo );
+        }
     }
     else
     {
-        FilterResult = FilterAdaptiveNoise( pInfo );
+        if( gUsePrefetching == TRUE )
+        {
+            FilterResult = FilterAdaptiveNoise_PREFETCH( pInfo );
+        }
+        else
+        {
+            FilterResult = FilterAdaptiveNoise( pInfo );
+        }
     }
     return FilterResult;
 }
 
-
-// Include the main code from a different file to allow for easy comparisons of
-// different algorithms, versions for different processors or as a workaround
-// for PCI bus problems
-
-#undef USE_PREFETCH
-#include "FLT_AdaptiveNoise.asm"
-#define USE_PREFETCH
-#include "FLT_AdaptiveNoise.asm"
-#undef USE_PREFETCH
-
-#ifdef ADAPTIVE_NOISE_DEBUG
-#define IS_DEBUG_FLAG
-#include "FLT_AdaptiveNoise.asm"
-#undef IS_DEBUG_FLAG
-#endif  // Debug switch version of code
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of utility code
@@ -473,19 +546,12 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
     if( CpuFeatureFlags & (FEATURE_SSE | FEATURE_MMXEXT) )
     {
         AdaptiveNoiseMethod.pfnAlgorithm = DispatchAdaptiveNoise;
+        return &AdaptiveNoiseMethod;
     }
     else
     {
         AdaptiveNoiseMethod.pfnAlgorithm = NULL;
-    }
-
-    if (AdaptiveNoiseMethod.pfnAlgorithm == NULL)
-    {
         return NULL;
-    }
-    else
-    {
-        return &AdaptiveNoiseMethod;
     }
 }
 
@@ -649,7 +715,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         // Find the part of the histogram after which the false peak (due to decay from the MaxNoise threshold)
         // will be found.
 
-        FalsePeak = (LONG)(MaxNoise*(gDecayCoefficient+1))/100;
+        FalsePeak = (LONG)(MaxNoise*(gDecayCoeff+1))/100;
         if( FalsePeak > HISTOGRAM_LENGTH - PEAK_FAR_COMPARISON - 1 )
         {
             FalsePeak = HISTOGRAM_LENGTH - PEAK_FAR_COMPARISON - 1;
@@ -737,7 +803,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         }
 
         // If the peak is after the false peak threshold, downweight it.
-        if( Index >= (LONG)(MaxNoise*(gDecayCoefficient+1))/100 )
+        if( Index >= (LONG)(MaxNoise*(gDecayCoeff+1))/100 )
         {
             SignalStrength *= PAST_PEAK_REDUCTION;
         }
@@ -779,21 +845,19 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
             *pDoShowDot = FALSE;
         }
 
+        // If reliability is increasing, do not lessen the effect when near the current estimate
+        if( sReliability > SignalStrength/RELIABILITY_DECAY )
+        {
+            ProbSameSignal = 0.0;
+        }
+
         // Bias toward the more reliable signals, since we can just ignore the lousy ones.
         // Paradoxically, this means poor signals reduce the reliability less than mediocre signals do.  This is
         // desirable behavior because the worse the signal, the more we want to hold onto the older estimate.
+        sReliability = sReliability*ProbSameSignal +
+            (1.0 - ProbSameSignal)*sReliability*((sReliability)/(SignalStrength+sReliability)) +
+            (1.0 - ProbSameSignal)*(SignalStrength/RELIABILITY_DECAY)*(SignalStrength)/(sReliability+SignalStrength);
 
-        if( sReliability > SignalStrength/RELIABILITY_DECAY )
-        {
-            sReliability = sReliability*ProbSameSignal +
-                (1.0 - ProbSameSignal)*sReliability*((sReliability)/(SignalStrength+sReliability)) +
-                (1.0 - ProbSameSignal)*(SignalStrength/RELIABILITY_DECAY)*(SignalStrength)/(sReliability+SignalStrength);
-        }
-        else
-        {
-            sReliability = sReliability*((sReliability)/(SignalStrength+sReliability)) +
-                (SignalStrength/RELIABILITY_DECAY)*(SignalStrength)/(sReliability+SignalStrength);
-        }
         // Show reliability estimate
         if( gIndicator == TRUE )
         {
@@ -803,8 +867,8 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
     }
 
     // Show MaxNoise point -- This is often off the bottom of the screen
-    if( ((LONG)(MaxNoise*(gDecayCoefficient+1))/(100*HISTOGRAM_SCALE) < pInfo->FieldHeight - 20) && (gIndicator == TRUE) )
+    if( ((LONG)(MaxNoise*(gDecayCoeff+1))/(100*HISTOGRAM_SCALE) < pInfo->FieldHeight - 20) && (gIndicator == TRUE) )
     {
-        *(pInfo->PictureHistory[0]->pData + ((((MaxNoise*(gDecayCoefficient+1))/(100*HISTOGRAM_SCALE)) + 20) * pInfo->InputPitch) + 600) = 0xFF;
+        *(pInfo->PictureHistory[0]->pData + ((((MaxNoise*(gDecayCoeff+1))/(100*HISTOGRAM_SCALE)) + 20) * pInfo->InputPitch) + 600) = 0xFF;
     }
 }

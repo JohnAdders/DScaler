@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/01/26 00:42:24  lindsey
+// Moved algorithm description to a separate file
+//
 /////////////////////////////////////////////////////////////////////////////
 
 And thus the native hue of resolution
@@ -34,6 +37,22 @@ color.
 
 This is as much a motion detector as it is a noise detector.  Feel free to pull ideas
 from here to improve motion detection in other parts of the program.
+
+
+Not yet documented:
+
+There have been some substantial changes to this filter which haven't yet been written
+up in any detail.  Specifically --
+1) The motion evidence equation has been tweaked to give it a tail, allowing it to more
+closely resemble the theoretical optimum.
+2) The baseline and multipliers of the motion evidence equation are now a function of the
+previous local motion evidence.  This takes account for the reduced variance of pixels which
+have been averaged in previous fields.
+3) There is now an optional spatial smoother, whose parameters are derived from the noise
+estimate
+4) Stability is automatically decreased when the noise estimate is high, and increased when
+it is low.
+5) The formula for N has changed a little.
 
 
 A note to developers:

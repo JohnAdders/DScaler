@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.7 2002-10-11 21:49:11 ittarnavsky Exp $
+// $Id: events.h,v 1.8 2002-12-02 17:06:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/11 21:49:11  ittarnavsky
+// added rcs/cvs log tag
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __EVENTS_H___
@@ -97,8 +100,6 @@ protected:
 
 	vector<TEventInfo> m_LastEvents;
     
-	void StartThread();
-    void StopThread();
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);
 
@@ -116,7 +117,7 @@ public:
     void Register(CEventObject *pObject, eEventType *EventList);
     void Unregister(CEventObject *pObject);
 
-	void EventTimer();
+	void ProcessEvents();
 
     void RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
 

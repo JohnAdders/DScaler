@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.261 2002-11-03 06:00:29 atnak Exp $
+// $Id: DScaler.cpp,v 1.262 2002-12-02 17:06:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.261  2002/11/03 06:00:29  atnak
+// Added redrawing the menu bar when it changes
+//
 // Revision 1.260  2002/10/30 13:37:52  atnak
 // Added "Single key teletext toggle" option. (Enables mixed mode menu item)
 //
@@ -960,9 +963,6 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
-void GlobalEventTimer_Start();
-void GlobalEventTimer_Stop();
-
 
 static const char* UIPriorityNames[3] = 
 {
@@ -1198,7 +1198,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         EventCollector = new CEventCollector();        
     }
-	GlobalEventTimer_Start();
         
     // Master setting. Holds all settings in the future
     //  For now, only settings that are registered here respond to events 
@@ -4009,6 +4008,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;       
 
+    case UWM_EVENTADDEDTOQUEUE:
+        if (EventCollector != NULL)
+        {
+            EventCollector->ProcessEvents();
+        }
+        break;
+
     //TJ 010506 make sure we dont erase the background
     //if we do, it will cause flickering when resizing the window
     //in future we migth need to adjust this to only erase parts not covered by overlay
@@ -4479,7 +4485,6 @@ void MainWndOnDestroy()
     __try
     {
         LOG(1, "Try free EventCollector");
-		GlobalEventTimer_Stop();
         if (EventCollector!=NULL)
         {
             delete EventCollector;
@@ -5323,34 +5328,6 @@ BOOL KeyboardLock_OnChange(long NewValue)
     return FALSE;
 }
 
-VOID CALLBACK GlobalEventTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{		
-	if (EventCollector->NumEventsWaiting()>0)
-	{
-		if (m_EventTimerID>0)
-		{
-			::KillTimer(NULL, m_EventTimerID);
-			m_EventTimerID = 0;
-		}
-		EventCollector->EventTimer();
-		m_EventTimerID = ::SetTimer(NULL,NULL, 1, GlobalEventTimer);
-		return;
-	}	
-}
-
-void GlobalEventTimer_Start()
-{
-	m_EventTimerID = ::SetTimer(NULL,NULL, 1, GlobalEventTimer);
-}
-
-void GlobalEventTimer_Stop()
-{
-	if (m_EventTimerID!=0)
-	{
-		::KillTimer(NULL, m_EventTimerID);
-		m_EventTimerID = 0;
-	}
-}
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.38 2002-11-03 06:00:29 atnak Exp $
+// $Id: DScaler.h,v 1.39 2002-12-02 17:06:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -131,6 +131,7 @@ typedef struct
 #define WM_VIDEOTEXT           WM_APP + 0x1000
 #define UWM_INPUTSIZE_CHANGE   WM_APP + 0x1001
 #define UWM_SQUAREPIXELS_CHECK WM_APP + 0x1002
+#define UWM_EVENTADDEDTOQUEUE  WM_APP + 0x1003
 #define VTM_REDRAWHEADER       0x0001
 
 extern HINSTANCE hDScalerInst;

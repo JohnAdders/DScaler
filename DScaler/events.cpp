@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.6 2002-10-07 20:29:48 kooiman Exp $
+// $Id: events.cpp,v 1.7 2002-12-02 17:06:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/07 20:29:48  kooiman
+// Fixed last event list. Added soundchannel event.
+//
 // Revision 1.5  2002/10/02 10:52:35  kooiman
 // Fixed C++ type casting for events.
 //
@@ -40,6 +43,7 @@
 #include "Events.h"
 #include "DebugLog.h"
 #include "Crash.h"
+#include "DScaler.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -109,8 +113,6 @@ CEventCollector::CEventCollector()
 
 CEventCollector::~CEventCollector()
 {
-    StopThread();
-	
 	DeleteCriticalSection(&m_EventCriticalSection);
 	DeleteCriticalSection(&m_LastEventCriticalSection);
 	for (int i = 0; i < m_EventObjects.size(); i++)
@@ -376,139 +378,45 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 	ei.NewValue = NewValue;
 	ei.ComingUp = CopyEventList(ComingUp);
 	m_ScheduledEventList.push_back(ei);	
-	//Use function outside of this class, because sometimes timers 
-	//  mysteriously get killed.
-	
-	/*if (m_ScheduleTimerID == 0)
-	{
-		m_ScheduleTimerID = SetTimer(NULL,NULL,1,StaticEventTimerWrap);
-		///\todo part of message loop instead of timer
-	}*/	
 	LeaveCriticalSection(&m_EventCriticalSection);
-	//StartThread();
+
+    SendMessage(hWnd, UWM_EVENTADDEDTOQUEUE, 0, 0);
 }
 
 
-void CEventCollector::EventTimer()
+void CEventCollector::ProcessEvents()
 {	
-	/*EnterCriticalSection(&m_EventCriticalSection);
-	::KillTimer(NULL, m_ScheduleTimerID);
-	m_ScheduleTimerID = 0;
-	LeaveCriticalSection(&m_EventCriticalSection);
-	*/
-	TEventInfo ei;
+    // JA 2/12/2002
+    // attempt to get settings working properly
+    // using messages rather than a thread
+    // this should force all changes to come
+    // from the main thread
+    while(TRUE)
+    {			
+    	TEventInfo ei;
+        ei.Event = EVENT_NONE;
 
-	ei.Event = EVENT_NONE;
-	do
-	{			
 		EnterCriticalSection(&m_EventCriticalSection);
 		if (m_ScheduledEventList.size()>0)
 		{
 			ei = m_ScheduledEventList.front();
 			m_ScheduledEventList.pop_front();
-			if (m_ScheduledEventList.size() == 0)
-			{				
-				//m_ScheduleTimerID = 0;
-			}
 		}
 		LeaveCriticalSection(&m_EventCriticalSection);
-
-	
+        
 		if (ei.Event != EVENT_NONE)
 		{
 			LOG(2,"Event: %d (%d,%d)",ei.Event,ei.OldValue,ei.NewValue);
 			RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);	
-			if (ei.ComingUp != NULL) { delete[] ei.ComingUp; }
-			ei.Event = EVENT_NONE;
+			if (ei.ComingUp != NULL)
+            { 
+                delete[] ei.ComingUp; 
+            }
 		}
-	//	Sleep(0);
-	//} while (!m_bStopThread);
-	} while (ei.Event != EVENT_NONE);
-}
-
-VOID CALLBACK CEventCollector::StaticEventTimerWrap(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{	
-	EventCollector->EventTimer();
-}
-
-
-
-DWORD WINAPI EventCollectorThreadProc(LPVOID lpThreadParameter)
-{
-    if (lpThreadParameter != NULL)
-    {        
-        __try 
+        else
         {
-            ((CEventCollector*)lpThreadParameter)->EventTimer();
-        }        
-        __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
-        {             
-            LOG(1, "Crash in CEventCollector event loop");
-            ExitThread(1);
-            return 1;
+            return;
         }
-        ExitThread(0);
-        return 0;
-    }
-    ExitThread(1);
-    return 1;
+	} 
 }
 
-void CEventCollector::StartThread()
-{
-    DWORD LinkThreadID;
-
-    if (m_EventCollectorThread != NULL)
-    {
-        // Already started
-        return;
-    }
-    
-    m_bStopThread = FALSE;
-
-    m_EventCollectorThread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,  // No security.
-                             (DWORD) 0,                     // Same stack size.
-                             EventCollectorThreadProc,                  // Thread procedure.
-                             (LPVOID)this,                          // Parameter.
-                             (DWORD) 0,                     // Start immediatly.
-                             (LPDWORD) & LinkThreadID);     // Thread ID.    
-}
-
-void CEventCollector::StopThread()
-{
-    DWORD ExitCode;
-    int i;
-    BOOL Thread_Stopped = FALSE;
-
-    if (m_EventCollectorThread != NULL)
-    {
-        i = 10;
-        m_bStopThread = TRUE;
-        while(i-- > 0 && !Thread_Stopped)
-        {
-            if (GetExitCodeThread(m_EventCollectorThread, &ExitCode) == TRUE)
-            {
-                if (ExitCode != STILL_ACTIVE)
-                {
-                    Thread_Stopped = TRUE;
-                }
-                else
-                {
-                    Sleep(50);
-                }
-            }
-            else
-            {
-                Thread_Stopped = TRUE;
-            }
-        }
-
-        if (Thread_Stopped == FALSE)
-        {
-            TerminateThread(m_EventCollectorThread, 0);
-            Sleep(50);
-        }
-        CloseHandle(m_EventCollectorThread);
-        m_EventCollectorThread = NULL;
-    }
-}

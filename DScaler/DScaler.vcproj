@@ -1440,6 +1440,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\EPG.cpp">
+			</File>
+			<File
 				RelativePath="ErrorBox.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3822,6 +3825,9 @@
 			</File>
 			<File
 				RelativePath="dshowsource\DSVideoFormatPage.h">
+			</File>
+			<File
+				RelativePath=".\EPG.h">
 			</File>
 			<File
 				RelativePath="ErrorBox.h">

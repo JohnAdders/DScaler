@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.3 2003-02-07 09:33:37 adcockj Exp $
+// $Id: Credits.cpp,v 1.4 2003-02-07 10:53:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/02/07 09:33:37  adcockj
+// Welcome back Ivan
+//
 // Revision 1.2  2003/01/28 09:15:35  adcockj
 // Updated Credits with new patches and made all sections alphabetical
 //
@@ -123,6 +126,7 @@ char *ArrCredits[] = { 	"DScaler\n",
 						"Lindsey Dubb\f",
                         "Michael Eskin\f",
                         "Steve Grimm\f",
+                        "Jeroen Kooiman\f"
                         "Mark Rejhon\f",
                         "Michael Samblanet\f",
 						"Eric Schmidt\f",
@@ -152,6 +156,7 @@ char *ArrCredits[] = { 	"DScaler\n",
                         "Tom Fojta\f",
                         "Péter Gulyás\f",
                         "John Isar\f",
+                        "Piet Orye\f",
                         "Kevin Radke\f",
                         "Eduardo José Tagle\f",
 						"",

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.40 2003-11-03 17:29:47 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.41 2003-11-13 17:32:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/11/03 17:29:47  adcockj
+// Fixes for new PMS deluxe
+//
 // Revision 1.39  2003/10/27 16:22:55  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -170,6 +173,7 @@
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
+#include "..\DScalerResDbg\BT8x8Res\resource.h"
 #include "resource.h"
 #include "BT848Card.h"
 #include "BT848_Defines.h"
@@ -181,6 +185,7 @@
 #include "ProgramList.h"
 /// \todo remove need for this
 #include "OutThreads.h"
+#include "DScaler.h"
 #include "VBI.h"
 
 //===========================================================================
@@ -1166,4 +1171,151 @@ ULONG CBT848Card::GetGPDATA()
 void CBT848Card::ResetChip()
 {
     WriteByte(BT848_SRESET, 0);
+}
+
+void CBT848Card::ShowRegisterSettingsDialog(HINSTANCE hBT8x8ResourceInst)
+{
+    DialogBoxParam(hBT8x8ResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
+}
+
+#define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}
+
+BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    static CBT848Card* pThis;
+    static DWORD dwAddress;
+    static BYTE RegValue;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        pThis = (CBT848Card*)lParam;
+        SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_RESETCONTENT, 0, 0);
+        AddRegister(BT848_DSTATUS);
+        AddRegister(BT848_IFORM);
+        AddRegister(BT848_FCNTR);
+        AddRegister(BT848_PLL_F_LO);
+        AddRegister(BT848_PLL_F_HI);
+        AddRegister(BT848_PLL_XCI);
+        AddRegister(BT848_TGCTRL);
+        AddRegister(BT848_TDEC);
+        AddRegister(BT848_E_CROP);
+        AddRegister(BT848_O_CROP);
+        AddRegister(BT848_E_VDELAY_LO);
+        AddRegister(BT848_O_VDELAY_LO);
+        AddRegister(BT848_E_VACTIVE_LO);
+        AddRegister(BT848_O_VACTIVE_LO);
+        AddRegister(BT848_E_HDELAY_LO);
+        AddRegister(BT848_O_HDELAY_LO);
+        AddRegister(BT848_E_HACTIVE_LO);
+        AddRegister(BT848_O_HACTIVE_LO);
+        AddRegister(BT848_E_HSCALE_HI);
+        AddRegister(BT848_O_HSCALE_HI);
+        AddRegister(BT848_E_HSCALE_LO);
+        AddRegister(BT848_O_HSCALE_LO);
+        AddRegister(BT848_BRIGHT);
+        AddRegister(BT848_E_CONTROL);
+        AddRegister(BT848_O_CONTROL);
+        AddRegister(BT848_CONTRAST_LO);
+        AddRegister(BT848_SAT_U_LO);
+        AddRegister(BT848_SAT_V_LO);
+        AddRegister(BT848_HUE);
+        AddRegister(BT848_E_SCLOOP);
+        AddRegister(BT848_O_SCLOOP);
+        AddRegister(BT848_WC_UP);
+        AddRegister(BT848_WC_DOWN);
+        AddRegister(BT848_VTOTAL_LO);
+        AddRegister(BT848_VTOTAL_HI);
+        AddRegister(BT848_DVSIF);
+        AddRegister(BT848_OFORM);
+        AddRegister(BT848_E_VSCALE_HI);
+        AddRegister(BT848_O_VSCALE_HI);
+        AddRegister(BT848_E_VSCALE_LO);
+        AddRegister(BT848_O_VSCALE_LO);
+        AddRegister(BT848_TEST);
+        AddRegister(BT848_ADELAY);
+        AddRegister(BT848_BDELAY);
+        AddRegister(BT848_ADC);
+        AddRegister(BT848_E_VTC);
+        AddRegister(BT848_O_VTC);
+        AddRegister(BT848_COLOR_FMT);
+        AddRegister(BT848_COLOR_CTL);
+        AddRegister(BT848_CAP_CTL);
+        AddRegister(BT848_VBI_PACK_SIZE);
+        AddRegister(BT848_VBI_PACK_DEL);
+        AddRegister(BT848_INT_STAT);
+        AddRegister(BT848_INT_MASK);
+        AddRegister(BT848_GPIO_DMA_CTL);
+        AddRegister(BT848_I2C);
+        AddRegister(BT848_RISC_STRT_ADD);
+        AddRegister(BT848_GPIO_OUT_EN);
+        AddRegister(BT848_GPIO_OUT_EN_HIBYTE);
+        AddRegister(BT848_GPIO_REG_INP);
+        AddRegister(BT848_GPIO_REG_INP_HIBYTE);
+        AddRegister(BT848_RISC_COUNT);
+        AddRegister(BT848_GPIO_DATA);
+        AddRegister(BT848_GPIO_DATA_HIBYTE);
+        AddRegister(BT848_TBLG);
+        return TRUE;
+        break;
+
+    case WM_COMMAND:
+        switch(LOWORD(wParam))
+        {
+        case IDOK:
+            EndDialog(hDlg, TRUE);
+            break;
+
+        case IDC_BIT0:
+        case IDC_BIT1:
+        case IDC_BIT2:
+        case IDC_BIT3:
+        case IDC_BIT4:
+        case IDC_BIT5:
+        case IDC_BIT6:
+        case IDC_BIT7:
+            if(Button_GetCheck(GetDlgItem(hDlg, LOWORD(wParam))) == BST_CHECKED)
+            {
+                RegValue |= 1 << (LOWORD(wParam) - IDC_BIT0);
+            }
+            else
+            {
+                RegValue &= ~(1 << (LOWORD(wParam) - IDC_BIT0));
+            }
+            pThis->WriteDword(dwAddress, RegValue);
+            break;
+
+        case IDC_REGISTERSELECT:
+            if(HIWORD(wParam) == LBN_SELCHANGE)
+            {
+                long Index = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_REGISTERSELECT));
+                if(Index != -1)
+                {
+                    dwAddress = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index);
+                    RegValue = pThis->ReadByte(dwAddress);
+                    BYTE TempRegValue(RegValue);
+                    for(int i(0); i < 8; ++i)
+                    {
+                        if(TempRegValue & 1)
+                        {
+                            Button_SetCheck(GetDlgItem(hDlg, IDC_BIT0 + i), BST_CHECKED);
+                        }
+                        else
+                        {
+                            Button_SetCheck(GetDlgItem(hDlg, IDC_BIT0 + i), BST_UNCHECKED);
+                        }
+                        TempRegValue = TempRegValue >> 1;
+                    }
+                }
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+    
+    default:
+        break;
+    }
+    return (FALSE);
 }

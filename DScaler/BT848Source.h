@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.62 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Source.h,v 1.63 2003-11-13 17:32:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.61  2003/10/10 11:15:12  laurentg
 // Bug fixed : access to the audio mixer
 //
@@ -183,6 +186,8 @@ public:
 
 	BOOL IsInitialSetup() {return m_InitialSetup;};
 
+    void InitializeUI();
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -238,6 +243,8 @@ private:
     CSliderSetting* m_CardType;
 
 	BOOL		 m_InitialSetup;
+
+    HINSTANCE m_hBT8x8ResourceInst;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Contrast);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.3 2003-11-03 17:29:47 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.4 2003-11-13 17:32:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/11/03 17:29:47  adcockj
+// Fixes for new PMS deluxe
+//
 // Revision 1.2  2003/10/30 22:05:15  adcockj
 // Fix some bugs with new PMS card
 //
@@ -206,7 +209,7 @@ void CBT848Card::InitPMSDeluxe()
 void CBT848Card::PMSDeluxeInputSelect(int nInput)
 {
     //hcho, enforce to use those nInput with type INPUTTYPE_CCIR
-    RSBTCardInputSelect(nInput); 
+    StandardBT848InputSelect(nInput); 
 
     m_CurrentInput = nInput;
 

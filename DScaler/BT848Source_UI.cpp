@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.21 2003-11-03 17:29:47 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.22 2003-11-13 17:32:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/11/03 17:29:47  adcockj
+// Fixes for new PMS deluxe
+//
 // Revision 1.20  2003/10/27 16:22:56  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -1464,6 +1467,18 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             ShowText(hWnd, GetStatus());
             break;
 
+        case IDM_DSVIDEO_STANDARD_0:
+            // "Custom Settings ..." menu
+            if (m_hBT8x8ResourceInst != NULL)
+            {
+                m_pBT848Card->ShowRegisterSettingsDialog(m_hBT8x8ResourceInst);
+            }
+            else
+            {
+                ShowText(hWnd, "BT8x8Res.dll not loaded");
+            }
+            break;
+
         case IDM_SETTINGS_PIXELWIDTH_768:
             m_PixelWidth->SetValue(768);
             break;
@@ -1617,5 +1632,33 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+    }
+}
+
+void CBT848Source::InitializeUI()
+{
+    MENUITEMINFO    MenuItemInfo;
+    HMENU           hSubMenu;
+    LPSTR           pMenuName;
+
+    m_hBT8x8ResourceInst = LoadLibrary("BT8x8Res.dll");
+
+    if(m_hBT8x8ResourceInst != NULL)
+    {
+        hSubMenu = GetSubMenu(m_hMenu, 0);
+
+        // Set up two separators with the Custom Settings ...
+        // menu in between before listing the standards.
+        MenuItemInfo.cbSize = sizeof(MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_TYPE;
+        MenuItemInfo.fType = MFT_SEPARATOR;
+
+        pMenuName = "Custom Settings ...";
+        MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
+        MenuItemInfo.fType = MFT_STRING;
+        MenuItemInfo.dwTypeData = pMenuName;
+        MenuItemInfo.cch = strlen(pMenuName);
+        MenuItemInfo.wID = IDM_DSVIDEO_STANDARD_0;
+        InsertMenuItem(hSubMenu, 5, TRUE, &MenuItemInfo);
     }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.41 2003-11-03 17:29:47 adcockj Exp $
+// $Id: BT848Card.h,v 1.42 2003-11-13 17:32:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/11/03 17:29:47  adcockj
+// Fixes for new PMS deluxe
+//
 // Revision 1.40  2003/10/27 16:22:56  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -365,6 +368,7 @@ public:
     ULONG GetGPOE();
     void SetGPDATA(ULONG val);
     ULONG GetGPDATA();
+    void ShowRegisterSettingsDialog(HINSTANCE hBT8x8xResourceInst);
 
 
 protected:
@@ -399,6 +403,8 @@ private:
     void BootMSP34xx(int pin);
     void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);
     void CtrlSilkSDISwitch(BYTE SLV, BYTE IEN);
+
+    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     char m_AudioDecoderType[32];
     char m_TunerType[32];

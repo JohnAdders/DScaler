@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.236 2002-10-02 18:39:23 robmuller Exp $
+// $Id: DScaler.cpp,v 1.237 2002-10-02 19:31:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.236  2002/10/02 18:39:23  robmuller
+// Fixed problem name issue.
+//
 // Revision 1.235  2002/09/30 16:23:44  adcockj
 // Moved number handling code out to a routine
 //
@@ -3328,14 +3331,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     case INIT_BT:
         MainWndOnInitBT(hWnd);
-
-#ifdef _DEBUG
-        // Check if someone broke the menu system
-        // We can't check this earlier since the menu is created at initialization of the BT chip
-        // if this gives an error you must also correct the same thing in the WM_CHAR handler
-
-        GetSubMenuWithName(GetSubMenu(hMenu, 1), 0, "&Video Input");
-#endif
         break;
 
 // 2000-10-31 Added by Mark Rejhon
@@ -4369,40 +4364,31 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         // if the user is only typing zero's we are going to switch inputs
         if(VTState == VT_OFF && atoi(ChannelString) == 0 && (char) wParam == '0')
         {
-            char string[128];
-            HMENU hSubMenu;
-            int MenuIndex = 0;
+            int VideoInput = strlen(ChannelString) -1;
 
-            // first get the right name for the chosen input
-            hSubMenu = GetSubMenu(hMenu, 1);
-            hSubMenu = GetSubMenuWithName(hSubMenu, 0, "&Video Input");
-            if(hSubMenu != NULL)
+            if(Providers_GetCurrentSource() != NULL)
             {
-                if(GetMenuString(hSubMenu, strlen(ChannelString) -1, string,
-                    sizeof(string), MF_BYPOSITION) != 0)
+                if(VideoInput < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT))
                 {
-                    // get rid off the shortcut text
-                    char *ch = strchr(string, '\t');
-                    if(ch != NULL)
-                    {
-                        *ch = '\0';
-                    }
-                    // show the name of the source that is selected up to now
-                    OSD_ShowText(hWnd, string, 0);
+                    OSD_ShowText(hWnd, Providers_GetCurrentSource()->GetInputName(VIDEOINPUT, VideoInput), 0);
                 }
                 else
                 {
                     OSD_ShowText(hWnd, ChannelString, 0);
                 }
-            }
-            
-            if (strlen(ChannelString) >= 7)
-            {
-                SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
+
+                if (strlen(ChannelString) >= 7)
+                {
+                    SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
+                }
+                else
+                {
+                    SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
+                }
             }
             else
             {
-                SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
+                OSD_ShowText(hWnd, "No Source", 0);
             }
         }
         // if in tuner mode or videotext mode

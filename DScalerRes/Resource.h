@@ -1039,6 +1039,7 @@
 #define IDM_AUDIOSTANDARD_10            32810
 #define IDM_INTERNAL_OSS                32811
 #define IDM_PROGRESSIVE                 32812
+#define IDM_SAA7134CARD_NONSTANDARDSIGNAL 32813
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1060,7 +1061,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        214
-#define _APS_NEXT_COMMAND_VALUE         32813
+#define _APS_NEXT_COMMAND_VALUE         32814
 #define _APS_NEXT_CONTROL_VALUE         8053
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif

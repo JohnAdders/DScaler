@@ -1412,7 +1412,7 @@ BEGIN
 
             MENUITEM "320",                         IDM_SETTINGS_PIXELWIDTH_320
 
-            MENUITEM "Custom ...",                  IDM_SETTINGS_PIXELWIDTH_CUSTOM
+            MENUITEM "Custom",                      IDM_SETTINGS_PIXELWIDTH_CUSTOM
 
         END
         POPUP "&Audio Input"
@@ -1421,8 +1421,6 @@ BEGIN
             MENUITEM "&Tuner\tCtrl+Shift+F1",       IDM_AUDIO_0
             MENUITEM "Line &1\tCtrl+Shift+F2",      IDM_AUDIO_1
             MENUITEM "Line &2\tCtrl+Shift+F3",      IDM_AUDIO_2
-            MENUITEM SEPARATOR
-            MENUITEM "Use internal &OSS",           IDM_INTERNAL_OSS
         END
         POPUP "Audio Sta&ndard"
         BEGIN
@@ -1439,6 +1437,7 @@ BEGIN
         END
         POPUP "Audio &Channel"
         BEGIN
+            MENUITEM "(Unimplemented)",             65535, INACTIVE
             MENUITEM "&Mono",                       IDM_SOUNDCHANNEL_MONO
             MENUITEM "&Stereo",                     IDM_SOUNDCHANNEL_STEREO
             MENUITEM "Speech Channel &1",           IDM_SOUNDCHANNEL_LANGUAGE1
@@ -1446,19 +1445,17 @@ BEGIN
             MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
 
             MENUITEM SEPARATOR
-            MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO, GRAYED
         END
-        POPUP "MSP 34x0 Audio Settings"
+        POPUP "Miscellaneous Settings"
         BEGIN
-            MENUITEM "&Volume and Tone",            IDM_AUDIOSETTINGS
-            MENUITEM "&Equalizer",                  IDM_MSP_EQUALIZER
+            MENUITEM "Non-Standard Signal (VCR)",   IDM_SAA7134CARD_NONSTANDARDSIGNAL
+
         END
         MENUITEM SEPARATOR
         MENUITEM "&Setup Card / Tuner ...",     IDM_SETUPCARD
         MENUITEM SEPARATOR
         POPUP "Advanced"
         BEGIN
-            MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
             MENUITEM "Reset Capture Card",          IDM_RESET
             MENUITEM "&Hardware Info ...",          IDM_HWINFO
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT

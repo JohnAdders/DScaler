@@ -33,6 +33,11 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Sound Issues">
+			<param name="Local" value="SoundIssues.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Support">
 			<param name="Local" value="user_support.htm">
 			<param name="ImageNumber" value="11">

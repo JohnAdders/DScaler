@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Sound Issues</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Sound Issues <!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"><!-- #BeginEditable "Text" -->
+<p>With a new public release due out shortly and lots of problems
+relating to sound on the forum I thought I'd take the time to
+explain DScaler's support for sound both now and going
+forward.</p>
+
+<p>The bt848 chip is very flexible in terms of what it can do for
+video and there is very little leeway for card hardware designers
+to muck about with the video end. This is why it is usually very
+easy to add support for new cards based on the bt8x8 chips.</p>
+
+<p>For sound things get much more complicated.</p>
+
+<p><b>The Different ways sound is supported</b></p>
+
+<ol>
+<li>
+<p>Mono sound from the tuner is passed to the bt chip. If you
+have a mono card then this way should work. I will try and
+resolve issues related to sound on mono cards.</p>
+</li>
+
+<li>
+<p>NICAM Stereo (Europe) MSP Chip. These cards have an MSP chip
+and some support is in DScaler for these cards. I have no test
+setup for this but accept patches for changes to get NICAM
+working. I have reports that it works on some European NICAM
+broadcasts. I think it doesn't work on UK NICAM.</p>
+</li>
+
+<li>
+<p>BTSC Stereo (US) MSP Chip. There is currently no support for
+these cards. After a bit of research it seems that these cards
+will only play stereo when in a mode that is not implemented in
+the bttv code that the sound support was taken from. This will be
+addressed in later versions. There is already a large backlog of
+changes required but this is on the list.</p>
+</li>
+
+<li>
+<p>Other. Some hardware manufacturers have used other chips and
+ways of supporting sound. These are not supported now and
+probably won't be unless someone else writes or ports the code.
+Patches to support specific cards will be accepted once I have
+implemented a new design for sound support. This should make it
+easier to add support for new cards.</p>
+</li>
+</ol>
+
+<p><b>Workarounds</b></p>
+
+<p>The most basic workaround is not to use the onboard tuner
+:-))</p>
+
+<p>This is one used by most of the users of DScaler and explains
+why sound tends to take a back seat in priority.</p>
+
+<p>Sometimes running the supplied TV tuner application before or
+after DScaler can help. Note that if you are using an Hauppague
+card then Dscaler 3.1.0 will include a card type of "Standard
+bt848 (No init MSP)" that will not touch the MSP on startup which
+should make the card behave as it did in version 2.3.0.</p>
+
+<p><b>Using the Mixer</b></p>
+
+<p>DScaler now also supports controlling the mixer and can mute
+lines when channels are changed or when DScaler exits.</p>
+
+<p>The mixer set dialog can be accessed from Hardware/Audio Mixer
+Setup.</p>
+
+<p>It allows you to specify which mixer lines are to be
+controlled by DScaler and which ones are to be unmuted when a
+given input is selected.</p>
+
+<p>If "Reset Mixer to Initial Settings on Exit" is selected then
+it returns the mixer to the state it was when Dscaler started, if
+off then all the mixers lines that have been selected are muted
+on exit.</p>
+
+<p><b>Still got a problem</b></p>
+
+<p>See this <a href=
+"http://www.avsforum.com/avs-vb/showthread.php?s=&postid=654909&t=7777#post654909">
+Sound Issues</a> post on AVS for an up to date picture of
+sound issues.</p>
+
+<!-- #EndEditable -->
+<br>
+<br>
+ </td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
+</body>
+</html>
+

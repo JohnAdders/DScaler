@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.17 2002-05-23 21:25:33 robmuller Exp $
+// $Id: StillProvider.cpp,v 1.18 2002-05-25 17:57:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/05/23 21:25:33  robmuller
+// Applied patch #558348 by PietOO.
+// New naming of snapshots.
+//
 // Revision 1.16  2002/05/02 20:16:27  laurentg
 // JPEG format added to take still
 //
@@ -168,9 +172,9 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
         {
             sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
 				    SavingPath,
-                    ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,++n, 
+                    ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
                     // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
-                    // TMYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595901.tif
+                    // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
                     extension);
 
             if (stat(name, &st))

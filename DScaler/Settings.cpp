@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.46 2003-01-24 01:55:17 atnak Exp $
+// $Id: Settings.cpp,v 1.47 2003-04-26 16:04:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.45  2003/01/13 19:22:51  adcockj
 // Setttings bug fixes
 //
@@ -563,6 +567,7 @@ long Setting_GetValue(SETTING* pSetting)
         break;
     case ITEMFROMLIST:
     case SLIDER:
+    case CHARSTRING:
         return *pSetting->pValue;
         break;
     default:
@@ -599,6 +604,9 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
             NewValue = Value;
         }
         break;
+    case CHARSTRING:
+        NewValue = Value;
+        break;
     default:
         return FALSE;
         break;
@@ -606,10 +614,20 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
     
     // If no action is needed, bail out early. This prevents the long delays when
     // pSetting->pfnOnChange() takes a while.
-    if ((*pSetting->pValue == NewValue) && (iForceOnChange!=1))
-    {
-        return FALSE;
-    }
+	if (pSetting->Type == CHARSTRING)
+	{
+		if (!strcmp((char *)(*pSetting->pValue), (char *)NewValue) && (iForceOnChange!=1))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if ((*pSetting->pValue == NewValue) && (iForceOnChange!=1))
+		{
+			return FALSE;
+		}
+	}
 
     if ((pSetting->pfnOnChange != NULL) && (iForceOnChange>=0))
     {
@@ -617,7 +635,20 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
     }
     else
     {
-        *pSetting->pValue = NewValue;
+		if (pSetting->Type == CHARSTRING)
+		{
+			if (*pSetting->pValue != NULL)
+			{
+				delete (char *)(*pSetting->pValue);
+			}
+			char* str = new char[strlen((char *)NewValue) + 1];
+			strcpy(str, (char *)NewValue);
+			*pSetting->pValue = (long)str;
+		}
+		else
+		{
+	        *pSetting->pValue = NewValue;
+		}
         return FALSE;
     }
 }
@@ -702,6 +733,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
         break;
     
     default:
+		return FALSE;
         break;
     }
     return Setting_SetValue(pSetting, nValue);
@@ -714,35 +746,64 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 
     if(pSetting->szIniSection != NULL)
     {
-        nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
-        LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-        if(nValue == pSetting->MinValue - 100)
-        {
-            nValue = pSetting->Default;            
-            IsSettingInIniFile = FALSE;
-        }
-        if(nValue < pSetting->MinValue)
-        {
-            LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-            nValue = pSetting->MinValue;
-        }
-        if(nValue > pSetting->MaxValue)
-        {
-            LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-            nValue = pSetting->MaxValue;
-        }
-        if (IsSettingInIniFile || !bDontSetDefault)
-        {
-            *pSetting->pValue = nValue;
-        }
-        if(IsSettingInIniFile)
-        {
-            pSetting->LastSavedValue = *pSetting->pValue;
-        }
-        else
-        {
-            pSetting->LastSavedValue = pSetting->MinValue - 100;
-        }
+		if (pSetting->Type == CHARSTRING)
+		{
+			char szDefaultString[] = {0};
+			char szBuffer[MAX_PATH+1];
+			char* szValue;
+			nValue = GetPrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, szDefaultString, szBuffer, MAX_PATH, szIniFile);
+			if (nValue <= 0)
+			{
+				IsSettingInIniFile = FALSE;
+				szValue = (char *)(pSetting->Default);            
+			}
+			else
+			{
+				szValue = (char *)szBuffer;
+			}
+			if (IsSettingInIniFile || !bDontSetDefault)
+			{
+				if (*pSetting->pValue != NULL)
+				{
+					delete (char *)(*pSetting->pValue);
+				}
+				char* str = new char[strlen(szValue) + 1];
+				strcpy(str, szValue);
+				*pSetting->pValue = (long)str;
+			}
+		}
+		else
+		{
+			nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
+			LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+			if(nValue == pSetting->MinValue - 100)
+			{
+				nValue = pSetting->Default;            
+				IsSettingInIniFile = FALSE;
+			}
+			if(nValue < pSetting->MinValue)
+			{
+				LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+				nValue = pSetting->MinValue;
+			}
+			if(nValue > pSetting->MaxValue)
+			{
+				LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+				nValue = pSetting->MaxValue;
+			}
+			if (IsSettingInIniFile || !bDontSetDefault)
+			{
+				*pSetting->pValue = nValue;
+			}
+			if(IsSettingInIniFile)
+			{
+				pSetting->LastSavedValue = *pSetting->pValue;
+			}
+			else
+			{
+				pSetting->LastSavedValue = pSetting->MinValue - 100;
+			}
+		}
     }
     else
     {
@@ -755,10 +816,17 @@ void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)
 {
     if(pSetting->szIniSection != NULL)
     {
-		if(!bOptimizeFileAccess || pSetting->LastSavedValue != *pSetting->pValue)
+		if( !bOptimizeFileAccess || (pSetting->Type == CHARSTRING) || (pSetting->LastSavedValue != *pSetting->pValue) )
 		{
-	        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
-	        pSetting->LastSavedValue = *pSetting->pValue;
+			if (pSetting->Type == CHARSTRING)
+			{
+				WritePrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, (char *)(*pSetting->pValue), szIniFile);
+			}
+			else
+			{
+		        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
+		        pSetting->LastSavedValue = *pSetting->pValue;
+			}
             LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
 		}
     }
@@ -794,6 +862,9 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
             {
                 sprintf(szBuffer, "%s %.*f", pSetting->szDisplayName, (int)log10(pSetting->OSDDivider), (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
             }
+            break;
+        case CHARSTRING:
+            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue));
             break;
         default:
             break;
@@ -890,7 +961,10 @@ void Setting_Up(SETTING* pSetting)
 {
     int nStep = 0;
 
-    if (*pSetting->pValue < pSetting->MaxValue)
+	if (pSetting->Type == CHARSTRING)
+		return;
+
+	if (*pSetting->pValue < pSetting->MaxValue)
     {
         nStep = GetCurrentAdjustmentStepCount(pSetting) * pSetting->StepValue;
         Setting_SetValue(pSetting, *pSetting->pValue + nStep);
@@ -901,6 +975,9 @@ void Setting_Down(SETTING* pSetting)
 {
     int nStep = 0;
 
+	if (pSetting->Type == CHARSTRING)
+		return;
+
     if (*pSetting->pValue > pSetting->MinValue)
     {
         nStep = GetCurrentAdjustmentStepCount(pSetting) * pSetting->StepValue;
@@ -910,6 +987,9 @@ void Setting_Down(SETTING* pSetting)
 
 void Setting_ChangeDefault(SETTING* pSetting, long Default, BOOL bDontTouchValue)
 {
+	if (pSetting->Type == CHARSTRING)
+		return;
+
     pSetting->Default = Default;
     if (!bDontTouchValue)
     {
@@ -929,20 +1009,32 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
         Setting_OSDShow(pSetting, hWnd);
         break;
     case ADJUSTUP:
-        Setting_Up(pSetting);
-        Setting_OSDShow(pSetting, hWnd);
+		if (pSetting->Type != CHARSTRING)
+		{
+			Setting_Up(pSetting);
+			Setting_OSDShow(pSetting, hWnd);
+		}
         break;
     case ADJUSTDOWN:
-        Setting_Down(pSetting);
-        Setting_OSDShow(pSetting, hWnd);
+		if (pSetting->Type != CHARSTRING)
+		{
+			Setting_Down(pSetting);
+			Setting_OSDShow(pSetting, hWnd);
+		}
         break;
     case INCREMENT:
-        Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
-        Setting_OSDShow(pSetting, hWnd);
+		if (pSetting->Type != CHARSTRING)
+		{
+			Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
+			Setting_OSDShow(pSetting, hWnd);
+		}
         break;
     case DECREMENT:
-        Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
-        Setting_OSDShow(pSetting, hWnd);
+		if (pSetting->Type != CHARSTRING)
+		{
+			Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
+			Setting_OSDShow(pSetting, hWnd);
+		}
         break;
     case RESET:
         Setting_SetDefault(pSetting);
@@ -956,16 +1048,28 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
         }
         break;
     case ADJUSTUP_SILENT:
-        Setting_Up(pSetting);
+		if (pSetting->Type != CHARSTRING)
+		{
+	        Setting_Up(pSetting);
+		}
         break;
     case ADJUSTDOWN_SILENT:
-        Setting_Down(pSetting);
+		if (pSetting->Type != CHARSTRING)
+		{
+	        Setting_Down(pSetting);
+		}
         break;
     case INCREMENT_SILENT:
-        Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
+		if (pSetting->Type != CHARSTRING)
+		{
+	        Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
+		}
         break;
     case DECREMENT_SILENT:
-        Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
+		if (pSetting->Type != CHARSTRING)
+		{
+	        Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
+		}
         break;
     case RESET_SILENT:
         Setting_SetDefault(pSetting);

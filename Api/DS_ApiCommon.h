@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DS_ApiCommon.h,v 1.16 2002-09-29 10:14:14 adcockj Exp $
+// $Id: DS_ApiCommon.h,v 1.17 2003-04-26 16:04:12 laurentg Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/29 10:14:14  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.15  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -97,6 +100,8 @@ typedef enum
     ITEMFROMLIST,
     // select value using slider
     SLIDER,
+	// character string
+	CHARSTRING,
 } SETTING_TYPE;
 
 /** Function called when setting Value changes

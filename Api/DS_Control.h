@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.144 2003-04-14 12:14:44 adcockj Exp $
+// $Id: DS_Control.h,v 1.145 2003-04-26 16:04:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.144  2003/04/14 12:14:44  adcockj
+// Added new Colorimetry Filter
+//
 // Revision 1.143  2003/03/29 22:36:17  laurentg
 // New filter
 //
@@ -753,6 +756,9 @@ typedef enum
 	MINTOTRAY,
 	MINIMIZEHANDLING,
 	RESOFULLSCREEN,
+	PSTRIPRESO576I,
+	PSTRIPRESO480I,
+	SKINNAME,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 
@@ -1429,6 +1435,7 @@ typedef enum
 	PREVIESTILLSWNBCOLS,
 	PREVIEWSTILLSNBROWS,
 	MAXMEMFORSTILLS,
+	SAVINGPATH,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.321 2003-04-16 14:38:01 atnak Exp $
+// $Id: DScaler.cpp,v 1.322 2003-04-26 16:07:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.321  2003/04/16 14:38:01  atnak
+// Changed the double click hack to be less hacky
+//
 // Revision 1.320  2003/04/15 13:07:09  adcockj
 // Fixed memory leak
 //
@@ -1138,7 +1141,7 @@ int SMPeriods[SMPeriodCount] =
 
 HRGN DScalerWindowRgn = NULL;
 
-char szSkinName[MAX_PATH+1];
+char* szSkinName = NULL;
 char szSkinDirectory[MAX_PATH+1];
 vector<string> vSkinNameList;
 
@@ -5619,7 +5622,8 @@ void CleanUpMemory()
     pCalibration = NULL;
     delete pPerf;
     pPerf = NULL;
-    PStripTiming_CleanUp();
+	// Don't do that here because the settings must not be freed before the saving in the ini file
+//    PStripTiming_CleanUp();
 }
 
 //---------------------------------------------------------------------------
@@ -6541,6 +6545,24 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         NULL,
         "MainWindow", "ResoFullScreen", NULL,
     },
+    {
+        "PowerStrip  for 576i source", CHARSTRING, 0, (long*)&PStrip576i,
+        (long)"", 0, 0, 0, 0,
+        NULL,
+        "PStripOutResolution", "576i", NULL,
+    },
+    {
+        "PowerStrip  for 480i source", CHARSTRING, 0, (long*)&PStrip480i,
+        (long)"", 0, 0, 0, 0,
+        NULL,
+        "PStripOutResolution", "480i", NULL,
+    },
+    {
+        "Skin name", CHARSTRING, 0, (long*)&szSkinName,
+        (long)"", 0, 0, 0, 0,
+        NULL,
+        "MainWindow", "SkinName", NULL,
+    },
 };
 
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)
@@ -6562,11 +6584,6 @@ void DScaler_ReadSettingsFromIni()
     {
         Setting_ReadFromIni(&(DScalerSettings[i]));
     }
-    
-    GetPrivateProfileString("MainWindow", "SkinName", "", (char*) &szSkinName, sizeof(szSkinName), GetIniFileForSettings());
-
-	// load the Powerstrip Timing Stringss
-	PStripTiming_ReadSettingsFromIni();
 
     if(bForceFullScreen)
     {
@@ -6589,7 +6606,6 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(DScalerSettings[i]), bOptimizeFileAccess);
     }
-    WritePrivateProfileString("MainWindow", "SkinName", szSkinName, GetIniFileForSettings());
 }
 
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()

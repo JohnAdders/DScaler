@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.65 2003-03-25 13:10:32 laurentg Exp $
+// $Id: StillSource.h,v 1.66 2003-04-26 16:05:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -226,6 +226,5 @@ void Still_ReadSettingsFromIni();
 void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* Still_GetTreeSettingsPage();
 
-extern char SavingPath[];
 
 #endif

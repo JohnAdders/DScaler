@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.95 2003-03-25 13:10:29 laurentg Exp $
+// $Id: StillSource.cpp,v 1.96 2003-04-26 16:05:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2003/03/25 13:10:29  laurentg
+// New settings for stills : one to disable OSD when taking stills, one to limit the memory usage when storing stills in memory and two to define the number of frames in preview mode
+//
 // Revision 1.94  2003/03/23 09:24:27  laurentg
 // Automatic leave preview mode when necessary
 //
@@ -377,7 +380,7 @@ static const char *StillFormatNames[STILL_FORMAT_LASTONE] =
     "JPEG",
 };
 
-char SavingPath[MAX_PATH];
+static char* SavingPath = NULL;
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -2192,6 +2195,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          NULL,
         "Still", "MaxMemForStills", NULL,
     },
+    {
+        "Saving path for stills", CHARSTRING, 0, (long*)&SavingPath,
+         (long)"", 0, 0, 0, 0,
+         NULL,
+        "Still", "SavingPath", NULL,
+    },
 };
 
 
@@ -2218,13 +2227,12 @@ void Still_ReadSettingsFromIni()
         Setting_ReadFromIni(&(StillSettings[i]));
     }
 
-    GetModuleFileName (NULL, ExePath, sizeof(ExePath));
-    *(strrchr(ExePath, '\\')) = '\0';
-    GetPrivateProfileString("Still", "SavingPath", ExePath, SavingPath, MAX_PATH, GetIniFileForSettings());
-    if (stat(SavingPath, &st))
+    if ((SavingPath == NULL) || stat(SavingPath, &st))
     {
-        LOG(1, "Incorrect path %s for snapshots; using %s", SavingPath, ExePath);
-        strcpy(SavingPath, ExePath);
+		GetModuleFileName (NULL, ExePath, sizeof(ExePath));
+		*(strrchr(ExePath, '\\')) = '\0';
+        LOG(1, "Incorrect path for snapshots; using %s", ExePath);
+		Setting_SetValue(Still_GetSetting(SAVINGPATH), (long)ExePath);
     }
 }
 
@@ -2235,12 +2243,11 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(StillSettings[i]), bOptimizeFileAccess);
     }
-	WritePrivateProfileString("Still", "SavingPath", SavingPath, GetIniFileForSettings());
 }
 
 CTreeSettingsGeneric* Still_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE-1);
 }
 
 

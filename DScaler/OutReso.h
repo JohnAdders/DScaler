@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.h,v 1.5 2003-04-15 13:07:10 adcockj Exp $
+// $Id: OutReso.h,v 1.6 2003-04-26 16:06:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/04/15 13:07:10  adcockj
+// Fixed memory leak
+//
 // Revision 1.4  2003/04/12 15:23:23  laurentg
 // Interface with PowerStrip when changing resolution (code from Olivier Borca)
 //
@@ -53,7 +56,6 @@ extern int OutputReso;
 extern LPSTR PStrip576i;
 extern LPSTR PStrip480i;
 
-void PStripTiming_ReadSettingsFromIni();
 void PStripTiming_CleanUp();
 void OutReso_UpdateMenu(HMENU hMenu);
 void OutReso_SetMenu(HMENU hMenu);

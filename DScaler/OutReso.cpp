@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.12 2003-04-26 11:24:11 laurentg Exp $
+// $Id: OutReso.cpp,v 1.13 2003-04-26 16:06:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/04/26 11:24:11  laurentg
+// Interface with PowerStrip (changes from Olivier Borca)
+//
 // Revision 1.11  2003/04/15 13:07:10  adcockj
 // Fixed memory leak
 //
@@ -183,15 +186,6 @@ static sResolution resSettings[] = {
 int OutputReso = 0;
 LPSTR PStrip576i = NULL;
 LPSTR PStrip480i = NULL;
-
-void PStripTiming_ReadSettingsFromIni()
-{    
-    PStripTiming_CleanUp();
-	PStrip576i = new char[PSTRIP_TIMING_STRING_SIZE];
-	PStrip480i = new char[PSTRIP_TIMING_STRING_SIZE];
-    GetPrivateProfileString("PStripOutResolution", "576i", NULL, PStrip576i, PSTRIP_TIMING_STRING_SIZE, GetIniFileForSettings());
-    GetPrivateProfileString("PStripOutResolution", "480i", NULL, PStrip480i, PSTRIP_TIMING_STRING_SIZE, GetIniFileForSettings());
-}
 
 void PStripTiming_CleanUp()
 {

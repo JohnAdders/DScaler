@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.39 2004-02-17 06:29:14 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.40 2004-02-17 07:25:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2004/02/17 06:29:14  atnak
+// Added new card Elitegroup EZ-TV
+// Added new card ST Lab PCI-TV7130
+// Added new card Lifeview FlyTV Platinum
+// Added new card Compro VideoMate TV Gold Plus (saa7134)
+//
 // Revision 1.38  2004/02/15 04:07:54  atnak
 // Added new card FlyVideo FlyView 3100
 // Added new card Pinnacle PCTV Stereo
@@ -1331,7 +1337,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 0x1ce780, 0x0c8000,
             },
         },
-        TUNER_PHILIPS_NTSC,
+        TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_32110Hz,
         0x001ce780,
         NULL,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.42 2002-09-11 18:19:43 adcockj Exp $
+// $Id: Providers.cpp,v 1.43 2002-09-14 20:18:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/09/11 18:19:43  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.41  2002/08/13 21:16:06  kooiman
 // Added source change notification.
 //
@@ -170,9 +173,10 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "Providers.h"
-#include "BT848Provider.h"
 #include "StillProvider.h"
+#include "BT848Provider.h"
 #include "CT2388xProvider.h"
+#include "SAA7134Provider.h"
 #include "HardwareDriver.h"
 #include "OutThreads.h"
 #include "DScaler.h"
@@ -205,6 +209,7 @@ static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
 static CBT848Provider* BT848Provider = NULL;
 static CCT2388xProvider* CT2388xProvider = NULL;
+static CSAA7134Provider* SAA7134Provider = NULL;
 static CStillProvider* StillProvider = NULL;
 static long CurrentSource = 0;
 static long DefSourceIdx = -1;
@@ -262,6 +267,28 @@ int Providers_Load(HMENU hMenu)
             CurrentSource = i;
             Audio_Mute();
         }
+
+		/* SAA7134 support (uncomment to test - try at own risk)
+        SAA7134Provider = new CSAA7134Provider(HardwareDriver);
+        for(i = 0; i < SAA7134Provider->GetNumberOfSources(); ++i)
+        {
+            Source = new TSource;
+            if (SAA7134Provider->GetSource(i)->GetMenuLabel() == NULL)
+            {
+                Source->Name = "SAA7134 Card";
+            }
+            else
+            {
+                Source->Name = SAA7134Provider->GetSource(i)->GetMenuLabel();
+            }
+            Source->Object = SAA7134Provider->GetSource(i);
+            Source->DisplayInMenu = TRUE;
+            Sources.push_back(Source);
+            // Mute the audio of this source
+            CurrentSource = i;
+            Audio_Mute();
+        }
+        */
     }
     else
     {
@@ -380,6 +407,11 @@ void Providers_Unload()
     {
         delete CT2388xProvider;
         CT2388xProvider = NULL;
+    }
+    if(SAA7134Provider != NULL)
+    {
+        delete SAA7134Provider;
+        SAA7134Provider = NULL;
     }
     if(HardwareDriver != NULL)
     {

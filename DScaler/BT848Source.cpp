@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.57 2002-08-15 14:16:18 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.58 2002-08-19 18:58:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/08/15 14:16:18  kooiman
+// Cleaner settings per channel implementation
+//
 // Revision 1.56  2002/08/13 21:21:24  kooiman
 // Improved settings per channel to account for source and input changes.
 //
@@ -371,7 +374,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_BtOddLumaPeak = new CBtOddLumaPeakSetting(this, "Odd Luma Peak", FALSE, IniSection);
     m_Settings.push_back(m_BtOddLumaPeak);
 
-    m_BtFullLumaRange = new CBtFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection);
+    m_BtFullLumaRange = new CBtFullLumaRangeSetting(this, "Full Luma Range", FALSE, IniSection);
     m_Settings.push_back(m_BtFullLumaRange);
 
     m_BtEvenLumaDec = new CBtEvenLumaDecSetting(this, "Even Luma Dec", FALSE, IniSection);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.96 2003-01-15 15:38:08 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.97 2003-01-16 18:50:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2003/01/15 15:38:08  adcockj
+// Fixed crash on exit
+//
 // Revision 1.95  2003/01/12 16:19:34  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -826,9 +829,30 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
     // add channel if frequency found
     if (ReturnedFreq != 0)
     {
-        char sbuf[256];
+        char sbuf[256] = "";
 
-        sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+        // if teletext is active then get channel names
+        if(bCaptureVBI && Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+        {
+            VT_ChannelChange();
+            int i = 0; 
+            Sleep(50);
+            VT_GetStation(sbuf, 255);
+            while(i < 10 && (sbuf[0] == '\0' || sbuf[0] == ' '))
+            {
+                Sleep(200);
+                VT_GetStation(sbuf, 255);
+                ++i;
+            }
+            if(i == 10)
+            {
+                sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+            }
+        }
+        else
+        {
+            sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+        }
         CChannel* NewChannel = new CChannel(
                                     sbuf,
                                     ReturnedFreq,

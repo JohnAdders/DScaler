@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.29 2003-01-07 23:27:04 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.30 2003-01-08 00:22:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/01/07 23:27:04  laurentg
+// New overscan settings
+//
 // Revision 1.28  2003/01/07 22:59:58  atnak
 // Removed variable upscale devisor and locked in at 0x200 scaling
 // for 27Mhz VBI stepping
@@ -351,6 +354,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioStandard);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSampleRate);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VBIUpscaleDivisor);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, GainControlLevel);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutomaticGainControl);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  VideoMirror);

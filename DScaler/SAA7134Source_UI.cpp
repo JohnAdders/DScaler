@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.30 2003-01-07 23:27:04 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.31 2003-01-08 00:22:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/01/07 23:27:04  laurentg
+// New overscan settings
+//
 // Revision 1.29  2003/01/07 22:59:57  atnak
 // Removed variable upscale devisor and locked in at 0x200 scaling
 // for 27Mhz VBI stepping
@@ -1920,6 +1923,7 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vector <CSimpleSetting*>vSettingsList;
 
     vSettingsList.push_back(m_AutomaticVolumeLevel);
+    vSettingsList.push_back(m_VBIUpscaleDivisor);
     vSettingsList.push_back(m_VBIDebugOverlay);
     vSettingsList.push_back(m_AutomaticGainControl);
     vSettingsList.push_back(m_AdaptiveCombFilter);

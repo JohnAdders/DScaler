@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.15 2003-01-07 23:00:00 atnak Exp $
+// $Id: SAA7134Common.h,v 1.16 2003-01-08 00:22:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -91,11 +91,6 @@ protected:
         kMAX_VBI_PAGETABLES         = kMAX_FRAMEBUFFERS,
         kMAX_VID_PAGETABLES         = kMAX_FRAMEBUFFERS,
         kMAX_PAGETABLES             = kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES,
-    };
-
-    enum
-    {
-        kSAA7134_27MHZ_VBISCALE     = 0x200,
     };
 
     /// SAA713x Card Ids

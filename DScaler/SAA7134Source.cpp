@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.55 2003-01-07 23:27:03 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.56 2003-01-08 00:22:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2003/01/07 23:27:03  laurentg
+// New overscan settings
+//
 // Revision 1.54  2003/01/07 22:59:59  atnak
 // Removed variable upscale devisor and locked in at 0x200 scaling
 // for 27Mhz VBI stepping
@@ -448,6 +451,11 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_MEDIUMDECAY, AUTOMATICVOLUME_LONGDECAY, IniSection, m_AutomaticVolumeSzList);
     m_Settings.push_back(m_AutomaticVolumeLevel);
 
+    // HELPTEXT: Lower means better VBI reception/decoding but
+    // how far it can be lowered depends on individual cards.
+    m_VBIUpscaleDivisor = new CVBIUpscaleDivisorSetting(this, "VBI Upscale Divisor", 0x200, 0x186, 0x200, IniSection);
+    m_Settings.push_back(m_VBIUpscaleDivisor);
+
     m_VBIDebugOverlay = new CYesNoSetting("VBI Debug Overlay", FALSE, IniSection, "VBIDebugOverlay");
     m_Settings.push_back(m_VBIDebugOverlay);
 
@@ -496,6 +504,7 @@ void CSAA7134Source::SetupSettings()
         { m_CustomPixelWidth,       SETUP_SINGLE },
         { m_ReversePolarity,        SETUP_SINGLE },
         { m_AutomaticVolumeLevel,   SETUP_SINGLE },
+        { m_VBIUpscaleDivisor,      SETUP_SINGLE },
         { m_VideoMirror,            SETUP_SINGLE },
         { m_AudioLine1Voltage,      SETUP_SINGLE },
         { m_AudioLine2Voltage,      SETUP_SINGLE },
@@ -575,6 +584,7 @@ void CSAA7134Source::Reset()
     SetupVideoSource();
 
     m_pSAA7134Card->SetVideoMirror(m_VideoMirror->GetValue());
+    m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
     m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)m_AudioLine1Voltage->GetValue());
     m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)m_AudioLine2Voltage->GetValue());
@@ -612,7 +622,7 @@ void CSAA7134Source::SetupVideoStandard()
                                     m_CurrentY,
                                     m_HDelay->GetValue(),
                                     m_VDelay->GetValue(),
-                                    kSAA7134_27MHZ_VBISCALE);
+                                    m_VBIUpscaleDivisor->GetValue());
 
     m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
     m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
@@ -638,8 +648,7 @@ void CSAA7134Source::Start()
     NotifySquarePixelsCheck();
     m_ProcessingFieldID = -1;
 
-    VBI_Init_data(27.0);
-	//VBI_Init_data(35.468950);
+    VBI_Init_data(27.0 * 0x200 / m_VBIUpscaleDivisor->GetValue());
 }
 
 
@@ -1620,6 +1629,14 @@ void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
 void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
 {
     m_pSAA7134Card->SetCombFilter((eCombFilter)NewValue);
+}
+
+
+void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    m_pSAA7134Card->SetVBIGeometry(NewValue);
+    Start_Capture();
 }
 
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.339 2003-08-14 19:38:14 laurentg Exp $
+// $Id: DScaler.cpp,v 1.340 2003-08-15 10:06:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.339  2003/08/14 19:38:14  laurentg
+// Timer for toolbar only when the toolbar is visible
+//
 // Revision 1.338  2003/08/12 19:11:33  laurentg
 // Move some methods from CDSFileSource to CDSSourceBase
 //
@@ -4384,10 +4387,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
 		case TIMER_TOOLBAR:
-            if (IsToolBarVisible() && (Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
+            if (IsToolBarVisible() && (Providers_GetCurrentSource() != NULL))
             {
-				EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
-				EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
+				if (Providers_GetCurrentSource()->HasMediaControl())
+				{
+					EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
+					EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
+				}
+				if (Mixer_IsEnabled())
+				{
+					EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, -1, Mixer_GetVolume());
+					EventCollector->RaiseEvent(NULL, EVENT_MUTE, -1, Mixer_GetMute() || Audio_IsMute());
+				}
 			}
             break;
         //-------------------------------

@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.17 2003-08-14 19:35:37 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.18 2003-08-15 10:06:41 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/08/14 19:35:37  laurentg
+// Timer for toolbar only when the toolbar is visible
+//
 // Revision 1.16  2003/08/13 13:31:41  laurentg
 // Display elapsed time and duration in the toolbar
 //
@@ -502,6 +505,7 @@ CToolbarVolume::~CToolbarVolume()
 void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	bool bVolumeLimitsChanged = FALSE;
+	bool bDoUpdate = TRUE;
 	if ((Event == EVENT_SOURCE_CHANGE) || (Mixer_IsEnabled() != m_UseMixer))
 	{
 		m_VolumeMin = 0;
@@ -521,22 +525,50 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
 	}
 	else if (Event == EVENT_MUTE)
     {
-        m_Mute = (NewValue)? TRUE : FALSE;
+		if ((NewValue && m_Mute) || (!NewValue && !m_Mute))
+		{
+			bDoUpdate = FALSE;
+		}
+		else
+		{
+	        m_Mute = (NewValue)? TRUE : FALSE;
+		}
     } 
     else if ((Event == EVENT_VOLUME) && (!Mixer_IsEnabled()) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
     {
-        m_Volume = NewValue;
+		if (NewValue == m_Volume)
+		{
+			bDoUpdate = FALSE;
+		}
+		else
+		{
+	        m_Volume = NewValue;
+		}
     }
 	else if ((Event == EVENT_MIXERVOLUME) && Mixer_IsEnabled())
 	{
-		m_Volume = NewValue;
-		LOG(2,"Toolbar Volume: Event: volume = %d",m_Volume);
+		if (NewValue == m_Volume)
+		{
+			bDoUpdate = FALSE;
+		}
+		else
+		{
+			m_Volume = NewValue;
+			LOG(2,"Toolbar Volume: Event: volume = %d",m_Volume);
+		}
 	}    
 	else if ((Event == EVENT_SOUNDCHANNEL) && (pObject == (CEventObject*)Providers_GetCurrentSource()))
 	{
-		m_SoundChannel = (eSoundChannel)NewValue;
+		if ((eSoundChannel)NewValue == m_SoundChannel)
+		{
+			bDoUpdate = FALSE;
+		}
+		else
+		{
+			m_SoundChannel = (eSoundChannel)NewValue;
+		}
 	}
-	if ((hWnd != NULL) && Visible())
+	if ((hWnd != NULL) && Visible() && bDoUpdate)
 	{		
 		UpdateControls(NULL, bVolumeLimitsChanged);
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.33 2002-04-27 00:38:33 laurentg Exp $
+// $Id: Providers.cpp,v 1.34 2002-04-27 11:21:04 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/04/27 00:38:33  laurentg
+// New default source (still) used at DScaler startup or when there is no more source accessible
+//
 // Revision 1.32  2002/04/13 21:52:40  laurentg
 // Management of no current source
 //
@@ -188,7 +191,7 @@ int Providers_Load(HMENU hMenu)
         BT848Provider = new CBT848Provider(HardwareDriver);
         for(i = 0; i < BT848Provider->GetNumberOfSources(); ++i)
         {
-            Source = (TSource*) malloc(sizeof(TSource));
+            Source = new TSource;
             if (BT848Provider->GetSource(i)->GetMenuLabel() == NULL)
             {
                 Source->Name = "BT848 Card";
@@ -214,7 +217,7 @@ int Providers_Load(HMENU hMenu)
     StillProvider = new CStillProvider();
     for(i = 0; i < StillProvider->GetNumberOfSources(); ++i)
     {
-        Source = (TSource*) malloc(sizeof(TSource));
+        Source = new TSource;
         if (StillProvider->GetSource(i)->GetMenuLabel() == NULL)
         {
             Source->Name = "Still";
@@ -232,8 +235,8 @@ int Providers_Load(HMENU hMenu)
     DSProvider = new CDSProvider();
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
-        Source = (TSource*) malloc(sizeof(TSource));
-        Source->Name = DSProvider->getSourceName(i).c_str();
+        Source = new TSource;
+        Source->Name = DSProvider->getSourceName(i);
         Source->Object = DSProvider->GetSource(i);
         Source->DisplayInMenu = TRUE;
         Sources.push_back(Source);
@@ -251,7 +254,7 @@ int Providers_Load(HMENU hMenu)
         {
             Source = *(Sources.begin() + DefSourceIdx);
             Sources.erase(Sources.begin() + DefSourceIdx);
-            free(Source);
+            delete Source;
         }
 
         DefaultSource = NULL;
@@ -314,7 +317,7 @@ void Providers_Unload()
         it != Sources.end(); 
         ++it)
     {
-        free(*it);
+        delete *it;
     }
     Sources.clear();
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.5 2002-09-15 14:28:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.3  2002/09/10 12:14:35  atnak
 // Some changes to eAudioStandard stuff
 //
@@ -55,6 +58,11 @@
 /// \todo remove need for this
 #include "OutThreads.h"
 
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
 
 CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
@@ -688,10 +696,7 @@ void CSAA7134Card::SetHPrescale(eTaskID TaskID, WORD wSourceSize, WORD wScaleSiz
         (vals[i].vpfy << 2) | vals[i].vpfy, 0x0F);
 }
 
-// \todo maybe VDelayOverride and HDelayOverride can be implemented
-//       by shifting HStart and VStart
-//       (don't shift VStart to overlap VBI when VBI is enabled!)
-//       (shift HStart by 2 pixels so it follows in YUV bounds)
+
 void CSAA7134Card::SetGeoSize(
                                   int nInput,
                                   eVideoFormat TVFormat,
@@ -715,7 +720,7 @@ void CSAA7134Card::SetGeoSize(
     WORD SourceFirstPixel = 0;
     WORD SourceFirstLine  = 24;
 
-    WORD VBIStartLine = 7;
+    WORD VBIStartLine = 4;
     WORD VBIStopLine  = 22;
 
     if (IsPALVideoFormat(TVFormat))
@@ -726,10 +731,10 @@ void CSAA7134Card::SetGeoSize(
         ChromaCtrl2 = 0x06;
         ChromaGain  = 0x2A;
 
-        SourceFirstLine = 22; // I see video from 21-311
+        SourceFirstLine = 23; // I see video from 21-311
 
-        VBIStartLine = 4;
-        VBIStopLine = 19;
+        VBIStartLine = 3;       // need at least 4 (my test)
+        VBIStopLine = 21;       // need at least 20 (my test)
 //      VBIStartLine = 320;
 //      VBIStopLine = 335;
     }
@@ -760,6 +765,8 @@ void CSAA7134Card::SetGeoSize(
         // NEVER_GET_HERE;  <-- undefined
     }
 
+    CurrentY = SourceLines * 2;
+
     WriteByte(SAA7134_SYNC_CTRL, SyncControl);
     // 0x80 bit is used by svideo for something
     MaskDataByte(SAA7134_LUMA_CTRL, LumaControl, 0x7F);
@@ -767,7 +774,14 @@ void CSAA7134Card::SetGeoSize(
     WriteByte(SAA7134_CHROMA_GAIN, ChromaGain);
     WriteByte(SAA7134_CHROMA_CTRL2, ChromaCtrl2);
 
-    CurrentVBILines = VBIStopLine - VBIStartLine + 1;
+    if (VBIStopLine - VBIStartLine + 1 >= CurrentVBILines)
+    {
+        VBIStopLine = VBIStartLine + CurrentVBILines - 1;
+    }
+    else
+    {
+        CurrentVBILines = VBIStopLine - VBIStartLine + 1;
+    }
 
     // Set up VBI for both tasks
     SetupVBI(TASKID_A, 0, 719, VBIStartLine, VBIStopLine);
@@ -779,8 +793,12 @@ void CSAA7134Card::SetGeoSize(
     }
     if (VDelayOverride != 0)
     {
-        // This really shouldn't overlap VBI while VBI is enabled
-        // but there isn't too much harm not checking
+        // Make sure VDelay doesn't overlap VBI when it's enabled
+        if (VDelayOverride / 2 <= VBIStopLine)
+        {
+            VDelayOverride = (VBIStopLine + 1) * 2;
+        }
+
         SourceFirstLine = VDelayOverride / 2;
     }
 

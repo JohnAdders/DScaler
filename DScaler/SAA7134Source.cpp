@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.5 2002-09-15 14:20:38 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.6 2002-09-15 14:28:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/15 14:20:38  adcockj
+// Fixed timing problems for cx2388x chips
+//
 // Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -59,6 +62,12 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
 
 void SAA7134_OnSetup(void *pThis, int Start)
 {
@@ -263,7 +272,6 @@ void CSAA7134Source::Start()
     Audio_Unmute();
     Timing_Reset();
     NotifySizeChange();
-    // m_pSAA7134Card->DumpRegisters();
     NotifySquarePixelsCheck();
     m_ProcessingRegionID = REGIONID_INVALID;
 }
@@ -339,6 +347,34 @@ void CSAA7134Source::CreateDMAMemorySetup(BOOL bCaptureVBI)
     DWORD nPages;
     eRegionID RegionID;
 
+    // Turn off all DMA
+    m_pSAA7134Card->SetDMA(REGIONID_VIDEO_A, FALSE);
+    m_pSAA7134Card->SetDMA(REGIONID_VIDEO_B, FALSE);        
+    m_pSAA7134Card->SetDMA(REGIONID_VBI_A, FALSE);
+    m_pSAA7134Card->SetDMA(REGIONID_VBI_B, FALSE);      
+
+    // set m_CurrentVBILines to the max allocatable lines
+    if (bCaptureVBI)
+    {
+        m_CurrentVBILines = 19;
+    }
+    else
+    {
+        m_CurrentVBILines = 0;
+    }
+
+    // This will set m_CurrentVBILines to the number of lines it needs
+    // \todo remove this from here - this is being called twice
+    m_pSAA7134Card->SetGeoSize(
+                                m_VideoSource->GetValue(), 
+                                (eVideoFormat)m_VideoFormat->GetValue(), 
+                                m_CurrentX, 
+                                m_CurrentY, 
+                                m_CurrentVBILines,
+                                m_VDelay->GetValue(), 
+                                m_HDelay->GetValue()
+                            );
+
     for (nFrame = 0; nFrame < 2; nFrame++)
     {
         nPages = CreatePageTable(m_DisplayDMAMem[nFrame],
@@ -347,8 +383,6 @@ void CSAA7134Source::CreateDMAMemorySetup(BOOL bCaptureVBI)
                                 );
 
         RegionID = (nFrame == 0) ? REGIONID_VIDEO_A : REGIONID_VIDEO_B;
-
-        m_pSAA7134Card->SetDMA(RegionID, FALSE);
 
         m_pSAA7134Card->SetPageTable(RegionID, m_DisplayPageTablePhysical[nFrame], nPages);
         m_pSAA7134Card->SetBaseOffsets(RegionID, 0, 2048, 4096);
@@ -365,8 +399,6 @@ void CSAA7134Source::CreateDMAMemorySetup(BOOL bCaptureVBI)
                                     );
 
             RegionID = (nFrame == 0) ? REGIONID_VBI_A : REGIONID_VBI_B;
-
-            m_pSAA7134Card->SetDMA(RegionID, FALSE);
 
             m_pSAA7134Card->SetPageTable(RegionID, m_VBIPageTablePhysical[nFrame], nPages);
             m_pSAA7134Card->SetBaseOffsets(RegionID, 0, 0 + m_CurrentVBILines * 2048, 2048);
@@ -397,6 +429,7 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
         picture->IsFirstInSeries = FALSE;
     }
 
+    // Re-enumerate our 4 field cycle to a 10 field cycle
     if ((picture->Flags & PICTURE_INTERLACED_EVEN) > 0 ||
         pInfo->bMissedFrame)
     {
@@ -803,9 +836,7 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
-
     NotifySizeChange();
-
     Start_Capture();
 }
 

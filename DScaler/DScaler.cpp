@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.138 2002-02-27 20:47:21 laurentg Exp $
+// $Id: DScaler.cpp,v 1.139 2002-02-28 11:27:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.138  2002/02/27 20:47:21  laurentg
+// Still settings
+//
 // Revision 1.137  2002/02/24 19:08:37  laurentg
 // OSD text when resetting statistics
 //
@@ -3097,7 +3100,7 @@ void UpdateWindowState()
 {
     if(bIsFullScreen == TRUE)
     {
-        SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE);
+        SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
         SetMenu(hWnd, NULL);
         StatusBar_ShowWindow(FALSE);
         SetWindowPos(hWnd,
@@ -3106,24 +3109,24 @@ void UpdateWindowState()
                     0,
                     GetSystemMetrics(SM_CXSCREEN),
                     GetSystemMetrics(SM_CYSCREEN),
-                    SWP_SHOWWINDOW);
+                    SWP_SHOWWINDOW | SWP_NOACTIVATE);
     }
     else
     {
-        if(bShowMenu == TRUE)
-        {
-            SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-            SetMenu(hWnd, hMenu);
-        }
-        else
-        {
-            SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
-            SetMenu(hWnd, NULL);
-        }
+		if(bShowMenu == TRUE)
+		{
+			SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+			SetMenu(hWnd, hMenu);
+		}
+		else
+		{
+			SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+			SetMenu(hWnd, NULL);
+		}
         StatusBar_ShowWindow(bDisplayStatusBar);
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
-                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.4 2001-12-16 16:31:43 adcockj Exp $
+// $Id: FLT_TemporalComb.asm,v 1.5 2001-12-20 03:06:58 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,8 +16,11 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
-//
+// 
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/16 16:31:43  adcockj
+// Bug fixes
+//
 // Revision 1.3  2001/12/16 01:34:32  lindsey
 // Fixed use of incorrect algorithm on Athlon (MMXEXT) machines
 // Adjusted to use PictureHistory array instead of the old EvenLines/OldLines
@@ -137,32 +140,6 @@
     }
 #endif // processor specific unsigned multiply and shift right 16
 
-
-/////////////////////////////////////////////////////////////////////////////
-// A few constants
-/////////////////////////////////////////////////////////////////////////////
-
-// This might need to be tuned for other processors.
-// Then again, it doesn't seem to matter much what I set it to on my Athlon
-// so long as it's between 64 and about 300
-
-#define PREFETCH_STRIDE     128
-
-// This number is not arbitrary: It's 2^14, which is the highest power of 2 divisor
-// possible without triggering a sign based error.
-
-#define FIXED_POINT_DIVISOR 16384
-
-// Amount to add to the shimmer map when shimmering is detected. 327 isn't arbitrary:
-// It's MAX_SHORT/100.  That's because with the decayCoefficient = 99%, the accumulated
-// value can get up to 100*(accumulation amount).  The number is used in a signed
-// comparison, and it's important that the value doesn't wrap around:
-
-#define ACCUMULATION        327
-
-// The threshold at which motion artifacts and fade artifacts are equally problematic
-
-#define ACCUMULATION_MINIMUM_METHOD_THRESHOLD   62
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -405,7 +382,7 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
     qwMotionThreshold |= (qwMotionThreshold << 48) | (qwMotionThreshold << 32) | (qwMotionThreshold << 16);
 
 
-    ThisLine = pInfo->SourceRect.top;
+    ThisLine = pInfo->SourceRect.top/2;
     pMap = gpShimmerMap + (ThisLine * pInfo->InputPitch);
     pSource = pTPictures[0]->pData + (ThisLine * pInfo->InputPitch);
     if (gDoFieldBuffering == TRUE)
@@ -463,7 +440,7 @@ MAINLOOP_LABEL:
         
             movq mm2, qword ptr[ebx + ecx]                  // mm2 = lastLastPixel
 
-#if defined(IS_3DNOW) //|| defined(IS_MMXEXT)
+#if defined(IS_3DNOW) || defined(IS_MMXEXT)
             prefetchw [eax + ecx + PREFETCH_STRIDE]
 #elif defined(IS_SSE)
             prefetchnta [eax + ecx + PREFETCH_STRIDE]
@@ -478,9 +455,9 @@ MAINLOOP_LABEL:
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
             pxor mm7, mm7                                   // mm7 = 0
-            pcmpeqw mm4, mm7                                // mm4 wordwise on where no motion
-            pcmpeqw mm3, mm7                                // mm3 wordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 wordwise on where shimmering & no motion
+            pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
+            pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
+            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
@@ -494,7 +471,11 @@ MAINLOOP_LABEL:
 
             movq mm6, mm4                                   // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
+#ifdef TCOMB_DEBUG
+            movq mm1, mm4
+#else
             pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+#endif // Debug pink
             pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
             por mm4, mm1                                    // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
@@ -530,9 +511,9 @@ MAINLOOP_LABEL:
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
             pxor mm7, mm7                                   // mm7 = 0
-            pcmpeqw mm4, mm7                                // mm4 wordwise on where no motion
-            pcmpeqw mm3, mm7                                // mm3 wordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 wordwise on where shimmering & no motion
+            pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
+            pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
+            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
@@ -546,7 +527,11 @@ MAINLOOP_LABEL:
 
             movq mm6, mm4                                   // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
+#ifdef TCOMB_DEBUG
+            movq mm1, mm4
+#else
             pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+#endif // Debug pink
             pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
             por mm4, mm1                                    // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
@@ -582,9 +567,9 @@ MAINLOOP_LABEL:
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
             pxor mm7, mm7                                   // mm7 = 0
-            pcmpeqw mm4, mm7                                // mm4 wordwise on where no motion
-            pcmpeqw mm3, mm7                                // mm3 wordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 wordwise on where shimmering & no motion
+            pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
+            pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
+            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
@@ -598,7 +583,11 @@ MAINLOOP_LABEL:
 
             movq mm6, mm4                                   // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
+#ifdef TCOMB_DEBUG
+            movq mm1, mm4
+#else
             pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+#endif // Debug pink
             pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
             por mm4, mm1                                    // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
@@ -621,7 +610,7 @@ MAINLOOP_LABEL:
         
             movq mm2, qword ptr[ebx + ecx + 24]             // mm2 = lastLastPixel
 
-#if defined(IS_3DNOW) //|| defined(IS_MMXEXT)
+#if defined(IS_3DNOW) || defined(IS_MMXEXT)
             prefetchw [edx + ecx + PREFETCH_STRIDE]
 #elif defined(IS_SSE)
             prefetchnta [edx + ecx + PREFETCH_STRIDE]
@@ -636,9 +625,9 @@ MAINLOOP_LABEL:
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
             pxor mm7, mm7                                   // mm7 = 0
-            pcmpeqw mm4, mm7                                // mm4 wordwise on where no motion
-            pcmpeqw mm3, mm7                                // mm3 wordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 wordwise on where shimmering & no motion
+            pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
+            pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
+            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
@@ -652,7 +641,11 @@ MAINLOOP_LABEL:
 
             movq mm6, mm4                                   // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
+#ifdef TCOMB_DEBUG
+            movq mm1, mm4
+#else
             pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+#endif // Debug pink
             pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
             por mm4, mm1                                    // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value

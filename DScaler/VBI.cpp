@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.27 2003-01-26 14:30:11 adcockj Exp $
+// $Id: VBI.cpp,v 1.28 2003-01-28 06:37:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2003/01/26 14:30:11  adcockj
+// Fix problem with VBI_Init settings caching causing problems with format changes
+//
 // Revision 1.26  2003/01/17 14:39:38  adcockj
 // Grey new teletext menus when VBI is off
 //
@@ -361,7 +364,7 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_ANTIALIAS, DoTeletext ? MF_ENABLED : MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_GOTO, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_GOTO, (DoTeletext) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);

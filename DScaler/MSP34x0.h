@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.18 2002-09-16 14:37:36 kooiman Exp $
+// $Id: MSP34x0.h,v 1.19 2002-09-17 17:58:29 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/09/16 14:37:36  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.17  2002/09/15 15:58:33  kooiman
 // Added Audio standard detection & some MSP fixes.
 //
@@ -336,6 +339,8 @@ private:
         FIR_L_NICAM,
         FIR_BG_DK_DUAL_FM,
         FIR_AM_DETECT,
+        FIR_SAT,
+        FIR_FM_RADIO,
     };
     
 #define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))

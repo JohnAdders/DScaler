@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.29 2003-01-04 21:00:33 laurentg Exp $
+// $Id: CX2388xCard.cpp,v 1.30 2003-01-04 21:40:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/01/04 21:00:33  laurentg
+// Setting of register CX2388x_VBI_SIZE updated when pixel width is 720
+//
 // Revision 1.28  2002/12/15 13:54:13  adcockj
 // Added code to reset card better
 //
@@ -1082,7 +1085,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             if (CurrentY == 576)
             {
-                VertDelay = 0x20;
+                VertDelay = 0x24;
             }
             else
             {

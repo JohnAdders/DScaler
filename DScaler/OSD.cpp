@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.73 2002-10-29 11:05:28 adcockj Exp $
+// $Id: OSD.cpp,v 1.74 2002-10-29 23:38:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.72  2002/10/27 20:39:07  laurentg
 // Performance statistics only computed in DEBUG buildd
 // Developer OSD screen only present in DEBUG build
@@ -350,6 +353,7 @@ static struct
     BOOL    lock;           // TRUE if display of the screen should lock OSD
     OSDREFRESHFUNCTION* RefreshFunction;    // Function to call to fill the screen
 } ActiveScreens[] = {
+    { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
     { "Statistics screen",       FALSE, TRUE,  1000,                    FALSE, FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshWSSScreen },
@@ -357,7 +361,6 @@ static struct
 #ifdef _DEBUG
     { "Developer screen",        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
 #endif
-    { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
 static BOOL bRestoreScreen = FALSE; // Restore Info screen when clear OSD
@@ -2053,7 +2056,7 @@ BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID)
     {
         if (pCalibration->IsRunning())
         {
-            OSD_ShowInfosScreen(hWnd, 4, 0);
+            OSD_ShowInfosScreen(hWnd, 0, 0);
         }
         else
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.73 2002-10-29 20:58:09 laurentg Exp $
+// $Id: Calibration.cpp,v 1.74 2002-10-29 23:38:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/10/29 20:58:09  laurentg
+// Calibration source cut in Calibration + Pattern
+//
 // Revision 1.72  2002/10/26 17:56:18  laurentg
 // Possibility to take stills in memory added
 //
@@ -1067,7 +1070,7 @@ void CCalibration::Start(eTypeCalibration type)
         first_calc = TRUE;
 
         // Display the specific OSD screen
-        OSD_ShowInfosScreen(hWnd, 4, 0);
+        OSD_ShowInfosScreen(hWnd, 0, 0);
 
         // Set the overscan to a value specific to calibration
         AspectSettings.InitialOverscan = SourceOverscan;
@@ -1082,7 +1085,7 @@ void CCalibration::Stop()
     if ( (m_TypeCalibration != CAL_MANUAL)
       && (m_TypeCalibration != CAL_CHECK_YUV_RANGE) )
     {
-        OSD_ShowInfosScreen(hWnd, 4, 0);
+        OSD_ShowInfosScreen(hWnd, 0, 0);
         if ( (current_step != -1)
           || (MessageBox(hWnd, "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.80 2002-10-22 00:13:50 flibuste2 Exp $
+// $Id: ProgramList.cpp,v 1.81 2002-10-22 05:29:43 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2002/10/22 00:13:50  flibuste2
+// Reverted to 4.01 behaviour
+// --Changed : clicking on "keys" no longer clear channe list (clear is done on "scan")
+// --Added : auto scan
+// --Added mute option
+// Fixed a few bugs
+// Tidied up code
+//
 // Revision 1.79  2002/10/17 06:49:27  flibuste2
 // -- Adapted to changes from channels
 // -- Fixed a numerous number of bug
@@ -255,6 +263,7 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
+#include "debuglog.h"
 #include "settings.h"
 #include "TVFormats.h"
 #include "Channels.h"
@@ -312,6 +321,8 @@ long PreviousProgram = 0;
 
 BOOL MyInScan = FALSE;
 BOOL MyInUpdate = FALSE;
+BOOL MyIsUsingAFC = TRUE;
+BOOL MyIsAFCSupported = FALSE;
 
 int WM_DRAGLISTMESSAGE = 0;
 long DragItemIndex = 0;
@@ -361,6 +372,14 @@ eVideoFormat SelectedVideoFormat(HWND hDlg)
     }
 
     return (eVideoFormat)Format;
+}
+
+DWORD SelectedScanSteps(HWND hDlg)
+{
+    static char sbuf[256];
+    sbuf[255] = '\0';
+    Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf, 254);    
+    return (DWORD)strtol(sbuf, '\0', 10);
 }
 
 void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
@@ -431,14 +450,12 @@ void UpdateAutoScanDetails(HWND hDlg)
     Edit_SetText(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), sbuf);
     
     //Keep user steps settings (if any)
-    Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf, 254);
-    sbuf[255] = '\0';
-    DWORD steps = strtol(sbuf, '\0', 10);
+    DWORD steps = SelectedScanSteps(hDlg);
     if (steps <= 0) 
     {
         steps = SCAN_DEFAULT_STEPS;
     }
-
+   
     sprintf(sbuf, "%d", steps);
     Edit_SetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf);
 }
@@ -560,7 +577,7 @@ void UpdateEnabledState(HWND hDlg, BOOL bEnabled)
             Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_STEPS), FALSE);             
             Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), FALSE);
             Button_Enable(GetDlgItem(hDlg, IDC_UP), enabledButInScan);
-            Button_Enable(GetDlgItem(hDlg, IDC_DOWN), enabledButInScan);
+            Button_Enable(GetDlgItem(hDlg, IDC_DOWN), enabledButInScan);                        
             break;
 
         case SCAN_MODE_CUSTOM_ORDER :
@@ -599,19 +616,18 @@ void UpdateEnabledState(HWND hDlg, BOOL bEnabled)
             Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), enabledButInScan);
             Button_Enable(GetDlgItem(hDlg, IDC_UP), enabledButInScan);
             Button_Enable(GetDlgItem(hDlg, IDC_DOWN), enabledButInScan);
-
+            
+            //XXX->This is brutal and dirty and should be changed
+            Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), enabledButInScan && MyIsAFCSupported);
             break;
     }
-
-    //Remove the following line when AFC is implemented in autoscan
-    Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), FALSE);
-    
+   
     MyInUpdate = FALSE;
 }
 
 
 //returns TRUE if a video signal is found
-DWORD FindFrequency(DWORD Freq, int Format, BOOL bUseAfcIfAvailable)
+DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThreshold)
 {
     static char sbuf[256];
     if (Freq <= 0)
@@ -622,17 +638,20 @@ DWORD FindFrequency(DWORD Freq, int Format, BOOL bUseAfcIfAvailable)
     {
         Format = VIDEOFORMAT_LASTONE;
     }
-
-    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, (eVideoFormat)Format))
+    
+    CSource* currentSource = Providers_GetCurrentSource();
+    ASSERT(NULL != currentSource);
+    
+    if (!currentSource->SetTunerFrequency(Freq, (eVideoFormat)Format))
     {
         sprintf(sbuf, "SetFrequency %10.2lf Failed.", (double) Freq / 1000000.0);
         ErrorBox(sbuf);
         return 0;
     }
-
+ 
     int       MaxTuneDelay = 0;
 
-    switch(Providers_GetCurrentSource()->GetTunerId())
+    switch(currentSource->GetTunerId())
     {
         // The MT2032 is a silicon tuner and tunes real fast, no delay needed at this point.
         // Even channels with interference and snow are tuned and detected in about max 80ms,
@@ -651,7 +670,7 @@ DWORD FindFrequency(DWORD Freq, int Format, BOOL bUseAfcIfAvailable)
     int       ElapsedTicks = 0;
 
     StartTick = GetTickCount();
-    while (Providers_GetCurrentSource()->IsVideoPresent() == FALSE)
+    while (currentSource->IsVideoPresent() == FALSE)
     {
         MSG msg;
         if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
@@ -667,18 +686,69 @@ DWORD FindFrequency(DWORD Freq, int Format, BOOL bUseAfcIfAvailable)
         ElapsedTicks = GetTickCount() - StartTick;
         Sleep(3);
     }
-        
-    if (Providers_GetCurrentSource()->IsVideoPresent())
+    
+    DWORD returnedFrequency = 0;
+    if (currentSource->IsVideoPresent())
     {
-        return Freq;
-    }
+        if (dwAFCFrequencyDeviationThreshold > 0)
+        {
+            long afcDeviation = 0;
+            eTunerAFCStatus afcStatus = currentSource->GetTuner()->GetAFCStatus(afcDeviation);           
+            switch (afcStatus)
+            {
+                case TUNER_AFC_NOTSUPPORTED :
+                    {
+                        //we should have tested this and disabled the checkbox
+                        //before...
+                        //Use normal behaviour
+                        returnedFrequency = Freq;
+                    }
+                    break;
+
+                case TUNER_AFC_NOCARRIER :
+                    {
+                        //nothing here
+                        returnedFrequency = 0;
+                    }
+                    break;
+
+                case TUNER_AFC_CARRIER :
+                    {
+                        //Deviation
+                        //Generic tuner : -125000, -62500, 0, +62500, + 125000
+                        //(0 is a mostly a hit)
+                        //CMT2032 : actual deviation
+                        
+                        //For the time being, we do not handle a user setting
+                        //for this, so we'll use the freq steps set in the dialog box
+                        if (afcDeviation < dwAFCFrequencyDeviationThreshold)
+                        {
+                            sprintf(sbuf, "Find_Frequency AFC Hit->freq=%d\n", Freq);
+                            LOGD(sbuf);
+                            returnedFrequency = Freq;
+                        }
+                    }
+                    break;
+
+                default :
+                    returnedFrequency = 0;
+                    break;
+            }
+        }//if use afc
+        else
+        {
+            returnedFrequency = Freq;
+        }
+        
+    }//if video present
     else 
     {
-        return 0;
+        returnedFrequency = 0;
     }
+    return returnedFrequency;
 }
 
-
+ 
 void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
 { 
     ASSERT(NULL != pNewChannel);
@@ -699,20 +769,6 @@ void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
 }
 
 
-DWORD ScanChannel(HWND hDlg, const CChannel* const pChannel)
-{
-    MyInUpdate = TRUE;
-    ASSERT(NULL != pChannel);
-    
-    UpdateDetails(hDlg, pChannel);
-
-    BOOL isAFCInUse =(Button_GetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC)) == BST_CHECKED);           
-    DWORD returned = FindFrequency(pChannel->GetFrequency(), pChannel->GetFormat(), isAFCInUse);    
-    
-    MyInUpdate = FALSE;    
-    return returned;
-}
-
 //only checks (Find Frequency) the given channel and set the active flag
 //for the given channel
 DWORD ScanChannel(HWND hDlg, int iCurrentChannelIndex)
@@ -722,7 +778,8 @@ DWORD ScanChannel(HWND hDlg, int iCurrentChannelIndex)
 
     CChannel* channel = MyChannels.GetChannel(iCurrentChannelIndex);
     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentChannelIndex);
-    DWORD returned = ScanChannel(hDlg, channel);        
+    UpdateDetails(hDlg, channel); 
+    DWORD returned = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);        
     channel->SetActive(returned > 0);
     
     MyInUpdate = FALSE; 
@@ -739,22 +796,22 @@ DWORD ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
     MyInUpdate = TRUE; 
 
     CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
-    DWORD returned = ScanChannel(hDlg, channel);
+    UpdateDetails(hDlg, channel);
+    DWORD returned = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
 
     if (returned == 0)
     {        
     }
     else
     {               
-        //frequency found - add and activate channel
-        CChannel* newChannel = new CChannel(
+        //frequency found - add and activate channel         
+        AddScannedChannel(hDlg,
+            new CChannel(
                     channel->GetName(),
                     returned,
                     channel->GetChannelNumber(),
                     channel->GetFormat(),
-                    TRUE);        
-
-        AddScannedChannel(hDlg, newChannel);    
+                    TRUE));    
     }   
 
     MyInUpdate = FALSE;
@@ -765,22 +822,36 @@ DWORD ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 DWORD ScanFrequency(HWND hDlg, DWORD dwFrequency)
 {
     static char sbuf[256];
-    
+        
+    DWORD afcThreshold = 0;
+    if (MyIsUsingAFC)
+    {
+        //Use the steps - 1 for AFC threshold
+        afcThreshold = SelectedScanSteps(hDlg);        
+    }
 
     eVideoFormat videoFormat = SelectedVideoFormat(hDlg);
-
-    sprintf(sbuf, "%10.4lf MHz", dwFrequency / 1000000.0);
-    CChannel* channel = new CChannel(sbuf, dwFrequency, MyChannels.GetSize() + 1, videoFormat, FALSE);    
     
-    DWORD returned = ScanChannel(hDlg, channel);  
+    sprintf(sbuf, "%10.4lf MHz", dwFrequency / 1000000.0);
+    Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
+
+    DWORD returned = FindFrequency(dwFrequency, videoFormat, afcThreshold);
+      
     if (returned == 0)
     {
-        delete channel;
+    
     }
     else
-    {   
-        channel->SetActive(TRUE);
-        AddScannedChannel(hDlg, channel);
+    {              
+        //returned = returned + afcThreshold;                
+        AddScannedChannel(hDlg,
+            new CChannel(
+                    sbuf,
+                    returned,
+                    MyChannels.GetSize() + 1,
+                    videoFormat,
+                    TRUE)); 
+        
     }
     
     return returned;
@@ -921,6 +992,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     char sbuf[256];
     static SCAN_MODE OldScanMode;
     static int OldCountryCode;
+    static BOOL OldIsUsingAFC;
 
     switch (message)
     {
@@ -931,6 +1003,12 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 
             OldScanMode = MyScanMode;            
             OldCountryCode = CountryCode;
+        
+            OldIsUsingAFC = MyIsUsingAFC;
+            //Test AFC caps of current source
+            long afcDeviation = 0;
+            MyIsAFCSupported = (Providers_GetCurrentSource()->GetTuner()->GetAFCStatus(afcDeviation) != TUNER_AFC_NOTSUPPORTED);           
+            MyIsUsingAFC = MyIsUsingAFC && MyIsAFCSupported;
 
             SetCapture(hDlg);            
       
@@ -988,7 +1066,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 //make sure it is muted when video is absent
                 Audio_Mute();
             }
-            
+            Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC), (MyIsUsingAFC) ? BST_CHECKED : BST_UNCHECKED);            
             Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_IsMuted()) ? BST_CHECKED : BST_UNCHECKED));            
                                     
             RefreshProgramList(hDlg, 0, CurrentProgram);                        
@@ -1079,11 +1157,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         //wParam = current channel frequency - lParam = max frequency
     case WM_SCAN_AUTO :
         if (MyInScan == TRUE) {
-            
-            Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf, 254);
-            sbuf[255] = '\0';
-            DWORD step = (DWORD)strtol(sbuf, '\0', 10);
-            
+                        
             DWORD newFrequency = ScanFrequency(hDlg, wParam);
             
             if (newFrequency < lParam)
@@ -1099,7 +1173,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     PostMessage(hDlg, WM_SCAN_ABORT, 0, 0);                
                 }
                 else {
-                    PostMessage(hDlg, WM_SCAN_AUTO, wParam + step, lParam);                
+                    PostMessage(hDlg, WM_SCAN_AUTO, wParam + SelectedScanSteps(hDlg), lParam);                
                 }
             }
             else 
@@ -1316,6 +1390,12 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
+        case IDC_SCAN_AFC :
+            {
+                MyIsUsingAFC = (Button_GetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC)) == BST_CHECKED);
+            }
+            break;
+
         case IDC_CHANNEL_MUTE :    
             {
                 BOOL muteAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE)) == BST_CHECKED);
@@ -1337,7 +1417,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDCANCEL:
              //bCustomChannelOrder = OldCustom;
             MyScanMode = OldScanMode;
-            CountryCode = OldCountryCode;            
+            CountryCode = OldCountryCode;    
+            MyIsUsingAFC = OldIsUsingAFC;
             CloseDialog(hDlg, TRUE);
             break;
 
@@ -1738,7 +1819,7 @@ void Channels_SetMenu(HMENU hMenu)
     {
         InitialNbMenuItems = GetMenuItemCount(hMenuChannels);
     }
-
+    
     BOOL bHasTuner = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->HasTuner() : FALSE;
     BOOL bInTunerMode = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->IsInTunerMode() : FALSE;
 
@@ -1855,6 +1936,14 @@ SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
         NULL,
         "Show", "ScanMode", NULL,
     }, 
+
+    //Cant commit DS_Control.h for some reason...
+    /*{
+        "Use AFC While Scanning", ONOFF, 0, (long*)&MyIsUsingAFC,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "Show", "ScanUsingAFC", NULL,
+    }, */
 };
 
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.10 2001-11-21 15:21:39 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.11 2001-11-22 17:41:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.9  2001/08/03 12:28:32  adcockj
 // Added CPU id capability
 //
@@ -86,12 +90,11 @@ EndCopyLoop:
     }
 }
 
-BOOL FillInfoStruct(TDeinterlaceInfo* info, char* SnapshotFile)
+BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
 {
     FILE *file;
     unsigned int NumRead;
     int i = 0;
-    int j;
 
     file = fopen(SnapshotFile,"rb");
     if (!file)
@@ -99,95 +102,69 @@ BOOL FillInfoStruct(TDeinterlaceInfo* info, char* SnapshotFile)
         printf("Could not open file %s\n", SnapshotFile);
         return FALSE;
     }
-    NumRead = fread(info, 1, sizeof(TDeinterlaceInfo), file);
+    NumRead = fread(pInfo, 1, sizeof(TDeinterlaceInfo), file);
     if(NumRead < sizeof(TDeinterlaceInfo))
     {
         printf("Error reading file %s\n", SnapshotFile);
         fclose(file);      
         return FALSE;
     }
-    // read in odd fields
-    for (i = 0; i < MAX_FIELD_HISTORY; i++)
+
+    if(pInfo->Version != DEINTERLACE_INFO_CURRENT_VERSION)
     {
-        if (info->OddLines[i] == NULL)
+        printf("Incorrect version od dtv file\n");
+        fclose(file);      
+        return FALSE;
+    }
+
+    // read in fields
+    for (i = 0; i < MAX_PICTURE_HISTORY; i++)
+    {
+        if (pInfo->PictureHistory[i] == NULL)
         {
             printf("Odd field %d empty\n", i+1);
         }
         else
         {
-            info->OddLines[i] = (short**)malloc(info->FieldHeight * sizeof(short*));
-            for(j = 0; j < info->FieldHeight; ++j)
+            pInfo->PictureHistory[i] = (TPicture*)malloc(sizeof(TPicture));
+            NumRead = fread(pInfo->PictureHistory[i], 1, sizeof(TPicture), file);
+            if(NumRead < sizeof(TPicture))
             {
-                info->OddLines[i][j] = (short*)malloc(info->LineLength);
-                NumRead = fread(info->OddLines[i][j], 1, info->LineLength, file);
-                if(NumRead < info->LineLength)
-                {
-                    printf("Error reading file %s\n", SnapshotFile);
-                    fclose(file);      
-                    return FALSE;
-                }
+                printf("Error reading file %s\n", SnapshotFile);
+                fclose(file);      
+                return FALSE;
+            }
+            pInfo->PictureHistory[i]->pData = (BYTE*)malloc(pInfo->FieldHeight * pInfo->LineLength);
+            NumRead = fread(pInfo->PictureHistory[i]->pData, 1, pInfo->FieldHeight * pInfo->LineLength, file);
+            if(NumRead < pInfo->FieldHeight * pInfo->LineLength)
+            {
+                printf("Error reading file %s\n", SnapshotFile);
+                fclose(file);      
+                return FALSE;
             }
         }
     }
 
-    // read in even fields
-    for (i = 0; i < MAX_FIELD_HISTORY; i++)
-    {
-        if (info->EvenLines[i] == NULL)
-        {
-            printf("Even field %d empty\n", i+1);
-        }
-        else
-        {
-            info->EvenLines[i] = (short**)malloc(info->FieldHeight * sizeof(short*));
-            for(j = 0; j < info->FieldHeight; ++j)
-            {
-                info->EvenLines[i][j] = (short*)malloc(info->LineLength);
-                NumRead = fread(info->EvenLines[i][j], 1, info->LineLength, file);
-                if(NumRead < info->LineLength)
-                {
-                    printf("Error reading file %s\n", SnapshotFile);
-                    fclose(file);      
-                    return FALSE;
-                }
-            }
-        }
-    }
-
-    info->Overlay = (BYTE*)malloc(info->OverlayPitch * info->FrameHeight);
-    info->CpuFeatureFlags = CpuFeatureFlags;
-    info->pMemcpy = memcpyMMX;
+    pInfo->Overlay = (BYTE*)malloc(pInfo->OverlayPitch * pInfo->FrameHeight);
+    pInfo->CpuFeatureFlags = CpuFeatureFlags;
+    pInfo->pMemcpy = memcpyMMX;
     fclose(file);      
     return TRUE;
 }
 
-void EmptyInfoStruct(TDeinterlaceInfo* info)
+void EmptyInfoStruct(TDeinterlaceInfo* pInfo)
 {
-   int i, j;
+   int i;
 
     i = 0;
-    while(i < MAX_FIELD_HISTORY && info->OddLines[i] != NULL)
+    while(i < MAX_PICTURE_HISTORY && pInfo->PictureHistory[i] != NULL)
     {
-        for(j = 0; j < info->FieldHeight; ++j)
-        {
-            free(info->OddLines[i][j]);
-        }
-        free(info->OddLines[i]);
+        free(pInfo->PictureHistory[i]->pData);
+        free(pInfo->PictureHistory[i]);
         i++;
     }
 
-    i = 0;
-    while(i < MAX_FIELD_HISTORY && info->EvenLines[i] != NULL)
-    {
-        for(j = 0; j < info->FieldHeight; ++j)
-        {
-            free(info->EvenLines[i][j]);
-        }
-        free(info->EvenLines[i]);
-        i++;
-    }
-
-   free(info->Overlay);
+    free(pInfo->Overlay);
 }
 
 BOOL LoadFilterPlugin(LPCSTR szFileName, FILTER_METHOD** FilterMethod)
@@ -373,7 +350,7 @@ static void FillTiffDirEntry(struct TiffDirEntry *entry, WORD tag, DWORD value, 
 
 //-----------------------------------------------------------------------------
 // Fill a TIFF header with information about the current image.
-static void FillTiffHeader(struct TiffHeader *head, char *description, char *make, char *model, int Height, TDeinterlaceInfo* info)
+static void FillTiffHeader(struct TiffHeader *head, char *description, char *make, char *model, int Height, TDeinterlaceInfo* pInfo)
 {
     memset(head, 0, sizeof(struct TiffHeader));
 
@@ -409,20 +386,20 @@ static void FillTiffHeader(struct TiffHeader *head, char *description, char *mak
     head->bitsPerSample.value = STRUCT_OFFSET(head, bitCounts);
 
     FillTiffDirEntry(&head->fileType, 254, 0, Long);                        // Just the image, no thumbnails
-    FillTiffDirEntry(&head->width, 256, info->FrameWidth, Short);
+    FillTiffDirEntry(&head->width, 256, pInfo->FrameWidth, Short);
     FillTiffDirEntry(&head->height, 257, Height, Short);
     FillTiffDirEntry(&head->compression, 259, 1, Short);                    // No compression
     FillTiffDirEntry(&head->photometricInterpretation, 262, 2, Short);      // RGB image data
     FillTiffDirEntry(&head->stripOffset, 273, sizeof(struct TiffHeader), Long); // Image comes after header
     FillTiffDirEntry(&head->samplesPerPixel, 277, 3, Short);                // RGB = 3 channels/pixel
     FillTiffDirEntry(&head->rowsPerStrip, 278, Height, Short);          // Whole image is one strip
-    FillTiffDirEntry(&head->stripByteCounts, 279, info->FrameWidth * Height * 3, Long); // Size of image data
+    FillTiffDirEntry(&head->stripByteCounts, 279, pInfo->FrameWidth * Height * 3, Long); // Size of image data
     FillTiffDirEntry(&head->planarConfiguration, 284, 1, Short);            // RGB bytes are interleaved
 }
 
 //-----------------------------------------------------------------------------
 // Save still image snapshot as TIFF format to disk
-BOOL MakeTifFile(TDeinterlaceInfo* info, char* TifFile, DEINTERLACE_METHOD* DeintMethod, int OddField, int EvenField)
+BOOL MakeTifFile(TDeinterlaceInfo* pInfo, char* TifFile, DEINTERLACE_METHOD* DeintMethod, int PictureToStore)
 {
     int y, cr, cb, r, g, b, i, j, n = 0;
     FILE *file;
@@ -432,14 +409,9 @@ BOOL MakeTifFile(TDeinterlaceInfo* info, char* TifFile, DEINTERLACE_METHOD* Dein
     char description[] = "DScaler image";
     int NbLines;
 
-    if (OddField >= 0 && info->OddLines[OddField] == NULL)
+    if (PictureToStore >= 0 && pInfo->PictureHistory[PictureToStore] == NULL)
     {
-        printf("Odd field missing => file %s not generated\n",TifFile);
-        return FALSE;
-    }
-    if (EvenField >= 0 && info->EvenLines[EvenField] == NULL)
-    {
-        printf("Even field missing => file %s not generated\n",TifFile);
+        printf("Picture missing => file %s not generated\n",TifFile);
         return FALSE;
     }
 
@@ -450,31 +422,23 @@ BOOL MakeTifFile(TDeinterlaceInfo* info, char* TifFile, DEINTERLACE_METHOD* Dein
         return FALSE;
     }
 
-    if (OddField >= 0 && EvenField >= 0)
-        NbLines = info->FieldHeight * 2;
-    else if (OddField >= 0 || EvenField >= 0)
-        NbLines = info->FieldHeight;
+    if (PictureToStore >= 0)
+        NbLines = pInfo->FieldHeight;
     else if (DeintMethod->bIsHalfHeight)
-        NbLines = info->FrameHeight / 2;
+        NbLines = pInfo->FrameHeight / 2;
     else
-        NbLines = info->FrameHeight;
+        NbLines = pInfo->FrameHeight;
 
-    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "PlugTest", NbLines, info);
+    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "PlugTest", NbLines, pInfo);
     fwrite(&head, sizeof(head), 1, file);
 
     for (i = 0; i < NbLines; i++)
     {
-        if (OddField >= 0 && EvenField < 0)
-            buf = (BYTE*)info->OddLines[OddField][i];
-        else if (EvenField >= 0 && OddField < 0)
-            buf = (BYTE*)info->EvenLines[EvenField][i];
-        else if (OddField >= 0 && i < info->FieldHeight)
-            buf = (BYTE*)info->OddLines[OddField][i];
-        else if (EvenField >= 0 && i >= info->FieldHeight)
-            buf = (BYTE*)info->EvenLines[EvenField][i-info->FieldHeight];
+        if (PictureToStore >= 0)
+            buf = (BYTE*)pInfo->PictureHistory[PictureToStore] + i * pInfo->InputPitch;
         else
-            buf = (BYTE*)info->Overlay + i * info->OverlayPitch;
-        for (j = 0; j < info->FrameWidth ; j+=2)
+            buf = (BYTE*)pInfo->Overlay + i * pInfo->OverlayPitch;
+        for (j = 0; j < pInfo->FrameWidth ; j+=2)
         {
             cb = buf[1] - 128;
             cr = buf[3] - 128;
@@ -523,14 +487,13 @@ void ReadFromIni(SETTING* pSetting, char* szIniFile)
 
 int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, char* TifFile)
 {
-    TDeinterlaceInfoTDeinterlaceInfo info;
+    TDeinterlaceInfo Info;
     DEINTERLACE_METHOD* DeintMethod = NULL;
     FILTER_METHOD* FilterMethod = NULL;
     LARGE_INTEGER EndTime;
     LARGE_INTEGER StartTime;
     LARGE_INTEGER TimerFrequency;
-    int OddField = -1;
-    int EvenField = -1;
+    int PictureToStore = -1;
     int i;
 
     GetCurrentDirectory(MAX_PATH, szIniFile);
@@ -540,7 +503,7 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
     QueryPerformanceFrequency(&TimerFrequency);
     double TimerFreq = (double)TimerFrequency.QuadPart;
 
-    if(!FillInfoStruct(&info, SnapshotFile))
+    if(!FillInfoStruct(&Info, SnapshotFile))
     {
         return 1;
     }
@@ -557,86 +520,53 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
     {
         if(FilterMethod->bOnInput == TRUE)
         {
-            QueryPerformanceCounter(&StartTime);
-            FilterMethod->pfnAlgorithm(&info);
-            QueryPerformanceCounter(&EndTime);
-            double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
-            printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+            TPicture HistoryOrig[MAX_PICTURE_HISTORY];
+            memcpy(HistoryOrig, Info.PictureHistory, MAX_PICTURE_HISTORY * sizeof(TPicture));
 
-            info.IsOdd = !info.IsOdd;
-            QueryPerformanceCounter(&StartTime);
-            FilterMethod->pfnAlgorithm(&info);
-            QueryPerformanceCounter(&EndTime);
-            Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
-            printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
-            info.IsOdd = !info.IsOdd;
+            for(i = 0; i < MAX_PICTURE_HISTORY; ++i)
+            {
+                memcpy(Info.PictureHistory, &HistoryOrig[MAX_PICTURE_HISTORY - 1 - i] , (i + 1) * sizeof(TPicture));
+                QueryPerformanceCounter(&StartTime);
+                FilterMethod->pfnAlgorithm(&Info);
+                QueryPerformanceCounter(&EndTime);
+                double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
+                printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+            }
+            memcpy(Info.PictureHistory, HistoryOrig, MAX_PICTURE_HISTORY * sizeof(TPicture));
         }
     }
 
-    if (!strcmp(DeintPlugin, "odd1"))
+    if (!stricmp(DeintPlugin, "pic1"))
     {
-        OddField = 0;
+        PictureToStore = 0;
     }
-    else if (!strcmp(DeintPlugin, "odd2"))
+    else if (!strcmp(DeintPlugin, "pic2"))
     {
-        OddField = 1;
+        PictureToStore = 1;
     }
-    else if (!strcmp(DeintPlugin, "odd3"))
+    else if (!strcmp(DeintPlugin, "pic3"))
     {
-        OddField = 2;
+        PictureToStore = 2;
     }
-    else if (!strcmp(DeintPlugin, "odd4"))
+    else if (!strcmp(DeintPlugin, "pic4"))
     {
-        OddField = 3;
+        PictureToStore = 3;
     }
-    else if (!strcmp(DeintPlugin, "odd5"))
+    else if (!strcmp(DeintPlugin, "pic5"))
     {
-        OddField = 4;
+        PictureToStore = 4;
     }
-    else if (!strcmp(DeintPlugin, "even1"))
+    else if (!strcmp(DeintPlugin, "pic6"))
     {
-        EvenField = 0;
+        PictureToStore = 5;
     }
-    else if (!strcmp(DeintPlugin, "even2"))
+    else if (!strcmp(DeintPlugin, "pic7"))
     {
-        EvenField = 1;
+        PictureToStore = 6;
     }
-    else if (!strcmp(DeintPlugin, "even3"))
+    else if (!strcmp(DeintPlugin, "pic8"))
     {
-        EvenField = 2;
-    }
-    else if (!strcmp(DeintPlugin, "even4"))
-    {
-        EvenField = 3;
-    }
-    else if (!strcmp(DeintPlugin, "even5"))
-    {
-        EvenField = 4;
-    }
-    else if (!strcmp(DeintPlugin, "oddeven1"))
-    {
-        OddField = 0;
-        EvenField = 0;
-    }
-    else if (!strcmp(DeintPlugin, "oddeven2"))
-    {
-        OddField = 1;
-        EvenField = 1;
-    }
-    else if (!strcmp(DeintPlugin, "oddeven3"))
-    {
-        OddField = 2;
-        EvenField = 2;
-    }
-    else if (!strcmp(DeintPlugin, "oddeven4"))
-    {
-        OddField = 3;
-        EvenField = 3;
-    }
-    else if (!strcmp(DeintPlugin, "oddeven5"))
-    {
-        OddField = 4;
-        EvenField = 4;
+        PictureToStore = 7;
     }
     else
     {
@@ -650,7 +580,7 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
         }
 
         QueryPerformanceCounter(&StartTime);
-        DeintMethod->pfnAlgorithm(&info);
+        DeintMethod->pfnAlgorithm(&Info);
         QueryPerformanceCounter(&EndTime);
         double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
         printf("Deint %f microsecs\n", Ticks * 1000000 / TimerFreq);
@@ -660,7 +590,7 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
             if(FilterMethod->bOnInput == FALSE)
             {
                 QueryPerformanceCounter(&StartTime);
-                FilterMethod->pfnAlgorithm(&info);
+                FilterMethod->pfnAlgorithm(&Info);
                 QueryPerformanceCounter(&EndTime);
                 double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
                 printf("Output Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
@@ -668,7 +598,7 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
         }
     }
 
-    if(!MakeTifFile(&info, TifFile, DeintMethod, OddField, EvenField))
+    if(!MakeTifFile(&Info, TifFile, DeintMethod, PictureToStore))
     {
         return 1;
     }
@@ -678,12 +608,12 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
         UnloadFilterPlugin(FilterMethod);
     }
 
-    if (OddField == -1 && EvenField == -1)
+    if(PictureToStore == -1)
     {
         UnloadDeintPlugin(DeintMethod);
     }
 
-    EmptyInfoStruct(&info);
+    EmptyInfoStruct(&Info);
     return 0;
 }
 
@@ -702,9 +632,7 @@ int main(int argc, char* argv[])
         printf("  FilterPlugIn is a DLL file\n");
         printf("  DeintPlugIn is either :\n");
         printf("    - a DLL file\n");
-        printf("    - odd1|odd2|odd3|odd4|odd5 to save odd field\n");
-        printf("    - even1|even2|even3|even4|even5 to save even field\n");
-        printf("    - oddeven1|oddeven2|oddeven3|oddeven4|oddeven5 to save odd+even fields\n");
+        printf("    - picN to a specific picture\n");
         return 1;
     }
     CPU_SetupFeatureFlag();

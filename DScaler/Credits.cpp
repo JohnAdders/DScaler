@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.6 2003-04-12 15:32:17 laurentg Exp $
+// $Id: Credits.cpp,v 1.7 2003-06-26 09:55:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/04/12 15:32:17  laurentg
+// Two code contributors added
+//
 // Revision 1.5  2003/03/10 17:43:20  adcockj
 // Added support for Hauppauge WinTV PCI-FM : patch from Tom Zoerner
 //
@@ -158,6 +161,7 @@ char *ArrCredits[] = { 	"DScaler\n",
 						"",
 						"Patches From\t",
 						"",
+                        "Olivier Borca\f",
                         "Billy Chang\f",
                         "Tom Fojta\f",
                         "Péter Gulyás\f",
@@ -165,9 +169,9 @@ char *ArrCredits[] = { 	"DScaler\n",
                         "Piet Orye\f",
                         "Kevin Radke\f",
                         "Eduardo José Tagle\f",
-                        "Tom Zoerner\f",
                         "Kristian Trenskow\f",
-                        "Olivier Borca\f",
+                        "Arjan Zipp\f",
+                        "Tom Zoerner\f",
 						"",
 						"",
 						"Projects we've borrowed from\t",

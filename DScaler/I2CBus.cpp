@@ -1,5 +1,5 @@
 //
-// $Id: I2CBus.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CBus.cpp,v 1.2 2002-09-27 14:10:25 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +32,17 @@
 #include "I2CBus.h"
 
 #include "DebugLog.h"
+
+
+CI2CBus::CI2CBus()
+{
+	InitializeCriticalSection(&I2CCriticalSection);
+}
+
+CI2CBus::~CI2CBus()
+{
+	DeleteCriticalSection(&I2CCriticalSection);
+}
 
 bool CI2CBus::Read(const BYTE *writeBuffer,
                   size_t writeBufferSize,
@@ -47,7 +61,8 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
     if (writeBufferSize != 1)
     {
         ASSERT(writeBufferSize > 1);
-
+		
+		EnterCriticalSection(&I2CCriticalSection);
         Start();
         
         // send the address
@@ -55,6 +70,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         {
             LOGD("I2CBus::write(0x%x) returned true for write address in CI2CBus::read\n", address & ~1);
             Stop();
+			LeaveCriticalSection(&I2CCriticalSection);
             return false;
         }
 
@@ -63,6 +79,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
             if(!Write(writeBuffer[i]))
             {
                 Stop();
+				LeaveCriticalSection(&I2CCriticalSection);
                 return false;
             }
         }
@@ -71,8 +88,11 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         // the device is "full", which is not an error.
         if (writeBufferSize >= 2)
             Write(writeBuffer[writeBufferSize - 1]);
+		
+		LeaveCriticalSection(&I2CCriticalSection);
     }
 
+	EnterCriticalSection(&I2CCriticalSection);
     Start();
 
     // The read address requires a negative ack
@@ -80,6 +100,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
     {
         LOGD("I2CBus::write(0x%x) returned false for read address in CI2CBus::read\n", address | 1);
         Stop();
+		LeaveCriticalSection(&I2CCriticalSection);
         return false;
     }
     
@@ -87,6 +108,7 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         readBuffer[i] = Read(false);
     readBuffer[i] = Read(true);
     Stop();
+	LeaveCriticalSection(&I2CCriticalSection);
 
     return true;
 }
@@ -97,6 +119,9 @@ bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
     ASSERT(writeBufferSize >= 1);
     ASSERT((writeBuffer[0] & 1) == 0);
 
+	
+	EnterCriticalSection(&I2CCriticalSection);
+
     Start();
 
     for (size_t i = 0; i < writeBufferSize; i++)
@@ -104,11 +129,13 @@ bool CI2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
         if (!Write(writeBuffer[i]))
         {
             Stop();
+			LeaveCriticalSection(&I2CCriticalSection);
             return false;
         }
     }
 
     Stop();
+	LeaveCriticalSection(&I2CCriticalSection);
 
     return true;
 }

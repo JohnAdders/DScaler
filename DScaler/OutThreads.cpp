@@ -479,31 +479,35 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 				if(!info.bMissedFrame)
 				{
-					// experimental
-					// does both comb and diff
-					// but in slightly different way
-					// uncomment to play
-					//DoBothCombAndDiff(&info);
+                    if(bAutoDetectMode == TRUE)
+                    {
+					    // experimental
+					    // does both comb and diff
+					    // but in slightly different way
+					    // uncomment to play
+					    //DoBothCombAndDiff(&info);
 
-					if(bAutoDetectMode == TRUE && bIsPAL)
-					{
-						UpdatePALPulldownMode(&info);
-					}
+					    if(bIsPAL)
+					    {
+						    UpdatePALPulldownMode(&info);
+					    }
+                        else
+                        {
+						    UpdateNTSCPulldownMode(&info);
+					    }
+                    }
+                    else
+                    {
+					    if(CurrentMethod->bNeedCombFactor)
+					    {
+						    GetCombFactor(&info);
+					    }
 
-					if(bAutoDetectMode == TRUE && !bIsPAL)
-					{
-						UpdateNTSCPulldownMode(&info);
-					}
-					
-					if(CurrentMethod->bNeedCombFactor && info.CombFactor == -1)
-					{
-						GetCombFactor(&info);
-					}
-
-					if(CurrentMethod->bNeedFieldDiff && info.FieldDiff == -1)
-					{
-						CompareFields(&info);
-					}
+					    if(CurrentMethod->bNeedFieldDiff)
+					    {
+						    CompareFields(&info);
+					    }
+                    }
 				}
 
 				if (Capture_VBI == TRUE)
@@ -590,10 +594,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					// When we first detect film mode we will be on the right flip mode in PAL
 					// and at the end of a three series in NTSC this will be the starting point for
 					// our 2.5 field timings
-					else if(PrevDeintMethod != CurrentMethod && IsFilmMode())
-					{
-						bFlipNow = Weave(&info);
-					}
+					//else if(PrevDeintMethod != CurrentMethod && IsFilmMode())
+					//{
+					//	bFlipNow = Weave(&info);
+					//}
 					else
 					{
 						bFlipNow = CurrentMethod->pfnAlgorithm(&info);

@@ -41,8 +41,6 @@ void FD_Common_WriteSettingsToIni();
 void ResetModeSwitches();
 BOOL TrackModeSwitches();
 
-BOOL DoWeWantToFlip(BOOL bIsOddField);
-
 long GetCombFactor(DEINTERLACE_INFO *pInfo);
 long CompareFields(DEINTERLACE_INFO *pInfo);
 void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo);

@@ -96,6 +96,12 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 		"3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, FilmModeNTSC5th, 1000, 24, 
 		12, NULL, 0, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
 	},
+	// FILM_32_PULLDOWN_COMB
+	{
+		sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+		"3:2 Pulldown Use Comb Info", "3:2 Comb", FALSE, TRUE, FilmModeNTSCComb, 1000, 60, 
+		50, NULL, 0, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+	},
 };
 
 long NumVideoModes = 0;

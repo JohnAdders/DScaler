@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.1 2002-12-03 20:51:42 atnak Exp $
+// $Id: RegSpy.cpp,v 1.2 2002-12-04 00:20:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/12/03 20:51:42  atnak
+// Added new app for monitoring register settings while other programs are running
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +35,7 @@ enum
 {
     REG_FONT_HEIGHT     = 12,
     MAX_LOG_STATES      = 6,
+    REG_REFRESH_TICKS   = 200,
 };
 
 
@@ -66,8 +70,8 @@ struct _Register
     DWORD       Offset;
     char*       Name;
     BYTE        Size;
-    DWORD       LogStates[MAX_LOG_STATES];
     DWORD       LastValue;
+    DWORD       LogStates[MAX_LOG_STATES];
     BYTE        FadeTicks;
     BOOL        bDraw;
 };
@@ -337,9 +341,46 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
 
 void __cdecl SAA7134RegSpy(TRegister** hRegisterListTail)
 {
+    AddBRegister(SAA7134_INCR_DELAY);
+    AddBRegister(SAA7134_ANALOG_IN_CTRL1);
+    AddBRegister(SAA7134_ANALOG_IN_CTRL2);
+    AddBRegister(SAA7134_ANALOG_IN_CTRL3);
+    AddBRegister(SAA7134_ANALOG_IN_CTRL4);
+
+    AddBRegister(SAA7134_HSYNC_START);
+    AddBRegister(SAA7134_HSYNC_STOP);
+    AddBRegister(SAA7134_SYNC_CTRL);
+    AddBRegister(SAA7134_LUMA_CTRL);
+    AddBRegister(SAA7134_DEC_LUMA_BRIGHT);
+    AddBRegister(SAA7134_DEC_LUMA_CONTRAST);
+    AddBRegister(SAA7134_DEC_CHROMA_SATURATION);
+    AddBRegister(SAA7134_DEC_CHROMA_HUE);
+    AddBRegister(SAA7134_CHROMA_CTRL1);
+    AddBRegister(SAA7134_CHROMA_GAIN_CTRL);
+    AddBRegister(SAA7134_CHROMA_CTRL2);
+    AddBRegister(SAA7134_MODE_DELAY_CTRL);
+    AddBRegister(SAA7134_ANALOG_ADC);
+    AddBRegister(SAA7134_VGATE_START);
+    AddBRegister(SAA7134_VGATE_STOP);
+    AddBRegister(SAA7134_MISC_VGATE_MSB);
+    AddBRegister(SAA7134_RAW_DATA_GAIN);
+    AddBRegister(SAA7134_RAW_DATA_OFFSET);
+    AddBRegister(SAA7134_STATUS_VIDEO);
+    AddBRegister(SAA7134_STATUS_VIDEO_HIBYTE);
+
     AddDWRegister(SAA7134_GPIO_GPMODE);
     AddDWRegister(SAA7134_GPIO_GPSTATUS);
-}
+
+    AddBRegister(SAA7134_OFMT_VIDEO_A);
+    AddBRegister(SAA7134_OFMT_DATA_A);
+    AddBRegister(SAA7134_OFMT_VIDEO_B);
+    AddBRegister(SAA7134_OFMT_DATA_B);
+    AddBRegister(SAA7134_ALPHA_NOCLIP);
+    AddBRegister(SAA7134_ALPHA_CLIP);
+    AddBRegister(SAA7134_UV_PIXEL);
+    AddBRegister(SAA7134_CLIP_RED);
+    AddBRegister(SAA7134_CLIP_GREEN);
+    AddBRegister(SAA7134_CLIP_BLUE);}
 
 
 //  struct TChip:
@@ -839,6 +880,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 BOOL        bChanged = FALSE;
                 TRegister** hUpInsert = &pRegisterList;
                 TRegister** hPreviousNext = &pRegisterList;
+                TRegister*  pUptoRemoved = NULL;
 
                 for(pRegister = pRegisterList;
                     pRegister != NULL;
@@ -868,17 +910,20 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
 
                         if(bMoveUpChanges == TRUE)
                         {
-                            // Remove from original position
-                            *hPreviousNext = pRegister->Next;
+                            if(pRegister != *hUpInsert)
+                            {
+                                // Remove from original position
+                                *hPreviousNext = pRegister->Next;
 
-                            // Insert up
-                            pRegister->Next = *hUpInsert;
-                            *hUpInsert = pRegister;
-                            hUpInsert = &pRegister->Next;
-                            
-                            SendMessage(hDlg, WM_VSCROLL, MAKEWPARAM(SB_LEFT, 0),
-                                (LPARAM)GetDlgItem(hDlg, IDC_REGSCROLL));
-                            continue;
+                                // Remember the last non-removed object
+                                pUptoRemoved = pRegister->Next;
+
+                                // Insert up
+                                pRegister->Next = *hUpInsert;
+                                *hUpInsert = pRegister;
+                                hUpInsert = &pRegister->Next;
+                                continue;
+                            }
                         }
                     }
                     else if(pRegister->FadeTicks > 0)
@@ -897,6 +942,15 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
 
                 if(bChanged == TRUE)
                 {
+                    if(hUpInsert != &pRegisterList)
+                    {
+                        // Tag all the ones that shifted as a result of others moving up
+                        for(pRegister = *hUpInsert; pRegister != pUptoRemoved; pRegister = pRegister->Next)
+                        {
+                            pRegister->bDraw = TRUE;
+                        }
+                    }
+
                     CopyRect(&Rect, &RegDisplayRect);
 
                     ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect));
@@ -907,7 +961,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                     InvalidateRect(hDlg, &Rect, FALSE);
                 }
 
-                SetTimer(hDlg, IDC_REFRESH, 200, NULL);
+                SetTimer(hDlg, IDC_REFRESH, REG_REFRESH_TICKS, NULL);
             }
 
             LeaveCriticalSection(&RegisterListMutex);
@@ -1120,19 +1174,19 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                                 EnableWindow(hWnd, TRUE);
                                 SendMessage(hWnd, SBM_SETSCROLLINFO, TRUE, (LPARAM)&ScrollInfo);
                             }
-							else
-							{
-								EnableWindow(GetDlgItem(hDlg, IDC_REGSCROLL), FALSE);
-							}
+                            else
+                            {
+                                EnableWindow(GetDlgItem(hDlg, IDC_REGSCROLL), FALSE);
+                            }
 
-							EnableWindow(GetDlgItem(hDlg, IDC_MOVEUPCHANGES), Count > 1);
+                            EnableWindow(GetDlgItem(hDlg, IDC_MOVEUPCHANGES), Count > 1);
                             EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), TRUE);
                             EnableWindow(GetDlgItem(hDlg, IDC_DUMPTOFILE), TRUE);
 
-							if(GetFocus() == GetDlgItem(hDlg, IDC_SOURCESELECT))
-							{
-								SetFocus(hDlg);
-							}
+                            if(GetFocus() == GetDlgItem(hDlg, IDC_SOURCESELECT))
+                            {
+                                SetFocus(hDlg);
+                            }
 
                             SendMessage(hDlg, WM_TIMER, IDC_REFRESH, 0);
                         }
@@ -1144,13 +1198,13 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                         MessageBox(NULL, "Can't open card", "RegSpy", MB_OK);
                     }
                 }
-				else
-				{
-					EnableWindow(GetDlgItem(hDlg, IDC_REGSCROLL), FALSE);
-					EnableWindow(GetDlgItem(hDlg, IDC_MOVEUPCHANGES), FALSE);
-					EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), FALSE);
-					EnableWindow(GetDlgItem(hDlg, IDC_DUMPTOFILE), FALSE);
-				}
+                else
+                {
+                    EnableWindow(GetDlgItem(hDlg, IDC_REGSCROLL), FALSE);
+                    EnableWindow(GetDlgItem(hDlg, IDC_MOVEUPCHANGES), FALSE);
+                    EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), FALSE);
+                    EnableWindow(GetDlgItem(hDlg, IDC_DUMPTOFILE), FALSE);
+                }
                 LeaveCriticalSection(&RegisterListMutex);
             }
             return TRUE;
@@ -1410,8 +1464,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     void* ContextPtr[] = { SourceList, pHardwareDriver };
 
     DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, MainWindowProc, (LPARAM)ContextPtr);
-
-	DWORD Error = GetLastError();
 
     while(Source = SourceList)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.15 2001-11-23 10:45:45 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.16 2001-11-26 12:48:01 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ typedef struct
     } PDC;
 } TPacket30;
 
-#define NUM_FLOF    24
+#define NUM_FLOF    6
 #define FLOF_RED    0
 #define FLOF_GREEN  1
 #define FLOF_YELLOW 2

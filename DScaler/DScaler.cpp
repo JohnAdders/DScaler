@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.93 2001-11-25 21:29:50 laurentg Exp $
+// $Id: DScaler.cpp,v 1.94 2001-11-26 12:48:01 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2001/11/25 21:29:50  laurentg
+// Take still, Open file, Close file callbacks updated
+//
 // Revision 1.92  2001/11/24 22:54:25  laurentg
 // Close file added for still source
 //
@@ -1602,7 +1605,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     //TODO: VT_GetFlofPageNumber do not return SubPage...
                     i = VT_GetFlofPageNumber(VTPage-100, VTSubPage, LOWORD(wParam) - IDM_TELETEXT_KEY1);
-                    if(i > 100 && i <= 899) 
+                    if(i >= 100 && i <= 899) 
                     {
                         SetVTPage(i, 0, false, true);
                     }
@@ -1784,9 +1787,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if ((a >= 100) && (a <= 899)) 
             {
                 SetVTPage(a, 0, false, false);
+                break;
             }
         }
-        else if(bShowMenu == FALSE)
+        if(bShowMenu == FALSE && bIsFullScreen == FALSE)
         {
             // pretend we are hitting the caption bar
             // this will allow the user to move the window

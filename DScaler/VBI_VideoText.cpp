@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.45 2002-09-07 20:59:45 kooiman Exp $
+// $Id: VBI_VideoText.cpp,v 1.46 2002-10-12 04:33:53 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/09/07 20:59:45  kooiman
+// Small fixes.
+//
 // Revision 1.44  2002/06/20 20:00:35  robmuller
 // Implemented videotext search highlighting.
 //
@@ -719,7 +722,7 @@ void VBI_decode_vt(unsigned char* dat)
                (MagazineStates[mag].SubPage == VTSubPage))
             {
                 memcpy(&VisiblePage, pPage, sizeof(TVTPage));
-                
+
                 EnterCriticalSection(&VTUpdateAccess);
                 KillTimer(hWnd, TIMER_VTUPDATE);
                 VTRedrawCache.PageErase |= bRedrawAll;
@@ -950,6 +953,7 @@ void VT_ChannelChange()
     memset(VPSChannelName , 0x00, 9);
     memset(&VisiblePage, 0, sizeof(TVTPage));
     memset(VTPages, 0, 800 * sizeof(TVTPage));
+    memset(VTHeaderLine, 0, sizeof(VTHeaderLine));
     memset(MagazineStates, 0, sizeof(TMagState) * NUM_MAGAZINES);
     for(int i(0); i < NUM_MAGAZINES; ++i)
     {
@@ -989,6 +993,7 @@ void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
 
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
+        (VTShowHidden ? VTDF_HIDDEN : 0) |
         (ShowFlashed ? VTDF_FLASHONLY : VTDF_CLEARFLASH) |
         ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
         bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0);

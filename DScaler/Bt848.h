@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.h,v 1.12 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Bt848.h,v 1.13 2001-08-08 16:39:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -132,12 +132,12 @@ TTVFormat* BT848_GetTVFormat();
 BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 // General read/write function
-#define BT848_ReadByte(dwOffset) memoryReadBYTE(dwOffset)
-#define BT848_ReadWord(dwOffset) memoryReadWORD(dwOffset)
-#define BT848_ReadDword(dwOffset) memoryReadDWORD(dwOffset)
-#define BT848_WriteByte(dwOffset,data) memoryWriteBYTE(dwOffset, data)
-#define BT848_WriteWord(dwOffset,data) memoryWriteWORD(dwOffset, data)
-#define BT848_WriteDword(dwOffset,data) memoryWriteDWORD(dwOffset, data)
+BYTE BT848_ReadByte(DWORD dwOffset);
+WORD BT848_ReadWord(DWORD dwOffset);
+DWORD BT848_ReadDword(DWORD dwOffset);
+void BT848_WriteByte(DWORD dwOffset,BYTE data);
+void BT848_WriteWord(DWORD dwOffset,WORD data);
+void BT848_WriteDword(DWORD dwOffset, DWORD data);
 
 void BT848_MaskDataByte(int Offset, BYTE d, BYTE m);
 void BT848_MaskDataWord(int Offset, WORD d, WORD m);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.19 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.20 2002-04-10 07:25:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.18  2002/02/12 02:27:45  ittarnavsky
 // fixed the hardware info dialog
 //
@@ -825,7 +828,7 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
         }
         else
         {
-            VertDelay = 16;
+            VertDelay = GetTVFormat(TVFormat)->wVDelay;
         }
 
         if(HDelayOverride != 0)

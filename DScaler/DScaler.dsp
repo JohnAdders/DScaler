@@ -170,6 +170,10 @@ SOURCE=.\BitmapAsButton.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BT848_VoodooTV_IFdem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\BT848Card.cpp
 # End Source File
 # Begin Source File
@@ -634,6 +638,10 @@ SOURCE=.\StillSource.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TDA9887.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TiffHelper.cpp
 # End Source File
 # Begin Source File
@@ -790,6 +798,10 @@ SOURCE=.\BitmapAsButton.h
 # Begin Source File
 
 SOURCE=.\Bt848_Defines.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848_VoodooTV_IFdem.h
 # End Source File
 # Begin Source File
 
@@ -1198,6 +1210,10 @@ SOURCE=.\StillProvider.h
 # Begin Source File
 
 SOURCE=.\StillSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TDA9887.h
 # End Source File
 # Begin Source File
 

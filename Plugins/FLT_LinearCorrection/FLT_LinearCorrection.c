@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.10 2001-08-30 11:58:10 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.11 2001-08-30 12:04:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/08/30 11:58:10  adcockj
+// Changed mode setting to be select fom list
+//
 // Revision 1.9  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -518,7 +521,7 @@ SETTING FLT_LinearCorrSettings[FLT_LINEAR_CORR_SETTING_LASTONE] =
     },
     {
         "Mask Type", ITEMFROMLIST, 0, &MaskType,
-        0, 0, 2, 1, 1,
+        MASK_TRAPEZOID, MASK_TRAPEZOID, MASK_STRETCH, 1, 1,
         ModeList,
         "LinearCorrectionFilter", "MaskType", NULL,
     },

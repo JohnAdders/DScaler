@@ -824,11 +824,11 @@ BEGIN
     MENUITEM "Holder",                      65535
     POPUP "&Channels"
     BEGIN
-        MENUITEM "Channel &Setup\tHome",        IDM_CHANNEL_LIST
+        MENUITEM "&Setup\tHome",                IDM_CHANNEL_LIST
         MENUITEM SEPARATOR
-        MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
-        MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
-        MENUITEM "&Last Channel\tCtrl+Backspace", IDM_CHANNEL_PREVIOUS
+        MENUITEM "&Next\tPgUp",                 IDM_CHANNELPLUS
+        MENUITEM "&Previous\tPgDn",             IDM_CHANNELMINUS
+        MENUITEM "&Last\tCtrl+Back",            IDM_CHANNEL_PREVIOUS
         MENUITEM SEPARATOR
     END
     POPUP "&View"
@@ -928,7 +928,7 @@ BEGIN
         MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
         MENUITEM SEPARATOR
         MENUITEM "Show Video Method &UI",       IDM_DEINTERLACE_SHOWVIDEOMETHODUI
-
+        , MENUBARBREAK
         MENUITEM "&Video Methods Settings...",  IDM_SETTINGS_DEINTERLACESETTINGS
 
         MENUITEM SEPARATOR
@@ -959,7 +959,9 @@ BEGIN
         END
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
-        MENUITEM "Advanced &Settings...",       IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM "&Advanced Settings...",       IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM SEPARATOR
+        MENUITEM "&Keyboard Lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
     END
     POPUP "Ac&tions"
     BEGIN

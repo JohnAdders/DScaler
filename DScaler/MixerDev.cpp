@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.12 2001-07-13 18:13:24 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.13 2001-07-15 13:24:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.11  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -751,14 +754,14 @@ void Mixer_OnInputChange(eVideoSourceType NewType)
 
 void Mixer_Exit()
 {
-    if(bUseMixer)
-    {
-        // Mute all inputs
-        Mixer_OnInputChange(SOURCE_CCIR656_4);
-        pSoundSystem->SetMixer(-1);
-    }
     if(pSoundSystem != NULL)
     {
+		if(bUseMixer)
+		{
+			// Mute all inputs
+			Mixer_OnInputChange(SOURCE_CCIR656_4);
+			pSoundSystem->SetMixer(-1);
+		}
         delete pSoundSystem;
         pSoundSystem = NULL;
     }

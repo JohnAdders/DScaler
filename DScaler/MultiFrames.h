@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.9 2003-06-15 08:26:36 laurentg Exp $
+// $Id: MultiFrames.h,v 1.10 2003-08-02 12:48:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/06/15 08:26:36  laurentg
+// Update all the frames having the same content
+//
 // Revision 1.8  2003/06/14 19:35:57  laurentg
 // Preview mode improved
 //
@@ -173,6 +176,10 @@ private:
 	// Positive value to shift to left
 	// Negative value to shift to right
 	int m_DeltaNewFrame;
+
+	// Set to TRUE when the user requests to fill the screen with new channels
+	BOOL m_NextPage;
+	BOOL m_PreviousPage;
 
 	BOOL m_ContentChanged;
 };

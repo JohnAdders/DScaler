@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.10 2003-06-15 08:26:36 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.11 2003-08-02 12:48:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/06/15 08:26:36  laurentg
+// Update all the frames having the same content
+//
 // Revision 1.9  2003/06/14 19:35:56  laurentg
 // Preview mode improved
 //
@@ -266,6 +269,8 @@ void CMultiFrames::SelectFrame()
 		if (!m_NavigAllowed)
 		{
 			m_DeltaNewFrame = 0;
+			m_PreviousPage = FALSE;
+			m_NextPage = FALSE;
 		}
 		m_NavigAllowed = TRUE;
 	}
@@ -275,9 +280,50 @@ void CMultiFrames::SelectFrame()
 		//
 		// There is no frame to fill
 		// So check if user asked for move to another frame
+		// or to fill the screen with other channels
 		//
 
-		if (m_DeltaNewFrame != 0)
+		if (m_PreviousPage == TRUE)
+		{
+			m_NavigAllowed = FALSE;
+			m_ContentChanged = FALSE;
+			for (int i=0 ; i < m_NbFrames ; i++)
+			{
+				m_FrameFilled[i] = -1;
+			}
+			DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+			m_CurrentFrame = m_NbFrames-1;
+			DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+			if (m_Mode == PREVIEW_CHANNELS)
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+			}
+			else if (m_Mode == PREVIEW_STILLS)
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
+			}
+		}
+		else if (m_NextPage == TRUE)
+		{
+			m_NavigAllowed = FALSE;
+			m_ContentChanged = FALSE;
+			for (int i=0 ; i < m_NbFrames ; i++)
+			{
+				m_FrameFilled[i] = -1;
+			}
+			DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+			m_CurrentFrame = 0;
+			DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+			if (m_Mode == PREVIEW_CHANNELS)
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+			}
+			else if (m_Mode == PREVIEW_STILLS)
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
+			}
+		}
+		else if (m_DeltaNewFrame != 0)
 		{
 			m_NavigAllowed = FALSE;
 			m_ContentChanged = FALSE;
@@ -460,6 +506,22 @@ BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     switch(LOWORD(wParam))
     {
+    case IDM_PREVIEW_PAGE_PREV:
+		// Ctrl+Up key
+		if (m_NavigAllowed)
+		{
+			m_PreviousPage = TRUE;
+			return TRUE;
+		}
+		break;
+    case IDM_PREVIEW_PAGE_NEXT:
+		// Ctrl+Down key
+		if (m_NavigAllowed)
+		{
+			m_NextPage = TRUE;
+			return TRUE;
+		}
+		break;
     case IDM_VT_PAGE_UP:
 		// Up key
 		if (m_NavigAllowed)

@@ -1189,6 +1189,8 @@
 #define IDM_PLAYLIST_INDEX              32961
 #define IDM_PLAYLIST_PREVIOUS_CIRC      32962
 #define IDM_PLAYLIST_NEXT_CIRC          32963
+#define IDM_PREVIEW_PAGE_NEXT           32964
+#define IDM_PREVIEW_PAGE_PREV           32965
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1209,7 +1211,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        260
-#define _APS_NEXT_COMMAND_VALUE         32964
+#define _APS_NEXT_COMMAND_VALUE         32966
 #define _APS_NEXT_CONTROL_VALUE         8085
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

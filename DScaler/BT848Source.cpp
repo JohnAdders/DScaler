@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.82 2002-10-08 20:43:16 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.83 2002-10-08 21:16:09 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2002/10/08 20:43:16  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.81  2002/10/07 22:31:27  kooiman
 // Fixed audio initialization.
 //
@@ -1514,7 +1517,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     {
         m_VideoFormat->SetValue(VideoFormat);
     }    
-    return result;
+    return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
 
 BOOL CBT848Source::IsVideoPresent()

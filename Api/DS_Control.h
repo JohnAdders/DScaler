@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.25 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DS_Control.h,v 1.26 2001-07-26 21:59:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 // Revision 1.24  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -570,6 +574,7 @@ typedef enum
     OSD_BACKGROUND,
     OSD_OUTLINE,
     OSD_AUTOHIDE_SCREEN,
+    OSD_USE_RGB,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
 #define WM_OSD_GETVALUE     (WM_USER + 18)

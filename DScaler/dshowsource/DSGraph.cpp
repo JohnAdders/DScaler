@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.4 2002-02-07 22:09:11 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.5 2002-02-13 17:01:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/07 22:09:11  tobbej
+// changed for new file input
+//
 // Revision 1.3  2002/02/05 17:27:46  tobbej
 // update dropped/drawn fields stats
 //
@@ -244,35 +247,108 @@ void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 	}
 }
 
-void CDShowGraph::showRendererProperies(HWND hParent)
+void CDShowGraph::showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilter> pFilter)
 {
 	USES_CONVERSION;
 	CAUUID pages;
 	HRESULT hr;
 
-	if(m_renderer==NULL)
+	if(pFilter==NULL)
 	{
 		return;
 	}
 
-	CComQIPtr<ISpecifyPropertyPages> pSProp;
-	CComQIPtr<IUnknown,&IID_IUnknown> pUnk;
+	CComPtr<ISpecifyPropertyPages> pSProp;
+	CComPtr<IUnknown> pUnk;
 	
-	pUnk=m_renderer;
-	pSProp=m_renderer;
+	hr=pFilter.QueryInterface(&pSProp);
+	if(FAILED(hr))
+	{
+		//the filter dont have any property pages
+		return;
+	}
+	hr=pFilter.QueryInterface(&pUnk);
+	ASSERT(SUCCEEDED(hr));
+
 	hr=pSProp->GetPages(&pages);
 	if(FAILED(hr))
 	{
 		//FIXME
 	}
 	
-	hr=OleCreatePropertyFrame(hParent,0,0,A2OLE("DirectShow Renderer"),1,&pUnk.p,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),SORT_DEFAULT),0,NULL);
+	hr=OleCreatePropertyFrame(hParent,0,0,A2OLE(caption.c_str()),1,&pUnk.p,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),SORT_DEFAULT),0,NULL);
 	if(FAILED(hr))
 	{
-		//FIXME
+		AfxMessageBox("Failed to show property page!",MB_OK|MB_ICONEXCLAMATION);
 	}
 	
 	CoTaskMemFree(pages.pElems);
+}
+
+bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPages)
+{
+	USES_CONVERSION;
+	CDShowGenericEnum<IEnumFilters,IBaseFilter> filterEnum;
+	HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
+	if(FAILED(hr))
+		return false;
+	CComPtr<IBaseFilter> pFilter;
+	try
+	{
+		pFilter=filterEnum[index];
+	}
+	catch(CDShowException e)
+	{
+		return false;
+	}
+
+	FILTER_INFO info;
+	hr=pFilter->QueryFilterInfo(&info);
+	if(SUCCEEDED(hr))
+	{
+		filterName=W2A(info.achName);
+		if(info.pGraph!=NULL)
+		{
+			info.pGraph->Release();
+			info.pGraph=NULL;
+		}
+		CComPtr<ISpecifyPropertyPages> pPages;
+		hasPropertyPages=SUCCEEDED(pFilter.QueryInterface(&pPages));
+		return true;
+	}
+	return false;
+}
+
+void CDShowGraph::showPropertyPage(HWND hParent,int index)
+{
+	USES_CONVERSION;
+	CDShowGenericEnum<IEnumFilters,IBaseFilter> filterEnum;
+	HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
+	if(FAILED(hr))
+		return;
+	
+	CComPtr<IBaseFilter> pFilter;
+	try
+	{
+		pFilter=filterEnum[index];
+	}
+	catch(CDShowException e)
+	{
+		return;
+	}
+	FILTER_INFO info;
+	string filterName;
+	hr=pFilter->QueryFilterInfo(&info);
+	if(SUCCEEDED(hr))
+	{
+		filterName=W2A(info.achName);
+		if(info.pGraph!=NULL)
+		{
+			info.pGraph->Release();
+			info.pGraph=NULL;
+		}
+		showPropertyPage(hParent,filterName,pFilter);
+	}
 }
 
 int CDShowGraph::getDroppedFrames()

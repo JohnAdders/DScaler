@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.4 2002-02-07 22:09:11 tobbej Exp $
+// $Id: DSGraph.h,v 1.5 2002-02-13 17:01:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/07 22:09:11  tobbej
+// changed for new file input
+//
 // Revision 1.3  2002/02/05 17:27:47  tobbej
 // update dropped/drawn fields stats
 //
@@ -69,15 +72,19 @@ public:
 	CDShowBaseSource* getSourceDevice();
 	bool getNextSample(CComPtr<IMediaSample> &pSample);
 	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
-	void showRendererProperies(HWND hParent);
 	int getDroppedFrames();
 
 	void start();
 	void pause();
 	void stop();
 	FILTER_STATE getState() {return m_pGraphState;}
+
+	bool getFilterName(int index,string &filterName,bool &hasPropertyPages);
+	void showPropertyPage(HWND hParent,int index);
 	
 private:
+	void showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilter> pFilter);
+	
 	void initGraph();
 	void createRenderer();
 

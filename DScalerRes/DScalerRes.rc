@@ -1157,7 +1157,7 @@ BEGIN
         MENUITEM "&Stop",                       IDM_DSHOW_STOP
         MENUITEM SEPARATOR
         MENUITEM "&Reset card",                 IDM_RESET
-        MENUITEM "R&enderer properties...",     IDM_DSHOW_RENDERERPROPERTIES
+        MENUITEM "Filter Properties",           65535
     END
 END
 

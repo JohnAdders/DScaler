@@ -837,7 +837,6 @@
 #define IDM_CROSSBAR_INPUT19            2240
 #define IDM_CROSSBAR_INPUT_MAX          2240
 #define IDM_RESET_STATS                 2241
-#define IDM_DSHOW_RENDERERPROPERTIES    2242
 #define IDM_SETTINGS_PIXELWIDTH_480     2243
 #define IDM_VT_ITALIAN                  2245
 #define IDM_VT_SWEDISH                  2246
@@ -880,6 +879,27 @@
 #define IDM_DSVIDEO_STANDARD_19         2332
 #define IDM_DSVIDEO_STANDARD_20         2333
 #define IDM_DSVIDEO_STANDARD_MAX        2333
+#define IDM_DSHOW_FILTER_0              2334
+#define IDM_DSHOW_FILTER_1              2335
+#define IDM_DSHOW_FILTER_2              2336
+#define IDM_DSHOW_FILTER_3              2337
+#define IDM_DSHOW_FILTER_4              2338
+#define IDM_DSHOW_FILTER_5              2339
+#define IDM_DSHOW_FILTER_6              2340
+#define IDM_DSHOW_FILTER_7              2341
+#define IDM_DSHOW_FILTER_8              2342
+#define IDM_DSHOW_FILTER_9              2343
+#define IDM_DSHOW_FILTER_10             2344
+#define IDM_DSHOW_FILTER_11             2345
+#define IDM_DSHOW_FILTER_12             2346
+#define IDM_DSHOW_FILTER_13             2347
+#define IDM_DSHOW_FILTER_14             2348
+#define IDM_DSHOW_FILTER_15             2349
+#define IDM_DSHOW_FILTER_16             2350
+#define IDM_DSHOW_FILTER_17             2351
+#define IDM_DSHOW_FILTER_18             2352
+#define IDM_DSHOW_FILTER_19             2353
+#define IDM_DSHOW_FILTER_MAX            2353
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -901,8 +921,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2334
+#define _APS_NEXT_COMMAND_VALUE         2335
 #define _APS_NEXT_CONTROL_VALUE         1895
-#define _APS_NEXT_SYMED_VALUE           2334
+#define _APS_NEXT_SYMED_VALUE           2354
 #endif
 #endif

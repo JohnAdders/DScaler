@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.8 2002-08-20 16:22:59 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.9 2002-12-03 22:02:18 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/08/20 16:22:59  tobbej
+// split CDSSource into 3 different classes
+//
 // Revision 1.7  2002/05/01 20:36:49  tobbej
 // renamed file input source
 //
@@ -72,6 +75,16 @@ static char THIS_FILE[]=__FILE__;
 
 CDSProvider::CDSProvider()
 {
+	std::string ErrMsg;
+	if(!CanUseDShow(ErrMsg))
+	{
+		//the only reason for the extra \n is to avoid text on the osd being drawn outside the window
+		//(== some text will not be visible)
+		std::string msg="Can't use DirectShow support because\n"+ErrMsg+"\nThe DirectShow input sources will be disabled";
+		ErrorBox(msg.c_str());
+		return;
+	}
+	
 	try
 	{
 		try
@@ -142,6 +155,29 @@ CSource* CDSProvider::GetSource(int SourceIndex)
 	{
 		return NULL;
 	}
+}
+
+bool CDSProvider::CanUseDShow(std::string &FailMsg)
+{
+	///@todo add a check for directx version
+
+	//check dsrend.dll filter
+	CComPtr<IBaseFilter> filter;
+	HRESULT hr=filter.CoCreateInstance(CLSID_DSRendFilter);
+	if(FAILED(hr))
+	{
+		///@todo maybe try to register dsrend.dll and only return false if it failed
+		FailMsg="the 'DScaler renderer filter' is not properly installed";
+		return false;
+	}
+	CComPtr<IDSRendFilter> DSRendIf;
+	hr=filter.QueryInterface(&DSRendIf);
+	if(FAILED(hr))
+	{
+		FailMsg="the 'DScaler renderer filter' does not support the necessary interface\n(maybe the filter is of the wrong version)";
+		return false;
+	}
+	return true;
 }
 
 #endif

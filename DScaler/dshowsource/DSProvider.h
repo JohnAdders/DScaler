@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.h,v 1.3 2002-08-20 16:22:59 tobbej Exp $
+// $Id: DSProvider.h,v 1.4 2002-12-03 22:02:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/08/20 16:22:59  tobbej
+// split CDSSource into 3 different classes
+//
 // Revision 1.2  2001/12/17 19:36:45  tobbej
 // renamed a few classes
 //
@@ -69,6 +72,8 @@ public:
 	string getSourceName(int SourceIndex);
 
 private:
+	///checks if dshow support can be enabled
+	bool CanUseDShow(std::string &FailMsg);
 	vector<CDSSourceBase*> m_DSSources;
 	map<int,string> m_SourceNames;
 	

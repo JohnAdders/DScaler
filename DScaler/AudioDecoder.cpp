@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.7 2002-08-27 22:02:32 kooiman Exp $
+// $Id: AudioDecoder.cpp,v 1.8 2002-09-12 21:50:05 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/08/27 22:02:32  kooiman
+// Added Get/Set input for video and audio for all sources. Added source input change notification.
+//
 // Revision 1.6  2002/07/02 20:00:06  adcockj
 // New setting for MSP input pin selection
 //
@@ -78,7 +81,7 @@ eSoundChannel CAudioDecoder::GetSoundChannel()
     return m_SoundChannel;
 }
 
-void CAudioDecoder::SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1)
+void CAudioDecoder::SetSoundChannel(eSoundChannel soundChannel)
 {
     m_SoundChannel = soundChannel;
 }
@@ -121,6 +124,6 @@ const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
             return "Stereo";
             break;
         }
-      
+
         return NULL;
 }

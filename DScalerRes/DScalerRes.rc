@@ -708,7 +708,7 @@ END
 IDD_TREESETTINGS_GENERIC DIALOGEX 0, 0, 197, 169
 STYLE DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_APPWINDOW
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_TREESETTINGS_GENERIC_LIST,5,36,187,73,LBS_SORT | 
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
@@ -771,13 +771,13 @@ BEGIN
                     10
 END
 
-IDD_HWSETUP DIALOG DISCARDABLE  0, 0, 300, 230
+IDD_HWSETUP DIALOG DISCARDABLE  0, 0, 300, 242
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "General Hardware Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,7,209,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,65,209,50,14
+    DEFPUSHBUTTON   "OK",IDOK,7,217,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,217,50,14
     COMBOBOX        IDC_PROCESSOR_SPEED,72,35,178,190,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_TRADEOFF,73,81,178,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -793,11 +793,11 @@ BEGIN
     LTEXT           "DScaler can use your full CPU for best results or keep CPU for other applications running at the same time. Choose the option below that best matches your preferences.",
                     -1,7,106,286,17
     LTEXT           "CPU using",-1,15,130,41,10
-    COMBOBOX        IDC_VIDEOCARD,73,181,178,190,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_VIDEOCARD,73,188,178,190,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "DScaler can adapt its settings regarding the video card you are using.  Choose your video card below or select ""Other cards"" if your video card is not listed. (This setting is not detected)",
-                    -1,7,157,286,17
-    LTEXT           "Video card",-1,15,181,41,10
+                    -1,7,157,286,26
+    LTEXT           "Video card",-1,15,188,41,10
 END
 
 IDD_DSHOW_AUDIODEVICE DIALOG DISCARDABLE  0, 0, 166, 85
@@ -1671,6 +1671,11 @@ IDC_CURSOR_HAND         CURSOR  DISCARDABLE     "hand_point.cur"
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO DISCARDABLE 
 BEGIN
+    IDD_HWSETUP, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 241
+    END
+
     IDD_AUDIOSTANDARD_MANUAL, DIALOG
     BEGIN
         LEFTMARGIN, 7

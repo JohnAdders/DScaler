@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.7 2005-03-28 13:11:16 laurentg Exp $
+// $Id: EPG.h,v 1.8 2005-03-28 13:42:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/03/28 13:11:16  laurentg
+// New EPG setting to shift times during import
+//
 // Revision 1.6  2005/03/28 12:53:20  laurentg
 // EPG: previous and next page to show programs
 //
@@ -71,6 +74,9 @@ public:
 	// Get the program main data : start and end time + title
 	void GetProgramMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
 
+	// Get all the program data
+	void GetProgramData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
+
 	// Dump the program main data : start and end time + channel + title
 	void DumpProgramMainData();
 
@@ -105,7 +111,8 @@ public:
 
 	int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
 	int SearchForPrograms(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
-	int GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
+	int GetProgramMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
+	int GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
 
 	void SetDisplayIndexes(int IdxMin, int IdxMax);
 	int GetDisplayIndexes(int *IdxMin, int *IdxMax);

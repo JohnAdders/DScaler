@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.9 2005-03-28 13:11:16 laurentg Exp $
+// $Id: EPG.cpp,v 1.10 2005-03-28 13:42:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/03/28 13:11:16  laurentg
+// New EPG setting to shift times during import
+//
 // Revision 1.8  2005/03/28 12:53:20  laurentg
 // EPG: previous and next page to show programs
 //
@@ -125,6 +128,21 @@ void CProgram::GetProgramMainData(time_t *StartTime, time_t *EndTime, string &Ch
 	*EndTime = m_EndTime;
 	Channel = m_Channel;
 	Title = m_Title;
+}
+
+
+//
+// Get all the program data
+//
+void CProgram::GetProgramData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
+{
+	*StartTime = m_StartTime;
+	*EndTime = m_EndTime;
+	Channel = m_Channel;
+	Title = m_Title;
+	SubTitle = m_SubTitle;
+	Category = m_Category;
+	Description = m_Description;
 }
 
 
@@ -771,12 +789,23 @@ int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax)
 }
 
 
-int CEPG::GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title)
+int CEPG::GetProgramMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title)
 {
 	if ( (Index < 0) || (Index >= m_ProgramsSelection.size()) )
 		return -1;
 
 	m_ProgramsSelection[Index]->GetProgramMainData(StartTime, EndTime, Channel, Title);
+
+	return 0;
+}
+
+
+int CEPG::GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
+{
+	if ( (Index < 0) || (Index >= m_ProgramsSelection.size()) )
+		return -1;
+
+	m_ProgramsSelection[Index]->GetProgramData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
 
 	return 0;
 }

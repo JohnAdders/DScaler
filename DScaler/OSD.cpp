@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.97 2005-03-28 12:53:20 laurentg Exp $
+// $Id: OSD.cpp,v 1.98 2005-03-28 13:42:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2005/03/28 12:53:20  laurentg
+// EPG: previous and next page to show programs
+//
 // Revision 1.96  2005/03/27 20:22:20  laurentg
 // EPG: new improvements
 //
@@ -2362,7 +2365,7 @@ static void OSD_DisplayProgramInfos(double Size)
 	string Channel;
 	string ProgramTitle;
 
-	MyEPG.GetProgramData(0, &StartTime, &EndTime, Channel, ProgramTitle);
+	MyEPG.GetProgramMainData(0, &StartTime, &EndTime, Channel, ProgramTitle);
 	struct tm *date_tm;
 	date_tm = localtime(&StartTime);
 	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
@@ -2402,8 +2405,10 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
     // Title
     OSD_AddText("Current Program", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-    double pos1 = OSD_GetLineYpos (3, dfMargin, Size);
-    double pos2 = OSD_GetLineYpos (4, dfMargin, Size);
+	int nLine = 3;
+
+    double pos1 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+    double pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
 
 	if (!ChannelName)
 	{
@@ -2428,8 +2433,11 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
 	char EndTimeStr[6];
 	string Channel;
 	string ProgramTitle;
+	string SubTitle;
+	string Category;
+	string Description;
 
-	MyEPG.GetProgramData(0, &StartTime, &EndTime, Channel, ProgramTitle);
+	MyEPG.GetProgramData(0, &StartTime, &EndTime, Channel, ProgramTitle, SubTitle, Category, Description);
 	struct tm *date_tm;
 	date_tm = localtime(&StartTime);
 	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
@@ -2439,9 +2447,25 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
     OSD_AddText(ChannelName, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+	if (Category.length() > 0)
+	{
+	    OSD_AddText(Category.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
+	}
     OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
     sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+	if (SubTitle.length() > 0)
+	{
+		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+		OSD_AddText(SubTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+	}
+	if (Description.length() > 0)
+	{
+		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+		OSD_AddText("Description", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+		OSD_AddText(Description.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+	}
 }
 
 
@@ -2526,7 +2550,7 @@ static void OSD_RefreshProgramsScreen(double Size)
 		string ChannelName;
 		string ProgramTitle;
 
-		MyEPG.GetProgramData(i, &StartTime, &EndTime, ChannelName, ProgramTitle);
+		MyEPG.GetProgramMainData(i, &StartTime, &EndTime, ChannelName, ProgramTitle);
 		struct tm *date_tm;
 		date_tm = localtime(&StartTime);
 		sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);

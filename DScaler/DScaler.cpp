@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.239 2002-10-07 16:09:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.240 2002-10-07 20:34:48 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.239  2002/10/07 16:09:21  adcockj
+// Stop processing and release overlay on minimize
+//
 // Revision 1.238  2002/10/04 11:40:08  adcockj
 // Removed skin and toolbar create
 //
@@ -1795,7 +1798,12 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
 {
     if (WindowBorder==NULL) 
     {                
-        WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
+        if ((szSkinName == NULL) || (szSkinName[0] == 0))
+		{
+			//Don't make the windowborder unless it is necessary
+			return;
+		}
+		WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
 
         //Test border (white)
         //WindowBorder->SolidBorder(10,10,10,10, 0xFFFFFF);
@@ -2175,13 +2183,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 extern void Mixer_SetVolume(long volume);
             
-                Mixer_SetVolume(lParam/10);
+                Mixer_SetVolume(lParam);
                 sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
                 ShowText(hWnd, Text);
             }
-            
-                    
-            break;
+			break;
+	
         case IDM_AUTO_FORMAT:
             Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
                 !Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
@@ -2888,6 +2895,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_FULL_SCREEN:
             IsFullScreen_OnChange(!bIsFullScreen);
+			WorkoutOverlaySize(TRUE);
             break;
         
         case IDM_RETURN_TO_WINDOW:
@@ -3239,6 +3247,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_SKIN_NONE:
             szSkinName[0] = 0;
+			Skin_SetMenu(hMenu, TRUE);
             SetWindowBorder(hWnd, szSkinName, FALSE);
             if (ToolbarControl!=NULL)
             {
@@ -3600,6 +3609,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (!bInMenuOrDialogBox)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
+				if (ToolbarControl != NULL) 
+				{
+					POINT Point;		
+					GetCursorPos(&Point);
+					
+					if (ToolbarControl->PtInToolbar(Point))
+					{
+						Cursor_SetVisibility(TRUE);
+						break;
+					}
+				}				
                 Cursor_SetVisibility(FALSE);
             }
             break;
@@ -4034,8 +4054,8 @@ void MainWndOnInitBT(HWND hWnd)
 
 // JA 4/10/2002 Commented out new toolbar create function
 // as it screws up the windows messaging 
-/*
-        AddSplashTextLine("Load Toolbars");
+        
+		AddSplashTextLine("Load Toolbars");
         if (ToolbarControl == NULL)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
@@ -4052,7 +4072,7 @@ void MainWndOnInitBT(HWND hWnd)
                 ToolbarControl->Set(hWnd, szSkinName);  
             }
         }
-*/
+
         AddSplashTextLine("Setup Mixer");
         Mixer_Init();
 
@@ -4749,7 +4769,7 @@ void UpdateWindowState()
 		{
 			if ((WindowBorder!=NULL) && WindowBorder->Visible())
             {
-                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));				
             }
             else
             {
@@ -4796,7 +4816,10 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
                 SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
             }
             LOG(2,"DScaler: Set window region (0x%08x)",hRgn);
-            SetWindowRgn(hWnd,hRgn,TRUE);            
+			if (hRgn != DScalerWindowRgn)
+			{
+				SetWindowRgn(hWnd,hRgn,TRUE);            
+			}
             DScalerWindowRgn = hRgn;
         }
     }
@@ -4805,7 +4828,10 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
         if (DScalerWindowRgn != NULL)
         {
             LOG(2,"DScaler: Set window region (0x%08x)",NULL);
-            SetWindowRgn(hWnd,NULL,TRUE);
+			if (DScalerWindowRgn != NULL)
+			{
+				SetWindowRgn(hWnd,NULL,TRUE);
+			}
             DScalerWindowRgn = NULL;
         }
     }
@@ -4861,7 +4887,8 @@ void Cursor_SetVisibility(BOOL bVisible)
 
 void Cursor_UpdateVisibility()
 {
-    KillTimer(hWnd, TIMER_HIDECURSOR);
+    KillTimer(hWnd, TIMER_HIDECURSOR);	
+
     if (bInMenuOrDialogBox)
     {
         Cursor_SetVisibility(TRUE);

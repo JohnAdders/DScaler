@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.28 2002-10-22 09:22:23 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.29 2002-10-27 13:27:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/10/22 09:22:23  adcockj
+// Fixed PLL problem with Leadtek WinView 601 (fix from bugs list)
+//
 // Revision 1.27  2002/10/16 21:40:19  kooiman
 // Improved detection for new Pinnacle/Miro cards.
 //
@@ -2110,17 +2113,17 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
-                1,
+                3,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                3,
+                1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
-                3,
+                1,
             },
         },
         PLL_NONE,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.31 2004-08-09 14:01:14 atnak Exp $
+// $Id: BT848Card_Audio.cpp,v 1.32 2004-08-30 16:17:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2004/08/09 14:01:14  atnak
+// Corrected missing break in switch statement.
+//
 // Revision 1.30  2004/01/29 15:14:41  adcockj
 // Added TDA9873 patch from Sven Grothklags
 //
@@ -212,7 +215,12 @@ void CBT848Card::InitAudio(bool UsePin1)
         {
             delete MSPControls;
         }
+    }
 
+    if(m_AudioDecoder == NULL &&
+        (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
+         || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9875))
+    {
 		// TDA9875 autodetect
         CTDA9875AudioControls* TDA9875Controls = new CTDA9875AudioControls();
 
@@ -234,7 +242,6 @@ void CBT848Card::InitAudio(bool UsePin1)
 			m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
 
 			sprintf(m_AudioDecoderType, "TDA9875%c Rev. %d", (dic==0) ? "":"A", rev); 
-            return;
         }
         else
         {

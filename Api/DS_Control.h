@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.115 2002-11-10 05:12:19 atnak Exp $
+// $Id: DS_Control.h,v 1.116 2002-11-10 09:39:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.115  2002/11/10 05:12:19  atnak
+// Updated SAA7134SETTINGS
+//
 // Revision 1.114  2002/11/09 20:56:46  laurentg
 // New CX2388x settings
 //
@@ -961,7 +964,9 @@ typedef enum
     OSD_USE_GENERAL_SCREEN,
     OSD_USE_STATISTICS_SCREEN,
     OSD_USE_WSS_SCREEN,
+#ifdef _DEBUG
     OSD_USE_DEVELOPER_SCREEN,
+#endif
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
 #define WM_OSD_GETVALUE     (WM_APP + 18)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.74 2002-10-29 23:38:35 laurentg Exp $
+// $Id: OSD.cpp,v 1.75 2002-11-10 09:42:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/10/29 23:38:35  laurentg
+// Display of the calibration OSD
+//
 // Revision 1.73  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -2146,29 +2149,31 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "AutoHide", OSD_AutoHide_OnChange,
     },
     {
-        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[0].active),
+        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[1].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseGeneralScreen", NULL,
     },
     {
-        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[1].active),
+        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseStatisticsScreen", NULL,
     },
     {
-        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
+        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[3].active),
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseWSSDecodingScreen", NULL,
     },
+#ifdef _DEBUG
     {
-        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[3].active),
+        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[4].active),
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseDeveloperScreen", NULL,
     },
+#endif
 };
 
 

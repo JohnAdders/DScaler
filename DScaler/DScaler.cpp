@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.267 2003-01-01 20:58:30 atnak Exp $
+// $Id: DScaler.cpp,v 1.268 2003-01-01 22:01:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.267  2003/01/01 20:58:30  atnak
+// New code for new videotext + videotext reorganziations, + fixes
+// cursor not redrawing on Cursor_SetType()
+//
 // Revision 1.266  2002/12/15 15:19:21  adcockj
 // Fixed a crash on exit
 //
@@ -2908,6 +2912,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 Cursor_VTUpdate();
                 WorkoutOverlaySize(TRUE);
                 InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+
+                if (NewState == VT_OFF)
+                {
+                    OSD_ShowText(hWnd, "VideoText OFF", 0);
+                }
             }
             *ChannelString = '\0';
             break;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.71 2001-09-08 19:18:46 laurentg Exp $
+// $Id: DScaler.cpp,v 1.72 2001-09-11 12:03:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2001/09/08 19:18:46  laurentg
+// Added new specific dialog box to set the overlay settings
+//
 // Revision 1.70  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -1582,7 +1585,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_HELP_README:
-            HtmlHelp(hWnd, "DScaler.chm::/DScaler_Readme.htm", HH_DISPLAY_TOPIC, 0);
+            HtmlHelp(hWnd, "DScaler.chm::/Help.htm", HH_DISPLAY_TOPIC, 0);
             break;
 
         default:

@@ -945,7 +945,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&Read Me ...\tF1",            IDM_HELP_README
+        MENUITEM "&Help ...\tF1",               IDM_HELP_README
         MENUITEM "DScaler &Home Page ...",      IDM_HELP_HOMEPAGE
         MENUITEM "&FAQ ...",                    IDM_HELP_FAQ
         MENUITEM "User &Support ...",           IDM_HELP_SUPPORT

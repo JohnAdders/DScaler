@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.89 2004-04-06 12:20:48 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.90 2004-04-24 11:13:25 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2004/04/06 12:20:48  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.88  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -794,7 +797,6 @@ void CSAA7134Source::SetupDMAMemory()
 DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable)
 {
     const WORD PAGE_SIZE = 4096;
-    const WORD PAGE_MASK = (~(PAGE_SIZE-1));
     LPBYTE pUser;
     DWORD pPhysical;
     DWORD GotBytes;
@@ -811,7 +813,7 @@ DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWante
     for (nPages = 0; nPages < nPagesWanted; nPages++)
     {
         pPhysical = pDMAMemory->TranslateToPhysical(pUser, PAGE_SIZE, &GotBytes);
-        if ((pPhysical == 0) || ((pPhysical & ~PAGE_MASK) > 0) || (GotBytes < PAGE_SIZE))
+        if ((pPhysical == 0) || ((pPhysical % PAGE_SIZE) != 0) || (GotBytes < PAGE_SIZE))
         {
             break;
         }

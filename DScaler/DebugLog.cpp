@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.16 2002-03-26 13:07:10 robmuller Exp $
+// $Id: DebugLog.cpp,v 1.17 2002-05-26 19:04:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/03/26 13:07:10  robmuller
+// Flush file when FlushAfterEachWrite is enabled with the dialog.
+//
 // Revision 1.15  2001/12/16 17:04:37  adcockj
 // Debug Log improvements
 //
@@ -73,7 +76,7 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     char Stamp[100];
     va_list Args;
 
-    if (DebugLogEnabled == FALSE)
+    if (DebugLogEnabled == FALSE && DebugLevel > 0)
     {
         return;
     }
@@ -96,7 +99,7 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     strftime(Stamp, sizeof(Stamp), "%y%m%d %H%M%S", Time);
     fprintf(debugLog, "%s.%03d(%03d)", Stamp, TimeB.millitm, SysTime % 1000);
 
-    for(int i(0); i < DebugLevel; ++i)
+    for(int i(0); i < DebugLevel + 1; ++i)
     {
         fputc(' ', debugLog);
     }
@@ -106,7 +109,7 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     va_end(Args);
 
     fputc('\n', debugLog);
-	if(FlushAfterEachWrite)
+	if(FlushAfterEachWrite || DebugLevel == 0)
 	{
 	    fflush(debugLog);
 	}

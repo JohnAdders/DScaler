@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.28 2004-08-27 13:12:40 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.29 2004-08-31 17:54:50 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2004/08/27 13:12:40  to_see
+// Added audio support for Ati Tv Wonder Pro
+//
 // Revision 1.27  2004/08/26 16:55:56  to_see
 // WinTV - cleaned tuner detection
 // ATI TV Wonder Pro - corrected GPIO's
@@ -853,6 +856,44 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_FM1216ME_MK3,
+        IDC_CX2388X,
+    },
+	
+	// Card info from tarambuka3500
+    {
+        "PixelView PlayTV Ultra",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+    			0x0000bff1,
+
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+    			0x0000bff3,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+    			0x0000bff3,
+            },
+            // FM radio input omitted
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_PHILIPS_PAL,
         IDC_CX2388X,
     },
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.11 2004-07-12 20:17:20 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.12 2004-08-31 17:54:50 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/07/12 20:17:20  to_see
+// Some minor fixes
+//
 // Revision 1.10  2004/06/29 17:24:01  to_see
 // Bugfix: not only Pal(BG) uses A2 Stereo. Must learn to read.
 //
@@ -117,6 +120,9 @@ void CCX2388xSource::AudioStandardOnChange(long NewValue, long OldValue)
                         (eCX2388xStereoType)m_StereoType->GetValue()
                       );
 	
+	// needed, AUD_VOL_CTRL's default is 0x14 after writing to AUD_SOFT_RESET
+	m_Volume->SetValue(m_Volume->GetValue());
+	
 	StartUpdateAudioStatus();
 }
 
@@ -130,6 +136,8 @@ void CCX2388xSource::StereoTypeOnChange(long NewValue, long OldValue)
                         (eCX2388xStereoType)NewValue
                       );
     
+	m_Volume->SetValue(m_Volume->GetValue());
+
 	StartUpdateAudioStatus();
 }
 

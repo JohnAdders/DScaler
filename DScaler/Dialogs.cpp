@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.17 2002-03-11 22:28:38 robmuller Exp $
+// $Id: Dialogs.cpp,v 1.18 2002-03-25 20:37:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/03/11 22:28:38  robmuller
+// Set cursor to hand cursor when over a URL.
+//
 // Revision 1.16  2002/03/04 20:49:36  adcockj
 // About box changes
 //
@@ -182,7 +185,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EndDialog(hDlg, TRUE);
             break;
         case IDC_LINK:
-            ShellExecute(hDlg, "open", "http://sourceforge.net/forum/?group_id=7420", NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hDlg, "open", "http://www.dscaler.org/phpBB/index.php", NULL, NULL, SW_SHOWNORMAL);
             break;
         case IDC_LINK2:
             ShellExecute(hDlg, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);

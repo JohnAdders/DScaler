@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.66 2003-01-26 12:34:50 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.67 2003-02-05 06:58:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2003/01/26 12:34:50  adcockj
+// Fixed crash with PAL60
+//
 // Revision 1.65  2003/01/24 01:55:17  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -1870,6 +1873,7 @@ static const char* VTCodepageName[VTCODEPAGE_LASTONE] =
     NULL,
     "Arabic",
     "Hebrew",
+    "Danish/Norwegian"
 };
 
 

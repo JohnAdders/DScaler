@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.h,v 1.2 2003-01-03 13:47:06 atnak Exp $
+// $Id: VTCommon.h,v 1.3 2003-02-05 06:58:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/03 13:47:06  atnak
+// Flof index key definition
+//
 // Revision 1.1  2003/01/01 20:40:48  atnak
 // Inital release of videotext common + utilities class.
 //
@@ -119,6 +122,7 @@ enum eVTCodepage
     VTCODEPAGE_FRENCHA,                 // French with Arabic G2
     VTCODEPAGE_ARABIC,
     VTCODEPAGE_HEBREW,
+    VTCODEPAGE_DANISH,
     VTCODEPAGE_LASTONE
 };
 

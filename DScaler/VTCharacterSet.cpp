@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCharacterSet.cpp,v 1.2 2003-01-01 20:40:09 atnak Exp $
+// $Id: VTCharacterSet.cpp,v 1.3 2003-02-05 06:58:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/01 20:40:09  atnak
+// Added wrapping to previous long CVS log entry
+//
 // Revision 1.1  2003/01/01 20:37:52  atnak
 // New class for handling videotext charatersets.  Adds Latin, Cyrillic-1,
 // Cyrillic-2, Cyrillic-3, Greek, Arabic and Hebrew G0 charactersets and
@@ -72,6 +75,7 @@ CVTCharacterSet::TCharacterSetDesignation
     /* VTCODEPAGE_FRENCHA    */ { VTG0CHARACTERSET_LATIN,       VTG0LATINSUBSET_FRENCH      },
     /* VTCODEPAGE_ARABIC     */ { VTG0CHARACTERSET_ARABIC,      VTG0LATINSUBSET_NA          },
     /* VTCODEPAGE_HEBREW     */ { VTG0CHARACTERSET_HEBREW,      VTG0LATINSUBSET_NA          },
+    /* VTCODEPAGE_DANISH     */ { VTG0CHARACTERSET_LATIN,       VTG0LATINSUBSET_DANISH      },
 };
 
 
@@ -179,57 +183,61 @@ WORD CVTCharacterSet::m_G0CharacterSet[VTG0CHARACTERSET_LASTONE][96] =
 
 WORD CVTCharacterSet::m_G0LatinSubset[VTG0LATINSUBSET_LASTONE][13] =
 {
-    // VTLATINSUBSET_CZECH
+    // VTG0LATINSUBSET_CZECH
     0x0023/*#*/,0x016F/*u*/,0x010D/*c*/,0x0165/*t*/,0x017E/*z*/,0x00FD/*y*/,0x00ED/*i*/,0x0159/*r*/,
     0x00E9/*e*/,0x00E1/*a*/,0x0115/*e*/,0x00FA/*u*/,0x0161/*s*/,
 
-    // VTLATINSUBSET_ENGLISH
+    // VTG0LATINSUBSET_ENGLISH
     0x00A3/* */,0x0024/*$*/,0x0040/*@*/,0x2190/*<*/,0x00BD/* */,0x2192/*>*/,0x2191/*^*/,0x0023/*#*/,
     0x2014/*-*/,0x00BC/* */,0x05F0/*|*/,0x00BE/* */,0x00F7/* */,
 
-    // VTLATINSUBSET_ESTONIAN
+    // VTG0LATINSUBSET_ESTONIAN
     0x0023/*#*/,0x00F5/*o*/,0x0160/*S*/,0x00C4/*A*/,0x00D6/*O*/,0x017D/*Z*/,0x00DC/*U*/,0x00D5/*O*/,
     0x0161/*s*/,0x00E4/*a*/,0x00F6/*o*/,0x017E/*z*/,0x00FC/*u*/,
 
-    // VTLATINSUBSET_FRENCH
+    // VTG0LATINSUBSET_FRENCH
     0x00E9/*e*/,0x00EF/*i*/,0x00E0/*a*/,0x00EB/*e*/,0x00EA/*e*/,0x00F9/*u*/,0x00EE/*i*/,0x0023/*#*/,
     0x00E8/*e*/,0x00E2/*a*/,0x00F4/*o*/,0x00FB/*u*/,0x00E7/*c*/,
 
-    // VTLATINSUBSET_GERMAN
+    // VTG0LATINSUBSET_GERMAN
     0x0023/*#*/,0x0024/*$*/,0x00A7/*S*/,0x00C4/*A*/,0x00D6/*O*/,0x00DC/*U*/,0x005E/*^*/,0x005F/*_*/,
     0x00B0/* */,0x00E4/*a*/,0x00F6/*o*/,0x00FC/*u*/,0x00DF/*B*/,
 
-    // VTLATINSUBSET_ITALIAN
+    // VTG0LATINSUBSET_ITALIAN
     0x00A3/* */,0x0024/*$*/,0x00E9/*e*/,0x00B0/* */,0x00E7/*c*/,0x2192/*>*/,0x2191/*^*/,0x0023/*#*/,
     0x00F9/*u*/,0x00E0/*a*/,0x00F2/*o*/,0x00E8/*e*/,0x00EC/*i*/,
 
-    // VTLATINSUBSET_LETTISH (there is no small E or I with cedilla, used dot below instead)
+    // VTG0LATINSUBSET_LETTISH (there is no small E or I with cedilla, used dot below instead)
     0x0023/*#*/,0x0024/*$*/,0x0160/*S*/,0x0117/*e*/,0x1EB9/*e*/,0x017D/*Z*/,0x010D/*c*/,0x016B/*u*/,
     0x0161/*s*/,0x0105/*a*/,0x0173/*u*/,0x017E/*z*/,0x1ECB/*i*/,
 
-    // VTLATINSUBSET_POLISH (there is no Z with stroke in Arial, used Arial Unicode MS code)
+    // VTG0LATINSUBSET_POLISH (there is no Z with stroke in Arial, used Arial Unicode MS code)
     0x0023/*#*/,0x0144/*n*/,0x0105/*a*/,0x01B5/*Z*/,0x015A/*S*/,0x0141/*L*/,0x0107/*c*/,0x00F3/*o*/,
     0x0119/*e*/,0x017C/*z*/,0x015B/*s*/,0x0142/*l*/,0x017A/*z*/,
 
-    // VTLATINSUBSET_PORTUGUESE
+    // VTG0LATINSUBSET_PORTUGUESE
     0x00E7/*c*/,0x0024/*$*/,0x0069/*i*/,0x00E1/*a*/,0x00E9/*e*/,0x00ED/*i*/,0x00F3/*o*/,0x00FA/*u*/,
     0x00BF/*?*/,0x00FC/*u*/,0x00F1/*n*/,0x00E8/*e*/,0x00E0/*a*/,
 
-    // VTLATINSUBSET_RUMANIAN
+    // VTG0LATINSUBSET_RUMANIAN
     0x0023/*#*/,0x00A4/* */,0x0162/*T*/,0x00C2/*A*/,0x015E/*S*/,0x0103/*A*/,0x00CE/*I*/,0x0131/*i*/,
     0x0163/*t*/,0x00E2/*a*/,0x015F/*s*/,0x0103/*a*/,0x00EE/*i*/,
 
-    // VTLATINSUBSET_SLOVENIAN
+    // VTG0LATINSUBSET_SLOVENIAN
     0x0023/*#*/,0x00CB/*E*/,0x010C/*C*/,0x0106/*C*/,0x017D/*Z*/,0x0110/*D*/,0x0160/*S*/,0x00EB/*e*/,
     0x010D/*c*/,0x0107/*c*/,0x017E/*z*/,0x0111/*d*/,0x0161/*s*/,
 
-    // VTLATINSUBSET_SWEDISN
+    // VTG0LATINSUBSET_SWEDISN
     0x0023/*#*/,0x00A4/* */,0x00C9/*E*/,0x00C4/*A*/,0x00D6/*O*/,0x00C5/*A*/,0x00DC/*U*/,0x005F/*_*/,
     0x00E9/*e*/,0x00E4/*a*/,0x00F6/*o*/,0x00E5/*a*/,0x00FC/*u*/,
 
-    // VTLATINSUBSET_TURKISH
+    // VTG0LATINSUBSET_TURKISH
     0x20A4/* */,0x011F/*g*/,0x0130/*I*/,0x015E/*S*/,0x00D6/*O*/,0x00C7/*C*/,0x00DC/*U*/,0x011E/*G*/,
     0x0131/*i*/,0x015F/*s*/,0x00F6/*o*/,0x00E7/*c*/,0x00FC/*u*/,
+
+    // VTG0LATINSUBSET_DANISH
+    0x0023/*#*/,0x0024/*$*/,0x00A7/* */,0x00C6/*A*/,0x00D8/*O*/,0x00C5/*A*/,0x005E/*^*/,0x005F/*_*/,
+    0x00B0/* */,0x00E6/*a*/,0x00F8/*o*/,0x00E5/*a*/,0x00DF/*B*/,
 };
 
 

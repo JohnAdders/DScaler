@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCharacterSet.h,v 1.2 2003-01-01 20:40:08 atnak Exp $
+// $Id: VTCharacterSet.h,v 1.3 2003-02-05 06:58:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/01 20:40:08  atnak
+// Added wrapping to previous long CVS log entry
+//
 // Revision 1.1  2003/01/01 20:37:52  atnak
 // New class for handling videotext charatersets.  Adds Latin, Cyrillic-1,
 // Cyrillic-2, Cyrillic-3, Greek, Arabic and Hebrew G0 charactersets and
@@ -84,6 +87,7 @@ private:
         VTG0LATINSUBSET_SLOVENIAN,
         VTG0LATINSUBSET_SWEDISN,
         VTG0LATINSUBSET_TURKISH,
+        VTG0LATINSUBSET_DANISH,
         VTG0LATINSUBSET_LASTONE
     };
 

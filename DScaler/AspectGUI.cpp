@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.45 2002-08-12 21:29:58 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.46 2002-08-13 19:35:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/08/12 21:29:58  laurentg
+// Disable AR autodetection when switching to square pixel mode but restore it when exiting square pixel mode
+//
 // Revision 1.44  2002/08/08 12:47:22  kooiman
 // Added Aspect ratio settings to settings per channel.
 //
@@ -181,6 +184,19 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItem(hMenu, IDM_SASPECT_235A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_UNCHECKED);
 
+    if(AspectSettings.AutoDetectAspect)
+    {
+        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_GRAYED);
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Non Anamorphic");
+        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "Anamo&rphic");
+    }
+    else
+    {
+        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_ENABLED);
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Letterboxed");
+        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "&16:9 Anamorphic");
+    }
+
     if(AspectSettings.SquarePixels)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_SQUARE, MF_CHECKED);
@@ -188,6 +204,14 @@ void AspectRatio_SetMenu(HMENU hMenu)
     else if(AspectSettings.AutoDetectAspect)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_CHECKED);
+        if (AspectSettings.AspectMode == 1)
+        {
+            CheckMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_CHECKED);
+        }
+        else if (AspectSettings.AspectMode == 2)
+        {
+            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED); 
+        }
     }
     else if (AspectSettings.AspectMode == 1)
     {

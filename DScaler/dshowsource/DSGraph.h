@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.20 2003-01-06 21:30:21 tobbej Exp $
+// $Id: DSGraph.h,v 1.21 2003-02-05 19:13:15 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/01/06 21:30:21  tobbej
+// modified resolution chaging so it automaticaly tries to get the best format
+//
 // Revision 1.19  2002/09/24 17:19:35  tobbej
 // new audio controll classes
 //
@@ -160,7 +163,7 @@ public:
 	 * Creates a filtergraph with a capture device as source.
 	 * @throws CDShowException
 	 */
-	CDShowGraph(string device,string deviceName,string AudioDevice);
+	CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio);
 
 	/**
 	 * Creates a filtergraph with a file as source
@@ -247,7 +250,7 @@ public:
 
 private:
 	void InitGraph();
-	void CreateRenderer(string AudioDevice);
+	void CreateRenderer();
 
 	void FindStreamConfig();
 	

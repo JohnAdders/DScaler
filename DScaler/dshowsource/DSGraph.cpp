@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.25 2003-01-06 21:30:20 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.26 2003-02-05 19:13:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/01/06 21:30:20  tobbej
+// modified resolution chaging so it automaticaly tries to get the best format
+//
 // Revision 1.24  2002/09/24 17:19:35  tobbej
 // new audio controll classes
 //
@@ -136,13 +139,13 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice)
+CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio)
 :m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL)
 {
 	InitGraph();
-	CreateRenderer(AudioDevice);
+	CreateRenderer();
 
-	m_pSource=new CDShowCaptureDevice(m_pGraph,device,deviceName);
+	m_pSource=new CDShowCaptureDevice(m_pGraph,device,deviceName,bConnectAudio);
 	m_pSource->SetAudioDevice(AudioDevice);
 
 #ifdef _DEBUG
@@ -155,7 +158,7 @@ CDShowGraph::CDShowGraph(string filename,string AudioDevice)
 :m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL)
 {
 	InitGraph();
-	CreateRenderer(AudioDevice);
+	CreateRenderer();
 
 	m_pSource=new CDShowFileSource(m_pGraph,filename);
 	m_pSource->SetAudioDevice(AudioDevice);
@@ -230,7 +233,7 @@ void CDShowGraph::InitGraph()
 
 }
 
-void CDShowGraph::CreateRenderer(string AudioDevice)
+void CDShowGraph::CreateRenderer()
 {
 	HRESULT hr=m_renderer.CoCreateInstance(CLSID_DSRendFilter);
 	if(FAILED(hr))
@@ -266,8 +269,6 @@ void CDShowGraph::CreateRenderer(string AudioDevice)
 	{
 		throw CDShowException("Failed to find IDSRendSettings",hr);
 	}
-
-
 }
 
 bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness)
@@ -751,31 +752,45 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 				hr=m_pStreamCfg->SetFormat(&NewType);
 				if(FAILED(hr))
 				{
-					//reconnect using the old mediatype
-					//restore settings on the  renderer filter
-					///@todo error handling
-					hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_AUTO);
+					//retry with VIDEOINFOHEADER,RGB24
+					((VIDEOINFOHEADER*)NewType.pbFormat)->bmiHeader.biCompression=0;
+					((VIDEOINFOHEADER*)NewType.pbFormat)->bmiHeader.biBitCount=24;
+					((VIDEOINFOHEADER*)NewType.pbFormat)->bmiHeader.biSizeImage=fmt.m_Width*fmt.m_Height*((VIDEOINFOHEADER*)NewType.pbFormat)->bmiHeader.biBitCount/8;
+					NewType.subtype=MEDIASUBTYPE_RGB24;
 					hr=m_pDSRendSettings->put_ForceYUY2(FALSE);
-					CComPtr<IPin> tmp;
-					hr=InPin->ConnectedTo(&tmp);
-					if(hr==VFW_E_NOT_CONNECTED)
+					hr=m_pStreamCfg->SetFormat(&NewType);
+					if(FAILED(hr))
 					{
-						//reconnect
-						hr=OutPin->Connect(InPin,OldMt);
-						if(SUCCEEDED(hr))
+						//reconnect using the old mediatype
+						//restore settings on the  renderer filter
+						///@todo error handling
+						hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_AUTO);
+						hr=m_pDSRendSettings->put_ForceYUY2(FALSE);
+						CComPtr<IPin> tmp;
+						hr=InPin->ConnectedTo(&tmp);
+						if(hr==VFW_E_NOT_CONNECTED)
 						{
-							//failed to change mediatype, but was able to reconnect using old mediatype          
-							result=eChangeRes_Error::ERROR_CHANGED_BACK;
+							//reconnect
+							hr=OutPin->Connect(InPin,OldMt);
+							if(SUCCEEDED(hr))
+							{
+								//failed to change mediatype, but was able to reconnect using old mediatype          
+								result=eChangeRes_Error::ERROR_CHANGED_BACK;
+							}
+						}
+						else
+						{
+							hr=m_pStreamCfg->SetFormat(OldMt);
+							if(SUCCEEDED(hr))
+							{
+								//was able to change back to old format
+								result=eChangeRes_Error::ERROR_CHANGED_BACK;
+							}
 						}
 					}
 					else
 					{
-						hr=m_pStreamCfg->SetFormat(OldMt);
-						if(SUCCEEDED(hr))
-						{
-							//was able to change back to old format
-							result=eChangeRes_Error::ERROR_CHANGED_BACK;
-						}
+						result=eChangeRes_Error::SUCCESS;
 					}
 				}
 				else

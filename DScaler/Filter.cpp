@@ -36,8 +36,9 @@ long NumFilters = 0;
 
 FILTER_METHOD* Filters[100] = {NULL,};
 
-void Filter_DoInput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)
+long Filter_DoInput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)
 {
+    long SourceAspectAdjust = 1000;
 	int i;
 	for(i = 0; i < NumFilters; i++)
 	{
@@ -45,10 +46,12 @@ void Filter_DoInput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)
 		{
 			if(!HurryUp || Filters[i]->bAlwaysRun)
 			{
-				Filters[i]->pfnAlgorithm(pInfo);
+				SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
+                SourceAspectAdjust /= 1000;
 			}
 		}
 	}
+    return SourceAspectAdjust;
 }
 
 void Filter_DoOutput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)

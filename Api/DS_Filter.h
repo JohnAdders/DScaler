@@ -29,6 +29,8 @@
 #include "DS_Control.h"
 #include "DS_ApiCommon.h"
 
+// filter functions return the aspect ratio change 1000 = 1.0
+typedef long (__cdecl FILTER_FUNC)(DEINTERLACE_INFO *info);
 typedef void (__cdecl FILTERPLUGINSTART)(void);
 typedef void (__cdecl FILTERPLUGINEXIT)(void);
 
@@ -58,7 +60,7 @@ typedef struct
 	// Do we get called on Input
 	BOOL bOnInput;
     // Pointer to Algorithm function (cannot be NULL)
-    DEINTERLACE_FUNC* pfnAlgorithm;
+    FILTER_FUNC* pfnAlgorithm;
 	// id of menu to display status
 	int MenuId;
 	// Always run - do we run if there has been an overrun

@@ -29,7 +29,7 @@ BOOL bUseStoredTable = FALSE;
 long BlackLevel = 0;
 long WhiteLevel = 255;
 
-BOOL FilterGamma(DEINTERLACE_INFO *info)
+long FilterGamma(DEINTERLACE_INFO *info)
 {
 	short *Pixels;
 	short *Table;
@@ -40,7 +40,7 @@ BOOL FilterGamma(DEINTERLACE_INFO *info)
 	if ((info->IsOdd && info->OddLines[0] == NULL) ||
 		(! info->IsOdd && info->EvenLines[0] == NULL))
 	{
-		return FALSE;
+		return 1000;
 	}
 
 	Cycles = info->LineLength / 4;
@@ -76,7 +76,7 @@ LOOP_LABEL:
 		}
 
 	}
-	return TRUE;
+	return 1000;
 }
 
 double GetGammaAdjustedValue(double Input, double Gamma)

@@ -164,8 +164,4 @@ typedef struct
 	RECT DestRect;
 } DEINTERLACE_INFO;
 
-// Deinterlace functions return true if the overlay is ready to be displayed.
-typedef BOOL (DEINTERLACE_FUNC)(DEINTERLACE_INFO *info);
-
-
 #endif

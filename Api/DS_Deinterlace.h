@@ -29,6 +29,8 @@
 
 struct _DEINTERLACE_METHOD;
 
+// Deinterlace functions return true if the overlay is ready to be displayed.
+typedef BOOL (__cdecl DEINTERLACE_FUNC)(DEINTERLACE_INFO *info);
 typedef void (__cdecl DEINTERLACEPLUGINSETSTATUS)(LPCSTR StatusText);
 typedef void (__cdecl DEINTERLACEPLUGININIT)(void);
 typedef void (__cdecl DEINTERLACEPLUGINSTART)(long NumPlugIns, struct _DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus);

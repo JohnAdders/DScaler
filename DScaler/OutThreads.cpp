@@ -389,6 +389,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	DWORD CurrentTickCount;
 	int nHistory = 0;
 	BOOL bIsPAL = BT848_GetTVFormat()->Is25fps;
+    long SourceAspectAdjust = 1000;
 
 	Timing_Setup();
 
@@ -489,7 +490,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				
 				// do any filters that operarate on the input
 				// only
-				Filter_DoInput(&info, (info.bRunningLate || info.bMissedFrame));
+				SourceAspectAdjust = Filter_DoInput(&info, (info.bRunningLate || info.bMissedFrame));
 
 				if(!info.bMissedFrame)
 				{
@@ -610,19 +611,19 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						bFlipNow = CurrentMethod->pfnAlgorithm(&info);
 					}
 					
-					AdjustAspectRatio(info.EvenLines[0], info.OddLines[0]);
+				    if (bFlipNow)
+				    {
+					    // Do any filters that run on the output
+					    // need to do this while the surface is locked
+					    Filter_DoOutput(&info, (info.bRunningLate || info.bMissedFrame));
+				    }
+
+                    AdjustAspectRatio(SourceAspectAdjust, info.EvenLines[0], info.OddLines[0]);
 				}					
 				// if there is any exception thrown in the above then just carry on
 				__except (EXCEPTION_EXECUTE_HANDLER) 
 				{ 
 					LOG(" Crash in output code");
-				}
-
-				if (bFlipNow)
-				{
-					// Do any filters that run on the output
-					// need to do this while the surface is locked
-					Filter_DoOutput(&info, (info.bRunningLate || info.bMissedFrame));
 				}
 
 				if (!info.bRunningLate)

@@ -42,7 +42,7 @@ void Filter_WriteSettingsToIni();
 void Filter_ShowUI(LPCSTR SearchText);
 
 
-void Filter_DoInput(DEINTERLACE_INFO *info, BOOL HurryUp);
+long Filter_DoInput(DEINTERLACE_INFO *info, BOOL HurryUp);
 void Filter_DoOutput(DEINTERLACE_INFO *info, BOOL HurryUp);
 
 #endif

@@ -427,7 +427,7 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
     if (info->IsOdd == TRUE && info->OddLines[0] == NULL ||
         info->IsOdd == FALSE && info->EvenLines[0] == NULL )
 	{
-		return FALSE;
+		return 1000;
 	}
 
 	// If there is a change concerning the height or the width of the picture
@@ -436,7 +436,7 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
 		// Verify that the filter can manage this size of picture
 		if ((info->FrameWidth > MAX_WIDTH) || (info->FrameHeight > MAX_HEIGHT))
 		{
-			return FALSE;
+			return 1000;
 		}
 
 		// Update the internal tables of the filter
@@ -467,7 +467,14 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
 		    }
 	    }
     }
-	return TRUE;
+    if(MaskType == MASK_STRETCH)
+    {
+	    return 1333;
+    }
+    else
+    {
+	    return 1000;
+    }
 }
 
 void LinearCorrStart(void)

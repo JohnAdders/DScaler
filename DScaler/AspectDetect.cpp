@@ -315,10 +315,11 @@ int FindAspectRatio(short** EvenField, short** OddField)
 //----------------------------------------------------------------------------
 // Automatic Aspect Ratio Detection
 // Continuously adjust the source aspect ratio.  This is called once per frame.
-void AdjustAspectRatio(short** EvenField, short** OddField)
+void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddField)
 {
 	static int lastNewRatio = 0;
 	static int newRatioFrameCount = 0;
+    static long LastSourceAspectAdjust = -1;
 	int newRatio, newMode;
 	int tick_count = GetTickCount();
 	int tickCutoff = tick_count - (aspectSettings.AspectHistoryTime * 1000);
@@ -327,10 +328,20 @@ void AdjustAspectRatio(short** EvenField, short** OddField)
 	int WssSourceRatio;
 	int maxRatio;
 
+
 	if(EvenField == NULL || OddField == NULL)
 	{
 		return;
 	}
+
+    // first see if we have go any filters changing the aspect ratio
+    if(LastSourceAspectAdjust != SourceAspectAdjust)
+    {
+        aspectSettings.source_aspect_adjust = SourceAspectAdjust;
+        WorkoutOverlaySize(TRUE);
+        LastSourceAspectAdjust = SourceAspectAdjust;
+        return;
+    }
 
 	// ADDED by Mark Rejhon: Eliminates the "tiny slit" problem in starry 
 	// scenes such as those in Star Wars or start of Toy Story 2,

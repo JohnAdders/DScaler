@@ -96,7 +96,8 @@ TAspectSettingsStruct aspectSettings =
 	TRUE,FALSE,4,TRUE,FALSE,
 	0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
 	100,100,50,50,
-    FALSE
+    FALSE,
+    1000
 };
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...
@@ -105,19 +106,21 @@ BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
 //----------------------------------------------------------------------------
 // Calculate the actual aspect ratio of the source frame, independent of
 // grab or display resolutions.
+// JA 2001/07/10 added support for filters changing overlay position
 double GetActualSourceFrameAspect()
 {
+    double SourceAdjust = (double)aspectSettings.source_aspect_adjust / 1000.0;
 	switch (aspectSettings.aspect_mode) 
 	{
 	case 1:
 		// Letterboxed or full-frame
-		return 1.333; //4.0/3.0;
+		return SourceAdjust * 1.333; //4.0/3.0;
 	case 2:
 		// Anamorphic
-		return 1.778; //16.0/9.0;
+		return SourceAdjust * 1.778; //16.0/9.0;
 	default:
 		// User-specified
-		return aspectSettings.source_aspect/1000.0;
+		return (SourceAdjust * (double)aspectSettings.source_aspect)/1000.0;
 	}
 }
 

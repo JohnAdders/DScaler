@@ -78,7 +78,7 @@ void    AspectRatio_SetMenu(HMENU hMenu);
 void    WorkoutOverlaySize(BOOL allowResize = TRUE);
 void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect);
 int		FindAspectRatio(short** EvenField, short** OddField);
-void	AdjustAspectRatio(short** EvenField, short** OddField);
+void	AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddField);
 void	GetSourceRect(RECT *rect);
 void    GetDestRect(RECT *rect);
 void	SwitchToRatio(int nMode, int nRatio);
@@ -192,6 +192,10 @@ typedef struct
 
     // WaitForVerticalBlank
     BOOL bWaitForVerticalBlank;
+
+    // this is used by filters to adjust the aspect ratio
+   	int source_aspect_adjust;
+
 } TAspectSettingsStruct;
 
 extern TAspectSettingsStruct aspectSettings;

@@ -32,11 +32,11 @@
 #endif
 
 #if defined(IS_SSE)
-BOOL FilterTemporalNoise_SSE(DEINTERLACE_INFO *info)
+long FilterTemporalNoise_SSE(DEINTERLACE_INFO *info)
 #elif defined(IS_3DNOW)
-BOOL FilterTemporalNoise_3DNOW(DEINTERLACE_INFO *info)
+long FilterTemporalNoise_3DNOW(DEINTERLACE_INFO *info)
 #else
-BOOL FilterTemporalNoise_MMX(DEINTERLACE_INFO *info)
+long FilterTemporalNoise_MMX(DEINTERLACE_INFO *info)
 #endif
 {
 	short** NewLines;
@@ -52,7 +52,7 @@ BOOL FilterTemporalNoise_MMX(DEINTERLACE_INFO *info)
 	if ((info->IsOdd && (info->OddLines[0] == NULL || info->OddLines[1] == NULL)) ||
 		(! info->IsOdd && (info->EvenLines[0] == NULL || info->EvenLines[1] == NULL)))
 	{
-		return FALSE;
+		return 1000;
 	}
 
 	qwNoiseThreshold = TemporalLuminanceThreshold | (TemporalChromaThreshold << 8);
@@ -150,7 +150,7 @@ MAINLOOP_LABEL:
         emms
     }
 
-	return TRUE;
+	return 1000;
 }
 
 #undef MAINLOOP_LABEL

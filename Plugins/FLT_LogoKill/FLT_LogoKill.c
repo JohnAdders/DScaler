@@ -47,7 +47,7 @@ LPCSTR ModeList[] =
 
 SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE];
 
-BOOL LogoKiller(DEINTERLACE_INFO *info)
+long LogoKiller(DEINTERLACE_INFO *info)
 {
     BYTE* lpOverlay = info->Overlay + Left * 8;
 	const __int64 qwGrey = 0x7f7f7f7f7f7f7f7f;
@@ -70,7 +70,7 @@ BOOL LogoKiller(DEINTERLACE_INFO *info)
     if((Top + Height) >= info->FrameHeight ||
         (Left + Width) >= info->FrameWidth / 4)
     {
-        return FALSE;
+        return 1000;
     }
 
     switch(Mode)
@@ -232,7 +232,7 @@ BOOL LogoKiller(DEINTERLACE_INFO *info)
     {
         emms
     }
-    return TRUE;
+    return 1000;
 }
 
 BOOL Top_OnChange(long NewValue)

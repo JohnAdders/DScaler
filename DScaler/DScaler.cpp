@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.68 2001-09-03 13:46:06 adcockj Exp $
+// $Id: DScaler.cpp,v 1.69 2001-09-05 06:59:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2001/09/03 13:46:06  adcockj
+// Added PAL-NC thanks to Eduardo José Tagle
+//
 // Revision 1.67  2001/09/02 14:17:51  adcockj
 // Improved teletext code
 //
@@ -1505,7 +1508,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 else
                 {
-                    VT_Redraw(hWnd, sPaint.hdc);
+                    VT_Redraw(hWnd, sPaint.hdc, FALSE);
                 }
                 EndPaint(hWnd, &sPaint);
                 ValidateRect(hWnd, &sPaint.rcPaint);
@@ -1889,7 +1892,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
-                VT_Redraw(hWnd, sPaint.hdc);
+                VT_Redraw(hWnd, sPaint.hdc, FALSE);
             }
             else
             {

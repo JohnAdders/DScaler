@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.15 2001-09-02 14:17:51 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.16 2001-09-05 06:59:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/09/02 14:17:51  adcockj
+// Improved teletext code
+//
 // Revision 1.14  2001/08/21 09:39:46  adcockj
 // Added Greek teletext Codepage
 //
@@ -167,7 +170,7 @@ unsigned short VTColourTable[9] =
     992,    //Green
     32736,  //Yellow
     31,     //Blue
-    31775,  //Invisible
+    32767,  //Invisible
     15871,  //Cyan
     32767,  //White
     31775,  //Transparent
@@ -314,10 +317,11 @@ void VBI_decode_vt(unsigned char* dat)
         {
             if(VTState != VT_OFF && MagazineStates[mag].Page == VTPage - 100)
             {
-                RECT Dest;
+                HDC hDC;
                 VT_DoUpdate_Page(VTPage - 100);
-                GetDestRect(&Dest);
-                InvalidateRect(hWnd, &Dest, FALSE);
+                lpDDSurface->GetDC(&hDC);
+                VT_Redraw(hWnd, hDC, TRUE);
+                lpDDSurface->ReleaseDC(hDC);
             }
         }
 
@@ -711,7 +715,10 @@ void VT_DoUpdate_Page(int Page)
                     CurrentBkg = bBox ? VTColourTable[0] : DefaultBkg;
                     break;
                 case 0x1d:
-                    CurrentBkg = CurrentFg;
+                    if(VTState != VT_MIX)
+                    {
+                        CurrentBkg = CurrentFg;
+                    }
                     break;
                 case 0x1e:
                     bHoldGraph = TRUE;
@@ -782,14 +789,23 @@ void VT_ChannelChange()
 {
     memset(VTPages, 0, 800 * sizeof(TVTPage));
     memset(MagazineStates, 0, sizeof(TMagState) * NUM_MAGAZINES);
+    for(int i(0); i < NUM_MAGAZINES; ++i)
+    {
+        MagazineStates[i].Page = -1;
+    }
     VTCachedPages = 0;
 }
 
 
-void VT_Redraw(HWND hWnd, HDC hDC)
+void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC)
 {
     RECT Rect;
     GetDestRect(&Rect);
+    if(IsDDhDC)
+    {
+        ClientToScreen(hWnd, (LPPOINT)&Rect.left);
+        ClientToScreen(hWnd, (LPPOINT)&Rect.right);
+    }
 
     StretchDIBits(hDC,                              // handle to DC
                     Rect.left,                      // x-coord of destination upper-left corner
@@ -888,7 +904,9 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
             data[1] = 0x55;
             for (n = 0; n < 43*8; ++n, i += VTStep)
             {
-                if (VBI_Buffer[sync + i/FPFAC] > thr)
+                if (VBI_Buffer[sync + i/FPFAC] + 
+                    VBI_Buffer[sync + i/FPFAC - 1] + 
+                    VBI_Buffer[sync + i/FPFAC + 1] > 3 * thr)
                 {
                     data[2 + n/8] |= 1 << (n % 8);
                 }

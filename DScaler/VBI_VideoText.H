@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.10 2001-08-21 09:39:46 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.11 2001-09-05 06:59:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd);
 void VTS_DecodeLine(BYTE* VBI_Buffer);
 void VT_DoUpdate_Page(int Page);
 
-void VT_Redraw(HWND hWnd, HDC hDC);
+void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC);
 void VT_ResetStation();
 LPCSTR VT_GetStation();
 void VT_SetCodePage(eVTCodePage Codepage);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.11 2001-12-08 12:04:07 laurentg Exp $
+// $Id: StillSource.h,v 1.12 2001-12-08 13:48:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ public:
     LPCSTR GetMenuLabel();
     BOOL ReadNextFrameInFile();
     void SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
-    BOOL OpenMediaFile(LPCSTR FileName);
+    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 
     friend class CTiffHelper;
 

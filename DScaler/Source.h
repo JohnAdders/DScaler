@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.5 2001-11-29 14:04:07 adcockj Exp $
+// $Id: Source.h,v 1.6 2001-12-08 13:48:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ public:
     /// Get string to display in source menu
     virtual LPCSTR GetMenuLabel() = 0;
     /// Open the following file, return TRUE if you understand the file
-    virtual BOOL OpenMediaFile(LPCSTR FileName) = 0;
+    virtual BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) = 0;
     /// Returns the Source specific menu to display when this source is selected
     HMENU GetSourceMenu();
 protected:

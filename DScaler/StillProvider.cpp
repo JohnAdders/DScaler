@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.9 2001-12-08 12:04:07 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.10 2001-12-08 13:48:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/08 12:04:07  laurentg
+// New setting m_StillFormat
+//
 // Revision 1.8  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -58,7 +61,10 @@ static CStillSource* pStillSource = NULL;
 
 CStillProvider::CStillProvider()
 {
-    pStillSource = new CStillSource("StillSource");
+    pStillSource = new CStillSource("Still");
+    m_StillSources.push_back(pStillSource);
+
+    pStillSource = new CStillSource("Snapshot");
     m_StillSources.push_back(pStillSource);
 }
 

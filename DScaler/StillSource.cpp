@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.16 2001-12-08 12:04:07 laurentg Exp $
+// $Id: StillSource.cpp,v 1.17 2001-12-08 13:48:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/12/08 12:04:07  laurentg
+// New setting m_StillFormat
+//
 // Revision 1.15  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -162,11 +165,13 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 }
 
 
-BOOL CStillSource::OpenMediaFile(LPCSTR FileName)
+BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 {
-
-    ClearPlayList();
-    m_Position = 0;
+    if (NewPlayList)
+    {
+        ClearPlayList();
+        m_Position = 0;
+    }
 
     // test for the correct extension and work out the 
     // correct helper for the file type
@@ -200,6 +205,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName)
     {
         CPlayListItem* Item = new CPlayListItem(FileName, 10);
         m_PlayList.push_back(Item);
+        m_Position = m_PlayList.size() - 1;
     }
 
     return ShowNextInPlayList();
@@ -241,12 +247,14 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            OpenMediaFile(FilePath, FALSE);
             break;
         }
     case STILL_TIFF_YCbCr:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            OpenMediaFile(FilePath, FALSE);
             break;
         }
     default:
@@ -388,6 +396,8 @@ BOOL CStillSource::ReadNextFrameInFile()
 
 LPCSTR CStillSource::GetStatus()
 {
+LOG(1, "m_Position = %d", m_Position);
+LOG(1, "m_PlayList.size() = %d", m_PlayList.size());
     if(m_Position != -1 && m_PlayList.size() > 0)
     {
         LPCSTR FileName;
@@ -470,6 +480,6 @@ void CStillSource::HandleTimerMessages(int TimerId)
 
 LPCSTR CStillSource::GetMenuLabel()
 {
-    return "Playlist";
+    return m_Section.c_str();
 }
 

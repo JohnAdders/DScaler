@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.11 2001-12-08 12:01:26 laurentg Exp $
+// $Id: Providers.cpp,v 1.12 2001-12-08 13:48:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/12/08 12:01:26  laurentg
+// Providers_AddSource and Providers_RemoveSource deleted
+//
 // Revision 1.10  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -118,13 +121,13 @@ int Providers_Load(HMENU hMenu)
     {
         if(Sources.size() < 100)
         {
-            if (StillProvider->GetNumberOfSources() == 1)
+            if (StillProvider->GetSource(i)->GetMenuLabel() == NULL)
             {
-                strcpy(Text, "Still");
+                sprintf(Text, "Still %d", i + 1);
             }
             else
             {
-                sprintf(Text, "Still %d", i + 1);
+                strcpy(Text, StillProvider->GetSource(i)->GetMenuLabel());
             }
             AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
         }
@@ -263,7 +266,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Stop_Capture();
             for(int i = 0; i < Sources.size(); ++i)
             {
-                if(Sources[i]->OpenMediaFile(FilePath))
+                if(Sources[i]->OpenMediaFile(FilePath, TRUE))
                 {
                     CurrentSource = i;
                     Providers_UpdateMenu(hMenu);

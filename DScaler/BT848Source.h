@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.12 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Source.h,v 1.13 2001-12-08 13:48:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ public:
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
     LPCSTR GetMenuLabel() {return NULL;};
-    BOOL OpenMediaFile(LPCSTR FileName) {return FALSE;};
+    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

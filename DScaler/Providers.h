@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.7 2001-11-28 16:04:50 adcockj Exp $
+// $Id: Providers.h,v 1.8 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,6 @@ void Providers_UpdateMenu(HMENU hMenu);
 long Providers_GetNumber();
 CSource*  Providers_GetByIndex(long Index);
 void Providers_ReadFromIni();
-void Providers_WriteToIni();
+void Providers_WriteToIni(BOOL bOptimizeFileAccess);
 
 #endif

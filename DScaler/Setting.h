@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
+// $Id: Setting.h,v 1.4 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ public:
     LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
     virtual void CreateSettings(LPCSTR IniSection) = 0;
     void ReadFromIni();
-    void WriteToIni();
+    void WriteToIni(BOOL bOptimizeFileAccess);
 protected:
     vector<ISetting*> m_Settings;
     long m_SetMessage;
@@ -53,7 +53,7 @@ public:
     virtual SETTING_TYPE GetType() = 0;
     virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
     virtual void ReadFromIni() = 0;
-    virtual void WriteToIni() = 0;
+    virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
     virtual long GetValue() = 0;
     virtual long GetMin() = 0;
     virtual long GetMax() = 0;
@@ -83,7 +83,7 @@ public:
     void ChangeValue(eCHANGEVALUE NewValue);
     void SetSection(LPCSTR NewValue);
     void ReadFromIni();
-    void WriteToIni();
+    void WriteToIni(BOOL bOptimizeFileAccess);
     void SetStepValue(long Step);
     void SetMin(long Min);
     void SetMax(long Max);
@@ -95,6 +95,7 @@ public:
 protected:
     std::string  m_DisplayName;
     long m_Value;
+    long m_LastSavedValue;
     long m_Default;
     long m_Max;
     long m_Min;

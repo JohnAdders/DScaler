@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.21 2002-01-21 14:33:17 robmuller Exp $
+// $Id: BT848Source.cpp,v 1.22 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/01/21 14:33:17  robmuller
+// Fixed: setting wrong audio input in tuner mode in VideoSourceOnChange().
+//
 // Revision 1.20  2002/01/17 22:22:06  robmuller
 // Added member function GetTunerId().
 //
@@ -848,7 +851,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     Audio_Mute();
-    SaveInputSettings();
+    SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
 
@@ -869,7 +872,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
-    SaveInputSettings();
+    SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
     Start_Capture();

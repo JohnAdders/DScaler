@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.5 2001-11-29 14:04:07 adcockj Exp $
+// $Id: Setting.cpp,v 1.6 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.4  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -72,7 +75,7 @@ CSettingsHolder::~CSettingsHolder()
         it != m_Settings.end();
         ++it)
     {
-        (*it)->WriteToIni();
+        (*it)->WriteToIni(TRUE);
         delete *it;
     }
 }
@@ -87,13 +90,13 @@ void CSettingsHolder::ReadFromIni()
     }
 }
 
-void CSettingsHolder::WriteToIni()
+void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
 {
     for(vector<ISetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
-        (*it)->WriteToIni();
+        (*it)->WriteToIni(bOptimizeFileAccess);
     }
 }
 
@@ -142,6 +145,7 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
 {
     m_DisplayName = DisplayName;
     m_Value = Default;
+    m_LastSavedValue = Default;
     m_Default = Default;
     m_Min = Min;
     m_Max = Max;
@@ -214,14 +218,19 @@ void CSimpleSetting::ReadFromIni()
             nValue = m_Max;
         }
         m_Value = nValue;
+        m_LastSavedValue = nValue;
     }
 }
 
-void CSimpleSetting::WriteToIni()
+void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
     if(!m_Section.empty())
     {
-	    WritePrivateProfileInt(m_Section.c_str(), m_Entry.c_str(), m_Value, GetIniFileForSettings());
+        if(!bOptimizeFileAccess || m_Value != m_LastSavedValue)
+        {
+	        WritePrivateProfileInt(m_Section.c_str(), m_Entry.c_str(), m_Value, GetIniFileForSettings());
+            m_LastSavedValue = m_Value;
+        }
     }
 }
  

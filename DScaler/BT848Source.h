@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.15 2002-01-17 22:22:06 robmuller Exp $
+// $Id: BT848Source.h,v 1.16 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ private:
     void ChangeSectionNamesForInput();
     void ChangeDefaultsForInput();
     void LoadInputSettings();
-    void SaveInputSettings();
+    void SaveInputSettings(BOOL bOptimizeFileAccess);
 
 private:
     CBT848Card*  m_pBT848Card;

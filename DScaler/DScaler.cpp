@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.115 2002-01-22 14:50:10 robmuller Exp $
+// $Id: DScaler.cpp,v 1.116 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.115  2002/01/22 14:50:10  robmuller
+// Added keyboard lock option.
+//
 // Revision 1.114  2002/01/20 10:05:02  robmuller
 // On channel setup prevent switch to tuner mode if already in tuner mode.
 //
@@ -2600,7 +2603,7 @@ void MainWndOnDestroy()
         // save settings
         // must be done before providers are unloaded
         LOG(1, "WriteSettingsToIni");
-        WriteSettingsToIni(FALSE);
+        WriteSettingsToIni(TRUE);
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 

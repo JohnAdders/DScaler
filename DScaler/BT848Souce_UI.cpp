@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.13 2002-01-12 16:56:21 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.14 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/01/12 16:56:21  adcockj
+// Series of fixes to bring 4.0.0 into line with 3.1.1
+//
 // Revision 1.12  2001/12/19 19:24:45  ittarnavsky
 // prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
 //
@@ -676,19 +679,19 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAVE_BY_FORMAT:
-            SaveInputSettings();
+            SaveInputSettings(TRUE);
             m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
             LoadInputSettings();
             break;
 
         case IDM_SAVE_BY_INPUT:
-            SaveInputSettings();
+            SaveInputSettings(TRUE);
             m_bSavePerInput->SetValue(!m_bSavePerInput->GetValue());
             LoadInputSettings();
             break;
 
         case IDM_SAVE_BY_CHANNEL:
-            SaveInputSettings();
+            SaveInputSettings(TRUE);
             m_bSavePerChannel->SetValue(!m_bSavePerChannel->GetValue());
             LoadInputSettings();
             break;
@@ -796,13 +799,13 @@ void CBT848Source::LoadInputSettings()
     m_BDelay->ReadFromIni();
 }
 
-void CBT848Source::SaveInputSettings()
+void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
 {
-    m_Brightness->WriteToIni();
-    m_Contrast->WriteToIni();
-    m_Hue->WriteToIni();
-    m_Saturation->WriteToIni();
-    m_SaturationU->WriteToIni();
-    m_SaturationV->WriteToIni();
-    m_BDelay->WriteToIni();
+    m_Brightness->WriteToIni(bOptimizeFileAccess);
+    m_Contrast->WriteToIni(bOptimizeFileAccess);
+    m_Hue->WriteToIni(bOptimizeFileAccess);
+    m_Saturation->WriteToIni(bOptimizeFileAccess);
+    m_SaturationU->WriteToIni(bOptimizeFileAccess);
+    m_SaturationV->WriteToIni(bOptimizeFileAccess);
+    m_BDelay->WriteToIni(bOptimizeFileAccess);
 }

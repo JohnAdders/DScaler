@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.14 2001-12-09 22:00:42 tobbej Exp $
+// $Id: Providers.cpp,v 1.15 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/12/09 22:00:42  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 // Revision 1.13  2001/12/08 20:00:24  laurentg
 // Access control on sources
 //
@@ -343,10 +347,10 @@ void Providers_ReadFromIni()
     }
 }
 
-void Providers_WriteToIni()
+void Providers_WriteToIni(BOOL bOptimizeFileAccess)
 {
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        Sources[CurrentSource]->WriteToIni();
+        Sources[CurrentSource]->WriteToIni(bOptimizeFileAccess);
     }
 }

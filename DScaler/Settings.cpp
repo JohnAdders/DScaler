@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.28 2002-01-18 15:39:46 robmuller Exp $
+// $Id: Settings.cpp,v 1.29 2002-01-24 00:00:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/01/18 15:39:46  robmuller
+// Prevent unnecessary actions taken when Setting_SetValue() is called with an unchanged value.
+//
 // Revision 1.27  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -306,7 +309,7 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
     Deinterlace_WriteSettingsToIni(bOptimizeFileAccess);
     Filter_WriteSettingsToIni(bOptimizeFileAccess);
-    Providers_WriteToIni();
+    Providers_WriteToIni(bOptimizeFileAccess);
   
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);

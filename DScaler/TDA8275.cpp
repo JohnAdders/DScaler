@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.6 2005-03-09 13:49:23 atnak Exp $
+// $Id: TDA8275.cpp,v 1.7 2005-03-19 09:54:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/09 13:49:23  atnak
+// Bug fix.
+//
 // Revision 1.5  2005/03/09 09:35:16  atnak
 // Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
 // non-intrusive nature.
@@ -238,16 +241,16 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 	// 0.5 is added for rounding.
 	WORD n11ton0 = (WORD)((double)(1 << row->spd) * ((double)freqRFIFHz / 250000) + 0.5);
 
-	BYTE channelBytes[8];
+	BYTE channelBytes[7];
 	channelBytes[0] = (n11ton0 >> 6) & 0x3F;
 	channelBytes[1] = (n11ton0 << 2) & 0xFC;
-	channelBytes[3] = 0x40;
-	channelBytes[4] = sgIFLPFilter ? 0x72 : 0x52; // 7MHz (US) / 9Mhz (Europe)
-	channelBytes[5] = (row->spd << 6)|(row->div1p5 << 5)|(row->BS << 3)|row->BP;
-	channelBytes[6] = 0x8F | (row->GC3 << 4);
-	channelBytes[7] = 0x8F;
+	channelBytes[2] = 0x40;
+	channelBytes[3] = sgIFLPFilter ? 0x72 : 0x52; // 7MHz (US) / 9Mhz (Europe)
+	channelBytes[4] = (row->spd << 6)|(row->div1p5 << 5)|(row->BS << 3)|row->BP;
+	channelBytes[5] = 0x8F | (row->GC3 << 4);
+	channelBytes[6] = 0x8F;
 
-	if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 8) ||
+	if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 7) ||
 		!WriteToSubAddress(TDA8275_AB4, 0x00))
 	{
 		return false;

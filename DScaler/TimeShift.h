@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
+// $Id: TimeShift.h,v 1.5 2001-07-27 15:52:26 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/26 15:28:14  ericschmidt
+// Added AVI height control, i.e. even/odd/averaged lines.
+// Used existing cpu/mmx detection in TimeShift code.
+//
 // Revision 1.3  2001/07/24 12:25:49  adcockj
 // Added copyright notice as per standards
 //
@@ -137,6 +141,8 @@ private:
     bool ReadFromIni(void);
     bool WriteToIni(void);
 
+    static bool SetBT848PixelWidth(int pixelWidth);
+
     static TimeShift *m_pTimeShift;
 
     CRITICAL_SECTION m_lock; // Audio and video come from different threads.
@@ -198,6 +204,7 @@ private:
     int m_nextWaveOutHdr;
 
     int m_recHeight; // One of TS_*HEIGHT* #defines above.
+    int m_origPixelWidth; // What it was before we changed it.
 };
 
 #endif // __TIMESHIFT_H___

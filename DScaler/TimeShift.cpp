@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
+// $Id: TimeShift.cpp,v 1.5 2001-07-27 15:52:26 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/26 15:28:14  ericschmidt
+// Added AVI height control, i.e. even/odd/averaged lines.
+// Used existing cpu/mmx detection in TimeShift code.
+//
 // Revision 1.3  2001/07/24 12:25:49  adcockj
 // Added copyright notice as per standards
 //
@@ -48,6 +52,7 @@
 #include "TSOptionsDlg.h" // CTSOptionsDlg
 #include "Audio.h"        // Mute and Unmute
 #include "BT848.h"        // CurrentX/Y
+#include "Settings.h"     // Setting_SetValue
 
 /*
   This is my personal TODO list, FWIW.  -Eric
@@ -57,16 +62,16 @@
     this is the "guts" of time-shifting.
 
   LATER:
-  - Do X and Y scaling for when the FrameWidth/Height don't match the AVI.
-    Y is easy, X is hard.  Perhaps auto-setting CurrentX is way to go for X.
-  - enumerate saved avi file dynamic radio checked menu items.
+  - Fix unreliability of setting CurrentX on play.
+  - Add a 'Preferred Pixelwidth While Recording' edit as an option.
   - in options dialog, add waveform buffer count and size (advanced section).
+  - enumerate saved avi file dynamic radio checked menu items.
   - make sure that if m_mode is STOPPED, memory & resource usage is minimized.
   - Remove 4GB filesize limitation.  Maybe try stop then immeditate rerecord.
   - BUG: During playback in windowed mode, writing too wide of lines.
   - TWEAK: You can see the live feed peek in between clips during play mode.
   - Add slowforward/backward feature.
-  - When fastforward/backward, play audio option during.
+  - Play audio (option) during fastforward/backward.
   - Implement full height recording option.
 
   OPTIMIZE:
@@ -77,13 +82,13 @@
   - For speed, video clips are saved at 1/2 height.  Perhaps future versions can
     be optimized to handle full-height recording.
   - pixel width affects DF/S.  Choose a low enough pixel width for 0 DF/S.
-  - Currently, things are touchy.  i.e. if you record with pixel width 640, or
-    audio at 44.1kHz, etc, make sure you have these same settings on playback.
+  - Currently, If you record with audio at, say, 44.1kHz, etc, make sure you
+    have these same settings on playback.
 
   LATEST CHANGES:
-  - Made AVI use average of odd and even lines.  Better than throwing one away.
-  - Added recorded video clip height control to ini and options dialog.
-  - Added cpu flags code for detecting wether to use mmx or straight c code.
+  - Added FEATURE_* detection for P3-or-better mmx code.
+  - Swapped Ok and Cancel button locations on TSOptionsDlg.
+  - Added auto-pixelwidth-detection to playback code.  Needs more work.
 */
 
 
@@ -138,6 +143,9 @@ bool TimeShift::OnPlay(void)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
+        // Save this off before we start playing.
+        m_pTimeShift->m_origPixelWidth = CurrentX;
+
         // Only start playing if we're stopped.
         result = m_pTimeShift->m_mode == MODE_STOPPED ?
             m_pTimeShift->StartPlay() : false;
@@ -163,6 +171,12 @@ bool TimeShift::OnStop(void)
             m_pTimeShift->m_mode == MODE_RECORDING ||
             m_pTimeShift->m_mode == MODE_PLAYING ?
             m_pTimeShift->Stop() : false;
+
+        // Reset the user's pixel width outside the Stop function since we
+        // call it between clips and pixelwidth-setting is slow.
+        if (result && CurrentX != m_pTimeShift->m_origPixelWidth)
+            Setting_SetValue(BT848_GetSetting(CURRENTX),
+                             m_pTimeShift->m_origPixelWidth);
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
@@ -359,6 +373,9 @@ bool TimeShift::OnSetMenu(HMENU hMenu)
 
 TimeShift *TimeShift::m_pTimeShift = NULL;
 
+// The mmx code requires at least a Pentium-III.
+#define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
+
 TimeShift::TimeShift()
     :
     m_mode(MODE_STOPPED),
@@ -386,7 +403,8 @@ TimeShift::TimeShift()
     m_hWaveOut(NULL),
     m_waveOutDevice(0),
     m_nextWaveOutHdr(0),
-    m_recHeight(TS_HALFHEIGHTEVEN)
+    m_recHeight(TS_HALFHEIGHTEVEN),
+    m_origPixelWidth(CurrentX)
 {
     InitializeCriticalSection(&m_lock);
 
@@ -663,9 +681,6 @@ bool TimeShift::StartPlay(void)
     // Clear all variables.
     Stop();
 
-    // Mute the current live feed, we're going to playback our own audio.
-    Audio_Mute();
-
     // Find the first avi available.
     char fname[MAX_PATH];
     int curFile = m_curFile;
@@ -706,6 +721,13 @@ bool TimeShift::StartPlay(void)
         Stop();
         return false;
     }
+
+    // Make sure the pixel width is ready for the incoming AVI's width.
+    if (CurrentX != m_infoVideo.rcFrame.right)
+        Setting_SetValue(BT848_GetSetting(CURRENTX), m_infoVideo.rcFrame.right);
+
+    // Mute the current live feed, we're going to playback our own audio.
+    Audio_Mute();
 
     // If this fails, we just won't have audio playback.
     // FIXME: Need to make sure our m_waveFormat jives with the new m_infoAudio.
@@ -1297,69 +1319,73 @@ bool TimeShift::WriteVideo(DEINTERLACE_INFO *info)
     DWORD w = min(m_w, info->FrameWidth);
     DWORD h = min(m_h, info->FieldHeight);
 
-    int y = h - 1;
-    switch (m_recHeight)
+    if (w && h)
     {
-    case TS_FULLHEIGHT:
-        // I think you'd have to have a monster machine to get a good frame rate
-        // out of this, so it's a low priority to implement.  I've got a Pentium
-        // III 733MHz and even with 1/2-height, I'm teetering on 0 DF/S.
-        ASSERT(!"Not yet implemented");
-        // No break here for now, just let if fall into the default case.
+        int y = h - 1;
+        switch (m_recHeight)
+        {
+        case TS_FULLHEIGHT:
+            // I think you'd have to have a monster machine to get a good frame
+            // rate out of this, so it's a low priority to implement.  I've got
+            // a Pentium-III 733MHz and even with 1/2-height, I'm teetering on
+            // 0 DF/S with pixel width 640.
+            ASSERT(!"Not yet implemented");
+            // No break here for now, just let if fall into the default case.
 
-    default:
-    case TS_HALFHEIGHTEVEN:
-        if (info->CpuFeatureFlags & FEATURE_MMX)
-            for (; y >= 0; --y)
-                dest = mmxYUVtoRGB(dest,
-                                   info->EvenLines[0][y],
-                                   w);
-        else
-            for (; y >= 0; --y)
-                dest = cYUVtoRGB(dest,
-                                 info->EvenLines[0][y],
-                                 w);
-        break;
+        default:
+        case TS_HALFHEIGHTEVEN:
+            if (info->CpuFeatureFlags & P3_OR_BETTER)
+                for (; y >= 0; --y)
+                    dest = mmxYUVtoRGB(dest,
+                                       info->EvenLines[0][y],
+                                       w);
+            else
+                for (; y >= 0; --y)
+                    dest = cYUVtoRGB(dest,
+                                     info->EvenLines[0][y],
+                                     w);
+            break;
 
-    case TS_HALFHEIGHTODD:
-        if (info->CpuFeatureFlags & FEATURE_MMX)
-            for (; y >= 0; --y)
-                dest = mmxYUVtoRGB(dest,
-                                   info->OddLines[0][y],
-                                   w);
-        else
-            for (; y >= 0; --y)
-                dest = cYUVtoRGB(dest,
-                                 info->OddLines[0][y],
-                                 w);
-        break;
+        case TS_HALFHEIGHTODD:
+            if (info->CpuFeatureFlags & P3_OR_BETTER)
+                for (; y >= 0; --y)
+                    dest = mmxYUVtoRGB(dest,
+                                       info->OddLines[0][y],
+                                       w);
+            else
+                for (; y >= 0; --y)
+                    dest = cYUVtoRGB(dest,
+                                     info->OddLines[0][y],
+                                     w);
+            break;
 
-    case TS_HALFHEIGHTAVG:
-        if (info->CpuFeatureFlags & FEATURE_MMX)
-            for (; y >= 0; --y)
-                dest = mmxAvgYUVtoRGB(dest,
-                                      info->EvenLines[0][y],
-                                      info->OddLines[0][y],
-                                      w);
-        else
-            for (; y >= 0; --y)
-                dest = cAvgYUVtoRGB(dest,
-                                    info->EvenLines[0][y],
-                                    info->OddLines[0][y],
-                                    w);
-        break;
+        case TS_HALFHEIGHTAVG:
+            if (info->CpuFeatureFlags & P3_OR_BETTER)
+                for (; y >= 0; --y)
+                    dest = mmxAvgYUVtoRGB(dest,
+                                          info->EvenLines[0][y],
+                                          info->OddLines[0][y],
+                                          w);
+            else
+                for (; y >= 0; --y)
+                    dest = cAvgYUVtoRGB(dest,
+                                        info->EvenLines[0][y],
+                                        info->OddLines[0][y],
+                                        w);
+            break;
+        }
+
+        // Our AVI is 30fps, only write out every other frame of our 60fps feed.
+        if (!info->IsOdd)
+            AVIStreamWrite(m_psCompressedVideo,
+                           thisFrame,
+                           1,
+                           m_bits,
+                           m_pitch * m_h,
+                           AVIIF_KEYFRAME,
+                           NULL,
+                           NULL);
     }
-
-    // Our AVI is 30fps, only write out every other frame from our 60fps feed.
-    if (!info->IsOdd)
-        AVIStreamWrite(m_psCompressedVideo,
-                       thisFrame,
-                       1,
-                       m_bits,
-                       m_pitch * m_h,
-                       AVIIF_KEYFRAME,
-                       NULL,
-                       NULL);
 
     m_lastTime = m_thisTime;
 
@@ -1400,29 +1426,33 @@ bool TimeShift::ReadVideo(DEINTERLACE_INFO *info)
     }
 
     static LPBITMAPINFOHEADER lpbi = NULL;
+    // 30fps AVI, every other frame for our 60fps field data.
     if (!info->IsOdd)
         lpbi = (LPBITMAPINFOHEADER)AVIStreamGetFrame(m_pGetFrame, thisFrame);
 
     if (lpbi)
     {
-        LPBYTE src = LPBYTE(lpbi) + sizeof(*lpbi);
+        LPBYTE src = LPBYTE(lpbi) + lpbi->biSize;
         DWORD w = min(lpbi->biWidth, info->FrameWidth);
         DWORD h = min(lpbi->biHeight, info->FieldHeight);
 
-        if (info->IsOdd)
-            if (info->CpuFeatureFlags & FEATURE_MMX)
-                for (int y = h - 1; y >= 0; --y)
-                    src = mmxRGBtoYUV(info->OddLines[0][y], src, w);
+        if (w && h)
+        {
+            if (info->IsOdd)
+                if (info->CpuFeatureFlags & P3_OR_BETTER)
+                    for (int y = h - 1; y >= 0; --y)
+                        src = mmxRGBtoYUV(info->OddLines[0][y], src, w);
+                else
+                    for (int y = h - 1; y >= 0; --y)
+                        src = cRGBtoYUV(info->OddLines[0][y], src, w);
             else
-                for (int y = h - 1; y >= 0; --y)
-                    src = cRGBtoYUV(info->OddLines[0][y], src, w);
-        else
-            if (info->CpuFeatureFlags & FEATURE_MMX)
-                for (int y = h - 1; y >= 0; --y)
-                    src = mmxRGBtoYUV(info->EvenLines[0][y], src, w);
-            else
-                for (int y = h - 1; y >= 0; --y)
-                    src = cRGBtoYUV(info->EvenLines[0][y], src, w);
+                if (info->CpuFeatureFlags & P3_OR_BETTER)
+                    for (int y = h - 1; y >= 0; --y)
+                        src = mmxRGBtoYUV(info->EvenLines[0][y], src, w);
+                else
+                    for (int y = h - 1; y >= 0; --y)
+                        src = cRGBtoYUV(info->EvenLines[0][y], src, w);
+        }
     }
 
     m_lastTime = m_thisTime;

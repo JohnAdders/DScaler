@@ -72,6 +72,7 @@
 #define IDM_VT_MIXEDMODE                246
 #define IDB_SMALL_LOGO                  253
 #define IDD_AUDIOSTANDARD_CUSTOM        253
+#define IDD_VTGOTO                      254
 #define IDM_VT_RESET                    261
 #define IDM_AUDIOSETTINGS               264
 #define IDM_VIDEOSETTINGS               265
@@ -349,6 +350,7 @@
 #define IDC_COMBO2                      1450
 #define IDC_AUDIOSTANDARD_MINORCARRIER  1450
 #define IDC_TOOLBAR_VIDEOINPUT_LIST     1450
+#define IDC_VTPAGESELECT                1450
 #define IDC_COMBO3                      1451
 #define IDC_COMBO4                      1452
 #define IDC_COMBO5                      1453
@@ -1088,6 +1090,7 @@
 #define IDC_AUDIOSTANDARD_STATUS        8066
 #define IDC_LINKED                      8067
 #define IDC_TREESETTINGS_STATIC         8068
+#define IDC_VTPAGEGROUP                 8069
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1149,6 +1152,7 @@
 #define IDM_SASPECT_AUTO2_TOGGLE        32846
 #define ID_SETTINGS_SAVESETTINGSPERFORMAT 32847
 #define ID_SETTINGS_SAVESETTINGSPERINPUT 32848
+#define IDM_VT_GOTO                     32849
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1169,9 +1173,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        254
-#define _APS_NEXT_COMMAND_VALUE         32849
-#define _APS_NEXT_CONTROL_VALUE         8069
+#define _APS_NEXT_RESOURCE_VALUE        255
+#define _APS_NEXT_COMMAND_VALUE         32850
+#define _APS_NEXT_CONTROL_VALUE         8070
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

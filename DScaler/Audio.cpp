@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.31 2002-12-09 00:32:15 atnak Exp $
+// $Id: Audio.cpp,v 1.32 2002-12-13 02:50:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/12/09 00:32:15  atnak
+// Added new muting stuff
+//
 // Revision 1.30  2002/12/07 23:05:46  atnak
 // New Audio_Mute() and Audio_Unmute() functions for a new muting.
 //
@@ -198,9 +201,13 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
             // mute structure, automatically finds the longest
             // delay time for us if there are multiple unmutes
             // around the same time.
-            SetTimer(NULL, NULL, PreUnmuteDelay, AudioUnmuteDelayTimerProc);
+            if(!SetTimer(NULL, NULL, PreUnmuteDelay, AudioUnmuteDelayTimerProc))
+            {
+                // If we failed to start the timer, do the unmuting now.
+                PreUnmuteDelay = 0;
+            }
         }
-        else
+        if(PreUnmuteDelay == 0)
         {
             if(--AudioMuteStatus == 0)
             {

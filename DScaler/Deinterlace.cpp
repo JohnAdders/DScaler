@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.20 2001-08-14 11:36:03 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.21 2001-08-18 17:23:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/08/14 11:36:03  adcockj
+// Mixer change to allow restore of initial mixer settings
+//
 // Revision 1.19  2001/08/14 07:06:27  adcockj
 // Fixed problem with scroling through methods
 //
@@ -439,7 +442,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
             {
                 bFound = TRUE;
                 nDeinterlaceIndex = VideoDeintMethods[i]->nMethodIndex;
-                if(!bIsFilmMode)
+                if(!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == FALSE))
                 {
                     SetVideoDeinterlaceMode(i);
                     OSD_ShowText(hWnd, GetDeinterlaceModeName(), 0);

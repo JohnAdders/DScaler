@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.6 2002-05-06 15:48:53 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.7 2002-05-27 22:21:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/05/06 15:48:53  laurentg
+// Informations saved in a DScaler still updated
+// Use of the comments field to show informations about a DScaler still
+//
 // Revision 1.5  2002/05/05 12:09:22  laurentg
 // All lines have now a pitch which is a multiple of 16
 // Width of picture is now forced to an even value
@@ -72,6 +76,9 @@ typedef struct {
 
 typedef my_destination_mgr * my_dest_ptr;
 
+
+#define LIMIT_Y(x)      (((x)<16)?16:((x)>235)?235:(x))
+#define LIMIT_CbCr(x)   (((x)<16)?16:((x)>240)?240:(x))
 
 #define INPUT_BUF_SIZE  4096	/* choose an efficiently fread'able size */
 #define OUTPUT_BUF_SIZE 4096	/* choose an efficiently fwrite'able size */
@@ -547,24 +554,25 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         pDestBuf2 = pFrameBuf + cinfo.output_scanline * LinePitch;
         num_scanlines = jpeg_read_scanlines(&cinfo, buffer, buffer_height);
 
-        // YUVYUV => YUYV
+        // In the input (file), Y range is [0,255]
+        // In the output (overlay), Y range must be [16,235]
+        // YUVYUV => YUYV with an Y compression from [0,255] to [16,235]
         for (i = 0 ; i < num_scanlines ; i++)
         {
             pDestBuf = pDestBuf2 + i * LinePitch;
             for (j = 0 ; j < w ; j++)
             {
+                // Y compression from [0,255] to [16,235]
+                *pDestBuf = LIMIT_Y(buffer[i][j * cinfo.output_components] * 219 / 255 + 16);
+                ++pDestBuf;
                 if (j%2)
                 {
-                    *pDestBuf = buffer[i][j * cinfo.output_components];
-                    ++pDestBuf;
-                    *pDestBuf = buffer[i][j * cinfo.output_components + 2];
+                    *pDestBuf = LIMIT_CbCr(buffer[i][j * cinfo.output_components + 2]);
                     ++pDestBuf;
                 }
                 else
                 {
-                    *pDestBuf = buffer[i][j * cinfo.output_components];
-                    ++pDestBuf;
-                    *pDestBuf = buffer[i][j * cinfo.output_components + 1];
+                    *pDestBuf = LIMIT_CbCr(buffer[i][j * cinfo.output_components + 1]);
                     ++pDestBuf;
                 }
             }
@@ -678,21 +686,24 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     while (cinfo.next_scanline < Height)
     {
         pBufOverlay = pOverlay + cinfo.next_scanline * OverlayPitch;
-        // YUYV => YUVYUV
+        // In the input (overlay), Y range should be normally [16,235]
+        // In the output (file), Y range must be [0,255]
+        // YUYV => YUVYUV with an Y extension from [16,235] to [0,255]
         for (i = 0 ; i < Width ; i++)
         {
-            pLineBuf[i * 3] = pBufOverlay[i * 2];
+            // Y extension from [16,235] to [0,255]
+            pLineBuf[i * 3] = (LIMIT_Y(pBufOverlay[i * 2]) - 16) * 255 / 219;
             if (i%2)
             {
-                pLineBuf[i * 3 + 1] = pBufOverlay[i * 2 - 1];
-                pLineBuf[i * 3 + 2] = pBufOverlay[i * 2 + 1];
+                pLineBuf[i * 3 + 1] = LIMIT_CbCr(pBufOverlay[i * 2 - 1]);
+                pLineBuf[i * 3 + 2] = LIMIT_CbCr(pBufOverlay[i * 2 + 1]);
             }
             else
             {
-                pLineBuf[i * 3 + 1] = pBufOverlay[i * 2 + 1];
+                pLineBuf[i * 3 + 1] = LIMIT_CbCr(pBufOverlay[i * 2 + 1]);
                 if (i != (Width - 1))
                 {
-                    pLineBuf[i * 3 + 2] = pBufOverlay[i * 2 + 3];
+                    pLineBuf[i * 3 + 2] = LIMIT_CbCr(pBufOverlay[i * 2 + 3]);
                 }
             }
         }

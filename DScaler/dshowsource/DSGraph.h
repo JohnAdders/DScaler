@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.19 2002-09-24 17:19:35 tobbej Exp $
+// $Id: DSGraph.h,v 1.20 2003-01-06 21:30:21 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/24 17:19:35  tobbej
+// new audio controll classes
+//
 // Revision 1.18  2002/09/14 17:03:11  tobbej
 // implemented audio output device selection
 //
@@ -134,9 +137,9 @@ public:
 		long m_Width;
 		///Height
 		long m_Height;
-		///Make dsrend filter only accept YUY2
+		///Make dsrend filter only accept YUY2, currently unused
 		bool m_bForceYUY2;
-		///Field format
+		///Field format, currently unused
 		DSREND_FIELD_FORMAT m_FieldFmt;
 	};
 	

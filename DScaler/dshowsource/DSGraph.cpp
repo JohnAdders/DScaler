@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.24 2002-09-24 17:19:35 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.25 2003-01-06 21:30:20 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/09/24 17:19:35  tobbej
+// new audio controll classes
+//
 // Revision 1.23  2002/09/14 17:03:11  tobbej
 // implemented audio output device selection
 //
@@ -591,8 +594,10 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	CDShowPinEnum RendPins(m_renderer,PINDIR_INPUT);
 	CComPtr<IPin> InPin;
 	InPin=RendPins.next();
+	
 	//if this assert is trigered there is most likely s bug in the renderer filter
 	ASSERT(InPin!=NULL);
+	
 	//get the upstream pin
 	CComPtr<IPin> OutPin;
 	HRESULT hr=InPin->ConnectedTo(&OutPin);
@@ -600,6 +605,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	{
 		throw CDShowException("Failed to find pin",hr);
 	}
+	
 	//get IAMStreamConfig on the output pin
 	m_pStreamCfg=NULL;
 	hr=OutPin.QueryInterface(&m_pStreamCfg);
@@ -609,136 +615,178 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	}
 
 	FILTER_STATE oldState=getState();
+	//the only time the format can be changed is when the graph is stopped.
 	if(oldState!=State_Stopped)
 	{
-		//the only time the format can be changed is when the graph is stopped.
 		stop();
 	}
 
 	//get current mediatype
-	AM_MEDIA_TYPE *mt=NULL;
-	hr=m_pStreamCfg->GetFormat(&mt);
+	AM_MEDIA_TYPE *OldMt=NULL;
+	hr=m_pStreamCfg->GetFormat(&OldMt);
 	if(FAILED(hr))
 	{
 		throw CDShowException("Failed to get old mediatype",hr);
 	}
+	/*BOOL OldForceYUY2=FALSE;
+	DSREND_FIELD_FORMAT OldFieldFormat=DSREND_FIELD_FORMAT_AUTO;
+	///@todo error handling
+	hr=m_pDSRendSettings->get_ForceYUY2(&OldForceYUY2);
+	hr=m_pDSRendSettings->get_FieldFormat(&OldFieldFormat);*/
 	
 	//create the new media type
-	AM_MEDIA_TYPE newType;
-	memset(&newType,0,sizeof(AM_MEDIA_TYPE));
-	BITMAPINFOHEADER *pbmiHeader=NULL;
+	AM_MEDIA_TYPE NewType;
+	AM_MEDIA_TYPE NewType2;
+	memset(&NewType,0,sizeof(AM_MEDIA_TYPE));
+	memset(&NewType2,0,sizeof(AM_MEDIA_TYPE));
+	//BITMAPINFOHEADER *pbmiHeader=NULL;
 
-	newType.majortype=MEDIATYPE_Video;
-	newType.subtype=MEDIASUBTYPE_YUY2;
-	newType.bFixedSizeSamples=TRUE;
+	NewType.majortype=MEDIATYPE_Video;
+	NewType.subtype=MEDIASUBTYPE_YUY2;
+	NewType.bFixedSizeSamples=TRUE;
+	NewType.formattype=FORMAT_VideoInfo;
+	NewType.cbFormat=sizeof(VIDEOINFOHEADER);
+	
+	NewType2.majortype=MEDIATYPE_Video;
+	NewType2.subtype=MEDIASUBTYPE_YUY2;
+	NewType2.bFixedSizeSamples=TRUE;
+	NewType2.formattype=FORMAT_VideoInfo2;
+	NewType2.cbFormat=sizeof(VIDEOINFOHEADER2);
 	
 	//copy some info from the old media type and initialize the new format block
-	if(mt->pbFormat!=NULL)
+	if(OldMt->pbFormat!=NULL)
 	{
-		if(mt->formattype==FORMAT_VideoInfo)
-		{
-			VIDEOINFOHEADER *newInfoHeader=(VIDEOINFOHEADER*)CoTaskMemAlloc(sizeof(VIDEOINFOHEADER));
-			memset(newInfoHeader,0,sizeof(VIDEOINFOHEADER));
-			newType.formattype=FORMAT_VideoInfo;
-			newType.cbFormat=sizeof(VIDEOINFOHEADER);
-			newType.pbFormat=(BYTE*)newInfoHeader;
+		VIDEOINFOHEADER *NewInfoHeader=(VIDEOINFOHEADER*)CoTaskMemAlloc(sizeof(VIDEOINFOHEADER));
+		VIDEOINFOHEADER2 *NewInfoHeader2=(VIDEOINFOHEADER2*)CoTaskMemAlloc(sizeof(VIDEOINFOHEADER2));
+		memset(NewInfoHeader,0,sizeof(VIDEOINFOHEADER));
+		memset(NewInfoHeader2,0,sizeof(VIDEOINFOHEADER));
 
-			VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
-			newInfoHeader->dwBitRate=videoInfo->dwBitRate;
-			newInfoHeader->dwBitErrorRate=videoInfo->dwBitErrorRate;
-			newInfoHeader->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
-			newInfoHeader->bmiHeader=videoInfo->bmiHeader;
-			pbmiHeader=&newInfoHeader->bmiHeader;
-		}
-		else if(mt->formattype==FORMAT_VideoInfo2)
+		NewType.pbFormat=(BYTE*)NewInfoHeader;
+		NewType2.pbFormat=(BYTE*)NewInfoHeader2;
+		if(OldMt->formattype==FORMAT_VideoInfo)
 		{
-			VIDEOINFOHEADER2 *newInfoHeader=(VIDEOINFOHEADER2*)CoTaskMemAlloc(sizeof(VIDEOINFOHEADER2));
-			memset(newInfoHeader,0,sizeof(VIDEOINFOHEADER2));
-			newType.formattype=FORMAT_VideoInfo2;
-			newType.cbFormat=sizeof(VIDEOINFOHEADER2);
-			newType.pbFormat=(BYTE*)newInfoHeader;
+			VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)OldMt->pbFormat;
 
-			VIDEOINFOHEADER2 *videoInfo2=(VIDEOINFOHEADER2*)mt->pbFormat;
-			newInfoHeader->dwBitRate=videoInfo2->dwBitRate;
-			newInfoHeader->dwBitErrorRate=videoInfo2->dwBitErrorRate;
-			newInfoHeader->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
-			newInfoHeader->bmiHeader=videoInfo2->bmiHeader;
-			pbmiHeader=&newInfoHeader->bmiHeader;
+			NewInfoHeader->dwBitRate=videoInfo->dwBitRate;
+			NewInfoHeader->dwBitErrorRate=videoInfo->dwBitErrorRate;
+			NewInfoHeader->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
+			NewInfoHeader->bmiHeader=videoInfo->bmiHeader;
+			
+			NewInfoHeader2->dwBitRate=videoInfo->dwBitRate;;
+			NewInfoHeader2->dwBitErrorRate=videoInfo->dwBitErrorRate;
+			NewInfoHeader2->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
+			NewInfoHeader2->bmiHeader=videoInfo->bmiHeader;
 		}
+		else if(OldMt->formattype==FORMAT_VideoInfo2)
+		{
+			VIDEOINFOHEADER2 *videoInfo2=(VIDEOINFOHEADER2*)OldMt->pbFormat;
+
+			NewInfoHeader->dwBitRate=videoInfo2->dwBitRate;
+			NewInfoHeader->dwBitErrorRate=videoInfo2->dwBitErrorRate;
+			NewInfoHeader->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
+			NewInfoHeader->bmiHeader=videoInfo2->bmiHeader;
+			
+			NewInfoHeader2->dwBitRate=videoInfo2->dwBitRate;
+			NewInfoHeader2->dwBitErrorRate=videoInfo2->dwBitErrorRate;
+			NewInfoHeader2->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
+			NewInfoHeader2->bmiHeader=videoInfo2->bmiHeader;
+			//pbmiHeader=&newInfoHeader->bmiHeader;
+		}
+		NewInfoHeader->bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+		NewInfoHeader->bmiHeader.biWidth=fmt.m_Width;
+		NewInfoHeader->bmiHeader.biHeight=fmt.m_Height;
+		NewInfoHeader->bmiHeader.biCompression=0x32595559;	//YUY2
+		NewInfoHeader->bmiHeader.biBitCount=16;
+		NewInfoHeader->bmiHeader.biSizeImage=fmt.m_Width*fmt.m_Height*NewInfoHeader->bmiHeader.biBitCount/8;
+
+		NewInfoHeader2->bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+		NewInfoHeader2->bmiHeader.biWidth=fmt.m_Width;
+		NewInfoHeader2->bmiHeader.biHeight=fmt.m_Height;
+		NewInfoHeader2->bmiHeader.biCompression=0x32595559;	//YUY2
+		NewInfoHeader2->bmiHeader.biBitCount=16;
+		NewInfoHeader2->bmiHeader.biSizeImage=fmt.m_Width*fmt.m_Height*NewInfoHeader2->bmiHeader.biBitCount/8;
 	}
-	
 	//if pbFormat is null then there is something strange going on with the renderer filter
 	//most likely a bug
-	ASSERT(newType.pbFormat!=NULL);
-
-	pbmiHeader->biSize=sizeof(BITMAPINFOHEADER);
-	pbmiHeader->biWidth=fmt.m_Width;
-	pbmiHeader->biHeight=fmt.m_Height;
-	pbmiHeader->biSizeImage=fmt.m_Width*fmt.m_Height*pbmiHeader->biBitCount/8;
+	ASSERT(NewType.pbFormat!=NULL && NewType2.pbFormat!=NULL);
+	ASSERT(OldMt->formattype==FORMAT_VideoInfo2 || OldMt->formattype==FORMAT_VideoInfo);
 
 	//change dsrend filter settings acording to fmt
-	hr=m_pDSRendSettings->put_ForceYUY2(fmt.m_bForceYUY2 ? TRUE : FALSE);
-	if(FAILED(hr))
-	{
-		//@todo handle error
-	}
-	
-	hr=m_pDSRendSettings->put_FieldFormat(fmt.m_FieldFmt);
-	if(FAILED(hr))
-	{
-		//@todo handle error
-	}
+	//@todo handle error
+	/*hr=m_pDSRendSettings->put_ForceYUY2(fmt.m_bForceYUY2 ? TRUE : FALSE);
+	hr=m_pDSRendSettings->put_FieldFormat(fmt.m_FieldFmt);*/
 	
 	eChangeRes_Error result=eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK;
 	//change the format
-	hr=m_pStreamCfg->SetFormat(&newType);
+	//first try VIDEOINFOHEADER2,YUY2,field
+	//this format is exactly what dscaler uses internaly and will make dsrend use the
+	//least amount of memory (no need to make an extra copy of the field) and processing
+	((VIDEOINFOHEADER2*)NewType2.pbFormat)->dwInterlaceFlags=AMINTERLACE_IsInterlaced|AMINTERLACE_1FieldPerSample|AMINTERLACE_DisplayModeBobOrWeave;
+	//to be on the safe side, force dsrend to only accept YUY2, field
+	//this is because btwincap v5.3.5 seems to be a bit broken (the connection is made using different format than specified by IAMStreamConfig::SetFormat)
+	hr=m_pDSRendSettings->put_ForceYUY2(TRUE);
+	hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_FIELD);
+	hr=m_pStreamCfg->SetFormat(&NewType2);
 	if(FAILED(hr))
 	{
-		//retry with RGB24
-		newType.subtype=MEDIASUBTYPE_RGB24;
-		hr=m_pStreamCfg->SetFormat(&newType);
+		//retry with VIDEOINFOHEADER2,YUY2, frame
+		((VIDEOINFOHEADER2*)NewType2.pbFormat)->dwInterlaceFlags=0;
+		//restore dsrend so it can use both field and frame input
+		hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_AUTO);
+		hr=m_pStreamCfg->SetFormat(&NewType2);
 		if(FAILED(hr))
 		{
-			//reconnect using the old mediatype
-			///@todo reset ForceYUY2 and FieldFormat first
-			CComPtr<IPin> tmp;
-			hr=InPin->ConnectedTo(&tmp);
-			if(hr==VFW_E_NOT_CONNECTED)
+			//retry with VIDEOINFOHEADER2,RGB24, frame
+			NewType2.subtype=MEDIASUBTYPE_RGB24;
+			((VIDEOINFOHEADER2*)NewType2.pbFormat)->bmiHeader.biBitCount=24;
+			((VIDEOINFOHEADER2*)NewType2.pbFormat)->bmiHeader.biCompression=0;
+			((VIDEOINFOHEADER2*)NewType2.pbFormat)->bmiHeader.biSizeImage=fmt.m_Width*fmt.m_Height*((VIDEOINFOHEADER2*)NewType2.pbFormat)->bmiHeader.biBitCount/8;
+			//restore dsrend so it can use RGB24
+			hr=m_pDSRendSettings->put_ForceYUY2(FALSE);
+			hr=m_pStreamCfg->SetFormat(&NewType2);
+			if(FAILED(hr))
 			{
-				//reconnect
-				hr=OutPin->Connect(InPin,mt);
-				if(SUCCEEDED(hr))
+				//retry with VIDEOINFOHEADER,YUY2
+				hr=m_pDSRendSettings->put_ForceYUY2(TRUE);
+				hr=m_pStreamCfg->SetFormat(&NewType);
+				if(FAILED(hr))
 				{
-					//failed to change mediatype, but was able to reconnect using old mediatype          
-					result=eChangeRes_Error::ERROR_CHANGED_BACK;
+					//reconnect using the old mediatype
+					//restore settings on the  renderer filter
+					///@todo error handling
+					hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_AUTO);
+					hr=m_pDSRendSettings->put_ForceYUY2(FALSE);
+					CComPtr<IPin> tmp;
+					hr=InPin->ConnectedTo(&tmp);
+					if(hr==VFW_E_NOT_CONNECTED)
+					{
+						//reconnect
+						hr=OutPin->Connect(InPin,OldMt);
+						if(SUCCEEDED(hr))
+						{
+							//failed to change mediatype, but was able to reconnect using old mediatype          
+							result=eChangeRes_Error::ERROR_CHANGED_BACK;
+						}
+					}
+					else
+					{
+						hr=m_pStreamCfg->SetFormat(OldMt);
+						if(SUCCEEDED(hr))
+						{
+							//was able to change back to old format
+							result=eChangeRes_Error::ERROR_CHANGED_BACK;
+						}
+					}
+				}
+				else
+				{
+					result=eChangeRes_Error::SUCCESS;
 				}
 			}
 			else
 			{
-				hr=m_pStreamCfg->SetFormat(mt);
-				if(SUCCEEDED(hr))
-				{
-					//was able to change back to old format
-					result=eChangeRes_Error::ERROR_CHANGED_BACK;
-				}
+				result=eChangeRes_Error::SUCCESS;
 			}
-			
-			/*if(bBackToOldResolution && (mt->pbFormat!=NULL))
-			{
-				if(mt->formattype==FORMAT_VideoInfo)
-				{
-					VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
-					fmt.m_Width = videoInfo->bmiHeader.biWidth;
-					fmt.m_Height = videoInfo->bmiHeader.biHeight;
-				}
-				else if(mt->formattype==FORMAT_VideoInfo2)
-				{
-					VIDEOINFOHEADER2 *videoInfo=(VIDEOINFOHEADER2*)mt->pbFormat;
-					fmt.m_Width = videoInfo->bmiHeader.biWidth;
-					fmt.m_Height = videoInfo->bmiHeader.biHeight;
-				}
-			}*/
-			//throw CDShowException("Failed to change resolution, and coud not change back to old resolution",hr);
 		}
 		else
 		{
@@ -751,22 +799,28 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	}
 	
 	//free mediatypes
-	if(mt->pUnk!=NULL)
+	if(OldMt->pUnk!=NULL)
 	{
-		mt->pUnk->Release();
-		mt->pUnk=NULL;
+		OldMt->pUnk->Release();
+		OldMt->pUnk=NULL;
 	}
-	if(mt->pbFormat!=NULL && mt->cbFormat>0)
+	if(OldMt->pbFormat!=NULL && OldMt->cbFormat>0)
 	{
-		CoTaskMemFree(mt->pbFormat);
-		mt->pbFormat=NULL;
-		mt->cbFormat=0;
+		CoTaskMemFree(OldMt->pbFormat);
+		OldMt->pbFormat=NULL;
+		OldMt->cbFormat=0;
 	}
-	if(newType.pbFormat!=NULL && mt->cbFormat>0)
+	if(NewType.pbFormat!=NULL && NewType.cbFormat>0)
 	{
-		CoTaskMemFree(newType.pbFormat);
-		newType.pbFormat=NULL;
-		newType.cbFormat=NULL;
+		CoTaskMemFree(NewType.pbFormat);
+		NewType.pbFormat=NULL;
+		NewType.cbFormat=NULL;
+	}
+	if(NewType2.pbFormat!=NULL && NewType2.cbFormat>0)
+	{
+		CoTaskMemFree(NewType2.pbFormat);
+		NewType2.pbFormat=NULL;
+		NewType2.cbFormat=NULL;
 	}
 
 	//restore old graph state

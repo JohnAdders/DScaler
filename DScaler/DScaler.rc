@@ -70,53 +70,15 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK2,50,20,40,14,WS_GROUP
 END
 
-VIDEOTEXT DIALOG DISCARDABLE  22, 17, 417, 330
-STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "DScaler Videotext"
-FONT 8, "MS Sans Serif"
-BEGIN
-    GROUPBOX        "",-1,4,25,406,285
-    CTEXT           "",IDC_TEXT21,355,5,55,8,SS_CENTERIMAGE
-    EDITTEXT        IDC_EDIT1,31,7,17,12,ES_NUMBER
-    LTEXT           "Page",-1,9,6,17,12,SS_CENTERIMAGE
-    ICON            "VTBACK",-1,56,3,20,20
-    ICON            "VTNEXT",-1,76,3,20,20
-    ICON            "VTHOME",-1,96,3,20,20
-    CTEXT           "",IDC_TEXT,190,5,65,8,SS_CENTERIMAGE
-    CTEXT           "",IDC_TEXT20,190,16,65,8,SS_CENTERIMAGE
-    ICON            "VTUPDOWN",-1,116,3,20,20
-    DEFPUSHBUTTON   "Cancel",IDCANCEL,345,315,65,15
-END
-
 SPLASHBOX DIALOGEX 0, 0, 145, 192
 STYLE DS_SYSMODAL | DS_NOIDLEMSG | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | 
     WS_BORDER
 EXSTYLE WS_EX_NOPARENTNOTIFY
-FONT 8, "System"
+FONT 8, "System", 0, 0, 0x1
 BEGIN
     CONTROL         "STARTUP",IDC_P1,"Static",SS_BITMAP,0,0,11,11
     LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY | 
                     LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_TABSTOP
-END
-
-VIDEOTEXTSMALL DIALOG DISCARDABLE  22, 17, 277, 236
-STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "DScaler Videotext"
-FONT 8, "MS Sans Serif"
-BEGIN
-    GROUPBOX        "",-1,4,25,271,192
-    CTEXT           "",IDC_TEXT,145,5,65,8,SS_CENTERIMAGE
-    CTEXT           "",IDC_TEXT20,145,16,65,8,SS_CENTERIMAGE
-    EDITTEXT        IDC_EDIT1,31,7,17,12,ES_NUMBER
-    LTEXT           "Page",-1,9,6,17,12,SS_CENTERIMAGE
-    ICON            "VTBACK",-1,56,3,20,20
-    ICON            "VTNEXT",-1,76,3,20,20
-    ICON            "VTHOME",-1,96,3,20,20
-    ICON            "VTUPDOWN",-1,116,3,20,20
-    CTEXT           "",IDC_TEXT21,220,5,55,8,SS_CENTERIMAGE
-    DEFPUSHBUTTON   "Cancel",IDCANCEL,210,220,65,15
 END
 
 VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 358, 183
@@ -173,7 +135,7 @@ BEGIN
                     WS_DISABLED
 END
 
-AUDIOEINSTELLUNGEN DIALOG DISCARDABLE  0, 0, 257, 236
+AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 257, 236
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio-Settings (Analog)"
@@ -223,7 +185,7 @@ BEGIN
     CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
 END
 
-AUDIOEINSTELLUNGEN1 DIALOG DISCARDABLE  0, 0, 257, 175
+AUDIOEQUALIZER DIALOG DISCARDABLE  0, 0, 257, 175
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio-Settings Equalizer"
@@ -262,17 +224,6 @@ BEGIN
     EDITTEXT        IDC_D5,210,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
     PUSHBUTTON      "Cancel",IDCANCEL,7,160,45,15
-END
-
-VIDEOTEXTUNTERTITEL DIALOG DISCARDABLE  22, 17, 236, 222
-STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
-    WS_SYSMENU | WS_THICKFRAME
-CAPTION "DScaler Sub-titles"
-FONT 8, "MS Sans Serif"
-BEGIN
-    EDITTEXT        IDC_EDIT1,31,7,17,12,ES_NUMBER
-    LTEXT           "Page",-1,9,6,16,12,SS_CENTERIMAGE
-    DEFPUSHBUTTON   "OK",IDOK,95,205,40,15
 END
 
 VTSTATUS DIALOG DISCARDABLE  22, 17, 237, 135
@@ -508,21 +459,6 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,6,100,44,14,WS_DISABLED | WS_GROUP
 END
 
-LISTFELDSETUP DIALOG DISCARDABLE  22, 17, 196, 63
-STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
-CAPTION "DScaler Listen-Parameter"
-FONT 8, "MS Sans Serif"
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,4,44,48,15
-    PUSHBUTTON      "Cancel",IDCANCEL,144,44,48,15
-    COMBOBOX        IDC_COMBO1,68,8,124,82,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
-    LTEXT           "Field name",IDC_STATIC,6,10,58,8
-    LTEXT           "Position",IDC_STATIC,8,28,58,12
-    EDITTEXT        IDC_EDIT1,152,26,38,12,ES_AUTOHSCROLL | ES_NUMBER
-    PUSHBUTTON      "Delete",IDDEL,76,46,48,15
-END
-
 SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 230
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Setup Hardware"
@@ -616,11 +552,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-DTVICON                 ICON    DISCARDABLE     "res\\dTV.ico"
-VTBACK                  ICON    DISCARDABLE     "res\\VTBack.ico"
-VTNEXT                  ICON    DISCARDABLE     "res\\VTNext.ico"
-VTHOME                  ICON    DISCARDABLE     "res\\VTHome.ico"
-VTUPDOWN                ICON    DISCARDABLE     "res\\VTUpDown.ico"
+DSCALERICON             ICON    DISCARDABLE     "res\\DScaler.ico"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -923,7 +855,7 @@ BEGIN
             MENUITEM "Text 4",                      IDM_TEXT4
         END
         MENUITEM SEPARATOR
-        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXTSMALL
+        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT
         , GRAYED
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
@@ -996,7 +928,6 @@ STARTUP                 BITMAP  DISCARDABLE     "res\\STARTUP.BMP"
 SLIDER                  BITMAP  DISCARDABLE     "res\\slider1.bmp"
 SLIDER1                 BITMAP  DISCARDABLE     "res\\slider.bmp"
 VTCHARLARGE             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
-VTCHARSMALL             BITMAP  DISCARDABLE     "res\\VTx10x12.bmp"
 REDBULB                 BITMAP  DISCARDABLE     "res\\redbulb.bmp"
 GREENBULB               BITMAP  DISCARDABLE     "res\\greenbulb.bmp"
 
@@ -1019,21 +950,9 @@ BEGIN
         BOTTOMMARGIN, 155
     END
 
-    "VIDEOTEXT", DIALOG
-    BEGIN
-        RIGHTMARGIN, 338
-        BOTTOMMARGIN, 327
-    END
-
     "SPLASHBOX", DIALOG
     BEGIN
         RIGHTMARGIN, 144
-    END
-
-    "VIDEOTEXTSMALL", DIALOG
-    BEGIN
-        RIGHTMARGIN, 270
-        BOTTOMMARGIN, 233
     END
 
     "VIDEOSETTINGS", DIALOG
@@ -1044,7 +963,7 @@ BEGIN
         BOTTOMMARGIN, 176
     END
 
-    "AUDIOEINSTELLUNGEN", DIALOG
+    "AUDIOSETTINGS", DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 250
@@ -1052,17 +971,11 @@ BEGIN
         BOTTOMMARGIN, 229
     END
 
-    "AUDIOEINSTELLUNGEN1", DIALOG
+    "AUDIOEQUALIZER", DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 250
         TOPMARGIN, 7
-    END
-
-    "VIDEOTEXTUNTERTITEL", DIALOG
-    BEGIN
-        RIGHTMARGIN, 229
-        BOTTOMMARGIN, 219
     END
 
     "VTSTATUS", DIALOG
@@ -1092,12 +1005,6 @@ BEGIN
     "ABOUT", DIALOG
     BEGIN
         RIGHTMARGIN, 372
-    END
-
-    "LISTFELDSETUP", DIALOG
-    BEGIN
-        RIGHTMARGIN, 189
-        BOTTOMMARGIN, 20
     END
 
     "SELECTCARD", DIALOG
@@ -1212,7 +1119,7 @@ BEGIN
     "Q",            IDM_HDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
-    "T",            IDM_CALL_VIDEOTEXTSMALL, VIRTKEY, NOINVERT
+    "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, NOINVERT
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_MINUS,  VIRTKEY, NOINVERT
     "U",            IDM_USATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
@@ -1293,8 +1200,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,3,0,0
- PRODUCTVERSION 2,3,0,0
+ FILEVERSION 2,4,0,0
+ PRODUCTVERSION 2,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1312,14 +1219,14 @@ BEGIN
             VALUE "Comments", "John Adcock\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DScaler\0"
-            VALUE "FileVersion", "2, 3, 0, 0\0"
+            VALUE "FileVersion", "2, 4, 0, 0\0"
             VALUE "InternalName", "DScaler\0"
             VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScaler.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DScaler\0"
-            VALUE "ProductVersion", "2.3.0\0"
+            VALUE "ProductVersion", "2.4.0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

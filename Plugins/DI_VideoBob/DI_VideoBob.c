@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "dTV_Deinterlace.h"
+#include "DS_Deinterlace.h"
 
 long EdgeDetect = 625;
 long JaggieThreshold = 73;

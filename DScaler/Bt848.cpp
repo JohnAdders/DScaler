@@ -1904,13 +1904,13 @@ SETTING BT848Settings[BT848_SETTING_LASTONE] =
 	},
 	{
 		"Sharpness", SLIDER, 0, (long*)&CurrentX,
-		720, 120, DTV_MAX_WIDTH, 2, 1,
+		720, 120, DSCALER_MAX_WIDTH, 2, 1,
 		NULL,
 		"MainWindow", "CurrentX", CurrentX_OnChange,
 	},
 	{
 		"Custom Pixel Width", SLIDER, 0, (long*)&CustomPixelWidth,
-		750, 120, DTV_MAX_WIDTH, 2, 1,
+		750, 120, DSCALER_MAX_WIDTH, 2, 1,
 		NULL,
 		"MainWindow", "CustomPixelWidth", NULL,
 	},

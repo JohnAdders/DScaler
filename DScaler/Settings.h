@@ -39,8 +39,8 @@
 #ifndef __SETTINGS_H___
 #define __SETTINGS_H___
 
-#include "dTV_Control.h"
-#include "dTV_ApiCommon.h"
+#include "DS_Control.h"
+#include "DS_ApiCommon.h"
 
 void DisplayUISubMenuAsDialog(UI_SUBMENU* pSubMenu);
 

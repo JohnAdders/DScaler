@@ -6,7 +6,7 @@
 #include "DebugLog.h"
 
 static FILE *debugLog = NULL;
-char DebugLogFilename[MAX_PATH] = "dtv.txt";
+char DebugLogFilename[MAX_PATH] = "DScaler.txt";
 boolean DebugLogEnabled = FALSE;
 
 void

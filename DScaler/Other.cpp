@@ -314,8 +314,8 @@ BOOL Overlay_Create()
 	// create a surface big enough to hold the largest resolution supported
 	// this ensures that we can always have enough space to allow
 	// mode changes without recreating the overlay
-	ddsd.dwWidth = DTV_MAX_WIDTH;
-	ddsd.dwHeight = DTV_MAX_HEIGHT;
+	ddsd.dwWidth = DSCALER_MAX_WIDTH;
+	ddsd.dwHeight = DSCALER_MAX_HEIGHT;
 	ddsd.ddpfPixelFormat = PixelFormat;
 
 	// If the user specified a particular back buffer count, use it.  Otherwise
@@ -671,8 +671,8 @@ struct TiffHeader {
 	struct TiffDirEntry compression;	// Compression settings (tag 259)
 	struct TiffDirEntry photometricInterpretation; // What kind of pixel data this is (tag 262)
 	struct TiffDirEntry description;	// Image description (tag 270)
-	struct TiffDirEntry make;			// "Scanner" maker, aka dTV's URL (tag 271)
-	struct TiffDirEntry model;			// "Scanner" model, aka dTV version (tag 272)
+	struct TiffDirEntry make;			// "Scanner" maker, aka DScaler's URL (tag 271)
+	struct TiffDirEntry model;			// "Scanner" model, aka DScaler version (tag 272)
 	struct TiffDirEntry stripOffset;	// Offset to image data (tag 273)
 	struct TiffDirEntry samplesPerPixel; // Number of color channels (tag 277)
 	struct TiffDirEntry rowsPerStrip;	// Number of rows in a strip (tag 278)

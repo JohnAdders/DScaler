@@ -216,7 +216,7 @@ void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double dfSize)
 //---------------------------------------------------------------------------
 // Override all previous OSD text, and force this current OSD text
 // to override all other OSD text showings (done by the above functions).
-// This is useful for external programs to override dTV's own OSD text
+// This is useful for external programs to override DScaler's own OSD text
 // for its own controls.
 void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double dfSize)
 {
@@ -472,7 +472,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
 	{
 	// GENERAL SCREEN
 	case 0:
-		// dTV version
+		// DScaler version
 		OSD_AddText(GetProductNameAndVersion(), dfSize, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, dfSize));
 
 		// Channel

@@ -39,15 +39,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __DTV_H___
-#define __DTV_H___
+#ifndef __DSCALER_H___
+#define __DSCALER_H___
 
 #include "settings.h"
 
-// Get Hold of the dTV.c file settings
-SETTING* dTV_GetSetting(DTV_SETTING Setting);
-void dTV_ReadSettingsFromIni();
-void dTV_WriteSettingsToIni();
+// Get Hold of the DScaler.c file settings
+SETTING* DScaler_GetSetting(DSCALER_SETTING Setting);
+void DScaler_ReadSettingsFromIni();
+void DScaler_WriteSettingsToIni();
 
 void SetThreadProcessorAndPriority();
 

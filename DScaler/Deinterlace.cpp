@@ -358,7 +358,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
 
     if(wMenuID >= IDM_FIRST_DEINTMETHOD && wMenuID <= IDM_LAST_DEINTMETHOD)
     {
-        // Usually done through other means than dTV menus
+        // Usually done through other means than DScaler menus
         bFound = TRUE;
         nDeinterlaceIndex = wMenuID - IDM_FIRST_DEINTMETHOD;
 	    SetVideoDeinterlaceIndex(wMenuID - IDM_FIRST_DEINTMETHOD);
@@ -366,7 +366,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
     }
     else
     {
-        // Usually done through the dTV menus
+        // Usually done through the DScaler menus
         for(i = 0; i < NumVideoModes; i++)
         {
             if(wMenuID == VideoDeintMethods[i]->MenuId)

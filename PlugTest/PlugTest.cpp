@@ -295,8 +295,8 @@ struct TiffHeader {
 	struct TiffDirEntry compression;	// Compression settings (tag 259)
 	struct TiffDirEntry photometricInterpretation; // What kind of pixel data this is (tag 262)
 	struct TiffDirEntry description;	// Image description (tag 270)
-	struct TiffDirEntry make;			// "Scanner" maker, aka dTV's URL (tag 271)
-	struct TiffDirEntry model;			// "Scanner" model, aka dTV version (tag 272)
+	struct TiffDirEntry make;			// "Scanner" maker, aka DScaler's URL (tag 271)
+	struct TiffDirEntry model;			// "Scanner" model, aka DScaler version (tag 272)
 	struct TiffDirEntry stripOffset;	// Offset to image data (tag 273)
 	struct TiffDirEntry samplesPerPixel; // Number of color channels (tag 277)
 	struct TiffDirEntry rowsPerStrip;	// Number of rows in a strip (tag 278)
@@ -403,7 +403,7 @@ BOOL MakeTifFile(DEINTERLACE_INFO* info, char* TifFile, DEINTERLACE_METHOD* Dein
 	BYTE rgb[3];
 	BYTE* buf;
 	struct TiffHeader head;
-	char description[] = "dTV image";
+	char description[] = "DScaler image";
 	int NbLines;
 
 	if (OddField >= 0 && info->OddLines[OddField] == NULL)
@@ -647,7 +647,7 @@ int main(int argc, char* argv[])
 
 	if(argc != 4 && argc != 5)
 	{
-		printf("Usage: PlugTest dTVSnapFile [FilterPlugIn] DeintPlugIn OutputTifFile\n\n");
+		printf("Usage: PlugTest SnapFile.dtv [FilterPlugIn] DeintPlugIn OutputTifFile\n\n");
 		printf("  FilterPlugIn is a DLL file\n");
 		printf("  DeintPlugIn is either :\n");
 		printf("    - a DLL file\n");

@@ -362,8 +362,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	int i, j;
 	int nLineTarget;
 	DWORD dwLastSecondTicks;
-	short* ppEvenLines[5][DTV_MAX_HEIGHT / 2];
-	short* ppOddLines[5][DTV_MAX_HEIGHT / 2];
+	short* ppEvenLines[5][DSCALER_MAX_HEIGHT / 2];
+	short* ppOddLines[5][DSCALER_MAX_HEIGHT / 2];
 	BYTE* pDest;
 	BOOL bFlipNow = TRUE;
 	HRESULT ddrval;

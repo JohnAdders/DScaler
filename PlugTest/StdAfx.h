@@ -15,9 +15,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "windows.h"
-#include "dTV_ApiCommon.h"
-#include "dTV_Deinterlace.h"
-#include "dTV_Filter.h"
+#include "DS_ApiCommon.h"
+#include "DS_Deinterlace.h"
+#include "DS_Filter.h"
 
 // TODO: reference additional headers your program requires here
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// dTV_ApiCommon.h
+// DS_ApiCommon.h
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,14 +30,14 @@
 // http://msdn.microsoft.com/vstudio/downloads/ppack/
 //
 // Note that compiling the code to use a processor-specific feature is safe even
-// if your PC doesn't have the feature in question; dTV detects processor types
+// if your PC doesn't have the feature in question; DScaler detects processor types
 // at startup and sets flags in the global "CpuFeatureFlags" (see cpu.h for
 // the list of flags) which the code uses to determine whether or not to use
 // each feature.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __DTVAPICOMON_H__
-#define __DTVAPICOMON_H__ 1
+#ifndef __DS_APICOMON_H__
+#define __DS_APICOMON_H__ 1
 
 // Symbolic constants for CpuFeatureFlags TRB 12/00
 #define FEATURE_CPUID           0x00000001

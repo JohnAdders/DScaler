@@ -31,7 +31,7 @@
 #ifndef __FIELDTIMING_H___
 #define __FIELDTIMING_H___
 
-#include "dTV_Deinterlace.h"
+#include "DS_Deinterlace.h"
 
 void Timing_Setup();
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo);

@@ -109,7 +109,7 @@ void LoadSettingsFromIni()
 	// Read in rest of settings from each source files read method
 	Aspect_ReadSettingsFromIni();
 	BT848_ReadSettingsFromIni();
-	dTV_ReadSettingsFromIni();
+	DScaler_ReadSettingsFromIni();
 	OutThreads_ReadSettingsFromIni();
 	Other_ReadSettingsFromIni();
 	FD50_ReadSettingsFromIni();
@@ -210,8 +210,8 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_BT848_GETVALUE:		
 			RetVal =  Setting_GetValue(BT848_GetSetting((BT848_SETTING)wParam));
 			break;
-		case WM_DTV_GETVALUE:		
-			RetVal =  Setting_GetValue(dTV_GetSetting((DTV_SETTING)wParam));
+		case WM_DSCALER_GETVALUE:		
+			RetVal =  Setting_GetValue(DScaler_GetSetting((DSCALER_SETTING)wParam));
 			break;
 		case WM_OUTHREADS_GETVALUE:
 			RetVal =  Setting_GetValue(OutThreads_GetSetting((OUTTHREADS_SETTING)wParam));
@@ -247,8 +247,8 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_BT848_SETVALUE:		
 			Setting_SetValue(BT848_GetSetting((BT848_SETTING)wParam), lParam);
 			break;
-		case WM_DTV_SETVALUE:		
-			Setting_SetValue(dTV_GetSetting((DTV_SETTING)wParam), lParam);
+		case WM_DSCALER_SETVALUE:		
+			Setting_SetValue(DScaler_GetSetting((DSCALER_SETTING)wParam), lParam);
 			break;
 		case WM_OUTHREADS_SETVALUE:
 			Setting_SetValue(OutThreads_GetSetting((OUTTHREADS_SETTING)wParam), lParam);
@@ -284,8 +284,8 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_BT848_CHANGEVALUE:		
 			Setting_ChangeValue(BT848_GetSetting((BT848_SETTING)wParam), (eCHANGEVALUE)lParam);
 			break;
-		case WM_DTV_CHANGEVALUE:		
-			Setting_ChangeValue(dTV_GetSetting((DTV_SETTING)wParam), (eCHANGEVALUE)lParam);
+		case WM_DSCALER_CHANGEVALUE:		
+			Setting_ChangeValue(DScaler_GetSetting((DSCALER_SETTING)wParam), (eCHANGEVALUE)lParam);
 			break;
 		case WM_OUTHREADS_CHANGEVALUE:
 			Setting_ChangeValue(OutThreads_GetSetting((OUTTHREADS_SETTING)wParam), (eCHANGEVALUE)lParam);
@@ -330,7 +330,7 @@ void WriteSettingsToIni()
 
 	Aspect_WriteSettingsToIni();
 	BT848_WriteSettingsToIni();
-	dTV_WriteSettingsToIni();
+	DScaler_WriteSettingsToIni();
 	OutThreads_WriteSettingsToIni();
 	Other_WriteSettingsToIni();
 	FD50_WriteSettingsToIni();

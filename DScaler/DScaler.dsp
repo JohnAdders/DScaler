@@ -389,10 +389,6 @@ SOURCE=.\VideoSettings.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\RES\DScaler.ico
-# End Source File
-# Begin Source File
-
 SOURCE=.\RES\dTV.ico
 # End Source File
 # Begin Source File

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// dTVdrv.h
+// DSDrv.h
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#if ! defined (__DTVDRVDEF_H)
-#define __DTVDRVDEF_H
+#if ! defined (__DSDRVDEF_H)
+#define __DSDRVDEF_H
 
 #define ALLOC_MEMORY_CONTIG 1
 
@@ -111,7 +111,7 @@ extern "C" {
 #endif
 
 
-#define FILE_DEVICE_DTV 0x8001
+#define FILE_DEVICE_DSCALER 0x8002
 #define DSDRV_BASE 0x800
 
 #define DSDRV_READ_BYTE (DSDRV_BASE + 1)
@@ -145,7 +145,7 @@ extern "C" {
 // The wrapped control codes as required by the system
 //
 
-#define DSDRV_CTL_CODE(function,method) CTL_CODE( FILE_DEVICE_DTV,function,method,FILE_ANY_ACCESS)
+#define DSDRV_CTL_CODE(function,method) CTL_CODE( FILE_DEVICE_DSCALER,function,method,FILE_ANY_ACCESS)
 
 
 #define ioctlReadBYTE DSDRV_CTL_CODE( DSDRV_READ_BYTE, METHOD_OUT_DIRECT)
@@ -217,7 +217,7 @@ typedef struct _PCI_COMMON_CONFIG
 #if defined (WIN32)
 
 //---------------------------------------------------------------------------
-// The dTVdrv DLL application interface
+// The DSDrv DLL application interface
 //---------------------------------------------------------------------------
 
 int WINAPI isDriverOpened (void);
@@ -279,6 +279,3 @@ typedef DWORD (WINAPI * PMemoryWrite) (DWORD dwAddress, DWORD dwValue);
 #endif
 
 #endif
-
-
-

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
-// Used by dTVdrv.rc
+// Used by DSDrv.rc
 //
 
 // Next default values for new objects

@@ -32,9 +32,6 @@
 #include "VBI_WSSdecode.h"
 #include "VBI.h"
 #include "BT848.h"
-// #include "AspectRatio.h"
-// #include "dTV.h"
-// #include "OSD.h"
 #include "DebugLog.h"
 
 #define	WSS_MAX_SUCCESSIVE_ERR		6

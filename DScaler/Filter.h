@@ -27,7 +27,7 @@
 #ifndef __FILTER_H___
 #define __FILTER_H___
 
-#include "dTV_Filter.h"
+#include "DS_Filter.h"
 
 BOOL LoadFilterPlugins();
 void UnloadFilterPlugins();

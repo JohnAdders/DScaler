@@ -24,7 +24,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "dTV_Deinterlace.h"
+#include "DS_Deinterlace.h"
 
 BOOL DeinterlaceScalerBob(DEINTERLACE_INFO *info)
 {

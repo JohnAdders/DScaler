@@ -29,7 +29,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "dTV_Deinterlace.h"
+#include "DS_Deinterlace.h"
 #include "resource.h"
 
 HINSTANCE hInst = NULL;
@@ -48,7 +48,7 @@ HINSTANCE hInst = NULL;
 
 // Note that while I've attempted to optimize the assembler code, this method still
 // eats a fair amount of CPU time.  In order to run it on my 350 or 450 mhz machines
-// I must have all the dTV performance options turned on.
+// I must have all the DScaler performance options turned on.
 
 // How it works:
 

@@ -49,11 +49,11 @@
 #define AR_NONANAMORPHIC 1
 #define AR_ANAMORPHIC    2
 
-// From dtv.c .... We really need to reduce reliance on globals by going C++!
+// From DScaler.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
-extern HMENU hMenu;
-extern BOOL  bIsFullScreen;
-extern void ShowText(HWND hWnd, LPCTSTR szText);
+//extern HMENU hMenu;
+//extern BOOL  bIsFullScreen;
+//extern void ShowText(HWND hWnd, LPCTSTR szText);
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...
 BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...

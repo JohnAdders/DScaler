@@ -221,7 +221,6 @@ void VBI_SetMenu(HMENU hMenu)
 	if (Capture_VBI == TRUE)
 	{
 		// set vt dialog menu items up
-		EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXTSMALL, (DoTeletext)?MF_ENABLED:MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_VT_RESET, (DoTeletext)?MF_ENABLED:MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_VT_OUT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
@@ -243,7 +242,6 @@ void VBI_SetMenu(HMENU hMenu)
 		EnableMenuItem(hMenu, IDM_VBI_VT, MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_VBI_VPS, MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_VBI_WSS, MF_GRAYED);
-		EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXTSMALL, MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_VT_RESET, MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);

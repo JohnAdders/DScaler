@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
-// Used by dTV.RC
+// Used by DScaler.rc
 //
 #define IDOK2                           2
 #define IDBEFORE                        3
@@ -22,7 +22,6 @@
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
 #define IDM_CALL_VIDEOTEXT              245
-#define IDM_CALL_VIDEOTEXTSMALL         252
 #define IDM_VT_RESET                    261
 #define IDM_AUDIOSETTINGS               264
 #define IDM_VIDEOSETTINGS               265

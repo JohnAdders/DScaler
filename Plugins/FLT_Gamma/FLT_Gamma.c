@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "dTV_Filter.h"
+#include "DS_Filter.h"
 #include "math.h"
 
 unsigned char GammaTable[256];

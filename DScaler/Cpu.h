@@ -40,7 +40,7 @@
 #ifndef __CPU_H__
 #define __CPU_H__ 1
 
-#include "dTV_ApiCommon.h"
+#include "DS_ApiCommon.h"
 
 void  CPU_SetupFeatureFlag(void);
 extern UINT CpuFeatureFlags;		// TRB 12/20/00 Processor capability flags

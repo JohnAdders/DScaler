@@ -37,10 +37,10 @@
 #include "DSDrv.h"
 #include "debugout.h"
 
-class CdTVDriver : public CKernelDriver
+class CDSDriver : public CKernelDriver
 {
 public:
-	CdTVDriver();
+	CDSDriver();
 
 	DWORD DSDrvStartDriver(void);
 	DWORD DSDrvStopDriver(void);
@@ -72,14 +72,14 @@ protected:
 };
 
 
-CdTVDriver dTVDriver;
+CDSDriver DSDriver;
 
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
 int WINAPI isDriverOpened(void)
 {
-	return dTVDriver.isDriverOpen();
+	return DSDriver.isDriverOpen();
 }
 
 //---------------------------------------------------------------------------
@@ -87,7 +87,7 @@ int WINAPI isDriverOpened(void)
 //---------------------------------------------------------------------------
 BYTE WINAPI readPort(WORD address)
 {
-	return dTVDriver.readPort( (DWORD) address);
+	return DSDriver.readPort( (DWORD) address);
 }
 
 //---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ BYTE WINAPI readPort(WORD address)
 //---------------------------------------------------------------------------
 WORD WINAPI readPortW(WORD address)
 {
-	return dTVDriver.readPortW( (DWORD) address);
+	return DSDriver.readPortW( (DWORD) address);
 }
 
 //---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ WORD WINAPI readPortW(WORD address)
 //---------------------------------------------------------------------------
 DWORD WINAPI readPortL(WORD address)
 {
-	return dTVDriver.readPortL( (DWORD) address);
+	return DSDriver.readPortL( (DWORD) address);
 }
 
 
@@ -112,7 +112,7 @@ DWORD WINAPI readPortL(WORD address)
 //---------------------------------------------------------------------------
 void WINAPI writePort(WORD address, BYTE bValue)
 {
-	dTVDriver.writePort( (DWORD) address, (DWORD) bValue);
+	DSDriver.writePort( (DWORD) address, (DWORD) bValue);
 }
 
 
@@ -121,7 +121,7 @@ void WINAPI writePort(WORD address, BYTE bValue)
 //---------------------------------------------------------------------------
 void WINAPI writePortW(WORD address, WORD uValue)
 {
-	dTVDriver.writePortW( (DWORD) address, (DWORD) uValue);
+	DSDriver.writePortW( (DWORD) address, (DWORD) uValue);
 }
 
 
@@ -130,7 +130,7 @@ void WINAPI writePortW(WORD address, WORD uValue)
 //---------------------------------------------------------------------------
 void WINAPI writePortL(WORD address, DWORD dwValue)
 {
-	dTVDriver.writePortL( (DWORD) address, (DWORD) dwValue);
+	DSDriver.writePortL( (DWORD) address, (DWORD) dwValue);
 }
 
 //---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ void WINAPI writePortL(WORD address, DWORD dwValue)
 //---------------------------------------------------------------------------
 DWORD WINAPI memoryAlloc(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct)
 {
-	return dTVDriver.allocMemory(dwLength, dwFlags, ppMemStruct);
+	return DSDriver.allocMemory(dwLength, dwFlags, ppMemStruct);
 }
 
 //---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ DWORD WINAPI memoryFree(PMemStruct pMemStruct)
 {
 	if(pMemStruct)
 	{
-		return dTVDriver.freeMemory(pMemStruct);
+		return DSDriver.freeMemory(pMemStruct);
 	}
 	else
 	{
@@ -161,7 +161,7 @@ DWORD WINAPI memoryFree(PMemStruct pMemStruct)
 //---------------------------------------------------------------------------
 DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength)
 {
-	return dTVDriver.memoryMap(dwAddress, dwLength);
+	return DSDriver.memoryMap(dwAddress, dwLength);
 }
 
 //---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength)
 {
-	dTVDriver.memoryUnmap(dwAddress, dwLength);
+	DSDriver.memoryUnmap(dwAddress, dwLength);
 }
 
 //---------------------------------------------------------------------------
@@ -177,32 +177,32 @@ void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 void WINAPI memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
 {
-	dTVDriver.memoryWriteDWORD(dwAddress, dwValue);
+	DSDriver.memoryWriteDWORD(dwAddress, dwValue);
 }
 
 DWORD WINAPI memoryReadDWORD(DWORD dwAddress)
 {
-	return dTVDriver.memoryReadDWORD(dwAddress);
+	return DSDriver.memoryReadDWORD(dwAddress);
 }
 
 void WINAPI memoryWriteWORD(DWORD dwAddress, WORD wValue)
 {
-	dTVDriver.memoryWriteWORD(dwAddress, wValue);
+	DSDriver.memoryWriteWORD(dwAddress, wValue);
 }
 
 WORD WINAPI memoryReadWORD(DWORD dwAddress)
 {
-	return dTVDriver.memoryReadWORD(dwAddress);
+	return DSDriver.memoryReadWORD(dwAddress);
 }
 
 void WINAPI memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
 {
-	dTVDriver.memoryWriteBYTE(dwAddress, ucValue);
+	DSDriver.memoryWriteBYTE(dwAddress, ucValue);
 }
 
 BYTE WINAPI memoryReadBYTE(DWORD dwAddress)
 {
-	return dTVDriver.memoryReadBYTE(dwAddress);
+	return DSDriver.memoryReadBYTE(dwAddress);
 }
 
 
@@ -216,7 +216,7 @@ DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
 										PDWORD pdwMemoryLength,
 										PDWORD pdwSubSystemId)
 {
-	return dTVDriver.pciGetHardwareResources(dwVendorID,
+	return DSDriver.pciGetHardwareResources(dwVendorID,
 												dwDeviceID,
 												pdwMemoryAddress,
 												pdwMemoryLength,
@@ -226,7 +226,7 @@ DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-CdTVDriver::CdTVDriver(void) : CKernelDriver()
+CDSDriver::CDSDriver(void) : CKernelDriver()
 {
 	OSVERSIONINFO ov;
 
@@ -241,7 +241,7 @@ CdTVDriver::CdTVDriver(void) : CKernelDriver()
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-BYTE CdTVDriver::readPort(DWORD dwAddress)
+BYTE CDSDriver::readPort(DWORD dwAddress)
 {
 	TDSDrvParam  param;
 	DWORD       dwReturnedLength;
@@ -261,7 +261,7 @@ BYTE CdTVDriver::readPort(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-WORD CdTVDriver::readPortW(DWORD dwAddress)
+WORD CDSDriver::readPortW(DWORD dwAddress)
 {
 	TDSDrvParam  param;
 	DWORD       dwReturnedLength;
@@ -279,7 +279,7 @@ WORD CdTVDriver::readPortW(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::readPortL(DWORD dwAddress)
+DWORD CDSDriver::readPortL(DWORD dwAddress)
 {
 	TDSDrvParam  param;
 	DWORD       dwReturnedLength;
@@ -299,7 +299,7 @@ DWORD CdTVDriver::readPortL(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::writePort(DWORD dwAddress, DWORD dwValue)
+void CDSDriver::writePort(DWORD dwAddress, DWORD dwValue)
 {
 	TDSDrvParam  param;
 
@@ -312,7 +312,7 @@ void CdTVDriver::writePort(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::writePortW(DWORD dwAddress, DWORD dwValue)
+void CDSDriver::writePortW(DWORD dwAddress, DWORD dwValue)
 {
 	TDSDrvParam  param;
 
@@ -325,7 +325,7 @@ void CdTVDriver::writePortW(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::writePortL(DWORD dwAddress, DWORD dwValue)
+void CDSDriver::writePortL(DWORD dwAddress, DWORD dwValue)
 {
 	TDSDrvParam  param;
 
@@ -338,7 +338,7 @@ void CdTVDriver::writePortL(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver:: allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct)
+DWORD CDSDriver:: allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct)
 {
 	TDSDrvParam paramIn;
 	DWORD dwReturnedLength;
@@ -396,7 +396,7 @@ DWORD CdTVDriver:: allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemS
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::freeMemory(PMemStruct pMemStruct)
+DWORD CDSDriver::freeMemory(PMemStruct pMemStruct)
 {
 	DWORD status = ERROR_SUCCESS;
 	if(pMemStruct != NULL)
@@ -415,7 +415,7 @@ DWORD CdTVDriver::freeMemory(PMemStruct pMemStruct)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::memoryMap(DWORD dwAddress, DWORD dwLength)
+DWORD CDSDriver::memoryMap(DWORD dwAddress, DWORD dwLength)
 {
 	TDSDrvParam hwParam;
 	DWORD       dwMappedAddress;
@@ -438,7 +438,7 @@ DWORD CdTVDriver::memoryMap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::memoryUnmap(DWORD dwAddress, DWORD dwLength)
+void CDSDriver::memoryUnmap(DWORD dwAddress, DWORD dwLength)
 {
 	TDSDrvParam hwParam;
 
@@ -451,7 +451,7 @@ void CdTVDriver::memoryUnmap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
+void CDSDriver::memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
 {
 	TDSDrvParam hwParam;
 
@@ -464,7 +464,7 @@ void CdTVDriver::memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::memoryReadDWORD(DWORD dwAddress)
+DWORD CDSDriver::memoryReadDWORD(DWORD dwAddress)
 {
 	TDSDrvParam hwParam;
 	DWORD dwReturnedLength;
@@ -484,7 +484,7 @@ DWORD CdTVDriver::memoryReadDWORD(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::memoryWriteWORD(DWORD dwAddress, WORD wValue)
+void CDSDriver::memoryWriteWORD(DWORD dwAddress, WORD wValue)
 {
 	TDSDrvParam hwParam;
 
@@ -497,7 +497,7 @@ void CdTVDriver::memoryWriteWORD(DWORD dwAddress, WORD wValue)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-WORD CdTVDriver::memoryReadWORD(DWORD dwAddress)
+WORD CDSDriver::memoryReadWORD(DWORD dwAddress)
 {
 	TDSDrvParam hwParam;
 	DWORD dwReturnedLength;
@@ -516,7 +516,7 @@ WORD CdTVDriver::memoryReadWORD(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-void CdTVDriver::memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
+void CDSDriver::memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
 {
 	TDSDrvParam hwParam;
 
@@ -529,7 +529,7 @@ void CdTVDriver::memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-BYTE CdTVDriver::memoryReadBYTE(DWORD dwAddress)
+BYTE CDSDriver::memoryReadBYTE(DWORD dwAddress)
 {
 	TDSDrvParam hwParam;
 	DWORD dwReturnedLength;
@@ -549,7 +549,7 @@ BYTE CdTVDriver::memoryReadBYTE(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::pciGetHardwareResources(DWORD dwVendorID,
+DWORD CDSDriver::pciGetHardwareResources(DWORD dwVendorID,
 											DWORD dwDeviceID,
 											PDWORD pdwMemoryAddress,
 											PDWORD pdwMemoryLength,
@@ -601,7 +601,7 @@ DWORD CdTVDriver::pciGetHardwareResources(DWORD dwVendorID,
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::DSDrvStartDriver(void)
+DWORD CDSDriver::DSDrvStartDriver(void)
 {
 	LPSTR  pszDriverName;
 	DWORD  dwResult;
@@ -673,7 +673,7 @@ DWORD CdTVDriver::DSDrvStartDriver(void)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CdTVDriver::DSDrvStopDriver(void)
+DWORD CDSDriver::DSDrvStopDriver(void)
 {
 	close();
 
@@ -688,7 +688,7 @@ DWORD CdTVDriver::DSDrvStopDriver(void)
 //---------------------------------------------------------------------------
 DWORD loadDriver(void)
 {
-	return dTVDriver.DSDrvStartDriver(  );
+	return DSDriver.DSDrvStartDriver(  );
 }
 
 
@@ -697,7 +697,7 @@ DWORD loadDriver(void)
 //---------------------------------------------------------------------------
 DWORD closeDriver(void)
 {
-	return dTVDriver.DSDrvStopDriver();
+	return DSDriver.DSDrvStopDriver();
 }
 
 //---------------------------------------------------------------------------

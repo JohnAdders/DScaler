@@ -35,7 +35,7 @@
 #define __DEINTERLACE_H___
 
 #include "settings.h"
-#include "dTV_Deinterlace.h"
+#include "DS_Deinterlace.h"
 
 // Get Hold of the Deinterlace.c file settings
 SETTING* Deinterlace_GetSetting(long nIndex, long Setting);

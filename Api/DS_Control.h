@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// dTV_Control.h
+// DS_Control.h
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,39 +16,39 @@
 //
 // Notes for writers of external apps
 //
-// To use control dTV using an external app you can use SendMessage to
+// To use control DScaler using an external app you can use SendMessage to
 // perform both commands and to get/set all the settings
 //
 // To perform commands use the WM_COMMAND message
-// e.g. SendMessage(hWndDTV, WM_COMMAND, IDM_OSD_SHOW, 0);
+// e.g. SendMessage(hWndDScaler, WM_COMMAND, IDM_OSD_SHOW, 0);
 //
 // To get settings use the appropriate WM_XXX_GETVALUE
-// e.g. Brightness = SendMessage(hWndDTV, WM_BT848_GETVALUE, BRIGHTNESS, 0);
+// e.g. Brightness = SendMessage(hWndDScaler, WM_BT848_GETVALUE, BRIGHTNESS, 0);
 //
 // To set settings use the appropriate WM_XXX_SETVALUE
-// e.g. SendMessage(hWndDTV, WM_BT848_SETVALUE, HUE, NewHueValue);
+// e.g. SendMessage(hWndDScaler, WM_BT848_SETVALUE, HUE, NewHueValue);
 //
 // To up settings use the appropriate WM_XXX_CHANGEVALUE
-// e.g. SendMessage(hWndDTV, WM_BT848_CHANGEVALUE, HUE, INCREMENTVALUE);
+// e.g. SendMessage(hWndDScaler, WM_BT848_CHANGEVALUE, HUE, INCREMENTVALUE);
 //
 // To down settings use the appropriate WM_XXX_CHANGEVALUE
-// e.g. SendMessage(hWndDTV, WM_BT848_CHANGEVALUE, HUE, DECREMENTVALUE);
+// e.g. SendMessage(hWndDScaler, WM_BT848_CHANGEVALUE, HUE, DECREMENTVALUE);
 //
 // To show settings use the appropriate WM_XXX_CHANGEVALUE
-// e.g. SendMessage(hWndDTV, WM_BT848_CHANGEVALUE, HUE, DISPLAYVALUE);
+// e.g. SendMessage(hWndDScaler, WM_BT848_CHANGEVALUE, HUE, DISPLAYVALUE);
 //
 // To reset settings to default use the appropriate WM_XXX_CHANGEVALUE
-// e.g. SendMessage(hWndDTV, WM_BT848_CHANGEVALUE, HUE, RESETVALUE);
+// e.g. SendMessage(hWndDScaler, WM_BT848_CHANGEVALUE, HUE, RESETVALUE);
 //
 // To do the above operation without using the OSD use the ????VALUE_SILENT
-// e.g. SendMessage(hWndDTV, WM_BT848_CHANGEVALUE, HUE, INCREMENTVALUE_SILENT);
+// e.g. SendMessage(hWndDScaler, WM_BT848_CHANGEVALUE, HUE, INCREMENTVALUE_SILENT);
 //
-// The dTV window handle can be obtained using
-// hWndDTV = FindWindow(DSCALER_APPNAME, NULL);
+// The DScaler window handle can be obtained using
+// hWndDScaler = FindWindow(DSCALER_APPNAME, NULL);
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// Notes for dTV developers
+// Notes for DScaler developers
 //
 // This is the place to add settings for any new file you create
 // You should also update the LoadSettingsFromIni & SaveSettingsToIni
@@ -60,22 +60,22 @@
 // Date          Developer             Changes
 //
 // 16 Jan 2001   John Adcock           Moved all parts that could be used to
-//                                     Control dTV externally to this file
+//                                     Control DScaler externally to this file
 //
 // 20 Feb 2001   Michael Samblanet     Added new values for Aspect Control
 //                                     (bounce & clipping modes)
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __DTV_CONTROL_H___
-#define __DTV_CONTROL_H___
+#ifndef __DS_CONTROL_H___
+#define __DS_CONTROL_H___
 
 #define DSCALER_APPNAME "DScaler"
 
 /////////////////////////////////////////////////////////////////////////////
 // Control Messages passed using WM_COMMAND
 /////////////////////////////////////////////////////////////////////////////
-#ifdef DTV_EXTERNAL
+#ifdef DSCALER_EXTERNAL
 
 #define IDM_SAVE_SETTINGS_NOW           100
 
@@ -142,7 +142,7 @@
 // to select a deinterlace method send a WM_COMMAND message
 // with the relevant index added to this message
 // e.g. To switch to adaptive
-// SendMessage(hWndDTV, WM_COMMAND, IDM_FIRST_DEINTMETHOD + INDEX_ADAPTIVE, 0);
+// SendMessage(hWndDScaler, WM_COMMAND, IDM_FIRST_DEINTMETHOD + INDEX_ADAPTIVE, 0);
 #define IDM_FIRST_DEINTMETHOD             1900
 
 /////////////////////////////////////////////////////////////////////////////
@@ -307,7 +307,7 @@ typedef enum
 #define WM_BT848_CHANGEVALUE		(WM_USER + 202)
 
 /////////////////////////////////////////////////////////////////////////////
-// Control settings contained in dTV.c
+// Control settings contained in DScaler.c
 /////////////////////////////////////////////////////////////////////////////
 
 typedef enum
@@ -328,12 +328,12 @@ typedef enum
 	WINDOWPRIORITY,
 	THREADPRIORITY,
 	AUTOSAVESETTINGS,
-	DTV_SETTING_LASTONE,
-} DTV_SETTING;
+	DSCALER_SETTING_LASTONE,
+} DSCALER_SETTING;
 
-#define WM_DTV_GETVALUE				(WM_USER + 3)
-#define WM_DTV_SETVALUE				(WM_USER + 103)
-#define WM_DTV_CHANGEVALUE			(WM_USER + 203)
+#define WM_DSCALER_GETVALUE				(WM_USER + 3)
+#define WM_DSCALER_SETVALUE				(WM_USER + 103)
+#define WM_DSCALER_CHANGEVALUE			(WM_USER + 203)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in OutThreads.c

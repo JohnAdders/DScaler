@@ -1039,7 +1039,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				!Setting_GetValue(VBI_GetSetting(DOWSS)));
 			break;
 
-		case IDM_CALL_VIDEOTEXTSMALL:
 		case IDM_CALL_VIDEOTEXT:
             switch(VTState)
             {
@@ -1074,7 +1073,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_AUDIOSETTINGS:
 			bInMenuOrDialogBox = TRUE;
 			Cursor_UpdateVisibility();
-			DialogBox(hInst, "AUDIOEINSTELLUNGEN", hWnd, AudioSettingProc);
+			DialogBox(hInst, "AUDIOSETTINGS", hWnd, AudioSettingProc);
 			bInMenuOrDialogBox = FALSE;
 			Cursor_UpdateVisibility();
 			break;
@@ -1082,7 +1081,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_AUDIOSETTINGS1:
 			bInMenuOrDialogBox = TRUE;
 			Cursor_UpdateVisibility();
-			DialogBox(hInst, "AUDIOEINSTELLUNGEN1", hWnd, AudioSettingProc1);
+			DialogBox(hInst, "AUDIOEQUALIZER", hWnd, AudioSettingProc1);
 			bInMenuOrDialogBox = FALSE;
 			Cursor_UpdateVisibility();
 			break;
@@ -2548,7 +2547,7 @@ BOOL ShowMenu_OnChange(long NewValue)
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
-SETTING dTVSettings[DTV_SETTING_LASTONE] =
+SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 {
 	{
 		"Window Left", NUMBER, 0, (long*)&emstartx,
@@ -2648,11 +2647,11 @@ SETTING dTVSettings[DTV_SETTING_LASTONE] =
 	},
 };
 
-SETTING* dTV_GetSetting(DTV_SETTING Setting)
+SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)
 {
-	if(Setting > -1 && Setting < DTV_SETTING_LASTONE)
+	if(Setting > -1 && Setting < DSCALER_SETTING_LASTONE)
 	{
-		return &(dTVSettings[Setting]);
+		return &(DScalerSettings[Setting]);
 	}
 	else
 	{
@@ -2660,12 +2659,12 @@ SETTING* dTV_GetSetting(DTV_SETTING Setting)
 	}
 }
 
-void dTV_ReadSettingsFromIni()
+void DScaler_ReadSettingsFromIni()
 {
 	int i;
-	for(i = 0; i < DTV_SETTING_LASTONE; i++)
+	for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
 	{
-		Setting_ReadFromIni(&(dTVSettings[i]));
+		Setting_ReadFromIni(&(DScalerSettings[i]));
 	}
 	if(bForceFullScreen)
 	{
@@ -2673,12 +2672,12 @@ void dTV_ReadSettingsFromIni()
 	}
 }
 
-void dTV_WriteSettingsToIni()
+void DScaler_WriteSettingsToIni()
 {
 	int i;
-	for(i = 0; i < DTV_SETTING_LASTONE; i++)
+	for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
 	{
-		Setting_WriteToIni(&(dTVSettings[i]));
+		Setting_WriteToIni(&(DScalerSettings[i]));
 	}
 }
 

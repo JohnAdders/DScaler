@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "dTV_Filter.h"
+#include "DS_Filter.h"
 
 long TemporalLuminanceThreshold = 6;	// Pixel luminance differences below this are considered noise.
 long TemporalChromaThreshold = 7;		// Pixel chroma differences below this are considered noise.

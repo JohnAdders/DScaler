@@ -1,5 +1,5 @@
 //
-// $Id: BitmapAsButton.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
+// $Id: BitmapAsButton.cpp,v 1.3 2002-10-07 20:32:43 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.1  2002/09/25 22:32:09  kooiman
 // Bitmap as a button.
 //
@@ -71,7 +74,7 @@ hCursorHand(NULL)
     SliderPos = 0;
     SliderRangeMin = 0;
     SliderRangeMax = 1;
-    ButtonState = -1;
+    ButtonState = 0;
 }
 
 CBitmapAsButton::~CBitmapAsButton()
@@ -155,7 +158,10 @@ BOOL CBitmapAsButton::Create(string sID, HWND hWndParent, int x, int y, HINSTANC
 // Take over the processing/drawing of dialog control
 BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
 {
-    bFailed = TRUE; //assume the worst
+    //Restore first if it was already taken over
+	RestoreBack(hTakeOver);
+
+	bFailed = TRUE; //assume the worst
 
     if (hCursorHand == NULL)
     {
@@ -203,20 +209,24 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
     return !bFailed;
 }
 
-BOOL CBitmapAsButton::RestoreBack()
+BOOL CBitmapAsButton::RestoreBack(HWND hWnd)
 {
-    if ((pOriginalProc != NULL) && (hWndButton!=NULL))
+    if (hWnd == NULL)
+	{
+		hWnd = hWndButton;
+	}
+	if ((pOriginalProc != NULL) && (hWnd != NULL) && (hWnd==hWndButton))
     {
-        SetWindowRgn(hWndButton, NULL, FALSE);
-        SetWindowLong(hWndButton, GWL_WNDPROC, (LONG)pOriginalProc);    
+        SetWindowRgn(hWnd, NULL, FALSE);
+        SetWindowLong(hWnd, GWL_WNDPROC, (LONG)pOriginalProc);    
         pOriginalProc = NULL;
         if ((OriginalWidth>0) && (OriginalHeight>0))
         {
-            SetWindowPos(hWndButton, NULL, 0,0, OriginalWidth, OriginalHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE); 
+            SetWindowPos(hWnd, NULL, 0,0, OriginalWidth, OriginalHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE); 
         }
         OriginalWidth = -1;
         OriginalHeight = -1;
-        InvalidateRect(hWndButton, NULL, FALSE);
+        InvalidateRect(hWnd, NULL, FALSE);
         hWndButton = NULL;        
         return TRUE;
     }
@@ -290,15 +300,21 @@ void CBitmapAsButton::Draw(HDC hDC, LPRECT lpRect)
         
         m_bhBmp.Draw(hDC,pPBmpStart,lpRect,State);
     }
-    else if (ButtonType == BITMAPASBUTTON_CHECKBOX)
+    else if ((ButtonType == BITMAPASBUTTON_CHECKBOX)
+			|| (ButtonType == BITMAPASBUTTON_3STATE) || (ButtonType == BITMAPASBUTTON_4STATE))
     {
-        if (Checked) { State+=3; }
+        State += 3*ButtonState;		
 
         if (m_bhBmp.GetBitmap(State) == NULL) 
         { 
-            if (State>3) { State=3; }
+            if (State>(3*ButtonState)) 
+			{ 
+				State=3*ButtonState; 
+			}
         }
-        if (m_bhBmp.GetBitmap(State) == NULL) { State = 0; 
+        if (m_bhBmp.GetBitmap(State) == NULL) 
+		{ 
+			State = 0; 
         }
 
         POINT P1;
@@ -426,7 +442,23 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         m_mouseldown = FALSE;
         if (ButtonType == BITMAPASBUTTON_CHECKBOX)
         {
-            Checked=!Checked;
+            ButtonState = (ButtonState)?0:1;
+        }
+		else if (ButtonType == BITMAPASBUTTON_3STATE)
+        {
+            /*ButtonState++;
+			if (ButtonState>=3)
+			{
+				ButtonState=0;
+			}*/
+        }
+		else if (ButtonType == BITMAPASBUTTON_4STATE)
+        {
+            /*ButtonState++;
+			if (ButtonState>=4)
+			{
+				ButtonState=0;
+			}*/
         }
         ::InvalidateRect( hDlg, NULL, false );            
         break;
@@ -521,21 +553,31 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
         //LOG(2,"BitmapButton: 0x%08x: [%s] erase bg",hDlg,sID.c_str());
         return TRUE;
     /////////////////////// Checkbox //////////////////////////////
+	/////////////////////// 3/4state //////////////////////////////
     case BM_GETCHECK:
         if (ButtonType == BITMAPASBUTTON_CHECKBOX)
         {
-            return (Checked)?BST_CHECKED:BST_UNCHECKED;            
+            return (ButtonState)?BST_CHECKED:BST_UNCHECKED;            
+        }
+		if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
+        {
+            return ButtonState;
         }
         break;
 
     case BM_SETCHECK:
         if (ButtonType == BITMAPASBUTTON_CHECKBOX)
         {
-            Checked = (wParam == BST_CHECKED);
+            ButtonState = (wParam == BST_CHECKED) ? 1:0;
+            InvalidateRect(hDlg, NULL, false);
+        }
+		if ((ButtonType == BITMAPASBUTTON_3STATE)||(ButtonType == BITMAPASBUTTON_4STATE))
+        {
+            ButtonState = wParam;
             InvalidateRect(hDlg, NULL, false);
         }
         break;
-
+	
     ////////////////////////// Slider //////////////////////////////
     case TBM_SETRANGE:
         if (ButtonType == BITMAPASBUTTON_SLIDER)

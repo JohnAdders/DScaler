@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.3 2002-09-29 10:07:39 adcockj Exp $
+// $Id: WindowBorder.cpp,v 1.4 2002-10-07 20:32:43 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/29 10:07:39  adcockj
+// Fixed compile warning
+//
 // Revision 1.2  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -48,6 +51,20 @@
 static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
+
+/**
+
+	Draws a border around an existing window using Windows GDI.
+	All border pieces are extracted from a big bitmap.
+	This big bitmap and the coordinaties for the border pieces
+	are specified in an .ini file.
+
+	With an additional mask bitmap (black&white), part of the 
+	border can be transparent (use SetWindowRgn).
+
+	In addition to this, buttons can be added to the border.
+	They are CBitmapAsButton classes.
+*/
 
 const char* CWindowBorder::szBorderNames[] = {
         "TopLeftCorner","TopLeft","TopMiddle","TopRight","TopRightCorner",
@@ -112,7 +129,7 @@ CWindowBorder::~CWindowBorder()
    }
 }
 
-
+//Width of bitmap at border position 'Pos'
 int CWindowBorder::BmpWidth(int Pos)
 {
     if (Bitmaps.size()<=Pos) return 0;
@@ -127,6 +144,7 @@ int CWindowBorder::BmpHeight(int Pos)
     return Bitmaps[Pos]->Height();
 }
 
+//Width the border of position 'Pos'
 int CWindowBorder::BorderWidth(int Pos)
 {
     switch (Pos) 
@@ -155,6 +173,7 @@ int CWindowBorder::BorderWidth(int Pos)
     return 0;
 }
 
+//Height of the border of position 'Pos'
 int CWindowBorder::BorderHeight(int Pos)
 {
     switch (Pos) 
@@ -184,6 +203,8 @@ int CWindowBorder::BorderHeight(int Pos)
     return 0;
 }
 
+//Subtract (Crop == 1) or add (Crop==0) the border from/to the area 'ar'
+//
 void CWindowBorder::AdjustArea(RECT *ar, int Crop)
 {
     if (IsBorderVisible<=0)
@@ -212,26 +233,37 @@ void CWindowBorder::AdjustArea(RECT *ar, int Crop)
 
 
 
-
+// Create window region
+// Merges all regions of all border bitmaps if the size/construction has changed.
 HRGN CWindowBorder::MakeRegion(LPRECT lpRcExtra)
 {
-   if (RegionList.size()>0)
-   {  
-       if (!FindLocations()) return hLastRegion;
-   }
-   FindLocations();
-
+    BOOL bMerge = TRUE;
+	if (RegionList.size()>0)
+    {  
+       if (!FindLocations()) 
+	   {
+		   bMerge = FALSE;		   
+	   }
+    }
+	else
+	{
+		FindLocations();
+	}
+   
    if (((rcWindow.right - rcWindow.left)==0) || ((rcWindow.bottom - rcWindow.top)==0))
    {
        return NULL;   
    }
    
-   for (int i = 0; i < RegionList.size(); i++)
+   if (bMerge)
    {
-       if (RegionList[i] != NULL) { delete RegionList[i]; }
+		for (int i = 0; i < RegionList.size(); i++)
+		{
+		   if (RegionList[i] != NULL) { delete RegionList[i]; }
+		}
+		RegionList.clear();
+		MergeBorderRegions(&RegionList, lpRcExtra);
    }
-   RegionList.clear();
-   MergeBorderRegions(&RegionList, lpRcExtra);
    
    RECT rc;
    rc.left = 0;
@@ -249,6 +281,7 @@ HRGN CWindowBorder::MakeRegion(LPRECT lpRcExtra)
    return hLastRegion;
 }
 
+//Calculate border size from all bitmaps widths&heights
 BOOL CWindowBorder::FindBorderSizes()
 {
     if (bBitmapsChanged)
@@ -309,6 +342,8 @@ BOOL CWindowBorder::FindBorderSizes()
     return FALSE;
 }
 
+//Calculate locations for all border bitmaps
+// and buttons at the border
 BOOL CWindowBorder::FindLocations()
 {
     RECT m;
@@ -720,6 +755,7 @@ void CWindowBorder::MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcEx
 }
 
 
+//Set bitmap for border piece 'Position'
 BOOL CWindowBorder::SetBorderBitmap(eWindowBorderPosition Position, int State, HBITMAP hBmp, HBITMAP hBmpMask, int DrawMode, BOOL bDeleteBitmapOnExit)
 {
     if ((Position<0) || (Position >= WINDOWBORDER_LASTONE))
@@ -763,7 +799,7 @@ BOOL CWindowBorder::SetBorderBitmap(eWindowBorderPosition Position, int State, H
 }
 
 
-
+//Draw border bitmaps
 void CWindowBorder::Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift)
 {
     if (IsBorderVisible<=0) return;
@@ -835,6 +871,7 @@ void CWindowBorder::Paint(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPShift)
     }
 }
 
+//Update button locations
 void CWindowBorder::UpdateButtonLocations()
 {        
     if (Locations.size() != (WINDOWBORDER_LASTONE + Buttons.size()))
@@ -889,6 +926,7 @@ void CWindowBorder::SolidBorder(int left,int top, int right, int bottom, COLORRE
 }
 
 
+//Load bitmaps & buttons
 BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
   vector<int> *Results, CBitmapCache *pBitmapCache)
 {
@@ -1083,6 +1121,7 @@ void CWindowBorder::ClearSkin()
     FindLocations();
 }
 
+//Register button to list
 BOOL CWindowBorder::RegisterButton(string sID, eBitmapAsButtonType ButtonType, string sIniEntryDefault, string sIniEntryMouseOver, string sIniEntryClick, BUTTONPROC *pfnButtonProc)
 {
     int Position = 0;

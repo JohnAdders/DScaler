@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.17 2004-01-19 14:31:20 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.18 2004-01-27 22:48:57 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/01/19 14:31:20  adcockj
+// Test code for Hauppauge cards inspired by Torsten's diagram
+//
 // Revision 1.16  2004/01/07 10:08:12  adcockj
 // Added setting GPIO pins for sound support and added ATI card
 //
@@ -637,7 +640,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         NULL,
-        MSIInputSelect,
+        MSIPalInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.17 2002-10-16 12:21:50 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.18 2002-10-29 15:24:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/16 12:21:50  adcockj
+// Fixed a few bugs in new weighted average mode
+// Removed old weighted average modes
+//
 // Revision 1.16  2002/10/14 20:43:42  robmuller
 // Changed into input filter. New mode added. Miscellaneous improvements.
 //
@@ -69,7 +73,6 @@ long Left_UI = 5;
 long Width_UI = 30;
 long Height_UI = 30;
 long Max = 128;
-long gUseSmoothing = TRUE;
 
 static long gCpuFeatureFlags = 0;
 static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma to luma
@@ -190,12 +193,6 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "LogoKillFilter", "UseLogoKillFilter", NULL,
-    },
-    {
-        "Smoothing", ONOFF, 0, &gUseSmoothing,
-        TRUE, 0, 1, 1, 1,
-        NULL,
-        "LogoKillFilter", "UseSmoothing", NULL,
     },
 };
 

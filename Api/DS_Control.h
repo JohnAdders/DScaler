@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.103 2002-10-29 11:05:27 adcockj Exp $
+// $Id: DS_Control.h,v 1.104 2002-10-29 15:24:22 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2002/10/29 11:05:27  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.102  2002/10/29 03:07:56  atnak
 // Updated SAA7134_SETTING
 //
@@ -1120,7 +1123,6 @@ typedef enum
     LOGOKILL_MODE,
     LOGOKILL_MAX,
     USELOGOKILL,
-    SMOOTHLOGOKILL,
     FLT_LOGOKILL_SETTING_LASTONE,
 } FLT_LOGOKILL_SETTING;
 

@@ -54,12 +54,16 @@ height="2"></td>
 
 <tr>
 <td colspan="3"><!-- #BeginEditable "Text" -->
-<h1>DScaler - version 3.0.10</h1>
+<h1>DScaler - version 3.1.0</h1>
+
+<h2>What's New</h2>
+
+<p>See <a href="News.htm">News</a>.</p>
 
 <h2>License:</h2>
 
 <p>This file is subject to the terms of the <a href=
-"http://www.gnu.org/copyleft/gpl.html">GNU General Public
+"COPYING.html">GNU General Public
 License</a> as published by the Free Software Foundation. A copy
 of this license is included with this software distribution in
 the file COPYING.html. If you do not have a copy, you may obtain
@@ -73,38 +77,47 @@ See the GNU General Public License for more details</p>
 
 <h2>Requirements:</h2>
 
-<p>- I think it will run on Win 95/98 and NT. I have tested it on
-98, Windows 2000.<br>
- - You will need a processor faster than about Pentium II 400MHz
-to use all the features<br>
- - You will definitely need a PCI TV card with a BT848 BT849
-BT878 BT879 in it.<br>
- - This software will not work with ATI All-in-Wonder or Matrox
-TV cards.</p>
+<ul>
+<li>I think it will run on Win 95/98 and NT. I have tested it on
+98, ME and Windows 2000.</li>
+<li>You will need a processor faster than about Pentium II 400MHz
+to use all the features.</li>
+<li>You will definitely need a PCI TV card with a BT848 BT849
+BT878 BT879 in it.</li>
+<li>You will a graphics card that supports YUY2 overlays and has enough video memory
+spare for the video buffers DScaler uses.</li>
+<li>This software will not work with the video in sections of ATI All-in-Wonder 
+or Matrox TV cards.  These multifunction cards are supported for output though.</li>
+</ul>
 
-<h1><font color="#FF0000">Warning</font></h1>
+<h2>Increased Processor Requirements</h2>
+<p>Some of the improvements to film detect since version 2.3.0 have increased
+the processor requirements.  DScaler may not now run on slower hardware.</p>
 
-<p><font color="#FF0000">This program installs a temporary driver
+<font color="#FF0000">
+<h1>Warning</h1>
+
+<p>This program installs a temporary driver
 while it runs.  This means that some of the code runs inside
 Ring0 along with the kernel.  What this means is that if anything
 goes wrong this program can crash your whole system causing a
-BSOD in NT or a hanging 95/98.  If using a debugger then it it is
+BSOD in NT or a hanging 95/98.  Please do not use kill task to stop DScaler except 
+as a last resort.</p>
+
+<p>If using a debugger then it it is
 very important that the program is allowed to shut down
 normally.  If you use Stop Debugging while running the program
-you system WILL crash.</font></p>
+you system WILL crash.</p>
 
-<p><font color="#FF0000">As a precaution sync the disks before
-running this program.  Use the sync utility from <a href=
+<p>As a precaution sync the disks before
+running this program.  Use the sync utility from <a target="_blank" href=
 "http://www.sysinternals.com/">http://www.sysinternals.com/</a>
-for whichever operating system you are running.</font></p>
+for whichever operating system you are running.</p>
+</font>
 
 <p><a href="Authors.htm">Authors</a></p>
 
 <p><a href="Thanks.htm">Thanks</a></p>
-
-<p><a href="user_support.htm">Support</a></p>
-
-<p><a href="32spec.htm">Mark Rejhon's 3:2 Spec</a></p>
 
 <p><a href="IniFile.HTM">Ini File Settings</a></p>
 

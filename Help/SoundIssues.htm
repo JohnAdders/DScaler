@@ -132,6 +132,15 @@ it returns the mixer to the state it was when Dscaler started, if
 off then all the mixers lines that have been selected are muted
 on exit.</p>
 
+<p><b>Known Issues</b></p>
+
+<p>The STB TV cards have a different sound chip which means that they fall into 
+category 4 in board design and that support for them will not be added by the
+main DScaler team. We would welcome any developers who want to add support for 
+these cards. The code for the support of these cards is in the bttv driver but 
+porting that code to DScaler is not trivial.</p>
+
+
 <p><b>Still got a problem</b></p>
 
 <p>See this <a href=

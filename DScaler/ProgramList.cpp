@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.75 2002-09-28 13:31:41 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.76 2002-09-30 16:25:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2002/09/28 13:31:41  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.74  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -1764,6 +1767,13 @@ BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
     return FALSE;
 }
 
+BOOL CurrentProgram_OnChange(long NewValue)
+{
+    CurrentProgram = NewValue;
+    Channel_Change(CurrentProgram);
+    return FALSE;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -1780,7 +1790,7 @@ SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
         "Current Program", SLIDER, 0, (long*)&CurrentProgram,
         0, 0, MAXPROGS, 1, 1,
         NULL,
-        "Show", "LastProgram", NULL,
+        "Show", "LastProgram", CurrentProgram_OnChange,
     },
     {
         "Custom Channel Order", ONOFF, 0, (long*)&bCustomChannelOrder,

@@ -22,6 +22,11 @@
 			<param name="Local" value="FAQ.htm">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Installation">
+			<param name="Local" value="Install.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Support">
 			<param name="Local" value="user_support.htm">
 			<param name="ImageNumber" value="11">

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.82 2002-10-25 12:53:44 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.83 2002-10-25 15:04:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2002/10/25 12:53:44  adcockj
+// First cut at making new ProgramList dialog behave properly
+//
 // Revision 1.81  2002/10/22 05:29:43  flibuste2
 // -- Activated AFC option for auto-scanning
 //
@@ -1033,6 +1036,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC), (MyIsUsingAFC) ? BST_CHECKED : BST_UNCHECKED);            
             Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_IsMuted()) ? BST_CHECKED : BST_UNCHECKED));            
+
+            RefreshProgramList(hDlg, 0);            
 
             MyInUpdate = FALSE;
 

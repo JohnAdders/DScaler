@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsSettingConfig.h,v 1.1 2004-08-08 17:14:08 atnak Exp $
+// $Id: TreeSettingsSettingConfig.h,v 1.2 2004-08-12 14:02:27 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/08 17:14:08  atnak
+// TreeSettingsPage for configuring setting repository settings.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
-* @file TreeSettingsSettingConfig.h Header file for TreeSettingsSettingConfig class
+* @file TreeSettingsSettingConfig.h Header file for CTreeSettingsSettingConfig class
 */
 
 #ifndef __TREESETTINGSSETTINGCONFIG_H__

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.10 2002-11-07 13:37:43 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.11 2002-11-07 20:06:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/11/07 13:37:43  adcockj
+// Added State restoration code to PCICard
+// Functionality disabled prior to testing and not done for SAA7134
+//
 // Revision 1.9  2002/11/06 20:15:27  adcockj
 // Centered pixels to work with my equipment
 //
@@ -203,6 +207,7 @@ void CCX2388xCard::SetACPIStatus(int ACPIStatus)
 
 void CCX2388xCard::CloseCard()
 {
+    StopCapture();
     ClosePCICard();
 }
 
@@ -995,18 +1000,17 @@ void CCX2388xCard::ManageMyState()
     ManageDword(CX2388X_FORMAT_2HCOMB);
     ManageDword(CX2388X_PLL);
     ManageDword(CX2388X_PLL_ADJUST);
-    ManageDword(CX2388X_SAMPLERATECONV);  
-    ManageDword(CX2388X_SAMPLERATEFIFO);  
     ManageDword(CX2388X_SUBCARRIERSTEP);  
     ManageDword(CX2388X_SUBCARRIERSTEPDR);
-    ManageDword(CX2388X_CAPTURECONTROL);  
-    ManageDword(CX2388X_VIDEO_COLOR_FORMAT);
     ManageDword(CX2388X_VBI_SIZE);
     ManageDword(CX2388X_FIELD_CAP_CNT);
     ManageDword(CX2388X_VIP_CONFIG);
     ManageDword(CX2388X_VIP_CONTBRGT);
     ManageDword(CX2388X_VIP_HSCALE);
     ManageDword(CX2388X_VIP_VSCALE);
+    
+    ManageDword(CX2388X_SAMPLERATEFIFO);  
+    ManageDword(CX2388X_SAMPLERATECONV);  
 
     ManageDword(CX2388X_VIDEO_COLOR_FORMAT);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.10 2004-06-29 17:24:01 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.11 2004-07-12 20:17:20 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/06/29 17:24:01  to_see
+// Bugfix: not only Pal(BG) uses A2 Stereo. Must learn to read.
+//
 // Revision 1.9  2004/06/19 20:13:48  to_see
 // Faster and better A2 Stereo Detection
 //
@@ -157,8 +160,6 @@ void CCX2388xSource::UpdateAudioStatus()
 					Audio_Unmute();
 				}
 			}
-
-			eVideoFormat TVFormat = (eVideoFormat)m_VideoFormat->GetValue();
 
 			switch(m_pCard->GetCurrentAudioStandard())
 			{

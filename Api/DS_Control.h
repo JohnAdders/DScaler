@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.157 2004-04-24 08:54:18 atnak Exp $
+// $Id: DS_Control.h,v 1.158 2004-07-12 20:17:21 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.157  2004/04/24 08:54:18  atnak
+// reverted part of last change because there was no need for a new setting
+// variable for input timeout, used ChannelEnterTime instead
+//
 // Revision 1.156  2004/04/24 08:36:28  atnak
 // new: user customizable teletext page number input timeout
 //
@@ -1616,6 +1620,7 @@ typedef enum
     CX2388XRIGHTOVERSCAN,
     CX2388XANALOGUEBLANKING,
     CX2388XSTARTSTOPDRIVER,
+    CX2388XAUTOMUTEIFNOTUNERSIGNAL,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.87 2003-11-11 22:16:30 robmuller Exp $
+// $Id: OSD.cpp,v 1.88 2003-11-12 22:14:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2003/11/11 22:16:30  robmuller
+// Add ability to include the performance statistics in a release build.
+//
 // Revision 1.86  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -2215,6 +2218,7 @@ static void OSD_RefreshDeveloperScreen(double Size)
     int         nLine;
     int         i;
     double      pos;
+	DWORD		Total = 0;
 
     if (Size == 0)
     {
@@ -2222,7 +2226,18 @@ static void OSD_RefreshDeveloperScreen(double Size)
     }
 
     // Title
-    OSD_AddText("Informations for developers", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText("Information for developers", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+    nLine = 3;
+
+    OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Number : %ld", pPerf->GetNumberDroppedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     nLine = 3;
 
@@ -2231,14 +2246,20 @@ static void OSD_RefreshDeveloperScreen(double Size)
     {
         if (pPerf->IsValid((ePerfType)i))
         {
-            sprintf(szInfo, "%s : %d",
-                    pPerf->GetName((ePerfType)i), 
-                    pPerf->GetAverageDuration((ePerfType)i));
             pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+            sprintf(szInfo, "%s :", pPerf->GetName((ePerfType)i));
             OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
+            sprintf(szInfo, "%d", pPerf->GetAverageDuration((ePerfType)i));
+            OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
             nLine++;
+			Total += pPerf->GetAverageDuration((ePerfType)i);
         }
     }
+    pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+    sprintf(szInfo, "%s", "Total");
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
+    sprintf(szInfo, "%d", Total);
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.4 2001-12-08 13:43:20 adcockj Exp $
+// $Id: TiffHelper.cpp,v 1.5 2002-02-02 12:41:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/08 13:43:20  adcockj
+// Fixed logging and memory leak bugs
+//
 // Revision 1.3  2001/12/05 00:08:41  laurentg
 // Use of LibTiff DLL
 //
@@ -46,6 +49,7 @@
 #include "Deinterlace.h"
 #include "DebugLog.h"
 #include "Dialogs.h"
+#include "OutThreads.h"
 #include "..\ThirdParty\LibTiff\tiffio.h"
 
 
@@ -77,6 +81,11 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
     m_pParent->m_IsPictureRead = FALSE;
 
+    m_pParent->m_Height = 480;
+    m_pParent->m_Width = 720;
+    CurrentX = m_pParent->m_Width;
+    CurrentY = m_pParent->m_Height;
+
     // Open the file
     tif = TIFFOpen(FileName, "r");
     if (!tif) {
@@ -100,6 +109,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;
+    CurrentX = m_pParent->m_Width;
+    CurrentY = m_pParent->m_Height;
 
     // Allocate memory buffer to store the YUYV values
     m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(m_pParent->m_Width * 2 * m_pParent->m_Height * sizeof(BYTE));
@@ -221,6 +232,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     TIFFClose(tif);
 
     m_pParent->m_IsPictureRead = TRUE;
+
     return TRUE;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.46 2003-01-26 10:34:57 tobbej Exp $
+// $Id: Deinterlace.cpp,v 1.47 2003-02-08 14:43:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2003/01/26 10:34:57  tobbej
+// changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
+//
 // Revision 1.45  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -576,7 +579,7 @@ void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
             Deinterlace_SetStatus(GetDeinterlaceModeName());
             nTotalDeintModeChanges++;
             gProgMode = NORMAL_PROGRESSIVE;
-            FilmDeintMethods[gProgMode].ModeChanges++;
+            FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
             if(WereInHalfHeight != InHalfHeightMode())
             {
                 WorkoutOverlaySize(TRUE);

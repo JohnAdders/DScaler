@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.70 2005-03-10 17:40:40 adcockj Exp $
+// $Id: Other.cpp,v 1.71 2005-03-10 22:30:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2005/03/10 17:40:40  adcockj
+// first go at adding MCE remote support
+//
 // Revision 1.69  2004/05/06 15:00:43  adcockj
 // Fix for errors on ctrl-alt-delete (Bug-947656)
 //
@@ -440,8 +443,9 @@ void LoadDynamicFunctions()
         Rid[0].usUsagePage = 0xFFBC;
         Rid[0].usUsage = 0x88; 
         Rid[0].dwFlags = 0;
+        Rid[0].hwndTarget = NULL;
 
-        if(RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])))
+        if(lpRegisterRawInputDevices(Rid, 1, sizeof(Rid[0])))
         {
         	LOG(1, "Registered for MCE remote messages");
         }
@@ -471,17 +475,37 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
             {
                 RAWINPUT* raw = (RAWINPUT*)lpb;
 
-                if (raw->header.dwType == RIM_TYPEKEYBOARD) 
+                if (raw->header.dwType == RIM_TYPEHID) 
                 {
-                    LOG(1, "WM_INPUT Keyboard %d %d", raw->data.keyboard.MakeCode, raw->data.keyboard.Flags);
-                }
-                else if (raw->header.dwType == RIM_TYPEMOUSE) 
-                {
-                    LOG(1, "WM_INPUT Mouse %d %d", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-                } 
-                else if (raw->header.dwType == RIM_TYPEHID) 
-                {
-                    LOG(1, "WM_INPUT HID %d %d", raw->data.hid.dwSizeHid, raw->data.hid.dwCount);
+                    if(raw->data.hid.dwSizeHid == 2 && raw->data.hid.dwCount == 1)
+                    {
+                        if(raw->data.hid.bRawData[0] == 3)
+                        {
+                            switch(raw->data.hid.bRawData[1])
+                            {
+                            case 13:
+                                // ehome (green button)
+                                break;
+                            case 90:
+                                // teletext
+                                break;
+                            case 91:
+                                //red
+                                break;
+                            case 92:
+                                // green
+                                break;
+                            case 93:
+                                // yellow
+                                break;
+                            case 94:
+                                // blue
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+                    }
                 } 
             }
             

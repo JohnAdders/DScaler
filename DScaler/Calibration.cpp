@@ -32,12 +32,14 @@
 
 
 // Minimum time in milliseconds between two consecutive evaluations
-#define	MIN_TIME_BETWEEN_CALC	75
+#define	MIN_TIME_BETWEEN_CALC	50
 // Number of calculations to do on successive frames before to decide what to adjust
 #define NB_CALCULATIONS         8
 // Delta used to stop the search process when the current value for setting implies
 // a result that is superior to this delta when compared to the previous found best result
-#define DELTA_STOP              6
+#define DELTA_STOP              5
+// Maximum value
+#define MAX_VALUE               1000000
 
 // Macro to restrict range to [0,255]
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
@@ -677,14 +679,27 @@ CCalSetting::CCalSetting(BT848_SETTING setting)
     type_setting = setting;
     min = BT848_GetSetting(type_setting)->MinValue;
     max = BT848_GetSetting(type_setting)->MaxValue;
+    current_value = Setting_GetValue(BT848_GetSetting(type_setting));
     SetFullRange();
-    Save();
     InitResult();
+}
+
+BOOL CCalSetting::Update()
+{
+    int new_value = Setting_GetValue(BT848_GetSetting(type_setting));
+    if (new_value != current_value)
+    {
+        current_value = new_value;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 void CCalSetting::Save()
 {
-    current_value = Setting_GetValue(BT848_GetSetting(type_setting));
     saved_value = current_value;
     LOG(2, "Automatic Calibration - %s saved value = %d", BT848_GetSetting(type_setting)->szDisplayName, saved_value);
 }
@@ -835,7 +850,9 @@ void CCalSetting::InitResult()
 {
     int i;
 
-    min_diff = 1000000;
+    min_diff = MAX_VALUE;
+    max_diff = 0;
+    desc = FALSE;
     for (i=0 ; i<16 ; i++)
     {
         mask_output[i] = 0;
@@ -843,29 +860,42 @@ void CCalSetting::InitResult()
     end = FALSE;
 }
 
-void CCalSetting::UpdateResult(int diff, int stop_threshold, BOOL only_one)
+BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
 {
     int i, j;
+    BOOL min_found = FALSE;
 
+    if (diff > max_diff)
+    {
+        max_diff = diff;
+    }
     i = current_value - min;
     if (diff < min_diff)
     {
         min_diff = diff;
+
         for (j=0 ; j<16 ; j++)
         {
             mask_output[j] = 0;
         }
         mask_output[i/32] = (1 << (i%32));
+
+        if ((threshold >= 0) && ((max_diff - min_diff) > threshold))
+        {
+            desc = TRUE;
+        }
     }
     else if ((diff == min_diff) && !only_one)
     {
         mask_output[i/32] |= (1 << (i%32));
     }
-    else if ((stop_threshold >= 0) && ((diff - min_diff) > stop_threshold))
+    else if ((threshold >= 0) && ((diff - min_diff) > threshold))
     {
         end = TRUE;
+        min_found = desc;
     }
     LOG(3, "Automatic Calibration - %s value %d => result = %d min = %d", BT848_GetSetting(type_setting)->szDisplayName, current_value, diff, min_diff);
+    return min_found;
 }
 
 int CCalSetting::GetResult(int *mask, int *min_val, int *max_val)
@@ -1024,36 +1054,36 @@ void CCalibration::LoadTestPatterns()
 
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417, 1111, 521, 5729, FALSE, 188, 189, 188);
+    color_bar = new CColorBar( 417, 1111, 2500, 5625, FALSE, 188, 189, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 521, 5729, FALSE, 189, 190,   0);
+    color_bar = new CColorBar(1806, 2500, 2500, 5625, FALSE, 189, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3194, 3889, 521, 5729, FALSE,   0, 190, 188);
+    color_bar = new CColorBar(3194, 3889, 2500, 5625, FALSE,   0, 190, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 521, 5729, FALSE,   0, 189,   0);
+    color_bar = new CColorBar(4583, 5278, 2500, 5625, FALSE,   0, 189,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 521, 5729, FALSE, 188,   0, 190);
+    color_bar = new CColorBar(6042, 6736, 2500, 5625, FALSE, 188,   0, 190);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 8125, 521, 5729, FALSE, 189,   0,   0);
+    color_bar = new CColorBar(7431, 8125, 2500, 5625, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9583, 521, 5729, FALSE,   0,   0, 189);
+    color_bar = new CColorBar(8889, 9583, 2500, 5625, FALSE,   0,   0, 189);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_SATURATION_U);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8889, 9583, 521, 5729, FALSE,   0,   0, 189);
+    color_bar = new CColorBar(8889, 9583, 2500, 5625, FALSE,   0,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7431, 8125, 521, 5729, FALSE, 189,   0,   0);
+    color_bar = new CColorBar(7431, 8125, 2500, 5625, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_HUE);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(3194, 3889, 521, 5729, FALSE,   0, 190, 188);
+    color_bar = new CColorBar(3194, 3889, 2500, 5625, FALSE,   0, 190, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 521, 5729, FALSE, 188,   0, 190);
+    color_bar = new CColorBar(6042, 6736, 2500, 5625, FALSE, 188,   0, 190);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1066,35 +1096,35 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417,  972, 521, 9375, FALSE,   0,   0,   0);
+    color_bar = new CColorBar( 417,  972, 2500, 7500, FALSE,   0,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1458, 2014, 521, 9375, FALSE,  30,  30,  30);
+    color_bar = new CColorBar(1458, 2014, 2500, 7500, FALSE,  30,  30,  30);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2361, 2917, 521, 9375, FALSE,  60,  60,  60);
+    color_bar = new CColorBar(2361, 2917, 2500, 7500, FALSE,  60,  60,  60);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3333, 3889, 521, 9375, FALSE,  90,  90,  90);
+    color_bar = new CColorBar(3333, 3889, 2500, 7500, FALSE,  90,  90,  90);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4236, 4792, 521, 9375, FALSE, 116, 118, 118);
+    color_bar = new CColorBar(4236, 4792, 2500, 7500, FALSE, 117, 119, 119);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5208, 5764, 521, 9375, FALSE, 150, 150, 150);
+    color_bar = new CColorBar(5208, 5764, 2500, 7500, FALSE, 150, 150, 150);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6181, 6736, 521, 9375, FALSE, 177, 179, 179);
+    color_bar = new CColorBar(6181, 6736, 2500, 7500, FALSE, 177, 179, 179);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7153, 7639, 521, 9375, FALSE, 206, 209, 205);
+    color_bar = new CColorBar(7153, 7708, 2500, 7500, FALSE, 206, 209, 205);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8125, 8681, 521, 9375, FALSE, 236, 236, 236);
+    color_bar = new CColorBar(8125, 8681, 2500, 7500, FALSE, 236, 236, 236);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9097, 9653, 521, 9375, FALSE, 254, 254, 254);
+    color_bar = new CColorBar(9097, 9653, 2500, 7500, FALSE, 254, 254, 254);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(1458, 2014, 521, 9375, FALSE,  30,  30,  30);
+    color_bar = new CColorBar(1458, 2014, 2500, 7500, FALSE,  30,  30,  30);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(9097, 9653, 521, 9375, FALSE, 254, 254, 254);
+    color_bar = new CColorBar(9097, 9653, 2500, 7500, FALSE, 254, 254, 254);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1107,36 +1137,36 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417, 1111, 521, 5208, FALSE, 190, 190, 190);
+    color_bar = new CColorBar( 417, 1111, 2500, 5208, FALSE, 190, 190, 190);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 521, 5208, FALSE, 198, 199,   0);
+    color_bar = new CColorBar(1806, 2500, 2500, 5208, FALSE, 198, 199,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3194, 3889, 521, 5208, FALSE,   0, 190, 189);
+    color_bar = new CColorBar(3194, 3889, 2500, 5208, FALSE,   0, 190, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 521, 5208, FALSE,   0, 190,   0);
+    color_bar = new CColorBar(4583, 5278, 2500, 5208, FALSE,   0, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 521, 5208, FALSE, 190,   0, 189);
+    color_bar = new CColorBar(6042, 6736, 2500, 5208, FALSE, 190,   0, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 8125, 521, 5208, FALSE, 188,   0,   0);
+    color_bar = new CColorBar(7431, 8125, 2500, 5208, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9583, 521, 5208, FALSE,   0,   0, 187);
+    color_bar = new CColorBar(8889, 9583, 2500, 5208, FALSE,   0,   0, 187);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_SATURATION_U);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8889, 9583, 521, 5208, FALSE,   0,   0, 187);
+    color_bar = new CColorBar(8889, 9583, 2500, 5208, FALSE,   0,   0, 187);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7431, 8125, 521, 5208, FALSE, 188,   0,   0);
+    color_bar = new CColorBar(7431, 8125, 2500, 5208, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_HUE);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(3194, 3889, 521, 5208, FALSE,   0, 190, 189);
+    color_bar = new CColorBar(3194, 3889, 2500, 5208, FALSE,   0, 190, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 521, 5208, FALSE, 190,   0, 189);
+    color_bar = new CColorBar(6042, 6736, 2500, 5208, FALSE, 190,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1149,37 +1179,37 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 208,  764, 521, 9375, FALSE, 254, 251, 255);
+    color_bar = new CColorBar( 208,  764, 2500, 7500, FALSE, 254, 251, 255);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1111, 1667, 521, 9375, FALSE, 226, 223, 227);
+    color_bar = new CColorBar(1111, 1667, 2500, 7500, FALSE, 226, 223, 227);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2569, 521, 9375, FALSE, 200, 197, 201);
+    color_bar = new CColorBar(2014, 2569, 2500, 7500, FALSE, 200, 197, 201);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 521, 9375, FALSE, 172, 169, 173);
+    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE, 172, 169, 173);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3819, 4375, 521, 9375, FALSE, 145, 142, 146);
+    color_bar = new CColorBar(3819, 4375, 2500, 7500, FALSE, 145, 142, 146);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4722, 5278, 521, 9375, FALSE, 117, 114, 118);
+    color_bar = new CColorBar(4722, 5278, 2500, 7500, FALSE, 117, 114, 118);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5625, 6181, 521, 9375, FALSE,  90,  87,  91);
+    color_bar = new CColorBar(5625, 6181, 2500, 7500, FALSE,  90,  87,  91);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6528, 7083, 521, 9375, FALSE,  62,  59,  63);
+    color_bar = new CColorBar(6528, 7083, 2500, 7500, FALSE,  62,  59,  63);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 7986, 521, 9375, FALSE,  34,  31,  35);
+    color_bar = new CColorBar(7431, 7986, 2500, 7500, FALSE,  34,  31,  35);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8333, 8819, 521, 9375, FALSE,   7,   4,   8);
+    color_bar = new CColorBar(8333, 8889, 2500, 7500, FALSE,   7,   4,   8);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9236, 9722, 521, 9375, FALSE,   1,   0,   2);
+    color_bar = new CColorBar(9236, 9792, 2500, 7500, FALSE,   1,   0,   2);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8333, 8819, 521, 9375, FALSE,   7,   4,   8);
+    color_bar = new CColorBar(8333, 8889, 2500, 7500, FALSE,   7,   4,   8);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 208,  764, 521, 9375, FALSE, 254, 251, 255);
+    color_bar = new CColorBar( 208,  764, 2500, 7500, FALSE, 254, 251, 255);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1192,36 +1222,36 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417, 1111, 521, 4167, FALSE, 190, 189, 190);
+    color_bar = new CColorBar( 417, 1111, 2083, 4167, FALSE, 190, 190, 190);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 521, 4167, FALSE, 190, 189,   0);
+    color_bar = new CColorBar(1806, 2500, 2083, 4167, FALSE, 190, 189,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3194, 3889, 521, 4167, FALSE,   0, 189, 188);
+    color_bar = new CColorBar(3194, 3889, 2083, 4167, FALSE,   0, 189, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 521, 4167, FALSE,   0, 189,   0);
+    color_bar = new CColorBar(4583, 5278, 2083, 4167, FALSE,   0, 189,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 521, 4167, FALSE, 190,   0, 191);
+    color_bar = new CColorBar(6042, 6736, 2083, 4167, FALSE, 190,   0, 191);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 8125, 521, 4167, FALSE, 190,   0,   0);
+    color_bar = new CColorBar(7431, 8125, 2083, 4167, FALSE, 190,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9583, 521, 4167, FALSE,   0,   0, 190);
+    color_bar = new CColorBar(8889, 9583, 2083, 4167, FALSE,   0,   0, 190);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_SATURATION_U);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8889, 9583, 521, 4167, FALSE,   0,   0, 190);
+    color_bar = new CColorBar(8889, 9583, 2083, 4167, FALSE,   0,   0, 190);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7431, 8125, 521, 4167, FALSE, 190,   0,   0);
+    color_bar = new CColorBar(7431, 8125, 2083, 4167, FALSE, 190,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_HUE);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(3194, 3889, 521, 4167, FALSE,   0, 189, 188);
+    color_bar = new CColorBar(3194, 3889, 2083, 4167, FALSE,   0, 189, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 521, 4167, FALSE, 190,   0, 191);
+    color_bar = new CColorBar(6042, 6736, 2083, 4167, FALSE, 190,   0, 191);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1303,37 +1333,37 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278,  833, 434, 9549, FALSE,   0,   0,   0);
+    color_bar = new CColorBar( 278,  833, 2500, 7500, FALSE,   0,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1736, 434, 9549, FALSE,  20,  23,  20);
+    color_bar = new CColorBar(1181, 1736, 2500, 7500, FALSE,  20,  23,  20);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2569, 434, 9549, FALSE,  46,  49,  45);
+    color_bar = new CColorBar(2014, 2569, 2500, 7500, FALSE,  46,  49,  45);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 434, 9549, FALSE,  72,  75,  71);
+    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,  72,  75,  71);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3819, 4375, 434, 9549, FALSE,  98, 101,  97);
+    color_bar = new CColorBar(3819, 4375, 2500, 7500, FALSE,  98, 101,  97);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4722, 5278, 434, 9549, FALSE, 123, 125, 122);
+    color_bar = new CColorBar(4722, 5278, 2500, 7500, FALSE, 123, 125, 122);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5556, 6111, 434, 9549, FALSE, 149, 151, 148);
+    color_bar = new CColorBar(5556, 6111, 2500, 7500, FALSE, 149, 151, 148);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6458, 7014, 434, 9549, FALSE, 174, 177, 173);
+    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 174, 177, 173);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7361, 7917, 434, 9549, FALSE, 201, 203, 200);
+    color_bar = new CColorBar(7361, 7917, 2500, 7500, FALSE, 201, 203, 200);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8264, 8819, 434, 9549, FALSE, 227, 229, 226);
+    color_bar = new CColorBar(8264, 8819, 2500, 7500, FALSE, 227, 229, 226);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9167, 9722, 434, 9549, FALSE, 252, 252, 252);
+    color_bar = new CColorBar(9167, 9722, 2500, 7500, FALSE, 253, 252, 252);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(1181, 1736, 434, 9549, FALSE,  20,  23,  20);
+    color_bar = new CColorBar(1181, 1736, 2500, 7500, FALSE,  20,  23,  20);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(9167, 9722, 434, 9549, FALSE, 252, 252, 252);
+    color_bar = new CColorBar(9167, 9722, 2500, 7500, FALSE, 253, 252, 252);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1346,38 +1376,38 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 556, 1111, 434, 9549, FALSE, 253, 253, 253);
+    color_bar = new CColorBar( 556, 1111, 2500, 7500, FALSE, 253, 253, 253);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1736, 2292, 434, 9549, FALSE, 189, 191,   0);
+    color_bar = new CColorBar(1736, 2292, 2500, 7500, FALSE, 189, 191,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 434, 9549, FALSE,   0, 189, 188);
+    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,   0, 189, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4097, 4653, 434, 9549, FALSE,   0, 190,   0);
+    color_bar = new CColorBar(4097, 4653, 2500, 7500, FALSE,   0, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5278, 5833, 434, 9549, FALSE, 189,   0, 189);
+    color_bar = new CColorBar(5278, 5833, 2500, 7500, FALSE, 189,   0, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6458, 7014, 434, 9549, FALSE, 189,   0,   0);
+    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7708, 8264, 434, 9549, FALSE,   0,   0, 189);
+    color_bar = new CColorBar(7708, 8264, 2500, 7500, FALSE,   0,   0, 189);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9444, 434, 9549, FALSE,   0,   0,   0);
+    color_bar = new CColorBar(8889, 9444, 2500, 7500, FALSE,   0,   0,   0);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_SATURATION_U);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7708, 8264, 434, 9549, FALSE,   0,   0, 189);
+    color_bar = new CColorBar(7708, 8264, 2500, 7500, FALSE,   0,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6458, 7014, 434, 9549, FALSE, 189,   0,   0);
+    color_bar = new CColorBar(6458, 7014, 2500, 7500, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_HUE);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(2917, 3472, 434, 9549, FALSE,   0, 189, 188);
+    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,   0, 189, 188);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5278, 5833, 434, 9549, FALSE, 189,   0, 189);
+    color_bar = new CColorBar(5278, 5833, 2500, 7500, FALSE, 189,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1525,21 +1555,41 @@ void CCalibration::Start(eTypeCalibration type)
         return;
 
 	type_calibration = type;
-	running = TRUE;
+
+    brightness->Update();
+    contrast->Update();
+    saturation_U->Update();
+    saturation_V->Update();
+    hue->Update();
+    brightness->Save();
+    contrast->Save();
+    saturation_U->Save();
+    saturation_V->Save();
+    hue->Save();
 
     switch (type_calibration)
     {
     case CAL_AUTO_BRIGHT_CONTRAST:
         initial_step = 1;
         nb_steps = 6;
+        brightness->AdjustDefault();
+        contrast->AdjustDefault();
         break;
     case CAL_AUTO_COLOR:
         initial_step = 7;
         nb_steps = 8;
+        saturation_U->AdjustDefault();
+        saturation_V->AdjustDefault();
+        hue->AdjustDefault();
         break;
     case CAL_AUTO_FULL:
         initial_step = 1;
         nb_steps = 14;
+        brightness->AdjustDefault();
+        contrast->AdjustDefault();
+        saturation_U->AdjustDefault();
+        saturation_V->AdjustDefault();
+        hue->AdjustDefault();
         break;
     case CAL_MANUAL:
     default:
@@ -1548,23 +1598,34 @@ void CCalibration::Start(eTypeCalibration type)
         break;
     }
     current_step = initial_step;
-
-    brightness->Save();
-    contrast->Save();
-    saturation_U->Save();
-    saturation_V->Save();
-    hue->Save();
+    full_range = FALSE;
+    nb_tries = 0;
 
     // Display the specific OSD screen
     OSD_ShowInfosScreen(hWnd, 4, 0);
+
+    running = TRUE;
 }
 
 void CCalibration::Stop()
 {
-	running = FALSE;
+    if (type_calibration != CAL_MANUAL)
+    {
+        if ( (current_step != -1)
+          || (MessageBox(hWnd, "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
+        {
+            brightness->Restore();
+            contrast->Restore();
+            saturation_U->Restore();
+            saturation_V->Restore();
+            hue->Restore();
+        }
+    }
 
     // Erase the OSD screen
     OSD_Clear(hWnd);
+
+	running = FALSE;
 }
 
 BOOL CCalibration::IsRunning()
@@ -1584,10 +1645,11 @@ eTypeCalibration CCalibration::GetType()
 
 void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 {
-    int nb, nb1, nb2;
-    int min1, max1, min2, max2;
-    int mask1[16];
-    int mask2[16];
+    int nb;
+    int min, max;
+    int mask[16];
+    BOOL new_settings;
+    BOOL found;
 
 	if (!running
 	 || (current_test_pattern == NULL)
@@ -1598,24 +1660,42 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     switch (current_step)
     {
-    case 0:     // Calibration finished
+    case -1:    // Automatic calibration finished 
+        Stop();
+        break;
+
+    case 0:     // Manual calibration
+        new_settings = FALSE;
+        new_settings |= brightness->Update();
+        new_settings |= contrast->Update();
+        new_settings |= saturation_U->Update();
+        new_settings |= saturation_V->Update();
+        new_settings |= hue->Update();
+
         current_sub_pattern = GetSubPattern(ADJ_MANUAL);
         if (current_sub_pattern != NULL)
         {
             // Calculations with current setitngs
             current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
-
-            if (initial_step != 0)
-            {
-                current_step = -1;
-            }
+        }
+        if (type_calibration != CAL_MANUAL)
+        {
+            current_step = -1;
+        	last_tick_count = tick_count + 500;
         }
         break;
 
-    case 1:     // Step to initialize next step
-        if (step_init(ADJ_BRIGHTNESS, brightness, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
+    case 1:
+        if (full_range)
         {
-            // We jump to next step
+            brightness->SetFullRange();
+        }
+        else
+        {
+            brightness->SetRange((nb_tries == 0) ? 75 : 25);
+        }
+        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        {
             current_step++;
         }
         else
@@ -1626,17 +1706,32 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 2:     // Step to find a short range for brightness setting
-        if (step_process(Lines, height, width, 4, TRUE, FALSE))
+        if (step_process(Lines, height, width, 4, TRUE, FALSE, &found))
         {
-            // We jump to next step
-            current_step++;
+            if (found || full_range)
+            {
+                full_range = FALSE;
+                current_step++;
+            }
+            else
+            {
+                full_range = TRUE;
+                current_step--;
+            }
         }
         break;
 
-    case 3:     // Step to initialize next step
-        if (step_init(ADJ_CONTRAST, contrast, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
+    case 3:
+        if (full_range)
         {
-            // We jump to next step
+            contrast->SetFullRange();
+        }
+        else
+        {
+            contrast->SetRange((nb_tries == 0) ? 50 : 25);
+        }
+        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        {
             current_step++;
         }
         else
@@ -1647,40 +1742,59 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 4:     // Step to find a short range for contrast setting
-        if (step_process(Lines, height, width, 4, TRUE, FALSE))
+        if (step_process(Lines, height, width, 4, TRUE, FALSE, &found))
         {
-            // We jump to next step
-            current_step++;
+            if (found || full_range)
+            {
+                full_range = FALSE;
+                nb_tries++;
+                if (nb_tries < 2)
+                {
+                    current_step -= 3;
+                }
+                else
+                {
+                    nb_tries = 0;
+                    current_step++;
+                }
+            }
+            else
+            {
+                full_range = TRUE;
+                current_step--;
+            }
         }
         break;
 
-    case 5:     // Step to initialize next step
-        nb1 = brightness->GetResult(mask1, &min1, &max1);
-        nb2 = contrast->GetResult(mask2, &min2, &max2);
-        if ((nb1 == 0) || (nb2 == 0))
+    case 5:
+        nb = brightness->GetResult(mask, &min, &max);
+        if (nb == 0)
         {
             current_step += 2;
             break;
         }
-        nb = max1 - min1;
-        if (nb <= 10)
+        nb = max - min;
+        if (nb <= 6)
         {
-            min1 -= (10 - nb) / 2;
-            max1 += (10 - nb) / 2;
-            brightness->SetRange(min1, max1);
-            brightness->GetRange(mask1, &min1, &max1);
+            min -= (6 - nb) / 2;
+            max += (6 - nb) / 2;
+            brightness->SetRange(min, max);
         }
-        nb = max2 - min2;
-        if (nb <= 10)
+        nb = contrast->GetResult(mask, &min, &max);
+        if (nb == 0)
         {
-            min2 -= (10 - nb) / 2;
-            max2 += (10 - nb) / 2;
-            contrast->SetRange(min2, max2);
-            contrast->GetRange(mask2, &min2, &max2);
+            current_step += 2;
+            break;
         }
-        if (step_init(ADJ_BRIGHTNESS_CONTRAST, brightness, mask1, contrast, mask2, (CCalSetting *)NULL, (int *)NULL))
+        nb = max - min;
+        if (nb <= 6)
         {
-            // We jump to next step
+            min -= (6 - nb) / 2;
+            max += (6 - nb) / 2;
+            contrast->SetRange(min, max);
+        }
+        if (step_init(ADJ_BRIGHTNESS_CONTRAST, brightness, contrast, (CCalSetting *)NULL))
+        {
             current_step++;
         }
         else
@@ -1690,18 +1804,23 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 6:     // Step to adjust fine brightness + contradt
-        if (step_process(Lines, height, width, 4, FALSE, TRUE))
+        if (step_process(Lines, height, width, 4, FALSE, TRUE, &found))
         {
-            // We jump to next step
             current_step++;
         }
         break;
 
-    case 7:     // Step to initialize next step
-        hue->AdjustDefault();
-        if (step_init(ADJ_SATURATION_U, saturation_U, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
+    case 7:
+        if (full_range)
         {
-            // We jump to next step
+            saturation_U->SetFullRange();
+        }
+        else
+        {
+            saturation_U->SetRange(75);
+        }
+        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        {
             current_step++;
         }
         else
@@ -1712,19 +1831,32 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 8:     // Step to find a short range for saturation U setting
-//        if (step_process(Lines, height, width, 7, TRUE, FALSE))
-        if (step_process(Lines, height, width, 2, TRUE, FALSE))
+        if (step_process(Lines, height, width, 2, TRUE, FALSE, &found))
         {
-            // We jump to next step
-            current_step++;
+            if (found || full_range)
+            {
+                full_range = FALSE;
+                current_step++;
+            }
+            else
+            {
+                full_range = TRUE;
+                current_step--;
+            }
         }
         break;
 
-    case 9:     // Step to initialize next step
-        hue->AdjustDefault();
-        if (step_init(ADJ_SATURATION_V, saturation_V, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
+    case 9:
+        if (full_range)
         {
-            // We jump to next step
+            saturation_V->SetFullRange();
+        }
+        else
+        {
+            saturation_V->SetRange(75);
+        }
+        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        {
             current_step++;
         }
         else
@@ -1735,20 +1867,25 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 10:    // Step to find a short range for saturation V setting
-//        if (step_process(Lines, height, width, 5, TRUE, FALSE))
-        if (step_process(Lines, height, width, 3, TRUE, FALSE))
+        if (step_process(Lines, height, width, 3, TRUE, FALSE, &found))
         {
-            // We jump to next step
-            current_step++;
+            if (found || full_range)
+            {
+                full_range = FALSE;
+                current_step += 3;
+            }
+            else
+            {
+                full_range = TRUE;
+                current_step--;
+            }
         }
         break;
 
-    case 11:     // Step to initialize next step
-        current_step += 2;
-        break;
-        if (step_init(ADJ_HUE, hue, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
+    case 11:
+        hue->SetRange(20);
+        if (step_init(ADJ_HUE, hue, (CCalSetting *)NULL, (CCalSetting *)NULL))
         {
-            // We jump to next step
             current_step++;
         }
         else
@@ -1759,41 +1896,51 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 12:    // Step to find a short range for hue setting
-//        if (step_process(Lines, height, width, 7, TRUE, FALSE))
-        if (step_process(Lines, height, width, 2, TRUE, FALSE))
+        if (step_process(Lines, height, width, 2, TRUE, FALSE, &found))
         {
-            // We jump to next step
-            current_step++;
+            full_range = FALSE;
+            nb_tries++;
+            if (nb_tries < 2)
+            {
+                current_step -= 5;
+            }
+            else
+            {
+                nb_tries = 0;
+                current_step++;
+            }
         }
         break;
 
-    case 13:    // Step to initialize next step
-        nb1 = saturation_U->GetResult(mask1, &min1, &max1);
-        nb2 = saturation_V->GetResult(mask2, &min2, &max2);
-        if ((nb1 == 0) || (nb2 == 0))
+    case 13:
+        nb = saturation_U->GetResult(mask, &min, &max);
+        if (nb == 0)
         {
             current_step += 2;
             break;
         }
-        nb = max1 - min1;
-        if (nb <= 10)
+        nb = max - min;
+        if (nb <= 8)
         {
-            min1 -= (10 - nb) / 2;
-            max1 += (10 - nb) / 2;
-            saturation_U->SetRange(min1, max1);
-            saturation_U->GetRange(mask1, &min1, &max1);
+            min -= (8 - nb) / 2;
+            max += (8 - nb) / 2;
+            saturation_U->SetRange(min, max);
         }
-        nb = max2 - min2;
-        if (nb <= 10)
+        nb = saturation_V->GetResult(mask, &min, &max);
+        if (nb == 0)
         {
-            min2 -= (10 - nb) / 2;
-            max2 += (10 - nb) / 2;
-            saturation_V->SetRange(min2, max2);
-            saturation_V->GetRange(mask2, &min2, &max2);
+            current_step += 2;
+            break;
         }
-        if (step_init(ADJ_COLOR, saturation_U, mask1, saturation_V, mask2, (CCalSetting *)NULL, (int *)NULL))
+        nb = max - min;
+        if (nb <= 8)
         {
-            // We jump to next step
+            min -= (8 - nb) / 2;
+            max += (8 - nb) / 2;
+            saturation_V->SetRange(min, max);
+        }
+        if (step_init(ADJ_COLOR, saturation_U, saturation_V, (CCalSetting *)NULL))
+        {
             current_step++;
         }
         else
@@ -1803,10 +1950,8 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 14:    // Step to adjust fine color saturation
-//        if (step_process(Lines, height, width, 8, FALSE, TRUE))
-        if (step_process(Lines, height, width, 4, FALSE, TRUE))
+        if (step_process(Lines, height, width, 4, FALSE, TRUE, &found))
         {
-            // We jump to next step
             current_step++;
         }
         break;
@@ -1822,7 +1967,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     }
 }
 
-BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, int *mask1, CCalSetting *_setting2, int *mask2, CCalSetting *_setting3, int *mask3)
+BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CCalSetting *_setting2, CCalSetting *_setting3)
 {
     // Get the bar to use for this step
     current_sub_pattern = GetSubPattern(type_adjust);
@@ -1839,15 +1984,6 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, in
         setting1 = _setting1;
         if (setting1 != (CCalSetting *)NULL)
         {
-            // Set the range of values
-            if (mask1 == (int *)NULL)
-            {
-                setting1->SetFullRange();
-            }
-            else
-            {
-                setting1->SetRange(mask1);
-            }
             // Set the settings to their minimum
             setting1->AdjustMin();
             setting1->InitResult();
@@ -1855,15 +1991,6 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, in
         setting2 = _setting2;
         if (setting2 != (CCalSetting *)NULL)
         {
-            // Set the range of values
-            if (mask2 == (int *)NULL)
-            {
-                setting2->SetFullRange();
-            }
-            else
-            {
-                setting2->SetRange(mask2);
-            }
             // Set the settings to their minimum
             setting2->AdjustMin();
             setting2->InitResult();
@@ -1871,15 +1998,6 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, in
         setting3 = _setting3;
         if (setting3 != (CCalSetting *)NULL)
         {
-            // Set the range of values
-            if (mask3 == (int *)NULL)
-            {
-                setting3->SetFullRange();
-            }
-            else
-            {
-                setting3->SetRange(mask3);
-            }
             // Set the settings to their minimum
             setting3->AdjustMin();
             setting3->InitResult();
@@ -1891,7 +2009,7 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, in
     }
 }
 
-BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_before_end, BOOL only_one)
+BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_when_found, BOOL only_one, BOOL *best_found)
 {
     int val[4];
     BOOL YUV;
@@ -1933,20 +2051,19 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
     else
     {
         nb_calcul = 0;
-        dif = total_dif;
     }
 
     if (setting1 != (CCalSetting *)NULL)
     {
-        setting1->UpdateResult(dif, stop_before_end ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+        *best_found = setting1->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
     }
     if (setting2 != (CCalSetting *)NULL)
     {
-        setting2->UpdateResult(dif, stop_before_end ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+        *best_found = setting2->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
     }
     if (setting3 != (CCalSetting *)NULL)
     {
-        setting3->UpdateResult(dif, stop_before_end ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+        *best_found = setting3->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
     }
 
     // Increase the third setting

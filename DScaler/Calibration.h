@@ -279,6 +279,7 @@ class CCalSetting
 {
 public:
     CCalSetting(BT848_SETTING setting);
+    BOOL Update();
     void Save();
     void Restore();
     void SetFullRange();
@@ -292,7 +293,7 @@ public:
     BOOL AdjustNext();
     void AdjustBest();
     void InitResult();
-    void UpdateResult(int diff, int stop_threshold, BOOL only_one);
+    BOOL UpdateResult(int diff, int stop_threshold, BOOL only_one);
     int GetResult(int *mask, int *min_val, int *max_val);
 
 protected:
@@ -309,6 +310,8 @@ private:
     int current_value;
     int saved_value;
     unsigned int min_diff;
+    unsigned int max_diff;
+    BOOL desc;
     BOOL end;
 };
 
@@ -355,12 +358,14 @@ protected:
     CCalSetting *hue;
 
 private:
-    BOOL step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, int *mask1, CCalSetting *_setting2, int *mask2, CCalSetting *_setting3, int *mask3);
-    BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_before_end, BOOL only_one);
+    BOOL step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CCalSetting *_setting2, CCalSetting *_setting3);
+    BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_when_found, BOOL only_one, BOOL *best_found);
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;
     int current_step;
+    BOOL full_range;
+    int nb_tries;
     int total_dif;
     int nb_calcul;
     CCalSetting *setting1;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388x_Defines.h,v 1.1 2002-09-11 18:19:38 adcockj Exp $
+// $Id: CT2388x_Defines.h,v 1.2 2002-10-08 11:22:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -533,9 +533,13 @@
 #define RISC_JMP_SRP         0x01
 
 
+#define CT2338X_DEV_CNTRL2           0x00200034
+
 #define CT2338X_I2C                  0x00368000
 #define CT2338X_I2C_SDA              (1<<0)     
 #define CT2338X_I2C_SCL              (1<<1)
+
+#define CT2388X_PINMUX_IO            0x0035C044
 
 #define CT2388X_DEVICE_STATUS        0x00310100
 #define CT2388X_DEVICE_STATUS_HLOCK  0x40
@@ -588,6 +592,12 @@
 #define CT2388X_VIP_HSCALE      0x003101A0
 #define CT2388X_VIP_VSCALE      0x003101A4
 #define CT2388X_VBOS            0x003101A8
+#define CT2388X_VIDY_GP_CNT     0x0031C020
+#define CT2388X_VID_DMA_CNTRL   0x0031C040
+#define CT2388X_VID_INTMSK      0x00200050
+#define CT2388X_VID_INTSTAT     0x00200054
+#define CT2388X_PCI_INTMSK      0x00200040
+#define CT2388X_PCI_INTSTAT     0x00200044
 
 
 #define VideoInputTuner		 0x0 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.3 2002-09-29 16:16:21 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.4 2002-10-08 11:22:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/29 16:16:21  adcockj
+// Holo3d imrprovements
+//
 // Revision 1.2  2002/09/12 21:45:35  ittarnavsky
 // changed the IAudioControls to CAudioControls
 //
@@ -201,7 +204,6 @@ private:
     ITuner*         m_Tuner;
 	CSAA7118*       m_SAA7118;
 
-    BOOL            m_RiscInSram;
     BOOL            m_RISCIsRunning;
     DWORD           m_RiscBasePhysical;
     CAudioDecoder*  m_AudioDecoder;

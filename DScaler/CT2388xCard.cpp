@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.8 2002-09-29 16:16:21 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.9 2002-10-08 11:22:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/29 16:16:21  adcockj
+// Holo3d imrprovements
+//
 // Revision 1.7  2002/09/19 22:10:08  adcockj
 // Holo3D Fixes for PAL
 //
@@ -59,7 +62,6 @@ CCT2388xCard::CCT2388xCard(CHardwareDriver* pDriver) :
     m_CardType(CT2388xCARD_CONEXANT_EVK),
     m_Tuner(NULL),
 	m_SAA7118(NULL),
-    m_RiscInSram(FALSE),
     m_RISCIsRunning(FALSE),
     m_RiscBasePhysical(0),
     m_CurrentInput(0)
@@ -88,48 +90,34 @@ void CCT2388xCard::CloseCard()
     ClosePCICard();
 }
 
-/*******************************************************************************
-    Start the Risc Program.
-    both_fields == true - Enable both fields.
-                == false - Enable odd field only.
-*******************************************************************************/
 void CCT2388xCard::StartCapture(DWORD RiscBasePhysical)
 {
     DWORD value1;
     DWORD value2;
-    DWORD value3;
     DWORD dwval;
 
    
     // Clear Interrupt Status bits
-    //BT848_WriteDword( MO_VID_INTSTAT, 0xFFFFFFFF );
-    WriteDword( MO_VID_INTSTAT, 0x0000000 );
+    WriteDword(CT2388X_VID_INTSTAT, 0x0000000);
     
-    value1 = ReadDword( MO_VID_DMACNTRL ) & 0xFFFFFFEE;
-    value2 = (ReadDword( VID_CAPTURE_CONTROL ) & 0xFFFFFF00)| 0x06; // FIFO and capture control
-    value3 = 1<<5; // RUN_RISC 
+    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFFEE;
+     // FIFO and capture control
+    value2 = (ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00) | 0x06;
 
-    WriteDword( SRAM_CMDS_21, RiscBasePhysical); // RISC STARTING ADDRESS 
+    WriteDword( SRAM_CMDS_21, RiscBasePhysical);
     
-    // Set or clear the ISRP bit to indicate whether the RISC progam is
-    // in SRAM memory space or PCI memory space
+    // Set and clear the ISRP bit to indicate whether the RISC progam is
+    // in PCI memory space
     dwval = ReadDword(SRAM_CMDS_21 + 0x10);
-    if (m_RiscInSram)
-    {
-        dwval |= 0x80000000;
-    }
-    else
-    {
-        dwval &= 0x7fffffff;
-    }
+    dwval &= 0x7fffffff;
     WriteDword( SRAM_CMDS_21 + 0x10, dwval); 
 
-    WriteDword( MO_VID_DMACNTRL, value1 | 0x11 );     /* RISC/FIFO ENABLE */
+    WriteDword(CT2388X_VID_DMA_CNTRL, value1 | 0x11 );
 
-    WriteDword( VID_CAPTURE_CONTROL, value2 );        /* CAPTURE CONTROL */
+    WriteDword(CT2388X_CAPTURECONTROL, value2);
 
     // Clear Interrupt Status bits
-    WriteDword( MO_VID_INTSTAT, 0xFFFFFFFF );
+    WriteDword(CT2388X_VID_INTSTAT, 0xFFFFFFFF );
 
     m_RISCIsRunning = TRUE;
 }
@@ -145,16 +133,16 @@ void CCT2388xCard::StopCapture()
     DWORD value2;
     DWORD value3;
 
-    value1 = ReadDword( MO_VID_DMACNTRL ) & 0xFFFFFFEE;
-    value2 = ReadDword( VID_CAPTURE_CONTROL ) & 0xFFFFFF00;
+    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFFEE;
+    value2 = ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00;
    
     value3 = 0;
     
     ::Sleep(100);
 
     // Original code before restart workaround
-    WriteDword( MO_VID_DMACNTRL, value1 );            /* RISC/FIFO DISABLE */
-    WriteDword( VID_CAPTURE_CONTROL, value2 );        /* CAPTURE CONTROL Off */
+    WriteDword(CT2388X_VID_DMA_CNTRL, value1);
+    WriteDword(CT2388X_CAPTURECONTROL, value2);
 
     m_RISCIsRunning = FALSE;
 }
@@ -305,7 +293,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     if(IsCCIRSource(nInput))
     {
         CurrentX = 720;
-		WriteByte(MO_PINMUX_IO, 0x02);
+		WriteByte(CT2388X_PINMUX_IO, 0x02);
 
         SetPLL( 27e6, 2, FALSE );
         SetSampleRateConverter(27e6);
@@ -504,7 +492,7 @@ BOOL CCT2388xCard::IsVideoPresent()
 
 DWORD CCT2388xCard::GetRISCPos()
 {
-    return ReadDword(0x0031C020);
+    return ReadDword(CT2388X_VIDY_GP_CNT);
 }
 
 void CCT2388xCard::ResetHardware()
@@ -532,7 +520,7 @@ void CCT2388xCard::ResetHardware()
     ::Sleep(500);
 
     /* RISC Controller Enable */
-    WriteDword( MO_DEV_CNTRL2, 1<<5 );
+    WriteDword(CT2338X_DEV_CNTRL2, 1<<5 );
 
     ::Sleep(500);
 
@@ -578,8 +566,8 @@ void CCT2388xCard::ResetHardware()
     WriteDword( MO_PDMA_STHRSH, 0x0807 ); // Fifo source Threshhold
     WriteDword( MO_PDMA_DTHRSH, 0x0807 ); // Fifo Threshhold
 
-    WriteDword( MO_VID_INTSTAT, 0xFFFFFFFF ); // Clear PIV int
-    WriteDword( MO_PCI_INTSTAT, 0xFFFFFFFF ); // Clear PCI int
+    WriteDword( CT2388X_VID_INTSTAT, 0xFFFFFFFF ); // Clear PIV int
+    WriteDword( CT2388X_PCI_INTSTAT, 0xFFFFFFFF ); // Clear PCI int
     WriteDword( MO_INT1_STAT, 0xFFFFFFFF );   // Clear RISC int
 
     //
@@ -594,7 +582,7 @@ void CCT2388xCard::ResetHardware()
     WriteDword( 0x00310200, 0x00E00555 ); 
 
     // Disable all of the interrupts
-    WriteDword( MO_VID_INTMSK, 0x00000000 );
+    WriteDword( CT2388X_VID_INTMSK, 0x00000000 );
 }    
 
 
@@ -621,7 +609,7 @@ ULONG CCT2388xCard::GetTickCount()
 
 void CCT2388xCard::InitializeI2C()
 {
-    WriteDword(0x368000, 1);
+    WriteDword(CT2338X_I2C, 1);
     m_I2CRegister = ReadDword(CT2338X_I2C);
 
     m_I2CSleepCycle = 10000L;

@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /Gz /W3 /Z7 /Oi /Gy /I "c:\ddk" /I "..\dll" /I "..\include" /D "_DEBUG" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DBG=1 /D DEVL=1 /D FPO=0 /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /FD /Zel -cbstring /QIfdiv- /QIf /GF /c
-# ADD CPP /nologo /Gz /W3 /Z7 /Oi /Gy /I "..\..\api" /D "_DEBUG" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D DBG=1 /D DEVL=1 /D FPO=0 /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /FD /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
+# ADD CPP /nologo /Gz /W3 /Z7 /Oi /Gy /I "..\..\api" /D "_DEBUG" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D DBG=1 /D DEVL=1 /D FPO=0 /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /FR /YX /FD /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /i "i:\ddk.nt" /d "_DEBUG"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrvNT.cpp,v 1.5 2001-11-02 16:36:54 adcockj Exp $
+// $Id: DSDrvNT.cpp,v 1.6 2002-06-16 10:04:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/02 16:36:54  adcockj
+// Merge code from Multiple cards into main trunk
+//
 // Revision 1.3.2.1  2001/08/14 16:41:37  adcockj
 // Renamed driver
 // Got to compile with new class based card
@@ -120,8 +123,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registry
     debugOut(dbTrace,"DriverEntry");
 
     //
-    // Create an EXCLUSIVE device object (only 1 thread at a time
-    // can make requests to this device)
+    // Create adevice object
     //
 
     RtlInitUnicodeString (&deviceNameUnicodeString, DSDRVNT_DEVNAME);
@@ -132,7 +134,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registry
                                         &deviceNameUnicodeString,
                                         FILE_DEVICE_UNKNOWN,
                                         0,
-                                        TRUE,                      // exclusiv open
+                                        FALSE,
                                         &deviceObject);
 
     if (NT_SUCCESS(ntStatus))

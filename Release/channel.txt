@@ -602,6 +602,86 @@ ChannelHigh=34
   833250000 ; 33
   845750000 ; 34
 
+[Dutch UPC Frequency (Nijmegen)] 
+ChannelLow=1 
+ChannelHigh=35 
+Format=PAL-B 
+216000000 ; Ned 1 
+184000000 ; Ned 2 
+192000000 ; Ned 3 
+720000000 ; RTL 4 
+728000000 ; RTL 5 
+792000000 ; SBS 6 
+736000000 ; Yorin 
+672000000 ; V8 
+784000000 ; Net5 
+256000000 ; Lokale omroep 
+264000000 ; TV Gelderland 
+176000000 ; UPC Infokanaal 
+552250000 ; Lokaal Plus 
+200000000 ; VRT TV 1 
+208000000 ; Ketnet/Canvas 
+536000000 ; Tel Sell 
+272000000 ; BBC 1 
+280000000 ; BBC 2 
+224000000 ; ARD 1 
+232000000 ; ZDF 2 
+240000000 ; WDR 3 
+632000000 ; Kindernet/Veronica 
+752000000 ; CNN 
+800000000 ; The Discovery Channel 
+528000000 ; Euronews 
+816000000 ; Eurosport 
+768000000 ; MTV 
+544000000 ; National Geographic 
+568000000 ; TMF 
+560000000 ; The Box 
+288000000 ; TV5 
+248000000 ; TRT 
+656000000 ; TVE 
+384000000 ; Canal+ 1 
+392000000 ; Canal+ 2
+
+[Dutch UPC Frequency (Rotterdam)] 
+Format=PAL-B 
+ChannelLow=1 
+ChannelHigh=36 
+175250000 ; Ned 1 
+182250000 ; Ned 2 
+189250000 ; Ned 3 
+689750000 ; RTL 4 
+700250000 ; RTL 5 
+847250000 ; SBS 6 
+710750000 ; Yorin 
+658250000 ; V8 
+490250000 ; Net5 
+224250000 ; Info TV 
+773750000 ; Lokale omroep 
+210250000 ; TV Rijnmond 
+196250000 ; VRT TV 1 
+203250000 ; Ketnet/Canvas 
+826250000 ; Tel Sell 
+217250000 ; BBC 1 
+479750000 ; BBC 2 
+553250000 ; ARD 1 
+500750000 ; ZDF 2 
+836750000 ; BBC World 
+763250000 ; Kindernet/Veronica 
+721250000 ; CNN 
+742250000 ; The Discovery Channel 
+574250000 ; Euronews 
+626750000 ; MTV 
+511250000 ; National Geographic 
+637250000 ; TMF 
+616250000 ; The Box 
+647750000 ; TV5 
+563750000 ; TRT 
+805250000 ; ARTE 
+784250000 ; ETV.nl 
+794750000 ; Extra TV 1 
+295250000 ; Canal+ 1 
+287250000 ; Canal+ 2 
+591250000 ; Uitgang videorecorder
 
 [Eastern European Cable Frequency]
 ChannelLow=1

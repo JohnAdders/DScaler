@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.10 2002-09-29 13:53:40 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.11 2002-09-29 16:16:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/29 13:53:40  adcockj
+// Ensure Correct History stored
+//
 // Revision 1.9  2002/09/29 10:14:14  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -211,6 +214,9 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", TRUE, IniSection);
     m_Settings.push_back(m_IsVideoProgressive);
 
+    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection);
+    m_Settings.push_back(m_FLIFilmDetect);
+
     ReadFromIni();
 
     //MasterSetting.Register(this);
@@ -248,7 +254,11 @@ void CCT2388xSource::Reset()
                                 0,
                                 m_IsVideoProgressive->GetValue()
                             );
-    
+
+	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
+	{
+	    m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
+	}
     NotifySizeChange();
 }
 
@@ -998,6 +1008,13 @@ void CCT2388xSource::HandleTimerMessages(int TimerId)
 }
 
 void CCT2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    Reset();
+    Start_Capture();
+}
+
+void CCT2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     Reset();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.2 2002-09-12 21:45:35 ittarnavsky Exp $
+// $Id: CT2388xCard.h,v 1.3 2002-09-29 16:16:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/12 21:45:35  ittarnavsky
+// changed the IAudioControls to CAudioControls
+//
 // Revision 1.1  2002/09/11 18:19:37  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -141,6 +144,7 @@ public:
     eTunerId AutoDetectTuner(eCT2388xCardId CardId);
     BOOL InitTuner(eTunerId tunerId);
     void SetRISCStartAddress(DWORD RiscBasePhysical);
+	void SetFLIFilmDetect(BOOL FLIFilmDetect);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

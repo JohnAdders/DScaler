@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.5 2002-09-28 13:33:04 kooiman Exp $
+// $Id: CT2388xSource.h,v 1.6 2002-09-29 16:16:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -146,6 +146,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, VideoSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, VideoFormat);
     DEFINE_YESNO_CALLBACK_SETTING(CCT2388xSource, IsVideoProgressive);
+	DEFINE_YESNO_CALLBACK_SETTING(CCT2388xSource, FLIFilmDetect);
 protected:
 };
 

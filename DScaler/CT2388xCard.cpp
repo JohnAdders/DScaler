@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.7 2002-09-19 22:10:08 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.8 2002-09-29 16:16:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/19 22:10:08  adcockj
+// Holo3D Fixes for PAL
+//
 // Revision 1.6  2002/09/16 20:08:21  adcockj
 // fixed format detect for cx2388x
 //
@@ -341,6 +344,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
         }
 
+        WriteDword(CT2388X_FORMAT_2HCOMB, 0x183f0008);
+        WriteDword(CT2388X_VIP_CONFIG, 1);
         WriteDword(CT2388X_VDELAYCCIR_EVEN, VertDelay);
         WriteDword(CT2388X_VDELAYCCIR_ODD, VertDelay);
     }

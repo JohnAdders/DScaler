@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_H3D.cpp,v 1.6 2002-09-26 16:32:33 adcockj Exp $
+// $Id: CT2388xCard_H3D.cpp,v 1.7 2002-09-29 16:16:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/26 16:32:33  adcockj
+// Holo3d fixes
+//
 // Revision 1.5  2002/09/22 17:47:04  adcockj
 // Fixes for holo3d
 //
@@ -65,9 +68,7 @@ void CCT2388xCard::InitH3D()
         m_SAA7118->DumpSettings();
     }
 
-    FILE* hFile;
-
-    hFile = fopen("FPGA.txt", "w");
+    FILE* hFile = fopen("FPGA.txt", "w");
     if(!hFile)
     {
         return;
@@ -169,13 +170,13 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     if(GetTVFormat(TVFormat)->wCropHeight == 576)
     {
         m_SAA7118->SetRegister(0x5A, 0x03);
-        m_SAA7118->SetRegister(0x5A, 0x03);
+        m_SAA7118->SetRegister(0x5B, 0x03);
         WriteByte(0x390007, 0xd0);
     }
     else
     {
         m_SAA7118->SetRegister(0x5A, 0x06);
-        m_SAA7118->SetRegister(0x5A, 0x83);
+        m_SAA7118->SetRegister(0x5B, 0x83);
         WriteByte(0x390007, 0x50);
     }
 
@@ -372,4 +373,14 @@ void CCT2388xCard::SetH3DSaturationU(BYTE Saturation)
 void CCT2388xCard::SetH3DSaturationV(BYTE NotUsed)
 {
     // we'll do nothing with this but it needs to be here
+}
+
+void CCT2388xCard::SetFLIFilmDetect(BOOL FLIFilmDetect)
+{
+	BYTE Buffer[3] = {0xE2, 0x05, 0x0a};
+	if(FLIFilmDetect)
+	{
+		Buffer[2] = 0x0e;
+	}
+	m_I2CBus->Write(Buffer, 3);
 }

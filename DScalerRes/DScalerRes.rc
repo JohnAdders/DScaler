@@ -88,6 +88,7 @@ BEGIN
     "E",            IDM_VDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     "F",            IDM_VT_SEARCH,          VIRTKEY, CONTROL, NOINVERT
+    "F",            IDM_FLI_FILMDETECT,     VIRTKEY, CONTROL, ALT, NOINVERT
     "H",            IDM_HUE_MINUS,          VIRTKEY, NOINVERT
     "H",            IDM_HUE_PLUS,           VIRTKEY, SHIFT, NOINVERT
     "H",            IDM_HUE_CURRENT,        VIRTKEY, SHIFT, CONTROL, 
@@ -113,6 +114,7 @@ BEGIN
                                                     NOINVERT
     "P",            IDM_CAPTURE_PAUSE,      VIRTKEY, NOINVERT
     "P",            IDM_SASPECT_CLIP,       VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_PROGRESSIVE,        VIRTKEY, CONTROL, ALT, NOINVERT
     "P",            IDM_TSPLAY,             VIRTKEY, SHIFT, NOINVERT
     "Q",            IDM_HDELAY_MINUS,       VIRTKEY, NOINVERT
     "Q",            IDM_HDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
@@ -1450,12 +1452,16 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
         MENUITEM SEPARATOR
-        MENUITEM "Progressive Input",           IDM_PROGRESSIVE
         POPUP "Advanced"
         BEGIN
             MENUITEM "Reset Capture Card",          IDM_RESET
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
             MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
+        END
+        POPUP "Holo 3d Specific"
+        BEGIN
+            MENUITEM "&Progressive Input\t Ctrl+Alt+P", IDM_PROGRESSIVE
+            MENUITEM "FLI &Film Detect\tCtrl+Alt+F", IDM_FLI_FILMDETECT
         END
     END
 END

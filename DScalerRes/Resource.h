@@ -1087,6 +1087,7 @@
 #define IDM_VIEW_MAINTOOLBAR_CHANNELS   32826
 #define IDM_VIEW_MAINTOOLBAR_VOLUME     32827
 #define ID_BTCARD_AUDIOSTANDARD         32828
+#define IDM_FLI_FILMDETECT              32831
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1108,7 +1109,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        222
-#define _APS_NEXT_COMMAND_VALUE         32830
+#define _APS_NEXT_COMMAND_VALUE         32832
 #define _APS_NEXT_CONTROL_VALUE         8063
 #define _APS_NEXT_SYMED_VALUE           2491
 #endif

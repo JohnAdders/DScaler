@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.4 2002-09-29 13:56:30 adcockj Exp $
+// $Id: CT2388xSource_UI.cpp,v 1.5 2002-09-29 16:16:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/29 13:56:30  adcockj
+// Fixed some cursor hide problems
+//
 // Revision 1.3  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -187,7 +190,18 @@ void CCT2388xSource::SetMenu(HMENU hMenu)
 
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
-    CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
+	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
+	{
+		CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
+		CheckMenuItemBool(m_hMenu, IDM_FLI_FILMDETECT, m_FLIFilmDetect->GetValue());
+        EnableMenuItem(m_hMenu, IDM_PROGRESSIVE, MF_ENABLED);
+        EnableMenuItem(m_hMenu, IDM_FLI_FILMDETECT, MF_ENABLED);
+	}
+	else
+	{
+        EnableMenuItem(m_hMenu, IDM_PROGRESSIVE, MF_GRAYED);
+        EnableMenuItem(m_hMenu, IDM_FLI_FILMDETECT, MF_GRAYED);
+	}
 }
 
 BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -272,6 +286,10 @@ BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
         case IDM_PROGRESSIVE:
             m_IsVideoProgressive->SetValue(!m_IsVideoProgressive->GetValue());
+            break;
+
+		case IDM_FLI_FILMDETECT:
+            m_FLIFilmDetect->SetValue(!m_FLIFilmDetect->GetValue());
             break;
 
         default:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.139 2003-03-08 19:57:11 laurentg Exp $
+// $Id: DS_Control.h,v 1.140 2003-03-13 00:41:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.139  2003/03/08 19:57:11  laurentg
+// New setting "always sleep"
+//
 // Revision 1.138  2003/02/26 20:52:03  laurentg
 // New timing setting MaxFieldShift
 //
@@ -1675,6 +1678,20 @@ typedef enum
 #define WM_FLT_CHROMA_GETVALUE       (WM_APP + 52)
 #define WM_FLT_CHROMA_SETVALUE       (WM_APP + 152)
 #define WM_FLT_CHROMA_CHANGEVALUE    (WM_APP + 252)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_BlackWhite.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    USEBLACKWHITEFILTER,
+    FLT_BLACKWHITE_SETTING_LASTONE,
+} FLT_BLACKWHITE_SETTING;
+
+#define WM_FLT_BLACKWHITE_GETVALUE       (WM_APP + 53)
+#define WM_FLT_BLACKWHITE_SETVALUE       (WM_APP + 153)
+#define WM_FLT_BLACKWHITE_CHANGEVALUE    (WM_APP + 253)
 
 
 #endif

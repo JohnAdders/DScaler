@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.196 2002-07-24 21:43:15 laurentg Exp $
+// $Id: DScaler.cpp,v 1.197 2002-07-26 22:40:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.196  2002/07/24 21:43:15  laurentg
+// Take cyclic stills
+//
 // Revision 1.195  2002/07/20 13:07:36  laurentg
 // New setting for vertical mirror
 //
@@ -1003,7 +1006,7 @@ HMENU CreateDScalerPopupMenu()
         char string[128];
 
         // update the name of the source
-        if(GetMenuString(hMenu, 6, string, sizeof(string), MF_BYPOSITION) != 0)
+        if(GetMenuString(hMenu, 1, string, sizeof(string), MF_BYPOSITION) != 0)
         {
             ModifyMenu(hMenuPopup, 1, MF_BYPOSITION | MF_STRING, IDM_POPUP_SOURCES, string);
         }
@@ -1011,7 +1014,7 @@ HMENU CreateDScalerPopupMenu()
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fMask = MIIM_SUBMENU;
 
-        hSubMenu = GetSubMenuWithName(hMenu, 5, "&Sources");
+        hSubMenu = GetSubMenuWithName(hMenu, 0, "&Sources");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -1019,7 +1022,7 @@ HMENU CreateDScalerPopupMenu()
         }
 
         // The name of this menu item depends on the source so we don't check the name
-        hSubMenu = GetSubMenu(hMenu, 6);
+        hSubMenu = GetSubMenu(hMenu, 1);
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -1030,37 +1033,64 @@ HMENU CreateDScalerPopupMenu()
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,3, TRUE, &MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,2, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 3, "&AspectRatio");
+        hSubMenu = GetSubMenuWithName(hMenu, 3, "&View");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,3,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenuWithName(hMenu, 4, "&AspectRatio");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 4, "S&ettings");
+        hSubMenu = GetVideoDeinterlaceSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 7, "&Datacasting");
+        hSubMenu = GetFiltersSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,6, TRUE, &MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenuWithName(hMenu, 7, "S&ettings");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,7, TRUE, &MenuItemInfo);
         }
 
         hSubMenu = GetOSDSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,7,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
         }
-        CheckMenuItemBool(hMenuPopup, IDM_FULL_SCREEN, bIsFullScreen);
+
+        hSubMenu = GetSubMenuWithName(hMenu, 9, "Ac&tions");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,9, TRUE, &MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenuWithName(hMenu, 10, "&Datacasting");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,10,TRUE,&MenuItemInfo);
+        }
     }
     return hMenuPopup;
 }
@@ -3525,22 +3555,13 @@ void SetMenuAnalog()
     CheckMenuItem(hMenu, ThreadClassId + 1150, MF_CHECKED);
     CheckMenuItem(hMenu, PriorClassId + 1160, MF_CHECKED);
 
-//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_0, (ThreadClassId == 0));
-//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_1, (ThreadClassId == 1));
-//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_2, (ThreadClassId == 2));
-//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_3, (ThreadClassId == 3));
-//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_4, (ThreadClassId == 4));
-
-//    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_0, (PriorClassId == 0));
-//    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1));
-//    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2));
-
     CheckMenuItemBool(hMenu, IDM_TOGGLECURSOR, bShowCursor);
     EnableMenuItem(hMenu,IDM_TOGGLECURSOR, bAutoHideCursor?MF_GRAYED:MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_STATUSBAR, bDisplayStatusBar);
     CheckMenuItemBool(hMenu, IDM_TOGGLE_MENU, bShowMenu);
     CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
+    CheckMenuItemBool(hMenu, IDM_FULL_SCREEN, bIsFullScreen);
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, VTAntiAlias);
 
@@ -3722,7 +3743,7 @@ HMENU GetOrCreateSubSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, int 
 
 HMENU GetFiltersSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(4, 3, "Select &Filters");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 6, "&Filters");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3731,7 +3752,7 @@ HMENU GetFiltersSubmenu()
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(4, 2, "&Deinterlace Mode");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 5, "Deinter&lace");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3739,7 +3760,7 @@ HMENU GetVideoDeinterlaceSubmenu()
 
 HMENU GetChannelsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(1, 1, "Channel S&elect");
+    HMENU hmenu = GetOrCreateSubSubMenu(2, 1, "Channel S&elect");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3747,7 +3768,7 @@ HMENU GetChannelsSubmenu()
 
 HMENU GetOSDSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(2, 6, "OSD");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 8, "&OSD");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3755,7 +3776,7 @@ HMENU GetOSDSubmenu()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubSubMenu(4, 1, 0, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubSubMenu(5, 1, 0, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

@@ -812,11 +812,16 @@ END
 
 IDC_DSCALERMENU MENU DISCARDABLE 
 BEGIN
-    POPUP "&File"
+    POPUP "&Sources"
     BEGIN
-        MENUITEM "&Open...\tCtrl+O",            IDM_OPEN_FILE
+        MENUITEM "&Open file...\tCtrl+O",       IDM_OPEN_FILE
+        MENUITEM SEPARATOR
+        MENUITEM SEPARATOR
+        MENUITEM "&Define as initial source",   IDM_SOURCE_INITIAL
+        MENUITEM SEPARATOR
         MENUITEM "E&xit\tAlt+F4",               IDM_END
     END
+    MENUITEM "Holder",                      65535
     POPUP "&Channels"
     BEGIN
         MENUITEM "Channel &Setup\tHome",        IDM_CHANNEL_LIST
@@ -834,29 +839,33 @@ BEGIN
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
         MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
-        POPUP "&OSD"
+        POPUP "Window &Position"
         BEGIN
-            MENUITEM "&Show\tEnter",                IDM_SHOW_OSD
-            MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
+            MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
+            MENUITEM "&Centre\tCtrl+Numpad 5",      IDM_WINPOS_VERT_CENTRE
+            MENUITEM "&Bottom\tCtrl+Numpad-Down",   IDM_WINPOS_VERT_BOTTOM
             MENUITEM SEPARATOR
+            MENUITEM "&Left",                       IDM_WINPOS_HORZ_LEFT
+            MENUITEM "&Centre",                     IDM_WINPOS_HORZ_CENTRE
+            MENUITEM "&Right",                      IDM_WINPOS_HORZ_RIGHT
+            MENUITEM SEPARATOR
+            MENUITEM "Bounce Window Position\tCtrl+B", IDM_WINPOS_BOUNCE
+            MENUITEM "Defer Setting Overlay",       IDM_ASPECT_DEFER_OVERLAY
+            MENUITEM "Orbiting\tAlt+O",             IDM_WINPOS_ORBIT
+            MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
         END
-        MENUITEM SEPARATOR
-        MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE
-        MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
-        MENUITEM "Take C&yclic Still Pictures", IDM_TAKECYCLICSTILL
-        MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
-        POPUP "T&imeShift (under construction)"
+        POPUP "&Zoom"
         BEGIN
-            MENUITEM "&Record\tShift+R",            IDM_TSRECORD
-            MENUITEM "Pl&ay\tShift+P",              IDM_TSPLAY
-            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE, GRAYED
-            MENUITEM "&Stop\tShift+S",              IDM_TSSTOP
-            MENUITEM "Fast &Forward\t}",            IDM_TSFFWD, GRAYED
-            MENUITEM "Fast &Backward\t{",           IDM_TSRWND, GRAYED
-            MENUITEM "&Next\t>",                    IDM_TSNEXT
-            MENUITEM "&Previous\t<",                IDM_TSPREV
+            MENUITEM "Zoom -\tZ",                   IDM_ZOOM_MINUS
+            MENUITEM "Zoom +\tShift+Z",             IDM_ZOOM_PLUS
             MENUITEM SEPARATOR
-            MENUITEM "&Options...",                 IDM_TSOPTIONS
+            MENUITEM "1x",                          IDM_ZOOM_10
+            MENUITEM "1.5x",                        IDM_ZOOM_15
+            MENUITEM "2x",                          IDM_ZOOM_20
+            MENUITEM "2.5x",                        IDM_ZOOM_25
+            MENUITEM "3x",                          IDM_ZOOM_30
+            MENUITEM "3.5x",                        IDM_ZOOM_35
+            MENUITEM "4x",                          IDM_ZOOM_40
         END
     END
     POPUP "&AspectRatio"
@@ -899,34 +908,38 @@ BEGIN
             MENUITEM "2.35\tAlt+6",                 IDM_TASPECT_235
             MENUITEM "Custom  (from .INI file)\tAlt+9", IDM_TASPECT_CUSTOM
         END
-        POPUP "Window Position"
+    END
+    POPUP "Deinter&lace"
+    BEGIN
+        MENUITEM "&Deinterlace Modes Settings...", 
+                                                IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM SEPARATOR
+        MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
+                                                IDM_AUTODETECT
+        MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
+        MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
+        MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
+        MENUITEM SEPARATOR
+        MENUITEM "&Search and Lock Film mode\tCtrl+Shift+Space", 
+                                                IDM_FINDLOCK_PULL
+        POPUP "&Manual Film Mode Select"
         BEGIN
-            MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
-            MENUITEM "&Centre\tCtrl+Numpad 5",      IDM_WINPOS_VERT_CENTRE
-            MENUITEM "&Bottom\tCtrl+Numpad-Down",   IDM_WINPOS_VERT_BOTTOM
-            MENUITEM SEPARATOR
-            MENUITEM "&Left",                       IDM_WINPOS_HORZ_LEFT
-            MENUITEM "&Centre",                     IDM_WINPOS_HORZ_CENTRE
-            MENUITEM "&Right",                      IDM_WINPOS_HORZ_RIGHT
-            MENUITEM SEPARATOR
-            MENUITEM "Bounce Window Position\tCtrl+B", IDM_WINPOS_BOUNCE
-            MENUITEM "Defer Setting Overlay",       IDM_ASPECT_DEFER_OVERLAY
-            MENUITEM "Orbiting\tAlt+O",             IDM_WINPOS_ORBIT
-            MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
+            MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
+            MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
+            MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
+            MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
+            MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
+            MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
+            MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
         END
-        POPUP "&Zoom"
-        BEGIN
-            MENUITEM "Zoom -\tZ",                   IDM_ZOOM_MINUS
-            MENUITEM "Zoom +\tShift+Z",             IDM_ZOOM_PLUS
-            MENUITEM SEPARATOR
-            MENUITEM "1x",                          IDM_ZOOM_10
-            MENUITEM "1.5x",                        IDM_ZOOM_15
-            MENUITEM "2x",                          IDM_ZOOM_20
-            MENUITEM "2.5x",                        IDM_ZOOM_25
-            MENUITEM "3x",                          IDM_ZOOM_30
-            MENUITEM "3.5x",                        IDM_ZOOM_35
-            MENUITEM "4x",                          IDM_ZOOM_40
-        END
+        MENUITEM SEPARATOR
+        MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
+        MENUITEM "Film Mode",                   IDM_FILM_MODE, GRAYED
+    END
+    POPUP "&Filters"
+    BEGIN
+        MENUITEM "&Filters Settings...",        IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM SEPARATOR
     END
     POPUP "S&ettings"
     BEGIN
@@ -953,41 +966,36 @@ BEGIN
             MENUITEM "St&op",                       IDM_OVERLAY_STOP
             MENUITEM "St&art",                      IDM_OVERLAY_START
         END
-        POPUP "&Deinterlace Mode"
+        MENUITEM "&Advanced Settings...",       IDM_SETTINGS_CHANGESETTINGS
+    END
+    POPUP "&OSD"
+    BEGIN
+        MENUITEM "&Show\tEnter",                IDM_SHOW_OSD
+        MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
+        MENUITEM SEPARATOR
+    END
+    POPUP "Ac&tions"
+    BEGIN
+        MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE
+        MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
+        MENUITEM "Take C&yclic Still Pictures", IDM_TAKECYCLICSTILL
+        MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
+        POPUP "&TimeShift (under construction)"
         BEGIN
-            MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
-                                                    IDM_AUTODETECT
-            MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
-            MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
-            MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
+            MENUITEM "&Record\tShift+R",            IDM_TSRECORD
+            MENUITEM "Pl&ay\tShift+P",              IDM_TSPLAY
+            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE, GRAYED
+            MENUITEM "&Stop\tShift+S",              IDM_TSSTOP
+            MENUITEM "Fast &Forward\t}",            IDM_TSFFWD, GRAYED
+            MENUITEM "Fast &Backward\t{",           IDM_TSRWND, GRAYED
+            MENUITEM "&Next\t>",                    IDM_TSNEXT
+            MENUITEM "&Previous\t<",                IDM_TSPREV
             MENUITEM SEPARATOR
-            MENUITEM "&Search and Lock Film mode\tCtrl+Shift+Space", 
-                                                    IDM_FINDLOCK_PULL
-            POPUP "&Manual Film Mode Select"
-            BEGIN
-                MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
-                MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
-                MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
-                MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
-                MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
-                MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
-                MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
-            END
-            MENUITEM SEPARATOR
-            MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
-            MENUITEM "Film Mode",                   IDM_FILM_MODE, GRAYED
+            MENUITEM "&Options...",                 IDM_TSOPTIONS
         END
-        MENUITEM "Select &Filters",             65535
-        MENUITEM "Change &Settings...",         IDM_SETTINGS_CHANGESETTINGS
         MENUITEM SEPARATOR
         MENUITEM "&Reset Statistics",           IDM_RESET_STATS
     END
-    POPUP "&Sources"
-    BEGIN
-        MENUITEM "Set as &initial source",      IDM_SOURCE_INITIAL
-        MENUITEM SEPARATOR
-    END
-    MENUITEM "Holder",                      65535
     POPUP "&Datacasting"
     BEGIN
         MENUITEM "Capture VBI-&Data",           IDM_VBI
@@ -1065,14 +1073,16 @@ BEGIN
     POPUP "Menu1"
     BEGIN
         MENUITEM "&Sources",                    IDM_POPUP_SOURCES
-        MENUITEM "So&urce",                     IDM_POPUP_SOURCES
-        MENUITEM "&Open...",                    IDM_OPEN_FILE
+        MENUITEM "Source",                      IDM_POPUP_SOURCES
         MENUITEM "&Channels",                   IDM_CHANNEL_SELECT
+        MENUITEM "&View",                       IDM_POPUP_SOURCES
         MENUITEM "&Aspect Ratio",               IDM_POPUP_SOURCES
+        MENUITEM "Deinter&lace",                IDM_POPUP_SOURCES
+        MENUITEM "&Filters",                    IDM_POPUP_SOURCES
         MENUITEM "S&ettings",                   IDM_POPUP_SOURCES
+        MENUITEM "&OSD",                        IDM_POPUP_SOURCES
+        MENUITEM "Ac&tions",                    IDM_POPUP_SOURCES
         MENUITEM "&Datacasting",                IDM_POPUP_SOURCES
-        MENUITEM "OSD",                         IDM_POPUP_SOURCES
-        MENUITEM "&Full Screen",                IDM_FULL_SCREEN
         MENUITEM "E&xit",                       IDM_END
     END
 END

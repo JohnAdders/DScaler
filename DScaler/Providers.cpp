@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.37 2002-05-01 13:00:18 laurentg Exp $
+// $Id: Providers.cpp,v 1.38 2002-07-26 22:40:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/05/01 13:00:18  laurentg
+// Support of JPEG files added
+//
 // Revision 1.36  2002/04/28 16:46:49  laurentg
 // Reinit WSS data when switching source
 //
@@ -191,9 +194,9 @@ int Providers_Load(HMENU hMenu)
     int i(0);
     TSource* Source;
     CSource* DefaultSource = NULL;
+    MENUITEMINFO    MenuItemInfo;
 
-//    ModifyMenu(hMenu, 5, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "&Sources");
-    HMENU hSubMenu = GetSubMenu(hMenu, 5);
+    HMENU hSubMenu = GetSubMenu(hMenu, 0);
 
     Providers_Unload();
     HardwareDriver = new CHardwareDriver();
@@ -297,7 +300,14 @@ int Providers_Load(HMENU hMenu)
     {
         if (Sources[i]->DisplayInMenu)
         {
-            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + i, Sources[i]->Name.c_str());
+//            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + i, Sources[i]->Name.c_str());
+            MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+            MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
+            MenuItemInfo.fType = MFT_STRING;
+            MenuItemInfo.dwTypeData = (LPSTR) Sources[i]->Name.c_str();
+            MenuItemInfo.cch = strlen (Sources[i]->Name.c_str());
+            MenuItemInfo.wID = IDM_SOURCE_FIRST + i;
+            InsertMenuItem(hSubMenu, GetMenuItemCount(hSubMenu) - 4, TRUE, &MenuItemInfo);
         }
     }
 
@@ -422,7 +432,7 @@ void Providers_UpdateMenu(HMENU hMenu)
 {
     // first we need to detach the old menu if there is one
     // if we don't do this our menu gets deleted
-    RemoveMenu(hMenu, 6, MF_BYPOSITION);
+    RemoveMenu(hMenu, 1, MF_BYPOSITION);
 
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
@@ -431,7 +441,7 @@ void Providers_UpdateMenu(HMENU hMenu)
         HMENU hSubMenu = Sources[CurrentSource]->Object->GetSourceMenu();
         GetMenuString(hSubMenu, 0, Text, 256, MF_BYPOSITION);
         // Add the new menu
-        InsertMenu(hMenu, 6, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)GetSubMenu(hSubMenu, 0), Text);
+        InsertMenu(hMenu, 1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)GetSubMenu(hSubMenu, 0), Text);
 
         // Update our menu
         Sources[CurrentSource]->Object->UpdateMenu();
@@ -439,7 +449,7 @@ void Providers_UpdateMenu(HMENU hMenu)
     else
     {
         // Add an empty new menu
-        InsertMenu(hMenu, 6, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "No source");
+        InsertMenu(hMenu, 1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "No source");
     }
 }
 

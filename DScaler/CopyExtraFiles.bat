@@ -15,4 +15,5 @@ xcopy ..\release\dscaler_intro.tif ..\debug\ /Y /D
 xcopy ..\release\skins\*.* ..\debug\skins\ /E /Y /D
 xcopy ..\release\patterns\*.* ..\debug\patterns\ /E /Y /D
 xcopy ..\release\DScaler.chm ..\debug\ /Y /D
+xcopy ..\release\SAA713xCards.ini ..\debug\ /Y /D
 :endbatch

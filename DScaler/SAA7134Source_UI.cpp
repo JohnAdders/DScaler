@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.39 2003-03-23 10:25:23 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.40 2003-03-23 10:42:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/03/23 10:25:23  laurentg
+// Use video input name as icon tips when not in tuner mode
+//
 // Revision 1.38  2003/01/28 07:22:28  atnak
 // Visual changes
 //
@@ -1485,12 +1488,15 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT7:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
-				if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pSAA7134Card->IsInputATuner(nValue))
+				if (nValue < m_pSAA7134Card->GetNumInputs())
 				{
-					ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
-					SetTrayTip(m_pSAA7134Card->GetInputName(nValue));
-					m_VideoSource->SetValue(nValue);
-					SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+					if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pSAA7134Card->IsInputATuner(nValue))
+					{
+						ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
+						SetTrayTip(m_pSAA7134Card->GetInputName(nValue));
+						m_VideoSource->SetValue(nValue);
+						SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+					}
 				}
             }
             break;

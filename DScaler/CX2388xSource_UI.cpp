@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.35 2003-03-23 10:25:23 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.36 2003-03-23 10:42:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/03/23 10:25:23  laurentg
+// Use video input name as icon tips when not in tuner mode
+//
 // Revision 1.34  2003/01/27 22:04:09  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -402,12 +405,15 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT8:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
-				if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pCard->IsInputATuner(nValue))
+				if (nValue < m_pCard->GetNumInputs())
 				{
-					ShowText(hWnd, m_pCard->GetInputName(nValue));
-					SetTrayTip(m_pCard->GetInputName(nValue));
-					m_VideoSource->SetValue(nValue);
-					SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+					if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pCard->IsInputATuner(nValue))
+					{
+						ShowText(hWnd, m_pCard->GetInputName(nValue));
+						SetTrayTip(m_pCard->GetInputName(nValue));
+						m_VideoSource->SetValue(nValue);
+						SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+					}
 				}
             }
             break;

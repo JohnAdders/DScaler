@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.15 2002-03-01 06:37:47 dschmelzer Exp $
+// $Id: BT848Card_Types.cpp,v 1.16 2002-03-24 19:40:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/03/01 06:37:47  dschmelzer
+// Update Silk Settings for Latest Drivers
+//
 // Revision 1.14  2002/02/26 18:31:44  adcockj
 // Added extra composite mux to standard card
 //
@@ -3201,6 +3204,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		NULL,
 		0x1F800,
 		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+	},
+	// Card Number 89 - Skywell Magic TV Card
+	{
+		"Skywell Magic TV Card",
+        4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x07,
+		{ 0, 0, 2, 0, 1, 0}
 	},
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.12 2002-01-23 22:57:29 robmuller Exp $
+// $Id: Bt848_Defines.h,v 1.13 2002-03-24 19:40:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -457,6 +457,7 @@ enum eTVCardId
     TVCARD_SASEM4CHNLSVID_C,
     TVCARD_SDISILK_S,
     TVCARD_SDISILK_C,
+    TVCARD_SKYWELL_MAGIC,
     TVCARD_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.14 2003-12-18 15:57:41 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.15 2004-02-11 20:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/12/18 15:57:41  adcockj
+// Added MT2050 tuner type support (untested)
+//
 // Revision 1.13  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -162,8 +165,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     // Look for possible external IF demodulator
 
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
-    BYTE IFDemDeviceAddress = 0;
+    BYTE IFDemDeviceAddress[2] = {0,0};
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
+    int NumAddressesToSearch = 1;
 
     if(LookForIFDemod)
     {        
@@ -185,7 +189,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
                     Id = 63 - Id;
                     CTDA9887Pinnacle *pTDA9887Pinnacle = new CTDA9887Pinnacle(Id);
                     pExternalIFDemodulator = pTDA9887Pinnacle;
-                    IFDemDeviceAddress = I2C_TDA9887_0;
+                    IFDemDeviceAddress[0] = I2C_TDA9887_0;
                 }
             }
             break;
@@ -195,7 +199,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             {
                 CPreTuneVoodooFM *pPreTuneVoodooFM = new CPreTuneVoodooFM(this);
                 pExternalIFDemodulator = pPreTuneVoodooFM;
-                IFDemDeviceAddress = 0;
+                IFDemDeviceAddress[0] = 0;
             }
             break;
 
@@ -204,7 +208,8 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             {
                 CTDA9887 *pTDA9887 = new CTDA9887();
                 pExternalIFDemodulator = pTDA9887;
-                IFDemDeviceAddress = I2C_TDA9887_0;
+                IFDemDeviceAddress[0] = I2C_TDA9887_0;
+                IFDemDeviceAddress[1] = I2C_TDA9887_1;
             }
             break;
         }
@@ -214,20 +219,24 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     //  or delete the demodulator if the chip doesn't exist.
     if (pExternalIFDemodulator != NULL)
     {
-        if (IFDemDeviceAddress != 0)
+        for(int i(0); i < NumAddressesToSearch; ++i)
         {
-            // Attach I2C bus if the demodulator chip uses it
-            pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress);
-        }
-        if (pExternalIFDemodulator->Detect())
-        {
-            m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
-            pExternalIFDemodulator->Init(TRUE, videoFormat);
-        }
-        else
-        {            
-            delete pExternalIFDemodulator;
-            pExternalIFDemodulator = NULL;
+            if (IFDemDeviceAddress[i] != 0)
+            {
+                // Attach I2C bus if the demodulator chip uses it
+                pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress[i]);
+            }
+            if (pExternalIFDemodulator->Detect())
+            {
+                m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+                pExternalIFDemodulator->Init(TRUE, videoFormat);
+                break;
+            }
+            else
+            {            
+                delete pExternalIFDemodulator;
+                pExternalIFDemodulator = NULL;
+            }
         }
     }
  

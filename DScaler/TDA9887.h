@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.2 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TDA9887.h,v 1.3 2004-02-11 20:34:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -35,6 +38,7 @@
 #include "ITuner.h"
 
 #define I2C_TDA9887_0				0x86
+#define I2C_TDA9887_1				0x96
 
 class CTDA9887 : public IExternalIFDemodulator
 {

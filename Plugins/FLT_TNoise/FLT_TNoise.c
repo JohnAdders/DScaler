@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.5 2002-02-01 19:51:30 robmuller Exp $
+// $Id: FLT_TNoise.c,v 1.6 2002-02-15 15:27:48 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/01 19:51:30  robmuller
+// Changed the replacement value. The new value favors the new pixel value.
+// This reduces the speckles, posterization and noise reduction.
+// Changed the defaults of the thresholds to reflect the new situation.
+// Added Lock Thresholds option.
+//
 // Revision 1.4  2001/11/26 15:27:19  adcockj
 // Changed filter structure
 //
@@ -29,9 +35,9 @@
 #include "windows.h"
 #include "DS_Filter.h"
 
-long TemporalLuminanceThreshold = 15;    // Pixel luminance differences below this are considered noise.
-long TemporalChromaThreshold = 15;       // Pixel chroma differences below this are considered noise.
-BOOL LockThresholdsTogether = TRUE;
+long TemporalLuminanceThreshold = 6;    // Pixel luminance differences below this are considered noise.
+long TemporalChromaThreshold = 7;       // Pixel chroma differences below this are considered noise.
+BOOL LockThresholdsTogether = FALSE;
 FILTER_METHOD TemporalNoiseMethod;
 
 
@@ -83,19 +89,19 @@ SETTING FLT_TNoiseSettings[FLT_TNOISE_SETTING_LASTONE] =
 {
     {
         "Temporal Luminance Threshold", SLIDER, 0, &TemporalLuminanceThreshold,
-        15, 0, 255, 1, 1,
+        6, 0, 255, 1, 1,
         NULL,
         "NoiseFilter", "TemporalLuminanceThreshold", LuminanceThreshold_OnChange,
     },
     {
         "Temporal Chroma Threshold", SLIDER, 0, &TemporalChromaThreshold,
-        15, 0, 255, 1, 1,
+        7, 0, 255, 1, 1,
         NULL,
         "NoiseFilter", "TemporalChromaThreshold", ChromaThreshold_OnChange,
     },
     {
         "Lock Thresholds", ONOFF, 0, &LockThresholdsTogether,
-        TRUE, 0, 1, 1, 1,
+        FALSE, 0, 1, 1, 1,
         NULL,
         "NoiseFilter", "LockThresholdsTogether", NULL,
     },

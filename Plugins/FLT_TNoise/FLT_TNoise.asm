@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.asm,v 1.7 2002-02-01 19:51:31 robmuller Exp $
+// $Id: FLT_TNoise.asm,v 1.8 2002-02-15 15:27:48 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/01 19:51:31  robmuller
+// Changed the replacement value. The new value favors the new pixel value.
+// This reduces the speckles, posterization and noise reduction.
+// Changed the defaults of the thresholds to reflect the new situation.
+// Added Lock Thresholds option.
+//
 // Revision 1.6  2001/11/26 15:27:19  adcockj
 // Changed filter structure
 //
@@ -40,6 +46,33 @@
 // means we only have to maintain one copy of the code.
 //
 
+#undef AVERAGE
+#if defined(IS_SSE)
+#define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
+    { \
+    __asm pand destMM, noLowBitsMask \
+    __asm pavgb destMM, sourceMM \
+    }
+#elif defined(IS_3DNOW)
+#define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
+    { \
+    __asm pand destMM, noLowBitsMask \
+    __asm pavgusb destMM, sourceMM \
+    }
+#else
+#define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
+    { \
+    __asm movq tempMM, noLowBitsMask \
+    __asm pandn tempMM, sourceMM \
+    __asm paddusb tempMM, sourceMM \
+    __asm pand tempMM, shiftMask \
+    __asm psrlw tempMM, 1 \
+    __asm pand destMM, shiftMask \
+    __asm psrlw destMM, 1 \
+    __asm paddusb destMM, tempMM \
+    }
+#endif // processor specific averaging routine
+
 #if defined(IS_SSE)
 #define MAINLOOP_LABEL DoNext8Bytes_SSE
 #elif defined(IS_3DNOW)
@@ -61,10 +94,11 @@ long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
     int y;
     int Cycles;
     __int64 qwNoiseThreshold;
-#ifdef IS_MMX
-    const __int64 qwAvgMask = 0xFEFEFEFEFEFEFEFE;
-#endif
-	
+    const __int64 qwNoLowBitsMask   = 0xFEFEFEFEFEFEFEFE;
+    const __int64 qwShiftMask       = 0xfefffefffefffeff;
+    const __int64 qwLowBitsSet      = 0x0101010101010101;
+    const __int64 qwChromaMask      = 0xFF00FF00FF00FF00;
+    const __int64 qwLumiMask        = 0x00FF00FF00FF00FF;
 	
     if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
     {
@@ -105,90 +139,71 @@ long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
     {
         _asm 
         {
-            mov ecx, Cycles
-            mov eax, NewLine
-            mov ebx, OldLine
-            movq mm5, qwNoiseThreshold      // mm5 = NoiseThreshold
-
+            mov     ecx, Cycles
+            mov     eax, NewLine
+            mov     ebx, OldLine
+            movq    mm5, qwNoiseThreshold       // mm5 = NoiseThreshold
+            movq    mm6, qwShiftMask
+            movq    mm7, qwNoLowBitsMask
+align 8
 MAINLOOP_LABEL:
+            movq    mm0, qword ptr[eax]         // mm0 = NewPixel
+            movq    mm1, qword ptr[ebx]         // mm1 = OldPixel
+            movq    mm2, mm0                    // mm2 = NewPixel
 
-            movq mm0, qword ptr[eax]        // mm0 = NewPixel
-            movq mm1, qword ptr[ebx]        // mm1 = OldPixel
-            movq mm2, mm0                   // mm2 = NewPixel
-
-            // RM: The original code replaced a noisy pixel with avg(NewPixel, 3*OldPixel)
-            // This causes speckles and bad posterization. If the pixel is replaced with
-            // avg(3*NewPixel, OldPixel) the image looks much better.
-            // To make it easy to revert back to the old code you can find it commented out below.
+#if defined(IS_SSE)
+            prefetchnta[eax + 64]
+#elif defined(IS_3DNOW)
+            prefetchw[eax + 48]
+#endif
             // Now determine the weighted averages of the old and new pixel values.
-#if defined(IS_SSE)
-            pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel)
-            pavgb mm2, mm0                 // mm2 = avg(3*NewPixel, OldPixel)
-#elif defined(IS_3DNOW)
-            pavgusb mm2, mm1                // mm2 = avg(NewPixel, OldPixel)
-            pavgusb mm2, mm0                // mm2 = avg(3*NewPixel, OldPixel)
-#else
-            movq mm3, mm1                   // mm3 = OldPixel
-            movq mm4, qwAvgMask             // mm4 = mask to remove lower bits of bytes
-            pand mm3, mm4                   // mm3 = OldPixel with LSBs removed
-            pand mm2, mm4                   // mm4 = OldPixel with LSBs removed
-            psrlw mm3, 1                    // mm3 = OldPixel / 2
-            psrlw mm2, 1                    // mm2 = NewPixel / 2
-            paddusb mm3, mm2                // mm3 = avg(NewPixel, OldPixel)
-            pand mm3, mm4                   // mm3 = avg(NewPixel, OldPixel) with LSBs removed
-            psrlw mm3, 1                    // mm3 = avg(NewPixel, OldPixel) / 2
-            paddusb mm2, mm3                // mm2 = avg(3*NewPixel, OldPixel)
-#endif
+            AVERAGE(mm2, mm1, mm4, mm6, mm7)    // mm6 = qwShiftMask, mm7 = qwNoLowBitsMask
+            AVERAGE(mm2, mm1, mm4, mm6, mm7)    // mm6 = qwShiftMask, mm7 = qwNoLowBitsMask
 
-/*            // Now determine the weighted averages of the old and new pixel values.
 #if defined(IS_SSE)
-            pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel)
-            pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel, OldPixel, OldPixel)
-#elif defined(IS_3DNOW)
-            pavgusb mm2, mm1                // mm2 = avg(NewPixel, OldPixel)
-            pavgusb mm2, mm1                // mm2 = avg(NewPixel, OldPixel, OldPixel, OldPixel)
-#else
-            movq mm3, mm1                   // mm3 = OldPixel
-            movq mm4, qwAvgMask             // mm4 = mask to remove lower bits of bytes
-            pand mm3, mm4                   // mm3 = OldPixel with LSBs removed
-            pand mm2, mm4                   // mm4 = OldPixel with LSBs removed
-            psrlw mm3, 1                    // mm3 = OldPixel / 2
-            psrlw mm2, 1                    // mm2 = NewPixel / 2
-            paddusb mm2, mm3                // mm2 = avg(NewPixel, OldPixel)
-            pand mm2, mm4                   // mm2 = avg(NewPixel, OldPixel) with LSBs removed
-            psrlw mm2, 1                    // mm2 = avg(NewPixel, OldPixel) / 2
-            paddusb mm2, mm3                // mm2 = avg(NewPixel, OldPixel, OldPixel, OldPixel)
+            prefetchnta[ebx + 64]
 #endif
-*/
             // Figure out which pixels are sufficiently different from their predecessors
             // to be considered new.  There is, unfortunately, no absolute-difference
             // MMX instruction, so we OR together two unsigned saturated differences
             // (one of which will always be zero).
-            movq mm3, mm0                   // mm3 = NewPixel
-            psubusb mm3, mm1                // mm3 = max(NewPixel - OldPixel, 0)
-            movq mm4, mm1                   // mm4 = OldPixel
-            psubusb mm4, mm0                // mm4 = max(OldPixel - NewPixel, 0)
-            por mm3, mm4                    // mm3 = abs(NewPixel - OldPixel)
+            movq    mm3, mm0                    // mm3 = NewPixel
+            psubusb mm3, mm1                    // mm3 = max(NewPixel - OldPixel, 0)
+            movq    mm4, mm1                    // mm4 = OldPixel
+            psubusb mm4, mm0                    // mm4 = max(OldPixel - NewPixel, 0)
+            por     mm3, mm4                    // mm3 = abs(NewPixel - OldPixel)
             
             // Filter out pixels whose differences are less than the threshold.
-            psubusb mm3, mm5                // mm3 = max(0, abs(NewPixel - OldPixel) - threshold)
+            psubusb mm3, mm5                    // mm3 = max(0, abs(NewPixel - OldPixel) - threshold)
 
-            // Turn the filtered list into a mask.  While we've been operating on bytes
-            // up to now since we want to treat luminance and chroma differences as
-            // equal for purposes of comparing against the threshold, now we have to
-            // treat pixels as a whole.
-            pxor mm4, mm4                   // mm4 = 0
-            pcmpgtw mm3, mm4                // mm3 = 0xFFFF where abs(NewPixel - OldPixel) > threshold
-            movq mm6, mm3                   // mm6 = 0xFFFF where abs(NewPixel - OldPixel) > threshold
-            pandn mm6, mm2                  // mm6 = weighted avg. where abs(NewPixel - OldPixel) <= threshold
-            pand mm3, mm0                   // mm3 = NewPixel where abs(NewPixel - OldPixel) > threshold
-            por mm3, mm6                    // mm3 = result pixels
+            // Turn the filtered list into a mask.
+            // Note that since pcmpgtX is a signed comparison we divide mm3 by two
+            // to be sure that the MSB is not set.
+            pxor    mm4, mm4                    // mm4 = 0
+            paddb   mm3, qwLowBitsSet           // round upwards
+            pand    mm3, mm7                    // remove low bits (mm7 = qwNoLowBitsMask)
+            psrlw   mm3, 1                      // and divide by two
+            pcmpgtb mm3, mm4                    // mm3 = 0xFF where abs(NewPixel - OldPixel) > threshold
 
-            movq qword ptr[eax], mm3
+            // If abs(NewPixel - OldPixel) > threshold for either the lumi or chroma value make sure
+            // that both the lumi and chroma values are replaced with the new value
+            movq    mm4, mm3                    // mm4 = 0xFF where abs(NewPixel - OldPixel) > threshold
+            psrlw   mm3, 8                      // copy the chroma into luma
+            por     mm3, mm4                    // OR with original 
+            psllw   mm4, 8                      // copy the lumi into chroma
+            por     mm3, mm4                    // mm3 = 0xFFFF where abs(NewPixel - OldPixel) > threshold
 
-            add eax, 8
-            add ebx, 8
-            loop MAINLOOP_LABEL
+            movq    mm4, mm3                    // mm4 = 0xFFFF where abs(NewPixel - OldPixel) > threshold
+            pandn   mm4, mm2                    // mm4 = weighted avg. where abs(NewPixel - OldPixel) <= threshold
+            pand    mm3, mm0                    // mm3 = NewPixel where abs(NewPixel - OldPixel) > threshold
+            por     mm3, mm4                    // mm3 = result pixels
+
+            movq    qword ptr[eax], mm3
+
+            add     eax, 8
+            add     ebx, 8
+            dec     ecx
+            jnz     MAINLOOP_LABEL
         }
 
         NewLine += pInfo->InputPitch;
@@ -199,7 +214,11 @@ MAINLOOP_LABEL:
     // again
     _asm
     {
+#if defined(IS_3DNOW)
+        femms
+#else
         emms
+#endif
     }
 
     return 1000;

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.5 2001-12-18 23:36:01 adcockj Exp $
+// $Id: GenericTuner.cpp,v 1.6 2002-01-16 19:16:20 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/12/18 23:36:01  adcockj
+// Split up the MSP chip support into two parts to avoid probelms when deleting objects
+//
 // Revision 1.4  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -261,6 +264,13 @@ CGenericTuner::CGenericTuner(eTunerId tunerId)
                 16*137.25, 16*317.25, 0x01, 0x02, 0x08, 0x8e, 940);
             break;
         }
+    case TUNER_LG_TAPCH701P_NTSC:
+        {
+            TUNERDEF(TUNER_LG_TAPCH701P_NTSC, VIDEOFORMAT_NTSC_M, 
+                16*165.00, 16*450.00, 0x01, 0x02, 0x08, 0x8e, 732);
+            break;
+        }
+
     }
 }
 

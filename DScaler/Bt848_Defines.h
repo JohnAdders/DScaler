@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.10 2001-12-19 19:24:44 ittarnavsky Exp $
+// $Id: Bt848_Defines.h,v 1.11 2002-01-16 19:16:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -499,6 +499,7 @@ enum eTunerId
     TUNER_TEMIC_4009FN5_PAL,
     TUNER_MT2032,
     TUNER_SHARP_2U5JF5540_NTSC,
+    TUNER_LG_TAPCH701P_NTSC,
     TUNER_LASTONE,
 };
 

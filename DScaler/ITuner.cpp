@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: ITuner.cpp,v 1.2 2002-01-16 19:16:20 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +105,8 @@ const char *TunerNames[TUNER_LASTONE] =
         "MT2032 universal",
     // TUNER_SHARP_2U5JF5540_NTSC
         "SHARP NTSC_JP (2U5JF5540)",
+    // TUNER_LG_TAPCH701P_NTSC
+        "LG NTSC (TAP CH 701P)",
 };
 
 }

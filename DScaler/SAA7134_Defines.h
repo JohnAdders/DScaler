@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.7 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.8 2002-10-09 13:20:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.6  2002/10/04 13:24:46  atnak
 // Audio mux select through GPIO added (for 7130 cards)
 //
@@ -82,10 +85,10 @@
 //   6      Audio
 
 /* DMA channels, n = 0 ... 6 */
-#define SAA7134_RS_BA1(n)                  (0x200|(n)<<4) // evens base address
-#define SAA7134_RS_BA2(n)                  (0x204|(n)<<4) // odds base address
-#define SAA7134_RS_PITCH(n)                 (0x208|(n)<<4) // bytes to move per line
-#define SAA7134_RS_CONTROL_0(n)             (0x20C|(n)<<4) // 20 bits, pglist page?
+#define SAA7134_RS_BA1(n)                  (0x200|(n)<<4)
+#define SAA7134_RS_BA2(n)                  (0x204|(n)<<4)
+#define SAA7134_RS_PITCH(n)                 (0x208|(n)<<4)
+#define SAA7134_RS_CONTROL_0(n)             (0x20C|(n)<<4)
 #define SAA7134_RS_CONTROL_1(n)             (0x20D|(n)<<4)
 #define SAA7134_RS_CONTROL_2(n)             (0x20E|(n)<<4)
 #define   SAA7134_RS_CONTROL_2_BURST_2          (1<<5)

@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/01/26 01:03:11  lindsey
+// Fixed some comments
+// Effect of coefficient of varience on reliability scaled to the sample size
+//
 // Revision 1.5  2002/01/26 00:47:00  lindsey
 // Fixed big bug in noise threshold / motion correlation interaction
 // Fixed bug in parameterization
@@ -45,7 +49,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-// #define ADAPTIVE_NOISE_DEBUG
+#define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>
@@ -92,16 +96,16 @@
 // V is defined as lines within the field
 
 #define LOCK_DOT_H                              32
-#define LOCK_DOT_V                              15
+#define LOCK_DOT_V                              16
 
 // Initial values of the reliability, baseline, and first and second moving moments of the
 // peak estimate.  The initial reliability should be low to reflect a lack of knowledge when
 // the filter is initialized.
 
 #define   INITIAL_RELIABILITY                   0.001
-#define   INITIAL_BASELINE                      150.0 
-#define   INITIAL_PEAK_MEAN                     200.0
-#define   INITIAL_PEAK_SQUARED_MEAN             40000.0
+#define   INITIAL_BASELINE                      75.0 
+#define   INITIAL_PEAK_MEAN                     100.0
+#define   INITIAL_PEAK_SQUARED_MEAN             10000.0
 
 // Used to scale up the estimate of reliability of the signal
 
@@ -130,6 +134,10 @@
 // Rate of decay of the mean and mean^2 averaging for determining peak variance
 
 #define PEAK_VARIANCE_DECAY                     0.80
+
+// Multiplier to the coefficient of variance
+
+#define COEFF_VAR_SCALING                       8
 
 /////////////////////////////////////////////////////////////////////////////
 // Function prototypes
@@ -175,7 +183,7 @@ long            gStability = 25;
 // Determines the placement after the peak of the N histogram where we decide that there
 // must be motion in a block
 
-long            gNoiseReduction = 50;
+long            gNoiseReduction = 55;
 
 // Turn on a histogram and statistics readout
 
@@ -237,7 +245,7 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
     {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
-        50, 0, 200, 1, 1,
+        55, 0, 200, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveNoiseReduction", NULL,
     },
@@ -411,7 +419,15 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
     {
         AdaptiveNoiseMethod.pfnAlgorithm = NULL;
     }
-    return &AdaptiveNoiseMethod;
+
+    if (AdaptiveNoiseMethod.pfnAlgorithm == NULL)
+    {
+        return NULL;
+    }
+    else
+    {
+        return &AdaptiveNoiseMethod;
+    }
 }
 
 
@@ -460,6 +476,9 @@ The reliability measure of an estimate depends on four factors:
 This is handled in a fairly haphazard way, with some arbitrary powers and constants  -- I'll just refer you
 to the code, since it's likely to change before I next update this comment.  Good luck, since the commenting in
 the code is poor.
+
+This could be made much less arbitrary (and be significantly more accurate) by keeping track of the likelihood
+of the data given each proposed value of the peak.
 
 There is also some code in here to show a bunch of data about the histogram.  This can be a very useful
 tool for people working on motion detection.  The histogram shows:
@@ -626,24 +645,23 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
                     CoeffVar = 0.000001;
                 }
                 CoeffVar = 1.0/sqrt(CoeffVar);
-                CoeffVar /= sqrt(pInfo->FrameWidth*(pInfo->DestRect.bottom - pInfo->DestRect.top)/2);
-                CoeffVar *= 8;
+                CoeffVar /= sqrt(pInfo->FrameWidth*(2 + (pInfo->DestRect.bottom - pInfo->DestRect.top)/2));
+                CoeffVar *= COEFF_VAR_SCALING;
                 if (CoeffVar > 0.999999)
                 {
                     CoeffVar = 0.999999;
                 }
                 // Show Coefficient of variation statistic
-                if( (gIndicator == TRUE) && (CoeffVar < 1.0) )
+                if( gIndicator == TRUE )
                 {
-                    DWORD  Jindex = 0;
-                    Jindex = (DWORD)(CoeffVar*pInfo->FrameWidth);
+                    DWORD  Jindex = (DWORD)(CoeffVar*pInfo->FrameWidth);
                     Jindex *= 2;
                     *(pInfo->PictureHistory[0]->pData + (15 * pInfo->InputPitch) + Jindex) = 0xFF;
                 }
 
                 SignalStrength = pDWordHistogram[DeltaPeak]*sqrt((DOUBLE)DeltaPeak);
                 // Normalize the maximum strength of signal to the amount of data collected
-                SignalStrength /= pInfo->FrameWidth*(pInfo->DestRect.bottom - pInfo->DestRect.top)/2;
+                SignalStrength /= pInfo->FrameWidth*(2 + (pInfo->DestRect.bottom - pInfo->DestRect.top)/2);
                 SignalStrength *= SIGNAL_STRENGTH_MULTIPLIER;
                 SignalStrength *= CoeffVar;
                 if (SignalStrength > 1.0)

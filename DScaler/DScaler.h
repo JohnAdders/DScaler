@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.21 2002-05-27 20:17:05 robmuller Exp $
+// $Id: DScaler.h,v 1.22 2002-05-30 13:06:41 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -125,8 +125,6 @@ extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;
 extern HWND hWnd;
 extern HCURSOR hCursorHand;
-
-extern BOOL bIgnoreMouse;
 
 extern BOOL bShowCrashDialog;
 

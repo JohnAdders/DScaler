@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.32 2002-04-28 16:43:37 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.33 2002-05-30 13:06:41 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/04/28 16:43:37  laurentg
+// New setting for aspect ratio detect
+//
 // Revision 1.31  2002/04/24 19:09:14  tobbej
 // added missing \n
 //
@@ -193,7 +196,6 @@ double GetActualSourceFrameAspect()
 void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 {
     CFilterChain FilterChain;
-    bIgnoreMouse = TRUE;
     int SourceHeight;
     int SourceWidth;
 

@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Greedy (High Motion) Method</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Greedy (High Motion) Method <!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"><!-- #BeginEditable "Text" -->
+<p>WHAT IT DOES: (Basic)</p>
+
+<p>The plugin works at two different levels. By default, at the
+Basic Level, it is a normal DScaler deinterlace method, with the
+following features:</p>
+
+<p>- A merge of Blended Clip, Greedy (Low Motion), and some new
+stuff</p>
+
+<p>- Greedy implied pulldown, like the Greedy (Low Motion)
+method</p>
+
+<p>- Parm blending like the Blended Clip method, for less
+sizzling.</p>
+
+<p>- Lookahead motion detection</p>
+
+<p>- Diagonal Jaggie Reduction (DJR ;-) ) to smooth out the stair
+step effect in moving diagonal lines. This is accomplish by
+horizontally smoothing only the rapidly moving pixels, leaving
+the stationary ones alone. If a diagonal edge is not moving then
+it won't be jagged anyway under Greedy (High Motion). I've
+previously somewhere here posted a couple snaps of some hard to
+handle Video Essentials scenes off my test machine and a $135
+non-progressive DVD player. See <a href=
+"http://www.trbarry.com/Flag.tif" target="_blank">the Flag</a>
+and <a href="http://www.trbarry.com/Lights.tif" target=
+"_blank">the Lampposts</a> .</p>
+
+<p>- Slider adjustments for Max Comb, Motion Threshold, and
+Motion Sensitivity. However the defaults should be okay for most
+cases.</p>
+
+<p>- Basic Level is compatible with all MMX, Pentium II, AMD
+K6-II, K6-III, Celeron and above machines. Performance will
+probably be about that of the Greedy (2-Frame) method.</p>
+
+<p><br>
+WHAT IT DOES: (Advanced)</p>
+
+<p>There is also an Advanced Level (experimental) which is
+invoked if you check any of the boxes in the Method UI panel. You
+won't be able to do this unless you are running a machine
+supporting the Intel SSE instruction set (only integer SSE
+instructions are needed). The Advanced options should run on
+Athlons, Intel P-III, P4, and the faster Celerons.</p>
+
+<p>When using the Advanced Features Greedy (HM) maintains its own
+internal history of the last 4 video input fields. This means it
+must be able to examine every field and you can't use it at the
+same time as DScaler's regular Auto_Pulldown option. So if you
+are going to use the advanced options, please first be sure the
+Settings/Deinterlace/Auto_Pulldown option is not checked.</p>
+
+<p>Using the Advanced Options is also very sensitive to machine
+performance and dropped frames, so you may have to lower your
+Settings/Pixel_Width to 640 if you get jerkiness. It's also best
+to have Hurry_When_Late=0 in the DScaler.ini file.</p>
+
+<p>The new check box enabled features are:</p>
+
+<p>- Built in 3:2, 2:2, an n:m Pulldown. This does pulldown
+matching, not removal, so all frames are displayed. I think this
+eventually will work better with video overlays and live TV
+viewing that is extensively edited, but it still needs
+improvement.</p>
+
+<p>- In-Between Frames. This gives judder reduction for those of
+us with fixed 60 HZ RTPV's. In a 3:2 pulldown situation it will
+select an appropriate pair of fields to average once out of every
+5 frames. This can effectively display every new input frame 2
+1/2 times. It will cause a small amount of motion blur every
+fifth frame but I personally leave it turned on all the time now
+for a smoother film picture sequence. It will also work with 2:2
+pulldown (I think) but there one half of the frames will be
+averaged and the motion blur may not be acceptable.</p>
+
+<p>- Adjustable Edge Enhancement. This is due to an idea posted
+by this forum's MR. Wigggles. It enhances only a small amount, on
+the horizontal axis. When turned on you can use a slider to
+adjust it.</p>
+
+<p>- Adjustable Median Filter. Also due to Mr. Wigggles, this can
+help filter noise. However if set over about 3-5 it will also
+cause motion artifacts on fast moving scenes. Also has a
+slider.</p>
+
+<p>- Vertical Filter. This is a post-deinterlace software
+vertical filter that can remove both noise and some leftover
+deinterlace artifacts. It gives results similar to the hardware
+version available on the Advanced Video Flags screen, but not so
+extreme and without the jitter.</p>
+
+<p><!-- #EndEditable -->
+</p>
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
+</body>
+</html>
+

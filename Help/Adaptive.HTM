@@ -3,7 +3,7 @@
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Greedy 2 Frame Method</title>
+<title>DScaler -- Adaptive Method</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -39,7 +39,7 @@ height="1"></td>
 <td colspan="2" align="right" valign="bottom"><font face=
 "Verdana, Arial, Helvetica, sans-serif" size="5"><b>
 <!-- #BeginEditable "Page%20Title" -->
-Greedy 2 Frame Method
+Adaptive Method
 <!-- #EndEditable --></b></font></td>
 </tr>
 
@@ -55,22 +55,10 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>This method tries to combine the best features of the 2-frame
-algorithm with the looking ahead ability of the greedy method.  I
-find this methods works well on sports and other high motion
-material.  With static images and low quality sources there may
-be unacceptable levels of bobbing.</p>
 
-<p>This method uses four fields and has a configuarable motion detect.  Motion is
-detected on a two pixel basis.</p>
-
-<p><b><font face="Arial" size="4">Who Should Use
-It?</font></b></p>
-
-<p>Everybody. This is the current default method for faster processors as it gives 
-the best all round performance.</p>
-
-<p><b><font face="Arial" size="4">Settings</font></b></p>
+<p>This method uses the amount of motion detected to select the
+best deinterlacing alogoritm.  Currently by default it switches
+between 2-Frame and weave.</p>
 
 <table border="1">
 <tr>
@@ -80,19 +68,50 @@ the best all round performance.</p>
 </tr>
 
 <tr>
-<td>Greedy 2 Frame Luma Threshold</td>
+<td>Low Motion Field Count</td>
 <td>4</td>
-<td>Luma differences above this will be interpreted as movement.</td>
+<td>Number of times low motion must be detected in a row before switching to low
+motion mode.</td>
 </tr>
 
 <tr>
-<td>Greedy 2 Frame Chroma Threshold</td>
-<td>8</td>
-<td>Chroma differences above this will be interpreted as movement.</td>
+<td>Static Image Field Count</td>
+<td>100</td>
+<td>Number of times a static image must be detected in a row before switching to
+static image mode.</td>
+</tr>
+
+<tr>
+<td>Static Image Mode</td>
+<td>Weave</td>
+<td>Mode to usae for static images.</td>
+</tr>
+
+<tr>
+<td>Low Motion Mode</td>
+<td>Two Frame</td>
+<td>Mode to usae for low motion video.</td>
+</tr>
+
+<tr>
+<td>High Motion Mode</td>
+<td>Two Frame</td>
+<td>Mode to usae for high motion video.</td>
+</tr>
+
+<tr>
+<td>Adaptive Threshold 3:2 Pulldown</td>
+<td>15</td>
+<td>Threshold difference result for image to be considered static.</td>
+</tr>
+
+<tr>
+<td>Adaptive Threshold 3:2 Pulldown Mismatch</td>
+<td>900</td>
+<td>Threshold difference result for image to be considered low motion.</td>
 </tr>
 
 </table>
-
 
 <!-- #EndEditable -->
 </td>

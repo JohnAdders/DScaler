@@ -55,17 +55,14 @@ height="2"></td>
 </tr>
 
 <tr>
-<td colspan="3">Last update: May 22nd 2001</td>
+<td colspan="3">Last update: September 7th 2001</td>
 </tr>
 <tr>
 </tr>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<h1><br>
-</h1>
-
-<h1>Introduction</h1>
+<h1><br>Introduction</h1>
 
 <h2>Where can I find the latest FAQ ?</h2>
 
@@ -117,7 +114,7 @@ now on.</p>
 
 <h2>History of DScaler</h2>
 
-<p>The whole thing started in july 2000. See Cliff Watson's post
+<p>The whole thing started in July 2000. See Cliff Watson's post
 regarding the home theater computer history in "<a href=
 "http://www.avsforum.com/ubb/Forum12/HTML/012706.html#7">Who are
 the pioneers of htpc ?</a>". Ali, one of the first French htpc
@@ -139,9 +136,12 @@ John Adock's great PALMovie plugin</a>").</p>
 <p>The lack of NTSC support in bTV made the implementation of the
 more complex 3:2 pulldown algorithm lead John to write his own
 application based on Multidec. Its name, based on its inspiration
-application ; dTV (see "<a href=
+application, was dTV (see "<a href=
 "http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010714-12-003790.html">
 First Version of NTSC/PAL TV deinterlacing program</a>").</p>
+
+<p>The first versions only had manual film pulldown selction.  The next major
+breakthrough was when John implemented Mark Rejhon's 3:2 pulldown algorithm.</p>
 
 <p>This proved that complex deinterlacing techniques could be
 done in realtime and without additionnal dedicated hardware.
@@ -160,13 +160,21 @@ people who have helped make DScaler a success.</p>
 
 <h2>How much does DScaler cost ?</h2>
 
-<p>$1000 (plus taxes) :-) Of course not, DScaler is fully free of
-charge, open-source, coded under the <a href=
+<p>DScaler is free software, open-source, coded under the <a href=
 "http://www.fsf.org/licenses/gpl.html">GNU GPL Licence</a>.</p>
 
-<h2>Can I ship DScaler with machines I make ?</h2>
+<h2>What do I do if I want to pay for it ?</h2>
 
-<h2>Can I redistribute DScaler ?</h2>
+<p>While the developers in no way oblige you to, we would suggest that you 
+support <a href=http://www.eff.org/>Electronic Frontier Foundation</a> by making 
+a contribution <a href=http://www.eff.org/support>here</a>
+
+<p>We can't promise anything in return except to try to give a small preference 
+to support requests, but you'll have our appreciation and know you've helped keep 
+cyberspace free of barbed wire and bull***t.</p>
+
+<h2>Can I ship DScaler with machines I make ?<br>
+Can I redistribute DScaler ?</h2>
 
 <p>DScaler is released under the <a href=
 "http://www.fsf.org/licenses/gpl.html">GNU GPL</a> and as such
@@ -184,7 +192,7 @@ href="http://www.dscaler.org/downloads.htm">download page</a></p>
 
 <p>From time to time the developers release alpha test versions,
 these version are often unstable but will have all the latest
-feature. These versions are not recommended generally and are
+features. These versions are not recommended generally and are
 only supported via the developers mailing list. The test
 downloads can be found <a href=
 "http://sourceforge.net/project/showfiles.php?group_id=7420">here</a></p>
@@ -194,17 +202,21 @@ downloads can be found <a href=
 <h2>Should I use DScaler to deinterlace the output from my
 set-top dvd player ?</h2>
 
-<p>While it's feasible and works quite well (see the "DScaler
+<p>While it is feasible and works quite well (see the "DScaler
 Windvd challenge" in the <a href=
 "http://www.dscaler.org/screenshots/index.htm">screenshots</a>
 section), home theatre PC's have shown the best results while
 using dvd decoding software along with a dvd-rom and a modern
-graphics card. However, there are people who find things easier
-to use with DScaler and an external DVD player.</p>
+graphics card. However, there are people who find it easier
+to use with DScaler with an external DVD player.</p>
 
 <p>Some people have found that DScaler does a better job with
-non-film DVDs (concert videos or DVDs of some television shows,
-for example) than the software players.</p>
+non-film DVDs (e.g. concert videos or DVDs of some television shows) and 
+poorly coded DVDs (e.g. Anime) than the software players.</p>
+
+<p>Note that most DVD players implement Macrovision copy controls, these 
+can interfere with DScaler.  For futher information see <a href="#PURPLESTRIPES">"What is the purple 
+stripes issue ?"</a> below</p>
 
 <h1>Software issues</h1>
 
@@ -344,10 +356,10 @@ rather than from their desk ;-)</p>
 
 <p>DScaler is thus filled with <a href="keyboard.htm">keyboard
 shortcuts</a> for all main options so that you can do everything
-quickly.<br>
- More, we suggest the use of <a href=
-"http://www.girder.nl">Girder</a> from Ron Bessems as the
-application of choice for remote controlling your computer.</p>
+quickly.</p>
+
+<p>We also suggest the use of <a href="http://www.girder.nl">Girder</a> 
+from Ron Bessems as the application of choice for remote controlling your computer.</p>
 
 <h2>Can I record video to my hard disk with DScaler?</h2>
 
@@ -388,7 +400,7 @@ about.</p>
 
 <h2>Can I use any vga card as a display device ?</h2>
 
-<p>Despite this statement from Mark Rejhon ;</p>
+<p>This is what Mark Rejhon has to say about this:</p>
 
 <p>"DScaler requires an AGP card. It is impossible to do on a PCI
 video card. DScaler uses massive amounts of *bidirectional* bus
@@ -401,12 +413,12 @@ megabits per second *in one direction only* out of a possible
 overhead. Try to go bidirectional, and framerate literally gets
 the death penalty!"</p>
 
-<p>However, experience in the last monthes showed the some users
-were able to use their PCI card with success and without dropped
-frames. In some cases however, frame rate is going down when
-higher and higher resolutions are tried ;</p>
+<p>However, some users ahve reported that they are able to use their PCI card 
+successfully and without dropped frames. 
+In some cases however, frame rate goes down when higher and 
+higher resolutions are tried.</p>
 
-<p>IanD reported <i>I have an 8MB 3dfusion PCI on a BX mobo
+<p>Ian Darian reported <i>I have an 8MB 3dfusion PCI on a BX mobo
 Celeron 566 64MB RAM 66MHz FSB, with Dynalink Magic TView
 (Conexant 878) and can only execute DScaler at 16 bit colour
 depth. When running a 1024x768 desktop, DScaler v1.9 with a
@@ -425,16 +437,15 @@ newer cards support this.</p>
 <p>Almost any card (and that means A LOT) based of former
 Brooktree (now Conexant) chips including bt848/878/879 will work
 for video only. Why those ? These chips are easy to program
-(there has been A LOT of software based on those) and very cheap.
-Side effect ; a great number of manufacturers have (and are
+(there has been A LOT of software based on those) and are very cheap.
+This means many manufacturers have (and are
 still) produced cards based on those chips.</p>
 
 <p>Sound from the tuner is not always supported and adding this
 for a lot of cards is not a developement priority.</p>
 
-<p>While we can't claim "this card is the one you need", let's
-give you a couple ones that, at least, have been sucessfully used
-by some users.</p>
+<p>While we can't (and won't) claim "this card is the one you need", here are a 
+few that have been sucessfully used by some users.</p>
 
 <ul>
 <li>Zoltrix Genie TV <a href=
@@ -465,13 +476,13 @@ which the program was originally based.</i></p>
 <h2>Can I use my existing &lt;whatever&gt; card's video input
 ?</h2>
 
-<p>Probably not. DScaler is supporting (see previous question)
-the Brooktree/Conexant chipset. Supporting others chipsets, while
+<p>Probably not. DScaler currently only supports the Brooktree/Conexant chipset 
+(see previous question). Supporting others chipsets, while
 feasable, means some hard work and some solid knowledge of those
 chipsets. And <b>unfortunately, no recent vga card with video-in
 feature includes Brooktree/Conexant chipset</b>. Gx00, Asus
-Deluxe, ATI All-in-Wonder etc... are thus not supported at the
-moment.</p>
+Deluxe, ATI All-in-Wonder etc... are thus not supported for video input 
+at the moment.</p>
 
 <p>If you have some programming knowledge regarding the grab
 chipsets used in those card, you might want to help us. See the
@@ -479,19 +490,7 @@ chipsets used in those card, you might want to help us. See the
 
 <h2>Can I use more than one video input ?</h2>
 
-<p>Some "nut" people (he's admitting it himself ;-) who are
-playing with Picture In Picture a lot have asked if DScaler could
-drive multiple cards or multiple inputs. A card allowing at worst
-4 video inputs has been manufactured by Leadtek. It's the Winview
-605.</p>
-
-<p>It is Brooktree based so it might work with DScaler but
-clearly nothing is done right now to drive multiple video inputs
-at the same time.</p>
-
-<p>See the <a href=
-"http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010323-12-004431.html">
-associated topic</a> on AVS forum.</p>
+<p>Not currently although it is a work in progress.</p></p>
 
 <p>However, you can easily use your a/v receiver to switch
 between multiple video inputs. Connect the monitor out of your
@@ -517,11 +516,11 @@ for any card but are not in a position to add support for new
 cards ourselves.</p>
 
 <h2>My picture jumps up and down?<br>
- I get dropped frames?</h2>
+I get dropped frames?</h2>
 
-<p>Both problems seems to be caused by not having a powerful
+<p>Both problems seem to be caused by not having a powerful
 enough machine to run everything all at the same time.  The
-things that use up a lot of CPU time are 2-Frame and Blended Clip
+things that use up a lot of CPU time are 2-Frame, Blended Clip & Greedy
 deinterlacing and automatic pulldown detection.  Try moving to
 another pulldown method or switching off autodetection.  The
 other alternative is to buy a faster PC ;-))</p>
@@ -535,7 +534,7 @@ you get either of these problems.</p>
 <h2>What is this "purple stripes" issue ?</h2>
 
 <p>When feeding some analog sources to the combination grab
-card/DScaler, some numerous horizontal colores lines appear on
+card/DScaler, horizontal colored lines appear on
 the image.</p>
 
 <p>See <a href=
@@ -545,9 +544,9 @@ The same video signal <a href=
 "http://www.dscaler.org/images/Mummy_MacrovisionOff.jpg">without
 the macrovision protection</a> is perfectly stripes-free.</p>
 
-<p>This phenomenom seems to be, at least, <b>more visible when a
+<p>This phenomenom seems to be <b>more visible when a
 macrovision protected video signal is fed</b> to some grab cards
-but this has been reported also (despite less visible) on
+but this has been reported (although less visibly) on
 unprotected material.</p>
 
 <p>Other examples of this phenomenon can be seen here ;<br>
@@ -558,7 +557,7 @@ avs:MacroVision side effect</a><br>
 "http://www.avsforum.com/ubb/Forum12/HTML/004436.html">avs:DScaler
 Purple Stripes - is this capture card dependent?</a></p>
 
-<p>Some infos from the <a href=
+<p>Some information from the <a href=
 "http://www.dvddemystified.com/dvdfaq.html">Dvd Faq</a> ;</p>
 
 <p><i>"Macrovision adds a rapidly modulated colorburst signal
@@ -600,7 +599,7 @@ have some settings set incorrectly</i></p>
 
 <p>Sometimes you get this error message<br>
  <code>Error calling overlay update.
-D:/source/deinterlace/DScaler/other.c at line 161</code><br>
+D:/source/deinterlace/DScaler/other.c at line ???</code><br>
 We don't have any full explanation of the problem but it happens
 when resizing DScaler or making it go from fullscreen to window
 mode. Also the color depth, frequency and size of the desktop
@@ -629,7 +628,7 @@ support for DScaler.</p>
 
 <p>More and more people are giving DScaler a try. Why don't
 you?<br>
- We'd like to know about your experience with it. What does (not)
+We'd like to know about your experience with it. What does (not)
 work? What can be improved, what features you would like. All
 feedback is useful.</p>
 
@@ -642,17 +641,16 @@ card and processor type and speed.</p>
 
 <h2>Coding</h2>
 
-<p>Any help is welcome. Despite including very complex code,
-there are a lot of features in it that are simple or that could
-be easily implemented without knowing anything about 3:2 pulldown
-detection.</p>
+<p>Any help is welcome. Despite including some very complex code,
+there are a lot of features in that are simple or that could
+be easily implemented without having to wade through all the assembler.</p>
 
 <p>If you've got an idea, or feel like to trying to implement
 something that is already in the <a href=
 "http://sourceforge.net/pm/task.php?group_project_id=7174&group_id=7420&func=browse">
 Tasks list</a>, join the <a href=
 "http://lists.sourceforge.net/lists/listinfo/deinterlace-discuss">
-mailing list</a>. All relevant information to get you started are
+mailing list</a>. Some information to get you started is
 on the <a href="http://www.dscaler.org/developers.htm">developers
 page</a>. 
 <!-- #EndEditable -->

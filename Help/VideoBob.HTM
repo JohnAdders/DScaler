@@ -3,7 +3,7 @@
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Greedy 2 Frame Method</title>
+<title>DScaler -- Video Bob Method</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -39,7 +39,7 @@ height="1"></td>
 <td colspan="2" align="right" valign="bottom"><font face=
 "Verdana, Arial, Helvetica, sans-serif" size="5"><b>
 <!-- #BeginEditable "Page%20Title" -->
-Greedy 2 Frame Method
+Video Deinterlace (Bob) Method
 <!-- #EndEditable --></b></font></td>
 </tr>
 
@@ -55,23 +55,15 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>This method tries to combine the best features of the 2-frame
-algorithm with the looking ahead ability of the greedy method.  I
-find this methods works well on sports and other high motion
-material.  With static images and low quality sources there may
-be unacceptable levels of bobbing.</p>
 
-<p>This method uses four fields and has a configuarable motion detect.  Motion is
-detected on a two pixel basis.</p>
+<p>This method is based on Gunnar Thalin's VirtualDub filter.  If
+it detects weaving artifacts in the current image it uses bob to
+get rid of them.  This method has a tendency to bob rather too
+much and gives poor results on fine static images.</p>
 
-<p><b><font face="Arial" size="4">Who Should Use
-It?</font></b></p>
-
-<p>Everybody. This is the current default method for faster processors as it gives 
-the best all round performance.</p>
-
-<p><b><font face="Arial" size="4">Settings</font></b></p>
-
+<p>It uses the most recent two frames for the calculations and is not as CPU 
+intensive as the more recent Greedy methods.
+ 
 <table border="1">
 <tr>
 <th>Setting</th>
@@ -80,19 +72,18 @@ the best all round performance.</p>
 </tr>
 
 <tr>
-<td>Greedy 2 Frame Luma Threshold</td>
-<td>4</td>
-<td>Luma differences above this will be interpreted as movement.</td>
+<td>Weave Edge Detect</td>
+<td>625</td>
+<td>Weight used to help detect edges. Higher values makes edge detection stronger</td>
 </tr>
 
 <tr>
-<td>Greedy 2 Frame Chroma Threshold</td>
-<td>8</td>
-<td>Chroma differences above this will be interpreted as movement.</td>
+<td>Weave Jaggie Threshold</td>
+<td>73</td>
+<td>Threshold used to determone if pixel should be bobed.  Higher values mean fewer
+bobed pixels.</td>
 </tr>
-
 </table>
-
 
 <!-- #EndEditable -->
 </td>

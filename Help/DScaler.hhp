@@ -3,42 +3,68 @@ Binary Index=No
 Compatibility=1.1 or later
 Compiled file=..\Release\DScaler.chm
 Contents file=TOC.hhc
-Default topic=DScaler_Readme.htm
+Default topic=Help.htm
 Display compile progress=No
 Full text search stop list file=SearchList.stp
 Full-text search=Yes
+Index file=Index.hhk
 Language=0x409 English (United States)
 Title=DScaler Help
 
 
 [FILES]
-22Pulldown.htm
-32Pulldown.htm
-32spec.htm
-Aspect.htm
-Authors.htm
-COPYING.html
+Help.htm
+News.htm
 DScaler_Readme.htm
 FAQ.htm
-Gamma.htm
-IniFile.htm
+user_support.htm
+Authors.htm
 keyboard.htm
+Thanks.htm
+COPYING.html
+Install.htm
+Features.htm
+AspectRatio.htm
+Calibration.htm
+CC.htm
+FilmDetect.htm
+TimeShift.htm
+Teletext.htm
+Deinterlace.htm
+Adaptive.htm
+BlendedClip.htm
+Bob.htm
+EvenOnly.htm
+Greedy.htm
+Greedy2Frame.htm
+GreedyH.htm
+OddOnly.htm
+OldGame.htm
+ScalerBob.htm
+TwoFrame.htm
+VideoBob.htm
+VideoWeave.htm
+Weave.htm
+Filters.htm
+Gamma.htm
 LinearCorrection.htm
-Logging.htm
 LogoKiller.htm
 Noise.htm
+Sharpness.htm
+TemporalComb.htm
+Advanced.htm
+22Pulldown.htm
+32Pulldown.htm
+Logging.htm
 Overlay.htm
 PulldownShared.htm
-Sharpness.htm
-Standards.htm
-Thanks.htm
+Aspect.htm
+IniFile.htm
 Timing.htm
-user_support.htm
-OldGame.htm
-TemporalComb.htm
-Greedy2Frame.htm
-Install.htm
-Calibration.htm
+Developer.htm
+Standards.htm
+CVS_Instructions.htm
+32spec.htm
 
 [INFOTYPES]
 

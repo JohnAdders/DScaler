@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Video Deinterlace (Weave)</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Video Deinterlace (Weave) Method
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3">
+<!-- #BeginEditable "Text" -->
+
+<p>This was one of the earliest video deinterlace methods.  It used three fields
+in the calculation and works well on slow moving material but tends to comb on 
+fast moving material.</p>
+
+<p>Comments from code</p>
+<pre><code>
+For ease of reading, the comments below assume that we're operating on an odd
+field (i.e., that bIsOdd is true).  The exact same processing is done when we
+operate on an even field, but the roles of the odd and even fields are reversed.
+It's just too cumbersome to explain the algorithm in terms of "the next odd
+line if we're doing an odd field, or the next even line if we're doing an
+even field" etc.  So wherever you see "odd" or "even" below, keep in mind that
+half the time this function is called, those words' meanings will invert.
+
+Copy the even scanline below this one to the overlay buffer, since we'll be
+adapting the current scanline to the even lines surrounding it.  The scanline
+above has already been copied by the previous pass through the loop.
+
+The meat of the work is done here.  We want to see whether this pixel is
+close in luminosity to ANY of: its top neighbor, its bottom neighbor,
+or its predecessor.  To do this without branching, we use MMX's
+saturation feature, which gives us Z(x) = x if x&gt;=0, or 0 if x&lt;0.
+
+The formula we're computing here is
+     Z(ST - (E1 - O) ^ 2) + Z(ST - (E2 - O) ^ 2) + Z(TT - (Oold - O) ^ 2)
+where ST is spatial tolerance and TT is temporal tolerance.  The idea
+is that if a pixel is similar to none of its neighbors, the resulting
+value will be pretty low, probably zero.  A high value therefore indicates
+that the pixel had a similar neighbor.  The pixel in the same position
+in the field before last (Oold) is considered a neighbor since we want
+to be able to display 1-pixel-high horizontal lines.
+
+Now compare the similarity totals against our threshold.  The pcmpgtw
+instruction will populate the target register with a bunch of mask bits,
+filling words where the comparison is true with 1s and ones where it's
+false with 0s.  A few ANDs and NOTs and an OR later, we have bobbed
+values for pixels under the similarity threshold and weaved ones for
+pixels over the threshold.
+</code></pre>
+
+<table border="1">
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Temporal Tolerance</td>
+<td>300</td>
+<td>???</td>
+</tr>
+
+<tr>
+<td>Spatial Tolerance</td>
+<td>600</td>
+<td>???</td>
+</tr>
+
+<tr>
+<td>Similarity Threshold</td>
+<td>25</td>
+<td>???</td>
+</tr>
+
+</table>
+
+<!-- #EndEditable -->
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
+</body>
+</html>
+

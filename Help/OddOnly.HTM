@@ -3,7 +3,7 @@
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Greedy 2 Frame Method</title>
+<title>DScaler -- Odd Only Method</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -39,7 +39,7 @@ height="1"></td>
 <td colspan="2" align="right" valign="bottom"><font face=
 "Verdana, Arial, Helvetica, sans-serif" size="5"><b>
 <!-- #BeginEditable "Page%20Title" -->
-Greedy 2 Frame Method
+Odd Only Method
 <!-- #EndEditable --></b></font></td>
 </tr>
 
@@ -55,45 +55,10 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>This method tries to combine the best features of the 2-frame
-algorithm with the looking ahead ability of the greedy method.  I
-find this methods works well on sports and other high motion
-material.  With static images and low quality sources there may
-be unacceptable levels of bobbing.</p>
-
-<p>This method uses four fields and has a configuarable motion detect.  Motion is
-detected on a two pixel basis.</p>
-
-<p><b><font face="Arial" size="4">Who Should Use
-It?</font></b></p>
-
-<p>Everybody. This is the current default method for faster processors as it gives 
-the best all round performance.</p>
-
-<p><b><font face="Arial" size="4">Settings</font></b></p>
-
-<table border="1">
-<tr>
-<th>Setting</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-
-<tr>
-<td>Greedy 2 Frame Luma Threshold</td>
-<td>4</td>
-<td>Luma differences above this will be interpreted as movement.</td>
-</tr>
-
-<tr>
-<td>Greedy 2 Frame Chroma Threshold</td>
-<td>8</td>
-<td>Chroma differences above this will be interpreted as movement.</td>
-</tr>
-
-</table>
-
-
+<p>These use only the odd fields out of each pair and uses hardware
+scaling.  This reduces bob artifacts at the cost of loss of
+information.  This method were originally intended to be used with game
+consoles.</p>
 <!-- #EndEditable -->
 </td>
 </tr>

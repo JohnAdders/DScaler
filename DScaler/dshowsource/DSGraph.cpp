@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.26 2003-02-05 19:13:14 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.27 2003-03-09 12:14:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/02/05 19:13:14  tobbej
+// added support for capture devices where audio can be rendered from directshow
+// modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
+// some smal changes to ChangeRes
+//
 // Revision 1.25  2003/01/06 21:30:20  tobbej
 // modified resolution chaging so it automaticaly tries to get the best format
 //
@@ -310,6 +315,9 @@ void CDShowGraph::ConnectGraph()
 		if(IsUnConnected || !m_pSource->IsConnected())
 		{
 			m_pSource->Connect(m_renderer);
+			std::string tmp;
+			DumpGraph(m_pGraph,tmp);
+			LOG(2,"Initial FilterGraph:\n%s",tmp.c_str());
 
 			//setup the audio controlls
 			if(m_pAudioControlls!=NULL)
@@ -328,7 +336,6 @@ void CDShowGraph::ConnectGraph()
 				LOG(3,"IBasicAudio interface not found, audio controlls might not work");
 			}
 		}
-
 		BuildFilterList();
 	}
 }
@@ -629,6 +636,10 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	{
 		throw CDShowException("Failed to get old mediatype",hr);
 	}
+	std::string test;
+	DumpMediaType(OldMt,test);
+	LOG(2,"CDShowGraph::ChangeRes: Old MediaType\n%s\n",test.c_str());
+
 	/*BOOL OldForceYUY2=FALSE;
 	DSREND_FIELD_FORMAT OldFieldFormat=DSREND_FIELD_FORMAT_AUTO;
 	///@todo error handling
@@ -725,6 +736,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	((VIDEOINFOHEADER2*)NewType2.pbFormat)->dwInterlaceFlags=AMINTERLACE_IsInterlaced|AMINTERLACE_1FieldPerSample|AMINTERLACE_DisplayModeBobOrWeave;
 	//to be on the safe side, force dsrend to only accept YUY2, field
 	//this is because btwincap v5.3.5 seems to be a bit broken (the connection is made using different format than specified by IAMStreamConfig::SetFormat)
+	
 	hr=m_pDSRendSettings->put_ForceYUY2(TRUE);
 	hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_FIELD);
 	hr=m_pStreamCfg->SetFormat(&NewType2);
@@ -938,7 +950,9 @@ void CDShowGraph::DisableClock()
 {
 	//prevent multiple disableClock calls
 	if(m_pOldRefClk!=NULL)
+	{
 		return;
+	}
 
 	CComPtr<IMediaFilter> pMFilter;
 	HRESULT hr=m_pGraph.QueryInterface(&pMFilter);
@@ -965,7 +979,9 @@ void CDShowGraph::DisableClock()
 void CDShowGraph::RestoreClock()
 {
 	if(m_pOldRefClk==NULL)
+	{
 		return;
+	}
 	
 	CComPtr<IMediaFilter> pMFilter;
 	HRESULT hr=m_pGraph.QueryInterface(&pMFilter);
@@ -981,7 +997,6 @@ void CDShowGraph::RestoreClock()
 		throw CDShowException("Failed to set reference clock",hr);
 	}
 	m_pOldRefClk=NULL;
-
 }
 
 CDShowAudioControls *CDShowGraph::GetAudioControls()

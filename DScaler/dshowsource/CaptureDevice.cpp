@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.19 2003-02-05 19:12:38 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.20 2003-03-09 12:14:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/02/05 19:12:38  tobbej
+// added support for capture devices where audio can be rendered from directshow
+// modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
+//
 // Revision 1.18  2003/01/17 17:37:49  tobbej
 // fixed crasing bug (unhandled exception)
 //
@@ -100,6 +104,7 @@
 #include "DevEnum.h"
 #include "PinEnum.h"
 #include "debuglog.h"
+#include "debug.h"
 //#include "btwdmprop.h"
 
 #ifdef _DEBUG
@@ -145,6 +150,9 @@ CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,str
 	{
 		m_pVideoProcAmp=NULL;
 	}
+	std::string tmp;
+	DumpPreferredMediaTypes(m_vidDev,tmp);
+	LOG(3,"Preferred media types for device %s\n%s",deviceName.c_str(),tmp.c_str());
 }
 
 CDShowCaptureDevice::~CDShowCaptureDevice()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.21 2003-02-05 19:13:15 tobbej Exp $
+// $Id: DSGraph.h,v 1.22 2003-03-09 12:14:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/02/05 19:13:15  tobbej
+// added support for capture devices where audio can be rendered from directshow
+// modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
+// some smal changes to ChangeRes
+//
 // Revision 1.20  2003/01/06 21:30:21  tobbej
 // modified resolution chaging so it automaticaly tries to get the best format
 //
@@ -232,13 +237,13 @@ public:
 	bool IsValidRes(CDShowGraph::CVideoFormat fmt);
 
 	/**
-	 * Disables the graph reference clock
+	 * Disables the graph reference clock.
 	 * @throws CDShowException
 	 */
 	void DisableClock();
 
 	/**
-	 * Restored the old clock after a call to disableClock()
+	 * Restored the old clock after a call to DisableClock().
 	 * @throws CDShowException
 	 */
 	void RestoreClock();

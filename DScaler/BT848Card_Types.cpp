@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.27 2002-10-16 21:40:19 kooiman Exp $
+// $Id: BT848Card_Types.cpp,v 1.28 2002-10-22 09:22:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/10/16 21:40:19  kooiman
+// Improved detection for new Pinnacle/Miro cards.
+//
 // Revision 1.26  2002/10/11 21:41:32  ittarnavsky
 // changes due to the eAudioDecoderType move
 //
@@ -745,7 +748,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
                 1,
             },
         },
-        PLL_NONE,
+        PLL_28,
         TUNER_USER_SETUP,
         SOUNDCHIP_NONE,
         NULL,

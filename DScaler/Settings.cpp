@@ -81,7 +81,7 @@ typedef void (__cdecl GENERICWRITESETTINGS)();
 
 typedef struct
 {
-    UINT SetValueMessage;
+    UINT GetValueMessage;
     GENERICGETSETTING* pfnGetSetting;
     GENERICREADSETTINGS* pfnReadSettings;
     GENERICWRITESETTINGS* pfnWriteSettings;
@@ -238,17 +238,17 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 
     for(i = 0; (*bDone == FALSE) && (i < NUMSETTINGS); ++i)
     {
-        if(wParam == Settings[i].SetValueMessage)
+        if(message == Settings[i].GetValueMessage)
         {
 			RetVal =  Setting_GetValue(Settings[i].pfnGetSetting(wParam));
 			*bDone = TRUE;
         }
-        else if(wParam == Settings[i].SetValueMessage + 100)
+        else if(message == Settings[i].GetValueMessage + 100)
         {
 			Setting_SetValue(Settings[i].pfnGetSetting(wParam), lParam);
 			*bDone = TRUE;
         }
-        else if(wParam == Settings[i].SetValueMessage + 200)
+        else if(message == Settings[i].GetValueMessage + 200)
         {
 			Setting_ChangeValue(Settings[i].pfnGetSetting(wParam), (eCHANGEVALUE)lParam);
 			*bDone = TRUE;

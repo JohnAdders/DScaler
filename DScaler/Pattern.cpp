@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.cpp,v 1.3 2003-01-18 10:52:11 laurentg Exp $
+// $Id: Pattern.cpp,v 1.4 2003-01-19 11:09:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,11 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.2  2002/11/01 13:09:19  laurentg
 // Management of the still capture context slightly updated - works now even with stills in memory
 //
@@ -1186,6 +1191,8 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;
+    m_pParent->m_InitialHeight = pattern.GetHeight();
+    m_pParent->m_InitialWidth = pattern.GetWidth();
     m_pParent->m_Height = pattern.GetHeight();
     m_pParent->m_Width = pattern.GetWidth();
     m_pParent->m_SquarePixels = FALSE;

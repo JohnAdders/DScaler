@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.54 2003-01-18 13:55:43 laurentg Exp $
+// $Id: BT848Source.h,v 1.55 2003-01-19 11:09:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/01/18 13:55:43  laurentg
+// New methods GetHDelay and GetVDelay
+//
 // Revision 1.53  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -112,6 +115,8 @@ public:
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
+    int GetInitialWidth() {return GetWidth();};
+    int GetInitialHeight() {return GetHeight();};
     int GetWidth();
     int GetHeight();
     void UpdateMenu() {return;};

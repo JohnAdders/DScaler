@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.10 2002-11-01 13:09:19 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.11 2003-01-19 11:09:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/11/01 13:09:19  laurentg
+// Management of the still capture context slightly updated - works now even with stills in memory
+//
 // Revision 1.9  2002/10/26 17:56:19  laurentg
 // Possibility to take stills in memory added
 //
@@ -602,6 +605,8 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;
+    m_pParent->m_InitialHeight = h;
+    m_pParent->m_InitialWidth = w;
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;
     m_pParent->m_SquarePixels = Square;

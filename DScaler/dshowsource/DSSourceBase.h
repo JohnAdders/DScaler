@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.12 2003-01-15 20:57:00 tobbej Exp $
+// $Id: DSSourceBase.h,v 1.13 2003-01-19 11:07:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/01/15 20:57:00  tobbej
+// changed some comments
+//
 // Revision 1.11  2002/11/06 20:49:01  adcockj
 // Changes for DSShow compiliation
 //
@@ -89,6 +92,8 @@ public:
 	CDSSourceBase(long SetMessage, long MenuId);
 	virtual ~CDSSourceBase();
 	
+    int GetInitialWidth() {return GetWidth();};
+    int GetInitialHeight() {return GetHeight();};
 	int GetWidth();
 	int GetHeight();
 	void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);

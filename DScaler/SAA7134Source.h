@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.35 2003-01-18 13:55:43 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.36 2003-01-19 11:09:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/18 13:55:43  laurentg
+// New methods GetHDelay and GetVDelay
+//
 // Revision 1.34  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -180,6 +183,9 @@ public:
     eVideoFormat GetFormat();
 
     void SetAspectRatioData();
+
+    int GetInitialWidth() {return GetWidth();};
+    int GetInitialHeight() {return GetHeight();};
 
     int GetWidth();
     int GetHeight();

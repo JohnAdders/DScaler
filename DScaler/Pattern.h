@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.h,v 1.3 2003-01-18 10:52:11 laurentg Exp $
+// $Id: Pattern.h,v 1.4 2003-01-19 11:09:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,11 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.2  2002/11/01 13:09:19  laurentg
 // Management of the still capture context slightly updated - works now even with stills in memory
 //
@@ -272,6 +277,9 @@ public:
 
     /// This method returns the name of the test pattern
     char* GetName();
+
+    int GetInitialWidth() {return GetWidth();};
+    int GetInitialHeight() {return GetHeight();};
 
     /// This method returns the width of the test pattern
     int GetWidth();

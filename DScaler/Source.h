@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.33 2003-01-18 13:55:43 laurentg Exp $
+// $Id: Source.h,v 1.34 2003-01-19 11:09:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,10 @@ public:
     virtual eVideoFormat GetFormat() = 0;
     /// Are we currently showing the output from the tuner
     virtual BOOL IsInTunerMode() = 0;
+    /// Gets the initial width of each picture in pixels
+    virtual int GetInitialWidth() = 0;
+    /// Gets the initial height of each frame in pixels, for interlaced this is x2 FieldHeight
+    virtual int GetInitialHeight() = 0;
     /// Gets the width of each picture in pixels
     virtual int GetWidth() = 0;
     /// Gets the height of each frame in pixels, for interlaced this is x2 FieldHeight

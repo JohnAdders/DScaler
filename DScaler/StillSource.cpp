@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.81 2003-01-18 10:52:12 laurentg Exp $
+// $Id: StillSource.cpp,v 1.82 2003-01-19 11:09:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2003/01/18 10:52:12  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.80  2003/01/08 19:59:38  laurentg
 // Analogue Blanking setting by source
 //
@@ -472,6 +477,8 @@ CStillSource::CStillSource(LPCSTR IniSection) :
 {
     m_IDString = "Still_" + std::string(IniSection);
     CreateSettings(IniSection);
+    m_InitialWidth = 0;
+    m_InitialHeight = 0;
     m_Width = 0;
     m_Height = 0;
     m_StillFrameBuffer = NULL;
@@ -681,6 +688,8 @@ BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int Fr
     m_OriginalFrameBuffer = FrameBuffer;
     m_OriginalFrame.pData = StartFrame;
     m_LinePitch = LinePitch;
+    m_InitialHeight = FrameHeight;
+    m_InitialWidth = FrameWidth;
     m_Height = FrameHeight;
     m_Width = FrameWidth;
     m_SquarePixels = SquarePixels;
@@ -1589,6 +1598,16 @@ LPCSTR CStillSource::GetStatus()
 eVideoFormat CStillSource::GetFormat()
 {
     return VIDEOFORMAT_PAL_B;
+}
+
+int CStillSource::GetInitialWidth()
+{
+    return m_InitialWidth;
+}
+
+int CStillSource::GetInitialHeight()
+{
+    return m_InitialHeight;
 }
 
 int CStillSource::GetWidth()

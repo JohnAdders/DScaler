@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.58 2003-01-18 13:55:43 laurentg Exp $
+// $Id: StillSource.h,v 1.59 2003-01-19 11:09:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -126,6 +126,8 @@ public:
 
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
+    int GetInitialWidth();
+    int GetInitialHeight();
     int GetWidth();
     int GetHeight();
 
@@ -175,6 +177,8 @@ private:
 	BOOL FindFileName(time_t TimeStamp, char* FileName);
 
 protected:
+    int         m_InitialWidth;
+    int         m_InitialHeight;
     int         m_Width;
     int         m_Height;
     BYTE*       m_StillFrameBuffer;

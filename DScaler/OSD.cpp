@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.77 2003-01-18 12:26:27 laurentg Exp $
+// $Id: OSD.cpp,v 1.78 2003-01-19 11:09:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2003/01/18 12:26:27  laurentg
+// Menu items for OSD screens allow now to select/display the screen instead of enable/disable it
+// The three OSD screens are now enabled by default
+//
 // Revision 1.76  2003/01/08 22:01:24  robmuller
 // Fixed problem with multi-line OSD messages at default size.
 //
@@ -936,7 +940,14 @@ static void OSD_RefreshGeneralScreen(double Size)
     // Source size
     if (pSource != NULL)
     {
-        sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+		if (pSource->GetWidth() != pSource->GetInitialWidth() || pSource->GetHeight() != pSource->GetInitialHeight())
+		{
+	        sprintf (szInfo, "Size %ux%u (%ux%u)", pSource->GetWidth(), pSource->GetHeight(), pSource->GetInitialWidth(), pSource->GetInitialHeight());
+		}
+		else
+		{
+		    sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+		}
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
 

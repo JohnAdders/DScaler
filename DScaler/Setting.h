@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.13 2002-10-02 10:55:17 kooiman Exp $
+// $Id: Setting.h,v 1.14 2002-10-15 15:06:01 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,183 +19,19 @@
 #ifndef __SETTING_H___
 #define __SETTING_H___
 
-#include <vector>
-
-#include "DS_ApiCommon.h"
-#include "DS_Control.h"
-#include "Events.h"
-//#include "Settings.h"
-//#include "TVFormats.h"
-
-//Specify/get type of OnChangeEven
-enum eOnChangeType
-{
-    ONCHANGE_NONE = 0,      //Don't call onchange
-    ONCHANGE_INIT,          //first time    
-    ONCHANGE_SET,           //user/program action (used most of the time)
-    ONCHANGE_SET_FORCE,     //user/program action (used most of the time), ignore valuechanged flag
-    ONCHANGE_SOURCECHANGE,  //new value because of source change
-    ONCHANGE_VIDEOINPUTCHANGE,
-    ONCHANGE_AUDIOINPUTCHANGE,
-    ONCHANGE_VIDEOFORMATCHANGE,
-    ONCHANGE_CHANNELCHANGE
-};
-
-enum eSettingFlags
-{
-    SETTINGFLAG_GLOBAL    =      0x0001,    
-    SETTINGFLAG_PER_SOURCE =     0x0002,   //Read/Save setting on source change and call OnChange function
-    SETTINGFLAG_PER_VIDEOINPUT = 0x0004,   //Read/Save setting on video input change and call OnChange function
-    SETTINGFLAG_PER_AUDIOINPUT = 0x0008,
-    SETTINGFLAG_PER_VIDEOFORMAT= 0x0010,
-    SETTINGFLAG_PER_CHANNEL =    0x0020,
-
-    SETTINGFLAG_PER_MASK =       0x003F,
-    SETTINGFLAG_FLAGSTOINI_MASK= 0x003F,
-
-    SETTINGFLAG_READFROMINI =    0x0100,
-    SETTINGFLAG_ISIN_INI =       0x0200,
-    
-    SETTINGFLAG_FLAGIN_INI =     0x0400,
-
-    SETTINGFLAG_HEXVALUE =       0x0800,   //For settings GUI, mask in GUIinfo
-    SETTINGFLAG_BITMASK  =       0x1000,   //For settings GUI, mask in GUIinfo, bitnames in pszList     
-
-    SETTINGFLAG_ALLOW_GLOBAL    =       0x00010000,    
-    SETTINGFLAG_ALLOW_PER_SOURCE =      0x00020000,   //Read/Save setting on source change and call OnChange function
-    SETTINGFLAG_ALLOW_PER_VIDEOINPUT =  0x00040000,   //Read/Save setting on video input change and call OnChange function
-    SETTINGFLAG_ALLOW_PER_AUDIOINPUT =  0x00080000,
-    SETTINGFLAG_ALLOW_PER_VIDEOFORMAT=  0x00100000,
-    SETTINGFLAG_ALLOW_PER_CHANNEL =     0x00200000,
-
-    SETTINGFLAG_ALLOW_ALL =             0x003F0000,    
-    SETTINGFLAG_ALLOW_MASK=             0x003F0000,    
-
-    
-    SETTINGFLAG_ONCHANGE_VALUECHANGED = 0x00800000, //Only call onchange if the value changed    
-
-    SETTINGFLAG_ONCHANGE_INIT =         0x01000000, //Allow onchange call on initialization
-    SETTINGFLAG_ONCHANGE_SET =          0x02000000, //usualy set        
-    SETTINGFLAG_ONCHANGE_READ =         0x04000000,
-    SETTINGFLAG_ONCHANGE_SOURCE =       0x08000000,
-    SETTINGFLAG_ONCHANGE_VIDEOINPUT=    0x10000000,
-    SETTINGFLAG_ONCHANGE_AUDIOINPUT =   0x20000000,
-    SETTINGFLAG_ONCHANGE_VIDEOFORMAT=   0x40000000,
-    SETTINGFLAG_ONCHANGE_CHANNEL =      0x80000000,
-    
-    SETTINGFLAG_ONCHANGE_ALL =          0xFE000000, //excluded: init
-
-};
-
-typedef BOOL (__cdecl SETTINGEX_ONCHANGE)(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting);
-
-typedef struct
-{
-    long  cbSize;        //total block size (sizeof(SETTINGEX))
-    long  DefaultSettingFlags;
-    char** pszGroupList;
-    long  GUIinfo;  //depends on flags
-    void*  pExOnChangeThis;
-    SETTINGEX_ONCHANGE* pfnExOnChange;  
-    long  SettingFlags;
-    long  LastSavedSettingFlags;
-    char* szLastSavedValueIniSection;
-} SETTINGEXPLUS;
-
-typedef struct
-{
-    char* szDisplayName;
-    SETTING_TYPE Type;
-    long LastSavedValue;
-    long* pValue;
-    long Default;
-    long MinValue;
-    long MaxValue;
-    long StepValue;
-    long OSDDivider;
-    const char** pszList;
-    char* szIniSection;
-    char* szIniEntry;
-    SETTING_ONCHANGE* pfnOnChange;
-    long  cbSize;        //total block size
-    long  DefaultSettingFlags;
-    char** pszGroupList;
-    long  GUIinfo;  //depends on flags  
-    SETTINGEX_ONCHANGE* pfnExOnChange;  
-    void*  pExOnChangeThis;
-    long  SettingFlags;
-    long  LastSavedSettingFlags;
-    char* szLastSavedValueIniSection;
-} SETTINGEX;
-
-typedef struct
-{
-    long cbSize;
-    char* szGroup;
-    char* szDisplayName;
-    char* szPopupInfo;
-} SETTINGGROUP;
+#include "ISetting.h"
+#include "SettingHolder.h"
 
 
-class CSettingGroup;
-class CSettingGroupList;
-class ISetting;
-class CSource;
-
-
-/** Interface for control of a setting
-*/
-class ISetting
-{
-public:
-    virtual ~ISetting() {;};
-    virtual void SetDefault(eOnChangeType OnChangeType = ONCHANGE_SET) = 0;
-    virtual SETTING_TYPE GetType() = 0;
-    virtual void ChangeValue(eCHANGEVALUE NewValue, eOnChangeType OnChangeType = ONCHANGE_SET ) = 0;
-    virtual BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE, eOnChangeType OnChangeType = ONCHANGE_NONE) = 0;
-    virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
-    virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection, long* Value = NULL, BOOL bSetDefaultOnFailure = TRUE, eOnChangeType OnChangeType = ONCHANGE_NONE, eSettingFlags* pSettingFlags = NULL) = 0;
-    virtual void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess, long* Value = NULL, eSettingFlags* pSettingFlags = NULL) = 0;  
-    virtual LPCSTR GetLastSavedValueIniSection() = 0;
-    virtual long GetValue() = 0;
-    virtual long GetMin() = 0;
-    virtual long GetMax() = 0;
-    virtual long GetDefault() = 0;
-    virtual void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE, eOnChangeType OnChangeType = ONCHANGE_NONE) = 0;
-    virtual void SetValue(long NewValue, eOnChangeType OnChangeType = ONCHANGE_SET) = 0;
-    virtual void OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType) {;};
-    virtual void DisableOnChange() = 0;
-    virtual void EnableOnChange() = 0;
-    virtual void OSDShow() = 0;
-    virtual const char** GetList() {return NULL;};
-    virtual void SetupControl(HWND hWnd) = 0;
-    virtual void SetControlValue(HWND hWnd) = 0;
-    virtual void SetFromControl(HWND hWnd, eOnChangeType OnChangeType = ONCHANGE_SET) = 0;
-    virtual void SetGroup(CSettingGroup* pGroup) = 0; 
-    virtual CSettingGroup* GetGroup() = 0;
-    virtual void SetFlags(eSettingFlags SettingFlags) = 0;
-    virtual void SetFlag(eSettingFlags SettingFlag, BOOL bEnable) = 0;
-    virtual eSettingFlags GetFlags() = 0;
-    virtual eSettingFlags GetDefaultFlags() = 0;
-    virtual BOOL ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultOnFailure = TRUE) = 0;
-    virtual void WriteFlagsToIniSection(LPCSTR szSection, BOOL bOptimizeFileAccess) = 0;
-    virtual eSettingFlags GetLastSavedFlagsValue() = 0; 
-    virtual void FlagsOnChange(eSettingFlags OldFlags, eSettingFlags Flags) = 0;
-};
-
-// To interface with onchange functions for cases when 
-//   no derived class is possible
-typedef BOOL (__cdecl ONCHANGE_STATICFUNC)(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting);
-
-/** Base class for settings that can be represented as a long
+/** Base class for settings that can be represented as a long    
 */
 class CSimpleSetting : public ISetting
 {
 public:
     CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue, 
                    CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
-    CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
+                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
+    CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
     CSimpleSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
     CSimpleSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
     virtual ~CSimpleSetting();
@@ -223,6 +59,7 @@ public:
 
     void SetFlags(eSettingFlags SettingsFlag);
     void SetFlag(eSettingFlags SettingFlag, BOOL bEnable);
+    void SetDefaultFlags(eSettingFlags SettingFlags, BOOL bSetFlagsToDefault);
     eSettingFlags GetFlags();
     eSettingFlags GetDefaultFlags();
     eSettingFlags GetLastSavedFlagsValue();
@@ -253,30 +90,44 @@ public:
 
     virtual void GetDisplayText(LPSTR szBuffer) = 0;    
 protected:    
-    //Local string & value storage
-    std::string  m_DisplayName;
-    std::string  m_Section;
-    std::string  m_Entry;
-    std::string  m_SectionFromLastValue;
-    std::string  m_sLastSavedValueIniSection;
-    long m_StoreValue;
-    SETTINGEXPLUS m_StoreExPlus;
-    //Free SETTING on exit
-    BOOL m_bFreeSettingOnExit;
+    /// Internal storage for display name
+    std::string    m_DisplayName;
+    /// Internal storage for default ini section
+    std::string    m_Section;
+    /// Internal storage for ini entry
+    std::string    m_Entry;
+    /// Internal storage for ini section of the last read/written value
+    //std::string    m_SectionFromLastValue;
+    /// Internal storage for ini section of the last read/written value
+    std::string    m_sLastSavedValueIniSection;
+    /// Internal storage for the actual value of the setting
+    long           m_StoreValue;
+    /// Internal structure with extended setting options
+    SETTINGEXPLUS  m_StoreExPlus;
+    
+    /// Set to TRUE to free m_pSetting at destruction
+    BOOL           m_bFreeSettingOnExit;
+    /// Internal read/write flags
+    long           m_ReadWriteFlags;
 
-    SETTING* m_pSetting;
+    /// Actual setting info.
+    SETTING*       m_pSetting;
+    /// Pointer to extended setting info.
     SETTINGEXPLUS* m_pSettingExPlus;
 
+    /// Setting group
     CSettingGroup* m_pGroup;
-    BOOL    m_EnableOnChange;
+    /// OnChange calls enabled/disabled
+    BOOL           m_EnableOnChange;
     
-    //Check flags and decide if onchange should be called
+    ///Check flags and decide if onchange should be called
     BOOL DoOnChange(long NewValue, long OldValue, eOnChangeType OnChangeType);
 
-    //Support for C-style SETTING
-    BOOL OnChangeWrapForSettingStructure(long NewValue, long OldValue, eOnChangeType OnChangeType);
+    ///Support for C-style SETTING
+    //BOOL OnChangeWrapForSettingStructure(long NewValue, long OldValue, eOnChangeType OnChangeType);
 
-    static BOOL StaticOnChangeWrapForSettingStructure(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting);
+    ///Static wrap for OnChange callback function
+    //static BOOL StaticOnChangeWrapForSettingStructure(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting);
 };
 
 /** Simple setting with a BOOL value
@@ -286,8 +137,8 @@ class CYesNoSetting : public CSimpleSetting
 public:
     CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, 
                    CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
-    CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
+                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
+    CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
     CYesNoSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
     CYesNoSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
 
@@ -309,8 +160,8 @@ class CSliderSetting : public CSimpleSetting
 public:    
     CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, 
                    CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
-    CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
+                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
+    CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
     CSliderSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
     CSliderSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
     
@@ -335,8 +186,8 @@ class CListSetting : public CSimpleSetting
 public:
     CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, 
                    CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
-    CListSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, ONCHANGE_STATICFUNC* pfnOnChangeFunc = NULL, void* pThis = NULL);
+                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
+    CListSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
     CListSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
     CListSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
 
@@ -354,108 +205,12 @@ private:
 //    const char** m_List;
 };
 
-class CSettingsHolder;
 
-
-//Holder for group info (only name + description for now)
-class CSettingGroup
-{
-public:
-    CSettingGroup(LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText = NULL, int Info = 0, CSettingsHolder* pObject = NULL);
-    ~CSettingGroup();
-
-    void SetLongName(LPCSTR szLongName);
-    LPCSTR GetName();
-    LPCSTR GetLongName();
-    LPCSTR GetInfoText();
-
-    CSettingsHolder* GetObject() { return m_pObject; }
-    int   ObjectOnly() { return m_OnlyCurrentObject; }
-
-protected:
-    CSettingsHolder* m_pObject;
-    int  m_OnlyCurrentObject;
-    std::string m_sGroupName;
-    std::string m_sDisplayName;
-    std::string m_sInfoText;
-};
-
-class CSettingGroupList
-{
-protected:
-    struct TSubGroupInfo
-    {
-        CSettingGroup* pGroup;
-        vector<struct TSubGroupInfo> vSubGroups;
-    };
-
-    TSubGroupInfo m_GroupList;
-
-    TSubGroupInfo* FindGroupRecursive(TSubGroupInfo* GroupList, CSettingGroup* pGroup);
-    void DeleteGroupsRecursive(TSubGroupInfo* pGroupList);
-public:    
-    CSettingGroupList();
-    ~CSettingGroupList();
-
-    CSettingGroup* Get(CSettingsHolder* pObject, char** pszGroupList, char** pszDisplayNameList = NULL, char** pszTooltip = NULL);         
-    CSettingGroup* GetGroup(CSettingsHolder* pObject, LPCSTR szGroupName, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
-    CSettingGroup* GetSubGroup(CSettingGroup* pGroup, LPCSTR szSubGroup, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
-
-    void Clear();
-
-    CSettingGroup* Get(int* Index);
-    int NumGroups(int* Index);  
-};
-
-/** Base class for any class that needs acesss to a list of ISetting settings.
-    The function CreateSettings should be overriden and then called in the 
-    constructor of the derived class.
+/**
+    Macro's to simplify definition of classes derived from one of the above
+    setting class types.
+    Defines an OnChange function.
 */
-class CSettingsHolder
-{
-public:
-    CSettingsHolder(long SetMessage);
-    ~CSettingsHolder();
-    long GetNumSettings();
-    ISetting* GetSetting(long SettingIndex);
-    virtual void CreateSettings(LPCSTR IniSection) = 0;
-    void ReadFromIni(int bInit = 1);
-    void WriteToIni(BOOL bOptimizeFileAccess);
-
-    void Add(ISetting* pSetting);
-    void Remove(ISetting* pSetting);
-
-    void DisableOnChange();
-    void EnableOnChange();
-
-    void LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup = NULL);
-    void LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, int Num, CSettingGroupList* pGroupList = NULL);
-
-    LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
-    
-    virtual void OnReadFromIni(SETTINGHOLDERID HolderID, BOOL bBefore) {;};
-    virtual void OnWriteToIni(SETTINGHOLDERID HolderID, BOOL bBefore) {;};
-    
-protected:
-    vector<ISetting*> m_Settings;    
-    long   m_SetMessage;
-
-    void SettingsProcessChange(eOnChangeType OnChangeType);
-};
-
-/** Standalone settings holder
-*/
-class CSettingsHolderStandAlone : public CSettingsHolder
-{
-public:
-    CSettingsHolderStandAlone();
-    ~CSettingsHolderStandAlone();
-    void CreateSettings(LPCSTR IniSection){;};
-
-    ISetting* operator[](int i) { if ((i>=0) && (i<m_Settings.size())) { return m_Settings[i]; } return NULL; }
-};
-
-
 
 #define DEFINE_YESNO_CALLBACK_SETTING(Class, Name) \
     protected: \
@@ -502,64 +257,6 @@ public:
     public: \
     void Name ## OnChange(long NewValue, long OldValue);
 
-
-class CTreeSettingsGeneric;
-
-class CSettingsMaster : public CEventObject
-{
-protected:
-    typedef struct 
-    {
-        SETTINGHOLDERID HolderID;
-        CSettingsHolder* pHolder;
-        BOOL bIsSource;    
-    } TSettingsHolderInfo;
-    
-    vector<TSettingsHolderInfo> m_Holders;
-
-    CSettingGroupList* m_SettingGroupList;
-    string m_sIniFile;
-    
-    string m_SourceName;
-    string m_VideoInputName;
-    string m_AudioInputName;
-    string m_VideoFormatName;
-    string m_ChannelName;
-
-    virtual void OnEvent(CEventObject* pObject, eEventType Event, long OldValue, long NewValue, eEventType* ComingUp);
-protected:        
-    void SaveSettings(CEventObject* pObject, eOnChangeType OnChangeType);
-    void LoadSettings(CEventObject* pObject, eOnChangeType OnChangeType);
-    void ParseAllSettings(CEventObject* pObject, int What, eOnChangeType OnChangeType);
-    void ModifyOneSetting(string sSubSection, ISetting* pSetting, int What, eOnChangeType OnChangeType);
-    
-    void ReadFlagsFromIni(CSettingsHolder* pHolder);
-    void WriteFlagsToIni(CSettingsHolder* pHolder, BOOL bOptimizeFileAccess);
-public:
-    CSettingsMaster();
-    ~CSettingsMaster();
-    
-    void IniFile(LPCSTR szIniFile) { m_sIniFile = szIniFile; }
-    void Register(SETTINGHOLDERID szHolderID, CSettingsHolder* pHolder, BOOL bIsSource = false);
-    void Unregister(SETTINGHOLDERID szHolderID);
-    void Unregister(CSettingsHolder* pHolder);
-    void ReadFlagsFromIni();
-    void WriteFlagsToIni(BOOL bOptimizeFileAccess);
-
-    CSettingGroupList* Groups();
-
-    CTreeSettingsGeneric* GroupTreeSettings(CSettingGroup* pGroup);
-    
-    int GetNumSettings(SETTINGHOLDERID szHolderID);
-    ISetting* GetSetting(SETTINGHOLDERID HolderID, int i);
-    
-public:    
-    void EventCallback(eEventType EventType, long OldValue, long NewValue);
-    //Static wrap
-    static void EventCallback(void* pThis, eEventType EventType, long OldValue, long NewValue);
-};
-
-extern CSettingsMaster* SettingsMaster;
 
 
 #endif

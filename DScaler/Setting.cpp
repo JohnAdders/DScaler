@@ -1,5 +1,5 @@
-/////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.17 2002-10-02 10:55:17 kooiman Exp $
+////////////////////////////////////////////////////////////////////////////
+// $Id: Setting.cpp,v 1.18 2002-10-15 15:06:01 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/02 10:55:17  kooiman
+// Fix event object casting and fixed groups.
+//
 // Revision 1.16  2002/09/29 13:55:38  adcockj
 // Standards
 //
@@ -96,9 +99,6 @@
 #include "OSD.h"
 #include "DScaler.h"
 #include "Slider.h"
-//#include "Source.h"
-#include "Providers.h"
-#include "ProgramList.h"
 
 
 #ifdef _DEBUG
@@ -107,184 +107,27 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+/** Internal flags
+*/
 
-CSettingsHolder::CSettingsHolder(long SetMessage) :
-    m_SetMessage(SetMessage)
-{
-}
+#define RWFLAG_READFROMINI 1
+#define RWFLAG_ISIN_INI  2
+#define RWFLAG_FLAGIN_INI 4
 
-CSettingsHolder::~CSettingsHolder()
-{
-    for (int i = 0; i < m_Settings.size(); i++)
-    {
-        if (m_Settings[i] != NULL)
-        {
-            m_Settings[i]->WriteToIni(TRUE);
-            delete m_Settings[i];
-            m_Settings[i] = NULL;
-        }
-    }
-}
+/** Constructor
 
-void CSettingsHolder::ReadFromIni(int bInit)
-{
-    for(vector<ISetting*>::iterator it = m_Settings.begin();
-        it != m_Settings.end();
-        ++it)
-    {
-        //(*it)->ReadFromIni(TRUE, TRUE, bInit?ONCHANGE_INIT:ONCHANGE_SET);
-        (*it)->ReadFromIni(TRUE, ONCHANGE_NONE);
-    }
-}
+    Specify setting parameters:
+    Display name, default value, minimum value, maximum value,
+    default ini section, ini entry, step value,
+    (optional:)
+    Setting group, setting flags,
+    GUI info, static callback function, pointer for callback function
 
-void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
-{
-    for(vector<ISetting*>::iterator it = m_Settings.begin();
-        it != m_Settings.end();
-        ++it)
-    {
-        if ((*it)->GetGroup()!=NULL)
-        {
-            (*it)->WriteToIni(bOptimizeFileAccess);
-        }
-        else
-        {
-            (*it)->WriteToIni(bOptimizeFileAccess);
-        }        
-    }
-}
-
-long CSettingsHolder::GetNumSettings()
-{
-    return m_Settings.size();
-}
-
-ISetting* CSettingsHolder::GetSetting(long SettingIndex)
-{
-    if(SettingIndex >= 0 && SettingIndex < m_Settings.size())
-    {
-        return m_Settings[SettingIndex];
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled)
-{
-    LONG RetVal = 0;
-    if (m_SetMessage == 0) { return 0; }
-    if(wParam > 0 && wParam < m_Settings.size())
-    {
-        if(message == m_SetMessage)
-        {
-            RetVal = m_Settings[wParam]->GetValue();
-            *bHandled = TRUE;
-        }
-        else if(message == m_SetMessage + 100)
-        {
-            m_Settings[wParam]->SetValue(lParam, ONCHANGE_SET);
-            *bHandled = TRUE;
-        }
-        else if(message == m_SetMessage + 200)
-        {
-            m_Settings[wParam]->ChangeValue((eCHANGEVALUE)lParam, ONCHANGE_SET);
-            *bHandled = TRUE;
-        }
-    }
-    return RetVal;
-}
-
-void CSettingsHolder::LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup)
-{
-    int i;
-    for (i = 0; i < StartNum; i++)
-    {
-        if (m_Settings.size()<=i) 
-        {
-            m_Settings.push_back(NULL);
-        }
-    }
-    for (i = StartNum; i < m_Settings.size(); i++)
-    {
-        m_Settings.pop_back();        
-    }
-    for (i = 0 ; i < Num; i++)
-    {
-        switch (pSetting->Type)
-        {
-        case ONOFF:
-        case YESNO:
-            m_Settings.push_back(new CYesNoSetting(pSetting, pGroup));
-        case ITEMFROMLIST:
-            m_Settings.push_back(new CListSetting(pSetting, pGroup));
-        case SLIDER:
-            m_Settings.push_back(new CSliderSetting(pSetting, pGroup));    
-        }
-    }
-}
-
-void CSettingsHolder::LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, int Num, CSettingGroupList* pGroupList)
-{
-    int i;
-    for (i = 0; i < StartNum; i++)
-    {
-        if (m_Settings.size()<=i) 
-        {
-            m_Settings.push_back(NULL);
-        }
-    }
-    for (i = StartNum; i < m_Settings.size(); i++)
-    {
-        m_Settings.pop_back();        
-    }
-    for (i = 0 ; i < Num; i++)
-    {
-        switch (pSetting->Type)
-        {
-        case ONOFF:
-        case YESNO:
-            m_Settings.push_back(new CYesNoSetting(pSetting, pGroupList));
-        case ITEMFROMLIST:
-            m_Settings.push_back(new CListSetting(pSetting, pGroupList));
-        case SLIDER:
-            m_Settings.push_back(new CSliderSetting(pSetting, pGroupList));    
-        }
-    }
-}
-
-void CSettingsHolder::EnableOnChange()
-{
-    for (int i = 0; i < m_Settings.size(); i++)
-    {
-        if (m_Settings[i] != NULL)
-        {
-            m_Settings[i]->EnableOnChange();
-        }
-    }
-}
-
-void CSettingsHolder::DisableOnChange()
-{
-    for (int i = 0; i < m_Settings.size(); i++)
-    {
-        if (m_Settings[i] != NULL)
-        {
-            m_Settings[i]->DisableOnChange();
-        }
-    }
-}
-
-CSettingsHolderStandAlone::CSettingsHolderStandAlone() : CSettingsHolder(0)
-{
-}
-
-CSettingsHolderStandAlone::~CSettingsHolderStandAlone()
-{
-}
-
-CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue, CSettingGroup* pGroup, eSettingFlags SettingFlags, LONG GUIinfo, ONCHANGE_STATICFUNC* pfnOnChangeFunc, void* pThis)
+*/
+CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, 
+                               LPCSTR Section, LPCSTR Entry, long StepValue, 
+                               CSettingGroup* pGroup, eSettingFlags SettingFlags, 
+                               LONG GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis)
 {
     m_pSetting = new SETTING;
     m_bFreeSettingOnExit = TRUE;
@@ -322,14 +165,29 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
 	m_pSettingExPlus->LastSavedSettingFlags = SettingFlags;
 	m_pSettingExPlus->szLastSavedValueIniSection = NULL;
 
-    m_pSettingExPlus->pfnExOnChange = pfnOnChangeFunc;    
-    m_pSettingExPlus->pExOnChangeThis = pThis;
+    m_pSettingExPlus->pfnExOnChange = pfnExOnChange;    
+    m_pSettingExPlus->pExOnChangeThis = pExOnChangeThis;
 	
     m_pGroup = pGroup;
     m_EnableOnChange = TRUE;
+    m_ReadWriteFlags = 0;
 }
 
-CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC* pfnOnChangeFunc, void* pThis)
+
+/** Constructor
+
+    Specify setting parameters:
+    Pointer to SETTING structure, 
+    (optional:)
+    Setting group,
+    Setting flags,
+    GUI info, 
+    static callback function, pointer for callback function
+
+*/
+CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup, 
+                               eSettingFlags SettingFlags, long GUIinfo, 
+                               SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis)
 {    
     m_pSetting = pSetting;
     m_bFreeSettingOnExit = FALSE;
@@ -347,20 +205,21 @@ CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettin
 	m_pSettingExPlus->LastSavedSettingFlags = SettingFlags;
 	m_pSettingExPlus->szLastSavedValueIniSection = NULL;
 	
-
-    if (pfnOnChangeFunc != NULL)
-    {
-        m_pSettingExPlus->pfnExOnChange = pfnOnChangeFunc;
-    }
-    else
-    {        
-		m_pSettingExPlus->pfnExOnChange = StaticOnChangeWrapForSettingStructure;	
-    }
-    m_pSettingExPlus->pExOnChangeThis = pThis;
+    m_pSettingExPlus->pfnExOnChange = pfnExOnChange;
+    m_pSettingExPlus->pExOnChangeThis = pExOnChangeThis;
 
     m_EnableOnChange = TRUE;
+    m_ReadWriteFlags = 0;
 }
 
+
+/** Constructor
+
+    Specify setting parameters:
+    Pointer to SETTINGEX structure, 
+    (optional:)
+    Pointer to the right setting group,
+*/
 CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting,CSettingGroup* pGroup)
 {    
     m_pSetting = (SETTING*)pSetting;
@@ -369,12 +228,21 @@ CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting,CSettingGroup* pGroup)
     m_pGroup = pGroup;
     m_pSettingExPlus = (SETTINGEXPLUS*)&pSetting->cbSize;
 
-	m_pSettingExPlus->SettingFlags = m_pSettingExPlus->DefaultSettingFlags;
+    m_pSettingExPlus->SettingFlags = m_pSettingExPlus->DefaultSettingFlags;
 	m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->DefaultSettingFlags;
 	m_pSettingExPlus->szLastSavedValueIniSection = NULL;    
     m_EnableOnChange = TRUE;
+    m_ReadWriteFlags = 0;
 }
 
+
+/** Constructor
+
+    Specify setting parameters:
+    Pointer to SETTINGEX structure, 
+    (optional:)
+    Pointer to group list where the group will be created
+*/
 CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting, CSettingGroupList* pList)
 {
     m_pSetting = (SETTING*)pSetting;
@@ -383,10 +251,17 @@ CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting, CSettingGroupList* pList)
     m_pGroup = NULL;
     if (pList!=NULL) 
     {
-        m_pGroup = pList->Get(NULL,pSetting->pszGroupList);
+        m_pGroup = pList->GetGroup(NULL,pSetting->pszGroupList);
     }
     m_pSettingExPlus = (SETTINGEXPLUS*)&pSetting->cbSize;
     m_EnableOnChange = TRUE;
+
+    m_pSettingExPlus->SettingFlags = m_pSettingExPlus->DefaultSettingFlags;
+	m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->DefaultSettingFlags;
+	m_pSettingExPlus->szLastSavedValueIniSection = NULL;
+
+    m_EnableOnChange = TRUE;
+    m_ReadWriteFlags = 0;
 }
 
 CSimpleSetting::~CSimpleSetting()
@@ -399,6 +274,9 @@ CSimpleSetting::~CSimpleSetting()
 }
 
 
+/**
+    Check if the setting should do an OnChange call
+*/
 BOOL CSimpleSetting::DoOnChange(long NewValue, long OldValue, eOnChangeType OnChangeType)
 {
     if (!m_EnableOnChange)
@@ -407,14 +285,20 @@ BOOL CSimpleSetting::DoOnChange(long NewValue, long OldValue, eOnChangeType OnCh
     }
 
     long Flags = m_pSettingExPlus->SettingFlags;
+
+    if (Flags&SETTINGFLAG_ONCHANGE_VALUECHANGED)
+    {
+        if (NewValue == OldValue)
+        {
+            return FALSE;
+        }
+    }
     
     switch(OnChangeType)
     {
     case ONCHANGE_NONE: return FALSE;
     case ONCHANGE_INIT: return ((Flags & SETTINGFLAG_ONCHANGE_INIT)!=0);
-    case ONCHANGE_SET:  return ( ((Flags & SETTINGFLAG_ONCHANGE_SET)!=0) && 
-                                 ( ((Flags&SETTINGFLAG_ONCHANGE_VALUECHANGED)==0) ||
-                                   ( ((Flags&SETTINGFLAG_ONCHANGE_VALUECHANGED)!=0) && (NewValue!=OldValue)) ));
+    case ONCHANGE_SET:  return ((Flags & SETTINGFLAG_ONCHANGE_SET)!=0);                                
     case ONCHANGE_SET_FORCE: return TRUE;
     case ONCHANGE_SOURCECHANGE: return ((Flags & SETTINGFLAG_ONCHANGE_INIT)!=0);
     case ONCHANGE_VIDEOINPUTCHANGE: return ((Flags & SETTINGFLAG_ONCHANGE_VIDEOINPUT)!=0);
@@ -440,6 +324,9 @@ long CSimpleSetting::GetValue()
     return *m_pSetting->pValue;    
 }
 
+/**
+    Set value
+*/
 void CSimpleSetting::SetValue(long NewValue, eOnChangeType OnChangeType)
 {
     long OldValue = *m_pSetting->pValue;
@@ -458,6 +345,11 @@ void CSimpleSetting::SetValue(long NewValue, eOnChangeType OnChangeType)
     }
 }
 
+/**
+    Set default value.
+    Use OnChangeType = ONCHANGE_NONE to avoid that
+    the actual value will be set to the default value
+*/
 void CSimpleSetting::SetDefault(eOnChangeType OnChangeType)
 {
     long OldValue = *m_pSetting->pValue;
@@ -472,7 +364,6 @@ long CSimpleSetting::GetDefault()
 {
     return m_pSetting->Default;
 }
-
 
 void CSimpleSetting::SetSection(LPCSTR NewValue)
 {
@@ -501,7 +392,6 @@ LPCSTR CSimpleSetting::GetEntry()
     return m_pSetting->szIniEntry;
 }
 
-
 void CSimpleSetting::SetFlags(eSettingFlags SettingFlags)
 {
    if (m_pSettingExPlus->SettingFlags != SettingFlags)
@@ -513,6 +403,22 @@ void CSimpleSetting::SetFlags(eSettingFlags SettingFlags)
    }
 }
 
+void CSimpleSetting::SetDefaultFlags(eSettingFlags SettingFlags, BOOL bSetFlagsToDefault)
+{
+    m_pSettingExPlus->DefaultSettingFlags = SettingFlags;
+    if (!(m_ReadWriteFlags & RWFLAG_FLAGIN_INI))
+    {
+        m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->DefaultSettingFlags;
+    }
+    m_pSettingExPlus->DefaultSettingFlags = SettingFlags;
+    if (bSetFlagsToDefault)
+    {
+        SetFlags(SettingFlags);
+    }
+}
+
+/** Set one flag to enabled or disabled
+*/
 void CSimpleSetting::SetFlag(eSettingFlags Flag, BOOL bEnabled)
 {
    eSettingFlags SettingFlags = (eSettingFlags)((m_pSettingExPlus->SettingFlags&~Flag) | (bEnabled?Flag:0));
@@ -534,7 +440,14 @@ eSettingFlags CSimpleSetting::GetLastSavedFlagsValue()
 	return (eSettingFlags)m_pSettingExPlus->LastSavedSettingFlags;
 }
 
-
+/** Read value from sub section in .ini file
+    @param szSubSection Set to NULL to read from the default location
+    @param Value If not NULL, this value is set instead of the Setting's value
+    @param bSetDefaultOnFailure If the setting was not in the .ini file, set the setting's value to the default value
+    @param OnChangeType Call type for OnChange function. (ONCHANGE_NONE for no call)
+    @param pSettingFlags Override setting flags of current setting if not NULL
+    @return TRUE if value was in .ini file            
+*/
 BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, long* Value, BOOL bSetDefaultOnFailure, eOnChangeType OnChangeType, eSettingFlags* pSettingFlags)
 {
     long nValue;
@@ -628,6 +541,8 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, long* Value, BOO
     return IsSettingInIniFile;
 }
 
+/** Read value from default location in .ini file
+*/
 BOOL CSimpleSetting::ReadFromIni(BOOL bSetDefaultOnFailure, eOnChangeType OnChangeType)
 {
 	return ReadFromIniSubSection(NULL,NULL, bSetDefaultOnFailure, OnChangeType, NULL);
@@ -638,6 +553,9 @@ LPCSTR CSimpleSetting::GetLastSavedValueIniSection()
     return m_pSettingExPlus->szLastSavedValueIniSection;
 }
 
+/** Write value to szSubsection in .ini file
+    Override value and setting flags if Value and/or pSettingFlags is not NULL.
+*/
 void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess, long* Value, eSettingFlags* pSettingFlags)
 {
     if(m_pSetting->szIniSection != NULL)
@@ -687,8 +605,8 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 }
  
 
- 
-
+ /** Change default value
+*/
 void CSimpleSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue, eOnChangeType OnChangeType)
 {
     m_pSetting->Default = NewDefault;
@@ -829,12 +747,23 @@ CSettingGroup* CSimpleSetting::GetGroup()
     return m_pGroup;
 }
 
+/** Default OnChange function
+    Child class can override
+
+    This function calls the pfnExOnChange function
+    or the pfnOnChange function of the setting
+    if one of them is not NULL
+*/
 void CSimpleSetting::OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType)
 {
     //No override, try static
     if ((m_pSettingExPlus->pfnExOnChange!=NULL) && (OnChangeType!=ONCHANGE_NONE))
     {
         m_pSettingExPlus->pfnExOnChange(m_pSettingExPlus->pExOnChangeThis, NewValue, OldValue, OnChangeType, m_pSetting);
+    }
+    else if ((m_pSetting->pfnOnChange!=NULL) && (OnChangeType!=ONCHANGE_NONE))
+    {
+        m_pSetting->pfnOnChange(NewValue);
     }
 }
 
@@ -843,6 +772,8 @@ void CSimpleSetting::FlagsOnChange(eSettingFlags OldFlags, eSettingFlags Flags)
 	///\todo
 }
 
+/** Read setting flags from szSection
+*/
 BOOL CSimpleSetting::ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultOnFailure)
 {
 	eSettingFlags FlagsSetting = SETTINGFLAG_BITMASK;
@@ -879,8 +810,11 @@ BOOL CSimpleSetting::ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultO
 			Flags = atoi(szValue);
 		}
 		    
-	    Flags = (m_pSettingExPlus->SettingFlags&~SETTINGFLAG_FLAGSTOINI_MASK) | (Flags&SETTINGFLAG_FLAGSTOINI_MASK);
-		Flags |= SETTINGFLAG_FLAGIN_INI;
+	    // Make sure only the right flags are read
+        long Mask = SETTINGFLAG_FLAGSTOINI_MASK;
+        Mask = (Mask & ~SETTINGFLAG_PER_MASK) | ((m_pSettingExPlus->SettingFlags & SETTINGFLAG_ALLOW_MASK)>>16);        
+        Flags = (m_pSettingExPlus->SettingFlags&~Mask) | (Flags&Mask);
+		m_ReadWriteFlags |= RWFLAG_FLAGIN_INI;
 		
 		eSettingFlags OldFlags = (eSettingFlags)m_pSettingExPlus->SettingFlags;
 		m_pSettingExPlus->SettingFlags = (long)Flags;
@@ -890,30 +824,44 @@ BOOL CSimpleSetting::ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultO
 	return IsSettingInIniFile;
 }
 
+/** Read setting flags to szSection
+*/
 void CSimpleSetting::WriteFlagsToIniSection(LPCSTR szSection, BOOL bOptimizeFileAccess)
 {
-	eSettingFlags FlagsSetting = SETTINGFLAG_BITMASK;
-	long Flags = (m_pSettingExPlus->SettingFlags&SETTINGFLAG_FLAGSTOINI_MASK);
+	// Make sure only the right flags are written
+    eSettingFlags FlagsSetting = SETTINGFLAG_BITMASK;
+	long Flags = m_pSettingExPlus->SettingFlags;
+    long Mask = SETTINGFLAG_FLAGSTOINI_MASK;
+    Mask = (Mask & ~SETTINGFLAG_PER_MASK) | ((Flags & SETTINGFLAG_ALLOW_MASK)>>16);        
+    Flags = (m_pSettingExPlus->SettingFlags&~Mask) | (Flags&Mask);
 	
 	if (!bOptimizeFileAccess || (m_pSettingExPlus->SettingFlags != m_pSettingExPlus->LastSavedSettingFlags))
 	{
 		WriteToIniSubSection(szSection, FALSE, &Flags, &FlagsSetting);
 	}
 	
-	SetFlag(SETTINGFLAG_FLAGIN_INI, TRUE);
+	m_ReadWriteFlags |= RWFLAG_FLAGIN_INI;
 	m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->SettingFlags;	
 }
 
 
-CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC pfnOnChangeFunc, void* pThis) :
-    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)    
+
+
+
+/** List setting.
+    Specify list with 'pszList',
+    for the rest of the parameters: 
+    @see CSimpleSetting
+*/
+CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis) :
+    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnExOnChange, pExOnChangeThis)    
 {
     m_pSetting->Type = ITEMFROMLIST;
     m_pSetting->pszList = pszList;
 }
 
-CListSetting::CListSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC* pfnOnChangeFunc, void* pThis) : 
-	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
+CListSetting::CListSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis) : 
+	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnExOnChange, pExOnChangeThis)
 {   
 }
 
@@ -963,15 +911,20 @@ void CListSetting::SetFromControl(HWND hWnd, eOnChangeType OnChangeType)
 }
 
 
-CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC pfnOnChangeFunc, void* pThis) :
-    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
+
+/** Slider setting.
+    For the parameters: 
+    @see CSimpleSetting
+*/
+CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis) :
+    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnExOnChange, pExOnChangeThis)
 {
     m_pSetting->OSDDivider = 1;
     m_pSetting->Type = SLIDER;
 }
 
-CSliderSetting::CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC* pfnOnChangeFunc, void* pThis) : 
-	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
+CSliderSetting::CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis) : 
+	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnExOnChange, pExOnChangeThis)
 {    
 }
 
@@ -1063,15 +1016,20 @@ void CSliderSetting::SetFromControl(HWND hWnd, eOnChangeType OnChangeType)
 }
 
 
-
-CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC pfnOnChangeFunc, void* pThis) :
-    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
+/** Yes/No setting.
+    Has only 0 or 1 as possible values.    
+    
+    For the rest of the parameters: 
+    @see CSimpleSetting
+*/
+CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis) :
+    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnExOnChange, pExOnChangeThis)
 {
     m_pSetting->Type = YESNO;
 }
 
-CYesNoSetting::CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC* pfnOnChangeFunc, void* pThis) : 
-	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
+CYesNoSetting::CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, SETTINGEX_ONCHANGE* pfnExOnChange, void* pExOnChangeThis) : 
+	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnExOnChange, pExOnChangeThis)
 {  
 }
 
@@ -1112,682 +1070,3 @@ void CYesNoSetting::SetFromControl(HWND hWnd, eOnChangeType OnChangeType)
     SetValue(Button_GetCheck(hWnd) == BST_CHECKED, OnChangeType);
 }
 
-BOOL CSimpleSetting::OnChangeWrapForSettingStructure(long NewValue, long OldValue, eOnChangeType OnChangeType)
-{
-   if (m_pSetting->pfnOnChange!=NULL)
-   {        
-       return m_pSetting->pfnOnChange(NewValue);
-   }
-   return FALSE;
-}
-
-BOOL CSimpleSetting::StaticOnChangeWrapForSettingStructure(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting)
-{
-   if (pThis != NULL)
-   {
-       return ((CSimpleSetting*)pThis)->OnChangeWrapForSettingStructure(NewValue, OldValue, OnChangeType);
-   }
-   return FALSE;
-}
-
-CSettingGroup::CSettingGroup(LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText, int Info, CSettingsHolder* pObject)
-{
-    if (szGroupName == NULL) 
-	{ 
-		m_sGroupName = ""; 
-	} else { 
-		m_sGroupName = szGroupName; 
-	}
-    if (szLongName == NULL) 
-	{ 
-		m_sDisplayName=""; 
-	} else { 
-		m_sDisplayName = szLongName; 
-	}
-	if (szInfoText == NULL) 
-	{ 
-		m_sInfoText=""; 
-	} else { 
-		m_sInfoText = szInfoText; 
-	}
-
-
-	m_OnlyCurrentObject = 0;
-	if (Info&1)
-	{
-		m_OnlyCurrentObject = 1;
-	}
-	m_pObject = pObject;
-}
-
-CSettingGroup::~CSettingGroup()
-{
-}
-
-void CSettingGroup::SetLongName(LPCSTR szLongName)
-{
-    m_sDisplayName = szLongName;
-}
-LPCSTR CSettingGroup::GetName() 
-{
-    return m_sGroupName.c_str();
-}
-LPCSTR CSettingGroup::GetLongName()
-{
-    return m_sDisplayName.c_str();
-}
-LPCSTR CSettingGroup::GetInfoText()
-{
-	return m_sInfoText.c_str();
-}
-
-
-CSettingGroupList::CSettingGroupList()
-{    
-	m_GroupList.pGroup = NULL;
-}
-
-CSettingGroupList::~CSettingGroupList()
-{    
-	Clear();
-}
-
-void CSettingGroupList::DeleteGroupsRecursive(CSettingGroupList::TSubGroupInfo* pGroupList)
-{
-	for (int i = 0; i < pGroupList->vSubGroups.size(); i++)
-	{
-		DeleteGroupsRecursive(&pGroupList->vSubGroups[i]);		
-	}	
-	pGroupList->vSubGroups.clear();
-
-    if (pGroupList->pGroup != NULL) 
-	{ 
-        delete pGroupList->pGroup;
-		pGroupList->pGroup = NULL;
-		return;
-	}	
-}
-
-
-void CSettingGroupList::Clear()
-{
-	DeleteGroupsRecursive(&m_GroupList);
-	m_GroupList.vSubGroups.clear();
-}
-
-
-CSettingGroup* CSettingGroupList::Get(CSettingsHolder* pObject, char** pszList, char** pszDisplayNameList, char** pszTooltips)
-{        
-    if (pszList == NULL) { return NULL; }	
-	
-	CSettingGroup* pGroup = NULL;
-	TSubGroupInfo* pSubGroupInfo = &m_GroupList;	
-	char* szGroupName = NULL;
-	char* szDisplayName = NULL;
-	char* szTooltip = NULL;
-	int i = 0;
-	int j = 0;
-	int h = 0;
-    do
-    { 		
-		szGroupName = pszList[i]; 
-		if (pszDisplayNameList!=NULL)
-		{
-			szDisplayName = pszDisplayNameList[j];			
-		}
-		if (pszTooltips!=NULL)
-		{
-			szTooltip = pszTooltips[h];			
-		}		
-		if (szGroupName != NULL)
-		{
-			BOOL bFound = FALSE;
-			int k;
-			for (k = 0; k < pSubGroupInfo->vSubGroups.size(); k++)
-			{
-				pGroup = pSubGroupInfo->vSubGroups[k].pGroup;
-				if ((pGroup != NULL)
-				    && (!strcmp(pGroup->GetName(),szGroupName))
-					&& (!pGroup->ObjectOnly() || (pObject == pGroup->GetObject())) )
-				{
-					//Found
-					pGroup = pSubGroupInfo->vSubGroups[k].pGroup;
-					pSubGroupInfo = &pSubGroupInfo->vSubGroups[k];
-					bFound = TRUE;
-					break;
-				}
-			}
-			if (!bFound) //Not found, create new
-			{
-				pGroup = new CSettingGroup(szGroupName, szDisplayName, szTooltip, (pObject!=NULL)?1:0, pObject);                
-				TSubGroupInfo sgi;
-				sgi.pGroup = pGroup;				
-				pSubGroupInfo->vSubGroups.push_back(sgi);
-				pSubGroupInfo = &pSubGroupInfo->vSubGroups[k];                
-			}
-		}	
-		i++;
-		if ((pszDisplayNameList!=NULL) && (pszDisplayNameList[j] != NULL))
-		{
-			j++;
-		}	
-		if ((pszTooltips!=NULL) && (pszTooltips[h] != NULL))
-		{
-			h++;
-		}	
-	} while (szGroupName!=NULL);
-	return pGroup;
-}
-
-CSettingGroup* CSettingGroupList::GetGroup(CSettingsHolder* pObject, LPCSTR szGroupName, LPCSTR szDisplayName, LPCSTR szTooltip)
-{
-	char* pszGroupList[2];
-	char* pszDisplayName[2];
-	char* pszTooltip[2];
-	
-	pszGroupList[0] = (char*)szGroupName;
-	pszDisplayName[0] = (char*)szDisplayName;
-	pszTooltip[0] = (char*)szTooltip;	
-	
-	pszGroupList[1] = NULL;
-	pszDisplayName[1] = NULL;
-	pszTooltip[1] = NULL;	
-	return Get(pObject, (char**)pszGroupList, (char**)pszDisplayName, (char**)pszTooltip);
-}
-
-
-CSettingGroup* CSettingGroupList::Get(int* Index)
-{
-	TSubGroupInfo* pSubGroupInfo = &m_GroupList;		
-	if (Index == NULL) { return NULL; }
-	for (;;)
-	{
-	   if (*Index < 0)
-	   {
-		   return pSubGroupInfo->pGroup;
-	   }
-	   else
-	   {
-			if (*Index >= pSubGroupInfo->vSubGroups.size())
-			{
-				return NULL;
-			}
-			else
-			{
-				pSubGroupInfo = &pSubGroupInfo->vSubGroups[*Index];
-			}
-	   }
-	   Index++;
-	}
-}
-
-CSettingGroupList::TSubGroupInfo* CSettingGroupList::FindGroupRecursive(CSettingGroupList::TSubGroupInfo* pGroupList, CSettingGroup* pGroup)
-{
-	if (pGroupList->pGroup == pGroup) { return pGroupList; }
-	TSubGroupInfo* pSubGroupInfo = NULL;
-	for (int i = 0; i < pGroupList->vSubGroups.size(); i++)
-	{
-		pSubGroupInfo = FindGroupRecursive(&pGroupList->vSubGroups[i], pGroup);
-		if (pSubGroupInfo != NULL)
-		{
-			return pSubGroupInfo;
-		}	
-	}
-	return pSubGroupInfo;
-}
-
-
-CSettingGroup* CSettingGroupList::GetSubGroup(CSettingGroup* pMainGroup, LPCSTR szSubGroup, LPCSTR szDisplayName, LPCSTR szTooltip)
-{
-	TSubGroupInfo* pSubGroupInfo = FindGroupRecursive(&m_GroupList, pMainGroup);
-	CSettingGroup* pGroup = NULL;
-
-	if (pSubGroupInfo != NULL)
-	{
-		pGroup = new CSettingGroup(szSubGroup, szDisplayName, szTooltip, pSubGroupInfo->pGroup->ObjectOnly(), pSubGroupInfo->pGroup->GetObject());
-		TSubGroupInfo sgi;
-		sgi.pGroup = pGroup;				
-		pSubGroupInfo->vSubGroups.push_back(sgi);
-	}
-	
-	return pGroup;	
-}
-
-
-int CSettingGroupList::NumGroups(int* Index)
-{
-	TSubGroupInfo* pSubGroupInfo = &m_GroupList;		
-	if (Index == NULL) { return 0; }
-	for (;;)
-	{
-	   if (*Index < 0)
-	   {
-		   return pSubGroupInfo->vSubGroups.size();
-	   }
-	   else
-	   {
-			if (*Index >= pSubGroupInfo->vSubGroups.size())
-			{
-				return 0;
-			}
-			else
-			{
-				pSubGroupInfo = &pSubGroupInfo->vSubGroups[*Index];
-			}
-	   }
-	   Index++;
-	}	
-}
-
-
-CSettingsMaster::CSettingsMaster() :
-m_SettingGroupList(NULL)
-{
-    eEventType EventList[] = {
-        EVENT_INIT,
-        EVENT_DESTROY,
-        EVENT_SOURCE_PRECHANGE,
-        EVENT_SOURCE_CHANGE,
-        EVENT_VIDEOINPUT_PRECHANGE,
-        EVENT_VIDEOINPUT_CHANGE,
-        EVENT_AUDIOINPUT_PRECHANGE,
-        EVENT_AUDIOINPUT_CHANGE,
-        EVENT_VIDEOFORMAT_PRECHANGE,
-        EVENT_VIDEOFORMAT_CHANGE,
-        EVENT_CHANNEL_PRECHANGE,
-        EVENT_CHANNEL_CHANGE,
-        EVENT_ENDOFLIST
-    };
-    EventCollector->Register(this, EventList);
-}
-
-CSettingsMaster::~CSettingsMaster()
-{
-	EventCollector->Unregister(this);
-	if (m_SettingGroupList != NULL)
-	{
-		delete m_SettingGroupList;
-		m_SettingGroupList = NULL;
-	}	
-}
-
-CSettingGroupList* CSettingsMaster::Groups()
-{
-    if (m_SettingGroupList == NULL)
-    {
-        m_SettingGroupList = new CSettingGroupList;
-    }    
-    return m_SettingGroupList;
-}
-
-
-void CSettingsMaster::ReadFlagsFromIni(CSettingsHolder* pHolder)
-{    
-	//Flags
-	for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if ( ((pHolder == NULL) && (m_Holders[i].pHolder != NULL)) 
-             || ((pHolder!=NULL) && (m_Holders[i].pHolder == pHolder))
-           )
-        {
-			int Num = m_Holders[i].pHolder->GetNumSettings();
-		    ISetting* pSetting;
-			
-			for (int n = 0; n < Num; n++)
-			{
-				pSetting = m_Holders[i].pHolder->GetSetting(n);
-				if (pSetting != NULL)
-				{
-					if (pSetting->GetFlags() & SETTINGFLAG_ALLOW_MASK)
-					{
-						pSetting->ReadFlagsFromIniSection("SettingFlags");
-					}
-				}
-			} 
-        }
-    }
-}
-
-void CSettingsMaster::WriteFlagsToIni(CSettingsHolder* pHolder, BOOL bOptimizeFileAccess)
-{
-	//Flags    
-	for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if ( ((pHolder == NULL) && (m_Holders[i].pHolder != NULL)) 
-             || ((pHolder!=NULL) && (m_Holders[i].pHolder == pHolder))
-           )
-        {
-			int Num = m_Holders[i].pHolder->GetNumSettings();
-		    ISetting* pSetting;
-			eSettingFlags FlagSetting = SETTINGFLAG_BITMASK;
-        
-			for (int n = 0; n < Num; n++)
-			{
-				pSetting = m_Holders[i].pHolder->GetSetting(n);
-				if (pSetting != NULL)
-				{
-					if (pSetting->GetFlags() & SETTINGFLAG_ALLOW_MASK)
-					{
-						pSetting->WriteFlagsToIniSection("SettingFlags", TRUE);
-					}
-				}
-			} 
-        }
-    }
-}
-
-void CSettingsMaster::ReadFlagsFromIni()
-{
-    ReadFlagsFromIni(NULL);
-}
-
-void CSettingsMaster::WriteFlagsToIni(BOOL bOptimizeFileAccess)
-{
-    WriteFlagsToIni(NULL,bOptimizeFileAccess);
-}
-
-void CSettingsMaster::ModifyOneSetting(string sSubSection, ISetting* pSetting, int What, eOnChangeType OnChangeType)
-{
-    if (What==1)
-    {
-        pSetting->WriteToIniSubSection(sSubSection.c_str(),TRUE);
-    }
-    else if (What==0)
-    {        
-        pSetting->ReadFromIniSubSection(sSubSection.c_str(),NULL,TRUE,OnChangeType);
-    }
-}
-
-void CSettingsMaster::ParseAllSettings(CEventObject* pObject, int What, eOnChangeType OnChangeType)
-{
-    for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
-		{
-            CSource* pSource;
-            try 
-            {
-                pSource = dynamic_cast<CSource*>(m_Holders[i].pHolder);            
-            } 
-            catch (...)
-            {
-                pSource = NULL;
-            }
-			if ((pSource != NULL) && ((CEventObject*)pSource != pObject))
-			{
-				continue;
-			}
-		}
-        
-		int Num = m_Holders[i].pHolder->GetNumSettings();
-        CSimpleSetting* pSetting;
-        eSettingFlags SettingFlags;
-        string sSection;
-		BOOL bAction = FALSE;
-
-        for (int n = 0; n < Num; n++)
-        {
-            pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
-            if (pSetting != NULL)
-            {
-                bAction = FALSE;
-				SettingFlags = pSetting->GetFlags();
-                      
-                if ((SettingFlags&SETTINGFLAG_PER_SOURCE) && (SettingFlags&SETTINGFLAG_ALLOW_PER_SOURCE) && (m_SourceName.length()>0))
-                {
-                    sSection+=m_SourceName+"_";
-					if (OnChangeType == ONCHANGE_SOURCECHANGE) { bAction = TRUE; }
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOINPUT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_VIDEOINPUT) && (m_VideoInputName.length()>0))
-                {
-                    sSection+=m_VideoInputName+"_";
-					if (OnChangeType == ONCHANGE_VIDEOINPUTCHANGE) { bAction = TRUE; }
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_AUDIOINPUT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_AUDIOINPUT) && (m_AudioInputName.length()>0))
-                {
-                    sSection+=m_AudioInputName+"_";
-					if (OnChangeType == ONCHANGE_AUDIOINPUTCHANGE) { bAction = TRUE; }
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOFORMAT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_VIDEOFORMAT) && (m_VideoFormatName.length()>0))
-                {
-                    sSection+=m_VideoFormatName+"_";
-					if (OnChangeType == ONCHANGE_VIDEOFORMATCHANGE) { bAction = TRUE; }
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_CHANNEL) && (SettingFlags&SETTINGFLAG_ALLOW_PER_CHANNEL) && (m_ChannelName.length()>0))
-                {
-                    sSection+=m_ChannelName+"_";
-					if (OnChangeType == ONCHANGE_CHANNELCHANGE) { bAction = TRUE; }
-                }
-                if (bAction && (sSection.length() > 0))
-                {
-                    int Len = sSection.length();
-					if (sSection[Len-1] == '_') { sSection = sSection.substr(0,Len-1); }
-										
-                    ModifyOneSetting(sSection, pSetting, What, OnChangeType);
-                } else
-                {
-                    if ((SettingFlags&SETTINGFLAG_GLOBAL) && (SettingFlags&SETTINGFLAG_ALLOW_GLOBAL))
-                    {                        
-						//ModifyOneSetting("", pSetting, What, OnChangeType);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void CSettingsMaster::LoadSettings(CEventObject* pObject, eOnChangeType OnChangeType)
-{
-    ParseAllSettings(pObject, 0, OnChangeType);
-}
-
-
-void CSettingsMaster::SaveSettings(CEventObject* pObject, eOnChangeType OnChangeType)
-{
-    ParseAllSettings(pObject, 1, OnChangeType);
-}
-
-void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder* pHolder, BOOL bIsSource)
-{
-    if (pHolder == NULL)
-    {
-        return;
-    }
-    Unregister(pHolder);
-    TSettingsHolderInfo shi;    
-    shi.HolderID = HolderID;
-    shi.pHolder = pHolder;
-	shi.bIsSource = bIsSource;
-    m_Holders.push_back(shi);
-    //Read flags:
-    ReadFlagsFromIni(pHolder);
-}
-
-void CSettingsMaster::Unregister(SETTINGHOLDERID HolderID)
-{
-    vector<TSettingsHolderInfo> NewList;
-    for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if (m_Holders[i].HolderID == HolderID)
-        {
-            //
-        } 
-        else 
-        {
-            NewList.push_back(m_Holders[i]);
-        }
-    }
-    m_Holders = NewList;
-}
-void CSettingsMaster::Unregister(CSettingsHolder* pHolder)
-{
-    vector<TSettingsHolderInfo> NewList;
-    for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if (m_Holders[i].pHolder == pHolder)
-        {
-            //
-        } 
-        else 
-        {
-            NewList.push_back(m_Holders[i]);
-        }
-    }
-    m_Holders = NewList;
-}
-
-void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldValue, long NewValue, eEventType* ComingUp)
-{
-    switch (Event)
-    {
-    case EVENT_SOURCE_PRECHANGE:    
-        if (m_SourceName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_SOURCECHANGE);
-        }
-        break;        
-    
-    case EVENT_SOURCE_CHANGE:    
-        if (NewValue!=0)
-        {
-            m_SourceName = ((CSource*)NewValue)->IDString();
-            LoadSettings(pObject, ONCHANGE_SOURCECHANGE);
-        }
-        else
-        {
-            m_SourceName = "";
-        }
-        break;
-     
-    case EVENT_CHANNEL_PRECHANGE:   
-        if (m_ChannelName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_CHANNELCHANGE); 
-        }
-        break;
-        
-    case EVENT_CHANNEL_CHANGE:
-        if (NewValue>=0)
-        {        
-            char szBuffer[33];
-            m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_CHANNELCHANGE);  
-        }
-        else
-        {
-            m_ChannelName = "";
-        }
-        break;
-    
-    case EVENT_VIDEOINPUT_PRECHANGE:
-        if (m_VideoInputName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE); 
-        }
-        break;        
-
-    case EVENT_VIDEOINPUT_CHANGE:
-        if (NewValue>=0)
-        {
-            char szBuffer[33];
-            m_VideoInputName = string("VideoInput") +  itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE);
-        }
-        else
-        {
-            m_VideoInputName = "";
-        }
-        break;    
-
-    case EVENT_AUDIOINPUT_PRECHANGE:
-        if (m_AudioInputName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE); 
-        }
-        break;
-        
-    case EVENT_AUDIOINPUT_CHANGE:
-        if (NewValue>=0)
-        {
-            char szBuffer[33];
-            m_AudioInputName = string("AudioInput") +  itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE);
-        }
-        else
-        {
-            m_AudioInputName = "";
-        }
-        break;
-        
-    case EVENT_VIDEOFORMAT_PRECHANGE:
-        if (m_VideoFormatName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE);
-        }
-        break;
-        
-    case EVENT_VIDEOFORMAT_CHANGE:
-        if (NewValue>=0)
-        {
-            char szBuffer[33];
-            m_VideoFormatName = string("VideoFormat") +  itoa(NewValue, szBuffer, 10);            
-            LoadSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE);
-        }
-        else
-        {
-            m_VideoFormatName = "";
-        }
-        break;
-    }    
-}
-
-
-CTreeSettingsGeneric* CSettingsMaster::GroupTreeSettings(CSettingGroup* pGroup)
-{
-	vector<CSimpleSetting*> SettingList;
-
-	for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
-		{
-            CSource* pSource;
-            try 
-            {
-                pSource = dynamic_cast<CSource*>(m_Holders[i].pHolder);            
-            } 
-            catch (...)
-            {
-                pSource = NULL;
-            }
-			if ((pSource != NULL) && (pSource != Providers_GetCurrentSource())) //((CEventObject*)pSource != pObject))
-			{
-				continue;
-			}
-		}
-		
-		int Num = m_Holders[i].pHolder->GetNumSettings();
-        CSimpleSetting* pSetting;
-        
-        for (int n = 0; n < Num; n++)
-        {
-            pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
-            if ((pSetting != NULL) && (pSetting->GetGroup() == pGroup))
-            {
-				SettingList.push_back(pSetting);
-			}
-		}
-	}
-	if (SettingList.size() == 0)
-	{
-		return NULL;
-	}
-	else
-	{
-		char* szName = (char*)pGroup->GetLongName();
-		if ((szName == NULL) || (szName[0]==0)) 
-		{ 
-			szName = (char*)pGroup->GetName(); 
-		}	
-        return new CTreeSettingsGeneric(szName,SettingList);
-	}
-}

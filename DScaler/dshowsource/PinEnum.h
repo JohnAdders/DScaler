@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PinEnum.h,v 1.3 2002-02-13 17:00:40 tobbej Exp $
+// $Id: PinEnum.h,v 1.4 2002-04-16 15:28:25 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/13 17:00:40  tobbej
+// new template based enumerator class
+//
 // Revision 1.2  2001/12/17 19:36:16  tobbej
 // renamed a few classes
 //
@@ -68,6 +71,10 @@ public:
 	 */
 	CDShowGenericEnum(EnumInterface *pEnum) : 
 	  m_pEnum(pEnum)
+	{
+	
+	}
+	virtual ~CDShowGenericEnum()
 	{
 	
 	}
@@ -145,7 +152,11 @@ public:
 
 		for(int i=0;i<=index;i++)
 		{
-			item=NULL;
+			if(item!=NULL)
+			{
+				item->Release();
+				item=NULL;
+			}
 			hr=next(&item);
 			if(hr!=S_OK)
 			{

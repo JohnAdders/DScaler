@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.44 2004-02-24 05:35:18 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.45 2004-03-11 03:48:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/02/24 05:35:18  atnak
+// Renamed Much TV Plus
+//
 // Revision 1.43  2004/02/24 05:02:19  atnak
 // Renamed Much TV Plus IT005
 //
@@ -446,7 +449,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     {
         "Tevion MD 9717",
         0x7134,
-        4,
+        5,
         {
             {
                 "Tuner",
@@ -464,6 +467,12 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
                 AUDIOINPUTSOURCE_LINE1,
             },
             {

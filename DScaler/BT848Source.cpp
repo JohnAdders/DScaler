@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.79 2002-09-29 13:53:40 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.80 2002-10-07 20:31:02 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2002/09/29 13:53:40  adcockj
+// Ensure Correct History stored
+//
 // Revision 1.78  2002/09/29 10:14:14  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -404,26 +407,42 @@ CBT848Source::~CBT848Source()
 
 void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if ((void*)pEventObject != (void*)this)
-	{
-		return;
-	}
-	if (Event == EVENT_CHANNEL_PRECHANGE)
+    if (pEventObject == (CEventObject*)this)
     {
-        ChannelChange(1, OldValue, NewValue);
+        if (Event == EVENT_CHANNEL_PRECHANGE)
+        {
+            ChannelChange(1, OldValue, NewValue);
+        }
+        else if (Event == EVENT_CHANNEL_CHANGE)
+        {
+            ChannelChange(0, OldValue, NewValue);
+        }
     }
-    else if (Event == EVENT_CHANNEL_CHANGE)
-    {
-        ChannelChange(0, OldValue, NewValue);
+	
+    if ((Event == EVENT_AUDIOSTANDARD_DETECTED) || (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED))
+	{
+        CAudioDecoder* pAudioDecoder;
+        try 
+        {
+            pAudioDecoder = dynamic_cast<CAudioDecoder*>(pEventObject);
+        }
+        catch (...)
+        {
+            pAudioDecoder = NULL;
+        }
+        
+        if ((pAudioDecoder!=NULL) && m_pBT848Card->IsMyAudioDecoder(pAudioDecoder))
+        {
+            if (Event == EVENT_AUDIOSTANDARD_DETECTED)
+            {
+                AudioStandardDetected(NewValue);        
+	        }
+	        else if (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED)
+	        {
+		        SupportedSoundChannelsDetected((eSupportedSoundChannels)NewValue);
+	        }
+        }
     }
-	else if (Event == EVENT_AUDIOSTANDARD_DETECTED)
-	{
-		AudioStandardDetected(NewValue);        
-	}
-	else if (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED)
-	{
-		SupportedSoundChannelsDetected((eSupportedSoundChannels)NewValue);
-	}
 }
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
@@ -734,9 +753,9 @@ void CBT848Source::Reset()
     NotifySizeChange();
 
     m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue(), ONCHANGE_SET_FORCE);
-    
+        
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-    m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);    
+	m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
 }
 
@@ -1472,13 +1491,19 @@ BOOL CBT848Source::HasTuner()
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-    /*
+    
     //Doesn't work yet
-    if(VideoFormat == VIDEOFORMAT_IS_FM_RADIO)
+    if(VideoFormat == (VIDEOFORMAT_LASTONE+1))
     {
-        return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
+        /*if (m_AudioStandardDetect->GetValue()==0)
+		{
+			m_AudioStandardDetect->SetValue(4,ONCHANGE_NONE);
+			m_AudioStandardManual->SetValue(0x40);
+			m_AudioStandardDetect->SetValue(0,ONCHANGE_NONE);
+		}*/
+		return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
     }
-    */
+    
     if(VideoFormat == VIDEOFORMAT_LASTONE)
     {
         VideoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();

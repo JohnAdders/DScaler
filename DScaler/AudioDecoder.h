@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.12 2002-10-02 10:52:35 kooiman Exp $
+// $Id: AudioDecoder.h,v 1.13 2002-10-07 20:31:02 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/02 10:52:35  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.11  2002/09/27 14:13:27  kooiman
 // Improved stereo detection & manual audio standard dialog box.
 //
@@ -117,7 +120,7 @@ public:
     virtual long GetAudioStandardMinorCarrier(long Standard);
     virtual void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
     virtual long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
-    // Interval in milliseconds
+    // Interval in milliseconds. <=0 for abort.
     // SupportedSoundChannels == 1: detect after standard
     // SupportedSoundChannels == 2: detect now, no standard detect
     virtual void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);

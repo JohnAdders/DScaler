@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.54 2002-09-29 13:56:30 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.55 2002-10-07 20:31:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/09/29 13:56:30  adcockj
+// Fixed some cursor hide problems
+//
 // Revision 1.53  2002/09/28 13:33:04  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -511,7 +514,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
             case IDCANCEL:
 				if (pThis->m_DetectingAudioStandard)
 				{
-
+			
 				}
 				else
 				{
@@ -1576,12 +1579,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             PostShowDialogOrMenu();
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:
-            {
-                if (m_DetectingAudioStandard) 
-                {
-                    OSD_ShowText(hWnd, "Detection in progress", 0);
-                    break;
-                }   
+            {                
                 m_DetectingAudioStandard = 1;
                 if (m_AutoStereoSelect->GetValue())
                 {
@@ -1594,6 +1592,13 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 OSD_ShowText(hWnd, "Detect Audio Standard", 0);
             }
             break;
+
+		case IDC_TOOLBAR_VOLUME_CHANNEL:
+			{
+				eSoundChannel SoundChannel = (eSoundChannel)lParam;
+				m_AudioChannel->SetValue(SoundChannel);
+			}
+			break;
 
         default:
             return FALSE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.63 2004-06-23 20:15:22 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.64 2004-07-10 11:57:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2004/06/23 20:15:22  to_see
+// Created an new struct TControlSettings for better handling
+// more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
+//
 // Revision 1.62  2004/06/02 18:43:54  to_see
 // New TAudioRegList structure to hold audio register
 // settings for better handling
@@ -1426,6 +1430,17 @@ void CCX2388xCard::ResetChip()
             Command |= 0x06;
             SetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber);
             ::Sleep(500);
+        }
+    }
+
+    if(GetPCIConfigOffset(&Command, 0x40, m_BusNumber, m_SlotNumber))
+    {
+        // switch on allow master and respond to memory requests
+        if((Command & 0x01) == 0x01)
+        {
+            LOG(1, " CX2388x eeprom write were enabled 0x40 Register was %d", Command);
+            Command &= ~0x01;
+            SetPCIConfigOffset(&Command, 0x40, m_BusNumber, m_SlotNumber);
         }
     }
 

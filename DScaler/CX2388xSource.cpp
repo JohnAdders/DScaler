@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.68 2004-06-19 20:13:47 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.69 2004-07-10 11:57:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2004/06/19 20:13:47  to_see
+// Faster and better A2 Stereo Detection
+//
 // Revision 1.67  2004/06/01 20:04:51  to_see
 // some minor audio fixes
 //
@@ -2173,8 +2176,8 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 	// all CX2388x-Cards have
 	// VendorID = 0x14F1
 	// DeviceID = 0x8800 (first sub-device)
-	// we are only searching for this.
-	const char szCX2388X_HW_ID[] = "PCI\\VEN_14F1&DEV_8800";
+	// we are only searching for this...
+    const char* szCX2388X_HW_ID = "PCI\\VEN_14F1&DEV_88";
 	
 	// scan only Media-Classes
 	HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
@@ -2209,12 +2212,45 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 
 			else
 			{
-				return FALSE;;
+				return FALSE;
 			}
 		}
+        LOG(0,buffer);
 
 		if(strncmp(buffer, szCX2388X_HW_ID, strlen(szCX2388X_HW_ID)) == 0)
 		{
+            LOG(1,"CX2388x WDM-Driver found.");
+		    
+		    // see DDK src/setup/devcon
+		    SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
+		    PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+		    PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
+		    PropChangeParams.Scope = DICS_FLAG_GLOBAL;
+		    PropChangeParams.StateChange = NewState; 
+		    PropChangeParams.HwProfile = 0;
+    
+		    if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
+			    (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
+		    {
+			    LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_GLOBAL.", NewState == DICS_DISABLE ? "Stop" : "Start");
+			    return FALSE;
+		    }
+
+		    PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+		    PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
+		    PropChangeParams.Scope = DICS_FLAG_CONFIGSPECIFIC;
+		    PropChangeParams.StateChange = NewState; 
+		    PropChangeParams.HwProfile = 0;
+
+		    if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
+			    (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
+			    || !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
+		    {
+			    LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
+			    return FALSE;
+		    }
+		    
+		    LOG(1,"CX2388x WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
 			bFound = TRUE;
 		}
 		
@@ -2222,76 +2258,14 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 		{
 			LocalFree(buffer);
 		}
-
-		if(bFound == TRUE)
-		{
-			break;
-		}
 	}
 
-	BOOL bSucces = FALSE;
-
-	if(bFound == TRUE)
-	{
-        LOG(1,"CX2388x WDM-Driver found.");
-		
-		// see DDK src/setup/devcon
-		SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
-		PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
-		PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
-		PropChangeParams.Scope = DICS_FLAG_GLOBAL;
-		PropChangeParams.StateChange = NewState; 
-		PropChangeParams.HwProfile = 0;
-    
-		if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
-			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
-		{
-			LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_GLOBAL.",
-				NewState == DICS_DISABLE ? "Stop" : "Start");
-		}
-
-		else
-		{
-			PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
-			PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
-			PropChangeParams.Scope = DICS_FLAG_CONFIGSPECIFIC;
-			PropChangeParams.StateChange = NewState; 
-			PropChangeParams.HwProfile = 0;
-
-			if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
-				(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
-				|| !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
-			{
-				LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC. No Admin Rights?",
-					NewState == DICS_DISABLE ? "Stop" : "Start");
-			}
-
-			else
-			{
-				bSucces = TRUE;
-
-				SP_DEVINSTALL_PARAMS DevInstallParam ={sizeof(SP_DEVINSTALL_PARAMS)};
-				if(SetupDiGetDeviceInstallParams(hDevInfo,&DeviceInfoData,&DevInstallParam)
-					&& (DevInstallParam.Flags & (DI_NEEDRESTART|DI_NEEDREBOOT)))
-				{
-					LOG(0,"Unable to %s CX2388x WDM-Driver. Other Software uses this card.",
-						NewState == DICS_DISABLE ? "Stop" : "Start");
-				}
-				
-				else
-				{
-					LOG(1,"CX2388x WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
-				}
-			}
-		}
-	}
-
-	else
+	if(bFound != TRUE)
 	{
         LOG(1,"CX2388x WDM-Driver not found.");
 	}
 
 	SetupDiDestroyDeviceInfoList(hDevInfo);
 	
-	return bSucces;
+	return bFound;
 }

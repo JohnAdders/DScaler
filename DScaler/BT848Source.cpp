@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.120 2003-03-09 19:48:28 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.121 2003-03-24 23:24:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.120  2003/03/09 19:48:28  laurentg
+// Updated field statistics
+//
 // Revision 1.119  2003/03/09 11:35:24  laurentg
 // Judder Terminator - input timing slightly updated
 //
@@ -586,8 +589,14 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
     CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
-    CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
-    CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
+
+	//
+	// WARNING : temporary change to have correct tuner audio input after DScaler first start
+	//
+	//CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", 0);
+
+	CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioControl = GetSettingsGroup("BT848 - Audio Control", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioOther  = GetSettingsGroup("BT848 - Audio Other", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioEqualizerGroup = GetSettingsGroup("BT848 - Audio Equalizer", SETTING_BY_CHANNEL);

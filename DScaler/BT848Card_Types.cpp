@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.31 2003-02-20 10:39:59 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.32 2003-04-23 08:41:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/02/20 10:39:59  adcockj
+// Added KWorld MPEGTV RF Pro - Patch from Kevin Radke
+//
 // Revision 1.30  2002/10/29 11:05:27  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -262,7 +265,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
                 1,
             },
         },
-        PLL_NONE,
+        PLL_28,
         TUNER_USER_SETUP,
         SOUNDCHIP_NONE,
         NULL,
@@ -1562,7 +1565,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
                 1,
             },
         },
-        PLL_NONE,
+        PLL_28,
         TUNER_USER_SETUP,
         SOUNDCHIP_NONE,
         NULL,

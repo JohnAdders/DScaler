@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.8 2001-12-18 13:12:11 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.9 2001-12-18 23:36:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.7  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -57,25 +60,33 @@ BOOL CBT848Card::HasMSP()
 
 void CBT848Card::InitAudio()
 {
-    CMSP34x0* msp = new CMSP34x0();
+    CMSP34x0Controls* MSPControls = new CMSP34x0Controls();
 
-    msp->Attach(m_I2CBus);
-    msp->Reset();
+    MSPControls->Attach(m_I2CBus);
+    MSPControls->Reset();
     ::Sleep(4);
 
     // setup version information
-    int rev1 = msp->GetVersion();
-    int rev2 = msp->GetProductCode();
+    int rev1 = MSPControls->GetVersion();
+    int rev2 = MSPControls->GetProductCode();
 
     if (0 == rev1 && 0 == rev2)
     {
-        delete msp;
+        delete MSPControls;
         m_bHasMSP = false;
         return;
     }
     m_bHasMSP = true;
-    m_AudioControls = msp;
-    m_AudioDecoder = msp;
+
+	delete m_AudioControls;
+    m_AudioControls = MSPControls;
+    
+	// need to create two so that we can delete all objects properly
+	CMSP34x0Decoder* MSPDecoder = new CMSP34x0Decoder();
+	MSPDecoder->Attach(m_I2CBus);
+    
+	delete m_AudioDecoder;
+	m_AudioDecoder =  MSPDecoder;
 
     // set volume to Mute level
     m_AudioControls->SetMute();

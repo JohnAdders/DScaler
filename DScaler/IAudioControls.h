@@ -1,5 +1,5 @@
 //
-// $Id: IAudioControls.h,v 1.1 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: IAudioControls.h,v 1.2 2001-12-18 23:36:01 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__IAUDIOCONTROLS_H__)
@@ -34,6 +37,7 @@
 class IAudioControls
 {
 public:
+	virtual ~IAudioControls() {};
     virtual void SetMute(bool mute=true) = 0;
     virtual bool IsMuted() = 0;
     virtual void SetVolume(WORD volume) = 0;

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: GenericTuner.cpp,v 1.5 2001-12-18 23:36:01 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.3  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -297,7 +300,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
     
     div &= 0x7fff;
 
-    BYTE buffer[4] = {(BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), m_Config, config};
+    BYTE buffer[] = {(BYTE) m_DeviceAddress << 1, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), m_Config, config};
 
     bool result = m_I2CBus->Write(buffer, sizeof(buffer));
     return result;

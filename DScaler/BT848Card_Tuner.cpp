@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.6 2001-11-26 13:02:27 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.7 2001-12-18 23:36:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.5  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -94,7 +97,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     }
     if (tunerId != TUNER_ABSENT) 
     {
-        for (BYTE test = 0xC0; test < 0xCF; test++)
+        for (BYTE test = 0xC0; test < 0xCF; test +=2)
         {
             if (m_I2CBus->Write(&test, sizeof(test)))
             {

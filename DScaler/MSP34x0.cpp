@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: MSP34x0.cpp,v 1.5 2001-12-18 23:36:01 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.3  2001/12/03 17:27:56  adcockj
 // SECAM NICAM patch from Quenotte
 //
@@ -148,15 +151,6 @@ static int m_CarrierDetectMinor[8] =
 CMSP34x0::CMSP34x0()
 {
     m_bNicam = FALSE;
-    m_nMode = 0;
-    m_nMajorMode = MSP34x0_MAJORMODE_NTSC;
-    m_nMinorMode = MSP34x0_MINORMODE_PAL_BG_FM;
-
-    m_Muted = false;
-    m_Volume = 900;
-    m_Balance = 0;
-    m_Bass = 0;
-    m_Treble = 0;
 }
 
 BYTE CMSP34x0::GetDefaultAddress()const
@@ -177,13 +171,23 @@ void CMSP34x0::SetRegister(BYTE subAddress, WORD reg, WORD value)
     WriteToSubAddress(subAddress, write, sizeof(write));
 }
 
+CMSP34x0Controls::CMSP34x0Controls() : CMSP34x0()
+{
+    m_Muted = false;
+    m_Volume = 900;
+    m_Balance = 0;
+    m_Bass = 0;
+    m_Treble = 0;
+}
 
-void CMSP34x0::Reset()
+
+void CMSP34x0Controls::Reset()
 {
     BYTE reset[2] = {0x80, 0};
     WriteToSubAddress(MSP_CONTROL, reset, sizeof(reset));
     reset[0] = 0;
     WriteToSubAddress(MSP_CONTROL, reset, sizeof(reset));
+	reset[0] = 1;
 }
 
 WORD CMSP34x0::GetVersion()
@@ -198,7 +202,7 @@ WORD CMSP34x0::GetProductCode()
     return result;
 }
 
-void CMSP34x0::SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
+void CMSP34x0Controls::SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
 {
     if (nLoudness > 68)
     {
@@ -208,13 +212,13 @@ void CMSP34x0::SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
     SetRegister(MSP_WR_DSP, 0x33, ((nLoudness & 0xFF) << 8) | (bSuperBass ? 0x4 : 0));
 }
 
-void CMSP34x0::SetSpatialEffects(long nSpatial)
+void CMSP34x0Controls::SetSpatialEffects(long nSpatial)
 {
     // Mode A, Automatic high pass gain
     SetRegister(MSP_WR_DSP, 0x05, ((nSpatial & 0xFF) << 8) | 0x8);
 }
 
-void CMSP34x0::SetEqualizer(long EqIndex, long nLevel)
+void CMSP34x0Controls::SetEqualizer(long EqIndex, long nLevel)
 {
     if (EqIndex < 0 || EqIndex > 4)
     {
@@ -227,7 +231,14 @@ void CMSP34x0::SetEqualizer(long EqIndex, long nLevel)
     SetRegister(MSP_WR_DSP, 0x21 + EqIndex, (nLevel & 0xFF) << 8);
 }
 
-void CMSP34x0::SetCarrier(int cdo1, int cdo2)
+CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
+{
+    m_nMode = 0;
+    m_nMajorMode = MSP34x0_MAJORMODE_NTSC;
+    m_nMinorMode = MSP34x0_MINORMODE_PAL_BG_FM;
+}
+
+void CMSP34x0Decoder::SetCarrier(int cdo1, int cdo2)
 {
     SetRegister(MSP_WR_DEM, 0x93, cdo1 & 0xfff);
     SetRegister(MSP_WR_DEM, 0x9b, cdo1 >> 12);
@@ -236,7 +247,7 @@ void CMSP34x0::SetCarrier(int cdo1, int cdo2)
     SetRegister(MSP_WR_DEM, 0x56, 0);
 }
 
-void CMSP34x0::SetMode(long nMode)
+void CMSP34x0Decoder::SetMode(long nMode)
 {
     int i;
     
@@ -274,7 +285,7 @@ void CMSP34x0::SetMode(long nMode)
 
 ///////
 ///////
-void CMSP34x0::SetMute(bool mute)
+void CMSP34x0Controls::SetMute(bool mute)
 {
     m_Muted = mute;
     if (m_Muted)
@@ -288,12 +299,12 @@ void CMSP34x0::SetMute(bool mute)
     }
 }
 
-bool CMSP34x0::IsMuted()
+bool CMSP34x0Controls::IsMuted()
 {
     return m_Muted;
 }
 
-void CMSP34x0::SetVolume(WORD nVolume)
+void CMSP34x0Controls::SetVolume(WORD nVolume)
 {
     if (nVolume < 0 || nVolume > 1000)
     {
@@ -310,24 +321,24 @@ void CMSP34x0::SetVolume(WORD nVolume)
     SetRegister(MSP_WR_DSP, 0x06, nVolume << 4);
 }
 
-WORD CMSP34x0::GetVolume()
+WORD CMSP34x0Controls::GetVolume()
 {
     return m_Volume;
 }
 
-void CMSP34x0::SetBalance(WORD nBalance)
+void CMSP34x0Controls::SetBalance(WORD nBalance)
 {
     m_Balance = nBalance;
     SetRegister(MSP_WR_DSP, 0x01, (nBalance & 0xFF) << 8);
     SetRegister(MSP_WR_DSP, 0x30, (nBalance & 0xFF) << 8);
 }
 
-WORD CMSP34x0::GetBalance()
+WORD CMSP34x0Controls::GetBalance()
 {
     return m_Balance;
 }
 
-void CMSP34x0::SetBass(WORD nBass)
+void CMSP34x0Controls::SetBass(WORD nBass)
 {
     if (nBass < -96)
     {
@@ -338,12 +349,12 @@ void CMSP34x0::SetBass(WORD nBass)
     SetRegister(MSP_WR_DSP, 0x31, (nBass & 0xFF) << 8);
 }
 
-WORD CMSP34x0::GetBass()
+WORD CMSP34x0Controls::GetBass()
 {
     return m_Bass;
 }
 
-void CMSP34x0::SetTreble(WORD nTreble)
+void CMSP34x0Controls::SetTreble(WORD nTreble)
 {
     if (nTreble < -96)
     {
@@ -354,7 +365,7 @@ void CMSP34x0::SetTreble(WORD nTreble)
     SetRegister(MSP_WR_DSP, 0x32, (nTreble & 0xFF) << 8);
 }
 
-WORD CMSP34x0::GetTreble()
+WORD CMSP34x0Controls::GetTreble()
 {
     return m_Treble;
 }
@@ -362,7 +373,7 @@ WORD CMSP34x0::GetTreble()
 ///////
 ///////
 
-void CMSP34x0::SetVideoFormat(eVideoFormat videoFormat)
+void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
 {
     CAudioDecoder::SetVideoFormat(videoFormat);
 /// \todo FIXME FIXME FIXME
@@ -378,7 +389,7 @@ void CMSP34x0::SetVideoFormat(eVideoFormat videoFormat)
 }
 
 
-void CMSP34x0::SetSoundChannel(eSoundChannel soundChannel)
+void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
 {
     int nicam = 0;
     int src = 0;
@@ -464,7 +475,7 @@ void CMSP34x0::SetSoundChannel(eSoundChannel soundChannel)
 }
 
 
-void CMSP34x0::SetMajorMinorMode(eMajorMode majorMode, eMinorMode minorMode)
+void CMSP34x0Decoder::SetMajorMinorMode(eMajorMode majorMode, eMinorMode minorMode)
 {
     m_nMajorMode = majorMode;
     m_nMinorMode = minorMode;
@@ -515,12 +526,12 @@ void CMSP34x0::SetMajorMinorMode(eMajorMode majorMode, eMinorMode minorMode)
 }
 
 
-void CMSP34x0::SetAudioInput(eAudioInput audioInput)
+void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
 {
     CAudioDecoder::SetAudioInput(audioInput);
 }
 
-eSoundChannel CMSP34x0::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
+eSoundChannel CMSP34x0Decoder::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
 {
     eSoundChannel result = desiredAudioChannel;
     int val;

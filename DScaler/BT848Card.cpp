@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.14 2001-12-18 13:12:11 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.15 2001-12-18 23:36:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.13  2001/12/16 17:04:37  adcockj
 // Debug Log improvements
 //
@@ -169,11 +172,11 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 
 CBT848Card::~CBT848Card()
 {
-    ClosePCICard();
 	delete m_I2CBus;
-	delete m_AudioControls;
 	delete m_AudioDecoder;
+	delete m_AudioControls;
 	delete m_Tuner;
+    ClosePCICard();
 }
 
 void CBT848Card::CloseCard()

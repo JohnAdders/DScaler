@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.15 2004-11-27 19:31:57 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.16 2004-11-28 06:54:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/11/27 19:31:57  atnak
+// Updated to use CTDA9887Ex class and tda9887 settings in card list.
+//
 // Revision 1.14  2004/11/23 19:25:13  to_see
 // Added comments for Atsushi.
 //
@@ -137,56 +140,43 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         return TRUE;
     }
 
-
     // Look for possible external IF demodulator
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
-    BYTE IFDemDeviceAddress[2] = { 0, 0 };
-    eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
-    int NumAddressesToSearch = 2;
 
 	// bUseTDA9887 is the setting in SAA713xCards.ini.
     if (m_SAA713xCards[m_CardType].bUseTDA9887)
     {
         CTDA9887Ex *pTDA9887 = new CTDA9887Ex();
 
-		// Set card specific modes that were parsed from SAA713xCards.ini.
-		size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
-		for (size_t i = 0; i < count; i++)
+		// Detect to make sure an IF demodulator exists.
+		if (pTDA9887->DetectAttach(m_I2CBus))
 		{
-			pTDA9887->SetModes(&m_SAA713xCards[m_CardType].tda9887Modes[i]);
+			// Set card specific modes that were parsed from SAA713xCards.ini.
+			size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
+			for (size_t i = 0; i < count; i++)
+			{
+				pTDA9887->SetModes(&m_SAA713xCards[m_CardType].tda9887Modes[i]);
+			}
+
+			// Found a valid external IF demodulator.
+			pExternalIFDemodulator = pTDA9887;
 		}
-
-        pExternalIFDemodulator = pTDA9887;
-        IFDemDeviceAddress[0] = I2C_TDA9887_0;
-        IFDemDeviceAddress[1] = I2C_TDA9887_1;
+		else
+		{
+			// A TDA9887 device wasn't detected.
+			delete pTDA9887;
+		}
     }
 
-    // Detect and attach IF demodulator to the tuner
-    //  or delete the demodulator if the chip doesn't exist.
-    if (pExternalIFDemodulator != NULL)
-    {
-        for (int i(0); i < NumAddressesToSearch; ++i)
-        {
-            if (IFDemDeviceAddress[i] != 0)
-            {
-                // Attach I2C bus if the demodulator chip uses it
-                pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress[i]);
-            }
-            if (pExternalIFDemodulator->Detect())
-            {
-                m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
-                pExternalIFDemodulator->Init(TRUE, videoFormat);
-                break;
-            }
-        }
-        // if didn't find anything then
-        // need to delete the instance
-        if (i == NumAddressesToSearch)
-        {
-            delete pExternalIFDemodulator;
-            pExternalIFDemodulator = NULL;
-        }
-    }
+	eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
+
+	if (pExternalIFDemodulator != NULL)
+	{
+		// Attach the IF demodulator to the tuner.
+		m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+		// Let the IF demodulator know of pre-initialization.
+		pExternalIFDemodulator->Init(TRUE, videoFormat);
+	}
 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
@@ -206,7 +196,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
     if (pExternalIFDemodulator != NULL)
     {
-        //End initialization
+        // End initialization
         pExternalIFDemodulator->Init(FALSE, videoFormat);
     }
 

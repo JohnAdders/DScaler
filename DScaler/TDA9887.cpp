@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.15 2004-11-28 06:46:25 atnak Exp $
+// $Id: TDA9887.cpp,v 1.16 2004-11-28 06:53:22 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/11/28 06:46:25  atnak
+// Added DetectAttach() to do the chip scanning work.
+//
 // Revision 1.14  2004/11/27 19:07:43  atnak
 // Changed constant to more correct name.
 //
@@ -149,14 +152,15 @@ CTDA9887::~CTDA9887()
 }
 
 
-bool CTDA9887::DetectAttach(CI2CBus* i2cBus)
+bool CTDA9887::DetectAttach(IN CI2CBus* i2cBus, OUT BYTE* address)
 {
 	BYTE tda9887Addresses[4] = { I2C_TDA9887_0, I2C_TDA9887_1,
 								 I2C_TDA9887_2, I2C_TDA9887_3 };
-	return DetectAttach(i2cBus, tda9887Addresses, 4);
+	return DetectAttach(i2cBus, tda9887Addresses, 4, address);
 }
 
-bool CTDA9887::DetectAttach(CI2CBus* i2cBus, BYTE* addresses, size_t count)
+bool CTDA9887::DetectAttach(IN CI2CBus* i2cBus, IN BYTE* addresses,
+							IN size_t count, OUT BYTE* address)
 {
 	for (size_t i = 0; i < count; ++i)
 	{
@@ -166,6 +170,10 @@ bool CTDA9887::DetectAttach(CI2CBus* i2cBus, BYTE* addresses, size_t count)
 
 			if (Detect())
 			{
+				if (address != NULL)
+				{
+					*address = addresses[i];
+				}
 				return true;
 			}
 		}

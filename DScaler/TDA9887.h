@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.15 2004-11-28 06:46:26 atnak Exp $
+// $Id: TDA9887.h,v 1.16 2004-11-28 06:53:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/11/28 06:46:26  atnak
+// Added DetectAttach() to do the chip scanning work.
+//
 // Revision 1.14  2004/11/27 22:01:40  to_see
 // Added more I2C Addresses from datasheet
 //
@@ -167,11 +170,12 @@ public:
 
 	// Attaches to each known TDA9887 address on the given bus and tries to
 	// detect a TDA9887 device.
-	virtual bool DetectAttach(CI2CBus* i2cBus);
+	virtual bool DetectAttach(IN CI2CBus* i2cBus, OUT BYTE* address = NULL);
 	// Attaches to each specified address on the given bus and tries detect
 	// a device.  (This should go into a lower level class but the class
 	// below this is an interface class. --atnak 2004-11-28)
-	virtual bool DetectAttach(CI2CBus* i2cBus, BYTE* addresses, size_t count);
+	virtual bool DetectAttach(IN CI2CBus* i2cBus, IN BYTE* addresses,
+		IN size_t count, OUT BYTE* address = NULL);
 
 	// Detects if a TDA9887 device exists at the attached address.
 	virtual bool Detect();

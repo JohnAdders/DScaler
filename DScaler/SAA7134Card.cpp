@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.16 2002-10-16 11:37:59 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.17 2002-10-20 07:41:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/16 11:37:59  atnak
+// added saa7130 support
+//
 // Revision 1.15  2002/10/12 20:01:52  atnak
 // added some automatic error recovery
 //
@@ -102,8 +105,7 @@ CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     m_CardType(TVCARD_UNKNOWN),
     m_Tuner(NULL),
     m_PreparedRegions(0x00),
-    m_VideoStandard(VIDEOSTANDARD_INVALID),
-    m_AudioStandard(AUDIOSTANDARD_BG_DUAL_FM)
+    m_VideoStandard(VIDEOSTANDARD_INVALID)
 {
     m_LastTriggerError = 0UL;
 
@@ -120,7 +122,7 @@ CSAA7134Card::~CSAA7134Card()
     WriteDword(SAA7134_IRQ1, 0UL);
     WriteDword(SAA7134_IRQ2, 0UL);
     // Completely zeroing this conflicts with Lifeview's software
-    MaskDataDword(SAA7134_MAIN_CTRL, 0, 0xFF);
+    MaskDataDword(SAA7134_MAIN_CTRL, 0, 0x000000FF);
 
     delete m_I2CBus;
     delete m_Tuner;

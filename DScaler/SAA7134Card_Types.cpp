@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.47 2004-05-07 17:24:24 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.48 2004-05-11 08:11:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2004/05/07 17:24:24  atnak
+// added new card "Dazzle My TV"
+//
 // Revision 1.46  2004/03/26 14:17:52  atnak
 // Tuner Changes
 //
@@ -1477,7 +1480,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     },
     // Dazzle My TV
     // Thanks <rockmong@ho...>
-    // Korean brand, looks like a FlyVideo clone
+    // Looks like a FlyVideo 2000 clone (from Korean)
     {
         "Dazzle My TV",
         0x7130,
@@ -1512,6 +1515,51 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         StandardSAA7134InputSelect,
         0x01384e42,
     },
+    // Genius Video Wonder PRO III
+    // Thanks Michal Kueera <michalk@my...>
+    // Looks like another FlyVideo 3000 clone (from Czech Republic)
+    // Notice this card is a SAA7134 but the DAC appears not used
+    {
+        "Genius Video Wonder PRO III",
+        0x7134,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x0000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_NONE,
+                0xE000, 0x8000,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_32110Hz,
+        0x0018e700,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x01385168,
+    },
 };
 
 
@@ -1525,6 +1573,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
 // automatic gain control that is linked to the Y-channel. "Might req mode 6"
 // has been placed beside entries where the RegSpy dump showed the
 // SAA7134_ANALOG_IN_CTRL1 register with xxxx0110(6) instead of xxxx1000(8).
+//
+
+//
+// LifeView Clones:  (Actually, I don't know who cloned who)
+//
+//              0x7130                      0x7134                          0x7133
+//
+// 0x01384e42   Dazzle My TV                LifeView FlyVideo3000
+//                                          Chronos Video Shuttle II
+//
+// 0x01385168   LifeView FlyVideo2000       Genius Video Wonder PRO III     PrimeTV 7133
+//              Chronos Video Shuttle II
+//
+//
+// Notes:
+// - The auto detect ID 0x01384e42 is not used by LifeView FlyVideo3000 that I know
+//   of.  This ID comes from the SAA7134 version of Chronos Video Shuttle II.
+// - All cards above have an identical video input pin configuration.  They also use
+//   the same 0x0018e700 GPIO mask.
 //
 
 

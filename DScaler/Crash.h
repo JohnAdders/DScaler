@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.h,v 1.3 2002-09-17 17:28:23 tobbej Exp $
+// $Id: Crash.h,v 1.4 2002-09-28 14:47:41 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/17 17:28:23  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __CRASH_H__
@@ -65,7 +68,19 @@ extern __declspec(thread) VirtualDubThreadState g_PerThreadState;
 
 #define VDCHECKPOINT (g_PerThreadState.cp[g_PerThreadState.nNextCP++&(CHECKPOINT_COUNT-1)].set(__FILE__, __LINE__))
 
+/**
+ * Thread init for crashloging.
+ * Call this from the ThreadProc of all newly created threads,
+ * this will make the crashlog contain a list of all active threads
+ */
 void DScalerInitializeThread(const char *pszName);
+
+/**
+ * Thread deinit for crashloging.
+ * Call this when a thread is about to be terminated, if this is not called 
+ * the list of threads in the crashlog might contain threads that is not 
+ * running.
+ */
 void DScalerDeinitializeThread();
 
 LONG WINAPI CrashHandler(EXCEPTION_POINTERS *pExc);

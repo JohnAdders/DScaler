@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.5 2002-02-03 11:00:43 tobbej Exp $
+// $Id: DSSource.cpp,v 1.6 2002-02-03 20:05:58 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/03 11:00:43  tobbej
+// added support for picure controls
+// fixed menu handling
+// fixed GetNextField to work with dshow filter
+//
 // Revision 1.4  2001/12/18 13:12:12  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -58,6 +63,39 @@
 static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
+
+
+struct videoStandardsType
+{
+	long format;
+	LPSTR name;
+};
+
+///array of video standards
+videoStandardsType videoStandards[] =
+	{
+		AnalogVideo_NTSC_M,"NTSC_M",
+		AnalogVideo_NTSC_M_J,"NTSC_M",
+		AnalogVideo_NTSC_433,"NTSC_433",
+		AnalogVideo_PAL_B,"PAL_B",
+		AnalogVideo_PAL_D,"PAL_D",
+		AnalogVideo_PAL_G,"PAL_G",
+		AnalogVideo_PAL_H,"PAL_H",
+		AnalogVideo_PAL_I,"PAL_I",
+		AnalogVideo_PAL_M,"PAL_M",
+		AnalogVideo_PAL_N,"PAL_N",
+		AnalogVideo_PAL_60,"PAL_60",
+		AnalogVideo_SECAM_B,"SECAM_B",
+		AnalogVideo_SECAM_D,"SECAM_D",
+		AnalogVideo_SECAM_G,"SECAM_G",
+		AnalogVideo_SECAM_H,"SECAM_H",
+		AnalogVideo_SECAM_K,"SECAM_K",
+		AnalogVideo_SECAM_K1,"SECAM_K1",
+		AnalogVideo_SECAM_L,"SECAM_L",
+		AnalogVideo_SECAM_L1,"SECAM_L1",
+		AnalogVideo_PAL_N_COMBO,"PAL_N_COMBO",
+		0,NULL
+	};
 
 /// @todo better error handling
 CDSSource::CDSSource(string device,string deviceName) :
@@ -114,11 +152,11 @@ ISetting* CDSSource::GetBrightness()
 		try
 		{
 			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Brightness,&min,&max,NULL,&def);
-			m_pDSGraph->getCaptureDevice()->get(VideoProcAmp_Brightness,&value);
 			m_Brightness->SetMax(max);
 			m_Brightness->SetMin(min);
 
 			//why does ChangeDefault() change the value itself too?
+			value=m_Brightness->GetValue();
 			m_Brightness->ChangeDefault(def);
 			m_Brightness->SetValue(value);
 			return m_Brightness;
@@ -160,9 +198,9 @@ ISetting* CDSSource::GetContrast()
 		try
 		{
 			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Contrast,&min,&max,NULL,&def);
-			m_pDSGraph->getCaptureDevice()->get(VideoProcAmp_Contrast,&value);
 			m_Contrast->SetMax(max);
 			m_Contrast->SetMin(min);
+			value=m_Contrast->GetValue();
 			m_Contrast->ChangeDefault(def);
 			m_Contrast->SetValue(value);
 			return m_Contrast;
@@ -204,9 +242,9 @@ ISetting* CDSSource::GetHue()
 		try
 		{
 			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Hue,&min,&max,NULL,&def);
-			m_pDSGraph->getCaptureDevice()->get(VideoProcAmp_Hue,&value);
 			m_Hue->SetMax(max);
 			m_Hue->SetMin(min);
+			value=m_Hue->GetValue();
 			m_Hue->ChangeDefault(def);
 			m_Hue->SetValue(value);
 			return m_Hue;
@@ -248,9 +286,9 @@ ISetting* CDSSource::GetSaturation()
 		try
 		{
 			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Saturation,&min,&max,NULL,&def);
-			m_pDSGraph->getCaptureDevice()->get(VideoProcAmp_Saturation,&value);
 			m_Saturation->SetMax(max);
 			m_Saturation->SetMin(min);
+			value=m_Saturation->GetValue();
 			m_Saturation->ChangeDefault(def);
 			m_Saturation->SetValue(value);
 			return m_Saturation;
@@ -279,16 +317,17 @@ void CDSSource::SaturationOnChange(long Saturation, long OldValue)
 
 void CDSSource::CreateSettings(LPCSTR IniSection)
 {
-	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, 0, 0, IniSection);
+	//at this time we dont know what the min and max will be
+	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Brightness);
 
-	m_Contrast = new CContrastSetting(this, "Contrast", 0, 0, 0, IniSection);
+	m_Contrast = new CContrastSetting(this, "Contrast", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Contrast);
 
-	m_Hue = new CHueSetting(this, "Hue", 0, 0, 0, IniSection);
+	m_Hue = new CHueSetting(this, "Hue", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Hue);
 
-	m_Saturation = new CSaturationSetting(this, "Saturation", 0, 0, 0, IniSection);
+	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Saturation);
 
 }
@@ -317,6 +356,21 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 		return TRUE;
 	}
+	else if(LOWORD(wParam)>=IDM_DSVIDEO_STANDARD_0 && LOWORD(wParam)<=IDM_DSVIDEO_STANDARD_MAX)
+	{
+		try
+		{
+			if(m_pDSGraph!=NULL)
+			{
+				m_pDSGraph->getCaptureDevice()->putTVFormat(videoStandards[LOWORD(wParam)-IDM_DSVIDEO_STANDARD_0].format);
+			}
+		}
+		catch(CDShowException &e)
+		{
+			AfxMessageBox(CString("Failed to change video format\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+		}
+	}
+	
 	switch(LOWORD(wParam))
 	{
 	case IDM_DSHOW_RENDERERPROPERTIES:
@@ -412,7 +466,7 @@ BOOL CDSSource::IsVideoPresent()
 	return FALSE;
 }
 
-int CDSSource::FindMenuID(CMenu *menu,UINT menuID)
+/*int CDSSource::FindMenuID(CMenu *menu,UINT menuID)
 {
 	ASSERT(menu);
 	ASSERT(::IsMenu(menu->GetSafeHmenu()));
@@ -425,7 +479,7 @@ int CDSSource::FindMenuID(CMenu *menu,UINT menuID)
 	}
 
 	return -1;
-}
+}*/
 
 void CDSSource::SetMenu(HMENU hMenu)
 {
@@ -439,11 +493,12 @@ void CDSSource::SetMenu(HMENU hMenu)
 	
 	//setup input selection menus
 	CString menuText;
+	
+	int vidPos=0;//FindMenuID(menu,IDM_DSHOW_VIDEOINPUT);
+	int audPos=3;//FindMenuID(menu,IDM_DSHOW_AUDIOINPUT);
 	CDShowBaseCrossbar *pCrossbar=m_pDSGraph->getCaptureDevice()->getCrossbar();
 	if(pCrossbar!=NULL)
 	{
-		int vidPos=0;//FindMenuID(menu,IDM_DSHOW_VIDEOINPUT);
-		int audPos=3;//FindMenuID(menu,IDM_DSHOW_AUDIOINPUT);
 		CMenu vidSubMenu;
 		CMenu audSubMenu;
 		
@@ -451,11 +506,13 @@ void CDSSource::SetMenu(HMENU hMenu)
 		vidSubMenu.CreateMenu();
 		menu->GetMenuString(vidPos,menuText,MF_BYPOSITION);
 		menu->ModifyMenu(vidPos,MF_POPUP|MF_BYPOSITION,(UINT) vidSubMenu.GetSafeHmenu(),menuText);
+		menu->EnableMenuItem(vidPos,MF_BYPOSITION|MF_ENABLED);
 
 		//same for audio input menu
 		audSubMenu.CreateMenu();
 		menu->GetMenuString(audPos,menuText,MF_BYPOSITION);
 		menu->ModifyMenu(audPos,MF_POPUP|MF_BYPOSITION,(UINT) audSubMenu.GetSafeHmenu(),menuText);
+		menu->EnableMenuItem(audPos,MF_BYPOSITION|MF_ENABLED);
 
 		for(int i=0;i<pCrossbar->GetInputCount();i++)
 		{
@@ -474,6 +531,11 @@ void CDSSource::SetMenu(HMENU hMenu)
 				audSubMenu.CheckMenuItem(IDM_CROSSBAR_INPUT0+i,bSelected ? MF_CHECKED:MF_UNCHECKED);
 			}
 		}
+	}
+	else
+	{
+		menu->EnableMenuItem(0,MF_BYPOSITION|MF_GRAYED);
+		menu->EnableMenuItem(3,MF_BYPOSITION|MF_GRAYED);
 	}
 	
 	if(m_pDSGraph->getCaptureDevice()->hasVideoDec())
@@ -496,123 +558,25 @@ void CDSSource::SetMenu(HMENU hMenu)
 			formatMenu.CreateMenu();
 			menu->GetMenuString(1,menuText,MF_BYPOSITION);
 			menu->ModifyMenu(1,MF_POPUP|MF_BYPOSITION,(UINT)formatMenu.GetSafeHmenu(),menuText);
+			menu->EnableMenuItem(1,MF_BYPOSITION|MF_ENABLED);
 			
 			int i=0;
-			if(formats&AnalogVideo_NTSC_M)
+			while(videoStandards[i].format!=0)
 			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"NTSC_M");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_NTSC_M ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_NTSC_M_J)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"NTSC_M_J");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_NTSC_M_J ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_NTSC_433)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"NTSC_433");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_NTSC_433 ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_B)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_B");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_B ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_D)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_D");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_D ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_H)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_H");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_H ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_I)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_I");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_I ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_M)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_M");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_M ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_N)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_N");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_N ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_60)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_60");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_60 ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_B)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_B");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_B ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_D)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_D");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_D ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_G)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_G");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_G ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_H)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_H");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_H ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_K)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_K");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_K ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_K1)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_K1");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_K1 ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_L)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_L");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_L ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_SECAM_L1)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"SECAM_L1");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_SECAM_L1 ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
-			if(formats&AnalogVideo_PAL_N_COMBO)
-			{
-				formatMenu.AppendMenu(MF_STRING,0+i,"PAL_N_COMBO");
-				formatMenu.CheckMenuItem(0+i,selectedFormat&AnalogVideo_PAL_N_COMBO ? MF_CHECKED:MF_UNCHECKED);
-				i++;
-			}
+				ASSERT(i <= IDM_DSVIDEO_STANDARD_MAX-IDM_DSVIDEO_STANDARD_0);
 
+				if(formats & videoStandards[i].format)
+				{
+					UINT check=selectedFormat & videoStandards[i].format ? MF_CHECKED:MF_UNCHECKED;
+					formatMenu.AppendMenu(MF_STRING,IDM_DSVIDEO_STANDARD_0+i,videoStandards[i].name);
+					formatMenu.CheckMenuItem(IDM_DSVIDEO_STANDARD_0+i,check);
+				}
+				i++;
+			}
+		}
+		else
+		{
+			menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
 		}
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.4 2002-02-03 11:00:43 tobbej Exp $
+// $Id: DSSource.h,v 1.5 2002-02-03 20:05:58 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/03 11:00:43  tobbej
+// added support for picure controls
+// fixed menu handling
+// fixed GetNextField to work with dshow filter
+//
 // Revision 1.3  2002/02/02 01:35:18  laurentg
 // Method UpdateMenu added
 //
@@ -109,13 +114,7 @@ public:
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 
 private:
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Hue);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Saturation);
-	
-
-	int FindMenuID(CMenu *menu,UINT menuID);
+	//int FindMenuID(CMenu *menu,UINT menuID);
 
 	CDShowGraph *m_pDSGraph;
 	string m_device;
@@ -133,6 +132,11 @@ private:
 	int m_bytePerPixel;
 	
 	bool m_bProcessingFirstField;
+
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Hue);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Saturation);
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BaseCrossbar.h,v 1.2 2002-02-07 22:05:43 tobbej Exp $
+// $Id: BaseCrossbar.h,v 1.3 2002-08-20 16:18:47 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 // Revision 1.1  2001/12/17 19:22:33  tobbej
 // new crossbar classes
 //
@@ -57,8 +61,8 @@ public:
 };
 
 /**
- * Bas class for crossbars.
- * @todo input selection is not good, it is not posibel to select inputs that belongs to a specified output. not sure if its nesesary
+ * Base class for crossbars.
+ * 
  */
 class CDShowBaseCrossbar : public CDShowObject
 {
@@ -69,9 +73,9 @@ public:
 	eDSObjectType getObjectType() {return DSHOW_TYPE_CROSSBAR;}
 
 	/**
-	 * @return Number of inputs that can be selected
+	 * Get number of input and output pins.
 	 */
-	virtual long GetInputCount()=0;
+	virtual void GetPinCounts(long &cIn,long &cOut)=0;
 	
 	/**
 	 * @return Type of specified input
@@ -85,19 +89,25 @@ public:
 	virtual char* GetInputName(long Index);
 	
 	/**
-	 * Select input
+	 * Select input.
 	 * @param Index input index
 	 * @param bSetRelated a bool that specifies if the related pin is also to be selected, for example if you selecte a video input it will also set the corect audio input
 	 */
 	virtual void SetInputIndex(long Index,bool bSetRelated)=0;
 	
 	/**
-	 * Which input is selected?
+	 * Which input is connected to specified output.
+	 * This function returns the input index of the pin that is routed to specified output
+	 * @param OutIndex output pin index.
 	 * @return index for currently selected index
 	 */
-	virtual long GetInputIndex()=0;
-
-	virtual bool isInputSelected(long index)=0;
+	virtual long GetInputIndex(long OutIndex)=0;
+	
+	/**
+	 * @param index input pin index.
+	 * @return true if specified input is routed to an output.
+	 */
+	virtual bool IsInputSelected(long index)=0;
 };
 
 #endif // !defined(AFX_BASECROSSBAR_H__FF62818A_2194_4F12_AA7C_B8D9AB84D0CC__INCLUDED_)

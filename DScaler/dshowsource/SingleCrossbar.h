@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SingleCrossbar.h,v 1.1 2001-12-17 19:22:33 tobbej Exp $
+// $Id: SingleCrossbar.h,v 1.2 2002-08-20 16:18:47 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:22:33  tobbej
+// new crossbar classes
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +44,7 @@
 #include "BaseCrossbar.h"
 
 /**
- * This class manages one crossbar filter.
+ * Class for managing one crossbar filter.
  */
 class CDShowSingleCrossbar :public CDShowBaseCrossbar
 {
@@ -49,9 +52,9 @@ public:
 	CDShowSingleCrossbar(CComPtr<IAMCrossbar> &pCrossbar,IGraphBuilder *pGraph);
 	virtual ~CDShowSingleCrossbar();
 
-	long GetInputCount();
-	long GetInputIndex();
-	bool isInputSelected(long index);
+	void GetPinCounts(long &cIn,long &cOut);
+	long GetInputIndex(long OutIndex);
+	bool IsInputSelected(long index);
 
 	PhysicalConnectorType GetInputType(long Index);
 	void SetInputIndex(long Index,bool bSetRelated);
@@ -59,7 +62,6 @@ public:
 private:
 	/// Crossbar filter
 	CComPtr<IAMCrossbar> m_crossbar;
-	long m_currentRoutingIndex;
 };
 
 #endif // !defined(AFX_SINGLECROSSBAR_H__28485589_E809_4ED1_8F98_52F0740B6A11__INCLUDED_)

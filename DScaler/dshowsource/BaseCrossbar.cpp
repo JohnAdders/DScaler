@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BaseCrossbar.cpp,v 1.1 2001-12-17 19:22:33 tobbej Exp $
+// $Id: BaseCrossbar.cpp,v 1.2 2002-08-20 16:18:47 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:22:33  tobbej
+// new crossbar classes
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +109,8 @@ char* CDShowBaseCrossbar::GetInputName(long Index)
 	case PhysConn_Video_SCART:
 		return TEXT("Video SCART");
 		break;
+	case PhysConn_Video_Black:
+		return TEXT("Video Black"); //what is this ???
 
 	case PhysConn_Audio_Tuner:
 		return TEXT("Audio Tuner");

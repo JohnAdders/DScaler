@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SingleCrossbar.cpp,v 1.1 2001-12-17 19:22:33 tobbej Exp $
+// $Id: SingleCrossbar.cpp,v 1.2 2002-08-20 16:18:47 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:22:33  tobbej
+// new crossbar classes
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -59,17 +62,13 @@ CDShowSingleCrossbar::~CDShowSingleCrossbar()
 
 }
 
-long CDShowSingleCrossbar::GetInputCount()
-{
-	long cInput,cOutput;
-	
-	HRESULT hr=m_crossbar->get_PinCounts(&cOutput,&cInput);
+void CDShowSingleCrossbar::GetPinCounts(long &cIn,long &cOut)
+{	
+	HRESULT hr=m_crossbar->get_PinCounts(&cOut,&cIn);
 	if(FAILED(hr))
 	{
 		throw CCrossbarException("get_PinCounts failed",hr);
 	}
-	
-	return cInput;
 }
 
 PhysicalConnectorType CDShowSingleCrossbar::GetInputType(long Index)
@@ -142,35 +141,31 @@ void CDShowSingleCrossbar::SetInputIndex(long Index,bool bSetRelated)
 
 		}
 	}
-	m_currentRoutingIndex=Index;
 }
 
-long CDShowSingleCrossbar::GetInputIndex()
+long CDShowSingleCrossbar::GetInputIndex(long OutIndex)
 {
-	return m_currentRoutingIndex;
-}
-
-bool CDShowSingleCrossbar::isInputSelected(long index)
-{
-	long cInput,cOutput;
-	
-	HRESULT hr=m_crossbar->get_PinCounts(&cOutput,&cInput);
+	long InputIndex=0;
+	HRESULT hr=m_crossbar->get_IsRoutedTo(OutIndex,&InputIndex);
 	if(FAILED(hr))
 	{
-		throw CCrossbarException("isInputSelected failed",hr);
+		throw CCrossbarException("IAMCrossbar::get_IsRoutedTo failed",hr);
 	}
-	
+	return InputIndex;
+}
+
+bool CDShowSingleCrossbar::IsInputSelected(long index)
+{
+	long cInput,cOutput;
+	GetPinCounts(cInput,cOutput);
+
 	for(int i=0;i<cOutput;i++)
 	{
-		long inputIndex=0;
-		hr=m_crossbar->get_IsRoutedTo(i,&inputIndex);
-		if(FAILED(hr))
-		{
-			throw CCrossbarException("isInputSelected failed",hr);
-		}
-		
+		long inputIndex=GetInputIndex(i);
 		if(index==inputIndex)
+		{
 			return true;
+		}
 	}
 	return false;
 }

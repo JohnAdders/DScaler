@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.8 2002-10-24 12:03:18 atnak Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.9 2002-11-08 17:39:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/24 12:03:18  atnak
+// Added a constructor that takes an array SETTING pointers
+//
 // Revision 1.7  2002/10/23 09:46:46  adcockj
 // Allow NULL entries in Settings lists sent to Generic settings dialog
 //
@@ -384,34 +387,59 @@ void CTreeSettingsGeneric::UpdateControls()
         CListSetting *pSetting = (CListSetting*)m_Settings[m_CurrentSetting];
         char **pszList = (char**)pSetting->GetList();
 
-        m_Combo.ResetContent();
         if(pszList != NULL)
         {
-            bool bFoundSetting=false;
+            int count=0;
 
+            //count the number of items in the list
             for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
             {
                 //is there any text for this item?
-                if ( (pszList[i] != NULL) && (strlen(pszList[i])>0) )
+                if ( (pszList[i] != NULL) && (*pszList[i] != '\0') )
                 {
-                    int pos=m_Combo.AddString(pszList[i]);
+                    count++;
+                }
+            }
 
-                    //store Value in itemdata
-                    m_Combo.SetItemData(pos,i);
-
-                    //is this item the current Value?
-                    if(pSetting->GetValue() == i)
+            //create the list if one doesn't exist
+            if(m_Combo.GetCount() != count)
+            {
+                m_Combo.ResetContent();
+                for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
+                {
+                    //is there any text for this item?
+                    if ( (pszList[i] != NULL) && (*pszList[i] != '\0') )
                     {
-                        m_Combo.SetCurSel(pos);
-                        bFoundSetting=true;
+                        int pos=m_Combo.AddString(pszList[i]);
+
+                        //store Value in itemdata
+                        m_Combo.SetItemData(pos,i);
+
+                        //is this item the current Value?
+                        if(pSetting->GetValue() == i)
+                        {
+                            m_Combo.SetCurSel(pos);
+                        }
                     }
                 }
             }
-            if(bFoundSetting==false)
+            else
             {
-                //clear selection since we didnt find pValue
-                m_Combo.SetCurSel(-1);
+                //find the current value in the combo box
+                for(int i(0); i < m_Combo.GetCount(); ++i)
+                {
+                    //is this item the current Value?
+                    if(m_Combo.GetItemData(i) == pSetting->GetValue())
+                    {
+                        m_Combo.SetCurSel(i);
+                    }
+                }
             }
+        }
+        else
+        {
+            //clear out the list
+            m_Combo.ResetContent();
         }
     }
 

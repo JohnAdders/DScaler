@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.92 2002-12-07 15:59:06 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.93 2002-12-09 00:32:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2002/12/07 15:59:06  adcockj
+// Modified mute behaviour
+//
 // Revision 1.91  2002/11/26 19:29:48  tobbej
 // fixed crash with empty channel list (Channel_ChangeToNumber with invalid channel number)
 //
@@ -366,7 +369,6 @@ int PostSwitchMuteDelay = 0;
 
 int TunerSwitchScreenUpdateDelay = 0;
 
-static int PostSwitchMuteTimer = 0;
 static int TunerSwitchScreenUpdateDelayTimer = 0;
 
 static int InitialNbMenuItems = -1;
@@ -1133,10 +1135,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if (!Providers_GetCurrentSource()->IsVideoPresent())
             {
                 //make sure it is muted when video is absent
-                Providers_GetCurrentSource()->Mute();
+                Audio_SetUserMute(TRUE);
             }
             Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC), (MyIsUsingAFC) ? BST_CHECKED : BST_UNCHECKED);            
-            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_GetMute()) ? BST_CHECKED : BST_UNCHECKED));            
+            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_GetUserMute()) ? BST_CHECKED : BST_UNCHECKED));            
 
             RefreshProgramList(hDlg, CurrentProgram);            
 
@@ -1507,7 +1509,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_CHANNEL_MUTE :    
             {
                 BOOL muteAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE)) == BST_CHECKED);
-                Audio_SetMute(muteAudio);
+                Audio_SetUserMute(muteAudio);
             }
             break;
 
@@ -1608,23 +1610,11 @@ static VOID CALLBACK TunerSwitchScreenUpdateDelayTimerProc(
     bNoScreenUpdateDuringTuning = FALSE;
 }
 
-static VOID CALLBACK PostSwitchMuteDelayTimerProc( 
-    HWND hwnd,        // handle to window for timer messages 
-    UINT message,     // WM_TIMER message 
-    UINT idTimer,     // timer identifier 
-    DWORD dwTime)
-{
-    PostSwitchMuteTimer = 0;
-    KillTimer(hwnd, idTimer);    
-    Audio_SetMute(FALSE);
-}
-
 
 //---------------------------------------------------------------------------
 void Channel_Change(int NewChannel, int DontStorePrevious)
 {
     eVideoFormat VideoFormat;
-    BOOL audioWasMuted = Audio_GetMute();
 
     if (Providers_GetCurrentSource()->HasTuner() == TRUE)
     {
@@ -1633,8 +1623,9 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
             if (MyChannels.GetChannelFrequency(NewChannel) != 0)
             {
 				int OldChannel = CurrentProgram;                
-                Audio_SetMute(TRUE);             
-                Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.                
+
+                Audio_Mute(PreSwitchMuteDelay);
+                
                 if (EventCollector != NULL)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
@@ -1674,26 +1665,14 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                         break;
                     }
                 }
-                if (FALSE == audioWasMuted)
-                {
-                    if (PostSwitchMuteDelay > 0)
-                    {
-                        if (PostSwitchMuteTimer > 0)
-                        {
-                            KillTimer(NULL, PostSwitchMuteTimer);
-                        }
-                        PostSwitchMuteTimer = SetTimer(NULL, NULL, PostSwitchMuteDelay, PostSwitchMuteDelayTimerProc);
-                    }
-                    else
-                    {
-                        Audio_SetMute(FALSE);
-                    }
-                }
+
+                Audio_Unmute(PostSwitchMuteDelay);
+
                 if (EventCollector != NULL)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
                 }
-                //Sleep(PostSwitchMuteDelay); //now timer controlled
+
                 VT_ChannelChange();                                
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.30 2002-12-07 23:05:46 atnak Exp $
+// $Id: Audio.cpp,v 1.31 2002-12-09 00:32:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/12/07 23:05:46  atnak
+// New Audio_Mute() and Audio_Unmute() functions for a new muting.
+//
 // Revision 1.29  2002/12/07 16:06:54  adcockj
 // Tidy up muting code
 //
@@ -125,9 +128,13 @@
 
 CRITICAL_SECTION AudioMuteCriticalSection;
 BYTE AudioMuteStatus = 0;
-BOOL bSystemInMute = FALSE;
+BOOL bUserMute = FALSE;
 
 VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT idTimer, DWORD);
+
+//  IMPORTANT: Audio_Mute() and Audio_Unmute() are for internal
+//  use only.  It should be placed in pairs.  For user prompted
+//  muting, use Audio_SetUserMute().
 
 
 void Initialize_Mute()
@@ -136,6 +143,14 @@ void Initialize_Mute()
     // be in future if Audio_Mute/Unmute are going
     // to be used asynchronously.
     InitializeCriticalSection(&AudioMuteCriticalSection);
+
+    Audio_Mute();
+
+    // Again for user mute if it's initially set
+    if(bUserMute == TRUE)
+    {
+        Audio_Mute();
+    }
 }
 
 
@@ -221,61 +236,32 @@ VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT idTimer, DWORD)
 }
 
 
-void Audio_SetMute(BOOL IsMute)
+void Audio_SetUserMute(BOOL bMute)
 {
-    if(IsMute)
+    if(bUserMute != bMute)
     {
-        if (!bSystemInMute)
+        bUserMute = bMute;
+        if(bMute == TRUE)
         {
-	        if (bUseMixer == FALSE && Providers_GetCurrentSource())
-	        {
-                Providers_GetCurrentSource()->Mute();
-	        }
-
-	        if(bUseMixer == TRUE)
-	        {
-		        Mixer_Mute();
-	        }
-            bSystemInMute = TRUE;
-	        EventCollector->RaiseEvent(NULL, EVENT_MUTE,0,1);    
+            Audio_Mute();
         }
-    }
-    else
-    {
-	    if(bSystemInMute)
-	    {
-		    if (bUseMixer == FALSE && Providers_GetCurrentSource())
-		    {
-                Providers_GetCurrentSource()->UnMute();
-		    }
-    
-		    if(bUseMixer == TRUE)
-		    {
-			    Mixer_UnMute();
-		    }	
-            bSystemInMute = FALSE;
-	        EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
+        else
+        {
+            Audio_Unmute();
         }
     }
 }
 
-BOOL Audio_GetMute()
+
+BOOL Audio_GetUserMute()
 {
-    return bSystemInMute;
+    return bUserMute;
 }
 
 
-BOOL SystemInMute_OnChange(long NewValue)
+BOOL UserMute_OnChange(long NewValue)
 {
-    /*if(NewValue)
-    {
-        Audio_Mute();
-    }
-    else
-    {
-        Audio_Unmute();
-    }*/
-	Audio_SetMute(NewValue);
+    Audio_SetUserMute(NewValue);
 	return FALSE;
 }
 
@@ -286,10 +272,10 @@ BOOL SystemInMute_OnChange(long NewValue)
 SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
 {
     {
-        "System in Mute", ONOFF, 0, (long*)&bSystemInMute,
+        "System in Mute", ONOFF, 0, (long*)&bUserMute,
         FALSE, 0, 1, 1, 1, 
         NULL,
-        "Audio", "Mute", SystemInMute_OnChange,
+        "Audio", "Mute", UserMute_OnChange,
     },
 };
 
@@ -325,6 +311,6 @@ void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 void Audio_SetMenu(HMENU hMenu)
 {
-    CheckMenuItemBool(hMenu, IDM_MUTE, bSystemInMute);
+    CheckMenuItemBool(hMenu, IDM_MUTE, bUserMute);
 }
 

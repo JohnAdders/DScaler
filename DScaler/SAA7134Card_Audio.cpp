@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.18 2002-11-10 05:11:24 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.19 2002-12-09 00:32:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/11/10 05:11:24  atnak
+// Added adjustable audio input level
+//
 // Revision 1.17  2002/10/31 05:02:55  atnak
 // Settings cleanup and audio tweaks
 //
@@ -141,6 +144,9 @@ void CSAA7134Card::InitAudio()
     WriteByte(SAA7134_I2S_OUTPUT_FORMAT,        0x00);
     WriteByte(SAA7134_I2S_OUTPUT_SELECT,        0x00);
     WriteByte(SAA7134_I2S_OUTPUT_LEVEL,         0x00);
+
+    // Zero is for no plus or minus gain
+    SetAudioVolume(0);
 
     // Setting this FALSE for NICAM doesn't work
     SetAudioLockToVideo(TRUE);

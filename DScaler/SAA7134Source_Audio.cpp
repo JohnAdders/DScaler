@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.13 2002-10-31 05:39:02 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.14 2002-12-09 00:32:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/31 05:39:02  atnak
+// Added SoundChannel change event for toolbar
+//
 // Revision 1.12  2002/10/31 05:02:54  atnak
 // Settings cleanup and audio tweaks
 //
@@ -98,10 +101,11 @@ void CSAA7134Source::SetupAudioSource()
         m_pSAA7134Card->SetAudioChannel((eAudioChannel)m_AudioChannel->GetValue());
     }
 
-    m_pSAA7134Card->SetAudioVolume(m_Volume->GetValue());
-    m_pSAA7134Card->SetAudioBass(m_Bass->GetValue());
-    m_pSAA7134Card->SetAudioTreble(m_Treble->GetValue());
-    m_pSAA7134Card->SetAudioBalance(m_Balance->GetValue());
+    // Experimental
+    // m_pSAA7134Card->SetAudioVolume(m_Volume->GetValue());
+    // m_pSAA7134Card->SetAudioBass(m_Bass->GetValue());
+    // m_pSAA7134Card->SetAudioTreble(m_Treble->GetValue());
+    // m_pSAA7134Card->SetAudioBalance(m_Balance->GetValue());
 }
 
 

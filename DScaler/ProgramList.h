@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.20 2002-10-17 00:28:41 flibuste2 Exp $
+// $Id: ProgramList.h,v 1.21 2002-12-09 00:32:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -75,5 +75,8 @@ void Channel_SetCurrent();
 void Channel_Previous();
 void Channel_Reset();
 const char* Channel_GetName();
+
+extern int PreSwitchMuteDelay;
+extern int PostSwitchMuteDelay;
 
 #endif

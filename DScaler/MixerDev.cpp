@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.35 2002-10-26 17:51:53 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.36 2002-12-09 00:32:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/10/26 17:51:53  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.34  2002/10/18 03:33:00  flibuste2
 // Added Mixer_IsMuted()
 // (need by Audio.Audio_IsMuted())
@@ -132,7 +135,7 @@
 #include "resource.h"
 #include "MixerDev.h"
 #include "DScaler.h"
-#include "BT848Card.h"
+#include "Audio.h"
 #include "Providers.h"
 
 CSoundSystem* pSoundSystem = NULL;
@@ -1000,9 +1003,17 @@ void Mixer_OnInputChange(int NewVideoInputNr)
         // Enable mixer source line for the new video input
         if( (NewInputIndex != -1) && (DestLine->GetSourceLine(NewInputIndex) != NULL) )
         {
-           DestLine->GetSourceLine(NewInputIndex)->SetMute(FALSE);
-		   
-		   EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,-1,DestLine->GetSourceLine(NewInputIndex)->GetVolume());
+            // Only unmute if it's supposed to be unmuted
+            if(Audio_IsMute() == FALSE)
+            {
+                DestLine->GetSourceLine(NewInputIndex)->SetMute(FALSE);
+            }
+
+            // \todo This needs to be set! --AtNak 2002-12-09+10
+            //long Volume = 
+            //DestLine->GetSourceLine(NewInputIndex)->SetVolume(Volume);
+
+		    EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,-1,DestLine->GetSourceLine(NewInputIndex)->GetVolume());
         }
     }
 }

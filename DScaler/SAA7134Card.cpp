@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.28 2002-11-08 06:15:34 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.29 2002-12-09 00:32:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/11/08 06:15:34  atnak
+// Added state saving
+//
 // Revision 1.27  2002/11/07 20:33:17  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -729,13 +732,11 @@ void CSAA7134Card::StartCapture(BOOL bCaptureVBI)
     }
 
     MaskDataByte(SAA7134_REGION_ENABLE, Region, m_PreparedRegions);
-    SetAudioUnMute();
 }
 
 
 void CSAA7134Card::StopCapture()
 {
-    SetAudioMute();
     WriteByte(SAA7134_REGION_ENABLE, 0x00);
 }
 

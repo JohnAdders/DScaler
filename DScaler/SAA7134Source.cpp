@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.46 2002-12-07 15:59:06 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.47 2002-12-09 00:32:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/12/07 15:59:06  adcockj
+// Modified mute behaviour
+//
 // Revision 1.45  2002/11/10 09:30:57  atnak
 // Added Chroma only comb filter mode for SECAM
 //
@@ -593,10 +596,6 @@ void CSAA7134Source::SetupVideoStandard()
 void CSAA7134Source::Start()
 {
     m_pSAA7134Card->StartCapture(bCaptureVBI);
-    if(!Audio_GetMute())
-    {
-        UnMute();
-    }
     Timing_Reset();
 
     // This timer is used to update STATUS_AUDIO
@@ -610,10 +609,7 @@ void CSAA7134Source::Start()
 void CSAA7134Source::Stop()
 {
     // stop capture
-    m_pSAA7134Card->StopCapture();
-
-    Mute();
-    
+    m_pSAA7134Card->StopCapture();    
     KillTimer(hWnd, TIMER_MSP);
 }
 
@@ -1410,6 +1406,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
 
     Stop_Capture();
+    Audio_Mute(PreSwitchMuteDelay);
 
     SaveSettings(SETUP_CHANGE_VIDEOINPUT);
     LoadSettings(SETUP_CHANGE_VIDEOINPUT);
@@ -1422,6 +1419,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
         Channel_SetCurrent();
     }
 
+    Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
 }
 

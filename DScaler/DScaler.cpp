@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.264 2002-12-07 16:06:54 adcockj Exp $
+// $Id: DScaler.cpp,v 1.265 2002-12-09 00:32:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.264  2002/12/07 16:06:54  adcockj
+// Tidy up muting code
+//
 // Revision 1.263  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -1224,6 +1227,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // even if dscaler crashes a new user is able to make changes to dscaler.ini.
     WriteSettingsToIni(TRUE);
 
+    Initialize_Mute();
+
     if(bDisplaySplashScreen)
     {
         ShowSpashScreen();
@@ -2205,20 +2210,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         switch (LOWORD(wParam))
         {
         case IDM_MUTE:
-            Audio_SetMute(!Audio_GetMute());
+            Audio_SetUserMute(!Audio_GetUserMute());
             ShowText(hWnd,"MUTE");
-            ShowText(hWnd, Audio_GetMute() ? "MUTE" : "UNMUTE");
+            ShowText(hWnd, Audio_GetUserMute() ? "MUTE" : "UNMUTE");
 			break;
 
 	 case IDC_TOOLBAR_VOLUME_MUTE:
-            Audio_SetMute(lParam);
+            Audio_SetUserMute(lParam);
             ShowText(hWnd, lParam ? "MUTE" : "UNMUTE");
             break;
             
         case IDM_VOLUMEPLUS:
-            if (Audio_GetMute() == TRUE)
+            if (Audio_GetUserMute() == TRUE)
             {
-                Audio_SetMute(FALSE);
+                Audio_SetUserMute(FALSE);
                 ShowText(hWnd, "UNMUTE");
             }
             else
@@ -2247,9 +2252,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VOLUMEMINUS:
-            if (Audio_GetMute() == TRUE)
+            if (Audio_GetUserMute() == TRUE)
             {
-                Audio_SetMute(FALSE);
+                Audio_SetUserMute(FALSE);
                 ShowText(hWnd, "UNMUTE");
             }
             else
@@ -2276,9 +2281,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 	case IDC_TOOLBAR_VOLUME_SLIDER:
-            if (Audio_GetMute() == TRUE)
+            if (Audio_GetUserMute() == TRUE)
             {
-                Audio_SetMute(FALSE);
+                Audio_SetUserMute(FALSE);
             }
             if (bUseMixer == FALSE)
             {
@@ -4437,15 +4442,17 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 
+    /*  Audio should already be muted from Stop_Capture() --AtNak 2002-12-08
     __try
     {
         // mute the audio
-        // we will do this after saving the settings so that the correct setting
-        // is saved
+        // we will do this after saving the settings so that
+        // the correct setting is saved
         LOG(1, "Try Mute");
-        Audio_SetMute(TRUE);
+        Audio_Mute();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Mute");}
+    */
 
 
     __try

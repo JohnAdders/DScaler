@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.100 2002-12-07 15:59:06 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.101 2002-12-09 00:32:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2002/12/07 15:59:06  adcockj
+// Modified mute behaviour
+//
 // Revision 1.99  2002/11/10 16:53:33  tobbej
 // added some missing calls to DScalerDeinitializeThread() and CoUninitialize
 //
@@ -402,6 +405,9 @@ BOOL                RequestToggleFlip = FALSE;
 BOOL                bDoVerticalFlipSetting = FALSE;
 HANDLE              OutThread;
 
+// Capture state variables
+BOOL                bCaptureStarted = FALSE;
+
 // Dynamically updated variables
 BOOL                bAutoDetectMode = TRUE;
 
@@ -619,29 +625,42 @@ void Pause_Toggle_Capture()
 ///////////////////////////////////////////////////////////////////////////////
 void Start_Capture()
 {
-    // ame sure half height Modes are set correctly
-    Overlay_Clean();
-    if (Providers_GetCurrentSource())
+    if (bCaptureStarted == FALSE)
     {
-        PrepareDeinterlaceMode();
-        Start_Thread();
+        bCaptureStarted = TRUE;
+
+        // make sure half height Modes are set correctly
+        Overlay_Clean();
+        if (Providers_GetCurrentSource())
+        {
+            PrepareDeinterlaceMode();
+            Start_Thread();
+        }
+
+        Audio_Unmute();
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Stop_Capture()
 {
-    if (pCalibration->IsRunning())
+    if (bCaptureStarted == TRUE)
     {
-        pCalibration->Stop();
+        Audio_Mute();
+
+        if (pCalibration->IsRunning())
+        {
+            pCalibration->Stop();
+        }
+        if (Providers_GetCurrentSource())
+        {
+            //  Stop The Output Thread
+            Stop_Thread();
+            Providers_GetCurrentSource()->Stop();
+        }
+        UpdateSquarePixelsMode(FALSE);
+        bCaptureStarted = FALSE;
     }
-    if (Providers_GetCurrentSource())
-    {
-        //  Stop The Output Thread
-        Stop_Thread();
-        Providers_GetCurrentSource()->Stop();
-    }
-    UpdateSquarePixelsMode(FALSE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

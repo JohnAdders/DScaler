@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.50 2002-02-09 02:48:14 laurentg Exp $
+// $Id: DS_Control.h,v 1.51 2002-02-16 00:20:20 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/02/09 02:48:14  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.49  2002/02/01 20:25:24  robmuller
 // Added new option to FLT_TNoise.
 //
@@ -1035,6 +1038,23 @@ typedef enum
 #define WM_FLT_ANOISE_GETVALUE      (WM_USER + 39)
 #define WM_FLT_ANOISE_SETVALUE      (WM_USER + 139)
 #define WM_FLT_ANOISE_CHANGEVALUE   (WM_USER + 239)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_Histogram.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    HISTOGRAMDISPLAYMODE = 0,
+    USEHISTOGRAM,
+    USEHISTOGRAMCOMB,
+    FLT_HISTOGRAM_SETTING_LASTONE,
+} FLT_HISTOGRAM_SETTING;
+
+#define WM_FLT_HISTOGRAM_GETVALUE      (WM_USER + 40)
+#define WM_FLT_HISTOGRAM_SETVALUE      (WM_USER + 140)
+#define WM_FLT_HISTOGRAM_CHANGEVALUE   (WM_USER + 240)
 
 
 #endif

@@ -3,6 +3,7 @@ int Search_Effort_0()		// we don't try at all ;-)
 {
 		//see Search_Effort_Max for comments
 #define SKIP_SEARCH
+#define USE_STRANGE_BOB
 #include "SearchLoopTop.inc"	
 #include "SearchLoopBottom.inc"
 #undef SKIP_SEARCH

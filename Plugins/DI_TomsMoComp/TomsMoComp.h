@@ -64,6 +64,9 @@ static const __int64 Max_Mov[2] =  {0x0404040404040404,0x0404040404040404};
 //static const __int64 Max_Mov[2] =  {0x0808080808080808,0x0808080808080808}; 
 
 __declspec(align(16))
+static const __int64 DiffThres[2] =  {0x0f0f0f0f0f0f0f0f,0x0f0f0f0f0f0f0f0f}; 
+
+__declspec(align(16))
 static const __int64 YMask[2] = {0x00ff00ff00ff00ff,0x00ff00ff00ff00ff}; // keeps only luma
 
 __declspec(align(16))

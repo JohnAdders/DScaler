@@ -135,7 +135,11 @@ LoopQ:
 		add		eax, edx
 		}
 
+#ifdef USE_STRANGE_BOB
+#include "StrangeBob.inc"
+#else
 #include "WierdBob.inc"
+#endif
 
 		// For non-SSE2:
 		// through out most of the rest of this loop we will maintain

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.132 2004-05-12 16:52:42 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.133 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.132  2004/05/12 16:52:42  adcockj
+// Added channel gains fgor PMS cards
+//
 // Revision 1.131  2003/11/14 13:24:55  adcockj
 // PMS card fixes
 //
@@ -901,7 +904,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 #ifdef _DEBUG    
     if (BT848_SETTING_LASTONE != m_Settings.size())
     {
-        LOGD("Number of settings in BT848 source is not equal to the number of settings in DS_Control.h");
+		LOGD("Number of settings in BT848 source is not equal to the number of settings in DS_Control.h");
         LOGD("DS_Control.h or BT848Source.cpp are probably not in sync with eachother.");
     }
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.66 2004-09-29 20:36:02 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.67 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2004/09/29 20:36:02  to_see
+// Added Card AverTV303, Thanks to Zbigniew Pluta
+//
 // Revision 1.65  2004/08/27 13:12:40  to_see
 // Added audio support for Ati Tv Wonder Pro
 //
@@ -564,6 +567,18 @@ void CCX2388xCard::SetFastSubcarrierLock(BOOL LockFast)
     else
     {
         AndDataDword(CX2388X_VIDEO_INPUT, ~(1 << 8));
+    }
+}
+
+void CCX2388xCard::SetVerticalSyncDetection(BOOL SyncDetection)
+{
+    if(SyncDetection)
+    {
+        OrDataDword(CX2388X_VIDEO_INPUT, CX2388X_VIDEO_INPUT_VERTEN);
+    }
+    else
+    {
+        AndDataDword(CX2388X_VIDEO_INPUT, ~CX2388X_VIDEO_INPUT_VERTEN);
     }
 }
 
@@ -1301,8 +1316,21 @@ BOOL CCX2388xCard::IsCCIRSource(int nInput)
 
 BOOL CCX2388xCard::IsVideoPresent()
 {
-    DWORD dwval = ReadDword(CX2388X_DEVICE_STATUS);
-    return ((dwval & CX2388X_DEVICE_STATUS_HLOCK) == CX2388X_DEVICE_STATUS_HLOCK);
+    DWORD dwval			= ReadDword(CX2388X_DEVICE_STATUS);
+	DWORD dwUseVSync	= ReadDword(CX2388X_VIDEO_INPUT);
+
+	// "Vertical Sync Detection" in CX2388x Advanced Settings enabled?
+	if((dwUseVSync & CX2388X_VIDEO_INPUT_VERTEN) == CX2388X_VIDEO_INPUT_VERTEN)
+	{
+		// detection is much faster
+		return ((dwval & CX2388X_DEVICE_STATUS_VPRES) == CX2388X_DEVICE_STATUS_VPRES);
+	}
+
+	else
+	{
+		// use the old way
+		return ((dwval & CX2388X_DEVICE_STATUS_HLOCK) == CX2388X_DEVICE_STATUS_HLOCK);
+	}
 }
 
 DWORD CCX2388xCard::GetRISCPos()

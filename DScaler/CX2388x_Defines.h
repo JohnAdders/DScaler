@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.25 2004-09-29 20:36:01 to_see Exp $
+// $Id: CX2388x_Defines.h,v 1.26 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -554,6 +554,7 @@
 
 #define CX2388X_DEVICE_STATUS        0x00310100
 #define CX2388X_DEVICE_STATUS_HLOCK  (1 << 5)
+#define CX2388X_DEVICE_STATUS_VPRES  (1 << 6)
 
 #define CX2388X_VIDEO_INPUT     0x00310104
 

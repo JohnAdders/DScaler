@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.44 2004-05-21 18:35:59 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.45 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/05/21 18:35:59  to_see
+// Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
+//
+// More Loging when StartStopConexantDriver is not able to Stop the WDM-Driver when other SW uses the card Hardware.
+//
 // Revision 1.43  2004/03/07 12:20:12  to_see
 // added 2 Cards
 // working Nicam-Sound
@@ -827,6 +832,7 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
         vSettingsList.push_back(m_AudioStandard);
         vSettingsList.push_back(m_StereoType);
         vSettingsList.push_back(m_AutoMute);
+        vSettingsList.push_back(m_VerticalSyncDetection);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.158 2004-07-12 20:17:21 to_see Exp $
+// $Id: DS_Control.h,v 1.159 2004-11-13 21:45:57 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.158  2004/07/12 20:17:21  to_see
+// Some minor fixes
+//
 // Revision 1.157  2004/04/24 08:54:18  atnak
 // reverted part of last change because there was no need for a new setting
 // variable for input timeout, used ChannelEnterTime instead
@@ -750,6 +753,10 @@ typedef enum
     BOTTOMOVERSCAN,
     LEFTOVERSCAN,
     RIGHTOVERSCAN,
+	PMSGAIN1,
+	PMSGAIN2,
+	PMSGAIN3,
+	PMSGAIN4,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 
@@ -1621,6 +1628,7 @@ typedef enum
     CX2388XANALOGUEBLANKING,
     CX2388XSTARTSTOPDRIVER,
     CX2388XAUTOMUTEIFNOTUNERSIGNAL,
+    CX2388XENABLEVSYNCDETECTION,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

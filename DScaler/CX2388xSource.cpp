@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.69 2004-07-10 11:57:17 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.70 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2004/07/10 11:57:17  adcockj
+// improved cx2388x driver coverage when disabling drivers
+//
 // Revision 1.68  2004/06/19 20:13:47  to_see
 // Faster and better A2 Stereo Detection
 //
@@ -705,6 +708,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_AutoMute = new CAutoMuteSetting(this, "Automute if no Tunersignal", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AutoMute);
 
+    m_VerticalSyncDetection = new CVerticalSyncDetectionSetting(this, "Vertical Sync Detection", TRUE, IniSection, pVideoGroup);
+    m_Settings.push_back(m_VerticalSyncDetection);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -813,6 +819,7 @@ void CCX2388xSource::Reset()
         m_pCard->SetWhiteCrushDown(m_WhiteCrushDown->GetValue());
         m_pCard->SetWhiteCrushMajorityPoint((CCX2388xCard::eWhiteCrushMajSel)m_WhiteCrushMajorityPoint->GetValue());
         m_pCard->SetWhiteCrushPerFrame(m_WhiteCrushPerFrame->GetValue());
+        m_pCard->SetVerticalSyncDetection(m_VerticalSyncDetection->GetValue());
     }
     NotifySizeChange();
 }
@@ -2157,6 +2164,11 @@ void CCX2388xSource::AutoMuteOnChange(long NewValue,long OldValue)
 	{
 		Audio_Unmute();
 	}
+}
+
+void CCX2388xSource::VerticalSyncDetectionOnChange(long NewValue,long OldValue)
+{
+    m_pCard->SetVerticalSyncDetection(NewValue);
 }
 
 ///////////////////////////////////////////////////////////////////////

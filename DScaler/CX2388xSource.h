@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.36 2004-06-19 20:13:48 to_see Exp $
+// $Id: CX2388xSource.h,v 1.37 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -224,6 +224,7 @@ private:
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexantStopDriver);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, AutoMute);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, VerticalSyncDetection);
 
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.33 2004-09-29 20:36:02 to_see Exp $
+// $Id: CX2388xCard.h,v 1.34 2004-11-13 21:45:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -184,6 +184,7 @@ public:
     void SetChromaAGC(BOOL ChromaAGC);
     void SetFastSubcarrierLock(BOOL LockFast);
     void SetWhiteCrushEnable(BOOL WhiteCrush);
+	void SetVerticalSyncDetection(BOOL SyncDetection);
     void SetWhiteCrushUp(BYTE WhiteCrushUp);
     void SetWhiteCrushDown(BYTE WhiteCrushDown);
     void SetWhiteCrushMajorityPoint(eWhiteCrushMajSel WhiteCrushMajSel);

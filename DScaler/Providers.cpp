@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.23 2002-02-11 21:33:13 laurentg Exp $
+// $Id: Providers.cpp,v 1.24 2002-02-12 16:33:40 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/02/11 21:33:13  laurentg
+// Patterns as a new source from the Still provider
+//
 // Revision 1.22  2002/02/09 21:12:28  laurentg
 // Old test patterns restored
 // Loading of d3u files improved (absolute or relative path)
@@ -317,15 +320,26 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     {
         OPENFILENAME OpenFileInfo;
         char FilePath[MAX_PATH];
-        
-        char* FileFilters = "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff\0"
-                           "TIFF Files\0*.tif;*.tiff\0"
-                           "DScaler Playlists\0*.d3u\0"
-                           "DScaler Patterns\0*.pat\0";
+        char* FileFilters;
+        FileFilters =
+#ifndef WANT_DSHOW_SUPPORT
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff\0"
+#else
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.avi;*.mpg;*.mpeg;*.mpe\0"
+#endif
+                        "TIFF Files\0*.tif;*.tiff\0"
+                        "DScaler Playlists\0*.d3u\0"
+                        "DScaler Patterns\0*.pat\0"
+#ifdef WANT_DSHOW_SUPPORT
+                        "Media Files (*.avi;*.mpg;*.mpeg;*.mpe)\0*.avi;*.mpg;*.mpeg;*.mpe\0"
+#endif
+                        ;
 
+        ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
         OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
         OpenFileInfo.hwndOwner = hWnd;
         OpenFileInfo.lpstrFilter = FileFilters;
+        OpenFileInfo.nFilterIndex = 1;
         OpenFileInfo.lpstrCustomFilter = NULL;
         FilePath[0] = 0;
         OpenFileInfo.lpstrFile = FilePath;

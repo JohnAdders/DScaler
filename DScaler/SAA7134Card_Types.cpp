@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.20 2003-01-27 12:32:37 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.21 2003-01-28 03:41:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/01/27 12:32:37  atnak
+// Updated Medion TV-Tuner 7134 MK2/3
+//
 // Revision 1.19  2003/01/27 03:17:46  atnak
 // Added card support for "MEDION TV-TUNER 7134 MK2/3"
 //
@@ -590,15 +593,28 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     },
     // SAA7134CARDID_MEDION7134 - Medion TV-Tuner 7134 MK2/3
     // Thanks "DavidbowiE" Guest@dscaler.forums
+    // Thanks "Josef Schneider" <josef@ne...>
     {
         "Medion TV-Tuner 7134 MK2/3",
-        2,
+        4,
         {
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",

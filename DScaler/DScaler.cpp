@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.310 2003-02-27 01:37:51 atnak Exp $
+// $Id: DScaler.cpp,v 1.311 2003-03-08 20:50:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.310  2003/02/27 01:37:51  atnak
+// Fixes skin problem introduced when paint code was changed.
+//
 // Revision 1.309  2003/02/08 13:16:47  laurentg
 // Change resolution in full screen mode slightly updated
 //
@@ -6362,7 +6365,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
     },
     {
         "Use Full CPU", SLIDER, 0, (long*)&FullCpu,
-        1, 0, 1, 1, 1,
+        1, 0, 2, 1, 1,
         NULL,
         "MainWindow", "FullCpu", NULL,
     },

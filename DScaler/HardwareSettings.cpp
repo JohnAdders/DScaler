@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.8 2003-01-27 22:04:10 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.9 2003-03-08 20:50:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/27 22:04:10  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.7  2003/01/18 10:24:45  laurentg
 // Suppression of the video card field from the general hardware setup dialog box
 //
@@ -54,7 +59,7 @@
 #include "FieldTiming.h"
 #include "Cpu.h"
 
-static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCpu, int VideoCard)
+static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int Usage, int VideoCard)
 {
     // now do defaults based on the processor speed selected
     if(ProcessorSpeed == 0 && TradeOff == 0)
@@ -112,17 +117,27 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCp
         Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);
     }
 
-    if (FullCpu)
+    if (Usage == 1)
     {
         Setting_ChangeDefault(DScaler_GetSetting(THREADPRIORITY), 0);
         Setting_ChangeDefault(DScaler_GetSetting(WINDOWPRIORITY), 0);
         Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 0);
+        Setting_ChangeDefault(Timing_GetSetting(ALWAYSSLEEP), 0);
     }
-    else
+    else if (Usage == 2)
+    {
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
+        Setting_ChangeDefault(DScaler_GetSetting(THREADPRIORITY), 1);
+        Setting_ChangeDefault(DScaler_GetSetting(WINDOWPRIORITY), 0);
+        Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 1);
+        Setting_ChangeDefault(Timing_GetSetting(ALWAYSSLEEP), 1);
+    }
+    else if (Usage == 0)
     {
         Setting_ChangeDefault(DScaler_GetSetting(THREADPRIORITY), 1);
         Setting_ChangeDefault(DScaler_GetSetting(WINDOWPRIORITY), 0);
         Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 1);
+        Setting_ChangeDefault(Timing_GetSetting(ALWAYSSLEEP), 0);
     }
 
     Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
@@ -145,8 +160,9 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Show all frames - Lowest judder");
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Best picture quality");
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(TRADEOFF)), 0);
-        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Keep CPU for other applications");
-        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Use full CPU for best results");
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"DScaler & other softwares - good results - possible high CPU usage");
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"DScaler alone - best results - 100% CPU usage");
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"DScaler & other softwares - possible judder - never high CPU usage");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(FULLCPU)), 0);
         LPCSTR pCPUTypeString;
         if (CpuFeatureFlags & FEATURE_SSE2)

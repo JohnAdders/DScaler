@@ -747,11 +747,11 @@ BEGIN
     LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
                     -1,7,57,286,17
     LTEXT           "Defaults",-1,15,82,41,10
-    COMBOBOX        IDC_FULLCPU,73,130,178,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_FULLCPU,73,130,221,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "DScaler can use your full CPU for best results or keep CPU for other applications running at the same time. Choose the option below that best matches your preferences.",
+    LTEXT           "Define what is your usage of DScaler in general. This will impact the CPU used by DScaler and the result in term of judder",
                     -1,7,106,286,17
-    LTEXT           "CPU using",-1,15,130,41,10
+    LTEXT           "Usage",-1,15,130,41,10
     LTEXT           "",IDC_CPU_TYPE,259,37,42,10
 END
 

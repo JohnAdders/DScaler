@@ -29,15 +29,16 @@
 
 struct _DEINTERLACE_METHOD;
 
-typedef void (__stdcall DEINTERLACEPLUGINSTART)(long NumPlugIns, struct _DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus);
-typedef void (__stdcall DEINTERLACEPLUGINSHOWUI)(HWND hwndMain);
-typedef void (__stdcall DEINTERLACEPLUGINEXIT)(void);
+typedef void (__cdecl DEINTERLACEPLUGININIT)(void);
+typedef void (__cdecl DEINTERLACEPLUGINSTART)(long NumPlugIns, struct _DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus);
+typedef void (__cdecl DEINTERLACEPLUGINSHOWUI)(HWND hwndMain);
+typedef void (__cdecl DEINTERLACEPLUGINEXIT)(void);
 
 // list of supported plugin versions
-#define DEINTERLACE_VERSION_1 1
+#define DEINTERLACE_VERSION_2 2
 
 // The current version
-#define DEINTERLACE_CURRENT_VERSION DEINTERLACE_VERSION_1
+#define DEINTERLACE_CURRENT_VERSION DEINTERLACE_VERSION_2
 
 typedef struct _DEINTERLACE_METHOD
 {
@@ -71,6 +72,8 @@ typedef struct _DEINTERLACE_METHOD
 	// Index Number (position in menu) should map to old enum value
 	// and should be unique
 	long nMethodIndex;
+	// call this if plugin needs to do anything on load up
+	DEINTERLACEPLUGININIT* pfnPluginInit;
 	// call this if plugin needs to do anything before it is used
 	DEINTERLACEPLUGINSTART* pfnPluginStart;
 	// call this to display any UI, if NULL no UI is supoprted

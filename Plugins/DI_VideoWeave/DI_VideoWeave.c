@@ -84,6 +84,7 @@ DEINTERLACE_METHOD VideoWeaveMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	3,
 	0,
 	0,

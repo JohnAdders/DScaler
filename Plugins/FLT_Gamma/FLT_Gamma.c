@@ -144,7 +144,7 @@ SETTING FLT_GammaSettings[FLT_GAMMA_SETTING_LASTONE] =
 	},
 };
 
-void __stdcall FilterStartGamma(void)
+void __cdecl FilterStartGamma(void)
 {
 	// this will reset the table correctly
 	UseStoredTable_OnChange(bUseStoredTable);

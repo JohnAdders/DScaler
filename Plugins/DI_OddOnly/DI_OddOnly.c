@@ -69,6 +69,7 @@ DEINTERLACE_METHOD OddOnlyMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	1,
 	0,
 	0,

@@ -240,6 +240,7 @@ DEINTERLACE_METHOD BobMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	1,
 	0,
 	0,

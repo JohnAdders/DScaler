@@ -78,6 +78,7 @@ DEINTERLACE_METHOD VideoBobMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	1,
 	0,
 	0,

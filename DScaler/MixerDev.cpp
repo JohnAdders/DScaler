@@ -40,7 +40,7 @@
 #include "MixerDev.h"
 #include "DScaler.h"
 
-CSoundSystem SoundSystem;
+CSoundSystem* pSoundSystem;
 
 BOOL bSystemInMute = FALSE;
 BOOL bUseMixer = FALSE;
@@ -404,10 +404,10 @@ void FillLineBox(HWND hDlg, long ControlId, long SelIndex)
                         "None",
                         -1, 
                         SelIndex);
-    for(int i(0); i < SoundSystem.GetMixer()->GetDestLine(Line)->GetNumSourceLines(); ++i)
+    for(int i(0); i < pSoundSystem->GetMixer()->GetDestLine(Line)->GetNumSourceLines(); ++i)
     {
         ComboBox_AddValueAndSel(hControl, 
-                            SoundSystem.GetMixer()->GetDestLine(Line)->GetSourceLine(i)->GetName(),
+                            pSoundSystem->GetMixer()->GetDestLine(Line)->GetSourceLine(i)->GetName(),
                             i, 
                             SelIndex);
     }
@@ -424,12 +424,12 @@ void FillLineBoxes(HWND hDlg)
 
 void FillDestBox(HWND hDlg)
 {
-    SoundSystem.SetMixer(ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER)));
+    pSoundSystem->SetMixer(ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER)));
     ComboBox_ResetContent(GetDlgItem(hDlg, IDC_DEST));
-    for(int i(0); i < SoundSystem.GetMixer()->GetNumDestLines(); ++i)
+    for(int i(0); i < pSoundSystem->GetMixer()->GetNumDestLines(); ++i)
     {
         ComboBox_AddValueAndSel(GetDlgItem(hDlg, IDC_DEST), 
-                            SoundSystem.GetMixer()->GetDestLine(i)->GetName(),
+                            pSoundSystem->GetMixer()->GetDestLine(i)->GetName(),
                             i, 
                             DestIndex);
     }
@@ -439,11 +439,11 @@ void FillDestBox(HWND hDlg)
 void FillMixersBox(HWND hDlg)
 {
     ComboBox_ResetContent(GetDlgItem(hDlg, IDC_MIXER));
-    SoundSystem.SetMixer(MixerIndex);
-    for(int i(0); i < SoundSystem.GetNumMixers(); ++i)
+    pSoundSystem->SetMixer(MixerIndex);
+    for(int i(0); i < pSoundSystem->GetNumMixers(); ++i)
     {
         ComboBox_AddValueAndSel(GetDlgItem(hDlg, IDC_MIXER), 
-                            SoundSystem.GetMixerName(i),
+                            pSoundSystem->GetMixerName(i),
                             i, 
                             MixerIndex);
     }
@@ -486,14 +486,14 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             bUseMixer = (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED);
             if(bUseMixer == TRUE)
             {
-                SoundSystem.SetMixer(MixerIndex);
+                pSoundSystem->SetMixer(MixerIndex);
                 EnableComboBoxes(hDlg, TRUE);
                 FillMixersBox(hDlg);
             }
             else
             {
                 EnableComboBoxes(hDlg, FALSE);
-                SoundSystem.SetMixer(-1);
+                pSoundSystem->SetMixer(-1);
             }
             break;
         case IDC_MIXER:
@@ -518,7 +518,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             Other2LineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_OTHER2));
             if(bUseMixer == FALSE)
             {
-                SoundSystem.SetMixer(-1);
+                pSoundSystem->SetMixer(-1);
             }
 			EndDialog(hDlg, 0);
             break;
@@ -534,7 +534,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             Other2LineIndex = Old_Other2LineIndex;
             if(bUseMixer == FALSE)
             {
-                SoundSystem.SetMixer(-1);
+                pSoundSystem->SetMixer(-1);
             }
 			EndDialog(hDlg, 0);
 			break;
@@ -557,32 +557,32 @@ CMixerLineSource* Mixer_GetInputLine(long NewType)
         case SOURCE_TUNER:
             if(TunerLineIndex > -1)
             {
-                return SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(TunerLineIndex);
+                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(TunerLineIndex);
             }
             break;
         case SOURCE_COMPOSITE:
             if(CompositeLineIndex > -1)
             {
-                return SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(CompositeLineIndex);
+                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(CompositeLineIndex);
             }
             break;
         case SOURCE_SVIDEO:
         case SOURCE_COMPVIASVIDEO:
             if(SVideoLineIndex > -1)
             {
-                return SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(SVideoLineIndex);
+                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(SVideoLineIndex);
             }
             break;
         case SOURCE_OTHER1:
             if(Other1LineIndex > -1)
             {
-                return SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other1LineIndex);
+                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other1LineIndex);
             }
             break;
         case SOURCE_OTHER2:
             if(Other2LineIndex > -1)
             {
-                return SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other2LineIndex);
+                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other2LineIndex);
             }
             break;
         default:
@@ -665,23 +665,23 @@ void Mixer_OnInputChange(VIDEOSOURCETYPE NewType)
     {
         if(TunerLineIndex > -1)
         {
-            SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(TunerLineIndex)->SetMute(NewType != SOURCE_TUNER);
+            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(TunerLineIndex)->SetMute(NewType != SOURCE_TUNER);
         }
         if(CompositeLineIndex > -1)
         {
-            SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(CompositeLineIndex)->SetMute(NewType != SOURCE_COMPOSITE);
+            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(CompositeLineIndex)->SetMute(NewType != SOURCE_COMPOSITE);
         }
         if(SVideoLineIndex > -1)
         {
-            SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(SVideoLineIndex)->SetMute((NewType != SOURCE_SVIDEO) && (NewType != SOURCE_COMPVIASVIDEO));
+            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(SVideoLineIndex)->SetMute((NewType != SOURCE_SVIDEO) && (NewType != SOURCE_COMPVIASVIDEO));
         }
         if(Other1LineIndex > -1)
         {
-            SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other1LineIndex)->SetMute(NewType != SOURCE_OTHER1);
+            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other1LineIndex)->SetMute(NewType != SOURCE_OTHER1);
         }
         if(Other2LineIndex > -1)
         {
-            SoundSystem.GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other2LineIndex)->SetMute(NewType != SOURCE_OTHER2);
+            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other2LineIndex)->SetMute(NewType != SOURCE_OTHER2);
         }
     }
 }
@@ -692,7 +692,8 @@ void Mixer_Exit()
 	{
 		// Mute all inputs
 		Mixer_OnInputChange(SOURCE_CCIR656_4);
-		SoundSystem.SetMixer(-1);
+		pSoundSystem->SetMixer(-1);
+		delete pSoundSystem;
 	}
 }
 
@@ -700,12 +701,20 @@ void Mixer_Init()
 {
 	if(bUseMixer)
 	{
-		SoundSystem.SetMixer(MixerIndex);
-		Mixer_OnInputChange((VIDEOSOURCETYPE)Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+		pSoundSystem = new CSoundSystem();
+		pSoundSystem->SetMixer(MixerIndex);
+		if(pSoundSystem->GetMixer() != NULL)
+		{
+			Mixer_OnInputChange((VIDEOSOURCETYPE)Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+		}
+		else
+		{
+			bUseMixer = FALSE;
+		}
 	}
 	else
 	{
-		SoundSystem.SetMixer(-1);
+		pSoundSystem->SetMixer(-1);
 	}
 }
 

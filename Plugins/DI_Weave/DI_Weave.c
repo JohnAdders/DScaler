@@ -68,6 +68,7 @@ DEINTERLACE_METHOD WeaveMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	2,
 	0,
 	0,

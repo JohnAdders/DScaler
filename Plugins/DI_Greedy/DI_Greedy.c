@@ -70,6 +70,7 @@ DEINTERLACE_METHOD GreedyMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	3,
 	0,
 	0,

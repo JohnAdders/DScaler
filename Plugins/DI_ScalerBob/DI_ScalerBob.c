@@ -71,6 +71,7 @@ DEINTERLACE_METHOD ScalerBobMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	1,
 	0,
 	0,

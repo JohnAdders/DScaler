@@ -801,7 +801,7 @@ BOOL APIENTRY BlendedClipProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 	return (FALSE);
 }
 
-void __stdcall BlendedClipShowUI(HWND hwndMain)
+void __cdecl BlendedClipShowUI(HWND hwndMain)
 {
 	if(ghDlg == NULL)
 	{
@@ -809,7 +809,7 @@ void __stdcall BlendedClipShowUI(HWND hwndMain)
 	}
 }
 
-void __stdcall BlendedClipExit(void)
+void __cdecl BlendedClipExit(void)
 {
 	if(ghDlg != NULL)
 	{
@@ -916,6 +916,7 @@ DEINTERLACE_METHOD BlendedClipMethod =
 	DI_BLENDEDCLIP_SETTING_LASTONE,
 	DI_BlendedClipSettings,
 	INDEX_BLENDED_CLIP,
+	NULL,
 	NULL,
 	BlendedClipShowUI,
 	BlendedClipExit,

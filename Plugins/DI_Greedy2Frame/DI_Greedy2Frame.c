@@ -71,6 +71,7 @@ DEINTERLACE_METHOD Greedy2FrameMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	4,
 	0,
 	0,

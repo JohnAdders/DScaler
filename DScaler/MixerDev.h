@@ -111,7 +111,6 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 extern BOOL bSystemInMute;
 extern BOOL bUseMixer;
-extern CSoundSystem  SoundSystem;
 
 void Mixer_Mute();
 void Mixer_UnMute();

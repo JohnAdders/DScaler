@@ -155,11 +155,11 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 	}
 }
 
-void __stdcall AdaptiveShowUI(HWND hwndMain)
+void __cdecl AdaptiveShowUI(HWND hwndMain)
 {
 }
 
-void __stdcall AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus)
+void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus)
 {
 	DeintMethods = OtherPlugins;
 	NumVideoModes = NumPlugIns;
@@ -229,6 +229,7 @@ DEINTERLACE_METHOD AdaptiveMethod =
 	DI_ADAPTIVE_SETTING_LASTONE,
 	DI_AdaptiveSettings,
 	INDEX_ADAPTIVE,
+	NULL,
 	AdaptiveStart,
 	AdaptiveShowUI,
 	NULL,

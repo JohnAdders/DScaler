@@ -29,8 +29,8 @@
 #include "DS_Control.h"
 #include "DS_ApiCommon.h"
 
-typedef void (__stdcall FILTERPLUGINSTART)(void);
-typedef void (__stdcall FILTERPLUGINEXIT)(void);
+typedef void (__cdecl FILTERPLUGINSTART)(void);
+typedef void (__cdecl FILTERPLUGINEXIT)(void);
 
 // list of supported plugin versions
 #define FILTER_VERSION_1 1

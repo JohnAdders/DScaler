@@ -77,6 +77,7 @@ DEINTERLACE_METHOD TwoFrameMethod =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 	4,
 	0,
 	0,

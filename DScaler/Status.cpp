@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.9 2001-11-09 12:42:07 adcockj Exp $
+// $Id: Status.cpp,v 1.10 2001-11-09 14:19:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.8  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -234,7 +237,7 @@ HWND StatusBar_AddField(int iId, int iMin, int iMax, BOOL bNewGroup)
     if (NumStatusFields >= MAXSTATUS)
         return (HWND) 0;        // No room left in our fixed array
 
-    StatusFields[NumStatusFields].hWnd = CreateWindow("DScalerField", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwndStatusBar, (HMENU) iId, hDScalerInst, NULL);
+    StatusFields[NumStatusFields].hWnd = CreateWindow("StatusField", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwndStatusBar, (HMENU) iId, hDScalerInst, NULL);
 
     if (!StatusFields[NumStatusFields].hWnd)
         return (HWND) 0;        // CreateWindow failed for some reason

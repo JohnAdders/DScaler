@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.84 2001-11-09 12:42:07 adcockj Exp $
+// $Id: DScaler.cpp,v 1.85 2001-11-09 14:19:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.83  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -2235,6 +2238,15 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error RestoreUsualOverscan");}
 
+
+    // stop capture before stopping timneshift to avoid crash
+    __try
+    {
+        LOG(1, "Try Stop_Capture");
+        Stop_Capture();
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Stop_Capture");}
+      
     __try
     {
         LOG(1, "Try TimeShift::OnStop");
@@ -2243,6 +2255,7 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnStop");}
 
+    
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     __try
     {
@@ -2258,13 +2271,6 @@ void MainWndOnDestroy()
         Audio_Mute();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Mute");}
-
-    __try
-    {
-        LOG(1, "Try Stop_Capture");
-        Stop_Capture();
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Stop_Capture");}
 
     __try
     {

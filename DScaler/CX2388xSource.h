@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.14 2002-12-10 14:53:16 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.15 2002-12-23 17:22:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -106,14 +106,16 @@ private:
 
     void SetupCard();
     void ChangeTVSettingsBasedOnTuner();
-    void ChangeSectionNamesForInput();
-    void ChangeDefaultsForInput(BOOL bDontSetValue);
-    void LoadInputSettings();
-    void SaveInputSettings(BOOL bOptimizeFileAccess);
+    void ChangeDefaultsForVideoFormat();
+    void ChangeDefaultsForVideoInput();
+    void SaveSettings(WORD ChangedSetup);
+    void LoadSettings(WORD ChangedSetup);
     void SetupPictureStructures();
+    void GetIniSectionName(char* pBuffer, WORD IniSectionMask);
+    void ChangeDefaultsForSetup(WORD Setup);
+    void SetupSettings();
 
     void ChangeChannelSectionNames();
-    void ChangeDefaultsForCard(BOOL bDontSetValue);
 
     ISetting* GetCurrentAudioSetting();
 
@@ -193,6 +195,32 @@ private:
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
 
 protected:
+    enum eSettingsSetup
+    {
+
+        SETUP_SINGLE                = 0UL,
+        SETUP_NONE                  = 0UL,
+        SETUP_PER_VIDEOINPUT        = 1 << 0,
+        SETUP_PER_VIDEOFORMAT       = 1 << 1,
+        SETUP_PER_AUDIOINPUT        = 1 << 2,
+        SETUP_PER_CHANNEL           = 1 << 3,
+        SETUP_CHANGE_VIDEOINPUT     = 1 << 4,
+        SETUP_CHANGE_VIDEOFORMAT    = 1 << 5,
+        SETUP_CHANGE_AUDIOINPUT     = 1 << 6,
+        SETUP_CHANGE_CHANNEL        = 1 << 7,
+        SETUP_CHANGE_ANY            = 0x00F0,
+    };
+
+    typedef struct
+    {
+        CSimpleSetting*    Setting;
+        DWORD               Setup;
+        
+    } TSettingsSetup;
+
+    TSettingsSetup* m_SettingsSetup;
+
+
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.5 2002-12-04 15:54:08 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.6 2002-12-23 17:22:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/12/04 15:54:08  adcockj
+// Hacky fix for settings by channel code with mutiple cards
+//
 // Revision 1.4  2002/12/03 16:34:11  adcockj
 // Corrected channel settings groupings
 //
@@ -1621,6 +1624,7 @@ void CBT848Source::ChangeChannelSectionNames()
         // to do
         if(Providers_GetCurrentSource()  != (CSource*)this)
         {
+            m_ChannelSubSection = sOldSection;
             return;
         }
 

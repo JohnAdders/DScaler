@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.19 2002-12-10 14:53:16 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.20 2002-12-23 17:22:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/12/10 14:53:16  adcockj
+// Sound fixes for cx2388x
+//
 // Revision 1.18  2002/12/10 12:58:07  adcockj
 // Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
 //  calls to EventCollector->RaiseEvent
@@ -241,7 +244,8 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     m_CurrentChannel(-1),
     m_SettingsByChannelStarted(FALSE),
     m_NumFields(10),
-    m_hCX2388xResourceInst(NULL)
+    m_hCX2388xResourceInst(NULL),
+    m_SettingsSetup(NULL)
 {
     CreateSettings(IniSection);
 
@@ -251,10 +255,6 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     EventCollector->Register(this, EventList);
     
     ReadFromIni();
-    ChangeDefaultsForCard(TRUE);
-    ChangeSectionNamesForInput();
-    ChangeDefaultsForInput(TRUE);
-    LoadInputSettings();
 
     m_RiscBaseLinear = (DWORD*)RiscDMAMem->GetUserPointer();
     m_RiscBasePhysical = RiscDMAMem->TranslateToPhysical(m_RiscBaseLinear, 83968, NULL);
@@ -267,6 +267,11 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     }
 
     SetupCard();
+
+    LoadSettings(SETUP_CHANGE_ANY);
+    
+    InitializeUI();
+
     Reset();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
@@ -278,6 +283,11 @@ CCX2388xSource::~CCX2388xSource()
 {
     EventCollector->Unregister(this);
     CX2388x_OnSetup(this, 0);
+
+    if (m_SettingsSetup != NULL)
+    {
+        delete [] m_SettingsSetup;
+    }
 
     delete m_pCard;
 }
@@ -473,7 +483,84 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     }
 #endif
 
-    ReadFromIni();
+    SetupSettings();
+}
+
+void CCX2388xSource::SetupSettings()
+{
+    #define PER_VIDEOINPUT      SETUP_PER_VIDEOINPUT
+    #define PER_VIDEOFORMAT     SETUP_PER_VIDEOFORMAT
+    #define PER_AUDIOINPUT      SETUP_PER_AUDIOINPUT
+    #define PER_CHANNEL         SETUP_PER_CHANNEL
+    
+    TSettingsSetup SettingsSetupHolo3d[] =
+    {
+        { m_VideoSource,            SETUP_CHANGE_VIDEOINPUT },
+        { m_VideoFormat,            SETUP_CHANGE_VIDEOFORMAT | PER_VIDEOINPUT | PER_CHANNEL },
+        { m_Brightness,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Overscan,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_FLIFilmDetect,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Sharpness,              PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_IsVideoProgressive,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { NULL,                     0 }
+    };
+
+    TSettingsSetup SettingsSetupNormal[] =
+    {
+        { m_VideoSource,            SETUP_CHANGE_VIDEOINPUT },
+        { m_VideoFormat,            SETUP_CHANGE_VIDEOFORMAT | PER_VIDEOINPUT | PER_CHANNEL },
+        { m_Brightness,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Overscan,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_LumaAGC,                PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_ChromaAGC,              PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_FastSubcarrierLock,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_WhiteCrush,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_LowColorRemoval,        PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_CombFilter,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_FullLumaRange,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Remodulation,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Chroma2HComb,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_ForceRemodExcessChroma, PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_IFXInterpolation,       PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_CombRange,              PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_SecondChromaDemod,      PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_ThirdChromaDemod,       PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_WhiteCrushUp,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_WhiteCrushDown,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_WhiteCrushMajorityPoint,PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_WhiteCrushPerFrame,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Volume,                 PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_Balance,                PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_AudioStandard,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_StereoType,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { NULL,                     0 }
+    };
+
+    #undef PER_VIDEOINPUT
+    #undef PER_VIDEOFORMAT
+    #undef PER_AUDIOINPUT
+    #undef PER_CHANNEL
+
+    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    {
+        WORD ListCount = sizeof(SettingsSetupHolo3d)/sizeof(TSettingsSetup);
+
+        m_SettingsSetup = new TSettingsSetup[ListCount];
+        memcpy(m_SettingsSetup, SettingsSetupHolo3d, sizeof(SettingsSetupHolo3d));
+    }
+    else
+    {
+        WORD ListCount = sizeof(SettingsSetupNormal)/sizeof(TSettingsSetup);
+
+        m_SettingsSetup = new TSettingsSetup[ListCount];
+        memcpy(m_SettingsSetup, SettingsSetupNormal, sizeof(SettingsSetupNormal));
+    }
 }
 
 
@@ -510,6 +597,16 @@ void CCX2388xSource::Reset()
                             m_IsVideoProgressive->GetValue()
                         );
 
+    if(IsInTunerMode())
+    {
+        m_pCard->AudioInit(
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            (CCX2388xCard::eAudioStandard)m_AudioStandard->GetValue(),
+                            (CCX2388xCard::eStereoType)m_StereoType->GetValue()
+                          );
+    }
+
     if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
     {
         m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
@@ -535,7 +632,7 @@ void CCX2388xSource::Reset()
         m_pCard->SetWhiteCrushDown(m_WhiteCrushDown->GetValue());
         m_pCard->SetWhiteCrushMajorityPoint((CCX2388xCard::eWhiteCrushMajSel)m_WhiteCrushMajorityPoint->GetValue());
         m_pCard->SetWhiteCrushPerFrame(m_WhiteCrushPerFrame->GetValue());
-   }
+    }
     NotifySizeChange();
 }
 
@@ -1143,8 +1240,11 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
     Stop_Capture();
-    SaveInputSettings(TRUE);
-    LoadInputSettings();
+
+    Audio_Mute(PreSwitchMuteDelay);
+
+    SaveSettings(SETUP_CHANGE_VIDEOINPUT);
+    LoadSettings(SETUP_CHANGE_VIDEOINPUT);
     Reset();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
@@ -1153,6 +1253,7 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     if(m_pCard->IsInputATuner(NewValue))
     {
         Channel_SetCurrent();
+        Audio_Unmute(PostSwitchMuteDelay);
     }
     Start_Capture();
 }
@@ -1161,8 +1262,8 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 {
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
     Stop_Capture();
-    SaveInputSettings(TRUE);
-    LoadInputSettings();
+    SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
+    LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     Reset();
     Start_Capture();
@@ -1254,9 +1355,6 @@ void CCX2388xSource::SetupCard()
         EnableCancelButton = 0;
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
         EnableCancelButton = 1;
-
-        ChangeDefaultsForCard(FALSE);
-        ChangeDefaultsForInput(FALSE);
     }
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
@@ -1265,7 +1363,6 @@ void CCX2388xSource::SetupCard()
     DestroyMenu(m_hMenu);
     m_hMenu = m_pCard->GetCardSpecificMenu();
     Providers_UpdateMenu(m_hMenu);
-    InitializeUI();
 }
 
 void CCX2388xSource::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.21 2002-12-10 14:53:17 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.22 2002-12-23 17:22:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/12/10 14:53:17  adcockj
+// Sound fixes for cx2388x
+//
 // Revision 1.20  2002/12/04 16:18:25  adcockj
 // Added White crush to settings dialog
 //
@@ -370,15 +373,15 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
     
         case IDM_SAVE_BY_FORMAT:
-            SaveInputSettings(TRUE);
+            SaveSettings(SETUP_CHANGE_ANY);
             m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
-            LoadInputSettings();
+            LoadSettings(SETUP_CHANGE_ANY);
             break;
 
         case IDM_SAVE_BY_INPUT:
-            SaveInputSettings(TRUE);
+            SaveSettings(SETUP_CHANGE_ANY);
             m_bSavePerInput->SetValue(!m_bSavePerInput->GetValue());
-            LoadInputSettings();
+            LoadSettings(SETUP_CHANGE_ANY);
             break;
 
         case IDM_PROGRESSIVE:
@@ -498,117 +501,141 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     return TRUE;
 }
 
-void CCX2388xSource::ChangeSectionNamesForInput()
-{
-    int Input = -1;
-    int Format = -1;
-    
-    if(m_bSavePerInput->GetValue())
-    {
-        Input = m_VideoSource->GetValue();
-    }
-
-    if(m_bSavePerFormat->GetValue())
-    {
-        Format = m_VideoFormat->GetValue();
-    }
-
-    if(Input == -1 && Format == -1)
-    {
-        m_Brightness->SetSection(m_Section.c_str());
-        m_Contrast->SetSection(m_Section.c_str());
-        m_Hue->SetSection(m_Section.c_str());
-        m_Saturation->SetSection(m_Section.c_str());
-        m_SaturationU->SetSection(m_Section.c_str());
-        m_SaturationV->SetSection(m_Section.c_str());
-        m_Overscan->SetSection(m_Section.c_str());
-    }
-    else
-    {
-        char szSection[128];
-        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, Format);
-        m_Brightness->SetSection(szSection);
-        m_Contrast->SetSection(szSection);
-        m_Hue->SetSection(szSection);
-        m_Saturation->SetSection(szSection);
-        m_SaturationU->SetSection(szSection);
-        m_SaturationV->SetSection(szSection);
-        m_Overscan->SetSection(szSection);
-    }
-
-    ChangeDefaultsForInput(TRUE);
-}
-
-void CCX2388xSource::ChangeDefaultsForCard(BOOL bDontSetValue)
+void CCX2388xSource::ChangeDefaultsForVideoInput()
 {
     if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
     {
-        m_Brightness->ChangeDefault(128, bDontSetValue);
-        m_Contrast->ChangeDefault(0x39, bDontSetValue);
-        m_Hue->ChangeDefault(128, bDontSetValue);
-        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, bDontSetValue);
-        m_SaturationU->ChangeDefault(0x7f, bDontSetValue);
-        m_SaturationV->ChangeDefault(0x5A, bDontSetValue);
-        m_IsVideoProgressive->ChangeDefault(FALSE, bDontSetValue);
+        m_Brightness->ChangeDefault(128);
+        m_Contrast->ChangeDefault(0x39);
+        m_Hue->ChangeDefault(128);
+        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2);
+        m_SaturationU->ChangeDefault(0x7f);
+        m_SaturationV->ChangeDefault(0x5A);
+        m_IsVideoProgressive->ChangeDefault(FALSE);
     }
     else
     {
-        m_Brightness->ChangeDefault(128, bDontSetValue);
-        m_Contrast->ChangeDefault(128, bDontSetValue);
-        m_Hue->ChangeDefault(128, bDontSetValue);
-        m_Saturation->ChangeDefault(128, bDontSetValue);
-        m_SaturationU->ChangeDefault(128, bDontSetValue);
-        m_SaturationV->ChangeDefault(128, bDontSetValue);
-        m_IsVideoProgressive->ChangeDefault(TRUE, bDontSetValue);
+        m_Brightness->ChangeDefault(128);
+        m_Contrast->ChangeDefault(128);
+        m_Hue->ChangeDefault(128);
+        m_Saturation->ChangeDefault(128);
+        m_SaturationU->ChangeDefault(128);
+        m_SaturationV->ChangeDefault(128);
+        m_IsVideoProgressive->ChangeDefault(TRUE);
     }
 }
 
-void CCX2388xSource::ChangeDefaultsForInput(BOOL bDontSetValue)
+void CCX2388xSource::ChangeDefaultsForVideoFormat()
 {
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
     }
     else
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
     }
 }
 
-void CCX2388xSource::LoadInputSettings()
+void CCX2388xSource::SaveSettings(WORD ChangedSetup)
 {
-    ChangeDefaultsForInput(TRUE);
-    
-    if (!SettingsPerChannel())
+    WORD PerSetupMask;
+
+    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
+
+    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
     {
-        ChangeSectionNamesForInput();
-        m_Brightness->ReadFromIni();
-        m_Contrast->ReadFromIni();
-        m_Hue->ReadFromIni();
-        m_Saturation->ReadFromIni();
-        m_SaturationU->ReadFromIni();
-        m_SaturationV->ReadFromIni();
-        m_Overscan->ReadFromIni();
+        if (m_SettingsSetup[i].Setup & PerSetupMask)
+        {
+            // Save the setting
+            m_SettingsSetup[i].Setting->WriteToIni(TRUE);
+
+            // If this change affects another setup
+            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
+            {
+                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
+            }
+        }
+    }
+}
+
+void CCX2388xSource::ChangeDefaultsForSetup(WORD Setup)
+{
+    if (Setup & SETUP_CHANGE_VIDEOINPUT)
+    {
+        ChangeDefaultsForVideoInput();
+    }
+    if (Setup & SETUP_CHANGE_VIDEOFORMAT)
+    {
+        ChangeDefaultsForVideoFormat();
+    }
+}
+
+void CCX2388xSource::LoadSettings(WORD ChangedSetup)
+{
+    WORD PerSetupMask;
+    WORD EnabledSectionMask = SETUP_PER_AUDIOINPUT;
+    WORD IniSectionMask = 0xFF;
+    char szSection[128];
+
+    // Find out which sections are used
+    if (m_bSavePerInput->GetValue())
+    {
+        EnabledSectionMask |= SETUP_PER_VIDEOINPUT;
+    }
+    if (m_bSavePerFormat->GetValue())
+    {
+        EnabledSectionMask |= SETUP_PER_VIDEOFORMAT;
     }
 
+    // Adjust to the new defaults
+    ChangeDefaultsForSetup(ChangedSetup);
+    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
+
+    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
+    {
+        if (m_SettingsSetup[i].Setup & PerSetupMask)
+        {
+            // Generate the section name if we don't already have it
+            if ((m_SettingsSetup[i].Setup & EnabledSectionMask) != IniSectionMask)
+            {
+                IniSectionMask = (m_SettingsSetup[i].Setup & EnabledSectionMask);
+                GetIniSectionName(szSection, IniSectionMask);
+            }
+
+            // Change the section and read the value
+            m_SettingsSetup[i].Setting->SetSection(szSection);
+            m_SettingsSetup[i].Setting->ReadFromIni();
+
+            // If this change affects another setup
+            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
+            {
+                ChangeDefaultsForSetup(m_SettingsSetup[i].Setup);
+                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
+            }
+        }
+    }
     ChangeChannelSectionNames();
 }
 
-void CCX2388xSource::SaveInputSettings(BOOL bOptimizeFileAccess)
+
+void CCX2388xSource::GetIniSectionName(char* pBuffer, WORD IniSectionMask)
 {
-    if (!SettingsPerChannel())
-    {        
-        m_Brightness->WriteToIni(bOptimizeFileAccess);
-        m_Contrast->WriteToIni(bOptimizeFileAccess);
-        m_Hue->WriteToIni(bOptimizeFileAccess);
-        m_Saturation->WriteToIni(bOptimizeFileAccess);
-        m_SaturationU->WriteToIni(bOptimizeFileAccess);
-        m_SaturationV->WriteToIni(bOptimizeFileAccess);
-        m_Overscan->WriteToIni(bOptimizeFileAccess);
+    sprintf(pBuffer, "%s", m_Section.c_str());
+    pBuffer += strlen(pBuffer);
+
+    if (IniSectionMask & SETUP_PER_VIDEOINPUT)
+    {
+        sprintf(pBuffer, "_VI%d", m_VideoSource->GetValue());
+        pBuffer += strlen(pBuffer);
+    }
+    if (IniSectionMask & SETUP_PER_VIDEOFORMAT)
+    {
+        sprintf(pBuffer, "_VF%d", m_VideoFormat->GetValue());
+        pBuffer += strlen(pBuffer);
     }
 }
-
 
 void CCX2388xSource::ChangeChannelSectionNames()
 {    
@@ -618,45 +645,47 @@ void CCX2388xSource::ChangeChannelSectionNames()
     }
 
     std::string sOldSection = m_ChannelSubSection;
-    
-    int Input = -1;
-    int Format = -1;
-    
-    if(m_bSavePerInput->GetValue())
+
+    WORD IniSectionMask = 0;
+
+    if (m_bSavePerInput->GetValue())
     {
-        Input = m_VideoSource->GetValue();
+        IniSectionMask |= SETUP_PER_VIDEOINPUT;
     }
-    if(m_bSavePerFormat->GetValue())
+    if (m_bSavePerFormat->GetValue())
     {
-        Format = m_VideoFormat->GetValue();
+        IniSectionMask |= SETUP_PER_VIDEOFORMAT;
     }
 
-    if(Input != -1 || Format != -1)
+    if(IniSectionMask)
     {
-        char szSection[100];
-        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, Format);
-        m_ChannelSubSection = szSection;     
-    } 
+        char szSection[128];
+
+        GetIniSectionName(szSection, IniSectionMask);
+        m_ChannelSubSection = szSection;
+    }
     else
     {
         m_ChannelSubSection = m_Section;
     }
+
     if (sOldSection != m_ChannelSubSection)
     {
         if (sOldSection.size() > 0)
-        {            
-            if (m_CurrentChannel >=0)
-            {            
+        {
+            if (m_CurrentChannel >= 0)
+            {
                 SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
-            }        
+            }
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }
-        
+
         // if there are multiple sources then things go wrong
         // so until the settings are sorted out this hacky fix will have
         // to do
         if(Providers_GetCurrentSource()  != (CSource*)this)
         {
+            m_ChannelSubSection = sOldSection;
             return;
         }
 

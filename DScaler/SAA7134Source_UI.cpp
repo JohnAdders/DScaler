@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.25 2002-12-09 00:32:47 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.26 2002-12-23 17:22:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/12/09 00:32:47  atnak
+// Code layout tweaks
+//
 // Revision 1.24  2002/12/05 08:08:08  atnak
 // Minor correction
 //
@@ -1830,6 +1833,7 @@ void CSAA7134Source::ChangeChannelSectionNames()
         // to do
         if(Providers_GetCurrentSource()  != (CSource*)this)
         {
+            m_ChannelSubSection = sOldSection;
             return;
         }
 

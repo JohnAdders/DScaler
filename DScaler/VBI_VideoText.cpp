@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.48 2002-10-15 02:02:58 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.49 2002-10-15 03:36:29 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/10/15 02:02:58  atnak
+// Added rounding in VT decoding to improve accuracy
+//
 // Revision 1.47  2002/10/13 08:36:14  atnak
 // fix to portions of page not updated after subtitle/newsflash change
 //
@@ -1157,8 +1160,6 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
 
     thr = (min + max) / 2;
 
-    #define ROUND(f)    ((int)floor(((double)f) + 0.5))
-
     // search start-byte 11100100 
     //for (i = 4 * VTStep + vbi->pll_adj*VTStep/10; i < 16*VTStep; i += VTStep)
     for (i = 4 * VTStep; i < (int)(16*VTStep); i += VTStep)
@@ -1171,9 +1172,9 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
             data[1] = 0x55;
             for (n = 0; n < 43*8; ++n, i += VTStep)
             {
-                if (VBI_Buffer[sync + ROUND(i/FPFAC)] + 
-                    VBI_Buffer[sync + ROUND(i/FPFAC) - 1] + 
-                    VBI_Buffer[sync + ROUND(i/FPFAC) + 1] > 3 * thr)
+                if (VBI_Buffer[sync + i/FPFAC] + 
+                    VBI_Buffer[sync + i/FPFAC - 1] + 
+                    VBI_Buffer[sync + i/FPFAC + 1] > 3 * thr)
                 {
                     data[2 + n/8] |= 1 << (n % 8);
                 }
@@ -1187,9 +1188,6 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
             VBI_decode_vt(data);
         }
     }
-
-    #undef ROUND
-
     return;
 }
 

@@ -74,6 +74,7 @@ BEGIN
     "B",            IDM_BRIGHTNESS_CURRENT, VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     "C",            IDM_COLOR_MINUS,        VIRTKEY, NOINVERT
+    "C",            IDM_CLOSE_FILE,         VIRTKEY, CONTROL, NOINVERT
     "C",            IDM_COLOR_PLUS,         VIRTKEY, SHIFT, NOINVERT
     "C",            IDM_COLOR_CURRENT,      VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
@@ -123,6 +124,7 @@ BEGIN
     "R",            IDM_RESET_STATS,        VIRTKEY, NOINVERT
     "R",            IDM_TSRECORD,           VIRTKEY, SHIFT, NOINVERT
     "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
+    "S",            IDM_SAVE_IN_FILE,       VIRTKEY, CONTROL, NOINVERT
     "S",            IDM_TSSTOP,             VIRTKEY, SHIFT, NOINVERT
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, NOINVERT
     "T",            IDM_VT_MIXEDMODE,       VIRTKEY, SHIFT, NOINVERT
@@ -1594,10 +1596,10 @@ IDC_STILL MENU DISCARDABLE
 BEGIN
     POPUP "Pla&ylist"
     BEGIN
-        MENUITEM "&Close",                      IDM_CLOSE_FILE
+        MENUITEM "&Close\tCtrl+C",              IDM_CLOSE_FILE
         MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
         MENUITEM SEPARATOR
-        MENUITEM "&Save",                       IDM_SAVE_IN_FILE
+        MENUITEM "&Save\tCtrl+S",               IDM_SAVE_IN_FILE
         MENUITEM "S&ave All",                   IDM_SAVE_ALL_IN_FILE
         MENUITEM "Sa&ve Playlist As ...",       IDM_PLAYLIST_SAVE
         MENUITEM SEPARATOR

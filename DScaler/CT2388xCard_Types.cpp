@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.1 2002-09-11 18:19:37 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.2 2002-09-11 19:33:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/11 18:19:37  adcockj
+// Prelimainary support for CT2388x based cards
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -140,7 +143,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
 		8,
 		{
 			{
-				"COMPONENT",
+				"Component",
 				INPUTTYPE_CCIR,
 				3,
 			},

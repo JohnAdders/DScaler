@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.1 2002-09-11 18:19:36 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.2 2002-09-11 19:33:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/11 18:19:36  adcockj
+// Prelimainary support for CT2388x based cards
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -818,7 +821,8 @@ void CCT2388xCard::DumpChipStatus()
         return;
     }
 
-    DumpRegister(CT2388X_PLL);
+    fprintf(hFile, "SubSystemId\t%08x\n", m_SubSystemId);
+
     DumpRegister(CT2388X_DEVICE_STATUS);
     DumpRegister(CT2388X_VIDEO_INPUT);
     DumpRegister(CT2388X_TEMPORAL_DEC);

@@ -1037,46 +1037,6 @@ SOURCE=.\RES\DScaler.rc2
 
 SOURCE=.\Res\Startup.bmp
 # End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTCZECHX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTFRENCHX15X18.BMP
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTGERMANX15X18.BMP
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTGREEKX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTHEBREWX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTHUNGARIANX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTITALIANX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTRUSSIANX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTSWEDISHX15X18.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\Vtx15x18.bmp
-# End Source File
 # End Group
 # Begin Source File
 

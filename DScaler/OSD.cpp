@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.91 2005-03-20 22:56:22 laurentg Exp $
+// $Id: OSD.cpp,v 1.92 2005-03-21 22:39:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2005/03/20 22:56:22  laurentg
+// New OSD screens added for EPG
+//
 // Revision 1.90  2004/07/25 11:25:31  adcockj
 // Patch for international lanugauges in OSD from Alexander Choporov
 //
@@ -482,9 +485,10 @@ static void OSD_RefreshCurrentProgramsScreen(double Size);
 static TActiveScreen ActiveScreens[] =
 {
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
+    { "Current program screen",  TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
-    { "Current program screen",  FALSE, FALSE, 10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
-    { "Current programs screen", FALSE, FALSE, 10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramsScreen },
+    { "Current program screen",  FALSE, TRUE,  10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
+    { "Current programs screen", FALSE, TRUE,  10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramsScreen },
     { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
@@ -2278,7 +2282,7 @@ static void OSD_RefreshDeveloperScreen(double Size)
 }
 
 
-static void OSD_RefreshProgramsScreen(double Size, LPCSTR  Title, LPCSTR Channel, time_t DateMin, time_t DateMax)
+static void OSD_RefreshProgramsScreen(double Size, LPCSTR Title, LPCSTR Channel, BOOL SearchAll, time_t DateMin, time_t DateMax)
 {
     double      dfMargin = 0.02;    // 2% of screen height/width
     char        szInfo[64];
@@ -2295,9 +2299,27 @@ static void OSD_RefreshProgramsScreen(double Size, LPCSTR  Title, LPCSTR Channel
     // Title
     OSD_AddText(Title, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-	int nb = MyEPG.SearchForPrograms(Channel, DateMin, DateMax);
-	if (nb == 0)
+	int nb;
+	if (!SearchAll && !Channel)
+	{
+        OSD_AddText("Not in tuner mode", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
 		return;
+	}
+	else
+	{
+		nb = MyEPG.SearchForPrograms(SearchAll ? NULL : Channel, DateMin, DateMax);
+		if (!SearchAll && (nb == 0))
+		{
+			OSD_AddText(Channel, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+			OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (4, dfMargin, Size));
+			return;
+		}
+		else if (nb == 0)
+		{
+			OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+			return;
+		}
+	}
 
     nLine = 3;
 
@@ -2310,7 +2332,7 @@ static void OSD_RefreshProgramsScreen(double Size, LPCSTR  Title, LPCSTR Channel
 
 		MyEPG.GetProgramData(i, StartTime, EndTime, ChannelName, ProgramTitle);
 
-		if (!Channel && !_stricmp(ChannelName.c_str(), Channel_GetName()))
+		if (SearchAll && Channel && !_stricmp(ChannelName.c_str(), Channel))
 			Color = OSD_COLOR_CURRENT;
 		else
 			Color = -1;
@@ -2329,17 +2351,25 @@ static void OSD_RefreshProgramsScreen(double Size, LPCSTR  Title, LPCSTR Channel
 
 static void OSD_RefreshCurrentProgramScreen(double Size)
 {
+	CSource *CurrentSource = Providers_GetCurrentSource();
+	const char *Channel = NULL;
+	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		Channel = Channel_GetName();
 	time_t Now;
 	time(&Now);
-	OSD_RefreshProgramsScreen(Size, "Current Program", Channel_GetName(), Now, Now);
+	OSD_RefreshProgramsScreen(Size, "Current Program", Channel, FALSE, Now, Now);
 }
 
 
 static void OSD_RefreshCurrentProgramsScreen(double Size)
 {
+	CSource *CurrentSource = Providers_GetCurrentSource();
+	const char *Channel = NULL;
+	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		Channel = Channel_GetName();
 	time_t Now;
 	time(&Now);
-	OSD_RefreshProgramsScreen(Size, "Current Programs", NULL, Now, Now);
+	OSD_RefreshProgramsScreen(Size, "Current Programs", Channel, TRUE, Now, Now);
 }
 
 
@@ -2615,25 +2645,25 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "AutoHide", OSD_AutoHide_OnChange,
     },
     {
-        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[1].active),
+        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseGeneralScreen", NULL,
     },
     {
-        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[4].active),
+        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[5].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseStatisticsScreen", NULL,
     },
     {
-        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[5].active),
+        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[6].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseWSSDecodingScreen", NULL,
     },
     {
-        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[6].active),
+        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[7].active),
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseDeveloperScreen", NULL,

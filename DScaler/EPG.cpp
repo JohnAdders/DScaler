@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.3 2005-03-20 22:56:22 laurentg Exp $
+// $Id: EPG.cpp,v 1.4 2005-03-21 22:39:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/20 22:56:22  laurentg
+// New OSD screens added for EPG
+//
 // Revision 1.2  2005/03/20 16:56:26  laurentg
 // Bug fixed regarding channel name containing special PERL REGEXP characters
 // Files now generated in the DScaler main directory
@@ -616,6 +619,8 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 		Channel = end+1;
 		if (!*StartDate || !*StartTime || !*EndDate || !*EndTime || !*Title || !*Channel)
 			continue;
+		if (!IsValidChannelName(Channel))
+			continue;
 
 		int year;
 		int month;
@@ -670,6 +675,13 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 	fclose(InFile);
 
 	return 0;
+}
+
+
+// Indicate if EPG programs are available
+BOOL CEPG::IsEPGAvailable()
+{
+	return (m_Programs.size() == 0) ? FALSE : TRUE;
 }
 
 

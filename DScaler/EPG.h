@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.2 2005-03-20 22:56:22 laurentg Exp $
+// $Id: EPG.h,v 1.3 2005-03-21 22:39:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/20 22:56:22  laurentg
+// New OSD screens added for EPG
+//
 // Revision 1.1  2005/03/20 09:48:58  laurentg
 // XMLTV file import
 //
@@ -83,6 +86,9 @@ public:
 	// the interval [current time - 2 hours, current time + one day]
 	// TODO Rewrite LoadEPGData as soon as XML API will be used
 	int LoadEPGData(time_t DateMin=0, time_t DateMax=0);
+
+	// Indicate if EPG programs are available
+	BOOL IsEPGAvailable();
 
 	// Get the EPG data of the first program matching time and channel
 	int GetEPGData(string &StartTime, string &EndTime, string &Title, LPCSTR Channel=NULL, time_t Date=0);

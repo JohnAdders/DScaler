@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.375 2005-03-20 22:56:18 laurentg Exp $
+// $Id: DScaler.cpp,v 1.376 2005-03-21 22:39:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.375  2005/03/20 22:56:18  laurentg
+// New OSD screens added for EPG
+//
 // Revision 1.374  2005/03/20 09:50:04  laurentg
 // XMLTV file import
 //
@@ -4280,7 +4283,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_DISPLAY_EPG:
-            PostMessage(hWnd, WM_COMMAND, IDM_OSDSCREEN_SHOW + 2, 0);
+		    OSD_ShowInfosScreen(1, 0);
 			break;
 
 		default:

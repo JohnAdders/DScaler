@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.105 2005-03-08 03:32:23 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.106 2005-03-21 22:39:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.105  2005/03/08 03:32:23  robmuller
+// Don't scan duplicate frequencies when in non-US style.
+//
 // Revision 1.104  2005/03/06 00:23:04  robmuller
 // Increased post switch mute delay.
 //
@@ -357,6 +360,7 @@
 #include "Providers.h"
 #include "SettingsMaster.h"
 #include "MultiFrames.h"
+#include "EPG.h"
 
 
 #define MAX_CHANNELS 255
@@ -1571,6 +1575,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     dummy.Empty();
                 }
                 WriteSettingsToIni(TRUE);
+				MyEPG.LoadEPGData();	// Reload EPG data
                 EndDialog(hDlg, TRUE);
             }
             break;
@@ -1766,7 +1771,9 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 VT_ChannelChange();                                
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-                OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+				OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+				if (MyEPG.IsEPGAvailable())
+		            OSD_ShowInfosScreen(1, 0);
 				SetTrayTip(MyChannels.GetChannel(CurrentProgram)->GetName());
             }
         }
@@ -1815,6 +1822,8 @@ void Channel_Increment()
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannelName(CurrentProgram));
         OSD_ShowText(MyChannels.GetChannelName(CurrentProgram), 0);
+		if (MyEPG.IsEPGAvailable())
+			OSD_ShowInfosScreen(1, 0);
     }
     else
     {
@@ -1859,7 +1868,9 @@ void Channel_Decrement()
         Channel_Change(CurrentProg);
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-        OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+		if (MyEPG.IsEPGAvailable())
+			OSD_ShowInfosScreen(1, 0);
     }
     else
     {
@@ -1876,7 +1887,9 @@ void Channel_Previous()
             Channel_Change(PreviousProgram);
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-        OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+		if (MyEPG.IsEPGAvailable())
+			OSD_ShowInfosScreen(1, 0);
     }
     else
     {
@@ -1918,7 +1931,9 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
     if (found && CurrentProgram>=0 && CurrentProgram<MyChannels.GetSize())
     {
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-        OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+		if (MyEPG.IsEPGAvailable())
+			OSD_ShowInfosScreen(1, 0);
     }
     else
     {

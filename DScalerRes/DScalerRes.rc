@@ -983,7 +983,7 @@ STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Slider1",IDC_TOOLBAR_VOLUME_SLIDER,"msctls_trackbar32",
-                    WS_TABSTOP,17,0,86,13
+                    WS_TABSTOP,17,1,86,13
     CONTROL         "",IDC_TOOLBAR_VOLUME_MUTE,"Button",BS_OWNERDRAW | 
                     BS_ICON,0,0,16,16
     CONTROL         "",IDC_TOOLBAR_VOLUME_CHANNEL,"Button",BS_OWNERDRAW | 

@@ -40,6 +40,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "OutThreads.h"
 #include "FD_Common.h"
 #include "FD_CommonFunctions.h"
@@ -355,9 +356,9 @@ void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
 	    }
 	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	    {
-            CombFactor += CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
+            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
+                                            pInfo->EvenLines[0][Line + 1] + 16, 
+                                            pInfo->OddLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
 		    DiffFactor += (long)sqrt(CalcDiffFactorLine(pInfo->EvenLines[0][Line] + 16,
                                                         pInfo->EvenLines[1][Line] + 16,
@@ -367,14 +368,14 @@ void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
 
 	pInfo->CombFactor = CombFactor;
 	pInfo->FieldDiff = DiffFactor;
-	LOG(" Frame %d %c CF = %d FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor, pInfo->FieldDiff);
+	LOG(" Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
 	long CombFactor = 0;
-	long DiffFactor = 0;
+	DWORD DiffFactor = 0;
 
     qwThreshold = CombJaggieThreshold;
 	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
@@ -395,9 +396,12 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
                                             pInfo->EvenLines[0][Line + 1] + 16, 
                                             pInfo->OddLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
-		    DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
+		    //DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
+            //                                            pInfo->OddLines[1][Line] + 16,
+            //                                            pInfo->LineLength - 32));
+		    DiffFactor += CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
                                                         pInfo->OddLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32));
+                                                        pInfo->LineLength - 32);
 	    }
     }
     else
@@ -411,19 +415,26 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
 	    }
 	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	    {
-            CombFactor += CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
+            CombFactor += CalcCombFactorLineChroma(pInfo->OddLines[0][Line] + 16,
+                                            pInfo->EvenLines[0][Line + 1] + 16, 
+                                            pInfo->OddLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
-		    DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+		    //DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+            //                                            pInfo->EvenLines[1][Line] + 16,
+            //                                            pInfo->LineLength - 32));
+		    DiffFactor += CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
                                                         pInfo->EvenLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32));
+                                                        pInfo->LineLength - 32);
 	    }
     }
+	_asm
+	{
+		emms
+	}
 
 	pInfo->CombFactor = CombFactor;
 	pInfo->FieldDiff = DiffFactor;
-	LOG(" Frame %d %c CF = %d FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor, pInfo->FieldDiff);
+	LOG(" Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 
@@ -448,7 +459,7 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
 
 	i = 20; // what is different
 	qwThresholdWeave = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
-	i = 12; // what is different
+	i = 10; // what is different
 	qwThresholdDiff = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
 
 
@@ -777,4 +788,9 @@ void FD_Common_WriteSettingsToIni()
 	{
 		Setting_WriteToIni(&(FD_CommonSettings[i]));
 	}
+}
+
+void FD_Common_SetMenu(HMENU hMenu)
+{
+	CheckMenuItem(hMenu, IDM_USECHROMA, UseChromaInDetect?MF_CHECKED:MF_UNCHECKED);
 }

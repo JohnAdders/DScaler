@@ -28,37 +28,35 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-HWINFO DIALOG DISCARDABLE  22, 17, 201, 206
+HWINFO DIALOG DISCARDABLE  22, 17, 201, 212
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "DScaler Hardware Information"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,68,187,65,14,WS_GROUP
-    LTEXT           "",IDC_TEXT1,66,15,125,10
+    DEFPUSHBUTTON   "OK",IDOK,68,193,65,14,WS_GROUP
+    GROUPBOX        "BT-Hardware",IDC_STATIC,3,2,195,113
+    GROUPBOX        "Video-Subsystem",IDC_STATIC,3,118,195,27
+    GROUPBOX        "Processor",IDC_STATIC,3,149,195,33
     LTEXT           "BT-Typ",IDC_STATIC,5,15,40,10
-    LTEXT           "",IDC_TEXT6,66,25,125,10
+    LTEXT           "",IDC_TEXT1,66,15,125,10
     LTEXT           "Vendor ID",IDC_STATIC,5,25,40,10
-    LTEXT           "",IDC_TEXT7,66,35,125,10
+    LTEXT           "",IDC_TEXT6,66,25,125,10
     LTEXT           "Device ID",IDC_STATIC,5,35,40,10
-    LTEXT           "",IDC_TEXT13,66,51,125,10
-    LTEXT           "Tuner",IDC_STATIC,5,51,45,10
-    LTEXT           "",IDC_TEXT14,66,61,125,10
-    LTEXT           "MSP/Radio",IDC_STATIC,5,61,43,10
-    LTEXT           "",IDC_TEXT15,66,80,125,10
-    LTEXT           "Videotext",IDC_STATIC,5,80,40,10
-    LTEXT           "",IDC_TEXT16,66,70,125,10
-    LTEXT           "MSP-Version",IDC_STATIC,5,70,43,10
-    LTEXT           "",IDC_TEXT17,66,109,125,10
-    LTEXT           "Surface",IDC_STATIC,5,110,45,10
-    LTEXT           "",IDC_TEXT18,66,120,125,10
-    LTEXT           "Overlay",IDC_STATIC,5,120,45,10
-    LTEXT           "",IDC_TEXT19,66,129,125,10
-    LTEXT           "Overlay-Strech",IDC_STATIC,5,131,50,10
-    GROUPBOX        "BT-Hardware",IDC_STATIC,3,2,195,95
-    GROUPBOX        "Video-Subsystem",IDC_STATIC,3,100,195,50
-    GROUPBOX        "Processor",IDC_STATIC,3,152,195,33
-    LTEXT           "CPU Type",IDC_STATIC,5,166,45,10
-    LTEXT           "",IDC_CPU_TYPE,66,166,125,10
+    LTEXT           "",IDC_TEXT7,66,35,125,10
+    LTEXT           "Auto Detect ID",IDC_STATIC,5,45,50,10
+    LTEXT           "",IDC_AUTODECTECTID,66,45,125,10
+    LTEXT           "Tuner",IDC_STATIC,5,60,45,10
+    LTEXT           "",IDC_TEXT13,66,60,125,10
+    LTEXT           "MSP/Radio",IDC_STATIC,5,70,43,10
+    LTEXT           "",IDC_TEXT14,66,70,125,10
+    LTEXT           "MSP-Version",IDC_STATIC,5,80,43,10
+    LTEXT           "",IDC_TEXT16,66,80,125,10
+    LTEXT           "Videotext",IDC_STATIC,5,90,40,10
+    LTEXT           "",IDC_TEXT15,66,90,125,10
+    LTEXT           "Overlay",IDC_STATIC,5,130,45,10
+    LTEXT           "",IDC_TEXT18,66,130,125,10
+    LTEXT           "CPU Type",IDC_STATIC,5,163,45,10
+    LTEXT           "",IDC_CPU_TYPE,66,163,125,10
 END
 
 CHANNELLIST DIALOG DISCARDABLE  22, 17, 75, 156
@@ -945,7 +943,7 @@ BEGIN
     "HWINFO", DIALOG
     BEGIN
         RIGHTMARGIN, 198
-        BOTTOMMARGIN, 201
+        BOTTOMMARGIN, 207
     END
 
     "CHANNELLIST", DIALOG

@@ -295,7 +295,7 @@ Diff_Loop:
 	psrlq mm0,32
 	movd eax, mm0
 	add eax, ecx
-	emms
+	;emms
 
 	pop	ebx
 	pop	esi
@@ -333,8 +333,8 @@ DiffChroma_Loop:
 	movq mm3, qword ptr[ebx] 
 	movq mm4, mm2 
 	movq mm5, mm3
-	pand mm5, mm1    ; get only Y compoment
 	pand mm4, mm1    ; get only Y compoment
+	pand mm5, mm1    ; get only Y compoment
     psrlw mm2, 8    ; get only U compoment
     psrlw mm3, 8    ; get only U compoment
 
@@ -344,8 +344,8 @@ DiffChroma_Loop:
 	pmaddwd mm2, mm2 ; mm2 = (U1 - U) ^ 2
 	psrld mm4, mm0   ; divide mm4 by 2 ^ Bitshift
 	psrld mm2, mm0   ; divide mm2 by 2 ^ Bitshift
-	paddd mm6, mm4   ; keep total in mm0
-	paddd mm7, mm2   ; keep total in mm0
+	paddd mm6, mm4   ; keep total in mm6
+	paddd mm7, mm2   ; keep total in mm7
 
 	add eax, 8
 	add ebx, 8
@@ -354,14 +354,14 @@ DiffChroma_Loop:
 	jne DiffChroma_Loop
 
     ; average the two running totals
-    psrld mm6, 1
-    psrld mm7, 1
+    ;psrld mm6, 1
+    ;psrld mm7, 1
     paddd mm6, mm7
 	movd ecx, mm6
 	psrlq mm6, 32
 	movd eax, mm6
 	add eax, ecx
-	emms
+	;emms
 
 	pop	ebx
 	pop	esi

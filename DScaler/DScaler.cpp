@@ -2251,6 +2251,7 @@ void SetMenuAnalog()
 	VBI_SetMenu(hMenu);
 	Channels_SetMenu(hMenu);
 	OSD_SetMenu(hMenu);
+	FD_Common_SetMenu(hMenu);
 }
 
 HMENU GetFiltersSubmenu()

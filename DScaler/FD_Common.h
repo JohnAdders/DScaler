@@ -35,6 +35,7 @@
 SETTING* FD_Common_GetSetting(FD_COMMON_SETTING Setting);
 void FD_Common_ReadSettingsFromIni();
 void FD_Common_WriteSettingsToIni();
+void FD_Common_SetMenu(HMENU hMenu);
 
 #define MAXMODESWITCHES 50	// Maximum number of switches to track in TrackModeSwitches()
 

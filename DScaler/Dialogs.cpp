@@ -660,6 +660,7 @@ BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		SetDlgItemText(hDlg, IDC_TEXT13, Tuner_Status());
 		SetDlgItemText(hDlg, IDC_TEXT14, Audio_MSP_Status());
 		SetDlgItemText(hDlg, IDC_TEXT16, Audio_MSP_VersionString());
+		SetDlgItemText(hDlg, IDC_AUTODECTECTID, TVCard_AutoDetectID());
 
 		SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
 		

@@ -777,6 +777,23 @@ int Card_AutoDetectTuner(TVCARDID CardId)
 	return Tuner;
 }
 
+LPCSTR TVCard_AutoDetectID()
+{
+	static char CardId[9] = "None    ";
+
+	// look for normal eeprom address
+	if(I2CBus_AddDevice(I2C_HAUPEE))
+	{
+		DWORD Id = BT848_GetSubSystemID();
+		if (Id != 0 && Id != 0xffffffff)
+		{
+			sprintf(CardId, "%8X", Id);
+		}
+	}
+	return CardId;
+}
+
+
 TVCARDID Card_AutoDetect()
 {
 	// look for normal eeprom address

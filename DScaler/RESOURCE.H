@@ -780,6 +780,7 @@
 #define IDC_BYINPUT                     1876
 #define IDC_ALLFORMATS                  1877
 #define IDC_ALLINPUTS                   1878
+#define IDC_AUTODECTECTID               1879
 #define IDM_TAKESTREAMSNAP              1899
 #define IDM_FIRST_DEINTMETHOD           1900
 #define IDM_LAST_DEINTMETHOD            1999
@@ -806,7 +807,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        159
 #define _APS_NEXT_COMMAND_VALUE         2016
-#define _APS_NEXT_CONTROL_VALUE         1879
+#define _APS_NEXT_CONTROL_VALUE         1880
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.17 2001-12-08 13:48:40 laurentg Exp $
+// $Id: StillSource.cpp,v 1.18 2001-12-08 14:23:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/12/08 13:48:40  laurentg
+// New StillSource for snapshots done during the DScaler session
+//
 // Revision 1.16  2001/12/08 12:04:07  laurentg
 // New setting m_StillFormat
 //
@@ -396,8 +399,6 @@ BOOL CStillSource::ReadNextFrameInFile()
 
 LPCSTR CStillSource::GetStatus()
 {
-LOG(1, "m_Position = %d", m_Position);
-LOG(1, "m_PlayList.size() = %d", m_PlayList.size());
     if(m_Position != -1 && m_PlayList.size() > 0)
     {
         LPCSTR FileName;

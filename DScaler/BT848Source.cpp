@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.69 2002-09-20 19:19:07 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.70 2002-09-21 08:28:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2002/09/20 19:19:07  kooiman
+// Force call to audiostandard detect onchange.
+//
 // Revision 1.68  2002/09/16 20:08:21  adcockj
 // fixed format detect for cx2388x
 //
@@ -1372,10 +1375,13 @@ BOOL CBT848Source::HasTuner()
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
+    /*
+    //Doesn't work yet
     if(VideoFormat == VIDEOFORMAT_IS_FM_RADIO)
     {
         return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
     }
+    */
     if(VideoFormat == VIDEOFORMAT_LASTONE)
     {
         VideoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();

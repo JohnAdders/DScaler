@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.70 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: StillSource.cpp,v 1.71 2002-10-26 17:56:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/10/22 04:08:50  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.69  2002/09/29 10:14:15  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -278,6 +282,7 @@ static int PatternHeight = 576;
 static int PatternWidth = 720;
 static int DelayBetweenStills = 60;
 static BOOL SaveInSameFile = FALSE;
+static BOOL StillsInMemory = FALSE;
 static char DScalerContext[1024];
 
 static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
@@ -340,13 +345,68 @@ CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
 
 CPlayListItem::CPlayListItem(LPCSTR FileName) :
     m_FileName(FileName),
+	m_FrameBuffer(NULL),
+	m_StartFrame(NULL),
+	m_FrameHeight(0),
+	m_FrameWidth(0),
+	m_LinePitch(0),
+	m_SquarePixels(FALSE),
     m_Supported(TRUE)
 {
+	m_TimeStamp = time(0);
+}
+
+CPlayListItem::CPlayListItem(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels) :
+    m_FileName("Still only in memory"),
+	m_FrameBuffer(FrameBuffer),
+	m_StartFrame(StartFrame),
+	m_FrameHeight(FrameHeight),
+	m_FrameWidth(FrameWidth),
+	m_LinePitch(LinePitch),
+	m_SquarePixels(SquarePixels),
+    m_Supported(TRUE)
+{
+	m_TimeStamp = time(0);
 }
 
 LPCSTR CPlayListItem::GetFileName()
 {
     return m_FileName.c_str();
+}
+
+void CPlayListItem::SetFileName(LPCSTR FileName)
+{
+	m_FileName = FileName;
+	m_FrameBuffer = NULL;
+	m_StartFrame = NULL;
+}
+
+BOOL CPlayListItem::GetMemoryInfo(BYTE** pFrameBuffer, BYTE** pStartFrame, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels)
+{
+	if (m_FrameBuffer != NULL)
+	{
+		*pFrameBuffer = m_FrameBuffer;
+		*pStartFrame = m_StartFrame;
+		*pFrameHeight = m_FrameHeight;
+		*pFrameWidth = m_FrameWidth;
+		*pLinePitch = m_LinePitch;
+		*pSquarePixels = m_SquarePixels;
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+BOOL CPlayListItem::IsInMemory()
+{
+	return (m_FrameBuffer == NULL) ? FALSE : TRUE;
+}
+
+time_t CPlayListItem::GetTimeStamp()
+{
+	return m_TimeStamp;
 }
 
 BOOL CPlayListItem::IsSupported()
@@ -357,6 +417,16 @@ BOOL CPlayListItem::IsSupported()
 void CPlayListItem::SetSupported(BOOL Supported)
 {
     m_Supported = Supported;
+}
+
+void CPlayListItem::FreeBuffer()
+{
+	if (m_FrameBuffer != NULL)
+	{
+		free(m_FrameBuffer);
+		m_FrameBuffer = NULL;
+		m_StartFrame = NULL;
+	}
 }
 
 CStillSource::CStillSource(LPCSTR IniSection) :
@@ -392,10 +462,7 @@ CStillSource::~CStillSource()
     {
         free(m_StillFrameBuffer);
     }
-    if (m_OriginalFrameBuffer != NULL)
-    {
-        free(m_OriginalFrameBuffer);
-    }
+	FreeOriginalFrameBuffer();
     ClearPlayList();
     KillTimer(hWnd, TIMER_SLIDESHOW);
 }
@@ -547,6 +614,34 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 }
 
 
+BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels)
+{
+    int h = m_Height;
+    int w = m_Width;
+
+    FreeOriginalFrameBuffer();
+    m_OriginalFrameBuffer = FrameBuffer;
+    m_OriginalFrame.pData = StartFrame;
+    m_LinePitch = LinePitch;
+    m_Height = FrameHeight;
+    m_Width = FrameWidth;
+    m_SquarePixels = SquarePixels;
+    m_Comments = "";
+
+    m_IsPictureRead = TRUE;
+
+    //check if size has changed
+    if(m_Height != h || m_Width != w)
+    {
+        NotifySizeChange();
+    }
+
+    NotifySquarePixelsCheck();
+
+    return TRUE;
+}
+
+
 BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 {
     int i;
@@ -595,11 +690,24 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 
 BOOL CStillSource::ShowNextInPlayList()
 {
+	BYTE* FrameBuffer;
+	BYTE* StartFrame;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
     int Pos = m_Position;
 
     while(Pos < m_PlayList.size())
     {
-        if(OpenPictureFile(m_PlayList[Pos]->GetFileName()))
+        if(!m_PlayList[Pos]->IsInMemory() && OpenPictureFile(m_PlayList[Pos]->GetFileName()))
+        {
+            m_Position = Pos;
+            m_PlayList[Pos]->SetSupported(TRUE);
+            return TRUE;
+        }
+        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels)
+			 && OpenPictureMemory(FrameBuffer, StartFrame, FrameHeight, FrameWidth, LinePitch, SquarePixels))
         {
             m_Position = Pos;
             m_PlayList[Pos]->SetSupported(TRUE);
@@ -616,11 +724,24 @@ BOOL CStillSource::ShowNextInPlayList()
 
 BOOL CStillSource::ShowPreviousInPlayList()
 {
+	BYTE* FrameBuffer;
+	BYTE* StartFrame;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
     int Pos = m_Position;
 
     while(Pos >= 0)
     {
-        if(OpenPictureFile(m_PlayList[Pos]->GetFileName()))
+        if(!m_PlayList[Pos]->IsInMemory() && OpenPictureFile(m_PlayList[Pos]->GetFileName()))
+        {
+            m_Position = Pos;
+            m_PlayList[Pos]->SetSupported(TRUE);
+            return TRUE;
+        }
+        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels)
+			 && OpenPictureMemory(FrameBuffer, StartFrame, FrameHeight, FrameWidth, LinePitch, SquarePixels))
         {
             m_Position = Pos;
             m_PlayList[Pos]->SetSupported(TRUE);
@@ -635,7 +756,7 @@ BOOL CStillSource::ShowPreviousInPlayList()
     return FALSE;
 }
 
-void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
+void CStillSource::SaveSnapshotInFile(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
     BOOL NewToAdd;
 
@@ -676,6 +797,143 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
             m_Position = 0;
         }
         UpdateMenu();
+    }
+}
+
+void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
+{
+    int LinePitch;
+    BYTE* pFrameBuf = NULL;
+    BYTE* pStartFrame;
+    BYTE* pOrigLine;
+    BYTE* pDestLine;
+
+    // Allocate memory buffer to store the data
+    LinePitch = (FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+    pFrameBuf = MallocStillBuf(LinePitch * FrameHeight, &pStartFrame);
+    if (pFrameBuf == NULL)
+    {
+		return;
+    }
+
+	// Copy the data
+    pOrigLine = pOverlay;
+    pDestLine = pStartFrame;
+    for (int i = 0; i < FrameHeight; i++)
+    {
+		if (m_pMemcpy == NULL)
+		{
+	        memcpy(pDestLine, pOrigLine, FrameWidth * 2);
+		}
+		else
+		{
+	        m_pMemcpy(pDestLine, pOrigLine, FrameWidth * 2);
+		}
+        pDestLine += LinePitch;
+        pOrigLine += OverlayPitch;
+    }
+
+    CPlayListItem* Item = new CPlayListItem(pFrameBuf, pStartFrame, FrameHeight, FrameWidth, LinePitch, AspectSettings.SquarePixels);
+    m_PlayList.push_back(Item);
+    if (m_PlayList.size() == 1)
+    {
+        m_Position = 0;
+    }
+    UpdateMenu();
+}
+
+void CStillSource::SaveInFile()
+{
+	BYTE* FrameBuffer;
+	BYTE* StartFrame;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
+	int n = 0;
+	char name[MAX_PATH];
+	time_t time_still;
+	struct tm *ctm;	
+	char extension[4];
+	struct stat st;
+
+    if ((m_Position == -1)
+	 || (m_PlayList.size() == 0)
+	 || !m_PlayList[m_Position]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels))
+	{
+		return;
+	}
+
+	time_still = m_PlayList[m_Position]->GetTimeStamp();
+	ctm = localtime(&time_still);
+
+	switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+	{
+	case STILL_TIFF_RGB:
+	case STILL_TIFF_YCbCr:
+		strcpy(extension, "tif");
+		break;
+	case STILL_JPEG:
+		strcpy(extension, "jpg");
+		break;
+	default:
+		ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
+		return;
+		break;
+	}
+
+	if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
+	{
+		sprintf(name,"%s\\TV.%s", SavingPath, extension);
+	}
+	else
+	{
+		while (n < 100)
+		{
+			sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
+					SavingPath,
+					ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
+					// name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+					// TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
+					extension);
+
+			if (stat(name, &st))
+			{
+				break;
+			}
+		}
+		if(n == 100) // never reached in 1 second, so could be scrapped
+		{
+			ErrorBox("Could not create a file. You may have too many captures already.");
+			return;
+		}
+	}
+
+	m_PlayList[m_Position]->SetFileName(name);
+    UpdateMenu();
+
+    switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+    {
+    case STILL_TIFF_RGB:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_R);
+            TiffHelper.SaveSnapshot(name, FrameHeight, FrameWidth, StartFrame, LinePitch);
+            break;
+        }
+    case STILL_TIFF_YCbCr:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
+            TiffHelper.SaveSnapshot(name, FrameHeight, FrameWidth, StartFrame, LinePitch);
+            break;
+        }
+    case STILL_JPEG:
+        {
+            CJpegHelper JpegHelper(this);
+            JpegHelper.SaveSnapshot(name, FrameHeight, FrameWidth, StartFrame, LinePitch);
+            break;
+        }
+    default:
+        break;
     }
 }
 
@@ -728,12 +986,8 @@ void CStillSource::Stop()
         m_StillFrameBuffer = NULL;
         m_StillFrame.pData = NULL;
     }
-    if (m_OriginalFrameBuffer != NULL)
-    {
-        free(m_OriginalFrameBuffer);
-        m_OriginalFrameBuffer = NULL;
-        m_OriginalFrame.pData = NULL;
-    }
+    FreeOriginalFrameBuffer();
+    m_OriginalFrame.pData = NULL;
     m_IsPictureRead = FALSE;
     // Reset the sizes to 0 to be sure the next time
     // a file will be loaded, a new notification of
@@ -822,7 +1076,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
       || LOWORD(wParam) == IDM_PLAYLIST_DOWN
       || LOWORD(wParam) == IDM_CLOSE_FILE
       || LOWORD(wParam) == IDM_CLOSE_ALL
-      || LOWORD(wParam) == IDM_PLAYLIST_SAVE))
+      || LOWORD(wParam) == IDM_PLAYLIST_SAVE
+      || LOWORD(wParam) == IDM_SAVE_IN_FILE))
         return FALSE;
 
     if ( (LOWORD(wParam) >= IDM_PLAYLIST_FILES) && (LOWORD(wParam) < (IDM_PLAYLIST_FILES+MAX_PLAYLIST_SIZE)) )
@@ -977,6 +1232,14 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         }
         return TRUE;
         break;
+    case IDM_SAVE_IN_FILE:
+		if (m_PlayList[m_Position]->IsInMemory())
+		{
+			SaveInFile();
+			ShowText(hWnd, strrchr(m_PlayList[m_Position]->GetFileName(), '\\') + 1);
+		}
+        return TRUE;
+        break;
     default:
         break;
     }
@@ -985,13 +1248,26 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 BOOL CStillSource::ReadNextFrameInFile()
 {
+	BYTE* FrameBuffer;
+	BYTE* StartFrame;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
     BOOL Realloc = FALSE;
     int CurrentPos = m_Position;
 
     if (m_NewFileRequested == STILL_REQ_THIS_ONE)
     {
         m_NewFileRequested = STILL_REQ_NONE;
-        if (OpenPictureFile(m_PlayList[m_NewFileReqPos]->GetFileName()))
+        if (!m_PlayList[m_NewFileReqPos]->IsInMemory() && OpenPictureFile(m_PlayList[m_NewFileReqPos]->GetFileName()))
+        {
+            m_PlayList[m_NewFileReqPos]->SetSupported(TRUE);
+            m_Position = m_NewFileReqPos;
+            Realloc = TRUE;
+        }
+        else if(m_PlayList[m_NewFileReqPos]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels)
+			 && OpenPictureMemory(FrameBuffer, StartFrame, FrameHeight, FrameWidth, LinePitch, SquarePixels))
         {
             m_PlayList[m_NewFileReqPos]->SetSupported(TRUE);
             m_Position = m_NewFileReqPos;
@@ -1153,12 +1429,59 @@ int CStillSource::GetHeight()
     return m_Height;
 }
 
-void CStillSource::ClearPlayList()
+void CStillSource::FreeOriginalFrameBuffer()
 {
+	BYTE* FrameBuffer;
+	BYTE* StartFrame;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
+	BOOL OkToFree = TRUE;
+
+    if (m_OriginalFrameBuffer == NULL)
+    {
+		return;
+	}
+
     for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
         it != m_PlayList.end(); 
         ++it)
     {
+        if((*it)->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels)
+		&& (m_OriginalFrameBuffer == FrameBuffer))
+		{
+			OkToFree = FALSE;
+			break;
+		}
+    }
+
+	if (OkToFree)
+	{
+		free(m_OriginalFrameBuffer);
+	}
+
+    m_OriginalFrameBuffer = NULL;
+}
+
+void CStillSource::ClearPlayList()
+{
+	BYTE* FrameBuffer;
+	BYTE* StartFrame;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
+
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it)
+    {
+        if((*it)->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels)
+		&& (FrameBuffer != m_OriginalFrameBuffer))
+		{
+			(*it)->FreeBuffer();
+		}
         delete (*it);
     }
     m_PlayList.clear();
@@ -1174,7 +1497,10 @@ BOOL CStillSource::SavePlayList(LPCSTR FileName)
         it != m_PlayList.end(); 
         ++it)
     {
-        fprintf(Playlist, "%s\n", (*it)->GetFileName());
+		if (!(*it)->IsInMemory())
+		{
+	        fprintf(Playlist, "%s\n", (*it)->GetFileName());
+		}
     }
 
     fclose(Playlist);
@@ -1191,12 +1517,12 @@ void CStillSource::UpdateMenu()
 
     hSubMenu = GetSubMenu(m_hMenu, 0);
     if(hSubMenu == NULL) return;
-    hMenuFiles = GetSubMenu(hSubMenu, 4);
+    hMenuFiles = GetSubMenu(hSubMenu, 5);
     if(hMenuFiles == NULL)
     {
-        if (ModifyMenu(hSubMenu, 4, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "F&iles"))
+        if (ModifyMenu(hSubMenu, 5, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "F&iles"))
         {
-            hMenuFiles = GetSubMenu(hSubMenu, 4);
+            hMenuFiles = GetSubMenu(hSubMenu, 5);
         }
     }
     if(hMenuFiles == NULL) return;
@@ -1282,9 +1608,21 @@ void CStillSource::SetMenu(HMENU hMenu)
     EnableMenuItem(hMenu, IDM_CLOSE_ALL, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_PLAYLIST_SAVE, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
 
+    if (m_NavigOnly
+	 || (m_Position == -1)
+	 || (m_PlayList.size() == 0)
+	 || !m_PlayList[m_Position]->IsInMemory())
+	{
+	    EnableMenuItem(hMenu, IDM_SAVE_IN_FILE, MF_GRAYED);
+	}
+	else
+	{
+		EnableMenuItem(hMenu, IDM_SAVE_IN_FILE, MF_ENABLED);
+	}
+
     hSubMenu = GetSubMenu(m_hMenu, 0);
     if(hSubMenu == NULL) return;
-    hMenuFiles = GetSubMenu(hSubMenu, 4);
+    hMenuFiles = GetSubMenu(hSubMenu, 5);
     if(hMenuFiles == NULL) return;
 
     for (int i(0); (i < MAX_PLAYLIST_SIZE) && (i < GetMenuItemCount(hMenuFiles)); ++i)
@@ -1417,6 +1755,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          FALSE, 0, 1, 1, 1,
          NULL,
         "Still", "SaveInSameFile", NULL,
+    },
+    {
+        "Stills in memory", ONOFF, 0, (long*)&StillsInMemory,
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "Still", "StillsInMemory", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.71 2002-10-05 18:28:48 laurentg Exp $
+// $Id: Calibration.cpp,v 1.72 2002-10-26 17:56:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2002/10/05 18:28:48  laurentg
+// Correction for H3D in order to have the menu for color calibration enabled
+//
 // Revision 1.70  2002/09/28 11:10:16  laurentg
 // Manage the case when there is only one unique setting for color
 //
@@ -2793,10 +2796,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     pattern.Draw(pStartFrame, LinePitch);
 
-    if (m_pParent->m_OriginalFrameBuffer != NULL)
-    {
-        free(m_pParent->m_OriginalFrameBuffer);
-    }
+	m_pParent->FreeOriginalFrameBuffer();
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;

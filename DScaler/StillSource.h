@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.45 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: StillSource.h,v 1.46 2002-10-26 17:56:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,12 +67,25 @@ class CPlayListItem
 {
 public:
     CPlayListItem(LPCSTR FileName);
+    CPlayListItem(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels);
     LPCSTR GetFileName();
+    void SetFileName(LPCSTR FileName);
+    BOOL GetMemoryInfo(BYTE** pFrameBuffer, BYTE** pStartFrame, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels);
+    BOOL IsInMemory();
+    time_t GetTimeStamp();
     BOOL IsSupported();
     void SetSupported(BOOL Supported);
+    void FreeBuffer();
 private:
     std::string m_FileName;
     BOOL m_Supported;
+    BYTE* m_FrameBuffer;
+    BYTE* m_StartFrame;
+	int m_FrameHeight;
+	int m_FrameWidth;
+	int m_LinePitch;
+    BOOL m_SquarePixels;
+	time_t m_TimeStamp;
 };
 
 /** Source class that can read files and playlists and display
@@ -117,7 +130,9 @@ public:
     LPCSTR GetMenuLabel();
     BOOL ReadNextFrameInFile();
     BOOL LoadPlayList(LPCSTR FileName);
-    void SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveSnapshotInFile(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveInFile();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
     void SetOverscan();
@@ -139,10 +154,12 @@ public:
     friend class CPatternHelper;
 
 private:
+	void FreeOriginalFrameBuffer();
     void ClearPlayList();
     BOOL ShowNextInPlayList();
     BOOL ShowPreviousInPlayList();
     BOOL OpenPictureFile(LPCSTR FileName);
+	BOOL OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels);
     BOOL SavePlayList(LPCSTR FileName);
     BOOL ResizeOriginalFrame(int NewWidth, int NewHeight);
     BOOL IsItemInList(LPCSTR FileName);

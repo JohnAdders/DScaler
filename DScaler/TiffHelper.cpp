@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.25 2002-06-21 23:14:19 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.26 2002-10-26 17:56:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/06/21 23:14:19  laurentg
+// New way to store address of allocated memory buffer for still source
+//
 // Revision 1.24  2002/05/27 22:24:27  laurentg
 // When taking a still using a TIFF (RGB colorspace), overlay values are first normalized before the conversion in RGB
 //
@@ -383,10 +386,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
-    if (m_pParent->m_OriginalFrameBuffer != NULL)
-    {
-        free(m_pParent->m_OriginalFrameBuffer);
-    }
+	m_pParent->FreeOriginalFrameBuffer();
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.20 2002-07-25 20:43:56 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.21 2002-10-26 17:56:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/07/25 20:43:56  laurentg
+// Setting added to take still always in the same file
+//
 // Revision 1.19  2002/06/30 18:52:31  laurentg
 // Text displayed (OSD) when taking a still
 //
@@ -154,60 +157,73 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
 
     if(pStillSource != NULL)
     {
-        int n = 0;
-        char name[MAX_PATH];
-        time_t curr=time(0);
-        struct tm *ctm=localtime(&curr);
+		if (!Setting_GetValue(Still_GetSetting(STILLSINMEMORY)))
+		{
+			int n = 0;
+			char name[MAX_PATH];
+			time_t curr=time(0);
+			struct tm *ctm=localtime(&curr);
 
-        char extension[4];
-        struct stat st;
+			char extension[4];
+			struct stat st;
 
-        switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
-        {
-        case STILL_TIFF_RGB:
-        case STILL_TIFF_YCbCr:
-            strcpy(extension, "tif");
-            break;
-        case STILL_JPEG:
-            strcpy(extension, "jpg");
-            break;
-        default:
-            return;
-            break;
-        }
+			switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+			{
+			case STILL_TIFF_RGB:
+			case STILL_TIFF_YCbCr:
+				strcpy(extension, "tif");
+				break;
+			case STILL_JPEG:
+				strcpy(extension, "jpg");
+				break;
+			default:
+			ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
+				return;
+				break;
+			}
 
-        if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
-        {
-            sprintf(name,"%s\\TV.%s", SavingPath, extension);
-        }
-        else
-        {
-            while (n < 100)
-            {
-                sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
-				        SavingPath,
-                        ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
-                        // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
-                        // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
-                        extension);
+			if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
+			{
+				sprintf(name,"%s\\TV.%s", SavingPath, extension);
+			}
+			else
+			{
+				while (n < 100)
+				{
+					sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
+							SavingPath,
+							ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
+							// name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+							// TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
+							extension);
 
-                if (stat(name, &st))
-                {
-                    break;
-                }
-            }
-            if(n == 100) // never reached in 1 second, so could be scrapped
-            {
-                ErrorBox("Could not create a file. You may have too many captures already.");
-                return;
-            }
-        }
+					if (stat(name, &st))
+					{
+						break;
+					}
+				}
+				if(n == 100) // never reached in 1 second, so could be scrapped
+				{
+					ErrorBox("Could not create a file. You may have too many captures already.");
+					return;
+				}
+			}
 
-        if(Overlay_Lock(pInfo))
-        {
-            OSD_ShowText(hWnd, strrchr(name, '\\') + 1, 0);
-            pStillSource->SaveSnapshot(name, pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
-            Overlay_Unlock();
-        }
+			if(Overlay_Lock(pInfo))
+			{
+				OSD_ShowText(hWnd, strrchr(name, '\\') + 1, 0);
+				pStillSource->SaveSnapshotInFile(name, pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
+				Overlay_Unlock();
+			}
+		}
+		else
+		{
+			if(Overlay_Lock(pInfo))
+			{
+				OSD_ShowText(hWnd, "Still in memory", 0);
+				pStillSource->SaveSnapshotInMemory(pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
+				Overlay_Unlock();
+			}
+		}
     }
 }

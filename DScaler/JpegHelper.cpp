@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.8 2002-06-21 23:14:19 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.9 2002-10-26 17:56:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/21 23:14:19  laurentg
+// New way to store address of allocated memory buffer for still source
+//
 // Revision 1.7  2002/05/27 22:21:14  laurentg
 // Take into account difference of range for Y between overlay and JPEG format
 //
@@ -592,10 +595,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     // Close the input stream (file)
     fclose(infile);
 
-    if (m_pParent->m_OriginalFrameBuffer != NULL)
-    {
-        free(m_pParent->m_OriginalFrameBuffer);
-    }
+	m_pParent->FreeOriginalFrameBuffer();
     m_pParent->m_OriginalFrameBuffer = pFrameBuf;
     m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;

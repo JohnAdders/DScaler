@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.10 2001-08-23 16:03:26 adcockj Exp $
+// $Id: Filter.cpp,v 1.11 2001-08-25 10:48:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/08/23 16:03:26  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
 // Revision 1.9  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -95,6 +98,7 @@ void LoadFilterPlugin(LPCSTR szFileName)
     hPlugInMod = LoadLibrary(szFileName);
     if(hPlugInMod == NULL)
     {
+        LOG(1, " Loading %s failed.", szFileName);
         return;
     }
     
@@ -125,6 +129,14 @@ void LoadFilterPlugin(LPCSTR szFileName)
             }
             NumFilters++;
         }
+        else
+        {
+            LOG(1, " Plugin %s obsolete", szFileName);
+        }
+    }
+    else
+    {
+        LOG(1, " Plugin %s not compatible with your CPU", szFileName);
     }
 }
 
@@ -176,6 +188,7 @@ BOOL LoadFilterPlugins()
         {
             __try
             {
+                LOG(1, " Loading %s ...", FindFileData.cFileName);
                 LoadFilterPlugin(FindFileData.cFileName);
             }
             __except (EXCEPTION_EXECUTE_HANDLER) 

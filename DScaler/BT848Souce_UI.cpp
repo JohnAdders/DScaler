@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.27 2002-06-18 19:29:14 robmuller Exp $
+// $Id: BT848Souce_UI.cpp,v 1.28 2002-06-30 20:02:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/06/18 19:29:14  robmuller
+// Reset videotext if video source changed.
+//
 // Revision 1.26  2002/06/09 23:27:21  robmuller
 // Implemented canceling for advanced video settings dialog.
 //
@@ -342,7 +345,9 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
 
     EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, m_pBT848Card->HasMSP());
-    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->HasMSP());
+    // Grayed "Equalize" because not yet implemented
+//    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->HasMSP());
+    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, FALSE);
 
     EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
 
@@ -395,6 +400,8 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());
+    // Grayed "Save by channel" because not yet implemented
+    EnableMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, FALSE);
 }
 
 BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)

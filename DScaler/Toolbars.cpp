@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.15 2003-08-12 19:11:35 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.16 2003-08-13 13:31:41 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/08/12 19:11:35  laurentg
+// Move some methods from CDSFileSource to CDSSourceBase
+//
 // Revision 1.14  2003/08/12 08:35:48  laurentg
 // Update the file position only when releasing the time slider
 //
@@ -828,6 +831,10 @@ void CToolbarMediaPlayer::UpdateControls(HWND hWnd, bool bInitDialog)
    
 	LOG(1, "CToolbarMediaPlayer::UpdateControls Pos %ld", m_Elapsed);
     SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETPOS, TRUE, m_Elapsed);
+
+	char text[16];
+	sprintf(text, "%u:%2.2u / %u:%2.2u", m_Elapsed / 600, (m_Elapsed % 600) / 10, m_Duration / 600, (m_Duration % 600) / 10);
+    SetDlgItemText(hWnd, IDC_TOOLBAR_MEDIAPLAYER_ELAPSED, text);
 
 	SetFocus(m_pToolbar->GethWndParent());
 }

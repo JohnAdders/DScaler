@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.47 2002-04-14 17:25:26 laurentg Exp $
+// $Id: StillSource.cpp,v 1.48 2002-04-15 00:28:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/04/14 17:25:26  laurentg
+// New formats of TIFF files supported to take stills : Class R (RGB) with compression LZW or Packbits or JPEG
+//
 // Revision 1.46  2002/04/14 00:46:49  laurentg
 // Table of compatibility TIFF updated
 // Log messages suppressed
@@ -403,8 +406,8 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
             NewWidth = NewWidth * DSCALER_MAX_HEIGHT / NewHeight;
             NewHeight = DSCALER_MAX_HEIGHT;
         }
-		NewHeight = NewHeight & 0xfffffffe;		// even height
-		NewWidth = NewWidth & 0xfffffffc;       // wid mod 4
+//		NewHeight = NewHeight & 0xfffffffe;		// even height
+		NewWidth = NewWidth & 0xfffffffe;       // even wid 
 
         if (!ResizeOriginalFrame(NewWidth, NewHeight))
         {
@@ -951,7 +954,10 @@ BOOL CStillSource::ReadNextFrameInFile()
         }
         if (m_StillFrame.pData == NULL)
         {
-            m_StillFrame.pData = (BYTE*)DumbAlignedMalloc(m_Width * 2 * m_Height * sizeof(BYTE));
+			// we get an extra bytes all the time so we can run off the end in resize 
+			// if needed to handle odd widths 
+            m_StillFrame.pData = 
+				(BYTE*)DumbAlignedMalloc((m_Width * 2 * m_Height * sizeof(BYTE)+24) & 0xfffffff0);
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
@@ -1352,6 +1358,8 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 			push	ecx						// have to save this?
 			mov		ecx, OldPitch
 			shr		ecx, 3					// 8 bytes a time
+			inc     ecx						// do extra 8 bytes to pick up odd widths
+											// we have malloced enough to get away with it
 			mov		esi, srcp1				// top of 2 src lines to get
 			mov		edx, srcp2				// next "
 			mov		edi, vWorkY				// luma work destination line
@@ -1491,11 +1499,11 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 	int wY2;
 	int wUV1;
 	int wUV2;
-
+	int m_WidthW = m_Width & 0xfffffffe;		// odd width is invalid YUY2
 	// First set up horizontal table
 	for(i=0; i < NewWidth; i+=2)
 	{
-		j = i * 256 * (m_Width-1) / (NewWidth-1);
+		j = i * 256 * (m_WidthW-1) / (NewWidth-1);
 
 		k = j>>8;
 		wY2 = j - (k << 8);				// luma weight of right pixel
@@ -1508,9 +1516,9 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 // the right hand edge luma will be off by one pixel currently to handle edge conditions.
 // I should figure a better way aound this without a performance hit. But I can't see 
 // the difference so it is lower prority.
-		if (k > m_Width - 3)
+		if (k > m_WidthW - 3)
 		{
-			hControl[i*3+4] = m_Width - 3;	 //	point to last byte
+			hControl[i*3+4] = m_WidthW - 3;	 //	point to last byte
 			hControl[i*3] =   0x01000000;    // use 100% of rightmost Y
 			hControl[i*3+2] = 0x01000000;    // use 100% of rightmost U
 		}
@@ -1521,7 +1529,7 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 			hControl[i*3+2] = wUV2 << 16 | wUV1; // chroma weights
 		}
 
-		j = (i+1) * 256 * (m_Width-1) / (NewWidth-1);
+		j = (i+1) * 256 * (m_WidthW-1) / (NewWidth-1);
 
 		k = j>>8;
 		wY2 = j - (k << 8);				// luma weight of right pixel
@@ -1531,9 +1539,9 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 			: wY2 >> 1;
 		wUV1 = 256 - wUV2;
 
-		if (k > m_Width - 3)
+		if (k > m_WidthW - 3)
 		{
-			hControl[i*3+5] = m_Width - 3;	 //	point to last byte
+			hControl[i*3+5] = m_WidthW - 3;	 //	point to last byte
 			hControl[i*3+1] = 0x01000000;    // use 100% of rightmost Y
 			hControl[i*3+3] = 0x01000000;    // use 100% of rightmost V
 		}
@@ -1545,8 +1553,8 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 		}
 	}
 
-	hControl[NewWidth*3+4] =  2 * (m_Width-1);		// give it something to prefetch at end
-	hControl[NewWidth*3+5] =  2 * (m_Width-1);		// "
+	hControl[NewWidth*3+4] =  2 * (m_WidthW-1);		// give it something to prefetch at end
+	hControl[NewWidth*3+5] =  2 * (m_WidthW-1);		// "
 
 	// Next set up vertical table. The offsets are measured in lines and will be mult
 	// by the source pitch later 

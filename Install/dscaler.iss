@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.16 2002-11-25 09:52:13 adcockj Exp $
+;// $Id: dscaler.iss,v 1.17 2002-12-02 21:37:16 robmuller Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.16  2002/11/25 09:52:13  adcockj
+;// Updated version
+;//
 ;// Revision 1.15  2002/11/06 22:15:08  adcockj
 ;// Include DSRend in alpha build
 ;//
@@ -168,6 +171,7 @@ Type: files; Name: "{app}\DScaler.url"
 Type: files; Name: "{app}\Support.url"
 Type: files; Name: "{app}\dscaler.ini"
 Type: files; Name: "{app}\program.txt"
+Type: files; Name: "{app}\programs.xml"
 Type: files; Name: "{app}\dscaler.log"
 Type: files; Name: "{app}\crashinfo.txt"
 

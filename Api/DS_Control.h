@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.120 2002-12-10 14:53:14 adcockj Exp $
+// $Id: DS_Control.h,v 1.121 2003-01-01 21:07:10 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.120  2002/12/10 14:53:14  adcockj
+// Sound fixes for cx2388x
+//
 // Revision 1.119  2002/12/02 13:47:01  adcockj
 // Allow fine control over white crush settings
 //
@@ -1191,7 +1194,14 @@ typedef enum
 
 typedef enum
 {
-    VTCODEPAGE = 0,
+    VT_CODEPAGE = 0,
+    VT_LANGUAGE_REGION,
+    VT_SHOW_SUBCODE_OSD,
+    VT_LINES_CACHINGCONTROL,
+    VT_HIGH_GRANULARITY_CACHING,
+    VT_SUBSTITUTE_ERROR_SPACES,
+    VT_SUBTITLE_DUPLICATION_FILTER,
+    VT_DOUBLEHEIGHT_SUBTITLES_FILTER,
     VT_SETTING_LASTONE,
 } VT_SETTING;
 

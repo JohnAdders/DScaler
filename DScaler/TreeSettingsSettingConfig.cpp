@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsSettingConfig.cpp,v 1.5 2005-03-20 11:12:40 atnak Exp $
+// $Id: TreeSettingsSettingConfig.cpp,v 1.6 2005-03-20 14:54:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/20 11:12:40  atnak
+// Fixes incompatiblities with VC6.
+//
 // Revision 1.4  2005/03/18 16:19:07  atnak
 // Synchronizing work in progress.
 //
@@ -58,7 +61,7 @@ CTreeSettingsSettingConfig::CTreeSettingsSettingConfig(CSettingConfigContainer* 
 	m_currentSetting(NULL),
 	m_updatingSettingControls(FALSE),
 	m_adjustButton(NULL),
-	m_adjustButtonImagelist(NULL),
+	m_adjustButtonIcon(NULL),
 	m_adjustButtonMoveOnResize(FALSE)
 {
 	ASSERT(m_configs != NULL);
@@ -760,19 +763,17 @@ void CTreeSettingsSettingConfig::CreateAdjustButton()
 
 	// Create the button.
 	m_adjustButton = new CButton();
-	m_adjustButton->Create("", BS_FLAT, rect, this, IDC_TREESETTINGS_GENERIC_ADJUST);
-/*
-	// Create the image list and icon picture.
-	m_adjustButtonImagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON),
-		GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
-	ImageList_AddIcon(m_adjustButtonImagelist, LoadIcon(NULL, IDI_EXCLAMATION));
+	m_adjustButton->Create("", BS_FLAT|BS_ICON, rect, this, IDC_TREESETTINGS_GENERIC_ADJUST);
 
-	// Set the image list.
-	BUTTON_IMAGELIST buttonImagelist;
-	buttonImagelist.himl = m_adjustButtonImagelist;
-	SetRect(&buttonImagelist.margin, 0, 0, 0, 0);
-	buttonImagelist.uAlign = BUTTON_IMAGELIST_ALIGN_CENTER;
-	m_adjustButton->SetImageList(&buttonImagelist);*/
+	// Create an image list and the resized icon.
+	HIMAGELIST hImageList = ImageList_Create(GetSystemMetrics(SM_CXSMICON),
+		GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
+	ImageList_AddIcon(hImageList, LoadIcon(NULL, IDI_EXCLAMATION));
+	m_adjustButtonIcon = ImageList_GetIcon(hImageList, 0, ILD_NORMAL);
+	ImageList_Destroy(hImageList);
+
+	// Set the button icon.
+	m_adjustButton->SetIcon(m_adjustButtonIcon);
 }
 
 
@@ -783,10 +784,10 @@ void CTreeSettingsSettingConfig::DestroyAdjustButton()
 		m_adjustButton->DestroyWindow();
 		m_adjustButton = NULL;
 	}
-	if (m_adjustButtonImagelist != NULL)
+	if (m_adjustButtonIcon != NULL)
 	{
-		ImageList_Destroy(m_adjustButtonImagelist);
-		m_adjustButtonImagelist = NULL;
+		DestroyIcon(m_adjustButtonIcon);
+		m_adjustButtonIcon = NULL;
 	}
 }
 
@@ -812,6 +813,7 @@ void CTreeSettingsSettingConfig::PositionAdjustButtonBeside(CWnd* pWnd, BOOL mov
 
 	m_adjustButton->GetWindowRect(rectButton);
 
+	rectButton.OffsetRect(-rectButton.left, -rectButton.top);
 	rectButton.OffsetRect(rectWnd.right + rectButton.Width() / 2,
 		rectWnd.top + (rectWnd.Height() - rectButton.Height()) / 2);
 	m_adjustButton->MoveWindow(rectButton);

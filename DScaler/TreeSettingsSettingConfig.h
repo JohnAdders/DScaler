@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsSettingConfig.h,v 1.3 2005-03-18 16:19:07 atnak Exp $
+// $Id: TreeSettingsSettingConfig.h,v 1.4 2005-03-20 14:54:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/18 16:19:07  atnak
+// Synchronizing work in progress.
+//
 // Revision 1.2  2004/08/12 14:02:27  atnak
 // minor changes
 //
@@ -117,7 +120,7 @@ protected:
 	PSETTINGCONFIG				m_currentSetting;
 	BOOL						m_updatingSettingControls;
 	CButton*					m_adjustButton;
-	HIMAGELIST					m_adjustButtonImagelist;
+	HICON						m_adjustButtonIcon;
 	BYTE						m_adjustButtonMoveOnResize;
 };
 

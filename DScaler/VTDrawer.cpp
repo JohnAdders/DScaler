@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.7 2002-05-29 18:44:50 robmuller Exp $
+// $Id: VTDrawer.cpp,v 1.8 2002-06-20 20:00:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/05/29 18:44:50  robmuller
+// Added option to disable font anti-aliasing in Teletext.
+//
 // Revision 1.6  2002/05/24 14:49:10  robmuller
 // Patch from PietOO:
 // Non antialiased font when in mixed mode. Shadowed text in mixed mode.
@@ -87,6 +90,7 @@ CVTDrawer::CVTDrawer()
     {
         m_hBrushes[a] = CreateSolidBrush(VTColourTable[a]);
     }
+    m_HiliteText[0] = '\0';
 }
 
 CVTDrawer::~CVTDrawer()
@@ -103,6 +107,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
 {
     BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal;
     BOOL bHasDouble = false;
+    BOOL bHighLightChar = false;
     int CurrentFg, CurrentBkg;
     int DefaultBkg = 0;
     int n;
@@ -305,13 +310,22 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 continue;
             }
 
+            if(row == 0)
+            {
+                bHighLightChar = false;
+            }
+            else
+            {
+                bHighLightChar = IsHiliteText(col, tmp);
+            }
+
             RECT thischar;
             thischar.left = left + double(col) * m_dAvgWidth;
             thischar.right = left + double(double(col + 1) * m_dAvgWidth);
             thischar.top = top + double(row) * m_dAvgHeight;
             thischar.bottom = top + double(row + (bHasDouble ? 2 : 1)) * m_dAvgHeight;
             
-            FillRect(hDC, &thischar, m_hBrushes[CurrentBkg]);
+            FillRect(hDC, &thischar, m_hBrushes[bHighLightChar ? CurrentFg : CurrentBkg]);
 
             if(!bDouble && bHasDouble)
             {
@@ -388,7 +402,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                         TextOutW(hDC, thischar.left + offset + 1, thischar.top, (wchar_t*) &UChar, 1);
                     }
 
-                    SetTextColor(hDC, VTColourTable[CurrentFg]);
+                    SetTextColor(hDC, VTColourTable[bHighLightChar ? CurrentBkg : CurrentFg]);
                     TextOutW(hDC, thischar.left + offset, thischar.top - 1, (wchar_t*) &UChar, 1);
                 }
             }
@@ -511,4 +525,52 @@ void CVTDrawer::DestroyFonts()
         DeleteObject(m_hDoubleFontSmall);
         m_hDoubleFontSmall = NULL;
     }
+}
+
+void CVTDrawer::SetHiliteText(const char *Text)
+{
+    strncpy(m_HiliteText, Text, sizeof(m_HiliteText));
+    _strupr(m_HiliteText);
+}
+
+BOOL CVTDrawer::IsHiliteText(int col, const char *VTRow)
+// returns TRUE if character at column col of VTRow is part of m_HiliteText
+// this function is unaware of formatting characters.
+// m_HiliteText must be uppercase
+{
+    char Row[41];
+    char* Found = NULL;
+  
+    if(VTRow == NULL || m_HiliteText == NULL || col < 0 || col > 39 || m_HiliteText[0] == '\0')
+    {
+        return FALSE;
+    }
+
+    memcpy(Row, VTRow, 40*sizeof(char));
+    Row[40] = '\0';
+
+    Found = _strupr(Row);
+
+    col = col*sizeof(char) + int(Row);
+    
+    while(true)
+    {
+        Found = strstr(Found, m_HiliteText);
+        if(Found == NULL)
+        {
+            return FALSE;
+        }
+
+        if(col >= (int)Found && col < (int)Found + strlen(m_HiliteText))
+        {
+            return TRUE;
+        }
+        Found++;
+        if((int)Found - (int)Row >= 40)
+        {
+            return FALSE;
+        }
+    }
+
+    return FALSE;
 }

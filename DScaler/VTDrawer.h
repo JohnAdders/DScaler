@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.4 2002-05-23 22:16:32 robmuller Exp $
+// $Id: VTDrawer.h,v 1.5 2002-06-20 20:00:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/05/23 22:16:32  robmuller
+// Applied patch #559111 by PietOO.
+// Teletext: less sparse look for ttf fonts.
+//
 // Revision 1.3  2002/02/24 16:41:40  temperton
 // Bug fixes
 //
@@ -63,8 +67,8 @@ class
 public:
     CVTDrawer();
     ~CVTDrawer();
-
     void SetBounds(HDC hDC, RECT* Rect);
+	void SetHiliteText(const char* Text);
     bool Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow);
 
     int GetAvgWidth();
@@ -72,6 +76,7 @@ public:
 private:
     void DestroyFonts();  
     HFONT MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bWidenFont = FALSE);
+	BOOL IsHiliteText(int col, const char* VTRow);
     HBRUSH m_hBrushes[9];
     RECT m_Rect;
     HFONT m_hFont;
@@ -81,6 +86,7 @@ private:
     BOOL m_bFixedPitch;
     int m_AvgWidth, m_AvgHeight;
     double m_dAvgWidth, m_dAvgHeight;
+    char m_HiliteText[41];
 };
 
 #endif

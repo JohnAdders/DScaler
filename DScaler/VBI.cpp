@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.13 2002-05-24 18:04:32 robmuller Exp $
+// $Id: VBI.cpp,v 1.14 2002-06-20 20:00:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/05/24 18:04:32  robmuller
+// Gray VideoText search items when necessary.
+//
 // Revision 1.12  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -90,6 +93,8 @@ BOOL bCaptureVBI = FALSE;
 BOOL DoTeletext = FALSE;
 BOOL DoVPS = FALSE;
 BOOL DoWSS = FALSE;
+BOOL bSearchHighlight = TRUE;
+
 eCCMode CCMode = CCMODE_OFF;
 
 HWND ShowVPSInfo=NULL;
@@ -210,6 +215,12 @@ SETTING VBISettings[VBI_SETTING_LASTONE] =
         NULL,
         "VBI", "DoWSS", DoWSS_OnChange,
     },
+    {
+        "Search Highlight", ONOFF, 0, (long*)&bSearchHighlight,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "VBI", "SearchHighLight", bSearchHighlight_OnChange,
+    },
 };
 
 SETTING* VBI_GetSetting(VBI_SETTING Setting)
@@ -258,6 +269,7 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VT_OUT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCH, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);
@@ -265,6 +277,7 @@ void VBI_SetMenu(HMENU hMenu)
         CheckMenuItemBool(hMenu, IDM_VBI_VT, DoTeletext);
         CheckMenuItemBool(hMenu, IDM_VBI_VPS, DoVPS);
         CheckMenuItemBool(hMenu, IDM_VBI_WSS, DoWSS);
+        CheckMenuItemBool(hMenu, IDM_VT_SEARCHHIGHLIGHT, bSearchHighlight);
         for(i = CCMODE_OFF; i <= CCMODE_TEXT4; i++)
         {
             EnableMenuItem(hMenu, IDM_CCOFF + i, MF_ENABLED);
@@ -281,6 +294,7 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCH, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, MF_GRAYED);
         for(i = CCMODE_OFF; i <= CCMODE_TEXT4; i++)
         {

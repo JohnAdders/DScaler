@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.24 2002-05-29 18:44:51 robmuller Exp $
+// $Id: VBI_VideoText.H,v 1.25 2002-06-20 20:00:33 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -226,5 +226,6 @@ extern char VTSearchString[41];
 
 BOOL VT_SearchAllPages();
 BOOL VT_SearchFrom(int Page, int SubPage);
+BOOL bSearchHighlight_OnChange(long NewValue);
 
 #endif

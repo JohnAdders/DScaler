@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.65 2002-06-18 19:46:05 adcockj Exp $
+// $Id: DS_Control.h,v 1.66 2002-06-20 20:00:42 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/06/18 19:46:05  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.64  2002/06/13 11:24:32  robmuller
 // Channel enter time is now configurable.
 //
@@ -767,6 +770,7 @@ typedef enum
     DOTELETEXT,
     DOVPS,
     DOWSS,
+    SEARCHHIGHLIGHT,
     VBI_SETTING_LASTONE,
 } VBI_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.43 2002-05-30 19:09:06 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.44 2002-06-20 20:00:35 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/05/30 19:09:06  robmuller
+// Clear VisiblePage on channel change.
+//
 // Revision 1.42  2002/05/30 10:13:43  robmuller
 // Don't search the header line.
 //
@@ -1697,6 +1700,7 @@ BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDOK: 
             //Park it
             GetDlgItemText(hDlg, IDC_COMBO1, VTSearchString, 40);
+            VTDrawer.SetHiliteText(bSearchHighlight ? VTSearchString : "");
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -1713,3 +1717,11 @@ BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
     return (FALSE);
 }
+
+BOOL bSearchHighlight_OnChange(long NewValue)
+{
+    bSearchHighlight = (BOOL)NewValue;
+    VTDrawer.SetHiliteText(bSearchHighlight ? VTSearchString : "");
+    return FALSE;
+}
+

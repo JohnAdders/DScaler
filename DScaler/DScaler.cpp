@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.181 2002-06-18 23:12:41 robmuller Exp $
+// $Id: DScaler.cpp,v 1.182 2002-06-20 20:00:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.181  2002/06/18 23:12:41  robmuller
+// Fixed: context menu not working.
+//
 // Revision 1.180  2002/06/18 19:46:06  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -1913,6 +1916,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), 
                 !Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));
             Start_Capture();
+            break;
+
+        case IDM_VT_SEARCHHIGHLIGHT:
+            Setting_SetValue(VBI_GetSetting(SEARCHHIGHLIGHT), 
+                !Setting_GetValue(VBI_GetSetting(SEARCHHIGHLIGHT)));
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
 
         case IDM_CAPTURE_PAUSE:

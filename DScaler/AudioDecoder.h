@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.17 2004-01-05 13:25:25 adcockj Exp $
+// $Id: AudioDecoder.h,v 1.18 2004-01-29 15:14:40 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 // Revision 1.16  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -155,7 +158,8 @@ public:
         AUDIODECODERTYPE_WINDVR,
         AUDIODECODERTYPE_AVER_TVPHONE_NEW,
         AUDIODECODERTYPE_AVER_TVPHONE_OLD,
-		AUDIODECODERTYPE_TDA9875,
+        AUDIODECODERTYPE_TDA9875,
+        AUDIODECODERTYPE_TDA9873,
         AUDIODECODERTYPE_LASTONE
     };
     virtual eAudioDecoderType GetAudioDecoderType();

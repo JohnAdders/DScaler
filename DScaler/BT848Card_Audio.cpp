@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.29 2004-01-05 13:25:25 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.30 2004-01-29 15:14:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 // Revision 1.28  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -128,6 +131,7 @@
 #include "TDA9875.h"
 #include "TDA9875AudioControls.h"
 #include "TDA9875AudioDecoder.h"
+#include "TDA9873AudioDecoder.h"
 
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneNew.h"
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneOld.h"
@@ -144,16 +148,39 @@ void CBT848Card::InitAudio(bool UsePin1)
     if (m_AudioControls != NULL)
     {
         delete m_AudioControls;
+        m_AudioControls = NULL;
+
     }
     if (m_AudioDecoder != NULL)
     {
         delete m_AudioDecoder;
+        m_AudioDecoder = NULL;
     }
 
 
-    if (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
-        || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0
-		|| GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9875)
+    if (m_AudioDecoder == NULL &&
+        (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
+         || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9873))
+    {
+		CTDA9873AudioDecoder* TDADecoder = new CTDA9873AudioDecoder();
+        TDADecoder->Attach(m_I2CBus);
+		if(TDADecoder->Initialize())
+		{
+			m_AudioDecoder = TDADecoder;
+
+			m_AudioControls = new CAudioControls();
+
+			strcpy(m_AudioDecoderType, "TDA9873");
+		}
+        else
+        {
+			delete TDADecoder;
+		}
+	}
+
+	if (m_AudioDecoder == NULL &&
+        (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
+         || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0))
     {
         CMSP34x0AudioControls* MSPControls = new CMSP34x0AudioControls();
 
@@ -177,11 +204,11 @@ void CBT848Card::InitAudio(bool UsePin1)
 			m_AudioDecoder =  MSPDecoder;
 
 			sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
-
-            return;
         }
-
-        delete MSPControls;
+        else
+        {
+            delete MSPControls;
+        }
 
 		// TDA9875 autodetect
         CTDA9875AudioControls* TDA9875Controls = new CTDA9875AudioControls();
@@ -206,23 +233,20 @@ void CBT848Card::InitAudio(bool UsePin1)
 			sprintf(m_AudioDecoderType, "TDA9875%c Rev. %d", (dic==0) ? "":"A", rev); 
             return;
         }
-
-		delete TDA9875Controls;
-
-        m_AudioDecoder = new CAudioDecoder();
-        m_AudioControls = new CAudioControls();
-        sprintf(m_AudioDecoderType, "None");
-
+        else
+        {
+		    delete TDA9875Controls;
+        }
     }
-    else
+
+    if (m_AudioDecoder == NULL)
     {
         switch (GetCardSetup()->AudioDecoderType)
         {
-        case CAudioDecoder::AUDIODECODERTYPE_NONE:
+        default:
             m_AudioDecoder = new CAudioDecoder();
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "None");
-            break;
         case CAudioDecoder::AUDIODECODERTYPE_TERRATV:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderTerraTV(this);
             m_AudioControls = new CAudioControls();

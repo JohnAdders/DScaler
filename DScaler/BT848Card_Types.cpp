@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.40 2004-01-05 13:25:25 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.41 2004-01-29 15:14:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 // Revision 1.39  2003/12/17 10:36:29  adcockj
 // Added Nebula DigiTV
 //
@@ -3600,7 +3603,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
             },
         },
         PLL_28,
-        TUNER_PHILIPS_PAL_I,
+        TUNER_TEMIC_4009FR5_PAL,
         SOUNDCHIP_NONE,
         InitSasem,
         StandardBT848InputSelect,

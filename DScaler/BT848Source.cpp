@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.29 2002-02-17 18:45:08 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.30 2002-02-17 20:32:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/02/17 18:45:08  laurentg
+// At the first hardware setup, select the correct audio input
+//
 // Revision 1.28  2002/02/17 17:46:59  laurentg
 // Mute the audio when switching to another card
 //
@@ -600,11 +603,7 @@ CBT848Card* CBT848Source::GetBT848Card()
 LPCSTR CBT848Source::GetStatus()
 {
     static LPCSTR pRetVal = "";
-    if (!m_pBT848Card->IsVideoPresent())
-    {
-        pRetVal = "No Video Signal Found";
-    }
-    else if (IsInTunerMode())
+    if (IsInTunerMode())
     {
         if (*VT_GetStation() != 0x00)
         {

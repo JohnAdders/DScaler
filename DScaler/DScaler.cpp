@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.128 2002-02-11 21:28:19 laurentg Exp $
+// $Id: DScaler.cpp,v 1.129 2002-02-17 20:32:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.128  2002/02/11 21:28:19  laurentg
+// Popup menu updated
+//
 // Revision 1.127  2002/02/10 21:38:04  laurentg
 // Default value for "Autohide Cursor" is now ON
 //
@@ -2160,18 +2163,25 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_STATUS:
             if (IsStatusBarVisible())
             {
-                strcpy(Text, Providers_GetCurrentSource()->GetStatus());
-                if(Text[0] == 0x00)
-                {
-                    if(Providers_GetCurrentSource()->IsInTunerMode())
-                    {
-                        strcpy(Text, Channel_GetName());
-                    }
-                }
                 if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
 	    		{
-                    sprintf(Text, "Volume Mute");
+                    strcpy(Text, "Volume Mute");
 			    }
+                else if (!Providers_GetCurrentSource()->IsVideoPresent())
+                {
+                    strcpy(Text, "No Video Signal Found");
+                }
+                else
+                {
+                    strcpy(Text, Providers_GetCurrentSource()->GetStatus());
+                    if(Text[0] == 0x00)
+                    {
+                        if(Providers_GetCurrentSource()->IsInTunerMode())
+                        {
+                            strcpy(Text, Channel_GetName());
+                        }
+                    }
+                }
                 StatusBar_ShowText(STATUS_TEXT, Text);
 
                 sprintf(Text, "%d DF/S", pPerf->GetDroppedFieldsLastSecond());

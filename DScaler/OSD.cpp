@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.49 2002-02-09 14:46:04 laurentg Exp $
+// $Id: OSD.cpp,v 1.50 2002-02-17 20:32:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/02/09 14:46:04  laurentg
+// OSD main screen updated to display the correct input name (or channel)
+// OSD main screen updated to display only activated filters
+// Menu label for the BT848 providers now displays the name of the card
+//
 // Revision 1.48  2002/02/09 13:01:57  laurentg
 // Function OSD_ShowUI added
 //
@@ -808,13 +813,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Video input
         OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-		/// \todo fix this to get correct details
-        strcpy (szInfo, "Audio input : ???");
+        // Audio mute
         if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
         {
-            strcat (szInfo, " - MUTE");
+            OSD_AddText("Volume Mute", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         }
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Source size
         sprintf (szInfo, "Source size : %ux%u", pSource->GetWidth(), pSource->GetHeight());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.42 2001-11-22 13:32:03 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.43 2001-11-22 17:20:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.41  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -442,6 +445,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
     // set up Deinterlace Info struct
     memset(&Info, 0, sizeof(Info));
+    Info.Version = DEINTERLACE_INFO_CURRENT_VERSION;
     Info.CpuFeatureFlags = CpuFeatureFlags;
     Info.OverlayPitch = 0;
     if(CpuFeatureFlags & FEATURE_SSE)

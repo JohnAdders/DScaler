@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.37 2003-06-01 14:48:33 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.38 2003-07-18 09:41:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/06/01 14:48:33  adcockj
+// Fixed possible bug spotted by Laurent
+//
 // Revision 1.36  2003/03/23 10:42:21  laurentg
 // Avoid to switch to an unknown video input when using 000...
 //
@@ -406,6 +409,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT6:
         case IDM_SOURCE_INPUT7:
         case IDM_SOURCE_INPUT8:
+        case IDM_SOURCE_INPUT9:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
 				if (nValue < m_pCard->GetNumInputs())

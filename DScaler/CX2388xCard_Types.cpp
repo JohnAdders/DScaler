@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.11 2003-06-17 12:45:19 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.12 2003-07-18 09:41:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/06/17 12:45:19  adcockj
+// Added new card for use with PDI
+//
 // Revision 1.10  2003/03/10 17:43:19  adcockj
 // Added support for Hauppauge WinTV PCI-FM : patch from Tom Zoerner
 //
@@ -212,7 +215,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
     },
     {
         "Holo 3d Graph",
-        8,
+        9,
         {
             {
                 "Component",
@@ -251,6 +254,11 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
             {
                 "Composite BNC",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "PDI",
                 INPUTTYPE_CCIR,
                 3,
             },

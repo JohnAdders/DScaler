@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.328 2003-07-02 20:35:12 laurentg Exp $
+// $Id: DScaler.cpp,v 1.329 2003-07-18 09:41:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.328  2003/07/02 20:35:12  laurentg
+// Allow virtual screen with origin different from (0,0)
+//
 // Revision 1.327  2003/06/14 19:38:10  laurentg
 // Preview mode improved
 //
@@ -4348,6 +4351,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 else if(strcmp(ChannelString, "00000000") == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT8, 0);
+                }
+                else if(strcmp(ChannelString, "000000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT9, 0);
                 }
             }
             ChannelString[0] = '\0';

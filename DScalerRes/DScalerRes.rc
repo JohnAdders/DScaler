@@ -170,6 +170,7 @@ BEGIN
     VK_F7,          IDM_SOURCE_INPUT7,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F8,          IDM_TELETEXT_KEY4,      VIRTKEY, NOINVERT
     VK_F8,          IDM_SOURCE_INPUT8,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F9,          IDM_SOURCE_INPUT9,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F9,          IDM_TELETEXT_KEY5,      VIRTKEY, NOINVERT
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
     VK_HOME,        IDM_PLAYLIST_FIRST,     VIRTKEY, CONTROL, NOINVERT
@@ -665,7 +666,7 @@ END
 IDD_TREESETTINGS_GENERIC DIALOGEX 0, 0, 197, 169
 STYLE DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_APPWINDOW
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_TREESETTINGS_GENERIC_LIST,0,0,197,112,LBS_SORT | 
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
@@ -1681,6 +1682,7 @@ BEGIN
             MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
             MENUITEM "Input &7\tCtrl+Alt+F7",       IDM_SOURCE_INPUT7
             MENUITEM "Input &8\tCtrl+Alt+F8",       IDM_SOURCE_INPUT8
+            MENUITEM "Input &9\tCtrl+Alt+F9",       IDM_SOURCE_INPUT9
         END
         POPUP "Video &Format"
         BEGIN
@@ -1734,6 +1736,7 @@ BEGIN
             MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
             MENUITEM "Input &7\tCtrl+Alt+F7",       IDM_SOURCE_INPUT7
             MENUITEM "Input &8\tCtrl+Alt+F8",       IDM_SOURCE_INPUT8
+            MENUITEM "Input &9\tCtrl+Alt+F9",       IDM_SOURCE_INPUT9
         END
         POPUP "Video &Format"
         BEGIN

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.17 2003-02-03 17:25:22 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.18 2003-07-18 09:41:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@
 #include "AudioControls.h"
 #include "SAA7118.h"
 
-#define CT_INPUTS_PER_CARD 8
+#define CT_INPUTS_PER_CARD 9
 
 class CCX2388xCard : public CPCICard, 
                      public II2CLineInterface

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.5 2003-07-01 21:00:55 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.6 2003-07-18 09:41:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/07/01 21:00:55  adcockj
+// Fixed some h3d issues
+//
 // Revision 1.4  2002/12/04 17:43:49  adcockj
 // Contrast and Brightness adjustments so that h3d card behaves in expected way
 //
@@ -81,6 +84,7 @@ enum eHolo3DInputs
     H3D_COMPOSITE2,
     H3D_COMPOSITE3,
     H3D_COMPOSITE4,
+    H3D_PDI,
 };
 
 void CCX2388xCard::InitH3D()
@@ -187,10 +191,9 @@ void CCX2388xCard::H3DInputSelect(int nInput)
         m_SAA7118->SetRegister(0x02, 0xd0);
         WriteByte(0x390002, 0x8f);
         break;
-//    case H3D_PDI:
-//        WriteByte(0x390002, 0x87);
-//        break;
-//     
+    case H3D_PDI:
+        WriteByte(0x390002, 0x87);
+        break;
     }
 }
 
@@ -222,6 +225,7 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     case H3D_COMPONENT:
     case H3D_RGsB:
     case H3D_SDI:
+    case H3D_PDI:
         // doesn't really matter for these inputs
         // but we'll set the default
         ChrominanceControl = 0x89;
@@ -385,6 +389,7 @@ void CCX2388xCard::SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness)
         }
         break;
     case H3D_SDI:
+    case H3D_PDI:
     default:
         SetVIPBrightness(Brightness);
         SetVIPContrast(Contrast);
@@ -407,6 +412,7 @@ void CCX2388xCard::SetH3DHue(BYTE Hue)
         m_SAA7118->SetHue(Hue);
         break;
     case H3D_SDI:
+    case H3D_PDI:
     default:
         break;
     }
@@ -430,6 +436,7 @@ void CCX2388xCard::SetH3DSaturationU(BYTE Saturation)
         SetVIPSaturation(0x80);
         break;
     case H3D_SDI:
+    case H3D_PDI:
     default:
         SetVIPSaturation(Saturation);
         break;

@@ -986,8 +986,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Image Size Settings"
 FONT 8, "MS Sans Serif"
 BEGIN
-    GROUPBOX        "Size and Position Controls at the chip level",
-                    IDC_STATIC,13,14,355,59
+    GROUPBOX        "Image Shift Adjustments",IDC_STATIC,13,14,355,59
     LTEXT           "&Horizontal Delay",IDC_STATIC,25,29,31,16
     CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP | 
                     WS_TABSTOP,59,25,258,20
@@ -998,7 +997,7 @@ BEGIN
                     WS_TABSTOP,59,45,258,20
     EDITTEXT        IDC_D6,323,48,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED | NOT WS_TABSTOP
-    GROUPBOX        "Overscan Controls",IDC_STATIC,13,85,355,122
+    GROUPBOX        "Image Size Adjustments",IDC_STATIC,13,85,355,122
     LTEXT           "&Top",IDC_STATIC,26,126,27,10
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP | 
                     WS_TABSTOP,60,118,258,20
@@ -1246,7 +1245,7 @@ BEGIN
             MENUITEM "&Stop",                       IDM_STOP_CALIBRATION
         END
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
-        MENUITEM "Image Si&ze Adjustments ...", IDM_SIZESETTINGS
+        MENUITEM "Image Shift/Si&ze Adjustments ...", IDM_SIZESETTINGS
         MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
         MENUITEM "&Advanced Settings...",       IDM_SETTINGS_CHANGESETTINGS
         MENUITEM SEPARATOR

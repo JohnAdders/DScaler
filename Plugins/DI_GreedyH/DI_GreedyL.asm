@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyL.asm,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyL.asm,v 1.3 2001-07-30 17:56:26 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000, 2001 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,17 +18,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
-/*
-#if defined(IS_SSE)
-#define MAINLOOP_LABEL DoNext8Bytes_SSE
-#elif defined(IS_3DNOW)
-#define MAINLOOP_LABEL DoNext8Bytes_3DNow
-#else
-#define MAINLOOP_LABEL DoNext8Bytes_MMX
-#endif
-*/
+// This should probably be removed from Greedy (High Motion) soon but I've left it
+// in for now for easy A/B compares. 
 
 // This is a simple lightweight DeInterlace method that uses little CPU time
 // but gives very good results for low or intermedite motion.
@@ -42,17 +39,15 @@
 // I'd intended this to be part of a larger more elaborate method added to 
 // Blended Clip but this give too good results for the CPU to ignore here.
 //
-// On an SSE machine only, it will instead call DI_GreedyHM unless explicitly told
-// to use Low Motion.
 
 #if defined(IS_SSE)
-BOOL CallGreedyHM(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedy_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedyLM_SSE(DEINTERLACE_INFO *info)
 
 #elif defined(IS_3DNOW)
-BOOL DeinterlaceGreedy_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedyLM_3DNOW(DEINTERLACE_INFO *info)
+
 #else
-BOOL DeinterlaceGreedy_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedyLM_MMX(DEINTERLACE_INFO *info)
 #endif
 {
 	int Line;
@@ -71,18 +66,6 @@ BOOL DeinterlaceGreedy_MMX(DEINTERLACE_INFO *info)
 #endif
 	__int64 MaxComb;
 	__int64 i;
-
-#ifdef IS_SSE					// if on SSE machine then do hard way unless told not
-	if (!GreedyUseLowMotionOnly)
-	{
-		return CallGreedyHM(info);
-	}
-#else
-
-    GreedyUseLowMotionOnly = TRUE;
-    GreedySSEBox = FALSE;           
-
-#endif
 
 	i = GreedyMaxComb;			// How badly do we let it weave? 0-255
 	MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;    
@@ -236,29 +219,4 @@ MAINLOOP_LABEL:
 	return TRUE;
 }
 
-// #undef MAINLOOP_LABEL
-
-
-#ifdef IS_SSE
-
-// If on SSE machine then do hard but better way using GreedyHM unless told not.
-// We fill in some GreedyHM external values. These should be in a parm structure, but aren't
-BOOL CallGreedyHM(DEINTERLACE_INFO *info)
-{
-	InfoIsOdd = info->IsOdd;
-	OverlayPitch =info->OverlayPitch;
-	lpCurOverlay = info->Overlay;
-	pLines = info->OddLines[0];					// where our new data comes from
-	pOddLines = info->OddLines[0];
-	pEvenLines = info->EvenLines[0];
-	pLines = InfoIsOdd 
-		? pOddLines
-		: pEvenLines;
-	FieldHeight = info->FieldHeight;
-	LineLength = info->LineLength;
-	pMemcpy = info->pMemcpy;
-	return DI_GreedyHM();
-}
-
-#endif
 

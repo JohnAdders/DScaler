@@ -128,6 +128,10 @@ SOURCE=.\DI_GreedyDeLoop.asm
 # End Source File
 # Begin Source File
 
+SOURCE=.\DI_GreedyHF.asm
+# End Source File
+# Begin Source File
+
 SOURCE=.\DI_GreedyHM.h
 # End Source File
 # Begin Source File

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.3 2001-07-28 18:47:24 trbarry Exp $
+// $Id: DI_GreedyHM.c,v 1.4 2001-07-30 17:56:26 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/28 18:47:24  trbarry
+// Fix Sharpness with Median Filter
+// Increase Sharpness default to make obvious
+// Adjust deinterlace defaults for less jitter
+//
 // Revision 1.2  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -36,9 +41,9 @@
 #include "DI_GreedyHM.h"
 
 // Note - actual default values below may be set in DI_GreedyHSETTINGS
-long GreedyMaxComb = 11;					// max comb we allow past clip
-long GreedyMotionThreshold = 21;		// ignore changes < this
-long GreedyMotionSense = 28;	        // how rapidly to bob when > Threshold
+long GreedyMaxComb = 5;					// max comb we allow past clip
+long GreedyMotionThreshold = 20;		// ignore changes < this
+long GreedyMotionSense = 30;	        // how rapidly to bob when > Threshold
 long GreedyGoodPullDownLvl = 90;		// Best Comb avg / Comb Avg must be < thes
 long GreedyBadPullDownLvl = 85;		    // No Pulldown if field comb / Best avg comb > this
 long GreedyEdgeEnhAmt = 50;				// % sharpness to add				
@@ -52,6 +57,7 @@ BOOL GreedyUseVertFilter = FALSE;
 BOOL GreedyUseEdgeEnh = FALSE;
 BOOL GreedyUseLowMotionOnly = FALSE;    // may force for non-SSE
 BOOL GreedySSEBox = TRUE;           
+UINT GreedyFeatureFlags = 0;            // Save feature flags on setup
 
 BOOL GreedyWantsToFlip;
 BOOL UpdateFieldStore();
@@ -83,7 +89,9 @@ int FsDelay = 1;		// display delayed by n fields (1,2,3)
 short **pLines = 0;					// current input lines, either even or odd
 short **pOddLines = 0;
 short **pEvenLines = 0;
+short **pPrevLines;
 int	FieldHeight = 0;
+int	FrameHeight = 0;
 int LineLength = 0;
 int OverlayPitch = 0;	
 BOOL InfoIsOdd = 0;
@@ -109,58 +117,22 @@ BOOL DI_GreedyHM()
 {
 #include "DI_GreedyHM2.h"
 
-	__int64 i;
-
-	// Set up our two parms that are actually evaluated for each pixel
-	i=GreedyMaxComb;
-	MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;    
-
-	i = GreedyMotionThreshold;		// scale to range of 0-257
-	MotionThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;    
-
-	i = GreedyMotionSense ;		// scale to range of 0-257
-	MotionSense = i << 48 | i << 32 | i << 16 | i;    
-	
-	i = GreedyGoodPullDownLvl;					// scale to range of 0-257
-	EdgeThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;
-		
-	i=GreedyBadPullDownLvl * 128 / 100;
-	EdgeSense =  i << 48 | i << 32  | i << 16  | i;    
-	
-	i=GreedyMedianFilterAmt;
-	MedianFilterAmt =  i << 48 | i << 32 | i << 16 | i;    
-
-	i=GreedyEdgeEnhAmt* 257/100;
-	EdgeEnhAmt =  i << 48 | i << 32 | i << 16 | i;    
-
-
-	// copy first even line no matter what, and the first odd line if we're
-	// processing an EVEN field. (note diff from other deint rtns.)
-	// for this for now we will use the old fields, not FieldStore
-	if (!GreedyUseMedianFilter && ! GreedyUsePulldown 
-		&& !GreedyUseVertFilter && !GreedyUseEdgeEnh)
+	if (!UpdateFieldStore())
 	{
-		return DI_GreedyHF();
+		return FALSE;
+	}
+
+	if (CanDoPulldown())
+	{
+		return TRUE;
+	}
+	if (GreedyUseVertFilter)
+	{
+		return DI_GreedyHM_V();
 	}
 	else
 	{
-		if (!UpdateFieldStore())
-		{
-			return FALSE;
-		}
-
-		if (CanDoPulldown())
-		{
-			return TRUE;
-		}
-		if (GreedyUseVertFilter)
-		{
-			return DI_GreedyHM_V();
-		}
-		else
-		{
-			return DI_GreedyHM_NV();
-		}
+		return DI_GreedyHM_NV();
 	}
 	
 	return TRUE;

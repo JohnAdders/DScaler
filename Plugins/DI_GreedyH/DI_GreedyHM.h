@@ -1,4 +1,4 @@
-// $Id: DI_GreedyHM.h,v 1.3 2001-07-29 10:07:18 adcockj Exp $
+// $Id: DI_GreedyHM.h,v 1.4 2001-07-30 17:56:26 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,9 +53,9 @@ extern BOOL GreedyUseInBetween;
 extern BOOL GreedyUseMedianFilter;
 extern BOOL GreedyUseVertFilter;
 extern BOOL GreedyUseEdgeEnh;
-extern BOOL GreedyUseLowMotionOnly;    // may force for non-SSE
+extern BOOL GreedyUseLowMotionOnly;     // may force for non-SSE
 extern BOOL GreedySSEBox;           
-
+extern UINT GreedyFeatureFlags;         // Save feature flags on setup
 typedef struct 
 {
     int Comb;					// combs
@@ -90,7 +90,9 @@ typedef struct
 extern short **pLines;					// current input lines, either even or odd
 extern short **pOddLines;
 extern short **pEvenLines;
+extern short **pPrevLines;
 extern int	FieldHeight;
+extern int	FrameHeight;
 extern int LineLength;
 extern int OverlayPitch;	
 extern BOOL InfoIsOdd;
@@ -118,7 +120,9 @@ BOOL FieldStoreCopy(BYTE * dest, __int64 * src, int clen);
 
 // return FS subscripts depending on FsDelay - Note args by reference
 BOOL SetFsPtrs(int* L1, int* L2, int* L2P, int* L3, int* CopySrc, BYTE** CopyDest, BYTE** WeaveDest);
-BOOL DI_GreedyHF();	    								// fast single pass deint with no options
+BOOL DI_GreedyHF_SSE();   								// fast single pass deint with no options
+BOOL DI_GreedyHF_3DNOW();   							// same for 3DNOW
+BOOL DI_GreedyHF_MMX();   								// same for MMX
 BOOL DI_GreedyHM_NV();									// full deint with no Vertical Filter
 BOOL DI_GreedyHM_V();									// full deint with Vertical Filter
 
@@ -126,3 +130,72 @@ BOOL DI_GreedyHM_V();									// full deint with Vertical Filter
 int UpdatePulldown(int Comb, int Kontrast, int Motion);						
 BOOL CanDoPulldown();									// check if we should do pulldown, doit
 BOOL GetHistData(GR_PULLDOWN_INFO * OHist, int ct);
+
+
+// Define a few macros for CPU dependent instructions.
+// I suspect I don't really understand how the C macro preprocessor works but
+// this seems to get the job done.          // TRB 7/01
+
+// BEFORE USING THESE YOU MUST SET:
+
+// #define SSE_TYPE SSE            (or MMX or 3DNOW)
+
+// some macros for pavgb instruction
+//      V_PAVGB(mmr1, mmr2, mmr work register, smask) mmr2 may = mmrw if you can trash it
+
+#define V_PAVGB_MMX(mmr1,mmr2,mmrw,smask) __asm \
+	{ \
+	__asm movq mmrw,mmr2 \
+	__asm pand mmrw, smask \
+	__asm psrlw mmrw,1 \
+	__asm pand mmr1,smask \
+	__asm psrlw mmr1,1 \
+	__asm paddusb mmr1,mmrw \
+	}
+
+#define V_PAVGB_SSE(mmr1,mmr2,mmrw,smask) {pavgb mmr1,mmr2 }
+#define V_PAVGB_3DNOW(mmr1,mmr2,mmrw,smask) {pavgusb mmr1,mmr2 }
+#define V_PAVGB(mmr1,mmr2,mmrw,smask) V_PAVGB2(mmr1,mmr2,mmrw,smask,SSE_TYPE) 
+#define V_PAVGB2(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) 
+#define V_PAVGB3(mmr1,mmr2,mmrw,smask,ssetyp) V_PAVGB_##ssetyp##(mmr1,mmr2,mmrw,smask) 
+
+// some macros for pmaxub instruction
+//      V_PMAXUB(mmr1, mmr2)    
+#define V_PMAXUB_MMX(mmr1,mmr2)     __asm \
+	{ \
+    __asm psubusb mmr1,mmr2 \
+    __asm paddusb mmr1,mmr2 \
+    }
+
+#define V_PMAXUB_SSE(mmr1,mmr2) {pmaxub mmr1,mmr2 }
+#define V_PMAXUB_3DNOW(mmr1,mmr2) V_PMAXUB_MMX(mmr1,mmr2)  // use MMX version
+#define V_PMAXUB(mmr1,mmr2) V_PMAXUB2(mmr1,mmr2,SSE_TYPE) 
+#define V_PMAXUB2(mmr1,mmr2,ssetyp) V_PMAXUB3(mmr1,mmr2,ssetyp) 
+#define V_PMAXUB3(mmr1,mmr2,ssetyp) V_PMAXUB_##ssetyp##(mmr1,mmr2) 
+
+// some macros for pminub instruction
+//      V_PMINUB(mmr1, mmr2, mmr work register)     mmr2 may NOT = mmrw
+#define V_PMINUB_MMX(mmr1,mmr2,mmrw) __asm \
+	{ \
+    __asm pcmpeqb mmrw,mmrw     \
+    __asm psubusb mmrw,mmr2     \
+    __asm paddusb mmr1, mmrw     \
+    __asm psubusb mmr1, mmrw     \
+	}
+
+#define V_PMINUB_SSE(mmr1,mmr2,mmrw) {pminub mmr1,mmr2}
+#define V_PMINUB_3DNOW(mmr1,mmr2,mmrw) V_PMINUB_MMX(mmr1,mmr2,mmrw)  // use MMX version
+#define V_PMINUB(mmr1,mmr2,mmrw) V_PMINUB2(mmr1,mmr2,mmrw,SSE_TYPE) 
+#define V_PMINUB2(mmr1,mmr2,mmrw,ssetyp) V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) 
+#define V_PMINUB3(mmr1,mmr2,mmrw,ssetyp) V_PMINUB_##ssetyp##(mmr1,mmr2,mmrw) 
+
+// some macros for movntq instruction
+//      V_MOVNTQ(mmr1, mmr2) 
+#define V_MOVNTQ_MMX(mmr1,mmr2) {movq mmr1,mmr2}
+#define V_MOVNTQ_3DNOW(mmr1,mmr2) {movq mmr1,mmr2 }
+#define V_MOVNTQ_SSE(mmr1,mmr2) {movntq mmr1,mmr2 }
+#define V_MOVNTQ(mmr1,mmr2) V_MOVNTQ2(mmr1,mmr2,SSE_TYPE) 
+#define V_MOVNTQ2(mmr1,mmr2,ssetyp) V_MOVNTQ3(mmr1,mmr2,ssetyp) 
+#define V_MOVNTQ3(mmr1,mmr2,ssetyp) V_MOVNTQ_##ssetyp##(mmr1,mmr2)
+
+// end of macros

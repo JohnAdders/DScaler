@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.4 2001-07-28 18:47:24 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.5 2001-07-30 17:56:26 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/28 18:47:24  trbarry
+// Fix Sharpness with Median Filter
+// Increase Sharpness default to make obvious
+// Adjust deinterlace defaults for less jitter
+//
 // Revision 1.3  2001/07/26 02:42:10  trbarry
 // Recognize Athlon CPU
 //
@@ -53,19 +58,16 @@
 #include "DI_GreedyHM.h"
 
 int GreedyDiag();
+BOOL GetCheckDScalerInfo(DEINTERLACE_INFO *info);
+BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info);
+BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info);
+BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info);
+BOOL DeinterlaceGreedyLM_SSE(DEINTERLACE_INFO *info);
+BOOL DeinterlaceGreedyLM_3DNOW(DEINTERLACE_INFO *info);
+BOOL DeinterlaceGreedyLM_MMX(DEINTERLACE_INFO *info);
+
 HINSTANCE hInst = NULL;
 
-#define IS_SSE 1
-#include "DI_GreedyL.asm"
-#undef IS_SSE
-
-#define IS_3DNOW 1
-#include "DI_GreedyL.asm"
-#undef IS_3DNOW
-
-#define IS_MMX 1
-#include "DI_GreedyL.asm"
-#undef IS_MMX
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -75,21 +77,21 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 {
 	{
 		"Max Comb", SLIDER, 0,			// szDisplayName, TYPE, orig val
-		&GreedyMaxComb, 11, 0,			// *pValue,Default, Min
+		&GreedyMaxComb, 5, 0,			// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyMaxComb", NULL,			// Ini name, pfnOnChange
 	},
 	{
 		"Motion Threshold", SLIDER, 0,	// szDisplayName, TYPE, orig val
-		&GreedyMotionThreshold, 21, 0,	// *pValue,Default, Min
+		&GreedyMotionThreshold, 20, 0,	// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyMotionThreshold", NULL,		// Ini name, pfnOnChange
 	},
 	{
 		"Motion Sense", SLIDER, 0,	// szDisplayName, TYPE, orig val
-		&GreedyMotionSense, 28, 0, // *pValue,Default, Min
+		&GreedyMotionSense, 30, 0, // *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyMotionSense", NULL,// Ini name, pfnOnChange
@@ -260,7 +262,16 @@ static BOOL ShowDiag = FALSE;
 	case WM_INITDIALOG:
 
 		// Capture the current global values
-		TGreedyMaxComb = GreedyMaxComb;
+		if (!GreedySSEBox)
+        {
+            GreedyUsePulldown = FALSE;			
+            GreedyUseInBetween = FALSE;
+            GreedyUseMedianFilter = FALSE;
+            GreedyUseVertFilter = FALSE;
+            GreedyUseEdgeEnh = FALSE;
+        }
+        
+        TGreedyMaxComb = GreedyMaxComb;
 		TGreedyMotionThreshold= GreedyMotionThreshold;		
 		TGreedyMotionSense = GreedyMotionSense;	
 		TGreedyGoodPullDownLvl= GreedyGoodPullDownLvl;	
@@ -458,9 +469,9 @@ static BOOL ShowDiag = FALSE;
 
 		case IDC_DEFAULT:
 // Note - actual default values below should maybe be set in DI_GreedyHSETTINGS
-			GreedyMaxComb = 11;					// max comb we allow past clip
-			GreedyMotionThreshold= 21;			// ignore changes < this
-			GreedyMotionSense = 28;				// how rapidly to bob when > Threshold
+			GreedyMaxComb = 5;					// max comb we allow past clip
+			GreedyMotionThreshold = 20;			// ignore changes < this
+			GreedyMotionSense = 30;				// how rapidly to bob when > Threshold
 			GreedyGoodPullDownLvl= 90;			
 			GreedyBadPullDownLvl = 85;			
 			GreedyEdgeEnhAmt = 50;				// % sharpness to add				
@@ -538,7 +549,7 @@ DEINTERLACE_METHOD GreedyHMethod =
 	"GreedyH",						// Short name
 	FALSE,							// Is 1/2 height?
 	FALSE,							// Is film mode?
-	DeinterlaceGreedy_MMX,			// Pointer to Algorithm function (cannot be NULL)
+	DeinterlaceGreedyH_MMX,			// Pointer to Algorithm function (cannot be NULL)
 	50,								// flip frequency in 50Hz mode 
 	60,								// flip frequency in 60Hz mode
 	DI_GREEDYH_SETTING_LASTONE,		// number of settings
@@ -561,17 +572,21 @@ DEINTERLACE_METHOD GreedyHMethod =
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags)
 {
+    GreedyFeatureFlags = CpuFeatureFlags;
     if (CpuFeatureFlags & (FEATURE_SSE | FEATURE_MMXEXT) )   // Pentium 3,4, or Athlon?
     {
-        GreedyHMethod.pfnAlgorithm = DeinterlaceGreedy_SSE;
+        GreedySSEBox = TRUE;
+        GreedyHMethod.pfnAlgorithm = DeinterlaceGreedyH_SSE;
     }
     else if (CpuFeatureFlags & FEATURE_3DNOW)
     {
-        GreedyHMethod.pfnAlgorithm = DeinterlaceGreedy_3DNOW;
+        GreedySSEBox = FALSE;
+        GreedyHMethod.pfnAlgorithm = DeinterlaceGreedyH_3DNOW;
     }
     else
-    {
-        GreedyHMethod.pfnAlgorithm = DeinterlaceGreedy_MMX;
+  {
+        GreedySSEBox = FALSE;
+        GreedyHMethod.pfnAlgorithm = DeinterlaceGreedyH_MMX;
     }
 	return &GreedyHMethod;
 }
@@ -594,7 +609,6 @@ int ShowPdHistFlags(HWND hDlg, int CombN, int Kontrast,  int MotionN, int RatN,
 	}
 	else
 	{
-//		SetDlgItemInt(hDlg, MotionN, 100 * Hist.Motion / Hist.Kontrast , TRUE);
 		SetDlgItemInt(hDlg, MotionN, Hist.Motion / 10 , TRUE);
 		SetDlgItemInt(hDlg, CombK, 100 * Hist.CombChoice / Hist.Kontrast , TRUE);
 		SetDlgItemInt(hDlg, RatN,  1000 * Hist.Avg / (Hist.Kontrast * PDAVGLEN) , TRUE);
@@ -678,4 +692,131 @@ int GreedyDiag(HWND hDlg)
 
 	return 0;
 }
+
+
+// Entered here on deinterlace call for SSE
+BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info)
+{
+    if ( !GetCheckDScalerInfo(info) || !(GreedyFeatureFlags & (FEATURE_SSE | FEATURE_MMXEXT)) )
+    {
+        return FALSE;
+    }
+    
+    if (GreedyUseLowMotionOnly)
+    {
+        return DeinterlaceGreedyLM_SSE(info);
+    }
+
+    else if (GreedyUseMedianFilter || GreedyUsePulldown 
+		|| GreedyUseVertFilter || GreedyUseEdgeEnh)
+	{
+        return DI_GreedyHM();           // only SSE version for this one
+	} 
+    else
+    {
+		return DI_GreedyHF_SSE();       // faster more compatible way
+    }
+}
+
+// Entered here on deinterlace call for 3DNOW
+BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info)
+{
+    if ( !GetCheckDScalerInfo(info) || !(GreedyFeatureFlags & FEATURE_3DNOW) )
+    {
+        return FALSE;
+    }
+    
+    if (GreedyUseLowMotionOnly)
+    {
+        return DeinterlaceGreedyLM_3DNOW(info);
+    }
+
+    else
+    {
+		return DI_GreedyHF_3DNOW();         // faster more compatible way
+    }
+}
+
+// Entered here on deinterlace call for MMX
+BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info)
+{
+    if ( !GetCheckDScalerInfo(info) || !(GreedyFeatureFlags & FEATURE_MMX) )
+    {
+        return FALSE;
+    }
+    
+    if (GreedyUseLowMotionOnly)
+    {
+        return DeinterlaceGreedyLM_MMX(info);
+    }
+
+    else
+    {
+		return DI_GreedyHF_MMX();           // faster more compatible way
+    }
+}
+
+
+// We fill in some GreedyHM external values. These should be in a parm structure, but aren't
+BOOL GetCheckDScalerInfo(DEINTERLACE_INFO *info)
+{
+    #include "DI_GreedyHM2.h"
+
+    __int64 i;
+	InfoIsOdd = info->IsOdd;
+	OverlayPitch =info->OverlayPitch;
+	lpCurOverlay = info->Overlay;
+	pLines = info->OddLines[0];					// where our new data comes from
+	pOddLines = info->OddLines[0];
+	pEvenLines = info->EvenLines[0];
+    
+    pPrevLines = info->IsOdd 
+        ? info->OddLines[1] 
+        : info->EvenLines[1];
+
+	pLines = InfoIsOdd 
+		? pOddLines
+		: pEvenLines;
+	
+    FieldHeight = info->FieldHeight;
+    FrameHeight = info->FrameHeight;
+	LineLength = info->LineLength;
+	pMemcpy = info->pMemcpy;
+
+	// Set up our two parms that are actually evaluated for each pixel
+	i=GreedyMaxComb;
+	MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;    
+
+	i = GreedyMotionThreshold;		// scale to range of 0-257
+	MotionThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;    
+
+	i = GreedyMotionSense ;		// scale to range of 0-257
+	MotionSense = i << 48 | i << 32 | i << 16 | i;    
+	
+	i = GreedyGoodPullDownLvl;					// scale to range of 0-257
+	EdgeThreshold = i << 48 | i << 32 | i << 16 | i | UVMask;
+		
+	i=GreedyBadPullDownLvl * 128 / 100;
+	EdgeSense =  i << 48 | i << 32  | i << 16  | i;    
+	
+	i=GreedyMedianFilterAmt;
+	MedianFilterAmt =  i << 48 | i << 32 | i << 16 | i;    
+
+	i=GreedyEdgeEnhAmt* 257/100;
+	EdgeEnhAmt =  i << 48 | i << 32 | i << 16 | i;    
+    return TRUE;
+//>>>>    return (FieldHeight < FSMAXROWS);
+}
+
+#define IS_SSE 1
+#include "DI_GreedyL.asm"
+#undef IS_SSE
+
+#define IS_3DNOW 1
+#include "DI_GreedyL.asm"
+#undef IS_3DNOW
+
+#define IS_MMX 1
+#include "DI_GreedyL.asm"
+#undef IS_MMX
 

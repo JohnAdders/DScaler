@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.23 2004-03-28 19:34:11 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.24 2004-06-19 20:11:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2004/03/28 19:34:11  to_see
+// added TVFormat for an call to CCX2388xCard::AudioInitxxx
+// more on chip sound; BTSC and Nicam for PAL(I)
+// set to LOG(2) when an tuner in CCX2388xCard::AutoDetectTuner was found
+// added GPIO Settings for Leadtek WinFast TV2000 XP Expert
+//
 // Revision 1.22  2004/03/10 17:44:03  to_see
 // corrected Card inf for "PixelView PlayTV Ultra"
 //
@@ -963,7 +969,15 @@ void CCX2388xCard::StandardInputSelect(int nInput)
     }
 
     // set up any sound stuff
-    WriteDword(MO_GP0_IO, m_TVCards[m_CardType].Inputs[nInput].GPIOFlags);
+	DWORD dwTemp = m_TVCards[m_CardType].Inputs[nInput].GPIOFlags;
+	
+	if(dwTemp != 0x00000000)
+	{
+		// Reset to normal GPIO Mode
+		WriteDword(MO_GP3_IO, 0x00000000);
+	}
+
+    WriteDword(MO_GP0_IO, dwTemp);
 }
 
 HMENU CCX2388xCard::GetCardSpecificMenu()

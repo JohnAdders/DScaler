@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.19 2002-11-02 11:11:42 robmuller Exp $
+// $Id: FLT_LogoKill.c,v 1.20 2002-11-05 13:07:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/11/02 11:11:42  robmuller
+// Removed 'Experimental' from the name of the filter.
+//
 // Revision 1.18  2002/10/29 15:24:21  robmuller
 // Remove smoothing setting from logo killer since it is not used anymore.
 //
@@ -76,6 +79,20 @@ long Left_UI = 5;
 long Width_UI = 30;
 long Height_UI = 30;
 long Max = 128;
+long gUseSmoothing = TRUE;
+long gSmoothingValue = 10;
+int	LSR0;
+int LSR1;
+int	USR0;
+int USR1;
+int	VSR0;
+int VSR1;
+int LSC0[768];
+int LSC1[768];
+int USC0[768];
+int USC1[768];
+int VSC0[768];
+int VSC1[768];
 
 static long gCpuFeatureFlags = 0;
 static const __int64 ShiftMask = 0xfefffefffefffeff;	// to avoid shifting chroma to luma
@@ -107,6 +124,11 @@ typedef struct
 	BYTE Lumi2;
     BYTE Chroma2;
 } TwoPixel;
+typedef struct
+{
+	BYTE Lumi;
+    BYTE Chroma;
+} TwoByte;
 #pragma pack(pop)
 
 long DispatchLogoKiller( TDeinterlaceInfo *pInfo );
@@ -190,6 +212,18 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
         128, 0, 255, 1, 1,
         NULL,
         "LogoKillFilter", "Max", NULL,
+    },
+    {
+        "Smoothing", ONOFF, 0, &gUseSmoothing,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "LogoKillFilter", "UseSmoothing", NULL,
+    },
+    {
+        "Amount of smoothing", SLIDER, 0, &gSmoothingValue,
+        10, 0, 50, 1, 1,
+        NULL,
+        "LogoKillFilter", "Amout of smoothing", NULL,
     },
     {
         "Logo Kill Filter", ONOFF, 0, &(LogoKillMethod.bActive),

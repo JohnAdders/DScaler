@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.110 2002-11-02 01:36:40 lindsey Exp $
+// $Id: DS_Control.h,v 1.111 2002-11-05 13:07:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.110  2002/11/02 01:36:40  lindsey
+// Added new settings for adaptive noise; Changed a name for histogram filter
+//
 // Revision 1.109  2002/11/01 16:17:14  laurentg
 // New option to keep ratio when taking a still and saving it in a file
 //
@@ -1142,6 +1145,8 @@ typedef enum
     LOGOKILL_HEIGHT,
     LOGOKILL_MODE,
     LOGOKILL_MAX,
+	LOGOKILL_USE_SMOOTHING,
+	LOGOKILL_SMOOTHING_AMOUNT,
     USELOGOKILL,
     FLT_LOGOKILL_SETTING_LASTONE,
 } FLT_LOGOKILL_SETTING;

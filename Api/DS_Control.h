@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.58 2002-05-26 09:21:48 robmuller Exp $
+// $Id: DS_Control.h,v 1.59 2002-05-27 20:17:05 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/05/26 09:21:48  robmuller
+// Patch #560680 by PietOO:
+// Added option to disable screensaver.
+//
 // Revision 1.57  2002/05/03 11:15:46  laurentg
 // New settings added to define the size of the pattern
 //
@@ -459,6 +463,7 @@ typedef enum
     SHOWCRASHDIALOG,
     LOCKKEYBOARD,
     SCREENSAVEROFF,
+    AUTOCODEPAGE,
     INITIALSOURCE,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;

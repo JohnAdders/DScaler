@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.20 2002-05-24 10:52:58 robmuller Exp $
+// $Id: DScaler.h,v 1.21 2002-05-27 20:17:05 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -131,5 +131,7 @@ extern BOOL bIgnoreMouse;
 extern BOOL bShowCrashDialog;
 
 extern BOOL bInMenuOrDialogBox;
+
+extern BOOL bVTAutoCodePage;
 
 #endif

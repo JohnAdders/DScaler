@@ -1039,6 +1039,8 @@ BEGIN
         MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
         POPUP "Teletext Code Page"
         BEGIN
+            MENUITEM "&Automatic",                  IDM_VT_AUTOCODEPAGE
+            MENUITEM SEPARATOR
             MENUITEM "&English",                    IDM_VT_UK
             MENUITEM "&French",                     IDM_VT_FRENCH
             MENUITEM "&Czech",                      IDM_VT_CZECH

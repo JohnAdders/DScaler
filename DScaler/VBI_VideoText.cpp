@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.38 2002-05-24 16:49:00 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.39 2002-05-27 20:17:05 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/05/24 16:49:00  robmuller
+// VideoText searching improved.
+//
 // Revision 1.37  2002/05/23 18:45:03  robmuller
 // Patch #559554 by PietOO.
 // Teletext: + text search ctrl-F & next F3
@@ -177,6 +180,138 @@ int VTCachedPages = 0;
 int VTCurrentPage = 0;
 int VTCurrentSubCode = 0;
 eVTCodePage VTCodePage = VT_UK_CODE_PAGE;
+
+eVTCodePage VTAutoCodePage = VT_UK_CODE_PAGE;
+
+int VTCodePageX28 = -1;
+int C12C13C14 = -1;
+// Standard codepages following bits C12C13C14
+eVTCodePage C12C13C14Pages[8] = 
+{
+    VT_UK_CODE_PAGE,
+    VT_FRENCH_CODE_PAGE,
+    VT_SWEDISH_CODE_PAGE, // = VT_FINNISH_CODE_PAGE VT_HUNGARIAN_CODE_PAGE
+    VT_CZECH_CODE_PAGE, // VT_TURKISH_CODE_PAGE,
+    VT_GERMAN_CODE_PAGE,
+    VT_SPANISH_CODE_PAGE, // = VT_PORTUGESE_CODE_PAGE
+    VT_ITALIAN_CODE_PAGE,
+    VT_GREEK_CODE_PAGE,
+};
+/*
+eVTCodePage C8_C14Pages[11][8] =
+{
+{ // 0
+    VT_UK_CODE_PAGE,
+    VT_FRENCH_CODE_PAGE,
+    VT_SWEDISH_CODE_PAGE, // = VT_FINNISH_CODE_PAGE VT_HUNGARIAN_CODE_PAGE
+    VT_CZECH_CODE_PAGE, // = VT_SLOVAK_CODE_PAGE
+    VT_GERMAN_CODE_PAGE,
+    VT_SPANISH_CODE_PAGE, // = VT_PORTUGESE_CODE_PAGE
+    VT_ITALIAN_CODE_PAGE,
+    VT_GREEK_CODE_PAGE, // nop
+},
+{ // 1
+    VT_POLISH_CODE_PAGE,
+    VT_FRENCH_CODE_PAGE,
+    VT_SWEDISH_CODE_PAGE, // = VT_FINNISH_CODE_PAGE VT_HUNGARIAN_CODE_PAGE
+    VT_CZECH_CODE_PAGE,
+    VT_GERMAN_CODE_PAGE,
+    VT_SPANISH_CODE_PAGE, // nop
+    VT_ITALIAN_CODE_PAGE,
+    VT_GREEK_CODE_PAGE, // nop
+}, 
+{ // 2
+    VT_UK_CODE_PAGE,
+    VT_FRENCH_CODE_PAGE,
+    VT_SWEDISH_CODE_PAGE, // = VT_FINNISH_CODE_PAGE VT_HUNGARIAN_CODE_PAGE
+    VT_UK_CODE_PAGE, // should be VT_TURKISH_CODE_PAGE,
+    VT_GERMAN_CODE_PAGE,
+    VT_SPANISH_CODE_PAGE, // = VT_PORTUGESE_CODE_PAGE
+    VT_ITALIAN_CODE_PAGE,
+    VT_GREEK_CODE_PAGE,
+},
+{ // 3
+    VT_UK_CODE_PAGE, // nop
+    VT_FRENCH_CODE_PAGE, // nop
+    VT_SWEDISH_CODE_PAGE, // nop
+    VT_UK_CODE_PAGE, // nop
+    VT_GERMAN_CODE_PAGE, // nop
+    VT_UK_CODE_PAGE, // set to: VT_SERBIAN_CODE_PAGE, // = VT_CROATION_CODE_PAGE VT_SLOVENIAN_CODE_PAGE
+    VT_ITALIAN_CODE_PAGE, // nop
+    VT_UK_CODE_PAGE, // set to: VT_RUMANIAN_CODE_PAGE,
+},
+{ // 4
+    VT_RUSSIAN_CODE_PAGE, // set to: VT_SERBIAN_CODE_PAGE, // = VT_CROATION_CODE_PAGE cyrillic
+    VT_RUSSIAN_CODE_PAGE, // = VT_BULGARIAN_CODE_PAGE cyrillic
+    VT_UK_CODE_PAGE, // set to: VT_ESTONIAN_CODE_PAGE,
+    VT_CZECH_CODE_PAGE, // = VT_SLOVAK_CODE_PAGE
+    VT_GERMAN_CODE_PAGE,
+    VT_RUSSIAN_CODE_PAGE, // set to: VT_UKRANIAN_CODE_PAGE, // cyrillic
+    VT_UK_CODE_PAGE, // set to: VT_LETTISH_CODE_PAGE, // = VT_LITHUANIAN_CODE_PAGE
+    VT_GREEK_CODE_PAGE, // nop
+},
+{ // 5 reserved
+    VT_UK_CODE_PAGE, // reserved
+    VT_FRENCH_CODE_PAGE, // reserved
+    VT_SWEDISH_CODE_PAGE, // reserved
+    VT_UK_CODE_PAGE, // reserved
+    VT_GERMAN_CODE_PAGE, // reserved
+    VT_SPANISH_CODE_PAGE, // reserved
+    VT_ITALIAN_CODE_PAGE, // reserved
+    VT_GREEK_CODE_PAGE, // reserved
+},
+{ // 6
+    VT_UK_CODE_PAGE, // nop
+    VT_FRENCH_CODE_PAGE, // nop
+    VT_SWEDISH_CODE_PAGE, // nop
+    VT_UK_CODE_PAGE, // set to: VT_TURKISH_CODE_PAGE
+    VT_GERMAN_CODE_PAGE, // nop
+    VT_SPANISH_CODE_PAGE, // nop
+    VT_ITALIAN_CODE_PAGE, // nop
+    VT_GREEK_CODE_PAGE,
+},
+{ // 7
+    VT_UK_CODE_PAGE, // reserved
+    VT_FRENCH_CODE_PAGE, // reserved
+    VT_SWEDISH_CODE_PAGE, // reserved
+    VT_UK_CODE_PAGE, // reserved
+    VT_GERMAN_CODE_PAGE, // reserved
+    VT_SPANISH_CODE_PAGE, // reserved
+    VT_ITALIAN_CODE_PAGE, // reserved
+    VT_GREEK_CODE_PAGE, // reserved
+},
+{ // 8
+    VT_UK_CODE_PAGE,
+    VT_FRENCH_CODE_PAGE,
+    VT_SWEDISH_CODE_PAGE,
+    VT_UK_CODE_PAGE, // VT_TURKISH_CODE_PAGE
+    VT_GERMAN_CODE_PAGE,
+    VT_SPANISH_CODE_PAGE,
+    VT_ITALIAN_CODE_PAGE,
+    VT_UK_CODE_PAGE, // set to: VT_ARABIC_CODE_PAGE,
+},
+{ // 9
+    VT_UK_CODE_PAGE, // reserved
+    VT_FRENCH_CODE_PAGE, // reserved
+    VT_SWEDISH_CODE_PAGE, // reserved
+    VT_UK_CODE_PAGE, // reserved
+    VT_GERMAN_CODE_PAGE, // reserved
+    VT_SPANISH_CODE_PAGE, // reserved
+    VT_ITALIAN_CODE_PAGE, // reserved
+    VT_GREEK_CODE_PAGE, // reserved
+},
+{ // 10
+    VT_UK_CODE_PAGE, // nop
+    VT_FRENCH_CODE_PAGE, // nop
+    VT_SWEDISH_CODE_PAGE, // nop
+    VT_UK_CODE_PAGE, // nop
+    VT_GERMAN_CODE_PAGE, // nop
+    VT_HEBREW_CODE_PAGE,
+    VT_ITALIAN_CODE_PAGE, // nop
+    VT_UK_CODE_PAGE, // set to: VT_ARABIC_CODE_PAGE,
+},
+};
+*/
 
 char VPSTempName[9] = 
 { 
@@ -446,6 +581,9 @@ void VBI_decode_vt(unsigned char* dat)
             return;
         }
 
+        C12C13C14 = unham(dat + 11) >> 5;
+        VTAutoCodePage = C12C13C14Pages[C12C13C14];
+
         MagazineStates[mag].PageErase = ((unham(dat + 7) & 0x80) != 0);
         sub = ((unham(dat + 9) & 0x3F) << 7) | (unham(dat + 7) & 0x7F);
         sub = (sub >> 4) * 10 + (sub & 0x0F);
@@ -557,6 +695,7 @@ void VBI_decode_vt(unsigned char* dat)
         break;
     
     case 26:                    // PDC
+        break;
     case 27:
         if(MagazineStates[mag].bStarted)
         {
@@ -579,7 +718,37 @@ void VBI_decode_vt(unsigned char* dat)
         }
         break;
     case 28:
+        /* don't see it; keep level 1 only 
+        {
+            // X/28/0
+            BYTE c1 = *(dat + 5);
+            BYTE c2 = *(dat + 6); 
+            BYTE c3 = *(dat + 7);
+
+            BYTE DesignationCode = ((c1 & 0x02) >> 1 )|((c1 & 0x08) >> 2 )|((c1 & 0x20) >> 3 )|((c1 & 0x80) >> 4 );
+            BYTE PageFunction = c2 & 0x0F;
+
+            //  format 1 and            basic level 1
+            if( DesignationCode != 0 || PageFunction != 0 )
+            {
+                VTCodePageX28 = -1;
+                C12C13C14 = -1;
+            }
+            else
+            {
+                C12C13C14 = ((c2 & 0x80) >> 6)|((c3 & 0x01) << 1)|((c3 & 0x02) >> 1); // 1>(8 9 10)>16 => 7>(2 1 0)>0
+                VTCodePageX28 = ((c3 & 0x04) >> 2)|((c3 & 0x08) >> 2)|((c3 & 0x10) >> 2)|((c3 & 0x20) >> 2);
+            }
+            char xx[40];
+            LOG(1, xx, "TELETEXT CO 28 %X %X %X - %X %X %X %X", c1, c2, c3, DesignationCode, PageFunction, VTCodePageX28, C12C13C14); 
+        }
+        */
+        break;
+
     case 29:
+        /* don't see it; keep level 1 only
+        LOG(1, xx, "TELETEXT CO 29"); 
+        */
         break;
     case 30:
         StorePacket30(dat);
@@ -772,7 +941,8 @@ void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed)
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL,
         (VTShowHidden ? VTDF_HIDDEN : 0) |
-        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage, NULL);
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
+        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, NULL);
 }
 
 void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
@@ -783,7 +953,8 @@ void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
         (ShowFlashed ? VTDF_FLASHONLY : VTDF_CLEARFLASH) |
-        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage, 0);
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
+        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0);
 }
 
 void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
@@ -794,7 +965,8 @@ void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
         (RedrawHeader ? VTDF_HEADERONLY : VTDF_CLOCKONLY) |
-        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage, 0);
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
+        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0);
 }
 
 void VT_ProcessRedrawCache(HWND hWnd, HDC hDC)
@@ -820,7 +992,8 @@ void VT_ProcessRedrawCache(HWND hWnd, HDC hDC)
                 VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL,
                     (VTShowHidden ? VTDF_HIDDEN : 0) |
                     ((VTState == VT_MIX) ? VTDF_MIXMODE : 0) |
-                    VTDF_THISROWONLY, VTCodePage, a);
+                    VTDF_THISROWONLY, 
+                    bVTAutoCodePage ? VTAutoCodePage : VTCodePage, a);
             }
         }
     }

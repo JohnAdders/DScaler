@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.161 2002-05-26 10:33:35 robmuller Exp $
+// $Id: DScaler.cpp,v 1.162 2002-05-27 20:17:05 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.161  2002/05/26 10:33:35  robmuller
+// Screen redraw problem fixed.
+//
 // Revision 1.160  2002/05/26 09:21:48  robmuller
 // Patch #560680 by PietOO:
 // Added option to disable screensaver.
@@ -570,6 +573,7 @@ BOOL bIsFullScreen = FALSE;
 BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
 BOOL bScreensaverOff = FALSE;
+BOOL bVTAutoCodePage = FALSE;
 
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
@@ -1827,6 +1831,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_SCREENSAVEROFF:
             ScreensaverOff_OnChange(!bScreensaverOff);
+            break;
+        
+        case IDM_VT_AUTOCODEPAGE:
+            bVTAutoCodePage = !bVTAutoCodePage;
             break;
         
         case IDM_SPLASH_ON_STARTUP:
@@ -3269,6 +3277,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
     CheckMenuItemBool(hMenu, IDM_SCREENSAVEROFF, bScreensaverOff);
+    CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
     CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
     CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
@@ -3914,6 +3923,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "ScreensaverOff", ScreensaverOff_OnChange,
+    },
+    {
+        "Auto CodePage", YESNO, 0, (long*)&bVTAutoCodePage,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "AutoCodePage", NULL,
     },
     {
         "Initial source", SLIDER, 0, (long*)&InitSourceIdx,

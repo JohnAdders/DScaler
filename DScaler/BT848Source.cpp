@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.26 2002-02-09 14:46:05 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.27 2002-02-10 21:34:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/02/09 14:46:05  laurentg
+// OSD main screen updated to display the correct input name (or channel)
+// OSD main screen updated to display only activated filters
+// Menu label for the BT848 providers now displays the name of the card
+//
 // Revision 1.25  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -346,7 +351,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_bSavePerInput = new CYesNoSetting("Save Per Input", FALSE, IniSection, "SavePerInput");
     m_Settings.push_back(m_bSavePerInput);
     
-    m_bSavePerFormat = new CYesNoSetting("Save Per Format", FALSE, IniSection, "SavePerFormat");
+    m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
     m_Settings.push_back(m_bSavePerFormat);
     
     m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");

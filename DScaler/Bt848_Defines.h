@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.20 2003-01-25 23:44:14 laurentg Exp $
+// $Id: Bt848_Defines.h,v 1.21 2003-02-06 19:54:22 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -360,8 +360,6 @@
 #define BT848_MSP_WRITE                 0x80
 #define BT848_MSP_READ                  0x81
 
-#define VBI_SPL 2044
-
 enum eTVCardId
 {
     TVCARD_UNKNOWN = 0,
@@ -465,68 +463,6 @@ enum eTVCardId
     TVCARD_AVERTVOLD,
     TVCARD_LASTONE,
 };
-
-enum eTunerId
-{
-    TUNER_AUTODETECT = -2,
-    TUNER_USER_SETUP = -1,
-    TUNER_ABSENT = 0,           
-    TUNER_PHILIPS_PAL_I,        
-    TUNER_PHILIPS_NTSC,     
-    TUNER_PHILIPS_SECAM,        
-    TUNER_PHILIPS_PAL,      
-    TUNER_TEMIC_4002FH5_PAL,
-    TUNER_TEMIC_4032FY5_NTSC,       
-    TUNER_TEMIC_4062FY5_PAL_I,      
-    TUNER_TEMIC_4036FY5_NTSC,
-    TUNER_ALPS_TSBH1_NTSC,  
-    TUNER_ALPS_TSBE1_PAL,   
-    TUNER_ALPS_TSBB5_PAL_I,     
-    TUNER_ALPS_TSBE5_PAL,   
-    TUNER_ALPS_TSBC5_PAL,   
-    TUNER_TEMIC_4006FH5_PAL,
-    TUNER_PHILIPS_1236D_NTSC_INPUT1,
-    TUNER_PHILIPS_1236D_NTSC_INPUT2,
-    TUNER_ALPS_TSCH6_NTSC,
-    TUNER_TEMIC_4016FY5_PAL,
-    TUNER_PHILIPS_MK2_NTSC,
-    TUNER_TEMIC_4066FY5_PAL_I,
-    TUNER_TEMIC_4006FN5_PAL,
-    TUNER_TEMIC_4009FR5_PAL,
-    TUNER_TEMIC_4039FR5_NTSC,
-    TUNER_TEMIC_4046FM5_MULTI,
-    TUNER_PHILIPS_PAL_DK,
-    TUNER_PHILIPS_MULTI,
-    TUNER_LG_I001D_PAL_I,
-    TUNER_LG_I701D_PAL_I,
-    TUNER_LG_R01F_NTSC,
-    TUNER_LG_B01D_PAL,
-    TUNER_LG_B11D_PAL,
-    TUNER_TEMIC_4009FN5_PAL,
-    TUNER_MT2032,
-    TUNER_SHARP_2U5JF5540_NTSC,
-    TUNER_LG_TAPCH701P_NTSC,
-    TUNER_SAMSUNG_PAL_TCPM9091PD27,
-    TUNER_TEMIC_4106FH5,
-    TUNER_TEMIC_4012FY5,
-    TUNER_TEMIC_4136FY5,
-    TUNER_LG_TAPCNEW_PAL,
-    TUNER_PHILIPS_FM1216ME_MK3,
-    TUNER_LG_TAPCNEW_NTSC,
-    TUNER_MT2032_PAL,
-    TUNER_LASTONE,
-};
-
-enum eSoundChannel
-{
-    SOUNDCHANNEL_MONO = 1,
-    SOUNDCHANNEL_STEREO,
-    SOUNDCHANNEL_LANGUAGE1,
-    SOUNDCHANNEL_LANGUAGE2,
-};
-
-#define TIMER_MSP           8
-#define TIMER_MSP_MS        1000
 
 // 10/19/2000 Mark Rejhon
 // Better NTSC defaults

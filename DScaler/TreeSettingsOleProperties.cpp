@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.5 2002-07-06 16:46:13 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.6 2002-07-09 17:40:33 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/07/06 16:46:13  tobbej
+// only deactivate page if it previously was activated
+//
 // Revision 1.4  2002/05/19 12:01:42  tobbej
 // fixed sizing of propertypage
 //
@@ -136,11 +139,11 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 		{
 			if(pageInfo.size.cx>m_minWidth)
 			{
-				m_minWidth=pageInfo.size.cx;
+				m_minWidth=pageInfo.size.cx+8;
 			}
 			if(pageInfo.size.cy>m_minHeight)
 			{
-				m_minHeight=pageInfo.size.cy;
+				m_minHeight=pageInfo.size.cy+20;
 			}
 		}
 	}

@@ -460,6 +460,22 @@ SOURCE=.\TimeShift.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TreeSettingsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsGeneric.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsOleProperties.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsPage.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TSOptionsDlg.cpp
 # End Source File
 # Begin Source File
@@ -848,6 +864,22 @@ SOURCE=.\TiffHelper.h
 # Begin Source File
 
 SOURCE=.\TimeShift.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsGeneric.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsOleProperties.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsPage.h
 # End Source File
 # Begin Source File
 

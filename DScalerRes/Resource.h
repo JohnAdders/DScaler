@@ -27,6 +27,10 @@
 #define IDD_OVERLAYSETTINGS             186
 #define IDC_DSHOWSOURCEMENU             187
 #define IDC_CURSOR_HAND                 194
+#define IDD_TREESETTINGS_OLEPAGE        195
+#define IDD_TREESETTINGS_EMPTY          196
+#define IDD_TREESETTING                 197
+#define IDD_TREESETTINGS_GENERIC        198
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -733,8 +737,15 @@
 #define IDC_INPUT6                      1893
 #define IDC_STATUSBAR                   1894
 #define IDC_BT_CHIP_TYPE                1895
+#define IDC_TREESETTINGS_GENERIC_LIST   1896
+#define IDC_TREESETTINGS_GENERIC_DEFAULT 1897
+#define IDC_TREESETTINGS_GENERIC_SLIDER 1898
 #define IDM_TAKESTREAMSNAP              1899
+#define IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST 1899
 #define IDM_FIRST_DEINTMETHOD           1900
+#define IDC_TREESETTINGS_GENERIC_CHECK  1900
+#define IDC_TREESETTINGS_GENERIC_SPIN   1901
+#define IDC_TREESETTINGS_GENERIC_EDIT   1902
 #define IDM_LAST_DEINTMETHOD            1999
 #define IDM_ZOOM_15                     2000
 #define IDM_ZOOM_20                     2001
@@ -933,6 +944,12 @@
 #define IDM_DSHOW_RES_19                2383
 #define IDM_DSHOW_RES_MAX               2383
 #define IDM_SWITCH_SOURCE               2384
+#define IDC_TREESETTINGS_TREE           2385
+#define IDC_TREESETTINGS_PAGEFRAME      2386
+#define IDD_TREESETTINGS_TAB            2387
+#define IDC_TREESETTINGS_LINE           2389
+#define IDC_HELPBTN                     2390
+#define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -949,13 +966,13 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        195
-#define _APS_NEXT_COMMAND_VALUE         2385
-#define _APS_NEXT_CONTROL_VALUE         1896
-#define _APS_NEXT_SYMED_VALUE           2358
+#define _APS_NEXT_RESOURCE_VALUE        199
+#define _APS_NEXT_COMMAND_VALUE         32772
+#define _APS_NEXT_CONTROL_VALUE         1903
+#define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

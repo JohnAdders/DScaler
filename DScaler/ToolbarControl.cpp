@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.13 2003-08-16 09:29:56 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.14 2003-09-07 11:05:14 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/08/16 09:29:56  laurentg
+// Hide the volume toolbar when the current source is a still
+//
 // Revision 1.12  2003/08/14 19:35:37  laurentg
 // Timer for toolbar only when the toolbar is visible
 //
@@ -324,6 +327,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
             Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY);
             Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PAUSE);
 			Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_STOP);
+            Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER);
             Toolbar1MediaPlayer->Reset();
 			InvalidateRect(Toolbar1MediaPlayer->GethWnd(), NULL, FALSE);
         }
@@ -426,6 +430,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
             Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY, "Play", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
             Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PAUSE, "Pause", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
 			Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_STOP, "Stop", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER, "ElapsedTime", BITMAPASBUTTON_SLIDER, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
             Toolbar1MediaPlayer->Reset();
 			InvalidateRect(Toolbar1MediaPlayer->GethWnd(), NULL, FALSE);
         }      

@@ -84,8 +84,6 @@ private:
 	int m_Elapsed;	// In 1/10 of seconds
 	int m_Duration;	// In 1/10 of seconds
 
-	BOOL m_Scrolling;
-
 	HICON m_hIconPlay;
 	HICON m_hIconPause;
 	HICON m_hIconStop;

@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.22 2003-08-15 16:51:11 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.23 2003-09-07 11:05:14 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/08/15 16:51:11  laurentg
+// New event type EVENT_NO_VOLUME
+// Update the volume toolbar when exiting from the audio mixer setup dialog box
+//
 // Revision 1.21  2003/08/15 14:54:38  laurentg
 // Due to skins, slider range must be positive
 //
@@ -797,8 +801,6 @@ m_hIconStop(NULL)
 
 	m_Elapsed = 0;
 	m_Duration = 0;
-
-	m_Scrolling = FALSE;
 }
 
 CToolbarMediaPlayer::~CToolbarMediaPlayer()
@@ -857,7 +859,7 @@ void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long 
 			bDoUpdate = TRUE;
 		}
     }
-	if ((hWnd != NULL) && Visible() && !m_Scrolling && bDoUpdate)
+	if ((hWnd != NULL) && Visible() && bDoUpdate)
 	{		
 		UpdateControls(NULL, bDurationChanged);
 	}
@@ -873,7 +875,7 @@ void CToolbarMediaPlayer::UpdateControls(HWND hWnd, bool bInitDialog)
 
 	if (bInitDialog)
 	{
-		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETRANGE, TRUE, (LPARAM)MAKELONG(0, m_Duration));
+		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETRANGE, TRUE, (LPARAM)MAKELONG(0, m_Duration ? m_Duration : 1));
 	}
    
     SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETPOS, TRUE, m_Elapsed);
@@ -925,8 +927,8 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
     case WM_HSCROLL:
         if((HWND)lParam == GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER))
         {
-			int nScrollCode = (int) LOWORD(wParam);
 			/*
+			int nScrollCode = (int) LOWORD(wParam);
 			switch (nScrollCode)
 			{
 			case SB_ENDSCROLL:
@@ -961,24 +963,18 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
 				break;
 			}
 			*/
-			if (nScrollCode == SB_ENDSCROLL)
-			{
-				int Position = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_GETPOS, 0, 0);
 
-				//LOG(1, "Position %d", Position);
-				if (Position != m_Elapsed)
-				{
-					if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
-					{
-						((CDSSourceBase*)Providers_GetCurrentSource())->SetPos(Position);
-					}
-				}
-				m_Scrolling = FALSE;
-			}
-			else
+			int Position = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_GETPOS, 0, 0);
+
+			//LOG(1, "Position %d", Position);
+			if (Position != m_Elapsed)
 			{
-				m_Scrolling = TRUE;
+				if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
+				{
+					((CDSSourceBase*)Providers_GetCurrentSource())->SetPos(Position);
+				}
 			}
+
 			SetFocus(m_pToolbar->GethWndParent());
 			return TRUE;
         }

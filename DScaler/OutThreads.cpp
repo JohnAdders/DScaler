@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.109 2003-01-24 01:55:17 atnak Exp $
+// $Id: OutThreads.cpp,v 1.110 2003-01-24 21:12:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.108  2003/01/19 20:24:10  tobbej
 // moved Start() call from output thread to Start_Capture()
 //
@@ -776,6 +780,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     {
         VDCHECKPOINT;
         pSource->SetAspectRatioData();
+		WorkoutOverlaySize(TRUE);
 
         // Anti-plop and update screen delay timers may have been cancelled.
         // Reset to default values

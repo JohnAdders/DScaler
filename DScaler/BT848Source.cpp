@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.33 2002-02-23 16:41:09 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.34 2002-03-04 20:03:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/02/23 16:41:09  laurentg
+// Set timer TIMER_MSP only if current card has a MSP
+//
 // Revision 1.32  2002/02/23 00:30:47  laurentg
 // NotifySizeChange
 //
@@ -913,12 +916,12 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
     {
-        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
+	    m_pBT848Card->SetAudioSource((eAudioInput)m_AudioSource->GetValue());
         Channel_SetCurrent();
     }
     else
     {
-        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
+        m_AudioSource->SetValue(AUDIOINPUT_MUTE);
     }
     Audio_Unmute();
     Start_Capture();
@@ -1108,11 +1111,11 @@ void CBT848Source::SetupCard()
 
     if(m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()))
     {
-        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
+		m_pBT848Card->SetAudioSource((eAudioInput)m_AudioSource->GetValue());
     }
     else
     {
-        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
+		m_pBT848Card->SetAudioSource(AUDIOINPUT_MUTE);
     }
 }
 

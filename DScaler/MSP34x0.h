@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.12 2002-02-01 04:43:56 ittarnavsky Exp $
+// $Id: MSP34x0.h,v 1.13 2002-03-04 20:03:50 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/02/01 04:43:56  ittarnavsky
+// some more audio related fixes
+// removed the handletimermessages and getaudioname methods
+// which break the separation of concerns oo principle
+//
 // Revision 1.11  2002/01/27 23:54:32  robmuller
 // Removed the Auto Standard Detect of the rev G chips. + some reorganization of code.
 //
@@ -397,6 +402,7 @@ private:
 private:
 	WORD GetSoundStandard();
 	void Initialize();
+	void SetModus();
 	BOOL m_IsInitialized;
     eMSPVersion m_MSPVersion;
     static TStandardDefinition m_MSPStandards[];

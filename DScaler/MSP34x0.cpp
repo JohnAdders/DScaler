@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.15 2002-02-01 04:43:55 ittarnavsky Exp $
+// $Id: MSP34x0.cpp,v 1.16 2002-03-04 20:03:50 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/02/01 04:43:55  ittarnavsky
+// some more audio related fixes
+// removed the handletimermessages and getaudioname methods
+// which break the separation of concerns oo principle
+//
 // Revision 1.14  2002/01/27 23:54:32  robmuller
 // Removed the Auto Standard Detect of the rev G chips. + some reorganization of code.
 //
@@ -606,6 +611,40 @@ void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
     }
 }
 
+
+void CMSP34x0Decoder::SetModus()
+{
+    WORD modus = 0;
+
+    // the following is only valid for RevG since it uses Automatic Sound Select
+    if(m_MSPVersion == MSPVersionG)
+    {
+		// if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
+		if(m_SoundChannel == SOUNDCHANNEL_MONO)
+		{
+			modus = 0;
+		}
+		else
+		{
+			modus = 1;
+		}
+    }
+
+    // choose sound IF2 input pin if needed.
+    // todo: Maybe some cards are using IF1?
+    switch(m_AudioInput)
+    {
+    case AUDIOINPUT_TUNER:
+        modus |= 0x100;
+        break;
+    case AUDIOINPUT_RADIO:
+    default:
+        break;
+    }
+
+    SetDEMRegister(DEM_WR_MODUS, modus);
+}
+
 void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
 {
     CAudioDecoder::SetSoundChannel(soundChannel);
@@ -620,33 +659,8 @@ void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
     {
         Initialize();
     }
-
-    // the following is only valid for RevG since it uses Automatic Sound Select
-    WORD modus = 0;
-
-    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
-    if(m_SoundChannel == SOUNDCHANNEL_MONO)
-    {
-        modus = 0;
-    }
-    else
-    {
-        modus = 1;
-    }
-
-    // choose sound IF2 input pin if needed.
-    // todo: Maybe some cards are using IF1?
-    switch(m_AudioInput)
-    {
-    case AUDIOINPUT_RADIO:
-    case AUDIOINPUT_TUNER:
-        modus |= 0x100;
-        break;
-    default:
-        break;
-    }
-
-    SetDEMRegister(DEM_WR_MODUS, modus);
+	
+	SetModus();
 
     WORD source = 0;
 
@@ -725,6 +739,9 @@ void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
         // todo: make sure the sound from the tuner/radio is muted.
         break;
     }
+
+	SetModus();
+
 // todo:
     // Just some inputs are selected. DScaler does not yet support this correctly
 }

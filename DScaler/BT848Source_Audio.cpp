@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.11 2002-02-03 18:11:03 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.12 2002-03-04 20:03:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/02/03 18:11:03  adcockj
+// Fixed volume key
+//
 // Revision 1.10  2002/02/01 04:43:55  ittarnavsky
 // some more audio related fixes
 // removed the handletimermessages and getaudioname methods
@@ -116,7 +119,10 @@ void CBT848Source::TrebleOnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    if(m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()))
+    {
+		m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+	}
 }
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)

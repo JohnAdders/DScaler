@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.16 2004-11-28 06:53:22 atnak Exp $
+// $Id: TDA9887.cpp,v 1.17 2004-11-28 18:01:38 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/11/28 06:53:22  atnak
+// Slight change to DetectAttach().
+//
 // Revision 1.15  2004/11/28 06:46:25  atnak
 // Added DetectAttach() to do the chip scanning work.
 //
@@ -530,55 +533,55 @@ const CTDA9887Ex::TTDABytes CTDA9887Ex::k_TDAStandardtSettings[TDA9887_FORMAT_LA
 {
 	{
 		// TDA9887_FORMAT_PAL_BG
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_5_5  | TDA9887_VideoIF_38_90,
 	},
 	{
 		// TDA9887_FORMAT_PAL_I
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_0  | TDA9887_VideoIF_38_90,
 	},
 	{
 		// TDA9887_FORMAT_PAL_DK
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
 	{
 		// TDA9887_FORMAT_PAL_MN
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75,
 	},
 	{
 		// TDA9887_FORMAT_SECAM_L
-		TDA9887_PositiveAmTV | TDA9887_QSS,
+		TDA9887_PositiveAmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_90,
 	},
 	{
 		// TDA9887_FORMAT_SECAM_DK
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
 	{
 		// TDA9887_FORMAT_NTSC_M
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75 | TDA9887_Gating_36,
 	},
 	{
 		// TDA9887_FORMAT_NTSC_JP
-		TDA9887_NegativeFmTV | TDA9887_QSS,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_58_75 | TDA9887_Gating_36,
 	},
 	{
 		// TDA9887_FORMAT_RADIO
-		TDA9887_FmRadio      | TDA9887_QSS,
+		TDA9887_FmRadio      | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_5_5  | TDA9887_RadioIF_38_90,
 	},

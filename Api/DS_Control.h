@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.93 2002-10-21 07:29:21 adcockj Exp $
+// $Id: DS_Control.h,v 1.94 2002-10-21 16:07:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2002/10/21 07:29:21  adcockj
+// Added new option for reversing scroll wheel intent
+//
 // Revision 1.92  2002/10/15 18:32:01  kooiman
 // Added stereo detect interval for continuous scanning for stereo mode.
 //
@@ -1391,6 +1394,8 @@ typedef enum
     CT2388XSAVEPERFORMAT,
     CT2388XSAVETVFORMATPERINPUT,
     CT2388XISINPUTPROGRESSIVE,
+    CT2388XHDELAY,
+    CT2388XVDELAY,
     CT2388X_SETTING_LASTONE,
 } CT2388X_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.15 2002-10-21 07:19:33 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.16 2002-10-21 16:07:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/21 07:19:33  adcockj
+// Preliminary Support for PixelView XCapture
+//
 // Revision 1.14  2002/10/17 13:31:37  adcockj
 // Give Holo3d different menu and updated settings
 //
@@ -237,6 +240,13 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_FLIFilmDetect);
 
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_HDelay);
+
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_VDelay->SetStepValue(2);
+    m_Settings.push_back(m_VDelay);
+
 #ifdef _DEBUG    
     if (CT2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -273,14 +283,14 @@ void CCT2388xSource::Reset()
 
     m_CurrentX = 720;
     m_pCard->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
-                                0, 
-                                0,
-                                m_IsVideoProgressive->GetValue()
-                            );
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_CurrentX, 
+                            m_CurrentY, 
+                            0, 
+                            0,
+                            m_IsVideoProgressive->GetValue()
+                        );
 
 	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
 	{
@@ -1058,6 +1068,37 @@ void CCT2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 	{
 	    m_pCard->SetFLIFilmDetect(NewValue);
 	}
+}
+
+
+void CCT2388xSource::HDelayOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    m_pCard->SetGeoSize(
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_CurrentX, 
+                            m_CurrentY, 
+                            m_VDelay->GetValue(), 
+                            m_HDelay->GetValue(),
+                            m_IsVideoProgressive->GetValue()
+                        );
+    Start_Capture();
+}
+
+void CCT2388xSource::VDelayOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    m_pCard->SetGeoSize(
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_CurrentX, 
+                            m_CurrentY, 
+                            m_VDelay->GetValue(), 
+                            m_HDelay->GetValue(),
+                            m_IsVideoProgressive->GetValue()
+                        );
+    Start_Capture();
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.5 2002-10-21 07:19:33 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.6 2002-10-21 16:07:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/21 07:19:33  adcockj
+// Preliminary Support for PixelView XCapture
+//
 // Revision 1.4  2002/10/17 13:31:37  adcockj
 // Give Holo3d different menu and updated settings
 //
@@ -330,6 +333,8 @@ void CCT2388xCard::StandardInputSelect(int nInput)
 
                 // Switch chroma DAC to chroma channel
                 OrDataDword(MO_AFECFG_IO, 0x00000001);
+                // switch off luma notch
+                MaskDataDword(CT2388X_FILTER_EVEN, CT2388X_FILTER_LNOTCH, CT2388X_FILTER_LNOTCH);
                 break;
             case INPUTTYPE_CCIR:
 				dwVal |= CT2388X_VIDEO_INPUT_PE_SRCSEL;
@@ -340,7 +345,10 @@ void CCT2388xCard::StandardInputSelect(int nInput)
             case INPUTTYPE_TUNER:
             case INPUTTYPE_COMPOSITE:
             default:
+                // enable luma notch
+                MaskDataDword(CT2388X_FILTER_EVEN, 0, CT2388X_FILTER_LNOTCH);
                 WriteDword(CT2388X_VIDEO_INPUT,dwVal);
+                // Switch chroma DAC to audio
                 AndDataDword(MO_AFECFG_IO, 0xFFFFFFFE);
                 break;
         }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.241 2002-10-08 08:23:32 kooiman Exp $
+// $Id: DScaler.cpp,v 1.242 2002-10-08 12:12:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.241  2002/10/08 08:23:32  kooiman
+// Fixed lost border buttons.
+//
 // Revision 1.240  2002/10/07 20:34:48  kooiman
 // Fixed cursor hide problem & window region problems.
 //
@@ -892,6 +895,7 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
+LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
 void GlobalEventTimer_Start();
 void GlobalEventTimer_Stop();
 
@@ -3762,53 +3766,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_SIZE:        
-        StatusBar_Adjust(hWnd);
-        if (ToolbarControl!=NULL)
-        {
-            ToolbarControl->Adjust(hWnd, FALSE);
-        }
-        UpdateWindowRegion(hWnd, FALSE);
-        if (bDoResize == TRUE)
-        {
-            switch(wParam)
-            {
-            case SIZE_MAXIMIZED:
-                if(bMinimized == TRUE)
-                {
-                    Overlay_Create();
-                    Start_Capture();
-                }
-                if(bIsFullScreen == FALSE)
-                {
-                    bIsFullScreen = TRUE;
-                    Cursor_UpdateVisibility();
-                    WorkoutOverlaySize(FALSE);
-                }
-                bMinimized = FALSE;
-                break;
-            case SIZE_MINIMIZED:
-                //\todo need to check for timeshift active
-                Stop_Capture();
-                Overlay_Update(NULL, NULL, DDOVER_HIDE);
-                Overlay_Destroy();
-                bMinimized = TRUE;
-                break;
-            case SIZE_RESTORED:
-                if(bMinimized == TRUE)
-                {
-                    Overlay_Create();
-                    Start_Capture();
-                }
-                InvalidateRect(hWnd, NULL, FALSE);
-                WorkoutOverlaySize(FALSE);
-                SetMenuAnalog();
-                bMinimized = FALSE;
-                break;
-            default:
-                break;
-            }
-        }
-        return 0;
+        return OnSize(hWnd, wParam, lParam);
         break;
 
     case WM_MOVE:
@@ -4468,6 +4426,44 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     return 0;
 }
 
+LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
+{
+    StatusBar_Adjust(hWnd);
+    if (ToolbarControl!=NULL)
+    {
+        ToolbarControl->Adjust(hWnd, FALSE);
+    }
+    UpdateWindowRegion(hWnd, FALSE);
+    if (bDoResize == TRUE)
+    {
+        switch(wParam)
+        {
+        case SIZE_MAXIMIZED:
+            if(bIsFullScreen == FALSE || bMinimized == TRUE)
+            {
+                bMinimized = FALSE;
+                bIsFullScreen = TRUE;
+                Cursor_UpdateVisibility();
+                WorkoutOverlaySize(FALSE);
+            }
+            break;
+        case SIZE_MINIMIZED:
+            Overlay_Update(NULL, NULL, DDOVER_HIDE);
+            Overlay_Destroy();
+            bMinimized = TRUE;
+            break;
+        case SIZE_RESTORED:
+            bMinimized = FALSE;
+            InvalidateRect(hWnd, NULL, FALSE);
+            WorkoutOverlaySize(FALSE);
+            SetMenuAnalog();
+            break;
+        default:
+            break;
+        }
+    }
+    return 0;
+}
 
 
 

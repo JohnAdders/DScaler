@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.88 2002-10-07 18:36:20 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.89 2002-10-08 12:12:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2002/10/07 18:36:20  adcockj
+// Corrected judderterminator logic
+//
 // Revision 1.87  2002/09/29 13:53:40  adcockj
 // Ensure Correct History stored
 //
@@ -692,7 +695,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             // mode and bJudderTerminatorOnVideo if off
             // to build up more accurate timings ready for
             // when film is detected.
-            pSource->GetNextField(&Info, Info.bDoAccurateFlips);
+            // don't do accurate timings if we are minimized as we want to reduce CPU
+            // consumption
+            pSource->GetNextField(&Info, Info.bDoAccurateFlips && !bMinimized);
 
             pPerf->StopCount(PERF_WAIT_FIELD);
 

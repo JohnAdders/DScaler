@@ -158,8 +158,12 @@ BEGIN
     VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F7,          IDM_TELETEXT_KEY3,      VIRTKEY, NOINVERT
+    VK_F7,          IDM_SOURCE_INPUT7,      VIRTKEY, CONTROL, ALT, NOINVERT
+
     VK_F8,          IDM_TELETEXT_KEY4,      VIRTKEY, NOINVERT
+
     VK_F9,          IDM_TELETEXT_KEY5,      VIRTKEY, NOINVERT
+
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
     VK_HOME,        IDM_PLAYLIST_FIRST,     VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
@@ -1130,6 +1134,7 @@ BEGIN
             MENUITEM "Input &4\tCtrl+Alt+F4",       IDM_SOURCE_INPUT4
             MENUITEM "Input &5\tCtrl+Alt+F5",       IDM_SOURCE_INPUT5
             MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
+            MENUITEM "Input &7\tCtrl+Alt+F7",       IDM_SOURCE_INPUT7
         END
         POPUP "Video &Format"
         BEGIN

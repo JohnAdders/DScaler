@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.23 2002-05-09 12:47:07 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.24 2002-05-19 01:19:23 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/05/09 12:47:07  adcockj
+// Fixed keyboard shortcut bug on Hdelay
+//
 // Revision 1.22  2002/04/07 10:37:53  adcockj
 // Made audio source work per input
 //
@@ -627,6 +630,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT4:
         case IDM_SOURCE_INPUT5:
         case IDM_SOURCE_INPUT6:
+        case IDM_SOURCE_INPUT7:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
                 ShowText(hWnd, m_pBT848Card->GetInputName(nValue));

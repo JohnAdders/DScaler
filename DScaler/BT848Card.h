@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.17 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Card.h,v 1.18 2002-05-19 01:18:42 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.16  2002/02/12 02:27:45  ittarnavsky
 // fixed the hardware info dialog
 //
@@ -50,7 +53,7 @@
 #include "IAudioControls.h"
 #include "NoAudioControls.h"
 
-#define INPUTS_PER_CARD 6
+#define INPUTS_PER_CARD 7
 
 /** A Generic bt848 based capture card
     The card can cope with the standard inputs,

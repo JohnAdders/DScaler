@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.3 2004-02-11 20:34:00 adcockj Exp $
+// $Id: TDA9887.h,v 1.4 2004-05-16 19:45:08 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/02/11 20:34:00  adcockj
+// Support multiple locations of TDA9887 (thanks to Pityu)
+//
 // Revision 1.2  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -68,6 +71,15 @@ public:
 private:
     int m_CardId;
     eVideoFormat m_LastVideoFormat;
+};
+
+class CTDA9887MsiMaster : public CTDA9887
+{
+public:
+    CTDA9887MsiMaster();
+    ~CTDA9887MsiMaster();
+
+    void TunerSet(bool bPreSet, eVideoFormat videoFormat);    
 };
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.59 2004-04-19 20:38:38 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.60 2004-05-16 19:45:08 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2004/04/19 20:38:38  adcockj
+// Fix for previous fix (must learn to program...)
+//
 // Revision 1.58  2004/04/19 15:13:20  adcockj
 // Fix failing to find tda9887 at alternate addresses
 //
@@ -1929,10 +1932,33 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
     if(LookForIFDemod)
     {        
-        CTDA9887 *pTDA9887 = new CTDA9887();
-        pExternalIFDemodulator = pTDA9887;
-        IFDemDeviceAddress[0] = I2C_TDA9887_0;
-        IFDemDeviceAddress[1] = I2C_TDA9887_1;
+        switch (m_CardType)
+        {        
+        case CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL:
+            //Detect TDA 9887 for MSI Master
+			{
+				CTDA9887MsiMaster *pTDA9887MsiMaster = new (CTDA9887MsiMaster);
+				pExternalIFDemodulator = pTDA9887MsiMaster;
+				IFDemDeviceAddress[0] = I2C_TDA9887_0;
+				IFDemDeviceAddress[1] = I2C_TDA9887_1;
+			}
+            break;
+
+		/*
+		// here is an good place for other Card Types to detect IF Demodulators
+		case:
+		*/
+
+        default:
+            //Detect TDA 9887
+            {
+                CTDA9887 *pTDA9887 = new CTDA9887();
+                pExternalIFDemodulator = pTDA9887;
+                IFDemDeviceAddress[0] = I2C_TDA9887_0;
+                IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            }
+            break;
+        }
     }
         
     // Detect and attach IF demodulator to the tuner

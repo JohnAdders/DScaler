@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.3 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TDA9887.cpp,v 1.4 2004-05-16 19:45:08 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -462,4 +465,86 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
 	LOG(2,"TDA9885/6/7 Pinnacle: 0x%02x 0x%02x 0x%02x", bData[2],bData[3],bData[4]);
     
 	m_I2CBus->Write(bData, 5);    	
+}
+
+CTDA9887MsiMaster::CTDA9887MsiMaster()
+{
+}
+
+CTDA9887MsiMaster::~CTDA9887MsiMaster()
+{
+}
+
+void CTDA9887MsiMaster::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
+{
+   static BYTE tda9887set_pal_bg[] =   {m_DeviceAddress, 0x00, 0x56, 0x70, 0x49}; // working
+   static BYTE tda9887set_pal_i[] =    {m_DeviceAddress, 0x00, 0x56, 0x70, 0x4a}; // not tested
+   static BYTE tda9887set_pal_dk[] =   {m_DeviceAddress, 0x00, 0x56, 0x70, 0x4b}; // working
+   static BYTE tda9887set_pal_l[] =    {m_DeviceAddress, 0x00, 0x86, 0x50, 0x4b}; // ?
+   static BYTE tda9887set_ntsc[] =     {m_DeviceAddress, 0x00, 0x92, 0x30, 0x04}; // working
+   static BYTE tda9887set_ntsc_jp[] =  {m_DeviceAddress, 0x00, 0x96, 0x70, 0x40}; // ?
+   static BYTE tda9887set_fm_radio[] = {m_DeviceAddress, 0x00, 0x8e, 0x0d, 0x77}; // ?
+   
+   if (!bPreSet)
+   {
+       // only setup before tuning
+       return;
+   }
+   
+   BYTE *tda9887set = tda9887set_pal_bg;
+
+   switch (VideoFormat)
+   {
+	case VIDEOFORMAT_PAL_B:    
+    case VIDEOFORMAT_PAL_G:
+    case VIDEOFORMAT_PAL_H:        
+    case VIDEOFORMAT_PAL_N:
+	case VIDEOFORMAT_SECAM_B:
+    case VIDEOFORMAT_SECAM_G:
+    case VIDEOFORMAT_SECAM_H:
+		tda9887set = tda9887set_pal_bg;
+		break;
+
+	case VIDEOFORMAT_PAL_I:
+		tda9887set = tda9887set_pal_i;
+		break;
+
+	case VIDEOFORMAT_PAL_D:
+	case VIDEOFORMAT_SECAM_D:	
+    case VIDEOFORMAT_SECAM_K:
+    case VIDEOFORMAT_SECAM_K1:
+		tda9887set = tda9887set_pal_dk;
+		break;
+	
+	case VIDEOFORMAT_SECAM_L:
+    case VIDEOFORMAT_SECAM_L1:
+		tda9887set = tda9887set_pal_l;
+		break;
+
+    case VIDEOFORMAT_PAL_60:    
+		///\todo Video bandwidth of PAL-60?
+		break;
+
+	case VIDEOFORMAT_PAL_M:
+	case VIDEOFORMAT_PAL_N_COMBO:
+	case VIDEOFORMAT_NTSC_M:        
+		tda9887set = tda9887set_ntsc;
+		break;
+
+    case VIDEOFORMAT_NTSC_50:
+    case VIDEOFORMAT_NTSC_M_Japan:
+        tda9887set = tda9887set_ntsc_jp;
+		break;
+
+	case (VIDEOFORMAT_LASTONE+1):
+		//radio
+		tda9887set = tda9887set_fm_radio;
+		break;
+   }
+      
+   if (tda9887set != NULL)
+   {   
+      LOG(2,"TDA9885/6/7 Msi Master: 0x%02x 0x%02x 0x%02x", tda9887set[2],tda9887set[3],tda9887set[4]);
+      m_I2CBus->Write(tda9887set, 5);   
+   }
 }

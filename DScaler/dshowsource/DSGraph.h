@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.1 2001-12-17 19:30:24 tobbej Exp $
+// $Id: DSGraph.h,v 1.2 2002-02-03 11:02:34 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:30:24  tobbej
+// class for managing the capture graph
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -54,8 +57,8 @@ public:
 	virtual ~CDShowGraph();
 
 	CDShowCaptureDevice* getCaptureDevice();
-	bool getNextSample(BYTE *pEvenField,BYTE *pOddField,long cbSize);
-	void getCurrentMediatype(AM_MEDIA_TYPE *pmt);
+	bool getNextSample(CComPtr<IMediaSample> &pSample);
+	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
 	void showRendererProperies(HWND hParent);
 
 	void start();
@@ -70,7 +73,7 @@ private:
 
 	///custom video renderer. used for transfering the picture to dscaler
 	CComPtr<IBaseFilter> m_renderer;
-	CComPtr<IDSRend> m_DSRend;
+	CComPtr<IDSRendFilter> m_DSRend;
 	
 	///IAMStreamConfig interface for the filter connected to our renderer
 	CComPtr<IAMStreamConfig> m_pStreamCfg;

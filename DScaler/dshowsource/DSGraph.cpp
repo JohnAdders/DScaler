@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.1 2001-12-17 19:30:24 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.2 2002-02-03 11:02:34 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:30:24  tobbej
+// class for managing the capture graph
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +108,7 @@ void CDShowGraph::initGraph()
 
 void CDShowGraph::createRenderer()
 {
-	HRESULT hr=m_renderer.CoCreateInstance(CLSID_DScalerInputRenderer);
+	HRESULT hr=m_renderer.CoCreateInstance(CLSID_DSRendFilter);
 	if(FAILED(hr))
 	{
 		throw CDShowException("Failed to create dscaler input renderer filter\nMake sure that the filter is properly registered",hr);
@@ -123,7 +126,7 @@ void CDShowGraph::createRenderer()
 	}
 }
 
-bool CDShowGraph::getNextSample(BYTE *pEvenField,BYTE *pOddField,long cbSize)
+bool CDShowGraph::getNextSample(CComPtr<IMediaSample> &pSample)
 {
 	if(m_DSRend==NULL)
 	{
@@ -131,7 +134,8 @@ bool CDShowGraph::getNextSample(BYTE *pEvenField,BYTE *pOddField,long cbSize)
 	}
 
 	//FIXME: fix the timeout
-	HRESULT hr=m_DSRend->GetNextSample(pEvenField,pOddField,&cbSize,400);
+	pSample=NULL;
+	HRESULT hr=m_DSRend->GetNextSample(&pSample.p,400);
 	if(FAILED(hr))
 	{
 		TRACE("GetNextSample failed\n");
@@ -147,10 +151,9 @@ void CDShowGraph::start()
 		if(!m_pSource->isConnected())
 		{
 			m_pSource->connect(m_renderer);
+			//testing
+			setRes(768,576);
 		}
-		
-		//testing
-		setRes(768,576);
 
 		HRESULT hr=m_pControl->Run();
 		if(FAILED(hr))
@@ -178,7 +181,7 @@ CDShowCaptureDevice* CDShowGraph::getCaptureDevice()
 	return m_pSource;
 };
 
-void CDShowGraph::getCurrentMediatype(AM_MEDIA_TYPE *pmt)
+void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 {
 	ASSERT(pmt!=NULL);
 	
@@ -222,7 +225,7 @@ void CDShowGraph::showRendererProperies(HWND hParent)
 	{
 		//FIXME
 	}
-
+	
 	hr=OleCreatePropertyFrame(hParent,0,0,A2OLE("DirectShow Renderer"),1,&pUnk.p,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),SORT_DEFAULT),0,NULL);
 	if(FAILED(hr))
 	{

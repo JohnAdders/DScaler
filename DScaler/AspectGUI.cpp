@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.54 2003-01-11 15:22:23 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.55 2003-01-18 13:24:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/01/11 15:22:23  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.53  2003/01/10 17:37:41  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -227,7 +233,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
     }
     else
     {
-        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Letterboxed");
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "16:9 &Letterboxed");
         ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "&16:9 Anamorphic");
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_ENABLED);
@@ -486,9 +492,9 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     case IDM_SASPECT_AUTO_ON:
 		if (AspectSettings.AutoDetectAspect == 0)
 		{
+			UpdateSquarePixelsMode(FALSE);
 			AspectSettings.AutoDetectAspect = 1;
 			ShowText(hWnd, "Auto Detect Black Bars ON");
-			UpdateSquarePixelsMode(FALSE);
 			if (AspectSettings.bUseWSS)
 			{
 				if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
@@ -526,10 +532,10 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		}
 		else
 		{
+			UpdateSquarePixelsMode(FALSE);
 			AspectSettings.AutoDetectAspect = 1;
             ShowText(hWnd, "Auto Detect Black Bars ON");
 		}
-        UpdateSquarePixelsMode(FALSE);
         if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
         {
             if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
@@ -559,10 +565,10 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		}
 		else
 		{
+	        UpdateSquarePixelsMode(FALSE);
 			AspectSettings.AutoDetectAspect = 2;
             ShowText(hWnd, "Use Signal Aspect Data ON");
 		}
-        UpdateSquarePixelsMode(FALSE);
         if (AspectSettings.AutoDetectAspect)
         {
             if (!Setting_GetValue(VBI_GetSetting(DOWSS)))

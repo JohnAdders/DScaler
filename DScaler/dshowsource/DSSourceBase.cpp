@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.7 2002-09-26 10:35:34 kooiman Exp $
+// $Id: DSSourceBase.cpp,v 1.8 2002-09-27 14:23:15 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/26 10:35:34  kooiman
+// Use new event code.
+//
 // Revision 1.6  2002/09/24 17:15:36  tobbej
 // support for volume, balance and mute/unmute
 //
@@ -459,6 +462,7 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
 	try
 	{
 		pControlls->SetVolume(NewValue);
+		EventCollector->RaiseEvent(EVENT_VOLUME, OldValue, NewValue);
 	}
 	catch(CDShowException e)
 	{

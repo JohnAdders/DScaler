@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.48 2003-08-16 18:40:43 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.49 2003-09-14 09:20:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2003/08/16 18:40:43  laurentg
+// Disable access to the audio mixer dialog box for the movie file source
+// Display the audio mixer dialog box at first setup of a DShow capture source
+//
 // Revision 1.47  2003/08/16 09:20:57  laurentg
 // Disable access to audio mixer dialog box when the current source is a still
 //
@@ -1014,6 +1018,8 @@ static void InitAndNameActiveInputs(HWND hDlg)
 
     if (pSource != NULL)
     {
+        // fudge so that this works before the source change stuff has been setup
+        Mixer_SetupActiveInputs(pSource);
         nInputCount = g_nActiveInputsCount;
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.23 2002-10-12 01:37:28 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.24 2002-10-12 20:03:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/10/12 01:37:28  atnak
+// fixes negative dropped frames bug
+//
 // Revision 1.22  2002/10/10 12:13:19  atnak
 // fixed reverse polarity for odd before even
 //
@@ -1251,6 +1254,9 @@ BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     if (Success)
     {
         StatusBar_ShowText(STATUS_AUDIO, "");
+        // This is used in DecodeVBI() so old VBI isn't
+        // used for the new channel
+        m_ChannelChangeTick = GetTickCount();
         return TRUE;
     }
     return FALSE;
@@ -1278,6 +1284,18 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     // VBI should have been DMA'd before the video
     BYTE* pVBI = (LPBYTE) m_pVBILines[m_CurrentFrame];
 
+    if (m_ChannelChangeTick)
+    {
+        DWORD CurrentTick = GetTickCount();
+
+        if (CurrentTick > m_ChannelChangeTick &&
+            CurrentTick - m_ChannelChangeTick < 500)
+        {
+            return;
+        }
+        m_ChannelChangeTick = 0;
+    }
+    
     BYTE ConvertBuffer[2048];
 
     if (m_IsFieldOdd)

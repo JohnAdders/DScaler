@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.26 2002-08-12 09:09:00 laurentg Exp $
+// $Id: Filter.cpp,v 1.27 2002-08-12 20:00:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/08/12 09:09:00  laurentg
+// Testing progressive field corrected
+//
 // Revision 1.25  2002/08/11 18:47:51  laurentg
 // Put first input filters and then output filters in the filter menu
 //
@@ -309,7 +312,7 @@ BOOL LoadFilterPlugins()
             return FALSE;
         }
 
-        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "Input Filters");
+        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "             Input Filters");
         for(i = 0; i < NumFilters; i++)
         {
             if(Filters[i]->bOnInput)
@@ -318,7 +321,7 @@ BOOL LoadFilterPlugins()
             }
         }
         AppendMenu(hFilterMenu, MF_SEPARATOR, 0, "");
-        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "Output Filters");
+        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "             Output Filters");
         for(i = 0; i < NumFilters; i++)
         {
             if(!Filters[i]->bOnInput)

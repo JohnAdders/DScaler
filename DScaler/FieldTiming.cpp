@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.37 2003-07-18 09:39:05 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.38 2003-09-27 13:39:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/07/18 09:39:05  adcockj
+// Added option to release processor during JT
+//
 // Revision 1.36  2003/07/14 19:18:46  adcockj
 // Made format change cope better with dropped frames
 //
@@ -532,7 +535,7 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
 {
     {
         "Auto Format Detect", ONOFF, 0, (long*)&bDoAutoFormatDetect,
-        TRUE, 0, 1, 1, 1,
+        FALSE, 0, 1, 1, 1,
         NULL,
         "Timing", "DoAutoFormatDetect", NULL,
     },

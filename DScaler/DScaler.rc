@@ -1287,8 +1287,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,0,7,0
- PRODUCTVERSION 3,0,7,0
+ FILEVERSION 3,0,8,0
+ PRODUCTVERSION 3,0,8,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1306,14 +1306,14 @@ BEGIN
             VALUE "Comments", "John Adcock\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DScaler\0"
-            VALUE "FileVersion", "3, 0, 7, 0\0"
+            VALUE "FileVersion", "3, 0, 8, 0\0"
             VALUE "InternalName", "DScaler\0"
             VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScaler.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DScaler\0"
-            VALUE "ProductVersion", "3.0.7\0"
+            VALUE "ProductVersion", "3.0.8\0"
             VALUE "SpecialBuild", "\0"
         END
     END

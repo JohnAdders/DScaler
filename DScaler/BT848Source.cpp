@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.59 2002-08-26 18:25:09 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.60 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2002/08/26 18:25:09  adcockj
+// Fixed problem with PAL/NTSC detection
+//
 // Revision 1.58  2002/08/19 18:58:24  adcockj
 // Changed video defaults
 //
@@ -316,7 +319,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     SetupCard();
     Reset();
 
-    SettingsPerChannel_VideoInputChange(this, 0, m_VideoSource->GetValue(), m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()));
+    NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
 }
 
 CBT848Source::~CBT848Source()
@@ -1029,7 +1032,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
 void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
-    SettingsPerChannel_VideoInputChange(this, 1, OldValue, m_pBT848Card->IsInputATuner(OldValue));
+    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
 
     Stop_Capture();
     Audio_Mute();
@@ -1037,7 +1040,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     LoadInputSettings();
     Reset();
 
-    SettingsPerChannel_VideoInputChange(this, 0, NewValue, m_pBT848Card->IsInputATuner(NewValue));
+    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
 
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
@@ -1366,4 +1369,79 @@ int CBT848Source::GetDeviceIndex()
 const char* CBT848Source::GetChipName()
 {
     return m_ChipName.c_str();
+}
+
+
+
+int  CBT848Source::NumInputs(eSourceInputType InputType)
+{
+  if (InputType == VIDEOINPUT)
+  {
+      return m_pBT848Card->GetNumInputs();      
+  }
+  else if (InputType == AUDIOINPUT)
+  {
+      return m_pBT848Card->GetNumAudioInputs();      
+  }
+  return 0;
+}
+
+BOOL CBT848Source::SetInput(eSourceInputType InputType, int Nr)
+{
+  if (InputType == VIDEOINPUT)
+  {
+      m_VideoSource->SetValue(Nr);
+      return TRUE;
+  }
+  else if (InputType == AUDIOINPUT)
+  {      
+      m_pBT848Card->SetAudioSource((eAudioInput)Nr);          
+      return TRUE;      
+  }
+  return FALSE;
+}
+
+int CBT848Source::GetInput(eSourceInputType InputType)
+{
+  if (InputType == VIDEOINPUT)
+  {
+      return m_VideoSource->GetValue();
+  }
+  else if (InputType == AUDIOINPUT)
+  {
+      return m_pBT848Card->GetAudioInput();    
+  }
+  return -1;
+}
+
+const char* CBT848Source::GetInputName(eSourceInputType InputType, int Nr)
+{
+  if (InputType == VIDEOINPUT)
+  {
+      if ((Nr>=0) && (Nr < m_pBT848Card->GetNumInputs()) )
+      {
+          return m_pBT848Card->GetInputName(Nr);
+      }
+  } 
+  else if (InputType == AUDIOINPUT)
+  {      
+      return m_pBT848Card->GetAudioInputName((eAudioInput)Nr);
+  }
+  return NULL;
+}
+
+BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)
+{
+  if (InputType == VIDEOINPUT)
+  {
+    if(m_TunerType->GetValue() != TUNER_ABSENT)
+    {
+        return m_pBT848Card->IsInputATuner(Nr);
+    }
+    else
+    {
+        return FALSE;
+    }
+  }
+  return FALSE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.9 2002-08-21 20:27:13 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.10 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/21 20:27:13  kooiman
+// Improvements and cleanup of some settings per channel code.
+//
 // Revision 1.8  2002/08/15 14:16:45  kooiman
 // More small improvements & bug fixes
 //
@@ -210,7 +213,7 @@ void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int Input,
 
 BOOL SettingsPerChannel_HasTunerNotification(CSource *pSource);
 BOOL SettingsPerChannel_HasTuner(int VideoInput);
-
+            
 void SettingsPerChannel_InputAndChannelChange(int PreChange, CSource *pSource, int VideoInput, int InputHasTuner, int Channel);
 
 void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource);
@@ -1531,15 +1534,16 @@ void SettingsPerChannel_ChannelChange(void *pThis, int PreChange, int OldChannel
    }
 }
 
-void SettingsPerChannel_VideoInputChange(CSource *pSource, int PreChange, int Input, int IsTuner)
+void SettingsPerChannel_VideoInputChange(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput)
 {   
-   if (Input < -1)
+   if ((InputType != VIDEOINPUT) || (NewInput < -1))
    {
       return;
    }
    try 
    {
-      SettingsPerChannel_InputAndChannelChange(PreChange, pSource, Input, IsTuner, NO_CHANNEL);
+      SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), (PreChange?OldInput:NewInput), 
+          Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,(PreChange?OldInput:NewInput)), NO_CHANNEL);
    } 
    catch (...)
    {
@@ -1600,9 +1604,19 @@ void SettingsPerChannel_Setup(int Start)
     }
     if (Start==1)
     {
-       Channel_Register_Change_Notification(NULL, SettingsPerChannel_ChannelChange);       
+       Channel_Register_Change_Notification(NULL, SettingsPerChannel_ChannelChange);              
        SettingsPerChannel_InputAndChannelChange(0,Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, iSpcCurrentChannel);        
     }
+    if (Start&1)
+    {
+        Providers_GetCurrentSource()->Register_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
+    }
+    
+    if ((Start==2) || (Start==0))
+    {
+        Providers_GetCurrentSource()->Unregister_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
+    }
+
     if (Start==0)
     {
        SettingsPerChannel_WriteSettingsToIni(TRUE);

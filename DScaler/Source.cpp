@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.7 2002-05-06 15:38:50 laurentg Exp $
+// $Id: Source.cpp,v 1.8 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/05/06 15:38:50  laurentg
+// Comments for a source
+//
 // Revision 1.6  2002/04/15 22:50:09  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -110,3 +113,56 @@ void CSource::NotifySquarePixelsCheck()
 	    PostMessage(hWnd,UWM_SQUAREPIXELS_CHECK,0,0);
     }
 }
+
+
+void CSource::NotifyInputChange(int Prechange, eSourceInputType InputType, int OldValue, int NewValue)
+{
+    for(vector<TInputChangeNotification>::iterator it = m_InputChangeNotificationList.begin();
+                it != m_InputChangeNotificationList.end(); ++it)
+     {
+        if ( (*it).pfnNotify != NULL )
+        {
+            (*it).pfnNotify((*it).pThis, Prechange, InputType, OldValue, NewValue);
+        }     
+    }    
+}
+
+void CSource::Register_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange)
+{
+    for(vector<TInputChangeNotification>::iterator it = m_InputChangeNotificationList.begin();
+                it != m_InputChangeNotificationList.end(); ++it)
+    {
+        if ( ((*it).pThis == pThis) && ((*it).pfnNotify == pfnChange) )
+        {
+            return;
+        }
+    }
+    // add new
+    TInputChangeNotification ccn;
+    ccn.pThis = pThis;
+    ccn.pfnNotify = pfnChange;
+    m_InputChangeNotificationList.push_back(ccn);
+}
+
+
+
+
+
+void CSource::Unregister_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange)
+{
+    std::vector<TInputChangeNotification> NewList;
+    for(vector<TInputChangeNotification>::iterator it = m_InputChangeNotificationList.begin();
+                it != m_InputChangeNotificationList.end(); ++it)
+    {
+        if ( ((*it).pThis == pThis) && ((*it).pfnNotify == pfnChange) )
+        {
+            // don't copy
+        }
+        else
+        {
+            NewList.push_back((*it));
+        }
+    }
+    m_InputChangeNotificationList = NewList;
+}
+

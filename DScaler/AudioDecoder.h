@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.6 2002-07-02 20:00:06 adcockj Exp $
+// $Id: AudioDecoder.h,v 1.7 2002-08-27 22:02:32 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/07/02 20:00:06  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.5  2002/02/01 04:43:55  ittarnavsky
 // some more audio related fixes
 // removed the handletimermessages and getaudioname methods
@@ -72,7 +75,9 @@ public:
     virtual eSoundChannel GetSoundChannel();
     virtual eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     virtual void SetAudioInput(eAudioInput audioInput);
-    virtual eAudioInput GetAudioInput();
+    virtual eAudioInput GetAudioInput();    
+    virtual const char* GetAudioInputName(eAudioInput audioInput);
+    virtual int GetNumAudioInputs() { return AUDIOINPUT_STEREO+1; }
 protected:
     eSoundChannel m_SoundChannel;
     eVideoFormat m_VideoFormat;

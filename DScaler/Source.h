@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.19 2002-08-26 18:25:10 adcockj Exp $
+// $Id: Source.h,v 1.20 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,15 @@
 #include "Setting.h"
 #include "TVFormats.h"
 #include "Bt848_Defines.h"
+
+
+enum eSourceInputType
+    {
+        VIDEOINPUT = 0,
+        AUDIOINPUT
+    };
+
+typedef void (__cdecl INPUTCHANGE_NOTIFICATION)(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput);
 
 /** Abstract interface for Source.
     This class abstracts a thing that produces images.
@@ -113,7 +122,16 @@ public:
     virtual void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) = 0;
     virtual LPCSTR IDString() = 0;
     char* GetComments();
+      
+    virtual int  NumInputs(eSourceInputType InputType) = 0;
+    virtual BOOL SetInput(eSourceInputType InputType, int Nr) = 0;
+    virtual int  GetInput(eSourceInputType InputType) = 0;
+    virtual const char* GetInputName(eSourceInputType InputType, int Nr) = 0;
+    virtual BOOL InputHasTuner(eSourceInputType InputType, int Nr) = 0;
 
+    
+    void Register_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange);
+    void Unregister_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange);
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
@@ -122,13 +140,23 @@ protected:
 	 * Notify dscaler that the input size has changed.
 	 * Call this function when the width and/or height has changed.
 	 */
-	void NotifySizeChange();
+	  void NotifySizeChange();
 
     void NotifySquarePixelsCheck();
+
+    void NotifyInputChange(int Prechange, eSourceInputType InputType, int OldValue, int NewValue);
 
     double m_FieldFrequency;
     HMENU m_hMenu;
     std::string m_Comments;
+
+    typedef struct 
+    {
+      void *pThis;
+      INPUTCHANGE_NOTIFICATION *pfnNotify;
+    } TInputChangeNotification;
+    
+    std::vector<TInputChangeNotification> m_InputChangeNotificationList;
 };
 
 

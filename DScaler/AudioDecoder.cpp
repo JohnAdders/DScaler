@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.6 2002-07-02 20:00:06 adcockj Exp $
+// $Id: AudioDecoder.cpp,v 1.7 2002-08-27 22:02:32 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/07/02 20:00:06  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.5  2002/02/01 04:43:55  ittarnavsky
 // some more audio related fixes
 // removed the handletimermessages and getaudioname methods
@@ -93,4 +96,31 @@ eAudioInput CAudioDecoder::GetAudioInput()
 void CAudioDecoder::SetAudioInput(eAudioInput audioInput)
 {
     m_AudioInput = audioInput;
+}
+
+const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
+{    
+      switch (audioInput)
+        {
+        case AUDIOINPUT_TUNER:
+            return "Tuner";
+            break;
+        case AUDIOINPUT_RADIO:
+            return "Radio";
+            break;
+        case AUDIOINPUT_EXTERNAL:
+            return "External";
+            break;
+        case AUDIOINPUT_INTERNAL:
+            return "Internal";
+            break;
+        case AUDIOINPUT_MUTE:
+            return "Mute";
+            break;
+        case AUDIOINPUT_STEREO:
+            return "Stereo";
+            break;
+        }
+      
+        return NULL;
 }

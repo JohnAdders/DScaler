@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.32 2002-08-26 18:25:10 adcockj Exp $
+// $Id: BT848Source.h,v 1.33 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,6 +79,11 @@ public:
     int GetDeviceIndex();
     const char* GetChipName();
     LPCSTR IDString() { return m_IDString.c_str(); }
+    int  NumInputs(eSourceInputType InputType);
+    BOOL SetInput(eSourceInputType InputType, int Nr);
+    int GetInput(eSourceInputType InputType);
+    const char* GetInputName(eSourceInputType InputType, int Nr);
+    BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

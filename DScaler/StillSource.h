@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.42 2002-08-26 18:25:10 adcockj Exp $
+// $Id: StillSource.h,v 1.43 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -125,6 +125,11 @@ public:
     LPCSTR IDString() { return m_IDString.c_str(); }
     void SetNavigOnly(BOOL NavigOnly);
     BOOL IsNavigOnly();
+    int  NumInputs(eSourceInputType InputType) { return 0; };
+    BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
+    int GetInput(eSourceInputType InputType) { return -1; };
+    const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
+    BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 
     friend class CTiffHelper;
     friend class CJpegHelper;

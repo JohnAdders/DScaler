@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.16 2002-07-02 20:00:07 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.17 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/07/02 20:00:07  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.15  2002/04/07 10:37:53  adcockj
 // Made audio source work per input
 //
@@ -192,45 +195,38 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
     }
     else
     {
+        std::string sInputText;
         eAudioInput audioInput = m_AudioDecoder->GetAudioInput();
-        switch (audioInput)
+        char *audioInputName = (char*)m_AudioDecoder->GetAudioInputName(audioInput);
+
+        if (audioInputName == NULL)
         {
-        case AUDIOINPUT_TUNER:
-            strcpy(Text, "Tuner: ");
-            break;
-        case AUDIOINPUT_RADIO:
-            strcpy(Text, "Radio: ");
-            break;
-        case AUDIOINPUT_EXTERNAL:
-            strcpy(Text, "External: ");
-            break;
-        case AUDIOINPUT_INTERNAL:
-            strcpy(Text, "Internal: ");
-            break;
-        case AUDIOINPUT_MUTE:
-            strcpy(Text, "Mute: ");
-            break;
-        case AUDIOINPUT_STEREO:
-            strcpy(Text, "Stereo: ");
-            break;
+            sInputText = "Input ";
+            sInputText += (int)audioInput;
+        }
+        else
+        {
+            sInputText = audioInputName;
+            sInputText += ": ";
         }
         eVideoFormat videoFormat = m_AudioDecoder->GetVideoFormat();
-        strcat(Text, VideoFormatNames[videoFormat]);
+        sInputText+=VideoFormatNames[videoFormat];
         switch (m_AudioDecoder->GetSoundChannel())
         {
         case SOUNDCHANNEL_MONO:
-            strcat(Text, " (Mono)");
+            sInputText+=" (Mono)";
             break;
         case SOUNDCHANNEL_STEREO:
-            strcat(Text, " (Stereo)");
+            sInputText+=" (Stereo)";
             break;
         case SOUNDCHANNEL_LANGUAGE1:
-            strcat(Text, " (Language 1)");
+            sInputText+=" (Language 1)";
             break;
         case SOUNDCHANNEL_LANGUAGE2:
-            strcat(Text, " (Language 2)");
+            sInputText+=" (Language 2)";
             break;
         }
+        strcpy(Text,sInputText.c_str());
     }
 }
 
@@ -284,3 +280,34 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
 
     m_AudioDecoder->SetAudioInput(nChannel);
 }
+
+
+eAudioInput CBT848Card::GetAudioInput()
+{
+    if (m_bHasMSP == FALSE)
+    {
+        return (eAudioInput)-1;
+    }    
+    return m_AudioDecoder->GetAudioInput();
+}
+
+LPCSTR CBT848Card::GetAudioInputName(eAudioInput nInput)
+{
+    if (m_bHasMSP == FALSE)
+    {
+        return NULL;
+    }    
+    return m_AudioDecoder->GetAudioInputName(nInput);
+}
+
+
+int CBT848Card::GetNumAudioInputs()
+{
+    if (m_bHasMSP == FALSE)
+    {
+        return 0;
+    }    
+    return m_AudioDecoder->GetNumAudioInputs();
+}
+
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.24 2002-08-03 17:57:52 kooiman Exp $
+// $Id: BT848Card.h,v 1.25 2002-08-27 22:02:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/08/03 17:57:52  kooiman
+// Added new cards & tuners. Changed the tuner combobox into a sorted list.
+//
 // Revision 1.23  2002/07/25 05:21:35  dschmelzer
 // Added SDI Silk 200 Support
 //
@@ -270,6 +273,10 @@ public:
     LPCSTR GetCardName(eTVCardId CardId);
     int GetNumInputs();
     BOOL IsInputATuner(int nInput);
+    eAudioInput GetAudioInput();
+    LPCSTR GetAudioInputName(eAudioInput nInput);
+    int GetNumAudioInputs();
+    
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.4 2002-12-04 17:43:49 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.5 2003-07-01 21:00:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/12/04 17:43:49  adcockj
+// Contrast and Brightness adjustments so that h3d card behaves in expected way
+//
 // Revision 1.3  2002/11/28 18:06:08  adcockj
 // very small Reformat
 //
@@ -155,35 +158,39 @@ void CCX2388xCard::H3DInputSelect(int nInput)
     {
     case H3D_COMPONENT:
         m_SAA7118->SetRegister(0x02, 0xef);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
     case H3D_RGsB:
         m_SAA7118->SetRegister(0x02, 0xff);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
     case H3D_SVIDEO:
         m_SAA7118->SetRegister(0x02, 0xc8);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
     case H3D_SDI:
-        WriteByte(0x390002, 0x14);
+        WriteByte(0x390002, 0x97);
         break;
     case H3D_COMPOSITE1:
         m_SAA7118->SetRegister(0x02, 0xc5);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
     case H3D_COMPOSITE2:
         m_SAA7118->SetRegister(0x02, 0xdf);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
     case H3D_COMPOSITE3:
         m_SAA7118->SetRegister(0x02, 0xd5);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
     case H3D_COMPOSITE4:
         m_SAA7118->SetRegister(0x02, 0xd0);
-        WriteByte(0x390002, 0x04);
+        WriteByte(0x390002, 0x8f);
         break;
+//    case H3D_PDI:
+//        WriteByte(0x390002, 0x87);
+//        break;
+//     
     }
 }
 
@@ -201,7 +208,7 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     {
         m_SAA7118->SetRegister(0x5A, 0x03);
         m_SAA7118->SetRegister(0x5B, 0x03);
-        WriteByte(0x390007, 0xd0);
+        WriteByte(0x390007, 0xc8);
     }
     else
     {
@@ -293,18 +300,34 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
 
     if(IsProgressive)
     {
-        WriteByte(0x390005, 0x4a);
-        WriteByte(0x390008, 0x02);
+        WriteByte(0x390005, 0xca);
+        WriteByte(0x390008, 0x12);
+        WriteByte(0x39000a, 0x7e);
         WriteByte(0x39000e, 0x10);
-        WriteByte(0x39000f, 0x01);
+        WriteByte(0x39000f, 0x02);
+        BYTE test = ReadByte(0x39000f);
     }
     else
     {
-        WriteByte(0x390005, 0x0a);
-        WriteByte(0x390008, 0x03);
+        WriteByte(0x390005, 0x8a);
+        WriteByte(0x390008, 0x13);
         WriteByte(0x39000e, 0x00);
-        WriteByte(0x39000f, 0x02);
+        WriteByte(0x39000f, 0x01);
     }
+
+    FILE* hFile = fopen("FPGA.txt", "w");
+    if(!hFile)
+    {
+        return;
+    }
+
+    for(DWORD i(0x390000); i <= 0x39000F; ++i)
+    {
+        fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
+    }
+    
+    fclose(hFile);
+
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.32 2001-08-26 18:33:42 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.33 2001-09-05 15:08:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/08/26 18:33:42  laurentg
+// Automatic calibration improved
+//
 // Revision 1.31  2001/08/03 14:24:32  adcockj
 // added extra info to splash screen and log
 //
@@ -145,8 +148,6 @@ BOOL                bAutoDetectMode = TRUE;
 
 
 // TRB 10/28/00 changes, parms, and new fields for sync problem fixes
-DDSURFACEDESC       SurfaceDesc;                       // also add a surface descriptor for Lock           
-HRESULT             FlipResult = 0;             // Need to try again for flip?
 BOOL                WaitForFlip = TRUE;       // User parm, default=TRUE
 BOOL                DoAccurateFlips = TRUE;     // User parm, default=TRUE
 BOOL                bHurryWhenLate = FALSE;    // " , default=FALSE, skip processing if behind
@@ -154,9 +155,6 @@ long                RefreshRate = 0;
 BOOL                bIsOddField = FALSE;
 BOOL                bWaitForVsync = FALSE;
 BOOL                bReversePolarity = FALSE;
-
-// FIXME: should be able to get of this variable
-long                OverlayPitch = 0;
 
 // Statistics
 long                nTotalDropFields = 0;
@@ -343,9 +341,8 @@ void Start_Capture()
 
     BT848_CreateRiscCode(nFlags);
     BT848_MaskDataByte(BT848_CAP_CTL, (BYTE) nFlags, (BYTE) 0x0f);
-    BT848_SetDMA(TRUE);
 
-    // ame sure half height Modes are set correctly
+    // make sure half height Modes are set correctly
     PrepareDeinterlaceMode();
 
     Start_Thread();
@@ -372,56 +369,6 @@ void Reset_Capture()
     Start_Capture();
 }
 
-//
-// Add a function to Lock the overlay surface and update some Info from it.
-// We always lock and write to the back buffer.
-// Flipping takes care of the proper buffer addresses.
-// Some of this Info can change each time.  
-// We also check to see if we still need to Flip because the
-// non-waiting last flip failed.  If so, try it one more time,
-// then give up.  Tom Barry 10/26/00
-//
-BYTE* LockOverlay()
-{
-    HRESULT ddrval;
-    static DWORD dwFlags = DDLOCK_WAIT | DDLOCK_NOSYSLOCK;
-
-    if (FAILED(FlipResult))             // prev flip was busy?
-    {
-        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);  
-        if(ddrval == DDERR_SURFACELOST)
-        {
-            return NULL;
-        }
-        FlipResult = 0;                 // but no time to try any more
-    }
-
-    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
-    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
-    ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
-
-    // fix suggested by christoph for NT 4.0 sp6
-    if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
-    {
-        //remove flag
-        ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
-        if( SUCCEEDED(ddrval) )
-        {
-            //remember for next time
-            dwFlags = DDLOCK_WAIT;
-        }
-    }
-    
-
-    if(FAILED(ddrval))
-    {
-        return NULL;
-    }
-
-    OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
-    return (BYTE*)SurfaceDesc.lpSurface;
-}
-
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 {
     char Text[128];
@@ -430,24 +377,20 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     DWORD dwLastSecondTicks;
     short* ppEvenLines[5][DSCALER_MAX_HEIGHT / 2];
     short* ppOddLines[5][DSCALER_MAX_HEIGHT / 2];
-    BYTE* pDest;
-    BOOL bFlipNow = TRUE;
-    HRESULT ddrval;
     DEINTERLACE_INFO Info;
-    DWORD FlipFlag;
     DEINTERLACE_METHOD* PrevDeintMethod = NULL;
     DEINTERLACE_METHOD* CurrentMethod = NULL;
     DWORD CurrentTickCount;
     int nHistory = 0;
     BOOL bIsPAL = BT848_GetTVFormat()->Is25fps;
     long SourceAspectAdjust = 1000;
-    long overscan;
 
     Timing_Setup();
 
     // set up Deinterlace Info struct
     memset(&Info, 0, sizeof(Info));
     Info.CpuFeatureFlags = CpuFeatureFlags;
+    Info.OverlayPitch = 0;
     if(CpuFeatureFlags & FEATURE_SSE)
     {
         Info.pMemcpy = memcpySSE;
@@ -460,12 +403,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // catch anything fatal in this loop so we don't crash the machine
     __try
     {
-        if (lpDDOverlay == NULL || lpDDOverlayBack == NULL)
-        {
-            LOG(1, " No Overlay surface Created");
-            ExitThread(-1);
-        }
-
         // Sets processor Affinity and Thread priority according to menu selection
         SetThreadProcessorAndPriority();
 
@@ -488,6 +425,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
         // start the capture off
         BT848_Restart_RISC_Code();
+        BT848_SetDMA(TRUE);
 
         dwLastSecondTicks = GetTickCount();
         while(!bStopThread)
@@ -502,14 +440,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             
             if(bIsPaused == FALSE)
             {
-                Info.OverlayPitch = OverlayPitch;
                 Info.LineLength = CurrentX * 2;
                 Info.FrameWidth = CurrentX;
                 Info.FrameHeight = CurrentY;
                 Info.FieldHeight = CurrentY / 2;
                 Info.CombFactor = -1;
                 Info.FieldDiff = -1;
-                bFlipNow = FALSE;
                 GetDestRect(&Info.DestRect);
 
                 if(Info.IsOdd)
@@ -538,9 +474,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 }
 
 				// Card calibration
-				if (Info.IsOdd && (Info.OddLines[0] != NULL))
+				if (pCalibration->IsRunning() && Info.IsOdd && (Info.OddLines[0] != NULL))
 				{
-                    overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+                    long overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
 					pCalibration->Make(Info.OddLines[0], Info.FieldHeight - 2 * overscan, Info.FrameWidth - 2 * overscan, GetTickCount());
 				}
 
@@ -603,135 +539,146 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     }
                 }
 
+                // do we need to unlock overlay if we crash
+                BOOL bOverlayLocked = FALSE;
+
                 __try
                 {
                     if (!Info.bRunningLate)
                     {
-                        pDest = LockOverlay();  // Ready to access screen, Lock back buffer berfore accessing
-                                                // can't do this until after Lock Call
-                        if(pDest == NULL)
+                        BOOL bFlipNow = FALSE;
+
+                        // do the aspect ratio only every other frame
+                        // also do this outside of the internal lock
+                        // to avoid conflicts
+                        if(Info.IsOdd)
                         {
+                            AdjustAspectRatio(SourceAspectAdjust, Info.EvenLines[0], Info.OddLines[0]);
+                        }
+
+                        if(!Overlay_Lock(&Info))
+                        {
+                            BT848_SetDMA(FALSE);
+                            LOG(1, "Falling out after Overlay_Lock");
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                            LOG(1, " Falling out after LockOverlay");
+                            ExitThread(1);
+                            return 1;
+                        }
+                        bOverlayLocked = TRUE;
+
+                        // calculate History
+                        if(Info.IsOdd)
+                        {
+                            if(Info.EvenLines[0] == NULL)
+                            {
+                                nHistory = 1;
+                            }
+                            else if(Info.OddLines[1] == NULL)
+                            {
+                                nHistory = 2;
+                            }
+                            else if(Info.EvenLines[1] == NULL)
+                            {
+                                nHistory = 3;
+                            }
+                            else
+                            {
+                                nHistory = 4;
+                            }
+                        }
+                        else
+                        {
+                            if(Info.OddLines[0] == NULL)
+                            {
+                                nHistory = 1;
+                            }
+                            else if(Info.EvenLines[1] == NULL)
+                            {
+                                nHistory = 2;
+                            }
+                            else if(Info.OddLines[1] == NULL)
+                            {
+                                nHistory = 3;
+                            }
+                            else
+                            {
+                                nHistory = 4;
+                            }
+                        }
+
+                        // if we have dropped a field then do BOB 
+                        // or if we need to get more history
+                        // if we are doing a half height Mode then just do that
+                        // anyway as it will be just as fast
+                        if(CurrentMethod->bIsHalfHeight == FALSE && 
+                            ((Info.bMissedFrame == TRUE) || (nHistory < CurrentMethod->nFieldsRequired)))
+                        {
+                            bFlipNow = Bob(&Info);
+                        }
+                        else
+                        {
+                            bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
+                        }
+                    
+                        if (bFlipNow)
+                        {
+                            // Do any filters that run on the output
+                            // need to do this while the surface is locked
+                            Filter_DoOutput(&Info, Info.bMissedFrame);
+                        }
+
+                        // somewhere above we will have locked the buffer, unlock before flip
+                        if(!Overlay_Unlock())
+                        {
+                            BT848_SetDMA(FALSE);
+                            LOG(1, "Falling out after Overlay_Unlock");
+                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
+                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
                             ExitThread(1);
                             return 0;
                         }
-                        Info.Overlay = pDest;
-                    }
+                        bOverlayLocked = FALSE;
 
-                    if(Info.IsOdd)
-                    {
-                        if(Info.EvenLines[0] == NULL)
+                        // flip if required
+                        if (bFlipNow)
                         {
-                            nHistory = 1;
-                        }
-                        else if(Info.OddLines[1] == NULL)
-                        {
-                            nHistory = 2;
-                        }
-                        else if(Info.EvenLines[1] == NULL)
-                        {
-                            nHistory = 3;
-                        }
-                        else
-                        {
-                            nHistory = 4;
-                        }
-                    }
-                    else
-                    {
-                        if(Info.OddLines[0] == NULL)
-                        {
-                            nHistory = 1;
-                        }
-                        else if(Info.EvenLines[1] == NULL)
-                        {
-                            nHistory = 2;
-                        }
-                        else if(Info.OddLines[1] == NULL)
-                        {
-                            nHistory = 3;
-                        }
-                        else
-                        {
-                            nHistory = 4;
-                        }
-                    }
+                            // setup flip flag
+                            // the odd and even flags may help the scaled bob
+                            // on some cards
+                            DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
+                            if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
+                            {
+                                FlipFlag |= (Info.IsOdd)?DDFLIP_ODD:DDFLIP_EVEN;
+                            }
 
-                    if (Info.bRunningLate)
-                    {
-                        ;     // do nothing
-                    }
-                    // if we have dropped a field then do BOB 
-                    // or if we need to get more history
-                    // if we are doing a half height Mode then just do that
-                    // anyway as it will be just as fast
-                    else if(!CurrentMethod->bIsHalfHeight && (Info.bMissedFrame || nHistory < CurrentMethod->nFieldsRequired))
-                    {
-                        bFlipNow = Bob(&Info);
-                    }
-                    else
-                    {
-                        bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
-                    }
-                    
-                    if (bFlipNow)
-                    {
-                        // Do any filters that run on the output
-                        // need to do this while the surface is locked
-                        Filter_DoOutput(&Info, (Info.bRunningLate || Info.bMissedFrame));
-                    }
+                            // Need to wait for a good time to flip
+                            // only if we have been in the same Mode for at least one flip
+                            if(Info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
+                            {
+                                Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
+                            }
 
-                    AdjustAspectRatio(SourceAspectAdjust, Info.EvenLines[0], Info.OddLines[0]);
+                            if(!Overlay_Flip(FlipFlag))
+                            {
+                                BT848_SetDMA(FALSE);
+                                LOG(1, "Falling out after Overlay_Flip");
+                                PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
+                                PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+                                ExitThread(1);
+                                return 0;
+                            }
+                        }
+                    }
                 }                   
                 // if there is any exception thrown in the above then just carry on
                 __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
                 { 
-                    LOG(1, " Crash in output code");
-                }
-
-                if (!Info.bRunningLate)
-                {
-                    // somewhere above we will have locked the buffer, unlock before flip
-                    ddrval = lpDDOverlayBack->Unlock(NULL);
-                    if(ddrval == DDERR_SURFACELOST)
+                    if(bOverlayLocked == TRUE)
                     {
-                        PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-                        PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                        LOG(1, " Falling out after Surface Unlock");
-                        ExitThread(1);
-                        return 0;
+                        Overlay_Unlock();
                     }
-
-                    if (bFlipNow)
-                    {
-                        // setup flip flag
-                        // the odd and even flags may help the scaled bob
-                        // on some cards
-                        FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
-                        if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
-                        {
-                            FlipFlag |= (Info.IsOdd)?DDFLIP_ODD:DDFLIP_EVEN;
-                        }
-
-                        // Need to wait for a good time to flip
-                        // only if we have been in the same Mode for at least one flip
-                        if(Info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
-                        {
-                            Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
-                        }
-
-                        FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
-                        if(FlipResult == DDERR_SURFACELOST)
-                        {
-                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                            LOG(1, " Falling out after flip");
-                            ExitThread(1);
-                            return 0;
-                        }
-                    }
+                    LOG(1, "Crash in output code");
                 }
             }
             
@@ -768,17 +715,27 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;
         }
+    }
+    // if there is any exception thrown then exit the thread
+    __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+    { 
+        LOG(1, "Crash in OutThreads main loop");
+        ExitThread(1);
+        return 0;
+    }
 
+    // try and stop the capture
+    __try
+    {
         BT848_SetDMA(FALSE);
     }
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
-        LOG(1, " Crash in OutThreads main loop");
+        LOG(1, "Crash in SetDMA");
         ExitThread(1);
         return 0;
     }
-    // end of __try loop
     
     ExitThread(0);
     return 0;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.15 2001-09-02 14:17:51 adcockj Exp $
+// $Id: Other.cpp,v 1.16 2001-09-05 15:07:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/09/02 14:17:51  adcockj
+// Improved teletext code
+//
 // Revision 1.14  2001/08/13 18:54:55  adcockj
 // Tidied up surface blanking code
 //
@@ -94,7 +97,18 @@
 #include "SettingsDlg.h"
 #include "AspectRatio.h"
 
+// cope with older DX header files
+#if !defined(DDFLIP_DONOTWAIT)
+    #define DDFLIP_DONOTWAIT 0
+#endif
+
 LPDIRECTDRAW lpDD = NULL;
+
+// this critical section is used to make sure that we don't mess about with the
+// overlay in one thread while the other thread is doing something with it
+// it is held while the primary surface DC is held
+// and while the overlay is locked
+CRITICAL_SECTION hDDCritSect;
 
 LPDIRECTDRAWSURFACE     lpDDSurface = NULL;
 // OverLay
@@ -138,6 +152,7 @@ void Overlay_Clean()
     DDSURFACEDESC SurfaceDesc;
     unsigned short* pPixel;
 
+    EnterCriticalSection(&hDDCritSect);
     if (lpDDOverlay != NULL)
     {
         memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
@@ -174,6 +189,7 @@ void Overlay_Clean()
         }
         ddrval = lpDDOverlayBack->Unlock(SurfaceDesc.lpSurface);
     }
+    LeaveCriticalSection(&hDDCritSect);
 }
 
 //-----------------------------------------------------------------------------
@@ -187,6 +203,8 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
     {
         return FALSE;
     }
+
+    EnterCriticalSection(&hDDCritSect);
 
     memset(&DDOverlayFX, 0x00, sizeof(DDOverlayFX));
     DDOverlayFX.dwSize = sizeof(DDOverlayFX);
@@ -209,6 +227,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         // the main processing loop
         if(ddrval == DDERR_SURFACELOST)
         {
+            LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
         if (FAILED(ddrval))
@@ -218,6 +237,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             char szErrorMsg[200];
             sprintf(szErrorMsg, "Error %x calling UpdateOverlay (Hide)", ddrval);
             ErrorBox(szErrorMsg);
+            LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
     }
@@ -238,20 +258,21 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
                 if (PhysicalOverlayColor == 0)      // sometimes we glitch and can't get the Value
                 {
-                    LOG(1, " Physical overlay color is zero!  Retrying.");
+                    LOG(1, "Physical overlay color is zero!  Retrying.");
                     PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
+                    LeaveCriticalSection(&hDDCritSect);
                 }
-                LOG(1, " Physical overlay color is %x", PhysicalOverlayColor);
+                LOG(1, "Physical overlay color is %x", PhysicalOverlayColor);
             }
             else
             {
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
                 if (PhysicalOverlayColor == 0)      // sometimes we glitch and can't get the Value
                 {
-                    LOG(1, " Physical overlay color is zero!  Retrying.");
+                    LOG(1, "Physical overlay color is zero!  Retrying.");
                     PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
                 }
-                LOG(1, " Physical overlay color is %x", PhysicalOverlayColor);
+                LOG(1, "Physical overlay color is %x", PhysicalOverlayColor);
             }
 
             DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;
@@ -275,6 +296,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         // the main processing loop
         if(ddrval == DDERR_SURFACELOST)
         {
+            LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
         // we get unsupported error here for mpact2 cards
@@ -285,12 +307,12 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         {
             DDCOLORKEY ColorKey;
 
-            LOG(1, " Got unsupported error from Overlay Update");
+            LOG(1, "Got unsupported error from Overlay Update");
             ddrval = lpDDOverlay->GetColorKey(DDCKEY_DESTOVERLAY, &ColorKey);
             if(SUCCEEDED(ddrval))
             {
                 OverlayColor = ColorKey.dwColorSpaceHighValue;
-                LOG(1, " Reset overlay color to %x", OverlayColor);
+                LOG(1, "Reset overlay color to %x", OverlayColor);
             }
             dwFlags &= ~DDOVER_KEYDESTOVERRIDE;
             memset(&DDOverlayFX, 0x00, sizeof(DDOverlayFX));
@@ -311,6 +333,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 sprintf(szErrorMsg, "Error %x in UpdateOverlay", ddrval);
                 ErrorBox(szErrorMsg);
             }
+            LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
         
@@ -320,6 +343,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
            Overlay_SetColorControls();
         }
     }
+    LeaveCriticalSection(&hDDCritSect);
     return TRUE;
 }
 
@@ -429,6 +453,8 @@ BOOL Overlay_Create()
         return FALSE;
     }
 
+    EnterCriticalSection(&hDDCritSect);
+
     // 2000-10-31 Moved by Mark Rejhon
     // Attempt to create primary surface before overlay, in this module,
     // because we may have destroyed the primary surface during a computer 
@@ -442,6 +468,7 @@ BOOL Overlay_Create()
     {
         sprintf(msg, "Error creating primary surface: %x", ddrval);
         RealErrorBox(msg);
+        LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
 
@@ -450,6 +477,7 @@ BOOL Overlay_Create()
     {
         sprintf(msg, "Error locking primary surface: %x", ddrval);
         RealErrorBox(msg);
+        LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
     ddrval = lpDDSurface->Unlock(SurfaceDesc.lpSurface);
@@ -457,6 +485,7 @@ BOOL Overlay_Create()
     {
         sprintf(msg, "Error unlocking primary surface: %x", ddrval);
         RealErrorBox(msg);
+        LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
 
@@ -517,6 +546,7 @@ BOOL Overlay_Create()
                      "color depth or screen resolution.  Rebooting\n"
                      "may help in some cases if memory is being\n"
                      "used by something else on your system.");
+            LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
         }
         else
@@ -532,6 +562,7 @@ BOOL Overlay_Create()
                          "decide how many back buffers it can allocate.",
                     BackBuffers);
             RealErrorBox(msg);
+            LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
         }
     }
@@ -543,6 +574,7 @@ BOOL Overlay_Create()
         case DDERR_NOOVERLAYHW:
             RealErrorBox("Your video card doesn't appear to support\n"
                      "overlays, which DScaler requires.");
+            LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
 
             // Any other interesting error codes?
@@ -550,6 +582,7 @@ BOOL Overlay_Create()
         
         sprintf(msg, "Can't create overlay surface: %x", ddrval);
         RealErrorBox(msg);
+        LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
 
@@ -573,6 +606,7 @@ BOOL Overlay_Create()
             sprintf(msg, "Lost overlay surface and can't recreate it: %x", ddrval);
             RealErrorBox(msg);
             lpDDOverlay = NULL;
+            LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
         ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
@@ -582,6 +616,7 @@ BOOL Overlay_Create()
         char szErrorMsg[200];
         sprintf(szErrorMsg, "Error %x in Lock Surface", ddrval);
         RealErrorBox(szErrorMsg);
+        LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
 
@@ -589,6 +624,7 @@ BOOL Overlay_Create()
     if (FAILED(ddrval))
     {
         RealErrorBox("Can't Unlock Surface");
+        LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
 
@@ -601,6 +637,7 @@ BOOL Overlay_Create()
         {
             RealErrorBox("Can't create Overlay Back Surface");
             lpDDOverlayBack = NULL;
+            LeaveCriticalSection(&hDDCritSect);
             return (FALSE);
         }
         else
@@ -609,6 +646,7 @@ BOOL Overlay_Create()
             if (FAILED(ddrval))
             {
                 RealErrorBox("Can't Lock Back Surface");
+                LeaveCriticalSection(&hDDCritSect);
                 return (FALSE);
             }
             ddrval = DDERR_WASSTILLDRAWING;
@@ -617,6 +655,7 @@ BOOL Overlay_Create()
             if (FAILED(ddrval))
             {
                 RealErrorBox("Can't Unlock Back Surface");
+                LeaveCriticalSection(&hDDCritSect);
                 return (FALSE);
             }
         }
@@ -648,7 +687,9 @@ BOOL Overlay_Create()
     {
        pDDColorControl = NULL;
     }
+    LeaveCriticalSection(&hDDCritSect);
 
+    // overlay clean is wrapped in a critcal section already
     Overlay_Clean();
     
     return (TRUE);
@@ -713,6 +754,7 @@ DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
 // 
 BOOL Overlay_Destroy()
 {
+    EnterCriticalSection(&hDDCritSect);
     // reset overlay control to previous settings so that
     // DVD's will look OK
     if(pDDColorControl != NULL)
@@ -743,6 +785,7 @@ BOOL Overlay_Destroy()
         lpDDSurface->Release();
         lpDDSurface = NULL;
     }
+    LeaveCriticalSection(&hDDCritSect);
     return TRUE;
 }
 
@@ -751,16 +794,159 @@ COLORREF Overlay_GetColor()
     return OverlayColor;
 }
 
-void Overlay_WaitForVerticalBlank()
-{
-    HRESULT ddrval = -1;
 
-    while(ddrval != DD_OK)
+static HRESULT FlipResult = 0;             // Need to try again for flip?
+
+//
+// Add a function to Lock the overlay surface and update some Info from it.
+// We always lock and write to the back buffer.
+// Flipping takes care of the proper buffer addresses.
+// Some of this Info can change each time.  
+// We also check to see if we still need to Flip because the
+// non-waiting last flip failed.  If so, try it one more time,
+// then give up.  Tom Barry 10/26/00
+//
+BOOL Overlay_Lock(DEINTERLACE_INFO* pInfo)
+{
+    if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
     {
-        ddrval = lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKEND, NULL);
+        LOG(1, "Overlay has been deleted");
+        return FALSE;
     }
+
+    EnterCriticalSection(&hDDCritSect);
+
+    HRESULT         ddrval;
+    static DWORD    dwFlags = DDLOCK_WAIT | DDLOCK_NOSYSLOCK;
+    DDSURFACEDESC   SurfaceDesc;
+
+    if (FlipResult == DDERR_WASSTILLDRAWING)             // prev flip was busy?
+    {
+        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);  
+        if(ddrval == DDERR_SURFACELOST)
+        {
+            LOG(1, "Flip before lock failed");
+            LeaveCriticalSection(&hDDCritSect);
+            return FALSE;
+        }
+        FlipResult = 0;                 // but no time to try any more
+    }
+
+    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
+    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
+    ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
+
+    // fix suggested by christoph for NT 4.0 sp6
+    if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
+    {
+        //remove flag
+        ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
+        if( SUCCEEDED(ddrval) )
+        {
+            //remember for next time
+            dwFlags = DDLOCK_WAIT;
+            LOG(1, "Switched to not using NOSYSLOCK");
+        }
+    }
+
+    if(FAILED(ddrval))
+    {
+        LOG(1, "Lock failed %8x", ddrval);
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+    }
+
+    pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
+    pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
+    // stay in critical section
+    return TRUE;
 }
 
+BOOL Overlay_Unlock()
+{
+    if(lpDDOverlayBack == NULL)
+    {
+        LOG(1, "Overlay has been deleted");
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+    }
+
+    // we are already in critical section
+    HRESULT ddrval = lpDDOverlayBack->Unlock(NULL);
+    BOOL RetVal = TRUE;
+    if(FAILED(ddrval))
+    {
+        if(ddrval != DDERR_SURFACELOST)
+        {
+            LOG(1, "Unexpected failure in Unlock %8x", ddrval);
+        }
+        RetVal = FALSE;
+    }
+    LeaveCriticalSection(&hDDCritSect);
+    return RetVal;
+}
+
+BOOL Overlay_Flip(DWORD FlipFlag)
+{
+    if(lpDDOverlay == NULL)
+    {
+        LOG(1, "Overlay has been deleted");
+        return FALSE;
+    }
+
+    EnterCriticalSection(&hDDCritSect);
+    BOOL RetVal = TRUE;
+    FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
+    if(FAILED(FlipResult))
+    {
+        if(FlipResult != DDERR_WASSTILLDRAWING && FlipResult != DDERR_SURFACELOST)
+        {
+            LOG(1, "Surface Flip failed %8x", FlipResult);
+        }
+        // return OK if we get DDERR_WASSTILLDRAWING
+        // we'll do the flip next time
+        RetVal = (FlipResult == DDERR_WASSTILLDRAWING);
+    }
+    LeaveCriticalSection(&hDDCritSect);
+    return RetVal;
+}
+
+HDC Overlay_GetDC()
+{
+    if(lpDDSurface == NULL)
+    {
+        LOG(1, "Surface has been deleted");
+        return NULL;
+    }
+
+    HDC hDC;
+    EnterCriticalSection(&hDDCritSect);
+    HRESULT ddrval = lpDDSurface->GetDC(&hDC);
+    if(FAILED(ddrval))
+    {
+        LOG(1, "Surface GetDC failed %8x", ddrval);        
+        hDC = NULL;
+        LeaveCriticalSection(&hDDCritSect);
+    }
+    // stay in critical section if successful
+    return hDC;
+}
+
+void Overlay_ReleaseDC(HDC hDC)
+{
+    if(hDC == NULL || lpDDSurface == NULL)
+    {
+        LOG(1, "Overlay_ReleaseDC called with invalid params");
+        return;
+    }
+    // we are already in critical section
+    HRESULT ddrval = lpDDSurface->ReleaseDC(hDC);
+    if(FAILED(ddrval))
+    {
+        LOG(1, "Surface ReleaseDC failed %8x", ddrval);        
+    }
+    LeaveCriticalSection(&hDDCritSect);
+}
 
 //-----------------------------------------------------------------------------
 // Initialize DirectDraw
@@ -768,6 +954,8 @@ BOOL InitDD(HWND hWnd)
 {
     HRESULT ddrval;
     DDCAPS DriverCaps;
+
+    InitializeCriticalSection(&hDDCritSect);
 
     if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
     {
@@ -839,6 +1027,7 @@ void ExitDD(void)
         lpDD->Release();
         lpDD = NULL;
     }
+    DeleteCriticalSection(&hDDCritSect);
 }
 
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))

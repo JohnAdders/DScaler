@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.5 2003-11-14 13:24:54 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.6 2004-05-12 16:52:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/11/14 13:24:54  adcockj
+// PMS card fixes
+//
 // Revision 1.4  2003/11/13 17:32:48  adcockj
 // Added BT8x8 register debugger
 //
@@ -504,6 +507,41 @@ void CBT848Card::SetPMSDeluxeHue(BYTE Hue)
         break;
     }
 }
+
+void CBT848Card::SetPMSChannelGain(int ChannelNum, WORD Gain)
+{
+    BYTE TempReg;
+    switch(ChannelNum)
+    {
+    case 1:
+        TempReg = m_SAA7118->GetRegister(0x03) & ~1;
+        TempReg |= ((Gain & 0x100) >> 8);
+        m_SAA7118->SetRegister(0x03, TempReg);
+        m_SAA7118->SetRegister(0x04, Gain & 0xFF);
+        break;
+    case 2:
+        TempReg = m_SAA7118->GetRegister(0x03) & ~2;
+        TempReg |= ((Gain & 0x100) >> 7);
+        m_SAA7118->SetRegister(0x03, TempReg);
+        m_SAA7118->SetRegister(0x05, Gain & 0xFF);
+        break;
+    case 3:
+        TempReg = m_SAA7118->GetRegister(0x23) & ~1;
+        TempReg |= ((Gain & 0x100) >> 8);
+        m_SAA7118->SetRegister(0x23, TempReg);
+        m_SAA7118->SetRegister(0x24, Gain & 0xFF);
+        break;
+    case 4:
+        TempReg = m_SAA7118->GetRegister(0x23) & ~2;
+        TempReg |= ((Gain & 0x100) >> 7);
+        m_SAA7118->SetRegister(0x23, TempReg);
+        m_SAA7118->SetRegister(0x25, Gain & 0xFF);
+        break;
+    default:
+        break;
+    }
+}
+
 
 void CBT848Card::SetPMSDeluxeSaturationU(WORD Saturation)
 {

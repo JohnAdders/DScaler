@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.131 2003-11-14 13:24:55 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.132 2004-05-12 16:52:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.131  2003/11/14 13:24:55  adcockj
+// PMS card fixes
+//
 // Revision 1.130  2003/11/06 19:36:56  adcockj
 // Increase size of vertical delay
 //
@@ -644,6 +647,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
     CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
+    CSettingGroup *pPMSGroup = GetSettingsGroup("BT848 - PMS", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
 
 	//
 	// WARNING : temporary change to have correct tuner audio input after DScaler first start
@@ -881,6 +885,19 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
+    m_PMSGain1 = new CPMSGain1Setting(this, "Gain Channel 1", 0x90, 0, 511, IniSection, pPMSGroup);
+    m_Settings.push_back(m_PMSGain1);
+
+    m_PMSGain2 = new CPMSGain2Setting(this, "Gain Channel 2", 302, 0, 511, IniSection, pPMSGroup);
+    m_Settings.push_back(m_PMSGain2);
+
+    m_PMSGain3 = new CPMSGain3Setting(this, "Gain Channel 3", 302, 0, 511, IniSection, pPMSGroup);
+    m_Settings.push_back(m_PMSGain3);
+
+    m_PMSGain4 = new CPMSGain4Setting(this, "Gain Channel 4", 302, 0, 511, IniSection, pPMSGroup);
+    m_Settings.push_back(m_PMSGain4);
+
+
 #ifdef _DEBUG    
     if (BT848_SETTING_LASTONE != m_Settings.size())
     {
@@ -936,25 +953,37 @@ void CBT848Source::Reset()
     m_pBT848Card->SetHue(m_Hue->GetValue());
     m_pBT848Card->SetSaturationU(m_SaturationU->GetValue());
     m_pBT848Card->SetSaturationV(m_SaturationV->GetValue());
-    m_pBT848Card->SetEvenLumaDec(m_BtEvenLumaDec->GetValue());
-    m_pBT848Card->SetOddLumaDec(m_BtOddLumaDec->GetValue());
-    m_pBT848Card->SetEvenChromaAGC(m_BtEvenChromaAGC->GetValue());
-    m_pBT848Card->SetOddChromaAGC(m_BtOddChromaAGC->GetValue());
-    m_pBT848Card->SetEvenLumaPeak(m_BtEvenLumaPeak->GetValue());
-    m_pBT848Card->SetOddLumaPeak(m_BtOddLumaPeak->GetValue());
-    m_pBT848Card->SetColorKill(m_BtColorKill->GetValue());
-    m_pBT848Card->SetHorFilter(m_BtHorFilter->GetValue());
-    m_pBT848Card->SetVertFilter(m_BtVertFilter->GetValue());
     m_pBT848Card->SetFullLumaRange(m_BtFullLumaRange->GetValue());
-    m_pBT848Card->SetCoring(m_BtCoring->GetValue());
-    m_pBT848Card->SetEvenComb(m_BtEvenComb->GetValue());
-    m_pBT848Card->SetOddComb(m_BtOddComb->GetValue());
-    m_pBT848Card->SetAgcDisable(m_BtAgcDisable->GetValue());
-    m_pBT848Card->SetCrush(m_BtCrush->GetValue());
-    m_pBT848Card->SetColorBars(m_BtColorBars->GetValue());
-    m_pBT848Card->SetGammaCorrection(m_BtGammaCorrection->GetValue());
-    m_pBT848Card->SetWhiteCrushUp(m_BtWhiteCrushUp->GetValue());
-    m_pBT848Card->SetWhiteCrushDown(m_BtWhiteCrushDown->GetValue());
+
+    if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
+    {
+        m_pBT848Card->SetEvenLumaDec(m_BtEvenLumaDec->GetValue());
+        m_pBT848Card->SetOddLumaDec(m_BtOddLumaDec->GetValue());
+        m_pBT848Card->SetEvenChromaAGC(m_BtEvenChromaAGC->GetValue());
+        m_pBT848Card->SetOddChromaAGC(m_BtOddChromaAGC->GetValue());
+        m_pBT848Card->SetEvenLumaPeak(m_BtEvenLumaPeak->GetValue());
+        m_pBT848Card->SetOddLumaPeak(m_BtOddLumaPeak->GetValue());
+        m_pBT848Card->SetColorKill(m_BtColorKill->GetValue());
+        m_pBT848Card->SetHorFilter(m_BtHorFilter->GetValue());
+        m_pBT848Card->SetVertFilter(m_BtVertFilter->GetValue());
+        m_pBT848Card->SetCoring(m_BtCoring->GetValue());
+        m_pBT848Card->SetEvenComb(m_BtEvenComb->GetValue());
+        m_pBT848Card->SetOddComb(m_BtOddComb->GetValue());
+        m_pBT848Card->SetAgcDisable(m_BtAgcDisable->GetValue());
+        m_pBT848Card->SetCrush(m_BtCrush->GetValue());
+        m_pBT848Card->SetColorBars(m_BtColorBars->GetValue());
+        m_pBT848Card->SetGammaCorrection(m_BtGammaCorrection->GetValue());
+        m_pBT848Card->SetWhiteCrushUp(m_BtWhiteCrushUp->GetValue());
+        m_pBT848Card->SetWhiteCrushDown(m_BtWhiteCrushDown->GetValue());
+    }
+    else
+    {
+        // set up the PMS gains for use in component modes
+        m_pBT848Card->SetPMSChannelGain(1, m_PMSGain1->GetValue());
+        m_pBT848Card->SetPMSChannelGain(2, m_PMSGain2->GetValue());
+        m_pBT848Card->SetPMSChannelGain(3, m_PMSGain3->GetValue());
+        m_pBT848Card->SetPMSChannelGain(4, m_PMSGain4->GetValue());
+    }
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pBT848Card->SetGeoSize(
@@ -1808,6 +1837,38 @@ void CBT848Source::TunerTypeOnChange(long TunerId, long OldValue)
     m_pBT848Card->InitTuner((eTunerId)TunerId);
 }
 
+void CBT848Source::PMSGain1OnChange(long Gain, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
+    {
+        m_pBT848Card->SetPMSChannelGain(1, Gain);
+    }
+}
+
+void CBT848Source::PMSGain2OnChange(long Gain, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
+    {
+        m_pBT848Card->SetPMSChannelGain(2, Gain);
+    }
+}
+
+void CBT848Source::PMSGain3OnChange(long Gain, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
+    {
+        m_pBT848Card->SetPMSChannelGain(3, Gain);
+    }
+}
+
+void CBT848Source::PMSGain4OnChange(long Gain, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
+    {
+        m_pBT848Card->SetPMSChannelGain(4, Gain);
+    }
+}
+
 BOOL CBT848Source::IsInTunerMode()
 {
     return m_pBT848Card->IsInputATuner(m_VideoSource->GetValue());
@@ -2096,25 +2157,37 @@ CTreeSettingsPage* CBT848Source::GetTreeSettingsPage()
 {
     vector <CSimpleSetting*>vSettingsList;
 
+    if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
+    {
+        vSettingsList.push_back(m_BtAgcDisable);
+        vSettingsList.push_back(m_BtCrush);
+        vSettingsList.push_back(m_BtEvenChromaAGC);
+        vSettingsList.push_back(m_BtOddChromaAGC);
+        vSettingsList.push_back(m_BtEvenLumaPeak);
+        vSettingsList.push_back(m_BtOddLumaPeak);
+        vSettingsList.push_back(m_BtFullLumaRange);
+        vSettingsList.push_back(m_BtEvenLumaDec);
+        vSettingsList.push_back(m_BtOddLumaDec);
+        vSettingsList.push_back(m_BtEvenComb);
+        vSettingsList.push_back(m_BtOddComb);
+        vSettingsList.push_back(m_BtGammaCorrection);
+        vSettingsList.push_back(m_BtCoring);
+        vSettingsList.push_back(m_BtHorFilter);
+        vSettingsList.push_back(m_BtVertFilter);
+        vSettingsList.push_back(m_BtColorKill);
+        vSettingsList.push_back(m_BtWhiteCrushUp);
+        vSettingsList.push_back(m_BtWhiteCrushDown);
+    }
+    else
+    {
+        vSettingsList.push_back(m_PMSGain1);
+        vSettingsList.push_back(m_PMSGain2);
+        vSettingsList.push_back(m_PMSGain3);
+        vSettingsList.push_back(m_PMSGain4);
+    }
+
     vSettingsList.push_back(m_BDelay);
-    vSettingsList.push_back(m_BtAgcDisable);
-    vSettingsList.push_back(m_BtCrush);
-    vSettingsList.push_back(m_BtEvenChromaAGC);
-    vSettingsList.push_back(m_BtOddChromaAGC);
-    vSettingsList.push_back(m_BtEvenLumaPeak);
-    vSettingsList.push_back(m_BtOddLumaPeak);
     vSettingsList.push_back(m_BtFullLumaRange);
-    vSettingsList.push_back(m_BtEvenLumaDec);
-    vSettingsList.push_back(m_BtOddLumaDec);
-    vSettingsList.push_back(m_BtEvenComb);
-    vSettingsList.push_back(m_BtOddComb);
-    vSettingsList.push_back(m_BtGammaCorrection);
-    vSettingsList.push_back(m_BtCoring);
-    vSettingsList.push_back(m_BtHorFilter);
-    vSettingsList.push_back(m_BtVertFilter);
-    vSettingsList.push_back(m_BtColorKill);
-    vSettingsList.push_back(m_BtWhiteCrushUp);
-    vSettingsList.push_back(m_BtWhiteCrushDown);
     vSettingsList.push_back(m_CustomPixelWidth);
     vSettingsList.push_back(m_HDelay);
     vSettingsList.push_back(m_VDelay);

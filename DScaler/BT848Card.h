@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.43 2004-01-05 13:25:25 adcockj Exp $
+// $Id: BT848Card.h,v 1.44 2004-05-12 16:52:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 // Revision 1.42  2003/11/13 17:32:48  adcockj
 // Added BT8x8 register debugger
 //
@@ -354,6 +357,8 @@ public:
     bool GetHasUseInputPin1();
     bool GetUseInputPin1();
     void SetUseInputPin1(bool AValue);
+
+	void SetPMSChannelGain(int ChannelNum, WORD Gain);
     
     BOOL IsMyAudioDecoder(CAudioDecoder* pAudioDecoder);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.11 2001-08-02 18:08:17 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.12 2001-09-08 15:17:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/08/02 18:08:17  adcockj
+// Made all logging code use new levels
+//
 // Revision 1.10  2001/07/29 10:06:42  adcockj
 // Took out debug log for aspect ratio
 //
@@ -266,6 +269,11 @@ void CPositionDestinationAspectFilter::DebugDump()
 BOOL CCropAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
     double MaterialAspect = AspectSettings.SourceAspect ? (AspectSettings.SourceAspect/1000.0) : ar.m_CurrentOverlayDestRect.targetAspect();
+    
+    if(AspectSettings.SourceAspectAdjust != 1000)
+    {
+        MaterialAspect *= (double)AspectSettings.SourceAspectAdjust / 1000.0;
+    }
 
     // Crop the source rectangle down to the desired aspect...
     ar.m_CurrentOverlaySrcRect.adjustTargetAspectByShrink(MaterialAspect);

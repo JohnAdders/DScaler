@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.16 2002-03-04 20:49:36 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.17 2002-03-11 22:28:38 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/03/04 20:49:36  adcockj
+// About box changes
+//
 // Revision 1.15  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -167,6 +170,9 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     }
                 }
             } // if (dwVerInfoSize)
+
+            SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
+            SetClassLong(GetDlgItem(hDlg, IDC_LINK2), GCL_HCURSOR, (long) hCursorHand);
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

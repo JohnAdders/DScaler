@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SAA7118.cpp,v 1.1 2002-09-11 18:32:43 adcockj Exp $
+// $Id: SAA7118.cpp,v 1.2 2002-09-19 22:10:08 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/11 18:32:43  adcockj
+// Preliminary support for H3D card
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -105,6 +108,11 @@ void CSAA7118::DumpSettings()
     }
 
 	for(int i(0); i < 0x2d; ++i)
+	{
+		DumpRegister(hFile, i);
+	}
+
+    for(i = 0x40; i <= 0x62; ++i)
 	{
 		DumpRegister(hFile, i);
 	}

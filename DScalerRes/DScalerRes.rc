@@ -289,7 +289,7 @@ IDD_SPLASHBOX DIALOGEX 0, 0, 145, 192
 STYLE DS_NOIDLEMSG | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_POPUP | 
     WS_BORDER
 EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_TOOLWINDOW
-FONT 8, "System"
+FONT 8, "System", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY | 
                     LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_TABSTOP
@@ -1391,6 +1391,7 @@ BEGIN
         MENUITEM "Progressive Input",           IDM_PROGRESSIVE
         POPUP "Advanced"
         BEGIN
+            MENUITEM "Reset Capture Card",          IDM_RESET
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
             MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
         END

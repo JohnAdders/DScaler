@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.6 2002-09-16 20:08:21 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.7 2002-09-19 22:10:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/16 20:08:21  adcockj
+// fixed format detect for cx2388x
+//
 // Revision 1.5  2002/09/16 19:34:18  adcockj
 // Fix for auto format change
 //
@@ -302,7 +305,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 		WriteByte(MO_PINMUX_IO, 0x02);
 
         SetPLL( 27e6, 2, FALSE );
-        SetSampleRateConverter(28.63636E6);
+        SetSampleRateConverter(27e6);
 
         // Since we are digital here we don't really care which
         // format we choose as long as it has the right number of lines
@@ -338,8 +341,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
         }
 
-        WriteDword(CT2388X_VDELAYCCIR_EVEN, 0x0C);
-        WriteDword(CT2388X_VDELAYCCIR_ODD, 0x0C);
+        WriteDword(CT2388X_VDELAYCCIR_EVEN, VertDelay);
+        WriteDword(CT2388X_VDELAYCCIR_ODD, VertDelay);
     }
     else
     {
@@ -348,7 +351,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentX = 720;
 
         SetPLL( 27e6, 2, FALSE );
-        SetSampleRateConverter(28.63636E6);
+        SetSampleRateConverter(27e6);
 
         // Setup correct format
         // \todo work out correct way of storing this with format info

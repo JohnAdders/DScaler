@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.18 2001-12-22 13:18:04 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.19 2002-01-13 12:47:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/12/22 13:18:04  adcockj
+// Tuner bugfixes
+//
 // Revision 1.17  2001/12/19 19:24:45  ittarnavsky
 // prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
 //
@@ -382,6 +385,10 @@ void CBT848Source::Reset()
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
+    
+    /// \todo FIXME get rid of these
+    CurrentX = m_CurrentX;
+    CurrentY = m_CurrentY; 
 
     /// \todo FIXME anything else to initialize here?
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
@@ -881,7 +888,6 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
         m_CustomPixelWidth->SetValue(NewValue);
     }
     Stop_Capture();
-    m_CurrentX = NewValue;
     m_pBT848Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -891,6 +897,10 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
+    
+    /// \todo FIXME get rid of these
+    CurrentX = m_CurrentX;
+
     Start_Capture();
 }
 
@@ -1002,7 +1012,7 @@ void CBT848Source::SaturationOnChange(long Sat, long OldValue)
 
 void CBT848Source::TunerTypeOnChange(long TunerId, long OldValue)
 {
-	m_pBT848Card->InitTuner((eTunerId)TunerId);
+    m_pBT848Card->InitTuner((eTunerId)TunerId);
 }
 
 
@@ -1122,7 +1132,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     if(VideoFormat != m_VideoFormat->GetValue())
     {
         m_VideoFormat->SetValue(VideoFormat);
-	    m_pBT848Card->SetAudioStandard(VideoFormat);
+        m_pBT848Card->SetAudioStandard(VideoFormat);
     }
     return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }

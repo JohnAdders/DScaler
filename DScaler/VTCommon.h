@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.h,v 1.1 2003-01-01 20:40:48 atnak Exp $
+// $Id: VTCommon.h,v 1.2 2003-01-03 13:47:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/01 20:40:48  atnak
+// Inital release of videotext common + utilities class.
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -85,8 +88,8 @@ enum
     VTFLOF_GREEN    = 1,
     VTFLOF_YELLOW   = 2,
     VTFLOF_BLUE     = 3,
-    VTFLOF_UNKN1    = 4,
-    VTFLOF_UNKN2    = 5
+    VTFLOF_INDEX    = 4,
+    VTFLOF_UNKN1    = 5
 };
 
 

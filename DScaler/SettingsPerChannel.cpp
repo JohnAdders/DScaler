@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.6 2002-08-13 21:21:24 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.7 2002-08-14 22:04:25 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/08/13 21:21:24  kooiman
+// Improved settings per channel to account for source and input changes.
+//
 // Revision 1.5  2002/08/08 21:17:05  kooiman
 // Fixed some bugs.
 //
@@ -167,8 +170,8 @@ static std::vector<TChannelSetting*> vSbcChannelSettings;    // Main list of set
 
 static int iSbcCurrentChannel = NO_CHANNEL;                  // Current channel
 static int iSbcCurrentVideoInput = NO_VIDEOINPUT;            // Current video input
-static std::string sSbcCurrentProvider;                      // Current provider
-
+static std::string sSbcCurrentSource;                        // Current provider
+static BOOL bSbcFirstSource = TRUE;
 static int iSbcLastLoadedChannel = NO_CHANNEL;               // Last loaded channel specific settings
 static BOOL bSetupStarted = FALSE;
 static std::string sSbcSubSection;                           // Current subsection for registration
@@ -681,7 +684,7 @@ int SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetti
               && ( (szSubSection==NULL) || (std::string(szSubSection) == (*it)->sSubSection) ) )
         {
             //setting already exists
-            return n;
+            return -n;
         }
         n++;
     }    
@@ -717,12 +720,22 @@ int SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetti
 int SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue)
 {    
     int n = SettingsPerChannel_RegisterAddSetting(sSbcSubSection.c_str(), CSSetting, Setting, pToggleValue);
-
-    if ( (n < 0) || (n >= vSbcChannelSettings.size()) )
+    TChannelSetting *ChannelSetting;
+    if (n < 0)
     {
-        return -1;
+        n = -n;
+        ChannelSetting = vSbcChannelSettings[n];
+        if ( ChannelSetting == NULL )
+        {
+            return -1;
+        }
+        if (ChannelSetting->CompareToggleSetting (szName, szDescription))
+        {
+            // Duplicate
+            return -1;
+        }
     }
-    TChannelSetting *ChannelSetting = vSbcChannelSettings[n];
+    ChannelSetting = vSbcChannelSettings[n];
     if ( ChannelSetting == NULL )
     {
         return -1;
@@ -815,30 +828,25 @@ void SettingsPerChannel_UnregisterSection(const char *szSubSection)
 /////////////////////////////////////////////////////////////////////////////////
 
 void SettingsPerChannel_WriteToIni(const char *szMainSection, const char *szSubSection, CSimpleSetting *CSSetting, BOOL bOptimizeFileAccess)
-{
-    char szNewEntry[200];
-    char oldEntry[100];
-    char oldSection[100];    
-    strcpy(oldEntry, CSSetting->GetEntry());
-    strcpy(oldSection, CSSetting->GetSection());
-    sprintf(szNewEntry,"%s_%s",szSubSection,oldEntry);
+{    
+    std::string sOldEntry = CSSetting->GetEntry();;
+    std::string sOldSection = CSSetting->GetSection();;  
+    std::string sNewEntry = szSubSection + std::string("_") + sOldEntry;
     CSSetting->SetSection(szMainSection);
-    CSSetting->SetEntry(szNewEntry);
+    CSSetting->SetEntry(sNewEntry.c_str());
     CSSetting->WriteToIni(bOptimizeFileAccess);        
-    CSSetting->SetEntry(oldEntry);
-    CSSetting->SetSection(oldSection);    
+    CSSetting->SetEntry(sOldEntry.c_str());
+    CSSetting->SetSection(sOldSection.c_str());
 }
 
 void SettingsPerChannel_WriteToIni(const char *szMainSection, const char *szSubSection, SETTING *Setting, BOOL bOptimizeFileAccess)
 {
-    char szNewEntry[200];
-    
     char *szIniSection = Setting->szIniSection;        
     char *szIniEntry = Setting->szIniEntry;
-    sprintf(szNewEntry,"%s_%s",szSubSection,szIniEntry);
+    std::string sNewEntry = szSubSection + std::string("_") + szIniEntry;
 
     Setting->szIniSection = (char*)szMainSection;
-    Setting->szIniEntry = szNewEntry;
+    Setting->szIniEntry = (char*)sNewEntry.c_str();
     Setting_WriteToIni(Setting,bOptimizeFileAccess);                    
     Setting->szIniSection = szIniSection;
     Setting->szIniEntry = szIniEntry;    
@@ -847,67 +855,67 @@ void SettingsPerChannel_WriteToIni(const char *szMainSection, const char *szSubS
 BOOL SettingsPerChannel_ReadFromIni(const char *szMainSection, const char *szSubSection, CSimpleSetting *CSSetting)
 {
     BOOL result = FALSE;
-    char szNewSection[100];
-    char szNewEntry[200];
+    char *szNewSection;
 
     if (szMainSection != NULL)
     {                        
-        strcpy(szNewSection, szMainSection);
+        szNewSection = (char*)szMainSection;
     }
     else
     {
-        strcpy(szNewSection, szSubSection);
+        szNewSection = (char*)szSubSection;
     }
 
-        char oldEntry[100];
-        char oldSection[100];
+    std::string sOldEntry;
+    std::string sNewEntry;
+    
+    std::string sOldSection = CSSetting->GetSection();;  
+    
+    CSSetting->SetSection(szNewSection);
         
-        strcpy(oldSection, CSSetting->GetSection());
-        CSSetting->SetSection(szNewSection);
+    if (szMainSection != NULL)
+    {
+        sOldEntry = CSSetting->GetEntry();;
+        sNewEntry = szSubSection + std::string("_") + sOldEntry;
+        CSSetting->SetEntry(sNewEntry.c_str());
+    }
         
-        if (szMainSection != NULL)
-        {
-            strcpy(oldEntry, CSSetting->GetEntry());
-            sprintf(szNewEntry,"%s_%s",szSubSection,oldEntry);        
-            CSSetting->SetEntry(szNewEntry);
-        }
+    result = CSSetting->ReadFromIni(TRUE);
         
-        result = CSSetting->ReadFromIni(TRUE);
-        
-        if (szMainSection != NULL)
-        {
-            CSSetting->SetEntry(oldEntry);
-        }
-        CSSetting->SetSection(oldSection);
+    if (szMainSection != NULL)
+    {
+       CSSetting->SetEntry(sOldEntry.c_str());
+    }
+    CSSetting->SetSection(sOldSection.c_str());
     return result;
 }
 
 BOOL SettingsPerChannel_ReadFromIni(const char *szMainSection, const char *szSubSection, SETTING *Setting)
 {
     BOOL result = FALSE;
-    char szNewSection[100];
-    char szNewEntry[200];
+    char *szNewSection;
 
     if (szMainSection != NULL)
-    {
-        strcpy(szNewSection, szMainSection);
+    {                        
+        szNewSection = (char*)szMainSection;
     }
     else
     {
-        strcpy(szNewSection, szSubSection);
+        szNewSection = (char*)szSubSection;
     }
+    
+    char *szIniSection = Setting->szIniSection;        
+    char *szIniEntry = Setting->szIniEntry;
 
-        char *szIniSection = Setting->szIniSection;        
-        char *szIniEntry = Setting->szIniEntry;
-        sprintf(szNewEntry,"%s_%s",szSubSection,szIniEntry);
+    std::string sNewEntry = szSubSection + std::string("_") + szIniEntry;
 
-        Setting->szIniSection = szNewSection;
-        Setting->szIniEntry = szNewEntry;        
+    Setting->szIniSection = szNewSection;
+    Setting->szIniEntry = (char*)sNewEntry.c_str();
 
-        result = Setting_ReadFromIni(Setting, TRUE);
+    result = Setting_ReadFromIni(Setting, TRUE);
         
-        Setting->szIniSection = szIniSection;
-        Setting->szIniEntry = szIniEntry;
+    Setting->szIniSection = szIniSection;
+    Setting->szIniEntry = szIniEntry;
     
     return result;
 }
@@ -937,7 +945,7 @@ void SettingsPerChannel_ReadSettings(const char *szSubSection, int VideoInput, i
 
             if (iSbcLastLoadedChannel != Channel)
             {
-                CSetting->LoadChannelSpecifics(sSbcCurrentProvider, VideoInput, Channel, TRUE);                
+                CSetting->LoadChannelSpecifics(sSbcCurrentSource, VideoInput, Channel, TRUE);                
             }
 
             int NewDefaultValue = CSetting->DefaultValue;
@@ -953,7 +961,7 @@ void SettingsPerChannel_ReadSettings(const char *szSubSection, int VideoInput, i
                 }
                 else 
                 {
-                    if (CSetting->ReadFromIni(sSbcCurrentProvider, VideoInput, Channel))
+                    if (CSetting->ReadFromIni(sSbcCurrentSource, VideoInput, Channel))
                     {
                         NewValue = CSetting->GetValue();
                         CSetting->LastValue = NewValue;
@@ -1008,7 +1016,7 @@ void SettingsPerChannel_WriteSettings(BOOL bOptimizeFileAccess)
             TChannelSetting *CSetting = (*it);
             if ( CSetting->Enabled() && CSetting->Valid() )          
             {        
-                CSetting->SaveChannelSpecifics(sSbcCurrentProvider,iSbcCurrentVideoInput, iSbcCurrentChannel);              
+                CSetting->SaveChannelSpecifics(sSbcCurrentSource,iSbcCurrentVideoInput, iSbcCurrentChannel);              
             }
         }              
     }
@@ -1114,7 +1122,7 @@ void SettingsPerChannel_LoadChannelSettings(const char *szSubSection, int VideoI
         if ( CSetting->Enabled() && CSetting->Valid() 
              && ( (szSubSection == NULL) || (CSetting->sSubSection == std::string(szSubSection)) ) )
         {        
-            CSetting->LoadChannelSpecifics(sSbcCurrentProvider,VideoInput, Channel);
+            CSetting->LoadChannelSpecifics(sSbcCurrentSource,VideoInput, Channel);
         }        
 
     }        
@@ -1134,7 +1142,7 @@ void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int VideoI
         if ( CSetting->Enabled() && CSetting->Valid() 
              && ( (szSubSection == NULL) || (CSetting->sSubSection == std::string(szSubSection)) ) )
         {        
-            CSetting->SaveChannelSpecifics(sSbcCurrentProvider, VideoInput, Channel);
+            CSetting->SaveChannelSpecifics(sSbcCurrentSource, VideoInput, Channel);
         }        
 
     }        
@@ -1245,7 +1253,7 @@ void SettingsPerChannel_InputAndChannelChange(int PreChange, CSource *pSource, i
               TChannelSetting *CSetting = (*it);
               if ( CSetting->Enabled() && CSetting->Valid() )          
               {        
-                 CSetting->SaveChannelSpecifics(sSbcCurrentProvider,iSbcCurrentVideoInput, iSbcCurrentChannel);
+                 CSetting->SaveChannelSpecifics(sSbcCurrentSource,iSbcCurrentVideoInput, iSbcCurrentChannel);
               }
           }  
       }            
@@ -1271,7 +1279,7 @@ void SettingsPerChannel_InputAndChannelChange(int PreChange, CSource *pSource, i
              // get last one
              pInfo = SettingsPerChannel_AddSourceAndInputInfo(pSource, pSource->IDString(), VideoInput, InputHasTuner);
              Channel = pInfo->LastChannel;
-             if ((HadTuner != pInfo->HasTuner) && (pInfo->HasTuner == 0))
+             if (!bSbcVideoInputSpecific && (HadTuner != pInfo->HasTuner) && (pInfo->HasTuner == 0))
              {                
                 // Left tuner mode
                 bVideoInputMayLoadSettings = TRUE;
@@ -1318,24 +1326,51 @@ void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource)
     else
     {        
         // after change
+        std::string sLastSource = sSbcCurrentSource;
+        BOOL bChanged = FALSE;
         if (Flags & SOURCECHANGE_PROVIDER)
         {            
             if (pSource == NULL)
             {
-                sSbcCurrentProvider = "";
+                sSbcCurrentSource = "";
             } 
             else
             {
-                sSbcCurrentProvider = pSource->IDString();
+                sSbcCurrentSource = pSource->IDString();
             }
+            if (bSbcFirstSource && (sSbcCurrentSource != sLastSource))
+            {                
+                bChanged = TRUE;
+            }
+            bSbcFirstSource = FALSE;
             if (!bSbcSourceSpecific)
             {
-                sSbcCurrentProvider = "";
+                sSbcCurrentSource = "";
             }
         }
         if (!SettingsPerChannel()) 
         {            
             return;
+        }
+
+        if (bChanged && !bSbcSourceSpecific)
+        {
+            //reset channels & inputs
+            for(vector<TChannelSetting*>::iterator it = vSbcChannelSettings.begin();
+                it != vSbcChannelSettings.end();
+                ++it)
+            {
+                (*it)->vChannelSpecificSettingsList.clear();
+            }
+            //clear source info list
+            vSbcSourceInputInfo.clear();                            
+        }
+        if (bChanged)
+        {
+            iSbcCurrentVideoInput = NO_VIDEOINPUT;
+            iSbcCurrentChannel = NO_CHANNEL;
+            iSbcLastLoadedChannel = NO_CHANNEL;
+            SettingsPerChannel_Setup(2);
         }
 
         if (SettingsPerChannel_ChannelOk(iSbcCurrentVideoInput, iSbcCurrentChannel))
@@ -1351,9 +1386,13 @@ void SettingsPerChannel_ChannelChange(void *pThis, int PreChange, int OldChannel
    SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), iSbcCurrentVideoInput, -1, NewChannel);
 }
 
-void SettingsPerChannel_VideoInputChange(CSource *pSource, int PreChange, int NewInput, int IsTuner)
+void SettingsPerChannel_VideoInputChange(CSource *pSource, int PreChange, int Input, int IsTuner)
 {   
-   SettingsPerChannel_InputAndChannelChange(PreChange, pSource, NewInput, IsTuner, NO_CHANNEL);
+   if (Input < -1)
+   {
+      return;
+   }
+   SettingsPerChannel_InputAndChannelChange(PreChange, pSource, Input, IsTuner, NO_CHANNEL);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.52 2002-11-10 20:57:13 tobbej Exp $
+// $Id: DSSource.cpp,v 1.53 2002-12-05 21:02:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/11/10 20:57:13  tobbej
+// changed IsVideoPresent, i hope this makes channel scanning work better
+//
 // Revision 1.51  2002/10/29 19:32:22  tobbej
 // new tuner class for direct tuning to a frequency
 // implemented IsVideoPresent, channel scaning shoud work now
@@ -263,8 +266,7 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 	CDSSourceBase(0,IDC_DSHOWSOURCEMENU),
 	m_Device(device),
 	m_DeviceName(deviceName),
-	m_HaveInputList(FALSE),
-	m_ResolutionDataIniSize(-1)
+	m_HaveInputList(FALSE)
 {
 	m_IDString = std::string("DS_") + device;
 	CreateSettings(device.c_str());
@@ -587,20 +589,16 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	m_AudioInput = new CAudioInputSetting(this, "AudioInput", 0, 0, LONG_MAX, IniSection);
 	m_Settings.push_back(m_AudioInput);
 
-	m_LastTunerChannel = new CLastTunerChannelSetting(this, "LastTunerChannel", 0, 0, LONG_MAX, IniSection);
-	m_Settings.push_back(m_LastTunerChannel);
-
 	m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection);
-	//m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, (sizeof(res)/sizeof(resolutionType)) - 1, IniSection);
 	m_Settings.push_back(m_Resolution);
 
 	//restore m_VideoFmt from ini file
-	m_ResolutionDataIniSize=GetPrivateProfileInt(IniSection,"ResolutionSize",-1,GetIniFileForSettings());
-	if(m_ResolutionDataIniSize>0)
+	int ResolutionDataIniSize=GetPrivateProfileInt(IniSection,"ResolutionSize",-1,GetIniFileForSettings());
+	if(ResolutionDataIniSize>0)
 	{
-		char *pcData=new char[m_ResolutionDataIniSize+1];
-		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,m_ResolutionDataIniSize+1,GetIniFileForSettings());
-		if(result<m_ResolutionDataIniSize)
+		char *pcData=new char[ResolutionDataIniSize+1];
+		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,ResolutionDataIniSize+1,GetIniFileForSettings());
+		if(result<ResolutionDataIniSize)
 		{
 			LOG(2,"DSCaptureSource: Reading too litle data, problem with ResolutionSize or ResolutionData in ini file");
 		}
@@ -644,7 +642,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		CTreeSettingsDlg dlg(CString("DirectShow Settings"));
 
 		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
-		CDSVideoFormatPage VidemFmt(CString("Video format"),m_VideoFmt,m_Resolution);
+		CDSVideoFormatPage VidemFmt(CString("Resolution"),m_VideoFmt,m_Resolution);
 
 		dlg.AddPage(&AudioDevice);
 		dlg.AddPage(&VidemFmt);
@@ -1199,14 +1197,6 @@ void CDSCaptureSource::OnSetup(void *pThis, int Start)
 	}
 }
 
-void CDSCaptureSource::ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel)
-{
-	if (pThis != NULL)
-	{
-		((CDSCaptureSource*)pThis)->TunerChannelChange(PreChange,OldChannel,NewChannel);
-	}
-}
-
 void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 {
 	if (Start&1)
@@ -1220,27 +1210,11 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 		SettingsPerChannel_RegisterSetting("DSOverscan","DShow - Overscan",TRUE, m_Overscan);
 
         SettingsPerChannel_NewDefaults(m_IDString.c_str(), FALSE);
-
-	    //Channel_Register_Change_Notification(this, CDSCaptureSource::ChannelChange);
-
 	}
 	else
 	{
 		SettingsPerChannel_UnregisterSection(m_IDString.c_str());
-		//Channel_UnRegister_Change_Notification(this, CDSCaptureSource::ChannelChange);
 	}
-}
-
-void CDSCaptureSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
-{
-    if (pEventObject != (CEventObject*)this)
-	{
-		return;
-	}
-	if (Event == EVENT_CHANNEL_CHANGE)
-    {
-        TunerChannelChange(0,OldValue,NewValue);
-    }    
 }
 
 void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
@@ -1286,7 +1260,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 				{
 					if(pCap->GetTuner()!=NULL)
 					{
-						Channel_ChangeToNumber(m_LastTunerChannel->GetValue());
+						Channel_SetCurrent();
 					}
 				}
 
@@ -1342,19 +1316,6 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
 	}
 }
 
-void CDSCaptureSource::TunerChannelChange(int PreChange, int OldChannel, int NewChannel)
-{
-	if (!PreChange)
-	{
-		m_LastTunerChannel->SetValue(NewChannel);
-	}
-}
-
-void CDSCaptureSource::LastTunerChannelOnChange(long Channel, long OldValue)
-{
-	//
-}
-
 void CDSCaptureSource::Start()
 {
 	try
@@ -1366,10 +1327,7 @@ void CDSCaptureSource::Start()
 
 		m_pDSGraph->ConnectGraph();
 
-		/**
-		 * make sure we don't call CreateDefaultVideoFmt if the user has removed all videoformats
-		 */
-		if(m_VideoFmt.size()==0 && m_ResolutionDataIniSize==-1)
+		if(m_VideoFmt.size()==0)
 		{
 			CreateDefaultVideoFmt();
 		}
@@ -1408,17 +1366,6 @@ void CDSCaptureSource::Start()
 
 		VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
 		AudioInputOnChange(m_AudioInput->GetValue(), m_AudioInput->GetValue());
-
-		if (IsInTunerMode())
-		{
-			LOG(2,"DSCaptureSource: Channel reset");
-			int Channel = m_LastTunerChannel->GetValue();
-			if (Channel <= 0)
-			{
-				Channel = 1;
-			}
-			Channel_ChangeToNumber(Channel);
-		}
 		
 		CDSSourceBase::Start();
 	}

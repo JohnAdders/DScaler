@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.31 2002-10-29 19:32:22 tobbej Exp $
+// $Id: DSSource.h,v 1.32 2002-12-05 21:02:55 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/10/29 19:32:22  tobbej
+// new tuner class for direct tuning to a frequency
+// implemented IsVideoPresent, channel scaning shoud work now
+//
 // Revision 1.30  2002/10/27 12:17:29  tobbej
 // implemented ITuner
 //
@@ -161,8 +165,6 @@ public:
     
 	//from CSettingsHolder
 	void CreateSettings(LPCSTR IniSection);
-    //from ceventobject
-    virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 	void HandleTimerMessages(int TimerId);
@@ -207,7 +209,6 @@ public:
 	void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
 	void SettingsPerChannelSetup(int Start);
-	void TunerChannelChange(int PreChange, int OldChannel, int NewChannel);
 	
 	static void ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel);
 	static void OnSetup(void *pThis, int Start);
@@ -247,7 +248,6 @@ private:
 	string m_DeviceName;
 	
 	vector<CDShowGraph::CVideoFormat> m_VideoFmt;
-	int m_ResolutionDataIniSize;
 
 	BOOL m_HaveInputList;
 	vector<int> m_VideoInputList;
@@ -262,7 +262,6 @@ private:
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, VideoInput);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, LastTunerChannel);
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Resolution);
 };

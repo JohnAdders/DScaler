@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.16 2003-01-10 17:52:12 adcockj Exp $
+// $Id: Setting.h,v 1.17 2003-01-13 19:22:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ public:
     CSettingGroup* GetGroup();
         
     BOOL ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure = TRUE);
-    void WriteToIniSubSection(LPCSTR szSubSection);
+    void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE);
 
     SETTING* GetSETTING() { return m_pSetting; }
     

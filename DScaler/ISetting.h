@@ -21,7 +21,7 @@ public:
     virtual BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE) = 0;
     virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
     virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure = TRUE) = 0;
-    virtual void WriteToIniSubSection(LPCSTR szSubSection) = 0;  
+    virtual void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE) = 0;  
     virtual long GetValue() = 0;
     virtual long GetMin() = 0;
     virtual long GetMax() = 0;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.21 2003-01-12 16:19:34 adcockj Exp $
+// $Id: Setting.cpp,v 1.22 2003-01-13 19:22:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/01/12 16:19:34  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.20  2003/01/10 17:52:08  adcockj
 // Removed SettingFlags
 //
@@ -381,7 +385,7 @@ BOOL CSimpleSetting::ReadFromIni(BOOL bSetDefaultOnFailure)
 /** Write value to szSubsection in .ini file
     Override value and setting flags if Value and/or pSettingFlags is not NULL.
 */
-void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection)
+void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess)
 {
     if(m_pSetting->szIniSection != NULL)
     {
@@ -403,7 +407,7 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection)
 		long Val = *m_pSetting->pValue; 
 
         // hopefully stops noise in ini file
-        if(Val != m_pSetting->Default || Val != m_pSetting->LastSavedValue)
+        if(!bOptimizeFileAccess || Val != m_pSetting->Default || Val != m_pSetting->LastSavedValue)
         {
 		    WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
             LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, Val);
@@ -422,7 +426,7 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection)
 
 void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
-    WriteToIniSubSection(NULL);	
+    WriteToIniSubSection(NULL, bOptimizeFileAccess);	
 }
  
 

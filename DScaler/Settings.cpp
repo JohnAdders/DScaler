@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.44 2003-01-11 12:53:58 adcockj Exp $
+// $Id: Settings.cpp,v 1.45 2003-01-13 19:22:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/01/11 12:53:58  adcockj
+// Interim Check in of settings changes
+//  - bug fixes for overlay settings changes
+//  - Bug fixes for new settings changes
+//  - disables settings per channel completely
+//
 // Revision 1.43  2003/01/10 17:38:28  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -415,7 +421,7 @@ LPTSTR CleanUpLine(LPTSTR lpString)
 // this function returns TRUE if lpString contains a valid section name ('[blahblah]')
 BOOL IsSectionName(LPCTSTR lpString)
 {
-    char localcopy[256];
+    char localcopy[2560];
 
     if(lpString == NULL)
     {

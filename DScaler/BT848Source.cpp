@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.112 2003-01-18 13:55:43 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.113 2003-01-25 23:46:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.112  2003/01/18 13:55:43  laurentg
+// New methods GetHDelay and GetVDelay
+//
 // Revision 1.111  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -1430,10 +1433,7 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
     // disabled so if anything that happens in those needs to be triggered
     // we have to manage that ourselves
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
-
-    Reset();
-   
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);   
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
     // make sure the defaults are correct
@@ -1441,6 +1441,9 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     SettingsMaster->LoadSettings();
+
+    // reset here when we have all the settings
+    Reset();
 
     Start_Capture();
 }

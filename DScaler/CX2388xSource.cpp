@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.41 2003-01-21 14:42:14 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.42 2003-01-25 23:46:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/01/21 14:42:14  adcockj
+// Changed PAL defaults and added place for SECAM defaults
+//
 // Revision 1.40  2003/01/18 13:55:43  laurentg
 // New methods GetHDelay and GetVDelay
 //
@@ -1368,10 +1371,7 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
     // disabled so if anything that happens in those needs to be triggered
     // we have to manage that ourselves
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
-
-    Reset();
-   
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);   
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
     // make sure the defaults are correct
@@ -1379,6 +1379,9 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     SettingsMaster->LoadSettings();
+
+    // reset here when we have all the settings
+    Reset();
 
     Start_Capture();
 }

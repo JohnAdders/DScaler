@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.37 2004-11-13 21:45:56 to_see Exp $
+// $Id: CX2388xSource.h,v 1.38 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -169,9 +169,10 @@ private:
     std::string  m_IDString;
 
     CSliderSetting* m_CardType;
-    CYesNoSetting* m_bSavePerInput;
-    CYesNoSetting* m_bSavePerFormat;
-    CYesNoSetting* m_bSavePerChannel;
+    CStringSetting* m_CardName;
+    CYesNoSetting*  m_bSavePerInput;
+    CYesNoSetting*  m_bSavePerFormat;
+    CYesNoSetting*  m_bSavePerChannel;
     CSliderSetting* m_CustomPixelWidth;
 
 	BOOL		 m_InitialSetup;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.70 2004-11-13 21:45:56 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.71 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2004/11/13 21:45:56  to_see
+// - Some minor fixes
+// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
+//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
+//
 // Revision 1.69  2004/07/10 11:57:17  adcockj
 // improved cx2388x driver coverage when disabling drivers
 //
@@ -460,6 +465,10 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
 CCX2388xSource::~CCX2388xSource()
 {
 	StopUpdateAudioStatus();
+
+    // CX2388x reserves input -1 as the clean up indicator
+    m_pCard->SetVideoSource(-1);
+
 	EventCollector->Unregister(this);
     delete m_pCard;
 
@@ -580,7 +589,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
-    m_CardType = new CSliderSetting("Card Type", CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, CX2388xCARD_LASTONE - 1, IniSection, "CardType");
+    m_CardType = new CSliderSetting("Card Type", CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, m_pCard->GetMaxCards() - 1, IniSection, "CardType");
     m_Settings.push_back(m_CardType);
 
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
@@ -711,6 +720,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VerticalSyncDetection = new CVerticalSyncDetectionSetting(this, "Vertical Sync Detection", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_VerticalSyncDetection);
 
+	m_CardName = new CStringSetting("Card Name", reinterpret_cast<long>(""), IniSection, "CardName");
+	m_Settings.push_back(m_CardName);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -794,14 +806,15 @@ void CCX2388xSource::Reset()
         Mute();
     }
 
-    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
         m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
         m_pCard->SetSharpness(m_Sharpness->GetValue());
     }
+    
     else
     {
-        m_pCard->SetLumaAGC(m_LumaAGC->GetValue());
+		m_pCard->SetLumaAGC(m_LumaAGC->GetValue());
         m_pCard->SetChromaAGC(m_ChromaAGC->GetValue());
         m_pCard->SetFastSubcarrierLock(m_FastSubcarrierLock->GetValue());
         m_pCard->SetWhiteCrushEnable(m_WhiteCrush->GetValue());
@@ -912,7 +925,7 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
         // if it's the holo3d and we're on the sdi input
         // in non progressive mode then we need to adjust 
         // for the image shift that seems to happen
-        if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+        if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
         {
             if(m_VideoSource->GetValue() == 3 &&
                 m_IsVideoProgressive->GetValue() == FALSE)
@@ -1179,25 +1192,25 @@ ISetting* CCX2388xSource::GetSaturation()
 
 ISetting* CCX2388xSource::GetSaturationU()
 {
-    if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
-        return m_SaturationU;
+        return NULL;
     }
     else
     {
-        return NULL;
+        return m_SaturationU;
     }
 }
 
 ISetting* CCX2388xSource::GetSaturationV()
 {
-    if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
-        return m_SaturationV;
+        return NULL;
     }
     else
     {
-        return NULL;
+        return m_SaturationV;
     }
 }
 
@@ -1763,8 +1776,20 @@ void CCX2388xSource::SetupCard()
 		}
 	}
 
-    long OrigTuner = m_TunerType->GetValue();
-    long OrigCard = m_CardType->GetValue();
+	// If the string card name is set, recalculate the card type based on
+	// the given name.
+    LPSTR cardName = reinterpret_cast<char*>(m_CardName->GetValue());
+	if (*cardName != '\0')
+	{
+		m_CardType->SetValue(m_pCard->GetCardByName(cardName));
+	}
+	else
+	{
+		// Otherwise set the card name setting based on the card type for
+		// future use.
+		m_CardName->SetValue(reinterpret_cast<long>(
+			m_pCard->GetCardName((eCX2388xCardId)m_CardType->GetValue())));
+	}
 
     if(m_CardType->GetValue() == CX2388xCARD_UNKNOWN)
     {
@@ -1779,23 +1804,19 @@ void CCX2388xSource::SetupCard()
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
         EnableCancelButton = 1;
     }
+
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
-
 
     // if the tuner has changed during this function
     // change the default format
     // but do so after the Tuner has been set on the card
+    long OrigTuner = m_TunerType->GetValue();
     if(OrigTuner != m_TunerType->GetValue())
     {
         ChangeTVSettingsBasedOnTuner();
-    }
-
-    if(OrigTuner != m_TunerType->GetValue() ||
-       OrigCard != m_CardType->GetValue())    
-    {
-        // For this card the defaults are also
-        // by card id so reset if the card has changed
+        // All the defaults should be set for NTSC
+        // so in case we changed the format based on the tuner
         // reset here, actaully change the values too
         ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
     }
@@ -2033,7 +2054,7 @@ void CCX2388xSource::ThirdChromaDemodOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 {
-    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
         m_pCard->SetFLIFilmDetect(NewValue);
     }
@@ -2178,10 +2199,7 @@ void CCX2388xSource::VerticalSyncDetectionOnChange(long NewValue,long OldValue)
 // Out  TRUE:   driver is found & stopped
 //      FALSE:	an error occured
 //
-// this code based on DDK, see scr/setup/enable & scr/setup/devcon
-//
-// anti-greetings to conexant WDM-developers:
-// why you make our life so hard?
+// based on DDK, see scr/setup/enable & scr/setup/devcon
 ///////////////////////////////////////////////////////////////////////
 BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 {
@@ -2189,7 +2207,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 	// VendorID = 0x14F1
 	// DeviceID = 0x8800 (first sub-device)
 	// we are only searching for this...
-    const char* szCX2388X_HW_ID = "PCI\\VEN_14F1&DEV_88";
+    const char* pszCX2388X_HW_ID = "PCI\\VEN_14F1&DEV_88";
 	
 	// scan only Media-Classes
 	HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
@@ -2229,7 +2247,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 		}
         LOG(0,buffer);
 
-		if(strncmp(buffer, szCX2388X_HW_ID, strlen(szCX2388X_HW_ID)) == 0)
+		if(strncmp(buffer, pszCX2388X_HW_ID, strlen(pszCX2388X_HW_ID)) == 0)
 		{
             LOG(1,"CX2388x WDM-Driver found.");
 		    

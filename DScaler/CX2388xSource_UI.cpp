@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.45 2004-11-13 21:45:56 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.46 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/11/13 21:45:56  to_see
+// - Some minor fixes
+// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
+//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
+//
 // Revision 1.44  2004/05/21 18:35:59  to_see
 // Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
 //
@@ -248,10 +253,11 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         sprintf(buf, "Setup card %s", pThis->IDString());
         SetWindowText(hDlg, buf);
         Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
+        
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < CX2388xCARD_LASTONE; i++)
+        for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
         {
-            int nIndex;
+			int nIndex;
             nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == pThis->m_CardType->GetValue())
@@ -285,11 +291,13 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
         sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        
         dwCardId = pCard->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {
             sprintf(szCardId,"%8X", dwCardId);
         }
+        
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
 
         return TRUE;
@@ -303,6 +311,11 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
+
+            // Update the string name value to reflect the newly selected card.
+            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
+            pThis->m_CardName->SetValue(reinterpret_cast<long>(pThis->GetCard()->GetCardName((eCX2388xCardId) i )));
+
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
@@ -327,7 +340,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 eTunerId TunerId = pThis->m_pCard->AutoDetectTuner(CardId);
                 
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
-                for(i = 0; i < CX2388xCARD_LASTONE; i++)
+                for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)
                 {
                     int nIndex;
                     nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
@@ -396,7 +409,7 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
 	}
     
-    while(i < CT_INPUTS_PER_CARD)
+    while(i < CX_INPUTS_PER_CARD)
     {
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
         ++i;
@@ -450,7 +463,7 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (videoFormat == VIDEOFORMAT_NTSC_50));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
 
-	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
 	{
 		CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
 		CheckMenuItemBool(m_hMenu, IDM_FLI_FILMDETECT, m_FLIFilmDetect->GetValue());
@@ -735,17 +748,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 void CCX2388xSource::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
 {
-    if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
-    {
-        m_Brightness->ChangeDefault(128, bDontSetValue);
-        m_Contrast->ChangeDefault(0x39, bDontSetValue);
-        m_Hue->ChangeDefault(128, bDontSetValue);
-        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, bDontSetValue);
-        m_SaturationU->ChangeDefault(0x7f, bDontSetValue);
-        m_SaturationV->ChangeDefault(0x5A, bDontSetValue);
-        m_IsVideoProgressive->ChangeDefault(FALSE, bDontSetValue);
-    }
-    else
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
         m_Brightness->ChangeDefault(128, bDontSetValue);
         m_Contrast->ChangeDefault(128, bDontSetValue);
@@ -754,6 +757,16 @@ void CCX2388xSource::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
         m_SaturationU->ChangeDefault(128, bDontSetValue);
         m_SaturationV->ChangeDefault(128, bDontSetValue);
         m_IsVideoProgressive->ChangeDefault(TRUE, bDontSetValue);
+    }
+    else
+    {
+        m_Brightness->ChangeDefault(128, bDontSetValue);
+        m_Contrast->ChangeDefault(0x39, bDontSetValue);
+        m_Hue->ChangeDefault(128, bDontSetValue);
+        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, bDontSetValue);
+        m_SaturationU->ChangeDefault(0x7f, bDontSetValue);
+        m_SaturationV->ChangeDefault(0x5A, bDontSetValue);
+        m_IsVideoProgressive->ChangeDefault(FALSE, bDontSetValue);
     }
 }
 
@@ -802,7 +815,8 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
     vSettingsList.push_back(m_VDelay);
     vSettingsList.push_back(m_AnalogueBlanking);
     vSettingsList.push_back(m_ConexantStopDriver);
-    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+
+    if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
         vSettingsList.push_back(m_EatLinesAtTop);
         vSettingsList.push_back(m_Sharpness);

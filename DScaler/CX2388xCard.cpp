@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.69 2004-12-20 18:55:33 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.70 2004-12-25 22:40:17 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2004/12/20 18:55:33  to_see
+// Moved tuner code to new file CX2388xCard_Tuner.cpp
+//
 // Revision 1.68  2004/11/29 18:02:57  to_see
 // Changed TDA9887 detecting to Atsushi's new tda code.
 //
@@ -333,7 +336,7 @@
 
 CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
-    m_CardType(CX2388xCARD_CONEXANT_EVK),
+    m_CardType(CX2388xCARD_UNKNOWN),
     m_Tuner(NULL),
     m_SAA7118(NULL),
     m_RISCIsRunning(FALSE),
@@ -415,12 +418,16 @@ void CCX2388xCard::StopCapture()
 
     m_RISCIsRunning = FALSE;
 
+/*
+	// 2004/12/25 to_see: unused code
+
     // perform card specific Stop Capture
-    if(m_TVCards[m_CardType].pStopCaptureCardFunction != NULL)
+    if(m_CX2388xCards[m_CardType].pStopCaptureCardFunction != NULL)
     {
         // call correct function
-        (*this.*m_TVCards[m_CardType].pStopCaptureCardFunction)();
+        (*this.*m_CX2388xCards[m_CardType].pStopCaptureCardFunction)();
     }
+*/
 }
 
 void CCX2388xCard::SetCardType(int CardType)
@@ -430,13 +437,9 @@ void CCX2388xCard::SetCardType(int CardType)
         m_CardType = (eCX2388xCardId)CardType;
 
         // perform card specific init
-        if(m_TVCards[m_CardType].pInitCardFunction != NULL)
+        if(IsCurCardH3D())
         {
-            // call correct function
-            // this funny syntax is the only one that works
-            // if you want help understanding what is going on
-            // I suggest you read http://www.newty.de/
-            (*this.*m_TVCards[m_CardType].pInitCardFunction)();
+            InitH3D();
         }
     }
 }
@@ -448,27 +451,55 @@ eCX2388xCardId CCX2388xCard::GetCardType()
 
 LPCSTR CCX2388xCard::GetCardName(eCX2388xCardId CardId)
 {
-    return m_TVCards[CardId].szName;
+    return m_CX2388xCards[CardId].szName;
 }
 
 void CCX2388xCard::SetContrastBrightness(BYTE Contrast, BYTE Brightness)
 {
-    (*this.*m_TVCards[m_CardType].pSetContrastBrightness)(Contrast, Brightness);
+    if(IsCurCardH3D())
+    {
+        SetH3DContrastBrightness(Contrast, Brightness);
+    }
+    else
+    {
+        SetAnalogContrastBrightness(Contrast, Brightness);
+    }
 }
 
 void CCX2388xCard::SetHue(BYTE Hue)
 {
-    (*this.*m_TVCards[m_CardType].pSetHue)(Hue);
+    if(IsCurCardH3D())
+    {
+        SetH3DHue(Hue);
+    }
+    else
+    {
+        SetAnalogHue(Hue);
+    }
 }
 
 void CCX2388xCard::SetSaturationU(BYTE SaturationU)
 {
-    (*this.*m_TVCards[m_CardType].pSetSaturationU)(SaturationU);
+    if(IsCurCardH3D())
+    {
+        SetH3DSaturationU(SaturationU);
+    }
+    else
+    {
+        SetAnalogSaturationU(SaturationU);
+    }
 }
 
 void CCX2388xCard::SetSaturationV(BYTE SaturationV)
 {
-    (*this.*m_TVCards[m_CardType].pSetSaturationV)(SaturationV);
+    if(IsCurCardH3D())
+    {
+        SetH3DSaturationV(SaturationV);
+    }
+    else
+    {
+        SetAnalogSaturationV(SaturationV);
+    }
 }
 
 void CCX2388xCard::StandardSetFormat(int nInput, eVideoFormat Format, BOOL IsProgressive)
@@ -648,7 +679,7 @@ void CCX2388xCard::SetCombFilter(eCombFilter CombFilter)
         AndDataDword(CX2388X_FILTER_ODD, ~((1 << 5) | (1 << 6)));
 		break;
     case COMBFILTER_DEFAULT:
-        if(m_TVCards[m_CardType].Inputs[m_CurrentInput].InputType == INPUTTYPE_SVIDEO)
+        if(m_CX2388xCards[m_CardType].Inputs[m_CurrentInput].InputType == INPUTTYPE_SVIDEO)
         {
             OrDataDword(CX2388X_FILTER_EVEN, (1 << 5));
             AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 6));
@@ -959,7 +990,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
         VideoInput &= 0xfffffff0;
 
-        if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
+        if(m_CX2388xCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
         {
             // set up with
             // Previous line remodulation - off
@@ -1178,7 +1209,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
         VideoInput &= 0xfffffff0;
 
-        if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
+        if(m_CX2388xCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
         {
             // set up with
             // Previous line remodulation - off
@@ -1296,15 +1327,22 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     WriteDword(CX2388X_VSCALE_ODD, 0);
 
     // call any card specific format setup
-    (*this.*m_TVCards[m_CardType].pSetFormat)(nInput, TVFormat, IsProgressive);
+    if(IsCurCardH3D())
+    {
+        H3DSetFormat(nInput, TVFormat, IsProgressive);
+    }
+    else
+    {
+        StandardSetFormat(nInput, TVFormat, IsProgressive);
+    }
 }
 
 
 BOOL CCX2388xCard::IsCCIRSource(int nInput)
 {
-    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    if(nInput < m_CX2388xCards[m_CardType].NumInputs && nInput >= 0)
     {
-        return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
+        return (m_CX2388xCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
     }
     else
     {
@@ -1692,16 +1730,6 @@ void CCX2388xCard::ResetHardware()
     //    0x0CE00555, which becomes 0x00E00555 with this change.
     WriteDword( CX2388X_AGC_BACK_VBI, 0x00E00555 ); 
 }    
-
-
-LPCSTR CCX2388xCard::GetInputName(int nInput)
-{
-    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
-    {
-        return m_TVCards[m_CardType].Inputs[nInput].szName;
-    }
-    return "Error";
-}
 
 BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.366 2004-12-13 23:24:43 laurentg Exp $
+// $Id: DScaler.cpp,v 1.367 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.366  2004/12/13 23:24:43  laurentg
+// Request in GUI thread regarding output thread - extended code
+//
 // Revision 1.365  2004/12/04 00:06:49  atnak
 // Got rid of warnings in VC++ .Net 2003.
 //
@@ -1173,6 +1176,7 @@
 #include "OutReso.h"
 #include "MultiFrames.h"
 #include "SAA7134Card.h"
+#include "CX2388xCard.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
@@ -1562,8 +1566,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         }
     }
 
-	// Load up the list of SAA713x cards
-	if (!CSAA7134Card::InitializeSAA713xCardList())
+	// Load up the list of SAA713x and CX2388x cards
+	if (!CSAA7134Card::InitializeSAA713xCardList() || !CCX2388xCard::InitializeCX2388xCardList() )
 	{
 		// Caution, this code exits DScaler abruptly based on the user input.
 		// Although this is not done forcefully using a call like exit(), it

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.160 2004-11-20 14:23:55 atnak Exp $
+// $Id: DS_Control.h,v 1.161 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.160  2004/11/20 14:23:55  atnak
+// Added SAA7134 card name setting for storing the card selection as text.
+//
 // Revision 1.159  2004/11/13 21:45:57  to_see
 // - Some minor fixes
 // - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
@@ -1634,6 +1637,7 @@ typedef enum
     CX2388XSTARTSTOPDRIVER,
     CX2388XAUTOMUTEIFNOTUNERSIGNAL,
     CX2388XENABLEVSYNCDETECTION,
+    CX2388XCARDNAME,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

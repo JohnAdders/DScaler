@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.30 2004-09-29 20:36:02 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.31 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2004/09/29 20:36:02  to_see
+// Added Card AverTV303, Thanks to Zbigniew Pluta
+//
 // Revision 1.29  2004/08/31 17:54:50  to_see
 // New entry for PixelView PlayTV Ultra + on chip audio
 // Minor fixes
@@ -169,806 +172,533 @@
 #include "CX2388x_Defines.h"
 #include "DScaler.h"
 #include "DebugLog.h"
+#include "HierarchicalConfigParser.h"
+#include "ParsingCommon.h"
 
-const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] = 
+using namespace HCParser;
+
+static const char* k_CX2388xCardListFilename = "CX2388xCards.ini";
+
+const CCX2388xCard::TCardType CCX2388xCard::m_CX2388xUnknownCard = 
 {
-    // Card Number 0 - Unknown
+    "*Unknown Card*",
+	MODE_STANDARD,
+    4,
     {
-        "Unknown",
-        4,
         {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Colour Bars",
-                INPUTTYPE_COLOURBARS,
-                0,
-                0x00000000,
-            },
+            "Tuner",
+            INPUTTYPE_TUNER,
+            0,
+            { NULL },
         },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_NTSC,
-        IDC_CX2388X,
-    },
-    {
-        "Conexant CX23880 TV/FM EVK",
-        4,
         {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Colour Bars",
-                INPUTTYPE_COLOURBARS,
-                0,
-                0x00000000,
-            },
+            "Composite",
+            INPUTTYPE_COMPOSITE,
+            1,
+            { NULL },
         },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_NTSC,
-        IDC_CX2388X,
-    },
-    {
-        "Conexant CX23880 TV/FM EVK (PAL)",
-        4,
         {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Colour Bars",
-                INPUTTYPE_COLOURBARS,
-                0,
-                0x00000000,
-            },
+            "S-Video",
+            INPUTTYPE_SVIDEO,
+            2,
+            { NULL },
         },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_PAL,
-        IDC_CX2388X,
-    },
-    {
-        "Holo 3d Graph",
-        9,
         {
-            {
-                "Component",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "RGsB",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "SDI",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "Composite G",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "Composite B",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "Composite R",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "Composite BNC",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-            {
-                "PDI",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
+            "Colour Bars",
+            INPUTTYPE_COLOURBARS,
+            0,
+            { NULL },
         },
-        InitH3D,
-        NULL,
-        H3DInputSelect,
-        SetH3DContrastBrightness,
-        SetH3DHue,
-        SetH3DSaturationU,
-        SetH3DSaturationV,
-        H3DSetFormat,
-        TUNER_ABSENT,
-        IDC_CX2388X_H3D,
     },
-    {
-        "PixelView XCapture",
-        2,
-        {
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_ABSENT,
-        IDC_CX2388X,
-    },
-    {
-        "MSI TV@nywhere (NTSC)",
-        4,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        MSIInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_MT2032,
-        IDC_CX2388X,
-    },
-    {
-        "MSI TV@nywhere (PAL)",
-        4,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        MSIPalInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_MT2032_PAL,
-        IDC_CX2388X,
-    },
-    {
-        "Asus TV Tuner 880 NTSC",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        AsusInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_USER_SETUP,
-        IDC_CX2388X,
-    },
-    {
-        "Prolink PlayTV HD",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        PlayHDStopCapture,
-        PlayHDInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_USER_SETUP,
-        IDC_CX2388X,
-    },
-    // Card info from Tom Zoerner
-    {
-        "Hauppauge WinTV 34xxx models",
-        4,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-    			0x0000ff00,
+    TUNER_PHILIPS_NTSC,
+	{ NULL },
+	FALSE,
+};
 
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-    			0x0000ff02,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-    			0x0000ff02,
-            },
-            {   // card has no composite in, but comes with a Cinch to S-Video adapter
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-    			0x0000ff02,
-            },
-            // FM radio input omitted
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        // \todo add eeprom read functionality
-        // these cards seem similar to the bt848 except that
-        // the contents are shifted by 8 bytes
-		// ...fixed 21.02.2004 to_see
-        TUNER_AUTODETECT,
-        IDC_CX2388X,
-    },
-    {
-        "PixelView XCapture With PDI Mod",
-        3,
-        {
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "PDI",
-                INPUTTYPE_CCIR,
-                3,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_ABSENT,
-        IDC_CX2388X,
-    },
-    {
-        "Leadtek WinFast TV2000 XP Expert",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        LeadtekInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_FM1216ME_MK3,
-        IDC_CX2388X,
-    },
-    {
-        "MSI TV@nywhere Master",
-        4,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x00000000,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x00000000,
-            },
-            {
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-                0x00000000,
-            },
-        },
-        NULL,
-        NULL,
-        MSIPalInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_MT2050_PAL,
-        IDC_CX2388X,
-    },
+std::vector<CCX2388xCard::CCardTypeEx> CCX2388xCard::m_CX2388xCards;
 
-	// GPIO's from Allen
-    {
-        "ATI TV Wonder Pro",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-                0x000003ff,
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-                0x000003fe,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-                0x000003fe,
-            },
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_4IN1,
-        IDC_CX2388X,
-    },
-    // Card info from Tom Zoerner
-    {
-        "Hauppauge WinTV 34xxx models (Mono Tuner Sound)",
-        4,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-    			0x0000ff01,
+//////////////////////////////////////////////////////////////////////////
+// CX2388x card list parsing constants
+//////////////////////////////////////////////////////////////////////////
+const CParseConstant CCX2388xCard::k_parseInputTypeConstants[] =
+{
+    PC( "TUNER",      INPUTTYPE_TUNER      ),
+    PC( "COMPOSITE",  INPUTTYPE_COMPOSITE  ),
+    PC( "SVIDEO",     INPUTTYPE_SVIDEO     ),
+    PC( "CCIR",       INPUTTYPE_CCIR       ),
+    PC( "COLOURBARS", INPUTTYPE_COLOURBARS ),
+    PC( NULL )
+};
 
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-    			0x0000ff02,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-    			0x0000ff02,
-            },
-            {   // card has no composite in, but comes with a Cinch to S-Video adapter
-                "Composite Over S-Video",
-                INPUTTYPE_COMPOSITE,
-                2,
-    			0x0000ff02,
-            },
-            // FM radio input omitted
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        // \todo add eeprom read functionality
-        // these cards seem similar to the bt848 except that
-        // the contents are shifted by 8 bytes
-		// ...fixed 21.02.2004 to_see
-        TUNER_AUTODETECT,
-        IDC_CX2388X,
-    },
+const CParseConstant CCX2388xCard::k_parseCardModeConstants[] =
+{
+    PC( "STANDARD",   MODE_STANDARD ),
+    PC( "H3D",        MODE_H3D      ),
+    PC( NULL )
+};
+
+//////////////////////////////////////////////////////////////////////////
+// CX2388x card	list parsing values
+//////////////////////////////////////////////////////////////////////////
+const CParseTag CCX2388xCard::k_parseCardGPIOSet[] =
+{
+    PT( "GPIO_0", PARSE_NUMERIC, 1, 16, NULL, ReadCardInputInfoProc ),
+    PT( "GPIO_1", PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
+    PT( "GPIO_2", PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
+    PT( "GPIO_3", PARSE_NUMERIC, 0, 16, NULL, ReadCardInputInfoProc ),
+    PT( NULL )
+};
+
+const CParseTag CCX2388xCard::k_parseCardInput[] =
+{
+    PT( "Name",       PARSE_STRING,   1, 63, NULL,                      ReadCardInputInfoProc ),
+    PT( "Type",       PARSE_CONSTANT, 1, 16, k_parseInputTypeConstants, ReadCardInputInfoProc ),
+    PT( "MuxSelect",  PARSE_NUMERIC,  1,  1, NULL,                      ReadCardInputInfoProc ),
+    PT( "GPIOSet",    PARSE_CHILDREN, 0,  1, k_parseCardGPIOSet,        NULL ),
+    PT( NULL )
+};
+
+const CParseTag CCX2388xCard::k_parseCardAutoDetectID[] =
+{
+    PT( "0", PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
+    PT( "1", PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
+    PT( "2", PARSE_NUMERIC, 0, 16, NULL, ReadCardAutoDetectIDProc ),
+    PT( NULL )
+};
+
+const CParseTag CCX2388xCard::k_parseCard[] =
+{
+    PT( "Name",           PARSE_STRING,                 1, 127,			       NULL,                     ReadCardInfoProc         ), 
+    PT( "CardMode",       PARSE_CONSTANT,               0, 32,                 k_parseCardModeConstants, ReadCardInfoProc         ),
+    PT( "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC, 0, 32,                 k_parseTunerConstants,    ReadCardDefaultTunerProc ),
+    PT( "AutoDetectID",   PARSE_CHILDREN,               0, 1,				   k_parseCardAutoDetectID,  NULL                     ),
+    PT( "Input",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput,         ReadCardInputProc        ),
+    PT( "Final",          PARSE_CHILDREN,               0, CX_INPUTS_PER_CARD, k_parseCardInput+2,       ReadCardInputProc        ),
+    PT( "UseTDA9887",     PARSE_CHILDREN,               0, 1,				   k_parseUseTDA9887,        ReadCardUseTDA9887Proc   ),
+    PT( NULL )
+};
+
+const CParseTag CCX2388xCard::k_parseCardList[] =
+{
+    PT( "Card", PARSE_CHILDREN, 0, 1024, k_parseCard, ReadCardProc ),
+    PT( NULL )
+};
+
+void CCX2388xCard::ReadCardInputInfoProc(int report, const CParseTag* tag, unsigned char,
+                                         const CParseValue* value, void* context)
+{
+    if (report != REPORT_VALUE)
+    {
+        return;
+    }
+
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+    TInputType* input = &parseInfo->pCurrentCard->Inputs[parseInfo->pCurrentCard->NumInputs];
+
+    // Name
+    if (tag == k_parseCardInput + 0)
+    {
+        if (*value->GetString() == '\0')
+        {
+            throw string("\"\" is not a valid name of an input");
+        }
+        strcpy(input->szName, value->GetString());
+    }
+
+    // Input Type
+    else if (tag == k_parseCardInput + 1)
+    {
+        input->InputType = static_cast<eInputType>(value->GetNumber());
+    }
+
+    // Mux Select
+    else if (tag == k_parseCardInput + 2)
+    {
+        // 0...3
+		int n = value->GetNumber();
+        if (n < 0 || n > 3)
+        {
+            throw string("MuxSelect must be between 0 and 3");
+        }
+
+		input->MuxSelect = n;
+    }
+
+    // GPIOSet->GPIO_0
+    else if (tag == k_parseCardGPIOSet + 0)
+    {
+		input->GPIOSet.GPIO_0 = static_cast<DWORD>(value->GetNumber());
+    }
+
+    // GPIOSet->GPIO_1
+    else if (tag == k_parseCardGPIOSet + 1)
+    {
+		input->GPIOSet.GPIO_1 = static_cast<DWORD>(value->GetNumber());
+    }
     
-	// Card info from Denis Love
+	// GPIOSet->GPIO_2
+    else if (tag == k_parseCardGPIOSet + 2)
     {
-        "PixelView PlayTV Ultra (Mono Tuner Sound)",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-    			0x0000ff00,
+		input->GPIOSet.GPIO_2 = static_cast<DWORD>(value->GetNumber());
+    }
 
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-    			0x00000ff1,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-    			0x00000ff1,
-            },
-            // FM radio input omitted
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-		// \todo support for onboard TDA9874
-		// this is only mono sound from tuner
-        TUNER_PHILIPS_PAL,
-        IDC_CX2388X,
-    },
-	
-	// Card Info from trfillos@...
-	// this card has no eeprom.
+    // GPIOSet->GPIO_3
+    else if (tag == k_parseCardGPIOSet + 3)
     {
-        "K-World DV/AV Expert TV Stereo",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-    			0x000007f8,
+		input->GPIOSet.GPIO_3 = static_cast<DWORD>(value->GetNumber());
+    }
+}
 
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-    			0x000004ff,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-    			0x000004ff,
-            },
-            // FM radio input omitted
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_FM1216ME_MK3,
-        IDC_CX2388X,
-    },
-	
-	// Card info from tarambuka3500
-    {
-        "PixelView PlayTV Ultra",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-    			0x0000bff1,
-
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-    			0x0000bff3,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-    			0x0000bff3,
-            },
-            // FM radio input omitted
-        },
-        NULL,
-        NULL,
-        StandardInputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_PAL,
-        IDC_CX2388X,
-    },
-	
-	// Card info Zbigniew Pluta
-    {
-        "AverTV Studio 303 (M126)",
-        3,
-        {
-            {
-                "Tuner",
-                INPUTTYPE_TUNER,
-                0,
-    			0x00000000,
-
-            },
-            {
-                "Composite",
-                INPUTTYPE_COMPOSITE,
-                1,
-    			0x00000000,
-            },
-            {
-                "S-Video",
-                INPUTTYPE_SVIDEO,
-                2,
-    			0x00000000,
-            },
-            // FM radio input omitted
-        },
-        NULL,
-        NULL,
-        AverTV303InputSelect,
-        SetAnalogContrastBrightness,
-        SetAnalogHue,
-        SetAnalogSaturationU,
-        SetAnalogSaturationV,
-        StandardSetFormat,
-        TUNER_PHILIPS_FM1216ME_MK3,
-        IDC_CX2388X,
-    },
-};
-
-const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
+void CCX2388xCard::ReadCardInputProc(int report, const CParseTag* tag, unsigned char,
+                                     const CParseValue*, void* context)
 {
-    { 0x006614F1, CX2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
-    { 0x00f81002, CX2388xCARD_ATI_WONDER_PRO, "ATI Wonder Pro"},
-    //Tee Added support for PAL EVK and also added support for SSVID
-    { 0x016614F1, CX2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
-    { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
-    { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
-    { 0x34000070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
-    { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" }, // PAL
-    { 0x6613107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" }, // NTSC
-    { 0x86061462, CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL, "MSI TV@nywhere Master"},
-	{ 0x48111554, CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA, "PixelView PlayTV Ultra" },
-	{ 0x088317DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // NTSC
-	{ 0x088217DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // PAL
-	{ 0x000b1461, CX2388xCARD_AVERTV_303, "AverTV Studio 303 (M126)" },
-    { 0, (eCX2388xCardId)-1, NULL }
-};
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    switch (report)
+    {
+    case REPORT_OPEN:
+        {
+            TInputType* input = &parseInfo->pCurrentCard->Inputs[parseInfo->pCurrentCard->NumInputs];
+            input->szName[0] = '\0';
+            input->InputType = (tag == k_parseCard + 5) ? INPUTTYPE_FINAL : INPUTTYPE_COMPOSITE;
+            input->GPIOSet.GPIO_0 = 0;
+            input->GPIOSet.GPIO_1 = 0;
+            input->GPIOSet.GPIO_2 = 0;
+            input->GPIOSet.GPIO_3 = 0;
+        }
+        break;
+    case REPORT_CLOSE:
+        parseInfo->pCurrentCard->NumInputs++;
+        break;
+    }
+}
+
+void CCX2388xCard::ReadCardUseTDA9887Proc(int report, const CParseTag* tag, unsigned char type,
+                                          const CParseValue* value, void* context)
+{
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    // Return TRUE means parseInfo->useTDA9887Info is ready.
+    if (ReadUseTDA9887Proc(report, tag, type, value, &parseInfo->useTDA9887Info))
+    {
+        parseInfo->pCurrentCard->bUseTDA9887 = parseInfo->useTDA9887Info.useTDA9887;
+        if (parseInfo->pCurrentCard->bUseTDA9887)
+        {
+            int count = 0;
+            // Count the number of non-zero masks.
+            for (int i = 0; i < TDA9887_FORMAT_LASTONE; i++)
+            {
+                if (parseInfo->useTDA9887Info.tdaModes[i].mask != 0)
+                {
+                    count++;
+                }
+            }
+            // If there are any non-zero mask.
+            if (count > 0)
+            {
+                // Pre-reserve the correct amount of blocks.
+                parseInfo->pCurrentCard->tda9887Modes.clear();
+                parseInfo->pCurrentCard->tda9887Modes.reserve(count);
+
+                TTDA9887FormatModes modes;
+
+                // Transfer all data to the vector.
+                for (i = 0; i < TDA9887_FORMAT_LASTONE; i++)
+                {
+                    if (parseInfo->useTDA9887Info.tdaModes[i].mask != 0)
+                    {
+                        modes.format = (eTDA9887Format)i;
+                        modes.mask = parseInfo->useTDA9887Info.tdaModes[i].mask;
+                        modes.bits = parseInfo->useTDA9887Info.tdaModes[i].bits;
+                        parseInfo->pCurrentCard->tda9887Modes.push_back(modes);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CCX2388xCard::ReadCardDefaultTunerProc(int report, const CParseTag* tag, unsigned char type,
+                                            const CParseValue* value, void* context)
+{
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    // Return TRUE means parseInfo->tunerInfo is ready.
+    if (ReadTunerProc(report, tag, type, value, &parseInfo->tunerInfo))
+    {
+        parseInfo->pCurrentCard->TunerId = parseInfo->tunerInfo.tunerId;
+    }
+}
+
+void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned char,
+                                    const CParseValue* value, void* context)
+{
+    if (report != REPORT_VALUE)
+    {
+        return;
+    }
+
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    // Name
+    if (tag == k_parseCard + 0)
+    {
+        if (*value->GetString() == '\0')
+        {
+            throw string("\"\" is not a valid name of a card");
+        }
+        
+        for (size_t i = 0; i < parseInfo->nGoodCards; i++)
+        {
+            if (stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
+            {
+                throw string("A card was already specified with this name");
+            }
+        }
+		
+        strcpy(parseInfo->pCurrentCard->szName, value->GetString());
+    }
+
+	// Card Mode
+	else if (tag == k_parseCard + 1)
+	{
+		parseInfo->pCurrentCard->CardMode = static_cast<eCardMode>(value->GetNumber());
+	}
+}
+
+void CCX2388xCard::ReadCardAutoDetectIDProc(int report, const CParseTag* tag, unsigned char,
+                                            const CParseValue* value, void* context)
+{
+    if (report != REPORT_VALUE)
+    {
+        return;
+    }
+
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    int i = (int)(tag - k_parseCardAutoDetectID);
+    parseInfo->pCurrentCard->AutoDetectId[i] = static_cast<DWORD>(value->GetNumber());
+}
+
+void CCX2388xCard::ReadCardProc(int report, const CParseTag*, unsigned char, const CParseValue*, void* context)
+{
+    static TCardType cardDefault = { "", MODE_STANDARD, 0, { 0 }, TUNER_ABSENT, 0, FALSE };
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    switch (report)
+    {
+    case REPORT_OPEN:
+        parseInfo->pCardList->push_back(cardDefault);
+        parseInfo->pCurrentCard = &(*parseInfo->pCardList)[parseInfo->nGoodCards];
+        break;
+    case REPORT_CLOSE:
+        {
+            long finalCount = 0;
+            for (int i = 0; i < parseInfo->pCurrentCard->NumInputs; i++)
+            {
+                if (parseInfo->pCurrentCard->Inputs[i].InputType == INPUTTYPE_FINAL)
+                {
+                    finalCount++;
+                }
+            }
+            
+            if (finalCount > 1)
+            {
+                throw string("There can only be one input of type FINAL");
+            }
+            
+            if (finalCount == 1)
+            {
+                int i = parseInfo->pCurrentCard->NumInputs - 1;
+                if (parseInfo->pCurrentCard->Inputs[i].InputType != INPUTTYPE_FINAL)
+                {
+                    throw string("The FINAL input must be after all other inputs");
+                }
+            }
+
+            parseInfo->nGoodCards++;
+            parseInfo->pCurrentCard = NULL;
+        }
+        break;
+    }
+}
+
+BOOL APIENTRY CCX2388xCard::ParseErrorProc(HWND hDlg, UINT message, UINT wParam, LPARAM lParam)
+{
+    TParseCardInfo* parseInfo = (TParseCardInfo*)lParam;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        {
+            SetWindowTextA(hDlg, "CX2388x Card List Parsing Error");
+
+            HWND hItem;
+            hItem = GetDlgItem(hDlg, IDC_ERROR_MESSAGE);
+            if (CHCParser::IsUnicodeOS())
+            {
+                SetWindowTextW(hItem, parseInfo->pHCParser->GetErrorUnicode().c_str());
+            }
+            else
+            {
+                SetWindowTextA(hItem, parseInfo->pHCParser->GetError().c_str());
+            }
+
+            ostringstream oss;
+            oss << "An error occured while reading CX2388x cards from 'CX2388xCards.ini':";
+
+            hItem = GetDlgItem(hDlg, IDC_TOP_STATIC);
+            SetWindowTextA(hItem, oss.str().c_str());
+
+            oss.str("");
+            oss << (parseInfo->nGoodCards - 1) << " card(s) were successfully read before this "
+                "error.  Although this error is not fatal, if a previously selected CX2388x "
+                "card is not among those successfully read, and this error is ignored, a "
+                "different card will need to be selected.";
+
+            hItem = GetDlgItem(hDlg, IDC_BOTTOM_STATIC);
+            SetWindowTextA(hItem, oss.str().c_str());
+        }
+        break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+        case IDCANCEL:
+        case IDIGNORE:
+            EndDialog(hDlg, IDIGNORE);
+            break;
+        case IDRETRY:
+        case IDABORT:
+            EndDialog(hDlg, LOWORD(wParam));
+        }
+        break;
+    }
+
+    return FALSE;
+}
+
+
+BOOL CCX2388xCard::InitializeCX2388xCardList()
+{
+    InitializeCX2388xUnknownCard();
+
+    CHCParser hcParser(k_parseCardList);
+
+    TParseCardInfo parseInfo;
+    parseInfo.pCardList = &m_CX2388xCards;
+    parseInfo.pCurrentCard = NULL;
+    parseInfo.nGoodCards = 1;
+    parseInfo.pHCParser = &hcParser;
+
+    // No need to use ParseLocalFile() because DScaler does SetExeDirectory()
+    // at the beginning.
+    while (!hcParser.ParseFile(k_CX2388xCardListFilename, (void*)&parseInfo))
+    {
+        LOG(0, "CX2388x cardlist: %s", hcParser.GetError().c_str());
+
+        INT_PTR iRetVal = DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_PARSE_ERROR),
+            NULL, ParseErrorProc, (LPARAM)&parseInfo);
+        if (iRetVal == -1)
+        {
+            MessageBoxA(NULL, "DialogBoxParam(...) returned -1 for loading IDD_PARSE_ERROR.",
+                "Critical Error", MB_ICONEXCLAMATION|MB_OK);
+            return FALSE;
+        }
+        if (iRetVal == IDIGNORE)
+        {
+            break;
+        }
+        if (iRetVal == IDABORT)
+        {
+            return FALSE;
+        }
+
+        parseInfo.pCurrentCard = NULL;
+        parseInfo.nGoodCards = 1;
+        parseInfo.pCardList->resize(1);
+    }
+
+    // These can be one extra card in the list than the number of nGoodCards.
+    if (parseInfo.nGoodCards < parseInfo.pCardList->size())
+    {
+        parseInfo.pCardList->resize(parseInfo.nGoodCards);
+    }
+
+    LOG(1, "CX2388x cardlist: %lu card(s) read", parseInfo.nGoodCards);
+
+    return TRUE;
+}
+
+void CCX2388xCard::InitializeCX2388xUnknownCard()
+{
+    if (m_CX2388xCards.size() == 0)
+    {
+        m_CX2388xCards.push_back(m_CX2388xUnknownCard);
+    }
+}
+
+int CCX2388xCard::GetMaxCards()
+{
+    InitializeCX2388xUnknownCard();
+    return m_CX2388xCards.size();
+}
+
+int CCX2388xCard::GetCardByName(LPCSTR cardName)
+{
+    int listSize = GetMaxCards();
+    for (int i = 0; i < listSize; i++)
+    {
+        if (_stricmp(m_CX2388xCards[i].szName, cardName) == 0)
+        {
+            return i;
+        }
+    }
+    return 0;
+}
 
 int CCX2388xCard::GetNumInputs()
 {
-    return m_TVCards[m_CardType].NumInputs;
+    // There must be at most one input of type INPUTTYPE_FINAL in a card
+    // and that input MUST always be the last.  GetNumInputs() is the
+    // only function that compensates for the FINAL input to subtract
+    // from the number of actual inputs.
+
+    if (GetFinalInputNumber() != -1)
+    {
+        return m_CX2388xCards[m_CardType].NumInputs - 1;
+    }
+    return m_CX2388xCards[m_CardType].NumInputs;
+}
+
+LPCSTR CCX2388xCard::GetInputName(int nInput)
+{
+    if(nInput < m_CX2388xCards[m_CardType].NumInputs && nInput >= 0)
+    {
+        return m_CX2388xCards[m_CardType].Inputs[nInput].szName;
+    }
+    return "Error";
+}
+
+int CCX2388xCard::GetFinalInputNumber()
+{
+    if (m_CX2388xCards[m_CardType].NumInputs > 0)
+    {
+        int i = m_CX2388xCards[m_CardType].NumInputs - 1;
+        if (m_CX2388xCards[m_CardType].Inputs[i].InputType == INPUTTYPE_FINAL)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 BOOL CCX2388xCard::IsInputATuner(int nInput)
 {
-    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    if(nInput < m_CX2388xCards[m_CardType].NumInputs && nInput >= 0)
     {
-        return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
+        return (m_CX2388xCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
     }
     else
     {
@@ -978,29 +708,39 @@ BOOL CCX2388xCard::IsInputATuner(int nInput)
 
 void CCX2388xCard::SetVideoSource(int nInput)
 {
-    // call correct function
-    // this funny syntax is the only one that works
-    // if you want help understanding what is going on
-    // I suggest you read http://www.newty.de/
-    (*this.*m_TVCards[m_CardType].pInputSwitchFunction)(nInput);
+    if(IsCurCardH3D())
+    {
+        H3DInputSelect(nInput);
+    }
+    else
+    {
+        StandardInputSelect(nInput);
+    }
 }
 
 const CCX2388xCard::TCardType* CCX2388xCard::GetCardSetup()
 {
-    return &(m_TVCards[m_CardType]);
+    return &(m_CX2388xCards[m_CardType]);
 }
 
 eCX2388xCardId CCX2388xCard::AutoDetectCardType()
 {
+    InitializeCX2388xUnknownCard();
+
     DWORD Id = m_SubSystemId;
     if (Id != 0 && Id != 0xffffffff)
     {
-        int i;
-        for (i = 0; m_AutoDectect[i].ID != 0; i++)
+        int ListSize = GetMaxCards();
+
+        for(int i = 0; i < ListSize; i++)
         {
-            if (m_AutoDectect[i].ID  == Id)
+            for(int j = 0; j < CX_AUTODETECT_ID_PER_CARD && m_CX2388xCards[i].AutoDetectId[j] != 0; j++)
             {
-                return m_AutoDectect[i].CardId;
+                if(m_CX2388xCards[i].AutoDetectId[j] == Id)
+                {
+                    LOG(0, "CX2388x: Autodetect found %s.", m_CX2388xCards[i].szName);
+                    return (eCX2388xCardId)i;
+                }
             }
         }
     }
@@ -1009,19 +749,34 @@ eCX2388xCardId CCX2388xCard::AutoDetectCardType()
 
 void CCX2388xCard::StandardInputSelect(int nInput)
 {
-    if(nInput >= m_TVCards[m_CardType].NumInputs)
+    // -1 for finishing clean up
+    if (nInput == -1)
+    {
+        nInput = GetFinalInputNumber();
+        if (nInput == -1)
+        {
+            // There are no cleanup specific changes
+            return;
+        }
+    }
+
+    if(nInput >= m_CX2388xCards[m_CardType].NumInputs)
     {
         LOG(1, "Input Select Called for invalid input");
-        nInput = m_TVCards[m_CardType].NumInputs - 1;
+        nInput = m_CX2388xCards[m_CardType].NumInputs - 1;
     }
+    
     if(nInput < 0)
     {
         LOG(1, "Input Select Called for invalid input");
         nInput = 0;
     }
+    
     m_CurrentInput = nInput;
 
-    if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_COLOURBARS)
+    TInputType* pInput = &m_CX2388xCards[m_CardType].Inputs[nInput];
+
+    if(pInput->InputType == INPUTTYPE_COLOURBARS)
     {
         // Enable color bars
         OrDataDword(CX2388X_VIDEO_COLOR_FORMAT, 0x00004000);
@@ -1040,10 +795,10 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         VideoInput &= 0x0F;
         
         // set the Mux up from the card setup
-        VideoInput |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CX2388X_VIDEO_INPUT_MUX_SHIFT);
+        VideoInput |= (pInput->MuxSelect << CX2388X_VIDEO_INPUT_MUX_SHIFT);
 
         // set the comp bit for svideo
-        switch (m_TVCards[m_CardType].Inputs[nInput].InputType)
+        switch (pInput->InputType)
         {
             case INPUTTYPE_SVIDEO: // SVideo
                 VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL; 
@@ -1068,289 +823,47 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         }
         
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
-
     }
 
-    // set up any sound stuff
-	DWORD dwTemp = m_TVCards[m_CardType].Inputs[nInput].GPIOFlags;
-	
-	if(dwTemp != 0x00000000)
-	{
-		// Reset to normal GPIO Mode
-		WriteDword(MO_GP3_IO, 0x00000000);
-	}
-
-    WriteDword(MO_GP0_IO, dwTemp);
+    TGPIOSet* pGPIOSet = &pInput->GPIOSet;
+    WriteDword(MO_GP3_IO, pGPIOSet->GPIO_3);
+    WriteDword(MO_GP2_IO, pGPIOSet->GPIO_2);
+    WriteDword(MO_GP1_IO, pGPIOSet->GPIO_1);
+    WriteDword(MO_GP0_IO, pGPIOSet->GPIO_0);
 }
 
 HMENU CCX2388xCard::GetCardSpecificMenu()
 {
-    return LoadMenu(hResourceInst, MAKEINTRESOURCE(m_TVCards[m_CardType].MenuId));
-}
-
-void CCX2388xCard::MSIInputSelect(int nInput)
-{
-    StandardInputSelect(nInput);
-	if(nInput == 0)
-	{
-		// GPIO pins set according to values supplied by
-		// Ryan Griffin - Stegink
-		WriteDword(MO_GP3_IO, 0x00000000); 
-		WriteDword(MO_GP0_IO, 0x000000ff);
-		WriteDword(MO_GP1_IO, 0x00008040);
-		WriteDword(MO_GP2_IO, 0x0000fc1f); 
-	}
-	else
-	{
-		// Turn off anything audio if we're not the tuner
-		WriteDword(MO_GP3_IO, 0x00000000); 
-		WriteDword(MO_GP0_IO, 0x00000000);
-		WriteDword(MO_GP1_IO, 0x00008000);
-		WriteDword(MO_GP2_IO, 0x0000ff80); 
-	}
-}
-
-void CCX2388xCard::MSIPalInputSelect(int nInput)
-{
-    StandardInputSelect(nInput);
-	if(nInput == 0)
-	{
-		WriteDword(MO_GP3_IO, 0x00000000); 
-		WriteDword(MO_GP0_IO, 0x000040bf);
-		WriteDword(MO_GP1_IO, 0x000080c0);
-		WriteDword(MO_GP2_IO, 0x0000ff40); 
-	}
-	else
-	{
-		// Turn off anything audio if we're not the tuner
-		WriteDword(MO_GP3_IO, 0x00000000); 
-		WriteDword(MO_GP0_IO, 0x000040bf);
-		WriteDword(MO_GP1_IO, 0x000080c0);
-		WriteDword(MO_GP2_IO, 0x0000ff20); 
-	}
-}
-
-void CCX2388xCard::PlayHDInputSelect(int nInput)
-{
-    StandardInputSelect(nInput);
-    if(nInput == 0)
+    if(IsCurCardH3D())
     {
-        // GPIO pins set according to values supplied by
-        // Tom Fotja
-        WriteDword(MO_GP0_IO, 0x0000ff00);
+	    return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CX2388X_H3D));
     }
     else
     {
-        // Turn off anything audio if we're not the tuner
-        WriteDword(MO_GP0_IO, 0x00000ff1);
+	    return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CX2388X));
     }
 }
 
-void CCX2388xCard::PlayHDStopCapture()
+BOOL CCX2388xCard::IsCurCardH3D()
 {
-    // Turn off audio
-    // JA 24/Feb/2003 Tuned off as it doesn't work
-    //WriteDword(MO_GP0_IO, 0x00000ff1);
-}
-
-
-void CCX2388xCard::AsusInputSelect(int nInput)
-{
-    StandardInputSelect(nInput);
-    if(nInput == 0)
-    {
-        // GPIO pins set according to values supplied by
-        // Phil Rasmussen 
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GP0_IO, 0x000080ff);
-        WriteDword(MO_GP1_IO, 0x000001ff);
-        WriteDword(MO_GP2_IO, 0x000000ff); 
-    }
+	if(m_CX2388xCards[m_CardType].CardMode == MODE_H3D)
+	{
+		return TRUE;
+	}
     else
     {
-        // Turn off anything audio if we're not the tuner
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GP0_IO, 0x0000ff00);
-        WriteDword(MO_GP1_IO, 0x0000ff00);
-        WriteDword(MO_GP2_IO, 0x0000ff00); 
+        return FALSE;
     }
 }
 
-void CCX2388xCard::LeadtekInputSelect(int nInput)
+BOOL CCX2388xCard::IsThisCardH3D(eCX2388xCardId CardId)
 {
-    StandardInputSelect(nInput);
-    if(nInput == 0)
-    {
-        WriteDword(MO_GP3_IO, 0x02000000); 
-        WriteDword(MO_GP0_IO, 0x00F5e700);
-        WriteDword(MO_GP1_IO, 0x00003004);
-        WriteDword(MO_GP2_IO, 0x00F5e700); 
-    }
-    
-	else
-    {
-        WriteDword(MO_GP3_IO, 0x02000000); 
-        WriteDword(MO_GP0_IO, 0x00F5c700);
-        WriteDword(MO_GP1_IO, 0x00003004);
-        WriteDword(MO_GP2_IO, 0x00F5c700); 
-    }
-
-	// FM-Radio:
-	/*
-        WriteDword(MO_GP3_IO, 0x02000000); 
-        WriteDword(MO_GP0_IO, 0x00F5d700);
-        WriteDword(MO_GP1_IO, 0x00003004);
-        WriteDword(MO_GP2_IO, 0x00F5d700); 
-	*/
-}
-
-void CCX2388xCard::AverTV303InputSelect(int nInput)
-{
-    StandardInputSelect(nInput);
-    if(nInput == 0)
-    {
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GP0_IO, 0x000000ff);
-        WriteDword(MO_GP1_IO, 0x0000e09f);
-        WriteDword(MO_GP2_IO, 0x000000d1); 
-    }
-    
-	else
-    {
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GP0_IO, 0x000000ff);
-        WriteDword(MO_GP1_IO, 0x0000e05f);
-        WriteDword(MO_GP2_IO, 0x000000d1); 
-    }
-
-	// muted:
-	/*
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GP0_IO, 0x000000ff);
-        WriteDword(MO_GP1_IO, 0x000020ff);
-        WriteDword(MO_GP2_IO, 0x000000d1); 
-	*/
-}
-
-const eTunerId CCX2388xCard::m_Tuners_Hauppauge_CX2388x_Card[]=
-{
-	TUNER_ABSENT,
-	TUNER_ABSENT,						//"External"
-	TUNER_ABSENT,						//"Unspecified"
-	TUNER_PHILIPS_PAL,					//"Philips FI1216"
-	//4
-	TUNER_PHILIPS_SECAM,				//"Philips FI1216MF"
-	TUNER_PHILIPS_NTSC,					//"Philips FI1236"
-	TUNER_PHILIPS_PAL_I,				//"Philips FI1246"
-	TUNER_PHILIPS_PAL_DK,				//"Philips FI1256"
-	//8
-	TUNER_PHILIPS_PAL,					//"Philips FI1216 MK2"
-	TUNER_PHILIPS_SECAM,				//"Philips FI1216MF MK2"
-	TUNER_PHILIPS_NTSC,					//"Philips FI1236 MK2"
-	TUNER_PHILIPS_PAL_I,				//"Philips FI1246 MK2"
-	//12
-	TUNER_PHILIPS_PAL_DK,				//"Philips FI1256 MK2"
-	TUNER_TEMIC_4032FY5_NTSC,			//"Temic 4032FY5"
-	TUNER_TEMIC_4002FH5_PAL,			//"Temic 4002FH5"
-	TUNER_TEMIC_4062FY5_PAL_I,			//"Temic 4062FY5"
-	//16
-	TUNER_PHILIPS_PAL,					//"Philips FR1216 MK2"
-	TUNER_PHILIPS_SECAM,				//"Philips FR1216MF MK2"
-	TUNER_PHILIPS_NTSC,					//"Philips FR1236 MK2"
-	TUNER_PHILIPS_PAL_I,				//"Philips FR1246 MK2"
-	//20
-	TUNER_PHILIPS_PAL_DK,				//"Philips FR1256 MK2"
-	TUNER_PHILIPS_PAL,					//"Philips FM1216"
-	TUNER_PHILIPS_SECAM,				//"Philips FM1216MF"
-	TUNER_PHILIPS_NTSC,					//"Philips FM1236"
-	//24
-	TUNER_PHILIPS_PAL_I,				//"Philips FM1246"
-	TUNER_PHILIPS_PAL_DK,				//"Philips FM1256"
-	TUNER_TEMIC_4036FY5_NTSC,			//"Temic 4036FY5"
-	TUNER_ABSENT,						//"Samsung TCPN9082D"
-	//28
-	TUNER_ABSENT,						//"Samsung TCPM9092P"
-	TUNER_TEMIC_4006FH5_PAL,			//"Temic 4006FH5"
-	TUNER_ABSENT,						//"Samsung TCPN9085D"
-	TUNER_ABSENT,						//"Samsung TCPB9085P"
-	//32
-	TUNER_ABSENT,						//"Samsung TCPL9091P"
-	TUNER_TEMIC_4039FR5_NTSC,			//"Temic 4039FR5"
-	TUNER_PHILIPS_MULTI,				//"Philips FQ1216 ME"
-	TUNER_TEMIC_4066FY5_PAL_I,			//"Temic 4066FY5"
-	//36
-	TUNER_PHILIPS_NTSC,					//"Philips TD1536"
-	TUNER_PHILIPS_NTSC,					//"Philips TD1536D"
-	TUNER_PHILIPS_NTSC,					//"Philips FMR1236"
-	TUNER_ABSENT,						//"Philips FI1256MP"
-	//40
-	TUNER_ABSENT,						//"Samsung TCPQ9091P"
-	TUNER_TEMIC_4006FN5_PAL,			//"Temic 4006FN5"
-	TUNER_TEMIC_4009FR5_PAL,			//"Temic 4009FR5"
-	TUNER_TEMIC_4046FM5_MULTI,			//"Temic 4046FM5"
-	//44
-	TUNER_TEMIC_4009FN5_PAL,			//"Temic 4009FN5"
-	TUNER_ABSENT,						//"Philips TD1536D_FH_44"
-	TUNER_LG_R01F_NTSC,					//"LG TPI8NSR01F"}
-	TUNER_LG_B01D_PAL,					//"LG TPI8PSB01D"}
-	//48
-	TUNER_LG_B11D_PAL,					//"LG TPI8PSB11D"}
-	TUNER_LG_I001D_PAL_I,				//"LG TAPC-I001D"}
-	TUNER_LG_I701D_PAL_I,				//"LG TAPC-I701D"}
-};
-
-eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
-{
-	eTunerId TunerId = TUNER_ABSENT;
-
-	if(m_TVCards[CardId].TunerId == TUNER_USER_SETUP)
+	if(m_CX2388xCards[CardId].CardMode == MODE_H3D)
 	{
-		return TUNER_ABSENT;
+		return TRUE;
 	}
-
-	else if(m_TVCards[CardId].TunerId == TUNER_AUTODETECT)
-	{
-		eTunerId Tuner = TUNER_ABSENT;
-		
-		// Read the whole EEPROM
-		BYTE Eeprom[256];
-		for (int i=0; i<256; i += 4)
-		{
-			// DWORD alignment needed
-			DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
-			Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
-			Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
-			Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
-			Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
-		}
-
-		switch(CardId)
-		{
-		case CX2388xCARD_HAUPPAUGE_PCI_FM:
-		case CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND:
-			if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0)
-			{
-				LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card fails.");
-			}
-
-			else
-			{
-				LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card. TunerId: 0x%02X",Eeprom[8+9]);
-				if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
-				{
-					Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
-				}
-			}
-
-			break;
-		} // switch(CardId)
-        
-		return Tuner;
-	}
-
-	else
-	{
-		return m_TVCards[CardId].TunerId;
-	}
+    else
+    {
+        return FALSE;
+    }
 }
-

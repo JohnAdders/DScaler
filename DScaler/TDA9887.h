@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.18 2004-12-12 23:57:15 atnak Exp $
+// $Id: TDA9887.h,v 1.19 2004-12-25 22:40:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2004/12/12 23:57:15  atnak
+// Fixed SetMode() QSS mask conflict with TakeOverPoint mask.
+//
 // Revision 1.17  2004/12/01 17:47:01  atnak
 // Added misc defines for SetModes(...).
 //
@@ -151,18 +154,6 @@
 #define TDA9887_AgcOutOFF				0x00	// bit e7
 
 
-// \TODO: delete this
-enum eTDA9887Card
-{
-	TDA9887_DEFAULT = 0,
-	TDA9887_MSI_TV_ANYWHERE_MASTER,
-	TDA9887_LEADTEK_WINFAST_EXPERT,
-	TDA9887_ATI_TV_WONDER_PRO,
-	TDA9887_AVERTV_303,
-	TDA9887_LASTONE,
-};
-
-
 //////////////////////////////////////////////////////////////////////////
 // CTDA9887
 //////////////////////////////////////////////////////////////////////////
@@ -171,7 +162,6 @@ class CTDA9887 : public IExternalIFDemodulator
 {
 public:
     CTDA9887();
-	CTDA9887(eTDA9887Card TDA9887Card);
     virtual ~CTDA9887();
 
 	// Attaches to each known TDA9887 address on the given bus and tries to
@@ -193,25 +183,6 @@ public:
 protected:
     // from CI2CDevice
     virtual BYTE GetDefaultAddress() const { return I2C_TDA9887_0; }
-
-private:
-
-	// \TODO: delete this
-	typedef struct
-	{
-		DWORD eTDA9887Card;
-		BYTE Pal_BG[3];
-		BYTE Pal_I[3];
-		BYTE Pal_DK[3];
-		BYTE Secam_L[3];
-		BYTE Ntsc[3];
-		BYTE Ntsc_Jp[3];
-		BYTE Fm_Radio[3];
-
-	} TControlSettings;
-
-    static const TControlSettings m_ControlSettings[TDA9887_LASTONE];
-	eTDA9887Card m_eCardID;
 };
 
 

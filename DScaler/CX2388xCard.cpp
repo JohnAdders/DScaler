@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.33 2003-01-06 10:33:37 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.34 2003-01-13 17:46:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/06 10:33:37  adcockj
+// Set correct number of Dwords for VBI at 720 pixels
+//
 // Revision 1.32  2003/01/05 19:42:24  laurentg
 // Correction to John's correction correcting Laurent's correction
 //
@@ -639,17 +642,106 @@ void CCX2388xCard::SetThirdChromaDemod(eFlagWithDefault ThirdChromaDemod)
     }
 }
 
+
+void CCX2388xCard::SetHDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int HDelayAdj)
+{
+    int HorzDelay;
+    int CurrentY = GetTVFormat(TVFormat)->wCropHeight;
+
+    if(IsCCIRSource(nInput))
+    {
+        if (CurrentY == 576)
+        {
+            HorzDelay = 0x94;
+        }
+        else
+        {
+            HorzDelay = 0x7E;
+        }
+    }
+    else if(CurrentX == 720)
+    {
+        if (CurrentY == 576)
+        {
+            HorzDelay = 0x82;
+        }
+        else
+        {
+            HorzDelay = 0x7E;
+        }
+    }
+    else
+    {
+        if (CurrentY == 576)
+        {
+            HorzDelay = ((CurrentX * 0x82) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+        }
+        else
+        {
+            HorzDelay = ((CurrentX * 0x7E) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+        }
+    }
+    
+    HorzDelay += HDelayAdj;
+
+    WriteDword(CX2388X_HORZ_DELAY_EVEN, HorzDelay);
+    WriteDword(CX2388X_HORZ_DELAY_ODD, HorzDelay);
+
+    if(HorzDelay & 1)
+    {
+        // think we need to invert something here
+        // but I've put step as 2 for time being
+    }
+
+}
+
+void CCX2388xCard::SetVDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int VDelayAdj)
+{
+    int VertDelay;
+    int CurrentY = GetTVFormat(TVFormat)->wCropHeight;
+
+    if(IsCCIRSource(nInput))
+    {
+        VertDelay = 0x0C;
+
+        WriteDword(CX2388X_VDELAYCCIR_EVEN, VertDelay);
+        WriteDword(CX2388X_VDELAYCCIR_ODD, VertDelay);
+    }
+    else if(CurrentX == 720)
+    {
+        if (CurrentY == 576)
+        {
+            VertDelay = 0x24;
+        }
+        else
+        {
+            VertDelay = 0x1C;
+        }
+    }
+    else
+    {
+        if (CurrentY == 576)
+        {
+            VertDelay = 0x24;
+        }
+        else
+        {
+            VertDelay = 0x1C;
+        }
+    }
+    VertDelay += VDelayAdj;
+    WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
+    WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
+}
+
 LPCSTR CCX2388xCard::GetTunerType()
 {
     return m_TunerType;
 }
 
 // Sets up card to support size and format requested
-// at the moment we insist on 720 pixel width.
-void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride, BOOL IsProgressive)
+void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, BOOL IsProgressive)
 {
-    int HorzDelay;
-    int VertDelay;
     int HorzScale;
 
     CurrentY = GetTVFormat(TVFormat)->wCropHeight;
@@ -684,37 +776,8 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
 
-        if(VDelayOverride != 0)
-        {
-            VertDelay = VDelayOverride;
-        }
-        else
-        {
-            VertDelay = 0x0C;
-        }
-
         WriteDword(CX2388X_FORMAT_2HCOMB, 0x183f0008);
         WriteDword(CX2388X_VIP_CONFIG, 1);
-        WriteDword(CX2388X_VDELAYCCIR_EVEN, VertDelay);
-        WriteDword(CX2388X_VDELAYCCIR_ODD, VertDelay);
-        WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
-        WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
-
-        if(HDelayOverride != 0)
-        {
-            HorzDelay = HDelayOverride;
-        }
-        else
-        {
-            if (CurrentY == 576)
-            {
-                HorzDelay = 0x94;
-            }
-            else
-            {
-                HorzDelay = 0x7E;
-            }
-        }
 
         if (CurrentY == 576)
         {
@@ -871,45 +934,10 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         RegValue = (DWORD)((8.0 * 4.406250 / PLL) * (double)(1<<22));
         WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
-        if(VDelayOverride != 0)
-        {
-            VertDelay = VDelayOverride;
-        }
-        else
-        {
-            if (CurrentY == 576)
-            {
-                VertDelay = 0x24;
-            }
-            else
-            {
-                VertDelay = 0x1C;
-            }
-        }
-
-        WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
-        WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
-
         // set up burst gate delay and AGC gate delay
         RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
         RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
         WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
-
-        if(HDelayOverride != 0)
-        {
-            HorzDelay = HDelayOverride;
-        }
-        else
-        {
-            if (CurrentY == 576)
-            {
-                HorzDelay = 0x82;
-            }
-            else
-            {
-                HorzDelay = 0x7E;
-            }
-        }
 
         HorzScale = 0x00;
     }
@@ -1096,34 +1124,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         WriteDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault);
         WriteDword(CX2388X_FILTER_EVEN, m_FilterDefault);
         WriteDword(CX2388X_FILTER_ODD, m_FilterDefault);
-
-        if(VDelayOverride != 0)
-        {
-            VertDelay = VDelayOverride;
-        }
-        else
-        {
-            if (CurrentY == 576)
-            {
-                VertDelay = 0x24;
-            }
-            else
-            {
-                VertDelay = 0x1C;
-            }
-        }
-
-        WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
-        WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
-
-        if(HDelayOverride != 0)
-        {
-            HorzDelay = ((CurrentX * HDelayOverride) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
-        }
-        else
-        {
-            HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
-        }
     }
 
     WriteDword(CX2388X_HACTIVE_EVEN, CurrentX);
@@ -1131,9 +1131,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
     WriteDword(CX2388X_VACTIVE_EVEN, CurrentY);
     WriteDword(CX2388X_VACTIVE_ODD, CurrentY);
-
-    WriteDword(CX2388X_HORZ_DELAY_EVEN, HorzDelay);
-    WriteDword(CX2388X_HORZ_DELAY_ODD, HorzDelay);
 
     WriteDword(CX2388X_HSCALE_EVEN, HorzScale);
     WriteDword(CX2388X_HSCALE_ODD, HorzScale);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.107 2003-01-12 16:19:32 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.108 2003-01-13 17:46:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2003/01/12 16:19:32  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.106  2003/01/11 15:22:24  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -645,10 +649,11 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pAdvancedTimingGroup);
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay Adjust", 0, -16, 16, IniSection, pAdvancedTimingGroup);
+    m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pAdvancedTimingGroup);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjust", 0, -20, 20, IniSection, pAdvancedTimingGroup);
     m_VDelay->SetStepValue(2);
     m_Settings.push_back(m_VDelay);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.31 2002-11-28 14:56:19 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.32 2003-01-13 17:46:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/11/28 14:56:19  adcockj
+// Fixed some register size issues
+//
 // Revision 1.30  2002/11/13 11:15:37  adcockj
 // disabled save state for bt848 cards
 //
@@ -819,7 +822,7 @@ BOOL CBT848Card::GetGammaCorrection()
 
 
 //-------------------------------
-void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride)
+void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayAdj, int HDelayAdj)
 {
     int VertScale;
     int HorzScale;
@@ -902,23 +905,9 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
         HorzDelay = 0x80;
         VertScale = 0;
 
-        if(VDelayOverride != 0)
-        {
-            VertDelay = VDelayOverride;
-        }
-        else
-        {
-            VertDelay = GetTVFormat(TVFormat)->wVDelay;
-        }
+        VertDelay = GetTVFormat(TVFormat)->wVDelay + VDelayAdj;
 
-        if(HDelayOverride != 0)
-        {
-            HorzDelay = HDelayOverride;
-        }
-        else
-        {
-            HorzDelay = 0x80;
-        }
+        HorzDelay = 0x80 + HDelayAdj;
 
         WriteByte(BT848_E_VTC, BT848_VTC_HSFMT_32);
         WriteByte(BT848_O_VTC, BT848_VTC_HSFMT_32);
@@ -951,22 +940,10 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
             CurrentX = GetTVFormat(TVFormat)->wHActivex1;
             HorzScale = 0;
         }
-        if(VDelayOverride != 0)
-        {
-            VertDelay = VDelayOverride;
-        }
-        else
-        {
-            VertDelay = GetTVFormat(TVFormat)->wVDelay;
-        }
-        if(HDelayOverride != 0)
-        {
-            HorzDelay = ((CurrentX * HDelayOverride) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
-        }
-        else
-        {
-            HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
-        }
+
+        VertDelay = GetTVFormat(TVFormat)->wVDelay + VDelayAdj;
+
+        HorzDelay = (((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe) + HDelayAdj;
 
         if(TVFormat == VIDEOFORMAT_PAL_60)
         {

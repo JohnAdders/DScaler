@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.15 2002-12-10 14:53:16 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.16 2003-01-13 17:46:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ public:
     void SetSaturationV(BYTE SaturationV);
     void SetSharpness(char Sharpness);
 
-    void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay, BOOL IsProgressive);
+    void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, BOOL IsProgressive);
 
     BOOL IsVideoPresent();
     DWORD GetRISCPos();
@@ -202,6 +202,8 @@ public:
 	void SetCombRange(int CombRange);
 	void SetSecondChromaDemod(eFlagWithDefault SecondChromaDemod);
 	void SetThirdChromaDemod(eFlagWithDefault ThirdChromaDemod);
+    void SetHDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int HDelayAdj);
+    void SetVDelay(int nInput, eVideoFormat TVFormat, long CurrentX, int VDelayAdj);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

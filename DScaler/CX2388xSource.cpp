@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.34 2003-01-12 21:19:18 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.35 2003-01-13 17:46:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/12 21:19:18  adcockj
+// Added Settings per flags to groups
+//
 // Revision 1.33  2003/01/12 20:10:49  adcockj
 // Put analogue blanking setting in properly
 //
@@ -434,10 +437,11 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup);
     m_Settings.push_back(m_FLIFilmDetect);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pVideoGroup);
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay Adjustment", 0, -12, 12, IniSection, pVideoGroup);
+    m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pVideoGroup);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjustment", 0, -20, 20, IniSection, pVideoGroup);
     m_VDelay->SetStepValue(4);
     m_Settings.push_back(m_VDelay);
 
@@ -582,10 +586,22 @@ void CCX2388xSource::Reset()
                             m_CurrentX, 
                             m_CurrentY, 
                             m_CurrentVBILines,
-                            m_VDelay->GetValue(), 
-                            m_HDelay->GetValue(),
                             m_IsVideoProgressive->GetValue()
                         );
+    
+    m_pCard->SetHDelay(
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_CurrentX, 
+                            m_HDelay->GetValue()
+                      );
+    
+    m_pCard->SetVDelay(
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_CurrentX, 
+                            m_VDelay->GetValue() 
+                      );
 
     if(IsInTunerMode())
     {
@@ -1648,34 +1664,22 @@ void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::HDelayOnChange(long NewValue, long OldValue)
 {
-    Stop_Capture();
-    m_pCard->SetGeoSize(
+    m_pCard->SetHDelay(
                             m_VideoSource->GetValue(), 
                             (eVideoFormat)m_VideoFormat->GetValue(), 
                             m_CurrentX, 
-                            m_CurrentY, 
-                            m_CurrentVBILines,
-                            m_VDelay->GetValue(), 
-                            m_HDelay->GetValue(),
-                            m_IsVideoProgressive->GetValue()
-                        );
-    Start_Capture();
+                            NewValue
+                      );
 }
 
 void CCX2388xSource::VDelayOnChange(long NewValue, long OldValue)
 {
-    Stop_Capture();
-    m_pCard->SetGeoSize(
+    m_pCard->SetVDelay(
                             m_VideoSource->GetValue(), 
                             (eVideoFormat)m_VideoFormat->GetValue(), 
                             m_CurrentX, 
-                            m_CurrentY, 
-                            m_CurrentVBILines,
-                            m_VDelay->GetValue(), 
-                            m_HDelay->GetValue(),
-                            m_IsVideoProgressive->GetValue()
-                        );
-    Start_Capture();
+                            NewValue
+                      );
 }
 
 void CCX2388xSource::EatLinesAtTopOnChange(long NewValue, long OldValue)
@@ -1702,17 +1706,8 @@ void CCX2388xSource::PixelWidthOnChange(long NewValue, long OldValue)
         m_CustomPixelWidth->SetValue(NewValue);
     }
     Stop_Capture();
-    m_CurrentX = NewValue;
-    m_pCard->SetGeoSize(
-                            m_VideoSource->GetValue(), 
-                            (eVideoFormat)m_VideoFormat->GetValue(), 
-                            m_CurrentX, 
-                            m_CurrentY, 
-                            m_CurrentVBILines,
-                            m_VDelay->GetValue(), 
-                            m_HDelay->GetValue(),
-                            m_IsVideoProgressive->GetValue()
-                        );
+
+    Reset();
     
     NotifySizeChange();
 

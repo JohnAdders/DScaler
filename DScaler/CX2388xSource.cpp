@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.20 2002-12-23 17:22:10 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.21 2003-01-04 20:58:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/12/23 17:22:10  adcockj
+// Settings fixes
+//
 // Revision 1.19  2002/12/10 14:53:16  adcockj
 // Sound fixes for cx2388x
 //
@@ -1430,6 +1433,7 @@ void CCX2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
     {
         pVBI += m_CurrentVBILines * 2048;
     }
+    pVBI += 2048;	// There is a shift of one line compared to BT8x8 we have to compensate
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);

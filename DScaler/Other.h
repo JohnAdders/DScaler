@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.7 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Other.h,v 1.8 2001-07-28 13:24:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,8 @@
 SETTING* Other_GetSetting(OTHER_SETTING Setting);
 void Other_ReadSettingsFromIni();
 void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void Other_ShowUI();
+
 
 #define DSCALER_MAX_WIDTH 768
 #define DSCALER_MAX_HEIGHT 576
@@ -58,6 +60,7 @@ BOOL Overlay_Destroy();
 DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb);
 COLORREF Overlay_GetColor();
 void Overlay_WaitForVerticalBlank();
+void Overlay_SetColorControls();
 
 void SaveStill();
 

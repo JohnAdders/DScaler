@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.49 2001-07-27 16:11:32 adcockj Exp $
+// $Id: DScaler.cpp,v 1.50 2001-07-28 13:24:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2001/07/27 16:11:32  adcockj
+// Added support for new Crash dialog
+//
 // Revision 1.48  2001/07/26 22:26:24  laurentg
 // New menu for card calibration
 //
@@ -1456,6 +1459,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Timing_ShowUI();
             break;
 
+        case IDM_OVERLAY_SETTINGS:
+            Other_ShowUI();
+            break;
+
         case IDM_GAMMA_SETTINGS:
             Filter_ShowUI("Gamma");
             break;
@@ -2333,6 +2340,7 @@ void CleanUpMemory()
     if (hMenuPopup != NULL)
         DestroyMenu(hMenuPopup);
     Channels_Exit();
+    delete pCalibration;
 }
 
 //---------------------------------------------------------------------------

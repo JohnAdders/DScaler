@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.13 2001-07-16 18:07:50 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.14 2001-07-28 13:24:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.12  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -45,7 +48,7 @@
 #include "Deinterlace.h"
 #include "DScaler.h"
 #include "resource.h"
-#include "SettingsDlg.h"
+    #include "SettingsDlg.h"
 
 LARGE_INTEGER TimerFrequency;
 double RunningAverageCounterTicks;

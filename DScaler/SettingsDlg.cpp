@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.11 2001-07-16 18:07:50 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.12 2001-07-28 13:24:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.10  2001/07/14 16:06:57  tobbej
 // modified copyright notice to match coding standards
 //
@@ -93,14 +96,16 @@ BOOL CSettingsDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
     
-    //add all settings to listbox
-    //shoud probably filter out settings with NOT_PRESENT Type
+    //add relevant settings to listbox
     for(int i=0;i<m_SettingsCount;i++)
     {
-        int index=m_ListBox.AddString(m_Settings[i].szDisplayName);
-        if(index!=LB_ERR)
+        if(m_Settings[i].szDisplayName != NULL && m_Settings[i].Type != NOT_PRESENT)
         {
-            m_ListBox.SetItemData(index,i);
+            int index=m_ListBox.AddString(m_Settings[i].szDisplayName);
+            if(index!=LB_ERR)
+            {
+                m_ListBox.SetItemData(index,i);
+            }
         }
     }
     SetWindowText(m_Caption);
@@ -131,8 +136,8 @@ void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long Count,
 
 void CSettingsDlg::OnSelchangeList() 
 {
-    long idx=m_ListBox.GetItemData(m_ListBox.GetCurSel());
-    m_CurrentSetting=idx;
+    long idx = m_ListBox.GetItemData(m_ListBox.GetCurSel());
+    m_CurrentSetting = idx;
     
     switch(m_Settings[idx].Type)
     {
@@ -149,7 +154,14 @@ void CSettingsDlg::OnSelchangeList()
     case SLIDER:
         m_DefaultButton.ShowWindow(SW_SHOWNA);
         m_Edit.ShowWindow(SW_SHOWNA);
-        m_Spin.ShowWindow(SW_SHOWNA);
+        if(m_Settings[idx].MaxValue <= 0x7FFF)
+        {
+            m_Spin.ShowWindow(SW_SHOWNA);
+        }
+        else
+        {
+            m_Spin.ShowWindow(SW_HIDE);
+        }
         m_Slider.ShowWindow(SW_SHOWNA);
         m_CheckBox.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
@@ -180,52 +192,72 @@ void CSettingsDlg::UpdateControls()
 {
     ASSERT(m_CurrentSetting>=0 && m_CurrentSetting<m_SettingsCount);
 
-    CString newValue;
-    CString oldValue;
-    newValue.Format("%ld",*m_Settings[m_CurrentSetting].pValue);
-    m_Edit.GetWindowText(oldValue);
-    
+    static bool bInUpdate = false;
+
     //if we dont do this check there will be a loop
-    if(oldValue!=newValue)
+    if(bInUpdate)
     {
-        m_Edit.SetWindowText(newValue);
+        return;
+    }
+    bInUpdate = true;
+
+
+    if(m_Spin.IsWindowVisible())
+    {
         m_Spin.SetRange32(m_Settings[m_CurrentSetting].MinValue,m_Settings[m_CurrentSetting].MaxValue);
         m_Spin.SetPos(*m_Settings[m_CurrentSetting].pValue);
     }
-    
-    m_CheckBox.SetCheck(*m_Settings[m_CurrentSetting].pValue);
-    m_CheckBox.SetWindowText(m_Settings[m_CurrentSetting].szDisplayName);
 
-    Setting_SetupSlider(&m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
-    
-    m_Combo.ResetContent();
-    if(m_Settings[m_CurrentSetting].pszList != NULL)
+    if(m_Edit.IsWindowVisible())
     {
-        bool bFoundSetting=false;
-        for(int i(m_Settings[m_CurrentSetting].MinValue); i <= m_Settings[m_CurrentSetting].MaxValue; ++i)
+        CString newValue;
+        newValue.Format("%d", *m_Settings[m_CurrentSetting].pValue);
+        m_Edit.SetWindowText(newValue);
+    }
+    
+    if(m_CheckBox.IsWindowVisible())
+    {
+        m_CheckBox.SetCheck(*m_Settings[m_CurrentSetting].pValue);
+        m_CheckBox.SetWindowText(m_Settings[m_CurrentSetting].szDisplayName);
+    }
+
+    if(m_Slider.IsWindowVisible())
+    {
+        Setting_SetupSlider(&m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
+    }
+    
+    if(m_Combo.IsWindowVisible())
+    {
+        m_Combo.ResetContent();
+        if(m_Settings[m_CurrentSetting].pszList != NULL)
         {
-            //is there any text for this item?
-            if(strlen(m_Settings[m_CurrentSetting].pszList[i])>0)
+            bool bFoundSetting=false;
+            for(int i(m_Settings[m_CurrentSetting].MinValue); i <= m_Settings[m_CurrentSetting].MaxValue; ++i)
             {
-                int pos=m_Combo.AddString(m_Settings[m_CurrentSetting].pszList[i]);
-                
-                //store Value in itemdata
-                m_Combo.SetItemData(pos,i);
-                
-                //is this item the current Value?
-                if(Setting_GetValue(&m_Settings[m_CurrentSetting]) == i)
+                //is there any text for this item?
+                if(strlen(m_Settings[m_CurrentSetting].pszList[i])>0)
                 {
-                    m_Combo.SetCurSel(pos);
-                    bFoundSetting=true;
+                    int pos=m_Combo.AddString(m_Settings[m_CurrentSetting].pszList[i]);
+                
+                    //store Value in itemdata
+                    m_Combo.SetItemData(pos,i);
+                
+                    //is this item the current Value?
+                    if(Setting_GetValue(&m_Settings[m_CurrentSetting]) == i)
+                    {
+                        m_Combo.SetCurSel(pos);
+                        bFoundSetting=true;
+                    }
                 }
             }
-        }
-        if(bFoundSetting==false)
-        {
-            //clear selection since we didnt find pValue
-            m_Combo.SetCurSel(-1);
+            if(bFoundSetting==false)
+            {
+                //clear selection since we didnt find pValue
+                m_Combo.SetCurSel(-1);
+            }
         }
     }
+    bInUpdate = false;
 }
 
 void CSettingsDlg::OnChangeEdit() 

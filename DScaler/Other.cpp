@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.10 2001-07-27 12:30:09 adcockj Exp $
+// $Id: Other.cpp,v 1.11 2001-07-28 13:24:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/27 12:30:09  adcockj
+// Added Overlay Color controls (Thanks to Muljadi Budiman)
+//
 // Revision 1.9  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -76,6 +79,8 @@
 #include "ErrorBox.h"
 #include "Splash.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
+#include "AspectRatio.h"
 
 LPDIRECTDRAW lpDD = NULL;
 
@@ -95,12 +100,14 @@ DDCOLORCONTROL OriginalColorControls;
 LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
 BOOL bUseOverlayControls = FALSE;
 
-long OverlayBrightness = 750;
+long OverlayBrightness = 75;
 long OverlayContrast = 10000;
 long OverlayHue = 0;
 long OverlaySaturation = 10000;
 long OverlayGamma = 1;
 long OverlaySharpness = 5;
+
+SETTING OtherSettings[];
 
 //-----------------------------------------------------------------------------
 // Tells whether or not video overlay is active
@@ -280,6 +287,12 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             }
             return FALSE;
         }
+        
+        // update the controls
+        if(bUseOverlayControls)
+        {
+           Overlay_SetColorControls();
+        }
     }
     return TRUE;
 }
@@ -291,12 +304,15 @@ void Overlay_ResetColorControls()
         return;
     }
 
-    HRESULT ddrval = pDDColorControl->SetColorControls(&OriginalColorControls);
-    if (FAILED(ddrval))
+    if(OriginalColorControls.dwFlags != 0)
     {
-        char szErrorMsg[200];
-        sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
-        ErrorBox(szErrorMsg);
+        HRESULT ddrval = pDDColorControl->SetColorControls(&OriginalColorControls);
+        if (FAILED(ddrval))
+        {
+            char szErrorMsg[200];
+            sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
+            ErrorBox(szErrorMsg);
+        }
     }
 }
 
@@ -312,19 +328,56 @@ void Overlay_SetColorControls()
     sColorControl.dwSize = sizeof(DDCOLORCONTROL);
     if (SUCCEEDED(pDDColorControl->GetColorControls(&sColorControl)))
     {
-        sColorControl.lBrightness = OverlayBrightness * 100;
-        sColorControl.lContrast = OverlayContrast * 100;
-        sColorControl.lHue = OverlayHue;
-        sColorControl.lSaturation = OverlaySaturation * 100;
-        sColorControl.lGamma = OverlayGamma;
-        sColorControl.lGamma = OverlaySharpness;
-
-        HRESULT ddrval = pDDColorControl->SetColorControls(&sColorControl);
-        if (FAILED(ddrval))
+        if(sColorControl.dwFlags != 0)
         {
-            char szErrorMsg[200];
-            sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
-            ErrorBox(szErrorMsg);
+            // Needed on the nVidia
+            if(OriginalColorControls.dwFlags == 0)
+            {
+                memcpy(&OriginalColorControls, &sColorControl, sizeof(DDCOLORCONTROL));
+                if(!(sColorControl.dwFlags & DDCOLOR_BRIGHTNESS))
+                {
+                    OtherSettings[OVERLAYBRIGHTNESS].szDisplayName = NULL;
+                }
+                if(!(sColorControl.dwFlags & DDCOLOR_CONTRAST))
+                {
+                    OtherSettings[OVERLAYCONTRAST].szDisplayName = NULL;
+                }
+                if(!(sColorControl.dwFlags & DDCOLOR_HUE))
+                {
+                    OtherSettings[OVERLAYHUE].szDisplayName = NULL;
+                }
+                if(!(sColorControl.dwFlags & DDCOLOR_SATURATION))
+                {
+                    OtherSettings[OVERLAYSATURATION].szDisplayName = NULL;
+                }
+                if(!(sColorControl.dwFlags & DDCOLOR_SHARPNESS))
+                {
+                    OtherSettings[OVERLAYSHARPNESS].szDisplayName = NULL;
+                }
+                if(!(sColorControl.dwFlags & DDCOLOR_GAMMA))
+                {
+                    OtherSettings[OVERLAYGAMMA].szDisplayName = NULL;
+                }
+
+            }
+
+            sColorControl.lBrightness = OverlayBrightness * 10;
+            sColorControl.lContrast = OverlayContrast * 100;
+            sColorControl.lHue = OverlayHue;
+            sColorControl.lSaturation = OverlaySaturation * 100;
+            sColorControl.lGamma = OverlayGamma;
+            sColorControl.lGamma = OverlaySharpness;
+
+            if(bUseOverlayControls)
+            {
+                HRESULT ddrval = pDDColorControl->SetColorControls(&sColorControl);
+                if (FAILED(ddrval))
+                {
+                    char szErrorMsg[200];
+                    sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
+                    ErrorBox(szErrorMsg);
+                }
+            }
         }
     }
     else
@@ -451,7 +504,8 @@ BOOL Overlay_Create()
 
     if (FAILED(ddrval))
     {
-        switch (ddrval) {
+        switch (ddrval) 
+        {
         case DDERR_NOOVERLAYHW:
             RealErrorBox("Your video card doesn't appear to support\n"
                      "overlays, which DScaler requires.");
@@ -535,10 +589,17 @@ BOOL Overlay_Create()
     ddrval = lpDDOverlay->QueryInterface(IID_IDirectDrawColorControl, (void **) &pDDColorControl);
     if(SUCCEEDED(ddrval))
     {
-        pDDColorControl->GetColorControls(&OriginalColorControls);
-        if(bUseOverlayControls)
+        ddrval = pDDColorControl->GetColorControls(&OriginalColorControls);
+        if(SUCCEEDED(ddrval))
         {
-           Overlay_SetColorControls();
+            if(bUseOverlayControls)
+            {
+               Overlay_SetColorControls();
+            }
+        }
+        else
+        {
+            pDDColorControl->Release();
         }
     }
     else
@@ -982,6 +1043,12 @@ void SaveStill()
     return;
 }
 
+BOOL Overlay_ColorKey_OnChange(long NewValue)
+{
+    OverlayColor = (COLORREF)NewValue;
+    WorkoutOverlaySize();
+    return FALSE;
+}
 
 BOOL Overlay_Brightness_OnChange(long NewValue)
 {
@@ -1052,20 +1119,20 @@ SETTING OtherSettings[OTHER_SETTING_LASTONE] =
         "Overlay", "BackBuffers", NULL,
     },
     {
-        "Overlay Color", SLIDER, 0, (long*)&OverlayColor,
+        "Overlay Colorkey", SLIDER, 0, (long*)&OverlayColor,
         RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
         NULL,
-        "Overlay", "OverlayColor", NULL,
+        "Overlay", "OverlayColor", Overlay_ColorKey_OnChange,
     },
     {
-        "Overlay Controls", ONOFF, 0, (long*)&bUseOverlayControls,
+        "Use Overlay Controls", ONOFF, 0, (long*)&bUseOverlayControls,
          FALSE, 0, 1, 1, 1,
          NULL,
         "Overlay", "UseOverlayControls", Overlay_UseControls_OnChange,
     },
     {
         "Overlay Brightness", SLIDER, 0, (long*)&OverlayBrightness,
-        50, 0, 100, 1, 1,
+        75, -1000, 1000, 5, 10,
         NULL,
         "Overlay", "OverlayBrightness", Overlay_Brightness_OnChange,
     },
@@ -1131,4 +1198,9 @@ void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(OtherSettings[i]), bOptimizeFileAccess);
     }
+}
+
+void Other_ShowUI()
+{
+    CSettingsDlg::ShowSettingsDlg("Overlay Settings",OtherSettings, OTHER_SETTING_LASTONE);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.21 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Settings.cpp,v 1.22 2001-07-28 13:24:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.20  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -372,8 +375,8 @@ void Setting_SetDefault(SETTING* pSetting)
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
 {
     Slider_ClearTicks(hSlider, TRUE);
-    Slider_SetRangeMax(hSlider, pSetting->MaxValue);
-    Slider_SetRangeMin(hSlider, pSetting->MinValue);
+    Slider_SetRangeMax(hSlider, pSetting->MaxValue - pSetting->MinValue);
+    Slider_SetRangeMin(hSlider, 0);
     Slider_SetPageSize(hSlider, pSetting->StepValue);
     Slider_SetLineSize(hSlider, pSetting->StepValue);
     if(GetWindowLong(hSlider, GWL_STYLE) & TBS_VERT)
@@ -382,7 +385,7 @@ void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
     }
     else
     {
-        Slider_SetTic(hSlider, pSetting->Default);
+        Slider_SetTic(hSlider, pSetting->Default - pSetting->MinValue);
     }
     Setting_SetControlValue(pSetting, hSlider);
 }
@@ -407,7 +410,7 @@ void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
         }
         else
         {
-            Slider_SetPos(hControl, *pSetting->pValue);
+            Slider_SetPos(hControl, *pSetting->pValue - pSetting->MinValue);
         }
         break;
     default:
@@ -431,13 +434,14 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
         break;
 
     case SLIDER:
+        nValue = Slider_GetPos(hControl);
         if(GetWindowLong(hControl, GWL_STYLE) & TBS_VERT)
         {
-            nValue = pSetting->MaxValue - Slider_GetPos(hControl);
+            nValue = pSetting->MaxValue - nValue;
         }
         else
         {
-            nValue = Slider_GetPos(hControl);
+            nValue = nValue + pSetting->MinValue;
         }
         break;
     

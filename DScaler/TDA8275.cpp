@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.1 2005-03-08 18:14:03 atnak Exp $
+// $Id: TDA8275.cpp,v 1.2 2005-03-09 06:11:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/03/08 18:14:03  atnak
+// Initial upload.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -99,7 +102,7 @@ void CTDA8275::Attach(CI2CBus* i2cBus, BYTE address)
 	CI2CDevice::Attach(i2cBus, address);
 
 	// Initialize the tuner.
-	WriteTDA8275Initialization();
+	InitializeTuner();
 }
 
 void CTDA8275::InitializeTuner()
@@ -204,30 +207,37 @@ void CTDA8275::WriteTDA8275Initialization()
 
 bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 {
-	int max = sizeof(k_programmingTable)/sizeof(k_programmingTable[0]);
-	int row = 0;
-
-	// Find the matching row of the programming table for this frequency.
-	for ( ; row < max-1; row++)
-		if (k_programmingTable[row].loMax)
-			break;
-
-	const tProgramingParam* table = &k_programmingTable[row];
-	
 	BYTE sgIFLPFilter = k_standardParamTable[(int)standard].sgIFLPFilter;
 	LONG sgIFHz = k_standardParamTable[(int)standard].sgIFkHz * 1000;
 
-	BYTE channelBytes[8];
+	// sgRFHz + sgIFHz
+	LONG freqRFIFHz = frequencyHz + sgIFHz;
+
+	const tProgramingParam* row = k_programmingTable;
+	const tProgramingParam* last = (const tProgramingParam*)((size_t)row + sizeof(k_programmingTable)) - 1;
+
+	// Find the matching row of the programming table for this frequency.
+	for ( ; row != last && freqRFIFHz > row->loMax * 1000000; row++) ;
+
+	// The data-sheet says:
+	// N11toN0=round((2^spd)*Flo*1000000*(16MHz/(2^6))
+	//
+	// Then uses this code to get the n11ton0 value:
+	// lgN11toN0 = Round((2 ^ prgTab(c, 3)) * (sgRFMHz + sgIFMHz) * 1000000 / (16000000 / 2 ^ 6))
+	//
+	// Notice the discrepancy with division of (16MHz/2^6).  'prgTab(c, 3)' is row->spd,
+	// (sgRFMHz + sgIFMHz) is (freqRFIFHz / 1000000).
 
 	// 0.5 is added for rounding.
-	WORD n = (WORD)((1 << table->spd) * ((double)(frequencyHz + sgIFHz) / 400000) + 0.5);
+	WORD n11ton0 = (WORD)((double)(1 << row->spd) * ((double)freqRFIFHz / 400000) + 0.5);
 
-	channelBytes[0] = (n >> 6) & 0xF;
-	channelBytes[1] = (n << 2) & 0xFC;
+	BYTE channelBytes[8];
+	channelBytes[0] = (n11ton0 >> 6) & 0x3F;
+	channelBytes[1] = (n11ton0 << 2) & 0xFC;
 	channelBytes[3] = 0x40;
 	channelBytes[4] = sgIFLPFilter ? 0x72 : 0x52; // 7MHz (US) / 9Mhz (Europe)
-	channelBytes[5] = (table->loMax << 6)|(table->div1p5 << 5)|(table->BS << 3)|table->BP;
-	channelBytes[6] = 0x8F | (table->GC3 << 4);
+	channelBytes[5] = (row->loMax << 6)|(row->div1p5 << 5)|(row->BS << 3)|row->BP;
+	channelBytes[6] = 0x8F | (row->GC3 << 4);
 	channelBytes[7] = 0x8F;
 
 	if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 8) ||
@@ -246,7 +256,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 	Sleep(1); // Only 550us required.
 	success &= WriteToSubAddress(TDA8275_CB1, 0x52);
 	Sleep(550); // 550ms delay required.
-	success &= WriteToSubAddress(TDA8275_CB1, 0x50|table->CP);
+	success &= WriteToSubAddress(TDA8275_CB1, 0x50|row->CP);
 
 	// 3 Enabling VSYNC mode for AGC2
 	WriteToSubAddress(TDA8275_AB2, 0x7F);

@@ -1146,7 +1146,7 @@ BEGIN
             MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
 
             MENUITEM SEPARATOR
-            MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO
+            MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO, GRAYED
         END
         POPUP "MSP 34x0 Audio Settings"
         BEGIN

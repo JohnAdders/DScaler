@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.46 2002-10-12 04:33:53 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.47 2002-10-13 08:36:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/10/12 04:33:53  atnak
+// flashing conceal teletext fix, header clear on channel change
+//
 // Revision 1.45  2002/09/07 20:59:45  kooiman
 // Small fixes.
 //
@@ -596,6 +599,7 @@ void VBI_decode_vt(unsigned char* dat)
     unsigned short sub;
     WORD ctrl;
     BOOL bRedrawAll = FALSE;
+    BOOL bSubtitleChanged = FALSE;
 
     TVTPage* pPage;
 
@@ -634,7 +638,6 @@ void VBI_decode_vt(unsigned char* dat)
 
         if ((pnum >= 0) && (pnum < 800))
         {
-
             ctrl = (UnhamTab[dat[3]] & 0x7) + ((UnhamTab[dat[8]] >> 3) << 3) + ((UnhamTab[dat[10]] >> 2) << 4) + (UnhamTab[dat[11]] << 6) + (UnhamTab[dat[12]] << 10);
 
             MagazineStates[mag].Page = pnum;
@@ -651,6 +654,15 @@ void VBI_decode_vt(unsigned char* dat)
 
             memcpy(&pPage->Frame[0], dat + 5, 40);
             memcpy(&VTHeaderLine[0], dat + 5, 40);
+
+            if ((ctrl & (3 << 4)) != (pPage->wCtrl & (3 << 4)))
+            {
+                // the subtitle or newflash control of the page
+                // changed.  need to redraw all incase some of
+                // the page was already drawn
+                bSubtitleChanged = TRUE;
+            }
+
             pPage->wCtrl = ctrl;
             pPage->bUpdated = 1;
             pPage->Fill = TRUE;
@@ -664,7 +676,7 @@ void VBI_decode_vt(unsigned char* dat)
             if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
                (MagazineStates[mag].SubPage == VTSubPage))
             {
-                bRedrawAll = MagazineStates[mag].PageErase;
+                bRedrawAll = MagazineStates[mag].PageErase || bSubtitleChanged;
             }
             else
             {

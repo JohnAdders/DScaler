@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.5 2002-06-20 20:00:31 robmuller Exp $
+// $Id: VTDrawer.h,v 1.6 2002-10-12 00:38:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/06/20 20:00:31  robmuller
+// Implemented videotext search highlighting.
+//
 // Revision 1.4  2002/05/23 22:16:32  robmuller
 // Applied patch #559111 by PietOO.
 // Teletext: less sparse look for ttf fonts.
@@ -73,6 +76,11 @@ public:
 
     int GetAvgWidth();
     int GetAvgHeight();
+
+private:
+    BOOL DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol, BYTE DisplayColour, BYTE BackgroundColour, BYTE DisplayModes, BYTE DisplayChar,
+                            BOOL bHighLightChar, BOOL bHasDouble, int nTopOffset, int nLeftOffset, eVTCodePage VTCodePage, HFONT& hCurrentFont,
+                            unsigned long ulFlags);
 private:
     void DestroyFonts();  
     HFONT MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bWidenFont = FALSE);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.9 2002-08-06 21:35:08 robmuller Exp $
+// $Id: VTDrawer.cpp,v 1.10 2002-10-12 00:38:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/06 21:35:08  robmuller
+// Don't pause the image when VideoText contains transparency.
+//
 // Revision 1.8  2002/06/20 20:00:32  robmuller
 // Implemented videotext search highlighting.
 //
@@ -76,6 +79,18 @@ unsigned long VTColourTable[9] =
     0xFF00FF        //Transparent
 };
 
+// VideoText Display Modes
+enum
+{
+    VTMODE_GRAPHICS     = 1 << 0,
+    VTMODE_SEPARATED    = 1 << 1,
+    VTMODE_FLASH        = 1 << 2,
+    VTMODE_CONCEAL      = 1 << 3,
+    VTMODE_BOXED        = 1 << 4,
+    VTMODE_DOUBLE       = 1 << 5,
+    VTMODE_HOLD         = 1 << 6
+};
+
 char VTDrawerFontName[32] = "Arial";
 
 BOOL VTPageContainsTransparency = TRUE;
@@ -106,17 +121,27 @@ CVTDrawer::~CVTDrawer()
     DestroyFonts();
 }
 
+
 bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, 
     LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow)
 {
-    BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal;
-    BOOL bHasDouble = false;
-    BOOL bHighLightChar = false;
-    BOOL bTransparencyPresent = false;
-    int CurrentFg, CurrentBkg;
+    BYTE DisplayChar, Char;
+    BYTE DisplayModes;
+    BYTE DisplayColour;
+    BYTE Background;
+    BYTE SetAfterModes;
+    BYTE SetAfterColour;
+    BYTE HeldGraphChar;
+    BOOL HeldGraphSeparated;
+    BOOL bBoxedSecond;
+    BOOL bUnboxedSecond;
+    BOOL bHasDouble = FALSE;
+    BOOL bHighLightChar = FALSE;
+    BOOL bTransparencyPresent = FALSE;
+    BOOL bDrawn;
+
     int DefaultBkg = 0;
     int n;
-    BYTE c, ch, nLastGraph;
     char tmp[41];
     HFONT hCurrentFont;
 
@@ -155,12 +180,10 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
             continue;
         }
 
-        bGraph = bHoldGraph = bSepGraph = bBox = bFlash = bDouble = bConceal = bHasDouble = FALSE;
+        bHasDouble = FALSE;
         //SelectObject(hDC, m_hFont);
-        CurrentFg = 7;
-        CurrentBkg = DefaultBkg;
 
-        if(row==0)
+        if (row == 0)
         {
             sprintf(tmp, "  P%-3d \x7", pPage->Page + 100);
 
@@ -191,14 +214,14 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     {
                         tmp[n] = (*pHeader)[n] & 0x7f;
                     }
-                    memset(&tmp[CLOCK_COL + CLOCK_COL_WIDTH], 32, 40 - CLOCK_COL - CLOCK_COL_WIDTH);
+                    memset(&tmp[CLOCK_COL + CLOCK_COL_WIDTH], ' ', 40 - CLOCK_COL - CLOCK_COL_WIDTH);
                 }
 
                 DefaultBkg = (!(pPage->wCtrl & (3 << 4)) && !(ulFlags & VTDF_MIXMODE)) ? 0 : 8;
 
                 if (pPage->wCtrl & (3 << 4))
                 {
-                    memset(tmp, 32, 40);
+                    memset(tmp, ' ', 40);
                 }
             }
         }
@@ -224,197 +247,170 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
             }
         }
 
-        CurrentBkg = DefaultBkg;
+        // Reset defaults for the line
+        DisplayModes = 0;
+        DisplayColour = 7;
+        Background = DefaultBkg;
+
+        bBoxedSecond = bUnboxedSecond = FALSE;
 
         for(int col = 0; col < 40; col++)
         {
-            c = tmp[col];
-            ch = c;
-            if (c < 0x20)
+            SetAfterModes = 0;
+            SetAfterColour = DisplayColour;
+
+            DisplayChar = Char = tmp[col];
+
+            // If the character is a control char
+            if (Char < 0x20)
             {
-                switch(c)
+                DisplayChar = ' ';
+
+                switch(Char)
                 {
-                case 0x00:
-                case 0x01:
-                case 0x02:
-                case 0x03:
-                case 0x04:
-                case 0x05:
-                case 0x06:
-                case 0x07:
-                    CurrentFg = c;
-                    bGraph = FALSE;
-                    bConceal = false;
+                case 0x00:  // NUL reserved
                     break;
-                case 0x08:
-                    bFlash = TRUE;
+                case 0x01:  // Alpha Red
+                case 0x02:  // Alpha Green
+                case 0x03:  // Alpha Yellow
+                case 0x04:  // Alpha Blue
+                case 0x05:  // Alpha Magenta
+                case 0x06:  // Alpha Cyan
+                case 0x07:  // Alpha White
+                    SetAfterColour = Char;
+                    SetAfterModes |= (DisplayModes & VTMODE_GRAPHICS);
+                    SetAfterModes |= (DisplayModes & VTMODE_CONCEAL);
                     break;
-                case 0x09:
-                    bFlash = FALSE;
+                case 0x08:  // Flash
+                    SetAfterModes |= (DisplayModes & VTMODE_FLASH ^ VTMODE_FLASH);
                     break;
-                case 0x0a:
-                    CurrentBkg = DefaultBkg;
-                    bBox = FALSE;
+                case 0x09:  // Steady (immediate)
+                    DisplayModes &= ~VTMODE_FLASH;
                     break;
-                case 0x0b:
-                    CurrentBkg = 0;
-                    bBox = TRUE;
-                    break;
-                case 0x0c:
-                    bDouble = FALSE;
-                    break;
-                case 0x0d:
-                    bDouble = TRUE;
-                    break;
-                case 0x10:
-                case 0x11:
-                case 0x12:
-                case 0x13:
-                case 0x14:
-                case 0x15:
-                case 0x16:
-                case 0x17:
-                    bGraph = TRUE;
-                    CurrentFg = c - 0x10;
-                    break;
-                case 0x18:
-                    bConceal = TRUE;
-                    break;
-                case 0x19:
-                    bSepGraph = FALSE;
-                    break;
-                case 0x1a:
-                    bSepGraph = TRUE;
-                    break;
-                case 0x1c:
-                    CurrentBkg = bBox ? 0 : DefaultBkg;
-                    break;
-                case 0x1d:
-                    if(!(ulFlags & VTDF_MIXMODE))
+                case 0x0a:  // Unboxed (immediate on 2nd)
+                    if (bUnboxedSecond)
                     {
-                        CurrentBkg = CurrentFg;
+                        bUnboxedSecond = FALSE;
+                        DisplayModes &= ~VTMODE_BOXED;
+                    }
+                    else
+                    {
+                        bUnboxedSecond = TRUE;
                     }
                     break;
-                case 0x1e:
-                    bHoldGraph = TRUE;
+                case 0x0b:  // Boxed (immediate on 2nd)
+                    if (bBoxedSecond)
+                    {
+                        bBoxedSecond = FALSE;
+                        DisplayModes |= VTMODE_BOXED;
+                    }
+                    else
+                    {
+                        bBoxedSecond = TRUE;
+                    }
                     break;
-                case 0x1f:
-                    bHoldGraph = FALSE;
+                case 0x0c:  // Normal Height (immediate)
+                    DisplayModes &= ~VTMODE_DOUBLE;
                     break;
-                default:
+                case 0x0d:  // Double Height
+                    SetAfterModes |= (DisplayModes & VTMODE_DOUBLE ^ VTMODE_DOUBLE);
+                    break;
+                case 0x0e:  // Shift Out (reserved)
+                case 0x0f:  // Shift In (reserved
+                    break;
+                case 0x10:  // DLE (reserved)
+                    break;
+                case 0x11:  // Graphics Red
+                case 0x12:  // Graphics Green
+                case 0x13:  // Graphics Yellow
+                case 0x14:  // Graphics Blue
+                case 0x15:  // Graphics Magenta
+                case 0x16:  // Graphics Cyan
+                case 0x17:  // Graphics White
+                    SetAfterColour = Char - 0x10;
+                    SetAfterModes |= (DisplayModes & VTMODE_GRAPHICS ^ VTMODE_GRAPHICS);
+                    SetAfterModes |= (DisplayModes & VTMODE_CONCEAL);
+                    break;
+                case 0x18:  // Conceal (immediate)
+                    DisplayModes |= VTMODE_CONCEAL;
+                    break;
+                case 0x19:  // Contiguous Graphics (either)
+                    DisplayModes &= ~VTMODE_SEPARATED;
+                    break;
+                case 0x1a:  // Separated Graphics (either)
+                    DisplayModes |= VTMODE_SEPARATED;
+                    break;
+                case 0x1b:  // ESC (reserved)
+                    break;
+                case 0x1c:  // Black Background (immediate)
+                    Background = DefaultBkg;
+                    break;
+                case 0x1d:  // New Background (immediate)
+                    if(!(ulFlags & VTDF_MIXMODE))
+                    {
+                        Background = DisplayColour;
+                    }
+                    break;
+                case 0x1e:  // Hold Graphics (immediate)
+                    DisplayModes |= VTMODE_HOLD;
+                    break;
+                case 0x1f:  // Release Graphics
+                    SetAfterModes |= (DisplayModes & VTMODE_HOLD);
                     break;
                 }
-                ch = bHoldGraph ? nLastGraph : 32;
+
+                if (DisplayModes & VTMODE_HOLD)
+                {
+                    DisplayChar = HeldGraphChar;
+                    if (HeldGraphSeparated != (DisplayModes & VTMODE_SEPARATED))
+                    {
+                        DisplayModes ^= VTMODE_SEPARATED;
+                        SetAfterModes ^= VTMODE_SEPARATED;
+                    }
+                }
             }
 
-            if(((col<CLOCK_COL) && (ulFlags & VTDF_CLOCKONLY)) ||
-               ((!bFlash) && (ulFlags & VTDF_FLASHONLY)) ||
-               ((!bConceal) && (ulFlags & VTDF_HIDDENONLY)) ||
-               ((!bFlash) && (ulFlags & VTDF_CLEARFLASH)))
+            if (Char != 0x0a)
             {
-                continue;
+                bUnboxedSecond = FALSE;
             }
 
-            if(row == 0)
+            if (Char != 0x0b)
             {
-                bHighLightChar = false;
+                bBoxedSecond = FALSE;
             }
-            else
+
+            if(row != 0)
             {
                 bHighLightChar = IsHiliteText(col, tmp);
             }
-
-            RECT thischar;
-            thischar.left = left + double(col) * m_dAvgWidth;
-            thischar.right = left + double(double(col + 1) * m_dAvgWidth);
-            thischar.top = top + double(row) * m_dAvgHeight;
-            thischar.bottom = top + double(row + (bHasDouble ? 2 : 1)) * m_dAvgHeight;
-            
-            FillRect(hDC, &thischar, m_hBrushes[bHighLightChar ? CurrentFg : CurrentBkg]);
-
-            if(!bDouble && bHasDouble)
+            else
             {
-                thischar.bottom = top + double(row + (bDouble ? 2 : 1)) * m_dAvgHeight;
+                bHighLightChar = FALSE;
             }
 
-            if((bFlash && !(ulFlags & VTDF_FLASHMASK)) ||
-               (bConceal && !(ulFlags & VTDF_HIDDENMASK))) 
-            {
-                continue;
-            }
+            bDrawn = DrawCharacterRect(hDC, row, col, DisplayColour, Background,
+                DisplayModes, DisplayChar, bHighLightChar, bHasDouble, top, left,
+                VTCodePage, hCurrentFont, ulFlags);
 
-            if(CurrentBkg == 8)
+            if (bDrawn && Background == 8)
             {
                 bTransparencyPresent = TRUE;
             }
 
-            if((bGraph) && (ch & 0x20))
+            // Get the lastest graphics character
+            if ((DisplayModes & VTMODE_GRAPHICS) && (Char & 0x20))
             {
-                nLastGraph = ch;
-                ch = (ch & 0x1f) | ((ch & 0x40) >> 1);
-
-                //Draw mosaic graphics
-                DrawGraphChar(hDC, m_hBrushes[CurrentFg], ch, bSepGraph, thischar.left, thischar.top,
-                    thischar.right - thischar.left, thischar.bottom - thischar.top);
-
+                HeldGraphChar = Char;
+                HeldGraphSeparated = (DisplayModes & VTMODE_SEPARATED);
             }
-            else
+
+            DisplayModes ^= SetAfterModes;
+            DisplayColour = SetAfterColour;
+
+            if (SetAfterModes & VTMODE_GRAPHICS || SetAfterModes & VTMODE_DOUBLE)
             {
-                //First, here should be VTCharToAnsi conversion routine call
-                WORD UChar = VTCharToUnicode(VTCodePage, ch-32);
-
-                //Draw char
-                if(ch!=32)
-                {    
-                    int offset;
-                    //Select correct wider font (same if fixed pitch)
-                    if(bDouble)
-                    {
-                        if( hCurrentFont != m_hDoubleFont ) 
-                        {
-                            SelectObject(hDC, hCurrentFont = m_hDoubleFont);
-                        }
-                    }
-                    else
-                    {
-                        if( hCurrentFont != m_hFont ) 
-                        {
-                            SelectObject(hDC, hCurrentFont = m_hFont);
-                        }
-                    }
-                    if(m_bFixedPitch)
-                    {
-                        offset = 0;
-                    }
-                    else
-                    {
-                        SIZE Size;
-                        GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
-                        //Use smaller font if it doesn't fit
-                        if(m_AvgWidth < Size.cx)
-                        {
-                            if(bDouble)
-                            {
-                                SelectObject(hDC, hCurrentFont = m_hDoubleFontSmall);
-                            }
-                            else
-                            {
-                                SelectObject(hDC, hCurrentFont = m_hFontSmall);
-                            }
-                            GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
-                        }
-                        offset = (m_AvgWidth - Size.cx) / 2;
-                    }
-            
-                    if(CurrentBkg == 8)
-                    {
-                        SetTextColor(hDC, 0x000000);
-                        TextOutW(hDC, thischar.left + offset + 1, thischar.top, (wchar_t*) &UChar, 1);
-                    }
-
-                    SetTextColor(hDC, VTColourTable[bHighLightChar ? CurrentBkg : CurrentFg]);
-                    TextOutW(hDC, thischar.left + offset, thischar.top - 1, (wchar_t*) &UChar, 1);
-                }
+                HeldGraphChar = 0x20;
             }
         }
     }
@@ -426,6 +422,127 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     VTPageContainsTransparency = bTransparencyPresent;
 
     return true;
+}
+
+BOOL CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
+                                  BYTE DisplayColour, BYTE BackgroundColour,
+                                  BYTE DisplayModes, BYTE DisplayChar,
+                                  BOOL bHighLightChar, BOOL bHasDouble,
+                                  int nTopOffset, int nLeftOffset,
+                                  eVTCodePage VTCodePage, HFONT& hCurrentFont,
+                                  unsigned long ulFlags)
+{
+    RECT CharacterRect;
+
+    if(((nCol < CLOCK_COL) && (ulFlags & VTDF_CLOCKONLY)) ||
+       ((!(DisplayModes & VTMODE_FLASH)) && (ulFlags & VTDF_FLASHONLY)) ||
+       ((!(DisplayModes & VTMODE_CONCEAL)) && (ulFlags & VTDF_HIDDENONLY)) ||
+       ((!(DisplayModes & VTMODE_FLASH)) && (ulFlags & VTDF_CLEARFLASH)))
+    {
+        return FALSE;
+    }
+
+    if (DisplayModes & VTMODE_BOXED)
+    {
+        BackgroundColour = 0;
+    }
+
+    CharacterRect.left = nLeftOffset + double(nCol) * m_dAvgWidth;
+    CharacterRect.right = nLeftOffset + double(double(nCol + 1) * m_dAvgWidth);
+    CharacterRect.top = nTopOffset + double(nRow) * m_dAvgHeight;
+    CharacterRect.bottom = nTopOffset + double(nRow + (bHasDouble ? 2 : 1)) * m_dAvgHeight;
+    
+    FillRect(hDC, &CharacterRect,
+        m_hBrushes[bHighLightChar ? DisplayColour : BackgroundColour]);
+
+
+    if(!(DisplayModes & VTMODE_DOUBLE) && bHasDouble)
+    {
+        CharacterRect.bottom = nTopOffset + double(nRow +
+            ((DisplayModes & VTMODE_DOUBLE) ? 2 : 1)) * m_dAvgHeight;
+    }
+
+    if(((DisplayModes & VTMODE_FLASH) && !(ulFlags & VTDF_FLASHMASK)) ||
+       ((DisplayModes & VTMODE_CONCEAL) && !(ulFlags & VTDF_HIDDENMASK))) 
+    {
+        return FALSE;
+    }
+
+    if((DisplayModes & VTMODE_GRAPHICS) && (DisplayChar & 0x20))
+    {
+        DisplayChar = (DisplayChar & 0x1f) | ((DisplayChar & 0x40) >> 1);
+
+        // Draw mosaic graphics
+        DrawGraphChar(hDC, m_hBrushes[DisplayColour], DisplayChar,
+            DisplayModes & VTMODE_SEPARATED,
+            CharacterRect.left, CharacterRect.top,
+            CharacterRect.right - CharacterRect.left,
+            CharacterRect.bottom - CharacterRect.top);
+
+    }
+    else
+    {
+        // First, here should be VTCharToAnsi conversion routine call
+        WORD UChar = VTCharToUnicode(VTCodePage, DisplayChar - 0x20);
+
+        // Draw char
+        if(DisplayChar != ' ')
+        {    
+            int offset;
+
+            // Select correct wider font (same if fixed pitch)
+            if(DisplayModes & VTMODE_DOUBLE)
+            {
+                if( hCurrentFont != m_hDoubleFont ) 
+                {
+                    SelectObject(hDC, hCurrentFont = m_hDoubleFont);
+                }
+            }
+            else
+            {
+                if( hCurrentFont != m_hFont ) 
+                {
+                    SelectObject(hDC, hCurrentFont = m_hFont);
+                }
+            }
+
+            if(m_bFixedPitch)
+            {
+                offset = 0;
+            }
+            else
+            {
+                SIZE Size;
+                GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
+                // Use smaller font if it doesn't fit
+                if(m_AvgWidth < Size.cx)
+                {
+                    if(DisplayModes & VTMODE_DOUBLE)
+                    {
+                        SelectObject(hDC, hCurrentFont = m_hDoubleFontSmall);
+                    }
+                    else
+                    {
+                        SelectObject(hDC, hCurrentFont = m_hFontSmall);
+                    }
+                    GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
+                }
+                offset = (m_AvgWidth - Size.cx) / 2;
+            }
+
+            // Draw shadow if background is transparent
+            if(BackgroundColour == 8)
+            {
+                SetTextColor(hDC, 0x000000);
+                TextOutW(hDC, CharacterRect.left + offset + 1, CharacterRect.top, (wchar_t*) &UChar, 1);
+            }
+
+            SetTextColor(hDC, VTColourTable[bHighLightChar ? BackgroundColour : DisplayColour]);
+            TextOutW(hDC, CharacterRect.left + offset, CharacterRect.top - 1, (wchar_t*) &UChar, 1);
+        }
+    }
+
+    return TRUE;
 }
 
 void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)

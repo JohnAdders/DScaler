@@ -10,6 +10,8 @@
 #define IDH_TEMPORAL_COMB               131082
 #define IDH_MIRROR                      131083
 #define IDH_INVERSION                   131084
+#define IDH_BLACK_WHITE                 131085
+#define IDH_DSCOPE_VIDEO                131086
 
 
 #define IDH_DEINTERLACE                 131090

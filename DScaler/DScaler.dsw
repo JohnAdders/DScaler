@@ -353,6 +353,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_BlackWhite
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_DScopeVIDEO
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -418,6 +421,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_ColourInversion"=..\Plugins\FLT_ColourInversion\FLT_ColourInversion.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_DScopeVIDEO"=..\Plugins\FLT_DScopeVIDEO\FLT_DScopeVIDEO.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.140 2003-03-13 00:41:45 laurentg Exp $
+// $Id: DS_Control.h,v 1.141 2003-03-22 13:10:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.140  2003/03/13 00:41:45  laurentg
+// New filter black & white
+//
 // Revision 1.139  2003/03/08 19:57:11  laurentg
 // New setting "always sleep"
 //
@@ -1692,6 +1695,30 @@ typedef enum
 #define WM_FLT_BLACKWHITE_GETVALUE       (WM_APP + 53)
 #define WM_FLT_BLACKWHITE_SETVALUE       (WM_APP + 153)
 #define WM_FLT_BLACKWHITE_CHANGEVALUE    (WM_APP + 253)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_DScopeVIDEO.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    USE_DSVIDEO,
+	DSV_LINE,
+    DSV_PLOTIINTENSITYINVERT,
+    DSV_Y_SCALE,
+    DSV_Y1_BASELINE,
+    USE_GRID,
+    DSV_GRIDCOLOR,
+    DSV_GRIDINTENSITY,
+    USE_BACKGROUND,
+    USE_LINEMARKER,
+    USE_PICTUREFILL,
+    FLT_DSV_SETTING_LASTONE,
+} FLT_DSV_SETTING;
+
+#define WM_FLT_DSV_GETVALUE     (WM_APP + 54)
+#define WM_FLT_DSV_SETVALUE     (WM_APP + 154)
+#define WM_FLT_DSV_CHANGEVALUE  (WM_APP + 254)
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.29 2003-08-11 20:48:04 laurentg Exp $
+// $Id: DSGraph.cpp,v 1.30 2003-09-28 09:22:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/08/11 20:48:04  laurentg
+// Bad include command suppressed
+//
 // Revision 1.28  2003/08/10 12:08:36  tobbej
 // implemented the base for seeking in files
 //
@@ -346,7 +349,15 @@ void CDShowGraph::ConnectGraph()
 			{
 				LOG(3,"IBasicAudio interface not found, audio controlls might not work");
 			}
-			m_pSeeking=new CDShowSeeking(m_pGraph);
+            try
+            {
+			    m_pSeeking=new CDShowSeeking(m_pGraph);
+            }
+            catch(CDShowException e)
+            {
+                delete m_pSeeking;
+                m_pSeeking = NULL;
+            }
 		}
 		BuildFilterList();
 	}

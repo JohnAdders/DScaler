@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.96 2003-01-01 20:56:46 atnak Exp $
+// $Id: BT848Source.cpp,v 1.97 2003-01-05 16:54:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2003/01/01 20:56:46  atnak
+// Updates for various VideoText changes
+//
 // Revision 1.95  2002/12/10 12:58:07  adcockj
 // Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
 //  calls to EventCollector->RaiseEvent
@@ -1559,7 +1562,7 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     }
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines ; nLineTarget++)
     {
-       VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
+       VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd, 8*GetTVFormat(GetFormat())->Fsc);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.32 2003-01-05 19:42:24 laurentg Exp $
+// $Id: CX2388xCard.cpp,v 1.33 2003-01-06 10:33:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/05 19:42:24  laurentg
+// Correction to John's correction correcting Laurent's correction
+//
 // Revision 1.31  2003/01/05 19:01:13  adcockj
 // Made some changes to Laurent's last set of VBI fixes
 //
@@ -730,8 +733,19 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
-        // set up VBI information
-        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | (1 << 11));
+        DWORD VBIPackets;
+
+        if (CurrentY == 576)
+        {
+            VBIPackets = (DWORD)(GetTVFormat(TVFormat)->VBIPacketSize * 27.0 / (8 * GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc));
+        }
+        else
+        {
+            VBIPackets = (DWORD)(GetTVFormat(TVFormat)->VBIPacketSize * 27.0 / (28.636363));
+        }
+
+            // set up VBI information
+        WriteDword(CX2388X_VBI_SIZE, (VBIPackets & 0x1ff));
 
         double PLL = SetPLL(27.0);
         SetSampleRateConverter(PLL);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.17 2001-09-05 21:05:29 adcockj Exp $
+// $Id: Other.cpp,v 1.18 2001-09-09 17:41:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/09/05 21:05:29  adcockj
+// Bug Fixes for new overlay code
+//
 // Revision 1.16  2001/09/05 15:07:48  adcockj
 // Wrapped overlay calls with critical section
 // Updated Loging
@@ -420,7 +423,7 @@ void Overlay_SetColorControls()
             sColorControl.lHue = OverlayHue;
             sColorControl.lSaturation = OverlaySaturation * 100;
             sColorControl.lGamma = OverlayGamma;
-            sColorControl.lGamma = OverlaySharpness;
+            sColorControl.lSharpness = OverlaySharpness;
 
             if(bUseOverlayControls)
             {
@@ -1370,6 +1373,11 @@ SETTING OtherSettings[OTHER_SETTING_LASTONE] =
          NULL,
         "Overlay", "UseOverlayControls", Overlay_UseControls_OnChange,
     },
+    // DirectX docs say brightness value should be 0 to 10,000
+    // which would mean a range of 0 to 1000.
+    // however nVidia cards seem to have a range of -200 to 200
+    // so the curreent range allows for this and leaves a lage margin
+    // of error
     {
         "Overlay Brightness", SLIDER, 0, (long*)&OverlayBrightness,
         75, -1000, 1000, 5, 10,

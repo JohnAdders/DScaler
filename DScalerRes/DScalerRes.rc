@@ -982,6 +982,13 @@ BEGIN
         END
         MENUITEM "Stop Video Overlay",          IDM_OVERLAY_STOP
         MENUITEM "Start Video Overlay",         IDM_OVERLAY_START
+        POPUP "Video &Overlay"
+        BEGIN
+            MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS
+            MENUITEM "Groups of Settings",          65535, GRAYED
+            MENUITEM "St&op",                       IDM_OVERLAY_STOP
+            MENUITEM "St&art",                      IDM_OVERLAY_START
+        END
     END
     POPUP "&Help"
     BEGIN
@@ -1077,7 +1084,9 @@ BEGIN
             MENUITEM "&Mono",                       IDM_SOUNDCHANNEL_MONO
             MENUITEM "&Stereo",                     IDM_SOUNDCHANNEL_STEREO
             MENUITEM "Speech Channel &1",           IDM_SOUNDCHANNEL_LANGUAGE1
+
             MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
+
             MENUITEM SEPARATOR
             MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO
         END
@@ -1085,7 +1094,7 @@ BEGIN
         BEGIN
             MENUITEM "&Volume and Tone",            IDM_AUDIOSETTINGS
             MENUITEM SEPARATOR
-            MENUITEM "MSP 34x0 &Equalizer",        IDM_MSP_EQUALIZER
+            MENUITEM "MSP 34x0 &Equalizer",         IDM_MSP_EQUALIZER
         END
         MENUITEM SEPARATOR
         MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD

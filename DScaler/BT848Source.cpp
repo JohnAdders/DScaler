@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.35 2002-03-04 20:44:49 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.36 2002-03-12 21:10:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/03/04 20:44:49  adcockj
+// Reversed incorrect changed
+//
 // Revision 1.33  2002/02/23 16:41:09  laurentg
 // Set timer TIMER_MSP only if current card has a MSP
 //
@@ -342,7 +345,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_ProcessorSpeed = new CSliderSetting("Processor Speed", 1, 0, 2, IniSection, "ProcessorSpeed");
     m_Settings.push_back(m_ProcessorSpeed);
 
-    m_TradeOff = new CSliderSetting("Quality Trade Off", 0, 1, 1, IniSection, "TradeOff");
+    m_TradeOff = new CSliderSetting("Quality Trade Off", 1, 0, 1, IniSection, "TradeOff");
     m_Settings.push_back(m_TradeOff);
 
     m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);

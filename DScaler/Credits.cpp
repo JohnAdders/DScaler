@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.7 2003-06-26 09:55:15 adcockj Exp $
+// $Id: Credits.cpp,v 1.8 2003-06-26 12:00:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/06/26 09:55:15  adcockj
+// Added Arjan to credits and reordered patches
+//
 // Revision 1.6  2003/04/12 15:32:17  laurentg
 // Two code contributors added
 //
@@ -135,7 +138,7 @@ char *ArrCredits[] = { 	"DScaler\n",
 						"Lindsey Dubb\f",
                         "Michael Eskin\f",
                         "Steve Grimm\f",
-                        "Jeroen Kooiman\f"
+                        "Jeroen Kooiman\f",
                         "Mark Rejhon\f",
                         "Michael Samblanet\f",
 						"Eric Schmidt\f",

@@ -112,6 +112,10 @@ SOURCE=.\hand_point.cur
 # End Source File
 # Begin Source File
 
+SOURCE=.\small_logo.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\toolbar_channels_down.ico
 # End Source File
 # Begin Source File

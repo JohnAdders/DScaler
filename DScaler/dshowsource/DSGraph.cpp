@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.28 2003-08-10 12:08:36 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.29 2003-08-11 20:48:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/08/10 12:08:36  tobbej
+// implemented the base for seeking in files
+//
 // Revision 1.27  2003/03/09 12:14:39  tobbej
 // use the new graph debuging functions (only in loglevel 2 and 3)
 //
@@ -136,7 +139,6 @@
 #include <dvdmedia.h>
 #include "DevEnum.h"
 #include "DShowGenericAudioControls.h"
-#include "DShowMediaType.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.8 2003-01-12 17:12:45 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.9 2003-01-12 22:58:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/12 17:12:45  atnak
+// Added hex pages display and goto dialog
+//
 // Revision 1.6  2003/01/08 00:23:40  atnak
 // Bug fix
 //
@@ -941,9 +944,7 @@ TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bUpdate)
         {
             break;
         }
-        else if ((*hPage)->dwPageCode == dwPageCode ||
-                 (HIWORD(dwPageCode) >= 0x3F7F &&
-                 LOWORD((*hPage)->dwPageCode) == LOWORD(dwPageCode)))
+        else if ((*hPage)->dwPageCode == dwPageCode)
         {
             if (bUpdate != FALSE)
             {
@@ -1125,26 +1126,60 @@ void CVTDecoder::GetDisplayHeader(TVTPage* pBuffer, BOOL bClockOnly)
 
 DWORD CVTDecoder::GetDisplayPage(DWORD dwPageCode, TVTPage* pBuffer)
 {
+    WORD wPageHex = LOWORD(dwPageCode);
+    TVTPage** hPageList;
+    TVTPage* pPage;
+
+    if (IsNonVisiblePage(wPageHex))
+    {
+        if ((wPageHex & 0xFF) == 0xFF)
+        {
+            return 0UL;
+        }
+
+        hPageList = &m_NonVisiblePageList;
+    }
+    else
+    {
+        WORD wPageIndex = PageHex2ArrayIndex(wPageHex);
+
+        if (wPageIndex == 0xFFFF)
+        {
+            return 0UL;
+        }
+
+        hPageList = &m_VisiblePageList[wPageIndex];
+    }
+
     EnterCriticalSection(&m_PageStoreMutex);
 
-    TVTPage* pPage = GetPageStore(dwPageCode, FALSE);
+    if (HIWORD(dwPageCode) >= 0x3F7F)
+    {
+        pPage = FindReceivedPage(*hPageList);
+
+        while (pPage != NULL)
+        {
+            if (LOWORD(pPage->dwPageCode) == wPageHex)
+            {
+                break;
+            }
+            pPage = FindReceivedPage(pPage->pNextPage);
+        }
+    }
+    else
+    {
+        pPage = FindSubPage(*hPageList, dwPageCode);
+    }
 
     if (pPage != NULL)
     {
-        if (pPage->bReceived != FALSE)
-        {
-            CopyPageForDisplay(pBuffer, pPage);
-            UnsetUpdatedStates(pPage);
-        }
-        else
-        {
-            pPage = NULL;
-        }
+        CopyPageForDisplay(pBuffer, pPage);
+        UnsetUpdatedStates(pPage);
     }
 
     LeaveCriticalSection(&m_PageStoreMutex);
 
-    return pPage != NULL ? pPage->dwPageCode : 0;
+    return pPage != NULL ? pPage->dwPageCode : 0UL;
 }
 
 

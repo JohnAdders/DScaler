@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.29 2003-04-16 15:11:50 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.30 2003-04-17 09:17:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/04/16 15:11:50  atnak
+// Fixed Medion TV-Tuner 7134 MK2/3 audio clock and default tuner
+//
 // Revision 1.28  2003/04/16 14:43:16  atnak
 // Updated FlyVideo2000 radio GPIO setting
 //
@@ -724,6 +727,36 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         ManliMTV002CardInputSelect,
     },
+    // SAA7134CARDID_VGEAR_MYTV_SAP - V-Gear MyTV SAP PK
+	// Thanks "Ken Chung" <kenchunghk2000@ya...>
+    {
+        "V-Gear MyTV SAP PK",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+        },
+        TUNER_PHILIPS_PAL_I,
+        AUDIOCRYSTAL_32110Hz,
+        NULL,
+        VGearMyTVSAPCardInputSelect,
+    },
 };
 
 
@@ -1002,6 +1035,23 @@ void CSAA7134Card::ManliMTV002CardInputSelect(int nInput)
         break;
     }
     */
+}
+
+
+void CSAA7134Card::VGearMyTVSAPCardInputSelect(int nInput)
+{
+	StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case 0: // Tuner
+    case 1: // Composite
+    case 2: // S-Video
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x4400, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0400, 0x4400);
+        break;
+    default:
+        break;
+    }
 }
 
 

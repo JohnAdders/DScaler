@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.86 2003-10-27 10:39:52 adcockj Exp $
+// $Id: OSD.cpp,v 1.87 2003-11-11 22:16:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.85  2003/06/02 13:15:34  adcockj
 // Fixes for CHARSTRING problems
 //
@@ -467,7 +470,7 @@ static TActiveScreen ActiveScreens[] =
     { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
     { "Developer screen",        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
 #endif
 };
@@ -869,7 +872,7 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     OSD_InvalidateTextsArea();
     OSD_ClearAllTexts();
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
     LARGE_INTEGER FirstCount, SecondCount, Frequency;
     BOOL bPerformanceCounter = QueryPerformanceCounter(&FirstCount);
 #endif
@@ -886,7 +889,7 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
 
     OSD_Redraw(hDC, lpRect);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
     if (bPerformanceCounter)
     {
         QueryPerformanceFrequency(&Frequency);
@@ -2528,14 +2531,12 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
          NULL,
         "OSD", "UseWSSDecodingScreen", NULL,
     },
-#ifdef _DEBUG
     {
         "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[4].active),
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseDeveloperScreen", NULL,
     },
-#endif
     {
         "Font Name", CHARSTRING, 0, (long*)&OSD_szFontName,
          (long)"Arial", 0, 0, 0, 0,

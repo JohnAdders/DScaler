@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.129 2003-10-27 10:39:52 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.130 2003-11-11 22:16:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.129  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.128  2003/10/04 12:00:20  laurentg
 // Always use system memory when taking a still to improve performance
 //
@@ -931,7 +934,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				}
 			}
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
             pPerf->StartCount(PERF_WAIT_FIELD);
 #endif
 
@@ -968,14 +971,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             // consumption
             pSource->GetNextField(&Info, Info.bDoAccurateFlips && !bMinimized);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
             pPerf->StopCount(PERF_WAIT_FIELD);
 #endif
 
             if (Info.bMissedFrame || Info.bRunningLate)
             {
                 LOG(2, "    Info.bMissedFrame %d - Info.bRunningLate %d", Info.bMissedFrame, Info.bRunningLate);
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                 for (int i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
                 {
                     if (pPerf->IsValid((ePerfType)i) && (pPerf->GetDurationLastCycle((ePerfType)i) != -1))
@@ -1089,13 +1092,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // Card calibration
 				if (pCalibration->IsRunning())
 				{
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                     pPerf->StartCount(PERF_CALIBRATION);
 #endif
 
                     pCalibration->Make(&Info, GetTickCount());
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                     pPerf->StopCount(PERF_CALIBRATION);
 #endif
 				}
@@ -1103,7 +1106,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // update the source area
                 GetSourceRect(&Info.SourceRect);
                 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                 pPerf->StartCount(PERF_INPUT_FILTERS);
 #endif
 
@@ -1111,13 +1114,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // only
                 SourceAspectAdjust = Filter_DoInput(&Info, nHistory, (Info.bRunningLate || Info.bMissedFrame));
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                 pPerf->StopCount(PERF_INPUT_FILTERS);
 #endif
 
 				if (CTimeShift::WorkOnInputFrames() == TRUE)
 				{
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 	                pPerf->StartCount(PERF_TIMESHIFT);
 #endif
 
@@ -1127,7 +1130,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					// parts of the app.
 					CTimeShift::OnNewInputFrame(&Info);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 	                pPerf->StopCount(PERF_TIMESHIFT);
 #endif
 				}
@@ -1135,7 +1138,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 if (!Info.bMissedFrame && !bMinimized && !bNoScreenUpdateDuringTuning &&
                     (VT_GetState() != VT_BLACK  || VT_IsTransparencyInPage()))
                 {
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
 #endif
 
@@ -1202,20 +1205,20 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         CurrentMethod = GetCurrentDeintMethod();
                     }
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                     pPerf->StopCount(PERF_PULLDOWN_DETECT);
 #endif
                 }
 
                 if (bCaptureVBI == TRUE)
                 {
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                     pPerf->StartCount(PERF_VBI);
 #endif
 
                     pSource->DecodeVBI(&Info);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                     pPerf->StopCount(PERF_VBI);
 #endif
                 }
@@ -1235,20 +1238,20 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // to avoid conflicts
                         if (Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
                         {
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                             pPerf->StartCount(PERF_RATIO);
 #endif
 
                             AdjustAspectRatio(SourceAspectAdjust, &Info);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                             pPerf->StopCount(PERF_RATIO);
 #endif
                         }
 
 						if(bUseOverlay)
 						{
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 #endif
 							if(!Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
@@ -1264,12 +1267,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								return 1;
 							}
 							bOverlayLocked = TRUE;
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StopCount(PERF_LOCK_OVERLAY);
 #endif
 						}
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                         pPerf->StartCount(PERF_DEINTERLACE);
 #endif
 
@@ -1292,13 +1295,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                         CHECK_FPU_STACK
                     
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_DEINTERLACE);
 #endif
 
                         if (bFlipNow)
                         {
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                             pPerf->StartCount(PERF_OUTPUT_FILTERS);
 #endif
 
@@ -1306,26 +1309,26 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             // need to do this while the surface is locked
                             Filter_DoOutput(&Info, nHistory, Info.bMissedFrame);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                             pPerf->StopCount(PERF_OUTPUT_FILTERS);
 #endif
 
 							if (CTimeShift::WorkOnInputFrames() == FALSE)
 							{
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 				                pPerf->StartCount(PERF_TIMESHIFT);
 #endif
 
 								CTimeShift::OnNewOutputFrame(&Info);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 				                pPerf->StopCount(PERF_TIMESHIFT);
 #endif
 							}
 
                         }
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
 
@@ -1347,7 +1350,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							bOverlayLocked = FALSE;
 						}
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
 #endif
 
@@ -1363,7 +1366,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // flip overlay if required
                         if (bFlipNow && bUseOverlay)
                         {
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StartCount(PERF_FLIP_OVERLAY);
 #endif
 
@@ -1424,7 +1427,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 										   || (pMultiFrames && pMultiFrames->IsActive())
 										   || (CTimeShift::IsRunning() == TRUE && CTimeShift::WorkOnInputFrames() == FALSE);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StopCount(PERF_FLIP_OVERLAY);
 #endif
 						}
@@ -1435,13 +1438,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 { 
                     if(bOverlayLocked == TRUE)
                     {
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
 
                         Overlay_Unlock_Back_Buffer(bUseExtraBuffer);
 
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
 #endif
                     }

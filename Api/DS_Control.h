@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.151 2003-09-13 13:47:44 laurentg Exp $
+// $Id: DS_Control.h,v 1.152 2003-11-11 22:16:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.151  2003/09/13 13:47:44  laurentg
+// New timeshift setting to enable/disable the warning message
+//
 // Revision 1.150  2003/08/02 12:01:43  laurentg
 // Two new settings to define how many channels to display in preview mode
 //
@@ -1032,9 +1035,7 @@ typedef enum
     OSD_USE_GENERAL_SCREEN,
     OSD_USE_STATISTICS_SCREEN,
     OSD_USE_WSS_SCREEN,
-#ifdef _DEBUG
     OSD_USE_DEVELOPER_SCREEN,
-#endif
 	OSD_FONT,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;

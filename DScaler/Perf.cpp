@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.14 2003-10-27 10:39:52 adcockj Exp $
+// $Id: Perf.cpp,v 1.15 2003-11-11 22:16:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.13  2003/03/09 22:22:39  laurentg
 // double replaced by integer
 //
@@ -85,7 +88,7 @@ ULONG GetAccurateTickCount()
 static const char* PerfNames[PERF_TYPE_LASTONE] =
 {
     "Wait for next field",
-#ifdef _DEBUG
+#ifdef USE_PERFORMANCE_STATS
     "Input filters",
     "Output filters",
     "Pulldown detection",

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.12 2001-12-14 13:59:34 adcockj Exp $
+// $Id: stdafx.h,v 1.13 2001-12-17 19:54:20 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/14 13:59:34  adcockj
+// Fix to remove dependancy on dshow.h if not required
+//
 // Revision 1.11  2001/12/09 22:00:42  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -53,6 +56,8 @@
 
 #include <atlbase.h>
 
+//uncommen the folowing line if you want to try the experimental direct show support
+//#define WANT_DSHOW_SUPPORT 1
 #ifdef WANT_DSHOW_SUPPORT
     #include <dshow.h>
 #endif

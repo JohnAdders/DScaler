@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.122 2003-01-02 13:14:59 adcockj Exp $
+// $Id: DS_Control.h,v 1.123 2003-01-02 16:24:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.122  2003/01/02 13:14:59  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 // Revision 1.121  2003/01/01 21:07:10  atnak
 // Updated VT_SETTING
 //
@@ -1639,7 +1642,6 @@ typedef enum
 typedef enum
 {
     MOCOMP2SEARCHEFFORT = 0,
-    MOCOMP2USESTRANGEBOB,
     DI_MOCOMP2_SETTING_LASTONE,
 } DI_MOCOMP2_SETTING;
 

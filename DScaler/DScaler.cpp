@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.216 2002-08-11 13:52:02 laurentg Exp $
+// $Id: DScaler.cpp,v 1.217 2002-08-11 16:14:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.216  2002/08/11 13:52:02  laurentg
+// Show automatically the general hardware setup dialog box the first time DScaler is started
+//
 // Revision 1.215  2002/08/11 12:12:10  laurentg
 // Cut BT Card setup and general hardware setup in two different windows
 //
@@ -811,6 +814,7 @@ static BOOL bTakingCyclicStills = FALSE;
 
 static int ProcessorSpeed = 1;
 static int TradeOff = 1;
+static int FullCpu = 1;
 static int ShowHWSetupBox;
 
 ///**************************************************************************
@@ -1011,7 +1015,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
 
     ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
-                     || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF));
+                     || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF))
+                     || !Setting_ReadFromIni(DScaler_GetSetting(FULLCPU));
 
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
@@ -4552,6 +4557,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         1, 0, 1, 1, 1,
         NULL,
         "MainWindow", "TradeOff", NULL,
+    },
+    {
+        "Use Full CPU", SLIDER, 0, (long*)&FullCpu,
+        1, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "FullCpu", NULL,
     },
 };
 

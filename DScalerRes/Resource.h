@@ -715,6 +715,7 @@
 #define IDC_TEXT35                      1867
 #define IDC_TRADEOFF                    1868
 #define IDC_TSCOMPRESSIONBUTTON         1869
+#define IDC_FULLCPU                     1869
 #define IDC_TSCOMPRESSIONHELP           1870
 #define IDC_TSFULLHEIGHTRADIO           1871
 #define IDC_TSHALFAVERAGEDRADIO         1872

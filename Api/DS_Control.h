@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.81 2002-08-09 13:27:54 laurentg Exp $
+// $Id: DS_Control.h,v 1.82 2002-08-11 16:08:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2002/08/09 13:27:54  laurentg
+// Processor speed and trade off settings moved from BT source settings to DScaler settings
+//
 // Revision 1.80  2002/08/07 19:13:23  adcockj
 // Added Colour Inversion Filter
 //
@@ -537,6 +540,7 @@ typedef enum
     CHANNELENTERTIME,
     PROCESSORSPEED,
     TRADEOFF,
+    FULLCPU,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

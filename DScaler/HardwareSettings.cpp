@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.2 2002-08-11 13:52:03 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.3 2002-08-11 16:14:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/08/11 13:52:03  laurentg
+// Show automatically the general hardware setup dialog box the first time DScaler is started
+//
 // Revision 1.1  2002/08/11 12:14:02  laurentg
 // Cut BT Card setup and general hardware setup in two different windows
 //
@@ -33,8 +36,9 @@
 #include "FD_60Hz.h"
 #include "DebugLog.h"
 #include "Providers.h"
+#include "FieldTiming.h"
 
-static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
+static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCpu)
 {
     // now do defaults based on the processor speed selected
     if(ProcessorSpeed == 1 && TradeOff == 0)
@@ -83,13 +87,24 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
         Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
     }
 
+    if (FullCpu)
+    {
+        Setting_ChangeDefault(DScaler_GetSetting(THREADPRIORITY), 0);
+        Setting_ChangeDefault(DScaler_GetSetting(WINDOWPRIORITY), 0);
+        Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 0);
+    }
+    else
+    {
+        Setting_ChangeDefault(DScaler_GetSetting(THREADPRIORITY), 1);
+        Setting_ChangeDefault(DScaler_GetSetting(WINDOWPRIORITY), 0);
+        Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 1);
+    }
+
     Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
 }
 
 BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-//    static long OrigProcessorSpeed;
-//    static long OrigTradeOff;
     long EnableCancelButton;
 
     switch (message)
@@ -104,8 +119,9 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Show all frames - Lowest judder");
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Best picture quality");
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(TRADEOFF)), 0);
-//        OrigProcessorSpeed = Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED));
-//        OrigTradeOff = Setting_GetValue(DScaler_GetSetting(TRADEOFF));
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Keep CPU for other applications");
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Use full CPU for best results");
+        SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(FULLCPU)), 0);
         SetFocus(hDlg);
         break;
     case WM_COMMAND:
@@ -114,12 +130,9 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         case IDOK:
             Setting_SetValue(DScaler_GetSetting(PROCESSORSPEED), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED)));
             Setting_SetValue(DScaler_GetSetting(TRADEOFF), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TRADEOFF)));
-//            if(OrigProcessorSpeed != Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)) || 
-//                OrigTradeOff != Setting_GetValue(DScaler_GetSetting(TRADEOFF)))
-//            {
-                ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
-//            }
-			WriteSettingsToIni(FALSE);
+            Setting_SetValue(DScaler_GetSetting(FULLCPU), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FULLCPU)));
+            ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)), Setting_GetValue(DScaler_GetSetting(FULLCPU)));
+            WriteSettingsToIni(FALSE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:

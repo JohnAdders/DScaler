@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.29 2003-02-17 11:39:00 adcockj Exp $
+// $Id: VBI.cpp,v 1.30 2003-06-28 10:54:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/02/17 11:39:00  adcockj
+// Added group flags for setting per channel on more settings
+//
 // Revision 1.28  2003/01/28 06:37:02  atnak
 // Enable Goto Teletext Page menu when videotext is on even when teletext
 // is not shown
@@ -181,6 +184,8 @@ void VBI_ChannelChange()
 
 void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 {
+	static eCCMode PrevCCMode = CCMODE_OFF;
+
     TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
 
     // set up threshold and offset data
@@ -192,7 +197,13 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
         VBI_DecodeLine_VT(VBI_Buffer);
     }
 
-    // Closed caption information appears on line 21 (line == 11) for NTSC
+	// If the user has just changed CC selection, then we erase the CC display
+ 	if (PrevCCMode != CCMode)
+	{
+        VBI_DecodeLine_CC(VBI_Buffer, CCMODE_OFF, IsOdd);
+	}
+
+   // Closed caption information appears on line 21 (line == 11) for NTSC
     // it also appears on PAL videos at line 22
     // see http://www.wgbh.org/wgbh/pages/captioncenter/cctechfacts4.html
     // for more infomation
@@ -213,6 +224,8 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 //		LOG(1, "WSS VBI_thresh %d VBIOffset %d", VBI_thresh, VBIOffset);
         VBI_DecodeLine_WSS(VBI_Buffer);
     }
+
+	PrevCCMode = CCMode;
 }
 
 void VBI_AGC(BYTE* Buffer, int start, int stop, int step)

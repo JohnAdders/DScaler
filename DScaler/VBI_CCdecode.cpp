@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.16 2003-01-07 16:49:10 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.17 2003-06-28 10:54:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/01/07 16:49:10  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.15  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -451,6 +454,12 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
             bCaptureText = FALSE;
         }
     }
+    else if (data == -2) //erase asked.
+    {
+        memset(&Screens[0],0,sizeof(TCCScreen));
+        bPaintNow = TRUE;
+        bCaptureText = FALSE;
+    }
     else
     {
         BadCount = 0;
@@ -815,6 +824,12 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
 
 int VBI_DecodeLine_CC(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd)
 {
+	if (CCMode == CCMODE_OFF)
+	{
+         CCdecode(-2, TRUE, 0);
+		return 0;
+	}
+
     if(!IsOdd)
     {
         switch(CCMode)

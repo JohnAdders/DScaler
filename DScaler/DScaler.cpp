@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.364 2004-11-27 00:48:37 atnak Exp $
+// $Id: DScaler.cpp,v 1.365 2004-12-04 00:06:49 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.364  2004/11/27 00:48:37  atnak
+// Moved InitializeSAA713xCardList() up earlier to avoid memory leaks or
+// need to clean up after 'new CEventCollector()' and 'new CSettingsMaster()'
+//
 // Revision 1.363  2004/11/21 12:26:29  atnak
 // Added cautionary comment for exiting code.
 //
@@ -2662,8 +2666,8 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
         if (hSkinMenu != NULL)
         {
             int num = GetMenuItemCount(hSkinMenu);
-			int i;
-            for (i = 2; i < num; i++)
+			size_t i;
+            for (i = 2; static_cast<int>(i) < num; i++)
             {
                 DeleteMenu(hSkinMenu, 2, MF_BYPOSITION);
             }
@@ -2686,7 +2690,7 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
     CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || (szSkinName[0] == 0)));
         
     int Found = 0;
-    for (int i = 0; i < vSkinNameList.size(); i++)
+    for (size_t i = 0; i < vSkinNameList.size(); i++)
     {
         if ((Found == 0) && (vSkinNameList[i] == szSkinName))
         {
@@ -4178,8 +4182,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             if ((LOWORD(wParam)>=IDM_SKIN_FIRST) && (LOWORD(wParam)<=IDM_SKIN_LAST))
             {
-                int n = LOWORD(wParam)-IDM_SKIN_FIRST;
-                if (n<vSkinNameList.size())
+                size_t n = LOWORD(wParam)-IDM_SKIN_FIRST;
+                if (n < vSkinNameList.size())
                 {
                     strcpy(szSkinName, vSkinNameList[n].c_str());
                 }
@@ -4959,7 +4963,7 @@ void SaveWindowPos(HWND hWnd)
 //---------------------------------------------------------------------------
 void SaveActualPStripTiming(HWND hPSWnd)
 {
-	ATOM pStripTimingAtom = SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
+	ATOM pStripTimingAtom = static_cast<ATOM>(SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0));
 	if(lPStripTimingString == NULL)
 	{
 		lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];	

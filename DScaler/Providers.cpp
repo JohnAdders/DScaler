@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.72 2004-07-10 11:17:31 adcockj Exp $
+// $Id: Providers.cpp,v 1.73 2004-12-04 00:06:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2004/07/10 11:17:31  adcockj
+// Fix compile error
+//
 // Revision 1.71  2004/07/08 08:17:52  adcockj
 // Horrible work around for cx2388x issues
 //
@@ -532,7 +535,7 @@ int Providers_Load(HMENU hMenu)
 
         // We destroy the source if it exists
         DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
-        if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+        if (DefSourceIdx >= 0 && static_cast<size_t>(DefSourceIdx) < Sources.size())
         {
             Source = *(Sources.begin() + DefSourceIdx);
             Sources.erase(Sources.begin() + DefSourceIdx);
@@ -545,17 +548,18 @@ int Providers_Load(HMENU hMenu)
     DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
 
     // The default source is not listed in the menu
-    if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+    if (DefSourceIdx >= 0 && static_cast<size_t>(DefSourceIdx) < Sources.size())
     {
         Source = *(Sources.begin() + DefSourceIdx);
         Source->DisplayInMenu = FALSE;
     }
 
-    if (InitSourceIdx >= 0 && InitSourceIdx < Sources.size() && Sources[InitSourceIdx]->Object->IsAccessAllowed())
+    if (InitSourceIdx >= 0 && static_cast<size_t>(InitSourceIdx) < Sources.size() &&
+        Sources[InitSourceIdx]->Object->IsAccessAllowed())
     {
         CurrentSource = InitSourceIdx;
     }
-    else if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+    else if (DefSourceIdx >= 0 && static_cast<size_t>(DefSourceIdx) < Sources.size())
     {
         CurrentSource = DefSourceIdx;
     }
@@ -566,17 +570,17 @@ int Providers_Load(HMENU hMenu)
 
     Providers_NotifySourceChange(-1);
 
-    for(i = 0; i < Sources.size() && i < 100 ; ++i)
+    for(size_t n = 0; n < Sources.size() && n < 100 ; ++n)
     {
-        if (Sources[i]->DisplayInMenu)
+        if (Sources[n]->DisplayInMenu)
         {
-//            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + i, Sources[i]->Name.c_str());
+//            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + n, Sources[n]->Name.c_str());
             MenuItemInfo.cbSize = sizeof (MenuItemInfo);
             MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
             MenuItemInfo.fType = MFT_STRING;
-            MenuItemInfo.dwTypeData = (LPSTR) Sources[i]->Name.c_str();
-            MenuItemInfo.cch = strlen (Sources[i]->Name.c_str());
-            MenuItemInfo.wID = IDM_SOURCE_FIRST + i;
+            MenuItemInfo.dwTypeData = (LPSTR) Sources[n]->Name.c_str();
+            MenuItemInfo.cch = strlen (Sources[n]->Name.c_str());
+            MenuItemInfo.wID = IDM_SOURCE_FIRST + n;
             InsertMenuItem(hSubMenu, GetMenuItemCount(hSubMenu) - 4, TRUE, &MenuItemInfo);
         }
     }
@@ -632,7 +636,7 @@ void Providers_Unload()
 
 CSource* Providers_GetCurrentSource()
 {
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         return Sources[CurrentSource]->Object;
     }
@@ -644,11 +648,11 @@ CSource* Providers_GetCurrentSource()
 
 long Providers_GetSourceIndex(CSource* Src)
 {
-    for (int i(0) ; i < Sources.size() ; i++)
+    for (size_t i(0) ; i < Sources.size() ; i++)
     {
         if (Sources[i]->Object == Src)
         {
-            return i;
+            return static_cast<long>(i);
         }
     }
     return -1;
@@ -691,14 +695,14 @@ BOOL Providers_IsStillSource(CSource* source)
 
 int Providers_FindSource()
 {
-    int SourceIdx = 0;
+    size_t SourceIdx = 0;
     while ((SourceIdx < Sources.size()) && !Sources[SourceIdx]->Object->IsAccessAllowed())
     {
         SourceIdx++;
     }
     if(SourceIdx >= 0 && SourceIdx < Sources.size())
     {
-        return SourceIdx;
+        return static_cast<int>(SourceIdx);
     }
     else
     {
@@ -708,7 +712,7 @@ int Providers_FindSource()
 
 void Providers_SetMenu(HMENU hMenu)
 {
-    for(int i(0); i < Sources.size(); ++i)
+    for(size_t i(0); i < Sources.size(); ++i)
     {
         if (Sources[i]->DisplayInMenu)
         {
@@ -717,7 +721,7 @@ void Providers_SetMenu(HMENU hMenu)
         }
     }
 
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         Sources[CurrentSource]->Object->SetMenu(hMenu);
     }
@@ -729,7 +733,7 @@ void Providers_UpdateMenu(HMENU hMenu)
     // if we don't do this our menu gets deleted
     RemoveMenu(hMenu, 1, MF_BYPOSITION);
 
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         // get The name of our menu
         char Text[256];
@@ -755,7 +759,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {
         int NewSource(LOWORD(wParam) - IDM_SOURCE_FIRST);
-        if(NewSource >= 0 && NewSource < Sources.size())
+        if(NewSource >= 0 && static_cast<size_t>(NewSource) < Sources.size())
         {
             Providers_NotifySourcePreChange();
             Stop_Capture();
@@ -779,14 +783,14 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		if(COpenDlg::ShowOpenDialog(hWnd,file))
         {
             Stop_Capture();
-            for(int i = 0; i < Sources.size(); ++i)
+            for(size_t i = 0; i < Sources.size(); ++i)
             {
                 if(Sources[i]->Object->OpenMediaFile(file, FALSE))
                 {                    
                     Providers_NotifySourcePreChange();
                     
                     int OldSource = CurrentSource;
-                    CurrentSource = i;
+                    CurrentSource = static_cast<long>(i);
                     WSS_init();
                     Providers_UpdateMenu(hMenu);
                     Start_Capture();
@@ -806,7 +810,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         Stop_Capture();
         WSS_init();
         int OldSource = CurrentSource;
-        if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+        if (DefSourceIdx >= 0 && static_cast<size_t>(DefSourceIdx) < Sources.size())
         {
             CurrentSource = DefSourceIdx;
         }
@@ -820,7 +824,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         Providers_NotifySourceChange(OldSource);
         return TRUE;
     }
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         return Sources[CurrentSource]->Object->HandleWindowsCommands(hWnd, wParam, lParam);
     }
@@ -841,7 +845,7 @@ CSource*  Providers_GetByIndex(long Index)
 
 void Provider_HandleTimerMessages(int TimerId)
 {
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         Sources[CurrentSource]->Object->HandleTimerMessages(TimerId);
     }
@@ -849,7 +853,7 @@ void Provider_HandleTimerMessages(int TimerId)
 
 void Providers_ReadFromIni()
 {
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         Sources[CurrentSource]->Object->ReadFromIni();
     }
@@ -857,7 +861,7 @@ void Providers_ReadFromIni()
 
 void Providers_WriteToIni(BOOL bOptimizeFileAccess)
 {
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(CurrentSource >= 0 && static_cast<size_t>(CurrentSource) < Sources.size())
     {
         Sources[CurrentSource]->Object->WriteToIni(bOptimizeFileAccess);
     }
@@ -865,7 +869,7 @@ void Providers_WriteToIni(BOOL bOptimizeFileAccess)
 
 void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 {
-    for (int i(0) ; i < Sources.size() ; i++)
+    for (size_t i(0) ; i < Sources.size() ; i++)
     {
         Sources[i]->Object->ChangeSettingsBasedOnHW(ProcessorSpeed, TradeOff);
     }
@@ -892,7 +896,7 @@ void Providers_NotifySourceChange(int OldSource)
 {
     CSource* pOldSource = NULL;
 
-    if(OldSource >= 0 && OldSource < Sources.size())
+    if(OldSource >= 0 && static_cast<size_t>(OldSource) < Sources.size())
     {
         pOldSource = Sources[OldSource]->Object;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.35 2002-04-27 16:02:59 laurentg Exp $
+// $Id: Providers.cpp,v 1.36 2002-04-28 16:46:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/04/27 16:02:59  laurentg
+// Initial source
+//
 // Revision 1.34  2002/04/27 11:21:04  tobbej
 // fixed crashing, dont use c style malloc to allocate memory for structs with c++ members
 //
@@ -155,6 +158,7 @@
 #include "OutThreads.h"
 #include "DScaler.h"
 #include "Audio.h"
+#include "VBI_WSSdecode.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource\DSProvider.h"
@@ -444,6 +448,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         if(NewSource >= 0 && NewSource < Sources.size())
         {
             Stop_Capture();
+            WSS_init();
             CurrentSource = NewSource;
             Providers_UpdateMenu(hMenu);
             Start_Capture();
@@ -496,6 +501,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 if(Sources[i]->Object->OpenMediaFile(FilePath, FALSE))
                 {
                     CurrentSource = i;
+                    WSS_init();
                     Providers_UpdateMenu(hMenu);
                     Start_Capture();
                     return TRUE;
@@ -509,6 +515,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {
         Stop_Capture();
+        WSS_init();
         if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
         {
             CurrentSource = DefSourceIdx;

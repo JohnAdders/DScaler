@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.81 2002-09-07 20:59:45 kooiman Exp $
+// $Id: OutThreads.cpp,v 1.82 2002-09-09 03:00:15 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2002/09/07 20:59:45  kooiman
+// Small fixes.
+//
 // Revision 1.80  2002/08/18 14:35:45  robmuller
 // Changed default.
 //
@@ -745,22 +748,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     Sleep(50);
                     continue;
                 }
-                // calculate History
-                if(Info.PictureHistory[1] == NULL)
+                // calculate History: How many consecutive non-null PictureHistory[]s do we have?
+                for( nHistory = 1; (nHistory < MAX_PICTURE_HISTORY) && (Info.PictureHistory[nHistory] != NULL); ++nHistory )
                 {
-                    nHistory = 1;
-                }
-                else if(Info.PictureHistory[2] == NULL)
-                {
-                    nHistory = 2;
-                }
-                else if(Info.PictureHistory[3] == NULL)
-                {
-                    nHistory = 3;
-                }
-                else
-                {
-                    nHistory = 4;
+                    ; // Do nothing
                 }
 
                 // Vertical flipping

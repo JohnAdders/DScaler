@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.26 2002-10-11 21:41:32 ittarnavsky Exp $
+// $Id: BT848Card_Types.cpp,v 1.27 2002-10-16 21:40:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/11 21:41:32  ittarnavsky
+// changes due to the eAudioDecoderType move
+//
 // Revision 1.25  2002/10/11 13:35:49  kooiman
 // Improved Pinnacle/Miro pro detection.
 //
@@ -3594,7 +3597,7 @@ const eTunerId CBT848Card::m_Tuners_miro[] =
     TUNER_TEMIC_4016FY5_PAL,    
     TUNER_PHILIPS_PAL_I, 
     TUNER_ABSENT,               
-    TUNER_MT2032_PAL,
+    TUNER_ABSENT,
     TUNER_ABSENT,               
     TUNER_ABSENT  
 };
@@ -3608,7 +3611,7 @@ const bool CBT848Card::m_Tuners_miro_fm[] =
     true    ,true     ,true   ,true ,   
     true    ,true     ,true   ,false    ,  
     false   ,false  ,false  ,false  ,  
-    false   ,true   ,false  ,false 
+    false   ,false   ,false  ,false 
 };
 
 const eTunerId CBT848Card::m_Tuners_hauppauge[]=
@@ -3778,25 +3781,61 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 // Read ID                
                 WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);
                 Id = ReadDword(BT848_GPIO_DATA);
-                Id = ((Id >> 10) & 31) - 1;            
+                //Id = ((Id >> 10) & 31) - 1;            
+                Id = ((Id >> 10) & 63) - 1;
                 
                 LOG(2, "AutoDetectTuner: Miro/Pinnacle card. ID: 0x%08X",Id);
                 
-                // Get tuner from list
-                Tuner = m_Tuners_miro[Id];
+                if (Id < 32)
+                {
+                    // Get tuner from list
+                    Tuner = m_Tuners_miro[Id];
 
-                // Get additional data
-                Val = ReadDword(BT848_GPIO_DATA);
-                
-                LOG(2, "AutoDetectTuner: Miro/Pinnacle card. Val: 0x%08X",Val);
-                
-                if (Val & 0x20) {
-                  TVTunerDoesFM = true;
-                  if (m_Tuners_miro_fm[Id]) {
-                    HasTEA5757 = true;
+                    // Get additional data
+                    Val = ReadDword(BT848_GPIO_DATA);
+                    
+                    LOG(2, "AutoDetectTuner: Miro/Pinnacle card. Val: 0x%08X",Val);
+                    
+                    if (Val & 0x20) 
+                    {
+                        TVTunerDoesFM = true;
+                        if (m_Tuners_miro_fm[Id]) 
+                        {
+                            HasTEA5757 = true;
                             TVTunerDoesFM = false;
-                  }
-                }
+                        }
+                    }
+                 }
+                 else
+                 {
+                     Id = 63-Id;
+                     TVTunerDoesFM = false;
+                     switch (Id)
+                     {
+                     case 1: //PAL / mono
+                         Tuner = TUNER_MT2032_PAL;
+                         break;
+                     case 2: //PAL+SECAM / stereo
+                         Tuner = TUNER_MT2032_PAL;
+                         break;
+                     case 3: //NTSC / stereo
+                         Tuner = TUNER_MT2032;
+                         break;
+                     case 4: //PAL+SECAM / mono
+                         Tuner = TUNER_MT2032_PAL;
+                         break;
+                     case 5: //NTSC / mono
+                         Tuner = TUNER_MT2032;
+                         break;
+                     case 6: //NTSC / stereo
+                         Tuner = TUNER_MT2032;
+                         break;
+                     default:
+                         //unknown, try mt2032
+                         Tuner = TUNER_MT2032;                         
+                         break;
+                     }
+                 }
             }
             break;          
           case TVCARD_FLYVIDEO_98:

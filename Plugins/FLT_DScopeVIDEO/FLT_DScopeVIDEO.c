@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_DScopeVIDEO.c,v 1.1 2003-03-22 13:13:02 laurentg Exp $
+// $Id: FLT_DScopeVIDEO.c,v 1.2 2003-04-01 20:58:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2003 Michael Joubert.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/03/22 13:13:02  laurentg
+// New filter from Michael Joubert
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +39,11 @@
 - write line to file
 - file dialog
 - new (smaller) line number font
-- add plot shaded or color filled background
-
+- add shaded plot background
+- move all calcs out of main loop
 - fix line number display in all modes
 - verify operation for other screen resolutions
+- complete and test osd
 
 */
 
@@ -74,11 +78,11 @@ static                void           DScopeOSDText            (char* strbuff);
 static                BOOL           DScopeVideoEnabled_OnChange(long NewValue);
 static                void           DScopeVideoStart         (void);
 static                void           DScopeVideoStop          (void);
-static                void           DrawGrid                 (BYTE* destination, int pitch, int length);
-static                void           DrawLineMarker           (BYTE* source, int source_pitch, BYTE* destination, int dest_pitch, int dest_frame_height, int length);
+static                void           DrawGrid                 (DWORD* pDestination, int pitch, int height, int width);
+static                void           DrawLineMarker           (BYTE* source, int source_pitch, BYTE* pDestination, int dest_pitch, int dest_frame_height, int length);
 
 //----------------------------------------------------------------------------
-//
+// Filter globals
 
 static                FILTER_METHOD  DScopeVideoMethod;       //see DS_Filter.h 
 static                BOOL           UseDScopeVideo; 
@@ -105,7 +109,7 @@ static                BYTE*          pGrid_Temp;              //
 static                DWORD          dwGrid_Color;
 static                char           strbuff[80];             // for debug text output
 
-static                DWORD          Y1_BaseLine;             //
+static                int            Y1_BaseLine;             //
 
 static                double         temp;
 static                int            a,b,c;
@@ -309,7 +313,7 @@ FILTER_METHOD DScopeVideoMethod =
     "DScope Video",                     // What to display when selected
     "&DScope Video",                    // What to put in the Menu (NULL to use szName)
     FALSE,                              // Are we active Initially
-    FALSE,//TRUE,                       // Do we get called on Input. !*!*! when true causes crashes!!!
+    FALSE, //TRUE,                      // Do we get called on Input. !*!*! when true causes crashes!!!
     FilterDScopeVIDEO,                  // Pointer to Algorithm function (cannot be NULL)
     0,                                  // id of menu to display status
     TRUE,                               // Always run - do we run if there has been an overrun
@@ -320,7 +324,7 @@ FILTER_METHOD DScopeVideoMethod =
     FLT_DScopeVideo_SETTINGS,           // pointer to start of Settings[nSettings]                    
     WM_FLT_DSV_GETVALUE - WM_APP,       // the offset used by the external settings API                        
     TRUE,                               // can we cope with interlaced material, only checked for input filters, output filters are assumed not to care
-    1,                                  // How many pictures of history do we need to run
+    2,                                  // How many pictures of history do we need to run
     IDH_DSCOPE_VIDEO,                   // Help ID, needs to be in \help\helpids.h            
 };
 
@@ -411,33 +415,36 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
 	DWORD i;
     int   Y1_PlotValue;
     int   X1_PlotValue;
+
+    BYTE* CurrentOddLine;
+    BYTE* CurrentEvenLine;
     
-    if ( pInfo->PictureHistory[0] == NULL )
+    if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
-        EVEN = pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN;
-        ODD  = !EVEN;      
+        CurrentOddLine  = pInfo->PictureHistory[0]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[1]->pData;
     }
+    else
+    {
+        CurrentOddLine  = pInfo->PictureHistory[1]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[0]->pData;
+    }
+
     // TV to DScaler format = subtract 1, then divide by 2 (discard remainder)... mj fix to match absolute... 
     
     // translate start offset from TV to DScaler format
     VideoLineDS = VideoLine - 1;
 
-    if(VideoLine & 1)   // get correct source...
+    if(VideoLine & 1)   // get correct source, from latest history...
     {
-        if(ODD);
-        {
-            pLineSource = pInfo->PictureHistory[0]->pData + ((int)(VideoLineDS / 2) * pInfo->InputPitch);
-            pInfo->pMemcpy(&LineBuffer[0], pLineSource, pInfo->LineLength);
-        }
+        pLineSource = CurrentOddLine + ((int)(VideoLineDS / 2) * pInfo->InputPitch);
     }
     else                              
     {
-        if(EVEN);
-        {
-            pLineSource = pInfo->PictureHistory[0]->pData + ((int)(VideoLineDS / 2) * pInfo->InputPitch);
-            pInfo->pMemcpy(&LineBuffer[0], pLineSource, pInfo->LineLength);
-        }
+        pLineSource = CurrentEvenLine + ((int)(VideoLineDS / 2) * pInfo->InputPitch);
     }
+
+    pInfo->pMemcpy(&LineBuffer[0], pLineSource, pInfo->LineLength);
 
 
     // X scaling to fit screen width
@@ -445,7 +452,6 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
 
     Y_Scale = (double) Y_ScalePercent / 100;   // convert from percentage to fraction
 	
-    
     if(bPictureFill)
     {
         for (i = 0; i < (DWORD) pInfo->FrameHeight; i = i++)
@@ -456,9 +462,9 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
     }
     
 	// draw Y grid-lines
-    if (bGrid)               // fix, start on position zero mj ************
+    if (bGrid)               // check start position zero mj ************
     {
-        DrawGrid( pInfo->Overlay, pInfo->OverlayPitch, pInfo->LineLength );
+        DrawGrid((DWORD*) pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameHeight, pInfo->FrameWidth);
     }
 
     // draw plot data
@@ -498,7 +504,12 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
             Pixel_Y = 255;
         }
         
-        *(BYTE*)( pInfo->Overlay + (Y1_PlotValue * pInfo->OverlayPitch) + X1_PlotValue) = Pixel_Y;  // set Y, finally!  
+        // tidy here MJ @@
+        if ((pInfo->Overlay + (Y1_PlotValue * pInfo->OverlayPitch) + X1_PlotValue) > pInfo->Overlay )  // check for writing before overlay area
+        {  // the above check can be improved !! MJ **
+            *(BYTE*)( pInfo->Overlay + (Y1_PlotValue * pInfo->OverlayPitch) + X1_PlotValue) = Pixel_Y;  // set Y, finally!  
+        }   // set Y, finally!  
+
     }
 
 	// draw line marker  
@@ -539,7 +550,7 @@ void DScopeOSDText (char* strbuff)
         OSD_SIZE = SendMessage(hPrevWindow, WM_OSD_GETVALUE, OSD_PERCENTAGESIZE, OSD_SIZE ); 
         SendMessage(hPrevWindow, WM_OSD_SETVALUE, OSD_ANTIALIAS, TRUE );
         SendMessage(hPrevWindow, WM_OSD_SETVALUE, OSD_PERCENTAGESIZE, 4 );  
-        SendMessage(hPrevWindow, WM_COMMAND, IDM_SET_OSD_TEXT, (LPSTR) FLT_DSCOPE_VIDEO );
+        SendMessage(hPrevWindow, WM_COMMAND, IDM_SET_OSD_TEXT, (LPARAM) FLT_DSCOPE_VIDEO );
         
         // error here mj, check ********* 
         SendMessage(hPrevWindow, WM_OSD_SETVALUE, OSD_PERCENTAGESIZE, OSD_SIZE ); // restore setting
@@ -604,32 +615,68 @@ void DScopeVideoStop( void )
     Draw Y grid-lines or solid background
 
 */
-void DrawGrid( BYTE* destination, int pitch, int length ) 
+void DrawGrid( DWORD* pDestination, int pitch, int height, int width ) 
 {
-    static BYTE* pGridLine_Lower;
-    static BYTE* pGridLine_Upper;
-    static DWORD i, ii;
-    static int tmp;
+    static DWORD* pGridLine_Lower;
+    static DWORD* pGridLine_Upper;
+    static int     i;
+    static DWORD  ii; // mj experimenting here
+    static DWORD iii; //
+    const  _int32 white = 0x000000FF;
+    int temp;
 
-    pGridLine_Lower = destination + (Y1_BaseLine * pitch);
+
     
-    if (pGridLine_Lower >= destination + (length * pitch))
+    //pGridLine_Lower   = (DWORD) pDestination + (Y1_BaseLine * pitch);
+    _asm
     {
-        pGridLine_Lower = destination + ((length - 1) * pitch);
+
+        mov     eax, Y1_BaseLine            // mov dest, src
+        mul     pitch                       // result in eax
+        add     eax, dword ptr[pDestination]//
+        mov     pGridLine_Lower,eax         //
+    }
+    
+    if (pGridLine_Lower > pDestination + (height * pitch))
+    {
+        pGridLine_Lower = pDestination + ((height-1) * pitch);
+
     }
 
-    pGridLine_Upper = pGridLine_Lower - (((int)(255 * Y_Scale)) * pitch);
-    
-    if (pGridLine_Upper < destination )
+    //pGridLine_Upper = (DWORD) pGridLine_Lower - (((int)255 * Y_Scale) * pitch);
+    _asm
     {
-        pGridLine_Upper = destination; 
+        fild    white                       // push (int)pitch on stack
+        fmul    Y_Scale                     // * Y_Scale
+        frndint                             // round to integer
+        fimul   pitch                       // * 255
+        
+        // tidy & fix here mj
+        
+        //fsubr   dword ptr[pGridLine_Lower]     // (rev)subtract st(0) from pGridLine_Lower not working???
+        
+        fistp   temp   //dword ptr[pGridLine_Upper]  // store as integer, and pop fpu stack
+    	mov	eax, temp
+	    mov	ecx, dword ptr[pGridLine_Lower]
+        sub	ecx, eax
+	    mov	dword ptr[pGridLine_Upper], ecx
+    }
+
+   // _ltoa ( pGridLine_Upper, strbuff, 16 );           // MJ DEBUGGING
+   // strcat( strbuff, " = pGridLine_Upper" );
+   // OutputDebugString   ( strbuff );
+
+
+    if (pGridLine_Upper < pDestination )               // 
+    {
+        pGridLine_Upper = pDestination; 
     }
 
     if(bSolidBackground)
     {
-        for (ii = pGridLine_Upper; ii < pGridLine_Lower + pitch; ii = ii + pitch) 
+        for (ii = (DWORD)pGridLine_Upper; ii < (DWORD)pGridLine_Lower; ii = ii + pitch) 
         {
-            for (i = 0; i < length; i = i + 4)   
+            for (i = 0; i < width * 2; i = i + 4)   
             {    
                 *(DWORD*)(ii + i) = dwGrid_Color;               // draw line
             }   
@@ -637,10 +684,10 @@ void DrawGrid( BYTE* destination, int pitch, int length )
     }
     else
     {
-        for (i = 0; i < length; i = i + 4 + 8)                  // dashed line
+        for (iii = 0; iii < (DWORD) width; iii = iii + 4)       // dashed line
         {
-            *(DWORD*)(pGridLine_Upper + i) = dwGrid_Color;      // top grid 
-            *(DWORD*)(pGridLine_Lower + i) = dwGrid_Color;      // bottom grid
+            *(DWORD*)(pGridLine_Upper + iii) = dwGrid_Color;    // top grid 
+            *(DWORD*)(pGridLine_Lower + iii) = dwGrid_Color;    // bottom grid
         }
     }
     return;
@@ -650,14 +697,14 @@ void DrawGrid( BYTE* destination, int pitch, int length )
     Draw Line Marker
 
 */                 
-void DrawLineMarker( BYTE* source, int source_pitch, BYTE* destination, int dest_pitch, int dest_frame_height, int length ) 
+void DrawLineMarker( BYTE* source, int source_pitch, BYTE* pDestination, int dest_pitch, int dest_frame_height, int length ) 
 {
-     static DWORD i;
+     static int i;
      static BYTE* pLineMarker;
      
-     pLineMarker = destination + (VideoLineDS * dest_pitch);
+     pLineMarker = pDestination + (VideoLineDS * dest_pitch);
 
-     if (pLineMarker < destination + (dest_frame_height * dest_pitch))// prevent over-run,, move this MJ
+     if (pLineMarker < pDestination + (dest_frame_height * dest_pitch))// prevent over-run,, move this MJ
      {
         for (i = length - 40; i < length; i = i + 2) // do every second byte ('Y')
         {
@@ -667,9 +714,9 @@ void DrawLineMarker( BYTE* source, int source_pitch, BYTE* destination, int dest
         _ltoa ( VideoLine, strbuff, 10 );                     
         strcat( strbuff, "   " );
 
-     if (VideoLineDS < (dest_frame_height - 20) )   //  ***********tempory fix only mj
+     if (VideoLineDS < (dest_frame_height - 20) )   //  *********** tempory fix only mj
      {   DrawString (source,                        // source
-                    destination,                    // destination
+                    pDestination,                   // pDestination
                     source_pitch,                   // pitch [source]
                     dest_frame_height,              // frame height[destination] 
                     70,                             // x

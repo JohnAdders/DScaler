@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.63 2002-06-13 10:40:37 robmuller Exp $
+// $Id: DS_Control.h,v 1.64 2002-06-13 11:24:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/06/13 10:40:37  robmuller
+// Made anti plop mute delay configurable.
+//
 // Revision 1.62  2002/06/06 12:48:18  robmuller
 // Added settings for the Mirror filter.
 //
@@ -479,6 +482,7 @@ typedef enum
     AUTOCODEPAGE,
     VTANTIALIAS,
     INITIALSOURCE,
+    CHANNELENTERTIME,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

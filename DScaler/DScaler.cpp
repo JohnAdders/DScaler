@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.176 2002-06-13 10:40:37 robmuller Exp $
+// $Id: DScaler.cpp,v 1.177 2002-06-13 11:24:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.176  2002/06/13 10:40:37  robmuller
+// Made anti plop mute delay configurable.
+//
 // Revision 1.175  2002/06/13 09:23:02  robmuller
 // Update name of the source in the context menu.
 //
@@ -624,6 +627,8 @@ BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
 
 HFONT hCurrentFont = NULL;
+
+int ChannelEnterTime = 0;
 
 int InitialChannel = -1;
 int InitialTextPage = -1;
@@ -2927,7 +2932,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 else
                 {
-                    SetTimer(hWnd, TIMER_KEYNUMBER, TIMER_KEYNUMBER_MS, NULL);
+                    SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
                     if(VTState == VT_OFF)
                     {
                         i = atoi(ChannelString);
@@ -4123,6 +4128,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         -1, -1, 100, 1, 1,
         NULL,
         "Show", "InitialSource", NULL,
+    },
+    {
+        "Channel enter time", SLIDER, 0, (long*)&ChannelEnterTime,
+        TIMER_KEYNUMBER_MS, 0, 5000, 1, 1,
+        NULL,
+        "MainWindow", "ChannelEnterTime", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.6 2002-10-26 06:59:30 atnak Exp $
+// $Id: SAA7134Common.h,v 1.7 2002-10-29 03:07:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/26 06:59:30  atnak
+// Minor change to video standards definition
+//
 // Revision 1.5  2002/10/26 04:41:44  atnak
 // Clean up + added auto card detection
 //
@@ -315,7 +318,9 @@ protected:
 
     // Lists the items displayed in the UI
     static eAudioCarrier            m_AudioCarrierList[];
-    static char*                    m_AudioFMDeemphasisName[];
+    static const char*              m_AudioFMDeemphasisSzList[];
+
+    static const char*              m_AutomaticVolumeSzList[];
 
     // Video standards (TV Formats) table, uses eVideoFormat
     static TVideoStandardDefinition m_VideoStandards[];

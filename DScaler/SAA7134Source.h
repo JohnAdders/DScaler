@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.19 2002-10-28 11:10:11 atnak Exp $
+// $Id: SAA7134Source.h,v 1.20 2002-10-29 03:07:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/10/28 11:10:11  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.18  2002/10/26 04:42:50  atnak
 // Added AGC config and automatic volume leveling control
 //
@@ -154,6 +157,8 @@ public:
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
     
     ITuner* GetTuner();
+
+    CTreeSettingsGeneric* CSAA7134Source::GetTreeSettingsPage();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -285,6 +290,7 @@ private:
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting*  m_ReversePolarity;
+    CYesNoSetting*  m_VBIDebugOverlay;
     CSliderSetting* m_CardType;
     CYesNoSetting*  m_bSavePerInput;
     CYesNoSetting*  m_bSavePerFormat;
@@ -311,7 +317,6 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSampleRate);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VBIUpscaleDivisor);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AutomaticVolumeLevel);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, GainControlLevel);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutomaticGainControl);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  VideoMirror);
@@ -320,6 +325,7 @@ private:
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  ColorPeak);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AdaptiveCombFilter);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  CustomAudioStandard);
+    DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AutomaticVolumeLevel);
 
     // These settings are only effective when CustomAudioStandard is set
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioMajorCarrier);

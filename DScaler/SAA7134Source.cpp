@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.34 2002-10-28 11:10:12 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.35 2002-10-29 03:07:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/10/28 11:10:12  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.33  2002/10/26 17:51:53  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -373,13 +376,16 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 
     // HELPTEXT: Automatic Volume Leveling control to avoid
     // digital clipping at analog audio output
-    m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_MEDIUMDECAY, AUTOMATICVOLUME_OFF, AUTOMATICVOLUME_LONGDECAY, IniSection);
+    m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_MEDIUMDECAY, AUTOMATICVOLUME_LONGDECAY, IniSection, m_AutomaticVolumeSzList);
     m_Settings.push_back(m_AutomaticVolumeLevel);
 
     // HELPTEXT: Lower means better VBI reception/decoding but
     // how far it can be lowered depends on individual cards.
     m_VBIUpscaleDivisor = new CVBIUpscaleDivisorSetting(this, "VBI Upscale Divisor", 0x1A8, 0x186, 0x400, IniSection);
     m_Settings.push_back(m_VBIUpscaleDivisor);
+
+    m_VBIDebugOverlay = new CYesNoSetting("VBI Debug Overlay", FALSE, IniSection, "VBIDebugOverlay");
+    m_Settings.push_back(m_VBIDebugOverlay);
 
     m_AutomaticGainControl = new CAutomaticGainControlSetting(this, "Automatic Gain Control", TRUE, IniSection);
     m_Settings.push_back(m_AutomaticGainControl);
@@ -875,6 +881,18 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         if (m_ReversePolarity->GetValue() == FALSE)
         {
+            if (m_VBIDebugOverlay->GetValue())
+            {
+                for (int nLine(0); nLine < m_CurrentVBILines; nLine++)
+                {
+                    for (int i(0); i < 2048; i++)
+                    {
+                        m_OddFields[m_CurrentFrame].pData[nLine * 4096 + i] =
+                            m_pVBILines[m_CurrentFrame][(m_CurrentVBILines + nLine) * 2048 + i];
+                    }
+                }
+            }
+
             GiveNextField(pInfo, &m_OddFields[m_CurrentFrame]);
         }
         else
@@ -886,6 +904,18 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         if (m_ReversePolarity->GetValue() == FALSE)
         {
+            if (m_VBIDebugOverlay->GetValue())
+            {
+                for (int nLine(0); nLine < m_CurrentVBILines; nLine++)
+                {
+                    for (int i(0); i < 2048; i++)
+                    {
+                        m_EvenFields[m_CurrentFrame].pData[nLine * 4096 + i] =
+                            m_pVBILines[m_CurrentFrame][nLine * 2048 + i];
+                    }
+                }
+            }
+
             GiveNextField(pInfo, &m_EvenFields[m_CurrentFrame]);
         }
         else
@@ -2015,7 +2045,27 @@ BOOL CSAA7134Source::InputHasTuner(eSourceInputType InputType, int Nr)
     return FALSE;
 }
 
+
 ITuner* CSAA7134Source::GetTuner()
 {
     return m_pSAA7134Card->GetTuner();
+}
+
+
+CTreeSettingsGeneric* CSAA7134Source::GetTreeSettingsPage()
+{
+    vector <CSimpleSetting*>vSettingsList;
+
+    vSettingsList.push_back(m_AutomaticVolumeLevel);
+    vSettingsList.push_back(m_VBIUpscaleDivisor);
+    vSettingsList.push_back(m_VBIDebugOverlay);
+    vSettingsList.push_back(m_AutomaticGainControl);
+    vSettingsList.push_back(m_GainControlLevel);
+    vSettingsList.push_back(m_VideoMirror);
+    vSettingsList.push_back(m_CustomPixelWidth);
+    vSettingsList.push_back(m_HDelay);
+    vSettingsList.push_back(m_VDelay);
+    vSettingsList.push_back(m_ReversePolarity);
+
+    return new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
 }

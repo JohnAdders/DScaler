@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.7 2002-10-26 06:59:30 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.8 2002-10-29 03:07:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/26 06:59:30  atnak
+// Minor change to video standards definition
+//
 // Revision 1.6  2002/10/20 07:41:04  atnak
 // custom audio standard setup + etc
 //
@@ -316,7 +319,7 @@ CSAA7134Common::eAudioCarrier CSAA7134Common::m_AudioCarrierList[] =
 };
 
 
-char* CSAA7134Common::m_AudioFMDeemphasisName[] =
+const char* CSAA7134Common::m_AudioFMDeemphasisSzList[] =
 {
     { "OFF"      },
     { "50us"     },
@@ -324,6 +327,15 @@ char* CSAA7134Common::m_AudioFMDeemphasisName[] =
     { "75us"     },
     { "J17"      },
     { "Adaptive" },
+};
+
+
+const char* CSAA7134Common::m_AutomaticVolumeSzList[] =
+{
+    { "0: OFF"                 },
+    { "1: Short decay (2s)"    },
+    { "2: Medium decay (4s)"   },
+    { "3: Long decay (6s)"     },
 };
 
 
@@ -571,5 +583,5 @@ int CSAA7134Common::GetMaxAudioCarrierNames()
 
 int CSAA7134Common::GetMaxFMDeemphasisNames()
 {
-    return sizeof(m_AudioFMDeemphasisName) / sizeof(char*);
+    return sizeof(m_AudioFMDeemphasisSzList) / sizeof(char*);
 }

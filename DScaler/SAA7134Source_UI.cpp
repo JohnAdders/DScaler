@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.17 2002-10-28 12:04:37 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.18 2002-10-29 03:07:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/28 12:04:37  atnak
+// Code to remove debug menus from Release code
+//
 // Revision 1.16  2002/10/28 11:10:09  atnak
 // Various changes and revamp to settings
 //
@@ -547,10 +550,10 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
         for (i = 0; i < Number; i++)
         {
             // Enter the FM de-emphasis combo box items
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_DEMPH), CB_ADDSTRING, 0, (LPARAM)m_AudioFMDeemphasisName[i]);
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_DEMPH), CB_ADDSTRING, 0, (LPARAM)m_AudioFMDeemphasisSzList[i]);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_DEMPH), CB_SETITEMDATA, nIndex, (LPARAM)i);
 
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_DEMPH), CB_ADDSTRING, 0, (LPARAM)m_AudioFMDeemphasisName[i]);
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_DEMPH), CB_ADDSTRING, 0, (LPARAM)m_AudioFMDeemphasisSzList[i]);
             SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_DEMPH), CB_SETITEMDATA, nIndex, (LPARAM)i);
         }
 

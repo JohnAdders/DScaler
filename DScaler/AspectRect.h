@@ -91,7 +91,7 @@ public:
 	}
 	double sourceAspect()
 	{
-		return (double)width()/(double)height();
+		return RoundTo3dp((double)width()/(double)height());
 	}
 	double targetAspect()
 	{ 
@@ -103,9 +103,12 @@ public:
 	}
 	void setAspectAdjust(double source, double target)
 	{
-		m_outputAdjustment = target/source; 
+		m_outputAdjustment = target/RoundTo3dp(source); 
 	}
-
+    double RoundTo3dp(double InputNumber)
+    {
+        return (floor(InputNumber * 1000.0 + 0.5) / 1000.0);
+    }
 	void normalizeRect()
 	{
 		// Ensure left and top are less than bottom and right.

@@ -918,7 +918,6 @@ void ChangeDefaultsBasedOnHardware()
 		TVCard_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-		//TVCard_ChangeDefault(OutThreads_GetSetting(PULLDOWNMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(BT848_GetSetting(CURRENTX), 720);
@@ -930,7 +929,6 @@ void ChangeDefaultsBasedOnHardware()
 		TVCard_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-		//TVCard_ChangeDefault(OutThreads_GetSetting(PULLDOWNMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(BT848_GetSetting(CURRENTX), 720);
@@ -942,7 +940,6 @@ void ChangeDefaultsBasedOnHardware()
 		TVCard_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(AUTODETECT), FALSE);
-		//TVCard_ChangeDefault(OutThreads_GetSetting(PULLDOWNMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(BT848_GetSetting(CURRENTX), 640);
@@ -954,7 +951,6 @@ void ChangeDefaultsBasedOnHardware()
 		TVCard_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(AUTODETECT), FALSE);
-		//TVCard_ChangeDefault(OutThreads_GetSetting(PULLDOWNMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
 		TVCard_ChangeDefault(BT848_GetSetting(CURRENTX), 640);
@@ -966,7 +962,6 @@ void ChangeDefaultsBasedOnHardware()
 		TVCard_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
 		TVCard_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-		//TVCard_ChangeDefault(OutThreads_GetSetting(PULLDOWNMODE), INDEX_ADAPTIVE);
 		TVCard_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_ADAPTIVE);
 		TVCard_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY2FRAME);
 		TVCard_ChangeDefault(BT848_GetSetting(CURRENTX), 720);

@@ -55,10 +55,6 @@
 #define FEATURE_SSE				0x00002000
 #define FEATURE_SSE2            0x00004000
 
-#define USE_SSE		1		// Use Intel Streaming SIMD Extensions
-#define USE_3DNOW	1		// Use AMD 3DNow! extensions
-#define USE_SSE2	1		// Use Intel SSE version 2 (Pentium 4 and above)
-
 ///////////////////////////////////////////////////////////////////////////////
 // Definitions for the settings and new UI code
 ///////////////////////////////////////////////////////////////////////////////

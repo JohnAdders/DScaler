@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.5 2002-05-05 12:09:22 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.6 2002-05-06 15:48:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/05/05 12:09:22  laurentg
+// All lines have now a pitch which is a multiple of 16
+// Width of picture is now forced to an even value
+//
 // Revision 1.4  2002/05/04 12:03:23  laurentg
 // Use of marker APP1 and APP2 to save DScaler information
 //
@@ -35,7 +39,6 @@
 
 #include "stdafx.h"
 #include "JpegHelper.h"
-#include "Deinterlace.h"
 #include "DebugLog.h"
 #define XMD_H
 extern "C"
@@ -465,7 +468,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 	my_jpeg_stdio_src(&cinfo, infile);
 
     // Read DScaler markers APP1 and APP2
-//    jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xFFFF);
+    jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xFFFF);
     jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xFFFF);
 
     // Call jpeg_read_header() to obtain image info
@@ -479,14 +482,23 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     LOG(2, "scale_denom %u", cinfo.scale_denom);
     LOG(2, "output_gamma %f", cinfo.output_gamma);
 
+    m_pParent->m_Comments = "";
     pMarker = cinfo.marker_list;
     while (pMarker != NULL)
     {
         LOG(2, "marker %d", pMarker->marker);
-        if ( (pMarker->marker == JPEG_APP0+2)
-          && ! strncmp((char*)pMarker->data, SQUARE_MODE_OFF, pMarker->data_length) )
+        // Check that the marker is a DScaler marker
+        if (!strncmp((char*)pMarker->data, "DScaler", 7))
         {
-            Square = FALSE;
+            if (pMarker->marker == JPEG_APP0+1)
+            {
+                m_pParent->m_Comments.assign((char*)pMarker->data, pMarker->data_length);
+            }
+            else if ( (pMarker->marker == JPEG_APP0+2)
+              && ! strncmp((char*)pMarker->data, SQUARE_MODE_OFF, pMarker->data_length) )
+            {
+                Square = FALSE;
+            }
         }
         pMarker = pMarker->next;
     }
@@ -520,7 +532,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Allocate memory buffer to store the final YUYV values
-    LinePitch = (w * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    LinePitch = (w * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
     pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * h);
     if (pFrameBuf == NULL)
     {
@@ -591,7 +603,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     JSAMPLE* pLineBuf;
     BYTE *pBufOverlay;
     int i, quality;
-    char description[132];
+    char* description;
     jmp_buf jmp_mark;
 
     // Allocate memory buffer to store one line of data
@@ -648,7 +660,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     jpeg_start_compress(&cinfo, TRUE);
 
     // Write DScaler marker APP1 with the DScaler current context
-    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    description = BuildDScalerContext();
     jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (JOCTET*)description, strlen(description));
 
     // Write DScaler marker APP2 to save if square pixels mode is on or off

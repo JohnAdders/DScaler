@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.55 2002-05-05 12:09:22 laurentg Exp $
+// $Id: StillSource.cpp,v 1.56 2002-05-06 15:48:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/05/05 12:09:22  laurentg
+// All lines have now a pitch which is a multiple of 16
+// Width of picture is now forced to an even value
+//
 // Revision 1.54  2002/05/03 20:36:49  laurentg
 // 16 byte aligned data
 //
@@ -216,6 +220,8 @@
 #include "AspectRatio.h"
 #include "Other.h"
 #include "SettingsDlg.h"
+#include "Filter.h"
+#include "Dialogs.h"
 
 
 #define TIMER_SLIDESHOW 50
@@ -228,8 +234,12 @@ static int SlideShowDelay = 5;
 static int JpegQuality = 95;
 static int PatternHeight = 576;
 static int PatternWidth = 720;
+static char DScalerContext[1024];
 
 char SavingPath[MAX_PATH];
+
+extern long NumFilters;
+extern FILTER_METHOD* Filters[];
 
 
 BYTE* DumbAlignedMalloc(int siz)
@@ -246,6 +256,32 @@ BYTE* DumbAlignedFree(BYTE* x)
 	BYTE* y =  *(BYTE**)(x-4);
 	free(y);
 	return 0;
+}
+
+
+char* BuildDScalerContext()
+{
+    int i;
+    CSource* pSource = Providers_GetCurrentSource();
+
+    sprintf(DScalerContext, "DScaler still\nTaken with %s", GetProductNameAndVersion());
+    if (pSource != NULL)
+    {
+        strcat(DScalerContext, "\nInput was ");
+        strcat(DScalerContext, pSource->GetStatus());
+    }
+    strcat(DScalerContext, "\nDeinterlace mode was ");
+    strcat(DScalerContext, GetDeinterlaceModeName());
+    for (i = 0 ; i < NumFilters ; i++)
+    {
+        if (Filters[i]->bActive)
+        {
+            strcat(DScalerContext, "\n");
+            strcat(DScalerContext, Filters[i]->szName);
+            strcat(DScalerContext, " was on");
+        }
+    }
+    return DScalerContext;
 }
 
 
@@ -1376,7 +1412,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     LOG(3, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
 
     // Allocate memory for the new YUYV buffer
-    NewPitch = (NewWidth * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    NewPitch = (NewWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
     BYTE* NewBuf = (BYTE*)DumbAlignedMalloc(NewPitch * NewHeight);
 	dstp = NewBuf;
 

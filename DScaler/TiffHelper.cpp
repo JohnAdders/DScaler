@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.21 2002-05-05 12:09:22 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.22 2002-05-06 15:48:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/05/05 12:09:22  laurentg
+// All lines have now a pitch which is a multiple of 16
+// Width of picture is now forced to an even value
+//
 // Revision 1.20  2002/05/03 20:36:49  laurentg
 // 16 byte aligned data
 //
@@ -98,7 +102,6 @@
 #include <time.h>
 #include "stdafx.h"
 #include "TiffHelper.h"
-#include "Deinterlace.h"
 #include "DebugLog.h"
 #include "Dialogs.h"
 #include "OutThreads.h"
@@ -176,6 +179,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     uint16 Compression;
     char* Software;
     char* Description;
+    char* square_mark;
     int LinePitch;
 
     // Open the file
@@ -225,7 +229,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Allocate memory buffer to store the YUYV values
-    LinePitch = (w2 * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    LinePitch = (w2 * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
     pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * h);
     if (pFrameBuf == NULL)
     {
@@ -345,18 +349,22 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
       || !strstr(Software, "DScaler") )
     {
         m_pParent->m_SquarePixels = TRUE;
+        m_pParent->m_Comments = "";
+    }
+    else if (!TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &Description))
+    {
+        m_pParent->m_SquarePixels = FALSE;
+        m_pParent->m_Comments = "";
+    }
+    else if (!(square_mark = strstr(Description, SQUARE_MARK)))
+    {
+        m_pParent->m_SquarePixels = FALSE;
+        m_pParent->m_Comments = Description;
     }
     else
     {
-        if ( !TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &Description)
-          || !strstr(Description, SQUARE_MARK) )
-        {
-            m_pParent->m_SquarePixels = FALSE;
-        }
-        else
-        {
-            m_pParent->m_SquarePixels = TRUE;
-        }
+        m_pParent->m_SquarePixels = TRUE;
+        m_pParent->m_Comments.assign(Description, square_mark-Description);
     }
 
     // Close the file
@@ -378,7 +386,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
 {
     int y, cr, cb, r, g, b;
-    char description[132];
+    char* description;
     TIFF* tif;
     BYTE *pBufOverlay;
     uint8* buffer;
@@ -467,10 +475,9 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     //
     // Fields of the directory
     //
-    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    description = BuildDScalerContext();
     if (m_pParent->m_SquarePixels)
     {
-        strcat(description, "\n\n");
         strcat(description, SQUARE_MARK);
     }
     time(&long_time);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.59 2002-05-05 12:09:21 laurentg Exp $
+// $Id: Calibration.cpp,v 1.60 2002-05-06 15:48:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2002/05/05 12:09:21  laurentg
+// All lines have now a pitch which is a multiple of 16
+// Width of picture is now forced to an even value
+//
 // Revision 1.58  2002/05/03 20:36:49  laurentg
 // 16 byte aligned data
 //
@@ -2370,7 +2374,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Allocate memory buffer to store the YUYV values
-    LinePitch = (pattern.GetWidth() * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    LinePitch = (pattern.GetWidth() * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
     pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * pattern.GetHeight());
     if (pFrameBuf == NULL)
     {

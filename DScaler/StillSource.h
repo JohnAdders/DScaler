@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.32 2002-05-05 12:09:22 laurentg Exp $
+// $Id: StillSource.h,v 1.33 2002-05-06 15:48:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -165,6 +165,8 @@ private:
 
 BYTE* DumbAlignedMalloc(int siz);
 BYTE* DumbAlignedFree(BYTE* x);
+
+char* BuildDScalerContext();
 
 SETTING* Still_GetSetting(STILL_SETTING Setting);
 void Still_ReadSettingsFromIni();

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/16 00:24:57  lindsey
+// Added CVS tags
+//
 // Revision 1.1.1.1  2002/02/15  lindsey
 // Added Histogram Filter
 //
@@ -99,9 +102,14 @@ LONG GatherHistogram_MMX( TDeinterlaceInfo* pInfo )
     // inefficient, but appears to be just as fast.
 
     UpPixels = pInfo->PictureHistory[0]->pData;
-    if( gUseComb == TRUE )
+
+    if( gCombMode == COMB_MODE_NTSC )
     {
         Pixels = UpPixels + pInfo->InputPitch;
+    }
+    else if( gCombMode == COMB_MODE_PAL )
+    {
+        Pixels = UpPixels + 2*(pInfo->InputPitch);
     }
     else
     {
@@ -112,7 +120,7 @@ LONG GatherHistogram_MMX( TDeinterlaceInfo* pInfo )
     pLocalUHistogram = gpUHistogram;
     pLocalVHistogram = gpVHistogram;
 
-    for (Index = 1; Index < (DWORD) pInfo->FieldHeight; ++Index)
+    for (Index = 2; Index < (DWORD) pInfo->FieldHeight; ++Index)
     {
         _asm
         {

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/08/07 00:43:11  lindsey
+// Made prefetching into a user option.
+//
 // Revision 1.5  2002/06/18 19:46:09  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -83,8 +86,16 @@ artifactually increase the range of the distribution.
 // Colors used in the histogram
 
 #define Y_DOT_COLOR                             0x7FFF7FFF
+#define Y_DOT_DIMMED                            0x7F7F7F7F
+#define Y_CCIR_601_MIN                          16
+#define Y_CCIR_601_MAX                          235
+
 #define U_DOT_COLOR                             0xFFFF7FFF
+#define U_DOT_DIMMED                            0xFF7F7F7F
 #define V_DOT_COLOR                             0x7FFFFFFF
+#define V_DOT_DIMMED                            0x7F7FFF7F
+#define UV_CCIR_601_MIN                         16
+#define UV_CCIR_601_MAX                         240
 
 // Vertical scale of the histogram
 
@@ -106,7 +117,18 @@ typedef enum
     MODE_UV,
     MODE_YUV,
     MODE_LASTONE,
-} eMODE;
+} eColorMode;
+
+
+// Likewise this could have been done with a checkbox, but this is clearer.
+
+typedef enum
+{
+    COMB_MODE_NTSC,
+    COMB_MODE_PAL,
+    COMB_MODE_NONE,
+    VIDEO_MODE_LASTONE,
+} eVideoMode;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -116,7 +138,7 @@ typedef enum
 __declspec(dllexport)   FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
 BOOL WINAPI             _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved );
 
-void                    ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color );
+void ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color, DWORD EndColor, DWORD LowValue, DWORD HighValue );
 LONG __cdecl            DispatchHistogram( TDeinterlaceInfo* pInfo );
 
 LONG                    GatherHistogram_SSE_PREFETCH( TDeinterlaceInfo* pInfo );
@@ -132,28 +154,28 @@ LONG                    GatherHistogram_MMX( TDeinterlaceInfo* pInfo );
 
 FILTER_METHOD HistogramMethod;
 
-long    gUsePrefetching = TRUE;
+long        gUsePrefetching = TRUE;
 
 
 // The histograms
 
-DWORD   gpYHistogram[256];
-DWORD   gpUHistogram[256];
-DWORD   gpVHistogram[256];
+DWORD       gpYHistogram[256];
+DWORD       gpUHistogram[256];
+DWORD       gpVHistogram[256];
 
 
 // Which of the histograms should be displayed?
 
-eMODE   gMode = MODE_Y;
+eColorMode  gColorMode = MODE_Y;
 
 // Should we average two scanlines to reduce color crosstalk artifacts?
 
-BOOLEAN gUseComb = TRUE;
+LONG        gCombMode = COMB_MODE_NTSC;
 
 
 // Store CPU type for use in the dispatcher routine
 
-LONG    gCpuFeatureFlags = 0;
+LONG        gCpuFeatureFlags = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -169,12 +191,19 @@ LPCSTR ModeList[] =
     "All pixel components"
 };
 
+LPCSTR CombModeList[] =
+{
+    "NTSC",
+    "PAL",
+    "None"
+};
+
 
 SETTING FLT_HistogramSettings[FLT_HISTOGRAM_SETTING_LASTONE] =
 {
     {
-        "Display Mode", ITEMFROMLIST, 0, (LONG*)&gMode,
-        MODE_Y, MODE_Y, MODE_LASTONE -1, 1, 1,
+        "Display Mode", ITEMFROMLIST, 0, (LONG*)&gColorMode,
+        MODE_Y, 0, MODE_LASTONE - 1, 1, 1,
         ModeList,
         "HistogramFilter", "DisplayMode", NULL,
     },
@@ -191,10 +220,10 @@ SETTING FLT_HistogramSettings[FLT_HISTOGRAM_SETTING_LASTONE] =
         "HistogramFilter", "UseHistogramFilter", NULL,
     },
     {
-        "Vertical Averaging", ONOFF, 0, (LONG*)&gUseComb,
-        TRUE, 0, 1, 1, 1,
-        NULL,
-        "HistogramFilter", "UseCombFilter", NULL,
+        "Color Correction", ITEMFROMLIST, 0, (LONG*)&gCombMode,
+        COMB_MODE_NTSC, 0, VIDEO_MODE_LASTONE - 1, 1, 1,
+        CombModeList,
+        "HistogramFilter", "CombFilterMode", NULL,
     },
 };
 
@@ -304,17 +333,17 @@ LONG __cdecl DispatchHistogram( TDeinterlaceInfo* pInfo )
     }
 
 
-    if( (gMode == MODE_Y) || (gMode == MODE_YUV) )
+    if( (gColorMode == MODE_Y) || (gColorMode == MODE_YUV) )
     {
-        ShowHistogram(gpYHistogram, pInfo, Y_DOT_COLOR);
+        ShowHistogram(gpYHistogram, pInfo, Y_DOT_COLOR, Y_DOT_DIMMED, Y_CCIR_601_MIN, Y_CCIR_601_MAX);
     }
-    if( (gMode == MODE_U) || (gMode == MODE_UV) || (gMode == MODE_YUV) )
+    if( (gColorMode == MODE_U) || (gColorMode == MODE_UV) || (gColorMode == MODE_YUV) )
     {
-        ShowHistogram(gpUHistogram, pInfo, U_DOT_COLOR);
+        ShowHistogram(gpUHistogram, pInfo, U_DOT_COLOR, U_DOT_DIMMED, UV_CCIR_601_MIN,UV_CCIR_601_MAX);
     }
-    if( (gMode == MODE_V) || (gMode == MODE_UV) || (gMode == MODE_YUV) )
+    if( (gColorMode == MODE_V) || (gColorMode == MODE_UV) || (gColorMode == MODE_YUV) )
     {
-        ShowHistogram(gpVHistogram, pInfo, V_DOT_COLOR);
+        ShowHistogram(gpVHistogram, pInfo, V_DOT_COLOR, V_DOT_DIMMED, UV_CCIR_601_MIN, UV_CCIR_601_MAX);
     }
 
     return FilterResult;
@@ -323,10 +352,11 @@ LONG __cdecl DispatchHistogram( TDeinterlaceInfo* pInfo )
 
 // Show just one of the color component histograms
 
-void ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color )
+void ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color, DWORD EndColor, DWORD LowValue, DWORD HighValue )
 {
     DWORD       Index = 0;
     DWORD       LeftOffset = 0;
+    DWORD       ThisColor = 0;
 
     if( pInfo->FrameWidth > 512 )
     {
@@ -341,9 +371,17 @@ void ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color )
         
         ScaledValue = HISTOGRAM_SCALE*log(1.0 + pHistogram[Index]);
         DWordScaledValue = (DWORD) (ScaledValue + 1.00001);
+        if( (Index < LowValue) || (Index > HighValue) )
+        {
+            ThisColor = EndColor;
+        }
+        else
+        {
+            ThisColor = Color;
+        }
         if( DWordScaledValue < (DWORD) (pInfo->FieldHeight - MARGIN*2) )
         {
-            *(DWORD*)(pInfo->PictureHistory[0]->pData + (BottomLine - DWordScaledValue) * pInfo->InputPitch + (Index+LeftOffset)*4) = Color;
+            *(DWORD*)(pInfo->PictureHistory[0]->pData + (BottomLine - DWordScaledValue) * pInfo->InputPitch + (Index+LeftOffset)*4) = ThisColor;
         }
         else
         {

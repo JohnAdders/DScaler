@@ -761,6 +761,7 @@ IDC_DSCALERMENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "&Open...",                    IDM_OPEN_FILE
         MENUITEM "E&xit\tAlt+F4",               IDM_END
     END
     POPUP "&Channels"
@@ -1146,7 +1147,8 @@ IDC_STILL MENU DISCARDABLE
 BEGIN
     POPUP "S&till"
     BEGIN
-        MENUITEM "Select Picture ...",          IDM_SELECT_PICTURE
+        MENUITEM "Select Picture ...",          IDM_SELECT_PICTURE, GRAYED
+        MENUITEM "&Close",                      IDM_CLOSE_FILE
     END
 END
 

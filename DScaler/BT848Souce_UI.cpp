@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.32 2002-08-08 12:35:51 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.33 2002-08-08 21:15:08 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/08/08 12:35:51  kooiman
+// Better channel settings support for BT848 settings.
+//
 // Revision 1.31  2002/08/05 12:05:44  kooiman
 // Added support for per channel settings.
 //
@@ -990,6 +993,11 @@ void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
 
 void CBT848Source::ChangeChannelSectionNames()
 {    
+    if (!m_SettingsByChannelStarted)
+    {
+        return;
+    }
+
     std::string sOldSection = m_ChannelSubSection;
     
     int Input = -1;

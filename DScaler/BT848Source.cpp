@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.47 2002-08-08 12:35:39 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.48 2002-08-08 21:15:07 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/08/08 12:35:39  kooiman
+// Better channel settings support for BT848 settings.
+//
 // Revision 1.46  2002/08/07 21:53:04  adcockj
 // Removed todo item
 //
@@ -232,7 +235,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_Section(IniSection),
     m_IsFieldOdd(FALSE),
     m_InSaturationUpdate(FALSE),
-    m_CurrentChannel(-1)
+    m_CurrentChannel(-1),
+    m_SettingsByChannelStarted(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -1326,6 +1330,15 @@ void CBT848Source::SavePerChannelSetup(int Start)
 {
     if (Start)
     {
+        m_SettingsByChannelStarted = TRUE;
         ChangeChannelSectionNames();
     }    
+    else
+    {
+        m_SettingsByChannelStarted = FALSE;
+        if (m_ChannelSubSection.size() > 0)
+        {
+            SettingsPerChannel_UnregisterSection(m_ChannelSubSection.c_str());
+        }
+    }
 }

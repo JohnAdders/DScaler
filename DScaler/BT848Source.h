@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.26 2002-08-08 12:35:23 kooiman Exp $
+// $Id: BT848Source.h,v 1.27 2002-08-08 21:15:06 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -119,6 +119,7 @@ private:
     BOOL         m_InSaturationUpdate;
     int          m_CurrentChannel;    
     std::string  m_ChannelSubSection;
+    BOOL         m_SettingsByChannelStarted;
 
     std::string  m_Section;
 

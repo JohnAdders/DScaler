@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.36 2004-02-14 04:03:44 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.37 2004-02-14 04:33:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2004/02/14 04:03:44  atnak
+// Put GPIO settings and AutoDetect IDs into the main card definition
+// to remove the need for extra tables and custom functions.
+// Added card Medion Philips 7134 Chipset
+//
 // Revision 1.35  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -973,10 +978,11 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         StandardSAA7134InputSelect,
 		0x226e1048,
     },
-    // Medion Philips 7134 Chipset
+    // Medion MD-2819 PC-TV-radio card
 	// Thanks "Sanel.B" <vlasenica@ya...>
+	// Thanks "Mc" <michel.heusinkveld2@wa...>
     {
-        "Medion Philips 7134 Chipset",
+        "Medion MD-2819 PC-TV-radio card",
 		0x7134,
         5,
         {
@@ -1013,10 +1019,10 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_FINAL,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_NONE,
-				0x00040007, 0x00000006,
+				0x00040007, 0x00000004,
             },
         },
-        TUNER_PHILIPS_PAL,
+        TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_32110Hz,
 		00040007,
         NULL,

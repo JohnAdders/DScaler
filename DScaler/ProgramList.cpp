@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// ProgramList.c
+// ProgramList.cpp
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -435,8 +435,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
     char sbuf[256];
-	static BOOL OldCustom;
-	static int OldCountryCode;
+    static BOOL OldCustom;
+    static int OldCountryCode;
 
     switch (message)
     {
@@ -448,8 +448,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
         RefreshProgramList(hDlg, CurrentProgramm);
 
-		OldCustom = bCustomChannelOrder;
-		OldCountryCode = CountryCode;
+        OldCustom = bCustomChannelOrder;
+        OldCountryCode = CountryCode;
         Button_SetCheck(GetDlgItem(hDlg, IDC_CUTOMCHANNELORDER), bCustomChannelOrder?BST_CHECKED:BST_UNCHECKED);
 
         SetFocus(GetDlgItem(hDlg, IDC_PROGRAMLIST)); 
@@ -726,8 +726,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
-			bCustomChannelOrder = OldCustom;
-			CountryCode = OldCountryCode;
+            bCustomChannelOrder = OldCustom;
+            CountryCode = OldCountryCode;
             Load_Program_List_ASCII();
             Unload_Country_Settings();
             EndDialog(hDlg, TRUE);
@@ -921,7 +921,7 @@ void Channel_Change(int NewChannel)
             {
                 if(!bSystemInMute)
                 {
-					Audio_Mute();
+                    Audio_Mute();
                 }
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;

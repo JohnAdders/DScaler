@@ -1,19 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
-// FD_60Hz.c
+// FD_60Hz.cpp
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // Refinements made by Mark Rejhon and Steve Grimm
@@ -76,9 +76,9 @@ BOOL DidWeExpectWeave(DEINTERLACE_INFO *pInfo);
 ///////////////////////////////////////////////////////////////////////////////
 void ResetModeSwitches()
 {
-	memset(&ModeSwitchTimestamps[0], 0, sizeof(ModeSwitchTimestamps));
-	memset(&ModeSwitchMethods[0], 0, sizeof(ModeSwitchMethods));
-	NumSwitches = 0;
+    memset(&ModeSwitchTimestamps[0], 0, sizeof(ModeSwitchTimestamps));
+    memset(&ModeSwitchMethods[0], 0, sizeof(ModeSwitchMethods));
+    NumSwitches = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,30 +95,30 @@ void ResetModeSwitches()
 ///////////////////////////////////////////////////////////////////////////////
 BOOL TrackModeSwitches()
 {
-	if(IsFilmMode() &&
-		GetCurrentDeintMethod() != ModeSwitchMethods[0])
-	{
-		// Scroll the list of timestamps.  Most recent is first in the list.
-		memmove(&ModeSwitchTimestamps[1], &ModeSwitchTimestamps[0], sizeof(ModeSwitchTimestamps) - sizeof(DWORD));
-		memmove(&ModeSwitchMethods[1], &ModeSwitchMethods[0], sizeof(ModeSwitchMethods) - sizeof(DEINTERLACE_METHOD*));
-		ModeSwitchTimestamps[0] = GetTickCount();
-		ModeSwitchMethods[0] = GetCurrentDeintMethod();
-		if(NumSwitches < MAXMODESWITCHES)
-		{
-			NumSwitches++;
-		}
-	
-		if (PulldownSwitchMax > 1 && PulldownSwitchInterval > 0 &&	// if the user wants to track switches
-			PulldownSwitchMax <= NumSwitches &&
-			ModeSwitchTimestamps[PulldownSwitchMax - 1] > 0)		// and there have been enough of them
-		{
-			int ticks = ModeSwitchTimestamps[0] - ModeSwitchTimestamps[PulldownSwitchMax - 1];
-			if (ticks <= PulldownSwitchInterval)
-				return TRUE;
-		}
-	}
+    if(IsFilmMode() &&
+        GetCurrentDeintMethod() != ModeSwitchMethods[0])
+    {
+        // Scroll the list of timestamps.  Most recent is first in the list.
+        memmove(&ModeSwitchTimestamps[1], &ModeSwitchTimestamps[0], sizeof(ModeSwitchTimestamps) - sizeof(DWORD));
+        memmove(&ModeSwitchMethods[1], &ModeSwitchMethods[0], sizeof(ModeSwitchMethods) - sizeof(DEINTERLACE_METHOD*));
+        ModeSwitchTimestamps[0] = GetTickCount();
+        ModeSwitchMethods[0] = GetCurrentDeintMethod();
+        if(NumSwitches < MAXMODESWITCHES)
+        {
+            NumSwitches++;
+        }
+    
+        if (PulldownSwitchMax > 1 && PulldownSwitchInterval > 0 &&  // if the user wants to track switches
+            PulldownSwitchMax <= NumSwitches &&
+            ModeSwitchTimestamps[PulldownSwitchMax - 1] > 0)        // and there have been enough of them
+        {
+            int ticks = ModeSwitchTimestamps[0] - ModeSwitchTimestamps[PulldownSwitchMax - 1];
+            if (ticks <= PulldownSwitchInterval)
+                return TRUE;
+        }
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,388 +156,388 @@ BOOL TrackModeSwitches()
 ///////////////////////////////////////////////////////////////////////////////
 void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
 {
-	boolean SwitchToVideo = FALSE;
-	static long MISMATCH_COUNT = 0;
-	static long MOVIE_FIELD_CYCLE = 0;
-	static long MOVIE_VERIFY_CYCLE = 0;
-	static DEINTERLACE_METHOD* OldPulldownMethod = NULL;
-	static eFILMPULLDOWNMODES LastFilmMode = FILMPULLDOWNMODES_LAST_ONE;
-	static long LastCombFactor = 0;
+    boolean SwitchToVideo = FALSE;
+    static long MISMATCH_COUNT = 0;
+    static long MOVIE_FIELD_CYCLE = 0;
+    static long MOVIE_VERIFY_CYCLE = 0;
+    static DEINTERLACE_METHOD* OldPulldownMethod = NULL;
+    static eFILMPULLDOWNMODES LastFilmMode = FILMPULLDOWNMODES_LAST_ONE;
+    static long LastCombFactor = 0;
 
-	// Call with pInfo == NULL is an initialization call.
-	// This resets static variables when we start the thread each time.
-	if(pInfo == NULL)
-	{
+    // Call with pInfo == NULL is an initialization call.
+    // This resets static variables when we start the thread each time.
+    if(pInfo == NULL)
+    {
         MOVIE_VERIFY_CYCLE = 0;
         MOVIE_FIELD_CYCLE = 0;
-		MISMATCH_COUNT = 0;
-		LastFilmMode = FILMPULLDOWNMODES_LAST_ONE;
-		LastCombFactor = 0;
-		ResetModeSwitches();
-		return;
-	}
+        MISMATCH_COUNT = 0;
+        LastFilmMode = FILMPULLDOWNMODES_LAST_ONE;
+        LastCombFactor = 0;
+        ResetModeSwitches();
+        return;
+    }
 
 
-	// If the field difference is bigger than the threshold, then
-	// the current field is very different from the field two fields ago.
-	// Threshold32Pulldown probably should be changed to be automatically
-	// compensating depending on the material.
-	
-	//CompareFields(pInfo);
+    // If the field difference is bigger than the threshold, then
+    // the current field is very different from the field two fields ago.
+    // Threshold32Pulldown probably should be changed to be automatically
+    // compensating depending on the material.
+    
+    //CompareFields(pInfo);
     if(pInfo->FieldDiff > Threshold32Pulldown)
-	{
-		if (IsFilmMode())
-		{
-			if ((MISMATCH_COUNT > PulldownRepeatCount2 * 5 && bFallbackToVideo) ||
-				(MISMATCH_COUNT > PulldownRepeatCount * 5 && !bFallbackToVideo))
-			{
-				// There have been no duplicate fields lately.
-				// It's probably video source.
-				//
-				// MAX_MISMATCH should be a reasonably high value so
-				// that we do not have an oversensitive hair-trigger
-				// in switching to video source everytime there is
-				// video noise or a single spurious field added/dropped
-				// during a movie causing mis-synchronization problems. 
-				LOG(" Back to Video, No field pairs");
-				SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-				MOVIE_VERIFY_CYCLE = 0;
-				MOVIE_FIELD_CYCLE = 0;
-			}
-			else
-			{
-				// If we're in a film mode and an incoming field would cause
-				// weave artifacts, optionally switch to video mode but make
-				// it very easy to get back into film mode in case this was
-				// just a glitchy scene change.
-				if (ThresholdPulldownMismatch > 0 &&		    // only do video-force check if there's a threshold.
-					pInfo->FieldDiff >= ThresholdPulldownMismatch &&	// only force video if this field is very different,
-					DidWeExpectWeave(pInfo) &&				// and we would weave it with the previous field,
-					pInfo->CombFactor > (LastCombFactor + ThresholdPulldownComb) &&   // and it'd produce artifacts
-					pInfo->CombFactor > ThresholdPulldownComb)
-				{
-					if (bFallbackToVideo)
-					{
-						SwitchToVideo = TRUE;
-						NextPulldownRepeatCount = 1;
-						LOG(" Back to Video, comb factor %d", pInfo->CombFactor);
-						SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-						MOVIE_VERIFY_CYCLE = 0;
-						MOVIE_FIELD_CYCLE = 0;
-					}
-					else
-					{
-						// Reset the paramters of the Comb method
-						FilmModeNTSCComb(NULL);
-						// go to Comb mode but be ready to go back into film mode
-						// as soon as we find a match
-						SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
-						MOVIE_VERIFY_CYCLE = PulldownRepeatCount;
-						NextPulldownRepeatCount = 0;
-						LastFilmMode = FILM_32_PULLDOWN_COMB;
-						LOG(" Gone to Comb Method, comb factor %d", pInfo->CombFactor);
-					}
-					MISMATCH_COUNT++;
-				}
-				else
-				{
-					MISMATCH_COUNT++;
-				}
-			}
-		}
-		else
-		{
-			MISMATCH_COUNT++;
-		}
-	}
+    {
+        if (IsFilmMode())
+        {
+            if ((MISMATCH_COUNT > PulldownRepeatCount2 * 5 && bFallbackToVideo) ||
+                (MISMATCH_COUNT > PulldownRepeatCount * 5 && !bFallbackToVideo))
+            {
+                // There have been no duplicate fields lately.
+                // It's probably video source.
+                //
+                // MAX_MISMATCH should be a reasonably high value so
+                // that we do not have an oversensitive hair-trigger
+                // in switching to video source everytime there is
+                // video noise or a single spurious field added/dropped
+                // during a movie causing mis-synchronization problems. 
+                LOG(" Back to Video, No field pairs");
+                SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                MOVIE_VERIFY_CYCLE = 0;
+                MOVIE_FIELD_CYCLE = 0;
+            }
+            else
+            {
+                // If we're in a film mode and an incoming field would cause
+                // weave artifacts, optionally switch to video mode but make
+                // it very easy to get back into film mode in case this was
+                // just a glitchy scene change.
+                if (ThresholdPulldownMismatch > 0 &&            // only do video-force check if there's a threshold.
+                    pInfo->FieldDiff >= ThresholdPulldownMismatch &&    // only force video if this field is very different,
+                    DidWeExpectWeave(pInfo) &&              // and we would weave it with the previous field,
+                    pInfo->CombFactor > (LastCombFactor + ThresholdPulldownComb) &&   // and it'd produce artifacts
+                    pInfo->CombFactor > ThresholdPulldownComb)
+                {
+                    if (bFallbackToVideo)
+                    {
+                        SwitchToVideo = TRUE;
+                        NextPulldownRepeatCount = 1;
+                        LOG(" Back to Video, comb factor %d", pInfo->CombFactor);
+                        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                        MOVIE_VERIFY_CYCLE = 0;
+                        MOVIE_FIELD_CYCLE = 0;
+                    }
+                    else
+                    {
+                        // Reset the paramters of the Comb method
+                        FilmModeNTSCComb(NULL);
+                        // go to Comb mode but be ready to go back into film mode
+                        // as soon as we find a match
+                        SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+                        MOVIE_VERIFY_CYCLE = PulldownRepeatCount;
+                        NextPulldownRepeatCount = 0;
+                        LastFilmMode = FILM_32_PULLDOWN_COMB;
+                        LOG(" Gone to Comb Method, comb factor %d", pInfo->CombFactor);
+                    }
+                    MISMATCH_COUNT++;
+                }
+                else
+                {
+                    MISMATCH_COUNT++;
+                }
+            }
+        }
+        else
+        {
+            MISMATCH_COUNT++;
+        }
+    }
     else
-	{
-		// It's either a stationary image OR a duplicate field in a movie
-		if(MISMATCH_COUNT == 4)
-		{
-			eFILMPULLDOWNMODES NewFilmMode = GetFilmModeFromPosition(pInfo);
-			// 3:2 pulldown is a cycle of 5 fields where there is only
-			// one duplicate field pair, and 4 mismatching pairs.
-			// We need to continue detection for at least PulldownRepeatCount
-			// cycles to be very certain that it is actually 3:2 pulldown.
-			// For a repeat count of 2, this would mean a latency of 10
-			// fields.
-			//
-			// If NextPulldownRepeatCount is nonzero, it's a temporary
-			// repeat count setting attempting to compensate for some kind
-			// of anomaly in the sequence of fields, so use it instead.
-			if(NewFilmMode == LastFilmMode || 
-				(IsFilmMode() && LastFilmMode == FILM_32_PULLDOWN_COMB) ||
-				LastFilmMode == FILMPULLDOWNMODES_LAST_ONE)
-			{
-				if(((NextPulldownRepeatCount > 0 && MOVIE_VERIFY_CYCLE >= NextPulldownRepeatCount) ||
-				   (NextPulldownRepeatCount == 0 && MOVIE_VERIFY_CYCLE >= PulldownRepeatCount)))
-				{
-					// If the pulldown repeat count was temporarily changed, get
-					// rid of the temporary setting.
-					NextPulldownRepeatCount = 0;
+    {
+        // It's either a stationary image OR a duplicate field in a movie
+        if(MISMATCH_COUNT == 4)
+        {
+            eFILMPULLDOWNMODES NewFilmMode = GetFilmModeFromPosition(pInfo);
+            // 3:2 pulldown is a cycle of 5 fields where there is only
+            // one duplicate field pair, and 4 mismatching pairs.
+            // We need to continue detection for at least PulldownRepeatCount
+            // cycles to be very certain that it is actually 3:2 pulldown.
+            // For a repeat count of 2, this would mean a latency of 10
+            // fields.
+            //
+            // If NextPulldownRepeatCount is nonzero, it's a temporary
+            // repeat count setting attempting to compensate for some kind
+            // of anomaly in the sequence of fields, so use it instead.
+            if(NewFilmMode == LastFilmMode || 
+                (IsFilmMode() && LastFilmMode == FILM_32_PULLDOWN_COMB) ||
+                LastFilmMode == FILMPULLDOWNMODES_LAST_ONE)
+            {
+                if(((NextPulldownRepeatCount > 0 && MOVIE_VERIFY_CYCLE >= NextPulldownRepeatCount) ||
+                   (NextPulldownRepeatCount == 0 && MOVIE_VERIFY_CYCLE >= PulldownRepeatCount)))
+                {
+                    // If the pulldown repeat count was temporarily changed, get
+                    // rid of the temporary setting.
+                    NextPulldownRepeatCount = 0;
 
-					// This executes regardless whether we've just entered or
-					// if we're *already* in 3:2 pulldown. Either way, we are
-					// currently now (re)synchronized to 3:2 pulldown and that
-					// we've now detected the duplicate field.
-					//
-					SetFilmDeinterlaceMode(NewFilmMode);
+                    // This executes regardless whether we've just entered or
+                    // if we're *already* in 3:2 pulldown. Either way, we are
+                    // currently now (re)synchronized to 3:2 pulldown and that
+                    // we've now detected the duplicate field.
+                    //
+                    SetFilmDeinterlaceMode(NewFilmMode);
 
-					if (OldPulldownMethod != GetCurrentDeintMethod())
-					{
-						LOG("Gone to film mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
-						// A mode switch.  If we've done a lot of them recently,
-						// force video mode since it means we're having trouble
-						// locking onto a reliable film mode.   
-						// 
-						// This stuff happens during these situations
-						// - Time compressed movies, which ruins 3:2 sequence 
-						// - Poorly telecined movies
-						// - Erratic framerates during transfers of old movies
-						// - TV commercials that vary framerates
-						// - Cartoons using nonstandard pulldown
-						// - Super-noisy video
-						//
-						// Therefore, we should switch to video mode and ignore
-						// switching back to movie mode for at least a certain
-						// amount of time.
-						//
-						// This is only triggered on switches between different
-						// film modes, not switches between video and film mode.
-						// Since we can drop down to video if we're not sure
-						// we should stay in pulldown mode, we don't want to
-						// bail out of film mode if we subsequently decide that
-						// the film mode we just dropped out of was correct.
-						if (TrackModeSwitches())
-						{
-							if(bFallbackToVideo)
-							{
-								SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-								MOVIE_VERIFY_CYCLE = 0;
-								MOVIE_FIELD_CYCLE = 0;
-								LOG(" Too much film mode cycling, switching to video");
-								
-								// Require pulldown mode to be consistent for the
-								// rapid-mode-switch interval before we'll lock onto
-								// film mode again.  This is probably too long in most
-								// cases, but making it shorter than the interval would
-								// run the risk of switching back to film mode just in
-								// time to hit a rapid sequence of mode changes.
-								//
-								// 83 is (5 fields/cycle) / (60 fields/sec) * (1000 ms/sec).
-								//
-								// FIXME: Eliminate hardcoded values
-								//
-								//NextPulldownRepeatCount = PulldownSwitchInterval / 83;
-								NextPulldownRepeatCount = PulldownRepeatCount * 2;
-							}
-							else
-							{
-								LOG(" Rapid Cycling");
-							}
-						}
-					}
+                    if (OldPulldownMethod != GetCurrentDeintMethod())
+                    {
+                        LOG("Gone to film mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
+                        // A mode switch.  If we've done a lot of them recently,
+                        // force video mode since it means we're having trouble
+                        // locking onto a reliable film mode.   
+                        // 
+                        // This stuff happens during these situations
+                        // - Time compressed movies, which ruins 3:2 sequence 
+                        // - Poorly telecined movies
+                        // - Erratic framerates during transfers of old movies
+                        // - TV commercials that vary framerates
+                        // - Cartoons using nonstandard pulldown
+                        // - Super-noisy video
+                        //
+                        // Therefore, we should switch to video mode and ignore
+                        // switching back to movie mode for at least a certain
+                        // amount of time.
+                        //
+                        // This is only triggered on switches between different
+                        // film modes, not switches between video and film mode.
+                        // Since we can drop down to video if we're not sure
+                        // we should stay in pulldown mode, we don't want to
+                        // bail out of film mode if we subsequently decide that
+                        // the film mode we just dropped out of was correct.
+                        if (TrackModeSwitches())
+                        {
+                            if(bFallbackToVideo)
+                            {
+                                SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                                MOVIE_VERIFY_CYCLE = 0;
+                                MOVIE_FIELD_CYCLE = 0;
+                                LOG(" Too much film mode cycling, switching to video");
+                                
+                                // Require pulldown mode to be consistent for the
+                                // rapid-mode-switch interval before we'll lock onto
+                                // film mode again.  This is probably too long in most
+                                // cases, but making it shorter than the interval would
+                                // run the risk of switching back to film mode just in
+                                // time to hit a rapid sequence of mode changes.
+                                //
+                                // 83 is (5 fields/cycle) / (60 fields/sec) * (1000 ms/sec).
+                                //
+                                // FIXME: Eliminate hardcoded values
+                                //
+                                //NextPulldownRepeatCount = PulldownSwitchInterval / 83;
+                                NextPulldownRepeatCount = PulldownRepeatCount * 2;
+                            }
+                            else
+                            {
+                                LOG(" Rapid Cycling");
+                            }
+                        }
+                    }
 
-					OldPulldownMethod = GetCurrentDeintMethod();
-				}
-				else
-				{
-					// We've detected possible 3:2 pulldown.  However, we need
-					// to keep watching the 3:2 pulldown for at least a few 5-field
-					// cycles before jumping to conclusion that it's really 3:2
-					// pulldown and not a false alarm
-					//
-					MOVIE_VERIFY_CYCLE++;
-					LOG(" Found Pulldown Match");
-				}
-				LastFilmMode = NewFilmMode;
-			}
-			else
-			{
-				if(bFallbackToVideo)
-				{
-					if(IsFilmMode())
-					{
-						SetFilmDeinterlaceMode(NewFilmMode);
-						if(TrackModeSwitches())
-						{
-							SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-							MOVIE_VERIFY_CYCLE = 0;
-							MOVIE_FIELD_CYCLE = 0;
-							LOG(" Too much film mode cycling, switching to video");
-							NextPulldownRepeatCount = PulldownRepeatCount * 2;
-						}
-					}
-					else
-					{
-						MOVIE_VERIFY_CYCLE = 1;
-						LastFilmMode = NewFilmMode;
-					}
-				}
-				else
-				{
-					SetFilmDeinterlaceMode(NewFilmMode);
-					LOG("Gone to film mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
-					if(TrackModeSwitches())
-					{
-						SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-						MOVIE_VERIFY_CYCLE = 0;
-						MOVIE_FIELD_CYCLE = 0;
-						LOG(" Too much film mode cycling, switching to video");
-						NextPulldownRepeatCount = PulldownRepeatCount * 2;
-					}
-					LastFilmMode = NewFilmMode;
-				}
-			}
-		}
-		else
-		{
-			// If we've just seen rapid-fire pulldown mode switches,
-			// require all the duplicate fields to be at the same point
-			// in the pulldown sequence.  Getting here means a duplicate
-			// field happened in a different place than in the previous
-			// cycle, so reset the count of pulldown matches.
-			//
-			// As noted below, this will mean that it takes a long time to
-			// switch back to film mode if we hit a bunch of still frames
-			// after a rapid-fire mode switch sequence.
-			if (NextPulldownRepeatCount > 0) MOVIE_VERIFY_CYCLE = 0;
+                    OldPulldownMethod = GetCurrentDeintMethod();
+                }
+                else
+                {
+                    // We've detected possible 3:2 pulldown.  However, we need
+                    // to keep watching the 3:2 pulldown for at least a few 5-field
+                    // cycles before jumping to conclusion that it's really 3:2
+                    // pulldown and not a false alarm
+                    //
+                    MOVIE_VERIFY_CYCLE++;
+                    LOG(" Found Pulldown Match");
+                }
+                LastFilmMode = NewFilmMode;
+            }
+            else
+            {
+                if(bFallbackToVideo)
+                {
+                    if(IsFilmMode())
+                    {
+                        SetFilmDeinterlaceMode(NewFilmMode);
+                        if(TrackModeSwitches())
+                        {
+                            SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                            MOVIE_VERIFY_CYCLE = 0;
+                            MOVIE_FIELD_CYCLE = 0;
+                            LOG(" Too much film mode cycling, switching to video");
+                            NextPulldownRepeatCount = PulldownRepeatCount * 2;
+                        }
+                    }
+                    else
+                    {
+                        MOVIE_VERIFY_CYCLE = 1;
+                        LastFilmMode = NewFilmMode;
+                    }
+                }
+                else
+                {
+                    SetFilmDeinterlaceMode(NewFilmMode);
+                    LOG("Gone to film mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
+                    if(TrackModeSwitches())
+                    {
+                        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                        MOVIE_VERIFY_CYCLE = 0;
+                        MOVIE_FIELD_CYCLE = 0;
+                        LOG(" Too much film mode cycling, switching to video");
+                        NextPulldownRepeatCount = PulldownRepeatCount * 2;
+                    }
+                    LastFilmMode = NewFilmMode;
+                }
+            }
+        }
+        else
+        {
+            // If we've just seen rapid-fire pulldown mode switches,
+            // require all the duplicate fields to be at the same point
+            // in the pulldown sequence.  Getting here means a duplicate
+            // field happened in a different place than in the previous
+            // cycle, so reset the count of pulldown matches.
+            //
+            // As noted below, this will mean that it takes a long time to
+            // switch back to film mode if we hit a bunch of still frames
+            // after a rapid-fire mode switch sequence.
+            if (NextPulldownRepeatCount > 0) MOVIE_VERIFY_CYCLE = 0;
 
-			// Normally,
-			// If execution point hits here, it is probably just
-			// stationary video. That would produce lots of duplicate
-			// field pairs. We can't determine whether it's video or
-			// movie source. Therefore, we want to keep doing the
-			// current algorithm from a prior detection. Therefore,
-			// don't modify any variables EXCEPT the MISMATCH_COUNT
-			// variable which will be reset to 0 below.
-			// Also, occasionally we'll hit here during synchronization
-			// problems during a movie, such as a spurious field added
-			// or dropped. Reset MISMATCH_COUNT to 0 below and let
-			// detection cycle happen again in order to re-synchronize.
-			//
-		}
-		MISMATCH_COUNT = 0;
-	}
+            // Normally,
+            // If execution point hits here, it is probably just
+            // stationary video. That would produce lots of duplicate
+            // field pairs. We can't determine whether it's video or
+            // movie source. Therefore, we want to keep doing the
+            // current algorithm from a prior detection. Therefore,
+            // don't modify any variables EXCEPT the MISMATCH_COUNT
+            // variable which will be reset to 0 below.
+            // Also, occasionally we'll hit here during synchronization
+            // problems during a movie, such as a spurious field added
+            // or dropped. Reset MISMATCH_COUNT to 0 below and let
+            // detection cycle happen again in order to re-synchronize.
+            //
+        }
+        MISMATCH_COUNT = 0;
+    }
 
-	if(pInfo->CombFactor > 0)
-	{
-		LastCombFactor = pInfo->CombFactor;
-	}
+    if(pInfo->CombFactor > 0)
+    {
+        LastCombFactor = pInfo->CombFactor;
+    }
 }
 
 eFILMPULLDOWNMODES GetFilmModeFromPosition(DEINTERLACE_INFO *pInfo)
 {
-	if(pInfo->IsOdd == TRUE)
-	{
-		switch(pInfo->CurrentFrame)
-		{
-		case 0:  return FILM_32_PULLDOWN_2;  break;
-		case 1:  return FILM_32_PULLDOWN_3;  break;
-		case 2:  return FILM_32_PULLDOWN_4;  break;
-		case 3:  return FILM_32_PULLDOWN_0;  break;
-		case 4:  return FILM_32_PULLDOWN_1;  break;
-		}
-	}
-	else
-	{
-		switch(pInfo->CurrentFrame)
-		{
-		case 0:  return FILM_32_PULLDOWN_4;  break;
-		case 1:  return FILM_32_PULLDOWN_0;  break;
-		case 2:  return FILM_32_PULLDOWN_1;  break;
-		case 3:  return FILM_32_PULLDOWN_2;  break;
-		case 4:  return FILM_32_PULLDOWN_3;  break;
-		}
-	}
-	return FILM_32_PULLDOWN_0;
+    if(pInfo->IsOdd == TRUE)
+    {
+        switch(pInfo->CurrentFrame)
+        {
+        case 0:  return FILM_32_PULLDOWN_2;  break;
+        case 1:  return FILM_32_PULLDOWN_3;  break;
+        case 2:  return FILM_32_PULLDOWN_4;  break;
+        case 3:  return FILM_32_PULLDOWN_0;  break;
+        case 4:  return FILM_32_PULLDOWN_1;  break;
+        }
+    }
+    else
+    {
+        switch(pInfo->CurrentFrame)
+        {
+        case 0:  return FILM_32_PULLDOWN_4;  break;
+        case 1:  return FILM_32_PULLDOWN_0;  break;
+        case 2:  return FILM_32_PULLDOWN_1;  break;
+        case 3:  return FILM_32_PULLDOWN_2;  break;
+        case 4:  return FILM_32_PULLDOWN_3;  break;
+        }
+    }
+    return FILM_32_PULLDOWN_0;
 }
 
 
 BOOL FilmModeNTSC1st(DEINTERLACE_INFO *pInfo)
 {
-	BOOL bFlipNow;
-	// Film mode.  If we have an entire new frame, display it.
-	switch(pInfo->CurrentFrame)
-	{
-	case 0:  bFlipNow = FALSE;         break;
-	case 1:  bFlipNow = !pInfo->IsOdd;  break;
-	case 2:  bFlipNow = !pInfo->IsOdd;  break;
-	case 3:  bFlipNow = pInfo->IsOdd;   break;
-	case 4:  bFlipNow = pInfo->IsOdd;   break;
-	}
-	if (bFlipNow)
-		Weave(pInfo);
-	return bFlipNow;
+    BOOL bFlipNow;
+    // Film mode.  If we have an entire new frame, display it.
+    switch(pInfo->CurrentFrame)
+    {
+    case 0:  bFlipNow = FALSE;         break;
+    case 1:  bFlipNow = !pInfo->IsOdd;  break;
+    case 2:  bFlipNow = !pInfo->IsOdd;  break;
+    case 3:  bFlipNow = pInfo->IsOdd;   break;
+    case 4:  bFlipNow = pInfo->IsOdd;   break;
+    }
+    if (bFlipNow)
+        Weave(pInfo);
+    return bFlipNow;
 }
 
 BOOL FilmModeNTSC2nd(DEINTERLACE_INFO *pInfo)
 {
-	BOOL bFlipNow;
-	// Film mode.  If we have an entire new frame, display it.
-	switch(pInfo->CurrentFrame)
-	{
-	case 0:  bFlipNow = pInfo->IsOdd;   break;
-	case 1:  bFlipNow = FALSE;         break;
-	case 2:  bFlipNow = !pInfo->IsOdd;  break;
-	case 3:  bFlipNow = !pInfo->IsOdd;  break;
-	case 4:  bFlipNow = pInfo->IsOdd;   break;
-	}
-	if (bFlipNow)
-		Weave(pInfo);
-	return bFlipNow;
+    BOOL bFlipNow;
+    // Film mode.  If we have an entire new frame, display it.
+    switch(pInfo->CurrentFrame)
+    {
+    case 0:  bFlipNow = pInfo->IsOdd;   break;
+    case 1:  bFlipNow = FALSE;         break;
+    case 2:  bFlipNow = !pInfo->IsOdd;  break;
+    case 3:  bFlipNow = !pInfo->IsOdd;  break;
+    case 4:  bFlipNow = pInfo->IsOdd;   break;
+    }
+    if (bFlipNow)
+        Weave(pInfo);
+    return bFlipNow;
 }
 
 BOOL FilmModeNTSC3rd(DEINTERLACE_INFO *pInfo)
 {
-	BOOL bFlipNow;
-	// Film mode.  If we have an entire new frame, display it.
-	switch(pInfo->CurrentFrame)
-	{
-	case 0:  bFlipNow = pInfo->IsOdd;   break;
-	case 1:  bFlipNow = pInfo->IsOdd;   break;
-	case 2:  bFlipNow = FALSE;         break;
-	case 3:  bFlipNow = !pInfo->IsOdd;  break;
-	case 4:  bFlipNow = !pInfo->IsOdd;  break;
-	}
-	if (bFlipNow)
-		Weave(pInfo);
-	return bFlipNow;
+    BOOL bFlipNow;
+    // Film mode.  If we have an entire new frame, display it.
+    switch(pInfo->CurrentFrame)
+    {
+    case 0:  bFlipNow = pInfo->IsOdd;   break;
+    case 1:  bFlipNow = pInfo->IsOdd;   break;
+    case 2:  bFlipNow = FALSE;         break;
+    case 3:  bFlipNow = !pInfo->IsOdd;  break;
+    case 4:  bFlipNow = !pInfo->IsOdd;  break;
+    }
+    if (bFlipNow)
+        Weave(pInfo);
+    return bFlipNow;
 }
 
 BOOL FilmModeNTSC4th(DEINTERLACE_INFO *pInfo)
 {
-	BOOL bFlipNow;
-	// Film mode.  If we have an entire new frame, display it.
-	switch(pInfo->CurrentFrame)
-	{
-	case 0:  bFlipNow = !pInfo->IsOdd;  break;
-	case 1:  bFlipNow = pInfo->IsOdd;   break;
-	case 2:  bFlipNow = pInfo->IsOdd;   break;
-	case 3:  bFlipNow = FALSE;         break;
-	case 4:  bFlipNow = !pInfo->IsOdd;  break;
-	}
-	if (bFlipNow)
-		Weave(pInfo);
-	return bFlipNow;
+    BOOL bFlipNow;
+    // Film mode.  If we have an entire new frame, display it.
+    switch(pInfo->CurrentFrame)
+    {
+    case 0:  bFlipNow = !pInfo->IsOdd;  break;
+    case 1:  bFlipNow = pInfo->IsOdd;   break;
+    case 2:  bFlipNow = pInfo->IsOdd;   break;
+    case 3:  bFlipNow = FALSE;         break;
+    case 4:  bFlipNow = !pInfo->IsOdd;  break;
+    }
+    if (bFlipNow)
+        Weave(pInfo);
+    return bFlipNow;
 }
 
 BOOL FilmModeNTSC5th(DEINTERLACE_INFO *pInfo)
 {
-	BOOL bFlipNow;
-	// Film mode.  If we have an entire new frame, display it.
-	switch(pInfo->CurrentFrame)
-	{
-	case 0:  bFlipNow = !pInfo->IsOdd;  break;
-	case 1:  bFlipNow = !pInfo->IsOdd;  break;
-	case 2:  bFlipNow = pInfo->IsOdd;   break;
-	case 3:  bFlipNow = pInfo->IsOdd;   break;
-	case 4:  bFlipNow = FALSE;         break;
-	}
-	if (bFlipNow)
-		Weave(pInfo);
-	return bFlipNow;
+    BOOL bFlipNow;
+    // Film mode.  If we have an entire new frame, display it.
+    switch(pInfo->CurrentFrame)
+    {
+    case 0:  bFlipNow = !pInfo->IsOdd;  break;
+    case 1:  bFlipNow = !pInfo->IsOdd;  break;
+    case 2:  bFlipNow = pInfo->IsOdd;   break;
+    case 3:  bFlipNow = pInfo->IsOdd;   break;
+    case 4:  bFlipNow = FALSE;         break;
+    }
+    if (bFlipNow)
+        Weave(pInfo);
+    return bFlipNow;
 }
 
 BOOL FilmModeNTSCComb(DEINTERLACE_INFO *pInfo)
@@ -547,30 +547,30 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO *pInfo)
     static long NumVideo = 0;
     static long NumCalls = 0;
     
-	if(pInfo == NULL)
+    if(pInfo == NULL)
     {
         LastComb = 0;
         NumSkipped = 0;
-		NumVideo = 0;
-		NumCalls = 0;
-		return FALSE;
+        NumVideo = 0;
+        NumCalls = 0;
+        return FALSE;
     }
 
-	++NumCalls;
-	if(NumCalls > MaxCallsToComb)
-	{
+    ++NumCalls;
+    if(NumCalls > MaxCallsToComb)
+    {
         SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
         LOG(" Gone back to video from Comb");
-	}
+    }
     // if we can weave these frames together without too
     // much weaving or because there is no motion then go ahead
     if(pInfo->CombFactor  < ThresholdPulldownComb ||
-	    pInfo->FieldDiff  < Threshold32Pulldown)
+        pInfo->FieldDiff  < Threshold32Pulldown)
     {
         NumSkipped = 0;
-		LastComb = pInfo->CombFactor;
+        LastComb = pInfo->CombFactor;
         LOG(" Weaved in Comb mode");
-		return Weave(pInfo);
+        return Weave(pInfo);
     }
     else
     {
@@ -587,12 +587,12 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO *pInfo)
                 SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
                 LOG(" Gone back to video from Comb");
             }
-			LastComb = 0;
-			return GetVideoDeintIndex(gNTSCFilmFallbackIndex)->pfnAlgorithm(pInfo);
+            LastComb = 0;
+            return GetVideoDeintIndex(gNTSCFilmFallbackIndex)->pfnAlgorithm(pInfo);
         }
         else
         {
-			LastComb = pInfo->CombFactor;
+            LastComb = pInfo->CombFactor;
             return FALSE;
         }
     }
@@ -600,64 +600,64 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO *pInfo)
 
 BOOL DidWeExpectWeave(DEINTERLACE_INFO *pInfo)
 {
-	BOOL RetVal;
-	switch(GetFilmMode())
-	{
-	case FILM_32_PULLDOWN_0:
-		switch(pInfo->CurrentFrame)
-		{
-	    case 0:  RetVal = FALSE;         break;
-	    case 1:  RetVal = !pInfo->IsOdd;  break;
-	    case 2:  RetVal = !pInfo->IsOdd;  break;
-	    case 3:  RetVal = pInfo->IsOdd;   break;
-	    case 4:  RetVal = pInfo->IsOdd;   break;
-		}
-		break;
-	case FILM_32_PULLDOWN_1:
-		switch(pInfo->CurrentFrame)
-		{
-	    case 0:  RetVal = pInfo->IsOdd;   break;
-	    case 1:  RetVal = FALSE;         break;
-	    case 2:  RetVal = !pInfo->IsOdd;  break;
-	    case 3:  RetVal = !pInfo->IsOdd;  break;
-	    case 4:  RetVal = pInfo->IsOdd;   break;
-		}
-		break;
-	case FILM_32_PULLDOWN_2:
-		switch(pInfo->CurrentFrame)
-		{
-	    case 0:  RetVal = pInfo->IsOdd;   break;
-	    case 1:  RetVal = pInfo->IsOdd;   break;
-	    case 2:  RetVal = FALSE;         break;
-	    case 3:  RetVal = !pInfo->IsOdd;  break;
-	    case 4:  RetVal = !pInfo->IsOdd;  break;
-		}
-		break;
-	case FILM_32_PULLDOWN_3:
-		switch(pInfo->CurrentFrame)
-		{
-	    case 0:  RetVal = !pInfo->IsOdd;  break;
-	    case 1:  RetVal = pInfo->IsOdd;   break;
-	    case 2:  RetVal = pInfo->IsOdd;   break;
-	    case 3:  RetVal = FALSE;         break;
+    BOOL RetVal;
+    switch(GetFilmMode())
+    {
+    case FILM_32_PULLDOWN_0:
+        switch(pInfo->CurrentFrame)
+        {
+        case 0:  RetVal = FALSE;         break;
+        case 1:  RetVal = !pInfo->IsOdd;  break;
+        case 2:  RetVal = !pInfo->IsOdd;  break;
+        case 3:  RetVal = pInfo->IsOdd;   break;
+        case 4:  RetVal = pInfo->IsOdd;   break;
+        }
+        break;
+    case FILM_32_PULLDOWN_1:
+        switch(pInfo->CurrentFrame)
+        {
+        case 0:  RetVal = pInfo->IsOdd;   break;
+        case 1:  RetVal = FALSE;         break;
+        case 2:  RetVal = !pInfo->IsOdd;  break;
+        case 3:  RetVal = !pInfo->IsOdd;  break;
+        case 4:  RetVal = pInfo->IsOdd;   break;
+        }
+        break;
+    case FILM_32_PULLDOWN_2:
+        switch(pInfo->CurrentFrame)
+        {
+        case 0:  RetVal = pInfo->IsOdd;   break;
+        case 1:  RetVal = pInfo->IsOdd;   break;
+        case 2:  RetVal = FALSE;         break;
+        case 3:  RetVal = !pInfo->IsOdd;  break;
         case 4:  RetVal = !pInfo->IsOdd;  break;
-		}
-		break;
-	case FILM_32_PULLDOWN_4:
-		switch(pInfo->CurrentFrame)
-		{
+        }
+        break;
+    case FILM_32_PULLDOWN_3:
+        switch(pInfo->CurrentFrame)
+        {
         case 0:  RetVal = !pInfo->IsOdd;  break;
-	    case 1:  RetVal = !pInfo->IsOdd;  break;
-	    case 2:  RetVal = pInfo->IsOdd;   break;
-	    case 3:  RetVal = pInfo->IsOdd;   break;
-	    case 4:  RetVal = FALSE;         break;
-		}
-		break;
-	default:
-		RetVal = FALSE;
-		break;
-	}
-	return RetVal;
+        case 1:  RetVal = pInfo->IsOdd;   break;
+        case 2:  RetVal = pInfo->IsOdd;   break;
+        case 3:  RetVal = FALSE;         break;
+        case 4:  RetVal = !pInfo->IsOdd;  break;
+        }
+        break;
+    case FILM_32_PULLDOWN_4:
+        switch(pInfo->CurrentFrame)
+        {
+        case 0:  RetVal = !pInfo->IsOdd;  break;
+        case 1:  RetVal = !pInfo->IsOdd;  break;
+        case 2:  RetVal = pInfo->IsOdd;   break;
+        case 3:  RetVal = pInfo->IsOdd;   break;
+        case 4:  RetVal = FALSE;         break;
+        }
+        break;
+    default:
+        RetVal = FALSE;
+        break;
+    }
+    return RetVal;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -665,107 +665,107 @@ BOOL DidWeExpectWeave(DEINTERLACE_INFO *pInfo)
 /////////////////////////////////////////////////////////////////////////////
 SETTING FD60Settings[FD60_SETTING_LASTONE] =
 {
-	{
-		"NTSC Film Fallback Mode", ITEMFROMLIST, 0, (long*)&gNTSCFilmFallbackIndex,
-		INDEX_ADAPTIVE, 0, 99, 1, 1,
-		DeinterlaceNames,
-		"Pulldown", "NTSCFilmFallbackMode", NULL,
-	},
-	{
-		"NTSC Pulldown Repeat Count In", SLIDER, 0, (long*)&PulldownRepeatCount,
-		4, 1, 10, 1, 1,
-		NULL,
-		"Pulldown", "PulldownRepeatCount", NULL,
-	},
-	{
-		"NTSC Pulldown Repeat Count Out", SLIDER, 0, (long*)&PulldownRepeatCount2,
-		2, 1, 10, 1, 1,
-		NULL,
-		"Pulldown", "PulldownRepeatCount2", NULL,
-	},
-	{
-		"Threshold 3:2 Pulldown", SLIDER, 0, (long*)&Threshold32Pulldown,
-		15, 1, 5000, 5, 1,
-		NULL,
-		"Pulldown", "Threshold32Pulldown", NULL,
-	},
-	{
-		"Threshold 3:2 Pulldown Mismatch", SLIDER, 0, (long*)&ThresholdPulldownMismatch,
-		100, 1, 10000, 10, 1,
-		NULL,
-		"Pulldown", "ThresholdPulldownMismatch", NULL,
-	},
-	{
-		"Threshold 3:2 Pulldown Comb", SLIDER, 0, (long*)&ThresholdPulldownComb,
-		300, 1, 5000, 10, 1,
-		NULL,
-		"Pulldown", "ThresholdPulldownComb", NULL,
-	},
-	{
-		"Bad Pulldown Filter", ONOFF, 0, (long*)&bFallbackToVideo,
-		TRUE, 0, 1, 1, 1,
-		NULL,
-		"Pulldown", "bFallbackToVideo", NULL,
-	},
-	{
-		"Pulldown Switch Interval", SLIDER, 0, (long*)&PulldownSwitchInterval,
-		3000, 0, 10000, 10, 1,
-		NULL,
-		"Pulldown", "PulldownSwitchInterval", NULL,
+    {
+        "NTSC Film Fallback Mode", ITEMFROMLIST, 0, (long*)&gNTSCFilmFallbackIndex,
+        INDEX_ADAPTIVE, 0, 99, 1, 1,
+        DeinterlaceNames,
+        "Pulldown", "NTSCFilmFallbackMode", NULL,
+    },
+    {
+        "NTSC Pulldown Repeat Count In", SLIDER, 0, (long*)&PulldownRepeatCount,
+        4, 1, 10, 1, 1,
+        NULL,
+        "Pulldown", "PulldownRepeatCount", NULL,
+    },
+    {
+        "NTSC Pulldown Repeat Count Out", SLIDER, 0, (long*)&PulldownRepeatCount2,
+        2, 1, 10, 1, 1,
+        NULL,
+        "Pulldown", "PulldownRepeatCount2", NULL,
+    },
+    {
+        "Threshold 3:2 Pulldown", SLIDER, 0, (long*)&Threshold32Pulldown,
+        15, 1, 5000, 5, 1,
+        NULL,
+        "Pulldown", "Threshold32Pulldown", NULL,
+    },
+    {
+        "Threshold 3:2 Pulldown Mismatch", SLIDER, 0, (long*)&ThresholdPulldownMismatch,
+        100, 1, 10000, 10, 1,
+        NULL,
+        "Pulldown", "ThresholdPulldownMismatch", NULL,
+    },
+    {
+        "Threshold 3:2 Pulldown Comb", SLIDER, 0, (long*)&ThresholdPulldownComb,
+        300, 1, 5000, 10, 1,
+        NULL,
+        "Pulldown", "ThresholdPulldownComb", NULL,
+    },
+    {
+        "Bad Pulldown Filter", ONOFF, 0, (long*)&bFallbackToVideo,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "Pulldown", "bFallbackToVideo", NULL,
+    },
+    {
+        "Pulldown Switch Interval", SLIDER, 0, (long*)&PulldownSwitchInterval,
+        3000, 0, 10000, 10, 1,
+        NULL,
+        "Pulldown", "PulldownSwitchInterval", NULL,
 
-	},
-	{
-		"Pulldown Switch Max", SLIDER, 0, (long*)&PulldownSwitchMax,
-		4, 0, 100, 10, 1,
-		NULL,
-		"Pulldown", "PulldownSwitchMax", NULL,
+    },
+    {
+        "Pulldown Switch Max", SLIDER, 0, (long*)&PulldownSwitchMax,
+        4, 0, 100, 10, 1,
+        NULL,
+        "Pulldown", "PulldownSwitchMax", NULL,
 
-	},
-	{
-		"Max Calls to Comb Method", SLIDER, 0, (long*)&MaxCallsToComb,
-		20, 0, 1000, 10, 1,
-		NULL,
-		"Pulldown", "MaxCallsToComb", NULL,
+    },
+    {
+        "Max Calls to Comb Method", SLIDER, 0, (long*)&MaxCallsToComb,
+        20, 0, 1000, 10, 1,
+        NULL,
+        "Pulldown", "MaxCallsToComb", NULL,
 
-	},
+    },
 };
 
 SETTING* FD60_GetSetting(FD60_SETTING Setting)
 {
-	if(Setting > -1 && Setting < FD60_SETTING_LASTONE)
-	{
-		return &(FD60Settings[Setting]);
-	}
-	else
-	{
-		return NULL;
-	}
+    if(Setting > -1 && Setting < FD60_SETTING_LASTONE)
+    {
+        return &(FD60Settings[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 void FD60_ReadSettingsFromIni()
 {
-	int i;
-	for(i = 0; i < FD60_SETTING_LASTONE; i++)
-	{
-		Setting_ReadFromIni(&(FD60Settings[i]));
-	}
+    int i;
+    for(i = 0; i < FD60_SETTING_LASTONE; i++)
+    {
+        Setting_ReadFromIni(&(FD60Settings[i]));
+    }
 }
 
 void FD60_WriteSettingsToIni()
 {
-	int i;
-	for(i = 0; i < FD60_SETTING_LASTONE; i++)
-	{
-		Setting_WriteToIni(&(FD60Settings[i]));
-	}
+    int i;
+    for(i = 0; i < FD60_SETTING_LASTONE; i++)
+    {
+        Setting_WriteToIni(&(FD60Settings[i]));
+    }
 }
 
 void FD60_SetMenu(HMENU hMenu)
 {
-	CheckMenuItem(hMenu, IDM_FALLBACK, bFallbackToVideo?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItem(hMenu, IDM_FALLBACK, bFallbackToVideo?MF_CHECKED:MF_UNCHECKED);
 }
 
 void FD60_ShowUI()
 {
-	CSettingsDlg::ShowSettingsDlg("3:2 Pulldown Settings",FD60Settings, FD60_SETTING_LASTONE);
+    CSettingsDlg::ShowSettingsDlg("3:2 Pulldown Settings",FD60Settings, FD60_SETTING_LASTONE);
 }

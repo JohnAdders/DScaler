@@ -1,19 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HSListBox.h,v 1.1 2001-06-24 14:05:46 tobbej Exp $
+// $Id: HSListBox.h,v 1.2 2001-07-12 16:02:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
@@ -43,7 +43,7 @@ class CHSListBox : public CListBox
 {
 // Construction
 public:
-	CHSListBox();
+    CHSListBox();
 
 // Attributes
 public:
@@ -52,26 +52,26 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CHSListBox)
-	//}}AFX_VIRTUAL
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CHSListBox)
+    //}}AFX_VIRTUAL
 
 // Implementation
 public:
-	void ResetContent( );
-	virtual ~CHSListBox();
-	int AddString(LPCTSTR lpszItem);
-	int InsertString(int nIndex, LPCTSTR lpszItem);
+    void ResetContent( );
+    virtual ~CHSListBox();
+    int AddString(LPCTSTR lpszItem);
+    int InsertString(int nIndex, LPCTSTR lpszItem);
 
 // Generated message map functions
 protected:
-	int m_nMaxWidth;
-	//{{AFX_MSG(CHSListBox)
-	//}}AFX_MSG
+    int m_nMaxWidth;
+    //{{AFX_MSG(CHSListBox)
+    //}}AFX_MSG
 
-	DECLARE_MESSAGE_MAP()
+    DECLARE_MESSAGE_MAP()
 private:
-	CSize GetTextSize(LPCTSTR lpszItem);
+    CSize GetTextSize(LPCTSTR lpszItem);
 };
 
 /////////////////////////////////////////////////////////////////////////////

@@ -4,16 +4,16 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on Multidec 5.6 Those portions are
@@ -45,12 +45,12 @@ void Audio_SetMenu(HMENU hMenu);
 
 typedef enum
 {
-	AUDIOMUX_TUNER = 0,
-	AUDIOMUX_MSP_RADIO,
-	AUDIOMUX_EXTERNAL,
-	AUDIOMUX_INTERNAL,
-	AUDIOMUX_MUTE,
-	AUDIOMUX_STEREO
+    AUDIOMUX_TUNER = 0,
+    AUDIOMUX_MSP_RADIO,
+    AUDIOMUX_EXTERNAL,
+    AUDIOMUX_INTERNAL,
+    AUDIOMUX_MUTE,
+    AUDIOMUX_STEREO
 } AUDIOMUXTYPE;
 
 BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
@@ -82,11 +82,11 @@ BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
 
 // MSP34x0 definitions
 #define MSP_CONTROL 0x00 // Software reset
-#define MSP_TEST	0x01 // Internal use
-#define MSP_WR_DEM	0x10 // Write demodulator
-#define MSP_RD_DEM	0x11 // Read demodulator
-#define MSP_WR_DSP	0x12 // Write DSP
-#define MSP_RD_DSP	0x13 // Read DSP
+#define MSP_TEST    0x01 // Internal use
+#define MSP_WR_DEM  0x10 // Write demodulator
+#define MSP_RD_DEM  0x11 // Read demodulator
+#define MSP_WR_DSP  0x12 // Write DSP
+#define MSP_RD_DSP  0x13 // Read DSP
 
 #define MSP_MODE_AM_DETECT   0
 #define MSP_MODE_FM_RADIO    2
@@ -95,10 +95,10 @@ BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
 #define MSP_MODE_FM_NICAM1   5
 #define MSP_MODE_FM_NICAM2   6
 
-#define VIDEO_SOUND_MONO	1
-#define VIDEO_SOUND_STEREO	2
-#define VIDEO_SOUND_LANG1	3
-#define VIDEO_SOUND_LANG2	4
+#define VIDEO_SOUND_MONO    1
+#define VIDEO_SOUND_STEREO  2
+#define VIDEO_SOUND_LANG1   3
+#define VIDEO_SOUND_LANG2   4
 
 /* This macro is allowed for *constants* only, gcc must calculate it
    at compile time.  Remember -- no floats in kernel mode */

@@ -4,16 +4,16 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on Multidec 5.6 Those portions are
@@ -65,13 +65,13 @@ void SetupCaptureFlags();
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter);
 
 BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
-BYTE * LockOverlay();		// Lock overlay, returns ptr to buffer
+BYTE * LockOverlay();       // Lock overlay, returns ptr to buffer
 
 // Statistics
-extern long	nTotalDropFields;
-extern double	nDropFieldsLastSec;
-extern long	nTotalUsedFields;
-extern double	nUsedFieldsLastSec;
+extern long nTotalDropFields;
+extern double   nDropFieldsLastSec;
+extern long nTotalUsedFields;
+extern double   nUsedFieldsLastSec;
 extern long nSecTicks;
 extern long nInitialTicks;
 extern long nLastTicks;

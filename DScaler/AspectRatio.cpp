@@ -4,16 +4,16 @@
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // Aspect ratio contrl was started by Michael Samblanet <mike@cardobe.com>
@@ -49,8 +49,8 @@
 //
 // 21 Feb 2001   Michael Samblanet     Added 1.44 and 1.55 ratio support
 //                                     Added code to handle clipped menu item
-//									   Added prototype image bouncing code
-//									     (currently has issues with purple flashing)
+//                                     Added prototype image bouncing code
+//                                       (currently has issues with purple flashing)
 //
 // 22 Feb 2001   Michael Samblanet     Added defered setting of overlay region to
 //                                     avoid purple flashing
@@ -88,14 +88,14 @@
 
 TAspectSettingsStruct aspectSettings = 
 {
-	1333,0,1,0,0,40,16,1,17,FALSE,60,300,15,20,
-	2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
-	{0,0,0,0},
-	{0,0,0,0},
-	{0,0,0,0},
-	TRUE,FALSE,4,TRUE,FALSE,
-	0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
-	100,100,50,50,
+    1333,0,1,0,0,40,16,1,17,FALSE,60,300,15,20,
+    2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+    TRUE,FALSE,4,TRUE,FALSE,
+    0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
+    100,100,50,50,
     FALSE,
     1000
 };
@@ -110,18 +110,18 @@ BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
 double GetActualSourceFrameAspect()
 {
     double SourceAdjust = (double)aspectSettings.source_aspect_adjust / 1000.0;
-	switch (aspectSettings.aspect_mode) 
-	{
-	case 1:
-		// Letterboxed or full-frame
-		return SourceAdjust * 1.333; //4.0/3.0;
-	case 2:
-		// Anamorphic
-		return SourceAdjust * 1.778; //16.0/9.0;
-	default:
-		// User-specified
-		return (SourceAdjust * (double)aspectSettings.source_aspect)/1000.0;
-	}
+    switch (aspectSettings.aspect_mode) 
+    {
+    case 1:
+        // Letterboxed or full-frame
+        return SourceAdjust * 1.333; //4.0/3.0;
+    case 2:
+        // Anamorphic
+        return SourceAdjust * 1.778; //16.0/9.0;
+    default:
+        // User-specified
+        return (SourceAdjust * (double)aspectSettings.source_aspect)/1000.0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -130,158 +130,158 @@ double GetActualSourceFrameAspect()
 void WorkoutOverlaySize(BOOL allowResize)
 {
     CFilterChain FilterChain;
-	bIgnoreMouse = TRUE;
+    bIgnoreMouse = TRUE;
 
-	static BOOL InFunction = FALSE;
-	if(InFunction == TRUE) return;
+    static BOOL InFunction = FALSE;
+    if(InFunction == TRUE) return;
 
-	InFunction = TRUE;
-	UpdateWindowState();
+    InFunction = TRUE;
+    UpdateWindowState();
 
-	CAspectRectangles ar;
+    CAspectRectangles ar;
 
-	// Setup the rectangles...
-	// Previous ones...
-	ar.rPrevDest = aspectSettings.destinationRectangle;
-	ar.rPrevSrc = aspectSettings.sourceRectangle;
-	// Source frame
-	ar.rOriginalOverlaySrc.left = 0;
-	ar.rOriginalOverlaySrc.right = CurrentX;
-	ar.rOriginalOverlaySrc.top = 0;
-	ar.rOriginalOverlaySrc.bottom = CurrentY;
-	// Set the aspect adjustment factor...
-	ar.rOriginalOverlaySrc.setAspectAdjust((double)CurrentX/(double)CurrentY,
-											GetActualSourceFrameAspect());
+    // Setup the rectangles...
+    // Previous ones...
+    ar.rPrevDest = aspectSettings.destinationRectangle;
+    ar.rPrevSrc = aspectSettings.sourceRectangle;
+    // Source frame
+    ar.rOriginalOverlaySrc.left = 0;
+    ar.rOriginalOverlaySrc.right = CurrentX;
+    ar.rOriginalOverlaySrc.top = 0;
+    ar.rOriginalOverlaySrc.bottom = CurrentY;
+    // Set the aspect adjustment factor...
+    ar.rOriginalOverlaySrc.setAspectAdjust((double)CurrentX/(double)CurrentY,
+                                            GetActualSourceFrameAspect());
 
-	// Destination rectangle
-	ar.rOriginalOverlayDest.setToClient(hWnd,TRUE);
-	
-	// Adjust for status bar...
-	if (IsStatusBarVisible())
-	{
-		ar.rOriginalOverlayDest.bottom -= StatusBar_Height();
-	}
+    // Destination rectangle
+    ar.rOriginalOverlayDest.setToClient(hWnd,TRUE);
+    
+    // Adjust for status bar...
+    if (IsStatusBarVisible())
+    {
+        ar.rOriginalOverlayDest.bottom -= StatusBar_Height();
+    }
 
-	// Set the aspect adjustment factor if the screen aspect is specified...
-	if (aspectSettings.target_aspect)
-	{
-		ar.rOriginalOverlayDest.setAspectAdjust((double) GetSystemMetrics(SM_CXSCREEN) / (double) GetSystemMetrics(SM_CYSCREEN),
-												 aspectSettings.target_aspect/1000.0);
-	}
-	
-	// Set current values to original for starters...
-	ar.rCurrentOverlaySrc = ar.rOriginalOverlaySrc;
-	ar.rCurrentOverlayDest = ar.rOriginalOverlayDest;
+    // Set the aspect adjustment factor if the screen aspect is specified...
+    if (aspectSettings.target_aspect)
+    {
+        ar.rOriginalOverlayDest.setAspectAdjust((double) GetSystemMetrics(SM_CXSCREEN) / (double) GetSystemMetrics(SM_CYSCREEN),
+                                                 aspectSettings.target_aspect/1000.0);
+    }
+    
+    // Set current values to original for starters...
+    ar.rCurrentOverlaySrc = ar.rOriginalOverlaySrc;
+    ar.rCurrentOverlayDest = ar.rOriginalOverlayDest;
 
-	// Build filter chain and apply
-	// TODO: Filter chain should be saved and only rebuilt if options are changed
-	FilterChain.BuildFilterChain();
-	if (FilterChain.ApplyFilters(ar, allowResize))
-	{
-		InFunction = FALSE;
-		WorkoutOverlaySize(FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
-		return;
-	}
+    // Build filter chain and apply
+    // TODO: Filter chain should be saved and only rebuilt if options are changed
+    FilterChain.BuildFilterChain();
+    if (FilterChain.ApplyFilters(ar, allowResize))
+    {
+        InFunction = FALSE;
+        WorkoutOverlaySize(FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
+        return;
+    }
 
-	// If we're in half-height mode, squish the source rectangle accordingly.  This
-	// allows the overlay hardware to do our bobbing for us.
-	if (InHalfHeightMode() == TRUE)
-	{
-		ar.rCurrentOverlaySrc.top /= 2;
-		ar.rCurrentOverlaySrc.bottom /= 2;
-	}
+    // If we're in half-height mode, squish the source rectangle accordingly.  This
+    // allows the overlay hardware to do our bobbing for us.
+    if (InHalfHeightMode() == TRUE)
+    {
+        ar.rCurrentOverlaySrc.top /= 2;
+        ar.rCurrentOverlaySrc.bottom /= 2;
+    }
 
-	// Save the settings....
-	aspectSettings.sourceRectangle = ar.rCurrentOverlaySrc;
-	aspectSettings.destinationRectangleWindow = ar.rCurrentOverlayDest; 
-	aspectSettings.destinationRectangle = ar.rCurrentOverlayDest;
-	ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle.left));
-	ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle.right));
+    // Save the settings....
+    aspectSettings.sourceRectangle = ar.rCurrentOverlaySrc;
+    aspectSettings.destinationRectangleWindow = ar.rCurrentOverlayDest; 
+    aspectSettings.destinationRectangle = ar.rCurrentOverlayDest;
+    ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle.left));
+    ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle.right));
 
-	// Invert the rectangle if necessary...
-	/*
-	// Removed for now - seems to cause application to crash - looks
-	// like video drivers can't deal with this...
-	if (( aspectSettings.invertX && aspectSettings.sourceRectangle.right > aspectSettings.sourceRectangle.left) 
-		||
-		(!aspectSettings.invertX && aspectSettings.sourceRectangle.right < aspectSettings.sourceRectangle.left)) {
-		int t = aspectSettings.sourceRectangle.right;
-		aspectSettings.sourceRectangle.right = aspectSettings.sourceRectangle.left;
-		aspectSettings.sourceRectangle.left = t;
-	}
-	if (( aspectSettings.invertY && aspectSettings.sourceRectangle.bottom > aspectSettings.sourceRectangle.top) 
-		||
-		(!aspectSettings.invertY && aspectSettings.sourceRectangle.bottom < aspectSettings.sourceRectangle.top)) {
-		int t = aspectSettings.sourceRectangle.top;
-		aspectSettings.sourceRectangle.top = aspectSettings.sourceRectangle.bottom;
-		aspectSettings.sourceRectangle.bottom = t;
-	}
-	*/
+    // Invert the rectangle if necessary...
+    /*
+    // Removed for now - seems to cause application to crash - looks
+    // like video drivers can't deal with this...
+    if (( aspectSettings.invertX && aspectSettings.sourceRectangle.right > aspectSettings.sourceRectangle.left) 
+        ||
+        (!aspectSettings.invertX && aspectSettings.sourceRectangle.right < aspectSettings.sourceRectangle.left)) {
+        int t = aspectSettings.sourceRectangle.right;
+        aspectSettings.sourceRectangle.right = aspectSettings.sourceRectangle.left;
+        aspectSettings.sourceRectangle.left = t;
+    }
+    if (( aspectSettings.invertY && aspectSettings.sourceRectangle.bottom > aspectSettings.sourceRectangle.top) 
+        ||
+        (!aspectSettings.invertY && aspectSettings.sourceRectangle.bottom < aspectSettings.sourceRectangle.top)) {
+        int t = aspectSettings.sourceRectangle.top;
+        aspectSettings.sourceRectangle.top = aspectSettings.sourceRectangle.bottom;
+        aspectSettings.sourceRectangle.bottom = t;
+    }
+    */
 
-	
+    
 
-	// Set the overlay
-	if (!aspectSettings.deferedSetOverlay) // MRS 2-22-01 - Defered overlay set
-	{
-		// if we have changed source recatangle then we seem to need
-		// to do a hide first
-		// at least on nVidia cards
-		if (memcmp(&ar.rPrevSrc,&aspectSettings.sourceRectangle,sizeof(ar.rPrevSrc)))
-		{
-			Overlay_Update(NULL, NULL, DDOVER_HIDE);
-		}
+    // Set the overlay
+    if (!aspectSettings.deferedSetOverlay) // MRS 2-22-01 - Defered overlay set
+    {
+        // if we have changed source recatangle then we seem to need
+        // to do a hide first
+        // at least on nVidia cards
+        if (memcmp(&ar.rPrevSrc,&aspectSettings.sourceRectangle,sizeof(ar.rPrevSrc)))
+        {
+            Overlay_Update(NULL, NULL, DDOVER_HIDE);
+        }
 
-		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
+        Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
 
-		// repaint if needed
-		if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
-		{ 
-			// MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-			RECT invalidate;
-			UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
-			InvalidateRect(hWnd,&invalidate,FALSE);
-		}
-	}
-	else
-	{
-		// repaint now and set off overlay setting for later
-		if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
-		{ 
-			// MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-			RECT invalidate;
-			UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
-			InvalidateRect(hWnd,&invalidate,FALSE);
-			aspectSettings.overlayNeedsSetting = TRUE;
-		}
-		else
-		{
-			// if we have changed source recatangle then we seem to need
-			// to do a hide first
-			// at least on nVidia cards
-			if (memcmp(&ar.rPrevSrc,&aspectSettings.sourceRectangle,sizeof(ar.rPrevSrc)))
-			{
-				Overlay_Update(NULL, NULL, DDOVER_HIDE);
-			}
-			// If not invalidating, we need to update the overlay now...
-			Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
-			aspectSettings.overlayNeedsSetting = FALSE;
-		}
-	}
+        // repaint if needed
+        if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
+        { 
+            // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+            RECT invalidate;
+            UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
+            InvalidateRect(hWnd,&invalidate,FALSE);
+        }
+    }
+    else
+    {
+        // repaint now and set off overlay setting for later
+        if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
+        { 
+            // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+            RECT invalidate;
+            UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
+            InvalidateRect(hWnd,&invalidate,FALSE);
+            aspectSettings.overlayNeedsSetting = TRUE;
+        }
+        else
+        {
+            // if we have changed source recatangle then we seem to need
+            // to do a hide first
+            // at least on nVidia cards
+            if (memcmp(&ar.rPrevSrc,&aspectSettings.sourceRectangle,sizeof(ar.rPrevSrc)))
+            {
+                Overlay_Update(NULL, NULL, DDOVER_HIDE);
+            }
+            // If not invalidating, we need to update the overlay now...
+            Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
+            aspectSettings.overlayNeedsSetting = FALSE;
+        }
+    }
 
-	InFunction = FALSE;
+    InFunction = FALSE;
 }
 
 //----------------------------------------------------------------------------
 // Returns the current source rectangle.
 void GetSourceRect(RECT *rect)
 {
-	memcpy(rect, &aspectSettings.sourceRectangle, sizeof(RECT));
+    memcpy(rect, &aspectSettings.sourceRectangle, sizeof(RECT));
 }
 
 //----------------------------------------------------------------------------
 // Returns the current source rectangle.
 void GetDestRect(RECT *rect)
 {
-	memcpy(rect, &aspectSettings.destinationRectangle, sizeof(RECT));
+    memcpy(rect, &aspectSettings.destinationRectangle, sizeof(RECT));
 }
 

@@ -4,16 +4,16 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on Multidec 5.6 Those portions are
@@ -49,52 +49,52 @@
 
 typedef enum
 {
-	SOURCE_TUNER = 0,
-	SOURCE_COMPOSITE,
-	SOURCE_SVIDEO,
-	SOURCE_OTHER1,
-	SOURCE_OTHER2,
-	SOURCE_COMPVIASVIDEO,
+    SOURCE_TUNER = 0,
+    SOURCE_COMPOSITE,
+    SOURCE_SVIDEO,
+    SOURCE_OTHER1,
+    SOURCE_OTHER2,
+    SOURCE_COMPVIASVIDEO,
     SOURCE_CCIR656_1,
-	SOURCE_CCIR656_2,
-	SOURCE_CCIR656_3,
-	SOURCE_CCIR656_4,
+    SOURCE_CCIR656_2,
+    SOURCE_CCIR656_3,
+    SOURCE_CCIR656_4,
 } VIDEOSOURCETYPE;
 
 typedef enum
 {
-	FORMAT_PAL_BDGHI = 0,
-	FORMAT_NTSC,
-	FORMAT_SECAM,
-	FORMAT_PAL_M,
-	FORMAT_PAL_N,
-	FORMAT_NTSC_J,
-	FORMAT_PAL60,
-	FORMAT_NTSC50,
+    FORMAT_PAL_BDGHI = 0,
+    FORMAT_NTSC,
+    FORMAT_SECAM,
+    FORMAT_PAL_M,
+    FORMAT_PAL_N,
+    FORMAT_NTSC_J,
+    FORMAT_PAL60,
+    FORMAT_NTSC50,
     FORMAT_LASTONE,
 } VIDEOFORMAT;
 
 typedef struct
 {
-	LPCSTR szDesc;
-	WORD wCropHeight;
-	WORD wTotalWidth;
-	BYTE bDelayA;
-	BYTE bDelayB;
-	BYTE bIForm;
-	WORD wHDelayx1;
-	WORD wHActivex1;
-	WORD wVDelay;
-	WORD wCropOffset;
-	BOOL Is25fps;
-	WORD VBIPacketSize;
-	WORD VBILines;
-	double Fsc;
-	BOOL NeedsPLL;
-	WORD CC_Clock;
-	WORD CC_Gap;
-	WORD CC_Line;
-	WORD WSS_Line;
+    LPCSTR szDesc;
+    WORD wCropHeight;
+    WORD wTotalWidth;
+    BYTE bDelayA;
+    BYTE bDelayB;
+    BYTE bIForm;
+    WORD wHDelayx1;
+    WORD wHActivex1;
+    WORD wVDelay;
+    WORD wCropOffset;
+    BOOL Is25fps;
+    WORD VBIPacketSize;
+    WORD VBILines;
+    double Fsc;
+    BOOL NeedsPLL;
+    WORD CC_Clock;
+    WORD CC_Gap;
+    WORD CC_Line;
+    WORD WSS_Line;
 } TTVFORMAT;
 
 
@@ -258,8 +258,8 @@ void BT848_SaveSettings(LPCSTR szFileName);
 #define BT848_SCLOOP_LUMA_PEAK  (1<<7)
 #define BT848_SCLOOP_CAGC       (1<<6)
 #define BT848_SCLOOP_CKILL      (1<<5)
-#define BT848_SCLOOP_HFILT_FULL (1<<3)	// TRB 12/00 max full res peakg filter
-#define BT848_SCLOOP_HFILT_AUTO (0<<3)	// TRB Not sure these match doc?
+#define BT848_SCLOOP_HFILT_FULL (1<<3)  // TRB 12/00 max full res peakg filter
+#define BT848_SCLOOP_HFILT_AUTO (0<<3)  // TRB Not sure these match doc?
 #define BT848_SCLOOP_HFILT_CIF  (1<<3)
 #define BT848_SCLOOP_HFILT_QCIF (2<<3)
 #define BT848_SCLOOP_HFILT_ICON (3<<3)
@@ -421,7 +421,7 @@ void BT848_SaveSettings(LPCSTR szFileName);
 #define BT848_I2C              0x110
 #define BT848_I2C_DIV          (0xf<<4)
 #define BT848_I2C_SYNC         (1<<3)
-#define BT848_I2C_W3B	       (1<<2)
+#define BT848_I2C_W3B          (1<<2)
 #define BT848_I2C_SCL          (1<<1)
 #define BT848_I2C_SDA          (1<<0)
 
@@ -480,22 +480,22 @@ void BT848_SaveSettings(LPCSTR szFileName);
 // 13 Dec 2000 - Michael Eskin, Conexant Systems
 // Added TGCTRL register masks for CCIR656 Input
 //
-#define BT848_TBLG 						0x80
-#define BT848_TGCTRL_TGMODE_ENABLE 		0x01
-#define BT848_TGCTRL_TGMODE_RESET 		0x02
-#define BT848_TGCTRL_TGMODE_INCREMENT 	0x04
-#define BT848_TGCTRL_TGCKI_GPCLK 		0x10
-#define BT848_TGCTRL_TGCKI_CPCLK_INV 	0x11
+#define BT848_TBLG                      0x80
+#define BT848_TGCTRL_TGMODE_ENABLE      0x01
+#define BT848_TGCTRL_TGMODE_RESET       0x02
+#define BT848_TGCTRL_TGMODE_INCREMENT   0x04
+#define BT848_TGCTRL_TGCKI_GPCLK        0x10
+#define BT848_TGCTRL_TGCKI_CPCLK_INV    0x11
 
-#define BT848_DVSIF_CCIR656				0x01
-#define BT848_DVSIF_VSIF_SVREF			0x0C
-#define BT848_DVSIF_VSIF_ESO			0x20
-#define BT848_DVSIF_VSIF_BCF			0x40
+#define BT848_DVSIF_CCIR656             0x01
+#define BT848_DVSIF_VSIF_SVREF          0x0C
+#define BT848_DVSIF_VSIF_ESO            0x20
+#define BT848_DVSIF_VSIF_BCF            0x40
 
-#define BT848_VTC_HSFMT_64        		0x00
-#define BT848_VTC_HSFMT_48       		0x40
-#define BT848_VTC_HSFMT_32       		0x80
-#define BT848_VTC_HSFMT_16       		0xC0
+#define BT848_VTC_HSFMT_64              0x00
+#define BT848_VTC_HSFMT_48              0x40
+#define BT848_VTC_HSFMT_32              0x80
+#define BT848_VTC_HSFMT_16              0xC0
 
 #define VBI_SPL 2044
 

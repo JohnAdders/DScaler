@@ -4,16 +4,16 @@
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
@@ -45,21 +45,21 @@ needs the original destination rectangle.
 
 
 /* Used to calculate positions for a given period and timing.
-	Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
-	This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
+    Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
+    This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
 */
 
 class CPeriodBouncer
 {
 public:
-	CPeriodBouncer(time_t period, double amplitude, double offset);
-	CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset);
-	double position();
+    CPeriodBouncer(time_t period, double amplitude, double offset);
+    CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset);
+    double position();
 protected: 
-	time_t m_startTime;
-	time_t m_period;
-	double m_amplitude;
-	double m_offset;
+    time_t m_startTime;
+    time_t m_period;
+    double m_amplitude;
+    double m_offset;
 };
 
 class CAspectRectangles
@@ -75,16 +75,16 @@ class CAspectRectangles
    ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 */
 public:
-	void DebugDump(FILE *f);
+    void DebugDump(FILE *f);
 
-	RECT rPrevDest;
-	RECT rPrevSrc;
+    RECT rPrevDest;
+    RECT rPrevSrc;
 
-	CAspectRect rOriginalOverlayDest;
-	CAspectRect rOriginalOverlaySrc;
+    CAspectRect rOriginalOverlayDest;
+    CAspectRect rOriginalOverlaySrc;
 
-	CAspectRect rCurrentOverlayDest;
-	CAspectRect rCurrentOverlaySrc;
+    CAspectRect rCurrentOverlayDest;
+    CAspectRect rCurrentOverlaySrc;
 
 };
 
@@ -92,18 +92,18 @@ public:
 class CAspectFilter
 {
 public:
-	CAspectFilter();
-	virtual ~CAspectFilter();
-	virtual LPCSTR getFilterName() = 0;
+    CAspectFilter();
+    virtual ~CAspectFilter();
+    virtual LPCSTR getFilterName() = 0;
 
-	// Called to actually perform the adjustment for 1 filter
-	// If it returns TRUE, this is a request from the filter to re-run the aspect calculation
-	//    The TRUE value is currently only used by the filter which adjusts the window rectangle
-	//    as this adjustment affects all calculations.  Current implementation only allows 
-	//    1 level of re-calculate requests.
-	virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
+    // Called to actually perform the adjustment for 1 filter
+    // If it returns TRUE, this is a request from the filter to re-run the aspect calculation
+    //    The TRUE value is currently only used by the filter which adjusts the window rectangle
+    //    as this adjustment affects all calculations.  Current implementation only allows 
+    //    1 level of re-calculate requests.
+    virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
 
-	virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE *f);
     void SetChild(CAspectFilter* Child);
 protected:
     CAspectFilter* m_Child;
@@ -114,13 +114,13 @@ protected:
 class COverscanAspectFilter : public CAspectFilter
 {
 public:
-	COverscanAspectFilter(int overscanSize);
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
-	virtual void DebugDump(FILE *f);
+    COverscanAspectFilter(int overscanSize);
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
+    virtual void DebugDump(FILE *f);
 
 protected:
-	int overscan;
+    int overscan;
 };
 
 // This filter orbits the source image using independent X and Y timers.
@@ -129,15 +129,15 @@ protected:
 class COrbitAspectFilter : public CAspectFilter
 {
 public:
-	COrbitAspectFilter(time_t orbitPeriodX, time_t orbitPeriodY, long orbitSize);
-	~COrbitAspectFilter();
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
-	virtual void DebugDump(FILE *f);
+    COrbitAspectFilter(time_t orbitPeriodX, time_t orbitPeriodY, long orbitSize);
+    ~COrbitAspectFilter();
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
+    virtual void DebugDump(FILE *f);
 
 protected:
-	CPeriodBouncer *xOrbit;
-	CPeriodBouncer *yOrbit;
+    CPeriodBouncer *xOrbit;
+    CPeriodBouncer *yOrbit;
 };
 
 
@@ -145,14 +145,14 @@ protected:
 class CBounceDestinationAspectFilter : public CAspectFilter
 {
 public:
-	CBounceDestinationAspectFilter(time_t period);
-	~CBounceDestinationAspectFilter();
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
-	virtual void DebugDump(FILE *f);
+    CBounceDestinationAspectFilter(time_t period);
+    ~CBounceDestinationAspectFilter();
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
+    virtual void DebugDump(FILE *f);
 
 protected:
-	CPeriodBouncer *bouncer;
+    CPeriodBouncer *bouncer;
 };
 
 // Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
@@ -160,22 +160,22 @@ protected:
 class CPositionDestinationAspectFilter : public CAspectFilter
 {
 public:
-	CPositionDestinationAspectFilter(double x, double y);
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
-	virtual void DebugDump(FILE *f);
+    CPositionDestinationAspectFilter(double x, double y);
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
+    virtual void DebugDump(FILE *f);
 
 protected:
-	double xPos;
-	double yPos;
+    double xPos;
+    double yPos;
 };
 
 // Crops the source and destination rectangles to the requested aspect ratio.  
 class CCropAspectFilter : public CAspectFilter 
 {
 public:
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
 };
 
 // Applies the child filters and uncrops the source image to use all the area available in
@@ -183,8 +183,8 @@ public:
 class CUnCropAspectFilter : public CAspectFilter
 {
 public:
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
 };
 
 // Zooms in on the source image
@@ -196,16 +196,16 @@ public:
 class CPanAndZoomAspectFilter : public CAspectFilter
 {
 public:
-	CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom);
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
-	virtual void DebugDump(FILE *f);
+    CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom);
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
+    virtual void DebugDump(FILE *f);
 
 protected:
-	double xPos;
-	double yPos;
-	double xZoom;
-	double yZoom;
+    double xPos;
+    double yPos;
+    double xZoom;
+    double yZoom;
 };
 
 // Performs important sanity checks on the destination rectangle
@@ -213,16 +213,16 @@ protected:
 class CScreenSanityAspectFilter : public CAspectFilter
 {
 public:
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
 };
 
 // Attemtps to resize the client window to match the aspect ratio
 class CResizeWindowAspectFilter : public CAspectFilter
 {
 public:
-	virtual BOOL adjustAspect(CAspectRectangles &ar);
-	virtual LPCSTR getFilterName();
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
 };
 
 class CFilterChain

@@ -1,16 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-// cpu.h
+// cpu.cpp
 ///////////////////////////////////////////////////////////////////////////////
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 ///////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
@@ -77,7 +77,7 @@ UINT CpuFeatureFlags = 0;
 void CPU_SetupFeatureFlag(void)
 {
    UINT signature = 0;
-	char vendor[13]        = "UnknownVendr";  /* Needs to be exactly 12 chars */
+    char vendor[13]        = "UnknownVendr";  /* Needs to be exactly 12 chars */
 
    /* Define known vendor strings here */
 
@@ -88,21 +88,21 @@ void CPU_SetupFeatureFlag(void)
    // with an illegal instruction exception if the instruction is not
    // supported. This step catches the exception and immediately returns
    // with feature string bits with all 0s, if the exception occurs.
-	__try {
-		__asm xor    eax, eax
-		__asm xor    ebx, ebx
-		__asm xor    ecx, ecx
-		__asm xor    edx, edx
-		__asm cpuid
-	}
+    __try {
+        __asm xor    eax, eax
+        __asm xor    ebx, ebx
+        __asm xor    ecx, ecx
+        __asm xor    edx, edx
+        __asm cpuid
+    }
 
-	__except (EXCEPTION_EXECUTE_HANDLER) {
-		return;
-	}
-	
-	CpuFeatureFlags |= FEATURE_CPUID;
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return;
+    }
+    
+    CpuFeatureFlags |= FEATURE_CPUID;
 
-	_asm {
+    _asm {
          // Step 2: Check if CPUID supports function 1 (signature/std features)
          xor     eax, eax                      // CPUID function #0
          cpuid                                 // largest std func/vendor string
@@ -222,20 +222,20 @@ $has_mmxext:
 
          // Step 10: Check AMD-specific features not reported by CPUID
          // Check support for AMD-K6 processor-style MTRRs          
-         mov     eax, [signature] 	// get processor signature
-         and     eax, 0xFFF 		// extract family/model/stepping
-         cmp     eax, 0x588 		// CPU < AMD-K6-2/CXT ? CY : NC
-         sbb     edx, edx 		// CPU < AMD-K6-2/CXT ? 0xffffffff:0
-         not     edx 			// CPU < AMD-K6-2/CXT ? 0:0xffffffff
-         cmp     eax, 0x600 		// CPU < AMD Athlon ? CY : NC
-         sbb     ecx, ecx 		// CPU < AMD-K6 ? 0xffffffff:0
-         and     ecx, edx 		// (CPU>=AMD-K6-2/CXT)&& 
-					// (CPU<AMD Athlon) ? 0xffffffff:0
-         and     ecx, FEATURE_K6_MTRR 	// (CPU>=AMD-K6-2/CXT)&& 
-					// (CPU<AMD Athlon) ? FEATURE_K6_MTRR:0
-         or      [CpuFeatureFlags], ecx 		// merge into feature flags
+         mov     eax, [signature]   // get processor signature
+         and     eax, 0xFFF         // extract family/model/stepping
+         cmp     eax, 0x588         // CPU < AMD-K6-2/CXT ? CY : NC
+         sbb     edx, edx       // CPU < AMD-K6-2/CXT ? 0xffffffff:0
+         not     edx            // CPU < AMD-K6-2/CXT ? 0:0xffffffff
+         cmp     eax, 0x600         // CPU < AMD Athlon ? CY : NC
+         sbb     ecx, ecx       // CPU < AMD-K6 ? 0xffffffff:0
+         and     ecx, edx       // (CPU>=AMD-K6-2/CXT)&& 
+                    // (CPU<AMD Athlon) ? 0xffffffff:0
+         and     ecx, FEATURE_K6_MTRR   // (CPU>=AMD-K6-2/CXT)&& 
+                    // (CPU<AMD Athlon) ? FEATURE_K6_MTRR:0
+         or      [CpuFeatureFlags], ecx         // merge into feature flags
 
-         jmp     $all_done 		// desired features determined
+         jmp     $all_done      // desired features determined
 
 $not_AMD:
          // Extract features specific to non AMD CPUs (except SSE2 already done)

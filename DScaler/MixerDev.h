@@ -4,16 +4,16 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on Multidec 5.6 Those portions are
@@ -58,8 +58,8 @@ public:
     void SetVolume(int PercentageVolume);
     int GetVolume();
 private:
-	int m_ControlsCount;
-	MIXERLINE m_MixerLine;
+    int m_ControlsCount;
+    MIXERLINE m_MixerLine;
     int m_VolumeControl;
     DWORD m_VolumeMin;
     DWORD m_VolumeMax;
@@ -76,9 +76,9 @@ public:
     CMixerLineSource* GetSourceLine(int LineIndex);
     char* GetName();
 private:
-	int m_SourceCount;
-	MIXERLINE m_MixerLine;
-	CMixerLineSource** m_SourceLines;
+    int m_SourceCount;
+    MIXERLINE m_MixerLine;
+    CMixerLineSource** m_SourceLines;
 };
 
 class CMixer
@@ -90,8 +90,8 @@ public:
     CMixerLineDest* GetDestLine(int LineIndex);
 private:
     int m_LineCount;
-	MIXERCAPS m_MixerDev;
-	CMixerLineDest** m_DestLines;
+    MIXERCAPS m_MixerDev;
+    CMixerLineDest** m_DestLines;
     HMIXER m_hMixer;
 };
 
@@ -105,7 +105,7 @@ public:
     void SetMixer(int MixerIndex);
     CMixer* GetMixer();
 private:
-	int m_DeviceCount;
+    int m_DeviceCount;
     CMixer* m_Mixer;
 };
 

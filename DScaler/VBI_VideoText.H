@@ -4,16 +4,16 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on Multidec 5.6 Those portions are
@@ -49,67 +49,67 @@ void VT_SetMenu(HMENU hMenu);
 
 typedef enum
 {
-	VT_OFF,
-	VT_BLACK,
-	VT_MIX,
-	VT_LASTSTATE,
+    VT_OFF,
+    VT_BLACK,
+    VT_MIX,
+    VT_LASTSTATE,
 } VT_STATE;
 
 typedef enum
 {
-	VT_UK_CODE_PAGE,
-	VT_FRENCH_CODE_PAGE,
-	VT_CODE_PAGE_LASTONE,
+    VT_UK_CODE_PAGE,
+    VT_FRENCH_CODE_PAGE,
+    VT_CODE_PAGE_LASTONE,
 } eCODEPAGE;
 
 typedef struct
 {
-	// Type 0 data
-	struct
-	{
-		unsigned nMag:3;
-		unsigned nPage:8;
-		unsigned:5; // Unused
-		WORD nSubcode;
-	} HomePage;
-	WORD NetId;
-	struct
-	{
-		char Offset;
-		DWORD JulianDay;
-		BYTE Hour;
-		BYTE Min;
-		BYTE Sec;
-	} UTC;
-	char Unknown[5];
-	char Identifier[21];
+    // Type 0 data
+    struct
+    {
+        unsigned nMag:3;
+        unsigned nPage:8;
+        unsigned:5; // Unused
+        WORD nSubcode;
+    } HomePage;
+    WORD NetId;
+    struct
+    {
+        char Offset;
+        DWORD JulianDay;
+        BYTE Hour;
+        BYTE Min;
+        BYTE Sec;
+    } UTC;
+    char Unknown[5];
+    char Identifier[21];
 
-	// Type 2 data
+    // Type 2 data
 
-	struct
-	{
-		unsigned LCI:2;
-		unsigned LUF:1;
-		unsigned PRF:1;
-		unsigned PCS:2;
-		unsigned MI:1;
-		unsigned day:5;
-		unsigned month:4;
-		unsigned hour:5;
-		unsigned minute:6;
-		unsigned:5;
-		WORD CNI;
-		WORD PTY;
-	} PDC;
+    struct
+    {
+        unsigned LCI:2;
+        unsigned LUF:1;
+        unsigned PRF:1;
+        unsigned PCS:2;
+        unsigned MI:1;
+        unsigned day:5;
+        unsigned month:4;
+        unsigned hour:5;
+        unsigned minute:6;
+        unsigned:5;
+        WORD CNI;
+        WORD PTY;
+    } PDC;
 } TPacket30;
 
 typedef struct
 {
-	WORD wCtrl;
-	BOOL Fill;
-	BYTE Frame[25][40];
+    WORD wCtrl;
+    BOOL Fill;
+    BYTE Frame[25][40];
     BYTE LineUpdate[25];
-	BYTE bUpdated;
+    BYTE bUpdated;
     unsigned short SubPage;
 } TVTPage;
 
@@ -123,19 +123,19 @@ typedef struct
 
 
 #define ROUNDUP(w) (((w)+3)&~3)
-#define _BitmapDataP(bmp)	(bmp->bmiHeader.biBitCount==8?(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)+sizeof(WORD)*256):(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)))
-#define _BitmapDataR(bmp)	(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256)
-#define _BitmapPalR(bmp)	((RGBQUAD*)(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)))
+#define _BitmapDataP(bmp)   (bmp->bmiHeader.biBitCount==8?(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)+sizeof(WORD)*256):(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)))
+#define _BitmapDataR(bmp)   (((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)*256)
+#define _BitmapPalR(bmp)    ((RGBQUAD*)(((BYTE*)(bmp))+sizeof(BITMAPINFOHEADER)))
 
 #define _BitmapLargeRowR(bmp,row) (_BitmapDataR(bmp)+ROUNDUP(bmp->bmiHeader.biWidth)*(bmp->bmiHeader.biHeight-(row)*LARGE_HEIGHT))
-#define _BitmapLargeChar(bmp,c)	(_BitmapLargeRowR(bmp,(c)/32)+((c)&0x1f)*LARGE_WIDTH)
+#define _BitmapLargeChar(bmp,c) (_BitmapLargeRowR(bmp,(c)/32)+((c)&0x1f)*LARGE_WIDTH)
 
 #define _BitmapLargeRowP(bmp,row) ((_BitmapDataP(bmp))+VT_LARGE_BITMAP_WIDTH*((row)*LARGE_HEIGHT))
 #define _BitmapLargeText(bmp,row,c) (_BitmapLargeRowP(bmp,row)+((c)*LARGE_WIDTH*2))
 
 
 #define _BitmapSmallRowR(bmp,row) (_BitmapDataR(bmp)+ROUNDUP(bmp->bmiHeader.biWidth)*(bmp->bmiHeader.biHeight-(row)*SMALL_HEIGHT))
-#define _BitmapSmallChar(bmp,c)	(_BitmapSmallRowR(bmp,(c)/32)+((c)&0x1f)*SMALL_WIDTH)
+#define _BitmapSmallChar(bmp,c) (_BitmapSmallRowR(bmp,(c)/32)+((c)&0x1f)*SMALL_WIDTH)
 
 #define _BitmapSmallRowP(bmp,row) ((_BitmapDataP(bmp))+VT_SMALL_BITMAP_WIDTH*((row)*SMALL_HEIGHT))
 #define _BitmapSmallText(bmp,row,c) (_BitmapSmallRowP(bmp,row)+((c)*SMALL_WIDTH*2))

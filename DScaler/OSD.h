@@ -4,16 +4,16 @@
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 //
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
@@ -46,34 +46,34 @@ void OSD_SetMenu(HMENU hMenu);
 
 
 // Make sure that the timer ID does not conflict with those in DTV.H
-#define OSD_TIMER_ID			42
-#define OSD_TIMER_DELAY			4000
-#define OSD_TIMER_REFRESH_ID	41
-#define OSD_TIMER_REFRESH_DELAY	750
+#define OSD_TIMER_ID            42
+#define OSD_TIMER_DELAY         4000
+#define OSD_TIMER_REFRESH_ID    41
+#define OSD_TIMER_REFRESH_DELAY 750
 
-#define OSD_MAX_TEXT			50
+#define OSD_MAX_TEXT            50
 
 // Values for "ShowType" parameter in functions OSD_Show and OSD_RefreshInfosScreen
-#define	OSD_PERSISTENT		1
-#define	OSD_AUTOHIDE		2
-#define	OSD_REFRESH_DATA	3
+#define OSD_PERSISTENT      1
+#define OSD_AUTOHIDE        2
+#define OSD_REFRESH_DATA    3
 
 typedef enum
 {
-	OSD_XPOS_LEFT = 0,
-	OSD_XPOS_RIGHT,
-	OSD_XPOS_CENTER,
+    OSD_XPOS_LEFT = 0,
+    OSD_XPOS_RIGHT,
+    OSD_XPOS_CENTER,
 } OSD_TEXT_XPOS;
 
 typedef struct
 {
     char            szText[512];       // Text of OSD
     double          dfSize;            // Size of OSD as percentage of screen height
-	long			textColor;         // Text color (RGB)
-	OSD_TEXT_XPOS	textXpos;          // Text position / Xpos
+    long            textColor;         // Text color (RGB)
+    OSD_TEXT_XPOS   textXpos;          // Text position / Xpos
     double          dfXpos;            // X position (0 = left, 1 = right)
     double          dfYpos;            // Y position (0 = top, 1 = bottom)
-	RECT            currentRect;       // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
+    RECT            currentRect;       // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
 } TOsdInfo;
 
 void OSD_ClearAllTexts();

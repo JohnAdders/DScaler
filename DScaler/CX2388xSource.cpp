@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.33 2003-01-12 20:10:49 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.34 2003-01-12 21:19:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/12 20:10:49  adcockj
+// Put analogue blanking setting in properly
+//
 // Revision 1.32  2003/01/12 16:19:33  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -379,11 +382,9 @@ void CCX2388xSource::SetupPictureStructures()
 
 void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pVideoGroup = GetSettingsGroup("CX2388x - Video");
-    CSettingGroup *pH3DGroup = GetSettingsGroup("CX2388x - H3D");
-    CSettingGroup *pAudioGroup = GetSettingsGroup("CX2388x - Audio");
-
-    //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    CSettingGroup *pVideoGroup = GetSettingsGroup("CX2388x - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pH3DGroup = GetSettingsGroup("CX2388x - H3D", SETTING_BY_FORMAT | SETTING_BY_INPUT);
+    CSettingGroup *pAudioGroup = GetSettingsGroup("CX2388x - Audio", SETTING_BY_CHANNEL, FALSE);
 
     m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);

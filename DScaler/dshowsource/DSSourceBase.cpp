@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.26 2004-12-14 23:22:16 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.27 2004-12-15 00:38:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2004/12/14 23:22:16  laurentg
+// Action behind menu "DShow => Stop" now run by the output thread
+//
 // Revision 1.25  2003/08/16 18:36:58  laurentg
 // New method to know if it was the first setup of the card
 // New method to know if the source is a movie file
@@ -431,14 +434,11 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		TGUIRequest req;
 		req.type = REQ_DSHOW_STOP;
 		PutRequest(&req);
-		OSD_ShowText("Stop", 0);
-		// Wait a little to be sure that the request for stopping the graph is taken into account
-		// by the output thread
-		Sleep(100);
 		if (OldState == State_Paused)
 		{
 			SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
 		}
+		OSD_ShowText("Stop", 0);
 		return TRUE;
 		break;
 	case IDM_DSHOW_BACKWARD_5S:

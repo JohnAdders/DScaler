@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.4 2002-05-19 12:01:42 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.5 2002-07-06 16:46:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/05/19 12:01:42  tobbej
+// fixed sizing of propertypage
+//
 // Revision 1.3  2002/05/09 17:20:15  tobbej
 // fixed resize problem in CTreeSettingsOleProperties
 // (everytime a new page was activated the dialog size incresed)
@@ -48,7 +51,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid)
-:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE)
+:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE),m_bIsPagesIsActivated(false)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsOleProperties)
 		// NOTE: the ClassWizard will add member initialization here
@@ -81,8 +84,18 @@ CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
 	for(int i=0;i<m_pages.size();i++)
 	{
 		CPageInfo *pPage=m_pages[i];
-		HRESULT hr=pPage->m_pPropertyPage->Deactivate();
+		HRESULT hr;
+		
+		//only deactivate propetypages if it previously has been activated
+		if(m_bIsPagesIsActivated)
+		{
+			hr=pPage->m_pPropertyPage->Deactivate();
+		}
 		hr=pPage->m_pPropertyPage->SetPageSite(NULL);
+
+		//it looks like this makes the crossbar property page create an
+		//access voilation, propably cause by trying to delete a pointer
+		//that poits to 0xBADF00D
 		hr=pPage->m_pPropertyPage->SetObjects(0,NULL);
 		//ASSERT(SUCCEEDED(hr));
 		pPage->m_pPropertyPage.Release();
@@ -155,7 +168,8 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 			hr=m_pages[i]->m_pPropertyPage->Activate(m_hWnd,rect,FALSE);
 		}
 	}
-
+	
+	m_bIsPagesIsActivated=true;
 	//simulate a click on one of the tabs
 	LRESULT tmp;
 	OnSelchangeTreesettingsTab(NULL,&tmp);

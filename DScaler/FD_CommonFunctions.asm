@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.18 2003-04-17 16:25:18 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.19 2003-07-14 19:18:07 adcockj Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.18  2003/04/17 16:25:18  adcockj
+; More changes to the as yet unused comb detection
+;
 ; Revision 1.17  2003/04/17 07:13:25  adcockj
 ; Bug fixes to new unused film detection code
 ;
@@ -369,11 +372,11 @@ CombAndDiff_Loop:
     movq mm3, qword ptr[ebp]    ; mm1 = O22
     pand mm2, _qwYMask
     pand mm3, _qwYMask
+
     movq    mm4, mm2
     psubusb mm4, mm3
     psubusb mm3, mm2
     por     mm3, mm4
-    pand    mm3, _qwYMask
     psrlw   mm3, 1
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -483,7 +486,8 @@ CombAndDiff_Loop:
     shr ecx, 16
     add eax, ecx
     shr eax, 1
-    mov Dword Ptr [CombFactor], eax
+	mov ecx, CombFactor
+    mov [ecx], eax
 
     ; return mm6 as return value
     ; this is the diff factor

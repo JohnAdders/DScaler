@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.55 2001-08-05 16:32:12 adcockj Exp $
+// $Id: DScaler.cpp,v 1.56 2001-08-08 18:03:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2001/08/05 16:32:12  adcockj
+// Added brackets
+//
 // Revision 1.54  2001/08/03 14:36:05  adcockj
 // Added menu for sharpness filter
 //
@@ -2029,11 +2032,14 @@ void MainWndOnInitBT(HWND hWnd)
         AddSplashTextLine("Setup Mixer");
         Mixer_Init();
 
-        // JA 8 Jan 2001 End of Tidy
-        // MAE 8 Dec 2000 End of change
+        AddSplashTextLine("Start Timers");
         if (Audio_MSP_IsPresent() == TRUE)
         {
             SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
+        }
+        if(bIsFullScreen == FALSE && bDisplayStatusBar == TRUE)
+        {
+            SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
         }
 
         if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
@@ -2133,10 +2139,6 @@ void MainWndOnCreate(HWND hWnd)
     i = SetThreadAffinityMask(GetCurrentThread(), ProcessorMask);
 
     Cursor_UpdateVisibility();
-    if(bIsFullScreen == FALSE && bDisplayStatusBar == TRUE)
-    {
-        SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
-    }
 
     PostMessage(hWnd, INIT_BT, 0, 0);
 }
@@ -2286,7 +2288,10 @@ void SetMenuAnalog()
     Audio_SetMenu(hMenu);
     VT_SetMenu(hMenu);
     TimeShift::OnSetMenu(hMenu);
-    pCalibration->SetMenu(hMenu);
+    if(pCalibration)
+    {
+        pCalibration->SetMenu(hMenu);
+    }
 }
 
 HMENU GetFiltersSubmenu()
@@ -2366,11 +2371,16 @@ void CleanUpMemory()
     VBI_Exit();
     BT848_MemoryFree();
     if ((hMenu != NULL) && (GetMenu(hWnd) == NULL))
+    {
         DestroyMenu(hMenu);
+    }
     if (hMenuPopup != NULL)
+    {
         DestroyMenu(hMenuPopup);
+    }
     Channels_Exit();
     delete pCalibration;
+    pCalibration = NULL;
 }
 
 //---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.21 2002-03-20 11:30:20 robmuller Exp $
+// $Id: AspectFilters.cpp,v 1.22 2002-08-04 08:43:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/03/20 11:30:20  robmuller
+// Corrected window behaviour with a wrapped menu bar.
+//
 // Revision 1.20  2002/02/26 00:16:16  laurentg
 // "Auto resize window" option not taken into account when in "Square Pixels" mode
 //
@@ -759,12 +762,13 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
                                                AspectSettings.ZoomFactorX,
                                                AspectSettings.ZoomFactorY));
     }
-
-    m_FilterChain.push_back(new CScreenSanityAspectFilter(SrcWidth, SrcHeight));
+    
     if (!AspectSettings.SquarePixels && AspectSettings.AutoResizeWindow)
     {
         m_FilterChain.push_back(new CResizeWindowAspectFilter());
     }
+
+    m_FilterChain.push_back(new CScreenSanityAspectFilter(SrcWidth, SrcHeight));
 }
 
 CFilterChain::~CFilterChain()

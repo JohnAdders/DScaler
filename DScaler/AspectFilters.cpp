@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.19 2002-02-25 22:42:23 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.20 2002-02-26 00:16:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/02/25 22:42:23  laurentg
+// Correction of a bug in method CUnCropAspectFilter::adjustAspect
+//
 // Revision 1.18  2002/02/23 19:07:06  laurentg
 // New AR mode for stills having square pixels
 //
@@ -741,7 +744,7 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
     }
 
     m_FilterChain.push_back(new CScreenSanityAspectFilter(SrcWidth, SrcHeight));
-    if (AspectSettings.AutoResizeWindow)
+    if (!AspectSettings.SquarePixels && AspectSettings.AutoResizeWindow)
     {
         m_FilterChain.push_back(new CResizeWindowAspectFilter());
     }

@@ -911,29 +911,27 @@ BEGIN
     END
     POPUP "Deinter&lace"
     BEGIN
+        MENUITEM "&Search and Lock mode\tCtrl+Shift+Space", 
+                                                IDM_FINDLOCK_PULL
+        MENUITEM SEPARATOR
         MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
                                                 IDM_AUTODETECT
         MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
-        MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
         MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
+        MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
         MENUITEM SEPARATOR
-        MENUITEM "&Search and Lock Film mode\tCtrl+Shift+Space", 
-                                                IDM_FINDLOCK_PULL
-        POPUP "&Manual Film Mode Select"
-        BEGIN
-            MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
-            MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
-            MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
-            MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
-            MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
-            MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
-            MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
-        END
+        MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
+        MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
+        MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
+        MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
+        MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
+        MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
+        MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
+        MENUITEM SEPARATOR
         MENUITEM "&Video Modes Settings...",    IDM_SETTINGS_DEINTERLACESETTINGS
 
         MENUITEM SEPARATOR
         MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
-        MENUITEM "Film Mode",                   IDM_FILM_MODE, GRAYED
     END
     POPUP "&Filters"
     BEGIN
@@ -943,29 +941,24 @@ BEGIN
     POPUP "S&ettings"
     BEGIN
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
-        POPUP "&Video Setup"
+        POPUP "Card &Calibration"
         BEGIN
-            POPUP "Card &Calibration"
-            BEGIN
-                MENUITEM "Test &Patterns",              65535
-                MENUITEM "Start &Manual",               IDM_START_MANUAL_CALIBRATION
+            MENUITEM "Test &Patterns",              65535
+            MENUITEM "Start &Manual",               IDM_START_MANUAL_CALIBRATION
 
-                MENUITEM "Start &Automatic (full)",     IDM_START_AUTO_CALIBRATION
+            MENUITEM "Start &Automatic (full)",     IDM_START_AUTO_CALIBRATION
 
-                MENUITEM "Start Automatic (&brightness / contrast)", 
-                                                        IDM_START_AUTO_CALIBRATION2
+            MENUITEM "Start Automatic (&brightness / contrast)", 
+                                                    IDM_START_AUTO_CALIBRATION2
 
-                MENUITEM "Start Automatic (&color)",    IDM_START_AUTO_CALIBRATION3
+            MENUITEM "Start Automatic (&color)",    IDM_START_AUTO_CALIBRATION3
 
-                MENUITEM "Start YCbCr &range",          IDM_START_YUV_RANGE
-                MENUITEM "&Stop",                       IDM_STOP_CALIBRATION
-            END
-            MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
-            MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
-            MENUITEM "St&op",                       IDM_OVERLAY_STOP
-            MENUITEM "St&art",                      IDM_OVERLAY_START
+            MENUITEM "Start YCbCr &range",          IDM_START_YUV_RANGE
+            MENUITEM "&Stop",                       IDM_STOP_CALIBRATION
         END
-        MENUITEM "&Advanced Settings...",       IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
+        MENUITEM "Advanced &Settings...",       IDM_SETTINGS_CHANGESETTINGS
     END
     POPUP "&OSD"
     BEGIN
@@ -975,7 +968,10 @@ BEGIN
     END
     POPUP "Ac&tions"
     BEGIN
-        MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE
+        MENUITEM "&Pause Video\tP",             IDM_CAPTURE_PAUSE
+        MENUITEM "St&op Video",                 IDM_OVERLAY_STOP
+        MENUITEM "St&art video",                IDM_OVERLAY_START
+        MENUITEM SEPARATOR
         MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
         MENUITEM "Take C&yclic Still Pictures", IDM_TAKECYCLICSTILL
         MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP

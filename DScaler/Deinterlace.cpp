@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.37 2002-06-18 19:46:06 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.38 2002-07-27 16:27:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/06/18 19:46:06  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.36  2002/06/13 12:10:21  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -936,7 +939,6 @@ void Deinterlace_SetMenu(HMENU hMenu)
 
     if(bIsFilmMode && !bIsProgressiveMode)
     {
-        CheckMenuItemBool(hMenu, IDM_FILM_MODE, bIsFilmMode);
         CheckMenuItemBool(hMenu, IDM_22PULLODD, (gFilmPulldownMode == FILM_22_PULLDOWN_ODD) );
         CheckMenuItemBool(hMenu, IDM_22PULLEVEN, (gFilmPulldownMode == FILM_22_PULLDOWN_EVEN) );
         CheckMenuItemBool(hMenu, IDM_32PULL1, (gFilmPulldownMode == FILM_32_PULLDOWN_0) );
@@ -947,7 +949,6 @@ void Deinterlace_SetMenu(HMENU hMenu)
     }
     else
     {
-        CheckMenuItem(hMenu, IDM_FILM_MODE, MF_UNCHECKED);
         CheckMenuItem(hMenu, IDM_22PULLODD, MF_UNCHECKED);
         CheckMenuItem(hMenu, IDM_22PULLEVEN, MF_UNCHECKED);
         CheckMenuItem(hMenu, IDM_32PULL1, MF_UNCHECKED);

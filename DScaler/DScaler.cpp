@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.199 2002-07-27 15:20:34 laurentg Exp $
+// $Id: DScaler.cpp,v 1.200 2002-07-27 16:27:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.199  2002/07/27 15:20:34  laurentg
+// Channels menu updated
+//
 // Revision 1.198  2002/07/27 13:52:06  laurentg
 // Distinguish menu entries for filter settings, video modes settings and advanced settings
 // Connect again the patterns menu
@@ -3712,58 +3715,6 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
     }
 }
 
-HMENU GetOrCreateSubSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, int SubSubSubSubId, LPCSTR szMenuText)
-{
-    if(hMenu != NULL)
-    {
-        HMENU hSubMenu = GetSubMenu(hMenu, SubId);
-        if(hSubMenu != NULL)
-        {
-            HMENU hSubSubMenu = GetSubMenu(hSubMenu, SubSubId);
-            if(hSubSubMenu != NULL)
-            {
-                HMENU hSubSubSubMenu = GetSubMenu(hSubSubMenu, SubSubSubId);
-                if(hSubSubSubMenu != NULL)
-                {
-                    HMENU hSubSubSubSubMenu = GetSubMenu(hSubSubSubMenu, SubSubSubSubId);
-                    if(hSubSubSubSubMenu != NULL)
-                    {
-                        return hSubSubSubSubMenu;
-                    }
-                    else
-                    {
-                        if(ModifyMenu(hSubSubSubMenu, SubSubSubSubId, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), szMenuText))
-                        {
-                            return GetSubMenu(hSubSubSubMenu, SubSubSubSubId);
-                        }
-                        else
-                        {
-                            return NULL;
-                        }
-                    }
-                }
-                else
-                {
-                    return NULL;
-                }
-            }
-            else
-            {
-                return NULL;
-            }
-        }
-        else
-        {
-            return NULL;
-        }
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-
 HMENU GetFiltersSubmenu()
 {
     HMENU hmenu = GetSubMenuWithName(hMenu, 6, "&Filters");
@@ -3799,7 +3750,7 @@ HMENU GetOSDSubmenu()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubSubMenu(7, 1, 0, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(7, 1, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrvNT.cpp,v 1.6 2002-06-16 10:04:04 adcockj Exp $
+// $Id: DSDrvNT.cpp,v 1.7 2002-09-07 21:49:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/06/16 10:04:04  adcockj
+// Changed driver to not be exclusive
+//
 // Revision 1.5  2001/11/02 16:36:54  adcockj
 // Merge code from Multiple cards into main trunk
 //
@@ -59,7 +62,7 @@ NTSTATUS DSDrvDispatch( IN PDEVICE_OBJECT deviceObject, IN PIRP irp)
 {
     CIOAccessDevice *ioDevice;
     PIO_STACK_LOCATION irpStack;
-    NTSTATUS ntStatus;
+    NTSTATUS ntStatus = STATUS_SUCCESS;
 
     //
     // Go ahead and set the request up as successful

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.7 2002-10-23 17:05:19 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.8 2002-10-26 04:42:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/23 17:05:19  atnak
+// Added variable VBI sample rate scaling
+//
 // Revision 1.6  2002/10/20 07:41:04  atnak
 // custom audio standard setup + etc
 //
@@ -457,10 +460,12 @@ void CSAA7134Card::SetWhitePeak(BOOL WhitePeak)
     }
 }
 
+
 BOOL CSAA7134Card::GetWhitePeak()
 {
     return (ReadByte(SAA7134_INCR_DELAY) & SAA7134_INCR_DELAY_WPOFF) == 0;
 }
+
 
 void CSAA7134Card::SetColorPeak(BOOL ColorPeak)
 {
@@ -474,10 +479,59 @@ void CSAA7134Card::SetColorPeak(BOOL ColorPeak)
     }
 }
 
+
 BOOL CSAA7134Card::GetColorPeak()
 {
     return (ReadByte(SAA7134_ANALOG_IN_CTRL2) &
         SAA7134_ANALOG_IN_CTRL2_CPOFF) == 0;
+}
+
+
+void CSAA7134Card::SetAutomaticGainControl(BOOL bAGC)
+{
+    if (bAGC)
+    {
+        AndDataByte(SAA7134_ANALOG_IN_CTRL2, ~SAA7134_ANALOG_IN_CTRL2_GAFIX);
+    }
+    else
+    {
+        OrDataByte(SAA7134_ANALOG_IN_CTRL2, SAA7134_ANALOG_IN_CTRL2_GAFIX);
+    }
+}
+
+
+void CSAA7134Card::SetGainControl(WORD GainControl)
+{
+    // Only 9 bits of GainControl is used
+
+    WriteByte(SAA7134_ANALOG_IN_CTRL3, GainControl & 0xFF);
+    WriteByte(SAA7134_ANALOG_IN_CTRL4, GainControl & 0xFF);
+
+    BYTE AnalogInputCtrl2 = 0x00;
+
+    if (GainControl & 0x0100)
+    {
+        AnalogInputCtrl2 = 0x03;
+    }
+
+    MaskDataByte(SAA7134_ANALOG_IN_CTRL2, AnalogInputCtrl2,
+        SAA7134_ANALOG_IN_CTRL2_GAI18 |
+        SAA7134_ANALOG_IN_CTRL2_GAI18);
+}
+
+
+void CSAA7134Card::SetVideoMirror(BOOL bMirror)
+{
+    if (bMirror)
+    {
+        OrDataByte(SAA7134_V_FILTER(SAA7134_TASK_A_MASK), SAA7134_V_FILTER_YMIR);
+        OrDataByte(SAA7134_V_FILTER(SAA7134_TASK_B_MASK), SAA7134_V_FILTER_YMIR);
+    }
+    else
+    {
+        AndDataByte(SAA7134_V_FILTER(SAA7134_TASK_A_MASK), ~SAA7134_V_FILTER_YMIR);
+        AndDataByte(SAA7134_V_FILTER(SAA7134_TASK_B_MASK), ~SAA7134_V_FILTER_YMIR);
+    }
 }
 
 

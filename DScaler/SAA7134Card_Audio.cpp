@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.12 2002-10-20 07:41:30 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.13 2002-10-26 04:42:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/20 07:41:30  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.11  2002/10/18 01:14:43  atnak
 // NICAM tweaks
 //
@@ -99,7 +102,7 @@ void CSAA7134Card::InitAudio()
     WriteByte(SAA7134_DEMODULATOR,              0x00);
     WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
     WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
-    WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xA1);
+    WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x21);
 
     SetAudioFMDematrix(AUDIOFMDEMATRIX_AUTOSWITCHING);
 
@@ -792,6 +795,33 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
 }
 
 
+void CSAA7134Card::SetAutomaticVolume(eAutomaticVolume AVL)
+{
+    BYTE DACOutputSelect = 0x00;
+
+    switch (AVL)
+    {
+    case AUTOMATICVOLUME_SHORTDECAY:
+        DACOutputSelect = 0x10;
+        break;
+
+    case AUTOMATICVOLUME_MEDIUMDECAY:
+        DACOutputSelect = 0x20;
+        break;
+
+    case AUTOMATICVOLUME_LONGDECAY:
+        DACOutputSelect = 0x30;
+        break;
+
+    default:
+        break;
+    }
+
+    MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, DACOutputSelect,
+        SAA7134_STEREO_DAC_OUTPUT_SELECT_AVL);
+}
+
+
 void CSAA7134Card::SetAudioMute()
 {
     if (m_DeviceId == 0x7130)
@@ -828,7 +858,7 @@ void CSAA7134Card::SetAudioUnMute(long nVolume)
     }
 }
 
-// Unlatched. has some problems with distorted sound
+// Unused
 void CSAA7134Card::SetAudioVolume(BYTE nGain)
 {
     if (m_DeviceId == 0x7130)
@@ -846,77 +876,26 @@ void CSAA7134Card::SetAudioVolume(BYTE nGain)
     WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
 }
 
-void CSAA7134Card::SetAudioLeftVolume(BYTE nGain)
-{
-    WriteByte(SAA7134_CHANNEL1_LEVEL, nGain & 0x1F);
-}
-
-void CSAA7134Card::SetAudioRightVolume(BYTE nGain)
-{
-    WriteByte(SAA7134_CHANNEL2_LEVEL, nGain & 0x1F);
-}
-
-void CSAA7134Card::SetAudioNicamVolume(BYTE nGain)
-{
-    WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
-}
-
-int CSAA7134Card::GetAudioLeftVolume()
-{
-    BYTE Gain = ReadByte(SAA7134_CHANNEL1_LEVEL) & 0x1F;
-
-    if ((Gain & 0x10) > 0)
-    {
-        return Gain - 32;
-    }
-    return Gain;
-}
-
-int CSAA7134Card::GetAudioRightVolume()
-{
-    BYTE Gain = ReadByte(SAA7134_CHANNEL2_LEVEL) & 0x1F;
-
-    if ((Gain & 0x10) > 0)
-    {
-        return Gain - 32;
-    }
-    return Gain;
-}
-
-int CSAA7134Card::GetAudioNicamVolume()
-{
-    BYTE Gain = ReadByte(SAA7134_NICAM_LEVEL_ADJUST) & 0x1F;
-
-    if ((Gain & 0x10) > 0)
-    {
-        return Gain - 32;
-    }
-    return Gain;
-}
-
 void CSAA7134Card::SetAudioBalance(WORD nBalance)
 {
-    // TODO: Need to implement
+    // Unsupported
 }
 
 void CSAA7134Card::SetAudioBass(WORD nBass)
 {
-    // TODO: Need to implement
-    // SAA7134 doesn't have Bass but SAA7133 & SAA7135 does
+    // Unsupported
 }
 
 void CSAA7134Card::SetAudioTreble(WORD nTreble)
 {
-    // TODO: Need to implement
-    // SAA7134 doesn't have Treble but SAA7133 & SAA7135 does
+    // Unsupported
 }
-
 
 int CSAA7134Card::GetInputAudioLine(int nInput)
 {
-    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    if(nInput < m_SAA7134Cards[m_CardType].NumInputs && nInput >= 0)
     {
-        return m_TVCards[m_CardType].Inputs[nInput].AudioLineSelect;
+        return m_SAA7134Cards[m_CardType].Inputs[nInput].AudioLineSelect;
     }
     return 0;
 }

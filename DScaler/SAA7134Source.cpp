@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.29 2002-10-23 17:05:19 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.30 2002-10-26 04:42:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/10/23 17:05:19  atnak
+// Added variable VBI sample rate scaling
+//
 // Revision 1.28  2002/10/22 04:08:50  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -367,10 +370,24 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioStandardCh2FMDeemph = new CSliderSetting("Audio Channel 2 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, "AudioChannel2FMDeemph");
     m_Settings.push_back(m_AudioStandardCh2FMDeemph);
 
-    // Lower means better VBI reception/decoding but how
-    // far it can be lowered depends on individual cards.
+    // HELPTEXT: Automatic Volume Leveling control to avoid
+    // digital clipping at analog audio output
+    m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_MEDIUMDECAY, AUTOMATICVOLUME_OFF, AUTOMATICVOLUME_LONGDECAY, IniSection);
+    m_Settings.push_back(m_AutomaticVolumeLevel);
+
+    // HELPTEXT: Lower means better VBI reception/decoding but
+    // how far it can be lowered depends on individual cards.
     m_VBIUpscaleDivisor = new CVBIUpscaleDivisorSetting(this, "VBI Upscale Divisor", 0x1A8, 0x186, 0x400, IniSection);
     m_Settings.push_back(m_VBIUpscaleDivisor);
+
+    m_AutomaticGainControl = new CAutomaticGainControlSetting(this, "Automatic Gain Control", TRUE, IniSection);
+    m_Settings.push_back(m_AutomaticGainControl);
+
+    m_GainControlLevel = new CGainControlLevelSetting(this, "Gain Control Level", 0x0100, 0x0000, 0x01FF, IniSection);
+    m_Settings.push_back(m_GainControlLevel);
+
+    m_VideoMirror = new CVideoMirrorSetting(this, "Mirroring", FALSE, IniSection);
+    m_Settings.push_back(m_VideoMirror);
 
     ReadFromIni();
 }
@@ -1207,6 +1224,26 @@ void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
     Start_Capture();
 }
 
+void CSAA7134Source::AutomaticVolumeLevelOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)NewValue);
+}
+
+void CSAA7134Source::AutomaticGainControlOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetAutomaticGainControl(NewValue);
+}
+
+void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetGainControl(NewValue);
+}
+
+void CSAA7134Source::VideoMirrorOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetVideoMirror(NewValue);  
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -1222,10 +1259,9 @@ void CSAA7134Source::SetupCard()
 
     if(m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
-        /* // try to detect the card - \todo check if feasible
+        // try to detect the card
         m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());
-        m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eTVCardId)m_CardType->GetValue()));
-        */
+        m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)m_CardType->GetValue()));
 
         // then display the hardware setup dialog
         m_bSelectCardCancelButton = FALSE;

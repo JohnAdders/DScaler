@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.17 2002-10-23 17:05:18 atnak Exp $
+// $Id: SAA7134Source.h,v 1.18 2002-10-26 04:42:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/23 17:05:18  atnak
+// Added variable VBI sample rate scaling
+//
 // Revision 1.16  2002/10/22 04:08:50  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -268,6 +271,10 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSampleRate);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VBIUpscaleDivisor);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AutomaticVolumeLevel);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, GainControlLevel);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutomaticGainControl);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  VideoMirror);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutoStereoSelect);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  WhitePeak);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  ColorPeak);

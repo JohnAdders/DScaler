@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.4 2002-08-01 20:22:13 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.5 2002-08-11 14:03:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/01 20:22:13  tobbej
+// improved error messages when opening files.
+// corrected some smal problems when opening .grf files
+//
 // Revision 1.3  2002/07/29 17:42:53  tobbej
 // support for opening graphedit saved filter graphs
 //
@@ -166,7 +170,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 		CComPtr<IBaseFilter> pFilter;
 		while(hr=filterEnum.next(&pFilter),hr==S_OK && pFilter!=NULL)
 		{
-			if(pFilter==filter)
+			if(pFilter.IsEqualObject(filter))
 			{
 				pFilter.Release();
 				continue;
@@ -207,8 +211,48 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 				hr=pOutPin->ConnectionMediaType(&mt);
 				ASSERT(SUCCEEDED(hr));
 
-				hr=m_pGraph->RemoveFilter(pFilter);
+				//preserve dsrend filter settings
+				CComPtr<IPersistStream> pPStrmOld;
+				hr=pFilter.QueryInterface(&pPStrmOld);
+				if(FAILED(hr))
+				{
+					throw CDShowException("Coud not find IPersistStream on old dsrend (bug)",hr);
+				}
+				CComPtr<IPersistStream> pPStrmNew;
+				hr=filter.QueryInterface(&pPStrmNew);
+				if(FAILED(hr))
+				{
+					throw CDShowException("Coud not find IPersistStream on new dsrend (bug)",hr);
+				}
+				
+				ULARGE_INTEGER ulSize;
+				hr=pPStrmOld->GetSizeMax(&ulSize);
+				if(FAILED(hr))
+				{
+					throw CDShowException("IPersistStream::GetSizeMax failed (bug)",hr);
+				}
 
+				CComPtr<IStream> pStream;
+				HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,ulSize.QuadPart);
+				if(hg!=NULL)
+				{
+					if(CreateStreamOnHGlobal(hg,TRUE,&pStream)==S_OK)
+					{
+						hr=pPStrmOld->Save(pStream,FALSE);
+						if(SUCCEEDED(hr))
+						{
+							LARGE_INTEGER pos;
+							pos.QuadPart=0;
+							hr=pStream->Seek(pos,STREAM_SEEK_SET,NULL);
+							hr=pPStrmNew->Load(pStream);
+						}
+					}
+				}
+
+
+				hr=m_pGraph->RemoveFilter(pFilter);
+				
+				//connect to the right dsrend filter
 				CDShowPinEnum InPins2(filter,PINDIR_INPUT);
 				CComPtr<IPin> pInPin2=InPins2.next();
 				hr=pOutPin->Connect(pInPin2,&mt);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.4 2002-11-03 15:54:10 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.5 2002-11-06 11:11:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -147,6 +147,11 @@ public:
     void SetRISCStartAddress(DWORD RiscBasePhysical);
     void SetRISCStartAddressVBI(DWORD RiscBasePhysical);
 	void SetFLIFilmDetect(BOOL FLIFilmDetect);
+    void SetLumaAGC(BOOL LumaAGC);
+    void SetChromaAGC(BOOL ChromaAGC);
+    void SetFastSubcarrierLock(BOOL LockFast);
+    void SetWhiteCrushEnable(BOOL WhiteCrush);
+    void SetLowColorRemoval(BOOL LowColorRemoval);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

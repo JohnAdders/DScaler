@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.5 2002-11-03 15:54:10 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.6 2002-11-06 11:11:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/11/03 15:54:10  adcockj
+// Added cx2388x register tweaker support
+//
 // Revision 1.4  2002/10/31 14:47:20  adcockj
 // Added Sharpness
 //
@@ -246,7 +249,7 @@ void CCX2388xSource::SetupPictureStructures()
 
 void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pCX2388xGroup = GetSettingsGroup("CX2388x","CX2388x","CT Card");
+    CSettingGroup *pCX2388xGroup = GetSettingsGroup("CX2388x","CX2388x","CX Card");
     CSettingGroup *pVideoGroup = pCX2388xGroup->GetGroup("Video","Video");
     CSettingGroup *pH3DGroup = pCX2388xGroup->GetGroup("H3D","H3D");
 
@@ -313,6 +316,21 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_Sharpness);
 
+    m_LumaAGC = new CLumaAGCSetting(this, "Luma AGC", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_LumaAGC);
+
+    m_ChromaAGC = new CChromaAGCSetting(this, "Chroma AGC", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_ChromaAGC);
+
+    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_FastSubcarrierLock);
+
+    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_WhiteCrush);
+
+    m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_LowColorRemoval);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -364,6 +382,14 @@ void CCX2388xSource::Reset()
     {
         m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
         m_pCard->SetSharpness(m_Sharpness->GetValue());
+    }
+    else
+    {
+        m_pCard->SetLumaAGC(m_LumaAGC->GetValue());
+        m_pCard->SetChromaAGC(m_ChromaAGC->GetValue());
+        m_pCard->SetFastSubcarrierLock(m_FastSubcarrierLock->GetValue());
+        m_pCard->SetWhiteCrushEnable(m_WhiteCrush->GetValue());
+        m_pCard->SetLowColorRemoval(m_LowColorRemoval->GetValue());
     }
     NotifySizeChange();
 }
@@ -1187,6 +1213,31 @@ void CCX2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
     Stop_Capture();
     Reset();
     Start_Capture();
+}
+
+void CCX2388xSource::LumaAGCOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetLumaAGC(NewValue);
+}
+
+void CCX2388xSource::ChromaAGCOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetChromaAGC(NewValue);
+}
+
+void CCX2388xSource::FastSubcarrierLockOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetFastSubcarrierLock(NewValue);
+}
+
+void CCX2388xSource::WhiteCrushOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetWhiteCrushEnable(NewValue);
+}
+
+void CCX2388xSource::LowColorRemovalOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetLowColorRemoval(NewValue);
 }
 
 void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)

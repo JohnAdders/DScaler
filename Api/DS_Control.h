@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.111 2002-11-05 13:07:08 adcockj Exp $
+// $Id: DS_Control.h,v 1.112 2002-11-06 11:11:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.111  2002/11/05 13:07:08  adcockj
+// Logo Killer Smoothing patch from Jochen Trenner
+//
 // Revision 1.110  2002/11/02 01:36:40  lindsey
 // Added new settings for adaptive noise; Changed a name for histogram filter
 //
@@ -1464,6 +1467,11 @@ typedef enum
     CX2388XVDELAY,
     CX2388XEATLINESATTOP,
     CX2388XSHARPNESS,
+    CX2388XLUMAAGC,
+    CX2388XCHROMAAGC,
+    CX2388XFASTSUBCARRIERLOCK,
+    CX2388XWHITECRUSH,
+    CX2388XLOWCOLORREMOVAL,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

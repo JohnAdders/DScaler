@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.5 2002-11-03 15:54:10 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.6 2002-11-06 11:11:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/11/03 15:54:10  adcockj
+// Added cx2388x register tweaker support
+//
 // Revision 1.4  2002/10/31 14:47:20  adcockj
 // Added Sharpness
 //
@@ -553,6 +556,14 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
     {
         vSettingsList.push_back(m_EatLinesAtTop);
         vSettingsList.push_back(m_Sharpness);
+    }
+    else
+    {
+        vSettingsList.push_back(m_LumaAGC);
+        vSettingsList.push_back(m_ChromaAGC);
+        vSettingsList.push_back(m_FastSubcarrierLock);
+        vSettingsList.push_back(m_WhiteCrush);
+        vSettingsList.push_back(m_LowColorRemoval);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

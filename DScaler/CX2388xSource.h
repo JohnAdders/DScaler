@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.6 2002-11-03 15:54:10 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.7 2002-11-06 11:11:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -167,6 +167,11 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, EatLinesAtTop);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Sharpness);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LumaAGC);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ChromaAGC);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FastSubcarrierLock);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrush);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LowColorRemoval);
 
 protected:
     int m_InitialACPIStatus;

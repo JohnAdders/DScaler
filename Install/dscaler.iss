@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.5 2002-06-19 18:51:05 adcockj Exp $
+;// $Id: dscaler.iss,v 1.6 2002-06-22 20:53:04 robmuller Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.5  2002/06/19 18:51:05  adcockj
+;// Changed text to include palha status
+;//
 ;// Revision 1.4  2002/06/13 08:16:08  adcockj
 ;// Added Component groups and removed DSRend.dll temporarily
 ;//
@@ -47,6 +50,7 @@ AppUpdatesURL=http://www.dscaler.org
 DefaultDirName={pf}\DScaler
 DefaultGroupName=DScaler
 AllowNoIcons=yes
+AlwaysCreateUninstallIcon=yes
 LicenseFile=gpl.rtf
 AppMutex=DScaler
 ;required for installing the driver on NT platforms

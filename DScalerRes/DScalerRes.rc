@@ -549,7 +549,7 @@ BEGIN
                     CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Use this dialog to select the card closest to your card type.\nSome tuners are autodetected and will be selected here.  Otherwise you must try and find out what tuner you have.",
                     IDC_STATIC,7,7,286,25
-    LTEXT           "The easiest way is by looking at the documenation that came with the card otherwise you will have to see if there is any marking on the silver tuner box on the card.",
+    LTEXT           "The easiest way is by looking at the documentation that came with the card. Otherwise you will have to see if there is any marking on the silver tuner box on the card.",
                     IDC_STATIC,7,34,286,22
     LTEXT           "Card",IDC_STATIC,14,58,34,9
     LTEXT           "Tuner",IDC_STATIC,14,80,38,9

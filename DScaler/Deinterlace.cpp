@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.34 2002-02-18 20:51:52 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.35 2002-06-07 16:38:34 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/02/18 20:51:52  laurentg
+// Statistics regarding deinterlace modes now takes into account the progressive mode
+// Reset of the deinterlace statistics at each start of the decoding thread
+// Reset action now resets the deinterlace statistics too
+//
 // Revision 1.33  2002/02/17 21:41:03  laurentg
 // Action "Find and Lock Film mode" added
 //
@@ -794,6 +799,7 @@ BOOL LoadDeinterlacePlugins()
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }
+        FindClose(hFindFile);
     }
 
     // put the plug-ins into index order

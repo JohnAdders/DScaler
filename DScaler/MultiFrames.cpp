@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.2 2003-03-17 22:34:23 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.3 2003-03-19 23:55:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/03/17 22:34:23  laurentg
+// First step for the navigation through channels in preview mode
+//
 // Revision 1.1  2003/03/16 18:27:46  laurentg
 // New multiple frames feature
 //
@@ -214,17 +217,31 @@ void CMultiFrames::SelectFrame()
 				iCurrentFrame += iDeltaNewFrame;
 				if (pSource->IsInTunerMode())
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]+1);
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]);
+				}
+				else if ( (pSource == Providers_GetStillsSource())
+				       || (pSource == Providers_GetSnapshotsSource())
+				       || (pSource == Providers_GetPatternsSource())
+				       || (pSource == Providers_GetIntroSource()) )
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[iCurrentFrame]);
 				}
 				bFrameFilled[iCurrentFrame] = -1;
 				bNavigAllowed = FALSE;
 			}
 			else
 			{
-				ShiftFrames(iCurrentFrame + iDeltaNewFrame);
+				ShiftFrames(iDeltaNewFrame);
 				if (pSource->IsInTunerMode())
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]+1);
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]);
+				}
+				else if ( (pSource == Providers_GetStillsSource())
+				       || (pSource == Providers_GetSnapshotsSource())
+				       || (pSource == Providers_GetPatternsSource())
+				       || (pSource == Providers_GetIntroSource()) )
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[iCurrentFrame]);
 				}
 				bFrameFilled[iCurrentFrame] = -1;
 				bNavigAllowed = FALSE;
@@ -240,6 +257,13 @@ void CMultiFrames::SelectFrame()
 			if (pSource->IsInTunerMode())
 			{
 				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+			}
+			else if ( (pSource == Providers_GetStillsSource())
+				   || (pSource == Providers_GetSnapshotsSource())
+				   || (pSource == Providers_GetPatternsSource())
+				   || (pSource == Providers_GetIntroSource()) )
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
 			}
 		}
 	}
@@ -270,11 +294,43 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	if (pSource->HasSquarePixels())
 	{
 		// Keep the original ratio
+		int iUpdWidth;
+		int iUpdHeight;
+		if ((pInfo->FrameWidth - iFrameWidth) > (pInfo->FrameHeight - iFrameHeight))
+		{
+			iUpdHeight = iFrameWidth * pInfo->FrameHeight / pInfo->FrameWidth;
+			if (iUpdHeight > iFrameHeight)
+			{
+				iUpdHeight = iFrameHeight;
+			}
+			lpFrameBuffer += ( (iFrameHeight - iUpdHeight) / 2 ) * iFramePitch;
+			iFrameHeight = iUpdHeight;
+		}
+		else
+		{
+			iUpdWidth = iFrameHeight * pInfo->FrameWidth / pInfo->FrameHeight;
+			if (iUpdWidth > iFrameWidth)
+			{
+				iUpdWidth = iFrameWidth;
+			}
+			lpFrameBuffer += ( (iFrameWidth - iUpdWidth) / 2 ) * 2;
+			iFrameWidth = iUpdWidth;
+		}
 	}
 	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, pInfo->FrameHeight, lpFrameBuffer, iFramePitch, iFrameWidth, iFrameHeight);
     Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
-	bFrameFilled[iCurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
+	if (pSource->IsInTunerMode())
+	{
+		bFrameFilled[iCurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
+	}
+	else if ( (pSource == Providers_GetStillsSource())
+		   || (pSource == Providers_GetSnapshotsSource())
+		   || (pSource == Providers_GetPatternsSource())
+		   || (pSource == Providers_GetIntroSource()) )
+	{
+		bFrameFilled[iCurrentFrame] = ((CStillSource*)pSource)->GetPlaylistPosition();
+	}
 
 	DrawBorders();
 
@@ -413,4 +469,25 @@ void CMultiFrames::DrawBorders()
 
 void CMultiFrames::ShiftFrames(int iDeltaFrames)
 {
+	if ((iDeltaFrames > 0) && (iDeltaFrames < iNbFrames))
+	{
+		BYTE* lpStartBuffer = START_ALIGNED16(lpMemoryBuffer);
+		int i;
+		int iRow = iDeltaFrames / iNbCols;
+		int iCol = iDeltaFrames % iNbCols;
+		int iP = iWidth * 2;
+		int iW = iWidth / iNbCols;
+		int iH = iHeight / iNbRows;
+		int iShift = iRow * iH * iP + iCol * iW * 2;
+		memcpy(lpStartBuffer, lpStartBuffer + iShift, iHeight * iWidth * 2 - iShift);
+		for (i=0 ; i<(iNbFrames-iDeltaFrames) ; i++)
+		{
+			bFrameFilled[i] = bFrameFilled[i+iDeltaFrames];
+		}
+		for (i=(iNbFrames-iDeltaFrames) ; i<iNbFrames ; i++)
+		{
+			bFrameFilled[i] = -1;
+		}
+		iCurrentFrame -= iDeltaFrames;
+	}
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.10 2002-02-01 04:43:55 ittarnavsky Exp $
+// $Id: BT848Source_Audio.cpp,v 1.11 2002-02-03 18:11:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/02/01 04:43:55  ittarnavsky
+// some more audio related fixes
+// removed the handletimermessages and getaudioname methods
+// which break the separation of concerns oo principle
+//
 // Revision 1.9  2002/01/23 22:57:29  robmuller
 // Revision D/G improvements. The code is following the documentation much closer now.
 //
@@ -57,12 +62,26 @@
 
 ISetting* CBT848Source::GetVolume()
 {
-    return NULL;
+	if(m_pBT848Card->HasMSP())
+	{
+		return m_Volume;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 ISetting* CBT848Source::GetBalance()
 {
-    return NULL;
+	if(m_pBT848Card->HasMSP())
+	{
+		return m_Balance;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 void CBT848Source::Mute()

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: CPU.cpp,v 1.4 2001-07-13 16:14:55 adcockj Exp $
+// $Id: CPU.cpp,v 1.5 2001-07-27 16:11:32 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //  This file is subject to the terms of the GNU General Public License as
 //  published by the Free Software Foundation.  A copy of this license is
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.3  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -96,21 +99,23 @@ void CPU_SetupFeatureFlag(void)
    // with an illegal instruction exception if the instruction is not
    // supported. This step catches the exception and immediately returns
    // with feature string bits with all 0s, if the exception occurs.
-    __try {
+    __try 
+    {
         __asm xor    eax, eax
         __asm xor    ebx, ebx
         __asm xor    ecx, ecx
         __asm xor    edx, edx
         __asm cpuid
     }
-
-    __except (EXCEPTION_EXECUTE_HANDLER) {
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
         return;
     }
     
     CpuFeatureFlags |= FEATURE_CPUID;
 
-    _asm {
+    _asm 
+    {
          // Step 2: Check if CPUID supports function 1 (signature/std features)
          xor     eax, eax                      // CPUID function #0
          cpuid                                 // largest std func/vendor string

@@ -152,7 +152,7 @@ SOURCE=.\CPU.cpp
 # Begin Source File
 
 SOURCE=.\Crash.cpp
-# SUBTRACT CPP /YX /Yc /Yu
+# ADD CPP /Yu
 # End Source File
 # Begin Source File
 
@@ -169,7 +169,7 @@ SOURCE=.\Dialogs.cpp
 # Begin Source File
 
 SOURCE=.\Disasm.cpp
-# SUBTRACT CPP /YX /Yc /Yu
+# ADD CPP /Yu
 # End Source File
 # Begin Source File
 
@@ -253,10 +253,6 @@ SOURCE=.\MixerDev.cpp
 # Begin Source File
 
 SOURCE=.\OSD.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\oshelper.cpp
 # End Source File
 # Begin Source File
 
@@ -464,10 +460,6 @@ SOURCE=.\OSD.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\oshelper.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Other.h
 # End Source File
 # Begin Source File
@@ -583,4 +575,3 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:21:DefaultSinkHeaderFile:slider.h
 # 	2:16:DefaultSinkClass:CSlider
 # End Section
-

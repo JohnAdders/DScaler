@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.h,v 1.1 2001-07-24 12:19:00 adcockj Exp $
+// $Id: Disasm.h,v 1.2 2001-07-27 16:11:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,46 +24,45 @@
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef f_DISASM_H
-#define f_DISASM_H
+#ifndef __DISASM_H__
+#define __DISASM_H__
 
-#include <windows.h>
-
-class CodeDisassemblyWindow {
-private:
-	void parse();
-	char *penalty_string(long f);
-	static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
-
-	void *code, *rbase, *abase;
-	long length;
-	void *pFault;
-
-	class lbent {
-	public:
-		unsigned char *ip_u;
-		unsigned char *ip_v;
-		long flags;
-	} *lbents;
-	int num_ents;
-
-	HFONT hFontMono;
-
-	char buf[256];
-
+class CCodeDisassemblyWindow 
+{
 public:
-	CodeDisassemblyWindow(void *code, long, void *, void *);
-	~CodeDisassemblyWindow();
+	CCodeDisassemblyWindow(void* code, long, void*, void*);
+	~CCodeDisassemblyWindow();
 
 	void DoInitListbox(HWND hwndList);
 	BOOL DoMeasureItem(LPARAM lParam);
 	BOOL DoDrawItem(LPARAM lParam);
-	BOOL post(HWND);
-	long getInstruction(char *buf, long val);
+	long getInstruction(char* buf, long val);
+	void setFaultAddress(void* _pFault);
 
-	void setFaultAddress(void *_pFault) {
-		pFault = _pFault;
-	}
+private:
+	void parse();
+	char* penalty_string(long f);
+	static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
+
+
+	class lbent 
+    {
+	public:
+		unsigned char *ip_u;
+		unsigned char *ip_v;
+		long flags;
+	}* lbents;
+	int num_ents;
+
+    void* code;
+    void* rbase;
+    void* abase;
+	long length;
+	void* pFault;
+
+	HFONT hFontMono;
+
+	char buf[256];
 };
 
 #endif

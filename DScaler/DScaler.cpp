@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.48 2001-07-26 22:26:24 laurentg Exp $
+// $Id: DScaler.cpp,v 1.49 2001-07-27 16:11:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2001/07/26 22:26:24  laurentg
+// New menu for card calibration
+//
 // Revision 1.47  2001/07/24 12:19:00  adcockj
 // Added code and tools for crash logging from VirtualDub
 //
@@ -174,6 +177,7 @@ HFONT hCurrentFont = NULL;
 
 BOOL bInMenuOrDialogBox = FALSE;
 BOOL bIgnoreMouse = FALSE;
+BOOL bShowCrashDialog = FALSE;
 
 UINT MsgWheel;
 
@@ -202,6 +206,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     hInst = hInstance;
     
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
+    SetUnhandledExceptionFilter(UnexpectedCrashHandler);
 
     CPU_SetupFeatureFlag();
     // if we are already runninmg then start up old version
@@ -1899,7 +1904,7 @@ void MainWndOnInitBT(HWND hWnd)
     BOOL bInitOK = FALSE;
 
     AddSplashTextLine("Hardware Init");
-    
+
     if (BT848_FindTVCard(hWnd) == TRUE)
     {
         AddSplashTextLine(BT848_ChipType());
@@ -2672,6 +2677,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "AlwaysOnTopFull", AlwaysOnTopFull_OnChange,
+    },
+    {
+        "Show Crash Dialog", ONOFF, 0, (long*)&bShowCrashDialog,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "ShowCrashDialog", NULL,
     },
 };
 

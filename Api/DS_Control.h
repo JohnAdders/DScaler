@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.27 2001-07-27 12:30:09 adcockj Exp $
+// $Id: DS_Control.h,v 1.28 2001-07-27 16:11:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/07/27 12:30:09  adcockj
+// Added Overlay Color controls (Thanks to Muljadi Budiman)
+//
 // Revision 1.26  2001/07/26 21:59:15  laurentg
 // New entry in OSD section of ini file
 //
@@ -318,6 +321,7 @@ typedef enum
     THREADPRIORITY,
     AUTOSAVESETTINGS,
     ALWAYSONTOPFULL,
+    SHOWCRASHDIALOG,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

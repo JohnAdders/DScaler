@@ -150,6 +150,10 @@ SOURCE=.\DI_GrUpdtFS.asm
 
 SOURCE=.\DI_GreedyH.RC
 # End Source File
+# Begin Source File
+
+SOURCE=.\Res\SLIDER.BMP
+# End Source File
 # End Group
 # End Target
 # End Project

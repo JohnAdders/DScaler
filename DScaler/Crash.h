@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.h,v 1.1 2001-07-24 12:19:00 adcockj Exp $
+// $Id: Crash.h,v 1.2 2001-07-27 16:11:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,40 +24,12 @@
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef f_CRASH_H
-#define f_CRASH_H
+#ifndef __CRASH_H__
+#define __CRASH_H__
 
-#ifdef f_CRASH_CPP
-#define EXTERN
-#else
-#define EXTERN extern
-#endif
+LONG WINAPI CrashHandler(EXCEPTION_POINTERS *pExc);
+LONG WINAPI UnexpectedCrashHandler(EXCEPTION_POINTERS *pExc);
 
-struct VirtualDubCheckpoint {
-	const char *file;
-	int line;
-
-	inline void set(const char *f, int l) { file=f; line=l; }
-};
-
-#define CHECKPOINT_COUNT		(16)
-
-struct VirtualDubThreadState {
-	const char				*pszThreadName;
-	unsigned long			dwThreadId;
-	void *					hThread;
-
-	VirtualDubCheckpoint	cp[CHECKPOINT_COUNT];
-	int						nNextCP;
-};
-
-EXTERN __declspec(thread) VirtualDubThreadState g_PerThreadState;
-
-#define VDCHECKPOINT (g_PerThreadState.cp[g_PerThreadState.nNextCP++&(CHECKPOINT_COUNT-1)].set(__FILE__, __LINE__))
-
-void VirtualDubInitializeThread(const char *pszName);
-void VirtualDubDeinitializeThread();
-
-LONG __stdcall CrashHandler(struct _EXCEPTION_POINTERS *ExceptionInfo);
+extern "C" unsigned long gBuildNum;
 
 #endif

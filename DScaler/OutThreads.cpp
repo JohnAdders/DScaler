@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.26 2001-07-26 22:38:04 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.27 2001-07-27 16:11:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/07/26 22:38:04  laurentg
+// Call to card calibration function added
+//
 // Revision 1.25  2001/07/23 20:52:07  ericschmidt
 // Added TimeShift class.  Original Release.  Got record and playback code working.
 //
@@ -114,6 +117,7 @@
 #include "Audio.h"
 #include "TimeShift.h"
 #include "Calibration.h"
+#include "Crash.h"
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
@@ -662,7 +666,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     AdjustAspectRatio(SourceAspectAdjust, Info.EvenLines[0], Info.OddLines[0]);
                 }                   
                 // if there is any exception thrown in the above then just carry on
-                __except (EXCEPTION_EXECUTE_HANDLER) 
+                __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
                 { 
                     LOG(" Crash in output code");
                 }
@@ -748,7 +752,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         BT848_SetDMA(FALSE);
     }
     // if there is any exception thrown then exit the thread
-    __except (EXCEPTION_EXECUTE_HANDLER) 
+    __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
         LOG(" Crash in OutThreads main loop");
         ExitThread(1);

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.20 2003-01-09 12:53:51 robmuller Exp $
+;// $Id: dscaler.iss,v 1.21 2003-01-21 18:40:10 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.20  2003/01/09 12:53:51  robmuller
+;// Disable startup prompt. Upgrade logo killer and mirror filter.
+;// Add "Components: main" to files that are always installed.
+;//
 ;// Revision 1.19  2002/12/12 18:42:42  adcockj
 ;// Version 4.1.3
 ;//
@@ -84,8 +88,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.4
-AppVerName=DScaler 4.1.4
+AppName=DScaler 4.1.5
+AppVerName=DScaler 4.1.5
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
@@ -162,6 +166,7 @@ Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; CopyMode: always
 ; beta
 Source: "..\Release\FLT_Histogram.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
 Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
 
 [INI]
 Filename: "{app}\DScaler.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dscaler.org"

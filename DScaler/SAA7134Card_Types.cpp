@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.41 2004-02-18 06:39:47 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.42 2004-02-24 04:18:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2004/02/18 06:39:47  atnak
+// Changed Setup Card / Tuner so that only cards of the same device are
+// shown in the card list.
+// Added new card Chronos Video Shuttle II (saa7134 version)
+//
 // Revision 1.40  2004/02/17 07:25:42  atnak
 // Updated Compro VideoMate TV Gold Plus
 //
@@ -296,7 +301,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         0x0018e700,
         NULL,
         StandardSAA7134InputSelect,
-		0x01384e42,
+        0x01384e42,
     },
     // LifeView FlyVideo2000 (saa7130)
     // Chronos Video Shuttle II (Based on FlyVideo 2000)
@@ -1354,7 +1359,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     },
 /*    // Chronos Video Shuttle II Stereo
     // Thanks "Velizar Velinov" <veli_velinov2001@ya...>
-	// Maybe exactly the same as FlyVideo 3000
+    // Maybe exactly the same as FlyVideo 3000
     {
         "Chronos Video Shuttle II Stereo",
         0x7134,
@@ -1408,9 +1413,60 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         0x0000e000,
         NULL,
         StandardSAA7134InputSelect,
-		0x01384e42,
+        0x01384e42,
     },*/
+    // Manli M-TV005
+    // Thanks "Norman Jonas" <normanjonas@ar...>
+    {
+        "Manli M-TV005",
+        0x7134,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_LG_B11D_PAL,  // Should be LG TPI8PSB02P PAL B/G
+        AUDIOCRYSTAL_32110Hz,
+        0,
+        NULL,
+        StandardSAA7134InputSelect,
+    },
 };
+
+
+//
+// Notes:
+//
+// "Might req mode 6": S-Video is listed with VIDEOINPUTSOURCE_PIN0 but what
+// is actually used is not mode 0 but mode 8.  --This is due to an old design
+// decision that I no longer remember why.  Mode 6 is exactly the same as mode
+// 8 except the C-channel gain control is set with a register instead of
+// automatic gain control that is linked to the Y-channel. "Might req mode 6"
+// has been placed beside entries where the RegSpy dump showed the
+// SAA7134_ANALOG_IN_CTRL1 register with xxxx0110(6) instead of xxxx1000(8).
+//
 
 
 int CSAA7134Card::GetMaxCards()

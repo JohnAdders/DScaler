@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.20 2003-01-01 20:56:45 atnak Exp $
+// $Id: OutThreads.h,v 1.21 2003-02-05 19:58:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,5 +79,8 @@ BOOL LockOverlay(TDeinterlaceInfo* pInfo);
 #else
 	#define ASSERTONOUTTHREAD
 #endif
+
+extern BOOL	bCheckSignalPresent;
+extern BOOL	bCheckSignalMissing;
 
 #endif

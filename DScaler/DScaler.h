@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.44 2003-02-05 15:11:44 laurentg Exp $
+// $Id: DScaler.h,v 1.45 2003-02-05 19:57:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -139,6 +139,7 @@ typedef struct
 #define UWM_EVENTADDEDTOQUEUE   WM_APP + 0x1003
 #define UWM_OSD                 WM_APP + 0x1004
 #define UWM_DEINTERLACE_SETSTATUS WM_APP + 0x1005
+#define UWM_SWITCH_WINDOW		WM_APP + 0x1006
 
 #define VTM_VTHEADERUPDATE      0x0001
 #define VTM_VTPAGEUPDATE        0x0002

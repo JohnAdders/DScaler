@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.110 2003-01-24 21:12:53 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.111 2003-02-05 19:57:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.110  2003/01/24 21:12:53  laurentg
+// Call to WorkoutOverlaySize necessary just after adjusting the overscan for the source
+//
 // Revision 1.109  2003/01/24 01:55:17  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -433,6 +436,8 @@ eStreamStillType    RequestStillType = STILL_NONE;
 int					RequestStillNb = 0;
 BOOL				RequestStillInMemory = FALSE;
 BOOL                RequestToggleFlip = FALSE;
+BOOL				bCheckSignalPresent = FALSE;
+BOOL				bCheckSignalMissing = FALSE;
 BOOL                bDoVerticalFlipSetting = FALSE;
 HANDLE              OutThread;
 DWORD OutThreadID=0;
@@ -745,6 +750,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	BOOL bTakeStill = FALSE;
 	BOOL bUseOverlay = TRUE;
     BOOL bUseExtraBuffer = Filter_WillWeDoOutput();
+	BOOL bIsPresent;
+	int nMissing = 0;
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -805,6 +812,40 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         VDCHECKPOINT;
         while(!bStopThread)
         {
+			if (bCheckSignalPresent)
+			{
+				// Check every second if there is signal present
+				// If there is a signal, ask the main thread to restore the main window
+				Sleep(1000);
+				if (!Providers_GetCurrentSource()->IsVideoPresent())
+				{
+					continue;
+				}
+				PostMessage(hWnd,UWM_SWITCH_WINDOW,0,0);
+				bCheckSignalPresent = FALSE;
+			}
+
+			if (bCheckSignalMissing)
+			{
+				// Wait 30 consecutive fields before deciding that the signal is missing
+				// Then ask the main thread to restore the main window
+				bIsPresent = Providers_GetCurrentSource()->IsVideoPresent();
+				if (!bIsPresent)
+				{
+					nMissing++;
+					if (nMissing > 30)
+					{
+						PostMessage(hWnd,UWM_SWITCH_WINDOW,0,0);
+						bCheckSignalMissing = FALSE;
+						nMissing = 0;
+					}
+				}
+				else
+				{
+					nMissing = 0;
+				}
+			}
+
 #ifdef _DEBUG
             pPerf->StartCount(PERF_WAIT_FIELD);
 #endif

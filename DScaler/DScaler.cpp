@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.302 2003-02-05 17:50:51 robmuller Exp $
+// $Id: DScaler.cpp,v 1.303 2003-02-05 19:57:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.302  2003/02/05 17:50:51  robmuller
+// Add the systray icon again after the task bar has been restarted.
+//
 // Revision 1.301  2003/02/05 17:21:50  robmuller
 // Hide systray menu when another window is activated.
 //
@@ -2603,7 +2606,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             ShowText(hWnd, Audio_GetUserMute() ? "MUTE" : "UNMUTE");
 			break;
 
-	 case IDC_TOOLBAR_VOLUME_MUTE:
+		case IDC_TOOLBAR_VOLUME_MUTE:
             Audio_SetUserMute(lParam);
             ShowText(hWnd, lParam ? "MUTE" : "UNMUTE");
             break;
@@ -4434,6 +4437,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return FALSE;
         break;
 
+    case UWM_SWITCH_WINDOW:
+        if (bMinimized == FALSE)
+        {
+            ShowWindow(hWnd, SW_MINIMIZE);
+        }
+        else
+        {
+            ShowWindow(hWnd, SW_SHOW);
+            ShowWindow(hWnd, SW_RESTORE);
+            SetForegroundWindow(hWnd);
+        }
+        return FALSE;
+        break;
+
     //TJ 010506 make sure we dont erase the background
     //if we do, it will cause flickering when resizing the window
     //in future we migth need to adjust this to only erase parts not covered by overlay
@@ -5029,7 +5046,6 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
         switch(wParam)
         {
         case SIZE_MAXIMIZED:
-			LOG(1, "SIZE_MAXIMIZED");
             if(bIsFullScreen == FALSE || bMinimized == TRUE)
             {
 				if ((MinimizeHandling == 1) && bMinimized && !OverlayActive())
@@ -5037,12 +5053,13 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 					Overlay_Start(hWnd);
 				}
 				bMinimized = FALSE;
+				bCheckSignalPresent = FALSE;
+				bCheckSignalMissing = (MinimizeHandling == 2);
                 bIsFullScreen = TRUE;
                 IsFullScreen_OnChange(TRUE);
             }
             break;
         case SIZE_MINIMIZED:
-			LOG(1, "SIZE_MINIMIZED");
 			bMinimized = TRUE;
 			if (OverlayActive())
 			{
@@ -5059,10 +5076,13 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 			{
                 ShowWindow(hWnd, SW_HIDE);
 			}
+			bCheckSignalPresent = (MinimizeHandling == 2);
+			bCheckSignalMissing = FALSE;
             break;
         case SIZE_RESTORED:
             bMinimized = FALSE;
-			LOG(1, "SIZE_RESTORED");
+			bCheckSignalPresent = FALSE;
+			bCheckSignalMissing = (MinimizeHandling == 2);
             InvalidateRect(hWnd, NULL, FALSE);
             if ((MinimizeHandling == 1) && !OverlayActive())
 			{
@@ -5409,7 +5429,6 @@ void CleanUpMemory()
 // This is also called during a Suspend operation
 void Overlay_Stop(HWND hWnd)
 {
-	LOG(1, "Overlay_Stop");
     RECT winRect;
     HDC hDC;
     GetClientRect(hWnd, &winRect);
@@ -5429,7 +5448,6 @@ void Overlay_Stop(HWND hWnd)
 // This is also called during a Resume operation
 void Overlay_Start(HWND hWnd)
 {
-	LOG(1, "Overlay_Start");
     InvalidateRect(hWnd, NULL, FALSE);
     Overlay_Create();
     Reset_Capture();
@@ -6088,6 +6106,21 @@ BOOL KeyboardLock_OnChange(long NewValue)
 }
 
 
+BOOL MinimizeHandling_OnChange(long NewValue)
+{
+    MinimizeHandling = (int)NewValue;
+	if (bMinimized)
+	{
+		bCheckSignalPresent = (MinimizeHandling == 2);
+	}
+	else
+	{
+		bCheckSignalMissing = (MinimizeHandling == 2);
+	}
+    return FALSE;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -6283,7 +6316,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Minimize handling", ITEMFROMLIST, 0, (long*)&MinimizeHandling,
         0, 0, 2, 1, 1,
         MinimizeHandlingLabels,
-        "MainWindow", "MinimizeHandling", NULL,
+        "MainWindow", "MinimizeHandling", MinimizeHandling_OnChange,
     },
 };
 

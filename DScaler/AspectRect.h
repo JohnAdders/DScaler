@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// AspectRect.hpp
+// AspectRect.h
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,199 +27,382 @@
 // 14 Mar 2001   Michael Samblanet     File created
 //
 /////////////////////////////////////////////////////////////////////////////
-#ifndef __aspectrect_hpp__
-#define __aspectrect_hpp__
+#ifndef __ASPECTRECT_H__
+#define __ASPECTRECT_H__
 
 // Aspect aware smart-rectangle
 // All function in-line for efficency when compiled...
-class AspectRect : public RECT {
-	protected:
-		// Adjustment made to aspect ratio on output usage
-		// For example, using a 4:3 resolution with a anamorphic (16:9) lens would have an output
-		// adjustment of (16/9)/(4/3) = 1.3333
-		// An anamorphic source would be (4/3)/(16/9) = .75
-		double m_outputAdjustment;
+class AspectRect : public RECT
+{
+public:
+	AspectRect()
+	{ 
+		left = right = top = bottom = 0; 
+		m_outputAdjustment = 1; 
+	}
+	AspectRect(RECT const &src)
+	{ 
+		left = src.left; 
+		right = src.right; 
+		top = src.top; 
+		bottom = src.bottom; 
+		m_outputAdjustment = 1; 
+	}
+	AspectRect(AspectRect const &src)
+	{ 
+		operator=(src);
+	}
+	AspectRect& operator=(AspectRect const &src)
+	{
+		if (&src != this)
+		{
+			left = src.left; 
+			right = src.right; 
+			top = src.top; 
+			bottom = src.bottom;
+			m_outputAdjustment = src.m_outputAdjustment;
+		}
+		return *this;
+	}
+	// Only considers exact matches equal...
+	BOOL operator==(const AspectRect &src)
+	{
+		return left==src.left && right==src.right && top==src.top && bottom==src.bottom
+			&& fabs(m_outputAdjustment-src.m_outputAdjustment) < .00001;
+	}
+	// Considers 2 rectangles equal if they are within n pixels of each other on each edge
+	BOOL tolerantEquals(const AspectRect &src, int tolerance = 4)
+	{
+		if (fabs(m_outputAdjustment-src.m_outputAdjustment) > .00001) return false;
+		if (abs(left - src.left) > tolerance) return false;
+		if (abs(right - src.right) > tolerance) return false;
+		if (abs(top - src.top) > tolerance) return false;
+		if (abs(bottom - src.bottom) > tolerance) return false;
+		return true;
+	}
 
-	public:
-		AspectRect() { left = right = top = bottom = 0; m_outputAdjustment = 1; }
-		AspectRect(RECT const &src) { left = src.left; right = src.right; top = src.top; bottom = src.bottom; m_outputAdjustment = 1; }
-		AspectRect(AspectRect const &src) { operator=(src); }
-		AspectRect& operator=(AspectRect const &src) {
-			if (&src != this) {
-				left = src.left; right = src.right; top = src.top; bottom = src.bottom;
-				m_outputAdjustment = src.m_outputAdjustment;
-			}
-			return *this;
-		}
-		// Only considers exact matches equal...
-		BOOL operator==(const AspectRect &src) {
-			return left==src.left && right==src.right && top==src.top && bottom==src.bottom
-				&& fabs(m_outputAdjustment-src.m_outputAdjustment) < .00001;
-		}
-		// Considers 2 rectangles equal if they are within n pixels of each other on each edge
-		BOOL tolerantEquals(const AspectRect &src, int tolerance = 4) {
-			if (fabs(m_outputAdjustment-src.m_outputAdjustment) > .00001) return false;
-			if (abs(left - src.left) > tolerance) return false;
-			if (abs(right - src.right) > tolerance) return false;
-			if (abs(top - src.top) > tolerance) return false;
-			if (abs(bottom - src.bottom) > tolerance) return false;
-			return true;
-		}
+	int width()
+	{
+		return right - left;
+	}
+	int height()
+	{ 
+		return bottom - top;
+	}
+	double sourceAspect()
+	{
+		return (double)width()/(double)height();
+	}
+	double targetAspect()
+	{ 
+		return sourceAspect() * m_outputAdjustment;
+	}
+	void setTargetAspect(double target)
+	{ 
+		m_outputAdjustment = target / sourceAspect(); 
+	}
+	void setAspectAdjust(double source, double target)
+	{
+		m_outputAdjustment = target/source; 
+	}
 
-		int width() { return right - left; }
-		int height() { return bottom - top; }
-		double sourceAspect() { return (double)width()/(double)height(); }
-		double targetAspect() { return sourceAspect() * m_outputAdjustment; }
-		void setTargetAspect(double target) { m_outputAdjustment = target / sourceAspect(); }
-		void setAspectAdjust(double source, double target) { m_outputAdjustment = target/source; }
-
-		void normalizeRect() {
-			// Ensure left and top are less than bottom and right.
-			if (left > right) {
-				int t = left;
-				left = right;
-				right = t;
-			}
-			if (top > bottom) {
-				int t = top;
-				top = bottom;
-				bottom = t;
-			}
+	void normalizeRect()
+	{
+		// Ensure left and top are less than bottom and right.
+		if (left > right)
+		{
+			int t = left;
+			left = right;
+			right = t;
 		}
-		// Aligns the rectangle to be on a Nth pixel boundary
-		// by Shrinking the rectangle.
-		void align(int n = 4) { align(n,n,n,n); }
-		void align(int x, int y) { align(x,x,y,y); }
-		void align(int l, int r, int t, int b) {
-			normalizeRect(); // Need a normalized rectangle
-			int i = left % l; if (i > 0) left += l-i;
-			right -= right % r;
-			top += top % t;
-			i = top % t; if (i > 0) top += t-i;
-			bottom -= bottom % b;
+		if (top > bottom)
+		{
+			int t = top;
+			top = bottom;
+			bottom = t;
 		}
-
-		// Shrinks the rectangle by x pixels
-		// by Shrinking the rectangle.
-		void shrink(int n = 4) { shrink(n,n,n,n); }
-		void shrink(int x, int y) { shrink(x,x,y,y); }
-		void shrink(int l, int r, int t, int b) {
-			normalizeRect(); // Need a normalized rectangle
-			left += l; right -= r;
-			top += t; bottom -= b;
+	}
+	// Aligns the rectangle to be on a Nth pixel boundary
+	// by Shrinking the rectangle.
+	void align(int n = 4)
+	{ 
+		align(n,n,n,n); 
+	}
+	void align(int x, int y)
+	{ 
+		align(x,x,y,y); 
+	}
+	void align(int l, int r, int t, int b)
+	{
+		normalizeRect(); // Need a normalized rectangle
+		int i = left % l; 
+		if (i > 0)
+		{
+			left += l-i;
 		}
-
-		// Ensure the rectangle is at least n pixels in size...
-		void enforceMinSize(int n = 4) { enforceMinSize(n,n); }
-		void enforceMinSize(int x, int y) {
-			normalizeRect(); // Need a normalized rectangle
-			if (width() < x) right = left + x;
-			if (height() < y) bottom = top + y;
+		right -= right % r;
+		top += top % t;
+		i = top % t;
+		if (i > 0)
+		{
+			top += t-i;
 		}
+		bottom -= bottom % b;
+	}
 
-		// Shift the rectangle n pixels
-		void shift(int dx, int dy) {
-			left += dx; right += dx;
-			top += dy; bottom += dy;
+	// Shrinks the rectangle by x pixels
+	// by Shrinking the rectangle.
+	void shrink(int n = 4)
+	{ 
+		shrink(n,n,n,n); 
+	}
+	void shrink(int x, int y)
+	{ 
+		shrink(x,x,y,y); 
+	}
+	void shrink(int l, int r, int t, int b)
+	{
+		normalizeRect(); // Need a normalized rectangle
+		left += l; right -= r;
+		top += t; bottom -= b;
+	}
+
+	// Ensure the rectangle is at least n pixels in size...
+	void enforceMinSize(int n = 4)
+	{ 
+		enforceMinSize(n,n); 
+	}
+	void enforceMinSize(int x, int y) 
+	{
+		normalizeRect(); // Need a normalized rectangle
+		if (width() < x)
+		{
+			right = left + x;
 		}
+		if (height() < y)
+		{
+			bottom = top + y;
+		}
+	}
 
-		// Crops this rectangle to a specified rectangle
-		// Optionally Proprotionally crops a second rectangle at the same time...
-		void crop(RECT cropToRect, AspectRect *r2) {
-			if (width() > 0) {		
-				if (left < cropToRect.left) {
-					if (r2) r2->left -= MulDiv(left-cropToRect.left, r2->width(),width());
-					left = cropToRect.left;
+	// Shift the rectangle n pixels
+	void shift(int dx, int dy)
+	{
+		left += dx; 
+		right += dx;
+		top += dy; 
+		bottom += dy;
+	}
+
+	// Crops this rectangle to a specified rectangle
+	// Optionally Proprotionally crops a second rectangle at the same time...
+	void crop(RECT cropToRect, AspectRect *r2)
+	{
+		if (width() > 0)
+		{		
+			if (left < cropToRect.left)
+			{
+				if (r2)
+				{
+					r2->left -= MulDiv(left-cropToRect.left, r2->width(),width());
 				}
-				if (right > cropToRect.right) {
-					if (r2) r2->right -= MulDiv(right - cropToRect.right,r2->width(),width());
-					right = cropToRect.right;
+				left = cropToRect.left;
+			}
+			if (right > cropToRect.right)
+			{
+				if (r2)
+				{
+					r2->right -= MulDiv(right - cropToRect.right,r2->width(),width());
 				}
+				right = cropToRect.right;
 			}
-			if (height() > 0) {
-				if (top < cropToRect.top) {
-					if (r2) r2->top -= MulDiv(top-cropToRect.top, r2->height(),height());
-					top = cropToRect.top;
+		}
+		if (height() > 0)
+		{
+			if (top < cropToRect.top)
+			{
+				if (r2)
+				{
+					r2->top -= MulDiv(top-cropToRect.top, r2->height(),height());
 				}
-				if (bottom > cropToRect.bottom) {
-					if (r2) r2->bottom -= MulDiv(bottom - cropToRect.bottom,r2->height(),height());
-					bottom = cropToRect.bottom;
+				top = cropToRect.top;
+			}
+			if (bottom > cropToRect.bottom)
+			{
+				if (r2)
+				{
+					r2->bottom -= MulDiv(bottom - cropToRect.bottom,r2->height(),height());
 				}
+				bottom = cropToRect.bottom;
 			}
 		}
-		
-		// Ensure the rectangle is located in another rectangle
-		// Crop will just cut off excess
-		// Shift will attempt to shift the rectangle to fit.  Will crop Right/bottom if needed.
-		void cropToFitRect(const RECT &r) {
-			if (left < r.left) left = r.left;
-			if (right > r.right) right = r.right;
-			if (top < r.top) top = r.top;
-			if (bottom > r.bottom) bottom = r.bottom;
+	}
+	
+	// Ensure the rectangle is located in another rectangle
+	// Crop will just cut off excess
+	// Shift will attempt to shift the rectangle to fit.  Will crop Right/bottom if needed.
+	void cropToFitRect(const RECT &r)
+	{
+		if (left < r.left)
+		{
+			left = r.left;
 		}
-		void shiftToFitRect(const RECT &r) {
-			int dx, dy;
-			if (left < r.left) dx = r.left-left;
-			else if (right > r.right) dx = r.right-right;
-			else dx = 0;
+		if (right > r.right)
+		{
+			right = r.right;
+		}
+		if (top < r.top) 
+		{
+			top = r.top;
+		}
+		if (bottom > r.bottom)
+		{
+			bottom = r.bottom;
+		}
+	}
+	void shiftToFitRect(const RECT &r)
+	{
+		int dx, dy;
+		if (left < r.left)
+		{
+			dx = r.left-left;
+		}
+		else if (right > r.right) 
+		{
+			dx = r.right-right;
+		}
+		else
+		{
+			dx = 0;
+		}
 
-			if (top < r.top) dy = r.top-top;
-			else if (bottom > r.bottom) dy = r.bottom-bottom;
-			else dy = 0;
+		if (top < r.top)
+		{
+			dy = r.top-top;
+		}
+		else if (bottom > r.bottom)
+		{
+			dy = r.bottom-bottom;
+		}
+		else
+		{
+			dy = 0;
+		}
 
-			if (dx || dy) {
-				shift(dx,dy); // Perform the shift...
-				cropToFitRect(r); // Crop any remaining....
+		if (dx || dy)
+		{
+			shift(dx,dy); // Perform the shift...
+			cropToFitRect(r); // Crop any remaining....
+		}
+	}
+
+	// Aspect adjustment functions...
+	void adjustTargetAspectByHeight(double ar)
+	{ 
+		adjustSourceAspectByHeight(ar/m_outputAdjustment); 
+	}
+	void adjustSourceAspectByHeight(double ar)
+	{
+		int newHeight = (int)(width()/ar+.5);
+		top += ((height()-newHeight)/2);
+		bottom = top + newHeight;
+	}
+	void adjustTargetAspectByWidth(double ar)
+	{ 
+		adjustSourceAspectByWidth(ar/m_outputAdjustment); 
+	}
+	void adjustSourceAspectByWidth(double ar) 
+	{
+		int newWidth = (int)(ar*height()+.5);
+		left += ((width()-newWidth)/2);
+		right = left + newWidth;
+	}
+	void adjustTargetAspectByGrowth(double ar)
+	{ 
+		adjustSourceAspectByGrowth(ar/m_outputAdjustment); 
+	}
+	void adjustSourceAspectByGrowth(double ar)
+	{
+		if (ar < sourceAspect())
+		{
+			adjustSourceAspectByHeight(ar);
+		}
+		else 
+		{
+			adjustSourceAspectByWidth(ar);
+		}
+	}
+	void adjustTargetAspectByShrink(double ar)
+	{ 
+		adjustSourceAspectByShrink(ar/m_outputAdjustment);
+	}
+	void adjustSourceAspectByShrink(double ar) 
+	{
+		if (ar > sourceAspect())
+		{
+			adjustSourceAspectByHeight(ar);
+		}
+		else 
+		{
+			adjustSourceAspectByWidth(ar);
+		}
+	}
+	// Adjusts the rectangle to new aspect.  Width is preserved
+	// unless doing so causes the rectangle to go outside of r
+	// Note: r must be in source space for both functions...
+	void adjustTargetAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE)
+	{ 
+		adjustSourceAspectSmart(ar/m_outputAdjustment,boundRect,preserveWidth); 
+	}
+	void adjustSourceAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE) 
+	{
+		RECT r = {left,top,right,bottom};
+		if (preserveWidth) 
+		{
+			adjustSourceAspectByHeight(ar); 
+		}
+		else
+		{
+			adjustSourceAspectByWidth(ar);
+		}
+		if (top < boundRect.top || bottom > boundRect.bottom)
+		{
+			left=r.left; 
+			right=r.right; 
+			top=r.top; 
+			bottom=r.bottom;
+			if (preserveWidth)
+			{
+				adjustSourceAspectByWidth(ar); 
+			}
+			else 
+			{
+				adjustSourceAspectByHeight(ar);
 			}
 		}
+	}
 
-		// Aspect adjustment functions...
-		void adjustTargetAspectByHeight(double ar) { adjustSourceAspectByHeight(ar/m_outputAdjustment); }
-		void adjustSourceAspectByHeight(double ar) {
-			int newHeight = (int)(width()/ar+.5);
-			top += ((height()-newHeight)/2);
-			bottom = top + newHeight;
+	void setToClient(HWND hwnd, BOOL useScreenCoords)
+	{
+		GetClientRect(hwnd, this);
+		if (useScreenCoords) 
+		{
+			ClientToScreen(hWnd, (POINT *) &left);
+			ClientToScreen(hWnd, (POINT *) &right);
 		}
-		void adjustTargetAspectByWidth(double ar) { adjustSourceAspectByWidth(ar/m_outputAdjustment); }
-		void adjustSourceAspectByWidth(double ar) {
-			int newWidth = (int)(ar*height()+.5);
-			left += ((width()-newWidth)/2);
-			right = left + newWidth;
-		}
-		void adjustTargetAspectByGrowth(double ar) { adjustSourceAspectByGrowth(ar/m_outputAdjustment); }
-		void adjustSourceAspectByGrowth(double ar) {
-			if (ar < sourceAspect()) adjustSourceAspectByHeight(ar);
-			else adjustSourceAspectByWidth(ar);
-		}
-		void adjustTargetAspectByShrink(double ar) { adjustSourceAspectByShrink(ar/m_outputAdjustment); }
-		void adjustSourceAspectByShrink(double ar) {
-			if (ar > sourceAspect()) adjustSourceAspectByHeight(ar);
-			else adjustSourceAspectByWidth(ar);
-		}
-		// Adjusts the rectangle to new aspect.  Width is preserved
-		// unless doing so causes the rectangle to go outside of r
-		// Note: r must be in source space for both functions...
-		void adjustTargetAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE) { adjustSourceAspectSmart(ar/m_outputAdjustment,boundRect,preserveWidth); }
-		void adjustSourceAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE) {
-			RECT r = {left,top,right,bottom};
-			if (preserveWidth) adjustSourceAspectByHeight(ar); else adjustSourceAspectByWidth(ar);
-			if (top < boundRect.top || bottom > boundRect.bottom) {
-				left=r.left; right=r.right; top=r.top; bottom=r.bottom;
-				if (preserveWidth) adjustSourceAspectByWidth(ar); else adjustSourceAspectByHeight(ar);
-			}
-		}
+	}
 
-		void setToClient(HWND hwnd, BOOL useScreenCoords) {
-			GetClientRect(hwnd, this);
-			if (useScreenCoords) {
-				ClientToScreen(hWnd, (POINT *) &left);
-				ClientToScreen(hWnd, (POINT *) &right);
-			}
-		}
+	void DebugDump(FILE *f)
+	{
+		fprintf(f,"L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",left,right,top,bottom,sourceAspect(),targetAspect(),m_outputAdjustment);
+	}
 
-		void DebugDump(FILE *f) {
-			fprintf(f,"L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",left,right,top,bottom,sourceAspect(),targetAspect(),m_outputAdjustment);
-		}
+protected:
+	// Adjustment made to aspect ratio on output usage
+	// For example, using a 4:3 resolution with a anamorphic (16:9) lens would have an output
+	// adjustment of (16/9)/(4/3) = 1.3333
+	// An anamorphic source would be (4/3)/(16/9) = .75
+	double m_outputAdjustment;
 };
 
 #endif

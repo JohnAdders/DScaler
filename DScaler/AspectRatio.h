@@ -82,7 +82,8 @@ double  GetActualSourceFrameAspect();
 
 // TODO: Cleanup this struct, possibly split into 2 or 3 structures
 // based on function of the various settings.
-typedef struct _aspectsettings {
+typedef struct _aspectsettings 
+{
 	// Added variable in dTV.c to track which aspect mode we are currently in
 	// Use aspect * 1000 (1.66 = 1660, 2.35 = 2350, etc)
 	// Use negative values for source_aspect to imply anamorphic sources

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.37 2003-06-26 09:07:58 adcockj Exp $
+// $Id: Audio.cpp,v 1.38 2003-07-17 05:59:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/06/26 09:07:58  adcockj
+// Added patch for plopping from Arjan Zipp
+//
 // Revision 1.36  2003/02/06 00:37:28  robmuller
 // Changed log level to prevent rattle when changing channels.
 //
@@ -235,17 +238,18 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
         {
             if(--AudioMuteStatus == 0)
             {
-                // use mixer only if possible as we think that works
-                // cleanly most of the time, whereas the hardware mute
-                // can be a bit ploppy
-		        if(bUseMixer == TRUE)
-		        {
-			        Mixer_UnMute();
-		        }	
-                else if(Providers_GetCurrentSource())
+                // Always unmute the hardware contrary to how it's
+				// done for mute, because the hardware needs to be
+				// unmuted from its initial mute state.
+                if(Providers_GetCurrentSource())
                 {
                     Providers_GetCurrentSource()->UnMute();
                 }
+
+				if(bUseMixer == TRUE)
+		        {
+			        Mixer_UnMute();
+		        }	
 
                 EventCollector->RaiseEvent(NULL, EVENT_MUTE, 1, 0);
             }

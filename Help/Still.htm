@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Still</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+    <td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b> <!-- #BeginEditable "Page%20Title" --> 
+      Still <!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+  <tr> 
+    <td colspan="3"> <!-- #BeginEditable "Text" --> 
+      <p>DScaler is now able to produce a video stream from a still file. This 
+        type of source is not interlaced, so the deinterlace mode is irrelevant 
+        for this type of source, but you can use all the available filters as 
+        you do for all other video sources.</p>
+      <p>They are three different still sources in DScaler, and a virtual playlist 
+        (a playlist not necessarily attached to a file) is associated to each 
+        of them :</p>
+      <p> 
+      <ul>
+        <li>Still : contains all the still files opened by the user</li>
+        <li>Patterns : contains all the pre-defined test patterns</li>
+        <li>Snapshots : contains all the stills taken during the current DScaler 
+          session</li>
+      </ul>
+      <p>Each time the current DScaler source is one of these still sources, the 
+        menu &quot;Playlist&quot; is available in the menubar.</p>
+      <p> 
+      <font face="Arial" size="3"><b>Displaying a still</b></font> 
+      <p></p>
+      <p></p>
+      <p>DScaler can be used to display stills directly in the graphic card overlay. 
+        DScaler supports most of JPEG and TIFF files.</p>
+      <p>A DScaler new file format has been created too. It is used to describe 
+        test patterns. The test pattern is generated in the graphic card overlay 
+        according to its description when this file is opened in DScaler.</p>
+      <p>To open a new still file, select the item &quot;Open...&quot; in the 
+        menu &quot;File&quot;. The selected file, if supported by DScaler, will 
+        be added to the virtual playlist associated to the &quot;Still&quot; source 
+        and will be displayed.</p>
+      <p></p>
+      <p><font face="Arial" size="3"><b>Taking a still</b></font> </p>
+      <p></p>
+      <p>DScaler can be used to take a still of what is currently displayed by 
+        DScaler.</p>
+      <p>To take a still, select the item &quot;Take Still Picture&quot; in the 
+        menu &quot;View&quot;, or use the &quot;L&quot; shortcut.</p>
+      <p>When you take a still, a file is automatically created in the DScaler 
+        main directory or in the directory you specified in your settings. The 
+        following rule is applied to define the file name :<br>
+        TV&lt;yyyy&gt;&lt;mm&gt;&lt;dd&gt;&lt;hh&gt;&lt;mi&gt;&lt;ss&gt;&lt;cc&gt;.&lt;ext&gt; 
+        where :<br>
+        &lt;yyyy&gt; is the current year, &lt;mm&gt; is the current month, &lt;dd&gt; 
+        is the current day<br>
+        &lt;hh&gt; is the current hour, &lt;mi&gt; is the current minute, &lt;ss&gt; 
+        is the current second<br>
+        &lt;cc&gt; is a counter between 00 and 99 allowing 100 captures in the 
+        same second<br>
+        &lt;ext&gt; is tif or jpg</p>
+      <p>You have a direct access to all the stills taken during the current DScaler 
+        session as they are all grouped in a virtual playlist. Select the &quot;Snapshots&quot; 
+        source in the menu &quot;Sources&quot; to have a direct access to these 
+        stills. When switching to the &quot;Snapshots&quot; source, the displayed 
+        still will be the last still taken during the session.</p>
+      <p>You can choose between different file formats when taking a still :</p>
+      <p> 
+      <ul>
+        <li>TIFF with RGB colourspace : a conversion from YCbCr colourspace to 
+          RGB colourspace is applied but no compression</li>
+        <li>TIFF with YCbCr colourspace : no colorspace conversion neither compression 
+          is applied</li>
+        <li>JPEG : a JPEG compression is applied</li>
+      </ul>
+      <p></p>
+      <p><u>Warning</u>: in one side, the format TIFF YCbCr is the best as it 
+        takes a perfect copy of what is in the overlay and you can restore exactly 
+        the same content later; in another side, this format is not supported 
+        by lots of graphic software. So this format has to be avoided if you want 
+        to share this file with other people.</p>
+      <p></p>
+      <p>The following settings can be adjusted; they are all defined in the section 
+        &quot;Still&quot; of the ini file.</p>
+      <table border="1">
+        <tr> 
+          <th>Setting</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr> 
+          <td>FormatSaving</td>
+          <td>0 (TIFF RGB)</td>
+          <td>Format of saving: defines the file format used when taking stills. 
+            The possible values are 0 (TIFF RGB), 1 (TIFF YCbCr) or 2 (JPEG)..</td>
+        </tr>
+        <tr> 
+          <td>JPEGQuality</td>
+          <td>95</td>
+          <td>JPEG quality compression: defines the quality factor used when creating 
+            a JPEG file. It must be a value between 0 and 100. Higher is the value, 
+            higher is the picture quality and bigger is the file size.</td>
+        </tr>
+        <tr> 
+          <td>SavingPath</td>
+          <td>DScaler directory</td>
+          <td>This string defines in which directory are saved the produced still 
+            files.</td>
+        </tr>
+      </table>
+      <p></p>
+      <p><font face="Arial, Arial" size="3"><b><font face="Arial">Playlists</font></b></font></p>
+      <p>DScaler allows to load and define playlists. A playlist is a set of still 
+        files defined in a text file with the extension &quot;.d3u&quot;. Each 
+        line of such a file defines the path to a file which has to be a supported 
+        still file in order to be readable by DScaler.</p>
+      <p>To open a new playlist file, select the item &quot;Open...&quot; in the 
+        menu &quot;File&quot;. All the files contained in the selected playlist 
+        file will be added to the virtual playlist associated to the &quot;Still&quot; 
+        source, and the first file of the loaded playlist will be displayed.</p>
+      <p>To create and save a new playlist, you can either create manually the 
+        playlist file with a text editor, either load all the files you want to 
+        include in the new playlist and then save the current virtual playlist 
+        as a playlist file. To save the current virtual playlist as a playlist 
+        file, select the item &quot;Save As ...&quot; in the menu &quot;Playlist&quot;.</p>
+      <p>The menu &quot;Playlist&quot; allows to navigate through the different 
+        files of the current virtual playlist : &quot;Previous&quot;, &quot;Next&quot;, 
+        &quot;First&quot; and &quot;Last&quot; allows to jump to the previous, 
+        the next, the first or the last file in the playlist. The sub-menu &quot;Files&quot; 
+        gives a direct access to all the files in the playlist. Items which are 
+        greyed in this sub-menu are files that DScaler is not able to read.</p>
+      <p>The menu &quot;Playlist&quot; allows to change the order of files in 
+        the virtual playlist : &quot;Up&quot; and &quot;Down&quot; allows to shift 
+        up or down in the playlist the current displayed file.</p>
+      <p>To close the current displayed file and suppress it from the virtual 
+        playlist, select the item &quot;Close&quot; in the menu &quot;Playlist&quot;. 
+        You can even close all the files of the virtual playlist by selecting 
+        the item &quot;Close All&quot; in the same menu.</p>
+      <p><font face="Arial" size="3"><b>Slide show</b></font></p>
+      <p>When the current virtual playlist contains several stills, it is possible 
+        to launch a slide show. You have only to select the item &quot;Slideshow&quot; 
+        in the menu &quot;Playlist&quot;. A cyclic slide show will then be executed 
+        through all the files in the playlist, starting from the current displayed 
+        file. You can stop the slide show at any time by selecting again the item 
+        &quot;Slideshow&quot;.</p>
+      <p>The following setting can be adjusted; it is defined in the section &quot;Still&quot; 
+        of the ini file.</p>
+      <table border="1">
+        <tr> 
+          <th>Setting</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr> 
+          <td>SlideShowDelay</td>
+          <td>5</td>
+          <td>Slide Show Delay: defines the duration of display of each slide. 
+            It must be a value between 1 and 60 seconds.</td>
+        </tr>
+      </table>
+      <p><font face="Arial" size="3"><b>Test patterns</b></font> 
+      <p></p>
+      <p>DScaler includes now a pattern generator. Each test pattern can be described 
+        in a text file with the extension &quot;.pat&quot;. This description follows 
+        a certain syntax. When opening one of these files, DScaler automatically 
+        builds the picture corresponding to the description and display it in 
+        the graphic card overlay exactly as if it was a normal still file.</p>
+      <p>The role of this pattern generator is to create patterns which can be 
+        displayed directly in the graphic card overlay and be used by the user 
+        to adjust overlay and monitor settings. Of course, this generator cannot 
+        do everything. It is for example restricted to static pictures and to 
+        rectangular shapes.</p>
+      <p></p>
+      <p>DScaler is delivered with few pre-defined test patterns allowing to adjust 
+        contrast, brightness, color, gamma, ... You have a direct access to all 
+        these pre-defined test patterns as they are all grouped in a virtual playlist. 
+        Select the &quot;Patterns&quot; source in the menu &quot;Sources&quot; 
+        to have a direct access to these test patterns.</p>
+      <p>You can define your own test patterns. You have only to follow the right 
+        syntax and save your text in a file with an extension &quot;.pat&quot;. 
+        When this is done, open your file in DScaler.</p>
+      <p>The size of each test pattern is not defined in the file describing the 
+        pattern but is a global DScaler setting for all the test patterns. You 
+        can adjust this setting which is defined in the section &quot;Patternl&quot; 
+        of the ini file.</p>
+      <table border="1">
+        <tr> 
+          <th>Setting</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr> 
+          <td>PatternHeight</td>
+          <td>576</td>
+          <td>Pattern height: defines the height in pixels of the patterns. It 
+            must be a value betweeen 480 and 576.</td>
+        </tr>
+        <tr> 
+          <td>PatternWidth</td>
+          <td>720</td>
+          <td>Pattern width: defines the width in pixels of the patterns. It must 
+            be a value betweeen 240 and 768.</td>
+        </tr>
+      </table>
+      <p></p>
+      <p>&nbsp;</p>
+      <!-- #EndEditable --> </td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+</body><!-- #EndTemplate -->
+
+</html>
+

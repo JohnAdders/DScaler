@@ -89,6 +89,11 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Still">
+			<param name="Local" value="Still.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Teletext">
 			<param name="Local" value="Teletext.htm">
 			<param name="ImageNumber" value="11">

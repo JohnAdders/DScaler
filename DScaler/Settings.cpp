@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.53 2003-07-02 21:44:19 laurentg Exp $
+// $Id: Settings.cpp,v 1.54 2003-07-29 12:04:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/07/02 21:44:19  laurentg
+// TimeShift settings
+//
 // Revision 1.52  2003/06/14 13:27:48  laurentg
 // Use default value when the current value in ini file is out of range, and correct the value in the ini file
 //
@@ -404,7 +407,10 @@ void LoadSettingsFromIni()
 {
     for(int i(0); i < NUMSETTINGS; ++i)
     {
-        Settings[i].pfnReadSettings();
+        if(Settings[i].pfnReadSettings != NULL)
+        {
+            Settings[i].pfnReadSettings();
+        }
     }
     Providers_ReadFromIni();       
 }
@@ -580,7 +586,10 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     for(int i(0); i < NUMSETTINGS; ++i)
     {
-        Settings[i].pfnWriteSettings(bOptimizeFileAccess);
+        if(Settings[i].pfnWriteSettings != NULL)
+        {
+            Settings[i].pfnWriteSettings(bOptimizeFileAccess);
+        }
     }
 
     Deinterlace_WriteSettingsToIni(bOptimizeFileAccess);
@@ -699,7 +708,7 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
 		{
 			if (*pSetting->pValue != NULL)
 			{
-				delete (char *)(*pSetting->pValue);
+				delete [] (char *)(*pSetting->pValue);
 			}
 			char* str = new char[strlen((char *)NewValue) + 1];
 			strcpy(str, (char *)NewValue);
@@ -827,7 +836,7 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 			{
 				if (*pSetting->pValue != NULL)
 				{
-					delete (char *)(*pSetting->pValue);
+					delete [] (char *)(*pSetting->pValue);
 				}
 				char* str = new char[strlen(szValue) + 1];
 				strcpy(str, szValue);
@@ -1159,7 +1168,8 @@ void Setting_Free(SETTING* pSetting)
 	  && (pSetting->Type == CHARSTRING)
 	  && (*pSetting->pValue != NULL) )
     {
-		delete (char *)(*pSetting->pValue);
+		delete [] (char *)(*pSetting->pValue);
+        *pSetting->pValue = NULL;
     }
 }
 

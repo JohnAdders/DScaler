@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.1 2002-09-11 18:19:37 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.2 2002-09-12 21:45:35 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/11 18:19:37  adcockj
+// Prelimainary support for CT2388x based cards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __CT2388XCARD_H___
@@ -29,8 +32,7 @@
 #include "I2CBusForLineInterface.h"
 #include "ITuner.h"
 #include "AudioDecoder.h"
-#include "IAudioControls.h"
-#include "NoAudioControls.h"
+#include "AudioControls.h"
 #include "SAA7118.h"
 
 #define CT_INPUTS_PER_CARD 8
@@ -199,7 +201,7 @@ private:
     BOOL            m_RISCIsRunning;
     DWORD           m_RiscBasePhysical;
     CAudioDecoder*  m_AudioDecoder;
-    IAudioControls* m_AudioControls;
+    CAudioControls* m_AudioControls;
     char            m_TunerType[32];
     int             m_CurrentInput;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.2 2002-09-11 19:33:06 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.3 2002-09-12 21:45:35 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/11 19:33:06  adcockj
+// a few tidy ups
+//
 // Revision 1.1  2002/09/11 18:19:36  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -50,7 +53,7 @@ CCT2388xCard::CCT2388xCard(CHardwareDriver* pDriver) :
 
     m_I2CInitialized = false;
     m_I2CBus = new CI2CBusForLineInterface(this);
-    m_AudioControls = new CNoAudioControls();
+    m_AudioControls = new CAudioControls();
     m_AudioDecoder = new CAudioDecoder();
 }
 

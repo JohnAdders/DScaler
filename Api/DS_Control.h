@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.114 2002-11-09 20:56:46 laurentg Exp $
+// $Id: DS_Control.h,v 1.115 2002-11-10 05:12:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.114  2002/11/09 20:56:46  laurentg
+// New CX2388x settings
+//
 // Revision 1.113  2002/11/09 01:11:09  laurentg
 // New settings for the CX2388x chip
 //
@@ -1558,6 +1561,8 @@ typedef enum
     SAA7134AUTOMATICGAINCONTROL,
     SAA7134GAINCONTROLLEVEL,
     SAA7134VIDEOMIRROR,
+    SAA7134AUDIOLINE1VOLTAGE,
+    SAA7134AUDIOLINE2VOLTAGE,
     SAA7134_SETTING_LASTONE,
 } SAA7134_SETTING;
 

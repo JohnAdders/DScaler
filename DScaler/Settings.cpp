@@ -371,7 +371,7 @@ void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
 	Slider_SetRangeMax(hSlider, pSetting->MaxValue);
 	Slider_SetRangeMin(hSlider, pSetting->MinValue);
 	Slider_SetPageSize(hSlider, pSetting->StepValue);
-	Slider_SetLineSize(hSlider, 1);
+	Slider_SetLineSize(hSlider, pSetting->StepValue);
 	Slider_SetTic(hSlider, pSetting->Default);
 	Setting_SetControlValue(pSetting, hSlider);
 }
@@ -390,7 +390,14 @@ void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
 		break;
 
 	case SLIDER:
-		Slider_SetPos(hControl, *pSetting->pValue);
+        if(GetWindowLong(hControl, GWL_STYLE) & TBS_REVERSED)
+        {
+    	    Slider_SetPos(hControl, pSetting->MaxValue - *pSetting->pValue);
+        }
+        else
+        {
+    	    Slider_SetPos(hControl, *pSetting->pValue);
+        }
 		break;
 	default:
 		break;
@@ -413,7 +420,14 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 		break;
 
 	case SLIDER:
-		nValue = Slider_GetPos(hControl);
+        if(GetWindowLong(hControl, GWL_STYLE) & TBS_REVERSED)
+        {
+    		nValue = pSetting->MaxValue - Slider_GetPos(hControl);
+        }
+        else
+        {
+    		nValue = Slider_GetPos(hControl);
+        }
 		break;
 	
 	default:

@@ -290,7 +290,7 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
 	},
 	{
 		"Height", SLIDER, 0, &Height,
-		50, 0, 575, 1, 1,
+		50, 2, 575, 1, 1,
 		NULL,
 		"LogoKillFilter", "Height", Height_OnChange,
 	},

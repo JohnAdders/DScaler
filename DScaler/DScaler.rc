@@ -194,15 +194,15 @@ BEGIN
                     WS_TABSTOP,95,195,125,10
     CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,14,48,29,97
-    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,63,48,29,97
-    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,114,48,29,97
-    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,164,48,29,97
-    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,213,48,29,97
+                    TBS_BOTH | TBS_REVERSED | WS_TABSTOP,14,48,29,97
+    CONTROL         "Slider2",IDC_SLIDER2,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | TBS_REVERSED | WS_TABSTOP,63,48,29,97
+    CONTROL         "Slider3",IDC_SLIDER3,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | TBS_REVERSED | WS_TABSTOP,114,48,29,97
+    CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | TBS_REVERSED | WS_TABSTOP,164,48,29,97
+    CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | TBS_REVERSED | WS_TABSTOP,213,48,29,97
     CONTROL         "Slider6",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
                     WS_TABSTOP,86,168,156,15
 END
@@ -237,15 +237,15 @@ BEGIN
                     WS_DISABLED
     PUSHBUTTON      "Cancel",IDCANCEL,7,160,45,15
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,13,47,29,97
-    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,63,47,29,97
-    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,113,47,29,97
-    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,163,47,29,97
-    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,213,47,29,97
+                    TBS_VERT | TBS_REVERSED | TBS_BOTH | WS_TABSTOP,13,47,29,97
+    CONTROL         "Slider2",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | TBS_REVERSED | TBS_BOTH | WS_TABSTOP,63,47,29,97
+    CONTROL         "Slider3",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | TBS_REVERSED | TBS_BOTH | WS_TABSTOP,113,47,29,97
+    CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | TBS_REVERSED | TBS_BOTH | WS_TABSTOP,163,47,29,97
+    CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_VERT | TBS_REVERSED | TBS_BOTH | WS_TABSTOP,213,47,29,97
 END
 
 IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 98
@@ -452,7 +452,7 @@ BEGIN
                     BS_NOTIFY | NOT WS_VISIBLE | WS_TABSTOP,113,1,128,10
     DEFPUSHBUTTON   "OK",IDOK,191,158,50,14
     CONTROL         "Slider1",IDC_SETTINGS_SLIDER,"msctls_trackbar32",
-                    TBS_VERT | TBS_TOP | NOT WS_VISIBLE | WS_TABSTOP,208,1,
+                    TBS_VERT | TBS_REVERSED | TBS_TOP | NOT WS_VISIBLE | WS_TABSTOP,208,1,
                     33,148
     PUSHBUTTON      "Default",IDC_SETTINGS_DEFAULT,115,30,45,14,NOT 
                     WS_VISIBLE

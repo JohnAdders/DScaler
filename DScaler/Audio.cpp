@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.26 2002-10-17 05:09:27 flibuste2 Exp $
+// $Id: Audio.cpp,v 1.27 2002-10-18 03:35:01 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/17 05:09:27  flibuste2
+// Added Audio_IsMuted()
+// Returns the current system mute status
+//
 // Revision 1.25  2002/09/28 13:31:41  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -112,21 +116,25 @@ BOOL bSystemInMute = FALSE;
 
 void Audio_Mute()
 {
-	if (bUseMixer == FALSE && Providers_GetCurrentSource())
-	{
-        Providers_GetCurrentSource()->Mute();
-	}
+    if (!bSystemInMute)
+    {
+	    if (bUseMixer == FALSE && Providers_GetCurrentSource())
+	    {
+            Providers_GetCurrentSource()->Mute();
+	    }
 
-	if(bUseMixer == TRUE)
-	{
-		Mixer_Mute();
-	}
-	EventCollector->RaiseEvent(NULL, EVENT_MUTE,0,1);
+	    if(bUseMixer == TRUE)
+	    {
+		    Mixer_Mute();
+	    }
+        bSystemInMute = TRUE;
+	    EventCollector->RaiseEvent(NULL, EVENT_MUTE,0,1);    
+    }
 }
 
 void Audio_Unmute()
 {
-	if(!bSystemInMute)
+	if(bSystemInMute)
 	{
 		if (bUseMixer == FALSE && Providers_GetCurrentSource())
 		{
@@ -136,26 +144,25 @@ void Audio_Unmute()
 		if(bUseMixer == TRUE)
 		{
 			Mixer_UnMute();
-		}
-	}
-	EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
+		}	
+        bSystemInMute = FALSE;
+	    EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
+    }
 }
 
 BOOL Audio_IsMuted()
 {
-    return bSystemInMute;
+    return (TRUE == bUseMixer) ? Mixer_IsMuted() : bSystemInMute;
 }
 
 BOOL SystemInMute_OnChange(long NewValue)
 {
 	if(NewValue == TRUE)
-	{
-		bSystemInMute = TRUE;
+	{		
 		Audio_Mute();
 	}
 	else
-	{
-		bSystemInMute = FALSE;
+	{	
 		Audio_Unmute();
 	}
 	return FALSE;

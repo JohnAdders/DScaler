@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.25 2003-01-11 15:22:28 adcockj Exp $
+// $Id: VBI.cpp,v 1.26 2003-01-17 14:39:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/01/11 15:22:28  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.24  2003/01/10 17:38:40  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -356,6 +362,8 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VT_SEARCH, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_ANTIALIAS, DoTeletext ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_GOTO, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);
@@ -382,6 +390,8 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VT_SEARCH, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_ANTIALIAS, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_GOTO, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, MF_GRAYED);
         for(i = CCMODE_OFF; i <= CCMODE_TEXT4; i++)
         {

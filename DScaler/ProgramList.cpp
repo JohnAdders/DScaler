@@ -748,6 +748,19 @@ void Write_Program_List_ASCII()
 	}
 }
 
+void Channels_Exit()
+{
+    CHANNELLIST::iterator it;
+
+	// Zero out the program list
+    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    {
+        delete (*it);
+    }
+    MyChannels.clear();
+}
+
+
 // 
 // Load ascii formatted program list
 //

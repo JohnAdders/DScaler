@@ -87,6 +87,7 @@ public:
 	vector<DWORD> m_Frequencies;
 };
 
+void Channels_Exit();
 void Write_Program_List_ASCII();
 void Load_Program_List_ASCII();
 void Load_Country_Settings();

@@ -2139,6 +2139,7 @@ void CleanUpMemory()
 		DestroyMenu(hMenu);
 	if (hMenuPopup != NULL)
 		DestroyMenu(hMenuPopup);
+	Channels_Exit();
 }
 
 //---------------------------------------------------------------------------

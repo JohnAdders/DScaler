@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.9 2002-09-28 13:36:15 kooiman Exp $
+// $Id: DSSourceBase.cpp,v 1.10 2002-09-29 09:14:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/28 13:36:15  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.8  2002/09/27 14:23:15  kooiman
 // Added volume change event
 //
@@ -379,31 +382,57 @@ void CDSSourceBase::Mute()
 	{
 		return;
 	}
-	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
-	if(pControlls==NULL)
+	CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
+	if(pControls==NULL)
 	{
 		LOG(3,"Failed to get audio controlls, mute will not work");
 		return;
 	}
 	
-	long min=0;
-	long max=0;
-	pControlls->GetVolumeMinMax(min,max);
-	
-	try
+	if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_VOLUME)
 	{
-		pControlls->SetVolume(min);
-	}
-	catch(CDShowException e)
-	{
-		LOG(3,"Exception in Mute, Error: %s",(LPCSTR)e.getErrorText());
+		long min=0;
+		long max=0;
+		pControls->GetVolumeMinMax(min,max);
+		
+		try
+		{
+			pControls->SetVolume(min);
+			EventCollector->RaiseEvent(this,EVENT_MUTE,0,1);
+		}
+		catch(CDShowException e)
+		{
+			LOG(3,"Exception in Mute, Error: %s",(LPCSTR)e.getErrorText());
+		}
 	}
 }
 
 void CDSSourceBase::UnMute()
 {
-	long volume=m_Volume->GetValue();
-	VolumeOnChange(volume,volume);
+	if(m_pDSGraph==NULL)
+	{
+		return;
+	}
+	CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
+	if(pControls==NULL)
+	{
+		LOG(3,"Failed to get audio controlls, mute will not work");
+		return;
+	}
+	
+	if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_VOLUME)
+	{
+		long volume=m_Volume->GetValue();
+		try
+		{
+			pControls->SetVolume(volume);
+			EventCollector->RaiseEvent(this,EVENT_MUTE,1,0);
+		}
+		catch(CDShowException e)
+		{
+			LOG(3,"Exception in UnMute, Error: %s",(LPCSTR)e.getErrorText());
+		}
+	}
 }
 
 ISetting* CDSSourceBase::GetVolume()
@@ -412,19 +441,27 @@ ISetting* CDSSourceBase::GetVolume()
 	{
 		return NULL;
 	}
-	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
-	if(pControlls==NULL)
+	CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
+	if(pControls==NULL)
 	{
 		LOG(3,"Failed to get audio controlls, volume will not work");
 		return NULL;
 	}
-	
-	long min=0;
-	long max=0;
-	pControlls->GetVolumeMinMax(min,max);
-	m_Volume->SetMax(max);
-	m_Volume->SetMin(min);
-	return m_Volume;
+
+	if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_VOLUME)
+	{	
+		long min=0;
+		long max=0;
+		pControls->GetVolumeMinMax(min,max);
+		m_Volume->SetMax(max);
+		m_Volume->SetMin(min);
+		return m_Volume;
+	}
+	else
+	{
+		LOG(3,"Audio controls don't support volume");
+		return NULL;
+	}
 }
 
 ISetting* CDSSourceBase::GetBalance()
@@ -433,19 +470,27 @@ ISetting* CDSSourceBase::GetBalance()
 	{
 		return NULL;
 	}
-	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
-	if(pControlls==NULL)
+	CDShowAudioControls *pControls=m_pDSGraph->GetAudioControls();
+	if(pControls==NULL)
 	{
 		LOG(3,"Failed to get audio controlls, balance will not work");
 		return NULL;
 	}
 	
-	long min=0;
-	long max=0;
-	pControlls->GetBalanceMinMax(min,max);
-	m_Balance->SetMax(max);
-	m_Balance->SetMin(min);
-	return m_Balance;
+	if(pControls->GetAudioCaps()|DSHOW_AUDIOCAPS_HAS_BALANCE)
+	{
+		long min=0;
+		long max=0;
+		pControls->GetBalanceMinMax(min,max);
+		m_Balance->SetMax(max);
+		m_Balance->SetMin(min);
+		return m_Balance;
+	}
+	else
+	{
+		LOG(3,"Audio controls don't support balance");
+		return NULL;
+	}
 }
 
 void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.13 2001-11-22 13:32:03 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.14 2002-03-10 04:21:22 lindsey Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.13  2001/11/22 13:32:03  adcockj
+; Finished changes caused by changes to TDeinterlaceInfo - Compiles
+;
 ; Revision 1.12  2001/07/13 16:14:56  adcockj
 ; Changed lots of variables to match Coding standards
 ;
@@ -53,6 +56,9 @@ extern _qwBitShift:qword
 ;////////////////////////////////////////////////////////////////////
 ; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, 
 ;       long BytesToProcess);
+;
+; This (and the other comb factor calculations) are based on Gunnar
+; Thalin's "Deinterlace - area based" in Virtual Dub
 ;////////////////////////////////////////////////////////////////////
     
 public _CalcCombFactorLine

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.11 2002-11-06 20:49:01 adcockj Exp $
+// $Id: DSSourceBase.h,v 1.12 2003-01-15 20:57:00 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/11/06 20:49:01  adcockj
+// Changes for DSShow compiliation
+//
 // Revision 1.10  2002/10/29 20:01:07  tobbej
 // fixed GetSettingsPage()
 //
@@ -75,10 +78,10 @@
  * @bug if the output thread is terminated by a call to TerminateThread when
  * m_hOutThreadSync is held problems will occur, for example Stop() will
  * block for ever. (not 100% sure this is what is happening, but atleast
- * Stop() blocks for  ever sometimes)
+ * Stop() blocks forever sometimes)
  *
  * @bug sometimes accessing the menu while the filter graph is building
- * causes problems
+ * causes problems, probably fixed.
  */
 class CDSSourceBase : public CSource  
 {

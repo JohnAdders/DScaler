@@ -86,8 +86,8 @@ void SwitchToRatio(int nMode, int nRatio)
     // Update anamorphic/nonanamorphic status
 	aspectSettings.aspect_mode = nMode;
 
-    // Update aspect ratio only if a nonnegative one is specified
-    if (nRatio >= 0)
+    // Update aspect ratio only if a positive one is specified
+    if (nRatio > 0)
     {
     	LOG(" Switching to ratio %d", nRatio);
 
@@ -131,11 +131,23 @@ static inline int GetNonBlackCount(short *Line, int StartX, int EndX)
 	int threshold;
 	int counts;
 	__int64 luminances;
+	__int64 chromaMins;
+	__int64 chromaMaxes;
 	const __int64 YMask = 0x00FF00FF00FF00FF;
 	const __int64 OneMask = 0x0001000100010001;
+	int chromaMin, chromaMax;
 
 	if (qwordCount <= 0)
 		return 0;
+
+	// Black pixels are U=128 and V=128.  If U or V is significantly
+	// different from 128, it's a different color, e.g. green if
+	// they're both 0.  We compare each U and V value to the chroma
+	// min and max computed here: if ((chroma - chromaMin) > chromaMax)...
+	chromaMax = aspectSettings.ChromaRange;
+	if (chromaMax > 255)
+		chromaMax = 255;
+	chromaMin = 128 - (chromaMax / 2);
 
 	threshold = aspectSettings.LuminanceThreshold;
 	if (threshold > 255)
@@ -143,6 +155,10 @@ static inline int GetNonBlackCount(short *Line, int StartX, int EndX)
 
 	luminances = threshold;
 	luminances |= (luminances << 48) | (luminances << 32) | (luminances << 16);
+	chromaMins = chromaMin;
+	chromaMins |= (chromaMins << 48) | (chromaMins << 32) | (chromaMins << 16);
+	chromaMaxes = chromaMax;
+	chromaMaxes |= (chromaMaxes << 48) | (chromaMaxes << 32) | (chromaMaxes << 16);
 
 	// Start on a 16-byte boundary even if it means ignoring some extra
 	// pixels?  Try not doing it for now, but it could make memory access
@@ -156,12 +172,20 @@ static inline int GetNonBlackCount(short *Line, int StartX, int EndX)
 		movq	mm1, YMask
 		movq	mm2, luminances
 		movq	mm3, OneMask
-		pxor	mm4, mm4			// mm3 = pixel counts, one count in each word
+		pxor	mm4, mm4			// mm4 = pixel counts, one count in each word
+		movq	mm6, chromaMins
+		movq	mm7, chromaMaxes
 
 BlackLoop:
-		movq	mm0, qword ptr[eax]
-		pand	mm0, mm1			// Mask off chroma
-		pcmpgtw	mm0, mm2			// How many pixels exceed threshold?
+		movq	mm0, qword ptr[eax]	// mm0 = next 4 pixels
+		movq	mm5, mm0
+		psrlw	mm5, 8				// mm5 = chroma values in lower 8 bits of each word
+		pand	mm0, mm1			// mm0 = luminance values in lower 8 bits of each word
+		pcmpgtw	mm0, mm2			// mm0 = 0xFFFF where luminance > threshold
+		psubw	mm5, mm6			// mm5 = chroma - chromaMin
+		pand	mm5, mm1			// mm5 = lower 8 bits of (chroma - chromaMin); <0 becomes positive
+		pcmpgtw	mm5, mm7			// mm5 = 0xFFFF where chroma < chromaMin or chroma > chromaMax
+		por		mm0, mm5			// mm0 = 0xFFFF where U, V, or Y is past threshold
 		pand	mm0, mm3			// Translate that into 1 for exceed, 0 for not, in each word
 		paddw	mm4, mm0			// And add up the ones, maintaining four separate counts
 		add		eax, 8				// Next qword
@@ -180,7 +204,19 @@ BlackLoop:
 		emms
 	}
 
-	// if (counts > 0)	{ int x; for (x = 0; x < qwordCount * 4; x++) { LOG("pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8); } }
+	/*
+	// Log the offending pixels
+	if (counts > 0)	{
+		int x;
+		LOG("count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
+		for (x = 0; x < qwordCount * 4; x++) {
+			if ((Line[x] & 0xff) > threshold || ((((Line[x] & 0xff00) >> 8) - chromaMin) & 0xff) > chromaMax)
+			{
+				LOG("pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8);
+			}
+		}
+	}
+	*/
 
 	return counts;
 }
@@ -218,7 +254,10 @@ int FindEdgeOfImage(short** EvenField, short **OddField, int direction)
 			line = EvenField[y / 2];
 
 		pixelCount = GetNonBlackCount(line, skipCount, CurrentX - skipCount * 2);
-		// LOG("FindEdgeOfImage line %d count %d", y, pixelCount);
+		if (pixelCount > 0)
+		{
+			LOG("FindEdgeOfImage line %d count %d", y, pixelCount);
+		}
 
 		if (pixelCount > aspectSettings.IgnoreNonBlackPixels)
 			break;

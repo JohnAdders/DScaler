@@ -762,6 +762,13 @@ BOOL YZoom_Center_OnChange(long NewValue)
 	return FALSE;
 }
 
+BOOL ChromaRange_OnChange(long NewValue)
+{
+	aspectSettings.ChromaRange = NewValue;	
+    WorkoutOverlaySize();
+	return FALSE;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -953,6 +960,12 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		50, 0, 100, 5, 100,
 		NULL,
 		"ASPECT", "YZoomCenter", YZoom_Center_OnChange,
+	},
+	{
+		"Chroma Range", NUMBER, 0, &aspectSettings.ChromaRange,
+		16, 0, 255, 1, 1,
+		NULL,
+		"ASPECT", "ChromaRange", ChromaRange_OnChange,
 	},
 };
 

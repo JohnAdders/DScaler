@@ -102,6 +102,10 @@ typedef struct
 	// Luminance cutoff for a black pixel for letterbox detection.  0-127.
 	long LuminanceThreshold;
 
+	// Range of chroma values (centered around 128) we'll consider black for
+	// letterbox detection.  0-255.
+	long ChromaRange;
+
 	// Ignore this many non-black pixels when detecting letterbox.  Setting
 	// this too high may cause problems with dark scenes.
 	long IgnoreNonBlackPixels;

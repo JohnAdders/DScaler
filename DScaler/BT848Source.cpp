@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.114 2003-02-03 19:09:16 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.115 2003-02-16 10:31:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.114  2003/02/03 19:09:16  adcockj
+// Added VBI skips so that hopefully PAL60 CC will work correctly
+//
 // Revision 1.113  2003/01/25 23:46:25  laurentg
 // Reset after the loading of the new settings in VideoFormatOnChange
 //
@@ -1333,6 +1336,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int NewPos;
     int Diff;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
+    static int FieldCount(0);
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
@@ -1363,6 +1367,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
         Timing_Reset();
+        FieldCount = 0;
     }
 
     switch(NewPos)
@@ -1379,12 +1384,12 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
-    // we've just got a new field
-    // we are going to time the odd to odd
-    // input frequency
-    if(m_IsFieldOdd)
+    FieldCount += Diff;
+    // do input frequency on cleanish field changes only
+    if(Diff == 1 && FieldCount > 1)
     {
-        Timing_UpdateRunningAverage(pInfo, 2);
+        Timing_UpdateRunningAverage(pInfo, FieldCount);
+        FieldCount = 0;
     }
 
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);

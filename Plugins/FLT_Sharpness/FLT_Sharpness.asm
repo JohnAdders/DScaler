@@ -145,7 +145,7 @@ LOOP_LABEL:
 
 #if defined(IS_SSE)
             prefetchnta[eax + PREFETCH_STRIDE]
-#else if defined(IS_3DNOW)
+#elif defined(IS_3DNOW)
             prefetchw[eax + PREFETCH_STRIDE]
 #endif
             psrlw   mm7, 8                  // now have diff*EdgeEnhAmt/256 ratio

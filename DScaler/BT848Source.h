@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.35 2002-09-07 20:54:50 kooiman Exp $
+// $Id: BT848Source.h,v 1.36 2002-09-15 15:57:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -87,6 +87,7 @@ public:
 
     CTreeSettingsGeneric* BT848_GetTreeSettingsPage();
 
+    static void StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel);
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -95,8 +96,8 @@ private:
     static BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-
+    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
     void SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate);
@@ -111,6 +112,9 @@ private:
     void ChangeChannelSectionNames();
 
     ISetting* GetCurrentAudioSetting();
+
+    static void StaticAudioStandardDetected(void *pThis, long Standard);
+    void AudioStandardDetected(long Standard);
 
 private:
     CBT848Card*  m_pBT848Card;
@@ -199,7 +203,12 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioLoudness);
 	DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioSuperbass);
 	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSpatialEffect);
-	
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioAutoVolumeCorrection);
+	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardDetect);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardDetectInterval);
+	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardManual);
+	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMajorCarrier);
+	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMinorCarrier);    	
 
 protected:
 	int m_InitialACPIStatus;

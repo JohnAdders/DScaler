@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.8 2002-09-12 21:50:05 ittarnavsky Exp $
+// $Id: AudioDecoder.cpp,v 1.9 2002-09-15 15:57:27 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/12 21:50:05  ittarnavsky
+// Removed the UseInputPin1 as this is not generic
+//
 // Revision 1.7  2002/08/27 22:02:32  kooiman
 // Added Get/Set input for video and audio for all sources. Added source input change notification.
 //
@@ -56,24 +59,19 @@
 
 CAudioDecoder::CAudioDecoder()
 {
-    m_VideoFormat = VIDEOFORMAT_NTSC_M;
     m_SoundChannel = SOUNDCHANNEL_MONO;
     m_AudioInput = AUDIOINPUT_TUNER;
+    
+    m_AudioStandard = 0;
+    m_AudioStandardMajorCarrier = 0;
+    m_AudioStandardMinorCarrier = 0;
+
+    m_pfnDetected = NULL;    
 }
 
 CAudioDecoder::~CAudioDecoder()
 {
 
-}
-
-eVideoFormat CAudioDecoder::GetVideoFormat()
-{
-    return m_VideoFormat;
-}
-
-void CAudioDecoder::SetVideoFormat(eVideoFormat videoFormat)
-{
-    m_VideoFormat = videoFormat;
 }
 
 eSoundChannel CAudioDecoder::GetSoundChannel()
@@ -126,4 +124,60 @@ const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
         }
 
         return NULL;
+}
+
+void CAudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat) 
+{
+    m_AudioStandard = Standard;
+    m_VideoFormat = VideoFormat;
+    m_AudioStandardMajorCarrier = 0;
+    m_AudioStandardMinorCarrier = 0;
+}
+
+long CAudioDecoder::GetAudioStandardCurrent()
+{
+    return m_AudioStandard;
+}
+
+const char* CAudioDecoder::GetAudioStandardName(long Standard)
+{
+    return NULL;
+}
+
+int CAudioDecoder::GetNumAudioStandards()
+{
+    return 0;
+}
+
+long CAudioDecoder::GetAudioStandard(int nIndex)
+{
+    return 0;
+}
+
+long CAudioDecoder::GetAudioStandardMajorCarrier(long Standard)
+{
+    return m_AudioStandardMajorCarrier;
+}
+
+long CAudioDecoder::GetAudioStandardMinorCarrier(long Standard)
+{
+    return m_AudioStandardMinorCarrier;
+}
+
+void CAudioDecoder::SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier)
+{
+    m_AudioStandardMajorCarrier = MajorCarrier;
+    m_AudioStandardMinorCarrier = MinorCarrier;
+}
+
+long CAudioDecoder::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
+{
+    return 0;
+}
+
+void CAudioDecoder::DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard))
+{    
+    m_StandardDetectInterval = Interval;
+    m_pfnDetected = pfnDetected;
+    m_pfnDetected_pThis = pThis;
 }

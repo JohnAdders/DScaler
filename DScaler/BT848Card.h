@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.27 2002-09-12 22:00:57 ittarnavsky Exp $
+// $Id: BT848Card.h,v 1.28 2002-09-15 15:57:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/09/12 22:00:57  ittarnavsky
+// Changes due to the new AudioDecoder handling
+// Changes due to the IAudioControls to CAudioControls transition
+//
 // Revision 1.26  2002/09/07 20:54:49  kooiman
 // Added equalizer, loudness, spatial effects for MSP34xx
 //
@@ -291,12 +295,24 @@ public:
     void SetAudioSpatialEffect(WORD nLevel);
     bool HasAudioDolby();
     void SetAudioDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);
+    bool HasAudioAutoVolumeCorrection();
+    void SetAudioAutoVolumeCorrection(long milliSeconds);
 
     // AudioDecoder facade
-    void SetAudioStandard(eVideoFormat videoFormat);
     void SetAudioSource(eAudioInput audioInput);
     void SetAudioChannel(eSoundChannel audioChannel);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
+    void SetAudioStandard(long Standard, eVideoFormat videoformat);
+    long GetAudioStandardCurrent();    
+    const char* GetAudioStandardName(long Standard);
+    int GetNumAudioStandards();
+    long GetAudioStandard(int nIndex);
+    long GetAudioStandardMajorCarrier(long Standard);
+    long GetAudioStandardMinorCarrier(long Standard);
+    void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
+    long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
+    void DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard));
+
 
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();

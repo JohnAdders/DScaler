@@ -1,5 +1,5 @@
 //
-// $Id: AudioControls.h,v 1.1 2002-09-12 21:50:59 ittarnavsky Exp $
+// $Id: AudioControls.h,v 1.2 2002-09-15 15:57:27 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/12 21:50:59  ittarnavsky
+// Added for the change from IAudioControls to CAudioControls
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__AUDIOCONTROLS_H__)
@@ -67,8 +70,12 @@ public:
     virtual void SetSpatialEffect(WORD nLevel);
     virtual WORD GetSpatialEffect();
     virtual bool HasDolby();
-    virtual void SetDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);
+    virtual void SetDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);    
     // \todo: define a getter for Dolby
+    
+    virtual bool HasAutoVolumeCorrection();
+    virtual void SetAutoVolumeCorrection(long milliSeconds);
+    virtual long GetAutoVolumeCorrection();
 };
 
 #endif // !defined(__AUDIOCONTROLS_H__)

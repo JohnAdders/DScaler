@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.19 2002-09-12 21:52:32 ittarnavsky Exp $
+// $Id: BT848Source_Audio.cpp,v 1.20 2002-09-15 15:57:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/12 21:52:32  ittarnavsky
+// Removed references to HasMSP.  Few cosmetic name changes
+//
 // Revision 1.18  2002/09/07 20:54:50  kooiman
 // Added equalizer, loudness, spatial effects for MSP34xx
 //
@@ -272,6 +275,98 @@ void CBT848Source::AudioSpatialEffectOnChange(long NewValue, long OldValue)
 	m_pBT848Card->SetAudioSpatialEffect(NewValue);
 }
 
+void CBT848Source::AudioAutoVolumeCorrectionOnChange(long NewValue, long OldValue)
+{
+	m_pBT848Card->SetAudioAutoVolumeCorrection(NewValue);
+}
+
+void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
+{
+    switch (NewValue)
+    {
+    case 0: //Find standard based on video format
+    case 1: //Standard from video format with fallback on auto detect
+        {
+            long Standard = m_pBT848Card->GetAudioStandardFromVideoFormat((eVideoFormat)m_VideoFormat->GetValue());
+            if ((NewValue == 0) || (Standard != 0))
+            {
+                m_pBT848Card->SetAudioStandard(Standard, (eVideoFormat)m_VideoFormat->GetValue());
+                m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+                break;
+            } 
+            else
+            {
+                // Auto detect (no break)
+            }
+        }
+    case 2: // Detect
+    case 3:
+        {            
+            m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), this, StaticAudioStandardDetected); 
+        }
+        break;
+    case 4: //Manual
+        {        
+            m_pBT848Card->SetAudioStandard(m_AudioStandardManual->GetValue(), (eVideoFormat)m_VideoFormat->GetValue());            
+            if ((m_AudioStandardMajorCarrier->GetValue() != 0) && (m_AudioStandardMinorCarrier->GetValue() != 0))
+            {
+                m_pBT848Card->SetAudioStandardCarriers(m_AudioStandardMajorCarrier->GetValue(),m_AudioStandardMinorCarrier->GetValue());    
+            }
+            m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+        }
+        break;
+    }
+}
+
+void CBT848Source::AudioStandardDetectIntervalOnChange(long NewValue, long OldValue)
+{
+
+}
+
+void CBT848Source::StaticAudioStandardDetected(void *pThis, long Standard)
+{
+    if (pThis != NULL)
+    {        
+        ((CBT848Source*)pThis)->AudioStandardDetected(Standard);
+    }
+}
+
+void CBT848Source::AudioStandardDetected(long Standard)
+{
+    m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(Standard), TRUE);
+    m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(Standard), TRUE);
+    
+    m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+}
+
+void CBT848Source::AudioStandardManualOnChange(long NewValue, long OldValue)
+{
+    if (m_AudioStandardDetect->GetValue() == 4)
+    {
+        m_pBT848Card->SetAudioStandard(NewValue, (eVideoFormat)m_VideoFormat->GetValue());
+        m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+        m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(NewValue), TRUE);
+        m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(NewValue), TRUE);
+    }
+}
+
+void CBT848Source::AudioStandardMajorCarrierOnChange(long NewValue, long OldValue)
+{
+    if (m_AudioStandardDetect->GetValue() == 4)
+    {
+        m_pBT848Card->SetAudioStandardCarriers(m_AudioStandardMajorCarrier->GetValue(),m_AudioStandardMinorCarrier->GetValue());
+    }
+}
+
+void CBT848Source::AudioStandardMinorCarrierOnChange(long NewValue, long OldValue)
+{
+    if (m_AudioStandardDetect->GetValue() == 4)
+    {
+        m_pBT848Card->SetAudioStandardCarriers(m_AudioStandardMajorCarrier->GetValue(),m_AudioStandardMinorCarrier->GetValue());
+    }
+}
+
+
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
@@ -297,3 +392,4 @@ ISetting* CBT848Source::GetCurrentAudioSetting()
         return m_AudioSource6;
     }
 }
+

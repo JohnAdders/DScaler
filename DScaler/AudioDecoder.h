@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.8 2002-09-12 21:50:05 ittarnavsky Exp $
+// $Id: AudioDecoder.h,v 1.9 2002-09-15 15:57:27 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/12 21:50:05  ittarnavsky
+// Removed the UseInputPin1 as this is not generic
+//
 // Revision 1.7  2002/08/27 22:02:32  kooiman
 // Added Get/Set input for video and audio for all sources. Added source input change notification.
 //
@@ -73,10 +76,6 @@ public:
     CAudioDecoder();
     virtual ~CAudioDecoder();
 
-    // Transmission standard
-    virtual void SetVideoFormat(eVideoFormat videoFormat);
-    virtual eVideoFormat GetVideoFormat();
-
     // Sound Channels
     virtual void SetSoundChannel(eSoundChannel soundChannel);
     virtual eSoundChannel GetSoundChannel();
@@ -88,10 +87,30 @@ public:
     virtual const char* GetAudioInputName(eAudioInput audioInput);
     virtual int GetNumAudioInputs() { return AUDIOINPUT_STEREO+1; }
 
+    // Standard
+    virtual void SetAudioStandard(long Standard, eVideoFormat videoformat);
+    virtual long GetAudioStandardCurrent();    
+    virtual const char* GetAudioStandardName(long Standard);
+    virtual int GetNumAudioStandards();
+    virtual long GetAudioStandard(int nIndex);
+    virtual long GetAudioStandardMajorCarrier(long Standard);
+    virtual long GetAudioStandardMinorCarrier(long Standard);
+    virtual void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
+    virtual long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
+    virtual void DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard));
+
 protected:
-    eSoundChannel m_SoundChannel;
     eVideoFormat m_VideoFormat;
+    eSoundChannel m_SoundChannel;
     eAudioInput m_AudioInput;
+
+    long m_AudioStandard;             // Identification number
+    long m_AudioStandardMajorCarrier; // In Hz
+    long m_AudioStandardMinorCarrier; // In Hz
+
+    long m_StandardDetectInterval;
+    void (*m_pfnDetected)(void *pThis, long Standard);
+    void *m_pfnDetected_pThis;
 };
 
 #endif // !defined(__AUDIODECODER_H__)

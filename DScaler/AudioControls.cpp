@@ -1,5 +1,5 @@
 //
-// $Id: AudioControls.cpp,v 1.1 2002-09-12 21:50:59 ittarnavsky Exp $
+// $Id: AudioControls.cpp,v 1.2 2002-09-15 15:57:27 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/12 21:50:59  ittarnavsky
+// Added for the change from IAudioControls to CAudioControls
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -175,4 +178,19 @@ bool CAudioControls::HasDolby()
 
 void CAudioControls::SetDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama)
 {
+}
+
+bool CAudioControls::HasAutoVolumeCorrection()
+{
+    return FALSE;
+}
+
+void CAudioControls::SetAutoVolumeCorrection(long nDecayTimeIndex)
+{
+
+}
+
+long CAudioControls::GetAutoVolumeCorrection()
+{
+    return 0;
 }

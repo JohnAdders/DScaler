@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.44 2002-09-12 21:54:12 ittarnavsky Exp $
+// $Id: BT848Souce_UI.cpp,v 1.45 2002-09-15 15:57:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/09/12 21:54:12  ittarnavsky
+// Some changes due to the IAudioControls to CAudioControls transition
+//
 // Revision 1.43  2002/09/07 20:54:50  kooiman
 // Added equalizer, loudness, spatial effects for MSP34xx
 //
@@ -171,6 +174,170 @@
 extern const char *TunerNames[TUNER_LASTONE];
 long EnableCancelButton = 1;
 
+BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    static int TAudioStandardManual;
+    static long TAudioStandardMajorCarrier;
+    static long TAudioStandardMinorCarrier;
+    static CBT848Source* pThis;
+    static vector<long> vCarriers;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        {
+            pThis = (CBT848Source*)lParam;
+
+            TAudioStandardManual = pThis->m_AudioStandardManual->GetValue();
+            TAudioStandardMajorCarrier = pThis->m_AudioStandardMajorCarrier->GetValue();
+            TAudioStandardMinorCarrier = pThis->m_AudioStandardMinorCarrier->GetValue();
+
+            // Fill standard list box
+            int Num = pThis->m_pBT848Card->GetNumAudioStandards();
+            long CurrentStandard = pThis->m_pBT848Card->GetAudioStandardCurrent();
+
+            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_RESETCONTENT, 0, 0);
+            
+            vCarriers.clear();
+
+            int i;
+            int nIndex;
+            int Select = -1;
+            for (i = 0; i < Num; i++) 
+            { 
+                long Standard = pThis->m_pBT848Card->GetAudioStandard(i);
+                if (pThis->m_pBT848Card->GetAudioStandardName(Standard) != NULL)
+                {
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_ADDSTRING, 0, 
+                                (LPARAM) pThis->m_pBT848Card->GetAudioStandardName(Standard)); 
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_SETITEMDATA, nIndex, (LPARAM) Standard); 
+
+                    if (Standard == CurrentStandard)
+                    {
+                        Select = nIndex;
+                    }
+
+                    long Carrier;                    
+                    Carrier = pThis->m_pBT848Card->GetAudioStandardMajorCarrier(Standard);
+                    if (Carrier != 0)
+                    {
+                        BOOL bAdd = TRUE;
+                        for (vector<long>::iterator it = vCarriers.begin(); it != vCarriers.end(); ++it)
+                        {
+                            if  ((*it) == Carrier) { bAdd = FALSE; break; }
+                        }
+                        if (bAdd) { vCarriers.push_back(Carrier); }
+                    }
+
+                    Carrier = pThis->m_pBT848Card->GetAudioStandardMinorCarrier(Standard);
+                    if (Carrier != 0)
+                    {
+                        BOOL bAdd = TRUE;
+                        for (vector<long>::iterator it = vCarriers.begin(); it != vCarriers.end(); ++it)
+                        {
+                            if  ((*it) == Carrier) { bAdd = FALSE; break; }
+                        }
+                        if (bAdd) { vCarriers.push_back(Carrier); }
+                    }
+
+                }
+            } 
+            if (Select>=0)
+            {
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_SETCURSEL, Select, 0);
+            }
+
+            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_RESETCONTENT, 0, 0);
+            SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_RESETCONTENT, 0, 0);
+            char buf[20];
+            for (i = 0; i < vCarriers.size(); i++) 
+            { 
+                sprintf(buf, "%g", (double)vCarriers[i] / 1000000.0);
+                nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
+
+                if (vCarriers[i] == pThis->m_pBT848Card->GetAudioStandardMajorCarrier(-1))
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, nIndex, 0);
+                }
+
+                nIndex = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
+                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, nIndex, (LPARAM)vCarriers[i]); 
+                
+                if (vCarriers[i] == pThis->m_pBT848Card->GetAudioStandardMinorCarrier(-1))
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, nIndex, 0);
+                }
+            }
+                                    
+            SetFocus(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST)); 
+        }
+        break;
+    case WM_COMMAND:                
+        switch(LOWORD(wParam))
+        {
+            case IDC_AUDIOSTANDARD_LIST: 
+                switch (HIWORD(wParam)) 
+                { 
+                    case LBN_SELCHANGE: 
+                    {
+                        int nItem = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_GETCURSEL, 0, 0); 
+                        long Standard = SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), LB_GETITEMDATA, nItem, 0); 
+
+                        pThis->m_AudioStandardManual->SetValue(Standard);
+                        
+                        for (int i = 0; i < vCarriers.size(); i++) 
+                        {
+                            if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER),i) == 
+                                 pThis->m_pBT848Card->GetAudioStandardMajorCarrier(Standard)
+                               )
+                            {
+                                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, i, 0);   
+                            }
+
+                            if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER),i) == 
+                                 pThis->m_pBT848Card->GetAudioStandardMinorCarrier(Standard)
+                               )
+                            {
+                                SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, i, 0);   
+                            }
+                        }
+                    }                    
+                    break;
+                }
+                break;
+            case IDC_AUDIOSTANDARD_MINORCARRIER:
+                {
+                    int i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER));
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), i);                                            
+                    pThis->m_AudioStandardMinorCarrier->SetValue(i);
+                }
+                break;
+            case IDC_AUDIOSTANDARD_MAJORCARRIER:
+                {
+                    int i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER));
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), i);                                            
+                    pThis->m_AudioStandardMajorCarrier->SetValue(i);
+                }
+                break;
+            case IDOK:
+			    WriteSettingsToIni(TRUE);
+                EndDialog(hDlg, TRUE);
+                break;
+            case IDCANCEL:
+			    pThis->m_AudioStandardManual->SetValue(TAudioStandardManual);
+                pThis->m_AudioStandardMajorCarrier->SetValue(TAudioStandardMajorCarrier);
+                pThis->m_AudioStandardMinorCarrier->SetValue(TAudioStandardMinorCarrier);
+
+                EndDialog(hDlg, TRUE);
+                break;
+        }
+        break;
+    default:
+            break;
+    }
+    return (FALSE);
+}
 
 BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -675,6 +842,38 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     CheckMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, m_UseInputPin1->GetValue());
 
+    // Why does a pop-up menu item don't have an own ID?
+	HMENU hBTMenu = GetSubMenu(m_hMenu, 0);
+    for (i = 0; i < GetMenuItemCount(hBTMenu); i++)
+    {
+        if (GetMenuItemID(GetSubMenu(hBTMenu, i), 0) == IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT)
+        {            
+            EnableMenuItem(hBTMenu, i, (m_pBT848Card->GetNumAudioStandards()>0) ? (MF_BYPOSITION|MF_ENABLED) : (MF_BYPOSITION|MF_GRAYED|MF_DISABLED));
+        }
+    }
+    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT, (m_AudioStandardDetect->GetValue() == 0));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_AUTODETECTPERVIDEOFORMAT, (m_AudioStandardDetect->GetValue() == 2));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL, (m_AudioStandardDetect->GetValue() == 3));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_MANUAL, (m_AudioStandardDetect->GetValue() == 4));
+    
+    strcpy(Buffer, "<No standard>");
+    if (m_pBT848Card->GetNumAudioStandards()>0)
+    {
+        char *szName = (char*)m_pBT848Card->GetAudioStandardName(m_pBT848Card->GetAudioStandardCurrent());
+        if (szName != NULL)
+        {
+            strcpy(Buffer, szName);
+        }
+    }
+    memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
+    MenuItemInfo.cbSize = sizeof(MenuItemInfo);
+    MenuItemInfo.fMask = MIIM_TYPE;
+    MenuItemInfo.dwTypeData = Buffer;
+    MenuItemInfo.cch = strlen(Buffer);    
+    SetMenuItemInfo(m_hMenu, IDM_AUDIOSTANDARD_STANDARD, FALSE, &MenuItemInfo);
+    EnableMenuItem(m_hMenu, IDM_AUDIOSTANDARD_STANDARD, MF_GRAYED|MF_DISABLED);
+    
+
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
 }
@@ -1082,9 +1281,28 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             LoadInputSettings();
             break;
 
-        case IDM_SAVE_BY_CHANNEL:
-            // Gone           
-            break;        
+        
+		case IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT:
+            m_AudioStandardDetect->SetValue(0);
+            break;
+		case IDM_AUDIOSTANDARD_AUTODETECTPERVIDEOFORMAT:
+            m_AudioStandardDetect->SetValue(2);
+            break;
+		case IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL:
+            m_AudioStandardDetect->SetValue(3);
+            break;
+		case IDM_AUDIOSTANDARD_MANUAL:
+            m_AudioStandardDetect->SetValue(4);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_MANUAL), hWnd, AudioStandardManualProc, (LPARAM)this);
+            break;
+        case IDM_AUDIOSTANDARD_DETECTNOW:
+            {
+                long Val = m_AudioStandardDetect->GetValue();
+                m_AudioStandardDetect->SetValue(2); //Detect
+                m_AudioStandardDetect->SetValue(Val, TRUE); //Set value back without onchange call
+            }
+            break;
+
         default:
             return FALSE;
             break;
@@ -1258,10 +1476,16 @@ void CBT848Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationU);
         SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationV);
     
-        SettingsPerChannel_RegisterSetting("Overscan","BT8x8 - Overscan",TRUE, m_Overscan);
+        SettingsPerChannel_RegisterSetting("Overscan","BT8x8 - Overscan",FALSE, m_Overscan);
         
         SettingsPerChannel_RegisterSetting("AudioChannel","BT8x8 - Audio Channel",TRUE, m_AudioChannel);
-        SettingsPerChannel_RegisterSetting("AutoStereoSelect","BT8x8 - Auto Stereo Select",TRUE, m_AutoStereoSelect);
+        
+        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE);
+        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardDetect);        
+        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardDetectInterval);        
+        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardManual);        
+        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardMajorCarrier);
+        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardMinorCarrier);
         
         SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
         SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);

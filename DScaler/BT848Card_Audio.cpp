@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.19 2002-09-12 21:59:52 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.20 2002-09-15 15:57:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/12 21:59:52  ittarnavsky
+// Changes due to the new AudioDecoder handling
+// Changes due to the IAudioControls to CAudioControls transition
+//
 // Revision 1.18  2002/09/07 20:54:49  kooiman
 // Added equalizer, loudness, spatial effects for MSP34xx
 //
@@ -248,9 +252,14 @@ eSoundChannel CBT848Card::IsAudioChannelDetected(eSoundChannel desiredSoundChann
     return m_AudioDecoder->IsAudioChannelDetected(desiredSoundChannel); 
 }
 
-void CBT848Card::SetAudioStandard(eVideoFormat videoFormat)
+long CBT848Card::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
 {
-    m_AudioDecoder->SetVideoFormat(videoFormat);
+    return m_AudioDecoder->GetAudioStandardFromVideoFormat(videoFormat);
+}
+
+void CBT848Card::DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard))
+{
+    m_AudioDecoder->DetectAudioStandard(Interval, pThis, pfnDetected);
 }
 
 // Do not call this function before changing the video source, it is checking to see if a video
@@ -347,6 +356,55 @@ void CBT848Card::SetAudioDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan
     m_AudioControls->SetDolby(nMode, nNoise, nSpatial, nPan, nPanorama);
 }
 
+void CBT848Card::SetAudioAutoVolumeCorrection(long nDecayTimeIndex)
+{
+    if (!m_AudioControls->HasAutoVolumeCorrection())
+    {
+        return;
+    }
+    m_AudioControls->SetAutoVolumeCorrection(nDecayTimeIndex);
+}
+
+void CBT848Card::SetAudioStandard(long Standard, eVideoFormat VideoFormat)
+{
+    m_AudioDecoder->SetAudioStandard(Standard, VideoFormat);
+}
+
+long CBT848Card::GetAudioStandardCurrent()
+{
+    return m_AudioDecoder->GetAudioStandardCurrent();
+}
+
+const char* CBT848Card::GetAudioStandardName(long Standard)
+{
+    return m_AudioDecoder->GetAudioStandardName(Standard);
+}
+
+int CBT848Card::GetNumAudioStandards()
+{
+    return m_AudioDecoder->GetNumAudioStandards();
+}
+
+long CBT848Card::GetAudioStandard(int nIndex)
+{
+    return m_AudioDecoder->GetAudioStandard(nIndex);
+}
+
+long CBT848Card::GetAudioStandardMajorCarrier(long Standard)
+{
+    return m_AudioDecoder->GetAudioStandardMajorCarrier(Standard);
+}
+
+long CBT848Card::GetAudioStandardMinorCarrier(long Standard)
+{
+    return m_AudioDecoder->GetAudioStandardMinorCarrier(Standard);
+}
+
+void CBT848Card::SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier)
+{
+    m_AudioDecoder->SetAudioStandardCarriers(MajorCarrier, MinorCarrier);
+}
+
 
 bool CBT848Card::HasAudioEqualizers()
 {
@@ -393,4 +451,9 @@ bool CBT848Card::HasAudioBass()
 bool CBT848Card::HasAudioBalance()
 {
     return m_AudioControls->HasBalance();
+}
+
+bool CBT848Card::HasAudioAutoVolumeCorrection()
+{
+    return m_AudioControls->HasAutoVolumeCorrection();
 }

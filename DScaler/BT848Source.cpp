@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.64 2002-09-15 14:20:37 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.65 2002-09-15 15:57:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/09/15 14:20:37  adcockj
+// Fixed timing problems for cx2388x chips
+//
 // Revision 1.63  2002/09/12 21:55:23  ittarnavsky
 // Removed references to HasMSP and UseInputPin1
 //
@@ -302,6 +305,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     }
 
     SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
+    Channel_Register_Change_Notification(this, CBT848Source::StaticChannelChange);
+
 
     ReadFromIni();
     ChangeSectionNamesForInput();
@@ -336,6 +341,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
 CBT848Source::~CBT848Source()
 {
+    Channel_UnRegister_Change_Notification(this, CBT848Source::StaticChannelChange);
     BT848_OnSetup(this, 0);
     // if the BT878 was not in D0 state we restore the original ACPI power state
     if(m_InitialACPIStatus != 0)
@@ -534,6 +540,24 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AudioSpatialEffect = new CAudioSpatialEffectSetting(this, "Spatial Effect", 0, -128, 127, IniSection);
     m_Settings.push_back(m_AudioSpatialEffect);
 
+    m_AudioAutoVolumeCorrection = new CAudioAutoVolumeCorrectionSetting(this, "Automatic Volume Correction", 0, 0, 60*1000, IniSection);
+    m_Settings.push_back(m_AudioAutoVolumeCorrection);
+
+	m_AudioStandardDetect = new CAudioStandardDetectSetting(this, "Audio Standard Detect", 0, 0, 4, IniSection);
+    m_Settings.push_back(m_AudioStandardDetect);
+    
+    m_AudioStandardDetectInterval = new CAudioStandardDetectIntervalSetting(this, "Audio Standard Detect Interval (ms)", 200, 0, 10000, IniSection);
+    m_Settings.push_back(m_AudioStandardDetectInterval);
+
+	m_AudioStandardManual = new CAudioStandardManualSetting(this, "Audio Standard Manual", 0, 0, 0x7ff-1, IniSection);
+    m_Settings.push_back(m_AudioStandardManual);
+
+	m_AudioStandardMajorCarrier = new CAudioStandardMajorCarrierSetting(this, "Audio Standard Major carrier", 0, 0, 0x7ffffffL, IniSection);
+    m_Settings.push_back(m_AudioStandardMajorCarrier);
+
+	m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection);
+    m_Settings.push_back(m_AudioStandardMinorCarrier);
+
     ReadFromIni();
 }
 
@@ -601,9 +625,9 @@ void CBT848Source::Reset()
                             );
     
     NotifySizeChange();
-
-    m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
+    
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
+    m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
 }
 
@@ -1342,7 +1366,8 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     if(VideoFormat != m_VideoFormat->GetValue())
     {
         m_VideoFormat->SetValue(VideoFormat);
-        m_pBT848Card->SetAudioStandard(VideoFormat);
+        
+        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
     }
     return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
@@ -1380,6 +1405,29 @@ LPCSTR CBT848Source::GetMenuLabel()
 void CBT848Source::SetOverscan()
 {
     AspectSettings.InitialOverscan = m_Overscan->GetValue();
+}
+
+
+void CBT848Source::StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel)
+{
+    if (pThis != NULL)
+    {
+        ((CBT848Source*)pThis)->ChannelChange(PreChange, OldChannel, NewChannel);
+    }
+}
+void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
+{
+    if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
+    {
+        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+    }
+    if (!PreChange && (m_AudioAutoVolumeCorrection->GetValue() > 0))
+    {
+       //Turn off & on after channel change
+       long nDecayTimeIndex = m_AudioAutoVolumeCorrection->GetValue();
+       m_AudioAutoVolumeCorrection->SetValue(0);
+       m_AudioAutoVolumeCorrection->SetValue(nDecayTimeIndex);
+    }
 }
 
 void CBT848Source::SavePerChannelSetup(int Start)
@@ -1514,3 +1562,4 @@ CTreeSettingsGeneric* CBT848Source::BT848_GetTreeSettingsPage()
 
     return new CTreeSettingsGeneric("BT8x8 Advanced",vSettingsList);
 }
+

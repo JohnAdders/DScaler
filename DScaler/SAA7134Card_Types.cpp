@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.46 2004-03-26 14:17:52 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.47 2004-05-07 17:24:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2004/03/26 14:17:52  atnak
+// Tuner Changes
+//
 // Revision 1.45  2004/03/11 03:48:32  atnak
 // Updated Tevion MD 9717
 //
@@ -365,6 +368,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 0xE000, 0x8000,
             },
         },
+        // Some variations of this card use differnet tuners.  E.g. Temic PAL
         TUNER_LG_TAPCNEW_PAL,
         AUDIOCRYSTAL_NONE,
         0x0018e700,
@@ -1470,6 +1474,43 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         0,
         NULL,
         StandardSAA7134InputSelect,
+    },
+    // Dazzle My TV
+    // Thanks <rockmong@ho...>
+    // Korean brand, looks like a FlyVideo clone
+    {
+        "Dazzle My TV",
+        0x7130,
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x4000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x4000,
+            },
+        },
+        TUNER_PHILIPS_NTSC,
+        AUDIOCRYSTAL_NONE,
+        0x0018e700,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x01384e42,
     },
 };
 

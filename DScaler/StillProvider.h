@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.h,v 1.7 2001-12-03 19:33:59 adcockj Exp $
+// $Id: StillProvider.h,v 1.8 2001-12-08 12:02:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,6 @@ public:
     virtual ~CStillProvider();
     int GetNumberOfSources();
     CSource* GetSource(int SourceIndex);
-    BOOL AddStillSource(CStillSource* pStillSource);
-    BOOL RemoveStillSource(CStillSource* pStillSource);
 private:
     vector<CStillSource*> m_StillSources;
 };

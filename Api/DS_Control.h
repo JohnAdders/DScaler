@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.83 2002-08-12 19:52:14 laurentg Exp $
+// $Id: DS_Control.h,v 1.84 2002-08-16 18:46:34 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2002/08/12 19:52:14  laurentg
+// Selection of video card to adjust DScaler settings
+//
 // Revision 1.82  2002/08/11 16:08:20  laurentg
 // New setting to choose between keep CPU for other applications or use full CPU for best results
 //
@@ -561,6 +564,7 @@ typedef enum
     HURRYWHENLATE = 0,
     WAITFORFLIP,
     DOVERTICALFLIP,
+    TUNERSWITCHSCREENUPDATEDELAY,
     DOACCURATEFLIPS,
     AUTODETECT,
     WAITFORVSYNC,
@@ -941,7 +945,7 @@ typedef enum
 {
     COUNTRYCODE = 0,
     CURRENTPROGRAM,
-    CUSTOMCHANNELORDER,
+    CUSTOMCHANNELORDER,    
     CHANNELS_SETTING_LASTONE,
 } CHANNELS_SETTING;
 

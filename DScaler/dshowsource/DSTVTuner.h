@@ -3,6 +3,7 @@
 
 #include "DSObject.h"
 #include "exception.h"
+#include "TVFormats.h"
 
 class CDShowTvTunerException: public CDShowException
 {
@@ -31,7 +32,7 @@ public:
   BOOL setTunerFrequency(long dwFrequency);
   long getTunerFrequency();
   
-  BOOL setInput(long lInputPin);
+  BOOL setInputPin(long lInputPin);
 
   BOOL LoadFrequencyTable(int CountryCode, TunerInputType InputType);
 private:
@@ -47,8 +48,10 @@ private:
   long  m_MaxChannel;
   std::vector<long> m_FrequencyTable;
 
-  static const long DSUniFreqTable[];
+  int   m_CustomFrequencyTable;
 
+  static const long DSUniFreqTable[];
+    
   int   FrequencyToChannel(long lFrequency);
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.16 2001-08-08 08:54:32 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.17 2001-08-09 21:34:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/08/08 08:54:32  adcockj
+// Added Delay option to film modes
+// Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
+//
 // Revision 1.15  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -398,7 +402,7 @@ SETTING FD50Settings[FD50_SETTING_LASTONE] =
         "PAL Bad Cadence Mode", ITEMFROMLIST, 0, (long*)&PALBadCadenceIndex,
         INDEX_VIDEO_GREEDY, 0, 99, 1, 1,
         DeinterlaceNames,
-        "Pulldown", "PALFilmFallbackMode", NULL,
+        "Pulldown", "PALBadCadenceMode", NULL,
     },
 };
 

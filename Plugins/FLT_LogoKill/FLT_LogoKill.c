@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.5 2001-07-13 16:13:33 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.6 2001-08-09 21:34:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -272,6 +275,9 @@ void LinearCorrStart(void)
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
+
+FILTER_METHOD LogoKillMethod;
+
 SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
 {
     {
@@ -310,6 +316,13 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
         NULL,
         "LogoKillFilter", "Max", NULL,
     },
+    {
+        "Logo Kill Filter", ONOFF, 0, &(LogoKillMethod.bActive),
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "LogoKillFilter", "UseLogoKillFilter", NULL,
+    },
+
 };
 
 FILTER_METHOD LogoKillMethod =

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.56 2001-08-08 18:03:20 adcockj Exp $
+// $Id: DScaler.cpp,v 1.57 2001-08-09 21:34:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2001/08/08 18:03:20  adcockj
+// Moved status timer start till after hardware init
+//
 // Revision 1.55  2001/08/05 16:32:12  adcockj
 // Added brackets
 //
@@ -2060,6 +2063,7 @@ void MainWndOnInitBT(HWND hWnd)
         BT848_ResetHardware();
         BT848_SetGeoSize();
         WorkoutOverlaySize();
+        Audio_SetSource(AudioSource);
         
         AddSplashTextLine("Update Menu");
         Channels_UpdateMenu(hMenu);

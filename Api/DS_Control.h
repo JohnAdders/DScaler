@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.33 2001-08-08 08:54:31 adcockj Exp $
+// $Id: DS_Control.h,v 1.34 2001-08-09 21:34:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2001/08/08 08:54:31  adcockj
+// Added Delay option to film modes
+// Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
+//
 // Revision 1.32  2001/08/06 22:33:48  laurentg
 // Little improvments for AR autodetection
 //
@@ -820,6 +824,7 @@ typedef enum
     LOGOKILL_HEIGHT,
     LOGOKILL_MODE,
     LOGOKILL_MAX,
+    USELOGOKILL,
     FLT_LOGOKILL_SETTING_LASTONE,
 } FLT_LOGOKILL_SETTING;
 
@@ -890,6 +895,7 @@ typedef enum
 typedef enum
 {
     SHARPNESS = 0,
+    USESHARPNESS,
     FLT_SHARPNESS_SETTING_LASTONE,
 } FLT_SHARPNESS_SETTING;
 

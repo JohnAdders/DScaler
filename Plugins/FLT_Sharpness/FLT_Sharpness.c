@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.2 2001-08-03 14:24:06 adcockj Exp $
+// $Id: FLT_Sharpness.c,v 1.3 2001-08-09 21:34:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/08/03 14:24:06  adcockj
+// fixed settings
+//
 // Revision 1.1  2001/08/03 12:27:17  adcockj
 // Added Sharpness filter (copy of code from GreedyH)
 //
@@ -117,6 +120,8 @@ LOOP_LABEL:
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
+FILTER_METHOD SharpnessMethod;
+
 SETTING FLT_SharpnessSettings[FLT_SHARPNESS_SETTING_LASTONE] =
 {
     {
@@ -124,6 +129,12 @@ SETTING FLT_SharpnessSettings[FLT_SHARPNESS_SETTING_LASTONE] =
         128, 0, 255, 1, 1,
         NULL,
         "SharpnessFilter", "Sharpness", NULL,
+    },
+    {
+        "Sharpness Filter", ONOFF, 0, &(SharpnessMethod.bActive),
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "SharpnessFilter", "UseSharpnessFilter", NULL,
     },
 };
 

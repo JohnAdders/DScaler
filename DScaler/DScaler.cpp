@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.240 2002-10-07 20:34:48 kooiman Exp $
+// $Id: DScaler.cpp,v 1.241 2002-10-08 08:23:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.240  2002/10/07 20:34:48  kooiman
+// Fixed cursor hide problem & window region problems.
+//
 // Revision 1.239  2002/10/07 16:09:21  adcockj
 // Stop processing and release overlay on minimize
 //
@@ -1806,14 +1809,7 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
 		WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
 
         //Test border (white)
-        //WindowBorder->SolidBorder(10,10,10,10, 0xFFFFFF);
-
-        WindowBorder->RegisterButton("BUTTON_CLOSE",BITMAPASBUTTON_PUSH,"ButtonClose","ButtonCloseMouseOver","ButtonCloseClick", BorderButtonProc);
-        WindowBorder->RegisterButton("BUTTON_SIZE",BITMAPASBUTTON_PUSH,"ButtonSize","ButtonSizeMouseOver","ButtonSizeClick", BorderButtonProc);
-        WindowBorder->RegisterButton("BUTTON_MINIMIZE",BITMAPASBUTTON_PUSH,"ButtonMinimize","ButtonMinimizeMouseOver","ButtonMinimizeClick", BorderButtonProc);
-        WindowBorder->RegisterButton("BUTTON_MAXIMIZE",BITMAPASBUTTON_PUSH,"ButtonMaximize","ButtonMaximizeMouseOver","ButtonMaximizeClick", BorderButtonProc);
-        //WindowBorder->RegisterButton("BUTTON_SIDEBAR",BITMAPASBUTTON_PUSH,"ButtonSideBar","ButtonSideBarMouseOver","ButtonSideBarClick", BorderButtonProc);
-        
+        //WindowBorder->SolidBorder(10,10,10,10, 0xFFFFFF);        
     }
 
     if ((szSkinName != NULL) && (szSkinName[0] == 0))
@@ -1827,8 +1823,14 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
         strcpy(szSkinIniFile,GetSkinDirectory());
         strcat(szSkinIniFile,szSkinName);
         strcat(szSkinIniFile,"\\skin.ini");
-
         ///\todo check if the ini file exists
+
+        //Add border buttons
+        WindowBorder->RegisterButton("BUTTON_CLOSE",BITMAPASBUTTON_PUSH,"ButtonClose","ButtonCloseMouseOver","ButtonCloseClick", BorderButtonProc);
+        WindowBorder->RegisterButton("BUTTON_SIZE",BITMAPASBUTTON_PUSH,"ButtonSize","ButtonSizeMouseOver","ButtonSizeClick", BorderButtonProc);
+        WindowBorder->RegisterButton("BUTTON_MINIMIZE",BITMAPASBUTTON_PUSH,"ButtonMinimize","ButtonMinimizeMouseOver","ButtonMinimizeClick", BorderButtonProc);
+        WindowBorder->RegisterButton("BUTTON_MAXIMIZE",BITMAPASBUTTON_PUSH,"ButtonMaximize","ButtonMaximizeMouseOver","ButtonMaximizeClick", BorderButtonProc);
+        //WindowBorder->RegisterButton("BUTTON_SIDEBAR",BITMAPASBUTTON_PUSH,"ButtonSideBar","ButtonSideBarMouseOver","ButtonSideBarClick", BorderButtonProc);        
         
         vector<int>Results;        
         WindowBorder->LoadSkin(szSkinIniFile,"Border",&Results);

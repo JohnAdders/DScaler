@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.4 2002-10-07 20:32:43 kooiman Exp $
+// $Id: WindowBorder.cpp,v 1.5 2002-10-08 08:23:33 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/07 20:32:43  kooiman
+// Fixed small bugs. Added 3/4state button.
+//
 // Revision 1.3  2002/09/29 10:07:39  adcockj
 // Fixed compile warning
 //
@@ -114,6 +117,7 @@ CWindowBorder::~CWindowBorder()
             delete Buttons[i].Button;
         }
     }
+    Buttons.clear();
     
     
     for (i = 0; i < RegionList.size(); i++)
@@ -1108,6 +1112,7 @@ void CWindowBorder::ClearSkin()
             Buttons[i].Button = NULL;
         }
     }
+    Buttons.clear();
         
     for (i = 0; i < RegionList.size(); i++)
     {

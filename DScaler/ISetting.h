@@ -7,21 +7,6 @@
 
 //See ISetting.cpp for a detailed description of the functions
 
-/** Setting group info
-*/
-typedef struct
-{
-    /// Size of Setting group. sizeof(SETTINGGROUP)
-    long cbSize;
-    /// Group name
-    char* szGroup;
-    /// Group name to show
-    char* szDisplayName;
-    /// Extra info/description
-    char* szInfo;
-} SETTINGGROUP;
-
-
 class CSettingGroup;
 
 /** Interface for control of a setting

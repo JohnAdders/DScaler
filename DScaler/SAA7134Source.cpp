@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.61 2003-01-12 16:19:34 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.62 2003-01-13 13:56:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2003/01/12 16:19:34  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.60  2003/01/11 15:22:27  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -352,26 +356,38 @@ void CSAA7134Source::SetSourceAsCurrent()
 
 void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 {
-    m_Brightness = new CBrightnessSetting(this, "Brightness", SAA7134_DEFAULT_BRIGHTNESS, 0, 255, IniSection);
+    // JA 13/Jan/2003
+    // Added new groups
+    // Functionality to store settings by Audio Input has not been used
+    // as I don't think it would work as expected so the audio settings can only be
+    // set by channel
+    // Also there is no format stored by input
+
+    CSettingGroup *pVideoGroup = GetSettingsGroup("SAA7134 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pVideoAdvGroup = GetSettingsGroup("SAA7134 - Video Advanced", SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAudioGroup = GetSettingsGroup("SAA7134 - Audio", SETTING_BY_CHANNEL, TRUE);
+    CSettingGroup *pAudioStandardGroup = GetSettingsGroup("SAA7134 - Audio Standard", SETTING_BY_CHANNEL, FALSE);
+
+    m_Brightness = new CBrightnessSetting(this, "Brightness", SAA7134_DEFAULT_BRIGHTNESS, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
 
-    m_Contrast = new CContrastSetting(this, "Contrast", SAA7134_DEFAULT_CONTRAST, 0, 255, IniSection);
+    m_Contrast = new CContrastSetting(this, "Contrast", SAA7134_DEFAULT_CONTRAST, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Contrast);
 
-    m_Saturation = new CSaturationSetting(this, "Saturation", SAA7134_DEFAULT_SATURATION, 0, 255, IniSection);
+    m_Saturation = new CSaturationSetting(this, "Saturation", SAA7134_DEFAULT_SATURATION, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Saturation);
 
-    m_Hue = new CHueSetting(this, "Hue", SAA7134_DEFAULT_HUE, 0, 255, IniSection);
+    m_Hue = new CHueSetting(this, "Hue", SAA7134_DEFAULT_HUE, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Hue);
 
-    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
 
-    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection);
+    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
     m_Settings.push_back(m_PixelWidth);
 
-    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth");
+    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pVideoGroup);
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
@@ -390,79 +406,73 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
-    m_HPLLMode = new CHPLLModeSetting(this, "HPLL Locking Mode", HPLLMODE_FAST_TRACKING, HPLLMODE_TV, HPLLMODE_LASTONE - 1, IniSection);
+    m_HPLLMode = new CHPLLModeSetting(this, "HPLL Locking Mode", HPLLMODE_FAST_TRACKING, HPLLMODE_TV, HPLLMODE_LASTONE - 1, IniSection, pVideoAdvGroup);
     m_Settings.push_back(m_HPLLMode);
 
-    m_WhitePeak = new CWhitePeakSetting(this, "White Peak", TRUE, IniSection);
+    m_WhitePeak = new CWhitePeakSetting(this, "White Peak", TRUE, IniSection, pVideoAdvGroup);
     m_Settings.push_back(m_WhitePeak);
 
-    m_ColorPeak = new CColorPeakSetting(this, "Color Peak", TRUE, IniSection);
+    m_ColorPeak = new CColorPeakSetting(this, "Color Peak", TRUE, IniSection, pVideoAdvGroup);
     m_Settings.push_back(m_ColorPeak);
 
-    m_AdaptiveCombFilter = new CAdaptiveCombFilterSetting(this, "Adaptive Comb Filter", COMBFILTER_FULL, COMBFILTER_FULL, IniSection, m_CombFilterSzList);
+    m_AdaptiveCombFilter = new CAdaptiveCombFilterSetting(this, "Adaptive Comb Filter", COMBFILTER_FULL, COMBFILTER_FULL, IniSection, m_CombFilterSzList, pVideoGroup);
     m_Settings.push_back(m_AdaptiveCombFilter);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 20, IniSection);
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 20, IniSection, pVideoAdvGroup);
     m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, -60, 260, IniSection);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, -60, 260, IniSection, pVideoAdvGroup);
     m_VDelay->SetStepValue(2);
     m_Settings.push_back(m_VDelay);
 
-    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LASTONE-1, IniSection);
+    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LASTONE-1, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioStandard);
 
-    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", AUDIOCHANNEL_STEREO, AUDIOCHANNEL_MONO, AUDIOCHANNEL_LANGUAGE2, IniSection);
+    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", AUDIOCHANNEL_STEREO, AUDIOCHANNEL_MONO, AUDIOCHANNEL_LANGUAGE2, IniSection, pAudioGroup);
     m_Settings.push_back(m_AudioChannel);
 
-    m_AudioSampleRate = new CAudioSampleRateSetting(this, "Audio Sample Rate", AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_48000Hz, IniSection);
+    m_AudioSampleRate = new CAudioSampleRateSetting(this, "Audio Sample Rate", AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_48000Hz, IniSection, pAudioGroup);
     m_Settings.push_back(m_AudioSampleRate);
 
-    m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", TRUE, IniSection);
+    m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", TRUE, IniSection, pAudioGroup);
     m_Settings.push_back(m_AutoStereoSelect);
 
-    m_Volume = new CVolumeSetting(this, "Volume", 0, 0, 1000, IniSection);
+    m_Volume = new CVolumeSetting(this, "Volume", 0, 0, 1000, IniSection, pAudioGroup);
     m_Volume->SetStepValue(20);
     m_Settings.push_back(m_Volume);
 
-    m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection);
+    m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection, pAudioGroup);
     m_Settings.push_back(m_Bass);
 
-    m_Treble = new CTrebleSetting(this, "Treble", 0, -96, 127, IniSection);
+    m_Treble = new CTrebleSetting(this, "Treble", 0, -96, 127, IniSection, pAudioGroup);
     m_Settings.push_back(m_Treble);
 
-    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection);
+    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioGroup);
     m_Settings.push_back(m_Balance);
 
-    m_bSavePerInput = new CYesNoSetting("Save Per Input", TRUE, IniSection, "SavePerInput");
-    m_Settings.push_back(m_bSavePerInput);
-
-    m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
-    m_Settings.push_back(m_bSavePerFormat);
-
-    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
+    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection, pAudioGroup);
     m_Settings.push_back(m_AudioSource);
 
-    m_CustomAudioStandard = new CCustomAudioStandardSetting(this, "Use Custom Audio Standard", FALSE, IniSection);
+    m_CustomAudioStandard = new CCustomAudioStandardSetting(this, "Use Custom Audio Standard", FALSE, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_CustomAudioStandard);
 
-    m_AudioMajorCarrier = new CAudioMajorCarrierSetting(this, "Audio Major Carrier", AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection);
+    m_AudioMajorCarrier = new CAudioMajorCarrierSetting(this, "Audio Major Carrier", AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioMajorCarrier);
 
-    m_AudioMinorCarrier = new CAudioMinorCarrierSetting(this, "Audio Minor Carrier", AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection);
+    m_AudioMinorCarrier = new CAudioMinorCarrierSetting(this, "Audio Minor Carrier", AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioMinorCarrier);
 
-    m_AudioMajorCarrierMode = new CAudioMajorCarrierModeSetting(this, "Audio Major Carrier Mode", AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection);
+    m_AudioMajorCarrierMode = new CAudioMajorCarrierModeSetting(this, "Audio Major Carrier Mode", AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioMajorCarrierMode);
 
-    m_AudioMinorCarrierMode = new CAudioMinorCarrierModeSetting(this, "Audio Minor Carrier Mode", AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection);
+    m_AudioMinorCarrierMode = new CAudioMinorCarrierModeSetting(this, "Audio Minor Carrier Mode", AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioMinorCarrierMode);
 
-    m_AudioCh1FMDeemph = new CAudioCh1FMDeemphSetting(this, "Audio Channel 1 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection);
+    m_AudioCh1FMDeemph = new CAudioCh1FMDeemphSetting(this, "Audio Channel 1 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioCh1FMDeemph);
 
-    m_AudioCh2FMDeemph = new CAudioCh2FMDeemphSetting(this, "Audio Channel 2 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection);
+    m_AudioCh2FMDeemph = new CAudioCh2FMDeemphSetting(this, "Audio Channel 2 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, pAudioStandardGroup);
     m_Settings.push_back(m_AudioCh2FMDeemph);
 
     // HELPTEXT: Automatic Volume Leveling control to avoid
@@ -478,10 +488,10 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VBIDebugOverlay = new CYesNoSetting("VBI Debug Overlay", FALSE, IniSection, "VBIDebugOverlay");
     m_Settings.push_back(m_VBIDebugOverlay);
 
-    m_AutomaticGainControl = new CAutomaticGainControlSetting(this, "Automatic Gain Control", TRUE, IniSection);
+    m_AutomaticGainControl = new CAutomaticGainControlSetting(this, "Automatic Gain Control", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AutomaticGainControl);
 
-    m_GainControlLevel = new CGainControlLevelSetting(this, "Gain Control Level", 0x0100, 0x0000, 0x01FF, IniSection);
+    m_GainControlLevel = new CGainControlLevelSetting(this, "Gain Control Level", 0x0100, 0x0000, 0x01FF, IniSection, pVideoGroup);
     m_Settings.push_back(m_GainControlLevel);
 
     m_VideoMirror = new CVideoMirrorSetting(this, "Mirroring", FALSE, IniSection);
@@ -493,13 +503,13 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioLine2Voltage = new CAudioLine2VoltageSetting(this, "Audio Line 2 Input Signal", AUDIOLINEVOLTAGE_2VRMS, AUDIOLINEVOLTAGE_2VRMS, IniSection, m_LineVoltageSzList);
     m_Settings.push_back(m_AudioLine2Voltage);
 
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_BottomOverscan);
 
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_LeftOverscan);
 
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
 #ifdef _DEBUG    

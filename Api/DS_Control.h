@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.130 2003-01-12 20:10:47 adcockj Exp $
+// $Id: DS_Control.h,v 1.131 2003-01-13 13:56:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.130  2003/01/12 20:10:47  adcockj
+// Put analogue blanking setting in properly
+//
 // Revision 1.129  2003/01/10 17:37:40  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -1546,8 +1549,8 @@ typedef enum
 {
     SAA7134BRIGHTNESS = 0,
     SAA7134CONTRAST,
-    SAA7134HUE,
     SAA7134SATURATION,
+    SAA7134HUE,
     SAA7134TOPOVERSCAN,
     SAA7134PIXELWIDTH,
     SAA7134CUSTOMPIXELWIDTH,
@@ -1570,8 +1573,6 @@ typedef enum
     SAA7134BASS,
     SAA7134TREBLE,
     SAA7134BALANCE,
-    SAA7134SAVEPERINPUT,
-    SAA7134SAVEPERFORMAT,
     SAA7134AUDIOSOURCE,
     SAA7134CUSTOMAUDIOSTANDARD,
     SAA7134AUDIOSTANDARDCARRIER1,

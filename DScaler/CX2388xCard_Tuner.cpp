@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Tuner.cpp,v 1.6 2005-03-09 09:49:34 atnak Exp $
+// $Id: CX2388xCard_Tuner.cpp,v 1.7 2005-03-09 15:10:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/09 09:49:34  atnak
+// Added a new ITuner::InitializeTuner() function for performing tuner chip
+// initializations.
+//
 // Revision 1.5  2005/03/09 09:35:16  atnak
 // Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
 // non-intrusive nature.
@@ -51,6 +55,8 @@
 #include "GenericTuner.h"
 #include "TDA9887.h"
 #include "TEA5767.h"
+#include "TDA8275.h"
+#include "TDA8290.h"
 
 BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 {
@@ -79,6 +85,10 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
         strcpy(m_TunerType, "MT2050 ");
         break;
+    case TUNER_TDA8275:
+        m_Tuner = new CTDA8275();
+        strcpy(m_TunerType, "TDA8275 ");
+        break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
@@ -103,29 +113,35 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     // Look for possible external IF demodulator
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
 
-	// bUseTDA9887 is the setting in CX2388xCards.ini.
-    if (m_CX2388xCards[m_CardType].bUseTDA9887)
+    // TDA8275s are paired with a TDA8290.
+    if (tunerId == TUNER_TDA8275)
     {
-        CTDA9887Ex *pTDA9887 = new CTDA9887Ex();
+        // Have a TDA8290 object detected and created.
+        pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus);
+    }
 
-		// Detect to make sure an IF demodulator exists.
-		if (pTDA9887->SetDetectedI2CAddress(m_I2CBus))
-		{
-			// Set card specific modes that were parsed from CX2388xCards.ini.
-			size_t count = m_CX2388xCards[m_CardType].tda9887Modes.size();
-			for (size_t i = 0; i < count; i++)
-			{
-				pTDA9887->SetModes(&m_CX2388xCards[m_CardType].tda9887Modes[i]);
-			}
+    if (pExternalIFDemodulator == NULL)
+    {
+        // bUseTDA9887 is the setting in CX2388xCards.ini.
+        if (m_CX2388xCards[m_CardType].bUseTDA9887)
+        {
+            // Have a TDA9887 object detected and created.
+            CTDA9887Ex *pTDA9887 = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
 
-			// Found a valid external IF demodulator.
-			pExternalIFDemodulator = pTDA9887;
-		}
-		else
-		{
-			// A TDA9887 device wasn't detected.
-			delete pTDA9887;
-		}
+            // If a TDA9887 was found.
+            if (pTDA9887 != NULL)
+            {
+                // Set card specific modes that were parsed from CX2388xCards.ini.
+                size_t count = m_CX2388xCards[m_CardType].tda9887Modes.size();
+                for (size_t i = 0; i < count; i++)
+                {
+                    pTDA9887->SetModes(&m_CX2388xCards[m_CardType].tda9887Modes[i]);
+                }
+
+                // Found a valid external IF demodulator.
+                pExternalIFDemodulator = pTDA9887;
+            }
+        }
     }
 
 	eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();

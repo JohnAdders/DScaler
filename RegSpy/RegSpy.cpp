@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.12 2003-01-26 12:49:53 adcockj Exp $
+// $Id: RegSpy.cpp,v 1.13 2003-05-05 12:57:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/01/26 12:49:53  adcockj
+// Fixed link problems
+//
 // Revision 1.11  2002/12/22 02:30:12  atnak
 // Added SAA7133 registers
 //
@@ -528,6 +531,15 @@ void __cdecl SAA7133RegSpy(TRegister** hRegisterListTail)
 }
 
 
+void __cdecl SAA7146RegSpy(TRegister** hRegisterListTail)
+{
+    AddDWRegister(0x0E0);
+    AddDWRegister(0x0DC);
+    AddDWRegister(0x10C);
+    AddDWRegister(0x110);
+    AddDWRegister(0x114);
+}
+
 //  struct TChip:
 //  {
 //      char*       Name;
@@ -586,6 +598,13 @@ TChip Chips[] =
         0x7133,
         SAA7133RegSpy,
     },
+    {
+        "SAA7146",
+        0x1131,
+        0x7146,
+        SAA7146RegSpy,
+        }
+
 };
 
 

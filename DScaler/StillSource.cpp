@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.99 2003-06-02 13:15:34 adcockj Exp $
+// $Id: StillSource.cpp,v 1.100 2003-06-14 19:38:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2003/06/02 13:15:34  adcockj
+// Fixes for CHARSTRING problems
+//
 // Revision 1.98  2003/04/28 13:34:22  laurentg
 // Default value for still saving path updated
 //
@@ -1382,6 +1385,13 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         m_SlideShowActive = FALSE;
         m_NewFileRequested = STILL_REQ_THIS_ONE;
         m_NewFileReqPos = lParam;
+		if (pMultiFrames && pMultiFrames->IsActive())
+		{
+			// We sleep to be sure that the still is correctly displayed
+			// in the output thread before acknowledging the change of content
+			Sleep(100);
+			pMultiFrames->AckContentChange();
+		}
         return TRUE;
         break;
     case IDM_PLAYLIST_PREVIOUS:
@@ -1413,6 +1423,13 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             m_NewFileReqPos = m_PlayList.size() - 1;
         }
+		if (pMultiFrames && pMultiFrames->IsActive())
+		{
+			// We sleep to be sure that the still is correctly displayed
+			// in the output thread before acknowledging the change of content
+			Sleep(100);
+			pMultiFrames->AckContentChange();
+		}
         return TRUE;
         break;
     case IDM_PLAYLIST_NEXT_CIRC:
@@ -1426,6 +1443,13 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             m_NewFileReqPos = 0;
         }
+		if (pMultiFrames && pMultiFrames->IsActive())
+		{
+			// We sleep to be sure that the still is correctly displayed
+			// in the output thread before acknowledging the change of content
+			Sleep(100);
+			pMultiFrames->AckContentChange();
+		}
         return TRUE;
         break;
     case IDM_PLAYLIST_FIRST:

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.326 2003-06-14 12:05:21 laurentg Exp $
+// $Id: DScaler.cpp,v 1.327 2003-06-14 19:38:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.326  2003/06/14 12:05:21  laurentg
+// Restore default position (on primary monitor) for the window if the old position was on a screen which is no more active
+//
 // Revision 1.325  2003/05/31 11:38:14  laurentg
 // Load dynamic functions earlier to have splash screen on correct screen and to be able to start in full screen mode on the second monitor
 //
@@ -2890,6 +2893,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     {
                         Channel_Decrement();
                     }
+					if (pMultiFrames && pMultiFrames->IsActive())
+					{
+						// We sleep to be sure that the channel is correctly displayed
+						// in the output thread before acknowledging the change of content
+						Sleep(250);
+						pMultiFrames->AckContentChange();
+					}
                 }
             }
             break;
@@ -2907,6 +2917,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     {
                         Channel_Increment();
                     }
+					if (pMultiFrames && pMultiFrames->IsActive())
+					{
+						// We sleep to be sure that the channel is correctly displayed
+						// in the output thread before acknowledging the change of content
+						Sleep(250);
+						pMultiFrames->AckContentChange();
+					}
                 }
             }
             break;
@@ -2941,6 +2958,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			if (Providers_GetCurrentSource()->IsInTunerMode() && pMultiFrames && pMultiFrames->IsActive())
 			{
 				Channel_Change(lParam, 1);
+				if (pMultiFrames && pMultiFrames->IsActive())
+				{
+					// We sleep to be sure that the channel is correctly displayed
+					// in the output thread before acknowledging the change of content
+					Sleep(250);
+					pMultiFrames->AckContentChange();
+				}
 			}
 			break;
 

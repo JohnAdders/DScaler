@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.8 2003-03-23 09:24:27 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.9 2003-06-14 19:35:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/03/23 09:24:27  laurentg
+// Automatic leave preview mode when necessary
+//
 // Revision 1.7  2003/03/22 18:58:40  laurentg
 // New key to switch to or from preview mode
 // Spped up initial display of channels in preview mode
@@ -86,19 +89,19 @@ CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, CSo
 	int iHeight = DSCALER_MAX_HEIGHT / iNbRows;
 	m_Height = iHeight * iNbRows;
 	m_Active = FALSE;
-	bSwitchRequested = FALSE;
+	m_SwitchRequested = FALSE;
 	m_MemoryBuffer = NULL;
-	bFrameFilled = NULL;
-	bNavigAllowed = FALSE;
+	m_FrameFilled = NULL;
+	m_NavigAllowed = FALSE;
 	m_Source = pSource;
 }
 
 CMultiFrames::~CMultiFrames()
 {
 	FreeMemoryBuffer();
-	if (bFrameFilled)
+	if (m_FrameFilled)
 	{
-		free(bFrameFilled);
+		free(m_FrameFilled);
 	}
 }
 
@@ -122,16 +125,25 @@ int CMultiFrames::GetHeight()
 	return m_Height;
 }
 
+// Inform if the multi frames output is engaged
 BOOL CMultiFrames::IsActive()
 {
 	return m_Active;
 }
 
+// Enable the multi frames output
 void CMultiFrames::Enable()
 {
 	AllocateMemoryBuffer();
-	bFrameFilled = (int*) malloc(m_NbFrames * sizeof(BOOL));
-	m_Active = m_MemoryBuffer && bFrameFilled;
+	if (m_FrameFilled == NULL)
+	{
+		m_FrameFilled = (int*) malloc(m_NbFrames * sizeof(int));
+		if (m_FrameFilled == NULL)
+		{
+		   LOG(1, "Couldn't allocate memory for multi frames output");
+		}
+	}
+	m_Active = m_MemoryBuffer && m_FrameFilled;
 	if (m_Active)
 	{
 		Reset();
@@ -145,16 +157,17 @@ void CMultiFrames::Enable()
 	}
 }
 
+// Disable the multi frames output
 void CMultiFrames::Disable()
 {
 	FreeMemoryBuffer();
-	if (bFrameFilled)
+	if (m_FrameFilled)
 	{
-		free(bFrameFilled);
-		bFrameFilled = NULL;
+		free(m_FrameFilled);
+		m_FrameFilled = NULL;
 	}
 	m_Active = FALSE;
-	bNavigAllowed = FALSE;
+	m_NavigAllowed = FALSE;
     UpdateSquarePixelsMode(m_Source->HasSquarePixels());
 	m_Source->SetAspectRatioData();
 	WorkoutOverlaySize(TRUE);
@@ -162,17 +175,17 @@ void CMultiFrames::Disable()
 
 BOOL CMultiFrames::IsSwitchRequested()
 {
-	return bSwitchRequested;
+	return m_SwitchRequested;
 }
 
 void CMultiFrames::RequestSwitch()
 {
-	bSwitchRequested = TRUE;
+	m_SwitchRequested = TRUE;
 }
 
-void CMultiFrames::DoSwitch()
+void CMultiFrames::HandleSwitch()
 {
-	bSwitchRequested = FALSE;
+	m_SwitchRequested = FALSE;
 	if (IsActive())
 	{
 		Disable();
@@ -193,11 +206,12 @@ void CMultiFrames::Reset()
 	for (int i=0 ; i < m_NbFrames ; i++)
 	{
 		ResetFrameToBlack(i);
-		bFrameFilled[i] = -1;
+		m_FrameFilled[i] = -1;
 	}
 	m_CurrentFrame = 0;
 	DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
-	bNavigAllowed = FALSE;
+	m_NavigAllowed = FALSE;
+	m_ContentChanged = TRUE;
 }
 
 void CMultiFrames::SelectFrame()
@@ -206,86 +220,114 @@ void CMultiFrames::SelectFrame()
 	int iUnused;
 	BOOL bBeforeCurrent;
 
-	if (!m_Active || (bFrameFilled[m_CurrentFrame] == -1))
+	if (!m_Active || (m_FrameFilled[m_CurrentFrame] == -1))
 	{
-		bNavigAllowed = FALSE;
+		m_NavigAllowed = FALSE;
 		return;
 	}
 
+	// Here, weknow that the current frame is filled
+	// We must search if another one must be filled
+
 	iUnused = -1;
+
+	// Check if there is a frame to fill before the current one
 	for (i=(m_CurrentFrame-1) ; i>=0 ; i--)
 	{
-		if (bFrameFilled[i] == -1)
+		if (m_FrameFilled[i] == -1)
 		{
 			iUnused = i;
 			bBeforeCurrent = TRUE;
-			bNavigAllowed = FALSE;
+			m_NavigAllowed = FALSE;
 			break;
 		}
 	}
 	if (iUnused == -1)
 	{
+		// Check if there is a frame to fill after the current one
 		for (i=(m_CurrentFrame+1) ; i<m_NbFrames ; i++)
 		{
-			if (bFrameFilled[i] == -1)
+			if (m_FrameFilled[i] == -1)
 			{
 				iUnused = i;
 				bBeforeCurrent = FALSE;
-				bNavigAllowed = FALSE;
+				m_NavigAllowed = FALSE;
 				break;
 			}
 		}
 	}
+
 	if (iUnused == -1)
 	{
-		if (!bNavigAllowed)
+		// All the frames are filled, so we must enable the user navigation
+		if (!m_NavigAllowed)
 		{
-			iDeltaNewFrame = 0;
+			m_DeltaNewFrame = 0;
 		}
-		bNavigAllowed = TRUE;
+		m_NavigAllowed = TRUE;
 	}
-	if (bNavigAllowed)
+
+	if (m_NavigAllowed)
 	{
-		if (iDeltaNewFrame != 0)
+		//
+		// There is no frame to fill
+		// So check if user asked for move to another frame
+		//
+
+		if (m_DeltaNewFrame != 0)
 		{
-			if ( ((m_CurrentFrame + iDeltaNewFrame) >= 0)
-			  && ((m_CurrentFrame + iDeltaNewFrame) < m_NbFrames) )
+			m_NavigAllowed = FALSE;
+			m_ContentChanged = FALSE;
+
+			if ( ((m_CurrentFrame + m_DeltaNewFrame) >= 0)
+			  && ((m_CurrentFrame + m_DeltaNewFrame) < m_NbFrames) )
 			{
+				// There is no shift of frames to do
+
 				DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
-				m_CurrentFrame += iDeltaNewFrame;
+				m_CurrentFrame += m_DeltaNewFrame;
 				DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				if (m_Mode == PREVIEW_CHANNELS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
 				else if (m_Mode == PREVIEW_STILLS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[m_CurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
-				bFrameFilled[m_CurrentFrame] = -1;
-				bNavigAllowed = FALSE;
+				m_FrameFilled[m_CurrentFrame] = -1;
 			}
 			else
 			{
+				// There is a shift of frames to do
+
 				DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
-				ShiftFrames(iDeltaNewFrame);
+				ShiftFrames(m_DeltaNewFrame);
+				DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				if (m_Mode == PREVIEW_CHANNELS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
 				else if (m_Mode == PREVIEW_STILLS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[m_CurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
-				bNavigAllowed = FALSE;
 			}
 		}
 	}
 	else
 	{
+		//
+		// There is one frame to fill
+		// iUnused is the index of the frame to fill
+		//
+
+		m_ContentChanged = FALSE;
+
 		DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 		m_CurrentFrame = iUnused;
 		DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+
 		if (bBeforeCurrent)
 		{
 			if (m_Mode == PREVIEW_CHANNELS)
@@ -316,7 +358,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	BYTE* lpFrameBuffer;
 	int iFrameWidth;
 	int iFrameHeight;
-	int iFramePitch;
+	int iFrameLinePitch;
 
 	if (!m_Active)
 	{
@@ -326,7 +368,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	}
 
 	// Retrieve the buffer corresponding to the frame in the global multiple frames buffer (without the borders)
-	SelectFrameBuffer(m_CurrentFrame, FALSE, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
+	SelectFrameBuffer(m_CurrentFrame, FALSE, &lpFrameBuffer, &iFrameLinePitch, &iFrameWidth, &iFrameHeight);
 
 	// Copy (with resize) the input picture into its frame
     Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer);
@@ -349,7 +391,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 			DrawBorder(m_CurrentFrame, FALSE, LUMIN_BLACK, 0, 0, iDelta / 2, iFrameHeight - iUpdHeight - (iDelta / 2));
 
 			// Center the picture in the frame
-			lpFrameBuffer += (iDelta / 2) * iFramePitch;
+			lpFrameBuffer += (iDelta / 2) * iFrameLinePitch;
 
 			iFrameHeight = iUpdHeight;
 		}
@@ -372,16 +414,19 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 			iFrameWidth = iUpdWidth;
 		}
 	}
-	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, InHalfHeightMode() ? pInfo->FieldHeight : pInfo->FrameHeight, lpFrameBuffer, iFramePitch, iFrameWidth, iFrameHeight);
+	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, InHalfHeightMode() ? pInfo->FieldHeight : pInfo->FrameHeight, lpFrameBuffer, iFrameLinePitch, iFrameWidth, iFrameHeight);
     Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
-	if (m_Mode == PREVIEW_CHANNELS)
+	if (m_ContentChanged == TRUE)
 	{
-		bFrameFilled[m_CurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
-	}
-	else if (m_Mode == PREVIEW_STILLS)
-	{
-		bFrameFilled[m_CurrentFrame] = ((CStillSource*)m_Source)->GetPlaylistPosition();
+		if (m_Mode == PREVIEW_CHANNELS)
+		{
+			m_FrameFilled[m_CurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
+		}
+		else if (m_Mode == PREVIEW_STILLS)
+		{
+			m_FrameFilled[m_CurrentFrame] = ((CStillSource*)m_Source)->GetPlaylistPosition();
+		}
 	}
 
 	// The input picture is replaced by the full multiple frames picture
@@ -394,39 +439,40 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	pInfo->LineLength = m_Width * 2;
 }
 
+// User commands handling
 BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     switch(LOWORD(wParam))
     {
     case IDM_VT_PAGE_UP:
 		// Up key
-		if (bNavigAllowed)
+		if (m_NavigAllowed)
 		{
-			iDeltaNewFrame -= m_NbCols;
+			m_DeltaNewFrame -= m_NbCols;
 			return TRUE;
 		}
 		break;
     case IDM_VT_PAGE_DOWN:
 		// Down key
-		if (bNavigAllowed)
+		if (m_NavigAllowed)
 		{
-			iDeltaNewFrame += m_NbCols;
+			m_DeltaNewFrame += m_NbCols;
 			return TRUE;
 		}
 		break;
     case IDM_VT_PAGE_MINUS:
 		// Left key
-		if (bNavigAllowed)
+		if (m_NavigAllowed)
 		{
-			iDeltaNewFrame--;
+			m_DeltaNewFrame--;
 			return TRUE;
 		}
 		break;
     case IDM_VT_PAGE_PLUS:
 		// Right key
-		if (bNavigAllowed)
+		if (m_NavigAllowed)
 		{
-			iDeltaNewFrame++;
+			m_DeltaNewFrame++;
 			return TRUE;
 		}
 		break;
@@ -434,6 +480,11 @@ BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
     }
     return FALSE;
+}
+
+void CMultiFrames::AckContentChange()
+{
+	m_ContentChanged = TRUE;
 }
 
 // Allocate memory buffer to store the picture containing all the frames
@@ -459,40 +510,45 @@ void CMultiFrames::FreeMemoryBuffer()
 	}
 }
 
-void CMultiFrames::SelectFrameBuffer(int iFrame, BOOL bIncludingBorder, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight)
+// Get the information relative to a frame including :
+// - the pointer to the corresponding memory buffer
+// - its width and height
+// - its line pitch
+void CMultiFrames::SelectFrameBuffer(int iFrame, BOOL bIncludingBorder, BYTE** lpFrameBuffer, int *iFrameLinePitch, int *iFrameWidth, int *iFrameHeight)
 {
 	int iRow = iFrame / m_NbCols;
 	int iCol = iFrame % m_NbCols;
 
-	*iFramePitch = m_Width * 2;
+	*iFrameLinePitch = m_Width * 2;
 	*iFrameHeight = m_Height / m_NbRows;
 	*iFrameWidth = m_Width / m_NbCols;
-	*lpFrameBuffer = START_ALIGNED16(m_MemoryBuffer) + iRow * *iFrameHeight * *iFramePitch + iCol * *iFrameWidth * 2;
+	*lpFrameBuffer = START_ALIGNED16(m_MemoryBuffer) + iRow * *iFrameHeight * *iFrameLinePitch + iCol * *iFrameWidth * 2;
 
 	if (!bIncludingBorder)
 	{
 		*iFrameWidth -= LEFT_BORDER+RIGHT_BORDER;
 		*iFrameHeight -= TOP_BORDER+BOTTOM_BORDER;
-		*lpFrameBuffer += TOP_BORDER * *iFramePitch + LEFT_BORDER * 2;
+		*lpFrameBuffer += TOP_BORDER * *iFrameLinePitch + LEFT_BORDER * 2;
 	}
 }
 
+// Draw a border around one frame
+// Color and size of each border are gien as parameters
 void CMultiFrames::DrawBorder(int iFrame, BOOL bIncludingExternalBorder, int iLuminLevel, unsigned int iLeftThick, unsigned int iRightThick, unsigned int iTopThick, unsigned int iBottomThick)
 {
 	BYTE* lpStartLineBuffer;
 	BYTE* lpFrameBuffer;
 	int iFrameWidth;
 	int iFrameHeight;
-	int iFramePitch;
+	int iFrameLinePitch;
 	int iLine;
 	int iPixel;
 
-	SelectFrameBuffer(iFrame, bIncludingExternalBorder, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
-	lpStartLineBuffer = lpFrameBuffer;
+	SelectFrameBuffer(iFrame, bIncludingExternalBorder, &lpFrameBuffer, &iFrameLinePitch, &iFrameWidth, &iFrameHeight);
 
 	for (iLine=0 ; iLine < iFrameHeight ; iLine++)
 	{
-		lpStartLineBuffer = lpFrameBuffer + iLine * iFramePitch;
+		lpStartLineBuffer = lpFrameBuffer + iLine * iFrameLinePitch;
 		// Left border
 		for (iPixel=0 ; iPixel < iLeftThick ; iPixel++)
 		{
@@ -511,21 +567,21 @@ void CMultiFrames::DrawBorder(int iFrame, BOOL bIncludingExternalBorder, int iLu
 		// Top border
 		for (iLine=0 ; iLine < iTopThick ; iLine++)
 		{
-			lpStartLineBuffer = lpFrameBuffer + iLine * iFramePitch;
+			lpStartLineBuffer = lpFrameBuffer + iLine * iFrameLinePitch;
 			lpStartLineBuffer[iPixel*2] = iLuminLevel;
 			lpStartLineBuffer[iPixel*2+1] = 128;
 		}
 		// Bottom border
 		for (iLine=(iFrameHeight-1) ; iLine>=(iFrameHeight-iBottomThick) ; iLine--)
 		{
-			lpStartLineBuffer = lpFrameBuffer + iLine * iFramePitch;
+			lpStartLineBuffer = lpFrameBuffer + iLine * iFrameLinePitch;
 			lpStartLineBuffer[iPixel*2] = iLuminLevel;
 			lpStartLineBuffer[iPixel*2+1] = 128;
 		}
 	}
 }
 
-// Add a border around each frame - boder size is 2 pixels
+// Draw a border around each frame - boder size is 2 pixels
 // Color is different for the current active frame and other frames
 void CMultiFrames::DrawBorders()
 {
@@ -550,12 +606,12 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 		for (i=0 ; i<(m_NbFrames-iDeltaFrames) ; i++)
 		{
 			MoveFrame(i+iDeltaFrames, i);
-			bFrameFilled[i] = bFrameFilled[i+iDeltaFrames];
+			m_FrameFilled[i] = m_FrameFilled[i+iDeltaFrames];
 		}
 		for (i=(m_NbFrames-iDeltaFrames) ; i<m_NbFrames ; i++)
 		{
 			ResetFrameToBlack(i);
-			bFrameFilled[i] = -1;
+			m_FrameFilled[i] = -1;
 		}
 		m_CurrentFrame = m_NbFrames - 1 - iDeltaFrames;
 	}
@@ -565,12 +621,12 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 		for (i=(m_NbFrames-1) ; i>=iDeltaFrames ; i--)
 		{
 			MoveFrame(i-iDeltaFrames, i);
-			bFrameFilled[i] = bFrameFilled[i-iDeltaFrames];
+			m_FrameFilled[i] = m_FrameFilled[i-iDeltaFrames];
 		}
 		for (i=(iDeltaFrames-1) ; i>=0 ; i--)
 		{
 			ResetFrameToBlack(i);
-			bFrameFilled[i] = -1;
+			m_FrameFilled[i] = -1;
 		}
 		m_CurrentFrame = iDeltaFrames;
 	}
@@ -582,14 +638,14 @@ void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
 	BYTE* lpFrameSrcBuffer;
 	int iFrameSrcWidth;
 	int iFrameSrcHeight;
-	int iFrameSrcPitch;
+	int iFrameSrcLinePitch;
 	BYTE* lpFrameDestBuffer;
 	int iFrameDestWidth;
 	int iFrameDestHeight;
-	int iFrameDestPitch;
+	int iFrameDestLinePitch;
 
-	SelectFrameBuffer(iFrameSrc, FALSE, &lpFrameSrcBuffer, &iFrameSrcPitch, &iFrameSrcWidth, &iFrameSrcHeight);
-	SelectFrameBuffer(iFrameDest, FALSE, &lpFrameDestBuffer, &iFrameDestPitch, &iFrameDestWidth, &iFrameDestHeight);
+	SelectFrameBuffer(iFrameSrc, FALSE, &lpFrameSrcBuffer, &iFrameSrcLinePitch, &iFrameSrcWidth, &iFrameSrcHeight);
+	SelectFrameBuffer(iFrameDest, FALSE, &lpFrameDestBuffer, &iFrameDestLinePitch, &iFrameDestWidth, &iFrameDestHeight);
 
 	// The source and destination frames must have the same size
 	if (iFrameSrcWidth == iFrameDestWidth && iFrameSrcHeight == iFrameDestHeight)
@@ -601,8 +657,8 @@ void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
 				lpFrameDestBuffer[iPixel*2] = lpFrameSrcBuffer[iPixel*2];
 				lpFrameDestBuffer[iPixel*2+1] = lpFrameSrcBuffer[iPixel*2+1];
 			}
-			lpFrameSrcBuffer += iFrameSrcPitch;
-			lpFrameDestBuffer += iFrameDestPitch;
+			lpFrameSrcBuffer += iFrameSrcLinePitch;
+			lpFrameDestBuffer += iFrameDestLinePitch;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.118 2003-04-07 09:17:13 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.119 2003-06-14 19:38:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.118  2003/04/07 09:17:13  adcockj
+// Fixes for correct operation of IsFirstInSeries
+//
 // Revision 1.117  2003/03/25 13:41:33  laurentg
 // Replace a LOG(1) by a LOG(2)
 //
@@ -1489,7 +1492,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 			if (pMultiFrames && pMultiFrames->IsSwitchRequested())
 			{
-				pMultiFrames->DoSwitch();
+				pMultiFrames->HandleSwitch();
 				if (!pMultiFrames->IsActive())
 				{
 					delete pMultiFrames;

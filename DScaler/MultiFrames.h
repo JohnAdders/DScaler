@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.7 2003-03-23 09:24:27 laurentg Exp $
+// $Id: MultiFrames.h,v 1.8 2003-06-14 19:35:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/03/23 09:24:27  laurentg
+// Automatic leave preview mode when necessary
+//
 // Revision 1.6  2003/03/22 18:58:40  laurentg
 // New key to switch to or from preview mode
 // Spped up initial display of channels in preview mode
@@ -69,16 +72,29 @@ public:
 	CSource* GetSource();
 	int GetWidth();
 	int GetHeight();
+
+	// Inform if the multi frames output is engaged
 	BOOL IsActive();
+
+	// Enable the multi frames output
 	void Enable();
+
+	// Disable the multi frames output
 	void Disable();
+
 	BOOL IsSwitchRequested();
 	void RequestSwitch();
-	void DoSwitch();
+	void HandleSwitch();
+
 	void Reset();
+
 	void SelectFrame();
 	void UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, BYTE** lpBuffer, int* Pitch);
+
+	// User commands handling
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+
+	void AckContentChange();
 
 protected:
 
@@ -89,11 +105,17 @@ private:
 	// Free previously allocated memory buffer to store the picture containing all the frames
 	void FreeMemoryBuffer();
 
-	void SelectFrameBuffer(int iFrame, BOOL bIncludingBorder, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight);
+	// Get the information relative to a frame including :
+	// - the pointer to the corresponding memory buffer
+	// - its width and height
+	// - its line pitch
+	void SelectFrameBuffer(int iFrame, BOOL bIncludingBorder, BYTE** lpFrameBuffer, int *iFrameLinePitch, int *iFrameWidth, int *iFrameHeight);
 
+	// Draw a border around one frame
+	// Color and size of each border are gien as parameters
 	void DrawBorder(int iFrame, BOOL bIncludingExternalBorder, int iLuminLevel, unsigned int iLeftThick, unsigned int iRightThick, unsigned int iTopThick, unsigned int iBottomThick);
 
-	// Add a border around each frame - boder size is 2 pixels
+	// Draw a border around each frame - boder size is 2 pixels
 	// Color is different for the current active frame and other frames
 	void DrawBorders();
 
@@ -114,6 +136,8 @@ private:
 	// Kind of mode : channels or stills
 	eMultiFramesMode m_Mode;
 
+	CSource* m_Source;
+
 	// The screen is cut in m_NbCols columns and m_NbRows rows,
 	// that is a total of m_NbFrames frames
 	int m_NbFrames;
@@ -127,17 +151,27 @@ private:
 	// Memory buffer containing all the frames
 	BYTE* m_MemoryBuffer;
 
+	// Table giving the loading status for each frame
+	int* m_FrameFilled;
+
 	// The active frame in the grid
 	int m_CurrentFrame;
 
 	// Indicate if multiple frames mode is ON or OFF
 	BOOL m_Active;
 
-	BOOL bSwitchRequested;
-	int* bFrameFilled;
-	BOOL bNavigAllowed;
-	int iDeltaNewFrame;
-	CSource* m_Source;
+	// Set when a switch of mode is requested
+	BOOL m_SwitchRequested;
+
+	// Indicate if the user commands to navigate through the frames is enabled or not
+	BOOL m_NavigAllowed;
+
+	// Number of frames to shift
+	// Positive value to shift to left
+	// Negative value to shift to right
+	int m_DeltaNewFrame;
+
+	BOOL m_ContentChanged;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.h,v 1.13 2002-06-13 12:10:22 adcockj Exp $
+// $Id: Filter.h,v 1.14 2003-01-02 16:22:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam,
 void Filter_ReadSettingsFromIni();
 void Filter_SetMenu(HMENU hMenu);
 void Filter_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+BOOL Filter_WillWeDoOutput();
 
 
 long Filter_DoInput(TDeinterlaceInfo* Info, int History, BOOL HurryUp);

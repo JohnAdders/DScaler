@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.17 2002-06-13 12:10:22 adcockj Exp $
+// $Id: Other.h,v 1.18 2003-01-02 16:22:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -61,11 +61,11 @@ BOOL Overlay_Destroy();
 DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb);
 COLORREF Overlay_GetColor();
 void Overlay_SetColorControls();
-BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo);
+BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer);
 BOOL Overlay_Lock(TDeinterlaceInfo* pInfo);
-BOOL Overlay_Unlock_Back_Buffer();
+BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer);
 BOOL Overlay_Unlock();
-BOOL Overlay_Flip(DWORD FlipFlag);
+BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo);
 HDC Overlay_GetDC();
 void Overlay_ReleaseDC(HDC hDC);
 

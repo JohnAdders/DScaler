@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.48 2003-01-01 20:56:46 atnak Exp $
+// $Id: Other.cpp,v 1.49 2003-01-02 16:22:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2003/01/01 20:56:46  atnak
+// Updates for various VideoText changes
+//
 // Revision 1.47  2002/10/16 16:08:54  tobbej
 // spelling error
 //
@@ -215,6 +218,7 @@ LPDIRECTDRAWSURFACE     lpDDSurface = NULL;
 // OverLay
 LPDIRECTDRAWSURFACE     lpDDOverlay = NULL;
 LPDIRECTDRAWSURFACE     lpDDOverlayBack = NULL;
+LPDIRECTDRAWSURFACE     lpDDExtra = NULL;
 BOOL bCanColorKey=FALSE;
 DWORD DestSizeAlign;
 DWORD SrcSizeAlign;
@@ -222,6 +226,7 @@ COLORREF OverlayColor = RGB(32, 16, 16);
 DWORD PhysicalOverlayColor = RGB(32, 16, 16);
 long BackBuffers = -1;     // Make new user parm, TRB 10/28/00
 BOOL bCanDoBob = FALSE;
+BOOL bCanDoBlt = FALSE;
 BOOL bCanDoColorKey = FALSE;
 DDCOLORCONTROL OriginalColorControls;
 LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
@@ -798,6 +803,25 @@ BOOL Overlay_Create()
        pDDColorControl = NULL;
     }
 
+    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
+    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
+    SurfaceDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+    SurfaceDesc.ddsCaps.dwCaps =  DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+
+    // create a surface big enough to hold the largest resolution supported
+    // this ensures that we can always have enough space to allow
+    // Mode changes without recreating the overlay
+    SurfaceDesc.dwWidth = DSCALER_MAX_WIDTH;
+    SurfaceDesc.dwHeight = DSCALER_MAX_HEIGHT;
+    SurfaceDesc.ddpfPixelFormat = PixelFormat;
+
+    ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDExtra, NULL);
+    if(FAILED(ddrval))
+    {
+       LOG(1, "Couldn't create additional buffer for output filters retval %08x", ddrval);
+       lpDDExtra = NULL;
+    }
+
     LeaveCriticalSection(&hDDCritSect);
 
     // overlay clean is wrapped in a critcal section already
@@ -884,6 +908,14 @@ BOOL Overlay_Destroy()
         pDDColorControl = NULL;
 
     }
+
+    // Now destroy the Extra Surface
+    if (lpDDExtra != NULL)
+    {
+        lpDDExtra->Release();
+        lpDDExtra = NULL;
+    }
+   
     // Now destroy the Back Overlay
     if (lpDDOverlayBack != NULL)
     {
@@ -917,6 +949,51 @@ COLORREF Overlay_GetColor()
 
 static HRESULT FlipResult = 0;             // Need to try again for flip?
 
+BOOL Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
+{
+    if(lpDDExtra == NULL)
+    {
+        LOG(1, "Extra Surface has been deleted");
+        return FALSE;
+    }
+
+    EnterCriticalSection(&hDDCritSect);
+
+    HRESULT         ddrval;
+    static DWORD    dwFlags = DDLOCK_WAIT | DDLOCK_NOSYSLOCK;
+    DDSURFACEDESC   SurfaceDesc;
+
+    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
+    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
+    ddrval = lpDDExtra->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
+
+    // fix suggested by christoph for NT 4.0 sp6
+    if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
+    {
+        //remove flag
+        ddrval = lpDDExtra->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
+        if( SUCCEEDED(ddrval) )
+        {
+            //remember for next time
+            dwFlags = DDLOCK_WAIT;
+            LOG(1, "Switched to not using NOSYSLOCK");
+        }
+    }
+
+    if(FAILED(ddrval))
+    {
+        LOG(1, "Lock failed %8x", ddrval);
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+    }
+
+    pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
+    pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
+    // stay in critical section
+    return TRUE;
+}
+
+
 //
 // Add a function to Lock the overlay surface and update some Info from it.
 // We always lock and write to the back buffer.
@@ -926,8 +1003,12 @@ static HRESULT FlipResult = 0;             // Need to try again for flip?
 // non-waiting last flip failed.  If so, try it one more time,
 // then give up.  Tom Barry 10/26/00
 //
-BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo)
+BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)
 {
+    if(bUseExtraBuffer && lpDDExtra != NULL)
+    {
+        return Overlay_Lock_Extra_Buffer(pInfo);
+    }
     if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
     {
         LOG(1, "Overlay has been deleted");
@@ -1038,8 +1119,37 @@ BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)
     return TRUE;
 }
 
-BOOL Overlay_Unlock_Back_Buffer()
+BOOL Overlay_Unlock_Extra_Buffer()
 {
+    if(lpDDExtra == NULL)
+    {
+        LOG(1, "Extra Surface has been deleted");
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+    }
+
+    // we are already in critical section
+    HRESULT ddrval = lpDDExtra->Unlock(NULL);
+    BOOL RetVal = TRUE;
+    if(FAILED(ddrval))
+    {
+        if(ddrval != DDERR_SURFACELOST)
+        {
+            LOG(1, "Unexpected failure in Unlock %8x", ddrval);
+        }
+        RetVal = FALSE;
+    }
+    LeaveCriticalSection(&hDDCritSect);
+    return RetVal;
+}
+
+
+BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
+{
+    if(bUseExtraBuffer && lpDDExtra != NULL)
+    {
+        return Overlay_Unlock_Extra_Buffer();
+    }
     if(lpDDOverlayBack == NULL)
     {
         LOG(1, "Overlay has been deleted");
@@ -1086,7 +1196,46 @@ BOOL Overlay_Unlock()
     return RetVal;
 }
 
-BOOL Overlay_Flip(DWORD FlipFlag)
+void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
+{
+    if(bCanDoBlt)
+    {
+        HRESULT ddrval = lpDDOverlay->BltFast(0, 0, lpDDExtra, NULL, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+        if(SUCCEEDED(ddrval))
+        {
+            // OK done so exit
+            return;
+        }
+        // this is a drop through so that we always get a nice image
+        LOG(1, "Blt failed");
+        // Since this is new and is an optimization
+        // just set it up so that the old way gets used
+        bCanDoBlt = FALSE;
+    }
+    
+    Overlay_Lock_Back_Buffer(pInfo, TRUE);
+    BYTE* FromPtr = pInfo->Overlay;
+    long FromPitch = pInfo->OverlayPitch;
+    Overlay_Lock_Back_Buffer(pInfo, FALSE);
+    BYTE* ToPtr = pInfo->Overlay;
+
+    for(int i(0) ; i < pInfo->FrameHeight; ++i)
+    {
+        memcpy(ToPtr, FromPtr, pInfo->LineLength);
+        FromPtr += FromPitch;
+        ToPtr += pInfo->OverlayPitch;
+    }
+    _asm
+    {
+        emms
+    }
+
+    Overlay_Unlock_Back_Buffer(FALSE);
+    Overlay_Unlock_Back_Buffer(TRUE);
+}
+
+
+BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo)
 {
     if(lpDDOverlay == NULL)
     {
@@ -1094,7 +1243,14 @@ BOOL Overlay_Flip(DWORD FlipFlag)
         return FALSE;
     }
 
+
+    if(bUseExtraBuffer && lpDDExtra != NULL)
+    {
+        Overlay_Copy_Extra(pInfo);
+    }
+
     EnterCriticalSection(&hDDCritSect);
+
     BOOL RetVal = TRUE;
     FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
     if(FAILED(FlipResult))
@@ -1217,6 +1373,8 @@ BOOL InitDD(HWND hWnd)
             ErrorBox("Can't Use Overlay");
             return (FALSE);
         }
+
+        bCanDoBlt = ((DriverCaps.dwCaps & DDCAPS_CANBLTSYSMEM) != 0);
     }
 
     ddrval = lpDD->SetCooperativeLevel(hWnd, DDSCL_NORMAL);

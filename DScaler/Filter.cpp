@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.31 2002-10-30 12:56:44 robmuller Exp $
+// $Id: Filter.cpp,v 1.32 2003-01-02 16:22:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/10/30 12:56:44  robmuller
+// Do not load plugins with extensions other than .dll
+//
 // Revision 1.30  2002/09/17 17:41:54  tobbej
 // added fpu/mmx check
 //
@@ -170,6 +173,20 @@ void Filter_DoOutput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
         }
     }
 }
+
+BOOL Filter_WillWeDoOutput()
+{
+    int i;
+    for(i = 0; i < NumFilters; i++)
+    {
+        if(Filters[i]->bActive && !Filters[i]->bOnInput)
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 
 void LoadFilterPlugin(LPCSTR szFileName)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.103 2003-01-01 20:56:45 atnak Exp $
+// $Id: OutThreads.cpp,v 1.104 2003-01-02 16:22:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2003/01/01 20:56:45  atnak
+// Updates for various VideoText changes
+//
 // Revision 1.102  2002/12/13 20:31:16  tobbej
 // added new assert macro for detecting if running on output thread
 //
@@ -714,6 +717,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	BYTE* pAllocBuf = NULL;
 	BOOL bTakeStill = FALSE;
 	BOOL bUseOverlay = TRUE;
+    BOOL bUseExtraBuffer = Filter_WillWeDoOutput();
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -1060,8 +1064,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #ifdef _DEBUG
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 #endif
-
-							if(!Overlay_Lock_Back_Buffer(&Info))
+							if(!Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
@@ -1129,7 +1132,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						if(bOverlayLocked)
 						{
 							// somewhere above we will have locked the buffer, unlock before flip
-							if(!Overlay_Unlock_Back_Buffer())
+							if(!Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
@@ -1192,7 +1195,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
 							}
 
-							if(!Overlay_Flip(FlipFlag))
+							if(!Overlay_Flip(FlipFlag, bUseExtraBuffer, &Info))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Flip");
@@ -1201,6 +1204,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								DScalerDeinitializeThread();
 								return 1;
 							}
+                            
+                            // update which surface we write to only after a flip
+                            bUseExtraBuffer = Filter_WillWeDoOutput();
 
 #ifdef _DEBUG
 	                        pPerf->StopCount(PERF_FLIP_OVERLAY);
@@ -1217,7 +1223,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
 
-                        Overlay_Unlock_Back_Buffer();
+                        Overlay_Unlock_Back_Buffer(bUseExtraBuffer);
 
 #ifdef _DEBUG
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);

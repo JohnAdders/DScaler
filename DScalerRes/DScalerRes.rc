@@ -125,7 +125,7 @@ BEGIN
     "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
     "S",            IDM_TSSTOP,             VIRTKEY, SHIFT, NOINVERT
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, NOINVERT
-    "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, SHIFT, NOINVERT
+    "T",            IDM_VT_MIXEDMODE,         VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_MINUS,  VIRTKEY, NOINVERT
     "U",            IDM_USATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL, 
@@ -1253,7 +1253,7 @@ BEGIN
     BEGIN
         MENUITEM "Capture VBI-&Data",           IDM_VBI
         MENUITEM SEPARATOR
-        MENUITEM "Video&Text",                  IDM_VBI_VT, GRAYED
+        MENUITEM "&VideoText",                  IDM_VBI_VT, GRAYED
         MENUITEM "V&PS-Data",                   IDM_VBI_VPS, GRAYED
         MENUITEM "&WSS-Data",                   IDM_VBI_WSS, GRAYED
         POPUP "&Closed Captions"
@@ -1269,7 +1269,8 @@ BEGIN
             MENUITEM "Text 4",                      IDM_TEXT4
         END
         MENUITEM SEPARATOR
-        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
+        MENUITEM "Toggle &Teletext Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
+        MENUITEM "Toggle &Mixed Mode\tShift-T", IDM_VT_MIXEDMODE, GRAYED
         POPUP "Teletext Code Page"
         BEGIN
             MENUITEM "&Automatic",                  IDM_VT_AUTOCODEPAGE
@@ -1297,7 +1298,7 @@ BEGIN
             MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
         END
         MENUITEM "Teletext Font &Anti-aliasing", IDM_VT_ANTIALIAS
-        MENUITEM "&Videotext Reset (After switch over Composite)  ", 
+        MENUITEM "Videotext &Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "&Search VideoText ...\tCtrl+F", IDM_VT_SEARCH, GRAYED

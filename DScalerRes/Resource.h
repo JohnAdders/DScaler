@@ -69,6 +69,7 @@
 #define IDI_TOOLBAR_VOLUME_LANG2        242
 #define IDD_TOOLBAR_VIDEOINPUT          243
 #define IDM_CALL_VIDEOTEXT              245
+#define IDM_VT_MIXEDMODE                246
 #define IDB_SMALL_LOGO                  253
 #define IDD_AUDIOSTANDARD_CUSTOM        253
 #define IDM_VT_RESET                    261

@@ -46,6 +46,13 @@ typedef enum
 	VT_LASTSTATE,
 } VT_STATE;
 
+typedef enum
+{
+	VT_UK_CODE_PAGE,
+	VT_FRENCH_CODE_PAGE,
+	VT_CODE_PAGE_LASTONE,
+} eCODEPAGE;
+
 typedef struct
 {
 	// Type 0 data
@@ -86,15 +93,6 @@ typedef struct
 		WORD PTY;
 	} PDC;
 } TPacket30;
-
-
-typedef struct
-{
-	HWND Dialog;
-	int  Page;
-	int  SubPage;
-	BOOL PageChange;
-} TVTDialog;
 
 typedef struct
 {
@@ -137,6 +135,8 @@ typedef struct
 void VBI_VT_Init();
 void VBI_VT_Exit();
 
+BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
 BYTE DeHam(BYTE byte);
 BYTE ReverseDeHam(BYTE b);
 void StorePage(BYTE mag, BYTE page);
@@ -158,13 +158,11 @@ void VT_DoUpdate_Page(int Page);
 void VT_Redraw(HWND hWnd, HDC hDC);
 void VT_ResetStation();
 LPCSTR VT_GetStation();
+void VT_SetCodePage(eCODEPAGE Codepage);
 
 
 extern VT_STATE VTState;
 
-extern HWND ShowVTInfo;
-
-extern TVTPage VTPages[800];
-extern TVTDialog VTDialog;
+extern int VTPage;
 
 #endif

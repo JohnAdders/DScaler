@@ -39,7 +39,6 @@
 #define __DIALOGS_H___
 
 BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

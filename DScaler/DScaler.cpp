@@ -476,11 +476,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_VT_PAGE_MINUS:
 			if(VTState != VT_OFF)
 			{
-				if(VTDialog.Page >= 100)
+				if(VTPage >= 100)
 				{
-					VTDialog.Page--;
-					VTDialog.PageChange = TRUE;
-					VT_DoUpdate_Page(VTDialog.Page - 100);
+					VTPage--;
+					VT_DoUpdate_Page(VTPage - 100);
 					InvalidateRect(hWnd,NULL,FALSE);
 				}
 			}
@@ -490,11 +489,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_VT_PAGE_PLUS:
 			if(VTState != VT_OFF)
 			{
-				if(VTDialog.Page < 900)
+				if(VTPage < 900)
 				{
-					VTDialog.Page++;
-					VTDialog.PageChange = TRUE;
-					VT_DoUpdate_Page(VTDialog.Page - 100);
+					VTPage++;
+					VT_DoUpdate_Page(VTPage - 100);
 					InvalidateRect(hWnd,NULL,FALSE);
 				}
 			}
@@ -1147,7 +1145,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				!Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)));
 			Start_Capture();
 			break;
-        
+
+		case IDM_VT_UK:
+			Stop_Capture();
+			VT_SetCodePage(VT_UK_CODE_PAGE);
+			Start_Capture();
+			break;
+
+		case IDM_VT_FRENCH:
+			Stop_Capture();
+			VT_SetCodePage(VT_FRENCH_CODE_PAGE);
+			Start_Capture();
+			break;
+
+
         case IDM_USECHROMA:
 			Stop_Capture();
 			Setting_SetValue(FD_Common_GetSetting(USECHROMA), 
@@ -1540,8 +1551,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			KillTimer(hWnd, TIMER_KEYNUMBER);
 			if(VTState != VT_OFF)
 			{
-				VTDialog.Page = atoi(ChannelString);
-				VT_DoUpdate_Page(VTDialog.Page - 100);
+				VTPage = atoi(ChannelString);
+				VT_DoUpdate_Page(VTPage - 100);
 				InvalidateRect(hWnd, NULL, FALSE);
 			}
 			else

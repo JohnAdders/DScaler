@@ -44,6 +44,7 @@
 #define IDC_DSCALERMENU                 180
 #define IDC_CONTEXTMENU                 181
 #define IDD_SETTINGS                    182
+#define IDB_FRENCH_VTCHARS              183
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -859,13 +860,15 @@
 #define IDM_ASPECT_SETTINGS             2023
 #define IDM_TIMING_SETTNGS              2024
 #define IDM_ALWAYONTOPFULLSCREEN        2025
+#define IDM_VT_UK                       2026
+#define IDM_VT_FRENCH                   2027
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        183
-#define _APS_NEXT_COMMAND_VALUE         2026
+#define _APS_NEXT_RESOURCE_VALUE        184
+#define _APS_NEXT_COMMAND_VALUE         2028
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

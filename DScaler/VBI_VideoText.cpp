@@ -46,15 +46,18 @@
 #include "Other.h"
 #include "DebugLog.h"
 
-HWND ShowVTInfo=NULL;
 TPacket30 Packet30;
 
 TVTPage VTPages[800];
-TVTDialog VTDialog;
+int VTPage = 100;
 
 unsigned int VBI_spos;
 
 int VBI_FPS;
+int VTCachedPages = 0;
+int VTCurrentPage = 0;
+int VTCurrentSubCode = 0;
+eCODEPAGE VTCodePage = VT_UK_CODE_PAGE;
 
 char VPS_tmpName[9]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 char VPS_lastname[9]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
@@ -104,8 +107,7 @@ BYTE VT_Header_Line[40];
 
 #define GetBit(val,bit,mask) (BYTE)(((val)>>(bit))&(mask))
 
-BITMAPINFO* VTCharSetLarge = NULL;
-BITMAPINFO* VTCharSetSmall = NULL;
+BITMAPINFO* VTCharSet = NULL;
 BITMAPINFO* VTScreen = NULL;
 
 VT_STATE VTState = VT_OFF;
@@ -139,14 +141,11 @@ unsigned short VTColourTable[9] =
 
 void VBI_VT_Init()
 {
-	HGLOBAL hGlobal;
-
-	hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
-	VTCharSetLarge = (BITMAPINFO *) LockResource(hGlobal);
+	VT_SetCodePage(VTCodePage);
 
 	memset(VTPages, 0, 800 * sizeof(TVTPage));
 
-	VTDialog.Dialog = NULL;
+	VTPage = 100;
 	VT_ChannelChange();
 
 	VTScreen = (BITMAPINFO *) calloc(1, sizeof(BITMAPINFOHEADER) + sizeof(WORD) * 256 + VT_LARGE_BITMAP_WIDTH * 2 * VT_LARGE_BITMAP_HEIGHT);
@@ -161,10 +160,6 @@ void VBI_VT_Init()
 	VTScreen->bmiHeader.biYPelsPerMeter = 0;
 	VTScreen->bmiHeader.biClrUsed = 0;
 	VTScreen->bmiHeader.biClrImportant = 0;
-
-	VTDialog.SubPage = 0;
-	VTDialog.Page = 100;
-	VTDialog.PageChange = TRUE;
 }
 
 void VBI_VT_Exit()
@@ -175,10 +170,10 @@ void VBI_VT_Exit()
         VTScreen = NULL;
     }
 	
-    if(VTCharSetLarge != NULL)
+    if(VTCharSet != NULL)
     {
-    	DeleteObject(VTCharSetLarge);
-        VTCharSetLarge = NULL;
+    	DeleteObject(VTCharSet);
+        VTCharSet = NULL;
     }
 }
 
@@ -285,10 +280,10 @@ void VBI_decode_vt(unsigned char *dat)
 
 		if(MagazineStates[mag].bStarted)
 		{
-			if(VTState != VT_OFF && MagazineStates[mag].Page == VTDialog.Page - 100)
+			if(VTState != VT_OFF && MagazineStates[mag].Page == VTPage - 100)
 			{
 				RECT Dest;
-				VT_DoUpdate_Page(VTDialog.Page - 100);
+				VT_DoUpdate_Page(VTPage - 100);
 				GetDestRect(&Dest);
 				InvalidateRect(hWnd, &Dest, FALSE);
 			}
@@ -315,12 +310,8 @@ void VBI_decode_vt(unsigned char *dat)
 
 		sub = nPage * 10 + nPage1;
 
-		if (ShowVTInfo != NULL)
-		{
-			SetDlgItemInt(ShowVTInfo, TEXT2, pnum, FALSE);
-			SetDlgItemInt(ShowVTInfo, TEXT4, sub, FALSE);
-			SetDlgItemInt(ShowVTInfo, TEXT5, j, FALSE);
-		}
+		VTCurrentPage = pnum;
+		VTCurrentSubCode = sub;
 
 		pnum -= 100;
 
@@ -337,6 +328,10 @@ void VBI_decode_vt(unsigned char *dat)
 			MagazineStates[mag].bStarted = TRUE;
 			LOG("Mag %d Page %d SubCode %d", mag, pnum, sub);
 
+			if(VTPages[pnum].bUpdated == FALSE)
+			{
+				++VTCachedPages;
+			}
 			VTPages[pnum].wCtrl = ctrl;
 			if (MagazineStates[mag].PageErase == TRUE)
 			{
@@ -386,6 +381,13 @@ void VBI_decode_vt(unsigned char *dat)
 		break;
 	
 	case 25:
+		if(MagazineStates[mag].bStarted)
+		{
+			memcpy(&VTPages[MagazineStates[mag].Page].Frame[0], dat + 5, 40);
+			VTPages[MagazineStates[mag].Page].bUpdated = 1;
+			VTPages[MagazineStates[mag].Page].Fill = TRUE;
+			VTPages[MagazineStates[mag].Page].LineUpdate[0] = 1;
+		}
 		break;
 	case 26:					// PDC
 	case 27:
@@ -394,10 +396,6 @@ void VBI_decode_vt(unsigned char *dat)
 		break;
 	case 30:
 		StorePacket30(dat);
-		if(VTState != VT_OFF)
-		{
-            //InvalidateRect(hWnd, NULL, FALSE);
-		}
 		break;
 	case 31:
 		ftal = unham(dat + 5);
@@ -555,7 +553,7 @@ void VT_DoUpdate_Page(int Page)
 
 	wCharWidth = LARGE_WIDTH;
 	wCharHeight = LARGE_HEIGHT;
-	pCharSet = VTCharSetLarge;
+	pCharSet = VTCharSet;
 	VT_Bitmap_width = VT_LARGE_BITMAP_WIDTH;
 
 	bForceShowTopLine = TRUE;
@@ -586,7 +584,7 @@ void VT_DoUpdate_Page(int Page)
 		if (VTPages[Page].bUpdated == FALSE)
 		{
 
-			sprintf(tmp2, "  P%-3d \x7", VTDialog.Page);
+			sprintf(tmp2, "  P%-3d \x7", VTPage);
 			for (n = 0; n < 40; n++)
 			{
 				tmp[n] = VT_Header_Line[n] & 0x7f;
@@ -609,7 +607,7 @@ void VT_DoUpdate_Page(int Page)
 
 			if (row == 0)
 			{
-				sprintf(tmp2, "  P%-3d \x7", VTDialog.Page);
+				sprintf(tmp2, "  P%-3d \x7", VTPage);
 				strncpy(tmp, tmp2, 8);
 				if (VTPages[Page].Fill == FALSE)
 				{
@@ -763,6 +761,7 @@ void VT_ChannelChange()
 {
 	memset(VTPages, 0, 800 * sizeof(TVTPage));
 	memset(MagazineStates, 0, sizeof(TMAGSTATE) * NUM_MAGAZINES);
+	VTCachedPages = 0;
 }
 
 
@@ -914,4 +913,90 @@ void VT_ResetStation()
 LPCSTR VT_GetStation()
 {
 	return Packet30.Identifier;
+}
+
+BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		SetTimer(hDlg, 0, 2000, NULL);
+	case WM_TIMER:
+		SetDlgItemInt(hDlg, TEXT1, VTCachedPages, FALSE);
+		SetDlgItemInt(hDlg, TEXT2, VTCurrentPage, FALSE);
+		SetDlgItemInt(hDlg, TEXT2, VTCurrentSubCode, FALSE);
+		break;
+
+	case WM_COMMAND:
+		if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
+		{
+			KillTimer(hDlg, 0);
+			EndDialog(hDlg, TRUE);
+		}
+		break;
+	}
+
+	return (FALSE);
+}
+
+
+void VT_SetCodePage(eCODEPAGE Codepage)
+{
+    if(VTCharSet != NULL)
+    {
+    	DeleteObject(VTCharSet);
+        VTCharSet = NULL;
+    }
+	VTCodePage = Codepage;
+	switch(Codepage)
+	{
+	case VT_FRENCH_CODE_PAGE:
+		VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_FRENCH_VTCHARS), RT_BITMAP));
+		break;
+	case VT_UK_CODE_PAGE:
+	default:
+		VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
+		break;
+	}
+}
+
+SETTING VTSettings[VT_SETTING_LASTONE] =
+{
+	{
+		"VT Code Page", SLIDER, 0, (long*)&VTCodePage,
+		VT_UK_CODE_PAGE, VT_UK_CODE_PAGE, VT_CODE_PAGE_LASTONE - 1, 1, 1,
+		NULL,
+		"VT", "CodePage", NULL,
+	},
+};
+
+SETTING* VT_GetSetting(VT_SETTING Setting)
+{
+	if(Setting > -1 && Setting < VT_SETTING_LASTONE)
+	{
+		return &(VTSettings[Setting]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void VT_ReadSettingsFromIni()
+{
+	int i;
+	for(i = 0; i < VT_SETTING_LASTONE; i++)
+	{
+		Setting_ReadFromIni(&(VTSettings[i]));
+	}
+}
+
+void VT_WriteSettingsToIni()
+{
+	int i;
+	for(i = 0; i < VT_SETTING_LASTONE; i++)
+	{
+		Setting_WriteToIni(&(VTSettings[i]));
+	}
 }

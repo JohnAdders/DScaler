@@ -143,32 +143,6 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 	return (FALSE);
 }
 
-BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		ShowVTInfo = hDlg;
-		SetTimer(hDlg, 0, 2000, NULL);
-	case WM_TIMER:
-		SetDlgItemInt(hDlg, IDT_VBI_FPS, VBI_FPS, FALSE);
-
-		break;
-
-	case WM_COMMAND:
-		if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
-		{
-			KillTimer(hDlg, 0);
-			ShowVTInfo = NULL;
-			EndDialog(hDlg, TRUE);
-		}
-		break;
-	}
-
-	return (FALSE);
-}
-
 BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
 

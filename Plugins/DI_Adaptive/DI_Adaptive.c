@@ -39,7 +39,7 @@ long CurrentIndex = -1;
 DEINTERLACE_METHOD** DeintMethods = NULL;
 DEINTERLACE_METHOD* CurrentMethod = NULL;
 DEINTERLACEPLUGINSETSTATUS* pfnSetStatus;
-LPSTR ModeList[100];
+LPCSTR ModeList[100];
 
 
 ///////////////////////////////////////////////////////////////////////////////

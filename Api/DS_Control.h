@@ -773,4 +773,19 @@ typedef enum
 #define WM_FLT_LOGOKILL_SETVALUE        (WM_USER + 130)
 #define WM_FLT_LOGOKILL_CHANGEVALUE     (WM_USER + 230)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in VT.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    VTCODEPAGE = 0,
+    VT_SETTING_LASTONE,
+} VT_SETTING;
+
+#define WM_VT_GETVALUE     (WM_USER + 31)
+#define WM_VT_SETVALUE     (WM_USER + 131)
+#define WM_VT_CHANGEVALUE  (WM_USER + 231)
+
+
 #endif

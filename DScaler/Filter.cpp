@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.19 2002-04-24 19:10:38 tobbej Exp $
+// $Id: Filter.cpp,v 1.20 2002-06-07 16:36:27 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/04/24 19:10:38  tobbej
+// test of new tree based setting dialog
+//
 // Revision 1.18  2001/11/26 15:27:18  adcockj
 // Changed filter structure
 //
@@ -211,6 +214,40 @@ void AddUIForFilterPlugin(HMENU hFilterMenu, HMENU hSettingMenu, FILTER_METHOD* 
     }
 }
 
+// This is a first attempt to order the filters. Sorting is done on the HistoryRequired field.
+// Since filters with HistoryRequired == 1 can't be disturbed by the other filters we 
+// put them in front of the list.
+// This is by no means ideal but it does solve many of the current filter order problems.
+
+void SortFilterPlugins()
+{
+    FILTER_METHOD* temp;
+
+    if(NumFilters < 2)
+    {
+        return;
+    }
+
+    for(int j = 1; j < NumFilters; j++)
+    {
+        for(int i = 0; i < NumFilters - j; i++)
+        {
+            if(Filters[i]->HistoryRequired > Filters[i+1]->HistoryRequired)
+            {
+                temp = Filters[i];
+                Filters[i] = Filters[i+1];
+                Filters[i+1] = temp;
+            }
+        }
+    }
+
+    LOG(2, "Filter order:");
+    for(int i = 0; i < NumFilters; i++)
+    {
+        LOG(2, "  - %s", Filters[i]->szName);
+    }
+}
+
 BOOL LoadFilterPlugins()
 {
     WIN32_FIND_DATA FindFileData;
@@ -235,6 +272,9 @@ BOOL LoadFilterPlugins()
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }
+        FindClose(hFindFile);
+
+        SortFilterPlugins();
     }
 
     if(NumFilters > 0)

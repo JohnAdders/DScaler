@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.5 2004-08-20 07:30:31 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.6 2004-08-20 09:16:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/08/20 07:30:31  atnak
+// Added title value to groups plus other changes.
+//
 // Revision 1.4  2004/08/14 13:45:23  adcockj
 // Fixes to get new settings code working under VS6
 //
@@ -53,6 +56,7 @@
 
 CSettingGroup::CSettingGroup(IN std::string section, IN PSETTINGREPOSITORY repository) :
 	m_repository(repository),
+	m_mutexEnterCount(0),
 	m_notifyProc(NULL)
 {
 	m_section = section;
@@ -466,18 +470,38 @@ void CSettingGroup::CleanupLocking()
 }
 
 
-void CSettingGroup::EnterLock()
+void CSettingGroup::EnterLock(IN UINT iterations)
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
-	EnterCriticalSection(&m_groupAccessMutex);
+	for (UINT i = 0; i < iterations; i++)
+	{
+		EnterCriticalSection(&m_groupAccessMutex);
+		m_mutexEnterCount++;
+	}
 #endif
 }
 
 
-void CSettingGroup::LeaveLock()
+UINT CSettingGroup::LeaveLock(IN BOOL iterate)
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
+	if (iterate)
+	{
+		UINT iterations = m_mutexEnterCount;
+		m_mutexEnterCount = 0;
+
+		for (UINT i = 0; i < iterations; i++)
+		{
+			LeaveCriticalSection(&m_groupAccessMutex);
+		}
+		return iterations;
+	}
+
+	m_mutexEnterCount--;
 	LeaveCriticalSection(&m_groupAccessMutex);
+	return 1;
+#else
+	return 0;
 #endif
 }
 
@@ -694,41 +718,43 @@ BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
 		return TRUE;
 	}
 
+	UINT lockLeaveCount = 0;
 	BOOL response = TRUE;
 
 	// First call the global notification callback if one exists
 	if (m_notifyProc != NULL)
 	{
-		// Remove the lock before calling the callback and set it again
-		// after.  No protection is necessary during the callback time
-		// because there is another synchronization method (RECHANGING)
-		// is used for changes that occur during this time.  Hopefully,
-		// m_notifyProc, info and newValue will not change during this
-		// time.
-		// ## This shouldn't be necessary as long as a blocking call isn't
-		// made to another thread with the request to change this group's
-		// setting.  (In which case it'll deadlock.)  This LeaveLock() and
-		// EnterLock() combination can't always work as it is because there's
-		// no consideration made to EnterLock() having been called multiple
-		// times before this point. ##
-		// LeaveLock();
+		// All iterations of the lock MUST be removed before entering the
+		// notification callback.  It's otherwise too easy to create
+		// deadlocking conditions in DScaler's current code.  No protection
+		// is necessary during the callback time because there is another
+		// synchronization method (RECHANGING) is used for changes that
+		// occur during this time.  Hopefully, m_notifyProc, info and
+		// newValue will not change during the unsafe window created here.
+		lockLeaveCount = LeaveLock(TRUE);
+
 		response = (m_notifyProc)(message, newValue, oldValue,
 			(HSETTING)info, m_callbackContext);
 
 		if (response == NOTIFY_REPLY_DONT_NOTIFY)
 		{
-			// EnterLock();
+			EnterLock(lockLeaveCount);
 			return TRUE;
 		}
 		if (response == NOTIFY_REPLY_DONT_CHANGE)
 		{
-			// EnterLock();
+			EnterLock(lockLeaveCount);
 			return FALSE;
 		}
 	}
 
 	if (info != NULL)
 	{
+		if (lockLeaveCount == 0)
+		{
+			lockLeaveCount = LeaveLock(TRUE);
+		}
+
 		// Call the notification callback of this setting object
 		if (!info->object->Notify(message, newValue, oldValue))
 		{
@@ -742,7 +768,9 @@ BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
 			response = info->key->Notify(message, newValue, oldValue);
 		}
 	}
-	// EnterLock();
+
+	// Reenter all iterations of the lock that was left above.
+	EnterLock(lockLeaveCount);
 	return response;
 }
 
@@ -1334,20 +1362,22 @@ void CSettingGroupEx::_CreateAssociationConfig(PSETTINGCONFIG association)
 }
 
 
-void CSettingGroupEx::EnterLock()
+void CSettingGroupEx::EnterLock(IN UINT iterations)
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
 	// Lock this group and all subgroups at the same time.
-	m_dependencyGestalt->EnterMutexSection();
+	m_dependencyGestalt->EnterMutexSection(iterations);
 #endif
 }
 
 
-void CSettingGroupEx::LeaveLock()
+UINT CSettingGroupEx::LeaveLock(IN BOOL iterate)
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
 	// Unlock this group and all subgroups at the same time.
-	m_dependencyGestalt->LeaveMutexSection();
+	return m_dependencyGestalt->LeaveMutexSection(iterate);
+#else
+	return 0;
 #endif
 }
 
@@ -1617,7 +1647,8 @@ LPCSTR CSettingGroupEx::GetSection(IN DBIT dependantBits, IN BOOL useOldValues,
 
 CSettingGroupEx::CDependencyGestalt::CDependencyGestalt() :
 	m_validDependeeBits(0),
-	m_dependantMask(0)
+	m_dependantMask(0),
+	m_sectionMutexEnterCount(0)
 {
 	InitializeCriticalSection(&m_sectionMutex);
 }
@@ -1769,15 +1800,33 @@ DBIT CSettingGroupEx::CDependencyGestalt::GetDependantMask()
 }
 
 
-void CSettingGroupEx::CDependencyGestalt::EnterMutexSection()
+void CSettingGroupEx::CDependencyGestalt::EnterMutexSection(IN UINT iterations)
 {
-	EnterCriticalSection(&m_sectionMutex);
+	for (UINT i = 0; i < iterations; i++)
+	{
+		EnterCriticalSection(&m_sectionMutex);
+		m_sectionMutexEnterCount++;
+	}
 }
 
 
-void CSettingGroupEx::CDependencyGestalt::LeaveMutexSection()
+UINT CSettingGroupEx::CDependencyGestalt::LeaveMutexSection(IN BOOL iterate)
 {
+	if (iterate)
+	{
+		UINT iterations = m_sectionMutexEnterCount;
+		m_sectionMutexEnterCount = 0;
+
+		for (UINT i = 0; i < iterations; i++)
+		{
+			LeaveCriticalSection(&m_sectionMutex);
+		}
+		return iterations;
+	}
+
+	m_sectionMutexEnterCount--;
 	LeaveCriticalSection(&m_sectionMutex);
+	return 1;
 }
 
 

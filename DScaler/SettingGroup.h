@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.5 2004-08-20 07:30:32 atnak Exp $
+// $Id: SettingGroup.h,v 1.6 2004-08-20 09:16:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/08/20 07:30:32  atnak
+// Added title value to groups plus other changes.
+//
 // Revision 1.4  2004/08/14 13:45:23  adcockj
 // Fixes to get new settings code working under VS6
 //
@@ -261,9 +264,12 @@ protected:
 	virtual inline void InitializeLocking();
 	virtual inline void CleanupLocking();
 
-	// Multithread protection lock and unlock functions.
-	virtual inline void EnterLock();
-	virtual inline void LeaveLock();
+	// Multithread protection lock and unlock functions.  Iterations
+	// defines the number of times the lock is entered.  LeaveLock() with
+	// a TRUE first parameter will leave all iterations of the lock and
+	// return the number of times it left the lock.
+	virtual inline void EnterLock(IN UINT iterations = 1);
+	virtual inline UINT LeaveLock(IN BOOL iterate = FALSE);
 
 	// Puts info onto the setting info list.
 	virtual void AddSetting(IN PSETTINGINFO info);
@@ -332,6 +338,7 @@ protected:
 	BOOL						m_silent;
 	// Critical section used for protecting group access.
 	CRITICAL_SECTION			m_groupAccessMutex;
+	UINT						m_mutexEnterCount;
 
 	// Global notify callback and its context value
 	PSETTINGGROUP_NOTIFYPROC	m_notifyProc;
@@ -596,8 +603,8 @@ protected:
 								IN DBIT mask = ~(DBIT)0);
 
 		// Locking functions offered for a critical section.
-		inline void EnterMutexSection();
-		inline void LeaveMutexSection();
+		inline void EnterMutexSection(IN UINT iterations = 1);
+		inline UINT LeaveMutexSection(IN BOOL iterate = FALSE);
 
 		// Sets and gets the dependant mask value.  This value is just stored by
 		// this class.  It isn't used as part of any other process in the class.
@@ -623,6 +630,7 @@ protected:
 		DEPENDVALUEVECTOR			m_dependeeValueVector;
 		DBIT						m_dependantMask;
 		CRITICAL_SECTION			m_sectionMutex;
+		UINT						m_sectionMutexEnterCount;
 	} *PDEPENDENCYGESTALT;
 
 protected:
@@ -669,8 +677,8 @@ protected:
 	// Override multithread protection lock and unlock functions.  This
 	// version uses CDependencyGestalt's lock to lock all subgroups at
 	// the same time.
-	virtual inline void EnterLock();
-	virtual inline void LeaveLock();
+	virtual inline void EnterLock(IN UINT iterations = 1);
+	virtual inline UINT LeaveLock(IN BOOL iterate = FALSE);
 
 	// Override to insert any necessary master setting change checks.
 	virtual void CommonPostChangeRoutine(IN PCCINFO ccinfo);

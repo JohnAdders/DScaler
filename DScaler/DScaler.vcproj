@@ -3078,6 +3078,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\TEA5767.cpp">
+			</File>
+			<File
 				RelativePath="TiffHelper.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -4080,6 +4083,9 @@
 			</File>
 			<File
 				RelativePath="TDA9887.h">
+			</File>
+			<File
+				RelativePath=".\TEA5767.h">
 			</File>
 			<File
 				RelativePath="TiffHelper.h">

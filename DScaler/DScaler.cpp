@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.169 2002-05-30 21:47:21 robmuller Exp $
+// $Id: DScaler.cpp,v 1.170 2002-06-01 22:24:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.169  2002/05/30 21:47:21  robmuller
+// Unmute sound on volume plus/minus.
+//
 // Revision 1.168  2002/05/30 19:48:04  robmuller
 // Unhide cursor when moving outside client area.
 //
@@ -1450,6 +1453,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_START_MANUAL_CALIBRATION:
             pCalibration->Start(CAL_MANUAL);
+            break;
+
+        case IDM_START_YUV_RANGE:
+            pCalibration->Start(CAL_CHECK_YUV_RANGE);
             break;
 
         case IDM_STOP_CALIBRATION:

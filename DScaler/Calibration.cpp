@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.63 2002-05-27 22:28:20 laurentg Exp $
+// $Id: Calibration.cpp,v 1.64 2002-06-01 22:24:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/05/27 22:28:20  laurentg
+// LIMIT_Y and LIMIT_CbCr used in the conversion from RGB to YCbCr
+//
 // Revision 1.62  2002/05/27 20:14:54  laurentg
 // Possibility to define the pattern size in the pattern description
 //
@@ -171,6 +174,9 @@
 // Macro to return the absolute value
 #define ABSOLUTE_VALUE(x) ((x) < 0) ? -(x) : (x)
 
+// Macro to return the average value with rounding
+#define AVERAGE_VALUE(sum,nb)   ((sum) + ((nb) / 2)) / (nb)
+
 
 static long SourceOverscan = 0;
 static long LeftCropping = 8;
@@ -218,7 +224,17 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
         RGB2YUV(ref_R_val2, ref_G_val2, ref_B_val2, &ref_Y_val2, &ref_U_val2, &ref_V_val2);
     }
 
-    cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
+    YUV_val_available = RGB_val_available = FALSE;
+
+    for (int i = 0 ; i <= 2; i++)
+    {
+        component_cpt[i] = 0;
+        component_min[i] = 255;
+        component_max[i] = 0;
+    }
+    cpt_nb = 0;
+    min_available = FALSE;
+    max_available = FALSE;
 }
 
 CColorBar::CColorBar(CColorBar* pColorBar)
@@ -254,7 +270,17 @@ CColorBar::CColorBar(CColorBar* pColorBar)
     ref_U_val2 = val2;
     ref_V_val2 = val3;
 
-    cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
+    YUV_val_available = RGB_val_available = FALSE;
+
+    for (int i = 0 ; i <= 2; i++)
+    {
+        component_cpt[i] = 0;
+        component_min[i] = 255;
+        component_max[i] = 0;
+    }
+    cpt_nb = 0;
+    min_available = FALSE;
+    max_available = FALSE;
 }
 
 // This methode returns the position of the color bar
@@ -312,65 +338,93 @@ void CColorBar::GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U,
 
 // This methode returns the calculated average color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
+BOOL CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
 { 
-    if (YUV)
+    if (YUV && !YUV_val_available && RGB_val_available)
+    {
+        RGB2YUV(R_val, G_val, B_val, &Y_val, &U_val, &V_val);
+        YUV_val_available = TRUE;
+    }
+    else if (!YUV && !RGB_val_available && YUV_val_available)
+    {
+        YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
+        RGB_val_available = TRUE;
+    }
+
+    if (YUV && YUV_val_available)
     {
         *pR_Y = Y_val;
         *pG_U = U_val;
         *pB_V = V_val;
+        return TRUE;
     }
-    else
+    else if (!YUV && RGB_val_available)
     {
         *pR_Y = R_val;
         *pG_U = G_val;
         *pB_V = B_val;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
     }
 }
 
 // This methode returns the delta between reference color and calculated average color
 // It includes a delta for each color component + the sum of these three absolute deltas.
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal)
+BOOL CColorBar::GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal)
 {
-    if (YUV)
+    if (YUV && !YUV_val_available && RGB_val_available)
+    {
+        RGB2YUV(R_val, G_val, B_val, &Y_val, &U_val, &V_val);
+        YUV_val_available = TRUE;
+    }
+    else if (!YUV && !RGB_val_available && YUV_val_available)
+    {
+        YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
+        RGB_val_available = TRUE;
+    }
+
+    if (YUV && YUV_val_available)
     {
         *pR_Y = Y_val - ref_Y_val;
         *pG_U = U_val - ref_U_val;
         *pB_V = V_val - ref_V_val;
     }
-    else
+    else if (!YUV && RGB_val_available)
     {
         *pR_Y = R_val - ref_R_val;
         *pG_U = G_val - ref_G_val;
         *pB_V = B_val - ref_B_val;
+    }
+    else
+    {
+        return FALSE;
     }
 
     *pTotal = 0;
     *pTotal += ABSOLUTE_VALUE(*pR_Y);
     *pTotal += ABSOLUTE_VALUE(*pG_U);
     *pTotal += ABSOLUTE_VALUE(*pB_V);
+    return TRUE;
 }
 
 // This method analyzed the overlay buffer to calculate average color
 // in the zone defined by the color bar
 BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo)
 { 
-    int left, right, top, bottom, i, j;
-    unsigned int Y, U, V, nb_Y, nb_U, nb_V;
+    int left, right, top, bottom, i, j, k;
+    unsigned char *pComponentVal[3];
+    unsigned int nb_val[3];
+    unsigned char min[3];
+    unsigned char max[3];
     BYTE* buf;
     int overscan;
     int left_crop, total_crop;
     int width = pInfo->FrameWidth;
     int height = pInfo->FieldHeight;
-
-    if (reinit)
-    {
-        cpt_Y = 0;
-        cpt_U = 0;
-        cpt_V = 0;
-        cpt_nb = 0;
-    }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
     overscan = SourceOverscan * width / (height * 2);
@@ -396,78 +450,142 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     }
     overscan = SourceOverscan;
     top = (height - overscan) * m_TopBorder / 10000 + overscan / 2;
+    if (top < 0)
+    {
+        top = 0;
+    }
+    else if (top >= height)
+    {
+        top = height - 1;
+    }
     bottom = (height - overscan) * m_BottomBorder / 10000 + overscan / 2;
+    if (bottom < 0)
+    {
+        bottom = 0;
+    }
+    else if (bottom >= height)
+    {
+        bottom = height - 1;
+    }
+
+    LOG(5, "CalcAvgColor Zone %d %d %d %d", left, right, top, bottom);
 
     // Sum separately Y, U and V in this rectangular zone
     // Each line is like this : YUYVYUYV...
-    Y = 0; nb_Y = 0;
-    U = 0; nb_U = 0;
-    V = 0; nb_V = 0;
+    if (reinit)
+    {
+        cpt_nb = 0;
+    }
+    for (i = 0 ; i <= 2; i++)
+    {
+        if (reinit)
+        {
+            component_cpt[i] = 0;
+        }
+        min[i] = 255;
+        max[i] = 0;
+        nb_val[i] = 0;
+    }
     for (i = top ; i <= bottom ; i++)
     {
-        for (j = left ; j <= right ; j++)
+        buf = pInfo->PictureHistory[0]->pData + (i * pInfo->InputPitch);
+        for (j = (left*2) ; j <= (right*2) ; j+=2)
         {
-            buf = pInfo->PictureHistory[0]->pData + (i * pInfo->InputPitch);
-            Y += buf[j*2];
-            nb_Y++;
-            if (j % 2)
+            // Component Y
+            k = 2;
+            component_cpt[k] += buf[j];
+            (nb_val[k])++;
+            if (buf[j] < min[k])
             {
-                V += buf[j*2+1];
-                nb_V++;
+                min[k] = buf[j];
             }
-            else
+            if (buf[j] > max[k])
             {
-                U += buf[j*2+1];
-                nb_U++;
+                max[k] = buf[j];
+            }
+            // Compnent U or V
+            k = (j/2) % 2;
+            component_cpt[k] += buf[j+1];
+            (nb_val[k])++;
+            if (buf[j+1] < min[k])
+            {
+                min[k] = buf[j+1];
+            }
+            if (buf[j+1] > max[k])
+            {
+                max[k] = buf[j+1];
             }
         }
     }
-
-    // Calculate the average for Y, U and V
-    cpt_Y += Y;
-    cpt_U += U;
-    cpt_V += V;
     cpt_nb++;
+    for (i = 0 ; i <= 2; i++)
+    {
+        component_min[i] = min[i];
+        component_max[i] = max[i];
+    }
+    min_available = TRUE;
+    max_available = TRUE;
+
+    LOG(5, "CalcAvgColor Min Y %d U %d V %d", component_min[2], component_min[0], component_min[1]);
+    LOG(5, "CalcAvgColor Max Y %d U %d V %d", component_max[2], component_max[0], component_max[1]);
 
     if (cpt_nb >= nb_calc_needed)
     {
-        if (nb_Y > 0)
-        {
-            Y_val = (cpt_Y + (cpt_nb * nb_Y / 2)) / (cpt_nb * nb_Y);
-        }
-        else
-        {
-            Y_val = 0;
-        }
-        if (nb_Y > 0)
-        {
-            U_val = (cpt_U + (cpt_nb * nb_U / 2)) / (cpt_nb * nb_U);
-        }
-        else
-        {
-            U_val = 0;
-        }
-        if (nb_Y > 0)
-        {
-            V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
-        }
-        else
-        {
-            V_val = 0;
-        }
-        V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
+        YUV_val_available = FALSE;
+        RGB_val_available = FALSE;
 
-        // Save corresponding RGB values too
-        YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
+        pComponentVal[0] = &U_val;
+        pComponentVal[1] = &V_val;
+        pComponentVal[2] = &Y_val;
 
-        LOG(5, "CalcAvgColor YUV %d %d %d %d %d %d %d %d %d", Y_val, U_val, V_val, left, right, top, bottom, height, width);
-        LOG(5, "CalcAvgColor RGB %d %d %d %d %d %d %d %d %d", R_val, G_val, B_val, left, right, top, bottom, height, width);
-
-        cpt_Y = 0;
-        cpt_U = 0;
-        cpt_V = 0;
+        for (i = 0 ; i <= 2 ; i++)
+        {
+            if (nb_val[i] > 0)
+            {
+                *(pComponentVal[i]) = AVERAGE_VALUE(component_cpt[i], cpt_nb * nb_val[i]);
+            }
+            else
+            {
+                *(pComponentVal[i]) = 0;
+            }
+            component_cpt[i] = 0;
+        }
         cpt_nb = 0;
 
+        YUV_val_available = TRUE;
+
+        LOG(5, "CalcAvgColor YUV %d %d %d %d %d %d %d %d %d", Y_val, U_val, V_val, left, right, top, bottom, height, width);
+
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+BOOL CColorBar::GetMinColor(unsigned char* pY, unsigned char* pU, unsigned char* pV)
+{
+    if (min_available)
+    {
+        *pY = component_min[2];
+        *pU = component_min[0];
+        *pV = component_min[1];
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+BOOL CColorBar::GetMaxColor(unsigned char* pY, unsigned char* pU, unsigned char* pV)
+{
+    if (max_available)
+    {
+        *pY = component_max[2];
+        *pU = component_max[0];
+        *pV = component_max[1];
         return TRUE;
     }
     else
@@ -482,6 +600,9 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
     int overscan, left_crop, total_crop;
     BYTE* buf;
     int i, j, k, l;
+
+    if (m_TypeDraw == DRAW_NO)
+        return;
 
     overscan = Overscan * Width / (Height * 2);
     left_crop = ((LCrop * Width) + 500) / 1000;
@@ -761,10 +882,12 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
         it != m_ColorBars.end(); 
         ++it)
     {
-        (*it)->GetDeltaColor(YUV, &delta[0], &delta[1], &delta[2], &delta[3]);
-        for (j = 0 ; j <= 3 ; j++)
+        if ((*it)->GetDeltaColor(YUV, &delta[0], &delta[1], &delta[2], &delta[3]) == TRUE)
         {
-            sum_delta[j] += ABSOLUTE_VALUE(delta[j]);
+            for (j = 0 ; j <= 3 ; j++)
+            {
+                sum_delta[j] += ABSOLUTE_VALUE(delta[j]);
+            }
         }
     }
 
@@ -1044,6 +1167,12 @@ int CTestPattern::GetWidth()
 int CTestPattern::GetHeight()
 {
     return m_Height;
+}
+
+void CTestPattern::SetSize(int width, int height)
+{
+    m_Width = width;
+    m_Height = height;
 }
 
 // This method allows to create a new sub-pattern to the test pattern
@@ -1441,6 +1570,8 @@ CCalibration::CCalibration()
     m_Saturation_V = NULL;
     m_Hue          = NULL;
 
+    m_YUVRangePat = NULL;
+
     last_tick_count = -1;
     LoadTestPatterns();
 
@@ -1625,6 +1756,7 @@ void CCalibration::LoadTestPatterns()
     struct stat st;
     FILE* File;
     char FullPath[MAX_PATH];
+    CColorBar* color_bar;
     
     GetModuleFileName (NULL, FullPath, sizeof(FullPath));
     strcpy(strrchr(FullPath, '\\'), "\\patterns\\card_calibr.d3u");
@@ -1681,6 +1813,11 @@ void CCalibration::LoadTestPatterns()
         }
         fclose(File);
     }
+
+    m_YUVRangePat = new CTestPattern("Check YUV Range", 720, 480);
+    color_bar = new CColorBar(0, 10000, 0, 10000, DRAW_NO, 0, 0, FALSE, 0, 0, 0, 0, 0, 0);
+    m_YUVRangePat->m_ColorBars.push_back(color_bar);
+    m_YUVRangePat->CreateGlobalSubPattern();
 }
 
 // This method unloads all the predefined test patterns
@@ -1694,6 +1831,8 @@ void CCalibration::UnloadTestPatterns()
         delete *it;
     }
     m_TestPatterns.clear();
+    delete m_YUVRangePat;
+    m_YUVRangePat = NULL;
     m_CurTestPat = NULL;
     m_CurSubPat = NULL;
 }
@@ -1797,6 +1936,7 @@ void CCalibration::SetMenu(HMENU hMenu)
     }
 	
     EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_START_YUV_RANGE, m_IsRunning ? MF_GRAYED : MF_ENABLED);
     if (pSource != NULL && pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
@@ -1862,6 +2002,19 @@ void CCalibration::Start(eTypeCalibration type)
 {
     BOOL OkToStart = FALSE;
 
+    CSource* pSource = Providers_GetCurrentSource();
+    if (pSource == NULL)
+        return;
+
+    if (type == CAL_CHECK_YUV_RANGE)
+    {
+        if (m_YUVRangePat != NULL)
+        {
+            m_YUVRangePat->SetSize(pSource->GetWidth(), pSource->GetHeight());
+        }
+        m_CurTestPat = m_YUVRangePat;
+    }
+
     if (m_CurTestPat == NULL)
         return;
 
@@ -1875,10 +2028,6 @@ void CCalibration::Start(eTypeCalibration type)
     m_Saturation_V = NULL;
     delete m_Hue;
     m_Hue = NULL;
-
-    CSource* pSource = Providers_GetCurrentSource();
-    if (pSource == NULL)
-        return;
 
     /// \todo this is bad coding sort this out
     if (pSource->GetBrightness() != NULL)
@@ -1951,6 +2100,7 @@ void CCalibration::Start(eTypeCalibration type)
         }
         break;
     case CAL_MANUAL:
+    case CAL_CHECK_YUV_RANGE:
         initial_step = 0;
         nb_steps = 1;
         OkToStart = TRUE;
@@ -1978,7 +2128,8 @@ void CCalibration::Start(eTypeCalibration type)
 
 void CCalibration::Stop()
 {
-    if (m_TypeCalibration != CAL_MANUAL)
+    if ( (m_TypeCalibration != CAL_MANUAL)
+      && (m_TypeCalibration != CAL_CHECK_YUV_RANGE) )
     {
         OSD_ShowInfosScreen(hWnd, 4, 0);
         if ( (current_step != -1)
@@ -2003,6 +2154,12 @@ void CCalibration::Stop()
 
     // Erase the OSD screen
     OSD_Clear(hWnd);
+
+    if (m_TypeCalibration == CAL_CHECK_YUV_RANGE)
+    {
+        m_CurTestPat = NULL;
+        m_CurSubPat = NULL;
+    }
 
 	m_IsRunning = FALSE;
 }
@@ -2072,7 +2229,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 
         // Calculations with current setitngs
         if ( m_CurSubPat->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS_LOW, pInfo)
-          && (m_TypeCalibration != CAL_MANUAL) )
+          && (m_TypeCalibration != CAL_MANUAL)
+          && (m_TypeCalibration != CAL_CHECK_YUV_RANGE) )
         {
             current_step = -1;
             last_tick_count = tick_count + 500;

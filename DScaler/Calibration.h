@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.29 2002-05-27 20:14:54 laurentg Exp $
+// $Id: Calibration.h,v 1.30 2002-06-01 22:24:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,7 @@ enum eTypeDraw {
     DRAW_LINEX,
     DRAW_GRADATIONH,
     DRAW_GRADATIONV,
+    DRAW_NO,
 };
 
 /// Define all types of adjustments for a sub-pattern
@@ -73,6 +74,7 @@ enum eTypeCalibration {
     CAL_AUTO_BRIGHT_CONTRAST,
     CAL_AUTO_COLOR,
     CAL_AUTO_FULL,
+    CAL_CHECK_YUV_RANGE,
 };
 
 
@@ -100,15 +102,19 @@ public:
     void GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
     /// This methode returns the calculated average color
-    void GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
+    BOOL GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
     /// This methode returns the delta between reference color and calculated average color
-    void GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
+    BOOL GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
 
     /** This method analyzed the overlay buffer to calculate average color
         in the zone defined by the color bar
     */
     BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
+
+    BOOL GetMinColor(unsigned char* pY, unsigned char* pU, unsigned char* pV);
+
+    BOOL GetMaxColor(unsigned char* pY, unsigned char* pU, unsigned char* pV);
 
     void Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Overscan, int LCrop, int RCrop);
 
@@ -159,6 +165,9 @@ protected:
     /// Reference value for blue component
     unsigned char ref_B_val;
 
+    /// Calculated average value in the corresponding zone of the overlay available in the YUV colorspace
+    BOOL YUV_val_available;
+
     /// Calculated average Y value in the corresponding zone of the overlay
     unsigned char Y_val;
 
@@ -167,6 +176,9 @@ protected:
 
     /// Calculated average V value in the corresponding zone of the overlay
     unsigned char V_val;
+
+    /// Calculated average value in the corresponding zone of the overlay available in the RGB colorspace
+    BOOL RGB_val_available;
 
     /// Calculated average R value in the corresponding zone of the overlay
     unsigned char R_val;
@@ -211,10 +223,12 @@ private:
     void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
 #endif
 
-    unsigned int cpt_Y;
-    unsigned int cpt_U;
-    unsigned int cpt_V;
+    unsigned int component_cpt[3];
     unsigned int cpt_nb;
+    BOOL min_available;
+    unsigned char component_min[3];
+    BOOL max_available;
+    unsigned char component_max[3];
 };
 
 
@@ -271,6 +285,8 @@ public:
 
     /// This method returns the height (number of lines) of the test pattern
     int GetHeight();
+
+    void SetSize(int width, int height);
 
     /// This method allows to create a new sub-pattern to the test pattern
     /// which is a merge of all the others sub-patterns
@@ -405,6 +421,7 @@ private:
     CCalSetting* setting1;
     CCalSetting* setting2;
     CCalSetting* setting3;
+    CTestPattern* m_YUVRangePat;
 };
 
 

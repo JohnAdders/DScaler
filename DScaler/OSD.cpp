@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.60 2002-05-28 08:23:05 robmuller Exp $
+// $Id: OSD.cpp,v 1.61 2002-06-01 22:24:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/05/28 08:23:05  robmuller
+// Fixed: OSD did never output non-antialiased.
+// Changed: OSD font now defaults to non-antialiased to fix the OSD performance problems.
+//
 // Revision 1.59  2002/05/20 18:08:29  robmuller
 // Fixed: screen only partly updated when in video text mode.
 //
@@ -1427,7 +1431,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
     char            szInfo[64];
     int             nLine;
     long            Color, BackColor;
-    unsigned char   val1, val2, val3;
+    unsigned char   val1, val2, val3, val4, val5, val6;
     int             dif_val1, dif_val2, dif_val3;
     int             dif_total1, dif_total2;
     char            szResult[16];
@@ -1435,6 +1439,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
     CSubPattern*    pSubPattern;
     CSource*        pSource = Providers_GetCurrentSource();
     ISetting*       pSetting = NULL;
+    BOOL            avail1, avail2;
 
     if (Size == 0)
     {
@@ -1447,7 +1452,8 @@ static void OSD_RefreshCalibrationScreen(double Size)
     // Video settings
     if (pSource != NULL)
     {
-        if (pCalibration->GetType() == CAL_MANUAL)
+        if ( (pCalibration->GetType() == CAL_MANUAL)
+          || (pCalibration->GetType() == CAL_CHECK_YUV_RANGE) )
         {
             pSetting = pSource->GetBrightness();
             if(pSetting != NULL)
@@ -1626,7 +1632,8 @@ static void OSD_RefreshCalibrationScreen(double Size)
 
     if (pCalibration->IsRunning() && (pTestPattern != NULL))
 	{
-        if (pCalibration->GetType() != CAL_MANUAL)
+        if ( (pCalibration->GetType() != CAL_MANUAL)
+          && (pCalibration->GetType() != CAL_CHECK_YUV_RANGE) )
         {
             switch (pCalibration->GetCurrentStep())
             {
@@ -1677,6 +1684,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
         }
 
         if ( (pCalibration->GetType() == CAL_MANUAL)
+          || (pCalibration->GetType() == CAL_CHECK_YUV_RANGE)
           || (pCalibration->GetCurrentStep() == -1) )
         {
             nLine = 4;
@@ -1700,47 +1708,69 @@ static void OSD_RefreshCalibrationScreen(double Size)
                     it != pSubPattern->m_ColorBars.end(); 
                     ++it)
     	    	{
-                    (*it)->GetRefColor(FALSE, &val1, &val2, &val3);
-    	    		BackColor = RGB(val1, val2, val3);
-
-                    (*it)->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
-                    if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                      && (pCalibration->GetType() == CAL_MANUAL) )
+                    if (pCalibration->GetType() == CAL_CHECK_YUV_RANGE)
                     {
-                        sprintf (szInfo, "(%+d,%+d,%+d) (%d)", dif_val1, dif_val2, dif_val3, dif_total1);
-                        OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                    }
-                    (*it)->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
-                    if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
-                      && (pCalibration->GetType() == CAL_MANUAL) )
-                    {
-                        sprintf (szInfo, "(%d) (%+d,%+d,%+d)", dif_total2, dif_val1, dif_val2, dif_val3);
-                        OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                    }
-
-                    if (pCalibration->GetType() == CAL_MANUAL)
-                    {
-                        if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                          && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                        if ( (*it)->GetMinColor(&val1, &val2, &val3)
+                          && (*it)->GetMaxColor(&val4, &val5, &val6) )
                         {
-                            OSD_GetTextResult(dif_total1, szInfo, &Color);
+                            sprintf (szInfo, "Y Range [%u,%u]", val1, val4);
+                            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            sprintf (szInfo, "U Range [%u,%u]", val2, val5);
+                            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            sprintf (szInfo, "V Range [%u,%u]", val3, val6);
+                            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                         }
-                        else if ( ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                               && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
-                        {
-                            OSD_GetTextResult(dif_total2, szInfo, &Color);
-                        }
-                        else
-                        {
-                            OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szInfo, &Color);
-                        }
-    		    		OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                     }
                     else
                     {
-                        OSD_GetTextResult(dif_total2, szResult, &Color);
-                        sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
-		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                        (*it)->GetRefColor(FALSE, &val1, &val2, &val3);
+    	    		    BackColor = RGB(val1, val2, val3);
+
+                        avail1 = (*it)->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
+                        if ( avail1
+                          && Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                          && (pCalibration->GetType() == CAL_MANUAL) )
+                        {
+                            sprintf (szInfo, "(%+d,%+d,%+d) (%d)", dif_val1, dif_val2, dif_val3, dif_total1);
+                            OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                        }
+                        avail2 = (*it)->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
+                        if ( avail2
+                          && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+                          && (pCalibration->GetType() == CAL_MANUAL) )
+                        {
+                            sprintf (szInfo, "(%d) (%+d,%+d,%+d)", dif_total2, dif_val1, dif_val2, dif_val3);
+                            OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                        }
+
+                        if (pCalibration->GetType() == CAL_MANUAL)
+                        {
+                            if ( avail1
+                              && Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                              && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                            {
+                                OSD_GetTextResult(dif_total1, szInfo, &Color);
+        		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            }
+                            else if ( avail2
+                                   && ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                                   && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                            {
+                                OSD_GetTextResult(dif_total2, szInfo, &Color);
+        		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            }
+                            else if (avail1 && avail2)
+                            {
+                                OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szInfo, &Color);
+        		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            }
+                        }
+                        else if (avail2)
+                        {
+                            OSD_GetTextResult(dif_total2, szResult, &Color);
+                            sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
+		    		        OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                        }
                     }
     	    	}
             }

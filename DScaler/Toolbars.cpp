@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.3 2002-09-28 13:34:36 kooiman Exp $
+// $Id: Toolbars.cpp,v 1.4 2002-10-01 15:53:16 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/28 13:34:36  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.2  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -74,8 +77,8 @@ extern void ShowText(HWND hWnd, LPCTSTR szText);
 ///////////////////////////////////////////////////////////////////////////////
 
 CToolbarChannels::CToolbarChannels(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
-LastChannel(-1),
-m_oldComboProc(NULL)
+    LastChannel(-1),
+    m_oldComboProc(NULL)
 {
     eEventType EventList[] = {EVENT_CHANNEL_CHANGE, EVENT_ENDOFLIST};
 	EventCollector->Register(this, EventList);   
@@ -108,7 +111,7 @@ HWND CToolbarChannels::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceI
 		{
 			::SetWindowLong(hWndCombo, GWL_USERDATA, (LONG)this);
 		
-			m_oldComboProc = (void*)SetWindowLong(hWndCombo, GWL_WNDPROC, (LONG)MyComboProcWrap);
+			m_oldComboProc = (WNDPROC)SetWindowLong(hWndCombo, GWL_WNDPROC, (LONG)MyComboProcWrap);
 		}
 	}
 	
@@ -127,10 +130,10 @@ LRESULT CToolbarChannels::MyComboProc(HWND hDlg, UINT message, WPARAM wParam, LP
 		return FALSE;	
 	
 	}
-	return CallWindowProc((WNDPROC)m_oldComboProc, hDlg, message, wParam, lParam);	
+	return CallWindowProc(m_oldComboProc, hDlg, message, wParam, lParam);	
 }
 
-LRESULT CToolbarChannels::MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK CToolbarChannels::MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	
 	CToolbarChannels *pThis = (CToolbarChannels*)::GetWindowLong(hDlg, GWL_USERDATA);

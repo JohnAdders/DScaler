@@ -20,12 +20,12 @@ public:
 	LRESULT MyComboProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 private:
 	int LastChannel;
-	void *m_oldComboProc;
+	WNDPROC m_oldComboProc;
 
     void UpdateControls(HWND hWnd,bool bInitDialog);
     LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
 	
-	static LRESULT MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 

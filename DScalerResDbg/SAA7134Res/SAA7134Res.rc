@@ -195,6 +195,8 @@ BEGIN
                     WS_TABSTOP,8,17,31,10
     EDITTEXT        IDC_BLUR_EDIT,104,17,20,12,ES_AUTOHSCROLL | ES_READONLY
     GROUPBOX        "Sharpness",IDC_STATIC,4,4,124,28
+    LTEXT           "Stuff here are experiemental, some things are interface only and don't actually do anything.",
+                    IDC_STATIC,12,60,104,28
 END
 
 

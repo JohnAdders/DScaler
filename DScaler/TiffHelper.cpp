@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.15 2002-04-14 00:46:49 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.16 2002-04-14 10:16:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/04/14 00:46:49  laurentg
+// Table of compatibility TIFF updated
+// Log messages suppressed
+//
 // Revision 1.14  2002/04/13 23:51:30  laurentg
 // Table of compatibility (class, compression) added
 //
@@ -86,7 +90,10 @@
 
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
+//#define NO_CHECK_TIFF_COMPRESS
 
+
+#ifndef NO_CHECK_TIFF_COMPRESS
 static struct {
     uint16 tag_class;
     uint16 tag_compression;
@@ -97,24 +104,33 @@ static struct {
     { PHOTOMETRIC_MINISWHITE , COMPRESSION_CCITTFAX4 },
     { PHOTOMETRIC_MINISWHITE , COMPRESSION_PACKBITS  },
     { PHOTOMETRIC_MINISWHITE , COMPRESSION_LZW       },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_JPEG      },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_DEFLATE   },
     { PHOTOMETRIC_MINISBLACK , COMPRESSION_NONE      },
     { PHOTOMETRIC_MINISBLACK , COMPRESSION_CCITTRLE  },
     { PHOTOMETRIC_MINISBLACK , COMPRESSION_CCITTFAX3 },
     { PHOTOMETRIC_MINISBLACK , COMPRESSION_CCITTFAX4 },
     { PHOTOMETRIC_MINISBLACK , COMPRESSION_PACKBITS  },
     { PHOTOMETRIC_MINISBLACK , COMPRESSION_LZW       },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_JPEG      },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_DEFLATE   },
     { PHOTOMETRIC_PALETTE    , COMPRESSION_NONE      },
     { PHOTOMETRIC_PALETTE    , COMPRESSION_LZW       },
     { PHOTOMETRIC_RGB        , COMPRESSION_NONE      },
     { PHOTOMETRIC_RGB        , COMPRESSION_LZW       },
     { PHOTOMETRIC_RGB        , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_RGB        , COMPRESSION_JPEG      },
+    { PHOTOMETRIC_RGB        , COMPRESSION_DEFLATE   },
     { PHOTOMETRIC_SEPARATED  , COMPRESSION_NONE      },
     { PHOTOMETRIC_SEPARATED  , COMPRESSION_LZW       },
     { PHOTOMETRIC_SEPARATED  , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_SEPARATED  , COMPRESSION_JPEG      },
     { PHOTOMETRIC_YCBCR      , COMPRESSION_NONE      },
     { PHOTOMETRIC_YCBCR      , COMPRESSION_LZW       },
     { PHOTOMETRIC_YCBCR      , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_YCBCR      , COMPRESSION_JPEG      },
 };
+#endif
 
 CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
     CStillSourceHelper(pParent)
@@ -125,7 +141,6 @@ CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
 BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 {
     int y1, y2, cr, cb, r, g, b, i, j;
-    BOOL Found;
     BYTE* pFrameBuf;
     BYTE* pDestBuf;
     TIFF* tif;
@@ -152,11 +167,14 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
         !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
     {
+        LOG(1, "toto");
         TIFFClose(tif);
         return FALSE;
     }
 
-    for (i = 0, Found = FALSE ; i < (sizeof(tTiffTagClassCompress) / sizeof(tTiffTagClassCompress[0])) ; i++)
+#ifndef NO_CHECK_TIFF_COMPRESS
+    BOOL Found;
+    for (Found = FALSE, i = 0 ; i < (sizeof(tTiffTagClassCompress) / sizeof(tTiffTagClassCompress[0])) ; i++)
     {
         if ( (tTiffTagClassCompress[i].tag_class == Class)
           && (tTiffTagClassCompress[i].tag_compression == Compression) )
@@ -172,6 +190,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         TIFFClose(tif);
         return FALSE;
     }
+#endif
 
     // Allocate memory buffer to store the YUYV values
     pFrameBuf = (BYTE*)malloc(w * 2 * h * sizeof(BYTE));

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.30 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.31 2003-12-28 22:59:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.29  2003/10/11 17:25:53  laurentg
 // Comments updated
 //
@@ -404,7 +407,7 @@ bool CTimeShift::IsRunning()
 
 		if (m_pTimeShift->m_mode != MODE_STOPPED)
 		{
-			result = false;
+			result = true;
 		}
 
 		LeaveCriticalSection(&m_pTimeShift->m_lock);

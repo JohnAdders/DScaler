@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.6 2003-01-08 00:23:40 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.7 2003-01-08 22:40:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/01/08 00:23:40  atnak
+// Bug fix
+//
 // Revision 1.5  2003/01/07 07:37:38  atnak
 // Fixed page subcodes
 //
@@ -1580,6 +1583,7 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
 
     lpBuffer[--nLength] = '\0';
     memcpy(lpBuffer, m_BroadcastServiceData.StatusDisplay, nLength);
+    CheckParity((BYTE*)lpBuffer, nLength, TRUE);
 
     while (nLength-- > 0 && lpBuffer[nLength] == 0x20)
     {

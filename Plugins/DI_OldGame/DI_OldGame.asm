@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.asm,v 1.2 2001-08-30 10:03:51 adcockj Exp $
+// $Id: DI_OldGame.asm,v 1.3 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/08/30 10:03:51  adcockj
+// Slightly improved the color averaging
+// Added a "composite mode" switch to force averaging when crosstalk is more important than blur.
+// Commented the code
+// Reorganized and edited to follow the coding guidelines
+// Most importantly: Added a silly quote
+// (Changes made on behalf of Lindsey Dubb)
+//
 // Revision 1.1  2001/07/30 08:25:22  adcockj
 // Added Lindsey Dubb's method
 //
@@ -68,17 +76,17 @@
 // Hidden in the preprocessor stuff below is the actual routine
 
 #if defined(IS_SSE)
-long OldGameFilter_SSE(DEINTERLACE_INFO *info)
+long OldGameFilter_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-long OldGameFilter_3DNOW(DEINTERLACE_INFO *info)
+long OldGameFilter_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-long OldGameFilter_MMX(DEINTERLACE_INFO *info)
+long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
 #ifdef LD_DEBUG
     {
         char    OutputString[64];
-        wsprintf(OutputString, "Motion %u", info->CombFactor);
+        wsprintf(OutputString, "Motion %u", pInfo->CombFactor);
         if (gPfnSetStatus != NULL)
         {
             gPfnSetStatus(OutputString);
@@ -89,30 +97,24 @@ long OldGameFilter_MMX(DEINTERLACE_INFO *info)
     // show the new frame unaltered.
     // This is just a tiny change on the evenOnly/oddOnly filters
 
-    if ( (info->bMissedFrame) ||
-        ((gDisableMotionChecking == FALSE) && (info->CombFactor > gMaxComb)) )
+    if ( (pInfo->bMissedFrame) ||
+        ((gDisableMotionChecking == FALSE) && (pInfo->CombFactor > gMaxComb)) )
     {
-        WORD**     ppThisField = NULL;
-        DWORD      LineTarget = 0;
+        BYTE* pThisField = pInfo->PictureHistory[0]->pData;
+        DWORD LineTarget = 0;
 
-        if (info->IsOdd) 
-        {
-            ppThisField = info->OddLines[0];
-        }
-        else 
-        {
-            ppThisField = info->EvenLines[0];
-        }
-        if (ppThisField == NULL)
+        if (pThisField == NULL)
         {
             return TRUE;
         }
-        for (LineTarget = 0; LineTarget < (DWORD)info->FieldHeight; LineTarget++)
+        for (LineTarget = 0; LineTarget < (DWORD)pInfo->FieldHeight; LineTarget++)
         {
             // copy latest field's rows to overlay, resulting in a half-height image.
-            info->pMemcpy(info->Overlay + LineTarget * info->OverlayPitch,
-                        ppThisField[LineTarget],
-                        info->LineLength);
+            pInfo->pMemcpy(pInfo->Overlay + LineTarget * pInfo->OverlayPitch,
+                        pThisField,
+                        pInfo->LineLength);
+
+            pThisField += pInfo->InputPitch;
         }
     }
     // If the field is very similar to the last one, average them.
@@ -120,44 +122,27 @@ long OldGameFilter_MMX(DEINTERLACE_INFO *info)
     // It does a really nice job on video via a composite connector 
     else
     {
-        WORD**          ppNewLines = NULL;
-        WORD**          ppOldLines = NULL;
-        const DWORD     Cycles = ((DWORD)info->LineLength) / 8;
+        BYTE*           pNewLines = pInfo->PictureHistory[0]->pData;
+        BYTE*           pOldLines = pInfo->PictureHistory[1]->pData;
+        const DWORD     Cycles = ((DWORD)pInfo->LineLength) / 8;
         const __int64   qwShiftMask = 0xFEFFFEFFFEFFFEFF;
         const __int64   qwNoLowBitsMask = 0xFEFEFEFEFEFEFEFE;
-        WORD*           pDestination = (unsigned short *) (info->Overlay);
+        BYTE*           pDestination = pInfo->Overlay;
         DWORD           LineTarget = 0;
-
-        if (info->IsOdd)
-        {
-            ppNewLines = info->OddLines[0];
-            ppOldLines = info->EvenLines[0];
-        }
-        else
-        {
-            ppNewLines = info->EvenLines[0];
-            ppOldLines = info->OddLines[0];
-        }
 
         if ((ppNewLines == NULL) || (ppOldLines == NULL))
         {
             return TRUE;
         }
 
-        for (LineTarget = 0; LineTarget < (DWORD)info->FieldHeight; ++LineTarget)
+        for (LineTarget = 0; LineTarget < (DWORD)pInfo->FieldHeight; ++LineTarget)
         {
             _asm 
             {
                 mov esi, pDestination           // Destination is incremented at the bottom of the loop
                 mov ecx, Cycles
-                mov ebx, LineTarget
-                shl ebx, 2
-                mov edx, ppNewLines
-                add edx, ebx
-                mov eax, dword ptr[edx]
-                mov edx, ppOldLines
-                add edx, ebx
-                mov ebx, dword ptr[edx]
+                mov eax, pNewLines
+                mov ebx, pOldLines
 
 MAINLOOP_LABEL:
 
@@ -176,7 +161,9 @@ MAINLOOP_LABEL:
                 add esi, 8                      // Move the output pointer
                 loop MAINLOOP_LABEL
             }
-            pDestination += info->OverlayPitch/2;
+            pDestination += pInfo->OverlayPitch;
+            pNewLines += pInfo->InputPitch;
+            pOldLines += pInfo->InputPitch;
         }
     }
     _asm

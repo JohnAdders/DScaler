@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.13 2001-09-11 18:07:05 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.14 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/09/11 18:07:05  adcockj
+// Fix to prevent crashing with extream values
+//
 // Revision 1.12  2001/09/11 14:33:48  adcockj
 // Fixes to allow parameters to be updated as you change them
 //
@@ -453,52 +456,40 @@ ENDPROCESS:
     }
 }
 
-BOOL LinearCorrection(DEINTERLACE_INFO *info)
+BOOL LinearCorrection(TDeinterlaceInfo* pInfo)
 {
+    BYTE* Pixels = pInfo->PictureHistory[0]->pData;
     int i;
 
-    if (info->IsOdd == TRUE && info->OddLines[0] == NULL ||
-        info->IsOdd == FALSE && info->EvenLines[0] == NULL )
+    if (Pixels == NULL )
     {
         return 1000;
     }
 
     // If there is a change concerning the height or the width of the picture
-    if ((info->FrameWidth != PictureWidth) || (info->FrameHeight != PictureHeight))
+    if ((pInfo->FrameWidth != PictureWidth) || (pInfo->FrameHeight != PictureHeight))
     {
         // Verify that the filter can manage this size of picture
-        if ((info->FrameWidth > MAX_WIDTH) || (info->FrameHeight > MAX_HEIGHT))
+        if ((pInfo->FrameWidth > MAX_WIDTH) || (pInfo->FrameHeight > MAX_HEIGHT))
         {
             return 1000;
         }
 
         // Update the internal tables of the filter
-        UpdNbPixelsPerLineTable(info->FrameHeight, info->FrameWidth);
-        UpdLinearFilterTables(info->FrameWidth);
-        PictureWidth = info->FrameWidth;
-        PictureHeight = info->FrameHeight;
+        UpdNbPixelsPerLineTable(pInfo->FrameHeight, pInfo->FrameWidth);
+        UpdLinearFilterTables(pInfo->FrameWidth);
+        PictureWidth = pInfo->FrameWidth;
+        PictureHeight = pInfo->FrameHeight;
     }
 
     // Update each line of the picture
-    if(info->IsOdd)
+    for (i = 1 ; i < PictureHeight ; i += 2)
     {
-        for (i = 1 ; i < PictureHeight ; i += 2)
+        if (NbPixelsPerLineTab[i] != PictureWidth || MaskType == MASK_STRETCH)
         {
-            if (NbPixelsPerLineTab[i] != PictureWidth || MaskType == MASK_STRETCH)
-            {
-                ApplyLinearFilter((BYTE*)info->OddLines[0][i/2], NbPixelsPerLineTab[i], info->pMemcpy);
-            }
+            ApplyLinearFilter(Pixels, NbPixelsPerLineTab[i], pInfo->pMemcpy);
         }
-    }
-    else
-    {
-        for (i = 0 ; i < PictureHeight ; i += 2)
-        {
-            if (NbPixelsPerLineTab[i] != PictureWidth || MaskType == MASK_STRETCH)
-            {
-                ApplyLinearFilter((BYTE*)info->EvenLines[0][i/2], NbPixelsPerLineTab[i], info->pMemcpy);
-            }
-        }
+        Pixels += pInfo->InputPitch;
     }
     if(MaskType == MASK_STRETCH)
     {

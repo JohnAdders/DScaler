@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.8 2001-11-02 16:30:08 adcockj Exp $
+// $Id: FieldTiming.h,v 1.9 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,19 +41,19 @@ void Timing_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Timing_SetMenu(HMENU hMenu);
 void Timing_ShowUI();
 
-void Timing_UpdateRunningAverage(DEINTERLACE_INFO* pInfo);
+void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo);
 void Timing_Setup();
-void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo);
+void Timing_WaitForNextField(TDeinterlaceInfo* pInfo);
 void Timing_Reset();
-void Timing_WaitForTimeToFlip(DEINTERLACE_INFO* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread);
+void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread);
 int Timing_GetDroppedFields();
 void Timing_ResetDroppedFields();
 int Timing_GetUsedFields();
 void Timing_ResetUsedFields();
 void Timing_IncrementUsedFields();
 void Timing_AddDroppedFields(int nDropped);
-void Timimg_AutoFormatDetect(DEINTERLACE_INFO* pInfo);
-void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate, BOOL& bSleptAlready);
+void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo);
+void Timing_SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate, BOOL& bSleptAlready);
 void Timing_SetFlipAdjustFlag(BOOL NewValue);
 
 

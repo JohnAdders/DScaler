@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoBob.asm,v 1.2 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_VideoBob.asm,v 1.3 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 // Based on code from Virtual Dub Plug-in by Gunnar Thalin
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if defined(IS_SSE)
@@ -40,21 +43,20 @@
 // Gunnar Thalin
 ///////////////////////////////////////////////////////////////////////////////
 #if defined(IS_SSE)
-BOOL DeinterlaceFieldBob_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldBob_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-BOOL DeinterlaceFieldBob_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldBob_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-BOOL DeinterlaceFieldBob_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldBob_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
     int Line;
-    short* YVal1;
-    short* YVal2;
-    short* YVal3;
-    BYTE* Dest;
-    short **pOddLines = info->OddLines[0];
-    short **pEvenLines = info->EvenLines[0];
-    DWORD LineLength = info->LineLength;
+    BYTE* YVal1;
+    BYTE* YVal2;
+    BYTE* YVal3;
+    BYTE* Dest = pInfo->Overlay;
+    DWORD LineLength = pInfo->LineLength;
+    DWORD Pitch = pInfo->InputPitch;
     
     __int64 qwEdgeDetect;
     __int64 qwThreshold;
@@ -69,29 +71,30 @@ BOOL DeinterlaceFieldBob_MMX(DEINTERLACE_INFO *info)
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
 
 
-    // copy first even line no matter what, and the first odd line if we're
-    // processing an odd field.
-    info->pMemcpy(info->Overlay, pEvenLines[0], LineLength);
-    if (info->IsOdd)
-        info->pMemcpy(info->Overlay + info->OverlayPitch, pOddLines[0], LineLength);
-
-    for (Line = 0; Line < info->FieldHeight - 1; ++Line)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        if (info->IsOdd)
-        {
-            YVal1 = pOddLines[Line];
-            YVal2 = pEvenLines[Line + 1];
-            YVal3 = pOddLines[Line + 1];
-            Dest = info->Overlay + (Line * 2 + 2) * info->OverlayPitch;
-        }
-        else
-        {
-            YVal1 = pEvenLines[Line];
-            YVal2 = pOddLines[Line];
-            YVal3 = pEvenLines[Line + 1];
-            Dest = info->Overlay + (Line * 2 + 1) * info->OverlayPitch;
-        }
+        YVal1 = pInfo->PictureHistory[0]->pData;
+        YVal2 = pInfo->PictureHistory[1]->pData + Pitch;
+        YVal3 = YVal1 + Pitch;
 
+        pInfo->pMemcpy(Dest, pInfo->PictureHistory[1]->pData, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+        
+        pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+    else
+    {
+        YVal1 = pInfo->PictureHistory[0]->pData;
+        YVal2 = pInfo->PictureHistory[1]->pData;
+        YVal3 = YVal1 + Pitch;
+
+        pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+
+    for (Line = 0; Line < pInfo->FieldHeight - 1; ++Line)
+    {
         // For ease of reading, the comments below assume that we're operating on an odd
         // field (i.e., that bIsOdd is true).  The exact same processing is done when we
         // operate on an even field, but the roles of the odd and even fields are reversed.
@@ -99,9 +102,6 @@ BOOL DeinterlaceFieldBob_MMX(DEINTERLACE_INFO *info)
         // line if we're doing an odd field, or the next even line if we're doing an
         // even field" etc.  So wherever you see "odd" or "even" below, keep in mind that
         // half the time this function is called, those words' meanings will invert.
-
-        // Copy the odd line to the overlay verbatim.
-        info->pMemcpy(Dest + info->OverlayPitch, YVal3, LineLength);
 
         _asm
         {
@@ -186,14 +186,22 @@ MAINLOOP_LABEL:
             dec ecx
             jne near MAINLOOP_LABEL
         }
+
+        Dest += pInfo->OverlayPitch;
+
+        // Always use the most recent data verbatim.
+        pInfo->pMemcpy(Dest, YVal3, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+
+        YVal1 += Pitch;
+        YVal2 += Pitch;
+        YVal3 += Pitch;
     }
 
     // Copy last odd line if we're processing an even field.
-    if (! info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_EVEN)
     {
-        info->pMemcpy(info->Overlay + (info->FrameHeight - 1) * info->OverlayPitch,
-                  pOddLines[info->FieldHeight - 1],
-                  LineLength);
+        pInfo->pMemcpy(Dest, YVal2, pInfo->LineLength);
     }
 
     // clear out the MMX registers ready for doing floating point

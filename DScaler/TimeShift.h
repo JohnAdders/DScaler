@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.7 2001-11-20 11:43:00 temperton Exp $
+// $Id: TimeShift.h,v 1.8 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/20 11:43:00  temperton
+// Store wave-device names instead of indexes in ini
+//
 // Revision 1.6  2001/08/06 03:00:17  ericschmidt
 // solidified auto-pixel-width detection
 // preliminary pausing-of-live-tv work
@@ -57,7 +60,7 @@
 #ifndef __TIMESHIFT_H___
 #define __TIMESHIFT_H___
 
-#include "DS_ApiCommon.h" // DEINTERLACE_INFO struct.
+#include "DS_ApiCommon.h" // TDeinterlaceInfo struct.
 
 // We'll only have one instance of a TimeShift, so everything's static.
 // Plus, we keep a semi-C-style function call convention which matches much
@@ -97,7 +100,7 @@ public:
     static bool OnOptions(void);
 
     // Call these when you have new frames or audio data to read/write.
-    static bool OnNewFrame(DEINTERLACE_INFO *info);
+    static bool OnNewFrame(TDeinterlaceInfo *info);
     static bool OnWaveInData(void);
     static bool OnWaveOutDone(void);
 
@@ -143,8 +146,8 @@ private:
     bool GoPrev(void);
 
     // The actaual videoframe/audiosample avi writing methods.
-    bool WriteVideo(DEINTERLACE_INFO *info);
-    bool ReadVideo(DEINTERLACE_INFO *info);
+    bool WriteVideo(TDeinterlaceInfo *info);
+    bool ReadVideo(TDeinterlaceInfo *info);
     bool WriteAudio(void);
     bool ReadAudio(void);
 

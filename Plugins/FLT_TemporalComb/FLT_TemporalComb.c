@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.3 2001-08-30 10:04:59 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.4 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/30 10:04:59  adcockj
+// Added a "trade speed for accuracy" mode which improves detection and
+//  correction of dot crawl by removing a feedback problem -- at the
+//  cost of 2MB of memory, which also slows things down a bit
+// Changed szIniSection for the parameters from "NoiseFilter" to "TCombFilter"
+// Made some small changes to the comments
+// (Added on behalf of Lindsey Dubb)
+//
 // Revision 1.2  2001/08/23 06:48:57  adcockj
 // Fixed control header for TemporalComb filter
 //
@@ -95,11 +103,11 @@ void RescaleParameters_MMXEXT(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_SSE(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_3DNOW(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_MMX(LONG* pDecayNumerator, LONG* pAveragingThreshold);
-long FilterTemporalComb_MMXEXT(DEINTERLACE_INFO *info);
-long FilterTemporalComb_SSE(DEINTERLACE_INFO *info);
-long FilterTemporalComb_3DNOW(DEINTERLACE_INFO *info);
-long FilterTemporalComb_MMX(DEINTERLACE_INFO *info);
-LONG UpdateBuffers(DEINTERLACE_INFO *info, WORD*** pppTheseFields, WORD*** pppThoseFields);
+long FilterTemporalComb_MMXEXT(TDeinterlaceInfo *info);
+long FilterTemporalComb_SSE(TDeinterlaceInfo *info);
+long FilterTemporalComb_3DNOW(TDeinterlaceInfo *info);
+long FilterTemporalComb_MMX(TDeinterlaceInfo *info);
+LONG UpdateBuffers(TDeinterlaceInfo *info, WORD*** pppTheseFields, WORD*** pppThoseFields);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -296,71 +304,69 @@ BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lp
 */
 
 
-
-
 // Update the (paired circular) field buffer array
 // Returns 1000 if the filter needs to abort (due either to memory allocation problems
 // or a partially full buffer), 0 otherwise
 
-LONG UpdateBuffers(DEINTERLACE_INFO *info, WORD*** pppTheseFields, WORD*** pppThoseFields)
+LONG UpdateBuffers(TDeinterlaceInfo *info, WORD*** pppTheseFields, WORD*** pppThoseFields)
 {
-        DWORD           Index = 0;
-        static LONG     HistoryWait = NUM_BUFFERS + 1;
-        WORD*           pTempBuffer = NULL;
+    DWORD           Index = 0;
+    static LONG     HistoryWait = NUM_BUFFERS + 1;
+    WORD*           pTempBuffer = NULL;
 
-        --HistoryWait;
+    --HistoryWait;
 
-        // We need the last four fields to be available. We've already checked the
-        // 2nd and 4th, so...
+    // We need the last four fields to be available. We've already checked the
+    // 2nd and 4th, so...
 
-        if ((pppThoseFields[0] == NULL) || (pppThoseFields[2] == NULL))
+    if ((pppThoseFields[0] == NULL) || (pppThoseFields[2] == NULL))
+    {
+        return 1000;
+    }
+    for ( ; Index < NUM_BUFFERS; ++Index)
+    {
+        if (gppFieldBuffer[Index] == NULL)
         {
-            return 1000;
-        }
-        for ( ; Index < NUM_BUFFERS; ++Index)
-        {
+            HistoryWait = Index;
+            gppFieldBuffer[Index] = malloc(info->OverlayPitch * sizeof(short) * info->FieldHeight);
             if (gppFieldBuffer[Index] == NULL)
             {
-                HistoryWait = Index;
-                gppFieldBuffer[Index] = malloc(info->OverlayPitch * sizeof(short) * info->FieldHeight);
-                if (gppFieldBuffer[Index] == NULL)
-                {
-                    return 1000;    // !! Should notify user !!
-                }
+                return 1000;    // !! Should notify user !!
             }
-
         }
 
-        // Slide the field history along
+    }
 
-        if (info->IsOdd)
-        {
-            pTempBuffer = gppFieldBuffer[4];
-            gppFieldBuffer[4] = gppFieldBuffer[2];
-            gppFieldBuffer[2] = gppFieldBuffer[0];
-            gppFieldBuffer[0] = pTempBuffer;
-        }
-        else
-        {
-            pTempBuffer = gppFieldBuffer[3];
-            gppFieldBuffer[3] = gppFieldBuffer[1];
-            gppFieldBuffer[1] = gppFieldBuffer[0];
-            gppFieldBuffer[0] = pTempBuffer;
-        }
+    // Slide the field history along
 
-        // Copy current field to gppFieldBuffer[0] so we can compare against it without feedback
+    if (info->IsOdd)
+    {
+        pTempBuffer = gppFieldBuffer[4];
+        gppFieldBuffer[4] = gppFieldBuffer[2];
+        gppFieldBuffer[2] = gppFieldBuffer[0];
+        gppFieldBuffer[0] = pTempBuffer;
+    }
+    else
+    {
+        pTempBuffer = gppFieldBuffer[3];
+        gppFieldBuffer[3] = gppFieldBuffer[1];
+        gppFieldBuffer[1] = gppFieldBuffer[0];
+        gppFieldBuffer[0] = pTempBuffer;
+    }
 
-        for (Index = 0 ; Index < (DWORD)info->FieldHeight; ++Index)
-        {
-            info->pMemcpy(gppFieldBuffer[0] + Index*(info->OverlayPitch/sizeof(short)),
-                pppTheseFields[0][Index], info->LineLength);
-        }
-        if (HistoryWait > 0)
-        {
-            return 1000;            // Need to have filled the buffers with useful data
-        }
-        HistoryWait = 0;
-        return 0;
+    // Copy current field to gppFieldBuffer[0] so we can compare against it without feedback
+
+    for (Index = 0 ; Index < (DWORD)info->FieldHeight; ++Index)
+    {
+        info->pMemcpy(gppFieldBuffer[0] + Index*(info->OverlayPitch/sizeof(short)),
+            pppTheseFields[0][Index], info->LineLength);
+    }
+    if (HistoryWait > 0)
+    {
+        return 1000;            // Need to have filled the buffers with useful data
+    }
+    HistoryWait = 0;
+    return 0;
 }
 
 

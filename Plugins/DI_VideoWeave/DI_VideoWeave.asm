@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoWeave.asm,v 1.2 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_VideoWeave.asm,v 1.3 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if defined(IS_SSE)
@@ -35,22 +38,22 @@
 // The algorithm is described in comments below.
 //
 #if defined(IS_SSE)
-BOOL DeinterlaceFieldWeave_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldWeave_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-BOOL DeinterlaceFieldWeave_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldWeave_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-BOOL DeinterlaceFieldWeave_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldWeave_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
     int Line;
-    short* YVal1;
-    short* YVal2;
-    short* YVal3;
-    short* YVal4;
+    BYTE* YVal1;
+    BYTE* YVal2;
+    BYTE* YVal3;
+    BYTE* YVal4;
     BYTE* OldStack;
-    BYTE* Dest;
-    short **pEvenLines, **pOddLines, **pPrevLines;
-    DWORD LineLength = info->LineLength;
+    BYTE* Dest = pInfo->Overlay;
+    DWORD LineLength = pInfo->LineLength;
+    DWORD Pitch = pInfo->InputPitch;
 
     const __int64 YMask    = 0x00ff00ff00ff00ff;
 
@@ -61,16 +64,6 @@ BOOL DeinterlaceFieldWeave_MMX(DEINTERLACE_INFO *info)
     const __int64 Mask = 0xfefefefefefefefe;
 #endif
 
-    // Make sure we have all the data we need.
-    pEvenLines = info->EvenLines[0];
-    pOddLines = info->OddLines[0];
-    if (info->IsOdd)
-        pPrevLines = info->OddLines[1];
-    else
-        pPrevLines = info->EvenLines[1];
-    if (pEvenLines == NULL || pOddLines == NULL || pPrevLines == NULL)
-        return FALSE;
-
     // Since the code uses MMX to process 4 pixels at a time, we need our constants
     // to be represented 4 times per quadword.
     qwSpatialTolerance = SpatialTolerance;
@@ -80,31 +73,34 @@ BOOL DeinterlaceFieldWeave_MMX(DEINTERLACE_INFO *info)
     qwThreshold = SimilarityThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
 
-    // copy first even line no matter what, and the first odd line if we're
-    // processing an even field.
-    info->pMemcpy(info->Overlay, pEvenLines[0], LineLength);
-    if (! info->IsOdd)
-        info->pMemcpy(info->Overlay + info->OverlayPitch, pOddLines[0], LineLength);
 
-    for (Line = 0; Line < info->FieldHeight - 1; ++Line)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        if (info->IsOdd)
-        {
-            YVal1 = pEvenLines[Line];
-            YVal2 = pOddLines[Line];
-            YVal3 = pEvenLines[Line + 1];
-            YVal4 = pPrevLines[Line];
-            Dest = info->Overlay + (Line * 2 + 1) * info->OverlayPitch;
-        }
-        else
-        {
-            YVal1 = pOddLines[Line];
-            YVal2 = pEvenLines[Line + 1];
-            YVal3 = pOddLines[Line + 1];
-            YVal4 = pPrevLines[Line + 1];
-            Dest = info->Overlay + (Line * 2 + 2) * info->OverlayPitch;
-        }
+        YVal1 = pInfo->PictureHistory[1]->pData;
+        YVal2 = pInfo->PictureHistory[0]->pData;
+        YVal3 = YVal1 + Pitch;
+        YVal4 = pInfo->PictureHistory[2]->pData + Pitch;
 
+        pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+    else
+    {
+        YVal1 = pInfo->PictureHistory[1]->pData;
+        YVal2 = pInfo->PictureHistory[0]->pData + Pitch;
+        YVal3 = YVal1 + Pitch;
+        YVal4 = pInfo->PictureHistory[2]->pData + Pitch;
+
+        pInfo->pMemcpy(Dest, pInfo->PictureHistory[0]->pData, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+
+        pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+
+
+    for (Line = 0; Line < pInfo->FieldHeight - 1; ++Line)
+    {
         // For ease of reading, the comments below assume that we're operating on an odd
         // field (i.e., that bIsOdd is true).  The exact same processing is done when we
         // operate on an even field, but the roles of the odd and even fields are reversed.
@@ -112,11 +108,6 @@ BOOL DeinterlaceFieldWeave_MMX(DEINTERLACE_INFO *info)
         // line if we're doing an odd field, or the next even line if we're doing an
         // even field" etc.  So wherever you see "odd" or "even" below, keep in mind that
         // half the time this function is called, those words' meanings will invert.
-
-        // Copy the even scanline below this one to the overlay buffer, since we'll be
-        // adapting the current scanline to the even lines surrounding it.  The scanline
-        // above has already been copied by the previous pass through the loop.
-        info->pMemcpy(Dest + info->OverlayPitch, YVal3, LineLength);
 
         _asm
         {
@@ -224,14 +215,24 @@ MAINLOOP_LABEL:
 
             mov esi, dword ptr[OldStack]
         }
+
+        Dest += pInfo->OverlayPitch;
+        // Copy the even scanline below this one to the overlay buffer, since we'll be
+        // adapting the current scanline to the even lines surrounding it.  The scanline
+        // above has already been copied by the previous pass through the loop.
+        pInfo->pMemcpy(Dest, YVal3, LineLength);
+        Dest += pInfo->OverlayPitch;
+
+        YVal1 += Pitch;
+        YVal2 += Pitch;
+        YVal3 += Pitch;
+        YVal4 += Pitch;
     }
 
     // Copy last odd line if we're processing an odd field.
-    if (info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        info->pMemcpy(info->Overlay + (info->FrameHeight - 1) * info->OverlayPitch,
-                  pOddLines[info->FieldHeight - 1],
-                  LineLength);
+        pInfo->pMemcpy(Dest, YVal2, LineLength);
     }
 
     // clear out the MMX registers ready for doing floating point

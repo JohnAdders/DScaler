@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.19 2001-11-09 12:42:07 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.20 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,12 +35,15 @@
 //                                     Got rid of global.h structs.h defines.h
 //
 // 09 Jan 2001   John Adcock           Split out into new file
-//                                     Changed functions to use DEINTERLACE_INFO
+//                                     Changed functions to use TDeinterlaceInfo
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.18  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -87,12 +90,12 @@ long DiffThreshold = 224;
 BOOL UseChromaInDetect = FALSE;
 long FilmFlipDelay = 0;
 
-void CalcCombFactor(DEINTERLACE_INFO* pInfo);
-void CalcDiffFactor(DEINTERLACE_INFO* pInfo);
-void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo);
-void CalcCombFactorChroma(DEINTERLACE_INFO* pInfo);
-void CalcDiffFactorChroma(DEINTERLACE_INFO* pInfo);
-void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo);
+void CalcCombFactor(TDeinterlaceInfo* pInfo);
+void CalcDiffFactor(TDeinterlaceInfo* pInfo);
+void DoBothCombAndDiff(TDeinterlaceInfo* pInfo);
+void CalcCombFactorChroma(TDeinterlaceInfo* pInfo);
+void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo);
+void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo);
 
 // want to be able to access these from the assembler routines they should
 // be together in memory so don't make them const even though they are
@@ -104,7 +107,7 @@ extern "C"
     __int64 qwBitShift;
 }
 
-void PerformFilmDetectCalculations(DEINTERLACE_INFO* pInfo, BOOL NeedComb, BOOL NeedDiff)
+void PerformFilmDetectCalculations(TDeinterlaceInfo* pInfo, BOOL NeedComb, BOOL NeedDiff)
 {
     if(NeedComb && NeedDiff)
     {
@@ -141,7 +144,7 @@ void PerformFilmDetectCalculations(DEINTERLACE_INFO* pInfo, BOOL NeedComb, BOOL 
     }
 }
 
-long CalculateTotalCombFactor(DWORD* Combs, DEINTERLACE_INFO* pInfo)
+long CalculateTotalCombFactor(DWORD* Combs, TDeinterlaceInfo* pInfo)
 {
     long CombFactor = 0;
     for (int Line = 17; Line < pInfo->FieldHeight - 17; ++Line)
@@ -181,7 +184,7 @@ long CalculateTotalCombFactor(DWORD* Combs, DEINTERLACE_INFO* pInfo)
 // VBI lines are off screen
 // the BitShift Value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-void CalcCombFactor(DEINTERLACE_INFO* pInfo)
+void CalcCombFactor(TDeinterlaceInfo* pInfo)
 {
     int Line;
     DWORD Combs[DSCALER_MAX_HEIGHT / 2];
@@ -215,7 +218,7 @@ void CalcCombFactor(DEINTERLACE_INFO* pInfo)
     return;
 }
 
-void CalcCombFactorChroma(DEINTERLACE_INFO* pInfo)
+void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
 {
     int Line;
     DWORD Combs[DSCALER_MAX_HEIGHT / 2];
@@ -262,7 +265,7 @@ void CalcCombFactorChroma(DEINTERLACE_INFO* pInfo)
 // VBI lines are off screen
 // the BitShift Value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-void CalcDiffFactor(DEINTERLACE_INFO* pInfo)
+void CalcDiffFactor(TDeinterlaceInfo* pInfo)
 {
     int Line;
     long DiffFactor = 0;
@@ -318,7 +321,7 @@ void CalcDiffFactor(DEINTERLACE_INFO* pInfo)
 // VBI lines are off screen
 // the BitShift Value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-void CalcDiffFactorChroma(DEINTERLACE_INFO* pInfo)
+void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo)
 {
     int Line;
     long DiffFactor = 0;
@@ -361,7 +364,7 @@ void CalcDiffFactorChroma(DEINTERLACE_INFO* pInfo)
     LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
-void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo)
+void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
 {
     int Line;
     long DiffFactor = 0;
@@ -421,7 +424,7 @@ void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo)
     LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
-void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo)
+void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
 {
     int Line;
     DWORD DiffFactor = 0;
@@ -481,7 +484,7 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo)
     LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
-void DoBothCombAndDiffExperimental(DEINTERLACE_INFO* pInfo)
+void DoBothCombAndDiffExperimental(TDeinterlaceInfo* pInfo)
 {
     int Line;
     int LoopCtr;
@@ -663,7 +666,7 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO* pInfo)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Simple Weave.  Copies alternating scanlines from the most recent fields.
-BOOL Weave(DEINTERLACE_INFO* pInfo)
+BOOL Weave(TDeinterlaceInfo* pInfo)
 {
     int i;
     BYTE* lpOverlay = pInfo->Overlay;
@@ -686,7 +689,7 @@ BOOL Weave(DEINTERLACE_INFO* pInfo)
     return TRUE;
 }
 
-BOOL WeaveDelay(DEINTERLACE_INFO* pInfo, int Delay)
+BOOL WeaveDelay(TDeinterlaceInfo* pInfo, int Delay)
 {
     int i;
     BYTE* lpOverlay = pInfo->Overlay;
@@ -728,7 +731,7 @@ BOOL WeaveDelay(DEINTERLACE_INFO* pInfo, int Delay)
 // SimpleFilmMode.  Copies alternating scanlines from the input after
 // accounting for an adjustable delay.
 ///////////////////////////////////////////////////////////////////////////////
-BOOL SimpleFilmMode(DEINTERLACE_INFO* pInfo, PFNFLIP* pfnFlip)
+BOOL SimpleFilmMode(TDeinterlaceInfo* pInfo, PFNFLIP* pfnFlip)
 {
     BYTE* lpOverlay = pInfo->Overlay;
     int TestField;
@@ -761,7 +764,7 @@ BOOL SimpleFilmMode(DEINTERLACE_INFO* pInfo, PFNFLIP* pfnFlip)
 // Simple Bob.  Copies the most recent field to the overlay, with each scanline
 // copied twice.
 /////////////////////////////////////////////////////////////////////////////
-BOOL Bob(DEINTERLACE_INFO* pInfo)
+BOOL Bob(TDeinterlaceInfo* pInfo)
 {
     int i;
     BYTE* lpOverlay = pInfo->Overlay;

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DS_ApiCommon.h,v 1.12 2001-11-10 10:36:27 pgubanov Exp $
+// $Id: DS_ApiCommon.h,v 1.13 2001-11-21 15:21:39 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/10 10:36:27  pgubanov
+// Need to specify _cdecl on memcpy() - plugins assume cdecl while DShow filter assumes _stdcall
+//
 // Revision 1.11  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -115,16 +118,41 @@ typedef struct
 // Deinterlace functions return true if the overlay is ready to be displayed.
 typedef void (_cdecl MEMCPY_FUNC)(void* pOutput, void* pInput, size_t nSize);
 
-#define MAX_FIELD_HISTORY 5
+#define MAX_PICTURE_HISTORY 10
+
+
+#define PICTURE_PROGRESSIVE 0
+#define PICTURE_INTERLACED_ODD 1
+#define PICTURE_INTERLACED_EVEN 2
+#define PICTURE_INTERLACED_MASK (PICTURE_INTERLACED_ODD | PICTURE_INTERLACED_EVEN)
 
 typedef struct
 {
-    // Data from the most recent several odd and even fields, from newest
-    // to oldest, i.e., OddLines[0] is always the most recent odd field.
-    // Pointers are NULL if the field in question isn't valid, e.g. because
-    // the program just started or a field was skipped.
-    short **OddLines[MAX_FIELD_HISTORY];
-    short **EvenLines[MAX_FIELD_HISTORY];
+    // pointer to the start of data for this picture
+    BYTE* pData;
+    // see PICTURE_ flags
+    DWORD Flags;
+    // is this the first picture in a new series
+    // use this flag to indicate changes to any of the 
+    // paramters that are assumed to be fixed like
+    // timings or pixel width
+    BOOL IsFirstInSeries;
+} TPicture;
+
+
+#define DEINTERLACE_INFO_CURRENT_VERSION 400
+
+typedef struct
+{
+    // set to version of this structure
+    // used to avoid crashing with incompatable versions
+    DWORD Version;
+
+    // The most recent pictures 
+    // PictureHistory[0] is always the most recent.
+    // Pointers are NULL if the picture in question isn't valid, e.g. because
+    // the program just started or a picture was skipped.
+    TPicture* PictureHistory[MAX_PICTURE_HISTORY];
 
     // Current overlay buffer pointer.
     BYTE *Overlay;
@@ -172,6 +200,10 @@ typedef struct
     BOOL bDoAccurateFlips;
     // How big the source will end up
     RECT DestRect;
-} DEINTERLACE_INFO;
+
+    // distance between lines in image
+    // need not match the pixel width
+    DWORD InputPitch;
+} TDeinterlaceInfo;
 
 #endif

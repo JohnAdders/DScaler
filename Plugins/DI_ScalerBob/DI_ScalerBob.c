@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_ScalerBob.c,v 1.4 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_ScalerBob.c,v 1.5 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,30 +25,25 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
 
-BOOL DeinterlaceScalerBob(DEINTERLACE_INFO *info)
+BOOL DeinterlaceScalerBob(TDeinterlaceInfo* pInfo)
 {
     int nLineTarget;
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
 
-    for (nLineTarget = 0; nLineTarget < info->FieldHeight; nLineTarget++)
+    for (nLineTarget = 0; nLineTarget < pInfo->FieldHeight; nLineTarget++)
     {
-        // copy latest field's rows to overlay, resulting in a half-height image.
-        if (info->IsOdd)
-        {
-            info->pMemcpy(info->Overlay + nLineTarget * info->OverlayPitch,
-                        info->OddLines[0][nLineTarget],
-                        info->LineLength);
-        }
-        else
-        {
-            info->pMemcpy(info->Overlay + nLineTarget * info->OverlayPitch,
-                        info->EvenLines[0][nLineTarget],
-                        info->LineLength);
-        }
+        pInfo->pMemcpy(pInfo->Overlay + nLineTarget * pInfo->OverlayPitch,
+                    CurrentLine,
+                    pInfo->LineLength);
+        CurrentLine += pInfo->InputPitch;
     }
     // need to clear up MMX registers
     _asm

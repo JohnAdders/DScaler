@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.4 2001-11-21 12:32:11 adcockj Exp $
+// $Id: StillSource.cpp,v 1.5 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/21 12:32:11  adcockj
+// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
+//
 // Revision 1.3  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -71,7 +74,7 @@ void CStillSource::Stop()
 {
 }
 
-void CStillSource::GetNextField(DEINTERLACE_INFO* pInfo, BOOL AccurateTiming)
+void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
     pInfo->LineLength = 720 * 2;
     pInfo->FrameWidth = 720;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.1 2001-11-21 12:32:11 adcockj Exp $
+// $Id: Source.h,v 1.2 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ public:
     virtual void Start() = 0;
     virtual void Stop() = 0;
     virtual void Reset() = 0;
-    virtual void GetNextField(DEINTERLACE_INFO* pInfo, BOOL AccurateTiming) = 0;
+    virtual void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming) = 0;
     virtual BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam) = 0;
     virtual LPCSTR GetStatus() = 0;
     double GetFieldFrequency();
@@ -52,7 +52,7 @@ public:
     virtual void HandleTimerMessages(int TimerId) = 0;
     virtual BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) = 0;
     virtual BOOL IsVideoPresent() = 0;
-    virtual void DecodeVBI(DEINTERLACE_INFO* pInfo) = 0;
+    virtual void DecodeVBI(TDeinterlaceInfo* pInfo) = 0;
 
     HMENU GetMenu();
 protected:

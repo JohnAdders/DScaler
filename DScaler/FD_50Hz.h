@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.h,v 1.7 2001-07-16 18:07:50 adcockj Exp $
+// $Id: FD_50Hz.h,v 1.8 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,10 +36,10 @@ void FD50_ReadSettingsFromIni();
 void FD50_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FD50_ShowUI();
 
-void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo);
-BOOL FilmModePALEven(DEINTERLACE_INFO* pInfo);
-BOOL FilmModePALOdd(DEINTERLACE_INFO* pInfo);
-BOOL FilmModePALComb(DEINTERLACE_INFO* pInfo);
+void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo);
+BOOL FilmModePALEven(TDeinterlaceInfo* pInfo);
+BOOL FilmModePALOdd(TDeinterlaceInfo* pInfo);
+BOOL FilmModePALComb(TDeinterlaceInfo* pInfo);
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.4 2001-11-21 12:32:11 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.5 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/21 12:32:11  adcockj
+// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
+//
 // Revision 1.3  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -467,7 +470,7 @@ void CBT848Source::Stop()
     m_pBT848Card->StopCapture();
 }
 
-void CBT848Source::GetNextField(DEINTERLACE_INFO* pInfo, BOOL AccurateTiming)
+void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
     static long RepeatCount = 0;
 
@@ -701,7 +704,7 @@ void CBT848Source::BtHorFilterOnChange(long NewValue, long OldValue)
 // slower or heavily loaded systems but use all available time for processing a good
 // picture when nothing else is running.  TRB 10/28/00
 //
-void CBT848Source::GetNextFieldNormal(DEINTERLACE_INFO* pInfo)
+void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
     int NewPos;
@@ -752,7 +755,7 @@ void CBT848Source::GetNextFieldNormal(DEINTERLACE_INFO* pInfo)
     }
 }
 
-void CBT848Source::GetNextFieldAccurate(DEINTERLACE_INFO* pInfo)
+void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
     int NewPos;
@@ -1138,7 +1141,7 @@ BOOL CBT848Source::IsVideoPresent()
 }
 
 
-void CBT848Source::DecodeVBI(DEINTERLACE_INFO* pInfo)
+void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
     int nLineTarget;
     BYTE* pVBI = (LPBYTE) m_pVBILines[(pInfo->CurrentFrame + 4) % 5];

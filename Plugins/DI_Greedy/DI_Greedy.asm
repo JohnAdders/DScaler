@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy.asm,v 1.2 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_Greedy.asm,v 1.3 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if defined(IS_SSE)
@@ -42,24 +45,22 @@
 // Blended Clip but this give too good results for the CPU to ignore here.
 
 #if defined(IS_SSE)
-BOOL DeinterlaceGreedy_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedy_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-BOOL DeinterlaceGreedy_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedy_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-BOOL DeinterlaceGreedy_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedy_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
     int Line;
     int LoopCtr;
-    short* L1;                  // ptr to Line1, of 3
-    short* L2;                  // ptr to Line2, the weave line
-    short* L3;                  // ptr to Line3
-    short* LP2;                 // ptr to prev Line2
-    BYTE* Dest;
-    BYTE *lpCurOverlay = info->Overlay;
-    short **pOddLines = info->OddLines[0];
-    short **pEvenLines = info->EvenLines[0];
-    short **pPrevLines = info->IsOdd ? info->OddLines[1] : info->EvenLines[1];
+    BYTE* L1;                  // ptr to Line1, of 3
+    BYTE* L2;                  // ptr to Line2, the weave line
+    BYTE* L3;                  // ptr to Line3
+    BYTE* LP2;                 // ptr to prev Line2
+    BYTE* Dest = pInfo->Overlay;
+    DWORD Pitch = pInfo->InputPitch;
+
 #ifdef IS_MMX
     const __int64 ShiftMask = 0xfefffefffefffeff;   // to avoid shifting chroma to luma
 #endif
@@ -69,39 +70,41 @@ BOOL DeinterlaceGreedy_MMX(DEINTERLACE_INFO *info)
     i = GreedyMaxComb;          // How badly do we let it weave? 0-255
     MaxComb = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;    
     
-
-    if (pOddLines == NULL || pEvenLines == NULL || pPrevLines == NULL)
-        return FALSE;
-
     // copy first even line no matter what, and the first odd line if we're
     // processing an EVEN field. (note diff from other deint rtns.)
-    info->pMemcpy(lpCurOverlay, pEvenLines[0], info->LineLength);   // DL0
-    if (!info->IsOdd)
-        info->pMemcpy(lpCurOverlay + info->OverlayPitch, pOddLines[0], info->LineLength);  // DL1
-    for (Line = 0; Line < (info->FieldHeight - 1); ++Line)
-    {
-        LoopCtr = info->LineLength / 8;             // there are LineLength / 8 qwords per line
 
-        if (info->IsOdd)
-        {
-            L1 = pEvenLines[Line];      
-            L2 = pOddLines[Line];   
-            L3 = pEvenLines[Line + 1];  
-            LP2 = pPrevLines[Line];         // prev Odd lines
-            Dest = lpCurOverlay + (Line * 2 + 1) * info->OverlayPitch;  // DL1
-        }
-        else
-        {
-            L1 = pOddLines[Line] ;      
-            L2 = pEvenLines[Line + 1];      
-            L3 = pOddLines[Line + 1];   
-            LP2 = pPrevLines[Line + 1];         // prev even lines
-            Dest = lpCurOverlay + (Line * 2 + 2) * info->OverlayPitch;  // DL2
-        }
-        info->pMemcpy(Dest + info->OverlayPitch, L3, info->LineLength);
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    {
+        L1 = pInfo->PictureHistory[1]->pData;
+        L2 = pInfo->PictureHistory[0]->pData;  
+        L3 = L1 + Pitch;   
+        LP2 = pInfo->PictureHistory[2]->pData;
+
+        // copy first even line
+        pInfo->pMemcpy(Dest, L1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+    else
+    {
+        L1 = pInfo->PictureHistory[1]->pData;
+        L2 = pInfo->PictureHistory[0]->pData + Pitch;  
+        L3 = L1 + Pitch;   
+        LP2 = pInfo->PictureHistory[2]->pData + Pitch;
+
+        // copy first even line
+        pInfo->pMemcpy(Dest, pInfo->PictureHistory[0]->pData, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+        // then first odd line
+        pInfo->pMemcpy(Dest, L1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+
+    for (Line = 0; Line < (pInfo->FieldHeight - 1); ++Line)
+    {
+        LoopCtr = pInfo->LineLength / 8;             // there are LineLength / 8 qwords per line
 
 // For ease of reading, the comments below assume that we're operating on an odd
-// field (i.e., that info->IsOdd is true).  Assume the obvious for even lines..
+// field (i.e., that pInfo->IsOdd is true).  Assume the obvious for even lines..
 
         _asm
         {
@@ -199,14 +202,23 @@ MAINLOOP_LABEL:
             dec     LoopCtr
             jnz     MAINLOOP_LABEL
         }
+
+        Dest += pInfo->OverlayPitch;
+        pInfo->pMemcpy(Dest, L3, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+
+        L1 += Pitch;
+        L2 += Pitch;  
+        L3 += Pitch;   
+        LP2 += Pitch;
     }
 
     // Copy last odd line if we're processing an Odd field.
-    if (info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        info->pMemcpy(lpCurOverlay + (info->FrameHeight - 1) * info->OverlayPitch,
-                  pOddLines[info->FieldHeight - 1],
-                  info->LineLength);
+        pInfo->pMemcpy(Dest,
+                  L2,
+                  pInfo->LineLength);
     }
 
     // clear out the MMX registers ready for doing floating point

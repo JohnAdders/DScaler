@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.9 2001-08-03 12:28:32 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.10 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/08/03 12:28:32  adcockj
+// Added CPU id capability
+//
 // Revision 1.8  2001/07/16 18:27:28  adcockj
 // Fixed Typos and made menus more friendly
 //
@@ -83,7 +86,7 @@ EndCopyLoop:
     }
 }
 
-BOOL FillInfoStruct(DEINTERLACE_INFO* info, char* SnapshotFile)
+BOOL FillInfoStruct(TDeinterlaceInfo* info, char* SnapshotFile)
 {
     FILE *file;
     unsigned int NumRead;
@@ -96,8 +99,8 @@ BOOL FillInfoStruct(DEINTERLACE_INFO* info, char* SnapshotFile)
         printf("Could not open file %s\n", SnapshotFile);
         return FALSE;
     }
-    NumRead = fread(info, 1, sizeof(DEINTERLACE_INFO), file);
-    if(NumRead < sizeof(DEINTERLACE_INFO))
+    NumRead = fread(info, 1, sizeof(TDeinterlaceInfo), file);
+    if(NumRead < sizeof(TDeinterlaceInfo))
     {
         printf("Error reading file %s\n", SnapshotFile);
         fclose(file);      
@@ -158,7 +161,7 @@ BOOL FillInfoStruct(DEINTERLACE_INFO* info, char* SnapshotFile)
     return TRUE;
 }
 
-void EmptyInfoStruct(DEINTERLACE_INFO* info)
+void EmptyInfoStruct(TDeinterlaceInfo* info)
 {
    int i, j;
 
@@ -370,7 +373,7 @@ static void FillTiffDirEntry(struct TiffDirEntry *entry, WORD tag, DWORD value, 
 
 //-----------------------------------------------------------------------------
 // Fill a TIFF header with information about the current image.
-static void FillTiffHeader(struct TiffHeader *head, char *description, char *make, char *model, int Height, DEINTERLACE_INFO* info)
+static void FillTiffHeader(struct TiffHeader *head, char *description, char *make, char *model, int Height, TDeinterlaceInfo* info)
 {
     memset(head, 0, sizeof(struct TiffHeader));
 
@@ -419,7 +422,7 @@ static void FillTiffHeader(struct TiffHeader *head, char *description, char *mak
 
 //-----------------------------------------------------------------------------
 // Save still image snapshot as TIFF format to disk
-BOOL MakeTifFile(DEINTERLACE_INFO* info, char* TifFile, DEINTERLACE_METHOD* DeintMethod, int OddField, int EvenField)
+BOOL MakeTifFile(TDeinterlaceInfo* info, char* TifFile, DEINTERLACE_METHOD* DeintMethod, int OddField, int EvenField)
 {
     int y, cr, cb, r, g, b, i, j, n = 0;
     FILE *file;
@@ -520,7 +523,7 @@ void ReadFromIni(SETTING* pSetting, char* szIniFile)
 
 int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, char* TifFile)
 {
-    DEINTERLACE_INFO info;
+    TDeinterlaceInfoTDeinterlaceInfo info;
     DEINTERLACE_METHOD* DeintMethod = NULL;
     FILTER_METHOD* FilterMethod = NULL;
     LARGE_INTEGER EndTime;

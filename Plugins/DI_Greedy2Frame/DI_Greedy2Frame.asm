@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy2Frame.asm,v 1.5 2001-07-31 06:48:33 adcockj Exp $
+// $Id: DI_Greedy2Frame.asm,v 1.6 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/31 06:48:33  adcockj
+// Fixed index bug spotted by Peter Gubanov
+//
 // Revision 1.4  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -50,25 +53,26 @@
 //#define CHECK_BOBWEAVE
 
 #if defined(IS_SSE)
-BOOL DeinterlaceGreedy2Frame_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedy2Frame_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-BOOL DeinterlaceGreedy2Frame_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedy2Frame_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-BOOL DeinterlaceGreedy2Frame_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
     int Line;
-    short* M1;
-    short* M0;
-    short* T0;
-    short* T1;
-    short* B1;
-    short* B0;
+    BYTE* M1;
+    BYTE* M0;
+    BYTE* T0;
+    BYTE* T1;
+    BYTE* B1;
+    BYTE* B0;
     DWORD OldSI;
     DWORD OldSP;
-    BYTE* Dest;
+    BYTE* Dest = pInfo->Overlay;
     BYTE* Dest2;
-    DWORD LineLength = info->LineLength;
+    DWORD Pitch = pInfo->InputPitch;
+    DWORD LineLength = pInfo->LineLength;
 
     const __int64 YMask    = 0x00ff00ff00ff00ff;
 
@@ -77,52 +81,42 @@ BOOL DeinterlaceGreedy2Frame_MMX(DEINTERLACE_INFO *info)
     const __int64 DwordOne = 0x0000000100000001;    
     const __int64 DwordTwo = 0x0000000200000002;    
 
-    if (info->OddLines[0] == NULL || info->OddLines[1] == NULL ||
-        info->EvenLines[0] == NULL || info->EvenLines[1] == NULL)
-    {
-        return FALSE;
-    }
-
     qwGreedyTwoFrameThreshold = GreedyTwoFrameThreshold;
     qwGreedyTwoFrameThreshold += (GreedyTwoFrameThreshold2 << 8);
     qwGreedyTwoFrameThreshold += (qwGreedyTwoFrameThreshold << 48) +
                                 (qwGreedyTwoFrameThreshold << 32) + 
                                 (qwGreedyTwoFrameThreshold << 16);
 
-    Dest = info->Overlay;
-    // copy first even line if we're doing an even line
-    if(!info->IsOdd)
+
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        info->pMemcpy(Dest, info->EvenLines[0][0], info->LineLength);
-        Dest += info->OverlayPitch;
+        M1 = pInfo->PictureHistory[0]->pData;
+        T1 = pInfo->PictureHistory[1]->pData;
+        B1 = T1 + Pitch;
+        M0 = pInfo->PictureHistory[2]->pData;
+        T0 = pInfo->PictureHistory[3]->pData;
+        B0 = T0 + Pitch;
+    }
+    else
+    {
+        M1 = pInfo->PictureHistory[0]->pData + Pitch;
+        T1 = pInfo->PictureHistory[1]->pData;
+        B1 = T1 + Pitch;
+        M0 = pInfo->PictureHistory[2]->pData + Pitch;
+        T0 = pInfo->PictureHistory[3]->pData;
+        B0 = T0 + Pitch;
+
+        pInfo->pMemcpy(Dest, pInfo->PictureHistory[0]->pData, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
     }
 
-    for (Line = 0; Line < info->FieldHeight - 1; ++Line)
+    for (Line = 0; Line < pInfo->FieldHeight - 1; ++Line)
     {
-        if (info->IsOdd)
-        {
-            M1 = info->OddLines[0][Line];
-            T1 = info->EvenLines[0][Line];
-            B1 = info->EvenLines[0][Line + 1];
-            M0 = info->OddLines[1][Line];
-            T0 = info->EvenLines[1][Line];
-            B0 = info->EvenLines[1][Line + 1];
-        }
-        else
-        {
-            M1 = info->EvenLines[0][Line + 1];
-            T1 = info->OddLines[0][Line];
-            B1 = info->OddLines[0][Line + 1];
-            M0 = info->EvenLines[1][Line + 1];
-            T0 = info->OddLines[1][Line];
-            B0 = info->OddLines[1][Line + 1];
-        }
-
         // Always use the most recent data verbatim.  By definition it's correct (it'd
         // be shown on an interlaced display) and our job is to fill in the spaces
         // between the new lines.
-        info->pMemcpy(Dest, T1, info->LineLength);
-        Dest += info->OverlayPitch;
+        pInfo->pMemcpy(Dest, T1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
         Dest2 = Dest;
 
         _asm
@@ -284,27 +278,26 @@ MAINLOOP_LABEL:
             mov esi, OldSI
             mov esp, OldSP
         }
-        Dest += info->OverlayPitch;
+        Dest += pInfo->OverlayPitch;
+
+        M1 += Pitch;
+        T1 += Pitch;
+        B1 += Pitch;
+        M0 += Pitch;
+        T0 += Pitch;
+        B0 += Pitch;
     }
 
-    // Copy last odd line if we're processing an even field.
-    if(info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        info->pMemcpy(Dest,
-                  info->EvenLines[0][info->FieldHeight - 1],
-                  info->LineLength);
-        Dest += info->OverlayPitch;
-        info->pMemcpy(Dest,
-                  info->OddLines[0][info->FieldHeight - 1],
-                  info->LineLength);
+        pInfo->pMemcpy(Dest, T1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+        pInfo->pMemcpy(Dest, M1, pInfo->LineLength);
     }
     else
     {
-        info->pMemcpy(Dest,
-                  info->OddLines[0][info->FieldHeight - 1],
-                  info->LineLength);
+        pInfo->pMemcpy(Dest, T1, pInfo->LineLength); 
     }
-    
     
     // clear out the MMX registers ready for doing floating point
     // again

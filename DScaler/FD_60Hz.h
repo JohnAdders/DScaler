@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
+// $Id: FD_60Hz.h,v 1.9 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,15 +40,15 @@ void FD60_ShowUI();
 
 #define MAXMODESWITCHES 50  // Maximum number of switches to track in TrackModeSwitches()
 
-void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo);
-eFilmPulldownMode GetFilmModeFromPosition(DEINTERLACE_INFO* pInfo);
-BOOL DoWeWantToFlipNTSC(DEINTERLACE_INFO* pInfo);
-BOOL FilmModeNTSC1st(DEINTERLACE_INFO* pInfo);
-BOOL FilmModeNTSC2nd(DEINTERLACE_INFO* pInfo);
-BOOL FilmModeNTSC3rd(DEINTERLACE_INFO* pInfo);
-BOOL FilmModeNTSC4th(DEINTERLACE_INFO* pInfo);
-BOOL FilmModeNTSC5th(DEINTERLACE_INFO* pInfo);
-BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo);
-BOOL DoWeWantToFlip(DEINTERLACE_INFO* pInfo);
+void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo);
+eFilmPulldownMode GetFilmModeFromPosition(TDeinterlaceInfo* pInfo);
+BOOL DoWeWantToFlipNTSC(TDeinterlaceInfo* pInfo);
+BOOL FilmModeNTSC1st(TDeinterlaceInfo* pInfo);
+BOOL FilmModeNTSC2nd(TDeinterlaceInfo* pInfo);
+BOOL FilmModeNTSC3rd(TDeinterlaceInfo* pInfo);
+BOOL FilmModeNTSC4th(TDeinterlaceInfo* pInfo);
+BOOL FilmModeNTSC5th(TDeinterlaceInfo* pInfo);
+BOOL FilmModeNTSCComb(TDeinterlaceInfo* pInfo);
+BOOL DoWeWantToFlip(TDeinterlaceInfo* pInfo);
 
 #endif

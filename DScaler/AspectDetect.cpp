@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.20 2001-11-09 12:42:07 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.21 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.19  2001/11/02 16:30:06  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -301,7 +304,7 @@ BlackLoop:
 }
 
 // direction is -1 to scan up from bottom of image, 1 to scan down from top.
-int FindEdgeOfImage(DEINTERLACE_INFO* pInfo, int direction)
+int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
 {
     int y, ylimit;
     short* line;
@@ -358,7 +361,7 @@ int FindEdgeOfImage(DEINTERLACE_INFO* pInfo, int direction)
 
 //----------------------------------------------------------------------------
 // Adjust the source aspect ratio to fit whatever is currently onscreen.
-int FindAspectRatio(DEINTERLACE_INFO* pInfo)
+int FindAspectRatio(TDeinterlaceInfo* pInfo)
 {
     int ratio;
     int topBorder, bottomBorder, border;
@@ -404,7 +407,7 @@ int FindAspectRatio(DEINTERLACE_INFO* pInfo)
 //----------------------------------------------------------------------------
 // Automatic Aspect Ratio Detection
 // Continuously adjust the source aspect ratio.  This is called once per frame.
-void AdjustAspectRatio(long SourceAspectAdjust, DEINTERLACE_INFO* pInfo)
+void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
 {
     static int lastNewRatio = 0;
     static int newRatioFrameCount = 0;

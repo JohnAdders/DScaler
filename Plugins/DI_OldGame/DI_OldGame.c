@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.c,v 1.2 2001-08-30 10:03:52 adcockj Exp $
+// $Id: DI_OldGame.c,v 1.3 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/08/30 10:03:52  adcockj
+// Slightly improved the color averaging
+// Added a "composite mode" switch to force averaging when crosstalk is more important than blur.
+// Commented the code
+// Reorganized and edited to follow the coding guidelines
+// Most importantly: Added a silly quote
+// (Changes made on behalf of Lindsey Dubb)
+//
 // Revision 1.1  2001/07/30 08:25:22  adcockj
 // Added Lindsey Dubb's method
 //
@@ -70,9 +78,9 @@ Ways this filter could be improved:
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags);
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved);
-long OldGameFilter_SSE(DEINTERLACE_INFO *info);
-long OldGameFilter_3DNOW(DEINTERLACE_INFO *info);
-long OldGameFilter_MMX(DEINTERLACE_INFO *info);
+long OldGameFilter_SSE(TDeinterlaceInfo *info);
+long OldGameFilter_3DNOW(TDeinterlaceInfo *info);
+long OldGameFilter_MMX(TDeinterlaceInfo *info);
 
 #ifdef LD_DEBUG
 void __cdecl OldGameDebugStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins,

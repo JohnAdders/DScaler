@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.6 2001-08-09 21:34:59 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.7 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/08/09 21:34:59  adcockj
+// Fixed bugs raise by Timo and Keld
+//
 // Revision 1.5  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -54,15 +57,15 @@ LPCSTR ModeList[] =
 
 SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE];
 
-long LogoKiller(DEINTERLACE_INFO *info)
+long LogoKiller(TDeinterlaceInfo* pInfo)
 {
-    BYTE* lpOverlay = info->Overlay + Left * 8;
+    BYTE* lpOverlay = pInfo->Overlay + Left * 8;
     const __int64 qwGrey = 0x7f7f7f7f7f7f7f7f;
-    long Pitch = info->OverlayPitch;
+    long Pitch = pInfo->OverlayPitch;
 
     // we use some of the integer SSE instructions these are supported
     // either by PIII and above or by Althons and above
-    if((info->CpuFeatureFlags & FEATURE_SSE) || (info->CpuFeatureFlags & FEATURE_MMXEXT))
+    if((pInfo->CpuFeatureFlags & FEATURE_SSE) || (pInfo->CpuFeatureFlags & FEATURE_MMXEXT))
     {
         // we are OK to use everything
     }
@@ -74,8 +77,8 @@ long LogoKiller(DEINTERLACE_INFO *info)
     }
 
     // check bounds
-    if((Top + Height) >= info->FrameHeight ||
-        (Left + Width) >= info->FrameWidth / 4)
+    if((Top + Height) >= pInfo->FrameHeight ||
+        (Left + Width) >= pInfo->FrameWidth / 4)
     {
         return 1000;
     }

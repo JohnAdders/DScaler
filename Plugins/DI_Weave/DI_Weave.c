@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Weave.c,v 1.5 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_Weave.c,v 1.6 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -32,21 +35,34 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Simple Weave.  Copies alternating scanlines from the most recent fields.
-BOOL DeinterlaceWeave(DEINTERLACE_INFO *info)
+BOOL DeinterlaceWeave(TDeinterlaceInfo* pInfo)
 {
     int i;
-    BYTE *lpOverlay = info->Overlay;
+    BYTE *lpOverlay = pInfo->Overlay;
+    BYTE* CurrentOddLine;
+    BYTE* CurrentEvenLine;
+    DWORD Pitch = pInfo->InputPitch;
 
-    if (info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
-        return FALSE;
-
-    for (i = 0; i < info->FieldHeight; i++)
+    if (pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        info->pMemcpy(lpOverlay, info->EvenLines[0][i], info->LineLength);
-        lpOverlay += info->OverlayPitch;
+        CurrentOddLine = pInfo->PictureHistory[0]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[1]->pData;
+    }
+    else
+    {
+        CurrentOddLine = pInfo->PictureHistory[1]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[0]->pData;
+    }
+    
+    for (i = 0; i < pInfo->FieldHeight; i++)
+    {
+        pInfo->pMemcpy(lpOverlay, CurrentEvenLine, pInfo->LineLength);
+        lpOverlay += pInfo->OverlayPitch;
+        CurrentEvenLine += Pitch;
 
-        info->pMemcpy(lpOverlay, info->OddLines[0][i], info->LineLength);
-        lpOverlay += info->OverlayPitch;
+        pInfo->pMemcpy(lpOverlay, CurrentOddLine, pInfo->LineLength);
+        lpOverlay += pInfo->OverlayPitch;
+        CurrentOddLine += Pitch;
     }
     _asm
     {

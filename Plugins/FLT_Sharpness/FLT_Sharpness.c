@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.3 2001-08-09 21:34:59 adcockj Exp $
+// $Id: FLT_Sharpness.c,v 1.4 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/09 21:34:59  adcockj
+// Fixed bugs raise by Timo and Keld
+//
 // Revision 1.2  2001/08/03 14:24:06  adcockj
 // fixed settings
 //
@@ -31,9 +34,9 @@
 
 long Sharpness = 128;
 
-long FilterSharpness(DEINTERLACE_INFO *info)
+long FilterSharpness(TDeinterlaceInfo* pInfo)
 {
-    short *Pixels;
+    BYTE* Pixels = pInfo->PictureHistory[0]->pData;
     int y;
     __int64 qwYMask = 0x00ff00ff00ff00ff;
     __int64 qwSharpness;
@@ -41,8 +44,7 @@ long FilterSharpness(DEINTERLACE_INFO *info)
 
     // Need to have the current field to do the filtering.
     // and if we have nothing to do just return
-    if ((info->IsOdd && info->OddLines[0] == NULL) ||
-        (! info->IsOdd && info->EvenLines[0] == NULL) || 
+    if (Pixels == NULL || 
         Sharpness == 0)
     {
         return 1000;
@@ -50,19 +52,10 @@ long FilterSharpness(DEINTERLACE_INFO *info)
 
     qwSharpness = Sharpness;
     qwSharpness |= qwSharpness << 48 | qwSharpness << 32 | qwSharpness << 16;
-    Cycles = info->LineLength / 8 - 2;
+    Cycles = pInfo->LineLength / 8 - 2;
 
-    for (y = 0; y < info->FieldHeight; y++)
+    for (y = 0; y < pInfo->FieldHeight; y++)
     {
-        if (info->IsOdd)
-        {
-            Pixels = info->OddLines[0][y];
-        }
-        else
-        {
-            Pixels = info->EvenLines[0][y];
-        }
-
         _asm
         {
             mov eax, Pixels
@@ -109,6 +102,7 @@ LOOP_LABEL:
             dec ecx
             jne near LOOP_LABEL
         }
+        Pixels += pInfo->InputPitch;
     }
     _asm 
     {

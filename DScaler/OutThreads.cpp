@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.40 2001-11-21 12:32:11 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.41 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@
 //                                     Got rid of global.h structs.h defines.h
 //
 // 09 Jan 2001   John Adcock           Split out into new file
-//                                     Changed functions to use DEINTERLACE_INFO
+//                                     Changed functions to use TDeinterlaceInfo
 //
 // 24 Jul 2001   Eric Schmidt          Added TimeShift stuff.
 //
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2001/11/21 12:32:11  adcockj
+// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
+//
 // Revision 1.39  2001/11/17 18:15:57  adcockj
 // Bugfixes (including very silly performance bug)
 //
@@ -313,7 +316,7 @@ void RequestStreamSnap()
 // deinterlacing techniques as we can start
 // to exchange the actual data we are each looking
 // at and have the ability to recreate results
-void SaveStreamSnapshot(DEINTERLACE_INFO* pInfo)
+void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
 {
     FILE* file;
     char name[13];
@@ -351,7 +354,7 @@ void SaveStreamSnapshot(DEINTERLACE_INFO* pInfo)
     // fields we have.
     // The rest will contain all the data we need to use
     // the data in a test program
-    fwrite(pInfo, sizeof(DEINTERLACE_INFO), 1, file);
+    fwrite(pInfo, sizeof(TDeinterlaceInfo), 1, file);
 
     // save all the Odd fields first
     i = 0;
@@ -427,7 +430,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     char Text[128];
     DWORD dwLastSecondTicks;
     BOOL bFlipNow = TRUE;
-    DEINTERLACE_INFO Info;
+    TDeinterlaceInfo Info;
     DEINTERLACE_METHOD* PrevDeintMethod = NULL;
     DEINTERLACE_METHOD* CurrentMethod = NULL;
     DWORD CurrentTickCount;

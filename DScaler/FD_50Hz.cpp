@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.19 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,12 +28,15 @@
 //                                     Got rid of global.h structs.h defines.h
 //
 // 09 Jan 2001   John Adcock           Split out into new file
-//                                     Changed functions to use DEINTERLACE_INFO
+//                                     Changed functions to use TDeinterlaceInfo
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.17  2001/08/09 21:34:59  adcockj
 // Fixed bugs raise by Timo and Keld
 //
@@ -87,7 +90,7 @@ extern long ThresholdPulldownComb;
 //
 // This is the 2:2 pulldown detection for PAL.
 ///////////////////////////////////////////////////////////////////////////////
-void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
+void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
 {
     static long LastCombFactor = 0;
     static long RepeatCount;
@@ -320,17 +323,17 @@ BOOL FlipPALEven(int CurrentFrame, BOOL bIsOdd)
     return !bIsOdd;
 }
 
-BOOL FilmModePALOdd(DEINTERLACE_INFO* pInfo)
+BOOL FilmModePALOdd(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipPALOdd);
 }
 
-BOOL FilmModePALEven(DEINTERLACE_INFO* pInfo)
+BOOL FilmModePALEven(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipPALEven);
 }
 
-BOOL FilmModePALComb(DEINTERLACE_INFO* pInfo)
+BOOL FilmModePALComb(TDeinterlaceInfo* pInfo)
 {
     static long NumCalls = 0;
     DEINTERLACE_METHOD* DeintMethod;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
+// $Id: StillSource.h,v 1.4 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ public:
     void Start();
     void Stop();
     void Reset();
-    void GetNextField(DEINTERLACE_INFO* pInfo, BOOL AccurateTiming);
+    void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     LPCSTR GetStatus();
     CSetting* GetVolume();
@@ -52,7 +52,7 @@ public:
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
     BOOL IsVideoPresent() {return TRUE;};
-    void DecodeVBI(DEINTERLACE_INFO* pInfo) {;};
+    void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
 private:
 };
 

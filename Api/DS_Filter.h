@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Filter.h,v 1.4 2001-07-13 16:15:43 adcockj Exp $
+// $Id: DS_Filter.h,v 1.5 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:15:43  adcockj
+// Changed lots of variables to match Coding standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DS_FILTER_H___
@@ -34,7 +37,7 @@
 #include "DS_ApiCommon.h"
 
 // filter functions return the aspect ratio change 1000 = 1.0
-typedef long (__cdecl FILTER_FUNC)(DEINTERLACE_INFO *Info);
+typedef long (__cdecl FILTER_FUNC)(TDeinterlaceInfo *Info);
 typedef void (__cdecl FILTERPLUGINSTART)(void);
 typedef void (__cdecl FILTERPLUGINEXIT)(void);
 

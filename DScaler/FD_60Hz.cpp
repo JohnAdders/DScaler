@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.cpp,v 1.19 2001-11-09 12:42:07 adcockj Exp $
+// $Id: FD_60Hz.cpp,v 1.20 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.18  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -94,7 +97,7 @@ DWORD ModeSwitchTimestamps[MAXMODESWITCHES];
 DEINTERLACE_METHOD* ModeSwitchMethods[MAXMODESWITCHES];
 int NumSwitches;
 
-BOOL DidWeExpectWeave(DEINTERLACE_INFO* pInfo);
+BOOL DidWeExpectWeave(TDeinterlaceInfo* pInfo);
 
 ///////////////////////////////////////////////////////////////////////////////
 // ResetModeSwitches
@@ -181,7 +184,7 @@ BOOL TrackModeSwitches()
 //
 // This function normally gets called 60 times per second.
 ///////////////////////////////////////////////////////////////////////////////
-void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
+void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
 {
     boolean SwitchToVideo = FALSE;
     static long MISMATCH_COUNT = 0;
@@ -454,7 +457,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
     }
 }
 
-eFilmPulldownMode GetFilmModeFromPosition(DEINTERLACE_INFO* pInfo)
+eFilmPulldownMode GetFilmModeFromPosition(TDeinterlaceInfo* pInfo)
 {
     if(pInfo->IsOdd == TRUE)
     {
@@ -557,32 +560,32 @@ BOOL FlipNTSC5th(int CurrentFrame, BOOL bIsOdd)
     return bFlipNow;
 }
 
-BOOL FilmModeNTSC1st(DEINTERLACE_INFO* pInfo)
+BOOL FilmModeNTSC1st(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipNTSC1st);
 }
 
-BOOL FilmModeNTSC2nd(DEINTERLACE_INFO* pInfo)
+BOOL FilmModeNTSC2nd(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipNTSC2nd);
 }
 
-BOOL FilmModeNTSC3rd(DEINTERLACE_INFO* pInfo)
+BOOL FilmModeNTSC3rd(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipNTSC3rd);
 }
 
-BOOL FilmModeNTSC4th(DEINTERLACE_INFO* pInfo)
+BOOL FilmModeNTSC4th(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipNTSC4th);
 }
 
-BOOL FilmModeNTSC5th(DEINTERLACE_INFO* pInfo)
+BOOL FilmModeNTSC5th(TDeinterlaceInfo* pInfo)
 {
     return SimpleFilmMode(pInfo, FlipNTSC5th);
 }
 
-BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo)
+BOOL FilmModeNTSCComb(TDeinterlaceInfo* pInfo)
 {
     static long NumCalls = 0;
     DEINTERLACE_METHOD* DeintMethod;
@@ -610,7 +613,7 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo)
     }
 }
 
-BOOL DidWeExpectWeave(DEINTERLACE_INFO* pInfo)
+BOOL DidWeExpectWeave(TDeinterlaceInfo* pInfo)
 {
     BOOL RetVal;
     switch(GetFilmMode())

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.asm,v 1.3 2001-07-13 16:13:33 adcockj Exp $
+// $Id: FLT_TNoise.asm,v 1.4 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 //
@@ -36,15 +39,16 @@
 #endif
 
 #if defined(IS_SSE)
-long FilterTemporalNoise_SSE(DEINTERLACE_INFO *info)
+long FilterTemporalNoise_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-long FilterTemporalNoise_3DNOW(DEINTERLACE_INFO *info)
+long FilterTemporalNoise_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-long FilterTemporalNoise_MMX(DEINTERLACE_INFO *info)
+long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
-    short** NewLines;
-    short** OldLines;
+    BYTE* NewLine = pInfo->PictureHistory[0]->pData;
+    BYTE* OldLine = pInfo->PictureHistory[2]->pData;
+
     int y;
     int Cycles;
     __int64 qwNoiseThreshold;
@@ -53,40 +57,22 @@ long FilterTemporalNoise_MMX(DEINTERLACE_INFO *info)
 #endif
 
     // Need to have the current and next-to-previous fields to do the filtering.
-    if ((info->IsOdd && (info->OddLines[0] == NULL || info->OddLines[1] == NULL)) ||
-        (! info->IsOdd && (info->EvenLines[0] == NULL || info->EvenLines[1] == NULL)))
+    if (NewLine == NULL || OldLine == NULL)
     {
         return 1000;
     }
 
     qwNoiseThreshold = TemporalLuminanceThreshold | (TemporalChromaThreshold << 8);
     qwNoiseThreshold |= (qwNoiseThreshold << 48) | (qwNoiseThreshold << 32) | (qwNoiseThreshold << 16);
-    Cycles = info->LineLength / 8;
+    Cycles = pInfo->LineLength / 8;
 
-    if (info->IsOdd)
-    {
-        NewLines = info->OddLines[0];
-        OldLines = info->OddLines[1];
-    }
-    else
-    {
-        NewLines = info->EvenLines[0];
-        OldLines = info->EvenLines[1];
-    }
-
-    for (y = 0; y < info->FieldHeight; y++)
+    for (y = 0; y < pInfo->FieldHeight; y++)
     {
         _asm 
         {
             mov ecx, Cycles
-         mov ebx, y
-         shl ebx, 2
-         mov edx, NewLines
-         add edx, ebx
-            mov eax, dword ptr[edx]
-         mov edx, OldLines
-         add edx, ebx
-            mov ebx, dword ptr[edx]
+            mov eax, NewLine
+            mov ebx, OldLine
             movq mm5, qwNoiseThreshold      // mm5 = NoiseThreshold
 
 MAINLOOP_LABEL:
@@ -145,6 +131,9 @@ MAINLOOP_LABEL:
             add ebx, 8
             loop MAINLOOP_LABEL
         }
+
+        NewLine += pInfo->InputPitch;
+        OldLine += pInfo->InputPitch;
     }
 
     // clear out the MMX registers ready for doing floating point

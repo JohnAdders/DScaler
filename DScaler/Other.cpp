@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.23 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Other.cpp,v 1.24 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.22  2001/10/30 20:54:28  koreth
 // Don't retry fetching physical overlay color if it's supposed to be zero.
 //
@@ -829,7 +832,7 @@ static HRESULT FlipResult = 0;             // Need to try again for flip?
 // non-waiting last flip failed.  If so, try it one more time,
 // then give up.  Tom Barry 10/26/00
 //
-BOOL Overlay_Lock(DEINTERLACE_INFO* pInfo)
+BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)
 {
     if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
     {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.9 2001-11-20 11:43:00 temperton Exp $
+// $Id: TimeShift.cpp,v 1.10 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/20 11:43:00  temperton
+// Store wave-device names instead of indexes in ini
+//
 // Revision 1.8  2001/11/04 14:44:58  adcockj
 // Bug fixes
 //
@@ -318,7 +321,7 @@ bool TimeShift::OnOptions(void)
 }
 
 // Called from the capture thread.
-bool TimeShift::OnNewFrame(DEINTERLACE_INFO *info)
+bool TimeShift::OnNewFrame(TDeinterlaceInfo *info)
 {
     bool result = false;
 
@@ -1571,7 +1574,7 @@ bool TimeShift::GoPrev(void)
     return Play();
 }
 
-bool TimeShift::WriteVideo(DEINTERLACE_INFO *info)
+bool TimeShift::WriteVideo(TDeinterlaceInfo *info)
 {
     if (!m_psCompressedVideo)
         return false;
@@ -1697,7 +1700,7 @@ bool TimeShift::WriteVideo(DEINTERLACE_INFO *info)
     return true;
 }
 
-bool TimeShift::ReadVideo(DEINTERLACE_INFO *info)
+bool TimeShift::ReadVideo(TDeinterlaceInfo *info)
 {
     if (!m_psCompressedVideoP)
         return false;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Adaptive.c,v 1.12 2001-07-13 16:13:32 adcockj Exp $
+// $Id: DI_Adaptive.c,v 1.13 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mark Rejhon and Steve Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/13 16:13:32  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -119,7 +122,7 @@ void UpdateAdaptiveMode(long Index)
 // modes.  On slower machines VIDEO_MODE_BOB (high) and VIDEO_MODE_WEAVE (low)
 // can be used instead since they're less CPU-intensive.
 ///////////////////////////////////////////////////////////////////////////////
-BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
+BOOL DeinterlaceAdaptive(TDeinterlaceInfo* pInfo)
 {
     static long StaticMatchCount = 0;
     static long LowMatchCount = 0;
@@ -133,9 +136,9 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
         LowMatchCount = 0;
     }
 
-    // reset MATCH_COUNT when we are called and the info
+    // reset MATCH_COUNT when we are called and the pInfo
     // struct doesn't contain at least an odd and an even frame
-    if(info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
+    if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
     {
         return FALSE;
     }
@@ -144,7 +147,7 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
     // to static after StaticImageFieldCount consecutive 
     // static fields
     // also check if its OK to go into low motion mode
-    if(info->FieldDiff < AdaptiveThres32Pulldown)
+    if(pInfo->FieldDiff < AdaptiveThres32Pulldown)
     {
         StaticMatchCount++;
         LowMatchCount++;
@@ -163,7 +166,7 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
     // switch back to low from high only after LowMotionFieldCount
     // consecutive low or static fields
     // if we are in static then switch straight away
-    else if(info->FieldDiff < AdaptiveThresPulldownMismatch)
+    else if(pInfo->FieldDiff < AdaptiveThresPulldownMismatch)
     {
         LowMatchCount++;
         StaticMatchCount = 0;
@@ -189,7 +192,7 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 
     if(CurrentMethod != NULL)
     {
-        return CurrentMethod->pfnAlgorithm(info);
+        return CurrentMethod->pfnAlgorithm(pInfo);
     }
     else
     {

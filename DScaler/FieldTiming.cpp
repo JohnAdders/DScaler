@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.21 2001-11-09 12:42:07 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.22 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 // Date          Developer             Changes
 //
 // 09 Jan 2001   John Adcock           Split out into new file
-//                                     Changed functions to use DEINTERLACE_INFO
+//                                     Changed functions to use TDeinterlaceInfo
 //
 // 17 Jun 2001   John Adcock           Added autoformat detection based on input
 //                                     frequency
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.20  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -109,7 +112,7 @@ void Timing_Setup()
     Timing_Reset();
 }
 
-void Timing_UpdateRunningAverage(DEINTERLACE_INFO* pInfo)
+void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo)
 {
     if(!(pInfo->bRunningLate))
     {
@@ -154,7 +157,7 @@ void Timing_UpdateRunningAverage(DEINTERLACE_INFO* pInfo)
     }
 }
 
-void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate, BOOL& bSleptAlready)
+void Timing_SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate, BOOL& bSleptAlready)
 {
     if(bSleptAlready == FALSE || SleepSkipFields == 0)
     {
@@ -178,7 +181,7 @@ void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate, BOOL& bSleptA
     bSleptAlready = TRUE;
 }
 
-void Timimg_AutoFormatDetect(DEINTERLACE_INFO* pInfo)
+void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
 {
     static long RepeatCount = 0;
 
@@ -249,7 +252,7 @@ void Timing_Reset()
     CurrentFlipTime.QuadPart = 0;
 }
 
-void Timing_WaitForTimeToFlip(DEINTERLACE_INFO* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread)
+void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread)
 {
     if(pInfo->bMissedFrame == FALSE && FlipAdjust == FALSE)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.14 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Filter.cpp,v 1.15 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.13  2001/09/09 18:30:19  adcockj
 // Filter menu fix
 //
@@ -65,7 +68,7 @@ long NumFilters = 0;
 
 FILTER_METHOD* Filters[100] = {NULL,};
 
-long Filter_DoInput(DEINTERLACE_INFO* pInfo, BOOL HurryUp)
+long Filter_DoInput(TDeinterlaceInfo* pInfo, BOOL HurryUp)
 {
     long SourceAspectAdjust = 1000;
     int i;
@@ -83,7 +86,7 @@ long Filter_DoInput(DEINTERLACE_INFO* pInfo, BOOL HurryUp)
     return SourceAspectAdjust;
 }
 
-void Filter_DoOutput(DEINTERLACE_INFO* pInfo, BOOL HurryUp)
+void Filter_DoOutput(TDeinterlaceInfo* pInfo, BOOL HurryUp)
 {
     int i;
     for(i = 0; i < NumFilters; i++)

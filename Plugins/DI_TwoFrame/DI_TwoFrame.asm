@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TwoFrame.asm,v 1.2 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_TwoFrame.asm,v 1.3 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,24 +75,25 @@
 
 
 #if defined(IS_SSE)
-BOOL DeinterlaceFieldTwoFrame_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldTwoFrame_SSE(TDeinterlaceInfo* pInfo)
 #elif defined(IS_3DNOW)
-BOOL DeinterlaceFieldTwoFrame_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldTwoFrame_3DNOW(TDeinterlaceInfo* pInfo)
 #else
-BOOL DeinterlaceFieldTwoFrame_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceFieldTwoFrame_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
     int Line;
-    short* YVal0;
-    short* YVal1;
-    short* YVal2;
-    short* OVal0;
-    short* OVal1;
-    short* OVal2;
+    BYTE* YVal0;
+    BYTE* YVal1;
+    BYTE* YVal2;
+    BYTE* OVal0;
+    BYTE* OVal1;
+    BYTE* OVal2;
     DWORD OldSI;
     DWORD OldSP;
-    BYTE* Dest;
-    DWORD LineLength = info->LineLength;
+    BYTE* Dest = pInfo->Overlay;
+    DWORD Pitch = pInfo->InputPitch;
+    DWORD LineLength = pInfo->LineLength;
 
     const __int64 YMask    = 0x00ff00ff00ff00ff;
 
@@ -99,12 +103,6 @@ BOOL DeinterlaceFieldTwoFrame_MMX(DEINTERLACE_INFO *info)
     __int64 qwBobbedPixels;
     const __int64 Mask = 0x7f7f7f7f7f7f7f7f;
 
-    if (info->OddLines[0] == NULL || info->OddLines[1] == NULL ||
-        info->EvenLines[0] == NULL || info->EvenLines[1] == NULL)
-    {
-        return FALSE;
-    }
-
     qwSpatialTolerance = TwoFrameSpatialTolerance / 4;      // divide by 4 because of squaring behavior, see below
     qwSpatialTolerance += (qwSpatialTolerance << 48) + (qwSpatialTolerance << 32) + (qwSpatialTolerance << 16);
     qwTemporalTolerance = TwoFrameTemporalTolerance / 4;
@@ -112,41 +110,37 @@ BOOL DeinterlaceFieldTwoFrame_MMX(DEINTERLACE_INFO *info)
 
     // copy first even line no matter what, and the first odd line if we're
     // processing an odd field.
-    info->pMemcpy(info->Overlay, info->EvenLines[0][0], info->LineLength);
-    if (info->IsOdd)
+
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
     {
-        info->pMemcpy(info->Overlay + info->OverlayPitch, info->OddLines[0][0], info->LineLength);
+        YVal0 = pInfo->PictureHistory[0]->pData;
+        YVal1 = pInfo->PictureHistory[1]->pData + Pitch;
+        YVal2 = YVal0 + Pitch;
+        OVal0 = pInfo->PictureHistory[2]->pData;
+        OVal1 = pInfo->PictureHistory[3]->pData + Pitch;
+        OVal2 = OVal0 + Pitch;
+
+        pInfo->pMemcpy(Dest, pInfo->PictureHistory[1]->pData, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+        
+        pInfo->pMemcpy(Dest, YVal0, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+    else
+    {
+        YVal0 = pInfo->PictureHistory[0]->pData;
+        YVal1 = pInfo->PictureHistory[1]->pData;
+        YVal2 = YVal0 + Pitch;
+        OVal0 = pInfo->PictureHistory[2]->pData;
+        OVal1 = pInfo->PictureHistory[3]->pData;
+        OVal2 = OVal0 + Pitch;
+
+        pInfo->pMemcpy(Dest, YVal0, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
     }
 
-    for (Line = 0; Line < info->FieldHeight - 1; ++Line)
+    for (Line = 0; Line < pInfo->FieldHeight - 1; ++Line)
     {
-        if (info->IsOdd)
-        {
-            YVal0 = info->OddLines[0][Line];
-            YVal1 = info->EvenLines[0][Line + 1];
-            YVal2 = info->OddLines[0][Line + 1];
-            OVal0 = info->OddLines[1][Line];
-            OVal1 = info->EvenLines[1][Line + 1];
-            OVal2 = info->OddLines[1][Line + 1];
-            Dest = info->Overlay + (Line * 2 + 3) * info->OverlayPitch;
-        }
-        else
-        {
-            YVal0 = info->EvenLines[0][Line];
-            YVal1 = info->OddLines[0][Line];
-            YVal2 = info->EvenLines[0][Line + 1];
-            OVal0 = info->EvenLines[1][Line];
-            OVal1 = info->OddLines[1][Line];
-            OVal2 = info->EvenLines[1][Line + 1];
-            Dest = info->Overlay + (Line * 2 + 2) * info->OverlayPitch;
-        }
-
-        // Always use the most recent data verbatim.  By definition it's correct (it'd
-        // be shown on an interlaced display) and our job is to fill in the spaces
-        // between the new lines.
-        info->pMemcpy(Dest, YVal2, info->LineLength);
-        Dest -= info->OverlayPitch;
-
        _asm
        {
             // We'll be using a couple registers that have meaning in the C code, so
@@ -296,14 +290,28 @@ MAINLOOP_LABEL:
             mov esi, OldSI
             mov esp, OldSP
         }
+
+        Dest += pInfo->OverlayPitch;
+
+        // Always use the most recent data verbatim.  By definition it's correct (it'd
+        // be shown on an interlaced display) and our job is to fill in the spaces
+        // between the new lines.
+        pInfo->pMemcpy(Dest, YVal2, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+
+        YVal0 += Pitch;
+        YVal1 += Pitch;
+        YVal2 += Pitch;
+        OVal0 += Pitch;
+        OVal1 += Pitch;
+        OVal2 += Pitch;
+
     }
 
     // Copy last odd line if we're processing an even field.
-    if (!info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_EVEN)
     {
-        info->pMemcpy(info->Overlay + (info->FrameHeight - 1) * info->OverlayPitch,
-                  info->OddLines[0][info->FieldHeight - 1],
-                  info->LineLength);
+        pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
     }
 
     // clear out the MMX registers ready for doing floating point

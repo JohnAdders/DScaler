@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Bob.c,v 1.4 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_Bob.c,v 1.5 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -156,66 +159,71 @@ EndCopyLoop:
 // Simple Bob.  Copies the most recent field to the overlay, with each scanline
 // copied twice.
 /////////////////////////////////////////////////////////////////////////////
-BOOL DeinterlaceBob(DEINTERLACE_INFO *info)
+BOOL DeinterlaceBob(TDeinterlaceInfo* pInfo)
 {
     int i;
-    BYTE *lpOverlay = info->Overlay;
-    short **lines;
- 
-    // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
-    if (info->IsOdd)
-    {
-        lines = info->OddLines[0];
-        // No recent data?  We can't do anything.
-        if (lines == NULL)
-            return FALSE;
+    BYTE* lpOverlay = pInfo->Overlay;
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
+    DWORD Pitch = pInfo->InputPitch;
 
-        if (info->CpuFeatureFlags & FEATURE_SSE)
+    // No recent data?  We can't do anything.
+    if (CurrentLine == NULL)
+    {
+        return FALSE;
+    }
+    
+    // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
+    if (pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    {
+        if (pInfo->CpuFeatureFlags & FEATURE_SSE)
         {
-            info->pMemcpy(lpOverlay, lines[0], info->LineLength);   // extra copy of first line
-            lpOverlay += info->OverlayPitch;                    // and offset out output ptr
-            for (i = 0; i < info->FieldHeight - 1; i++)
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
+            lpOverlay += pInfo->OverlayPitch;                            // and offset out output ptr
+            CurrentLine += Pitch;
+            for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
-                memcpyBOBSSE(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    CurrentLine, pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
-            info->pMemcpy(lpOverlay, lines[i], info->LineLength);   // only 1 copy of last line
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // only 1 copy of last line
         }
         else
         {
-            info->pMemcpy(lpOverlay, lines[0], info->LineLength);   // extra copy of first line
-            lpOverlay += info->OverlayPitch;                    // and offset out output ptr
-            for (i = 0; i < info->FieldHeight - 1; i++)
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
+            lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
+            CurrentLine += Pitch;
+            for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
-                memcpyBOBMMX(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    CurrentLine, pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
-            info->pMemcpy(lpOverlay, lines[i], info->LineLength);   // only 1 copy of last line
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // only 1 copy of last line
         }
     }   
     else
     {
-        lines = info->EvenLines[0];
-        if (lines == NULL)
-                return FALSE;
-        if (info->CpuFeatureFlags & FEATURE_SSE)
+        if (pInfo->CpuFeatureFlags & FEATURE_SSE)
         {
-            for (i = 0; i < info->FieldHeight; i++)
+            for (i = 0; i < pInfo->FieldHeight; i++)
             {
-                memcpyBOBSSE(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    CurrentLine, pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
         }
         else
         {
-            for (i = 0; i < info->FieldHeight; i++)
+            for (i = 0; i < pInfo->FieldHeight; i++)
             {
-                memcpyBOBMMX(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    CurrentLine, pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
         }
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.9 2001-10-17 11:45:17 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.10 2001-11-21 15:21:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/10/17 11:45:17  adcockj
+// Corrected gamma settings and made gamma number similar to industry standard
+//
 // Revision 1.8  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -36,35 +39,25 @@ BOOL bUseStoredTable = FALSE;
 long BlackLevel = 0;
 long WhiteLevel = 255;
 
-long FilterGamma(DEINTERLACE_INFO *info)
+long FilterGamma(TDeinterlaceInfo* pInfo)
 {
-    short *Pixels;
-    short *Table;
+    BYTE* Pixels = pInfo->PictureHistory[0]->pData;
+    short* Table;
     int y;
     int Cycles;
 
-    // Need to have the current and next-to-previous fields to do the filtering.
-    if ((info->IsOdd && info->OddLines[0] == NULL) ||
-        (! info->IsOdd && info->EvenLines[0] == NULL))
+    if (Pixels == NULL )
     {
         return 1000;
     }
 
-    Cycles = info->LineLength / 4;
+    // Need to have the current and next-to-previous fields to do the filtering.
+    Cycles = pInfo->LineLength / 4;
 
     Table = (short*)GammaTable;
 
-    for (y = 0; y < info->FieldHeight; y++)
+    for (y = 0; y < pInfo->FieldHeight; y++)
     {
-        if (info->IsOdd)
-        {
-            Pixels = info->OddLines[0][y];
-        }
-        else
-        {
-            Pixels = info->EvenLines[0][y];
-        }
-
         _asm
         {
             mov ecx, Cycles
@@ -81,7 +74,7 @@ LOOP_LABEL:
             add edx, 2          
             loop LOOP_LABEL
         }
-
+        Pixels += pInfo->InputPitch;
     }
     return 1000;
 }

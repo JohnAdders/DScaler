@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
+// $Id: BT848Source.h,v 1.4 2001-11-21 15:21:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ public:
     void Start();
     void Stop();
     void Reset();
-    void GetNextField(DEINTERLACE_INFO* pInfo, BOOL AccurateTiming);
+    void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     CBT848Card* GetBT848Card();
     LPCSTR GetStatus();
@@ -59,7 +59,7 @@ public:
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
-    void DecodeVBI(DEINTERLACE_INFO* pInfo);
+    void DecodeVBI(TDeinterlaceInfo* pInfo);
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -70,9 +70,9 @@ private:
     static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-    void GetNextFieldNormal(DEINTERLACE_INFO* pInfo);
-    void GetNextFieldAccurate(DEINTERLACE_INFO* pInfo);
-    void SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate);
+    void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
+    void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
+    void SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate);
 
     void SetupCard();
     void ChangeDefaultsBasedOnHardware();

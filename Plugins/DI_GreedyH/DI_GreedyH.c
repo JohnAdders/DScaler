@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.12 2001-11-02 10:46:09 adcockj Exp $
+// $Id: DI_GreedyH.c,v 1.13 2001-11-21 15:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/02 10:46:09  adcockj
+// Merge in code from Multiple card branch
+//
 // Revision 1.11  2001/08/21 09:39:12  adcockj
 // Removed references to deleted file
 //
@@ -96,10 +99,10 @@
 #include "DI_GreedyHM.h"
 
 int GreedyDiag();
-BOOL GetCheckDScalerInfo(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info);
+BOOL GetCheckDScalerInfo(TDeinterlaceInfo *info);
+BOOL DeinterlaceGreedyH_SSE(TDeinterlaceInfo *info);
+BOOL DeinterlaceGreedyH_3DNOW(TDeinterlaceInfo *info);
+BOOL DeinterlaceGreedyH_MMX(TDeinterlaceInfo *info);
 
 HINSTANCE hInst = NULL;
 
@@ -714,7 +717,7 @@ int GreedyDiag(HWND hDlg)
 
 
 // Entered here on deinterlace call for SSE
-BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedyH_SSE(TDeinterlaceInfo *info)
 {
     if ( !GetCheckDScalerInfo(info) || !(GreedyFeatureFlags & (FEATURE_SSE | FEATURE_MMXEXT)) )
     {
@@ -733,7 +736,7 @@ BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info)
 }
 
 // Entered here on deinterlace call for 3DNOW
-BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedyH_3DNOW(TDeinterlaceInfo *info)
 {
     if ( !GetCheckDScalerInfo(info) || !(GreedyFeatureFlags & FEATURE_3DNOW) )
     {
@@ -744,7 +747,7 @@ BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info)
 }
 
 // Entered here on deinterlace call for MMX
-BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info)
+BOOL DeinterlaceGreedyH_MMX(TDeinterlaceInfo *info)
 {
     if ( !GetCheckDScalerInfo(info) || !(GreedyFeatureFlags & FEATURE_MMX) )
     {
@@ -756,7 +759,7 @@ BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info)
 
 
 // We fill in some GreedyHM external values. These should be in a parm structure, but aren't
-BOOL GetCheckDScalerInfo(DEINTERLACE_INFO *info)
+BOOL GetCheckDScalerInfo(TDeinterlaceInfo *info)
 {
     #include "DI_GreedyHM2.h"
 

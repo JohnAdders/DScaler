@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.16 2002-03-04 20:03:50 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.17 2002-03-04 20:48:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -611,40 +611,6 @@ void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
     }
 }
 
-
-void CMSP34x0Decoder::SetModus()
-{
-    WORD modus = 0;
-
-    // the following is only valid for RevG since it uses Automatic Sound Select
-    if(m_MSPVersion == MSPVersionG)
-    {
-		// if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
-		if(m_SoundChannel == SOUNDCHANNEL_MONO)
-		{
-			modus = 0;
-		}
-		else
-		{
-			modus = 1;
-		}
-    }
-
-    // choose sound IF2 input pin if needed.
-    // todo: Maybe some cards are using IF1?
-    switch(m_AudioInput)
-    {
-    case AUDIOINPUT_TUNER:
-        modus |= 0x100;
-        break;
-    case AUDIOINPUT_RADIO:
-    default:
-        break;
-    }
-
-    SetDEMRegister(DEM_WR_MODUS, modus);
-}
-
 void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
 {
     CAudioDecoder::SetSoundChannel(soundChannel);
@@ -659,8 +625,33 @@ void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
     {
         Initialize();
     }
-	
-	SetModus();
+
+    // the following is only valid for RevG since it uses Automatic Sound Select
+    WORD modus = 0;
+
+    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
+    if(m_SoundChannel == SOUNDCHANNEL_MONO)
+    {
+        modus = 0;
+    }
+    else
+    {
+        modus = 1;
+    }
+
+    // choose sound IF2 input pin if needed.
+    // todo: Maybe some cards are using IF1?
+    switch(m_AudioInput)
+    {
+    case AUDIOINPUT_RADIO:
+    case AUDIOINPUT_TUNER:
+        modus |= 0x100;
+        break;
+    default:
+        break;
+    }
+
+    SetDEMRegister(DEM_WR_MODUS, modus);
 
     WORD source = 0;
 
@@ -739,9 +730,6 @@ void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
         // todo: make sure the sound from the tuner/radio is muted.
         break;
     }
-
-	SetModus();
-
 // todo:
     // Just some inputs are selected. DScaler does not yet support this correctly
 }

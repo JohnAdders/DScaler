@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.10 2002-04-13 21:52:40 laurentg Exp $
+// $Id: Providers.h,v 1.11 2002-04-27 00:38:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,10 +26,12 @@ void Providers_Unload();
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 void Provider_HandleTimerMessages(int TimerId);
 CSource* Providers_GetCurrentSource();
+long Providers_GetSourceIndex(CSource* Src);
 CSource* Providers_GetStillsSource();
 CSource* Providers_GetSnapshotsSource();
 CSource* Providers_GetPatternsSource();
-BOOL Providers_FindSource();
+CSource* Providers_GetIntroSource();
+int Providers_FindSource();
 BOOL Providers_AddSource(CSource* pSource, HMENU hMenu);
 BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu);
 void Providers_SetMenu(HMENU hMenu);

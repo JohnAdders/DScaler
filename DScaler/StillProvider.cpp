@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.14 2002-03-30 13:18:31 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.15 2002-04-27 00:38:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/03/30 13:18:31  laurentg
+// New ini setting to choose the directory where to save snapshots
+//
 // Revision 1.13  2002/03/29 09:14:00  robmuller
 // Fixed lockup when there are too many captures.
 //
@@ -90,6 +93,13 @@ CStillProvider::CStillProvider()
 
     pStillSource = new CStillSource("Snapshots");
     m_StillSources.push_back(pStillSource);
+
+    pStillSource = new CStillSource("DScaler intro");
+    m_StillSources.push_back(pStillSource);
+    GetModuleFileName (NULL, PlayList, sizeof(PlayList));
+    strcpy(strrchr(PlayList, '\\'), "\\DScaler.d3u");
+    pStillSource->OpenMediaFile(PlayList, TRUE);
+    pStillSource->SetNavigOnly(TRUE);
 }
 
 CStillProvider::~CStillProvider()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.49 2002-04-15 22:50:09 laurentg Exp $
+// $Id: StillSource.cpp,v 1.50 2002-04-27 00:38:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/04/15 22:50:09  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.48  2002/04/15 00:28:37  trbarry
 // Remove size restrictions from StillSource. Also put run-time check in MemCpySSE to avoid crashing on P4.
 //
@@ -279,6 +283,7 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_SlideShowActive = FALSE;
     m_pMemcpy = NULL;
     m_SquarePixels = TRUE;
+    m_NavigOnly = FALSE;
 }
 
 CStillSource::~CStillSource()
@@ -690,6 +695,14 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     char* FileFilters = "DScaler Playlists\0*.d3u\0";
 
     if ((m_Position == -1) || (m_PlayList.size() == 0) || (m_NewFileRequested != STILL_REQ_NONE))
+        return FALSE;
+
+    if (m_NavigOnly
+     && (LOWORD(wParam) == IDM_PLAYLIST_UP
+      || LOWORD(wParam) == IDM_PLAYLIST_DOWN
+      || LOWORD(wParam) == IDM_CLOSE_FILE
+      || LOWORD(wParam) == IDM_CLOSE_ALL
+      || LOWORD(wParam) == IDM_PLAYLIST_SAVE))
         return FALSE;
 
     if ( (LOWORD(wParam) >= IDM_PLAYLIST_FILES) && (LOWORD(wParam) < (IDM_PLAYLIST_FILES+MAX_PLAYLIST_SIZE)) )
@@ -1113,7 +1126,7 @@ void CStillSource::SetMenu(HMENU hMenu)
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_ENABLED);
             EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_ENABLED);
-            EnableMenuItem(hMenu, IDM_PLAYLIST_UP, MF_ENABLED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_UP, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
         }
         else
         {
@@ -1125,7 +1138,7 @@ void CStillSource::SetMenu(HMENU hMenu)
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_ENABLED);
             EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_ENABLED);
-            EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, MF_ENABLED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
         }
         else
         {
@@ -1145,6 +1158,10 @@ void CStillSource::SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, MF_GRAYED);
     }
+
+    EnableMenuItem(hMenu, IDM_CLOSE_FILE, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_CLOSE_ALL, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_PLAYLIST_SAVE, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
 
     hSubMenu = GetSubMenu(m_hMenu, 0);
     if(hSubMenu == NULL) return;
@@ -1203,6 +1220,16 @@ BOOL CStillSource::IsAccessAllowed()
     }
 
     return FALSE;
+}
+
+void CStillSource::SetNavigOnly(BOOL NavigOnly)
+{
+    m_NavigOnly = NavigOnly;
+}
+
+BOOL CStillSource::IsNavigOnly()
+{
+    return m_NavigOnly;
 }
 
 void CStillSource::SetOverscan()

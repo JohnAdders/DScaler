@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.32 2002-04-13 21:52:40 laurentg Exp $
+// $Id: Providers.cpp,v 1.33 2002-04-27 00:38:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/04/13 21:52:40  laurentg
+// Management of no current source
+//
 // Revision 1.31  2002/04/13 18:56:23  laurentg
 // Checks added to manage case where the current source is not yet defined
 //
@@ -152,7 +155,13 @@
 static CDSProvider* DSProvider = NULL;
 #endif
 
-typedef vector<CSource*> SOURCELIST;
+typedef struct {
+    std::string Name;
+    CSource*    Object;
+    BOOL        DisplayInMenu;
+} TSource;
+
+typedef vector<TSource*> SOURCELIST;
 
 extern HMENU hMenu;
 
@@ -161,11 +170,13 @@ static CHardwareDriver* HardwareDriver = NULL;
 static CBT848Provider* BT848Provider = NULL;
 static CStillProvider* StillProvider = NULL;
 static long CurrentSource = 0;
+static long DefSourceIdx = -1;
 
 int Providers_Load(HMENU hMenu)
 {
     int i(0);
-    char Text[265];
+    TSource* Source;
+    CSource* DefaultSource = NULL;
 
     ModifyMenu(hMenu, 5, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "&Sources");
     HMENU hSubMenu = GetSubMenu(hMenu, 5);
@@ -177,19 +188,18 @@ int Providers_Load(HMENU hMenu)
         BT848Provider = new CBT848Provider(HardwareDriver);
         for(i = 0; i < BT848Provider->GetNumberOfSources(); ++i)
         {
-            if(Sources.size() < 100)
+            Source = (TSource*) malloc(sizeof(TSource));
+            if (BT848Provider->GetSource(i)->GetMenuLabel() == NULL)
             {
-                if (BT848Provider->GetSource(i)->GetMenuLabel() == NULL)
-                {
-                    sprintf(Text, "BT848 Card %d", i + 1);
-                }
-                else
-                {
-                    strcpy(Text, BT848Provider->GetSource(i)->GetMenuLabel());
-                }
-                AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
+                Source->Name = "BT848 Card";
             }
-            Sources.push_back(BT848Provider->GetSource(i));
+            else
+            {
+                Source->Name = BT848Provider->GetSource(i)->GetMenuLabel();
+            }
+            Source->Object = BT848Provider->GetSource(i);
+            Source->DisplayInMenu = TRUE;
+            Sources.push_back(Source);
             // Mute the audio of this source
             CurrentSource = i;
             Audio_Mute();
@@ -204,35 +214,71 @@ int Providers_Load(HMENU hMenu)
     StillProvider = new CStillProvider();
     for(i = 0; i < StillProvider->GetNumberOfSources(); ++i)
     {
-        if(Sources.size() < 100)
+        Source = (TSource*) malloc(sizeof(TSource));
+        if (StillProvider->GetSource(i)->GetMenuLabel() == NULL)
         {
-            if (StillProvider->GetSource(i)->GetMenuLabel() == NULL)
-            {
-                sprintf(Text, "Still %d", i + 1);
-            }
-            else
-            {
-                strcpy(Text, StillProvider->GetSource(i)->GetMenuLabel());
-            }
-            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
+            Source->Name = "Still";
         }
-        Sources.push_back(StillProvider->GetSource(i));
+        else
+        {
+            Source->Name = StillProvider->GetSource(i)->GetMenuLabel();
+        }
+        Source->Object = StillProvider->GetSource(i);
+        Source->DisplayInMenu = TRUE;
+        Sources.push_back(Source);
     }
 
 #ifdef WANT_DSHOW_SUPPORT
     DSProvider = new CDSProvider();
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
-        if(Sources.size() < 100)
-        {
-            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(),DSProvider->getSourceName(i).c_str());
-        }
-        Sources.push_back(DSProvider->GetSource(i));
+        Source = (TSource*) malloc(sizeof(TSource));
+        Source->Name = DSProvider->getSourceName(i).c_str();
+        Source->Object = DSProvider->GetSource(i);
+        Source->DisplayInMenu = TRUE;
+        Sources.push_back(Source);
     }
 #endif
 
-    // Switch to the first source which access is "allowed"
-    Providers_FindSource();
+    DefaultSource = Providers_GetIntroSource();
+    if (!DefaultSource || !DefaultSource->IsAccessAllowed())
+    {
+        ErrorBox("Can't load file DScaler.d3u");
+
+        // We destroy the source if it exists
+        DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
+        if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+        {
+            Source = *(Sources.begin() + DefSourceIdx);
+            Sources.erase(Sources.begin() + DefSourceIdx);
+            free(Source);
+        }
+
+        DefaultSource = NULL;
+    }
+
+    DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
+
+    if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+    {
+        // The default source is not listed in the menu
+        Source = *(Sources.begin() + DefSourceIdx);
+        Source->DisplayInMenu = FALSE;
+
+        CurrentSource = DefSourceIdx;
+    }
+    else
+    {
+        CurrentSource = Providers_FindSource();
+    }
+
+    for(i = 0; i < Sources.size() && i < 100 ; ++i)
+    {
+        if (Sources[i]->DisplayInMenu)
+        {
+            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + i, Sources[i]->Name.c_str());
+        }
+    }
 
     Providers_UpdateMenu(hMenu);
 
@@ -264,6 +310,12 @@ void Providers_Unload()
         delete HardwareDriver;
         HardwareDriver = NULL;
     }
+    for(vector<TSource*>::iterator it = Sources.begin(); 
+        it != Sources.end(); 
+        ++it)
+    {
+        free(*it);
+    }
     Sources.clear();
 }
 
@@ -271,12 +323,24 @@ CSource* Providers_GetCurrentSource()
 {
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        return Sources[CurrentSource];
+        return Sources[CurrentSource]->Object;
     }
     else
     {
         return NULL;
     }
+}
+
+long Providers_GetSourceIndex(CSource* Src)
+{
+    for (int i(0) ; i < Sources.size() ; i++)
+    {
+        if (Sources[i]->Object == Src)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 CSource* Providers_GetStillsSource()
@@ -294,20 +358,25 @@ CSource* Providers_GetPatternsSource()
     return StillProvider->GetSource(1);
 }
 
-BOOL Providers_FindSource()
+CSource* Providers_GetIntroSource()
 {
-    CurrentSource = 0;
-    while ((CurrentSource < Sources.size()) && !Sources[CurrentSource]->IsAccessAllowed())
+    return StillProvider->GetSource(3);
+}
+
+int Providers_FindSource()
+{
+    int SourceIdx = 0;
+    while ((SourceIdx < Sources.size()) && !Sources[SourceIdx]->Object->IsAccessAllowed())
     {
-        CurrentSource++;
+        SourceIdx++;
     }
-    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    if(SourceIdx >= 0 && SourceIdx < Sources.size())
     {
-        return TRUE;
+        return SourceIdx;
     }
     else
     {
-        return FALSE;
+        return -1;
     }
 }
 
@@ -315,13 +384,16 @@ void Providers_SetMenu(HMENU hMenu)
 {
     for(int i(0); i < Sources.size(); ++i)
     {
-        CheckMenuItemBool(hMenu, IDM_SOURCE_FIRST + i, (CurrentSource == i));
-        EnableMenuItem(hMenu, IDM_SOURCE_FIRST + i, Sources[i]->IsAccessAllowed() ? MF_ENABLED : MF_GRAYED);
+        if (Sources[i]->DisplayInMenu)
+        {
+            CheckMenuItemBool(hMenu, IDM_SOURCE_FIRST + i, (CurrentSource == i));
+            EnableMenuItem(hMenu, IDM_SOURCE_FIRST + i, Sources[i]->Object->IsAccessAllowed() ? MF_ENABLED : MF_GRAYED);
+        }
     }
 
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        Sources[CurrentSource]->SetMenu(hMenu);
+        Sources[CurrentSource]->Object->SetMenu(hMenu);
     }
 }
 
@@ -335,13 +407,13 @@ void Providers_UpdateMenu(HMENU hMenu)
     {
         // get The name of our menu
         char Text[256];
-        HMENU hSubMenu = Sources[CurrentSource]->GetSourceMenu();
+        HMENU hSubMenu = Sources[CurrentSource]->Object->GetSourceMenu();
         GetMenuString(hSubMenu, 0, Text, 256, MF_BYPOSITION);
         // Add the new menu
         InsertMenu(hMenu, 6, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)GetSubMenu(hSubMenu, 0), Text);
 
         // Update our menu
-        Sources[CurrentSource]->UpdateMenu();
+        Sources[CurrentSource]->Object->UpdateMenu();
     }
     else
     {
@@ -402,7 +474,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Stop_Capture();
             for(int i = 0; i < Sources.size(); ++i)
             {
-                if(Sources[i]->OpenMediaFile(FilePath, FALSE))
+                if(Sources[i]->Object->OpenMediaFile(FilePath, FALSE))
                 {
                     CurrentSource = i;
                     Providers_UpdateMenu(hMenu);
@@ -418,14 +490,21 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {
         Stop_Capture();
-        Providers_FindSource();
+        if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+        {
+            CurrentSource = DefSourceIdx;
+        }
+        else
+        {
+            CurrentSource = Providers_FindSource();
+        }
         Providers_UpdateMenu(hMenu);
         Start_Capture();
         return TRUE;
     }
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        return Sources[CurrentSource]->HandleWindowsCommands(hWnd, wParam, lParam);
+        return Sources[CurrentSource]->Object->HandleWindowsCommands(hWnd, wParam, lParam);
     }
     return FALSE;
 }
@@ -437,7 +516,7 @@ long Providers_GetNumber()
 
 CSource*  Providers_GetByIndex(long Index)
 {
-    return Sources[Index];
+    return Sources[Index]->Object;
 }
 
 
@@ -445,7 +524,7 @@ void Provider_HandleTimerMessages(int TimerId)
 {
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        Sources[CurrentSource]->HandleTimerMessages(TimerId);
+        Sources[CurrentSource]->Object->HandleTimerMessages(TimerId);
     }
 }
 
@@ -453,7 +532,7 @@ void Providers_ReadFromIni()
 {
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        Sources[CurrentSource]->ReadFromIni();
+        Sources[CurrentSource]->Object->ReadFromIni();
     }
 }
 
@@ -461,6 +540,6 @@ void Providers_WriteToIni(BOOL bOptimizeFileAccess)
 {
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        Sources[CurrentSource]->WriteToIni(bOptimizeFileAccess);
+        Sources[CurrentSource]->Object->WriteToIni(bOptimizeFileAccess);
     }
 }

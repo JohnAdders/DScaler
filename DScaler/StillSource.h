@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.27 2002-04-15 22:50:09 laurentg Exp $
+// $Id: StillSource.h,v 1.28 2002-04-27 00:38:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -121,6 +121,8 @@ public:
     BOOL IsAccessAllowed();
     void SetOverscan();
     BOOL HasSquarePixels() {return m_SquarePixels;};
+    void SetNavigOnly(BOOL NavigOnly);
+    BOOL IsNavigOnly();
 
     friend class CTiffHelper;
     friend class CPatternHelper;
@@ -142,6 +144,7 @@ protected:
     int         m_Position;
     BOOL        m_IsPictureRead;
     BOOL        m_SquarePixels;
+    BOOL        m_NavigOnly;
 
 private:
     DWORD       m_LastTickCount;

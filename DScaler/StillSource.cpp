@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.64 2002-07-24 21:43:17 laurentg Exp $
+// $Id: StillSource.cpp,v 1.65 2002-07-25 20:43:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/07/24 21:43:17  laurentg
+// Take cyclic stills
+//
 // Revision 1.63  2002/07/03 00:38:47  laurentg
 // Pick-list for the format of saving in the Change Settings dialog box
 //
@@ -259,6 +262,7 @@ static int JpegQuality = 95;
 static int PatternHeight = 576;
 static int PatternWidth = 720;
 static int DelayBetweenStills = 60;
+static BOOL SaveInSameFile = FALSE;
 static char DScalerContext[1024];
 
 static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
@@ -1402,6 +1406,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          60, 5, 3600, 1, 1,
          NULL,
         "Still", "DelayBetweenStills", NULL,
+    },
+    {
+        "Save in the same file", ONOFF, 0, (long*)&SaveInSameFile,
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "Still", "SaveInSameFile", NULL,
     },
 };
 

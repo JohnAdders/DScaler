@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.19 2002-06-30 18:52:31 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.20 2002-07-25 20:43:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/06/30 18:52:31  laurentg
+// Text displayed (OSD) when taking a still
+//
 // Revision 1.18  2002/05/25 17:57:28  laurentg
 // no message
 //
@@ -173,24 +176,31 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
             break;
         }
 
-        while (n < 100)
+        if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
         {
-            sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
-				    SavingPath,
-                    ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
-                    // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
-                    // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
-                    extension);
-
-            if (stat(name, &st))
-            {
-                break;
-            }
+            sprintf(name,"%s\\TV.%s", SavingPath, extension);
         }
-        if(n == 100) // never reached in 1 second, so could be scrapped
+        else
         {
-            ErrorBox("Could not create a file. You may have too many captures already.");
-            return;
+            while (n < 100)
+            {
+                sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
+				        SavingPath,
+                        ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
+                        // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+                        // TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
+                        extension);
+
+                if (stat(name, &st))
+                {
+                    break;
+                }
+            }
+            if(n == 100) // never reached in 1 second, so could be scrapped
+            {
+                ErrorBox("Could not create a file. You may have too many captures already.");
+                return;
+            }
         }
 
         if(Overlay_Lock(pInfo))

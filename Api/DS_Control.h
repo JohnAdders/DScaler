@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.74 2002-07-24 21:37:00 laurentg Exp $
+// $Id: DS_Control.h,v 1.75 2002-07-25 20:41:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/07/24 21:37:00  laurentg
+// Take cyclic stills
+//
 // Revision 1.73  2002/07/20 13:01:06  laurentg
 // New setting for vertical mirror
 //
@@ -1159,6 +1162,7 @@ typedef enum
     PATTERNHEIGTH,
     PATTERNWIDTH,
     DELAYBETWEENSTILLS,
+    SAVEINSAMEFILE,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.13 2001-07-16 18:07:50 adcockj Exp $
+// $Id: TVCards.h,v 1.14 2001-07-25 02:24:03 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -120,6 +120,9 @@ enum eTVCardId
     TVCARD_MM100PCTV,
     TVCARD_GMV1,
     TVCARD_BESTBUY_NEW,
+    // Sasem 4 channel card has 2 jumper configurations.  s-video (1) or composite.(4)
+    // TODO:  Add composite jumpered card settings
+    TVCARD_SASEM4CHNLSVID,
     TVCARD_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.19 2001-07-16 18:07:50 adcockj Exp $
+// $Id: TVCards.cpp,v 1.20 2001-07-25 02:24:03 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.18  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -59,6 +62,7 @@ long TradeOff = 1;
 
 void hauppauge_boot_msp34xx();
 void init_PXC200();
+void ctrl_TDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
 
 void GVBCTV3PCI_SetAudio(int StereoMode);
 void LT9415_SetAudio(int StereoMode);
@@ -830,6 +834,21 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_PHILIPS_PAL,
         NULL,
     },
+    // 24 Jul 2001 Dan Schmelzer
+    // Sasem 4-Channel Developer Card (s-video jumper chosen)
+    // TODO:  Add audio input support
+    //        Add GPIO support
+	//        Add composite jumpered card
+    {
+        "Sasem 4-Channel Dev Board (S-Video Jumper)",
+        1, 1, -1, 0, 0,
+        { 2, 2, 1, 2},
+        { 0},
+        0,
+        PLL_NONE,
+        TUNER_ABSENT,
+        NULL,
+    },
 };
 
 const TAutoDectect878 AutoDectect878[] =
@@ -1064,6 +1083,13 @@ void Card_Init()
     case TVCARD_PXC200:
         init_PXC200();
         break;
+    case TVCARD_SASEM4CHNLSVID:
+        // Initialize and set the Philips TDA8540 4x4 switch matrix for s-video
+        // 0xD2 SW1 choose OUT3=IN3; OUT2=IN1; OUT1=IN0; OUT0=IN2
+        // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux    
+        // 0x03 OEN choose OUT0 and OUT1 high (i.e., s-video)
+        ctrl_TDA8540(0x90, 0x00, 0xD2, 0x07, 0x03);
+        break;
     default:
         break;
     }
@@ -1129,6 +1155,58 @@ void init_PXC200()
         I2CBus_Write(0x1E, vals[i], 0, 1);
         I2CBus_Read(0x1F);
     }
+    I2CBus_Unlock();
+}
+
+// ----------------------------------------------------------------------- 
+// TDA8540 Control Code
+// Philips composite/s-video 4x4 switch IC
+// 19 Jul 2001 Dan Schmelzer
+//
+// See datasheet at:
+// http://www.semiconductors.philips.com/acrobat/datasheets/TDA8540_3.pdf
+//
+// Slave address byte (SLV) possibilities for the TDA8540 chip
+// See page 5 of 2/6/95 datasheet
+// 0x90, 0x92, 0x94, 0x96, 0x98, 0x9A, 0x9C
+//
+// Subcommand byte (SUB) possibilities choosing function
+// See page 6 of 2/6/95 datasheet
+// 0x00 = Access to switch control (SW1)
+// 0x01 = Access to gain/clamp/auxilliary pins control (GCO)
+// 0x02 = Access to output enable control (OEN)
+// If commands are given in succession, then SUB is automatically incremented
+// and the next register is written to
+//
+// Switch Control Register (SW1)
+// See page 6 of 2/6/95 datasheet
+// Four output bit pairs P1-4 make up control byte; input chosen for each output
+// 00 for Input 0; 01 for Input 1; 10 for Input 2; 11 for input 3
+//
+// Gain & Clamp Control Register (GCO)
+// See page 6 of 2/6/95 datasheet
+// MS 4 bits control gain on outputs[3:0] (low is 1x, high is 2x)
+// 2 bits control clamp action or mean value on inputs [1:0] ; LS 2 bits
+// control value of auxilliary outputs D1, D0
+//
+// Output Enable Control Register (OEN)
+// See page 7 of 2/6/95 datasheet
+// MS 4 bits reserved; LS 4 bits controls which output(s) from 3 to 0 are
+// active (high)
+//
+// Upon reset, the outputs are set to active and connected to IN0; the gains
+// are set at 2x and inputs IN0 and IN1 are clamped.
+
+void ctrl_TDA8540(int SLV, int SUB, int SW1, int GCO, int OEN)
+{
+    I2CBus_Lock();
+    I2CBus_Start();
+    I2CBus_SendByte(SLV, 5); 
+    I2CBus_SendByte(SUB, 0); 
+    I2CBus_SendByte(SW1, 0); 
+    I2CBus_SendByte(GCO, 0); 
+    I2CBus_SendByte(OEN, 0); 
+    I2CBus_Stop();
     I2CBus_Unlock();
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.cpp,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingConfig.cpp,v 1.2 2004-08-08 17:03:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -52,6 +55,16 @@ CSettingConfig::~CSettingConfig()
 std::string CSettingConfig::GetTitle()
 {
 	return m_title;
+}
+
+
+void CSettingConfig::Begin()
+{
+}
+
+
+void CSettingConfig::End()
+{
 }
 
 
@@ -103,18 +116,28 @@ CSettingValue CSettingConfigSetting::SetValue(RCSETTINGVALUE value)
 {
 	if (m_activeChange)
 	{
+		if (!m_pendingValue.IsSet())
+		{
+			// Save the old value.
+			m_pendingValue = m_settingGroup->GetValue(m_settingIdentifier);
+		}
+		// Set the new value.
 		m_settingGroup->SetValue(m_settingIdentifier, value);
 		return m_settingGroup->GetValue(m_settingIdentifier);
 	}
-
-	m_pendingValue = value;
-
-	PSETTINGLIMITER limiter = m_settingGroup->GetLimiter(m_settingIdentifier);
-	if (limiter != NULL)
+	else
 	{
-		limiter->ApplyLimit(m_pendingValue);
+		// Save the new value.
+		m_pendingValue = value;
+
+		PSETTINGLIMITER limiter = m_settingGroup->GetLimiter(m_settingIdentifier);
+		if (limiter != NULL)
+		{
+			// Check the new value.
+			limiter->ApplyLimit(m_pendingValue);
+		}
+		return m_pendingValue;
 	}
-	return m_pendingValue;
 }
 
 
@@ -145,8 +168,8 @@ void CSettingConfigSetting::ApplyValue()
 	if (!m_activeChange && m_pendingValue.IsSet())
 	{
 		m_settingGroup->SetValue(m_settingIdentifier, m_pendingValue);
-		m_pendingValue.Reset();
 	}
+	m_pendingValue.Reset();
 }
 
 
@@ -155,8 +178,15 @@ void CSettingConfigSetting::ResetValue()
 	if (m_activeChange && m_pendingValue.IsSet())
 	{
 		m_settingGroup->SetValue(m_settingIdentifier, m_pendingValue);
-		m_pendingValue.Reset();
 	}
+	m_pendingValue.Reset();
+}
+
+
+void CSettingConfigSetting::Begin()
+{
+	CSettingConfig::Begin();
+	m_pendingValue.Reset();
 }
 
 
@@ -351,15 +381,23 @@ ULONG CSettingConfigListBox::GetListBoxSelected()
 {
 	CSettingValue value = CSettingConfigSetting::GetValue();
 
+	ULONG selected = 0;
+
 	switch (value.GetType())
 	{
 	case SETTING_VALUE_INT:
-		return (ULONG)value.GetInt();
+		selected = (ULONG)value.GetInt();
 	case SETTING_VALUE_UINT:
-		return value.GetUInt();
+		selected = value.GetUInt();
+	default:
+		ASSERT(FALSE);
 	}
-	ASSERT(FALSE);
-	return FALSE;
+
+	if (selected >= GetCount())
+	{
+		selected = 0;
+	}
+	return selected;
 }
 
 
@@ -486,11 +524,6 @@ CSettingConfigDependant::CSettingConfigDependant(PSETTINGKEY key) :
 {
 	ASSERT(m_title != "");
 	ASSERT(m_settingGroupEx != NULL);
-
-	// Initialize the internal cache
-	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
-	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
-	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
 }
 
 
@@ -503,11 +536,6 @@ CSettingConfigDependant::CSettingConfigDependant(std::string title,
 {
 	ASSERT(m_title != "");
 	ASSERT(m_settingGroupEx != NULL);
-
-	// Initialize the internal cache
-	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
-	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
-	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
 }
 
 
@@ -568,6 +596,17 @@ void CSettingConfigDependant::ResetValue()
 }
 
 
+void CSettingConfigDependant::Begin()
+{
+	CSettingConfig::Begin();
+
+	// Initialize the internal cache
+	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
+	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
+	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // CSettingConfigContainer
 //////////////////////////////////////////////////////////////////////////
@@ -611,6 +650,7 @@ ULONG CSettingConfigContainer::GetConfigCount()
 
 CSettingConfig* CSettingConfigContainer::GetConfig(ULONG index)
 {
+	ASSERT(index < m_configVector.size());
 	return m_configVector.at(index);
 }
 
@@ -633,6 +673,28 @@ void CSettingConfigContainer::ResetValue()
 	for ( ; it != ti; it++)
 	{
 		(*it)->ResetValue();
+	}
+}
+
+
+void CSettingConfigContainer::Begin()
+{
+	CONFIGVECTOR::iterator it = m_configVector.begin();
+	CONFIGVECTOR::iterator ti = m_configVector.end();
+	for ( ; it != ti; it++)
+	{
+		(*it)->Begin();
+	}
+}
+
+
+void CSettingConfigContainer::End()
+{
+	CONFIGVECTOR::iterator it = m_configVector.begin();
+	CONFIGVECTOR::iterator ti = m_configVector.end();
+	for ( ; it != ti; it++)
+	{
+		(*it)->End();
 	}
 }
 

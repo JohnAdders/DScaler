@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.h,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingConfig.h,v 1.2 2004-08-08 17:03:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGCONFIG_H__
@@ -36,6 +39,7 @@
 
 enum eSettingConfigType
 {
+	SETTING_CONFIG_NULL,
 	SETTING_CONFIG_CHECKBOX,
 	SETTING_CONFIG_EDITBOX,
 	SETTING_CONFIG_LISTBOX,
@@ -66,6 +70,11 @@ public:
 	virtual void ApplyValue()=0;
 	// Called when the Cancel button is pressed.
 	virtual void ResetValue()=0;
+
+	// Called when the configuration interface begins.
+	virtual void Begin();
+	// Called when the configuration interface ends.
+	virtual void End();
 
 	// Sets if object can be purged automatically.  TRUE by default.
 	virtual inline void SetPurgable(BOOL purgable);
@@ -101,6 +110,9 @@ public:
 	virtual void ApplyValue();
 	// Called to reset the value when the Cancel button is pressed.
 	virtual void ResetValue();
+
+	// Called when the configuration interface begins.
+	virtual void Begin();
 
 protected:
 	PSETTINGGROUP	m_settingGroup;
@@ -237,6 +249,9 @@ public:
 	// Called when the Cancel button is pressed.
 	virtual void ResetValue();
 
+	// Called when the configuration interface begins.
+	virtual void Begin();
+
 private:
 	friend class CSettingConfigAssociation;
 	PSETTINGGROUPEX	m_settingGroupEx;
@@ -271,6 +286,11 @@ public:
 	virtual void ApplyValue();
 	// Called when the Cancel button is pressed.
 	virtual void ResetValue();
+
+	// Called when the configuration interface begins.
+	virtual void Begin();
+	// Called when the configuration interface ends.
+	virtual void End();
 
 protected:
 	typedef std::vector<CSettingConfig*> CONFIGVECTOR;

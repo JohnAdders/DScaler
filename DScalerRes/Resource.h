@@ -1062,6 +1062,7 @@
 #define IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT 8062
 #define IDC_TOOLBAR_VOLUME_MUTE2        8063
 #define IDC_TREESETTINGS_GENERIC_VALUEBOX 8064
+#define IDC_CT2388X_H3D                 8065
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1136,7 +1137,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        253
 #define _APS_NEXT_COMMAND_VALUE         32838
-#define _APS_NEXT_CONTROL_VALUE         8065
+#define _APS_NEXT_CONTROL_VALUE         8066
 #define _APS_NEXT_SYMED_VALUE           2491
 #endif
 #endif

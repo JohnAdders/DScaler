@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.3 2002-09-22 17:47:04 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.4 2002-10-17 13:31:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/22 17:47:04  adcockj
+// Fixes for holo3d
+//
 // Revision 1.2  2002/09/11 19:33:06  adcockj
 // a few tidy ups
 //
@@ -31,6 +34,7 @@
 #include "resource.h"
 #include "CT2388xCard.h"
 #include "CT2388x_Defines.h"
+#include "DScaler.h"
 #include "DebugLog.h"
 
 const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] = 
@@ -70,6 +74,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_NTSC,
+        IDC_CT2388X,
  	},
 	{
 		"Conexant CX23880 TV/FM EVK",
@@ -105,6 +110,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_NTSC,
+        IDC_CT2388X,
  	},
 	{
 		"Conexant CX23880 TV/FM EVK (PAL)",
@@ -140,6 +146,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_PAL,
+        IDC_CT2388X,
  	},
 	{
 		"Holo 3d Graph",
@@ -195,6 +202,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetH3DSaturationV,
         H3DSetFormat,
         TUNER_ABSENT,
+        IDC_CT2388X_H3D,
  	},
 };
 
@@ -308,4 +316,9 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 break;
         }
     }
+}
+
+HMENU CCT2388xCard::GetCardSpecificMenu()
+{
+    return LoadMenu(hResourceInst, MAKEINTRESOURCE(m_TVCards[m_CardType].MenuId));
 }

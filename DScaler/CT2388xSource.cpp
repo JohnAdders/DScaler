@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.13 2002-10-02 19:02:06 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.14 2002-10-17 13:31:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/02 19:02:06  adcockj
+// Faster film mode change
+//
 // Revision 1.12  2002/10/02 10:55:46  kooiman
 // Fixed C++ type casting for events.
 //
@@ -76,6 +79,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "Providers.h"
 
 extern long EnableCancelButton;
 
@@ -175,25 +179,31 @@ void CCT2388xSource::SetupPictureStructures()
 
 void CCT2388xSource::CreateSettings(LPCSTR IniSection)
 {
-    m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection);
+    CSettingGroup *pCT2388xGroup = GetSettingsGroup("CT2388x","CT2388x","CT Card");
+    CSettingGroup *pVideoGroup = pCT2388xGroup->GetGroup("Video","Video");
+    CSettingGroup *pH3DGroup = pCT2388xGroup->GetGroup("H3D","H3D");
+
+    eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+
+    m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Brightness);
 
-    m_Contrast = new CContrastSetting(this, "Contrast", 128, 0, 255, IniSection);
+    m_Contrast = new CContrastSetting(this, "Contrast", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Contrast);
 
-    m_Hue = new CHueSetting(this, "Hue", 128, 0, 255, IniSection);
+    m_Hue = new CHueSetting(this, "Hue", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Hue);
 
-    m_Saturation = new CSaturationSetting(this, "Saturation", 128, 0, 255, IniSection);
+    m_Saturation = new CSaturationSetting(this, "Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Saturation);
 
-    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", 128, 0, 255, IniSection);
+    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_SaturationU);
 
-    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection);
+    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_SaturationV);
 
-    m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection);
+    m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Overscan);
 
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
@@ -217,15 +227,22 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");
     m_Settings.push_back(m_bSavePerChannel);
 
-    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", TRUE, IniSection);
+    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", TRUE, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_IsVideoProgressive);
 
-    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection);
+    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_FLIFilmDetect);
+
+#ifdef _DEBUG    
+    if (CT2388X_SETTING_LASTONE != m_Settings.size())
+    {
+        LOGD("Number of settings in CT2388X source is not equal to the number of settings in DS_Control.h");
+        LOGD("DS_Control.h or CT2388xSource.cpp are probably not in sync with eachother.");
+    }
+#endif
 
     ReadFromIni();
 
-    //MasterSetting.Register(this);
 }
 
 
@@ -924,6 +941,11 @@ void CCT2388xSource::SetupCard()
     }
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
+
+    // set up card specific menu
+    DestroyMenu(m_hMenu);
+    m_hMenu = m_pCard->GetCardSpecificMenu();
+    Providers_UpdateMenu(m_hMenu);
 }
 
 void CCT2388xSource::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)

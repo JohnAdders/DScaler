@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.4 2002-10-08 11:22:40 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.5 2002-10-17 13:31:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/08 11:22:40  adcockj
+// Changed some defines for consistency
+//
 // Revision 1.3  2002/09/29 16:16:21  adcockj
 // Holo3d imrprovements
 //
@@ -100,6 +103,7 @@ private:
         /// Function to set Format Default SetFormat
         void (CCT2388xCard::*pSetFormat)(int, eVideoFormat, BOOL);
         eTunerId TunerId;
+        int MenuId;
     } TCardType;
 
     /// used to store the ID for autodection
@@ -160,6 +164,7 @@ public:
     ITuner* GetTuner() const;
 
     void DumpChipStatus();
+    HMENU GetCardSpecificMenu();
 
 private:
     ULONG GetTickCount();

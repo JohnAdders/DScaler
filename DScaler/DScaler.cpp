@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.209 2002-08-07 13:13:27 robmuller Exp $
+// $Id: DScaler.cpp,v 1.210 2002-08-08 10:31:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.209  2002/08/07 13:13:27  robmuller
+// Press x to clear OSD.
+//
 // Revision 1.208  2002/08/07 12:43:40  robmuller
 // Send messages to the OSD with the command line.
 //
@@ -812,6 +815,10 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     MsgOSDShow = RegisterWindowMessage("DScalerShowOSDMsgString");
 
+    // make a copy of the command line since ProcessCommandLine() will replace the spaces with \0
+    char OldCmdLine[1024];
+    strncpy(OldCmdLine, lpCmdLine, sizeof(OldCmdLine));
+
     char* ArgValues[20];
     int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
 
@@ -867,7 +874,16 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                     }
                     else
                     {
-                        strncpy(lpMsg, ArgValues[1], 1024);
+                        // Find the command line after the /m or -m or /M or -M
+                        // a simple strstr(OldCmdLine, ArgValues[1]) will not work with a leading quote
+                        char* s;
+                        s = strstr(OldCmdLine, ArgValues[0]);   // s points to first parameter
+                        s = &s[strlen(ArgValues[0])];           // s points to char after first parm
+                        if(s[0] == ' ')                         // point s to string after the space
+                        {
+                            s++;
+                        }
+                        strncpy(lpMsg, s, 1024);
                         SendMessage(hPrevWindow, MsgOSDShow, ArgValues[0][1] == 'm' ? 0 : 1, 0);
                         UnmapViewOfFile(lpMsg);
                     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.9 2002-09-11 18:19:43 adcockj Exp $
+// $Id: PCICard.cpp,v 1.10 2002-10-22 16:01:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/11 18:19:43  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.8  2002/09/10 12:13:37  atnak
 // Fixed MaskDataDword() and AndDataDword()
 //
@@ -114,7 +117,7 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
     hwParam.dwValue = DeviceID;
     hwParam.dwFlags = DeviceIndex;
 
-    dwStatus = m_pDriver->SendCommand(ioctlGetPCIInfo,
+    dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_GETPCIINFO,
                                         &hwParam,
                                         sizeof(hwParam),
                                         &PCICardInfo,
@@ -143,7 +146,7 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 			hwParam.dwFlags = m_MemoryLength;
 		}
 
-        dwStatus = m_pDriver->SendCommand(ioctlMapMemory,
+        dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_MAPMEMORY,
                                             &hwParam,
                                             sizeof(hwParam),
                                             &(m_MemoryBase),
@@ -176,7 +179,7 @@ void CPCICard::ClosePCICard()
         hwParam.dwAddress = m_MemoryBase;
         hwParam.dwValue   = m_MemoryLength;
 
-        DWORD dwStatus = m_pDriver->SendCommand(ioctlUnmapMemory,
+        DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_UNMAPMEMORY,
                                                 &hwParam,
                                                 sizeof(hwParam));
 
@@ -196,7 +199,7 @@ void CPCICard::WriteByte(DWORD Offset, BYTE Data)
     hwParam.dwAddress = m_MemoryBase + Offset;
     hwParam.dwValue = Data;
 
-    DWORD dwStatus = m_pDriver->SendCommand(ioctlWriteMemoryBYTE,
+    DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_WRITEMEMORYBYTE,
                                             &hwParam,
                                             sizeof(hwParam));
 
@@ -213,7 +216,7 @@ void CPCICard::WriteWord(DWORD Offset, WORD Data)
     hwParam.dwAddress = m_MemoryBase + Offset;
     hwParam.dwValue = Data;
 
-    DWORD dwStatus = m_pDriver->SendCommand(ioctlWriteMemoryWORD,
+    DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_WRITEMEMORYWORD,
                                             &hwParam,
                                             sizeof(hwParam));
 
@@ -230,7 +233,7 @@ void CPCICard::WriteDword(DWORD Offset, DWORD Data)
     hwParam.dwAddress = m_MemoryBase + Offset;
     hwParam.dwValue = Data;
 
-    DWORD dwStatus = m_pDriver->SendCommand(ioctlWriteMemoryDWORD,
+    DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_WRITEMEMORYDWORD,
                                             &hwParam,
                                             sizeof(hwParam));
 
@@ -247,7 +250,7 @@ BYTE CPCICard::ReadByte(DWORD Offset)
     BYTE bValue(0);
 
     hwParam.dwAddress = m_MemoryBase + Offset;
-    DWORD dwStatus = m_pDriver->SendCommand(ioctlReadMemoryBYTE,
+    DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_READMEMORYBYTE,
                                             &hwParam,
                                             sizeof(hwParam.dwAddress),
                                             &bValue,
@@ -268,7 +271,7 @@ WORD CPCICard::ReadWord(DWORD Offset)
     WORD wValue(0);
 
     hwParam.dwAddress = m_MemoryBase + Offset;
-    DWORD dwStatus = m_pDriver->SendCommand(ioctlReadMemoryWORD,
+    DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_READMEMORYWORD,
                                             &hwParam,
                                             sizeof(hwParam.dwAddress),
                                             &wValue,
@@ -289,7 +292,7 @@ DWORD CPCICard::ReadDword(DWORD Offset)
     DWORD dwValue(0);
 
     hwParam.dwAddress = m_MemoryBase + Offset;
-    DWORD dwStatus = m_pDriver->SendCommand(ioctlReadMemoryDWORD,
+    DWORD dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_READMEMORYDWORD,
                                             &hwParam,
                                             sizeof(hwParam.dwAddress),
                                             &dwValue,
@@ -404,7 +407,7 @@ BOOL CPCICard::GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
     hwParam.dwAddress = Bus;
     hwParam.dwValue = Slot;
 
-    dwStatus = m_pDriver->SendCommand(ioctlGetPCIConfig,
+    dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_GETPCICONFIG,
                                         &hwParam,
                                         sizeof(hwParam),
                                         pPCI_COMMON_CONFIG,
@@ -434,7 +437,7 @@ BOOL CPCICard::SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
     hwParam.dwAddress = Bus;
     hwParam.dwValue = Slot;
 
-    dwStatus = m_pDriver->SendCommand(ioctlSetPCIConfig,
+    dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_SETPCICONFIG,
                                         &hwParam,
                                         sizeof(hwParam),
                                         pPCI_COMMON_CONFIG,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.8 2002-06-16 18:53:36 robmuller Exp $
+// $Id: Ioclass.cpp,v 1.9 2002-10-22 16:01:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/16 18:53:36  robmuller
+// Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
+// Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
+//
 // Revision 1.7  2001/11/02 16:36:54  adcockj
 // Merge code from Multiple cards into main trunk
 //
@@ -65,7 +69,8 @@ extern "C"
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-CIOAccessDevice::CIOAccessDevice(void)
+CIOAccessDevice::CIOAccessDevice(void) :
+    m_AllowDepricatedIOCTLs(false)
 {
     memset(&memoryList, 0, sizeof(memoryList));
 }
@@ -135,14 +140,19 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
 // Eliminates compiler warnings about data type conversion
 #define PORTADDRTYPE  USHORT
 
-    NTSTATUS status;
-
-    status = STATUS_SUCCESS;
+    NTSTATUS Status(STATUS_SUCCESS);
     *pBytesWritten = 0;
 
-    switch ( ioControlCode )
+    switch(ioControlCode)
     {
-    case ioctlReadPortBYTE:
+    case IOCTL_DEPRICATED_READPORTBYTE:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_READPORTBYTE:
         {
             UCHAR* pByte = (UCHAR*)outputBuffer;
             *pByte = _inp((PORTADDRTYPE)ioParam->dwAddress);
@@ -150,7 +160,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlReadPortWORD:
+    case IOCTL_DEPRICATED_READPORTWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_READPORTWORD:
         {
             USHORT* pWord = (USHORT*)outputBuffer;
             *pWord = _inpw((PORTADDRTYPE)ioParam->dwAddress);
@@ -158,7 +175,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlReadPortDWORD:
+    case IOCTL_DEPRICATED_READPORTDWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_READPORTDWORD:
         {
             ULONG* pDword = (ULONG*)outputBuffer;
             *pDword = _inpd((PORTADDRTYPE)ioParam->dwAddress);
@@ -166,23 +190,51 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlWritePortBYTE:
+    case IOCTL_DEPRICATED_WRITEPORTBYTE:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_WRITEPORTBYTE:
         _outp((PORTADDRTYPE)ioParam->dwAddress, (UCHAR)ioParam->dwValue);
         break;
 
-    case ioctlWritePortWORD:
+    case IOCTL_DEPRICATED_WRITEPORTWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_WRITEPORTWORD:
         _outpw((PORTADDRTYPE)ioParam->dwAddress, (USHORT)ioParam->dwValue);
         break;
 
-    case ioctlWritePortDWORD:
+    case IOCTL_DEPRICATED_WRITEPORTDWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_WRITEPORTDWORD:
         _outpd((PORTADDRTYPE)ioParam->dwAddress, ioParam->dwValue);
         break;
 
-    case ioctlGetPCIInfo:
+    case IOCTL_DEPRICATED_GETPCIINFO:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_GETPCIINFO:
         if (isValidAddress(outputBuffer))
         {
             TPCICARDINFO* pPCICardInfo = (TPCICARDINFO*)outputBuffer;
-            status = pciFindDevice(
+            Status = pciFindDevice(
                                        ioParam->dwAddress,
                                        ioParam->dwValue,
                                        ioParam->dwFlags,
@@ -190,9 +242,9 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
                                        &(pPCICardInfo->dwSlotNumber)
                                   );
 
-            if ( status == STATUS_SUCCESS)
+            if (Status == STATUS_SUCCESS)
             {
-                status = pciGetDeviceInfo(pPCICardInfo);
+                Status = pciGetDeviceInfo(pPCICardInfo);
             }
             else
             {
@@ -206,31 +258,66 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlAllocMemory:
+    case IOCTL_DEPRICATED_ALLOCMEMORY:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_ALLOCMEMORY:
         {
             PMemStruct pMem = (PMemStruct)outputBuffer;
-            status = allocMemory(ioParam->dwValue, ioParam->dwFlags, ioParam->dwAddress,  pMem);
+            Status = allocMemory(ioParam->dwValue, ioParam->dwFlags, ioParam->dwAddress,  pMem);
             *pBytesWritten = sizeof(TMemStruct) + pMem->dwPages * sizeof(TPageStruct);
         }
         break;
 
-    case ioctlFreeMemory:
+    case IOCTL_DEPRICATED_FREEMEMORY:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_FREEMEMORY:
         {
             PMemStruct pMem = (PMemStruct)ioParam;
-            status = freeMemory(pMem);
+            Status = freeMemory(pMem);
         }
         break;
 
-    case ioctlMapMemory:
+    case IOCTL_DEPRICATED_MAPMEMORY:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_MAPMEMORY:
         *outputBuffer = mapMemory(ioParam->dwValue, ioParam->dwFlags);
         *pBytesWritten = 4;
         break;
 
-    case ioctlUnmapMemory:
+    case IOCTL_DEPRICATED_UNMAPMEMORY:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_UNMAPMEMORY:
         unmapMemory();
         break;
 
-    case ioctlReadMemoryDWORD:
+    case IOCTL_DEPRICATED_READMEMORYDWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_READMEMORYDWORD:
         if (ioParam->dwAddress)
         {
             ULONG* Address = (ULONG*)ioParam->dwAddress;
@@ -240,7 +327,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlWriteMemoryDWORD:
+    case IOCTL_DEPRICATED_WRITEMEMORYDWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_WRITEMEMORYDWORD:
         if (ioParam->dwAddress)
         {
             ULONG* Address = (ULONG*)ioParam->dwAddress;
@@ -249,7 +343,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlReadMemoryWORD:
+    case IOCTL_DEPRICATED_READMEMORYWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_READMEMORYWORD:
         if (ioParam->dwAddress)
         {
             USHORT* Address = (USHORT*)ioParam->dwAddress;
@@ -260,7 +361,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlWriteMemoryWORD:
+    case IOCTL_DEPRICATED_WRITEMEMORYWORD:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_WRITEMEMORYWORD:
         if (ioParam->dwAddress)
         {
             USHORT* Address = (USHORT*)ioParam->dwAddress;
@@ -269,7 +377,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlReadMemoryBYTE:
+    case IOCTL_DEPRICATED_READMEMORYBYTE:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_READMEMORYBYTE:
         if (ioParam->dwAddress)
         {
             UCHAR* Address = (UCHAR*)ioParam->dwAddress;
@@ -280,7 +395,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlWriteMemoryBYTE:
+    case IOCTL_DEPRICATED_WRITEMEMORYBYTE:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_WRITEMEMORYBYTE:
         if (ioParam->dwAddress)
         {
             UCHAR* Address = (UCHAR*)ioParam->dwAddress;
@@ -289,17 +411,34 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlGetVersion:
+    case IOCTL_DEPRICATED_GETVERSION:
+        // if we get called on this IOCTL
+        // we must be being called by an older version
+        // of dscaler so switch on the potentially unsafe
+        // IOCTLS that we depricated because of problems in XP
+        *outputBuffer = DSDRV_VERSION;
+        *pBytesWritten = sizeof(DWORD);
+        m_AllowDepricatedIOCTLs = true;
+        break;
+
+    case IOCTL_DSDRV_GETVERSION:
         *outputBuffer = DSDRV_VERSION;
         *pBytesWritten = sizeof(DWORD);
         break;
 
-    case ioctlGetPCIConfig:
+    case IOCTL_DEPRICATED_GETPCICONFIG:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_GETPCICONFIG:
         if (isValidAddress(outputBuffer))
         {
             PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
 
-            status = pciGetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciGetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         }
@@ -309,12 +448,19 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         break;
 
-    case ioctlSetPCIConfig:
+    case IOCTL_DEPRICATED_SETPCICONFIG:
+        if(m_AllowDepricatedIOCTLs == false)
+        {
+            debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
+            return STATUS_SUCCESS;
+        }
+        // ... deliberate drop through ...
+    case IOCTL_DSDRV_SETPCICONFIG:
         if (isValidAddress(outputBuffer))
         {
             PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
 
-            status = pciSetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciSetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         }
@@ -328,7 +474,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         debugOut(dbError,"unknown command %lX",ioControlCode);
         break;
     }
-    return status;
+    return Status;
 }
 
 //---------------------------------------------------------------------------

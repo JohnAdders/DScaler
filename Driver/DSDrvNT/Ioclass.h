@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.9 2002-06-16 18:53:36 robmuller Exp $
+// $Id: Ioclass.h,v 1.10 2002-10-22 16:01:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,6 +81,8 @@ protected:
     NTSTATUS pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
     MemoryNode memoryList[MAX_FREE_MEMORY_NODES];
     DWORD GetPhysAddr(DWORD UserAddr);
+private:
+    bool m_AllowDepricatedIOCTLs;
 };
 
 #endif

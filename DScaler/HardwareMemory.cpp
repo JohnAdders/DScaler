@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.cpp,v 1.7 2001-12-03 19:33:59 adcockj Exp $
+// $Id: HardwareMemory.cpp,v 1.8 2002-10-22 16:01:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/12/03 19:33:59  adcockj
+// Bug fixes for settings and memory
+//
 // Revision 1.6  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -163,7 +166,7 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
         paramIn.dwAddress = (DWORD)m_AllocatedBlock;
     }
 
-    status = m_pDriver->SendCommand(ioctlAllocMemory,
+    status = m_pDriver->SendCommand(IOCTL_DSDRV_ALLOCMEMORY,
                             &paramIn,
                             sizeof(paramIn),
                             m_pMemStruct,
@@ -186,7 +189,7 @@ CUserMemory::~CUserMemory()
     if(m_pMemStruct != NULL)
     {
         DWORD dwInParamLength = sizeof(TMemStruct) + m_pMemStruct->dwPages * sizeof(TPageStruct);
-        status = m_pDriver->SendCommand(ioctlFreeMemory, m_pMemStruct, dwInParamLength);
+        status = m_pDriver->SendCommand(IOCTL_DSDRV_FREEMEMORY, m_pMemStruct, dwInParamLength);
         free(m_pMemStruct);
     }
     if(m_AllocatedBlock != NULL)
@@ -212,7 +215,7 @@ CContigMemory::CContigMemory(CHardwareDriver* pDriver, size_t Bytes) :
     paramIn.dwValue = Bytes;
     paramIn.dwFlags = ALLOC_MEMORY_CONTIG;
     paramIn.dwAddress = 0;
-    status = m_pDriver->SendCommand(ioctlAllocMemory,
+    status = m_pDriver->SendCommand(IOCTL_DSDRV_ALLOCMEMORY,
                             &paramIn,
                             sizeof(paramIn),
                             m_pMemStruct,
@@ -233,9 +236,9 @@ CContigMemory::~CContigMemory()
     {
         DWORD dwInParamLength = sizeof(TMemStruct) + sizeof(TPageStruct);
         Status = m_pDriver->SendCommand(
-                                          ioctlFreeMemory, 
+                                          IOCTL_DSDRV_FREEMEMORY, 
                                           m_pMemStruct, 
-                                         dwInParamLength                                       
+                                          dwInParamLength                                       
                                        );
         free(m_pMemStruct);
     }

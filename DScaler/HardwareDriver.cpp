@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.16 2002-08-10 10:25:41 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.17 2002-10-22 16:01:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/08/10 10:25:41  robmuller
+// Unload the driver when uninstalling.
+//
 // Revision 1.15  2002/07/20 11:43:32  robmuller
 // Suppress error in log file when DoesThisPCICardExist() probes for a non-existing card.
 //
@@ -236,7 +239,7 @@ BOOL CHardwareDriver::LoadDriver()
             DWORD dwVersion(0);
 
             SendCommand(
-                        ioctlGetVersion,
+                        IOCTL_DSDRV_GETVERSION,
                         NULL,
                         0,
                         &dwVersion,
@@ -700,7 +703,7 @@ DWORD CHardwareDriver::SendCommand(
     else
     {
         // Suppress the error when DoesThisPCICardExist() probes for a non-existing card
-        if(dwIOCommand == ioctlGetPCIInfo)
+        if(dwIOCommand == IOCTL_DSDRV_GETPCIINFO)
         {
             LOG(2, "DeviceIoControl returned an error = 0x%X For Command ioctlGetPCIInfo. This is probably by design, do not worry.", GetLastError());
         }
@@ -752,7 +755,7 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
     hwParam.dwFlags = DeviceIndex;
 
     dwStatus = SendCommand(
-                            ioctlGetPCIInfo,
+                            IOCTL_DSDRV_GETPCIINFO,
                             &hwParam,
                             sizeof(hwParam),
                             &PCICardInfo,

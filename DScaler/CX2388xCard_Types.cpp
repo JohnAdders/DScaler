@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.20 2004-03-07 12:20:12 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.21 2004-03-07 17:34:49 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2004/03/07 12:20:12  to_see
+// added 2 Cards
+// working Nicam-Sound
+// Submenus in CX-Card for Soundsettings
+// Click in "Autodetect" in "Setup card CX2388x" is now working
+// added "Automute if no Tunersignal" in CX2388x Advanced
+//
 // Revision 1.19  2004/02/21 21:47:06  to_see
 // Added AutodetectTuner for Hauppauge
 //
@@ -1108,4 +1115,79 @@ const eTunerId CCX2388xCard::m_Tuners_Hauppauge_CX2388x_Card[]=
 	TUNER_LG_I701D_PAL_I,				//"LG TAPC-I701D"}
 };
 
+eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
+{
+	eTunerId TunerId = TUNER_ABSENT;
+
+	if(m_TVCards[CardId].TunerId == TUNER_USER_SETUP)
+	{
+		return TUNER_ABSENT;
+	}
+
+	else if(m_TVCards[CardId].TunerId == TUNER_AUTODETECT)
+	{
+		eTunerId Tuner = TUNER_ABSENT;
+		
+		switch(CardId)
+		{
+		case CX2388xCARD_HAUPPAUGE_PCI_FM:
+		case CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND:
+			{
+				BYTE Eeprom[256];
+
+				// read direct from registers
+				for (int i=0; i<256; i += 4)
+				{
+					// DWORD alignment needed
+					DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
+					Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
+					Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
+					Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
+					Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
+				}
+
+				if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0)
+				{
+					// 2.chance, read from I2C
+					LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card direct read from Registers fails - try to read from I2C");
+
+					BYTE Out[] = { 0xA0 , 0 };
+					Eeprom[0] = 0;
+					
+					m_I2CBus->Read(Out,2,Eeprom,256);
+
+					if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0) 
+					{
+						LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card read from I2C - EEPROM error");
+						break;
+					}
+
+					LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card, read from I2C. TunerId: 0x%02X",Eeprom[8+9]);
+					if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
+					{
+						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
+					}
+				}
+
+				else
+				{
+					LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card - read from Registers. TunerId: 0x%02X",Eeprom[8+9]);
+					if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
+					{
+						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
+					}
+				}
+
+				break;
+			}
+		}
+        
+		return Tuner;
+	}
+
+	else
+	{
+		return m_TVCards[CardId].TunerId;
+	}
+}
 

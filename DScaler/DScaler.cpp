@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.136 2002-02-24 08:18:03 temperton Exp $
+// $Id: DScaler.cpp,v 1.137 2002-02-24 19:08:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.136  2002/02/24 08:18:03  temperton
+// TIMER_VTFLASHER set only when displayed page contains flashed elements and only in teletext modes.
+//
 // Revision 1.135  2002/02/23 16:43:13  laurentg
 // Timer TIMER_STATUS killed when status bar is not displayed
 //
@@ -1695,6 +1698,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             ResetDeinterlaceStats();
             ResetARStats();
             pPerf->Reset();
+            ShowText(hWnd, "Statistics reset");
             break;
 
         case IDM_TSOPTIONS:

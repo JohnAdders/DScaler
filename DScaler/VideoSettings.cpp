@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.18 2003-01-15 15:54:23 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.19 2003-01-16 22:35:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/01/15 15:54:23  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.17  2003/01/07 23:27:04  laurentg
 // New overscan settings
 //
@@ -102,15 +105,12 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
     static long TSaturation;
     static long TSaturationU;
     static long TSaturationV;
-    static long TOverscan;
-    static long LastSaturation;
     static ISetting* Hue = NULL;
     static ISetting* Brightness = NULL;
     static ISetting* Contrast = NULL;
     static ISetting* SaturationU = NULL;
     static ISetting* SaturationV = NULL;
     static ISetting* Saturation = NULL;
-    static ISetting* Overscan = NULL;
 
     switch (message)
     {
@@ -121,8 +121,6 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
         Saturation = Providers_GetCurrentSource()->GetSaturation();    
         SaturationU = Providers_GetCurrentSource()->GetSaturationU();    
         SaturationV = Providers_GetCurrentSource()->GetSaturationV();    
-		// TO BE REMOVED LATER (LG) : overscan must be adjustable in another dialog box
-        Overscan = Providers_GetCurrentSource()->GetTopOverscan();    
 
         if(Brightness != NULL)
         {
@@ -195,18 +193,6 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             Edit_Enable(GetDlgItem(hDlg, IDC_D6), FALSE);
             Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER6), FALSE);
         }
-
-        if(Overscan != NULL)
-        {
-            TOverscan = Overscan->GetValue();
-            SetDlgItemInt(hDlg, IDC_D7, TOverscan, TRUE);
-            Overscan->SetupControl(GetDlgItem(hDlg, IDC_SLIDER7));
-        }
-        else
-        {
-            Edit_Enable(GetDlgItem(hDlg, IDC_D7), FALSE);
-            Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER7), FALSE);
-        }
         return TRUE;
         break;
 
@@ -241,10 +227,6 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             if(SaturationV != NULL)
             {
                 SaturationV->SetValue(TSaturationV);
-            }
-            if(Overscan != NULL)
-            {
-                Overscan->SetValue(TOverscan);
             }
             EndDialog(hDlg, TRUE);
             break;
@@ -285,12 +267,6 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
                 SaturationV->SetDefault();
                 SaturationV->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
                 SetDlgItemInt(hDlg, IDC_D6, SaturationV->GetValue(), FALSE);
-            }
-            if(Overscan != NULL)
-            {
-                Overscan->SetDefault();
-                Overscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER7));
-                SetDlgItemInt(hDlg, IDC_D7, Overscan->GetValue(), FALSE);
             }
             break;
         default:
@@ -350,11 +326,6 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             SetDlgItemInt(hDlg, IDC_D4, Saturation->GetValue(), FALSE);
             SetDlgItemInt(hDlg, IDC_D5, SaturationU->GetValue(), FALSE);
             SetDlgItemInt(hDlg, IDC_D6, SaturationV->GetValue(), FALSE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER7))
-        {
-            Overscan->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D7, Overscan->GetValue(), FALSE);
         }
         break;
     default:

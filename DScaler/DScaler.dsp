@@ -143,6 +143,10 @@ SOURCE=.\Bt848.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Calibration.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CPU.cpp
 # End Source File
 # Begin Source File
@@ -380,6 +384,10 @@ SOURCE=.\bt848.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Calibration.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\cpu.h
 # End Source File
 # Begin Source File
@@ -561,6 +569,11 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
+# 	2:5:Class:CSlider
+# 	2:10:HeaderFile:slider.h
+# 	2:8:ImplFile:slider.cpp
+# End Section
 # Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
@@ -570,8 +583,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:21:DefaultSinkHeaderFile:slider.h
 # 	2:16:DefaultSinkClass:CSlider
 # End Section
-# Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
-# 	2:5:Class:CSlider
-# 	2:10:HeaderFile:slider.h
-# 	2:8:ImplFile:slider.cpp
-# End Section
+

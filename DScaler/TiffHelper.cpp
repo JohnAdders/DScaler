@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.9 2002-02-22 09:07:13 tobbej Exp $
+// $Id: TiffHelper.cpp,v 1.10 2002-02-23 00:30:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/02/22 09:07:13  tobbej
+// fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
+//
 // Revision 1.8  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -255,13 +258,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
-    //check if size has changed
-    if(m_pParent->m_Height!=h || m_pParent->m_Width != w)
-    {
-        m_pParent->m_Height = h;
-        m_pParent->m_Width = w;
-        m_pParent->NotifySizeChange();
-    }
+    m_pParent->m_Height = h;
+    m_pParent->m_Width = w;
 
     return TRUE;
 }

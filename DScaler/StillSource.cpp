@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.35 2002-02-22 23:32:12 laurentg Exp $
+// $Id: StillSource.cpp,v 1.36 2002-02-23 00:30:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/02/22 23:32:12  laurentg
+// Reset width and height when still source is stopped to be sure to have a notification of size change when coming back to this still source
+//
 // Revision 1.34  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -300,6 +303,8 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
 BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 {
     BOOL FileRead = FALSE;
+    int h = m_Height;
+    int w = m_Width;
 
     if (m_OriginalFrame.pData != NULL)
     {
@@ -327,6 +332,12 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     else
     {
         m_IsPictureRead = TRUE;
+
+        //check if size has changed
+        if(m_Height != h || m_Width != w)
+        {
+            NotifySizeChange();
+        }
     }
 
     return FileRead;
@@ -440,6 +451,14 @@ void CStillSource::Start()
     if (!m_IsPictureRead && IsAccessAllowed())
     {
         ShowNextInPlayList();
+        // The file is loaded and notification of size change is done
+        // no need to call NotifySizeChange in this case
+    }
+    else
+    {
+        // Necessary if this still source was not the
+        // current source when the file was loaded
+        NotifySizeChange();
     }
     m_LastTickCount = 0;
     m_NewFileRequested = STILL_REQ_NONE;
@@ -463,6 +482,9 @@ void CStillSource::Stop()
         m_OriginalFrame.pData = NULL;
     }
     m_IsPictureRead = FALSE;
+    // Reset the sizes to 0 to be sure the next time
+    // a file will be loaded, a new notification of
+    // size change will be generated
     m_Width = 0;
     m_Height = 0;
 }

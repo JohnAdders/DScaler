@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.50 2002-02-22 09:07:13 tobbej Exp $
+// $Id: Calibration.cpp,v 1.51 2002-02-23 00:30:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/02/22 09:07:13  tobbej
+// fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
+//
 // Revision 1.49  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -2314,13 +2317,8 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     pattern.Draw(m_pParent->m_OriginalFrame.pData);
 
-    //check if size has changed
-    if(m_pParent->m_Height!=pattern.GetHeight() || m_pParent->m_Width != pattern.GetWidth())
-    {
-        m_pParent->m_Height = pattern.GetHeight();
-        m_pParent->m_Width = pattern.GetWidth();
-        m_pParent->NotifySizeChange();
-    }
+    m_pParent->m_Height = pattern.GetHeight();
+    m_pParent->m_Width = pattern.GetWidth();
 
     return TRUE;
 }

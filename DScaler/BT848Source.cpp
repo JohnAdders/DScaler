@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.31 2002-02-19 16:03:36 tobbej Exp $
+// $Id: BT848Source.cpp,v 1.32 2002-02-23 00:30:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.30  2002/02/17 20:32:34  laurentg
 // Audio input display suppressed from the OSD main screen
 // GetStatus modified to display the video input name in OSD main screen even when there is no signal
@@ -382,6 +386,7 @@ void CBT848Source::Start()
     m_pBT848Card->SetDMA(TRUE);
     Audio_Unmute();
     Timing_Reset();
+    NotifySizeChange();
 }
 
 void CBT848Source::Reset()

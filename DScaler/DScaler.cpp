@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.212 2002-08-08 12:23:18 kooiman Exp $
+// $Id: DScaler.cpp,v 1.213 2002-08-08 21:16:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.212  2002/08/08 12:23:18  kooiman
+// Added channel settings setup calls.
+//
 // Revision 1.211  2002/08/08 10:34:23  robmuller
 // Updated command line message example.
 //
@@ -3719,9 +3722,9 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SaveWindowPos");}
     
+    
     __try
     {
-        SettingsPerChannel_Setup(0, CurrentProgram);
         // save settings
         // must be done before providers are unloaded
         LOG(1, "WriteSettingsToIni");
@@ -3729,6 +3732,13 @@ void MainWndOnDestroy()
         
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
+
+    __try
+    {
+        SettingsPerChannel_Setup(0, CurrentProgram);
+        LOG(1, "CloseSettingsPerChannel");
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SettingsPerChannel_Setup(0,...)");}    
 
     __try
     {

@@ -1,5 +1,5 @@
     /////////////////////////////////////////////////////////////////////////////
-// $Id: SearchLoopBottom.inc,v 1.3 2003-05-26 15:54:36 adcockj Exp $
+// $Id: SearchLoopBottom.inc,v 1.4 2003-06-26 09:07:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/05/26 15:54:36  adcockj
+// Improved Performance of motion detection
+// Fixed bug with pBobP
+//
 // Revision 1.2  2003/02/11 15:40:54  adcockj
 // New implementation of StrangeBob based off paper
 // Tidy up sources
@@ -61,20 +65,20 @@ __asm
     // mm1 = weave pixels
     // mm2 = "movement" in the top
     // mm3 = "movement" in the centre
-    // mm4 = "movement" in the top
+    // mm4 = "movement" in the bottom
     // mm6 = Bob pixels          
 
-    psubusb mm2, MOVE           // non-zero where mm2 > TENS i.e. Movement
-    pcmpeqd mm2, mm0            // FFFF where the luma has no movement
-    pcmpeqd mm2, mm0            // all ff where movement by byte
+    psubusb mm2, MOVE           // non-zero where mm2 > MOVE i.e. Movement
+    pcmpeqd mm2, mm0            // FFFF where the luma has no movement in two pixels
+    pcmpeqd mm2, mm0            // all ff where movement in either of the two pixels
 
     psubusb mm3, MOVE           // non-zero where mm3 > TENS i.e. Movement
-    pcmpeqd mm3, mm0            // FFFF where the luma has no movement 
-    pcmpeqd mm3, mm0            // all ff where movement by byte
+    pcmpeqd mm3, mm0            // FFFF where the luma has no movement in two pixels
+    pcmpeqd mm3, mm0            // all ff where movement in either of the two pixels
 
     psubusb mm4, MOVE           // non-zero where mm4 > TENS i.e. Movement
-    pcmpeqd mm4, mm0            // FFFF where the luma has no movement
-    pcmpeqd mm4, mm0            // all ff where movement by byte
+    pcmpeqd mm4, mm0            // FFFF where the luma has no movement in two pixels
+    pcmpeqd mm4, mm0            // all ff where movement in either of the two pixels
 
     pand  mm2, mm4              // top and bottom moving
     por  mm3, mm2               // where we should bob

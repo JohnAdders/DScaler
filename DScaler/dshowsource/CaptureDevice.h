@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.2 2002-02-03 11:04:01 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.3 2002-02-05 17:24:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/03 11:04:01  tobbej
+// pal/ntsc selection support
+// picture controls support
+//
 // Revision 1.1  2001/12/17 19:28:26  tobbej
 // class for capture devices
 //
@@ -31,7 +35,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DShowCaptureDevice.h interface for the CDShowCaptureDevice class.
+ * @file CaptureDevice.h interface for the CDShowCaptureDevice class.
  */
 
 #if !defined(AFX_DSHOWCAPTUREDEVICE_H__50B8522B_CD99_471C_A39D_9BE98CACC7EB__INCLUDED_)

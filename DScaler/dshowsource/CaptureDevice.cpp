@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.2 2002-02-03 11:04:01 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.3 2002-02-05 17:24:12 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/03 11:04:01  tobbej
+// pal/ntsc selection support
+// picture controls support
+//
 // Revision 1.1  2001/12/17 19:28:26  tobbej
 // class for capture devices
 //
@@ -31,7 +35,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DShowCaptureDevice.cpp implementation of the CDShowCaptureDevice class.
+ * @file CaptureDevice.cpp implementation of the CDShowCaptureDevice class.
  */
 
 #include "stdafx.h"

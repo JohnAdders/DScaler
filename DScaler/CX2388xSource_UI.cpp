@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.19 2002-12-04 15:54:09 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.20 2002-12-04 16:18:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/12/04 15:54:09  adcockj
+// Hacky fix for settings by channel code with mutiple cards
+//
 // Revision 1.18  2002/12/04 15:20:08  adcockj
 // Fixed accedental test code check in
 //
@@ -730,6 +733,10 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
         vSettingsList.push_back(m_CombRange);
         vSettingsList.push_back(m_SecondChromaDemod);
         vSettingsList.push_back(m_ThirdChromaDemod);
+        vSettingsList.push_back(m_WhiteCrushUp);
+        vSettingsList.push_back(m_WhiteCrushDown);
+        vSettingsList.push_back(m_WhiteCrushMajorityPoint);
+        vSettingsList.push_back(m_WhiteCrushPerFrame);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

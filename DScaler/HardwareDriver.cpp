@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.10 2002-05-26 19:04:13 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.11 2002-05-27 07:22:09 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/05/26 19:04:13  robmuller
+// Implemented debug log level 0 (for critical errors).
+//
 // Revision 1.9  2002/05/25 11:56:56  robmuller
 // Show an error message if driver installation from a network drive is attempted.
 //
@@ -301,7 +304,13 @@ BOOL CHardwareDriver::InstallNTDriver()
     
     if(!bError)
     {
-        if(szDriverPath[0] == '\\' && szDriverPath[1] == '\\')
+        pszName = szDriverPath + strlen(szDriverPath);
+        while (pszName >= szDriverPath && *pszName != '\\')
+        {
+            *pszName-- = 0;
+        }
+
+        if(GetDriveType(szDriverPath) == DRIVE_REMOTE)
         {
             ErrorBox("The DScaler device driver can't be installed from a network drive.");
             bError = TRUE;
@@ -310,12 +319,6 @@ BOOL CHardwareDriver::InstallNTDriver()
 
     if(!bError)
     {
-        pszName = szDriverPath + strlen(szDriverPath);
-        while (pszName >= szDriverPath && *pszName != '\\')
-        {
-            *pszName-- = 0;
-        }
-        
         strcat(szDriverPath, NTDriverName);
         strcat(szDriverPath, ".sys");       
         
@@ -329,6 +332,9 @@ BOOL CHardwareDriver::InstallNTDriver()
     
     if(!bError)
     {
+        // Make sure no spaces exist in the path since CreateService() does not like spaces.
+        GetShortPathName(szDriverPath, szDriverPath, MAX_PATH);
+
         m_hService = CreateService(
             hSCManager,            // SCManager database
             NTDriverName,          // name of service

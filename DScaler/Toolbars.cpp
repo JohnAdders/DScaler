@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
+// $Id: Toolbars.cpp,v 1.3 2002-09-28 13:34:36 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.1  2002/09/25 22:32:50  kooiman
 // Toolbar support.
 //
@@ -79,7 +82,7 @@ m_oldComboProc(NULL)
 
 	long OldValue;
 	long NewValue;
-	if (EventCollector->LastEventValues(EVENT_CHANNEL_CHANGE, &OldValue, &NewValue)>0)
+	if (EventCollector->LastEventValues(EVENT_CHANNEL_CHANGE, NULL, &OldValue, &NewValue)>0)
 	{
 		LastChannel = NewValue;
 	}	
@@ -139,9 +142,13 @@ LRESULT CToolbarChannels::MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam
 }
 
 
-void CToolbarChannels::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CToolbarChannels::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (Event == EVENT_CHANNEL_CHANGE)
+    if (pEventObject != Providers_GetCurrentSource())
+	{
+		return;
+	}
+	if (Event == EVENT_CHANNEL_CHANGE)
     {
         LastChannel = NewValue;		
     }
@@ -317,15 +324,15 @@ m_Volume(0)
 	
 	long OldValue;
 	long NewValue;
-	if (EventCollector->LastEventValues(EVENT_MUTE, &OldValue, &NewValue)>0)
+	if (EventCollector->LastEventValues(EVENT_MUTE, NULL, &OldValue, &NewValue)>0)
 	{
 		m_Mute = NewValue;
 	}
-	if (EventCollector->LastEventValues(EVENT_VOLUME, &OldValue, &NewValue)>0)
+	if (EventCollector->LastEventValues(EVENT_VOLUME, NULL, &OldValue, &NewValue)>0)
 	{
 		m_Volume = NewValue;
 	} 
-	else if (EventCollector->LastEventValues(EVENT_MIXERVOLUME, &OldValue, &NewValue)>0)
+	else if (EventCollector->LastEventValues(EVENT_MIXERVOLUME, NULL, &OldValue, &NewValue)>0)
 	{
 		m_Volume = NewValue*10;
 	}
@@ -337,13 +344,13 @@ CToolbarVolume::~CToolbarVolume()
 }
 
 
-void CToolbarVolume::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	if (Event == EVENT_MUTE)
     {
         m_Mute = (NewValue)? TRUE : FALSE;
     } 
-    else if (Event == EVENT_VOLUME)
+    else if ((Event == EVENT_VOLUME) && (pObject == Providers_GetCurrentSource()))
     {
         m_Volume = NewValue;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.4 2002-09-26 16:34:19 kooiman Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.5 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.3  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -66,7 +69,7 @@ void CSAA7134Source::UnMute()
 
 void CSAA7134Source::VolumeOnChange(long NewValue, long OldValue)
 {
-	EventCollector->RaiseEvent(EVENT_VOLUME, OldValue, NewValue);
+	EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
 void CSAA7134Source::BalanceOnChange(long NewValue, long OldValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.52 2002-09-27 14:17:40 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.53 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/09/27 14:17:40  kooiman
+// Improved stereo detection & manual audio standard dialog box.
+//
 // Revision 1.51  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -1588,7 +1591,8 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 void CBT848Source::ChangeSectionNamesForInput()
 {
-    int Input = -1;
+    //return;
+	int Input = -1;
     int Format = -1;
     
     if(m_bSavePerInput->GetValue())
@@ -1667,7 +1671,8 @@ void CBT848Source::ChangeDefaultsForInput()
 
 void CBT848Source::LoadInputSettings()
 {
-    ChangeDefaultsForInput();
+    //return;
+	ChangeDefaultsForInput();
     
     if (!SettingsPerChannel())
     {
@@ -1687,7 +1692,8 @@ void CBT848Source::LoadInputSettings()
 
 void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
 {
-    if (!SettingsPerChannel())
+    //return;
+	if (!SettingsPerChannel())
     {        
         m_Brightness->WriteToIni(bOptimizeFileAccess);
         m_Contrast->WriteToIni(bOptimizeFileAccess);
@@ -1703,7 +1709,8 @@ void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
 
 void CBT848Source::ChangeChannelSectionNames()
 {    
-    if (!m_SettingsByChannelStarted)
+    //return;
+	if (!m_SettingsByChannelStarted)
     {
         return;
     }

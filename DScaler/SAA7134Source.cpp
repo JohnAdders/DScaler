@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.11 2002-09-26 11:33:42 kooiman Exp $
+// $Id: SAA7134Source.cpp,v 1.12 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.10  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -283,7 +286,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     ReadFromIni();
 }
 
-void CSAA7134Source::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 
 }

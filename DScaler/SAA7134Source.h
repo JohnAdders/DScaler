@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.6 2002-09-26 11:33:42 kooiman Exp $
+// $Id: SAA7134Source.h,v 1.7 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.5  2002/09/16 17:52:34  atnak
 // Support for SAA7134Res.dll dialogs
 //
@@ -110,7 +113,7 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
-    virtual void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+    virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 

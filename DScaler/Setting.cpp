@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.14 2002-09-26 16:34:19 kooiman Exp $
+// $Id: Setting.cpp,v 1.15 2002-09-28 13:34:07 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.13  2002/09/26 06:09:48  kooiman
 // Extended settings, preliminary.
 //
@@ -79,9 +82,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "Setting.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "Setting.h"
 #include "Settings.h"
 #include "DebugLog.h"
 #include "OSD.h"
@@ -149,7 +152,7 @@ long CSettingsHolder::GetNumSettings()
 
 ISetting* CSettingsHolder::GetSetting(long SettingIndex)
 {
-    if(SettingIndex > 0 && SettingIndex < m_Settings.size())
+    if(SettingIndex >= 0 && SettingIndex < m_Settings.size())
     {
         return m_Settings[SettingIndex];
     }
@@ -250,7 +253,7 @@ CSettingsHolderStandAlone::~CSettingsHolderStandAlone()
 {
 }
 
-CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis)
+CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue, CSettingGroup *pGroup, eSettingFlags SettingFlags, LONG GUIinfo, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis)
 {
     m_pSetting = new SETTING;
     m_bFreeSettingOnExit = TRUE;
@@ -274,32 +277,54 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
     m_pSetting->pszList = NULL;
     m_pSetting->Type = SLIDER;
     
-    m_pSetting->pfnOnChange = NULL; ///todo
+    m_pSetting->pfnOnChange = NULL;
 
-    m_pfnOnChangeStatic = pfnOnChangeFunc;
-    m_pfnOnChangeStatic_pThis = NULL;
-    
-    m_SettingFlags = SettingFlags;
+    m_pSettingExPlus = &m_StoreExPlus;
+
+	m_pSettingExPlus->SettingFlags = SettingFlags;
+	m_pSettingExPlus->cbSize = sizeof(SETTINGEX);
+	m_pSettingExPlus->DefaultSettingFlags = SettingFlags;	
+	m_pSettingExPlus->GUIinfo = GUIinfo;
+	m_pSettingExPlus->pszGroupList = NULL;
+	
+	m_pSettingExPlus->SettingFlags = SettingFlags;
+	m_pSettingExPlus->LastSavedSettingFlags = SettingFlags;
+	m_pSettingExPlus->szLastSavedValueIniSection = NULL;
+
+    m_pSettingExPlus->pfnExOnChange = pfnOnChangeFunc;    
+    m_pSettingExPlus->pExOnChangeThis = pThis;
+	
     m_pGroup = pGroup;
 }
 
-CSimpleSetting::CSimpleSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis)
+CSimpleSetting::CSimpleSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis)
 {    
     m_pSetting = pSetting;
     m_bFreeSettingOnExit = FALSE;
     
     m_pGroup = pGroup;
-    m_SettingFlags = SettingFlags;
+    
+	m_pSettingExPlus = &m_StoreExPlus;
+
+	m_pSettingExPlus->cbSize = sizeof(SETTINGEX);
+	m_pSettingExPlus->DefaultSettingFlags = SettingFlags;	
+	m_pSettingExPlus->GUIinfo = GUIinfo;
+	m_pSettingExPlus->pszGroupList = NULL;
+	
+	m_pSettingExPlus->SettingFlags = SettingFlags;
+	m_pSettingExPlus->LastSavedSettingFlags = SettingFlags;
+	m_pSettingExPlus->szLastSavedValueIniSection = NULL;
+	
 
     if (pfnOnChangeFunc != NULL)
     {
-        m_pfnOnChangeStatic = pfnOnChangeFunc;
+        m_pSettingExPlus->pfnExOnChange = pfnOnChangeFunc;
     }
     else
-    {
-        m_pfnOnChangeStatic = StaticOnChangeWrapForSettingStructure;
+    {        
+		m_pSettingExPlus->pfnExOnChange = StaticOnChangeWrapForSettingStructure;	
     }
-    m_pfnOnChangeStatic_pThis = pThis;    
+    m_pSettingExPlus->pExOnChangeThis = pThis;
 }
 
 CSimpleSetting::CSimpleSetting(SETTINGEX *pSetting,CSettingGroup *pGroup)
@@ -308,10 +333,11 @@ CSimpleSetting::CSimpleSetting(SETTINGEX *pSetting,CSettingGroup *pGroup)
     m_bFreeSettingOnExit = FALSE;
     
     m_pGroup = pGroup;
-    m_SettingFlags = (eSettingFlags)pSetting->SettingFlags;
+    m_pSettingExPlus = (SETTINGEXPLUS*)&pSetting->cbSize;
 
-    m_pfnOnChangeStatic = (ONCHANGE_STATICFUNC*)pSetting->pfnOnChange;    
-    m_pfnOnChangeStatic_pThis = NULL; //pThis;
+	m_pSettingExPlus->SettingFlags = m_pSettingExPlus->DefaultSettingFlags;
+	m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->DefaultSettingFlags;
+	m_pSettingExPlus->szLastSavedValueIniSection = NULL;    
 }
 
 CSimpleSetting::CSimpleSetting(SETTINGEX *pSetting, CSettingGroupList *pList)
@@ -322,12 +348,9 @@ CSimpleSetting::CSimpleSetting(SETTINGEX *pSetting, CSettingGroupList *pList)
     m_pGroup = NULL;
     if (pList!=NULL) 
     {
-        m_pGroup = pList->Get(pSetting->pszGroupList);
+        m_pGroup = pList->Get(NULL,pSetting->pszGroupList);
     }
-    m_SettingFlags = (eSettingFlags)pSetting->SettingFlags;
-
-    m_pfnOnChangeStatic = (ONCHANGE_STATICFUNC*)pSetting->pfnOnChange;    
-    m_pfnOnChangeStatic_pThis = NULL; //pThis;
+    m_pSettingExPlus = (SETTINGEXPLUS*)&pSetting->cbSize;
 }
 
 CSimpleSetting::~CSimpleSetting()
@@ -342,7 +365,7 @@ CSimpleSetting::~CSimpleSetting()
 
 BOOL CSimpleSetting::DoOnChange(long NewValue, long OldValue, eOnChangeType OnChangeType)
 {
-    long Flags = (long)m_SettingFlags;
+    long Flags = m_pSettingExPlus->SettingFlags;
     
     switch(OnChangeType)
     {
@@ -427,61 +450,123 @@ LPCSTR CSimpleSetting::GetEntry()
 }
 
 
-void CSimpleSetting::SetFlags(eSettingFlags SettingsFlag)
+void CSimpleSetting::SetFlags(eSettingFlags SettingFlags)
 {
-   if (m_SettingFlags != SettingsFlag)
+   if (m_pSettingExPlus->SettingFlags != SettingFlags)
    {
        
-       m_SettingFlags = SettingsFlag; 
+       eSettingFlags Old = (eSettingFlags)m_pSettingExPlus->SettingFlags;
+	   m_pSettingExPlus->SettingFlags = SettingFlags; 
+	   FlagsOnChange(Old, (eSettingFlags)m_pSettingExPlus->SettingFlags);
    }
+}
+
+void CSimpleSetting::SetFlag(eSettingFlags Flag, BOOL bEnabled)
+{
+   eSettingFlags SettingFlags = (eSettingFlags)((m_pSettingExPlus->SettingFlags&~Flag) | (bEnabled?Flag:0));
+   SetFlags(SettingFlags);
 }
 
 eSettingFlags CSimpleSetting::GetFlags()
 {
-    return m_SettingFlags;
+    return (eSettingFlags)m_pSettingExPlus->SettingFlags;
+}
+
+eSettingFlags CSimpleSetting::GetDefaultFlags()
+{
+	return (eSettingFlags)m_pSettingExPlus->DefaultSettingFlags;
+}	
+
+eSettingFlags CSimpleSetting::GetLastSavedFlagsValue()
+{
+	return (eSettingFlags)m_pSettingExPlus->LastSavedSettingFlags;
 }
 
 
-BOOL CSimpleSetting::ReadFromIni(BOOL bSetDefaultOnFailure, eOnChangeType OnChangeType)
+BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, long *Value, BOOL bSetDefaultOnFailure, eOnChangeType OnChangeType, eSettingFlags *pSettingFlags)
 {
     long nValue;
     BOOL IsSettingInIniFile = TRUE;
 
     if(m_pSetting->szIniSection != NULL)
     {        
-        m_SectionFromLastValue = m_pSetting->szIniSection;
-        nValue = GetPrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, m_pSetting->MinValue-100, GetIniFileForSettings());
-        if(nValue == (m_pSetting->MinValue-100))
-        {
-            nValue = m_pSetting->Default;
-            IsSettingInIniFile = FALSE;
-        }
-        if(nValue < m_pSetting->MinValue)
-        {
-            LOG(1, "%s %s Was out of range - %d is too low", m_Section.c_str(), m_Entry.c_str(), nValue);
-            nValue = m_pSetting->MinValue;
-        }
-        if(nValue > m_pSetting->MaxValue)
-        {
-            LOG(1, "%s %s Was out of range - %d is too high", m_Section.c_str(), m_Entry.c_str(), nValue);
-            nValue = m_pSetting->MaxValue;
-        }
+        string sEntry;
+		char *szIniEntry;
+		if (szSubSection == NULL)
+		{	
+			szSubSection = m_pSetting->szIniSection;
+			szIniEntry = m_pSetting->szIniEntry;
+		}
+		else
+		{
+			sEntry = m_pSetting->szIniSection;
+			sEntry += "_";
+			sEntry+= m_pSetting->szIniEntry;
+			szIniEntry = (char*)sEntry.c_str();
+		}
+		if (pSettingFlags == NULL) { pSettingFlags = (eSettingFlags*)&m_pSettingExPlus->SettingFlags; }
+		
+        //nValue = GetPrivateProfileInt(szSubSectionn, szIniEntry, m_pSetting->MinValue-100, GetIniFileForSettings());
+		char szDefaultString[] = {0};
+		char szBuffer[256];
+		
+		int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+		if (Len <= 0)
+		{
+			IsSettingInIniFile = FALSE;
+			nValue = m_pSetting->Default;
+		}
+		else
+		{
+			IsSettingInIniFile = TRUE;
+
+			char *szValue = szBuffer;
+			if (*pSettingFlags & (SETTINGFLAG_HEXVALUE|SETTINGFLAG_BITMASK))
+			{
+				if ((Len>=2) && (szBuffer[0]=='0') && (szBuffer[1]=='x'))
+				{
+					sscanf(szBuffer,"0x%x",&nValue);
+				}
+				else
+				{
+					nValue = atoi(szValue);
+				}
+			}
+			else
+			{
+				nValue = atoi(szValue);
+			}
+		       
+			if(nValue < m_pSetting->MinValue)
+			{
+				LOG(1, "%s %s Was out of range - %d is too low", m_Section.c_str(), m_Entry.c_str(), nValue);
+				nValue = m_pSetting->MinValue;
+			}
+			if(nValue > m_pSetting->MaxValue)
+			{
+				LOG(1, "%s %s Was out of range - %d is too high", m_Section.c_str(), m_Entry.c_str(), nValue);
+				nValue = m_pSetting->MaxValue;
+			}
+		}
         if (IsSettingInIniFile || bSetDefaultOnFailure)
-        {
-            int OldValue = *m_pSetting->pValue;
-            *m_pSetting->pValue = nValue;
-            if (DoOnChange(*m_pSetting->pValue, OldValue, OnChangeType))
-            {
-                OnChange(*m_pSetting->pValue, OldValue, OnChangeType);
-            }
-        }
-        if(IsSettingInIniFile)
-        {
-            m_pSetting->LastSavedValue = nValue;
-        }
-        else
-        {
-            m_pSetting->LastSavedValue = m_pSetting->MinValue - 100;
+        {            
+			if (Value != NULL)
+			{
+				*Value = nValue;
+			}
+			else
+			{
+				int OldValue = *m_pSetting->pValue;
+				*m_pSetting->pValue = nValue;
+			
+				if (DoOnChange(*m_pSetting->pValue, OldValue, OnChangeType))
+	            {
+		            OnChange(*m_pSetting->pValue, OldValue, OnChangeType);
+			    }
+				m_pSetting->LastSavedValue = nValue;
+				m_sLastSavedValueIniSection = szSubSection;
+				m_pSettingExPlus->szLastSavedValueIniSection = (char*)m_sLastSavedValueIniSection.c_str();
+			}
         }        
     }
     else
@@ -491,23 +576,67 @@ BOOL CSimpleSetting::ReadFromIni(BOOL bSetDefaultOnFailure, eOnChangeType OnChan
     return IsSettingInIniFile;
 }
 
-LPCSTR CSimpleSetting::GetLastValueSection()
+BOOL CSimpleSetting::ReadFromIni(BOOL bSetDefaultOnFailure, eOnChangeType OnChangeType)
 {
-    return m_SectionFromLastValue.c_str();
+	return ReadFromIniSubSection(NULL,NULL, bSetDefaultOnFailure, OnChangeType, NULL);
+}
+
+LPCSTR CSimpleSetting::GetLastSavedValueIniSection()
+{
+    return m_pSettingExPlus->szLastSavedValueIniSection;
+}
+
+void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess, long *Value, eSettingFlags *pSettingFlags)
+{
+    if(m_pSetting->szIniSection != NULL)
+    {
+        string sEntry;
+		char *szIniEntry;
+		if (szSubSection == NULL)
+		{	
+			szSubSection = m_pSetting->szIniSection;
+			szIniEntry = m_pSetting->szIniEntry;
+		}
+		else
+		{
+			sEntry = m_pSetting->szIniSection;
+			sEntry += "_";
+			sEntry+= m_pSetting->szIniEntry;
+			szIniEntry = (char*)sEntry.c_str();
+		}
+
+		long Val;
+		if (Value != NULL) { Val = *Value; } else { Val = *m_pSetting->pValue; }
+		if (pSettingFlags == NULL) { pSettingFlags = (eSettingFlags*)&m_pSettingExPlus->SettingFlags; }
+
+		if(!bOptimizeFileAccess || (Val != m_pSetting->LastSavedValue) || ((m_pSettingExPlus->szLastSavedValueIniSection!=NULL) && (strcmp(m_pSettingExPlus->szLastSavedValueIniSection, szSubSection))))
+        {	        
+			if (*pSettingFlags & (SETTINGFLAG_HEXVALUE|SETTINGFLAG_BITMASK))
+			{
+				char szBuffer[12];
+				sprintf(szBuffer,"0x%08x",Val);
+				WritePrivateProfileString(szSubSection, szIniEntry, szBuffer, GetIniFileForSettings());
+			}
+			else
+			{
+				WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
+			}
+            m_pSetting->LastSavedValue = Val;
+			
+			m_sLastSavedValueIniSection = szSubSection;
+			m_pSettingExPlus->szLastSavedValueIniSection = (char*)m_sLastSavedValueIniSection.c_str();
+        }
+    }
 }
 
 void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
-    if(m_pSetting->szIniSection != NULL)
-    {
-        if(!bOptimizeFileAccess || ((*m_pSetting->pValue) != m_pSetting->LastSavedValue))
-        {
-	        WritePrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, *m_pSetting->pValue, GetIniFileForSettings());
-            m_pSetting->LastSavedValue = *m_pSetting->pValue;
-        }
-    }
+    WriteToIniSubSection(NULL, bOptimizeFileAccess, NULL);	
 }
  
+
+ 
+
 void CSimpleSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue, eOnChangeType OnChangeType)
 {
     m_pSetting->Default = NewDefault;
@@ -651,20 +780,59 @@ CSettingGroup* CSimpleSetting::GetGroup()
 void CSimpleSetting::OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType)
 {
     //No override, try static
-    if ((m_pfnOnChangeStatic!=NULL) && (OnChangeType!=ONCHANGE_NONE))
+    if ((m_pSettingExPlus->pfnExOnChange!=NULL) && (OnChangeType!=ONCHANGE_NONE))
     {
-        m_pfnOnChangeStatic(m_pfnOnChangeStatic_pThis, NewValue, OldValue, OnChangeType, m_pSetting);
+        m_pSettingExPlus->pfnExOnChange(m_pSettingExPlus->pExOnChangeThis, NewValue, OldValue, OnChangeType, m_pSetting);
     }
 }
 
-CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC pfnOnChangeFunc, void *pThis) :
-    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup, SettingFlags, pfnOnChangeFunc, pThis)    
+void CSimpleSetting::FlagsOnChange(eSettingFlags OldFlags, eSettingFlags Flags)
+{
+	///\todo
+}
+
+BOOL CSimpleSetting::ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultOnFailure)
+{
+	eSettingFlags FlagsSetting = SETTINGFLAG_BITMASK;
+	long Flags  = 0;	
+	BOOL Result = ReadFromIniSubSection(szSection, &Flags, bSetDefaultOnFailure, ONCHANGE_NONE, &FlagsSetting);
+	if (Result)
+	{		
+		Flags = (m_pSettingExPlus->SettingFlags&~SETTINGFLAG_FLAGSTOINI_MASK) | (Flags&SETTINGFLAG_FLAGSTOINI_MASK);
+		Flags |= SETTINGFLAG_FLAGIN_INI;
+		
+		eSettingFlags OldFlags = (eSettingFlags)m_pSettingExPlus->SettingFlags;
+		m_pSettingExPlus->SettingFlags = (long)Flags;
+		FlagsOnChange(OldFlags, (eSettingFlags)Flags);
+		m_pSettingExPlus->LastSavedSettingFlags = Flags;
+	}
+	return Result;
+}
+
+void CSimpleSetting::WriteFlagsToIniSection(LPCSTR szSection, BOOL bOptimizeFileAccess)
+{
+	eSettingFlags FlagsSetting = SETTINGFLAG_BITMASK;
+	long Flags = (m_pSettingExPlus->SettingFlags&SETTINGFLAG_FLAGSTOINI_MASK);
+	
+	if (!bOptimizeFileAccess || (m_pSettingExPlus->SettingFlags != m_pSettingExPlus->LastSavedSettingFlags))
+	{
+		WriteToIniSubSection(szSection, FALSE, &Flags, &FlagsSetting);
+	}
+	
+	SetFlag(SETTINGFLAG_FLAGIN_INI, TRUE);
+	m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->SettingFlags;	
+}
+
+
+CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC pfnOnChangeFunc, void *pThis) :
+    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)    
 {
     m_pSetting->Type = ITEMFROMLIST;
     m_pSetting->pszList = pszList;
 }
 
-CListSetting::CListSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis) : CSimpleSetting(pSetting, pGroup, SettingFlags, pfnOnChangeFunc, pThis)
+CListSetting::CListSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis) : 
+	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
 {   
 }
 
@@ -714,14 +882,15 @@ void CListSetting::SetFromControl(HWND hWnd, eOnChangeType OnChangeType)
 }
 
 
-CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC pfnOnChangeFunc, void *pThis) :
-    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup, SettingFlags, pfnOnChangeFunc, pThis)
+CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC pfnOnChangeFunc, void *pThis) :
+    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
 {
     m_pSetting->OSDDivider = 1;
     m_pSetting->Type = SLIDER;
 }
 
-CSliderSetting::CSliderSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis) : CSimpleSetting(pSetting, pGroup, SettingFlags, pfnOnChangeFunc, pThis)
+CSliderSetting::CSliderSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis) : 
+	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
 {    
 }
 
@@ -814,13 +983,14 @@ void CSliderSetting::SetFromControl(HWND hWnd, eOnChangeType OnChangeType)
 
 
 
-CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC pfnOnChangeFunc, void *pThis) :
-    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup, SettingFlags, pfnOnChangeFunc, pThis)
+CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC pfnOnChangeFunc, void *pThis) :
+    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
 {
     m_pSetting->Type = YESNO;
 }
 
-CYesNoSetting::CYesNoSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis) : CSimpleSetting(pSetting, pGroup, SettingFlags, pfnOnChangeFunc, pThis)
+CYesNoSetting::CYesNoSetting(SETTING *pSetting, CSettingGroup *pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC *pfnOnChangeFunc, void *pThis) : 
+	CSimpleSetting(pSetting, pGroup, SettingFlags, GUIinfo, pfnOnChangeFunc, pThis)
 {  
 }
 
@@ -879,10 +1049,34 @@ BOOL CSimpleSetting::StaticOnChangeWrapForSettingStructure(void *pThis, long New
    return FALSE;
 }
 
-CSettingGroup::CSettingGroup(LPCSTR szGroupName, LPCSTR szLongName)
+CSettingGroup::CSettingGroup(LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText, int Info, void *pObject)
 {
-    m_sGroupName = szGroupName;
-    m_sDisplayName = szLongName;
+    if (szGroupName == NULL) 
+	{ 
+		m_sGroupName = ""; 
+	} else { 
+		m_sGroupName = szGroupName; 
+	}
+    if (szLongName == NULL) 
+	{ 
+		m_sDisplayName=""; 
+	} else { 
+		m_sDisplayName = szLongName; 
+	}
+	if (szInfoText == NULL) 
+	{ 
+		m_sInfoText=""; 
+	} else { 
+		m_sInfoText = szInfoText; 
+	}
+
+
+	m_OnlyCurrentObject = 0;
+	if (Info&1)
+	{
+		m_OnlyCurrentObject = 1;
+	}
+	m_pObject = pObject;
 }
 
 CSettingGroup::~CSettingGroup()
@@ -901,44 +1095,219 @@ LPCSTR CSettingGroup::GetLongName()
 {
     return m_sDisplayName.c_str();
 }
+LPCSTR CSettingGroup::GetInfoText()
+{
+	return m_sInfoText.c_str();
+}
 
 
 CSettingGroupList::CSettingGroupList()
 {    
+	m_GroupList.pGroup = NULL;
 }
 
 CSettingGroupList::~CSettingGroupList()
 {    
+	Clear();
 }
 
-CSettingGroup* CSettingGroupList::Get(char **pszList)
+void CSettingGroupList::DeleteGroupsRecursive(CSettingGroupList::TSubGroupInfo *pGroupList)
 {
-    char *szGroupName = NULL;
-    int i;
-
-    if (pszList != NULL) 
-    {
-        i = 0;
-        while (pszList[i]!=NULL) 
-        { 
-            szGroupName = pszList[i]; 
-            i++; 
-        }
-    }
-    if (szGroupName == NULL) { return NULL; }
-    for (i = 0; i < m_GroupList.size(); i++)
-    {
-        if (!strcmp(m_GroupList[i]->GetName(),szGroupName)) { break; }
-    }
-    if (i>=m_GroupList.size())
-    {
-        CSettingGroup *pGroup = new CSettingGroup(szGroupName, NULL);
-        m_GroupList.push_back(pGroup);
-    }
-    return m_GroupList[i];
+	if (pGroupList->vSubGroups.size() == 0)
+	{
+		if (pGroupList->pGroup != NULL) 
+		{ 
+			delete pGroupList->pGroup;
+			pGroupList->pGroup = NULL;
+			return;
+		}
+		
+	}
+	
+	TSubGroupInfo *pSubGroupInfo = NULL;
+	for (int i = 0; i < pGroupList->vSubGroups.size(); i++)
+	{
+		DeleteGroupsRecursive(&pGroupList->vSubGroups[i]);		
+	}	
+	pGroupList->vSubGroups.clear();
 }
 
-CSettingsMaster::CSettingsMaster(CEventCollector *pEventCollector) : 
+
+void CSettingGroupList::Clear()
+{
+	DeleteGroupsRecursive(&m_GroupList);
+	m_GroupList.vSubGroups.clear();
+}
+
+
+CSettingGroup* CSettingGroupList::Get(void *pObject, char **pszList, char **pszDisplayNameList, char **pszTooltips)
+{        
+    if (pszList == NULL) { return NULL; }
+	return NULL;
+	
+	CSettingGroup *pGroup = NULL;
+	TSubGroupInfo *pSubGroupInfo = &m_GroupList;	
+	char *szGroupName = NULL;
+	char *szDisplayName = NULL;
+	char *szTooltip = NULL;
+	int i = 0;
+	int j = 0;
+	int h = 0;
+    do
+    { 		
+		szGroupName = pszList[i]; 
+		if (pszDisplayNameList!=NULL)
+		{
+			szDisplayName = pszDisplayNameList[j];			
+		}
+		if (pszTooltips!=NULL)
+		{
+			szTooltip = pszTooltips[h];			
+		}		
+		if (szGroupName != NULL)
+		{
+			BOOL bFound = FALSE;
+			int k;
+			for (k = 0; k < pSubGroupInfo->vSubGroups.size(); k++)
+			{
+				pGroup = pSubGroupInfo->vSubGroups[k].pGroup;
+				if ((pGroup != NULL)
+				    && (!strcmp(pGroup->GetName(),szGroupName))
+					&& (!pGroup->ObjectOnly() || (pObject == pGroup->GetObject())) )
+				{
+					//Found
+					pGroup = pSubGroupInfo->vSubGroups[k].pGroup;
+					pSubGroupInfo = &pSubGroupInfo->vSubGroups[k];
+					bFound = TRUE;
+					break;
+				}
+			}
+			if (!bFound) //Not found, create new
+			{
+				pGroup = new CSettingGroup(szGroupName, szDisplayName, szTooltip, (pObject!=NULL)?1:0, pObject);
+				TSubGroupInfo sgi;
+				sgi.pGroup = pGroup;				
+				pSubGroupInfo->vSubGroups.push_back(sgi);
+				pSubGroupInfo = &pSubGroupInfo->vSubGroups[k];
+			}
+		}	
+		i++;
+		if ((pszDisplayNameList!=NULL) && (pszDisplayNameList[j] != NULL))
+		{
+			j++;
+		}	
+		if ((pszTooltips!=NULL) && (pszTooltips[h] != NULL))
+		{
+			h++;
+		}	
+	} while (szGroupName!=NULL);
+	return pGroup;
+}
+
+CSettingGroup *CSettingGroupList::GetGroup(void *pObject, LPCSTR szGroupName, LPCSTR szDisplayName, LPCSTR szTooltip)
+{
+	char *pszGroupList[2];
+	char *pszDisplayName[2];
+	char *pszTooltip[2];
+	
+	pszGroupList[0] = (char*)szGroupName;
+	pszDisplayName[0] = (char*)szDisplayName;
+	pszTooltip[0] = (char*)szTooltip;	
+	
+	pszGroupList[1] = NULL;
+	pszDisplayName[1] = NULL;
+	pszTooltip[1] = NULL;	
+	return Get(pObject, (char**)pszGroupList, (char**)pszDisplayName, (char**)pszTooltip);
+}
+
+
+CSettingGroup *CSettingGroupList::Get(int *Index)
+{
+	TSubGroupInfo *pSubGroupInfo = &m_GroupList;		
+	if (Index == NULL) { return NULL; }
+	for (;;)
+	{
+	   if (*Index < 0)
+	   {
+		   return pSubGroupInfo->pGroup;
+	   }
+	   else
+	   {
+			if (*Index >= pSubGroupInfo->vSubGroups.size())
+			{
+				return NULL;
+			}
+			else
+			{
+				pSubGroupInfo = &pSubGroupInfo->vSubGroups[*Index];
+			}
+	   }
+	   Index++;
+	}
+}
+
+CSettingGroupList::TSubGroupInfo *CSettingGroupList::FindGroupRecursive(CSettingGroupList::TSubGroupInfo *pGroupList, CSettingGroup *pGroup)
+{
+	if (pGroupList->pGroup == pGroup) { return pGroupList; }
+	TSubGroupInfo *pSubGroupInfo = NULL;
+	for (int i = 0; i < pGroupList->vSubGroups.size(); i++)
+	{
+		pSubGroupInfo = FindGroupRecursive(&pGroupList->vSubGroups[i], pGroup);
+		if (pSubGroupInfo != NULL)
+		{
+			return pSubGroupInfo;
+		}	
+	}
+	return pSubGroupInfo;
+}
+
+
+CSettingGroup *CSettingGroupList::GetSubGroup(CSettingGroup *pMainGroup, LPCSTR szSubGroup, LPCSTR szDisplayName, LPCSTR szTooltip)
+{
+	return NULL;
+
+	TSubGroupInfo *pSubGroupInfo = FindGroupRecursive(&m_GroupList, pMainGroup);
+	CSettingGroup *pGroup = NULL;
+
+	if (pSubGroupInfo != NULL)
+	{
+		pGroup = new CSettingGroup(szSubGroup, szDisplayName, szTooltip, pSubGroupInfo->pGroup->ObjectOnly(), pSubGroupInfo->pGroup->GetObject());
+		TSubGroupInfo sgi;
+		sgi.pGroup = pGroup;				
+		pSubGroupInfo->vSubGroups.push_back(sgi);
+	}
+	
+	return pGroup;	
+}
+
+
+int CSettingGroupList::NumGroups(int *Index)
+{
+	TSubGroupInfo *pSubGroupInfo = &m_GroupList;		
+	if (Index == NULL) { return 0; }
+	for (;;)
+	{
+	   if (*Index < 0)
+	   {
+		   return pSubGroupInfo->vSubGroups.size();
+	   }
+	   else
+	   {
+			if (*Index >= pSubGroupInfo->vSubGroups.size())
+			{
+				return 0;
+			}
+			else
+			{
+				pSubGroupInfo = &pSubGroupInfo->vSubGroups[*Index];
+			}
+	   }
+	   Index++;
+	}	
+}
+
+
+CSettingsMaster::CSettingsMaster() :
 m_SettingGroupList(NULL)
 {
     eEventType EventList[] = {
@@ -956,11 +1325,17 @@ m_SettingGroupList(NULL)
         EVENT_CHANNEL_CHANGE,
         EVENT_ENDOFLIST
     };
-    pEventCollector->Register(this, EventList);
+    EventCollector->Register(this, EventList);
 }
 
 CSettingsMaster::~CSettingsMaster()
 {
+	EventCollector->Unregister(this);
+	if (m_SettingGroupList != NULL)
+	{
+		delete m_SettingGroupList;
+		m_SettingGroupList = NULL;
+	}	
 }
 
 CSettingGroupList* CSettingsMaster::Groups()
@@ -975,102 +1350,139 @@ CSettingGroupList* CSettingsMaster::Groups()
 
 void CSettingsMaster::ReadFromIni(BOOL bInit)
 {
-    for (int i = 0; i < m_Holders.size(); i++)
+    int i;
+	for (i = 0; i < m_Holders.size(); i++)
     {
         if (m_Holders[i].pHolder != NULL)
         {
-            m_Holders[i].pHolder->ReadFromIni(bInit);
+            //m_Holders[i].pHolder->ReadFromIni(bInit);
+        }
+    }
+	//Flags
+	for (i = 0; i < m_Holders.size(); i++)
+    {
+        if (m_Holders[i].pHolder != NULL)
+        {
+			int Num = m_Holders[i].pHolder->GetNumSettings();
+		    ISetting *pSetting;
+			
+			for (int n = 0; n < Num; n++)
+			{
+				pSetting = m_Holders[i].pHolder->GetSetting(n);
+				if (pSetting != NULL)
+				{
+					if (pSetting->GetFlags() & SETTINGFLAG_ALLOW_MASK)
+					{
+						pSetting->ReadFlagsFromIniSection("SettingFlags");
+					}
+				}
+			} 
         }
     }
 }
 
 void CSettingsMaster::WriteToIni(BOOL bOptimizeFileAccess)
 {
-    for (int i = 0; i < m_Holders.size(); i++)
+	//Flags    
+	for (int i = 0; i < m_Holders.size(); i++)
     {
         if (m_Holders[i].pHolder != NULL)
         {
-            m_Holders[i].pHolder->WriteToIni(bOptimizeFileAccess);
+			int Num = m_Holders[i].pHolder->GetNumSettings();
+		    ISetting *pSetting;
+			eSettingFlags FlagSetting = SETTINGFLAG_BITMASK;
+        
+			for (int n = 0; n < Num; n++)
+			{
+				pSetting = m_Holders[i].pHolder->GetSetting(n);
+				if (pSetting != NULL)
+				{
+					if (pSetting->GetFlags() & SETTINGFLAG_ALLOW_MASK)
+					{
+						pSetting->WriteFlagsToIniSection("SettingFlags", TRUE);
+					}
+				}
+			} 
         }
     }
 }
 
 
-void CSettingsMaster::ModifyOneSetting(ISetting *pSetting, int What, eOnChangeType OnChangeType)
+void CSettingsMaster::ModifyOneSetting(string sSubSection, ISetting *pSetting, int What, eOnChangeType OnChangeType)
 {
     if (What==1)
-    {                
-        /*if (strcmp(pSetting->GetLastValueSection(),pSetting->GetEntry())
-        {            
-            pSetting->WriteToIni(TRUE);
-        }
-        else*/
-        {
-            pSetting->WriteToIni(FALSE);
-        }
+    {                        
+		pSetting->WriteToIniSubSection(sSubSection.c_str(),TRUE);
     }
     else if (What==0)
     {        
-        pSetting->ReadFromIni(TRUE, OnChangeType);
+        pSetting->ReadFromIniSubSection(sSubSection.c_str());
     }
 }
 
-void CSettingsMaster::ParseAllSettings(int What, eOnChangeType OnChangeType)
+void CSettingsMaster::ParseAllSettings(CEventObject *pObject, int What, eOnChangeType OnChangeType)
 {
     for (int i = 0; i < m_Holders.size(); i++)
     {
-        int Num = m_Holders[i].pHolder->GetNumSettings();
+        if (m_Holders[i].bIsSource)
+		{
+			void *p = (void*)m_Holders[i].pHolder;
+			if ((void*)m_Holders[i].pHolder != (void*)pObject) //only from its own object
+			{
+				continue;
+			}
+		}
+		
+		int Num = m_Holders[i].pHolder->GetNumSettings();
         CSimpleSetting *pSetting;
         eSettingFlags SettingFlags;
         string sSection;
+		BOOL bAction = FALSE;
 
         for (int n = 0; n < Num; n++)
         {
             pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
             if (pSetting != NULL)
             {
-                SettingFlags = pSetting->GetFlags();
+                bAction = FALSE;
+				SettingFlags = pSetting->GetFlags();
                       
-                if ((SettingFlags&SETTINGFLAG_PER_SOURCE) && (m_SourceName.length()>0))
+                if ((SettingFlags&SETTINGFLAG_PER_SOURCE) && (SettingFlags&SETTINGFLAG_ALLOW_PER_SOURCE) && (m_SourceName.length()>0))
                 {
                     sSection+=m_SourceName+"_";
+					if (OnChangeType == ONCHANGE_SOURCECHANGE) { bAction = TRUE; }
                 }
-                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOINPUT) && (m_VideoInputName.length()>0))
+                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOINPUT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_VIDEOINPUT) && (m_VideoInputName.length()>0))
                 {
                     sSection+=m_VideoInputName+"_";
+					if (OnChangeType == ONCHANGE_VIDEOINPUTCHANGE) { bAction = TRUE; }
                 }
-                else if ((SettingFlags&SETTINGFLAG_PER_AUDIOINPUT) && (m_AudioInputName.length()>0))
+                else if ((SettingFlags&SETTINGFLAG_PER_AUDIOINPUT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_AUDIOINPUT) && (m_AudioInputName.length()>0))
                 {
                     sSection+=m_AudioInputName+"_";
+					if (OnChangeType == ONCHANGE_AUDIOINPUTCHANGE) { bAction = TRUE; }
                 }
-                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOFORMAT) && (m_VideoFormatName.length()>0))
+                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOFORMAT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_VIDEOFORMAT) && (m_VideoFormatName.length()>0))
                 {
                     sSection+=m_VideoFormatName+"_";
+					if (OnChangeType == ONCHANGE_VIDEOFORMATCHANGE) { bAction = TRUE; }
                 }
-                else if ((SettingFlags&SETTINGFLAG_PER_CHANNEL) && (m_ChannelName.length()>0))
+                else if ((SettingFlags&SETTINGFLAG_PER_CHANNEL) && (SettingFlags&SETTINGFLAG_ALLOW_PER_CHANNEL) && (m_ChannelName.length()>0))
                 {
                     sSection+=m_ChannelName+"_";
+					if (OnChangeType == ONCHANGE_CHANNELCHANGE) { bAction = TRUE; }
                 }
-                if (sSection.length() > 0)
+                if (bAction && (sSection.length() > 0))
                 {
-                    string sOldEntry = pSetting->GetEntry();
-                    string sOldSection = pSetting->GetSection();
-                    
-                    string sNewSection = sSection;
-                    string sNewEntry   = sOldSection+"_"+sOldEntry;
-
-                    pSetting->SetEntry(sNewEntry.c_str());
-                    pSetting->SetSection(sNewSection.c_str());
-
-                    ModifyOneSetting(pSetting, What, OnChangeType);
-
-                    pSetting->SetEntry(sOldEntry.c_str());
-                    pSetting->SetSection(sOldSection.c_str());
+                    int Len = sSection.length();
+					if (sSection[Len-1] == '_') { sSection = sSection.substr(0,Len-1); }
+										
+                    ModifyOneSetting(sSection, pSetting, What, OnChangeType);
                 } else
                 {
-                    if (SettingFlags&SETTINGFLAG_GLOBAL)
-                    {
-                        ModifyOneSetting(pSetting, What, OnChangeType);
+                    if ((SettingFlags&SETTINGFLAG_GLOBAL) && (SettingFlags&SETTINGFLAG_ALLOW_GLOBAL))
+                    {                        
+						//ModifyOneSetting("", pSetting, What, OnChangeType);
                     }
                 }
             }
@@ -1078,23 +1490,24 @@ void CSettingsMaster::ParseAllSettings(int What, eOnChangeType OnChangeType)
     }
 }
 
-void CSettingsMaster::LoadSettings(eOnChangeType OnChangeType)
+void CSettingsMaster::LoadSettings(CEventObject *pObject, eOnChangeType OnChangeType)
 {
-    ParseAllSettings(0, OnChangeType);
+    ParseAllSettings(pObject, 0, OnChangeType);
 }
 
 
-void CSettingsMaster::SaveSettings(eOnChangeType OnChangeType)
+void CSettingsMaster::SaveSettings(CEventObject *pObject, eOnChangeType OnChangeType)
 {
-    ParseAllSettings(1, OnChangeType);
+    ParseAllSettings(pObject, 1, OnChangeType);
 }
 
-void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder *pHolder)
+void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder *pHolder, BOOL bIsSource)
 {
     Unregister(pHolder);
     TSettingsHolderInfo shi;    
     shi.HolderID = HolderID;
     shi.pHolder = pHolder;
+	shi.bIsSource = bIsSource;
     m_Holders.push_back(shi);
 }
 
@@ -1131,14 +1544,14 @@ void CSettingsMaster::Unregister(CSettingsHolder *pHolder)
     m_Holders = NewList;
 }
 
-void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CSettingsMaster::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
     switch (Event)
     {
     case EVENT_SOURCE_PRECHANGE:    
         if (m_SourceName.length()>0) 
         { 
-            SaveSettings(ONCHANGE_SOURCECHANGE);
+            SaveSettings(pObject, ONCHANGE_SOURCECHANGE);
         }
         break;
     
@@ -1146,7 +1559,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
         if (NewValue!=0)
         {
             m_SourceName = ((CSource*)NewValue)->IDString();
-            LoadSettings(ONCHANGE_SOURCECHANGE);
+            LoadSettings(pObject, ONCHANGE_SOURCECHANGE);
         }
         else
         {
@@ -1157,7 +1570,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
     case EVENT_CHANNEL_PRECHANGE:   
         if (m_ChannelName.length()>0) 
         { 
-            SaveSettings(ONCHANGE_CHANNELCHANGE); 
+            SaveSettings(pObject, ONCHANGE_CHANNELCHANGE); 
         }
         break;
     
@@ -1166,7 +1579,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
         {        
             char szBuffer[33];
             m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
-            LoadSettings(ONCHANGE_CHANNELCHANGE);
+            LoadSettings(pObject, ONCHANGE_CHANNELCHANGE);
         }
         else
         {
@@ -1177,7 +1590,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
     case EVENT_VIDEOINPUT_PRECHANGE:
         if (m_VideoInputName.length()>0) 
         { 
-            SaveSettings(ONCHANGE_VIDEOINPUTCHANGE); 
+            SaveSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE); 
         }
         break;
 
@@ -1186,7 +1599,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
         {
             char szBuffer[33];
             m_VideoInputName = string("VideoInput") +  itoa(NewValue, szBuffer, 10);
-            LoadSettings(ONCHANGE_VIDEOINPUTCHANGE);
+            LoadSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE);
         }
         else
         {
@@ -1197,7 +1610,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
     case EVENT_AUDIOINPUT_PRECHANGE:
         if (m_AudioInputName.length()>0) 
         { 
-            SaveSettings(ONCHANGE_AUDIOINPUTCHANGE); 
+            SaveSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE); 
         }
         break;
 
@@ -1206,7 +1619,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
         {
             char szBuffer[33];
             m_AudioInputName = string("AudioInput") +  itoa(NewValue, szBuffer, 10);
-            LoadSettings(ONCHANGE_AUDIOINPUTCHANGE);
+            LoadSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE);
         }
         else
         {
@@ -1216,7 +1629,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
     case EVENT_VIDEOFORMAT_PRECHANGE:
         if (m_VideoFormatName.length()>0) 
         { 
-            SaveSettings(ONCHANGE_VIDEOFORMATCHANGE); 
+            SaveSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE); 
         }
         break;
 
@@ -1225,7 +1638,7 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
         {
             char szBuffer[33];
             m_VideoFormatName = string("VideoFormat") +  itoa(NewValue, szBuffer, 10);            
-            LoadSettings(ONCHANGE_VIDEOFORMATCHANGE);
+            LoadSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE);
         }
         else
         {
@@ -1235,3 +1648,38 @@ void CSettingsMaster::OnEvent(eEventType Event, long OldValue, long NewValue, eE
     }    
 }
 
+
+CTreeSettingsGeneric* CSettingsMaster::GroupTreeSettings(CSettingGroup *pGroup)
+{
+	vector<CSimpleSetting*> SettingList;
+
+	for (int i = 0; i < m_Holders.size(); i++)
+    {
+        if (m_Holders[i].bIsSource)
+		{
+			if (m_Holders[i].pHolder != Providers_GetCurrentSource())
+			{
+				continue;
+			}
+		}
+		int Num = m_Holders[i].pHolder->GetNumSettings();
+        CSimpleSetting *pSetting;
+        
+        for (int n = 0; n < Num; n++)
+        {
+            pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
+            if ((pSetting != NULL) && (pSetting->GetGroup() == pGroup))
+            {
+				SettingList.push_back(pSetting);
+			}
+		}
+	}
+	if (SettingList.size() == 0)
+	{
+		return NULL;
+	}
+	else
+	{
+		return new CTreeSettingsGeneric(pGroup->GetName(),SettingList);
+	}
+}

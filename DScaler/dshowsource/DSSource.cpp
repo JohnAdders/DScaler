@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.42 2002-09-26 10:35:34 kooiman Exp $
+// $Id: DSSource.cpp,v 1.43 2002-09-28 13:36:15 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/09/26 10:35:34  kooiman
+// Use new event code.
+//
 // Revision 1.41  2002/09/24 17:16:28  tobbej
 // spelling error
 //
@@ -1119,9 +1122,13 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 	}
 }
 
-void CDSCaptureSource::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CDSCaptureSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (Event == EVENT_CHANNEL_CHANGE)
+    if (pEventObject != this)
+	{
+		return;
+	}
+	if (Event == EVENT_CHANNEL_CHANGE)
     {
         TunerChannelChange(0,OldValue,NewValue);
     }    

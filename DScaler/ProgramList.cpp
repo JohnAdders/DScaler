@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.74 2002-09-26 11:33:42 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.75 2002-09-28 13:31:41 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.73  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -1295,7 +1298,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.                
                 if (EventCollector != NULL)
                 {
-                    EventCollector->RaiseEvent(EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
+                    EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
                 }
                 if (!DontStorePrevious)
                 {
@@ -1348,7 +1351,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 
                 if (EventCollector != NULL)
                 {
-                    EventCollector->RaiseEvent(EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
+                    EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
                 }
                 //Sleep(PostSwitchMuteDelay); //now timer controlled
                 VT_ChannelChange();                                

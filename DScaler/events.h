@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.3 2002-09-27 14:11:35 kooiman Exp $
+// $Id: events.h,v 1.4 2002-09-28 13:34:07 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,15 +44,17 @@ enum eEventType
 	EVENT_AUDIOCHANNELSUPPORT_DETECTED
 };
 #define EVENT_ENDOFLIST EVENT_NONE
-typedef void (__cdecl EVENTCALLBACK)(void *pThis, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
-//class CSource;
+
+class CEventObject;
+
+typedef void (__cdecl EVENTCALLBACK)(void *pThis, CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
 
 class CEventObject
 {
 public:
-    virtual void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp) {;}
+    virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp) {;}
 };
 
 class CEventCollector
@@ -71,9 +73,11 @@ protected:
 	vector<int>  m_RaisedEvent;
 	vector<long> m_LastOldValues;
 	vector<long> m_LastNewValues;
+	vector<CEventObject*> m_LastEventObjects;
 
 	typedef struct
 	{
+		CEventObject *pEventObject;
 		eEventType Event;
 		long	   OldValue;
 		long	   NewValue;
@@ -92,8 +96,8 @@ protected:
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);
 
-	void RaiseScheduledEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
-    void ScheduleEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+	void RaiseScheduledEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+    void ScheduleEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
 	static VOID CALLBACK StaticEventTimerWrap(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 public:
@@ -108,9 +112,10 @@ public:
 
 	void EventTimer();
 
-    void RaiseEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
+    void RaiseEvent(void *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
 
-	int LastEventValues(eEventType Event, long *OldValue, long *NewValue);
+	int LastEventValues(eEventType Event, CEventObject **pObject, long *OldValue, long *NewValue);
+	int LastEventValues(CEventObject *pObject, eEventType Event, long *OldValue, long *NewValue);
 	int NumEventsWaiting();
 	
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.17 2002-09-11 18:19:44 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.18 2002-09-28 13:34:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/09/11 18:19:44  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.16  2002/09/02 19:07:21  kooiman
 // Added BT848 advanced settings to advanced settings dialog
 //
@@ -403,13 +406,75 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 	
 }
 
+
+void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsGeneric*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList)
+{
+	CTreeSettingsPage *pRootPage;
+	CTreeSettingsGeneric *pPage;	
+	
+	if (pGroupList != NULL)
+	{
+		IndexList[Depth] = -1;
+		SubIndexList[Depth] = -1;
+		SubIndexList[Depth+1] = -1;
+		for (int i = 0; i < pGroupList->NumGroups(IndexList); i++)
+		{
+			SubIndexList[Depth] = i;
+			CSettingGroup *pGroup = pGroupList->Get(SubIndexList);			
+			if ((pGroup != NULL) && (!pGroup->ObjectOnly() || (pGroup->GetObject() == Providers_GetCurrentSource())))
+			{
+				char *szName = (char*)pGroup->GetLongName();
+				if ((szName == NULL) || (szName[0]==0)) 
+				{ 
+					szName = (char*)pGroup->GetName(); 
+				}											
+				pPage = SettingsMaster->GroupTreeSettings(pGroup);				
+				int SubNr;
+				if (pPage != NULL)
+				{
+					pages->push_back(pPage);
+					if (Nr<0)
+					{
+						SubNr = dlg->AddPage(pPage);
+					}
+					else
+					{
+						SubNr = dlg->AddPage(pPage, Nr);				
+					}
+				}
+				else
+				{
+					pRootPage = new CTreeSettingsPage(CString(szName), IDD_TREESETTINGS_EMPTY);
+					//pPage->SetHelpID();				
+					//pages->push_back(pRootPage);					
+					if (Nr<0)
+					{
+						SubNr = dlg->AddPage(pRootPage);
+					}
+					else
+					{
+						SubNr = dlg->AddPage(pRootPage, Nr);				
+					}
+				}
+				if (Depth<10)
+				{
+					IndexList[Depth] = i;								
+					AddMasterSettingSubTree(dlg,pages,Depth+1,IndexList,SubIndexList,SubNr,pGroupList);
+					IndexList[Depth] = -1;
+					SubIndexList[Depth] = -1;
+				}
+			}
+		}		
+	}
+}
+
 void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 {
     int mask = iSettingsMask;
 
-    if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK)) )
+    if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK)) )
     {
-        mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK;
+        mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK;
     }
 
 	vector<CTreeSettingsGeneric*> pages;
@@ -565,6 +630,22 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
     }
+	//Add SettingMaster tree:
+
+	
+	CSettingGroupList *pGroupList = SettingsMaster->Groups();
+
+	if ((mask & ALL_SETTINGS_MASK) && (pGroupList != NULL))
+	{
+		int IndexList[12];
+		int SubIndexList[12];
+		int Depth = 0;
+		IndexList[Depth] = -1;
+		SubIndexList[Depth] = -1;
+		SubIndexList[Depth+1] = -1;
+		AddMasterSettingSubTree(&dlg, &pages, Depth,IndexList,SubIndexList,-1,pGroupList);							
+	}
+
 
     dlg.DoModal();
 

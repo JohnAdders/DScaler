@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.229 2002-09-27 14:11:35 kooiman Exp $
+// $Id: DScaler.cpp,v 1.230 2002-09-28 13:34:08 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.229  2002/09/27 14:11:35  kooiman
+// Added audio standard detect event & implemented event scheduler.
+//
 // Revision 1.228  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -830,7 +833,7 @@ char szSkinName[MAX_PATH+1];
 char szSkinDirectory[MAX_PATH+1];
 vector<string> vSkinNameList;
 
-CSettingsMaster *pSettingsMaster = NULL;
+CSettingsMaster *SettingsMaster = NULL;
 CEventCollector *EventCollector = NULL;
 CWindowBorder *WindowBorder = NULL;
 CToolbarControl *ToolbarControl = NULL;
@@ -1097,11 +1100,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // Master setting. Holds all settings in the future
     //  For now, only settings that are registered here respond to events 
     //  like source/input/format/channel changes
-    if (pSettingsMaster == NULL)
+    if (SettingsMaster == NULL)
     {
-        pSettingsMaster = new CSettingsMaster(EventCollector);
+        SettingsMaster = new CSettingsMaster();
     }
-    pSettingsMaster->IniFile(GetIniFileForSettings());
+    SettingsMaster->IniFile(GetIniFileForSettings());
     
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
@@ -3173,6 +3176,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Cursor_UpdateVisibility();
             break;
 
+		/*case IDM_SETTINGS_CHANGEALLSETTINGS:
+			bInMenuOrDialogBox = TRUE;
+            Cursor_UpdateVisibility();
+            CTreeSettingsDlg::ShowTreeSettingsDlg(ALL_SETTINGS_MASK);
+            bInMenuOrDialogBox = FALSE;
+            Cursor_UpdateVisibility();
+            break;*/
+
+
         case ID_SETTINGS_SAVESETTINGSPERCHANNEL:
             Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_ENABLED), !SettingsPerChannel());
             CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel());
@@ -4341,10 +4353,10 @@ void MainWndOnDestroy()
     __try
     {
         LOG(1, "Try free settings");
-        if (pSettingsMaster!=NULL)
+        if (SettingsMaster!=NULL)
         {
-            delete pSettingsMaster;
-            pSettingsMaster = NULL;
+            delete SettingsMaster;
+            SettingsMaster = NULL;
         }                
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free settings");}

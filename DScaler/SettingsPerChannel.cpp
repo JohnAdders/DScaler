@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.18 2002-09-26 11:33:42 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.19 2002-09-28 13:34:08 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.16  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -72,6 +75,13 @@
 #include "ProgramList.h"
 #include "Source.h"
 #include "SettingsPerChannel.h"
+
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+
 
 #define NO_CHANNEL -1
 #define NO_VIDEOINPUT -1
@@ -1641,9 +1651,10 @@ void SettingsPerChannel_SourceChange(void* pThis, int Flags, CSource* pSource)
 }
 
 
-void SettingsPerChannel_EventHandler(void *pThis, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void SettingsPerChannel_EventHandler(void *pThis, CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-   try 
+	if (!bSetupStarted) {  return; }
+	try 
    {
        if (Event == EVENT_SOURCE_PRECHANGE) 
        {
@@ -1655,12 +1666,19 @@ void SettingsPerChannel_EventHandler(void *pThis, eEventType Event, long OldValu
        } 
        else if ((Event == EVENT_VIDEOINPUT_PRECHANGE) || (Event == EVENT_VIDEOINPUT_CHANGE))
        {
-           SettingsPerChannel_InputAndChannelChange((Event == EVENT_VIDEOINPUT_PRECHANGE), Providers_GetCurrentSource(), ((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue), 
+           //if (pEventObject == Providers_GetCurrentSource())
+		   //{
+			SettingsPerChannel_InputAndChannelChange((Event == EVENT_VIDEOINPUT_PRECHANGE), (CSource*)pEventObject, ((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue), 
                 Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue)), NO_CHANNEL, iSpcCurrentVideoFormat);
+		   //}
        } 
        else if ((Event == EVENT_CHANNEL_PRECHANGE) || (Event == EVENT_CHANNEL_CHANGE))
        {
-           SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
+           //if (pEventObject == Providers_GetCurrentSource())
+		   //{			   
+			//SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
+		   //}
+		   SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), (CSource*)pEventObject, iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
        } 
    } 
    catch (...)

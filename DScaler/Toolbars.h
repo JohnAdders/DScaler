@@ -14,7 +14,7 @@ public:
 	HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
     void Reset();
         
-	void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+	void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 	void UpdateWindow() { UpdateControls(NULL, FALSE); }
 
 	LRESULT MyComboProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -40,7 +40,7 @@ public:
     
     void Reset();
 
-	void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+	void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 	void UpdateWindow() { UpdateControls(NULL, FALSE); }
 private:
     BOOL m_Mute;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.9 2002-09-26 11:33:42 kooiman Exp $
+// $Id: Source.cpp,v 1.10 2002-09-28 13:31:41 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.8  2002/08/27 22:02:32  kooiman
 // Added Get/Set input for video and audio for all sources. Added source input change notification.
 //
@@ -131,7 +134,7 @@ void CSource::NotifyInputChange(int PreChange, eSourceInputType InputType, int O
         {
             Event = (PreChange?EVENT_VIDEOINPUT_PRECHANGE:EVENT_VIDEOINPUT_CHANGE);
         }
-        EventCollector->RaiseEvent(Event, (long)OldInput, (long)NewInput, NULL);        
+        EventCollector->RaiseEvent(this, Event, (long)OldInput, (long)NewInput, NULL);        
     }
 }
 
@@ -140,6 +143,6 @@ void CSource::NotifyVideoFormatChange(int PreChange, eVideoFormat OldFormat, eVi
 {
     if (EventCollector != NULL)
     {
-        EventCollector->RaiseEvent((PreChange?EVENT_VIDEOFORMAT_PRECHANGE:EVENT_VIDEOFORMAT_CHANGE), (long)OldFormat, (long)NewFormat, NULL);
+        EventCollector->RaiseEvent(this, (PreChange?EVENT_VIDEOFORMAT_PRECHANGE:EVENT_VIDEOFORMAT_CHANGE), (long)OldFormat, (long)NewFormat, NULL);
     }
 }

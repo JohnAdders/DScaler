@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.24 2002-09-26 16:35:20 kooiman Exp $
+// $Id: Audio.cpp,v 1.25 2002-09-28 13:31:41 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/09/26 16:35:20  kooiman
+// Volume event support.
+//
 // Revision 1.23  2002/04/13 21:52:39  laurentg
 // Management of no current source
 //
@@ -115,7 +118,7 @@ void Audio_Mute()
 	{
 		Mixer_Mute();
 	}
-	EventCollector->RaiseEvent(EVENT_MUTE,0,1);
+	EventCollector->RaiseEvent(NULL, EVENT_MUTE,0,1);
 }
 
 void Audio_Unmute()
@@ -132,7 +135,7 @@ void Audio_Unmute()
 			Mixer_UnMute();
 		}
 	}
-	EventCollector->RaiseEvent(EVENT_MUTE,1,0);
+	EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
 }
 
 BOOL SystemInMute_OnChange(long NewValue)

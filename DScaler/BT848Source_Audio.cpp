@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.25 2002-09-27 14:13:28 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.26 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/09/27 14:13:28  kooiman
+// Improved stereo detection & manual audio standard dialog box.
+//
 // Revision 1.24  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -120,7 +123,7 @@ void CBT848Source::UnMute()
 void CBT848Source::VolumeOnChange(long NewValue, long OldValue)
 {
     m_pBT848Card->SetAudioVolume(NewValue);    
-	EventCollector->RaiseEvent(EVENT_VOLUME, OldValue, NewValue);
+	EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
 void CBT848Source::BalanceOnChange(long NewValue, long OldValue)
@@ -300,11 +303,7 @@ void CBT848Source::AudioAutoVolumeCorrectionOnChange(long NewValue, long OldValu
 
 void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
 {
-    if (Providers_GetCurrentSource() != this)
-	{
-		return;
-	}
-	if (m_DetectingAudioStandard) 
+    if (m_DetectingAudioStandard) 
     {
         return;
     }   

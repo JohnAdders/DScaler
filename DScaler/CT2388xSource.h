@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.4 2002-09-26 11:33:42 kooiman Exp $
+// $Id: CT2388xSource.h,v 1.5 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
-    virtual void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+    virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

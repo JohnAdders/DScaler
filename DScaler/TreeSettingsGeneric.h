@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.5 2002-09-26 11:33:42 kooiman Exp $
+// $Id: TreeSettingsGeneric.h,v 1.6 2002-09-28 13:34:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,15 +34,14 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "Setting.h"
 #include "DS_ApiCommon.h"
 #include "HSListBox.h"
 #include "TreeSettingsPage.h"
 #include "Settings.h"
-#include "Setting.h"
 #include "..\DScalerRes\resource.h"
 
 class CSimpleSetting;
-
 /**
  * Generic settings page for tree based settings dialog.
  * This dialog is almost the same as CSettingsDlg but is modified to work as
@@ -75,6 +74,15 @@ public:
     CEdit   m_Edit;
     CButton m_DefaultButton;
     CHSListBox  m_ListBox;
+	CButton m_CheckGlobal;
+	CButton m_CheckGlobalBox;
+	CButton m_CheckSourceBox;
+	CButton m_CheckVideoInputBox;
+	CButton m_CheckAudioInputBox;
+	CButton m_CheckVideoFormatBox;
+	CButton m_CheckChannelBox;
+	CStatic	m_SavePerInfoBox;
+	CStatic m_TopGroupBox;
     //}}AFX_DATA
 
     // ClassWizard generated virtual function overrides
@@ -91,11 +99,17 @@ protected:
     virtual BOOL OnInitDialog();
     afx_msg void OnSelchangeList();
     afx_msg void OnChangeEdit();
-    afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+    afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
     afx_msg void OnSettingsDefault();
     afx_msg void OnCheckClick();
     afx_msg void OnSelchangeChoosefromlist();
     afx_msg void OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnCheckGlobalClick();
+	afx_msg void OnCheckSourceClick();
+	afx_msg void OnCheckVideoInputClick();
+	afx_msg void OnCheckAudioInputClick();
+	afx_msg void OnCheckVideoFormatClick();
+	afx_msg void OnCheckChannelClick();
 	//}}AFX_MSG
     DECLARE_MESSAGE_MAP()
 	void OnOK();
@@ -103,6 +117,7 @@ private:
     void UpdateControls();
     long m_SettingsCount;
     vector<SETTING*> m_Settings;
+	vector<SETTINGEXPLUS*> m_SettingsExPlus;
     vector<CSimpleSetting*> m_CSettings;
     long m_CurrentSetting;
 };

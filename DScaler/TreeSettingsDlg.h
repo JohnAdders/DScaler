@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.4 2002-07-27 13:48:53 laurentg Exp $
+// $Id: TreeSettingsDlg.h,v 1.5 2002-09-28 13:34:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/07/27 13:48:53  laurentg
+// Distinguish menu entries for filter settings, video modes settings and advanced settings
+//
 // Revision 1.3  2002/07/11 17:41:37  tobbej
 // dont allow focus to change if Show() failed
 //
@@ -43,12 +46,14 @@
 //
 
 #include <vector>
+#include "Setting.h"
 #include "TreeSettingsPage.h"
 #include "..\DScalerRes\resource.h"
 
 #define FILTER_SETTINGS_MASK        0x01
 #define DEINTERLACE_SETTINGS_MASK   0x02
 #define ADVANCED_SETTINGS_MASK      0x04
+#define ALL_SETTINGS_MASK			0x08
 
 /**
  * Tree based settings dialog.
@@ -77,6 +82,8 @@ public:
 	 */
 	void SetStartPage(int iStartPage) {m_iStartPage=iStartPage;};
     static void ShowTreeSettingsDlg(int iSettingsMask);
+
+	static void AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsGeneric*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList);
 
 // Dialog Data
 	//{{AFX_DATA(CTreeSettingsDlg)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.3 2002-09-26 10:03:52 kooiman Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.4 2002-09-28 13:34:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/26 10:03:52  kooiman
+// Small adaptation for setting interface.
+//
 // Revision 1.2  2002/09/02 19:06:10  kooiman
 // It is now possible to modify CSimpleSetting style settings from the TreeSettingDialog
 //
@@ -75,6 +78,7 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> 
   for (int i = 0; i < m_SettingsCount; i++)
   {
       m_Settings.push_back(csettings[i]->GetSETTING());
+	  m_SettingsExPlus.push_back(csettings[i]->GetSETTINGEXPLUS());
       //SETTING *pSetting = new SETTING;
       //csettings[i]->MakeSETTING(pSetting);
       //m_Settings.push_back(pSetting);
@@ -97,6 +101,14 @@ void CTreeSettingsGeneric::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_EDIT, m_Edit);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_DEFAULT, m_DefaultButton);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_LIST, m_ListBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, m_CheckGlobalBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, m_CheckSourceBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, m_CheckVideoInputBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, m_CheckAudioInputBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, m_CheckVideoFormatBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, m_CheckChannelBox);	
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SETTINGINFO, m_SavePerInfoBox);		
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_TOPBOX, m_TopGroupBox);	
     //}}AFX_DATA_MAP
 }
 
@@ -104,11 +116,17 @@ BEGIN_MESSAGE_MAP(CTreeSettingsGeneric, CTreeSettingsPage)
     //{{AFX_MSG_MAP(CTreeSettingsGeneric)
     ON_LBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_LIST, OnSelchangeList)
     ON_EN_CHANGE(IDC_TREESETTINGS_GENERIC_EDIT, OnChangeEdit)
-    ON_WM_VSCROLL()
+    ON_WM_HSCROLL()
     ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_DEFAULT, OnSettingsDefault)
     ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_CHECK, OnCheckClick)
     ON_CBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
     ON_NOTIFY(UDN_DELTAPOS, IDC_TREESETTINGS_GENERIC_SPIN, OnDeltaposSettingsSpin)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, OnCheckGlobalClick)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE, OnCheckSourceClick)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, OnCheckVideoInputClick)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, OnCheckAudioInputClick)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, OnCheckVideoFormatClick)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, OnCheckChannelClick)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -191,6 +209,53 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_Combo.ShowWindow(SW_HIDE);
     }
 
+	BOOL bShowBoxes = FALSE;
+	if ((m_CurrentSetting<m_SettingsExPlus.size()) && (m_SettingsExPlus[m_CurrentSetting]!=NULL))
+	{
+		if (m_SettingsExPlus[m_CurrentSetting]->SettingFlags != 0)
+		{
+			bShowBoxes = TRUE;
+		}
+	}
+
+	char *szName = m_Settings[idx]->szDisplayName;
+	if (szName == NULL) { szName = m_Settings[idx]->szIniEntry; }
+	if (szName == NULL) { szName = ""; }
+
+	if (bShowBoxes)
+	{
+		m_SavePerInfoBox.ShowWindow(SW_HIDE);
+		m_CheckGlobalBox.ShowWindow(SW_SHOW);
+		m_CheckSourceBox.ShowWindow(SW_SHOW);
+		m_CheckVideoInputBox.ShowWindow(SW_SHOW);
+		m_CheckAudioInputBox.ShowWindow(SW_SHOW);
+		m_CheckVideoFormatBox.ShowWindow(SW_SHOW);
+		m_CheckChannelBox.ShowWindow(SW_SHOW);		
+
+		char szBuffer[200];
+		if (szName[0] != 0)
+		{
+			sprintf(szBuffer,"Load and save \"%s\" per",szName);
+		} else {
+			szBuffer[0] = 0;
+		}
+		m_TopGroupBox.SetWindowText(szBuffer);		
+	}
+	else
+	{
+		m_CheckGlobalBox.ShowWindow(SW_HIDE);
+		m_CheckSourceBox.ShowWindow(SW_HIDE);
+		m_CheckVideoInputBox.ShowWindow(SW_HIDE);
+		m_CheckAudioInputBox.ShowWindow(SW_HIDE);
+		m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
+		m_CheckChannelBox.ShowWindow(SW_HIDE);
+		
+		m_TopGroupBox.SetWindowText("");
+		m_SavePerInfoBox.SetWindowText(szName);
+		m_SavePerInfoBox.ShowWindow(SW_SHOW);
+	}
+
+
     UpdateControls();
 }
 
@@ -263,6 +328,30 @@ void CTreeSettingsGeneric::UpdateControls()
             }
         }
     }
+	
+	if ((m_CurrentSetting<m_SettingsExPlus.size()) && (m_SettingsExPlus[m_CurrentSetting]!=NULL))
+	{	
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		if (Flags != 0)
+		{			
+			m_CheckGlobalBox.SetCheck(((Flags & SETTINGFLAG_GLOBAL)!=0));
+			m_CheckSourceBox.SetCheck(((Flags & SETTINGFLAG_PER_SOURCE)!=0));
+			m_CheckVideoInputBox.SetCheck(((Flags & SETTINGFLAG_PER_VIDEOINPUT)!=0));
+			m_CheckAudioInputBox.SetCheck(((Flags & SETTINGFLAG_PER_AUDIOINPUT)!=0));
+			m_CheckVideoFormatBox.SetCheck(((Flags & SETTINGFLAG_PER_VIDEOFORMAT)!=0));
+			m_CheckChannelBox.SetCheck(((Flags & SETTINGFLAG_PER_CHANNEL)!=0));			        
+
+			//Till it works:
+			Flags&=~SETTINGFLAG_ALLOW_MASK;
+
+			m_CheckGlobalBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_GLOBAL)!=0));
+			m_CheckSourceBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_SOURCE)!=0));
+			m_CheckVideoInputBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_VIDEOINPUT)!=0));
+			m_CheckAudioInputBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_AUDIOINPUT)!=0));
+			m_CheckVideoFormatBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_VIDEOFORMAT)!=0));
+			m_CheckChannelBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_CHANNEL)!=0));
+		}	
+	}
     bInUpdate = false;
 }
 
@@ -285,7 +374,7 @@ void CTreeSettingsGeneric::OnChangeEdit()
     UpdateControls();
 }
 
-void CTreeSettingsGeneric::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
     long Value = Setting_GetValue(m_Settings[m_CurrentSetting]);
     //slider has changed
@@ -327,6 +416,67 @@ void CTreeSettingsGeneric::OnCheckClick()
     }
     
     UpdateControls();
+}
+
+void CTreeSettingsGeneric::OnCheckGlobalClick()
+{
+	if (m_SettingsExPlus[m_CurrentSetting] != NULL)
+	{
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		m_SettingsExPlus[m_CurrentSetting]->SettingFlags = (Flags & ~SETTINGFLAG_GLOBAL) | ((Flags&SETTINGFLAG_GLOBAL)?0:SETTINGFLAG_GLOBAL);
+	}
+	UpdateControls();
+}
+
+void CTreeSettingsGeneric::OnCheckSourceClick()
+{
+	if (m_SettingsExPlus[m_CurrentSetting] != NULL)
+	{
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		m_SettingsExPlus[m_CurrentSetting]->SettingFlags = (Flags & ~SETTINGFLAG_PER_SOURCE) | ((Flags&SETTINGFLAG_PER_SOURCE)?0:SETTINGFLAG_PER_SOURCE);
+	}
+	UpdateControls();
+}
+
+void CTreeSettingsGeneric::OnCheckVideoInputClick()
+{
+	if (m_SettingsExPlus[m_CurrentSetting] != NULL)
+	{
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		m_SettingsExPlus[m_CurrentSetting]->SettingFlags = (Flags & ~SETTINGFLAG_PER_VIDEOINPUT) | ((Flags&SETTINGFLAG_PER_VIDEOINPUT)?0:SETTINGFLAG_PER_VIDEOINPUT);
+	}
+	UpdateControls();
+}
+
+void CTreeSettingsGeneric::OnCheckAudioInputClick()
+{
+	if (m_SettingsExPlus[m_CurrentSetting] != NULL)
+	{
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		m_SettingsExPlus[m_CurrentSetting]->SettingFlags = (Flags & ~SETTINGFLAG_PER_AUDIOINPUT) | ((Flags&SETTINGFLAG_PER_AUDIOINPUT)?0:SETTINGFLAG_PER_AUDIOINPUT);
+	}
+	UpdateControls();
+}
+
+
+void CTreeSettingsGeneric::OnCheckVideoFormatClick()
+{
+	if (m_SettingsExPlus[m_CurrentSetting] != NULL)
+	{
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		m_SettingsExPlus[m_CurrentSetting]->SettingFlags = (Flags & ~SETTINGFLAG_PER_VIDEOFORMAT) | ((Flags&SETTINGFLAG_PER_VIDEOFORMAT)?0:SETTINGFLAG_PER_VIDEOFORMAT);
+	}
+	UpdateControls();
+}
+
+void CTreeSettingsGeneric::OnCheckChannelClick()
+{
+	if (m_SettingsExPlus[m_CurrentSetting] != NULL)
+	{
+		long Flags = m_SettingsExPlus[m_CurrentSetting]->SettingFlags;
+		m_SettingsExPlus[m_CurrentSetting]->SettingFlags = (Flags & ~SETTINGFLAG_PER_CHANNEL) | ((Flags&SETTINGFLAG_PER_CHANNEL)?0:SETTINGFLAG_PER_CHANNEL);
+	}
+	UpdateControls();
 }
 
 void CTreeSettingsGeneric::OnSelchangeChoosefromlist()

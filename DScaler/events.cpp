@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.3 2002-09-27 14:11:35 kooiman Exp $
+// $Id: events.cpp,v 1.4 2002-09-28 13:34:07 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/27 14:11:35  kooiman
+// Added audio standard detect event & implemented event scheduler.
+//
 // Revision 1.2  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -146,12 +149,12 @@ void CEventCollector::Unregister(CEventObject *pObject)
     m_EventObjects = NewList;
 }
 
-void CEventCollector::RaiseEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CEventCollector::RaiseEvent(void *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {    
-	ScheduleEvent(Event, OldValue, NewValue, ComingUp);
+	ScheduleEvent((CEventObject*)pEventObject, Event, OldValue, NewValue, ComingUp);
 }
 
-void CEventCollector::RaiseScheduledEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	for (int i = 0; i < m_EventObjects.size(); i++)
     {
@@ -168,11 +171,11 @@ void CEventCollector::RaiseScheduledEvent(eEventType Event, long OldValue, long 
                 {
                     if (m_EventObjects[i].pEventObject != NULL)
                     {
-                        m_EventObjects[i].pEventObject->OnEvent(Event, OldValue, NewValue, ComingUp);
+                        m_EventObjects[i].pEventObject->OnEvent(pEventObject, Event, OldValue, NewValue, ComingUp);
                     } 
                     else if (m_EventObjects[i].pfnEventCallback != NULL) 
                     {
-                        m_EventObjects[i].pfnEventCallback(m_EventObjects[i].pThis, Event, OldValue, NewValue, ComingUp);
+                        m_EventObjects[i].pfnEventCallback(m_EventObjects[i].pThis, pEventObject, Event, OldValue, NewValue, ComingUp);
                     }
                     break;
                 }
@@ -192,13 +195,18 @@ void CEventCollector::RaiseScheduledEvent(eEventType Event, long OldValue, long 
 	{
 		m_LastNewValues.push_back(0);
 	}
+	while (Event>=m_LastEventObjects.size())
+	{
+		m_LastEventObjects.push_back(0);
+	}
 	m_RaisedEvent[Event]++;
 	m_LastOldValues[Event] = OldValue;
 	m_LastNewValues[Event] = NewValue;
+	m_LastEventObjects[Event] = pEventObject;
 }
 
 
-int CEventCollector::LastEventValues(eEventType Event, long *OldValue, long *NewValue)
+int CEventCollector::LastEventValues(eEventType Event, CEventObject **pEventObject, long *OldValue, long *NewValue)
 {
 	if (Event>= m_RaisedEvent.size())
 	{
@@ -206,10 +214,18 @@ int CEventCollector::LastEventValues(eEventType Event, long *OldValue, long *New
 	}
 	if (m_RaisedEvent[Event]>0)
 	{
-		*OldValue = m_LastOldValues[Event];
-		*NewValue = m_LastNewValues[Event];
+		if (pEventObject!=NULL) { *pEventObject = m_LastEventObjects[Event]; }
+		if (OldValue!=NULL) { *OldValue = m_LastOldValues[Event]; }
+		if (NewValue!=NULL) { *NewValue = m_LastNewValues[Event]; }
 	}
 	return m_RaisedEvent[Event];
+}
+
+int CEventCollector::LastEventValues(CEventObject *pEventObject, eEventType Event, long *OldValue, long *NewValue)
+{
+	///\todo return last event value of object pEventObject
+
+	return LastEventValues(Event, NULL, OldValue, NewValue);
 }
 
 int CEventCollector::NumEventsWaiting()
@@ -222,7 +238,7 @@ int CEventCollector::NumEventsWaiting()
 }
 
 
-void CEventCollector::ScheduleEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	if (Event == EVENT_NONE)
 	{
@@ -230,6 +246,7 @@ void CEventCollector::ScheduleEvent(eEventType Event, long OldValue, long NewVal
 	}
 	EnterCriticalSection(&m_EventCriticalSection);
 	TEventInfo ei;
+	ei.pEventObject = pEventObject;
 	ei.Event = Event;
 	ei.OldValue = OldValue;
 	ei.NewValue = NewValue;
@@ -275,7 +292,8 @@ void CEventCollector::EventTimer()
 	
 		if (ei.Event != EVENT_NONE)
 		{
-			RaiseScheduledEvent(ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);	
+			LOG(2,"Event: %d (%d,%d)",ei.Event,ei.OldValue,ei.NewValue);
+			RaiseScheduledEvent(ei.pEventObject, ei.Event, ei.OldValue, ei.NewValue, ei.ComingUp);	
 			if (ei.ComingUp != NULL) { delete[] ei.ComingUp; }
 			ei.Event = EVENT_NONE;
 		}

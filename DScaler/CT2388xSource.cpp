@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.7 2002-09-26 11:33:42 kooiman Exp $
+// $Id: CT2388xSource.cpp,v 1.8 2002-09-28 13:33:04 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.6  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -117,9 +120,13 @@ CCT2388xSource::~CCT2388xSource()
     delete m_pCard;
 }
 
-void CCT2388xSource::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CCT2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (Event == EVENT_CHANNEL_CHANGE)
+    if (pEventObject != this)
+	{
+		return;
+	}
+	if (Event == EVENT_CHANNEL_CHANGE)
     {
     }
 }

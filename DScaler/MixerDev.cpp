@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.29 2002-09-26 16:35:20 kooiman Exp $
+// $Id: MixerDev.cpp,v 1.30 2002-09-28 13:31:41 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/09/26 16:35:20  kooiman
+// Volume event support.
+//
 // Revision 1.28  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -870,7 +873,7 @@ void Mixer_Volume_Up()
            NewVol = 100;
         }
 		CurLine->SetVolume(NewVol);
-		EventCollector->RaiseEvent(EVENT_MIXERVOLUME,Vol,NewVol);
+		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,Vol,NewVol);
     }
 }
 
@@ -900,7 +903,7 @@ void Mixer_Volume_Down()
            NewVol = 0;
         }
 		CurLine->SetVolume(NewVol);
-		EventCollector->RaiseEvent(EVENT_MIXERVOLUME,Vol,NewVol);
+		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,Vol,NewVol);
     }
 }
 
@@ -945,7 +948,7 @@ void Mixer_SetVolume(long Volume)
     {
         long OldVol = CurLine->GetVolume();
 		CurLine->SetVolume(Volume);		
-		EventCollector->RaiseEvent(EVENT_MIXERVOLUME,OldVol,Volume);
+		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,OldVol,Volume);
     }
     else
     {
@@ -995,6 +998,8 @@ void Mixer_OnInputChange(int NewVideoInputNr)
         if( (NewInputIndex != -1) && (DestLine->GetSourceLine(NewInputIndex) != NULL) )
         {
            DestLine->GetSourceLine(NewInputIndex)->SetMute(FALSE);
+		   
+		   EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,-1,DestLine->GetSourceLine(NewInputIndex)->GetVolume());
         }
     }
 }
@@ -1052,12 +1057,18 @@ void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
     }
 }
 
-void Mixer_EventOnChangeNotification(void *pThis, eEventType EventType, long OldValue, long NewValue, eEventType *ComingUp)
+void Mixer_EventOnChangeNotification(void *pThis, CEventObject *pEventObject, eEventType EventType, long OldValue, long NewValue, eEventType *ComingUp)
 {
     if (EventType == EVENT_SOURCE_PRECHANGE) { Mixer_OnSourceChange(pThis, 1, (CSource*)OldValue); }
     else if (EventType == EVENT_SOURCE_CHANGE) { Mixer_OnSourceChange(pThis, 0, (CSource*)NewValue); }
-    else if (EventType == EVENT_VIDEOINPUT_PRECHANGE) { Mixer_OnInputChangeNotification(pThis, 1, VIDEOINPUT, OldValue, NewValue); }
-    else if (EventType == EVENT_VIDEOINPUT_CHANGE) { Mixer_OnInputChangeNotification(pThis, 0, VIDEOINPUT, OldValue, NewValue); }    
+    else 
+	{
+		if (pEventObject == Providers_GetCurrentSource())
+		{
+			if (EventType == EVENT_VIDEOINPUT_PRECHANGE) { Mixer_OnInputChangeNotification(pThis, 1, VIDEOINPUT, OldValue, NewValue); }
+			else if (EventType == EVENT_VIDEOINPUT_CHANGE) { Mixer_OnInputChangeNotification(pThis, 0, VIDEOINPUT, OldValue, NewValue); }    
+		}
+	}
 }
 
 

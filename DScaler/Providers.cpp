@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.46 2002-09-26 11:33:42 kooiman Exp $
+// $Id: Providers.cpp,v 1.47 2002-09-28 13:31:41 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.45  2002/09/17 21:38:48  laurentg
 // By default, use the first BT8x8/CX2388x/SAA7134 source as initial source
 //
@@ -704,6 +707,6 @@ void Providers_NotifySourceChange(int Flags, CSource *pSource)
 {
     if (EventCollector != NULL)
     {
-        EventCollector->RaiseEvent((Flags&1)?EVENT_SOURCE_PRECHANGE : EVENT_SOURCE_CHANGE, (long)pSource, 0, NULL);
+        EventCollector->RaiseEvent(NULL, (Flags&1)?EVENT_SOURCE_PRECHANGE : EVENT_SOURCE_CHANGE, (long)pSource, 0, NULL);
     }
 }

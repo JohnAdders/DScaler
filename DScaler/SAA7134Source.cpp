@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.36 2002-10-30 03:28:21 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.37 2002-10-30 04:35:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/10/30 03:28:21  atnak
+// Added helpid to SAA713x Advanced tree settings page
+//
 // Revision 1.35  2002/10/29 03:07:18  atnak
 // Added SAA713x TreeSettings Page
 //
@@ -197,6 +200,9 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     {
         m_pSAA7134Card->SetACPIStatus(0);
     }
+
+    // Take over the card (not literally)
+    m_pSAA7134Card->PrepareCard();
 
     SettingsPerChannel_RegisterOnSetup(this, SAA7134_OnSetup);
 
@@ -653,7 +659,6 @@ void CSAA7134Source::HandleTimerMessages(int TimerId)
 {
     UpdateAudioStatus();
 }
-
 
 
 void CSAA7134Source::Reset()

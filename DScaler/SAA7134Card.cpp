@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.22 2002-10-28 11:10:15 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.23 2002-10-30 04:35:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/28 11:10:15  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.21  2002/10/26 06:58:33  atnak
 // Fixed the odd field only problem when there is no signal
 //
@@ -175,6 +178,32 @@ BYTE CSAA7134Card::TaskID2TaskMask(eTaskID TaskID)
 }
 
 
+void CSAA7134Card::PrepareCard()
+{
+    // Disable all interrupts
+    WriteDword(SAA7134_IRQ1, 0UL);
+    WriteDword(SAA7134_IRQ2, 0UL);
+
+    // Disable all DMA
+    MaskDataDword(SAA7134_MAIN_CTRL, 0UL,
+        SAA7134_MAIN_CTRL_TE6 |
+        SAA7134_MAIN_CTRL_TE5 |
+        SAA7134_MAIN_CTRL_TE4 |
+        SAA7134_MAIN_CTRL_TE3 |
+        SAA7134_MAIN_CTRL_TE2 |
+        SAA7134_MAIN_CTRL_TE1 |
+        SAA7134_MAIN_CTRL_TE0);
+
+    // Disable all regions
+    WriteByte(SAA7134_REGION_ENABLE, 0x00);
+}
+
+
+void CSAA7134Card::RestoreCard()
+{
+}
+
+
 void CSAA7134Card::ResetHardware()
 {
     WriteByte(SAA7134_REGION_ENABLE, 0x00);
@@ -214,10 +243,6 @@ void CSAA7134Card::ResetHardware()
             SAA7134_MAIN_CTRL_ESFE  |
             SAA7134_MAIN_CTRL_EBADC |
             SAA7134_MAIN_CTRL_EBDAC);
-
-    // Disable all interrupts
-    WriteDword(SAA7134_IRQ1, 0UL);
-    WriteDword(SAA7134_IRQ2, 0UL);
 
     WriteByte(SAA7134_SPECIAL_MODE, 0x00);
 

@@ -911,8 +911,8 @@ BEGIN
     END
     POPUP "Deinter&lace"
     BEGIN
-        MENUITEM "&Deinterlace Modes Settings...", 
-                                                IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM "&Video Modes Settings...",    IDM_SETTINGS_DEINTERLACESETTINGS
+
         MENUITEM SEPARATOR
         MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
                                                 IDM_AUTODETECT
@@ -938,7 +938,7 @@ BEGIN
     END
     POPUP "&Filters"
     BEGIN
-        MENUITEM "&Filters Settings...",        IDM_SETTINGS_CHANGESETTINGS
+        MENUITEM "&Filters Settings...",        IDM_SETTINGS_FILTERSETTINGS
         MENUITEM SEPARATOR
     END
     POPUP "S&ettings"

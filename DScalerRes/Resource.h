@@ -931,10 +931,10 @@
 #define IDC_TREESETTINGS_LINE           2389
 #define IDC_HELPBTN                     2390
 #define IDM_SETTINGS_FILTERSETTINGS     32771
-#define IDM_SETTINGS_CHANGESETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
 #define IDM_SHOW_INFOS                  32774
+#define IDM_SETTINGS_CHANGESETTINGS     32775
 #define IDM_VT_SEARCH                   32776
 #define IDM_VT_SEARCHNEXT               32777
 #define IDM_SLEEPMODE                   32778
@@ -948,6 +948,7 @@
 #define IDM_VERTICAL_FLIP               32788
 #define IDM_USEINPUTPIN1                32789
 #define IDM_TAKECYCLICSTILL             32790
+#define IDM_SETTINGS_DEINTERLACESETTINGS 32792
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -969,7 +970,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        203
-#define _APS_NEXT_COMMAND_VALUE         32792
+#define _APS_NEXT_COMMAND_VALUE         32793
 #define _APS_NEXT_CONTROL_VALUE         8000
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.12 2002-07-20 13:07:36 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.13 2002-07-27 13:48:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/07/20 13:07:36  laurentg
+// New setting for vertical mirror
+//
 // Revision 1.11  2002/07/20 12:09:39  laurentg
 // Card calibration settings added in the tree settings
 //
@@ -384,14 +387,25 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 	
 }
 
-void CTreeSettingsDlg::ShowTreeSettingsDlg()
+void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 {
 	//the following is just a quick test of the new treebased settings dialog
 	//it shoud probably be cleand up and moved somwere else
 
+    int mask = iSettingsMask;
+
+    if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK)) )
+    {
+        mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK;
+    }
+
 	vector<CTreeSettingsGeneric*> pages;
 	CTreeSettingsDlg dlg(CString("DScaler settings"));
-	
+
+    int Root;
+    long Num;
+    long i;
+
 	CTreeSettingsPage RootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
 	
 	//the default help id is HID_BASE_RESOURCE+dialog template id
@@ -399,118 +413,126 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	//so set a new help id to use insted.
 	//since the IDH_FILTERS already contains HID_BASE_RESOURCE, subtract that
 	RootPage.SetHelpID(IDH_FILTERS);
-	int Root = dlg.AddPage(&RootPage);
-	
-	FILTER_METHOD** FilterMethods;
-	long Num;
-	GetFilterSettings(FilterMethods, Num);
-	for(long i = 0; i < Num; i++)
-	{
-		CTreeSettingsGeneric *pPage = new CTreeSettingsGeneric(
-                                                                FilterMethods[i]->szName,
-                                                                FilterMethods[i]->pSettings,
-                                                                FilterMethods[i]->nSettings
-                                                              );
-		pPage->SetHelpID(FilterMethods[i]->HelpID);
-		
-		pages.push_back(pPage);
-		dlg.AddPage(pPage, Root);
-	}
+	Root = dlg.AddPage(&RootPage);
+
+    if (mask & FILTER_SETTINGS_MASK)
+    {    
+	    FILTER_METHOD** FilterMethods;
+	    GetFilterSettings(FilterMethods, Num);
+	    for(i = 0; i < Num; i++)
+	    {
+		    CTreeSettingsGeneric *pPage = new CTreeSettingsGeneric(
+                                                                    FilterMethods[i]->szName,
+                                                                    FilterMethods[i]->pSettings,
+                                                                    FilterMethods[i]->nSettings
+                                                                  );
+		    pPage->SetHelpID(FilterMethods[i]->HelpID);
+		    
+		    pages.push_back(pPage);
+		    dlg.AddPage(pPage, Root);
+	    }
+    }
 
     CTreeSettingsPage DeintRootPage(CString("Video Methods"), IDD_TREESETTINGS_EMPTY);
 	
 	DeintRootPage.SetHelpID(IDH_DEINTERLACE);
 	Root = dlg.AddPage(&DeintRootPage);
 
-    DEINTERLACE_METHOD** DeintMethods;
-	GetDeinterlaceSettings(DeintMethods, Num);
-	for(i = 0; i < Num; i++)
-	{
-		CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(
-                                                                DeintMethods[i]->szName,
-                                                                DeintMethods[i]->pSettings,
-                                                                DeintMethods[i]->nSettings
-                                                              );
-		pPage->SetHelpID(DeintMethods[i]->HelpID);
-		
-		pages.push_back(pPage);
-		dlg.AddPage(pPage, Root);
-	}
+    if (mask & DEINTERLACE_SETTINGS_MASK)
+    {
+        DEINTERLACE_METHOD** DeintMethods;
+	    GetDeinterlaceSettings(DeintMethods, Num);
+	    for(i = 0; i < Num; i++)
+	    {
+		    CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(
+                                                                    DeintMethods[i]->szName,
+                                                                    DeintMethods[i]->pSettings,
+                                                                    DeintMethods[i]->nSettings
+                                                                  );
+		    pPage->SetHelpID(DeintMethods[i]->HelpID);
+		    
+		    pages.push_back(pPage);
+		    dlg.AddPage(pPage, Root);
+	    }
+    }
 
     CTreeSettingsPage AdvRootPage(CString("Advanced Settings"), IDD_TREESETTINGS_EMPTY);
 	AdvRootPage.SetHelpID(IDH_ADVANCED);
 	Root = dlg.AddPage(&AdvRootPage);
 
-    CTreeSettingsGeneric* pPage = FD50_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_22_PULLDOWN);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+    if (mask & ADVANCED_SETTINGS_MASK)
+    {
+        CTreeSettingsGeneric* pPage = FD50_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_22_PULLDOWN);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = FD60_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_32_PULLDOWN);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = FD60_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_32_PULLDOWN);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = FD_Common_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_PULLDOWN_SHARED);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = FD_Common_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_PULLDOWN_SHARED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = Aspect_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_ASPECT);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = Aspect_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_ASPECT);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = Timing_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_TIMING);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = Timing_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_TIMING);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = OutThreads_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_ADVANCED);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = OutThreads_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = AntiPlop_GetTreeSettingsPage();
-    // \todo AntiPlop Help
-	pPage->SetHelpID(IDH_ADVANCED);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = AntiPlop_GetTreeSettingsPage();
+        // \todo AntiPlop Help
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = OSD_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_ADVANCED);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = OSD_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = DScaler_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_ADVANCED);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = DScaler_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = Still_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_STILL);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = Still_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_STILL);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = Calibr_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_CALIBRATION);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = Calibr_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_CALIBRATION);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = Other_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_OVERLAY);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = Other_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_OVERLAY);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = Debug_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_LOGGING);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = Debug_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_LOGGING);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
 
-    pPage = DScaler_GetTreeSettingsPage2();
-	pPage->SetHelpID(IDH_ADVANCED);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
+        pPage = DScaler_GetTreeSettingsPage2();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+    }
 
     dlg.DoModal();
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.27 2004-03-28 19:34:11 to_see Exp $
+// $Id: CX2388xCard.h,v 1.28 2004-05-21 18:35:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -159,6 +159,8 @@ public:
     BOOL IsVideoPresent();
     DWORD GetRISCPos();
     void ResetHardware();
+    /// Turn on the card and set state to off
+    void ResetChip();
 
     eCX2388xCardId AutoDetectCardType();
 
@@ -212,7 +214,6 @@ public:
     void SetAudioVolume(WORD nVolume);
     void SetAudioBalance(WORD nBalance);
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
-	void SetEnableStartStopConexxantDriver(BOOL bEnable);
 	void AudioSoftReset();
 	DWORD GetAudioStatusRegister();
 	void SetAutoA2StereoToMono();
@@ -224,8 +225,6 @@ protected:
     void ManageMyState();
     /// Card does support ACPI
     BOOL SupportsACPI() {return TRUE;};
-    /// Turn on the card and set state to off
-    void ResetChip();
 
 private:
     ULONG GetTickCount();
@@ -280,7 +279,6 @@ private:
     void AudioInitFM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     void AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-	BOOL StartStopConexxantDriver(DWORD NewState);
 
 private:
     eCX2388xCardId m_CardType;
@@ -296,8 +294,6 @@ private:
     int             m_CurrentInput;
     DWORD           m_FilterDefault;
     DWORD           m_2HCombDefault;
-    BOOL			m_EnableConexxantDriver2Stopp;
-    BOOL			m_ConexxantDriverStopped;
 	eCX2388xAudioStandard	m_CurrentAudioStandard;
 	eCX2388xStereoType		m_CurrentStereoType;
 

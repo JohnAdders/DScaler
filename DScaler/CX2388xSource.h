@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.34 2004-04-06 12:20:48 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.35 2004-05-21 18:35:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -141,6 +141,7 @@ private:
 	void UpdateAudioStatus();
 	eSoundChannel AutoDetectA2Sound();
 	eSoundChannel AutoDetectNicamSound();
+	BOOL StartStopConexantDriver(DWORD NewState);
 
 private:
     CCX2388xCard*  m_pCard;
@@ -177,6 +178,7 @@ private:
 
 	long		 m_AutoDetectA2StereoCounter;
 	long		 m_AutoDetectA2BilingualCounter;
+	BOOL		 m_bDriverStoped;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);
@@ -221,7 +223,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Balance);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexxantStartStopDriver);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexantStopDriver);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, AutoMute);
 
 protected:

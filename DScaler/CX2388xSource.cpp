@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.65 2004-04-21 20:20:19 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.66 2004-05-21 18:35:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2004/04/21 20:20:19  to_see
+// Bugfix for Nicam
+//
 // Revision 1.64  2004/03/07 12:20:12  to_see
 // added 2 Cards
 // working Nicam-Sound
@@ -349,6 +352,8 @@
 #include "SettingsPerChannel.h"
 #include "Providers.h"
 #include "SoundChannel.h"
+#include <setupapi.h>	// for Start/Stopping driver
+#include <devguid.h>	// for Start/Stopping driver, define GUID_DEVCLASS_MEDIA
 
 extern long EnableCancelButton;
 
@@ -409,7 +414,8 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     m_hCX2388xResourceInst(NULL),
 	m_InitialSetup(FALSE),
 	m_AutoDetectA2StereoCounter(0),
-	m_AutoDetectA2BilingualCounter(0)
+	m_AutoDetectA2BilingualCounter(0),
+	m_bDriverStoped(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -443,6 +449,11 @@ CCX2388xSource::~CCX2388xSource()
 	StopUpdateAudioStatus();
 	EventCollector->Unregister(this);
     delete m_pCard;
+
+	if(m_bDriverStoped == TRUE)
+	{
+		StartStopConexantDriver(DICS_ENABLE);
+	}
 }
 
 void CCX2388xSource::SetSourceAsCurrent()
@@ -678,8 +689,8 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
-    m_ConexxantStartStopDriver = new CConexxantStartStopDriverSetting(this, "Stop Conexxant driver while DScaler is running", TRUE, IniSection, pAudioGroup);
-    m_Settings.push_back(m_ConexxantStartStopDriver);
+    m_ConexantStopDriver = new CConexantStopDriverSetting(this, "Stop Conexant driver while DScaler is running", TRUE, IniSection, pAudioGroup);
+    m_Settings.push_back(m_ConexantStopDriver);
 
     m_AutoMute = new CAutoMuteSetting(this, "Automute if no Tunersignal", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AutoMute);
@@ -721,7 +732,6 @@ void CCX2388xSource::Start()
 
 void CCX2388xSource::Reset()
 {
-	m_pCard->SetEnableStartStopConexxantDriver(m_ConexxantStartStopDriver->GetValue());
     m_pCard->ResetHardware();
     m_pCard->SetVideoSource(m_VideoSource->GetValue());
 
@@ -1727,6 +1737,15 @@ BOOL CCX2388xSource::IsInTunerMode()
 
 void CCX2388xSource::SetupCard()
 {
+	if((m_ConexantStopDriver->GetValue() == TRUE) && (m_bDriverStoped == FALSE))
+	{
+		m_bDriverStoped = StartStopConexantDriver(DICS_DISABLE);
+		if(m_bDriverStoped == TRUE)
+		{
+			m_pCard->ResetChip();
+		}
+	}
+
     long OrigTuner = m_TunerType->GetValue();
     long OrigCard = m_CardType->GetValue();
 
@@ -2127,9 +2146,8 @@ ITuner* CCX2388xSource::GetTuner()
     return m_pCard->GetTuner();
 }
 
-void CCX2388xSource::ConexxantStartStopDriverOnChange(long NewValue,long OldValue)
+void CCX2388xSource::ConexantStopDriverOnChange(long NewValue,long OldValue)
 {
-    m_pCard->SetEnableStartStopConexxantDriver(NewValue);
 }
 
 void CCX2388xSource::AutoMuteOnChange(long NewValue,long OldValue)
@@ -2138,4 +2156,144 @@ void CCX2388xSource::AutoMuteOnChange(long NewValue,long OldValue)
 	{
 		Audio_Unmute();
 	}
+}
+
+///////////////////////////////////////////////////////////////////////
+// In   NewState = DICS_DISABLE - disable  the device
+//      NewState = DICS_ENABLE  - enable   the device
+//
+// Out  TRUE:   driver is found & stopped
+//      FALSE:	an error occured
+//
+// this code based on DDK, see scr/setup/enable & scr/setup/devcon
+//
+// anti-greetings to conexant WDM-developers:
+// why you make our life so hard?
+///////////////////////////////////////////////////////////////////////
+BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
+{
+	// all CX2388x-Cards have
+	// VendorID = 0x14F1
+	// DeviceID = 0x8800 (first sub-device)
+	// we are only searching for this.
+	const char szCX2388X_HW_ID[] = "PCI\\VEN_14F1&DEV_8800";
+	
+	// scan only Media-Classes
+	HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
+	if (hDevInfo == INVALID_HANDLE_VALUE)
+    {
+        return FALSE;
+    }
+	
+	SP_DEVINFO_DATA DeviceInfoData = {sizeof(SP_DEVINFO_DATA)};
+	DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+
+	BOOL bFound = FALSE;
+	for(int i=0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
+	{
+		DWORD	DataT		= NULL;
+		LPTSTR	buffer		= NULL;
+		DWORD	buffersize	= NULL;
+        
+		// see DDK src/setup/enable
+		while (!SetupDiGetDeviceRegistryProperty(hDevInfo, &DeviceInfoData,	SPDRP_HARDWAREID,
+												&DataT,	(PBYTE)buffer, buffersize, &buffersize))
+        {
+			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				if (buffer)
+				{
+					LocalFree(buffer);
+				}
+
+				buffer = (LPTSTR)LocalAlloc(LPTR, buffersize);
+			}
+
+			else
+			{
+				return FALSE;;
+			}
+		}
+
+		if(strncmp(buffer, szCX2388X_HW_ID, strlen(szCX2388X_HW_ID)) == 0)
+		{
+			bFound = TRUE;
+		}
+		
+		if(buffer)
+		{
+			LocalFree(buffer);
+		}
+
+		if(bFound == TRUE)
+		{
+			break;
+		}
+	}
+
+	BOOL bSucces = FALSE;
+
+	if(bFound == TRUE)
+	{
+        LOG(1,"CX2388x WDM-Driver found.");
+		
+		// see DDK src/setup/devcon
+		SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
+		PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+		PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
+		PropChangeParams.Scope = DICS_FLAG_GLOBAL;
+		PropChangeParams.StateChange = NewState; 
+		PropChangeParams.HwProfile = 0;
+    
+		if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
+			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
+		{
+			LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_GLOBAL.",
+				NewState == DICS_DISABLE ? "Stop" : "Start");
+		}
+
+		else
+		{
+			PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+			PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
+			PropChangeParams.Scope = DICS_FLAG_CONFIGSPECIFIC;
+			PropChangeParams.StateChange = NewState; 
+			PropChangeParams.HwProfile = 0;
+
+			if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
+				(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
+				|| !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
+			{
+				LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC. No Admin Rights?",
+					NewState == DICS_DISABLE ? "Stop" : "Start");
+			}
+
+			else
+			{
+				bSucces = TRUE;
+
+				SP_DEVINSTALL_PARAMS DevInstallParam ={sizeof(SP_DEVINSTALL_PARAMS)};
+				if(SetupDiGetDeviceInstallParams(hDevInfo,&DeviceInfoData,&DevInstallParam)
+					&& (DevInstallParam.Flags & (DI_NEEDRESTART|DI_NEEDREBOOT)))
+				{
+					LOG(0,"Unable to %s CX2388x WDM-Driver. Other Software uses this card.",
+						NewState == DICS_DISABLE ? "Stop" : "Start");
+				}
+				
+				else
+				{
+					LOG(1,"CX2388x WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
+				}
+			}
+		}
+	}
+
+	else
+	{
+        LOG(1,"CX2388x WDM-Driver not found.");
+	}
+
+	SetupDiDestroyDeviceInfoList(hDevInfo);
+	
+	return bSucces;
 }

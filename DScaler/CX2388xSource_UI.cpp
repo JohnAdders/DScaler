@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.43 2004-03-07 12:20:12 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.44 2004-05-21 18:35:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2004/03/07 12:20:12  to_see
+// added 2 Cards
+// working Nicam-Sound
+// Submenus in CX-Card for Soundsettings
+// Click in "Autodetect" in "Setup card CX2388x" is now working
+// added "Automute if no Tunersignal" in CX2388x Advanced
+//
 // Revision 1.42  2004/02/29 19:41:45  to_see
 // new Submenu's in CX Card for Audio Channel and Audio Standard
 // new AutoMute entry
@@ -789,7 +796,7 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
     vSettingsList.push_back(m_HDelay);
     vSettingsList.push_back(m_VDelay);
     vSettingsList.push_back(m_AnalogueBlanking);
-    vSettingsList.push_back(m_ConexxantStartStopDriver);
+    vSettingsList.push_back(m_ConexantStopDriver);
     if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
     {
         vSettingsList.push_back(m_EatLinesAtTop);

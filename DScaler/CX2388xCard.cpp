@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.60 2004-05-16 19:45:08 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.61 2004-05-21 18:35:58 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2004/05/16 19:45:08  to_see
+// Added an new class for Msi Master Card
+//
 // Revision 1.59  2004/04/19 20:38:38  adcockj
 // Fix for previous fix (must learn to program...)
 //
@@ -302,9 +305,6 @@
 #include "GenericTuner.h"
 #include "TDA9887.h"
 #include "DScaler.h"
-#include <setupapi.h>	// for Start/Stopping driver
-#include <devguid.h>	// for Start/Stopping driver, define GUID_DEVCLASS_MEDIA
-
 
 CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
@@ -313,8 +313,6 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     m_SAA7118(NULL),
     m_RISCIsRunning(FALSE),
     m_CurrentInput(0),
-	m_EnableConexxantDriver2Stopp(TRUE),
-	m_ConexxantDriverStopped(FALSE),
 	m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
 	m_CurrentStereoType(STEREOTYPE_AUTO)
 {
@@ -335,11 +333,6 @@ CCX2388xCard::~CCX2388xCard()
     delete m_SAA7118;
 
     ClosePCICard();
-
-	if(m_ConexxantDriverStopped == TRUE)
-	{
-		StartStopConexxantDriver(DICS_ENABLE);
-	}
 }
 
 void CCX2388xCard::StartCapture(BOOL bCaptureVBI)
@@ -1460,6 +1453,7 @@ void CCX2388xCard::ResetChip()
 
 void CCX2388xCard::ResetHardware()
 {
+	/*
 	if(m_EnableConexxantDriver2Stopp == TRUE)
 	{
 		m_ConexxantDriverStopped = StartStopConexxantDriver(DICS_DISABLE);
@@ -1469,6 +1463,7 @@ void CCX2388xCard::ResetHardware()
 			ResetChip();
 		}
 	}
+	*/
 
     // Clear out the SRAM Channel Management data structures
     // for all 12 devices
@@ -2385,132 +2380,3 @@ BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wPara
     return (FALSE);
 }
 
-void CCX2388xCard::SetEnableStartStopConexxantDriver(BOOL bEnable)
-{
-	m_EnableConexxantDriver2Stopp = bEnable;
-}
-
-///////////////////////////////////////////////////////////////////////
-// In   NewState = DICS_DISABLE - disable  the device
-//      NewState = DICS_ENABLE  - enable   the device
-//
-// Out  TRUE:   driver is found & stopped
-//      FALSE:	an error occured when:
-//				- Card not found on this computer
-//				- Card is used from other software		
-//				- User has no rights to disable it
-//
-// Need to add "setupapi.lib" to project setttings
-//
-// this code based on DDK, see scr/setup/enable & scr/setup/devcon
-//
-// anti-greetings to conexant WDM-developers:
-// why you make our life so hard?
-///////////////////////////////////////////////////////////////////////
-
-BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
-{
-	// all CX2388x-Cards have
-	// VendorID = 0x14F1
-	// DeviceID = 0x8800 (first sub-device)
-	// we are only searching for this...
-	const char szCX2388X_HW_ID[] = "PCI\\VEN_14F1&DEV_8800";
-	
-	// scan only Media-Classes
-	HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
-	if (hDevInfo == INVALID_HANDLE_VALUE)
-    {
-        return FALSE;
-    }
-	
-	SP_DEVINFO_DATA DeviceInfoData = {sizeof(SP_DEVINFO_DATA)};
-	DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-
-	BOOL bFound = FALSE;
-	for(int i=0; SetupDiEnumDeviceInfo(hDevInfo, i, &DeviceInfoData); i++)
-	{
-		DWORD	DataT		= NULL;
-		LPTSTR	buffer		= NULL;
-		DWORD	buffersize	= NULL;
-        
-		// see DDK src/setup/enable
-		while (!SetupDiGetDeviceRegistryProperty(hDevInfo, &DeviceInfoData,	SPDRP_HARDWAREID,
-												&DataT,	(PBYTE)buffer, buffersize, &buffersize))
-        {
-			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-			{
-				if (buffer)
-				{
-					LocalFree(buffer);
-				}
-
-				buffer = (LPTSTR)LocalAlloc(LPTR, buffersize);
-			}
-
-			else
-			{
-				return FALSE;;
-			}
-		}
-
-		if(strncmp(buffer, szCX2388X_HW_ID, strlen(szCX2388X_HW_ID)) == 0)
-		{
-			bFound = TRUE;
-		}
-		
-		if(buffer)
-		{
-			LocalFree(buffer);
-		}
-
-		if(bFound == TRUE)
-		{
-			break;
-		}
-	}
-
-	if(bFound == TRUE)
-	{
-        LOG(1,"CX2388x WDM-Driver found.");
-		
-		// see DDK src/setup/devcon
-		SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
-		PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
-		PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
-		PropChangeParams.Scope = DICS_FLAG_GLOBAL;
-		PropChangeParams.StateChange = NewState; 
-		PropChangeParams.HwProfile = 0;
-    
-		if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
-			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
-		{
-			LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_GLOBAL.", NewState == DICS_DISABLE ? "Stop" : "Start");
-			return FALSE;
-		}
-
-		PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
-		PropChangeParams.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
-		PropChangeParams.Scope = DICS_FLAG_CONFIGSPECIFIC;
-		PropChangeParams.StateChange = NewState; 
-		PropChangeParams.HwProfile = 0;
-
-		if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
-			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
-			|| !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
-		{
-			LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
-			return FALSE;
-		}
-		
-		LOG(1,"CX2388x WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
-	}
-
-	else
-	{
-        LOG(1,"CX2388x WDM-Driver not found.");
-	}
-
-	SetupDiDestroyDeviceInfoList(hDevInfo);
-	
-	return bFound;
-}

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.251 2002-10-22 01:54:04 atnak Exp $
+// $Id: DScaler.cpp,v 1.252 2002-10-22 18:51:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.251  2002/10/22 01:54:04  atnak
+// fixed the places where I didn't call ReleaseDC after GetDC
+//
 // Revision 1.250  2002/10/21 07:29:52  adcockj
 // Moved new scroll wheel option to end of list of settings
 //
@@ -1289,6 +1292,7 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
     __try
     {
+        LOG(3, "Got Windows Message %d Params %d %d", message, wParam, lParam);
         return MainWndProc(hWnd, message, wParam, lParam);
     }
     // if there is any exception thrown then exit the process

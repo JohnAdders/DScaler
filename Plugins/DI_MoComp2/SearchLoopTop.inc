@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SearchLoopTop.inc,v 1.1 2003-01-02 13:15:01 adcockj Exp $
+// $Id: SearchLoopTop.inc,v 1.2 2003-02-11 15:41:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:01  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 /////////////////////////////////////////////////////////////////////////////
 
 BYTE*	pDest;
@@ -107,20 +110,3 @@ LoopQ:
 		}
 
 #include "StrangeBob.inc"
-
-		// For non-SSE2:
-		// through out most of the rest of this loop we will maintain
-		//	mm4		our min bob value
-		//	mm5		best weave pixels so far
-		//  mm6		our max Bob value 
-		//	mm7		best weighted pixel ratings so far
-
-		// We will keep a slight bias to using the weave pixels
-		// from the current location, by rating them by the min distance
-		// from the Bob value instead of the avg distance from that value.
-		// our best and only rating so far
-		
-		__asm
-		{
-		pcmpeqb	mm7, mm7			// ffff, say we didn't find anything good yet
-		}

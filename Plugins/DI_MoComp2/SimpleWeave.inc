@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SearchLoop0A.inc,v 1.1 2003-01-02 13:15:01 adcockj Exp $
+// $Id: SimpleWeave.inc,v 1.1 2003-02-11 15:41:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,23 +25,33 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:01  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 /////////////////////////////////////////////////////////////////////////////
 
-// Searches just the center pixel, in both the old
-//  and new fields, but takes averages. This is an even
-// pixel address. Any chroma match will be used. (YUY2)
-// We best like finding 0 motion so we will bias everything we found previously
-// up by a little, and adjust later
+/////////////////////////////////////////////////////////////////////////////
+// Just gets the values for a simple weave
+/////////////////////////////////////////////////////////////////////////////
 
-		__asm
-		{
+__asm
+{
+    // at the start of this function
+    // mm0 = 0
+    // mm6 = Bob pixels          
 
-#ifdef IS_SSE2
-		paddusb xmm7, ONES				// bias toward no motion
-#else
-		paddusb mm7, ONES				// bias toward no motion
-#endif
+    movq mm1, qword ptr[edi+ecx]
+    movq mm2, qword ptr[esi+ecx]
+    movq mm3, mm1			/* another copy of our pixel1 value */ 
+    movq mm4, mm2			/* another copy of our pixel1 value */ 
 
-        MERGE4PIXavg(edi+ecx, esi+ecx)  // center, in old and new
+    PABS(mm3, mm4, mm5)
 
-		}
+    V_PAVGB (mm1, mm2, mm4, ShiftMask) /* avg of 2 pixels */ 
+
+    // these must be the values as we exit
+    // mm0 = 0
+    // mm1 = weave pixels
+    // mm3 = "movement" in the centre
+    // mm6 = Bob pixels          
+}

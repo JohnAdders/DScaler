@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MoComp2All.inc,v 1.1 2003-01-02 13:15:01 adcockj Exp $
+// $Id: MoComp2All.inc,v 1.2 2003-02-11 15:40:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:01  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 //
 // Log: TomsMoCompAll.inc,v
 // Revision 1.3  2002/12/10 16:32:21  adcockj
@@ -106,62 +109,7 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 	// then go fill in the hard part, being variously lazy depending upon
 	// SearchEffort
 
-	if (SearchEffort == 0)
-	{
-		Search_Effort_0();
-	}
-
-	else if (SearchEffort <= 1)
-	{
-		Search_Effort_1();
-	}
-
-/*	else if (SearchEffort <= 2)
-	{
-		Search_Effort_2();
-	}
-*/
-	else if (SearchEffort <= 3)
-	{
-		Search_Effort_3();
-	}
-
-	else if (SearchEffort <= 5)
-	{
-		Search_Effort_5();
-	}
-
-	else if (SearchEffort <= 9)
-	{
-		Search_Effort_9();
-	}
-
-	else if (SearchEffort <= 11)
-	{
-		Search_Effort_11();
-	}
-
-	else if (SearchEffort <= 13)
-	{
-		Search_Effort_13();
-	}
-
-	else if (SearchEffort <= 15)
-	{
-		Search_Effort_15();
-	}
-	else if (SearchEffort <= 19)
-	{
-		Search_Effort_19();
-	}
-	else if (SearchEffort <= 21)
-	{
-		Search_Effort_21();
-	}
-	else 
-	{
-		Search_Effort_Max();
-	}
+	DoMoComp2_SimpleWeave();
 	__asm emms;
 
     return TRUE;

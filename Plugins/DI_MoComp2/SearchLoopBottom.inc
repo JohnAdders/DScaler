@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SearchLoopBottom.inc,v 1.1 2003-01-02 13:15:01 adcockj Exp $
+// $Id: SearchLoopBottom.inc,v 1.2 2003-02-11 15:40:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,65 +25,83 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:01  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 /////////////////////////////////////////////////////////////////////////////
 
-        __asm
-        {
+__asm
+{
+    // these should be the values held as we go in
+    // mm0 = 0
+    // mm1 = weave pixels
+    // mm3 = "movement" in the centre
+    // mm6 = Bob pixels          
+    // Save1 = Real Weave 
 
-// JA 9/Dec/2002
-// failed experiment
-// but leave in placeholder for me to play about
-#ifdef DONT_USE_STRANGE_BOB
-        // Use the best weave if diffs less than 10 as that
-        // means the image is still or moving cleanly
-        // if there is motion we will clip which will catch anything
-        psubusb mm7, FOURS          // sets bits to zero if weave diff < 4
-        pxor    mm0, mm0
-        pcmpeqb mm7, mm0            // all ff where weave better, else 00
-        pcmpeqb mm0, mm7            // all ff where bob better, else 00
-        pand    mm0, mm6            // use bob for these pixel values
-        pand    mm7, mm5            // use weave for these
-        por     mm0, mm7            // combine both
-#else
-        // Use the better of bob or weave
-//      pminub  mm4, TENS           // the most we care about
-        V_PMINUB (mm4, TENS, mm0)   // the most we care about
+    movq	mm2, qword ptr[ebx]
+    movq	mm4, qword ptr[eax]
 
-        psubusb mm7, mm4            // foregive that much from weave est?
-        psubusb mm7, FOURS          // bias it a bit toward weave
-        pxor    mm0, mm0
-        pcmpeqb mm7, mm0            // all ff where weave better, else 00
-        pcmpeqb mm0, mm7            // all ff where bob better, else 00
-        pand    mm0, mm6            // use bob for these pixel values
-        pand    mm7, mm5            // use weave for these
-        por     mm0, mm7            // combine both
-#endif
+    PABS(mm2, mm4, mm5)
 
+    movq	mm4, qword ptr[ebx + ecx]
+    movq	mm7, qword ptr[eax + ecx]
 
-//      pminub  mm0, Max_Vals       // but clip to catch the stray error
-        V_PMINUB (mm0, Max_Vals, mm1) // but clip to catch the stray error
-//      pmaxub  mm0, Min_Vals
-        V_PMAXUB (mm0, Min_Vals)
-
-
-
-        mov     eax, pDest
-
-
-//      movntq  qword ptr[eax+edx], mm0
-        V_MOVNTQ (qword ptr[eax+edx], mm0)
-
-        lea     edx, [edx+8]        // bump offset pointer
-        cmp     edx, Last8          // done with line?
-        jb      LoopQ               // y
-        
-        }   
-
-        // adjust for next line
-        pSrc  += src_pitch2;
-        pSrcP += src_pitch2;
-        pDest += dst_pitch2;
-        pBob += src_pitch2;
-    }
+    PABS(mm4, mm7, mm5)
     
-    return 0;
+    // mm0 = 0
+    // mm1 = weave pixels
+    // mm2 = "movement" in the top
+    // mm3 = "movement" in the centre
+    // mm4 = "movement" in the top
+    // mm6 = Bob pixels          
+
+    psubusb mm2, MOVE           // non-zero where mm2 > TENS i.e. Movement
+    movq    mm7, mm2
+    pand    mm7, UVMask
+    pand    mm2, YMask
+    pcmpeqw mm2, mm0            // FFFF where the luma has no movement
+    pcmpeqd mm7, mm0            // FFFFFFFF where the Chroma has no movement
+    pand    mm2, mm7            // FF where there is no luma or chroma movement
+    pcmpeqb mm2, mm0            // all ff where movement by byte
+
+    psubusb mm3, MOVE           // non-zero where mm3 > TENS i.e. Movement
+    movq    mm7, mm3
+    pand    mm7, UVMask
+    pand    mm3, YMask
+    pcmpeqw mm3, mm0            // FFFF where the luma has no movement 
+    pcmpeqd mm7, mm0            // FFFFFFFF where the Chroma has no movement
+    pand    mm3, mm7            // FF where there is no luma or chroma movement
+    pcmpeqb mm3, mm0            // all ff where movement by byte
+
+    psubusb mm4, MOVE           // non-zero where mm4 > TENS i.e. Movement
+    movq    mm7, mm4
+    pand    mm7, UVMask
+    pand    mm4, YMask
+    pcmpeqw mm4, mm0            // FFFF where the luma has no movement
+    pcmpeqd mm7, mm0            // FFFFFFFF where the Chroma has no movement
+    pand    mm4, mm7            // FF where there is no luma or chroma movement
+    pcmpeqb mm4, mm0            // all ff where movement by byte
+
+    pand  mm2, mm4              // top and bottom moving
+    por  mm3, mm2               // where we should bob
+
+
+    COMBINE(mm6, mm1, mm3)
+
+    mov     eax, pDest
+
+    V_MOVNTQ (qword ptr[eax+edx], mm6)
+
+    lea     edx, [edx+8]        // bump offset pointer
+    cmp     edx, Last8          // done with line?
+    jb      LoopQ               // y
+    
+    }   
+
+    // adjust for next line
+    pSrc  += src_pitch2;
+    pSrcP += src_pitch2;
+    pDest += dst_pitch2;
+    pBob += src_pitch2;
+}

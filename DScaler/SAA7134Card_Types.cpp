@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.7 2002-10-16 11:40:09 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.8 2002-10-16 22:10:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/16 11:40:09  atnak
+// Added KWORLD KW-TV713XRF card.  Thanks "b"
+//
 // Revision 1.6  2002/10/06 11:09:48  atnak
 // SoundChannel function from TCardType
 //
@@ -300,7 +303,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 7 - KNC One TV-Station RDS  (needs tda9887)
+    // Card Number 7 - KNC One TV-Station RDS
     {
         "KNC One TV-Station RDS",
         4,
@@ -330,7 +333,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
-        TUNER_USER_SETUP, //TUNER_PHILIPS_FM1216ME_MK3,
+        TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
@@ -406,7 +409,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
-        TUNER_USER_SETUP, //TUNER_PHILIPS_FM1216ME_MK3,
+        TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_24576Hz,
         NULL,
         MEDION5044CardInputSelect,
@@ -448,14 +451,6 @@ int CSAA7134Card::GetMaxCards()
 {
     return sizeof(m_TVCards)/sizeof(TCardType);
 }
-
-
-/*
-TUNER_PHILIPS_FM1216ME_MK3
-    { "Philips PAL/SECAM multi (FM1216ME MK3)", Philips, PAL,
-      16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
-*/
-
 
 
 eTunerId CSAA7134Card::AutoDetectTuner(eTVCardId CardId)

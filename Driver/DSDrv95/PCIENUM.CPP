@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.7 2001-11-02 16:36:54 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.8 2002-03-24 21:25:14 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/02 16:36:54  adcockj
+// Merge code from Multiple cards into main trunk
+//
 // Revision 1.4  2001/08/08 16:37:50  adcockj
 // Made drivers stateless to support multiple cards
 // Added version check
@@ -51,7 +54,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "ioclass.h"
-#include <debugout.h>
+#include "debugout.h"
 #include <stdio.h>
 #include <string.h>
 

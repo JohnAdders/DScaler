@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.11 2002-01-27 23:54:32 robmuller Exp $
+// $Id: MSP34x0.h,v 1.12 2002-02-01 04:43:56 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/01/27 23:54:32  robmuller
+// Removed the Auto Standard Detect of the rev G chips. + some reorganization of code.
+//
 // Revision 1.10  2002/01/23 22:57:28  robmuller
 // Revision D/G improvements. The code is following the documentation much closer now.
 //
@@ -262,8 +265,6 @@ private:
 class CMSP34x0Decoder : public CMSP34x0, public CAudioDecoder
 {
 public:
-	LPCSTR GetAudioName();
-	void HandleTimerMessages(int TimerId);
     CMSP34x0Decoder();
 	virtual ~CMSP34x0Decoder();
     // from CAudioDecoder the default Getters are used
@@ -381,13 +382,6 @@ private:
         MSP34x0_SCARTINPUT_LASTONE
     };
 
-    enum eTimerAction
-    {
-        TimerAction_None = 0,
-        TimerAction_CheckAutoStandardDetect,
-        TimerAction_NoStandardDetected
-    };
-
     enum eMSPVersion
     {
         MSPVersionA,
@@ -401,9 +395,7 @@ private:
     void ReconfigureRevA();
 
 private:
-	void RevD_SetStandard(WORD Standard);
 	WORD GetSoundStandard();
-	eTimerAction TimerAction;
 	void Initialize();
 	BOOL m_IsInitialized;
     eMSPVersion m_MSPVersion;

@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.4 2002-01-23 22:52:01 robmuller Exp $
+// $Id: AudioDecoder.cpp,v 1.5 2002-02-01 04:43:55 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/01/23 22:52:01  robmuller
+// Added member function GetAudioName()
+//
 // Revision 1.3  2002/01/23 12:20:32  robmuller
 // Added member function HandleTimerMessages(int TimerId).
 //
@@ -85,14 +88,4 @@ eAudioInput CAudioDecoder::GetAudioInput()
 void CAudioDecoder::SetAudioInput(eAudioInput audioInput)
 {
     m_AudioInput = audioInput;
-}
-
-void CAudioDecoder::HandleTimerMessages(int TimerId)
-{
-
-}
-
-LPCSTR CAudioDecoder::GetAudioName()
-{
-    return "Unknown";
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.9 2002-01-23 22:57:29 robmuller Exp $
+// $Id: BT848Source_Audio.cpp,v 1.10 2002-02-01 04:43:55 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/01/23 22:57:29  robmuller
+// Revision D/G improvements. The code is following the documentation much closer now.
+//
 // Revision 1.8  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -109,30 +112,5 @@ void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
-    m_pBT848Card->HandleTimerMessages(TimerId);
-
-    if(TimerId == TIMER_MSP)
-    {
-        if (StatusBar_IsVisible() == TRUE)
-        {
-            char szText[128];
-            m_pBT848Card->GetMSPPrintMode(szText);
-            StatusBar_ShowText(STATUS_AUDIO, szText);
-        }
-    }
-
-    /*if(TimerId == TIMER_MSP && m_AutoStereoSelect->GetValue() == TRUE && m_pBT848Card->HasMSP())
-    {
-        eSoundChannel newChannel = m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue());
-        if (newChannel != m_AudioChannel->GetValue())
-        {
-            m_AudioChannel->SetValue(newChannel);
-            if (StatusBar_IsVisible() == TRUE)
-            {
-                char szText[128];
-                m_pBT848Card->GetMSPPrintMode(szText);
-                StatusBar_ShowText(STATUS_AUDIO, szText);
-            }
-        }
-    }*/
+    /// \todo FIXME autodetec stero here
 }

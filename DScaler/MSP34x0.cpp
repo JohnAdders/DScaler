@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.14 2002-01-27 23:54:32 robmuller Exp $
+// $Id: MSP34x0.cpp,v 1.15 2002-02-01 04:43:55 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/01/27 23:54:32  robmuller
+// Removed the Auto Standard Detect of the rev G chips. + some reorganization of code.
+//
 // Revision 1.13  2002/01/23 22:57:28  robmuller
 // Revision D/G improvements. The code is following the documentation much closer now.
 //
@@ -504,12 +507,10 @@ void CMSP34x0Decoder::SetSCARTxbar(eScartOutput output, eScartInput input)
 CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
 {
     m_IsInitialized = false;
-    TimerAction = TimerAction_None;
 }
 
 CMSP34x0Decoder::~CMSP34x0Decoder()
 {
-    KillTimer(hWnd, TIMER_MSP_INTERNAL);
 }
 
 void CMSP34x0Decoder::Initialize()
@@ -580,19 +581,6 @@ Revision A:
     Everything is set up manually.
 */
 
-void CMSP34x0Decoder::HandleTimerMessages(int TimerId)
-{
-    //not used at the moment
-/*    if(TimerId == TIMER_MSP_INTERNAL)
-    {
-        switch(TimerAction)
-        {
-        default:
-            break;
-        }
-    }*/
-}
-
 void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
 {
     CAudioDecoder::SetVideoFormat(videoFormat);
@@ -607,92 +595,15 @@ void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
         Initialize();
     }
 
-    WORD standard = GetSoundStandard();
-
-    switch(m_MSPVersion)
+    if (m_MSPVersion == MSPVersionG)
     {
-    case MSPVersionA:
-    case MSPVersionD:
+        WORD standard = GetSoundStandard();
+        SetDEMRegister(DEM_WR_STANDARD_SELECT, standard);
+    }
+    else
+    {
         ReconfigureRevA();
-        break;
-    case MSPVersionG:
-        RevD_SetStandard(standard);
-        break;
-    default:
-        break;
     }
-}
-
-void CMSP34x0Decoder::RevD_SetStandard(WORD Standard)
-{
-    WORD StandardCode;
-    switch(Standard)
-    {
-        case MSP34x0_STANDARD_M_DUAL_FM:
-            StandardCode = 2;
-            break;
-        case MSP34x0_STANDARD_BG_DUAL_FM:
-            StandardCode = 3;
-            break;
-        case MSP34x0_STANDARD_DK1_DUAL_FM:
-            StandardCode = 4;
-            break;
-        case MSP34x0_STANDARD_DK2_DUAL_FM:
-            StandardCode = 5;
-            break;
-        case MSP34x0_STANDARD_DK_FM_MONO:
-            StandardCode = 6;
-            break;
-//      this one is not in my datasheet
-//        case MSP34x0_STANDARD_DK3_DUAL_FM:
-//            break;
-        case MSP34x0_STANDARD_BG_NICAM_FM:
-            StandardCode = 8;
-            break;
-        case MSP34x0_STANDARD_L_NICAM_AM:
-            StandardCode = 9;
-            break;
-        case MSP34x0_STANDARD_I_NICAM_FM:
-            StandardCode = 0xA;
-            break;
-        case MSP34x0_STANDARD_DK_NICAM_FM:
-            StandardCode = 0xB;
-            break;
-        case MSP34x0_STANDARD_DK_NICAM_FM_HDEV2:
-            StandardCode = 0xC;
-            break;
-//      this one is not in my datasheet
-//        case MSP34x0_STANDARD_DK_NICAM_FM_HDEV3:
-//            break;
-        case MSP34x0_STANDARD_M_BTSC:
-            StandardCode = 0x20;
-            break;
-        case MSP34x0_STANDARD_M_BTSC_MONO:
-            StandardCode = 0x21;
-            break;
-        case MSP34x0_STANDARD_M_EIA_J:
-            StandardCode = 0x30;
-            break;
-        case MSP34x0_STANDARD_FM_RADIO:
-            StandardCode = 0x40;
-            break;
-        case MSP34x0_STANDARD_SAT_MONO:
-            StandardCode = 0x50;
-            break;
-        case MSP34x0_STANDARD_SAT:
-            StandardCode = 0x51;
-            break;
-        case MSP34x0_STANDARD_SAT_ADR:
-            StandardCode = 0x60;
-            break;
-        case MSP34x0_STANDARD_NONE:
-        case MSP34x0_STANDARD_AUTO:
-        default:
-            StandardCode = 1;// autodetect
-            break;
-    }
-    SetDEMRegister(DEM_WR_STANDARD_SELECT, StandardCode);
-    // todo: Many standards do not work with revD chips so an error message should be shown.
 }
 
 void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
@@ -818,6 +729,7 @@ void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
     // Just some inputs are selected. DScaler does not yet support this correctly
 }
 
+/*
 LPCSTR CMSP34x0Decoder::GetAudioName()
 {
     if(m_MSPVersion != MSPVersionG)
@@ -866,6 +778,7 @@ LPCSTR CMSP34x0Decoder::GetAudioName()
     }
     return "Mono";
 }
+*/
 
 eSoundChannel CMSP34x0Decoder::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
 {

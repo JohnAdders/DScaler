@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.12 2002-01-23 22:57:29 robmuller Exp $
+// $Id: BT848Card_Audio.cpp,v 1.13 2002-02-01 04:43:55 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/01/23 22:57:29  robmuller
+// Revision D/G improvements. The code is following the documentation much closer now.
+//
 // Revision 1.11  2002/01/21 08:40:27  robmuller
 // Removed unnecessary delay in SetAudioSource().
 //
@@ -202,7 +205,7 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
         }
         eVideoFormat videoFormat = m_AudioDecoder->GetVideoFormat();
         strcat(Text, VideoFormatNames[videoFormat]);
-        /*switch (m_AudioDecoder->GetSoundChannel())
+        switch (m_AudioDecoder->GetSoundChannel())
         {
         case SOUNDCHANNEL_MONO:
             strcat(Text, " (Mono)");
@@ -211,14 +214,12 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
             strcat(Text, " (Stereo)");
             break;
         case SOUNDCHANNEL_LANGUAGE1:
-            strcat(Text, " (Channel 1)");
+            strcat(Text, " (Language 1)");
             break;
         case SOUNDCHANNEL_LANGUAGE2:
-            strcat(Text, " (Channel 2)");
+            strcat(Text, " (Language 2)");
             break;
-        }*/
-        strcat(Text, " - ");
-        strcat(Text, m_AudioDecoder->GetAudioName());
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.16 2002-01-23 12:20:32 robmuller Exp $
+// $Id: BT848Card.cpp,v 1.17 2002-02-01 04:43:55 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/01/23 12:20:32  robmuller
+// Added member function HandleTimerMessages(int TimerId).
+//
 // Revision 1.15  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -1142,9 +1145,4 @@ bool CBT848Card::GetSCL()
     bool state = ReadDword(BT848_I2C) & BT848_I2C_SCL ? true : false;
     LOG(3, state ? "BT848 GetSCL - c^" : "BT848 GetSCL - c_");
     return state;
-}
-
-void CBT848Card::HandleTimerMessages(int TimerId)
-{
-    m_AudioDecoder->HandleTimerMessages(TimerId);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.4 2002-01-23 22:52:01 robmuller Exp $
+// $Id: AudioDecoder.h,v 1.5 2002-02-01 04:43:55 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/01/23 22:52:01  robmuller
+// Added member function GetAudioName()
+//
 // Revision 1.3  2002/01/23 12:20:32  robmuller
 // Added member function HandleTimerMessages(int TimerId).
 //
@@ -56,10 +59,8 @@ enum eAudioInput
 class CAudioDecoder
 {
 public:
-	virtual LPCSTR GetAudioName();
     CAudioDecoder();
     virtual ~CAudioDecoder();
-	virtual void HandleTimerMessages(int TimerId);
     virtual void SetVideoFormat(eVideoFormat videoFormat);
     virtual eVideoFormat GetVideoFormat();
     virtual void SetSoundChannel(eSoundChannel soundChannel);

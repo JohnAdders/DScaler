@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.69 2002-08-02 20:16:43 laurentg Exp $
+// $Id: Calibration.cpp,v 1.70 2002-09-28 11:10:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2002/08/02 20:16:43  laurentg
+// Suppress call to RemoveMenu
+//
 // Revision 1.68  2002/07/20 12:09:38  laurentg
 // Card calibration settings added in the tree settings
 //
@@ -1904,14 +1907,21 @@ void CCalibration::SetMenu(HMENU hMenu)
     eTypeContentPattern type_content;
     int     SourceHeight;
     CSource* pSource = Providers_GetCurrentSource();
+	BOOL	OkBK, OkC, OkH;
 
     if (pSource != NULL)
     {
         SourceHeight = pSource->GetHeight();
+		OkBK = (pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL);
+		OkC = (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL);
+		OkH = (pSource->GetHue() != NULL);
     }
     else
     {
         SourceHeight = -1;
+		OkBK = FALSE;
+		OkC = FALSE;
+		OkH = FALSE;
     }
 
     if ((m_CurTestPat != NULL) && (m_CurTestPat->GetHeight() != SourceHeight))
@@ -1937,14 +1947,13 @@ void CCalibration::SetMenu(HMENU hMenu)
         ++it, ++i)
     {
 		name = (*it)->GetName();
-		EnableMenuItem(hMenuPatterns, i, m_IsRunning ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
 		EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != SourceHeight)) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
 		CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }
 	
     EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_START_YUV_RANGE, m_IsRunning ? MF_GRAYED : MF_ENABLED);
-    if (pSource != NULL && pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
+    if (OkBK && OkC && OkH)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
     }
@@ -1952,7 +1961,7 @@ void CCalibration::SetMenu(HMENU hMenu)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, MF_GRAYED);
     }
-    if (pSource != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
+    if (OkC && OkH)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
     }
@@ -1960,7 +1969,7 @@ void CCalibration::SetMenu(HMENU hMenu)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, MF_GRAYED);
     }
-    if (pSource != NULL && pSource->GetBrightness() != NULL && pSource->GetContrast())
+    if (OkBK)
     {
 	    EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
     }
@@ -2025,16 +2034,31 @@ void CCalibration::Start(eTypeCalibration type)
     if (m_CurTestPat == NULL)
         return;
 
-    delete m_Brightness;
-    m_Brightness = NULL;
-    delete m_Contrast;
-    m_Contrast = NULL;
-    delete m_Saturation_U;
-    m_Saturation_U = NULL;
-    delete m_Saturation_V;
-    m_Saturation_V = NULL;
-    delete m_Hue;
-    m_Hue = NULL;
+	if (m_Brightness != NULL)
+	{
+		delete m_Brightness;
+		m_Brightness = NULL;
+	}
+	if (m_Contrast != NULL)
+	{
+		delete m_Contrast;
+		m_Contrast = NULL;
+	}
+	if (m_Saturation_U != NULL)
+	{
+		delete m_Saturation_U;
+		m_Saturation_U = NULL;
+	}
+	if (m_Saturation_V != NULL)
+	{
+		delete m_Saturation_V;
+		m_Saturation_V = NULL;
+	}
+	if (m_Hue != NULL)
+	{
+		delete m_Hue;
+		m_Hue = NULL;
+	}
 
     /// \todo this is bad coding sort this out
     if (pSource->GetBrightness() != NULL)
@@ -2061,6 +2085,13 @@ void CCalibration::Start(eTypeCalibration type)
         m_Saturation_V->Update();
         m_Saturation_V->Save();
     }
+	// This case if for cards which have only one unique color setting
+	if (pSource->GetSaturationU() == NULL && pSource->GetSaturationV() == NULL && pSource->GetSaturation() != NULL)
+    {
+        m_Saturation_U = new CCalSetting(pSource->GetSaturation());
+        m_Saturation_U->Update();
+        m_Saturation_U->Save();
+    }
     if (pSource->GetHue() != NULL)
     {
         m_Hue = new CCalSetting(pSource->GetHue());
@@ -2085,24 +2116,30 @@ void CCalibration::Start(eTypeCalibration type)
     case CAL_AUTO_COLOR:
         initial_step = 12;
         nb_steps = 12;
-        if (m_Saturation_U != NULL && m_Saturation_V != NULL && m_Hue != NULL)
+        if (m_Saturation_U != NULL && m_Hue != NULL)
         {
             OkToStart = TRUE;
             m_Saturation_U->AdjustDefault();
-            m_Saturation_V->AdjustDefault();
+			if (m_Saturation_V != NULL)
+			{
+	            m_Saturation_V->AdjustDefault();
+			}
             m_Hue->AdjustDefault();
         }
         break;
     case CAL_AUTO_FULL:
         initial_step = 1;
         nb_steps = 23;
-        if (m_Brightness != NULL && m_Contrast != NULL && m_Saturation_U != NULL && m_Saturation_V != NULL && m_Hue != NULL)
+        if (m_Brightness != NULL && m_Contrast != NULL && m_Saturation_U != NULL && m_Hue != NULL)
         {
             OkToStart = TRUE;
             m_Brightness->AdjustDefault();
             m_Contrast->AdjustDefault();
             m_Saturation_U->AdjustDefault();
-            m_Saturation_V->AdjustDefault();
+			if (m_Saturation_V != NULL)
+			{
+	            m_Saturation_V->AdjustDefault();
+			}
             m_Hue->AdjustDefault();
         }
         break;
@@ -2427,6 +2464,11 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 16:
+        if (m_Saturation_V == NULL)
+        {
+            current_step += 4;
+            break;
+        }
         m_Saturation_V->SetRange(75);
         if (step_init(ADJ_SATURATION_V, m_Saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
@@ -2499,15 +2541,22 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
             m_Saturation_U->SetRange(0);
         }
         nb1 = m_Saturation_U->GetRange(mask, &min, &max);
-        if (m_Saturation_V->GetResult(mask, &min, &max) > 0)
-        {
-            m_Saturation_V->SetRange(mask);
-        }
-        else
-        {
-            m_Saturation_V->SetRange(0);
-        }
-        nb2 = m_Saturation_V->GetRange(mask, &min, &max);
+		if (m_Saturation_V != NULL)
+		{
+			if (m_Saturation_V->GetResult(mask, &min, &max) > 0)
+			{
+				m_Saturation_V->SetRange(mask);
+			}
+			else
+			{
+				m_Saturation_V->SetRange(0);
+			}
+			nb2 = m_Saturation_V->GetRange(mask, &min, &max);
+		}
+		else
+		{
+			nb2 = 1;
+		}
         if (m_Hue->GetResult(mask, &min, &max) > 0)
         {
             m_Hue->SetRange(mask);
@@ -2593,7 +2642,6 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting* _setting1, CC
             setting3->InitResult();
         }
 
-//        first_calc = TRUE;
         nb_calcul = 0;
         total_dif = 0;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.83 2003-01-19 21:02:03 laurentg Exp $
+// $Id: StillSource.cpp,v 1.84 2003-01-20 02:42:16 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2003/01/19 21:02:03  laurentg
+// New feature added to save in files in one action all the stills in memory
+//
 // Revision 1.82  2003/01/19 11:09:11  laurentg
 // New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
 //
@@ -2093,8 +2096,8 @@ BOOL CStillSource::ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int Old
 		_asm		
 		{
 			push	ecx						// have to save this?
-			mov		ecx, OldPitch
-			shr		ecx, 3					// 8 bytes a time
+			mov		ecx, OldWidth
+			shr		ecx, 2					// 8 bytes a time
 			inc     ecx						// do extra 8 bytes to pick up odd widths
 											// we have malloced enough to get away with it
 			mov		esi, srcp1				// top of 2 src lines to get
@@ -2145,8 +2148,8 @@ BOOL CStillSource::ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int Old
 			movq	mm7, YMask			// useful 0U0U..  mask constant
 			movq	mm6, FPround2			// useful rounding constant, dwords
 			mov		esi, hControl		// @ horiz control bytes			
-			mov		ecx, NewPitch
-			shr		ecx, 2				// 4 bytes a time, 2 pixels
+			mov		ecx, NewWidth
+			shr		ecx, 1				// 4 bytes a time, 2 pixels
 			mov     edx, vWorkY			// our luma data, as 0Y0Y 0Y0Y..
 			mov		edi, dstp			// the destination line
 			mov		ebx, vWorkUV		// chroma data, as UVUV UVUV...

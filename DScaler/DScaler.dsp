@@ -462,6 +462,14 @@ SOURCE=.\MSP34x0AudioControls.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MSP34xx_revA.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSP34xx_revG.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MT2032.cpp
 # End Source File
 # Begin Source File
@@ -738,6 +746,14 @@ SOURCE=.\dshowsource\BaseCrossbar.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Bitmap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BitmapAsButton.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Bt848_Defines.h
 # End Source File
 # Begin Source File
@@ -915,6 +931,10 @@ SOURCE=.\dshowsource\DSVideoFormatPage.h
 # Begin Source File
 
 SOURCE=.\ErrorBox.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\events.h
 # End Source File
 # Begin Source File
 
@@ -1146,6 +1166,18 @@ SOURCE=.\TimeShift.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ToolbarControl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Toolbars.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ToolbarWindow.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TreeSettingsDlg.h
 # End Source File
 # Begin Source File
@@ -1200,6 +1232,10 @@ SOURCE=.\VTDrawer.h
 
 SOURCE=.\VTMosaicGraphics.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\WindowBorder.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
@@ -1227,6 +1263,11 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
+# 	2:5:Class:CPicture
+# 	2:10:HeaderFile:picture.h
+# 	2:8:ImplFile:picture.cpp
+# End Section
 # Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
 # 	2:21:DefaultSinkHeaderFile:slider.h
 # 	2:16:DefaultSinkClass:CSlider
@@ -1235,9 +1276,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
 # 	2:8:ImplFile:slider.cpp
-# End Section
-# Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
-# 	2:5:Class:CPicture
-# 	2:10:HeaderFile:picture.h
-# 	2:8:ImplFile:picture.cpp
 # End Section

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: debug.cpp,v 1.3 2003-03-05 21:44:22 tobbej Exp $
+// $Id: debug.cpp,v 1.4 2003-08-10 12:12:45 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/03/05 21:44:22  tobbej
+// new debuging functions
+//
 // Revision 1.2  2001/12/16 16:31:43  adcockj
 // Bug fixes
 //
@@ -405,7 +408,10 @@ void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text)
 		
 		//bitmapinfoheader
 		ASSERT(pmbi!=NULL);
-		str << " " << pmbi->biWidth << "x" << pmbi->biHeight << " " << pmbi->biBitCount << " bits";
+		str << " " << pmbi->biWidth << "x" << pmbi->biHeight << " " << pmbi->biBitCount << " bits" << endl;
+		str << " biPlanes: " << pmbi->biPlanes << endl;
+		str << " biSizeImage: "<< pmbi->biSizeImage;
+		
 	}
 	else if(mt->formattype==FORMAT_WaveFormatEx)
 	{

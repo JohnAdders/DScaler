@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.16 2004-01-07 10:08:12 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.17 2004-01-19 14:31:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/01/07 10:08:12  adcockj
+// Added setting GPIO pins for sound support and added ATI card
+//
 // Revision 1.15  2004/01/05 13:12:24  adcockj
 // Added patch from Lavrenov Dmitrij (midimaker)
 //
@@ -496,7 +499,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
-    			0x0000ff01,
+    			0x0000ff00,
 
             },
             {
@@ -674,6 +677,52 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         SetAnalogSaturationU,
         SetAnalogSaturationV,
         StandardSetFormat,
+        TUNER_USER_SETUP,
+        IDC_CX2388X,
+    },
+    // Card info from Tom Zoerner
+    {
+        "Hauppauge WinTV 34xxx models (Mono Tuner Sound)",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+    			0x0000ff01,
+
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+    			0x0000ff02,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+    			0x0000ff02,
+            },
+            {   // card has no composite in, but comes with a Cinch to S-Video adapter
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+    			0x0000ff02,
+            },
+            // FM radio input omitted
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        // \todo add eeprom read functionality
+        // these cards seem similar to the bt848 except that
+        // the contents are shifted by 8 bytes
         TUNER_USER_SETUP,
         IDC_CX2388X,
     },

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.19 2003-04-26 23:19:15 laurentg Exp $
+// $Id: Setting.h,v 1.20 2003-04-28 13:45:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -254,6 +254,20 @@ private:
     public: \
     void Name ## OnChange(long NewValue, long OldValue);
 
+#define DEFINE_STRING_CALLBACK_SETTING(Class, Name) \
+    protected: \
+    class C ## Name ## Setting : public CStringSetting \
+    { \
+    public: \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, char* Default, LPCSTR Section, CSettingGroup* pGroup = NULL) : \
+             CStringSetting(DisplayName, (long)Default, Section, #Name, pGroup), m_Parent((Class*)Parent) {;} \
+        void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
+    private: \
+        Class* m_Parent; \
+    }; \
+    C ## Name ## Setting* m_## Name;\
+    public: \
+    void Name ## OnChange(long NewValue, long OldValue);
 
 
 #endif

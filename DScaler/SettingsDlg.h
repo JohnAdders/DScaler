@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.h,v 1.11 2001-11-29 17:30:52 adcockj Exp $
+// $Id: SettingsDlg.h,v 1.12 2001-12-03 17:57:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file SettingsDlg.h Header file for CSettingsDlg class
+ */
+
 #if !defined(AFX_SETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_)
 #define AFX_SETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_
 
@@ -33,14 +37,24 @@
 #include "DS_ApiCommon.h"
 #include "HSListBox.h"
 
-/** An MFC genaeric settings dialog
-*/
+/**
+ * An MFC generic settings dialog
+ * @see CHSListBox
+ */
 class CSettingsDlg : public CDialog
 {
 // Construction
 public:
+
+    /**
+     * Shows the settings dialog.
+     * Static memberfunction that takes care of creating a generic settings dialog and show it
+     *
+     * @param caption text at top of the window
+     * @param settings pointer to array of SETTING
+     * @param Count size of settings array
+     */
     static void ShowSettingsDlg(CString caption,SETTING* settings,long Count,CWnd* pParent=NULL);
-    friend CSettingsDlg::ShowSettingsDlg(SETTING*,long );
 
     /// standard constructor
     CSettingsDlg(CWnd* pParent = NULL);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.44 2004-11-20 14:20:09 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.45 2005-02-03 03:39:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/11/20 14:20:09  atnak
+// Changed the card list to an ini file.
+//
 // Revision 1.43  2004/04/24 11:12:01  atnak
 // fix: dma memory safety check broke when available memory was zero or close to
 //
@@ -397,6 +400,11 @@ void CSAA7134Card::ManageMyState()
 
     ManageByte(SAA7134_I2S_AUDIO_OUTPUT);
     ManageByte(SAA7134_SPECIAL_MODE);
+
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
+	{
+		ManageData(SAA7133_ANALOG_IO_SELECT);
+	}
 
     // do these ones last
     /* It is probably safer if we leave DMA

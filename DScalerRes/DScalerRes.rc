@@ -1149,11 +1149,15 @@ BEGIN
     BEGIN
         MENUITEM "Video &Input",                65535
         MENUITEM "Video &Format",               65535
-        MENUITEM "Pixel Width",                 65535, GRAYED
+        MENUITEM "Pixel &Width",                65535, GRAYED
         MENUITEM "&Audio Input",                65535
         MENUITEM SEPARATOR
-        MENUITEM "Reset card",                  IDM_RESET
-        MENUITEM "Renderer properties...",      IDM_DSHOW_RENDERERPROPERTIES
+        MENUITEM "&Play",                       IDM_DSHOW_PLAY
+        MENUITEM "Pa&use",                      IDM_DSHOW_PAUSE
+        MENUITEM "&Stop",                       IDM_DSHOW_STOP
+        MENUITEM SEPARATOR
+        MENUITEM "&Reset card",                 IDM_RESET
+        MENUITEM "R&enderer properties...",     IDM_DSHOW_RENDERERPROPERTIES
     END
 END
 

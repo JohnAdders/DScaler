@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Source.h,v 1.5 2002-09-16 17:52:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.3  2002/09/10 12:24:03  atnak
 // changed some UI stuff
 //
@@ -112,6 +115,7 @@ private:
     
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
@@ -137,6 +141,9 @@ private:
 
     int EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd);
     void DenumulateField(int Index, eRegionID& RegionID, BOOL& bIsFieldOdd);
+
+    void InitializeUI();
+    void CleanupUI();
 
 private:
     CSAA7134Card*   m_pSAA7134Card;
@@ -205,7 +212,8 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
 protected:
-    int m_InitialACPIStatus;
+    int         m_InitialACPIStatus;
+    HINSTANCE   m_hSAA7134ResourceInst;
 };
 
 

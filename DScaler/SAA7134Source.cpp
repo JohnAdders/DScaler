@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.6 2002-09-15 14:28:07 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.7 2002-09-16 17:52:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/15 14:28:07  atnak
+// Tweaked VBI and VDelay settings
+//
 // Revision 1.5  2002/09/15 14:20:38  adcockj
 // Fixed timing problems for cx2388x chips
 //
@@ -91,7 +94,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_SettingsByChannelStarted(FALSE),
     m_ChipName(ChipName),
     m_DeviceIndex(DeviceIndex),
-    m_LastFieldIndex(0)
+    m_LastFieldIndex(0),
+    m_hSAA7134ResourceInst(NULL)
 {
     m_IDString = IniSection;
     CreateSettings(IniSection);
@@ -110,6 +114,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     ChangeSectionNamesForInput();
     ChangeDefaultsForInput();
     LoadInputSettings();
+
+    InitializeUI();
 
 // Used for register guessing!
 //  m_pSAA7134Card->DumpRegisters();
@@ -156,6 +162,8 @@ CSAA7134Source::~CSAA7134Source()
     {
         m_pSAA7134Card->SetACPIStatus(m_InitialACPIStatus);
     }
+
+    CleanupUI();
 
     delete m_pSAA7134Card;
 }
@@ -286,9 +294,15 @@ void CSAA7134Source::Reset()
     m_pSAA7134Card->SetHue(m_Hue->GetValue());
     m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
 
+    // 8.. not much significance to this
+    m_pSAA7134Card->SetAudioLeftVolume(8);
+    m_pSAA7134Card->SetAudioRightVolume(8);
+    m_pSAA7134Card->SetAudioNicamVolume(8);
+
     m_pSAA7134Card->SetStandardSignal(!m_NonstandardSignal->GetValue());
 
     m_CurrentX = m_PixelWidth->GetValue();
+    /* This gets done in Start()
     m_pSAA7134Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -299,6 +313,7 @@ void CSAA7134Source::Reset()
                                 m_HDelay->GetValue()
                             );
     NotifySizeChange();
+    */
 
     // m_pSAA7134Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
     m_pSAA7134Card->SetAudioStandard((eAudioStandard)m_AudioStandard->GetValue());
@@ -827,6 +842,7 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
     }
     Stop_Capture();
     m_CurrentX = NewValue;
+    /* This gets done in start
     m_pSAA7134Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -837,12 +853,14 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
                                 m_HDelay->GetValue()
                             );
     NotifySizeChange();
+    */
     Start_Capture();
 }
 
 void CSAA7134Source::HDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
+    /* This gets done in Start()
     m_pSAA7134Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -852,12 +870,14 @@ void CSAA7134Source::HDelayOnChange(long NewValue, long OldValue)
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
+    */
     Start_Capture();
 }
 
 void CSAA7134Source::VDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
+    /* This gets done in Start()
     m_pSAA7134Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -867,6 +887,7 @@ void CSAA7134Source::VDelayOnChange(long NewValue, long OldValue)
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
+    */
     Start_Capture();
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.5 2002-09-16 17:52:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.3  2002/09/10 12:24:03  atnak
 // changed some UI stuff
 //
@@ -38,6 +41,7 @@
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
+#include "..\DScalerResDbg\SAA7134Res\resource.h"
 #include "resource.h"
 #include "SAA7134Source.h"
 #include "SAA7134_Defines.h"
@@ -46,12 +50,33 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "Slider.h"
+
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
 
 extern const char *TunerNames[TUNER_LASTONE];
 
 
 // SAA7134: This file still needs loads of work
 
+
+void CSAA7134Source::InitializeUI()
+{
+    m_hSAA7134ResourceInst = LoadLibrary("SAA7134Res.dll");
+}
+
+
+void CSAA7134Source::CleanupUI()
+{
+    if (m_hSAA7134ResourceInst != NULL)
+    {
+        FreeLibrary(m_hSAA7134ResourceInst);
+    }
+}
 
 
 BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
@@ -144,12 +169,12 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
 BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-/*    int i;
+    int i;
     char buf[128];
     static CSAA7134Source* pThis;
     static DWORD dwAddress;
-    static bDisableChanges = TRUE;
-    static bUnsafeRead = TRUE;
+    static BOOL bDisableChanges = TRUE;
+    static BOOL bUnsafeRead = TRUE;
     BYTE Data;
     WORD LastChanged = 0;
 
@@ -159,7 +184,7 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
         pThis = (CSAA7134Source*)lParam;
         sprintf(buf, "Edit Register on %s chip", pThis->GetChipName());
         SetWindowText(hDlg, buf);
-        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+        SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < 0x300; i++)
         {
             int nIndex;
@@ -245,15 +270,127 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
             {
                 LastChanged = LOWORD(wParam);
             }
-        case IDC_CARDSSELECT:
-            break;
         default:
             break;
         }
         break;
     default:
         break;
-    }*/
+    }
+    return (FALSE);
+}
+
+BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    static CSAA7134Source* pThis;
+
+    static char LeftGain = 0;
+    static char RightGain = 0;
+    static char NicamGain = 0;
+    static BOOL bLinked = TRUE;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        pThis = (CSAA7134Source*)lParam;
+
+        LeftGain = pThis->m_pSAA7134Card->GetAudioLeftVolume();
+        RightGain = pThis->m_pSAA7134Card->GetAudioRightVolume();
+        NicamGain = pThis->m_pSAA7134Card->GetAudioNicamVolume();
+
+        Slider_ClearTicks(GetDlgItem(hDlg, IDC_LEFT_SLIDER), TRUE);
+        Slider_SetRangeMax(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 15);
+        Slider_SetRangeMin(GetDlgItem(hDlg, IDC_LEFT_SLIDER), -16);
+        Slider_SetPageSize(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 1);
+        Slider_SetLineSize(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 1);
+        Slider_SetTic(GetDlgItem(hDlg, IDC_LEFT_SLIDER), 0);
+        Slider_SetPos(GetDlgItem(hDlg, IDC_LEFT_SLIDER), LeftGain);
+        SetDlgItemInt(hDlg, IDC_LEFT_EDIT, LeftGain, TRUE);
+
+        Slider_ClearTicks(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), TRUE);
+        Slider_SetRangeMax(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 15);
+        Slider_SetRangeMin(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), -16);
+        Slider_SetPageSize(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 1);
+        Slider_SetLineSize(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 1);
+        Slider_SetTic(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), 0);
+        Slider_SetPos(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), RightGain);
+        SetDlgItemInt(hDlg, IDC_RIGHT_EDIT, RightGain, TRUE);
+
+        Slider_ClearTicks(GetDlgItem(hDlg, IDC_NICAM_SLIDER), TRUE);
+        Slider_SetRangeMax(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 15);
+        Slider_SetRangeMin(GetDlgItem(hDlg, IDC_NICAM_SLIDER), -16);
+        Slider_SetPageSize(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 1);
+        Slider_SetLineSize(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 1);
+        Slider_SetTic(GetDlgItem(hDlg, IDC_NICAM_SLIDER), 0);
+        Slider_SetPos(GetDlgItem(hDlg, IDC_NICAM_SLIDER), NicamGain);
+        SetDlgItemInt(hDlg, IDC_NICAM_EDIT, NicamGain, TRUE);
+
+        CheckDlgButton(hDlg, IDC_LINKED_CHECK, bLinked);
+
+        SetFocus(hDlg);
+        break;
+
+    case WM_COMMAND:
+        switch(LOWORD(wParam))
+        {
+        case IDC_LINKED_CHECK:
+            bLinked = (BST_CHECKED == IsDlgButtonChecked(hDlg, LOWORD(wParam)));
+            break;
+
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hDlg, TRUE);
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    case WM_VSCROLL:
+    case WM_HSCROLL:
+        if((HWND)lParam == GetDlgItem(hDlg, IDC_LEFT_SLIDER))
+        {
+            LeftGain = Slider_GetPos(GetDlgItem(hDlg, IDC_LEFT_SLIDER));
+            SetDlgItemInt(hDlg, IDC_LEFT_EDIT, LeftGain, TRUE);
+            pThis->m_pSAA7134Card->SetAudioLeftVolume(LeftGain);
+
+            if (bLinked)
+            {
+                RightGain = LeftGain;
+                Slider_SetPos(GetDlgItem(hDlg, IDC_RIGHT_SLIDER), RightGain);
+                SetDlgItemInt(hDlg, IDC_RIGHT_EDIT, RightGain, TRUE);
+                pThis->m_pSAA7134Card->SetAudioRightVolume(RightGain);
+            }
+        }
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_RIGHT_SLIDER))
+        {
+            RightGain = Slider_GetPos(GetDlgItem(hDlg, IDC_RIGHT_SLIDER));
+            SetDlgItemInt(hDlg, IDC_RIGHT_EDIT, RightGain, TRUE);
+            pThis->m_pSAA7134Card->SetAudioRightVolume(RightGain);
+
+            if (bLinked)
+            {
+                LeftGain = RightGain;
+                Slider_SetPos(GetDlgItem(hDlg, IDC_LEFT_SLIDER), LeftGain);
+                SetDlgItemInt(hDlg, IDC_LEFT_EDIT, LeftGain, TRUE);
+                pThis->m_pSAA7134Card->SetAudioLeftVolume(LeftGain);
+            }
+        }
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_NICAM_SLIDER))
+        {
+            NicamGain = Slider_GetPos(GetDlgItem(hDlg, IDC_NICAM_SLIDER));
+            SetDlgItemInt(hDlg, IDC_NICAM_EDIT, NicamGain, TRUE);
+            pThis->m_pSAA7134Card->SetAudioNicamVolume(NicamGain);
+        }
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_BLUR_SLIDER))
+        {
+        }
+        break;
+
+    default:
+        break;
+    }
     return (FALSE);
 }
 
@@ -518,6 +655,28 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             
         case IDM_HWINFO:
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CSAA7134Card::ChipSettingProc, (LPARAM)m_pSAA7134Card);
+            break;
+
+        case IDM_ADV_VIDEOSETTINGS:
+            if (m_hSAA7134ResourceInst != NULL)
+            {
+                DialogBoxParam(m_hSAA7134ResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
+            }
+            else
+            {
+                ShowText(hWnd, "SAA7134Res.dll not loaded");
+            }
+            break;
+
+        case IDM_AUDIOSETTINGS:
+            if (m_hSAA7134ResourceInst != NULL)
+            {
+                DialogBoxParam(m_hSAA7134ResourceInst, "OTHEREDIT", hWnd, OtherEditProc, (LPARAM)this);
+            }
+            else
+            {
+                ShowText(hWnd, "SAA7134Res.dll not loaded");
+            }
             break;
 
         // Video format (NTSC, PAL, etc)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.16 2002-09-29 13:55:38 adcockj Exp $
+// $Id: Setting.cpp,v 1.17 2002-10-02 10:55:17 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/29 13:55:38  adcockj
+// Standards
+//
 // Revision 1.15  2002/09/28 13:34:07  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -104,6 +107,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+
 CSettingsHolder::CSettingsHolder(long SetMessage) :
     m_SetMessage(SetMessage)
 {
@@ -111,12 +115,14 @@ CSettingsHolder::CSettingsHolder(long SetMessage) :
 
 CSettingsHolder::~CSettingsHolder()
 {
-    for(vector<ISetting*>::iterator it = m_Settings.begin();
-        it != m_Settings.end();
-        ++it)
+    for (int i = 0; i < m_Settings.size(); i++)
     {
-        (*it)->WriteToIni(TRUE);
-        delete *it;
+        if (m_Settings[i] != NULL)
+        {
+            m_Settings[i]->WriteToIni(TRUE);
+            delete m_Settings[i];
+            m_Settings[i] = NULL;
+        }
     }
 }
 
@@ -248,6 +254,28 @@ void CSettingsHolder::LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum,
     }
 }
 
+void CSettingsHolder::EnableOnChange()
+{
+    for (int i = 0; i < m_Settings.size(); i++)
+    {
+        if (m_Settings[i] != NULL)
+        {
+            m_Settings[i]->EnableOnChange();
+        }
+    }
+}
+
+void CSettingsHolder::DisableOnChange()
+{
+    for (int i = 0; i < m_Settings.size(); i++)
+    {
+        if (m_Settings[i] != NULL)
+        {
+            m_Settings[i]->DisableOnChange();
+        }
+    }
+}
+
 CSettingsHolderStandAlone::CSettingsHolderStandAlone() : CSettingsHolder(0)
 {
 }
@@ -298,6 +326,7 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
     m_pSettingExPlus->pExOnChangeThis = pThis;
 	
     m_pGroup = pGroup;
+    m_EnableOnChange = TRUE;
 }
 
 CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags, long GUIinfo, ONCHANGE_STATICFUNC* pfnOnChangeFunc, void* pThis)
@@ -328,6 +357,8 @@ CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettin
 		m_pSettingExPlus->pfnExOnChange = StaticOnChangeWrapForSettingStructure;	
     }
     m_pSettingExPlus->pExOnChangeThis = pThis;
+
+    m_EnableOnChange = TRUE;
 }
 
 CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting,CSettingGroup* pGroup)
@@ -341,6 +372,7 @@ CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting,CSettingGroup* pGroup)
 	m_pSettingExPlus->SettingFlags = m_pSettingExPlus->DefaultSettingFlags;
 	m_pSettingExPlus->LastSavedSettingFlags = m_pSettingExPlus->DefaultSettingFlags;
 	m_pSettingExPlus->szLastSavedValueIniSection = NULL;    
+    m_EnableOnChange = TRUE;
 }
 
 CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting, CSettingGroupList* pList)
@@ -354,6 +386,7 @@ CSimpleSetting::CSimpleSetting(SETTINGEX* pSetting, CSettingGroupList* pList)
         m_pGroup = pList->Get(NULL,pSetting->pszGroupList);
     }
     m_pSettingExPlus = (SETTINGEXPLUS*)&pSetting->cbSize;
+    m_EnableOnChange = TRUE;
 }
 
 CSimpleSetting::~CSimpleSetting()
@@ -368,6 +401,11 @@ CSimpleSetting::~CSimpleSetting()
 
 BOOL CSimpleSetting::DoOnChange(long NewValue, long OldValue, eOnChangeType OnChangeType)
 {
+    if (!m_EnableOnChange)
+    {
+       return FALSE;
+    }
+
     long Flags = m_pSettingExPlus->SettingFlags;
     
     switch(OnChangeType)
@@ -386,6 +424,17 @@ BOOL CSimpleSetting::DoOnChange(long NewValue, long OldValue, eOnChangeType OnCh
     }
     return FALSE;
 }
+
+void CSimpleSetting::EnableOnChange()
+{
+    m_EnableOnChange = TRUE;
+}
+
+void CSimpleSetting::DisableOnChange()
+{
+    m_EnableOnChange = FALSE;
+}
+
 long CSimpleSetting::GetValue()
 {
     return *m_pSetting->pValue;    
@@ -798,10 +847,39 @@ BOOL CSimpleSetting::ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultO
 {
 	eSettingFlags FlagsSetting = SETTINGFLAG_BITMASK;
 	long Flags  = 0;	
-	BOOL Result = ReadFromIniSubSection(szSection, &Flags, bSetDefaultOnFailure, ONCHANGE_NONE, &FlagsSetting);
-	if (Result)
-	{		
-		Flags = (m_pSettingExPlus->SettingFlags&~SETTINGFLAG_FLAGSTOINI_MASK) | (Flags&SETTINGFLAG_FLAGSTOINI_MASK);
+	    
+    BOOL IsSettingInIniFile = TRUE;
+    string sEntry;
+	char* szIniEntry;
+	char szDefaultString[] = {0};
+	char szBuffer[256];
+
+    sEntry = m_pSetting->szIniSection;
+	sEntry += "_";
+	sEntry+= m_pSetting->szIniEntry;
+	szIniEntry = (char*)sEntry.c_str();
+	
+	int Len = GetPrivateProfileString(szSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+	if (Len <= 0)
+	{
+		IsSettingInIniFile = FALSE;
+        Flags = m_pSettingExPlus->DefaultSettingFlags;
+	}
+	else
+	{
+		IsSettingInIniFile = TRUE;
+
+		char* szValue = szBuffer;
+		if ((Len>=2) && (szBuffer[0]=='0') && (szBuffer[1]=='x'))
+		{
+			sscanf(szBuffer,"0x%x",&Flags);
+		}
+		else
+		{
+			Flags = atoi(szValue);
+		}
+		    
+	    Flags = (m_pSettingExPlus->SettingFlags&~SETTINGFLAG_FLAGSTOINI_MASK) | (Flags&SETTINGFLAG_FLAGSTOINI_MASK);
 		Flags |= SETTINGFLAG_FLAGIN_INI;
 		
 		eSettingFlags OldFlags = (eSettingFlags)m_pSettingExPlus->SettingFlags;
@@ -809,7 +887,7 @@ BOOL CSimpleSetting::ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultO
 		FlagsOnChange(OldFlags, (eSettingFlags)Flags);
 		m_pSettingExPlus->LastSavedSettingFlags = Flags;
 	}
-	return Result;
+	return IsSettingInIniFile;
 }
 
 void CSimpleSetting::WriteFlagsToIniSection(LPCSTR szSection, BOOL bOptimizeFileAccess)
@@ -1052,7 +1130,7 @@ BOOL CSimpleSetting::StaticOnChangeWrapForSettingStructure(void* pThis, long New
    return FALSE;
 }
 
-CSettingGroup::CSettingGroup(LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText, int Info, void* pObject)
+CSettingGroup::CSettingGroup(LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText, int Info, CSettingsHolder* pObject)
 {
     if (szGroupName == NULL) 
 	{ 
@@ -1116,23 +1194,18 @@ CSettingGroupList::~CSettingGroupList()
 
 void CSettingGroupList::DeleteGroupsRecursive(CSettingGroupList::TSubGroupInfo* pGroupList)
 {
-	if (pGroupList->vSubGroups.size() == 0)
-	{
-		if (pGroupList->pGroup != NULL) 
-		{ 
-			delete pGroupList->pGroup;
-			pGroupList->pGroup = NULL;
-			return;
-		}
-		
-	}
-	
-	TSubGroupInfo* pSubGroupInfo = NULL;
 	for (int i = 0; i < pGroupList->vSubGroups.size(); i++)
 	{
 		DeleteGroupsRecursive(&pGroupList->vSubGroups[i]);		
 	}	
 	pGroupList->vSubGroups.clear();
+
+    if (pGroupList->pGroup != NULL) 
+	{ 
+        delete pGroupList->pGroup;
+		pGroupList->pGroup = NULL;
+		return;
+	}	
 }
 
 
@@ -1143,10 +1216,9 @@ void CSettingGroupList::Clear()
 }
 
 
-CSettingGroup* CSettingGroupList::Get(void* pObject, char** pszList, char** pszDisplayNameList, char** pszTooltips)
+CSettingGroup* CSettingGroupList::Get(CSettingsHolder* pObject, char** pszList, char** pszDisplayNameList, char** pszTooltips)
 {        
-    if (pszList == NULL) { return NULL; }
-	return NULL;
+    if (pszList == NULL) { return NULL; }	
 	
 	CSettingGroup* pGroup = NULL;
 	TSubGroupInfo* pSubGroupInfo = &m_GroupList;	
@@ -1187,11 +1259,11 @@ CSettingGroup* CSettingGroupList::Get(void* pObject, char** pszList, char** pszD
 			}
 			if (!bFound) //Not found, create new
 			{
-				pGroup = new CSettingGroup(szGroupName, szDisplayName, szTooltip, (pObject!=NULL)?1:0, pObject);
+				pGroup = new CSettingGroup(szGroupName, szDisplayName, szTooltip, (pObject!=NULL)?1:0, pObject);                
 				TSubGroupInfo sgi;
 				sgi.pGroup = pGroup;				
 				pSubGroupInfo->vSubGroups.push_back(sgi);
-				pSubGroupInfo = &pSubGroupInfo->vSubGroups[k];
+				pSubGroupInfo = &pSubGroupInfo->vSubGroups[k];                
 			}
 		}	
 		i++;
@@ -1207,7 +1279,7 @@ CSettingGroup* CSettingGroupList::Get(void* pObject, char** pszList, char** pszD
 	return pGroup;
 }
 
-CSettingGroup* CSettingGroupList::GetGroup(void* pObject, LPCSTR szGroupName, LPCSTR szDisplayName, LPCSTR szTooltip)
+CSettingGroup* CSettingGroupList::GetGroup(CSettingsHolder* pObject, LPCSTR szGroupName, LPCSTR szDisplayName, LPCSTR szTooltip)
 {
 	char* pszGroupList[2];
 	char* pszDisplayName[2];
@@ -1267,8 +1339,6 @@ CSettingGroupList::TSubGroupInfo* CSettingGroupList::FindGroupRecursive(CSetting
 
 CSettingGroup* CSettingGroupList::GetSubGroup(CSettingGroup* pMainGroup, LPCSTR szSubGroup, LPCSTR szDisplayName, LPCSTR szTooltip)
 {
-	return NULL;
-
 	TSubGroupInfo* pSubGroupInfo = FindGroupRecursive(&m_GroupList, pMainGroup);
 	CSettingGroup* pGroup = NULL;
 
@@ -1351,20 +1421,14 @@ CSettingGroupList* CSettingsMaster::Groups()
 }
 
 
-void CSettingsMaster::ReadFromIni(BOOL bInit)
-{
-    int i;
-	for (i = 0; i < m_Holders.size(); i++)
-    {
-        if (m_Holders[i].pHolder != NULL)
-        {
-            //m_Holders[i].pHolder->ReadFromIni(bInit);
-        }
-    }
+void CSettingsMaster::ReadFlagsFromIni(CSettingsHolder* pHolder)
+{    
 	//Flags
-	for (i = 0; i < m_Holders.size(); i++)
+	for (int i = 0; i < m_Holders.size(); i++)
     {
-        if (m_Holders[i].pHolder != NULL)
+        if ( ((pHolder == NULL) && (m_Holders[i].pHolder != NULL)) 
+             || ((pHolder!=NULL) && (m_Holders[i].pHolder == pHolder))
+           )
         {
 			int Num = m_Holders[i].pHolder->GetNumSettings();
 		    ISetting* pSetting;
@@ -1384,12 +1448,14 @@ void CSettingsMaster::ReadFromIni(BOOL bInit)
     }
 }
 
-void CSettingsMaster::WriteToIni(BOOL bOptimizeFileAccess)
+void CSettingsMaster::WriteFlagsToIni(CSettingsHolder* pHolder, BOOL bOptimizeFileAccess)
 {
 	//Flags    
 	for (int i = 0; i < m_Holders.size(); i++)
     {
-        if (m_Holders[i].pHolder != NULL)
+        if ( ((pHolder == NULL) && (m_Holders[i].pHolder != NULL)) 
+             || ((pHolder!=NULL) && (m_Holders[i].pHolder == pHolder))
+           )
         {
 			int Num = m_Holders[i].pHolder->GetNumSettings();
 		    ISetting* pSetting;
@@ -1410,16 +1476,25 @@ void CSettingsMaster::WriteToIni(BOOL bOptimizeFileAccess)
     }
 }
 
+void CSettingsMaster::ReadFlagsFromIni()
+{
+    ReadFlagsFromIni(NULL);
+}
+
+void CSettingsMaster::WriteFlagsToIni(BOOL bOptimizeFileAccess)
+{
+    WriteFlagsToIni(NULL,bOptimizeFileAccess);
+}
 
 void CSettingsMaster::ModifyOneSetting(string sSubSection, ISetting* pSetting, int What, eOnChangeType OnChangeType)
 {
     if (What==1)
-    {                        
-		pSetting->WriteToIniSubSection(sSubSection.c_str(),TRUE);
+    {
+        pSetting->WriteToIniSubSection(sSubSection.c_str(),TRUE);
     }
     else if (What==0)
     {        
-        pSetting->ReadFromIniSubSection(sSubSection.c_str());
+        pSetting->ReadFromIniSubSection(sSubSection.c_str(),NULL,TRUE,OnChangeType);
     }
 }
 
@@ -1427,15 +1502,23 @@ void CSettingsMaster::ParseAllSettings(CEventObject* pObject, int What, eOnChang
 {
     for (int i = 0; i < m_Holders.size(); i++)
     {
-        if (m_Holders[i].bIsSource)
+        if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
 		{
-			void* p = (void*)m_Holders[i].pHolder;
-			if ((void*)m_Holders[i].pHolder != (void*)pObject) //only from its own object
+            CSource* pSource;
+            try 
+            {
+                pSource = dynamic_cast<CSource*>(m_Holders[i].pHolder);            
+            } 
+            catch (...)
+            {
+                pSource = NULL;
+            }
+			if ((pSource != NULL) && ((CEventObject*)pSource != pObject))
 			{
 				continue;
 			}
 		}
-		
+        
 		int Num = m_Holders[i].pHolder->GetNumSettings();
         CSimpleSetting* pSetting;
         eSettingFlags SettingFlags;
@@ -1506,12 +1589,18 @@ void CSettingsMaster::SaveSettings(CEventObject* pObject, eOnChangeType OnChange
 
 void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder* pHolder, BOOL bIsSource)
 {
+    if (pHolder == NULL)
+    {
+        return;
+    }
     Unregister(pHolder);
     TSettingsHolderInfo shi;    
     shi.HolderID = HolderID;
     shi.pHolder = pHolder;
 	shi.bIsSource = bIsSource;
     m_Holders.push_back(shi);
+    //Read flags:
+    ReadFlagsFromIni(pHolder);
 }
 
 void CSettingsMaster::Unregister(SETTINGHOLDERID HolderID)
@@ -1556,7 +1645,7 @@ void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldV
         { 
             SaveSettings(pObject, ONCHANGE_SOURCECHANGE);
         }
-        break;
+        break;        
     
     case EVENT_SOURCE_CHANGE:    
         if (NewValue!=0)
@@ -1576,13 +1665,13 @@ void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldV
             SaveSettings(pObject, ONCHANGE_CHANNELCHANGE); 
         }
         break;
-    
+        
     case EVENT_CHANNEL_CHANGE:
         if (NewValue>=0)
         {        
             char szBuffer[33];
             m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_CHANNELCHANGE);
+            LoadSettings(pObject, ONCHANGE_CHANNELCHANGE);  
         }
         else
         {
@@ -1595,7 +1684,7 @@ void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldV
         { 
             SaveSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE); 
         }
-        break;
+        break;        
 
     case EVENT_VIDEOINPUT_CHANGE:
         if (NewValue>=0)
@@ -1616,7 +1705,7 @@ void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldV
             SaveSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE); 
         }
         break;
-
+        
     case EVENT_AUDIOINPUT_CHANGE:
         if (NewValue>=0)
         {
@@ -1629,13 +1718,14 @@ void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldV
             m_AudioInputName = "";
         }
         break;
+        
     case EVENT_VIDEOFORMAT_PRECHANGE:
         if (m_VideoFormatName.length()>0) 
         { 
-            SaveSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE); 
+            SaveSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE);
         }
         break;
-
+        
     case EVENT_VIDEOFORMAT_CHANGE:
         if (NewValue>=0)
         {
@@ -1658,13 +1748,23 @@ CTreeSettingsGeneric* CSettingsMaster::GroupTreeSettings(CSettingGroup* pGroup)
 
 	for (int i = 0; i < m_Holders.size(); i++)
     {
-        if (m_Holders[i].bIsSource)
+        if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
 		{
-			if (m_Holders[i].pHolder != Providers_GetCurrentSource())
+            CSource* pSource;
+            try 
+            {
+                pSource = dynamic_cast<CSource*>(m_Holders[i].pHolder);            
+            } 
+            catch (...)
+            {
+                pSource = NULL;
+            }
+			if ((pSource != NULL) && (pSource != Providers_GetCurrentSource())) //((CEventObject*)pSource != pObject))
 			{
 				continue;
 			}
 		}
+		
 		int Num = m_Holders[i].pHolder->GetNumSettings();
         CSimpleSetting* pSetting;
         
@@ -1683,6 +1783,11 @@ CTreeSettingsGeneric* CSettingsMaster::GroupTreeSettings(CSettingGroup* pGroup)
 	}
 	else
 	{
-		return new CTreeSettingsGeneric(pGroup->GetName(),SettingList);
+		char* szName = (char*)pGroup->GetLongName();
+		if ((szName == NULL) || (szName[0]==0)) 
+		{ 
+			szName = (char*)pGroup->GetName(); 
+		}	
+        return new CTreeSettingsGeneric(szName,SettingList);
 	}
 }

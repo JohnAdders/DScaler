@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.15 2001-08-08 08:54:32 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.16 2001-08-08 18:24:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/08/08 08:54:32  adcockj
+// Added Delay option to film modes
+// Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
+//
 // Revision 1.14  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -725,16 +729,16 @@ BOOL SimpleFilmMode(DEINTERLACE_INFO* pInfo, PFNFLIP* pfnFlip)
 
     if(pInfo->IsOdd == TRUE)
     {
-        TestField = (pInfo->CurrentFrame + 5 - (FilmFlipDelay + 1) / 2) % 5;
+        TestField = (pInfo->CurrentFrame + 5 - FilmFlipDelay / 2) % 5;
         TestOdd = ((FilmFlipDelay % 2) == 0);
     }
     else
     {
-        TestField = (pInfo->CurrentFrame + 5 - FilmFlipDelay / 2) % 5;
+        TestField = (pInfo->CurrentFrame + 5 - (FilmFlipDelay + 1) / 2) % 5;
         TestOdd = ((FilmFlipDelay % 2) != 0);
     }
-
-    if(pfnFlip(TestField, TestOdd) == FALSE)
+    LOGD("TestField %d %d %d %d\n", pInfo->CurrentFrame, pInfo->IsOdd, TestField, TestOdd);
+    if(pfnFlip(TestField, TestOdd) == TRUE)
     {
         return WeaveDelay(pInfo, FilmFlipDelay);
     }

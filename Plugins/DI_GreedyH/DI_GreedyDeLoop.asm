@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyDeLoop.asm,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyDeLoop.asm,v 1.3 2001-08-01 00:37:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // This file contains the body of the Greedy High Motion Deinterlace loop
@@ -45,12 +49,11 @@
 // calc simple interp value in case we need it			
 		movq	mm6, mm1				// L1 - get simple single pixel interp
 		pavgb   mm6, mm3
-		pand    mm6, YMaskW             // keep only luma
 
 // DJR - Diagonal Jaggie Reduction
 // In the event that we are going to use an average (Bob) pixel we do not want a jagged
-// stair step effect.  To combat this we will see if wee are on a vertical edge. If so
-// we avg in the 2 horizontally adjacen pixels into the interp Bob mix.
+// stair step effect.  To combat this we will average in the 2 horizontally adjacent
+// pixels into the interp Bob mix.
 
 #ifdef USE_JAGGIE_REDUCTION				// always used but can turn off for test
 		movq    mm4, LastAvg			// the bob value from prev qword in row
@@ -67,9 +70,7 @@
 		psrlq   mm7, 16					// right just 3 pixels
 		por		mm5, mm7				// combine
 		pavgb	mm4, mm5				// avg of forward and prev by 1 pixel
-		pand    mm4, YMaskW             // keep only luma
 		pavgb	mm6, mm4				// avg of center with adjacent
-// >> temp try more % of edges, softening of bob pixels only
         pavgb	mm4, mm6				// 1/4 center, 3/4 adjacent
     	pavgb	mm6, mm4				// 3/8 center, 5/8 adjacent
 
@@ -108,14 +109,13 @@
 		movq	mm4, mm2				// just use L2P for Weave pixel
 #endif										// end of Greedy choice code
 
-		pand    mm4, YMaskW             // keep only luma of weave pixel
 
 // Inventory: at this point we have the following values:
 // mm0 = L2
 // mm1 = L1
 // mm2 = LP2
 // mm3 = L3
-// mm4 = the best of L2,LP2 weave pixel, based upon comb (luma only)
+// mm4 = the best of L2,LP2 weave pixel, based upon comb 
 // mm6 = the avg interpolated value, if we need to use it
 
 // Let's measure movement, as how much the weave pixel has changed
@@ -138,8 +138,8 @@
 		paddusb	mm2, MaxCombW			// increase max by diff
 		pmaxub	mm4, mm5				// now = Max(best,Min(L1,L3)
 		pminub	mm4, mm2 				// now = Min( Max(best, Min(L1,L3), L2 )=L2 clipped
-		pand	mm4, YMaskW				// keep only luma from calc'd value
 #endif										// end of clip code
+        movq    mm2, mm4                // save copy of clipped val for luma
 
 #ifdef USE_BOB_BLEND					// always use but can turn off for test
 // the ratio of bob/weave will be dependend upon apparent damage we expect
@@ -149,15 +149,16 @@
 		movq    mm7, QW256
 		pminsw  mm0, mm7				// max = 256
 		psubusw mm7, mm0				// so the 2 sum to 256, weighted avg
+		pand	mm4, YMaskW				// keep only luma from clipped weave value
 		pmullw  mm4, mm7				// use more weave for less motion
+		pand	mm6, YMaskW				// keep only luma from interp bob DJR value
 		pmullw  mm6, mm0				// use more bob for large motion
 		paddusw mm4, mm6				// combine
 		psrlw   mm4, 8					// div by 256 to get weighted avg	
 #endif										// end of motion sensitive bob blend
 
-// chroma comes from avg(L1,L3) 
-		movq	mm6, mm1				// L1
-		pavgb   mm6, mm3				// avg L3
-		pand    mm6, UVMask             // get only chroma
-		por		mm4, mm6				// and combine
+// chroma comes from our clipped weave value - gives more chroma res & lower chroma jitter
+		pand    mm2, UVMask             // get only chroma
+		por		mm4, mm2				// and combine
+        
 		}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.5 2001-07-30 21:50:32 trbarry Exp $
+// $Id: DI_GreedyHM.c,v 1.6 2001-08-01 00:37:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/30 21:50:32  trbarry
+// Use weave chroma for reduced chroma jitter. Fix DJR bug again.
+// Turn off Greedy Pulldown default.
+//
 // Revision 1.4  2001/07/30 17:56:26  trbarry
 // Add Greedy High Motion MMX, K6-II, K6-III, and Celeron support.
 // Tweak defaults.
@@ -46,7 +50,7 @@
 
 // Note - actual default values below may be set in DI_GreedyHSETTINGS
 long GreedyMaxComb = 5;					// max comb we allow past clip
-long GreedyMotionThreshold = 20;		// ignore changes < this
+long GreedyMotionThreshold = 25;		// ignore changes < this
 long GreedyMotionSense = 30;	        // how rapidly to bob when > Threshold
 long GreedyGoodPullDownLvl = 90;		// Best Comb avg / Comb Avg must be < thes
 long GreedyBadPullDownLvl = 85;		    // No Pulldown if field comb / Best avg comb > this

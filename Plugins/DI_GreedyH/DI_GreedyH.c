@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.6 2001-07-30 21:50:32 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.7 2001-08-01 00:37:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/30 21:50:32  trbarry
+// Use weave chroma for reduced chroma jitter. Fix DJR bug again.
+// Turn off Greedy Pulldown default.
+//
 // Revision 1.5  2001/07/30 17:56:26  trbarry
 // Add Greedy High Motion MMX, K6-II, K6-III, and Celeron support.
 // Tweak defaults.
@@ -88,7 +92,7 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 	},
 	{
 		"Motion Threshold", SLIDER, 0,	// szDisplayName, TYPE, orig val
-		&GreedyMotionThreshold, 20, 0,	// *pValue,Default, Min
+		&GreedyMotionThreshold, 25, 0,	// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyMotionThreshold", NULL,		// Ini name, pfnOnChange
@@ -474,7 +478,7 @@ static BOOL ShowDiag = FALSE;
 		case IDC_DEFAULT:
 // Note - actual default values below should maybe be set in DI_GreedyHSETTINGS
 			GreedyMaxComb = 5;					// max comb we allow past clip
-			GreedyMotionThreshold = 20;			// ignore changes < this
+			GreedyMotionThreshold = 25;			// ignore changes < this
 			GreedyMotionSense = 30;				// how rapidly to bob when > Threshold
 			GreedyGoodPullDownLvl= 90;			
 			GreedyBadPullDownLvl = 85;			

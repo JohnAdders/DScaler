@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.34 2005-03-10 05:06:06 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.35 2005-03-20 11:13:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2005/03/10 05:06:06  atnak
+// Added auxiliary via DAC lines.
+//
 // Revision 1.33  2005/02/03 04:26:54  atnak
 // Fixed problem in WriteDSPData7133().
 //
@@ -1668,6 +1671,7 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel7133()
 			return AUDIOCHANNEL_MONO;
 		}
 
+		//todo fix: This won't work for via DAC lines.
 		CBitVector b = ReadData(SAA7133_ANALOG_IO_SELECT);
 		switch (b.value(SAA7133_ANALOG_IO_SELECT_OCS))
 		{

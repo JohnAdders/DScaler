@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.15 2002-12-02 13:47:01 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.16 2002-12-03 07:56:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/12/02 13:47:01  adcockj
+// Allow fine control over white crush settings
+//
 // Revision 1.14  2002/11/13 10:34:36  adcockj
 // Improved pixel width support
 //
@@ -218,9 +221,9 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     EventCollector->Register(this, EventList);
     
     ReadFromIni();
-    ChangeDefaultsForCard();
+    ChangeDefaultsForCard(TRUE);
     ChangeSectionNamesForInput();
-    ChangeDefaultsForInput();
+    ChangeDefaultsForInput(TRUE);
     LoadInputSettings();
 
     m_RiscBaseLinear = (DWORD*)RiscDMAMem->GetUserPointer();
@@ -1207,13 +1210,8 @@ void CCX2388xSource::SetupCard()
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
         EnableCancelButton = 1;
 
-        ChangeDefaultsForCard();
-        m_Brightness->SetDefault();
-        m_Contrast->SetDefault();
-        m_Hue->SetDefault();
-        m_SaturationU->SetDefault();
-        m_SaturationV->SetDefault();
-        //m_IsVideoProgressive->SetDefault();
+        ChangeDefaultsForCard(FALSE);
+        ChangeDefaultsForInput(FALSE);
     }
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.12 2002-12-02 13:47:01 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.13 2002-12-03 07:56:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -107,13 +107,13 @@ private:
     void SetupCard();
     void ChangeTVSettingsBasedOnTuner();
     void ChangeSectionNamesForInput();
-    void ChangeDefaultsForInput();
+    void ChangeDefaultsForInput(BOOL bDontSetValue);
     void LoadInputSettings();
     void SaveInputSettings(BOOL bOptimizeFileAccess);
     void SetupPictureStructures();
 
     void ChangeChannelSectionNames();
-    void ChangeDefaultsForCard();
+    void ChangeDefaultsForCard(BOOL bDontSetValue);
 
     ISetting* GetCurrentAudioSetting();
 

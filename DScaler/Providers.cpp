@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.29 2002-04-06 11:46:45 laurentg Exp $
+// $Id: Providers.cpp,v 1.30 2002-04-07 14:55:04 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/04/06 11:46:45  laurentg
+// Check that the current source is not NULL to avoid DScaler exits
+//
 // Revision 1.28  2002/03/02 18:33:56  laurentg
 // At startup, mute the audio of all unused cards
 //
@@ -351,13 +354,13 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 #ifndef WANT_DSHOW_SUPPORT
                         "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff\0"
 #else
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.avi;*.mpg;*.mpeg;*.mpe\0"
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
 #endif
                         "TIFF Files\0*.tif;*.tiff\0"
                         "DScaler Playlists\0*.d3u\0"
                         "DScaler Patterns\0*.pat\0"
 #ifdef WANT_DSHOW_SUPPORT
-                        "Media Files (*.avi;*.mpg;*.mpeg;*.mpe)\0*.avi;*.mpg;*.mpeg;*.mpe\0"
+                        "Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
 #endif
                         ;
 

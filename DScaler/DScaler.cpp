@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.54 2001-08-03 14:36:05 adcockj Exp $
+// $Id: DScaler.cpp,v 1.55 2001-08-05 16:32:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2001/08/03 14:36:05  adcockj
+// Added menu for sharpness filter
+//
 // Revision 1.53  2001/08/03 14:24:32  adcockj
 // added extra info to splash screen and log
 //
@@ -1665,7 +1668,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_MSP:
             Audio_MSP_Watch_Mode();
             if (bDisplayStatusBar == TRUE)
+            {
                 Audio_MSP_Print_Mode();
+            }
             break;
         //-------------------------------
         case TIMER_STATUS:

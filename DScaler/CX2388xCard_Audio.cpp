@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.27 2004-07-10 11:56:02 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.28 2004-08-14 13:45:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2004/07/10 11:56:02  adcockj
+// Changed back default for PAL_I to NICAM to avoid chipmonk effect
+//
 // Revision 1.26  2004/06/28 20:18:16  to_see
 // More fixes for A2 audio.
 // Moved all VideoStandards by default from Nicam to A2.
@@ -686,10 +689,6 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
     {
         switch (TVFormat)
         {
-        case VIDEOFORMAT_PAL_I:
-            Standard = AUDIO_STANDARD_NICAM;
-            break;
-
         case VIDEOFORMAT_NTSC_M:
             Standard = AUDIO_STANDARD_BTSC;
             break;
@@ -698,6 +697,7 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
             Standard = AUDIO_STANDARD_EIAJ;
             break;
 
+        case VIDEOFORMAT_PAL_I:
         case VIDEOFORMAT_PAL_D:
         case VIDEOFORMAT_PAL_G:
         case VIDEOFORMAT_SECAM_B:
@@ -920,72 +920,59 @@ void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType Ster
 
 void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-	switch (TVFormat)
-	{
-	case VIDEOFORMAT_PAL_B:
-	case VIDEOFORMAT_PAL_G:
-		SetAudioRegisters(m_RegList_A2_BGDK_Common);
-		
-		// don't know when needed
-		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
-		
-		SetAudioRegisters(m_RegList_A2_BG);
-		break;
-
-	case VIDEOFORMAT_PAL_D:
-	case VIDEOFORMAT_SECAM_K:
-	case VIDEOFORMAT_SECAM_D:
-		SetAudioRegisters(m_RegList_A2_BGDK_Common);
-
-		// don't know when needed
-		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
-
-		SetAudioRegisters(m_RegList_A2_DK);
-		break;
-
-	case VIDEOFORMAT_PAL_I:
-		SetAudioRegisters(m_RegList_A2_I_Common);
-		SetAudioRegisters(m_RegList_A2_I_Deemph1);
-		
-		// don't know when needed
-		//SetAudioRegisters(m_RegList_A2_I_Deemph2);
-		//SetAudioRegisters(m_RegList_A2_I_Special);
-		break;
-
-	// not tested !
-	case VIDEOFORMAT_NTSC_M:
-		SetAudioRegisters(m_RegList_A2_M);
-		break;
-	}
-
-	if(TVFormat == VIDEOFORMAT_PAL_I)
-	{
-		StereoType = STEREOTYPE_MONO;
-	}
-
-	DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
-	switch(StereoType)
-	{
-	case STEREOTYPE_MONO:
-	case STEREOTYPE_ALT1:
-		dwTemp |= EN_A2_FORCE_MONO1;
-		break;
-
-	case STEREOTYPE_ALT2:
-		dwTemp |= EN_A2_FORCE_MONO2;
-		break;
-
-	case STEREOTYPE_STEREO:
-		dwTemp |= EN_A2_FORCE_STEREO;
-		break;
-
-	case STEREOTYPE_AUTO:
-		dwTemp |= EN_A2_AUTO_STEREO;
-		break;
-	}
-
-	WriteDword(AUD_CTL,			dwTemp);
-	WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
+ SetAudioRegisters(m_RegList_A2_BGDK_Common);
+ 
+ switch (TVFormat)
+ {
+ case VIDEOFORMAT_PAL_B:
+ case VIDEOFORMAT_PAL_G:
+  SetAudioRegisters(m_RegList_A2_BG);
+  break;
+ 
+ case VIDEOFORMAT_PAL_D:
+ case VIDEOFORMAT_SECAM_K:
+ case VIDEOFORMAT_SECAM_D:
+  SetAudioRegisters(m_RegList_A2_DK);
+  break;
+ 
+// new code for mono audio
+ case VIDEOFORMAT_PAL_I:
+  
+  // John, is this line needed here?
+  SetAudioRegisters(m_RegList_A2_BG);
+  
+  // always mono for Pal(I)
+  StereoType = STEREOTYPE_MONO;
+  break;
+ 
+ case VIDEOFORMAT_NTSC_M:
+  SetAudioRegisters(m_RegList_A2_M);
+  break;
+ }
+ 
+ DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
+ switch(StereoType)
+ {
+ case STEREOTYPE_MONO:
+ case STEREOTYPE_ALT1:
+  dwTemp |= EN_A2_FORCE_MONO1;
+  break;
+ 
+ case STEREOTYPE_ALT2:
+  dwTemp |= EN_A2_FORCE_MONO2;
+  break;
+ 
+ case STEREOTYPE_STEREO:
+  dwTemp |= EN_A2_FORCE_STEREO;
+  break;
+ 
+ case STEREOTYPE_AUTO:
+  dwTemp |= EN_A2_AUTO_STEREO;
+  break;
+ }
+ 
+ WriteDword(AUD_CTL,   dwTemp);
+ WriteDword(AUD_SOFT_RESET, 0x00000000);  // Causes a pop every time/**/
 }
 
 eCX2388xAudioStandard CCX2388xCard::GetCurrentAudioStandard()

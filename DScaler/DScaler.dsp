@@ -629,7 +629,31 @@ SOURCE=.\Setting.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SettingConfig.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingGroup.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SettingHolder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingKey.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingLimiter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingObject.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingRepository.cpp
 # End Source File
 # Begin Source File
 
@@ -642,6 +666,10 @@ SOURCE=.\SettingsMaster.cpp
 # Begin Source File
 
 SOURCE=.\SettingsPerChannel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingValue.cpp
 # End Source File
 # Begin Source File
 
@@ -679,6 +707,10 @@ SOURCE=.\StillProvider.cpp
 # Begin Source File
 
 SOURCE=.\StillSource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SubItemCheckboxListCtrl.cpp
 # End Source File
 # Begin Source File
 
@@ -722,6 +754,10 @@ SOURCE=.\ToolbarWindow.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TreeSettingsAssociations.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TreeSettingsDlg.cpp
 # End Source File
 # Begin Source File
@@ -735,6 +771,10 @@ SOURCE=.\TreeSettingsOleProperties.cpp
 # Begin Source File
 
 SOURCE=.\TreeSettingsPage.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsSettingConfig.cpp
 # End Source File
 # Begin Source File
 
@@ -1301,7 +1341,31 @@ SOURCE=.\Setting.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SettingConfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingGroup.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SettingHolder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingKey.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingLimiter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingObject.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingRepository.h
 # End Source File
 # Begin Source File
 
@@ -1314,6 +1378,10 @@ SOURCE=.\SettingsMaster.h
 # Begin Source File
 
 SOURCE=.\SettingsPerChannel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingValue.h
 # End Source File
 # Begin Source File
 
@@ -1361,6 +1429,10 @@ SOURCE=.\StillSource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SubItemCheckboxListCtrl.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TDA9873AudioDecoder.h
 # End Source File
 # Begin Source File
@@ -1401,6 +1473,10 @@ SOURCE=.\ToolbarWindow.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\TreeSettingsAssociations.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TreeSettingsDlg.h
 # End Source File
 # Begin Source File
@@ -1414,6 +1490,10 @@ SOURCE=.\TreeSettingsOleProperties.h
 # Begin Source File
 
 SOURCE=.\TreeSettingsPage.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TreeSettingsSettingConfig.h
 # End Source File
 # Begin Source File
 

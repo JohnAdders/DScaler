@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.cpp,v 1.3 2004-08-12 14:04:39 atnak Exp $
+// $Id: SettingConfig.cpp,v 1.4 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/12 14:04:39  atnak
+// Changed blocked dependants code plus other changes.
+//
 // Revision 1.2  2004/08/08 17:03:38  atnak
 // Minor fixes and added Begin() and End() general methods.
 //
@@ -51,7 +54,6 @@ CSettingConfig::CSettingConfig(std::string title) :
 
 CSettingConfig::~CSettingConfig()
 {
-	m_title.clear();
 }
 
 

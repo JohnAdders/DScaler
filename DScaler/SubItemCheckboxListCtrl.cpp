@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SubItemCheckboxListCtrl.cpp,v 1.1 2004-08-12 14:06:32 atnak Exp $
+// $Id: SubItemCheckboxListCtrl.cpp,v 1.2 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/12 14:06:32  atnak
+// A CListCtrl delivative for having checkbox subitems.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -316,7 +319,11 @@ void CSubItemCheckboxListCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	SetFocus();
 
-	LVHITTESTINFO hitTestInfo = { (POINT)point };
+	LVHITTESTINFO hitTestInfo;
+    hitTestInfo.pt = (POINT)point;
+    hitTestInfo.flags = 0;
+    hitTestInfo.iSubItem = 0;
+    hitTestInfo.iItem = 0;
 	if (SubItemHitTest(&hitTestInfo) != -1)
 	{
 		if (hitTestInfo.flags & LVHT_ONITEM && hitTestInfo.iSubItem != 0)

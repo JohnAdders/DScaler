@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.3 2004-08-13 08:52:30 atnak Exp $
+// $Id: SettingGroup.h,v 1.4 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/13 08:52:30  atnak
+// Added a function for getting a setting's title.
+//
 // Revision 1.2  2004/08/12 14:03:42  atnak
 // Added dependency mask setting and getting functions.
 //
@@ -191,6 +194,21 @@ public:
 	virtual void SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter);
 	virtual PSETTINGLIMITER GetLimiter(IN HSETTING setting);
 
+	// This class defines the buffer that is used to store information
+	// about a single setting in the class's persistent storage.
+    // it should really be protected by vs6 doesn't like that
+	class CSettingInfo
+	{
+	public:
+		CSettingInfo(PSETTINGKEY key, PSETTINGOBJECT object);
+		virtual ~CSettingInfo();
+	public:
+		PSETTINGKEY			key;
+		PSETTINGOBJECT		object;
+		BYTE				flags;
+	};
+
+
 protected:
 	// Flags used by CSettingInfo->flags.
 	enum
@@ -201,18 +219,8 @@ protected:
 		FLAG_INITIAL			= 1 << 1,
 	};
 
-	// This class defines the buffer that is used to store information
-	// about a single setting in the class's persistent storage.
-	typedef class CSettingInfo
-	{
-	public:
-		CSettingInfo(PSETTINGKEY key, PSETTINGOBJECT object);
-		virtual ~CSettingInfo();
-	public:
-		PSETTINGKEY			key;
-		PSETTINGOBJECT		object;
-		BYTE				flags;
-	} *PSETTINGINFO;
+    
+    typedef CSettingInfo* PSETTINGINFO;
 
 	// This structure is used to store temporally data that is
 	// used by the common change routines.
@@ -481,7 +489,7 @@ protected:
 
 	// This type is an extension of CSettingInfo to hold the necessary
 	// information of settings with dependencies.
-	typedef class CSettingInfoEx : public CSettingInfo
+    class CSettingInfoEx : public CSettingGroup::CSettingInfo
 	{
 	public:
 		CSettingInfoEx(IN PSETTINGKEY key, IN PSETTINGOBJECT object) :
@@ -493,7 +501,8 @@ protected:
 		DBIT dependantOptionalBits;
 		DBIT dependantAbsoluteBits;
 		DBIT loadedDependantBits;
-	} *PSETTINGINFOEX;
+	};
+    typedef CSettingInfoEx* PSETTINGINFOEX;
 
 	// This vector type is used to hold the dependee values for
 	// those used by the group.

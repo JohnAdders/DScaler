@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingObject.h,v 1.2 2004-08-13 08:52:02 atnak Exp $
+// $Id: SettingObject.h,v 1.3 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/13 08:52:02  atnak
+// Added a definable title to CSettingObject.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -146,7 +149,7 @@ private:
 //      ELSE
 //        -> default
 
-class CSettingObjectContained : private CSettingObject
+class CSettingObjectContained : public CSettingObject
 {
 public:
 	// Key is a string representing the setting's identifier.
@@ -198,7 +201,7 @@ protected:
 
 private:
 	// Setting's identifier
-	LPCSTR				m_key;
+	LPSTR				m_key;
 	// Setting's value
 	CSettingValue		m_value;
 	// Setting's default

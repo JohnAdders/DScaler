@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingRepository.h,v 1.2 2004-08-13 08:53:50 atnak Exp $
+// $Id: SettingRepository.h,v 1.3 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/13 08:53:50  atnak
+// Added usage documentation for setting repository.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -272,7 +275,7 @@ public:
 protected:
 	typedef std::list<PSETTINGGROUP> GROUPLIST;
 
-	LPCSTR					m_repositoryFilename;
+	LPSTR					m_repositoryFilename;
 	GROUPLIST				m_groupList;
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.19 2003-10-27 10:39:54 adcockj Exp $
+// $Id: stdafx.h,v 1.20 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.18  2003/03/05 21:45:23  tobbej
 // new include for stringstream
 //
@@ -72,6 +75,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+
 #define VC_EXTRALEAN
 #include <afxwin.h>
 #include <afxext.h>
@@ -87,6 +91,7 @@
 
 //#include <windows.h>
 #include <windowsx.h>
+#include <commctrl.h>
 
 #include <stdio.h>
 #include <time.h>
@@ -95,7 +100,6 @@
 #include <memory.h>
 #include <io.h>
 #include <fcntl.h>
-#include <commctrl.h>
 #include <sys/timeb.h>
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.cpp,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingKey.cpp,v 1.2 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -171,7 +174,6 @@ CSettingKeyTitled::CSettingKeyTitled()
 
 CSettingKeyTitled::~CSettingKeyTitled()
 {
-	m_title.clear();
 }
 
 

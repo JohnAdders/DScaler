@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.3 2004-08-13 08:52:30 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.4 2004-08-14 13:45:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/13 08:52:30  atnak
+// Added a function for getting a setting's title.
+//
 // Revision 1.2  2004/08/12 14:03:42  atnak
 // Added dependency mask setting and getting functions.
 //
@@ -66,8 +69,6 @@ CSettingGroup::~CSettingGroup()
 		}
 		delete (*it);
 	}
-	m_settingList.clear();
-	m_section.clear();
 	CleanupLocking();
 }
 

@@ -5,7 +5,7 @@
 	public	_gBuildNum
 	public	_gBuildDateTime
 
-_gBuildNum	dd	10
-_gBuildDateTime	db	"Sat Oct 06 18:01:33 2001",0
+_gBuildNum	dd	2574
+_gBuildDateTime	db	"Tue Oct 23 09:49:39 2001",0
 
 	end

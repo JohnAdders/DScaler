@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.30 2001-08-02 16:43:05 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.31 2001-08-03 14:24:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.29  2001/07/30 19:51:30  laurentg
 // no message
 //
@@ -98,7 +101,6 @@
 //
 // Revision 1.20  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
-//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -146,22 +148,22 @@ BOOL                WaitForFlip = TRUE;       // User parm, default=TRUE
 BOOL                DoAccurateFlips = TRUE;     // User parm, default=TRUE
 BOOL                bHurryWhenLate = FALSE;    // " , default=FALSE, skip processing if behind
 long                RefreshRate = 0;
-BOOL bIsOddField = FALSE;
-BOOL bWaitForVsync = FALSE;
-BOOL bReversePolarity = FALSE;
+BOOL                bIsOddField = FALSE;
+BOOL                bWaitForVsync = FALSE;
+BOOL                bReversePolarity = FALSE;
 
 // FIXME: should be able to get of this variable
-long OverlayPitch = 0;
+long                OverlayPitch = 0;
 
 // Statistics
-long nTotalDropFields = 0;
-double nDropFieldsLastSec = 0;
-long nTotalUsedFields = 0;
-double nUsedFieldsLastSec = 0;
-long nSecTicks = 0;
-long nInitialTicks = -1;
-long nLastTicks = 0;
-long nTotalDeintModeChanges = 0;
+long                nTotalDropFields = 0;
+double              nDropFieldsLastSec = 0;
+long                nTotalUsedFields = 0;
+double              nUsedFieldsLastSec = 0;
+long                nSecTicks = 0;
+long                nInitialTicks = -1;
+long                nLastTicks = 0;
+long                nTotalDeintModeChanges = 0;
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -262,7 +264,9 @@ void SaveStreamSnapshot(DEINTERLACE_INFO* pInfo)
     {
         sprintf(name,"sn%06d.dtv",++n) ;
         if (stat(name, &st))
+        {
             break;
+        }
     }
 
     if(n == 100)
@@ -306,7 +310,7 @@ void SaveStreamSnapshot(DEINTERLACE_INFO* pInfo)
         {
             fwrite(pInfo->EvenLines[i][j], pInfo->LineLength, 1, file);
         }
-    i++;      
+        i++;      
     }
     fclose(file);
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.52 2001-08-02 16:43:05 adcockj Exp $
+// $Id: DScaler.cpp,v 1.53 2001-08-03 14:24:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.51  2001/07/30 22:44:04  laurentg
 // Bug fixed concerning saturation V accelerator
 //
@@ -1942,6 +1945,7 @@ void MainWndOnInitBT(HWND hWnd)
 
     if (bInitOK)
     {
+        AddSplashTextLine("Load Plugins");
         if(!LoadDeinterlacePlugins())
         {
             AddSplashTextLine("");
@@ -1958,12 +1962,14 @@ void MainWndOnInitBT(HWND hWnd)
     
     if (bInitOK)
     {
+        AddSplashTextLine("Check TV card");
         if(Setting_GetValue(TVCard_GetSetting(CURRENTCARDTYPE)) == TVCARD_UNKNOWN)
         {
             HideSplashScreen();
             TVCard_FirstTimeSetupHardware(hInst, hWnd);
         }
 
+        AddSplashTextLine("Position Window");
         WStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
         if (bAlwaysOnTop == FALSE)
         {
@@ -2008,6 +2014,7 @@ void MainWndOnInitBT(HWND hWnd)
             AddSplashTextLine("No MSP Device");
         }
 
+        AddSplashTextLine("Setup Mixer");
         Mixer_Init();
 
         // JA 8 Jan 2001 End of Tidy
@@ -2019,6 +2026,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
         {
+            AddSplashTextLine("Set Channel");
             Channel_SetCurrent();
         }
 
@@ -2026,21 +2034,25 @@ void MainWndOnInitBT(HWND hWnd)
 
         // do final setup routines for any files
         // basically where we need the hWnd to be set
+        AddSplashTextLine("Setup Aspect Ratio");
         Aspect_FinalSetup();
 
         // OK we're ready to go
+        AddSplashTextLine("Reset hardware");
         BT848_ResetHardware();
         BT848_SetGeoSize();
         WorkoutOverlaySize();
         
+        AddSplashTextLine("Update Menu");
         Channels_UpdateMenu(hMenu);
         OSD_UpdateMenu(hMenu);
         pCalibration->LoadTestPatterns();
         pCalibration->UpdateMenu(hMenu);
-
         SetMenuAnalog();
 
         bDoResize = TRUE;
+
+        AddSplashTextLine("Start Video");
         Start_Capture();
     }
     else

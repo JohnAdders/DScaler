@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.6 2002-04-15 22:50:09 laurentg Exp $
+// $Id: Source.cpp,v 1.7 2002-05-06 15:38:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/04/15 22:50:09  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.5  2002/02/22 23:22:23  laurentg
 // Only notify size change if it concerns current source
 //
@@ -61,7 +65,8 @@
 
 CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
-    m_FieldFrequency(0)
+    m_FieldFrequency(0),
+    m_Comments("")
 {
     m_hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(MenuId));
 }
@@ -80,6 +85,11 @@ HMENU CSource::GetSourceMenu()
 {
     return m_hMenu;
 
+}
+
+char* CSource::GetComments()
+{
+    return (char*)m_Comments.c_str();
 }
 
 void CSource::NotifySizeChange()

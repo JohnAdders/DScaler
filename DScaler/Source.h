@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.12 2002-04-15 22:50:09 laurentg Exp $
+// $Id: Source.h,v 1.13 2002-05-06 15:38:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -108,6 +108,7 @@ public:
     virtual BOOL IsAccessAllowed() = 0;
     virtual void SetOverscan() = 0;
     virtual BOOL HasSquarePixels() = 0;
+    char* GetComments();
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
@@ -122,6 +123,7 @@ protected:
 
     double m_FieldFrequency;
     HMENU m_hMenu;
+    std::string m_Comments;
 };
 
 

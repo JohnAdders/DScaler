@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/01 23:49:28  lindsey
+// Corrected filter disabling on MMX computers
+// Slightly changed starting values
+//
 // Revision 1.6  2002/01/26 01:03:11  lindsey
 // Fixed some comments
 // Effect of coefficient of varience on reliability scaled to the sample size
@@ -49,7 +53,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#define ADAPTIVE_NOISE_DEBUG
+// #define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>

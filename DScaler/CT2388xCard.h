@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.7 2002-10-22 18:52:18 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.8 2002-10-23 15:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/22 18:52:18  adcockj
+// Added ASPI support
+//
 // Revision 1.6  2002/10/18 16:12:31  adcockj
 // Tidy up and fixes for Cx2388x analogue support
 //
@@ -129,7 +132,7 @@ public:
 
 	void CloseCard();
 
-    void StartCapture(DWORD RiscBasePhysical);
+    void StartCapture(DWORD RiscBasePhysical, BOOL bCaptureVBI);
     void StopCapture();
 
     void SetCardType(int CardType);
@@ -143,7 +146,7 @@ public:
     void SetSaturationU(BYTE SaturationU);
     void SetSaturationV(BYTE SaturationV);
 
-    void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, int VDelay, int HDelay, BOOL IsProgressive);
+    void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay, BOOL IsProgressive);
 
     BOOL IsVideoPresent();
     DWORD GetRISCPos();

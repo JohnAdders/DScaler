@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xProvider.h,v 1.1 2002-09-11 18:19:37 adcockj Exp $
+// $Id: CT2388xProvider.h,v 1.2 2002-10-23 15:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,8 @@ private:
     CContigMemory* m_RiscDMAMem;
     /// Memory used for captured frames
     CUserMemory* m_DisplayDMAMem[5];
+    /// Memory used for VBI
+    CUserMemory* m_VBIDMAMem[5];
 };
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.10 2002-10-22 18:52:18 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.11 2002-10-23 15:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ class CCT2388xSource : public CSource
 {
     DECLARE_CLASS_SETTINGS(CCT2388xSource);
 public:
-    CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], LPCSTR IniSection);
+    CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection);
     ~CCT2388xSource();
     void Start();
     void Stop();
@@ -87,7 +87,7 @@ public:
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
-    void CreateRiscCode();
+    void CreateRiscCode(BOOL bCaptureVBI);
     
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -114,6 +114,8 @@ private:
     CCT2388xCard*  m_pCard;
     BYTE*        m_pDisplay[5];
     CUserMemory* m_DisplayDMAMem[5];
+    BYTE*        m_pVBILines[5];
+    CUserMemory* m_VBIDMAMem[5];
     DWORD        m_RiscBasePhysical; 
     DWORD*       m_RiscBaseLinear;
     long         m_BytesPerRISCField;

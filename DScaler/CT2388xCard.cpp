@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.13 2002-10-22 18:52:18 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.14 2002-10-23 15:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/22 18:52:18  adcockj
+// Added ASPI support
+//
 // Revision 1.12  2002/10/22 11:39:50  adcockj
 // Changes to test 8xFsc mode
 //
@@ -119,7 +122,6 @@ void CCT2388xCard::SetACPIStatus(int ACPIStatus)
 {
     PCI_COMMON_CONFIG PCI_Config;
 
-    // only the BT878 and BT878a are able to power down
     if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
     {
         return;
@@ -146,7 +148,7 @@ void CCT2388xCard::CloseCard()
     ClosePCICard();
 }
 
-void CCT2388xCard::StartCapture(DWORD RiscBasePhysical)
+void CCT2388xCard::StartCapture(DWORD RiscBasePhysical, BOOL bCaptureVBI)
 {
     DWORD value1;
     DWORD value2;
@@ -156,10 +158,6 @@ void CCT2388xCard::StartCapture(DWORD RiscBasePhysical)
     // Clear Interrupt Status bits
     WriteDword(CT2388X_VID_INTSTAT, 0x0000000);
     
-    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFFEE;
-     // FIFO and capture control
-    value2 = (ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00) | 0x06;
-
     WriteDword( SRAM_CMDS_21, RiscBasePhysical);
     
     // Set and clear the ISRP bit to indicate whether the RISC progam is
@@ -168,8 +166,20 @@ void CCT2388xCard::StartCapture(DWORD RiscBasePhysical)
     dwval &= 0x7fffffff;
     WriteDword( SRAM_CMDS_21 + 0x10, dwval); 
 
-    WriteDword(CT2388X_VID_DMA_CNTRL, value1 | 0x11 );
+    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
+    value2 = (ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00);
+    if(bCaptureVBI == TRUE)
+    {
+        value1 |= 0x99;
+        value2 |= 0x3E;
+    }
+    else
+    {
+        value1 |= 0x11;
+        value2 |= 0x06;
+    }
 
+    WriteDword(CT2388X_VID_DMA_CNTRL, value1);
     WriteDword(CT2388X_CAPTURECONTROL, value2);
 
     // Clear Interrupt Status bits
@@ -187,13 +197,10 @@ void CCT2388xCard::StopCapture()
 {
     DWORD value1;
     DWORD value2;
-    DWORD value3;
-
-    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFFEE;
+    
+    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
     value2 = ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00;
    
-    value3 = 0;
-    
     ::Sleep(100);
 
     // Original code before restart workaround
@@ -337,7 +344,7 @@ LPCSTR CCT2388xCard::GetTunerType()
 
 // Sets up card to support size and format requested
 // at the moment we insist on 720 pixel width.
-void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, int VDelayOverride, int HDelayOverride, BOOL IsProgressive)
+void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride, BOOL IsProgressive)
 {
     int HorzDelay;
     int VertDelay;
@@ -348,6 +355,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     if(IsCCIRSource(nInput))
     {
         CurrentX = 720;
+        CurrentVBILines = 0;
+
 		WriteByte(CT2388X_PINMUX_IO, 0x02);
 
         // Since we are digital here we don't really care which
@@ -415,6 +424,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     {
         DWORD HTotal(0);
         DWORD Format2HComb(0x183f0008);
+
+        CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
+
+        // set up VBI information
+        WriteDword(CT2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize) | (2 << 11));
 
         if (CurrentY == 576)
         {
@@ -546,6 +560,13 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     {
         DWORD HTotal(0);
         DWORD Format2HComb(0x183f0008);
+
+        CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
+
+        // set up VBI information
+        // need packet size and delay
+        // hopefully this is the same info that the bt8x8 chips needed
+        WriteDword(CT2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | ((GetTVFormat(TVFormat)->VBIPacketSize >> 8) << 11));
 
         CurrentX = 720;
 
@@ -729,6 +750,23 @@ void CCT2388xCard::ResetHardware()
     DWORD dwval,dwaddr;
 
     DWORD i,j;
+
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // try and switch on the card using the PCI Command value
+    // this is to try and solve problems when a driver hasn't been
+    // loaded for the card, which may be necessary when you have 
+    // multiple cx2388x cards
+    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        // switch on allow master and respond to memory requests
+        if((PCI_Config.Command & 0x06) != 0x06)
+        {
+            LOG(1, " CX2388x PCI Command was %d", PCI_Config.Command);
+            PCI_Config.Command |= 0x06;
+            SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+        }
+    }
 
     // \todo log what's there already for key settings
 

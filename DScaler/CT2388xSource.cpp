@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.18 2002-10-22 18:52:18 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.19 2002-10-23 15:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/22 18:52:18  adcockj
+// Added ASPI support
+//
 // Revision 1.17  2002/10/22 04:08:50  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -105,13 +108,14 @@ void CT2388x_OnSetup(void *pThis, int Start)
 }
 
 
-CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], LPCSTR IniSection) :
+CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
     CSource(WM_CT2388X_GETVALUE, IDC_CT2388X),
     m_pCard(pCard),
     m_CurrentX(720),
     m_CurrentY(480),
     m_Section(IniSection),
     m_IDString(IniSection),
+    m_CurrentVBILines(19),
     m_IsFieldOdd(FALSE),
     m_InSaturationUpdate(FALSE),
     m_CurrentChannel(-1),
@@ -144,6 +148,8 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     {
         m_pDisplay[i] = (BYTE*)DisplayDMAMem[i]->GetUserPointer();
         m_DisplayDMAMem[i] = DisplayDMAMem[i];
+        m_pVBILines[i] = (BYTE*)VBIDMAMem[i]->GetUserPointer();
+        m_VBIDMAMem[i] = VBIDMAMem[i];
     }
 
     SetupCard();
@@ -281,8 +287,9 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
 void CCT2388xSource::Start()
 {
     m_pCard->StopCapture();
-    CreateRiscCode();
-    m_pCard->StartCapture(m_RiscBasePhysical);
+    CreateRiscCode((bCaptureVBI && (m_CurrentVBILines > 0)));
+    // only capture VBI if we are expecting them
+    m_pCard->StartCapture(m_RiscBasePhysical, (bCaptureVBI && (m_CurrentVBILines > 0)));
     Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
@@ -305,8 +312,9 @@ void CCT2388xSource::Reset()
                             (eVideoFormat)m_VideoFormat->GetValue(), 
                             m_CurrentX, 
                             m_CurrentY, 
-                            0, 
-                            0,
+                            m_CurrentVBILines,
+                            m_VDelay->GetValue(), 
+                            m_HDelay->GetValue(),
                             m_IsVideoProgressive->GetValue()
                         );
 
@@ -317,7 +325,7 @@ void CCT2388xSource::Reset()
     NotifySizeChange();
 }
 
-void CCT2388xSource::CreateRiscCode()
+void CCT2388xSource::CreateRiscCode(BOOL bCaptureVBI)
 {
     DWORD *pRiscCode;    // For host memory version
     int nField;
@@ -394,6 +402,27 @@ void CCT2388xSource::CreateRiscCode()
         }
         else
         {
+            if(bCaptureVBI)
+            {
+                // do VBI here, as we'll never get VBI in progressive mode
+                pUser = m_pVBILines[nField / 2];
+                if((nField & 1) == 1)
+                {
+                    pUser += m_CurrentVBILines * 2048;
+                }
+                for (nLine = 0; nLine < m_CurrentVBILines; nLine++)
+                {
+                    pPhysical = m_VBIDMAMem[nField / 2]->TranslateToPhysical(pUser, VBI_SPL, &GotBytesPerLine);
+                    if(pPhysical == 0 || VBI_SPL > GotBytesPerLine)
+                    {
+                        return;
+                    }
+                    *(pRiscCode++) = RISC_WRITE | RISC_SOL | RISC_EOL | VBI_SPL;
+                    *(pRiscCode++) = pPhysical;
+                    pUser += 2048;
+                }
+            }
+
             pUser = m_pDisplay[nField / 2];
             if(nField & 1)
             {
@@ -1023,6 +1052,16 @@ BOOL CCT2388xSource::IsVideoPresent()
 
 void CCT2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
+    int nLineTarget;
+    BYTE* pVBI = (LPBYTE) m_pVBILines[(pInfo->CurrentFrame + 4) % 5];
+    if (m_IsFieldOdd)
+    {
+        pVBI += m_CurrentVBILines * 2048;
+    }
+    for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
+    {
+       VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
+    }
 }
 
 
@@ -1081,6 +1120,7 @@ void CCT2388xSource::HDelayOnChange(long NewValue, long OldValue)
                             (eVideoFormat)m_VideoFormat->GetValue(), 
                             m_CurrentX, 
                             m_CurrentY, 
+                            m_CurrentVBILines,
                             m_VDelay->GetValue(), 
                             m_HDelay->GetValue(),
                             m_IsVideoProgressive->GetValue()
@@ -1096,6 +1136,7 @@ void CCT2388xSource::VDelayOnChange(long NewValue, long OldValue)
                             (eVideoFormat)m_VideoFormat->GetValue(), 
                             m_CurrentX, 
                             m_CurrentY, 
+                            m_CurrentVBILines,
                             m_VDelay->GetValue(), 
                             m_HDelay->GetValue(),
                             m_IsVideoProgressive->GetValue()

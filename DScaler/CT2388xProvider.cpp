@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xProvider.cpp,v 1.1 2002-09-11 18:19:37 adcockj Exp $
+// $Id: CT2388xProvider.cpp,v 1.2 2002-10-23 15:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/11 18:19:37  adcockj
+// Prelimainary support for CT2388x based cards
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +45,7 @@ CCT2388xProvider::CCT2388xProvider(CHardwareDriver* pHardwareDriver)
     for(i = 0; i < 5; ++i)
     {
         m_DisplayDMAMem[i] = NULL;
+        m_VBIDMAMem[i] = NULL;
     }
 
 
@@ -99,7 +103,7 @@ CCT2388xSource* CCT2388xProvider::CreateCorrectSource(CHardwareDriver* pHardware
     {
 		// \todo remove this as it's just for testing
 		pNewCard->DumpChipStatus();
-        CCT2388xSource* pNewSource = new CCT2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, szSection);
+        CCT2388xSource* pNewSource = new CCT2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
         return pNewSource;
     }
     else
@@ -154,6 +158,20 @@ BOOL CCT2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
         return FALSE;
     }
 
+    try
+    {
+        for (int i(0); i < 5; i++)
+        {
+            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * 19 * 2);
+        }
+    }
+    catch(...)
+    {
+        MemoryFree();
+        ErrorBox("Can't create Display Memory");
+        return FALSE;
+    }
+
     return TRUE;
 }
 
@@ -167,6 +185,11 @@ void CCT2388xProvider::MemoryFree()
 
     for(int i(0); i < 5; i++)
     {
+        if(m_VBIDMAMem[i] != NULL)
+        {
+            delete m_VBIDMAMem[i];
+            m_VBIDMAMem[i] = NULL;
+        }
         if(m_DisplayDMAMem[i] != NULL)
         {
             delete m_DisplayDMAMem[i];

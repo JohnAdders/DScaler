@@ -1,5 +1,5 @@
  /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.asm,v 1.7 2002-11-06 21:03:15 adcockj Exp $
+// $Id: FLT_LogoKill.asm,v 1.8 2002-11-18 20:08:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/11/06 21:03:15  adcockj
+// Fixed black feature in logo killer ;) (note to self must test before checking in....)
+//
 // Revision 1.6  2002/11/06 20:54:07  adcockj
 // Added black as option in logo killer
 //
@@ -302,6 +305,8 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
             }
         }
 		break;
+    case MODE_SMOOTHING_ONLY:
+        break;
     case MODE_GREY:
     default:
         {
@@ -318,7 +323,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
     // Patch from Jochen Trener to add adjustable smoothing (Gaussian blur)
     // It is based ón the paper ' An efficient algorithm for Gaussian
     // blur using finite state machines' by F. Waltz and J. Miller
-    if(gUseSmoothing && Top > 0 && Left > 0)
+    if((Mode == MODE_SMOOTHING_ONLY || gUseSmoothing) && Top > 0 && Left > 0)
 	{
 		int smoothing_runs=5;
         int i, j, n, z=0;

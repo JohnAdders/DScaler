@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.22 2002-11-06 21:03:15 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.23 2002-11-18 20:08:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/11/06 21:03:15  adcockj
+// Fixed black feature in logo killer ;) (note to self must test before checking in....)
+//
 // Revision 1.21  2002/11/06 20:54:07  adcockj
 // Added black as option in logo killer
 //
@@ -110,6 +113,7 @@ typedef enum
     MODE_DYNAMIC_MAX,
     MODE_WEIGHTED,
     MODE_BLACK,
+    MODE_SMOOTHING_ONLY,
     MODE_LASTONE,
 } eMODE;
 
@@ -122,6 +126,7 @@ LPCSTR ModeList[] =
     "Dynamic Max",
     "Weighted Average",
     "Black",
+    "Smoothing only",
 };
 
 #pragma pack(push, 1)   // save state and set packing alignment to 1 byte

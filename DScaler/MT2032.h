@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.4 2002-09-04 11:58:45 kooiman Exp $
+// $Id: MT2032.h,v 1.5 2002-10-07 20:32:00 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.3  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -72,15 +75,16 @@ private:
         unsigned char *buf, int *ret_sel, int xogc);
     int CheckLOLock();
     int OptimizeVCO(int sel, int lock);
-    void SetIFFreq(int rfin, int if1, int if2, int from, int to);
+    void SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat);
 
-    void PreparePinnacle(BOOL bPrepare);
+    void PrepareTDA9887(BOOL bPrepare, eVideoFormat videoFormat);
 
 private:
     int m_XOGC;    // holds the value of XOGC register after init
     bool m_Initialized;
     eTVCardId m_TVCardId;
     eVideoFormat m_DefaultVideoFormat;
+	bool m_HasTDA9887;
 };
 
 #endif // !defined(__MT2032_H__)

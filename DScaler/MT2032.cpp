@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.6 2002-09-04 11:58:45 kooiman Exp $
+// $Id: MT2032.cpp,v 1.7 2002-10-07 20:32:00 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.5  2002/01/16 20:49:30  adcockj
 // Added Rob Muller's fixes for Radio
 //
@@ -92,7 +95,9 @@ bool CMT2032::SetRadioFrequency(long nFrequency)
     to = 10800 * 1000;
     if2 = 10700 * 1000;
 
-    SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to);
+    //SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
+
+	SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, if2, if2, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
     return true;
 }
 
@@ -126,17 +131,30 @@ void CMT2032::Initialize()
 {
     int             xogc, xok = 0;
 
-    switch (m_TVCardId)
+    m_HasTDA9887 = FALSE;
+
+	switch (m_TVCardId)
     {
       case TVCARD_MIRO:
       case TVCARD_MIROPRO:
       case TVCARD_PINNACLERAVE:
       case TVCARD_PINNACLEPRO:            
-          PreparePinnacle(TRUE);          
+		  {						
+			  BYTE tda9887set[] = {0x86, 0x00, 0x54, 0x70, 0x44};
+			  if (m_I2CBus->Write(tda9887set,5))
+			  {
+				  m_HasTDA9887 = TRUE;
+			  }
+		  }
           break;
       default:
           break;      
-    }   
+    }	
+
+	if (m_HasTDA9887)
+	{
+		PrepareTDA9887(TRUE, m_DefaultVideoFormat);
+	}
 
     /* Initialize Registers per spec. */
     SetRegister(2, 0xff);
@@ -169,17 +187,10 @@ void CMT2032::Initialize()
     } while (xok != 1);
 
 
-    switch (m_TVCardId)
-    {
-      case TVCARD_MIRO:
-      case TVCARD_MIROPRO:
-      case TVCARD_PINNACLERAVE:
-      case TVCARD_PINNACLEPRO:            
-          PreparePinnacle(FALSE);
-          break;
-      default:
-          break;      
-    }   
+    if (m_HasTDA9887)
+	{
+		PrepareTDA9887(FALSE, m_DefaultVideoFormat);
+	}
 
 
     m_XOGC = xogc;
@@ -413,7 +424,7 @@ int CMT2032::OptimizeVCO(int sel, int lock)
     return lock;
 }
 
-void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to)
+void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat)
 {
     unsigned char   buf[21];
     int             lint_try, ret, sel, lock = 0;
@@ -424,17 +435,10 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to)
         return;
     }
 
-    switch (m_TVCardId)
-    {
-      case TVCARD_MIRO:
-      case TVCARD_MIROPRO:
-      case TVCARD_PINNACLERAVE:
-      case TVCARD_PINNACLEPRO:            
-          PreparePinnacle(TRUE);          
-          break;
-      default:
-          break;      
-    }   
+    if (m_HasTDA9887)
+	{
+		PrepareTDA9887(TRUE, videoFormat);
+	}
 
     /* send only the relevant registers per Rev. 1.2 */
     SetRegister(0, buf[0x00]);
@@ -472,17 +476,10 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to)
     SetRegister(2, 0x20);
 
 
-    switch (m_TVCardId)
-    {
-      case TVCARD_MIRO:
-      case TVCARD_MIROPRO:
-      case TVCARD_PINNACLERAVE:
-      case TVCARD_PINNACLEPRO:            
-          PreparePinnacle(FALSE);
-          break;
-      default:
-          break;      
-    }   
+    if (m_HasTDA9887)
+	{
+		PrepareTDA9887(FALSE, videoFormat);
+	}
 }
 
 bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
@@ -507,20 +504,66 @@ bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
         if2 = 38900 * 1000;
     }
 
-    SetIFFreq(frequency * 1000 / 16 * 1000, 1090 * 1000 * 1000, if2, from, to);
+    SetIFFreq(frequency * 1000 / 16 * 1000, 1090 * 1000 * 1000, if2, from, to, videoFormat);
     return true;
 }
 
-void CMT2032::PreparePinnacle(BOOL bPrepare)
+void CMT2032::PrepareTDA9887(BOOL bPrepare, eVideoFormat VideoFormat)
 {
-   BYTE tunerset[] = {0x86, 0x00, 0x54};
+   BYTE tda9887set[] = {0x86, 0x00, 0x54, 0x70, 0x44};
+   
+   switch (VideoFormat)
+   {
+	case VIDEOFORMAT_PAL_B:    
+    case VIDEOFORMAT_PAL_G:
+    case VIDEOFORMAT_PAL_H:        
+    case VIDEOFORMAT_PAL_N:
+	case VIDEOFORMAT_SECAM_B:
+    case VIDEOFORMAT_SECAM_G:
+    case VIDEOFORMAT_SECAM_H:
+		tda9887set[4] = 0x49;
+		break;
+
+	case VIDEOFORMAT_PAL_I:
+		tda9887set[4] = 0x4a;
+		break;
+
+	case VIDEOFORMAT_PAL_D:
+	case VIDEOFORMAT_SECAM_D:	
+    case VIDEOFORMAT_SECAM_K:
+    case VIDEOFORMAT_SECAM_K1:
+		tda9887set[4] = 0x4b;
+		break;
+	
+	case VIDEOFORMAT_SECAM_L:
+    case VIDEOFORMAT_SECAM_L1:
+		tda9887set[2] = 0x46;
+		tda9887set[3] = 0x50;
+		tda9887set[4] = 0x4b;
+		break;
+
+    case VIDEOFORMAT_PAL_60:    
+		///\todo Video bandwidth of PAL-60?
+		break;
+
+	case VIDEOFORMAT_PAL_M:
+	case VIDEOFORMAT_PAL_N_COMBO:
+	case VIDEOFORMAT_NTSC_M:
+    case VIDEOFORMAT_NTSC_M_Japan:
+    case VIDEOFORMAT_NTSC_50:
+		tda9887set[4] = 0x44;
+		break;
+	case (VIDEOFORMAT_LASTONE+1):
+		//radio
+		tda9887set[2] = 0xce;
+		tda9887set[3] = 0x0d;
+		tda9887set[4] = 0x77;
+		break;
+   }
    
    if (bPrepare)
    {
-      tunerset[2] |= 0x80;
+      tda9887set[2] |= 0x80;
    }
-   if (m_I2CBus->Write(tunerset, 3) || m_I2CBus->Write(tunerset, 3))
-   {
-      //Success
-   }
+   m_I2CBus->Write(tda9887set, 5);   
 }

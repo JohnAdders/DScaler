@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.9 2002-09-04 11:58:45 kooiman Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.10 2002-10-07 20:31:59 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.8  2002/02/12 02:27:45  ittarnavsky
 // fixed the hardware info dialog
 //
@@ -122,12 +125,14 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
           case TVCARD_PINNACLEPRO:            
             if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
             {
-                BYTE tunerset[] = {0x86, 0x00, 0x54};
-                tunerset[2] |= 0x80;
-                if (m_I2CBus->Write(tunerset, 3) || m_I2CBus->Write(tunerset, 3))
-                {
-                    //Enable tuner port success
-                }
+                // If Card has TDA9887, try to instruct it to enable the tuner
+				BYTE tda9887_tuneron[] = {0x86, 0x00, 0xD4, 0x70, 0x49};
+				BYTE tda9887_tuneroff[] = {0x86, 0x00, 0x54, 0x70, 0x49};
+                
+				m_I2CBus->Write(tda9887_tuneron, 5);
+				m_I2CBus->Write(tda9887_tuneroff, 5);
+				m_I2CBus->Write(tda9887_tuneron, 5);
+				m_I2CBus->Write(tda9887_tuneron, 5);
             }
         }
 
@@ -146,20 +151,19 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
 
 
        switch (m_CardType)
-        {
+       {
           case TVCARD_MIRO:
           case TVCARD_MIROPRO:
           case TVCARD_PINNACLERAVE:
           case TVCARD_PINNACLEPRO:            
             if (tunerId == TUNER_MT2032)
             {
-                BYTE tunerset[] = {0x86, 0x00, 0x54};                
-                if (m_I2CBus->Write(tunerset, 3) || m_I2CBus->Write(tunerset, 3))
-                {
-                    //Disable tuner port success
-                }
+                // If Card has TDA9887, try to instruct it to disable the tuner
+				BYTE tda9887_tuneroff[] = {0x86, 0x00, 0x54, 0x70, 0x49};
+                
+				m_I2CBus->Write(tda9887_tuneroff, 5);
             }
-        }
+       }
 
 
        if (!bFoundTuner)

@@ -13,6 +13,7 @@ int Search_Effort_1()
 {
 		//see Search_Effort_Max for comments
 #include "SearchLoopTop.inc"	
+#define USE_STRANGE_BOB
 	RESET_CHROMA		// pretend chroma diffs was 255 each
 #include "SearchLoop0A.inc"
 #include "SearchLoopBottom.inc"

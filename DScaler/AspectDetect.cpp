@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.28 2002-02-23 12:02:40 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.29 2002-02-23 13:52:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/02/23 12:02:40  laurentg
+// % of time used by each AR added in the AR statistics
+//
 // Revision 1.27  2002/02/23 00:37:15  laurentg
 // AR statistics included in user's action to reset statistics
 // AR statistics reseted at the startup of the decoding thread
@@ -196,7 +199,7 @@ void SwitchToRatio(int nMode, int nRatio)
                 break;
             }
         }
-        else if ((RatioStatistics[i].mode == nMode) && (RatioStatistics[i].ratio == nRatio))
+        if ((RatioStatistics[i].mode == nMode) && (RatioStatistics[i].ratio == nRatio))
         {
             k = i;
             if (j != -1)
@@ -204,14 +207,11 @@ void SwitchToRatio(int nMode, int nRatio)
                 break;
             }
         }
-        else if (RatioStatistics[i].switch_count == 0)
+        if (RatioStatistics[i].switch_count == 0 && k == -1)
         {
-            if (k == -1)
-            {
-                k = i;
-                RatioStatistics[i].mode = nMode;
-                RatioStatistics[i].ratio = nRatio;
-            }
+            k = i;
+            RatioStatistics[i].mode = nMode;
+            RatioStatistics[i].ratio = nRatio;
             break;
         }
     }

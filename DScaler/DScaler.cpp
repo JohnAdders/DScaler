@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.60 2001-08-15 17:50:11 laurentg Exp $
+// $Id: DScaler.cpp,v 1.61 2001-08-16 21:17:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2001/08/15 17:50:11  laurentg
+// UseRGB ini parameter suppressed
+// OSD screen concerning card calibration fully modified
+// Automatic calibration added (not finished)
+//
 // Revision 1.59  2001/08/13 18:07:24  adcockj
 // Added Czech code page for teletext
 //
@@ -621,6 +626,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_START_AUTO_CALIBRATION:
             pCalibration->Start(CAL_AUTO_FULL);
+            break;
+
+        case IDM_START_AUTO_CALIBRATION2:
+            pCalibration->Start(CAL_AUTO_BRIGHT_CONTRAST);
+            break;
+
+        case IDM_START_AUTO_CALIBRATION3:
+            pCalibration->Start(CAL_AUTO_COLOR);
             break;
 
         case IDM_START_MANUAL_CALIBRATION:

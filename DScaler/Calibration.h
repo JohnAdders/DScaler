@@ -189,6 +189,10 @@ public:
     // This method analyzes the current overlay buffer
     void CalcCurrentPattern(short **Lines, int height, int width);
 
+    // This methode returns the sum of delta between reference color
+    // and calculated average color through all the color bars
+    void GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal);
+
 protected:
     // Name of the test pattern
     char pattern_name[64];
@@ -247,6 +251,8 @@ protected:
 private:
     BOOL step_init(eColor color, BT848_SETTING setting, int min, int max);
     BOOL step_process(short **Lines, int height, int width, BT848_SETTING setting, unsigned int sig_component);
+    void CCalibration::step_init2(BT848_SETTING setting1, int min1, int max1, BT848_SETTING setting2, int min2, int max2);
+    BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, unsigned int sig_component);
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;
@@ -255,8 +261,11 @@ private:
     int min_val;
     int max_val;
     int current_val;
-    int best_val_min;
-    int best_val_max;
+    int best_val;
+    int min_val2;
+    int max_val2;
+    int current_val2;
+    int best_val2;
     int min_dif;
 };
 

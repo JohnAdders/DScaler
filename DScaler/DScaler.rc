@@ -834,9 +834,15 @@ BEGIN
         END
         POPUP "St&art Card Calibration"
         BEGIN
-            MENUITEM "&Automatic",                  IDM_START_AUTO_CALIBRATION
-
             MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
+
+            MENUITEM "&Automatic (full)",           IDM_START_AUTO_CALIBRATION
+
+            MENUITEM "Automatic (brightness / contrast) (experimental)", 
+                                                    IDM_START_AUTO_CALIBRATION2
+
+            MENUITEM "Automatic (color) (experimental)", 
+                                                    IDM_START_AUTO_CALIBRATION3
 
         END
         MENUITEM "St&op Card Calibration",      IDM_STOP_CALIBRATION

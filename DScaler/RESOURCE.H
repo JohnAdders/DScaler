@@ -903,13 +903,15 @@
 #define IDM_OVERLAY_SETTINGS            2063
 #define IDM_SHARPNESS_SETTINGS          2064
 #define IDM_VT_CZECH                    2065
+#define IDM_START_AUTO_CALIBRATION2     2066
+#define IDM_START_AUTO_CALIBRATION3     2067
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        187
-#define _APS_NEXT_COMMAND_VALUE         2066
+#define _APS_NEXT_COMMAND_VALUE         2068
 #define _APS_NEXT_CONTROL_VALUE         1903
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

@@ -840,6 +840,28 @@
 #define IDM_PLAYLIST_DOWN               2251
 #define IDM_PLAYLIST_SAVE               2252
 #define IDM_PLAYLIST_FILES              2253
+#define IDM_DSVIDEO_STANDARD_0          2253
+#define IDM_DSVIDEO_STANDARD_1          2254
+#define IDM_DSVIDEO_STANDARD_2          2255
+#define IDM_DSVIDEO_STANDARD_3          2256
+#define IDM_DSVIDEO_STANDARD_4          2257
+#define IDM_DSVIDEO_STANDARD_5          2258
+#define IDM_DSVIDEO_STANDARD_6          2259
+#define IDM_DSVIDEO_STANDARD_7          2260
+#define IDM_DSVIDEO_STANDARD_8          2261
+#define IDM_DSVIDEO_STANDARD_9          2262
+#define IDM_DSVIDEO_STANDARD_10         2263
+#define IDM_DSVIDEO_STANDARD_11         2264
+#define IDM_DSVIDEO_STANDARD_12         2265
+#define IDM_DSVIDEO_STANDARD_13         2266
+#define IDM_DSVIDEO_STANDARD_14         2267
+#define IDM_DSVIDEO_STANDARD_15         2268
+#define IDM_DSVIDEO_STANDARD_16         2269
+#define IDM_DSVIDEO_STANDARD_17         2270
+#define IDM_DSVIDEO_STANDARD_18         2271
+#define IDM_DSVIDEO_STANDARD_19         2272
+#define IDM_DSVIDEO_STANDARD_20         2273
+#define IDM_DSVIDEO_STANDARD_MAX        2273
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -863,6 +885,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        188
 #define _APS_NEXT_COMMAND_VALUE         2303
 #define _APS_NEXT_CONTROL_VALUE         1895
-#define _APS_NEXT_SYMED_VALUE           2213
+#define _APS_NEXT_SYMED_VALUE           2274
 #endif
 #endif

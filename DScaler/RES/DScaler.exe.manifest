@@ -2,10 +2,10 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
  <assemblyIdentity version="1.0.0.0"
                    processorArchitecture="X86"
-                   name="CompanyName.ProductName.YourApp"
+                   name="DScalerTeam.DScaler.DScaler"
                    type="win32"
  />
- <description>Your application description here.</description>
+ <description>This application deinterlaces and scales video. See http://www.dscaler.org for more details</description>
  <dependency>
   <dependentAssembly>
    <assemblyIdentity type="win32"

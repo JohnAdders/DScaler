@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.h,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingKey.h,v 1.2 2004-08-20 07:25:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGKEY_H__
@@ -45,8 +48,6 @@ public:
 	virtual ~CSettingKey();
 
 	static PSETTINGOBJECT NewSetting(LPCSTR entry, BYTE type);
-
-	virtual std::string GetTitle();
 
 	virtual void LoadSetting();
 	virtual void SaveSetting();
@@ -75,26 +76,9 @@ protected:
 
 
 //////////////////////////////////////////////////////////////////////////
-// CSettingKeyTitled
-//////////////////////////////////////////////////////////////////////////
-class CSettingKeyTitled : public CSettingKey
-{
-public:
-	CSettingKeyTitled();
-	virtual ~CSettingKeyTitled();
-
-	virtual void Setup(std::string title);
-	virtual std::string GetTitle();
-
-protected:
-	std::string m_title;
-};
-
-
-//////////////////////////////////////////////////////////////////////////
 // CSettingKeyLong
 //////////////////////////////////////////////////////////////////////////
-class CSettingKeyLong : public CSettingKeyTitled
+class CSettingKeyLong : public CSettingKey
 {
 public:
 	CSettingKeyLong();
@@ -125,7 +109,7 @@ public:
 	CSettingKeySlider();
 	virtual ~CSettingKeySlider();
 
-	virtual void Setup(std::string title, INT initial, INT minimum, INT maximum, INT step = 1);
+	virtual void Setup(INT initial, INT minimum, INT maximum, INT step = 1);
 
 	virtual PSETTINGOBJECT CreateSetting(LPCSTR entry);
 	virtual PSETTINGCONFIG CreateConfig();
@@ -213,8 +197,8 @@ protected: \
 class C ## __Name ## Setting : public CSettingKeyLong \
 { \
 public: \
-	void Setup(std::string title, __TClass* ptr) \
-	{ m_c = ptr; CSettingKeyLong::Setup(title); } \
+	void Setup(__TClass* ptr) \
+	{ m_c = ptr; } \
 	BOOL Notify(INT message, INT newValue, INT oldValue) \
 	{ return m_c->__Name ## OnNotify(message, newValue, oldValue); } \
 private: \
@@ -239,8 +223,8 @@ protected: \
 class C ## __Name ## Setting : public CSettingKeySlider \
 { \
 public: \
-	void Setup(std::string title, __TClass* ptr, INT initial, INT minimum, INT maximum, INT step = 1) \
-	{ m_c = ptr; CSettingKeySlider::Setup(title, initial, minimum, maximum, step); } \
+	void Setup(__TClass* ptr, INT initial, INT minimum, INT maximum, INT step = 1) \
+	{ m_c = ptr; CSettingKeySlider::Setup(initial, minimum, maximum, step); } \
 	BOOL Notify(INT message, INT newValue, INT oldValue) \
 	{ return m_c->__Name ## OnNotify(message, newValue, oldValue); } \
 private: \

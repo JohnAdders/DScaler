@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.cpp,v 1.2 2004-08-14 13:45:23 adcockj Exp $
+// $Id: SettingKey.cpp,v 1.3 2004-08-20 07:25:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -58,12 +61,6 @@ PSETTINGOBJECT CSettingKey::NewSetting(LPCSTR entry, BYTE type)
 		OUT_OF_MEMORY_ERROR;
 	}
 	return object;
-}
-
-
-std::string CSettingKey::GetTitle()
-{
-	return "";
 }
 
 
@@ -160,32 +157,6 @@ HSETTING CSettingKey::GetIdentifier()
 {
 	ASSERT(m_controller != NULL);
 	return m_identifier;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// CSettingKeyTitled
-//////////////////////////////////////////////////////////////////////////
-
-CSettingKeyTitled::CSettingKeyTitled()
-{
-}
-
-
-CSettingKeyTitled::~CSettingKeyTitled()
-{
-}
-
-
-void CSettingKeyTitled::Setup(std::string title)
-{
-	m_title = title;
-}
-
-
-std::string CSettingKeyTitled::GetTitle()
-{
-	return m_title;
 }
 
 
@@ -298,9 +269,8 @@ CSettingKeySlider::~CSettingKeySlider()
 }
 
 
-void CSettingKeySlider::Setup(std::string title, INT initial, INT minimum, INT maximum, INT step)
+void CSettingKeySlider::Setup(INT initial, INT minimum, INT maximum, INT step)
 {
-	CSettingKeyTitled::Setup(title);
 	m_initial = initial;
 	m_minimum = minimum;
 	m_maximum = maximum;
@@ -316,7 +286,7 @@ PSETTINGOBJECT CSettingKeySlider::CreateSetting(LPCSTR entry)
 
 PSETTINGCONFIG CSettingKeySlider::CreateConfig()
 {
-	return (PSETTINGCONFIG)new CSettingConfigSlider(m_title, m_controller, m_identifier,
+	return (PSETTINGCONFIG)new CSettingConfigSlider(m_controller, m_identifier,
 		m_minimum, m_maximum, m_step);
 }
 

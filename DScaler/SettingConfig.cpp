@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.cpp,v 1.4 2004-08-14 13:45:23 adcockj Exp $
+// $Id: SettingConfig.cpp,v 1.5 2004-08-20 07:27:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.3  2004/08/12 14:04:39  atnak
 // Changed blocked dependants code plus other changes.
 //
@@ -45,8 +48,7 @@
 // CSettingConfig
 //////////////////////////////////////////////////////////////////////////
 
-CSettingConfig::CSettingConfig(std::string title) :
-	m_title(title),
+CSettingConfig::CSettingConfig() :
 	m_purgable(TRUE)
 {
 }
@@ -54,12 +56,6 @@ CSettingConfig::CSettingConfig(std::string title) :
 
 CSettingConfig::~CSettingConfig()
 {
-}
-
-
-std::string CSettingConfig::GetTitle()
-{
-	return m_title;
 }
 
 
@@ -90,30 +86,34 @@ BOOL CSettingConfig::IsPurgable()
 //////////////////////////////////////////////////////////////////////////
 
 CSettingConfigSetting::CSettingConfigSetting(PSETTINGKEY key, BOOL activeChange) :
-	CSettingConfig(key->GetTitle()),
+	CSettingConfig(),
 	m_settingGroup(key->GetController()),
 	m_settingIdentifier(key->GetIdentifier()),
 	m_activeChange(activeChange)
 {
-	ASSERT(m_title != "");
 	ASSERT(m_settingGroup != NULL);
 }
 
 
-CSettingConfigSetting::CSettingConfigSetting(std::string title, PSETTINGGROUP group,
-							   HSETTING setting, BOOL activeChange) :
-	CSettingConfig(title),
+CSettingConfigSetting::CSettingConfigSetting(PSETTINGGROUP group,
+											 HSETTING setting, BOOL activeChange) :
+	CSettingConfig(),
 	m_settingGroup(group),
 	m_settingIdentifier(setting),
 	m_activeChange(activeChange)
 {
-	ASSERT(m_title != "");
 	ASSERT(m_settingGroup != NULL);
 }
 
 
 CSettingConfigSetting::~CSettingConfigSetting()
 {
+}
+
+
+std::string CSettingConfigSetting::GetTitle()
+{
+	return m_settingGroup->GetSettingTitle(m_settingIdentifier);
 }
 
 
@@ -205,9 +205,9 @@ CSettingConfigCheckbox::CSettingConfigCheckbox(PSETTINGKEY key, BOOL activeChang
 }
 
 
-CSettingConfigCheckbox::CSettingConfigCheckbox(std::string title, PSETTINGGROUP group,
-											   HSETTING setting, BOOL activeChange) :
-	CSettingConfigSetting(title, group, setting, activeChange)
+CSettingConfigCheckbox::CSettingConfigCheckbox(PSETTINGGROUP group, HSETTING setting,
+											   BOOL activeChange) :
+	CSettingConfigSetting(group, setting, activeChange)
 {
 }
 
@@ -269,10 +269,9 @@ CSettingConfigEditBox::CSettingConfigEditBox(PSETTINGKEY key,
 }
 
 
-CSettingConfigEditBox::CSettingConfigEditBox(std::string title, PSETTINGGROUP group,
-											 HSETTING setting, ULONG maxLength,
-											 BOOL activeChange) :
-	CSettingConfigSetting(title, group, setting, activeChange),
+CSettingConfigEditBox::CSettingConfigEditBox(PSETTINGGROUP group, HSETTING setting,
+											 ULONG maxLength, BOOL activeChange) :
+	CSettingConfigSetting(group, setting, activeChange),
 	m_maxLength(maxLength)
 {
 }
@@ -319,10 +318,9 @@ CSettingConfigListBox::CSettingConfigListBox(PSETTINGKEY key, ULONG count,
 }
 
 
-CSettingConfigListBox::CSettingConfigListBox(std::string title, PSETTINGGROUP group,
-											 HSETTING setting, ULONG count,
-											 BOOL sorted, BOOL activeChange) :
-	CSettingConfigSetting(title, group, setting, activeChange),
+CSettingConfigListBox::CSettingConfigListBox(PSETTINGGROUP group, HSETTING setting,
+											 ULONG count, BOOL sorted, BOOL activeChange) :
+	CSettingConfigSetting(group, setting, activeChange),
 	m_sorted(sorted)
 {
 	m_elements.reserve(count);
@@ -342,7 +340,7 @@ CSettingConfigListBox::CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[],
 
 CSettingConfigListBox::CSettingConfigListBox(std::string title, PSETTINGGROUP group,
 											 HSETTING setting, LPCSTR elements[], ULONG count) :
-	CSettingConfigSetting(title, group, setting)
+	CSettingConfigSetting(group, setting)
 {
 	m_elements.reserve(count);
 	for (ULONG i = 0; i < count; i++)
@@ -441,10 +439,10 @@ CSettingConfigSlider::CSettingConfigSlider(PSETTINGKEY key, INT minimum,
 }
 
 
-CSettingConfigSlider::CSettingConfigSlider(std::string title, PSETTINGGROUP group,
-										   HSETTING setting, INT minimum,
-										   INT maximum, INT step, BOOL activeChange) :
-	CSettingConfigSetting(title, group, setting, activeChange),
+CSettingConfigSlider::CSettingConfigSlider(PSETTINGGROUP group, HSETTING setting,
+										   INT minimum, INT maximum, INT step,
+										   BOOL activeChange) :
+	CSettingConfigSetting(group, setting, activeChange),
 	m_minimum(minimum),
 	m_maximum(maximum),
 	m_step(step)
@@ -523,11 +521,10 @@ INT CSettingConfigSlider::SetSliderValue(INT slide)
 //////////////////////////////////////////////////////////////////////////
 
 CSettingConfigDependant::CSettingConfigDependant(PSETTINGKEY key) :
-	CSettingConfig(key->GetTitle()),
+	CSettingConfig(),
 	m_settingGroupEx(dynamic_cast<PSETTINGGROUPEX>(key->GetController())),
 	m_settingIdentifier(key->GetIdentifier())
 {
-	ASSERT(m_title != "");
 	ASSERT(m_settingGroupEx != NULL);
 
 	// Initialize the internal cache
@@ -537,14 +534,11 @@ CSettingConfigDependant::CSettingConfigDependant(PSETTINGKEY key) :
 }
 
 
-CSettingConfigDependant::CSettingConfigDependant(std::string title,
-												 PSETTINGGROUPEX group,
-												 HSETTING setting) :
-	CSettingConfig(title),
+CSettingConfigDependant::CSettingConfigDependant(PSETTINGGROUPEX group, HSETTING setting) :
+	CSettingConfig(),
 	m_settingGroupEx(group),
 	m_settingIdentifier(setting)
 {
-	ASSERT(m_title != "");
 	ASSERT(m_settingGroupEx != NULL);
 
 	// Initialize the internal cache
@@ -556,6 +550,12 @@ CSettingConfigDependant::CSettingConfigDependant(std::string title,
 
 CSettingConfigDependant::~CSettingConfigDependant()
 {
+}
+
+
+std::string CSettingConfigDependant::GetTitle()
+{
+	return m_settingGroupEx->GetSettingTitle(m_settingIdentifier);
 }
 
 
@@ -627,7 +627,8 @@ void CSettingConfigDependant::Begin()
 //////////////////////////////////////////////////////////////////////////
 
 CSettingConfigContainer::CSettingConfigContainer(std::string title, ULONG reserveCount) :
-	CSettingConfig(title)
+	CSettingConfig(),
+	m_title(title)
 {
 	m_configVector.reserve(reserveCount);
 }
@@ -645,6 +646,12 @@ CSettingConfigContainer::~CSettingConfigContainer()
 		}
 	}
 	m_configVector.clear();
+}
+
+
+std::string CSettingConfigContainer::GetTitle()
+{
+	return m_title;
 }
 
 

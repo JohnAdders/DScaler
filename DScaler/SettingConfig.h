@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.h,v 1.3 2004-08-12 14:04:39 atnak Exp $
+// $Id: SettingConfig.h,v 1.4 2004-08-20 07:27:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/12 14:04:39  atnak
+// Changed blocked dependants code plus other changes.
+//
 // Revision 1.2  2004/08/08 17:03:38  atnak
 // Minor fixes and added Begin() and End() general methods.
 //
@@ -63,11 +66,13 @@ typedef class CSettingConfig* PSETTINGCONFIG;
 class CSettingConfig
 {
 public:
-	CSettingConfig(std::string title);
+	CSettingConfig();
 	virtual ~CSettingConfig();
 
+	// Get the type of the configurator.
 	virtual inline BYTE GetType()=0;
-	virtual std::string GetTitle();
+	// Gets the setting's title.
+	virtual std::string GetTitle()=0;
 
 	// Called when the OK or Apply button is pressed.
 	virtual void ApplyValue()=0;
@@ -85,7 +90,6 @@ public:
 	virtual inline BOOL IsPurgable();
 
 protected:
-	std::string		m_title;
 	BOOL			m_purgable;
 };
 
@@ -97,11 +101,14 @@ class CSettingConfigSetting : public CSettingConfig
 {
 public:
 	CSettingConfigSetting(PSETTINGKEY key, BOOL activeChange = TRUE);
-	CSettingConfigSetting(std::string title, PSETTINGGROUP group,
-		HSETTING setting, BOOL activeChange = TRUE);
+	CSettingConfigSetting(PSETTINGGROUP group, HSETTING setting,
+		BOOL activeChange = TRUE);
 	virtual ~CSettingConfigSetting();
 
 	virtual inline BYTE GetType()=0;
+
+	// Gets the setting's title.
+	virtual std::string GetTitle();
 
 	virtual CSettingValue SetValue(RCSETTINGVALUE value);
 	virtual CSettingValue GetValue();
@@ -132,8 +139,8 @@ class CSettingConfigCheckbox : public CSettingConfigSetting
 {
 public:
 	CSettingConfigCheckbox(PSETTINGKEY key, BOOL activeChange = TRUE);
-	CSettingConfigCheckbox(std::string title,
-		PSETTINGGROUP group, HSETTING setting, BOOL activeChange = TRUE);
+	CSettingConfigCheckbox(PSETTINGGROUP group, HSETTING setting,
+		BOOL activeChange = TRUE);
 	virtual ~CSettingConfigCheckbox();
 
 	virtual inline BYTE GetType() { return SETTING_CONFIG_CHECKBOX; };
@@ -150,8 +157,8 @@ class CSettingConfigEditBox : public CSettingConfigSetting
 {
 public:
 	CSettingConfigEditBox(PSETTINGKEY key, ULONG maxLength, BOOL activeChange = TRUE);
-	CSettingConfigEditBox(std::string title, PSETTINGGROUP group,
-		HSETTING setting, ULONG maxLength, BOOL activeChange = TRUE);
+	CSettingConfigEditBox(PSETTINGGROUP group, HSETTING setting,
+		ULONG maxLength, BOOL activeChange = TRUE);
 	virtual ~CSettingConfigEditBox();
 
 	virtual inline BYTE GetType() { return SETTING_CONFIG_EDITBOX; };
@@ -174,8 +181,7 @@ public:
 	// Reserves space for count amount elemnts.  Use AddElement() to add.
 	CSettingConfigListBox(PSETTINGKEY key, ULONG count,
 		BOOL sorted, BOOL activeChange = TRUE);
-	CSettingConfigListBox(std::string title,
-		PSETTINGGROUP group, HSETTING setting,
+	CSettingConfigListBox(PSETTINGGROUP group, HSETTING setting,
 		ULONG count, BOOL sorted, BOOL activeChange = TRUE);
 
 	// Adds count elements pointed to by elements[] to the list.
@@ -209,7 +215,7 @@ class CSettingConfigSlider : public CSettingConfigSetting
 public:
 	CSettingConfigSlider(PSETTINGKEY key, INT minimum, INT maximum,
 		INT step = 1, BOOL activeChange = TRUE);
-	CSettingConfigSlider(std::string title, PSETTINGGROUP group, HSETTING setting,
+	CSettingConfigSlider(PSETTINGGROUP group, HSETTING setting,
 		INT minimum, INT maximum, INT step = 1, BOOL activeChange = TRUE);
 	virtual ~CSettingConfigSlider();
 
@@ -235,10 +241,13 @@ class CSettingConfigDependant : public CSettingConfig
 {
 public:
 	CSettingConfigDependant(PSETTINGKEY key);
-	CSettingConfigDependant(std::string title, PSETTINGGROUPEX group, HSETTING setting);
+	CSettingConfigDependant(PSETTINGGROUPEX group, HSETTING setting);
 	virtual ~CSettingConfigDependant();
 
 	virtual inline BYTE GetType() { return SETTING_CONFIG_DEPENDANT; };
+
+	// Gets the setting's title
+	virtual std::string GetTitle();
 
 	virtual inline BOOL IsDependee();
 	virtual inline BOOL IsDependee(BYTE dependencyIndex);
@@ -277,6 +286,9 @@ public:
 
 	virtual inline BYTE GetType() { return SETTING_CONFIG_CONTAINER; };
 
+	// Gets the setting group's title.
+	virtual std::string GetTitle();
+
 	// Adds a CSettingConfig as a sub-config of the container class.  The
 	// value of purgable defines whether the passed object can be deleted
 	// by CSettingConfigContainer when the destructor is called.
@@ -298,6 +310,7 @@ public:
 protected:
 	typedef std::vector<CSettingConfig*> CONFIGVECTOR;
 	CONFIGVECTOR m_configVector;
+	std::string m_title;
 };
 
 

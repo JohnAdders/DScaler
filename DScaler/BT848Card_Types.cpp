@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.12 2002-02-03 18:14:40 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.13 2002-02-26 18:28:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/02/03 18:14:40  adcockj
+// Fixed SDI Silk & Sasem cards
+//
 // Revision 1.11  2002/01/16 19:07:04  adcockj
 // Corrected voodoo cards
 //
@@ -2741,12 +2744,12 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			{
 				"S-Video",
 				INPUTTYPE_SVIDEO,
-				0,
+				1,
 			},
 			{
 				"Composite over S-video",
 				INPUTTYPE_COMPOSITE,
-				0,
+				1,
 			},
 		},
 		PLL_28,
@@ -2776,12 +2779,12 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			{
 				"S-Video",
 				INPUTTYPE_SVIDEO,
-				0,
+				1,
 			},
 			{
 				"Composite over S-video",
 				INPUTTYPE_COMPOSITE,
-				0,
+				1,
 			},
 		},
 		PLL_28,

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.122 2002-02-07 13:04:54 temperton Exp $
+// $Id: DScaler.cpp,v 1.123 2002-02-08 08:14:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.122  2002/02/07 13:04:54  temperton
+// Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
+//
 // Revision 1.121  2002/02/03 22:48:21  robmuller
 // Added command line parameters /driverinstall and /driveruninstall.
 //
@@ -2519,10 +2522,21 @@ void MainWndOnInitBT(HWND hWnd)
 
         bDoResize = TRUE;
         
-        if(InitialChannel >= 0)
+        // if we are in tuner mode
+        // either set channel up as requested on the command line
+        // or reset it to what is was last time
+        if (Providers_GetCurrentSource()->IsInTunerMode())
         {
-            Channel_Change(InitialChannel);
+            if(InitialChannel >= 0)
+            {
+                Channel_Change(InitialChannel);
+            }
+            else
+            {
+                Channel_Reset();
+            }
         }
+        
         if (InitialTextPage >= 100)
         {
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);

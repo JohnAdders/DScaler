@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.45 2002-01-26 17:55:13 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.46 2002-02-08 08:14:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/01/26 17:55:13  robmuller
+// Added ability to enter frequency directly.
+// Fixed: When using the channel combo box the tuner was not set to the new frequency.
+//
 // Revision 1.44  2002/01/19 17:23:43  robmuller
 // Added patch #504738 submitted by Keng Hoo Chuah (hoo)
 // (fixed crash if channel.txt does not start with [country])
@@ -1063,6 +1067,11 @@ void Channel_Change(int NewChannel)
             }
         }
     }
+}
+
+void Channel_Reset()
+{
+    Channel_Change(CurrentProgramm);
 }
 
 void Channel_Increment()

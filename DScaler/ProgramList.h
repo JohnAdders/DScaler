@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.12 2001-11-02 16:30:08 adcockj Exp $
+// $Id: ProgramList.h,v 1.13 2002-02-08 08:14:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -102,6 +102,7 @@ void Channel_Increment();
 void Channel_Decrement();
 void Channel_SetCurrent();
 void Channel_Previous();
+void Channel_Reset();
 const char* Channel_GetName();
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.18 2002-02-23 19:07:06 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.19 2002-02-25 22:42:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/02/23 19:07:06  laurentg
+// New AR mode for stills having square pixels
+//
 // Revision 1.17  2002/02/23 12:00:13  laurentg
 // Do nothing in WorkoutOverlaySize when source width or height is null
 //
@@ -272,12 +275,23 @@ CPositionDestinationAspectFilter::CPositionDestinationAspectFilter(double x, dou
 
 BOOL CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
+    #ifdef __ASPECTFILTER_DEBUG__
+        LOG(2,"PRE FILTER VALUES: %s",this->getFilterName());
+        ar.DebugDump();
+    #endif
+
     CAspectRect oldDest = ar.m_CurrentOverlayDestRect;
 
     m_Child->adjustAspect(ar);
 
     ar.m_CurrentOverlayDestRect.shift((int) (((oldDest.width()-ar.m_CurrentOverlayDestRect.width())*m_XPos)/2),
                                  (int) (((oldDest.height()-ar.m_CurrentOverlayDestRect.height())*m_YPos)/2));
+
+    #ifdef __ASPECTFILTER_DEBUG__
+        LOG(2,"POST FILTER VALUES: %s",this->getFilterName());
+        ar.DebugDump();
+    #endif
+
     return FALSE;
 }
 
@@ -293,6 +307,11 @@ void CPositionDestinationAspectFilter::DebugDump()
 
 BOOL CCropAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
+    #ifdef __ASPECTFILTER_DEBUG__
+        LOG(2,"PRE FILTER VALUES: %s",this->getFilterName());
+        ar.DebugDump();
+    #endif
+
     double MaterialAspect = AspectSettings.SourceAspect ? (AspectSettings.SourceAspect/1000.0) : ar.m_CurrentOverlayDestRect.targetAspect();
     
     if(AspectSettings.SourceAspectAdjust != 1000)
@@ -313,6 +332,12 @@ BOOL CCropAspectFilter::adjustAspect(CAspectRectangles &ar)
     // Crop the destination rectangle
     // Bouncers are used to position the target rectangle within the cropped region...
     ar.m_CurrentOverlayDestRect.adjustTargetAspectByShrink(MaterialAspect);
+
+    #ifdef __ASPECTFILTER_DEBUG__
+        LOG(2,"POST FILTER VALUES: %s",this->getFilterName());
+        ar.DebugDump();
+    #endif
+
     return FALSE;
 }
 
@@ -334,8 +359,8 @@ BOOL CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar)
     CAspectRect lastSrc = ar.m_CurrentOverlaySrcRect;
 
     // Figure out where we have space left and add it back in (up to the amount of image we have)
-    double vScale = ar.m_CurrentOverlayDestRect.height() / ar.m_CurrentOverlaySrcRect.height();
-    double hScale = ar.m_CurrentOverlayDestRect.width() / ar.m_CurrentOverlaySrcRect.width();
+    double vScale = (double)ar.m_CurrentOverlayDestRect.height() / (double)ar.m_CurrentOverlaySrcRect.height();
+    double hScale = (double)ar.m_CurrentOverlayDestRect.width() / (double)ar.m_CurrentOverlaySrcRect.width();
 
     // Scale the source image to use the entire display area
     ar.m_CurrentOverlaySrcRect.left -= (int)floor((ar.m_CurrentOverlayDestRect.left - rOriginalDest.left)/hScale);

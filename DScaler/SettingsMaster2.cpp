@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster2.cpp,v 1.2 2003-06-15 06:01:35 atnak Exp $
+// $Id: SettingsMaster2.cpp,v 1.3 2003-08-24 06:20:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/06/15 06:01:35  atnak
+// Minor updates
+//
 // Revision 1.1  2003/06/12 10:28:45  atnak
 // Initial release
 //
@@ -661,12 +664,12 @@ static BOOL SettingChangeCallback(long newValue, long oldValue,
 
 	if (pChangedSetting->m_pHookFunc == NULL)
 	{
-		return !bSuppressOnChange;
+		return bSuppressOnChange;
 	}
 
 	if (newValue == oldValue)
 	{
-		return FALSE;
+		return TRUE;
 	}
 
 	// Ignore any suppression of master settings
@@ -674,7 +677,7 @@ static BOOL SettingChangeCallback(long newValue, long oldValue,
 	{
 		// There is no need to do any more because the setting
 		// is already set in CSimpleSetting before the hook
-		return FALSE;
+		return TRUE;
 	}
 
 	// Continue the full query-and-commit path to get
@@ -687,6 +690,6 @@ static BOOL SettingChangeCallback(long newValue, long oldValue,
 	(pChangedSetting->m_pHookFunc)
 		(pChangedSetting, pChangedSetting->m_pHookContext);
 
-	return FALSE;
+	return TRUE;
 }
 

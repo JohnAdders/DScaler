@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.1 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.2 2002-10-26 05:24:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/14 19:40:48  atnak
+// various changes
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -234,7 +237,7 @@ bool CSAA7134I2CBus::IsError(BYTE Status)
     case ISAA7134I2CInterface::STATUS_ST_ERR:
     case ISAA7134I2CInterface::STATUS_SW_ERR:
         return true;
-    
+
     default:
         // do nothing
         break;

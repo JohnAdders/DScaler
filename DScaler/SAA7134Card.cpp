@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.19 2002-10-26 04:41:44 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.20 2002-10-26 05:24:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/10/26 04:41:44  atnak
+// Clean up + added auto card detection
+//
 // Revision 1.18  2002/10/23 17:05:56  atnak
 // Fix to trigger error recovery
 //
@@ -799,7 +802,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
     switch (message)
     {
     case WM_INITDIALOG:
-        pThis = (CSAA7134Card*)lParam; 
+        pThis = (CSAA7134Card*)lParam;
 
         SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType());
 
@@ -823,7 +826,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
             SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         }
         SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
-        
+
         LPCSTR pCPUTypeString;
         if (CpuFeatureFlags & FEATURE_SSE2)
         {
@@ -963,7 +966,7 @@ void CSAA7134Card::EnableI2SAudioOutput(WORD wRate)
     WriteByte(SAA7134_DSP_OUTPUT_SELECT,    0x80);
     WriteByte(SAA7134_I2S_OUTPUT_SELECT,    0x80);
     WriteByte(SAA7134_I2S_OUTPUT_FORMAT,    0x01);
-    WriteByte(SAA7134_I2S_OUTPUT_LEVEL,     0x00);  
+    WriteByte(SAA7134_I2S_OUTPUT_LEVEL,     0x00);
     WriteByte(SAA7134_I2S_AUDIO_OUTPUT,     0x01);
 }
 
@@ -1011,7 +1014,7 @@ void CSAA7134Card::DumpRegisters()
         Data = ReadDword(i + 8);
         sprintf(HexString, "%s|%02x%02x %02x%02x", HexString,
             Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
-        
+
         Data = ReadDword(i + 12);
         sprintf(HexString, "%s %02x%02x %02x%02x", HexString,
             Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.8 2002-10-16 11:37:59 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.9 2002-10-26 05:24:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/16 11:37:59  atnak
+// added saa7130 support
+//
 // Revision 1.7  2002/10/10 12:11:31  atnak
 // fixes crash on exit
 //
@@ -67,7 +70,7 @@ typedef struct
     char* szName;
 } TSAA7134Chip;
 
-TSAA7134Chip SAA7134Chips[] = 
+TSAA7134Chip SAA7134Chips[] =
 {
     {
         0x1131,
@@ -104,10 +107,10 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
     {
         int CardsFound(0);
 
-        while(pHardwareDriver->DoesThisPCICardExist( 
-                                                        SAA7134Chips[i].VendorId, 
-                                                        SAA7134Chips[i].DeviceId, 
-                                                        CardsFound, 
+        while(pHardwareDriver->DoesThisPCICardExist(
+                                                        SAA7134Chips[i].VendorId,
+                                                        SAA7134Chips[i].DeviceId,
+                                                        CardsFound,
                                                         SubSystemId
                                                    ) == TRUE)
         {
@@ -124,10 +127,10 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
             sprintf(szSection, "%s%d", SAA7134Chips[i].szName, CardsFound + 1);
             CSAA7134Source* pNewSource = CreateCorrectSource(
                                                                 pHardwareDriver,
-                                                                szSection, 
-                                                                SAA7134Chips[i].VendorId, 
-                                                                SAA7134Chips[i].DeviceId, 
-                                                                CardsFound, 
+                                                                szSection,
+                                                                SAA7134Chips[i].VendorId,
+                                                                SAA7134Chips[i].DeviceId,
+                                                                CardsFound,
                                                                 SubSystemId,
                                                                 SAA7134Chips[i].szName
                                                           );

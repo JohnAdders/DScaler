@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.30 2002-10-26 04:42:50 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.31 2002-10-26 05:24:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/10/26 04:42:50  atnak
+// Added AGC config and automatic volume leveling control
+//
 // Revision 1.29  2002/10/23 17:05:19  atnak
 // Added variable VBI sample rate scaling
 //
@@ -166,7 +169,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_LastFieldIndex(0),
     m_hSAA7134ResourceInst(NULL)
 {
-    m_IDString = IniSection;    
+    m_IDString = IniSection;
     CreateSettings(IniSection);
 
     m_InitialACPIStatus = m_pSAA7134Card->GetACPIStatus();
@@ -327,7 +330,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 
     m_bSavePerInput = new CYesNoSetting("Save Per Input", FALSE, IniSection, "SavePerInput");
     m_Settings.push_back(m_bSavePerInput);
-    
+
     m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
     m_Settings.push_back(m_bSavePerFormat);
 
@@ -441,9 +444,9 @@ void CSAA7134Source::SetupDMAMemory()
 
     // Turn off all DMA
     m_pSAA7134Card->SetDMA(REGIONID_VIDEO_A, FALSE);
-    m_pSAA7134Card->SetDMA(REGIONID_VIDEO_B, FALSE);        
+    m_pSAA7134Card->SetDMA(REGIONID_VIDEO_B, FALSE);
     m_pSAA7134Card->SetDMA(REGIONID_VBI_A, FALSE);
-    m_pSAA7134Card->SetDMA(REGIONID_VBI_B, FALSE);      
+    m_pSAA7134Card->SetDMA(REGIONID_VBI_B, FALSE);
 
     for (nFrame = 0; nFrame < 2; nFrame++)
     {
@@ -747,7 +750,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     if(SkippedFields == 0)
     {
     }
-    else if(SkippedFields == 1) 
+    else if(SkippedFields == 1)
     {
         m_ProcessingRegionID = RegionID;
         m_IsProcessingFieldOdd = bIsFieldOdd;
@@ -757,7 +760,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         LOG(2, " Slightly late");
     }
     // This might not be possible with only a 4 field cycle
-    else if(SkippedFields == 2) 
+    else if(SkippedFields == 2)
     {
         m_ProcessingRegionID = RegionID;
         m_IsProcessingFieldOdd = bIsFieldOdd;
@@ -1241,7 +1244,7 @@ void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoMirrorOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetVideoMirror(NewValue);  
+    m_pSAA7134Card->SetVideoMirror(NewValue);
 }
 
 
@@ -1379,7 +1382,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
         }
         m_ChannelChangeTick = 0;
     }
-    
+
     BYTE ConvertBuffer[2048];
 
     if (m_IsFieldOdd)
@@ -1469,7 +1472,7 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
             }
         }
     }
-    
+
     // Make sure we have 8 trenches
     if (n != 8)
     {
@@ -1544,7 +1547,7 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
             }
         }
     }
-  
+
     VBI_decode_vt(RawData);
 }
 */
@@ -1566,7 +1569,7 @@ void CSAA7134Source::SavePerChannelSetup(int Start)
     {
         m_SettingsByChannelStarted = TRUE;
         ChangeChannelSectionNames();
-    }    
+    }
     else
     {
         m_SettingsByChannelStarted = FALSE;
@@ -1591,11 +1594,11 @@ int  CSAA7134Source::NumInputs(eSourceInputType InputType)
 {
     if (InputType == VIDEOINPUT)
     {
-        return m_pSAA7134Card->GetNumInputs();    
+        return m_pSAA7134Card->GetNumInputs();
     }
     /*  else if (InputType == AUDIOINPUT)
     {
-        return m_pSAA7134Card->GetNumAudioInputs();    
+        return m_pSAA7134Card->GetNumAudioInputs();
     }*/
     return 0;
 }
@@ -1608,9 +1611,9 @@ BOOL CSAA7134Source::SetInput(eSourceInputType InputType, int Nr)
         return TRUE;
     }
     /* else if (InputType == AUDIOINPUT)
-    {    
-        m_pSAA7134Card->SetAudioSource((eAudioInput)Nr);            
-        return TRUE;        
+    {
+        m_pSAA7134Card->SetAudioSource((eAudioInput)Nr);
+        return TRUE;
     }*/
     return FALSE;
 }
@@ -1623,7 +1626,7 @@ int CSAA7134Source::GetInput(eSourceInputType InputType)
     }
     /*  else if (InputType == AUDIOINPUT)
     {
-        return m_pSAA7134Card->GetAudioInput();  
+        return m_pSAA7134Card->GetAudioInput();
     }*/
     return -1;
 }
@@ -1636,9 +1639,9 @@ const char* CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
         {
             return m_pSAA7134Card->GetInputName(Nr);
         }
-    } 
+    }
     /*  else if (InputType == AUDIOINPUT)
-    {    
+    {
         return m_pSAA7134Card->GetAudioInputName((eAudioInput)Nr);
     }*/
     return NULL;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.13 2002-10-26 04:42:50 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.14 2002-10-26 05:24:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/26 04:42:50  atnak
+// Added AGC config and automatic volume leveling control
+//
 // Revision 1.12  2002/10/20 07:41:30  atnak
 // custom audio standard setup + etc
 //
@@ -85,13 +88,13 @@ void CSAA7134Card::InitAudio()
         // saa7130 doesn't support most audio stuff
         return;
     }
-    
+
     // mute all
     WriteByte(SAA7134_AUDIO_MUTE_CTRL,          0xFF);
 
     // auto gain control enabled
     WriteByte(SAA7134_AGC_GAIN_SELECT,          0x00);
-    
+
     WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x40);
 
     WriteByte(SAA7134_MONITOR_SELECT,           0xA0);
@@ -657,7 +660,7 @@ void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
         // Selecting 00 will force FM/AM.  This means selecting mono
         // when on NICAM will revert to ch1 FM
         MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x00,
-            SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);    
+            SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);
     }
     else
     {
@@ -702,7 +705,7 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
         case 0x03:
         case 0x04:
             return AUDIOCHANNEL_MONO;
-        
+
         default:
             // NEVER_GET_HERE;
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.9 2002-10-26 04:41:44 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.10 2002-10-26 05:24:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/26 04:41:44  atnak
+// Clean up + added auto card detection
+//
 // Revision 1.8  2002/10/16 22:10:56  atnak
 // fixed some cards to available FM1216ME_MK3 tuner
 //
@@ -65,7 +68,7 @@
 #include "DebugLog.h"
 
 
-const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] = 
+const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
 {
     // SAA7134CARD_UNKNOWN - Unknown Card
     {
@@ -609,7 +612,7 @@ void CSAA7134Card::KWTV713XRFCardInputSelect(int nInput)
 void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
 {
     eVideoInputSource VideoInput;
-    
+
     if(nInput >= m_SAA7134Cards[m_CardType].NumInputs)
     {
         LOG(1, "Input Select Called for invalid input");

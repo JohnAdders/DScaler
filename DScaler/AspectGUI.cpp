@@ -414,7 +414,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             aspectSettings.xZoomCenter = -100;
         }
-		sprintf(Text,"X Center %.1fx", (double)aspectSettings.xZoomCenter / 100.0);
+		sprintf(Text,"X Center %.2fx", (double)aspectSettings.xZoomCenter / 100.0);
 		ShowText(hWnd, Text);
 		break;
 
@@ -424,7 +424,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             aspectSettings.xZoomCenter = 200;
         }
-		sprintf(Text,"X Center %.1fx", (double)aspectSettings.xZoomCenter / 100.0);
+		sprintf(Text,"X Center %.2fx", (double)aspectSettings.xZoomCenter / 100.0);
 		ShowText(hWnd, Text);
 		break;
 
@@ -434,7 +434,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		{
 			aspectSettings.yZoomCenter = 200;
 		}
-		sprintf(Text,"Y Center %.1fx", (double)aspectSettings.yZoomCenter / 100.0);
+		sprintf(Text,"Y Center %.2fx", (double)aspectSettings.yZoomCenter / 100.0);
 		ShowText(hWnd, Text);
 		break;
 
@@ -444,7 +444,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             aspectSettings.yZoomCenter = 0100;
         }
-		sprintf(Text,"Y Center %.1fx", (double)aspectSettings.yZoomCenter / 100.0);
+		sprintf(Text,"Y Center %.2fx", (double)aspectSettings.yZoomCenter / 100.0);
 		ShowText(hWnd, Text);
 		break;
 

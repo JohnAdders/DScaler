@@ -483,7 +483,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					InvalidateRect(hWnd,NULL,FALSE);
 				}
 			}
-			ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+			else
+			{
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+			}
 			break;
 
 		case IDM_VT_PAGE_PLUS:
@@ -496,9 +499,33 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					InvalidateRect(hWnd,NULL,FALSE);
 				}
 			}
-			ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+			else
+			{
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+			}
 			break;
 
+		case IDM_VT_PAGE_UP:
+			if(VTState != VT_OFF)
+			{
+				// not yet implemented
+			}
+			else
+			{
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+			}
+			break;
+
+		case IDM_VT_PAGE_DOWN:
+			if(VTState != VT_OFF)
+			{
+				// not yet implemented
+			}
+			else
+			{
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+			}
+			break;
 
 		case IDM_CHANNELPLUS:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)

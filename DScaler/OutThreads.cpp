@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.72 2002-06-23 18:06:00 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.73 2002-06-23 20:48:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2002/06/23 18:06:00  laurentg
+// Vertical mirror
+//
 // Revision 1.71  2002/06/23 11:03:33  robmuller
 // If vertical flipping make the odd fields even and the even fields odd.
 //
@@ -1057,7 +1060,7 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 {
     {
         "Hurry When Late", ONOFF, 0, (long*)&bHurryWhenLate,
-        TRUE, 0, 1, 1, 1,
+        FALSE, 0, 1, 1, 1,
         NULL,
         "Threads", "bHurryWhenLate", NULL,
     },

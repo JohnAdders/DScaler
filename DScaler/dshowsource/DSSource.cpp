@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.13 2002-02-22 09:07:14 tobbej Exp $
+// $Id: DSSource.cpp,v 1.14 2002-03-15 23:03:51 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/02/22 09:07:14  tobbej
+// fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
+//
 // Revision 1.12  2002/02/19 16:03:37  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -587,6 +590,7 @@ void CDSSource::Start()
 	m_lastNumDroppedFrames=-1;
 	m_currentX=0;
 	m_currentY=0;
+	m_bProcessingFirstField=true;
 	try
 	{
 		CWaitCursor wait;
@@ -1000,7 +1004,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	else
 	{
 		//FIXME: need to wait one field here
-		Sleep(20);
+		//Sleep(20);
 
 		pInfo->FrameHeight=m_currentY;
 		pInfo->FrameWidth=m_currentX;

@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.19 2005-03-09 09:35:16 atnak Exp $
+// $Id: TDA9887.cpp,v 1.20 2005-03-09 13:19:15 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.18  2004/12/25 22:40:18  to_see
 // Changed the card list to an ini file
 //
@@ -95,6 +99,17 @@ CTDA9887::~CTDA9887()
 {
 }
 
+CTDA9887* CTDA9887::CreateDetectedTDA9887(IN CI2CBus* i2cBus)
+{
+	CTDA9887* pTDA9887 = new CTDA9887();
+
+	if (!pTDA9887->SetDetectedI2CAddress(i2cBus))
+	{
+		delete pTDA9887;
+		return NULL;
+	}
+	return pTDA9887;
+}
 
 bool CTDA9887::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
 {
@@ -521,6 +536,18 @@ CTDA9887Ex::CTDA9887Ex()
 
 CTDA9887Ex::~CTDA9887Ex()
 {
+}
+
+CTDA9887Ex* CTDA9887Ex::CreateDetectedTDA9887Ex(IN CI2CBus* i2cBus)
+{
+	CTDA9887Ex* pTDA9887Ex = new CTDA9887Ex();
+
+	if (!pTDA9887Ex->SetDetectedI2CAddress(i2cBus))
+	{
+		delete pTDA9887Ex;
+		return NULL;
+	}
+	return pTDA9887Ex;
 }
 
 void CTDA9887Ex::TunerSet(IN bool bPreSet, IN eVideoFormat format)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.20 2005-03-09 09:35:16 atnak Exp $
+// $Id: TDA9887.h,v 1.21 2005-03-09 13:19:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.19  2004/12/25 22:40:18  to_see
 // Changed the card list to an ini file
 //
@@ -167,6 +171,9 @@ public:
     CTDA9887();
     virtual ~CTDA9887();
 
+	// Return a CTDA9887 object or NULL if none is detected.
+	static CTDA9887* CreateDetectedTDA9887(IN CI2CBus* i2cBus);
+
 	// Sets the device to use a detected I2C address.
 	virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus);
 
@@ -267,6 +274,9 @@ class CTDA9887Ex : public CTDA9887
 public:
 	CTDA9887Ex();
     virtual ~CTDA9887Ex();
+
+	// Return a CTDA9887 object or NULL if none is detected.
+	static CTDA9887Ex* CreateDetectedTDA9887Ex(IN CI2CBus* i2cBus);
 
     virtual void TunerSet(IN bool bPreSet, IN eVideoFormat format);
 	virtual void TunerSet(IN bool bPreSet, IN eTDA9887Format format);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.11 2002-10-21 07:19:33 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.12 2002-10-22 11:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/21 07:19:33  adcockj
+// Preliminary Support for PixelView XCapture
+//
 // Revision 1.10  2002/10/18 16:12:31  adcockj
 // Tidy up and fixes for Cx2388x analogue support
 //
@@ -501,16 +504,20 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         if (CurrentY == 576)
         {
-            SetPLL(35.44);
             HorzScale = 0x0504;
+            double PALFsc8(GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc * 8);
+
+            SetPLL(PALFsc8);
 
 			// set up subcarrier frequency
-			DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 35.44) * (double)(1<<22));
+			DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PALFsc8) * (double)(1<<22));
 			WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
 			// Subcarrier frequency Dr, for SECAM only but lets
 			// set it anyway
-			RegValue = (DWORD)((8.0 * 4.406250 / 35.44) * (double)(1<<22));
+			RegValue = (DWORD)((8.0 * 4.406250 / PALFsc8) * (double)(1<<22));
 			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
+
+            WriteDword( CT2388X_SAMPLERATECONV, 0x19D5F);
         }
         else
         {
@@ -524,9 +531,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 			// set it anyway
 			RegValue = (DWORD)((8.0 * 4.406250 / 28.636363) * (double)(1<<22));
 			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
+
+            WriteDword( CT2388X_SAMPLERATECONV, 0x20000);
         }
 
-        SetSampleRateConverter(28.636363);
+
 
         // Setup correct format
 		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
@@ -540,27 +549,27 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_H:
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = HLNotchFilter4xFsc | 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = HLNotchFilter4xFsc | 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_M:
             VideoInput |= VideoFormatPALM;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = HLNotchFilter4xFsc | 858;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_60:
             VideoInput |= VideoFormatPAL60;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = HLNotchFilter4xFsc | 858;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             VideoInput |= VideoFormatPALNC;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = HLNotchFilter4xFsc | 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_SECAM_B:
@@ -572,23 +581,23 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_SECAM_L:
         case VIDEOFORMAT_SECAM_L1:
             VideoInput |= VideoFormatSECAM;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = HLNotchFilter4xFsc | 864;
             break;
         case VIDEOFORMAT_NTSC_M:
             VideoInput |= VideoFormatNTSC;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = HLNotchFilter4xFsc | 858;
             break;
         case VIDEOFORMAT_NTSC_M_Japan:
             VideoInput |= VideoFormatNTSCJapan;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = HLNotchFilter4xFsc | 858;
             break;
         case VIDEOFORMAT_NTSC_50:
             VideoInput |= VideoFormatNTSC443;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = HLNotchFilter4xFsc | 864;
             break;
         default:
             VideoInput |= VideoFormatAuto;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = HLNotchFilter4xFsc | 858;
             break;
         }
 

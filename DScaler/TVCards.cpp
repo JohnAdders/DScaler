@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.23 2001-09-07 20:56:57 laurentg Exp $
+// $Id: TVCards.cpp,v 1.24 2001-09-09 17:46:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/09/07 20:56:57  laurentg
+// no message
+//
 // Revision 1.22  2001/09/07 20:39:43  laurentg
 // New card added : Pinnacle PCTV Sat
 //
@@ -862,7 +865,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
     {
         "Pinnacle PCTV Sat",
         2, 1, -1, 2, 0x03000F,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
+        { 0, 3, 1, 1, 0, 0, 0, 0},
         { 0, 0, 0, 0, 1, 0},
         0,
         PLL_28,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.28 2001-09-04 21:03:09 laurentg Exp $
+// $Id: OSD.cpp,v 1.29 2001-09-09 17:46:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/09/04 21:03:09  laurentg
+// no message
+//
 // Revision 1.27  2001/09/02 22:07:42  laurentg
 // OSD screen for automatic calibration modified
 // Hue taken into account during automatic calibration
@@ -689,7 +692,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         nLine = 2;
         sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Contrast : %+04d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+        sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
@@ -976,7 +979,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         {
             sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
             OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-            sprintf (szInfo, "Contrast : %+04d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+            sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
             OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
             sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
             OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
@@ -1001,7 +1004,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                 Color = 0;
             }
             OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
-            sprintf (szInfo, "Contrast : %+04d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+            sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
             if ( pCalibration->IsRunning()
               && ( (pCalibration->GetCurrentStep() == 3)
                 || (pCalibration->GetCurrentStep() == 4)

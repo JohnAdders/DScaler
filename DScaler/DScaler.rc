@@ -932,14 +932,13 @@ BEGIN
             MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
             MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
-            , GRAYED
         END
         MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
         POPUP "Video &Overlay"
         BEGIN
             MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS
-            MENUITEM "Settings &Select",            65535, GRAYED
+            MENUITEM "Groups of Settings",          65535, GRAYED
             MENUITEM "St&op",                       IDM_OVERLAY_STOP
             MENUITEM "St&art",                      IDM_OVERLAY_START
         END

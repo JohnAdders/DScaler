@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.14 2004-02-15 21:18:14 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.15 2004-02-15 21:47:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/02/15 21:18:14  to_see
+// New A2 code.
+//
 // Revision 1.13  2004/01/27 22:56:26  robmuller
 // New A2 code.
 //
@@ -206,6 +209,7 @@ void CCX2388xCard::SetAudioUnMute(WORD nVolume)
 		WriteDword(MO_GP0_IO, dwval);
 	}
 	
+	else
 	{
 		// Unmute the audio and set volume
 		DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);

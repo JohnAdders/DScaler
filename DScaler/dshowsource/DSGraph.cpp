@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.8 2002-03-26 19:48:59 adcockj Exp $
+// $Id: DSGraph.cpp,v 1.9 2002-04-03 19:52:30 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/03/26 19:48:59  adcockj
+// Improved error handling in DShow code
+//
 // Revision 1.7  2002/03/17 21:43:23  tobbej
 // added input resolution submenu
 //
@@ -304,7 +307,12 @@ bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPa
 	CDShowGenericEnum<IEnumFilters,IBaseFilter> filterEnum;
 	HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
 	if(FAILED(hr))
+	{
+		CDShowException tmp("",hr);
+		LOG(1, "Failed to get filter enumerator!!! : %s",(LPCSTR)tmp.getErrorText());
 		return false;
+	}
+
 	CComPtr<IBaseFilter> pFilter;
 	try
 	{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.17 2002-03-26 19:48:59 adcockj Exp $
+// $Id: DSSource.cpp,v 1.18 2002-04-03 19:52:30 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/03/26 19:48:59  adcockj
+// Improved error handling in DShow code
+//
 // Revision 1.16  2002/03/17 21:55:10  tobbej
 // fixed resolution submenu so its properly disabled when using file input or there is no available resolutions
 //
@@ -879,6 +882,7 @@ void CDSSource::SetMenu(HMENU hMenu)
 		index++;
 	}
 	menu->EnableMenuItem(11,MF_BYPOSITION|(index==0 ? MF_GRAYED : MF_ENABLED));
+	LOG(1, "%d filters added to filters submenu",index);
 
 	//set a radio checkmark infront of the current play/pause/stop menu entry
 	FILTER_STATE state=m_pDSGraph->getState();

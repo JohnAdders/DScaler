@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.49 2002-10-08 20:17:48 laurentg Exp $
+// $Id: Providers.cpp,v 1.50 2002-10-08 20:39:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/10/08 20:17:48  laurentg
+// Calls to PreShowDialogOrMenu / PostShowDialogOrMenu added
+//
 // Revision 1.48  2002/10/07 22:30:57  kooiman
 // Fixed NewValue=pSource.
 //
@@ -284,7 +287,6 @@ int Providers_Load(HMENU hMenu)
             Audio_Mute();
         }
 
-		/* SAA7134 support (uncomment to test - try at own risk)
         SAA7134Provider = new CSAA7134Provider(HardwareDriver);
         for(i = 0; i < SAA7134Provider->GetNumberOfSources(); ++i)
         {
@@ -304,7 +306,6 @@ int Providers_Load(HMENU hMenu)
             CurrentSource = i;
             Audio_Mute();
         }
-        */
 
 		// Use by default the first BT8x8/CX2388x/SAA7134 source as initial source
 		// Do that before loading other sources

@@ -135,7 +135,7 @@ BEGIN
     LTEXT           " 0",IDC_FLAG8,333,85,37,8
     LTEXT           " 0",IDC_FLAG9,333,94,37,8
     LTEXT           " 0",IDC_FLAG2,333,31,37,8
-    PUSHBUTTON      "Diagnostics",IDC_DIAG,65,153,47,14
+    PUSHBUTTON      "Diagnostics",IDC_DIAG,65,155,47,14
     RTEXT           "0",IDC_COMB10,177,103,22,8
     RTEXT           "0",IDC_COMB11,177,112,22,8
     RTEXT           "0",IDC_COMB12,177,121,22,8
@@ -167,7 +167,7 @@ BEGIN
     RTEXT           " 0",IDC_MOTION12,239,121,22,8
     RTEXT           " 0",IDC_MOTION13,239,130,22,8
     RTEXT           " 0",IDC_MOTION14,239,139,22,8
-    PUSHBUTTON      "Refresh",IDC_REFRESH,242,153,38,14
+    PUSHBUTTON      "Refresh",IDC_REFRESH,242,155,38,14
     RTEXT           "Kontrast",IDC_FLAGS3,204,4,27,8
     RTEXT           "0",IDC_KONTRAST0,208,13,22,8
     RTEXT           "0",IDC_KONTRAST1,208,22,22,8
@@ -244,19 +244,13 @@ BEGIN
         LEFTMARGIN, 1
         RIGHTMARGIN, 370
         VERTGUIDE, 158
+        TOPMARGIN, 4
         BOTTOMMARGIN, 169
         HORZGUIDE, 4
     END
 END
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-SLIDER1                 BITMAP  DISCARDABLE     "res\\slider.bmp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

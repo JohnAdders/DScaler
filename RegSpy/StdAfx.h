@@ -1,0 +1,72 @@
+/////////////////////////////////////////////////////////////////////////////
+// $Id: StdAfx.h,v 1.1 2002-12-03 20:51:46 atnak Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2002 John Adcock.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+//
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+
+#if !defined(AFX_STDAFX_H__A9DB83DB_A9FD_11D0_BFD1_444553540000__INCLUDED_)
+#define AFX_STDAFX_H__A9DB83DB_A9FD_11D0_BFD1_444553540000__INCLUDED_
+
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+
+#define VC_EXTRALEAN
+#include <afxwin.h>
+#include <afxext.h>
+#include <afxcmn.h>
+
+#include <atlbase.h>
+
+// Windows Header Files:
+#include <windowsx.h>
+
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <memory.h>
+#include <io.h>
+#include <fcntl.h>
+#include <commctrl.h>
+#include <sys/timeb.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ddraw.h>
+#include <process.h>
+#include <math.h>
+#include <mmsystem.h>
+#include <vfw.h>
+#include <winioctl.h>
+#include "../DScaler/ErrorBox.h"
+#include "DSDrv.h"
+#include "HtmlHelp.H"
+#include <vector>
+#include <string>
+
+// fix for including external header with IDC_STATIC defined
+#ifdef IDC_STATIC
+#undef IDC_STATIC
+#endif
+
+using namespace std;
+
+
+//{{AFX_INSERT_LOCATION}}
+// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+
+#endif // !defined(AFX_STDAFX_H__A9DB83DB_A9FD_11D0_BFD1_444553540000__INCLUDED_)

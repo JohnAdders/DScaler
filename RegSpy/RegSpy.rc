@@ -1,0 +1,151 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_REGSPY              ICON    DISCARDABLE     "RegSpy.ICO"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APP_TITLE           "RegSpy"
+    IDC_REGSPY              "REGSPY"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAINDIALOG DIALOG DISCARDABLE  0, 0, 211, 287
+STYLE DS_MODALFRAME | DS_NOIDLEMSG | DS_SETFOREGROUND | DS_NOFAILCREATE | 
+    DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "RegSpy"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Close",IDOK,154,266,50,14
+    COMBOBOX        IDC_SOURCESELECT,80,7,124,157,CBS_DROPDOWNLIST | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Reload",IDC_RELOAD,150,36,46,14,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    CONTROL         "",IDC_REGDISPLAY,"Static",SS_ETCHEDFRAME,16,106,169,125
+    SCROLLBAR       IDC_REGSCROLL,190,103,10,130,SBS_VERT | WS_DISABLED
+    CONTROL         "Move Up Changes",IDC_MOVEUPCHANGES,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,12,241,75,10
+    PUSHBUTTON      "Log State",IDC_LOGSTATE,134,240,66,14,WS_DISABLED
+    PUSHBUTTON      "Dump To File ...",IDC_DUMPTOFILE,7,266,65,14,
+                    WS_DISABLED
+    LTEXT           "Video Decoder:",IDC_STATIC,12,39,50,8
+    LTEXT           "Vendor ID:",IDC_STATIC,12,50,35,8
+    LTEXT           "Device ID:",IDC_STATIC,12,61,35,8
+    LTEXT           "Subsystem ID:",IDC_STATIC,12,72,46,8
+    GROUPBOX        "Hardware",IDC_STATIC,7,26,197,62
+    GROUPBOX        "Registers",IDC_STATIC,7,93,197,164
+    CONTROL         "Source Card",IDC_STATIC,"Static",SS_SIMPLE | 
+                    SS_CENTERIMAGE | WS_GROUP,7,8,50,12
+    LTEXT           "Not Applicable",IDC_CHIPTYPE,80,39,58,8
+    LTEXT           "Not Applicable",IDC_VENDORID,80,50,58,8
+    LTEXT           "Not Applicable",IDC_DEVICEID,80,61,58,8
+    LTEXT           "Not Applicable",IDC_SUBSYSTEMID,80,72,58,8
+    PUSHBUTTON      "Refresh",IDC_REFRESH,68,84,50,14,NOT WS_VISIBLE
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,13,236,186,1
+END
+
+#endif    // English (Australia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

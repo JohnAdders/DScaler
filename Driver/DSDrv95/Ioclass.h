@@ -1,19 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
-// ioclass.h
+// $Id: Ioclass.h,v 1.2 2001-07-13 16:13:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on hwiodrv from the FreeTV project Those portions are
@@ -123,13 +123,13 @@ CONFIGRET __cdecl _CONFIGMG_Call_Enumerator_Function (DEVNODE dnDevNode, ENUMFUN
 
 typedef struct tagMemoryNode
 {
-	DWORD dwSystemAddress;
-	DWORD dwUserAddress;
-	DWORD dwFlags;
+    DWORD dwSystemAddress;
+    DWORD dwUserAddress;
+    DWORD dwFlags;
 #if defined (WIN95)
-	DWORD dwPages;
+    DWORD dwPages;
 #elif defined (_NTKERNEL_)
-	PMDL pMdl;
+    PMDL pMdl;
 #endif
 } TMemoryNode, * PMemoryNode;
 
@@ -140,29 +140,29 @@ typedef struct tagMemoryNode
 class CIOAccessDevice
 {
 public:
-	CIOAccessDevice();
-	~CIOAccessDevice();
+    CIOAccessDevice();
+    ~CIOAccessDevice();
 
-	NTSTATUS deviceIOControl(PIRP irp);
-
-protected:
-	int isValidAddress(void * pvAddress);
-	NTSTATUS deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pulBytesWritten);
-	NTSTATUS pciFindDevice(USHORT vendorID, USHORT deviceID, DWORD* pdwBusNumber, DWORD* pdwSlotNumber);
-	NTSTATUS pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration);
-	NTSTATUS allocMemory(DWORD ulLength,DWORD ulFlags,DWORD ulUserAddress, PMemStruct pMemStruct);
-	NTSTATUS freeMemory(PMemStruct pMemStruct);
-	void freeMemory(PMemoryNode node);
-	DWORD mapMemory(DWORD dwBaseAddress, DWORD ulLength);
-	void unmapMemory(void);
+    NTSTATUS deviceIOControl(PIRP irp);
 
 protected:
-	TMemoryNode memoryList[MAX_FREE_MEMORY_NODES];
-	DWORD GetPhysAddr(DWORD UserAddr);
-	DWORD dwBusNumber;
-	DWORD dwSlotNumber;
-	DWORD dwMemoryBase;            // mapped memory base
-	DWORD dwMappedMemoryLength;
+    int isValidAddress(void * pvAddress);
+    NTSTATUS deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pulBytesWritten);
+    NTSTATUS pciFindDevice(USHORT vendorID, USHORT deviceID, DWORD* pdwBusNumber, DWORD* pdwSlotNumber);
+    NTSTATUS pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration);
+    NTSTATUS allocMemory(DWORD ulLength,DWORD ulFlags,DWORD ulUserAddress, PMemStruct pMemStruct);
+    NTSTATUS freeMemory(PMemStruct pMemStruct);
+    void freeMemory(PMemoryNode node);
+    DWORD mapMemory(DWORD dwBaseAddress, DWORD ulLength);
+    void unmapMemory(void);
+
+protected:
+    TMemoryNode memoryList[MAX_FREE_MEMORY_NODES];
+    DWORD GetPhysAddr(DWORD UserAddr);
+    DWORD dwBusNumber;
+    DWORD dwSlotNumber;
+    DWORD dwMemoryBase;            // mapped memory base
+    DWORD dwMappedMemoryLength;
 };
 
 

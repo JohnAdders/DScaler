@@ -1,19 +1,23 @@
 /////////////////////////////////////////////////////////////////////////////
-// FLT_TNoise.c
+// $Id: FLT_Gamma.c,v 1.8 2001-07-13 16:13:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -31,52 +35,52 @@ long WhiteLevel = 255;
 
 long FilterGamma(DEINTERLACE_INFO *info)
 {
-	short *Pixels;
-	short *Table;
-	int y;
-	int Cycles;
+    short *Pixels;
+    short *Table;
+    int y;
+    int Cycles;
 
-	// Need to have the current and next-to-previous fields to do the filtering.
-	if ((info->IsOdd && info->OddLines[0] == NULL) ||
-		(! info->IsOdd && info->EvenLines[0] == NULL))
-	{
-		return 1000;
-	}
+    // Need to have the current and next-to-previous fields to do the filtering.
+    if ((info->IsOdd && info->OddLines[0] == NULL) ||
+        (! info->IsOdd && info->EvenLines[0] == NULL))
+    {
+        return 1000;
+    }
 
-	Cycles = info->LineLength / 4;
+    Cycles = info->LineLength / 4;
 
-	Table = (short*)GammaTable;
+    Table = (short*)GammaTable;
 
-	for (y = 0; y < info->FieldHeight; y++)
-	{
-		if (info->IsOdd)
-		{
-			Pixels = info->OddLines[0][y];
-		}
-		else
-		{
-			Pixels = info->EvenLines[0][y];
-		}
+    for (y = 0; y < info->FieldHeight; y++)
+    {
+        if (info->IsOdd)
+        {
+            Pixels = info->OddLines[0][y];
+        }
+        else
+        {
+            Pixels = info->EvenLines[0][y];
+        }
 
-		_asm
-		{
-			mov ecx, Cycles
-			mov edx, dword ptr[Pixels]
-			mov ebx, dword ptr[Table]
+        _asm
+        {
+            mov ecx, Cycles
+            mov edx, dword ptr[Pixels]
+            mov ebx, dword ptr[Table]
 LOOP_LABEL:
-			mov al,byte ptr[edx]
-			xlatb
-			mov byte ptr[edx], al
-			add edx, 2			
-			mov al,byte ptr[edx]
-			xlatb
-			mov byte ptr[edx], al
-			add edx, 2			
-			loop LOOP_LABEL
-		}
+            mov al,byte ptr[edx]
+            xlatb
+            mov byte ptr[edx], al
+            add edx, 2          
+            mov al,byte ptr[edx]
+            xlatb
+            mov byte ptr[edx], al
+            add edx, 2          
+            loop LOOP_LABEL
+        }
 
-	}
-	return 1000;
+    }
+    return 1000;
 }
 
 double GetGammaAdjustedValue(double Input, double Gamma)
@@ -91,25 +95,25 @@ double GetGammaAdjustedValue(double Input, double Gamma)
     }
     else
     {
-    	return pow(Input, Gamma);
+        return pow(Input, Gamma);
     }
 }
 
 BOOL Gamma_OnChange(long NewValue)
 {
-	int i;
-	double AdjustedValue;
+    int i;
+    double AdjustedValue;
 
-	Gamma = NewValue;
-	if(!bUseStoredTable)
-	{
-		for (i = 0;  i < 256; i++)
-		{
-			AdjustedValue = 255.0 * GetGammaAdjustedValue((double)(i - BlackLevel) / (double)(WhiteLevel - BlackLevel), (double)Gamma / 1000.0);
-			GammaTable[i] = (unsigned char)AdjustedValue;
-		}
-	}
-	return FALSE;
+    Gamma = NewValue;
+    if(!bUseStoredTable)
+    {
+        for (i = 0;  i < 256; i++)
+        {
+            AdjustedValue = 255.0 * GetGammaAdjustedValue((double)(i - BlackLevel) / (double)(WhiteLevel - BlackLevel), (double)Gamma / 1000.0);
+            GammaTable[i] = (unsigned char)AdjustedValue;
+        }
+    }
+    return FALSE;
 }
 
 BOOL BlackLevel_OnChange(long NewValue)
@@ -127,26 +131,26 @@ BOOL WhiteLevel_OnChange(long NewValue)
 
 BOOL UseStoredTable_OnChange(long NewValue)
 {
-	char szEntry[10];
-	int i;
-	bUseStoredTable = NewValue;
-	if(bUseStoredTable)
+    char szEntry[10];
+    int i;
+    bUseStoredTable = NewValue;
+    if(bUseStoredTable)
     {
         char szIniFile[MAX_PATH];
-    	GetCurrentDirectory(MAX_PATH, szIniFile);
+        GetCurrentDirectory(MAX_PATH, szIniFile);
         strcat(szIniFile, "\\gamma.ini");
 
-		for(i = 0; i < 256; i++)
-		{
-			wsprintf(szEntry, "%d", i);
-			GammaTable[i] = (unsigned char)GetPrivateProfileInt("Gamma", szEntry, i, szIniFile);
-		}
-		return FALSE;
-	}
-	else
-	{
-		return Gamma_OnChange(Gamma);
-	}
+        for(i = 0; i < 256; i++)
+        {
+            wsprintf(szEntry, "%d", i);
+            GammaTable[i] = (unsigned char)GetPrivateProfileInt("Gamma", szEntry, i, szIniFile);
+        }
+        return FALSE;
+    }
+    else
+    {
+        return Gamma_OnChange(Gamma);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -154,66 +158,66 @@ BOOL UseStoredTable_OnChange(long NewValue)
 /////////////////////////////////////////////////////////////////////////////
 SETTING FLT_GammaSettings[FLT_GAMMA_SETTING_LASTONE] =
 {
-	{
-		"Gamma", SLIDER, 0, &Gamma,
-		1300, 0, 3000, 10, 1000,
-		NULL,
-		"GammaFilter", "Gamma", Gamma_OnChange,
-	},
-	{
-		"Use Stored Gamma Table", YESNO, 0, &bUseStoredTable,
-		FALSE, 0, 1, 1, 1,
-		NULL,
-		"GammaFilter", "bUseStoredTable", UseStoredTable_OnChange,
-	},
-	{
-		"Gamma Filter", ONOFF, 0, &(GammaMethod.bActive),
-		FALSE, 0, 1, 1, 1,
-		NULL,
-		"GammaFilter", "UseGammaFilter", NULL,
-	},
-	{
-		"Black Level", SLIDER, 0, &BlackLevel,
-		0, 0, 255, 10, 1000,
-		NULL,
-		"GammaFilter", "BlackLevel", BlackLevel_OnChange,
-	},
-	{
-		"White Level", SLIDER, 0, &WhiteLevel,
-		255, 0, 255, 10, 1000,
-		NULL,
-		"GammaFilter", "WhiteLevel", WhiteLevel_OnChange,
-	},
+    {
+        "Gamma", SLIDER, 0, &Gamma,
+        1300, 0, 3000, 10, 1000,
+        NULL,
+        "GammaFilter", "Gamma", Gamma_OnChange,
+    },
+    {
+        "Use Stored Gamma Table", YESNO, 0, &bUseStoredTable,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "GammaFilter", "bUseStoredTable", UseStoredTable_OnChange,
+    },
+    {
+        "Gamma Filter", ONOFF, 0, &(GammaMethod.bActive),
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "GammaFilter", "UseGammaFilter", NULL,
+    },
+    {
+        "Black Level", SLIDER, 0, &BlackLevel,
+        0, 0, 255, 10, 1000,
+        NULL,
+        "GammaFilter", "BlackLevel", BlackLevel_OnChange,
+    },
+    {
+        "White Level", SLIDER, 0, &WhiteLevel,
+        255, 0, 255, 10, 1000,
+        NULL,
+        "GammaFilter", "WhiteLevel", WhiteLevel_OnChange,
+    },
 };
 
 void __cdecl FilterStartGamma(void)
 {
-	// this will reset the table correctly
-	UseStoredTable_OnChange(bUseStoredTable);
+    // this will reset the table correctly
+    UseStoredTable_OnChange(bUseStoredTable);
 }
 
 FILTER_METHOD GammaMethod =
 {
-	sizeof(FILTER_METHOD),
-	FILTER_CURRENT_VERSION,
-	"Gamma Filter",
-	"&Gamma",
-	FALSE,
-	TRUE,
-	FilterGamma, 
-	0,
-	TRUE,
-	FilterStartGamma,
-	NULL,
-	NULL,
-	FLT_GAMMA_SETTING_LASTONE,
-	FLT_GammaSettings,
-	WM_FLT_GAMMA_GETVALUE - WM_USER,
+    sizeof(FILTER_METHOD),
+    FILTER_CURRENT_VERSION,
+    "Gamma Filter",
+    "&Gamma",
+    FALSE,
+    TRUE,
+    FilterGamma, 
+    0,
+    TRUE,
+    FilterStartGamma,
+    NULL,
+    NULL,
+    FLT_GAMMA_SETTING_LASTONE,
+    FLT_GammaSettings,
+    WM_FLT_GAMMA_GETVALUE - WM_USER,
 };
 
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
-	return &GammaMethod;
+    return &GammaMethod;
 }
 

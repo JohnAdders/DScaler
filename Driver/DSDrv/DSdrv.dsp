@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "DSDrv_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /Ox /Ot /Ow /Og /Oi /Oy /Ob2 /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "DSDrv_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Ox /Ot /Ow /Og /Oi /Ob2 /I "..\..\Api" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "DSDrv_EXPORTS" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -117,23 +117,11 @@ SOURCE=.\DSDrv.rc
 # PROP Default_Filter ".h"
 # Begin Source File
 
-SOURCE=.\Basetype.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\common\DEBUGOUT.H
-# End Source File
-# Begin Source File
-
 SOURCE=.\DEBUGOUT.H
 # End Source File
 # Begin Source File
 
 SOURCE=.\KernelDriver.H
-# End Source File
-# Begin Source File
-
-SOURCE=.\OBJWIN32.H
 # End Source File
 # Begin Source File
 

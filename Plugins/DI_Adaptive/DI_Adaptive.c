@@ -1,19 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
-// DI_Adaptive.c
+// $Id: DI_Adaptive.c,v 1.12 2001-07-13 16:13:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mark Rejhon and Steve Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
@@ -22,17 +22,21 @@
 // 07 Jan 2001   John Adcock           Split into separate module
 //
 /////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
 
-long		StaticImageFieldCount = 100;
-long		LowMotionFieldCount = 4;
-long		StaticImageMode = INDEX_WEAVE;
-long		LowMotionMode = INDEX_VIDEO_2FRAME;
-long		HighMotionMode = INDEX_VIDEO_2FRAME;
-long		AdaptiveThres32Pulldown = 15;
-long		AdaptiveThresPulldownMismatch = 900;
+long        StaticImageFieldCount = 100;
+long        LowMotionFieldCount = 4;
+long        StaticImageMode = INDEX_WEAVE;
+long        LowMotionMode = INDEX_VIDEO_2FRAME;
+long        HighMotionMode = INDEX_VIDEO_2FRAME;
+long        AdaptiveThres32Pulldown = 15;
+long        AdaptiveThresPulldownMismatch = 900;
 
 long NumVideoModes = 0;
 long CurrentIndex = -1;
@@ -49,51 +53,51 @@ LPCSTR ModeList[100];
 ///////////////////////////////////////////////////////////////////////////////
 void UpdateAdaptiveMode(long Index)
 {
-	int i;
+    int i;
     BOOL bFound = FALSE;
 
-	if (CurrentIndex == Index && CurrentMethod != NULL)
-		return;
+    if (CurrentIndex == Index && CurrentMethod != NULL)
+        return;
 
-	if (Index == INDEX_ADAPTIVE)
-	{
-		CurrentMethod = DeintMethods[0];
-		if(pfnSetStatus != NULL)
-		{
-    		pfnSetStatus("Adaptive - Recursion Error");
+    if (Index == INDEX_ADAPTIVE)
+    {
+        CurrentMethod = DeintMethods[0];
+        if(pfnSetStatus != NULL)
+        {
+            pfnSetStatus("Adaptive - Recursion Error");
         }
-		return;
-	}
+        return;
+    }
 
-	for(i = 0; i < NumVideoModes && bFound == FALSE; i++)
-	{
-		if(DeintMethods[i]->nMethodIndex == Index)
-		{
-			CurrentMethod = DeintMethods[i];
+    for(i = 0; i < NumVideoModes && bFound == FALSE; i++)
+    {
+        if(DeintMethods[i]->nMethodIndex == Index)
+        {
+            CurrentMethod = DeintMethods[i];
             bFound = TRUE;
-			if(pfnSetStatus != NULL)
-			{
-				static char AdaptiveName[200];
-				char* ModeName;
+            if(pfnSetStatus != NULL)
+            {
+                static char AdaptiveName[200];
+                char* ModeName;
 
-				ModeName = DeintMethods[i]->szShortName;
-				if (ModeName == NULL)
-				{
-					ModeName = DeintMethods[i]->szName;
-				}
-				wsprintf(AdaptiveName, "Adaptive - %s", ModeName);
-				pfnSetStatus(AdaptiveName);
-			}
-			CurrentIndex = Index;
-		}
-	}
+                ModeName = DeintMethods[i]->szShortName;
+                if (ModeName == NULL)
+                {
+                    ModeName = DeintMethods[i]->szName;
+                }
+                wsprintf(AdaptiveName, "Adaptive - %s", ModeName);
+                pfnSetStatus(AdaptiveName);
+            }
+            CurrentIndex = Index;
+        }
+    }
 
     if(bFound == FALSE)
     {
-		CurrentMethod = DeintMethods[0];
-		if(pfnSetStatus != NULL)
-		{
-    		pfnSetStatus("Adaptive - Error Finding Index");
+        CurrentMethod = DeintMethods[0];
+        if(pfnSetStatus != NULL)
+        {
+            pfnSetStatus("Adaptive - Error Finding Index");
         }
     }
 }
@@ -117,24 +121,24 @@ void UpdateAdaptiveMode(long Index)
 ///////////////////////////////////////////////////////////////////////////////
 BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 {
-	static long StaticMatchCount = 0;
-	static long LowMatchCount = 0;
+    static long StaticMatchCount = 0;
+    static long LowMatchCount = 0;
 
-	// If this is our first time, update the current adaptive mode to whatever
-	// the ini file said our high-motion mode should be.
-	if (CurrentIndex == -1 || CurrentMethod == NULL)
+    // If this is our first time, update the current adaptive mode to whatever
+    // the ini file said our high-motion mode should be.
+    if (CurrentIndex == -1 || CurrentMethod == NULL)
     {
-		UpdateAdaptiveMode(HighMotionMode);
+        UpdateAdaptiveMode(HighMotionMode);
         StaticMatchCount = 0;
         LowMatchCount = 0;
     }
 
-	// reset MATCH_COUNT when we are called and the info
-	// struct doesn't contain at least an odd and an even frame
-	if(info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
-	{
-		return FALSE;
-	}
+    // reset MATCH_COUNT when we are called and the info
+    // struct doesn't contain at least an odd and an even frame
+    if(info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
+    {
+        return FALSE;
+    }
 
     // if we have very liitle motion update
     // to static after StaticImageFieldCount consecutive 
@@ -147,12 +151,12 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
         if(CurrentIndex != StaticImageMode &&
             StaticMatchCount >= StaticImageFieldCount)
         {
-			UpdateAdaptiveMode(StaticImageMode);
+            UpdateAdaptiveMode(StaticImageMode);
         }
         else if(CurrentIndex == HighMotionMode &&
             LowMatchCount >= LowMotionFieldCount)
         {
-			UpdateAdaptiveMode(LowMotionMode);
+            UpdateAdaptiveMode(LowMotionMode);
         }
     }
     // if there is some motion then
@@ -164,12 +168,12 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
         LowMatchCount++;
         StaticMatchCount = 0;
 
-		if ((CurrentIndex == HighMotionMode &&
+        if ((CurrentIndex == HighMotionMode &&
             LowMatchCount >= LowMotionFieldCount) ||
             CurrentIndex == StaticImageMode)
-		{
-			UpdateAdaptiveMode(LowMotionMode);
-		}
+        {
+            UpdateAdaptiveMode(LowMotionMode);
+        }
     }
     // high levels of motion just switch to high mode
     else
@@ -177,43 +181,43 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
         LowMatchCount = 0;
         StaticMatchCount = 0;
 
-		if(CurrentIndex != HighMotionMode)
-		{
-			UpdateAdaptiveMode(HighMotionMode);
-		}
+        if(CurrentIndex != HighMotionMode)
+        {
+            UpdateAdaptiveMode(HighMotionMode);
+        }
     }
 
-	if(CurrentMethod != NULL)
-	{
-		return CurrentMethod->pfnAlgorithm(info);
-	}
-	else
-	{
-		return FALSE;
-	}
+    if(CurrentMethod != NULL)
+    {
+        return CurrentMethod->pfnAlgorithm(info);
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus)
 {
-	int i;
-	int j;
-	
-	DeintMethods = OtherPlugins;
-	NumVideoModes = NumPlugIns;
-	pfnSetStatus = SetStatus;
+    int i;
+    int j;
+    
+    DeintMethods = OtherPlugins;
+    NumVideoModes = NumPlugIns;
+    pfnSetStatus = SetStatus;
 
-	for(i = 0; i < 100; i++)
-	{
-		ModeList[i] = "";
-		for(j = 0; j < NumPlugIns; j++)
-		{
-			if(DeintMethods[j]->nMethodIndex == i)
-			{
-				ModeList[i] = DeintMethods[j]->szName;
-				break;
-			}
-		}
-	}
+    for(i = 0; i < 100; i++)
+    {
+        ModeList[i] = "";
+        for(j = 0; j < NumPlugIns; j++)
+        {
+            if(DeintMethods[j]->nMethodIndex == i)
+            {
+                ModeList[i] = DeintMethods[j]->szName;
+                break;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -221,84 +225,84 @@ void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, D
 /////////////////////////////////////////////////////////////////////////////
 SETTING DI_AdaptiveSettings[DI_ADAPTIVE_SETTING_LASTONE] =
 {
-	{
-		"Low Motion Field Count", SLIDER, 0, &LowMotionFieldCount,
-		4, 1, 1000, 1, 1,
-		NULL,
-		"Pulldown", "LowMotionFieldCount", NULL,
-	},
-	{
-		"Static Image Field Count", SLIDER, 0, &StaticImageFieldCount,
-		100, 1, 1000, 1, 1,
-		NULL,
-		"Pulldown", "StaticImageFieldCount", NULL,
-	},
-	{
-		"Static Image Mode", ITEMFROMLIST, 0, &StaticImageMode,
-		INDEX_WEAVE, 0, 99, 1, 1,
-		ModeList,
-		"Pulldown", "StaticImageMode", NULL,
-	},
-	{
-		"Low Motion Mode", ITEMFROMLIST, 0, &LowMotionMode,
-		INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
-		ModeList,
-		"Pulldown", "LowMotionMode", NULL,
-	},
-	{
-		"High Motion Mode", ITEMFROMLIST, 0, &HighMotionMode,
-		INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
-		ModeList,
-		"Pulldown", "HighMotionMode", NULL,
-	},
-	{
-		"Adaptive Threshold 3:2 Pulldown", SLIDER, 0, &AdaptiveThres32Pulldown,
-		15, 1, 5000, 5, 1,
-		NULL,
-		"Pulldown", "AdaptiveThres32Pulldown", NULL,
-	},
-	{
-		"Adaptive Threshold 3:2 Pulldown Mismatch", SLIDER, 0, &AdaptiveThresPulldownMismatch,
-		900, 1, 10000, 10, 1,
-		NULL,
-		"Pulldown", "AdaptiveThresPulldownMismatch", NULL,
-	},
+    {
+        "Low Motion Field Count", SLIDER, 0, &LowMotionFieldCount,
+        4, 1, 1000, 1, 1,
+        NULL,
+        "Pulldown", "LowMotionFieldCount", NULL,
+    },
+    {
+        "Static Image Field Count", SLIDER, 0, &StaticImageFieldCount,
+        100, 1, 1000, 1, 1,
+        NULL,
+        "Pulldown", "StaticImageFieldCount", NULL,
+    },
+    {
+        "Static Image Mode", ITEMFROMLIST, 0, &StaticImageMode,
+        INDEX_WEAVE, 0, 99, 1, 1,
+        ModeList,
+        "Pulldown", "StaticImageMode", NULL,
+    },
+    {
+        "Low Motion Mode", ITEMFROMLIST, 0, &LowMotionMode,
+        INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
+        ModeList,
+        "Pulldown", "LowMotionMode", NULL,
+    },
+    {
+        "High Motion Mode", ITEMFROMLIST, 0, &HighMotionMode,
+        INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
+        ModeList,
+        "Pulldown", "HighMotionMode", NULL,
+    },
+    {
+        "Adaptive Threshold 3:2 Pulldown", SLIDER, 0, &AdaptiveThres32Pulldown,
+        15, 1, 5000, 5, 1,
+        NULL,
+        "Pulldown", "AdaptiveThres32Pulldown", NULL,
+    },
+    {
+        "Adaptive Threshold 3:2 Pulldown Mismatch", SLIDER, 0, &AdaptiveThresPulldownMismatch,
+        900, 1, 10000, 10, 1,
+        NULL,
+        "Pulldown", "AdaptiveThresPulldownMismatch", NULL,
+    },
 };
 
 DEINTERLACE_METHOD AdaptiveMethod =
 {
-	sizeof(DEINTERLACE_METHOD),
-	DEINTERLACE_CURRENT_VERSION,
-	"Adaptive", 
-	NULL, 
-	FALSE, 
-	FALSE, 
-	DeinterlaceAdaptive, 
-	50, 
-	60,
-	DI_ADAPTIVE_SETTING_LASTONE,
-	DI_AdaptiveSettings,
-	INDEX_ADAPTIVE,
-	NULL,
-	AdaptiveStart,
-	NULL,
-	NULL,
-	4,
-	0,
-	0,
-	WM_DI_ADAPTIVE_GETVALUE - WM_USER,
-	NULL,
-	0,
-	TRUE,
-	FALSE,
+    sizeof(DEINTERLACE_METHOD),
+    DEINTERLACE_CURRENT_VERSION,
+    "Adaptive", 
+    NULL, 
+    FALSE, 
+    FALSE, 
+    DeinterlaceAdaptive, 
+    50, 
+    60,
+    DI_ADAPTIVE_SETTING_LASTONE,
+    DI_AdaptiveSettings,
+    INDEX_ADAPTIVE,
+    NULL,
+    AdaptiveStart,
+    NULL,
+    NULL,
+    4,
+    0,
+    0,
+    WM_DI_ADAPTIVE_GETVALUE - WM_USER,
+    NULL,
+    0,
+    TRUE,
+    FALSE,
 };
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags)
 {
-	return &AdaptiveMethod;
+    return &AdaptiveMethod;
 }
 
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
-	return TRUE;
+    return TRUE;
 }

@@ -1,19 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
-// DSDrv.cpp
+// $Id: DSDrv.cpp,v 1.3 2001-07-13 16:13:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on hwiodrv from the FreeTV project Those portions are
@@ -32,6 +32,10 @@
 // 05 Jan 2001   John Adcock           Added SetCurrentDirectoryCall
 //
 /////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
 
 #include "KernelDriver.h"
 #include "DSDrv.h"
@@ -40,35 +44,35 @@
 class CDSDriver : public CKernelDriver
 {
 public:
-	CDSDriver();
+    CDSDriver();
 
-	DWORD DSDrvStartDriver(void);
-	DWORD DSDrvStopDriver(void);
+    DWORD DSDrvStartDriver(void);
+    DWORD DSDrvStopDriver(void);
 
-	BOOL isDriverOpen(void) { return bDriverRunning; }
+    BOOL isDriverOpen(void) { return bDriverRunning; }
 
-	BYTE readPort(DWORD dwAddress);
-	WORD readPortW(DWORD dwAddress);
-	DWORD readPortL(DWORD dwAddress);
-	void writePort(DWORD dwAddress, DWORD dwValue);
-	void writePortW(DWORD dwAddress, DWORD dwValue);
-	void writePortL(DWORD dwAddress, DWORD dwValue);
-	DWORD allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct);
-	DWORD freeMemory(PMemStruct pMemStruct);
-	DWORD pciGetHardwareResources(DWORD dwVendorID, DWORD  dwDeviceID, PDWORD pdwMemoryAddress, PDWORD pdwMemoryLength, PDWORD pdwSubSystemId);
-	DWORD memoryMap(DWORD dwAddress, DWORD dwLength);
-	void memoryUnmap(DWORD dwAddress, DWORD dwLength);
-	void memoryWriteDWORD(DWORD dwAddress, DWORD dwValue);
-	DWORD memoryReadDWORD(DWORD dwAddress);
-	void memoryWriteWORD(DWORD dwAddress, WORD dwValue);
-	WORD memoryReadWORD(DWORD dwAddress);
-	void memoryWriteBYTE(DWORD dwAddress, BYTE dwValue);
-	BYTE memoryReadBYTE(DWORD dwAddress);
+    BYTE readPort(DWORD dwAddress);
+    WORD readPortW(DWORD dwAddress);
+    DWORD readPortL(DWORD dwAddress);
+    void writePort(DWORD dwAddress, DWORD dwValue);
+    void writePortW(DWORD dwAddress, DWORD dwValue);
+    void writePortL(DWORD dwAddress, DWORD dwValue);
+    DWORD allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct);
+    DWORD freeMemory(PMemStruct pMemStruct);
+    DWORD pciGetHardwareResources(DWORD dwVendorID, DWORD  dwDeviceID, PDWORD pdwMemoryAddress, PDWORD pdwMemoryLength, PDWORD pdwSubSystemId);
+    DWORD memoryMap(DWORD dwAddress, DWORD dwLength);
+    void memoryUnmap(DWORD dwAddress, DWORD dwLength);
+    void memoryWriteDWORD(DWORD dwAddress, DWORD dwValue);
+    DWORD memoryReadDWORD(DWORD dwAddress);
+    void memoryWriteWORD(DWORD dwAddress, WORD dwValue);
+    WORD memoryReadWORD(DWORD dwAddress);
+    void memoryWriteBYTE(DWORD dwAddress, BYTE dwValue);
+    BYTE memoryReadBYTE(DWORD dwAddress);
 
 
 protected:
-	BOOL    bWindows95;
-	BOOL    bDriverRunning;
+    BOOL    bWindows95;
+    BOOL    bDriverRunning;
 };
 
 
@@ -79,7 +83,7 @@ CDSDriver DSDriver;
 //---------------------------------------------------------------------------
 int WINAPI isDriverOpened(void)
 {
-	return DSDriver.isDriverOpen();
+    return DSDriver.isDriverOpen();
 }
 
 //---------------------------------------------------------------------------
@@ -87,7 +91,7 @@ int WINAPI isDriverOpened(void)
 //---------------------------------------------------------------------------
 BYTE WINAPI readPort(WORD address)
 {
-	return DSDriver.readPort( (DWORD) address);
+    return DSDriver.readPort( (DWORD) address);
 }
 
 //---------------------------------------------------------------------------
@@ -95,7 +99,7 @@ BYTE WINAPI readPort(WORD address)
 //---------------------------------------------------------------------------
 WORD WINAPI readPortW(WORD address)
 {
-	return DSDriver.readPortW( (DWORD) address);
+    return DSDriver.readPortW( (DWORD) address);
 }
 
 //---------------------------------------------------------------------------
@@ -103,7 +107,7 @@ WORD WINAPI readPortW(WORD address)
 //---------------------------------------------------------------------------
 DWORD WINAPI readPortL(WORD address)
 {
-	return DSDriver.readPortL( (DWORD) address);
+    return DSDriver.readPortL( (DWORD) address);
 }
 
 
@@ -112,7 +116,7 @@ DWORD WINAPI readPortL(WORD address)
 //---------------------------------------------------------------------------
 void WINAPI writePort(WORD address, BYTE bValue)
 {
-	DSDriver.writePort( (DWORD) address, (DWORD) bValue);
+    DSDriver.writePort( (DWORD) address, (DWORD) bValue);
 }
 
 
@@ -121,7 +125,7 @@ void WINAPI writePort(WORD address, BYTE bValue)
 //---------------------------------------------------------------------------
 void WINAPI writePortW(WORD address, WORD uValue)
 {
-	DSDriver.writePortW( (DWORD) address, (DWORD) uValue);
+    DSDriver.writePortW( (DWORD) address, (DWORD) uValue);
 }
 
 
@@ -130,7 +134,7 @@ void WINAPI writePortW(WORD address, WORD uValue)
 //---------------------------------------------------------------------------
 void WINAPI writePortL(WORD address, DWORD dwValue)
 {
-	DSDriver.writePortL( (DWORD) address, (DWORD) dwValue);
+    DSDriver.writePortL( (DWORD) address, (DWORD) dwValue);
 }
 
 //---------------------------------------------------------------------------
@@ -138,7 +142,7 @@ void WINAPI writePortL(WORD address, DWORD dwValue)
 //---------------------------------------------------------------------------
 DWORD WINAPI memoryAlloc(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct)
 {
-	return DSDriver.allocMemory(dwLength, dwFlags, ppMemStruct);
+    return DSDriver.allocMemory(dwLength, dwFlags, ppMemStruct);
 }
 
 //---------------------------------------------------------------------------
@@ -146,14 +150,14 @@ DWORD WINAPI memoryAlloc(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct)
 //---------------------------------------------------------------------------
 DWORD WINAPI memoryFree(PMemStruct pMemStruct)
 {
-	if(pMemStruct)
-	{
-		return DSDriver.freeMemory(pMemStruct);
-	}
-	else
-	{
-		return 0;
-	}
+    if(pMemStruct)
+    {
+        return DSDriver.freeMemory(pMemStruct);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -161,7 +165,7 @@ DWORD WINAPI memoryFree(PMemStruct pMemStruct)
 //---------------------------------------------------------------------------
 DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength)
 {
-	return DSDriver.memoryMap(dwAddress, dwLength);
+    return DSDriver.memoryMap(dwAddress, dwLength);
 }
 
 //---------------------------------------------------------------------------
@@ -169,7 +173,7 @@ DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength)
 {
-	DSDriver.memoryUnmap(dwAddress, dwLength);
+    DSDriver.memoryUnmap(dwAddress, dwLength);
 }
 
 //---------------------------------------------------------------------------
@@ -177,32 +181,32 @@ void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 void WINAPI memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
 {
-	DSDriver.memoryWriteDWORD(dwAddress, dwValue);
+    DSDriver.memoryWriteDWORD(dwAddress, dwValue);
 }
 
 DWORD WINAPI memoryReadDWORD(DWORD dwAddress)
 {
-	return DSDriver.memoryReadDWORD(dwAddress);
+    return DSDriver.memoryReadDWORD(dwAddress);
 }
 
 void WINAPI memoryWriteWORD(DWORD dwAddress, WORD wValue)
 {
-	DSDriver.memoryWriteWORD(dwAddress, wValue);
+    DSDriver.memoryWriteWORD(dwAddress, wValue);
 }
 
 WORD WINAPI memoryReadWORD(DWORD dwAddress)
 {
-	return DSDriver.memoryReadWORD(dwAddress);
+    return DSDriver.memoryReadWORD(dwAddress);
 }
 
 void WINAPI memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
 {
-	DSDriver.memoryWriteBYTE(dwAddress, ucValue);
+    DSDriver.memoryWriteBYTE(dwAddress, ucValue);
 }
 
 BYTE WINAPI memoryReadBYTE(DWORD dwAddress)
 {
-	return DSDriver.memoryReadBYTE(dwAddress);
+    return DSDriver.memoryReadBYTE(dwAddress);
 }
 
 
@@ -211,16 +215,16 @@ BYTE WINAPI memoryReadBYTE(DWORD dwAddress)
 // is avail.
 //---------------------------------------------------------------------------
 DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
-										DWORD dwDeviceID,
-										PDWORD pdwMemoryAddress,
-										PDWORD pdwMemoryLength,
-										PDWORD pdwSubSystemId)
+                                        DWORD dwDeviceID,
+                                        PDWORD pdwMemoryAddress,
+                                        PDWORD pdwMemoryLength,
+                                        PDWORD pdwSubSystemId)
 {
-	return DSDriver.pciGetHardwareResources(dwVendorID,
-												dwDeviceID,
-												pdwMemoryAddress,
-												pdwMemoryLength,
-												pdwSubSystemId);
+    return DSDriver.pciGetHardwareResources(dwVendorID,
+                                                dwDeviceID,
+                                                pdwMemoryAddress,
+                                                pdwMemoryLength,
+                                                pdwSubSystemId);
 }
 
 //---------------------------------------------------------------------------
@@ -228,13 +232,13 @@ DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
 //---------------------------------------------------------------------------
 CDSDriver::CDSDriver(void) : CKernelDriver()
 {
-	OSVERSIONINFO ov;
+    OSVERSIONINFO ov;
 
-	ov.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx( &ov);
-	bWindows95 = (ov.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+    ov.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx( &ov);
+    bWindows95 = (ov.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
-	bDriverRunning = FALSE;
+    bDriverRunning = FALSE;
 }
 
 
@@ -243,18 +247,18 @@ CDSDriver::CDSDriver(void) : CKernelDriver()
 //---------------------------------------------------------------------------
 BYTE CDSDriver::readPort(DWORD dwAddress)
 {
-	TDSDrvParam  param;
-	DWORD       dwReturnedLength;
+    TDSDrvParam  param;
+    DWORD       dwReturnedLength;
 
-	param.dwAddress = dwAddress;
-	deviceControl(ioctlReadBYTE,
-					&param,
-					sizeof(param.dwAddress),
-					&param.dwValue,
-					sizeof(param.dwValue),
-					&dwReturnedLength);
+    param.dwAddress = dwAddress;
+    deviceControl(ioctlReadBYTE,
+                    &param,
+                    sizeof(param.dwAddress),
+                    &param.dwValue,
+                    sizeof(param.dwValue),
+                    &dwReturnedLength);
 
-	return (BYTE) param.dwValue;
+    return (BYTE) param.dwValue;
 }
 
 
@@ -263,17 +267,17 @@ BYTE CDSDriver::readPort(DWORD dwAddress)
 //---------------------------------------------------------------------------
 WORD CDSDriver::readPortW(DWORD dwAddress)
 {
-	TDSDrvParam  param;
-	DWORD       dwReturnedLength;
+    TDSDrvParam  param;
+    DWORD       dwReturnedLength;
 
-	param.dwAddress = dwAddress;
-	deviceControl(ioctlReadWORD,
-					&param,
-					sizeof(param.dwAddress),
-					&param.dwValue,
-					sizeof(param.dwValue),
-					&dwReturnedLength);
-	return (WORD) param.dwValue;
+    param.dwAddress = dwAddress;
+    deviceControl(ioctlReadWORD,
+                    &param,
+                    sizeof(param.dwAddress),
+                    &param.dwValue,
+                    sizeof(param.dwValue),
+                    &dwReturnedLength);
+    return (WORD) param.dwValue;
 }
 
 //---------------------------------------------------------------------------
@@ -281,18 +285,18 @@ WORD CDSDriver::readPortW(DWORD dwAddress)
 //---------------------------------------------------------------------------
 DWORD CDSDriver::readPortL(DWORD dwAddress)
 {
-	TDSDrvParam  param;
-	DWORD       dwReturnedLength;
+    TDSDrvParam  param;
+    DWORD       dwReturnedLength;
 
-	param.dwAddress = dwAddress;
-	deviceControl(ioctlReadDWORD,
-					&param,
-					sizeof(param.dwAddress),
-					&param.dwValue,
-					sizeof(param.dwValue),
-					&dwReturnedLength);
+    param.dwAddress = dwAddress;
+    deviceControl(ioctlReadDWORD,
+                    &param,
+                    sizeof(param.dwAddress),
+                    &param.dwValue,
+                    sizeof(param.dwValue),
+                    &dwReturnedLength);
 
-	return param.dwValue;
+    return param.dwValue;
 }
 
 
@@ -301,12 +305,12 @@ DWORD CDSDriver::readPortL(DWORD dwAddress)
 //---------------------------------------------------------------------------
 void CDSDriver::writePort(DWORD dwAddress, DWORD dwValue)
 {
-	TDSDrvParam  param;
+    TDSDrvParam  param;
 
-	param.dwAddress = dwAddress;
-	param.dwValue = dwValue;
+    param.dwAddress = dwAddress;
+    param.dwValue = dwValue;
 
-	deviceControl(ioctlWriteBYTE, &param, sizeof(param));
+    deviceControl(ioctlWriteBYTE, &param, sizeof(param));
 }
 
 //---------------------------------------------------------------------------
@@ -314,12 +318,12 @@ void CDSDriver::writePort(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 void CDSDriver::writePortW(DWORD dwAddress, DWORD dwValue)
 {
-	TDSDrvParam  param;
+    TDSDrvParam  param;
 
-	param.dwAddress = dwAddress;
-	param.dwValue = dwValue;
+    param.dwAddress = dwAddress;
+    param.dwValue = dwValue;
 
-	deviceControl(ioctlWriteWORD, &param, sizeof(param));
+    deviceControl(ioctlWriteWORD, &param, sizeof(param));
 }
 
 //---------------------------------------------------------------------------
@@ -327,12 +331,12 @@ void CDSDriver::writePortW(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 void CDSDriver::writePortL(DWORD dwAddress, DWORD dwValue)
 {
-	TDSDrvParam  param;
+    TDSDrvParam  param;
 
-	param.dwAddress = dwAddress;
-	param.dwValue = dwValue;
+    param.dwAddress = dwAddress;
+    param.dwValue = dwValue;
 
-	deviceControl(ioctlWriteDWORD, &param, sizeof(param));
+    deviceControl(ioctlWriteDWORD, &param, sizeof(param));
 }
 
 //---------------------------------------------------------------------------
@@ -340,57 +344,57 @@ void CDSDriver::writePortL(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 DWORD CDSDriver:: allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct)
 {
-	TDSDrvParam paramIn;
-	DWORD dwReturnedLength;
-	DWORD status;
-	DWORD nPages = 0;
+    TDSDrvParam paramIn;
+    DWORD dwReturnedLength;
+    DWORD status;
+    DWORD nPages = 0;
 
-	if(dwFlags & ALLOC_MEMORY_CONTIG)
-	{
-		nPages = 1;
-	}
-	else
-	{
-		nPages = (dwLength + 4095) / 4096 + 1;
-	}
-	
-	DWORD dwOutParamLength = sizeof(TMemStruct) + nPages * sizeof(TPageStruct);
-	*ppMemStruct = (PMemStruct) malloc(dwOutParamLength);
+    if(dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        nPages = 1;
+    }
+    else
+    {
+        nPages = (dwLength + 4095) / 4096 + 1;
+    }
+    
+    DWORD dwOutParamLength = sizeof(TMemStruct) + nPages * sizeof(TPageStruct);
+    *ppMemStruct = (PMemStruct) malloc(dwOutParamLength);
 
-	paramIn.dwValue = dwLength;
-	paramIn.dwFlags = dwFlags;
-	if(dwFlags & ALLOC_MEMORY_CONTIG)
-	{
-		paramIn.dwAddress = 0;
-	}
-	else
-	{
-		paramIn.dwAddress = (ULONG)malloc(dwLength);
-		memset((void*)paramIn.dwAddress, 0, dwLength);
-		if(paramIn.dwAddress == NULL)
-		{
-			free(*ppMemStruct);
-			return ERROR_NOT_ENOUGH_MEMORY;
-		}
-	}
-	status = deviceControl(ioctlAllocMemory,
-							&paramIn,
-							sizeof(paramIn),
-							*ppMemStruct,
-							dwOutParamLength,
-							&dwReturnedLength);
+    paramIn.dwValue = dwLength;
+    paramIn.dwFlags = dwFlags;
+    if(dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        paramIn.dwAddress = 0;
+    }
+    else
+    {
+        paramIn.dwAddress = (ULONG)malloc(dwLength);
+        memset((void*)paramIn.dwAddress, 0, dwLength);
+        if(paramIn.dwAddress == NULL)
+        {
+            free(*ppMemStruct);
+            return ERROR_NOT_ENOUGH_MEMORY;
+        }
+    }
+    status = deviceControl(ioctlAllocMemory,
+                            &paramIn,
+                            sizeof(paramIn),
+                            *ppMemStruct,
+                            dwOutParamLength,
+                            &dwReturnedLength);
 
-	if(status != ERROR_SUCCESS || ppMemStruct == NULL || (*ppMemStruct)->dwUser == 0)
-	{
-		if(!(dwFlags & ALLOC_MEMORY_CONTIG))
-		{
-			free((void*)paramIn.dwAddress);
-		}
-		free(*ppMemStruct);
-		*ppMemStruct = NULL;
-	}
+    if(status != ERROR_SUCCESS || ppMemStruct == NULL || (*ppMemStruct)->dwUser == 0)
+    {
+        if(!(dwFlags & ALLOC_MEMORY_CONTIG))
+        {
+            free((void*)paramIn.dwAddress);
+        }
+        free(*ppMemStruct);
+        *ppMemStruct = NULL;
+    }
 
-	return status;
+    return status;
 }
 
 //---------------------------------------------------------------------------
@@ -398,18 +402,18 @@ DWORD CDSDriver:: allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemSt
 //---------------------------------------------------------------------------
 DWORD CDSDriver::freeMemory(PMemStruct pMemStruct)
 {
-	DWORD status = ERROR_SUCCESS;
-	if(pMemStruct != NULL)
-	{
-		DWORD dwInParamLength = sizeof(TMemStruct) + pMemStruct->dwPages * sizeof(TPageStruct);
-		status = deviceControl(ioctlFreeMemory, pMemStruct, dwInParamLength);
-		if(!(pMemStruct->dwFlags & ALLOC_MEMORY_CONTIG))
-		{
-			free(pMemStruct->dwUser);
-		}
-		free(pMemStruct);
-	}
-	return status;
+    DWORD status = ERROR_SUCCESS;
+    if(pMemStruct != NULL)
+    {
+        DWORD dwInParamLength = sizeof(TMemStruct) + pMemStruct->dwPages * sizeof(TPageStruct);
+        status = deviceControl(ioctlFreeMemory, pMemStruct, dwInParamLength);
+        if(!(pMemStruct->dwFlags & ALLOC_MEMORY_CONTIG))
+        {
+            free(pMemStruct->dwUser);
+        }
+        free(pMemStruct);
+    }
+    return status;
 }
 
 //---------------------------------------------------------------------------
@@ -417,22 +421,22 @@ DWORD CDSDriver::freeMemory(PMemStruct pMemStruct)
 //---------------------------------------------------------------------------
 DWORD CDSDriver::memoryMap(DWORD dwAddress, DWORD dwLength)
 {
-	TDSDrvParam hwParam;
-	DWORD       dwMappedAddress;
-	DWORD       dwReturnedLength;
+    TDSDrvParam hwParam;
+    DWORD       dwMappedAddress;
+    DWORD       dwReturnedLength;
 
-	hwParam.dwAddress = dwAddress;
-	hwParam.dwValue   = dwLength;
-	dwMappedAddress = 0;
+    hwParam.dwAddress = dwAddress;
+    hwParam.dwValue   = dwLength;
+    dwMappedAddress = 0;
 
-	deviceControl(ioctlMapMemory,
-					&hwParam,
-					sizeof(hwParam),
-					&dwMappedAddress,
-					sizeof(dwMappedAddress),
-					&dwReturnedLength);
+    deviceControl(ioctlMapMemory,
+                    &hwParam,
+                    sizeof(hwParam),
+                    &dwMappedAddress,
+                    sizeof(dwMappedAddress),
+                    &dwReturnedLength);
 
-	return dwMappedAddress;
+    return dwMappedAddress;
 }
 
 //---------------------------------------------------------------------------
@@ -440,12 +444,12 @@ DWORD CDSDriver::memoryMap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 void CDSDriver::memoryUnmap(DWORD dwAddress, DWORD dwLength)
 {
-	TDSDrvParam hwParam;
+    TDSDrvParam hwParam;
 
-	hwParam.dwAddress = dwAddress;
-	hwParam.dwValue   = dwLength;
+    hwParam.dwAddress = dwAddress;
+    hwParam.dwValue   = dwLength;
 
-	deviceControl(ioctlUnmapMemory, &hwParam, sizeof(hwParam));
+    deviceControl(ioctlUnmapMemory, &hwParam, sizeof(hwParam));
 }
 
 //---------------------------------------------------------------------------
@@ -453,12 +457,12 @@ void CDSDriver::memoryUnmap(DWORD dwAddress, DWORD dwLength)
 //---------------------------------------------------------------------------
 void CDSDriver::memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
 {
-	TDSDrvParam hwParam;
+    TDSDrvParam hwParam;
 
-	hwParam.dwAddress = dwAddress;
-	hwParam.dwValue = dwValue;
+    hwParam.dwAddress = dwAddress;
+    hwParam.dwValue = dwValue;
 
-	deviceControl(ioctlWriteMemoryDWORD, &hwParam, sizeof(hwParam));
+    deviceControl(ioctlWriteMemoryDWORD, &hwParam, sizeof(hwParam));
 }
 
 //---------------------------------------------------------------------------
@@ -466,19 +470,19 @@ void CDSDriver::memoryWriteDWORD(DWORD dwAddress, DWORD dwValue)
 //---------------------------------------------------------------------------
 DWORD CDSDriver::memoryReadDWORD(DWORD dwAddress)
 {
-	TDSDrvParam hwParam;
-	DWORD dwReturnedLength;
-	DWORD dwValue(0);
+    TDSDrvParam hwParam;
+    DWORD dwReturnedLength;
+    DWORD dwValue(0);
 
-	hwParam.dwAddress = dwAddress;
-	deviceControl(ioctlReadMemoryDWORD,
-					&hwParam,
-					sizeof(hwParam.dwAddress),
-					&dwValue,
-					sizeof(dwValue),
-					&dwReturnedLength);
+    hwParam.dwAddress = dwAddress;
+    deviceControl(ioctlReadMemoryDWORD,
+                    &hwParam,
+                    sizeof(hwParam.dwAddress),
+                    &dwValue,
+                    sizeof(dwValue),
+                    &dwReturnedLength);
 
-	return dwValue;
+    return dwValue;
 }
 
 //---------------------------------------------------------------------------
@@ -486,12 +490,12 @@ DWORD CDSDriver::memoryReadDWORD(DWORD dwAddress)
 //---------------------------------------------------------------------------
 void CDSDriver::memoryWriteWORD(DWORD dwAddress, WORD wValue)
 {
-	TDSDrvParam hwParam;
+    TDSDrvParam hwParam;
 
-	hwParam.dwAddress = dwAddress;
-	hwParam.dwValue = wValue;
+    hwParam.dwAddress = dwAddress;
+    hwParam.dwValue = wValue;
 
-	deviceControl(ioctlWriteMemoryWORD, &hwParam, sizeof(hwParam));
+    deviceControl(ioctlWriteMemoryWORD, &hwParam, sizeof(hwParam));
 }
 
 //---------------------------------------------------------------------------
@@ -499,31 +503,31 @@ void CDSDriver::memoryWriteWORD(DWORD dwAddress, WORD wValue)
 //---------------------------------------------------------------------------
 WORD CDSDriver::memoryReadWORD(DWORD dwAddress)
 {
-	TDSDrvParam hwParam;
-	DWORD dwReturnedLength;
-	WORD wValue(0);
+    TDSDrvParam hwParam;
+    DWORD dwReturnedLength;
+    WORD wValue(0);
 
-	hwParam.dwAddress = dwAddress;
-	deviceControl(ioctlReadMemoryWORD,
-					&hwParam,
-					sizeof(hwParam.dwAddress),
-					&wValue,
-					sizeof(wValue),
-					&dwReturnedLength);
+    hwParam.dwAddress = dwAddress;
+    deviceControl(ioctlReadMemoryWORD,
+                    &hwParam,
+                    sizeof(hwParam.dwAddress),
+                    &wValue,
+                    sizeof(wValue),
+                    &dwReturnedLength);
 
-	return wValue;
+    return wValue;
 }
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
 void CDSDriver::memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
 {
-	TDSDrvParam hwParam;
+    TDSDrvParam hwParam;
 
-	hwParam.dwAddress = dwAddress;
-	hwParam.dwValue = ucValue;
+    hwParam.dwAddress = dwAddress;
+    hwParam.dwValue = ucValue;
 
-	deviceControl(ioctlWriteMemoryBYTE, &hwParam, sizeof(hwParam));
+    deviceControl(ioctlWriteMemoryBYTE, &hwParam, sizeof(hwParam));
 }
 
 //---------------------------------------------------------------------------
@@ -531,71 +535,71 @@ void CDSDriver::memoryWriteBYTE(DWORD dwAddress, BYTE ucValue)
 //---------------------------------------------------------------------------
 BYTE CDSDriver::memoryReadBYTE(DWORD dwAddress)
 {
-	TDSDrvParam hwParam;
-	DWORD dwReturnedLength;
-	BYTE ucValue(0);
+    TDSDrvParam hwParam;
+    DWORD dwReturnedLength;
+    BYTE ucValue(0);
 
-	hwParam.dwAddress = dwAddress;
-	deviceControl(ioctlReadMemoryBYTE,
-					&hwParam,
-					sizeof(hwParam.dwAddress),
-					&ucValue,
-					sizeof(ucValue),
-					&dwReturnedLength);
+    hwParam.dwAddress = dwAddress;
+    deviceControl(ioctlReadMemoryBYTE,
+                    &hwParam,
+                    sizeof(hwParam.dwAddress),
+                    &ucValue,
+                    sizeof(ucValue),
+                    &dwReturnedLength);
 
-	return ucValue;
+    return ucValue;
 }
 
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
 DWORD CDSDriver::pciGetHardwareResources(DWORD dwVendorID,
-											DWORD dwDeviceID,
-											PDWORD pdwMemoryAddress,
-											PDWORD pdwMemoryLength,
-											PDWORD pdwSubSystemId)
+                                            DWORD dwDeviceID,
+                                            PDWORD pdwMemoryAddress,
+                                            PDWORD pdwMemoryLength,
+                                            PDWORD pdwSubSystemId)
 {
-	PCI_COMMON_CONFIG pciConfig;
-	TDSDrvParam hwParam;
-	DWORD dwStatus;
-	DWORD dwLength;
+    PCI_COMMON_CONFIG pciConfig;
+    TDSDrvParam hwParam;
+    DWORD dwStatus;
+    DWORD dwLength;
 
-	if (!isDriverOpened())
-	{
-		return ERROR_ACCESS_DENIED;
-	}
+    if (!isDriverOpened())
+    {
+        return ERROR_ACCESS_DENIED;
+    }
 
-	hwParam.dwAddress = dwVendorID;
-	hwParam.dwValue = dwDeviceID;
+    hwParam.dwAddress = dwVendorID;
+    hwParam.dwValue = dwDeviceID;
 
-	dwStatus = deviceControl(ioctlGetPCIInfo,
-								&hwParam,
-								sizeof(hwParam),
-								&pciConfig,
-								sizeof(pciConfig),
-								&dwLength);
+    dwStatus = deviceControl(ioctlGetPCIInfo,
+                                &hwParam,
+                                sizeof(hwParam),
+                                &pciConfig,
+                                sizeof(pciConfig),
+                                &dwLength);
 
-	if ( dwStatus == ERROR_SUCCESS)
-	{
-		//
-		// Ok, here is the simplification, we use only the first address
-		// For our current project this is enough (I hope so)
-		//
+    if ( dwStatus == ERROR_SUCCESS)
+    {
+        //
+        // Ok, here is the simplification, we use only the first address
+        // For our current project this is enough (I hope so)
+        //
 
-		*pdwMemoryAddress = pciConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
-		*pdwMemoryLength = 0x1000;
-		*pdwSubSystemId = (pciConfig.u.type0.SubSystemID << 16) + pciConfig.u.type0.SubVendorID;
-	}
-	else
-	{
-		debugOut(dbTrace,"pciGetHardewareResource for %X %X failed",dwVendorID,dwDeviceID);
+        *pdwMemoryAddress = pciConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
+        *pdwMemoryLength = 0x1000;
+        *pdwSubSystemId = (pciConfig.u.type0.SubSystemID << 16) + pciConfig.u.type0.SubVendorID;
+    }
+    else
+    {
+        debugOut(dbTrace,"pciGetHardewareResource for %X %X failed",dwVendorID,dwDeviceID);
 
-		*pdwMemoryAddress = 0;
-		*pdwMemoryLength = 0;
-		*pdwSubSystemId = 0;
-	}
+        *pdwMemoryAddress = 0;
+        *pdwMemoryLength = 0;
+        *pdwSubSystemId = 0;
+    }
 
-	return dwStatus;
+    return dwStatus;
 }
 
 //---------------------------------------------------------------------------
@@ -603,71 +607,71 @@ DWORD CDSDriver::pciGetHardwareResources(DWORD dwVendorID,
 //---------------------------------------------------------------------------
 DWORD CDSDriver::DSDrvStartDriver(void)
 {
-	LPSTR  pszDriverName;
-	DWORD  dwResult;
-	LPSTR  pszName;
-	char   szDriverPath[MAX_PATH];
+    LPSTR  pszDriverName;
+    DWORD  dwResult;
+    LPSTR  pszName;
+    char   szDriverPath[MAX_PATH];
 
-	pszDriverName = ( bWindows95 ) ? "DSDrv95.VXD" : "DSDrvNT";
+    pszDriverName = ( bWindows95 ) ? "DSDrv95.VXD" : "DSDrvNT";
 
 
-	if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
-	{
-		debugOut(dbError, "cannot get module file name");
-		szDriverPath[0] = '\0';
-	}
+    if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
+    {
+        debugOut(dbError, "cannot get module file name");
+        szDriverPath[0] = '\0';
+    }
 
-	pszName = szDriverPath + strlen(szDriverPath);
-	while (pszName >= szDriverPath && *pszName != '\\')
-	{
-		*pszName-- = 0;
-	}
+    pszName = szDriverPath + strlen(szDriverPath);
+    while (pszName >= szDriverPath && *pszName != '\\')
+    {
+        *pszName-- = 0;
+    }
 
-	// JA 05/01/2001
-	// changes directory to be the same as the exe file
-	// should cure problems with shortcuts and macros
-	SetCurrentDirectory(szDriverPath);
+    // JA 05/01/2001
+    // changes directory to be the same as the exe file
+    // should cure problems with shortcuts and macros
+    SetCurrentDirectory(szDriverPath);
 
-	dwResult = start( pszDriverName );
-	if (dwResult != ERROR_SUCCESS && !bWindows95)
-	{
-		//
-		// OK the driver service is not installed.
-		// Build full driver path name and start the driver again.
-		// We assume the driver.sys is located in the same path
-		//
+    dwResult = start( pszDriverName );
+    if (dwResult != ERROR_SUCCESS && !bWindows95)
+    {
+        //
+        // OK the driver service is not installed.
+        // Build full driver path name and start the driver again.
+        // We assume the driver.sys is located in the same path
+        //
 
-		strcat(szDriverPath,pszDriverName);
-		strcat(szDriverPath,".sys");
+        strcat(szDriverPath,pszDriverName);
+        strcat(szDriverPath,".sys");
 
-		dwResult = start(pszDriverName, szDriverPath);
+        dwResult = start(pszDriverName, szDriverPath);
 
-		if ( dwResult != ERROR_SUCCESS)
-		{
-			char MsgBuf[256];
-			getErrorMessage(MsgBuf);
-			debugOut(dbError,"install driver %s failed",pszDriverName);
-			debugOut(dbError,MsgBuf);
-		}
-	}
+        if ( dwResult != ERROR_SUCCESS)
+        {
+            char MsgBuf[256];
+            getErrorMessage(MsgBuf);
+            debugOut(dbError,"install driver %s failed",pszDriverName);
+            debugOut(dbError,MsgBuf);
+        }
+    }
 
-	if(dwResult == ERROR_SUCCESS)
-	{
-		//
-		// Its time to open the device
-		//
-		strcpy(szDriverPath,pszDriverName);
+    if(dwResult == ERROR_SUCCESS)
+    {
+        //
+        // Its time to open the device
+        //
+        strcpy(szDriverPath,pszDriverName);
 
-		dwResult = open(szDriverPath);
-		if (  dwResult )
-		{
-			debugOut(dbError,"open driver failed");
-		}
-	}
+        dwResult = open(szDriverPath);
+        if (  dwResult )
+        {
+            debugOut(dbError,"open driver failed");
+        }
+    }
 
-	bDriverRunning = ( dwResult == ERROR_SUCCESS);
+    bDriverRunning = ( dwResult == ERROR_SUCCESS);
 
-	return dwResult;
+    return dwResult;
 }
 
 //---------------------------------------------------------------------------
@@ -675,11 +679,11 @@ DWORD CDSDriver::DSDrvStartDriver(void)
 //---------------------------------------------------------------------------
 DWORD CDSDriver::DSDrvStopDriver(void)
 {
-	close();
+    close();
 
-	bDriverRunning = FALSE;
+    bDriverRunning = FALSE;
 
-	return stop();
+    return stop();
 }
 
 
@@ -688,7 +692,7 @@ DWORD CDSDriver::DSDrvStopDriver(void)
 //---------------------------------------------------------------------------
 DWORD loadDriver(void)
 {
-	return DSDriver.DSDrvStartDriver(  );
+    return DSDriver.DSDrvStartDriver(  );
 }
 
 
@@ -697,7 +701,7 @@ DWORD loadDriver(void)
 //---------------------------------------------------------------------------
 DWORD closeDriver(void)
 {
-	return DSDriver.DSDrvStopDriver();
+    return DSDriver.DSDrvStopDriver();
 }
 
 //---------------------------------------------------------------------------
@@ -706,23 +710,23 @@ DWORD closeDriver(void)
 extern "C" int
 APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-	switch (dwReason)
-	{
-	// DLL is attaching to a process, due to process initialization or a
-	// call to LoadLibrary
-	case DLL_PROCESS_ATTACH:
-		debugInitialize("DSDrv",0xFFFFFFFFL);
-		debugOut(dbEnter,"DLL_PROCESS_ATTACH DSDrv.dll, handle %X %s",hInstance, "1.0");
-		loadDriver();
-		debugOut(dbExit,"DLL_PROCCES_ATTACH, exit");
-		break;
+    switch (dwReason)
+    {
+    // DLL is attaching to a process, due to process initialization or a
+    // call to LoadLibrary
+    case DLL_PROCESS_ATTACH:
+        debugInitialize("DSDrv",0xFFFFFFFFL);
+        debugOut(dbEnter,"DLL_PROCESS_ATTACH DSDrv.dll, handle %X %s",hInstance, "1.0");
+        loadDriver();
+        debugOut(dbExit,"DLL_PROCCES_ATTACH, exit");
+        break;
 
-	case DLL_PROCESS_DETACH:
-		debugOut(dbEnter,"DLL_PROCESS_DETACH, handle %X",hInstance);
-		closeDriver();
-		debugOut(dbExit,"DLL_PROCESS_DETACH, exit");
-		break;
-	}
+    case DLL_PROCESS_DETACH:
+        debugOut(dbEnter,"DLL_PROCESS_DETACH, handle %X",hInstance);
+        closeDriver();
+        debugOut(dbExit,"DLL_PROCESS_DETACH, exit");
+        break;
+    }
 
-	return 1;   // ok
+    return 1;   // ok
 }

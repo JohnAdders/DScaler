@@ -1,22 +1,26 @@
 /////////////////////////////////////////////////////////////////////////////
-// FLT_LogoKill.c
+// $Id: FLT_LogoKill.c,v 1.5 2001-07-13 16:13:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // This code is based on the 
 // LogoAway VirtualDub filter by Krzysztof Wojdon (c) 2000
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -50,7 +54,7 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE];
 long LogoKiller(DEINTERLACE_INFO *info)
 {
     BYTE* lpOverlay = info->Overlay + Left * 8;
-	const __int64 qwGrey = 0x7f7f7f7f7f7f7f7f;
+    const __int64 qwGrey = 0x7f7f7f7f7f7f7f7f;
     long Pitch = info->OverlayPitch;
 
     // we use some of the integer SSE instructions these are supported
@@ -270,71 +274,71 @@ void LinearCorrStart(void)
 /////////////////////////////////////////////////////////////////////////////
 SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
 {
-	{
-		"Top", SLIDER, 0, &Top,
-		20, 0, 575, 1, 1,
-		NULL,
-		"LogoKillFilter", "Top", Top_OnChange,
-	},
-	{
-		"Left", SLIDER, 0, &Left,
-		20, 0, 191, 1, 1,
-		NULL,
-		"LogoKillFilter", "Left", Left_OnChange,
-	},
-	{
-		"Width", SLIDER, 0, &Width,
-		20, 0, 191, 1, 1,
-		NULL,
-		"LogoKillFilter", "Width", Width_OnChange,
-	},
-	{
-		"Height", SLIDER, 0, &Height,
-		50, 2, 575, 1, 1,
-		NULL,
-		"LogoKillFilter", "Height", Height_OnChange,
-	},
-	{
+    {
+        "Top", SLIDER, 0, &Top,
+        20, 0, 575, 1, 1,
+        NULL,
+        "LogoKillFilter", "Top", Top_OnChange,
+    },
+    {
+        "Left", SLIDER, 0, &Left,
+        20, 0, 191, 1, 1,
+        NULL,
+        "LogoKillFilter", "Left", Left_OnChange,
+    },
+    {
+        "Width", SLIDER, 0, &Width,
+        20, 0, 191, 1, 1,
+        NULL,
+        "LogoKillFilter", "Width", Width_OnChange,
+    },
+    {
+        "Height", SLIDER, 0, &Height,
+        50, 2, 575, 1, 1,
+        NULL,
+        "LogoKillFilter", "Height", Height_OnChange,
+    },
+    {
         "Mode", ITEMFROMLIST, 0, (long*)&Mode,
-		MODE_GREY, MODE_GREY, MODE_LASTONE -1, 1, 1,
-		ModeList,
-		"LogoKillFilter", "Mode", NULL,
-	},
-	{
-		"Max", SLIDER, 0, &Max,
-		128, 0, 255, 1, 1,
-		NULL,
-		"LogoKillFilter", "Max", NULL,
-	},
+        MODE_GREY, MODE_GREY, MODE_LASTONE -1, 1, 1,
+        ModeList,
+        "LogoKillFilter", "Mode", NULL,
+    },
+    {
+        "Max", SLIDER, 0, &Max,
+        128, 0, 255, 1, 1,
+        NULL,
+        "LogoKillFilter", "Max", NULL,
+    },
 };
 
 FILTER_METHOD LogoKillMethod =
 {
-	sizeof(FILTER_METHOD),
-	FILTER_CURRENT_VERSION,
-	"Logo Killer Filter",
-	"&Logo Killer (experimental)",
-	FALSE,
-	FALSE,
-	LogoKiller, 
-	0,
-	TRUE,
-	NULL,
-	NULL,
-	NULL,
-	FLT_LOGOKILL_SETTING_LASTONE,
-	FLT_LogoKillSettings,
-	WM_FLT_LOGOKILL_GETVALUE - WM_USER,
+    sizeof(FILTER_METHOD),
+    FILTER_CURRENT_VERSION,
+    "Logo Killer Filter",
+    "&Logo Killer (experimental)",
+    FALSE,
+    FALSE,
+    LogoKiller, 
+    0,
+    TRUE,
+    NULL,
+    NULL,
+    NULL,
+    FLT_LOGOKILL_SETTING_LASTONE,
+    FLT_LogoKillSettings,
+    WM_FLT_LOGOKILL_GETVALUE - WM_USER,
 };
 
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
-	return &LogoKillMethod;
+    return &LogoKillMethod;
 }
 
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
-	return TRUE;
+    return TRUE;
 }
 

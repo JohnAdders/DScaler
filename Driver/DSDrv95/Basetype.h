@@ -1,27 +1,30 @@
-//---------------------------------------------------------------------------
-// FileName     : basetype.h
-// Created      : 15/04/95
-// Project      : Some projects
-// Author       : Elli
-// Contents     : Some basetype depended on current OS and environment
-// Note         : This program is free software; you can redistribute it
-//                and/or modify it under the terms of the GNU General Public
-//                License as published by the Free Software Foundation;
-//                either version 2 of the License, or (at your option) any
-//                later version.
+/////////////////////////////////////////////////////////////////////////////
+// $Id: Basetype.h,v 1.2 2001-07-13 16:13:53 adcockj Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2000 Mathias Ellinger.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 //
-//                This program is distributed in the hope that it will be useful,
-//                but WITHOUT ANY WARRANTY; without even the implied warranty of
-//                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//                GNU General Public License for more details.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//                You should have received a copy of the GNU General Public
-//                License along with this program; if not, write to the Free
-//                Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-// History      :
-//                V 1.00 initial version
-//---------------------------------------------------------------------------
-
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+// Change Log
+//
+// Date          Developer             Changes
+//
+// 20 Jun 1994   Mathias Ellinger      initial version
+//
+// 24 Jul 2000   John Adcock           Original dTV Release
+//                                     Added Memory Alloc functions
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #if ! defined (__BASETYPE_H)
 #define __BASETYPE_H

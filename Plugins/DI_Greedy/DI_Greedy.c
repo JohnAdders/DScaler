@@ -1,26 +1,30 @@
 /////////////////////////////////////////////////////////////////////////////
-// DI_Greedy.c
+// $Id: DI_Greedy.c,v 1.4 2001-07-13 16:13:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
 // Date          Developer             Changes
 //
-// 16 Jan 2001   Tom Barry		       Added Greedy Deinterlace method
+// 16 Jan 2001   Tom Barry             Added Greedy Deinterlace method
 //
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -45,40 +49,40 @@ long GreedyMaxComb = 15;
 /////////////////////////////////////////////////////////////////////////////
 SETTING DI_GreedySettings[DI_GREEDY_SETTING_LASTONE] =
 {
-	{
-		"Greedy Max Comb", SLIDER, 0, &GreedyMaxComb,
-		15, 0, 255, 1, 1,
-		NULL,
-		"Deinterlace", "GreedyMaxComb", NULL,
-	},
+    {
+        "Greedy Max Comb", SLIDER, 0, &GreedyMaxComb,
+        15, 0, 255, 1, 1,
+        NULL,
+        "Deinterlace", "GreedyMaxComb", NULL,
+    },
 };
 
 DEINTERLACE_METHOD GreedyMethod =
 {
-	sizeof(DEINTERLACE_METHOD),
-	DEINTERLACE_CURRENT_VERSION,
-	"Video (Greedy, Low Motion)", 
-	"Greedy",
-	FALSE, 
-	FALSE, 
-	DeinterlaceGreedy_MMX, 
-	50, 
-	60,
-	DI_GREEDY_SETTING_LASTONE,
-	DI_GreedySettings,
-	INDEX_VIDEO_GREEDY,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	3,
-	0,
-	0,
-	WM_DI_GREEDY_GETVALUE - WM_USER,
-	NULL,
-	0,
-	FALSE,
-	FALSE,
+    sizeof(DEINTERLACE_METHOD),
+    DEINTERLACE_CURRENT_VERSION,
+    "Video (Greedy, Low Motion)", 
+    "Greedy",
+    FALSE, 
+    FALSE, 
+    DeinterlaceGreedy_MMX, 
+    50, 
+    60,
+    DI_GREEDY_SETTING_LASTONE,
+    DI_GreedySettings,
+    INDEX_VIDEO_GREEDY,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    3,
+    0,
+    0,
+    WM_DI_GREEDY_GETVALUE - WM_USER,
+    NULL,
+    0,
+    FALSE,
+    FALSE,
 };
 
 
@@ -96,10 +100,10 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     {
         GreedyMethod.pfnAlgorithm = DeinterlaceGreedy_MMX;
     }
-	return &GreedyMethod;
+    return &GreedyMethod;
 }
 
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
-	return TRUE;
+    return TRUE;
 }

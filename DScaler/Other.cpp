@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.46 2002-09-26 16:26:26 adcockj Exp $
+// $Id: Other.cpp,v 1.47 2002-10-16 16:08:54 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/09/26 16:26:26  adcockj
+// Fix for some old cards that do not support waitinf for flip
+//
 // Revision 1.45  2002/08/15 14:16:18  kooiman
 // Cleaner settings per channel implementation
 //
@@ -591,7 +594,7 @@ BOOL Overlay_Create()
     memset(&PixelFormat, 0x00, sizeof(PixelFormat));
     PixelFormat.dwSize = sizeof(DDPIXELFORMAT);
     PixelFormat.dwFlags = DDPF_FOURCC;
-    PixelFormat.dwFourCC = MAKEFOURCC('Y', 'U', 'Y', '2');;
+    PixelFormat.dwFourCC = MAKEFOURCC('Y', 'U', 'Y', '2');
     PixelFormat.dwYUVBitCount = 16;
 
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
@@ -1091,7 +1094,7 @@ BOOL Overlay_Flip(DWORD FlipFlag)
     FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
     if(FAILED(FlipResult))
     {
-        // cope with card's that donn't suppotr waiting for the flip
+        // cope with card's that don't support waiting for the flip
         if(FlipFlag != DDFLIP_WAIT && FlipResult == DDERR_INVALIDPARAMS)
         {
             FlipResult = lpDDOverlay->Flip(NULL, DDFLIP_WAIT); 

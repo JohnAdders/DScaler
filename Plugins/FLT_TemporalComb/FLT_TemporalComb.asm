@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.7 2002-01-05 22:53:27 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.8 2002-03-11 01:49:24 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/01/05 22:53:27  lindsey
+// Greatly reduced roundoff error for smaller decay values
+// Consolidated the 'in phase difference' settings into one 'color variation' setting
+// Improved formatting
+//
 // Revision 1.6  2001/12/20 05:28:37  lindsey
 // Corrected a crash with small overscan values
 //
@@ -88,27 +93,41 @@
 
 // Processor specific averaging:
 // Set destMM to average of destMM and sourceMM
-// (Code from DI_GreedyHM.h by Tom Barry)
-// Note that the MMX version rounds down, and is off by one if both operands are
-// odd; the other versions round up.
-// Changes destMM, tempMM
+// Note that this is a somewhat unconventional averaging function: It rounds toward
+// the first operand if it is (even and larger) or (odd and smaller).  This is faster
+// and just as effective here as "round toward even."
+// Explanation of the MMX version: 1 is added to the source pixel if it is odd (and != 255)
+// Then half the (adjusted) source pixel (rounding down -- which is effectively the same as
+// rounding the unadjusted pixel up unless source == 255) is added to half the destination
+// pixel (also rounding down). This gives the same result as the much faster and less 
+// complicated versions for other processors
+
+// tempMM is changed 
 
 #undef AVERAGE
-#if defined( IS_SSE ) || defined( IS_MMXEXT )
-#define AVERAGE( destMM, sourceMM, tempMM, shiftMask ) \
-    pavgb destMM, sourceMM
-#elif defined( IS_3DNOW )
-#define AVERAGE( destMM, sourceMM, tempMM, shiftMask ) \
-    pavgusb destMM, sourceMM
-#else
-#define AVERAGE( destMM, sourceMM, tempMM, shiftMask ) __asm \
+#if defined(IS_SSE)
+#define AVERAGE(destMM, sourceMM, tempMM, noLowBitsMask) __asm \
     { \
-	__asm movq tempMM, sourceMM \
-	__asm pand tempMM, shiftMask \
-	__asm psrlw tempMM, 1 \
-	__asm pand destMM, shiftMask \
-	__asm psrlw destMM, 1 \
-	__asm paddusb destMM, tempMM \
+    __asm pand destMM, noLowBitsMask \
+    __asm pavgb destMM, sourceMM \
+    }
+#elif defined(IS_3DNOW)
+#define AVERAGE(destMM, sourceMM, tempMM, noLowBitsMask) __asm \
+    { \
+    __asm pand destMM, noLowBitsMask \
+    __asm pavgusb destMM, sourceMM \
+    }
+#else
+#define AVERAGE(destMM, sourceMM, tempMM, noLowBitsMask) __asm \
+    { \
+    __asm movq tempMM, noLowBitsMask \
+    __asm pandn tempMM, sourceMM \
+    __asm paddusb tempMM, sourceMM \
+    __asm pand tempMM, noLowBitsMask \
+    __asm psrlw tempMM, 1 \
+    __asm pand destMM, noLowBitsMask \
+    __asm psrlw destMM, 1 \
+    __asm paddusb destMM, tempMM \
     }
 #endif // processor specific averaging routine
 
@@ -311,7 +330,7 @@ long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
     __int64         qwMotionThreshold = 0;
     __int64         qwAveragingThreshold = 0;
 
-    const __int64   qwShiftMask = 0xFEFFFEFFFEFFFEFF;
+    const __int64   qwShiftMask = 0xFEFEFEFEFEFEFEFE;
     const DWORD     BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture; wrong in half-height
     static DWORD    sDecayNumerator = 0;
     static DWORD    sLastOverlayPitch = 0;
@@ -320,6 +339,8 @@ long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
     static DWORD    sLastDecayPercent = 0;
 
     DWORD           Accumulation = 0;
+    DWORD           LastIndex = 0;                                  // Previous out of phase field/frame
+    DWORD           LastLastIndex = 0;                              // Previous in phase field/frame
 
     if( (pInfo->OverlayPitch != sLastOverlayPitch) || (pInfo->FieldHeight != sLastFieldHeight) )
     {
@@ -334,7 +355,7 @@ long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
     if( gpShimmerMap == NULL )
     {
         DWORD   Index = 0;
-        gpShimmerMap = malloc( pInfo->InputPitch * pInfo->FieldHeight );
+        gpShimmerMap = DumbAlignedMalloc( pInfo->InputPitch * pInfo->FieldHeight );
         if( gpShimmerMap == NULL )
         {
             return 1000;    // !! Should notify user !!
@@ -349,9 +370,19 @@ long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
         ;                   // Do nothing
     }
 
-    if(
-        (pTPictures[0] == NULL) || (pTPictures[2] == NULL) || (pTPictures[4] == NULL)
-    ) {
+    if( (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) == 0 )
+    {
+        LastIndex = 1;
+        LastLastIndex = 2;
+    }
+    else    // Interlaced
+    {
+        LastIndex = 2;
+        LastLastIndex = 4;
+    }
+
+    if( (pTPictures[0] == NULL) || (pTPictures[LastIndex] == NULL) || (pTPictures[LastLastIndex] == NULL) )
+    {
         return 1000;
     }
 
@@ -422,13 +453,13 @@ long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
     pSource = pTPictures[0]->pData + (ThisLine * pInfo->InputPitch);
     if( gDoFieldBuffering == TRUE )
     {
-        pLast = gppFieldBuffer[2] + (ThisLine * pInfo->InputPitch);
-        pLastLast = gppFieldBuffer[4] + (ThisLine * pInfo->InputPitch);
+        pLast = gppFieldBuffer[LastIndex] + (ThisLine * pInfo->InputPitch);
+        pLastLast = gppFieldBuffer[LastLastIndex] + (ThisLine * pInfo->InputPitch);
     }
     else
     {
-        pLast = pTPictures[2]->pData + (ThisLine * pInfo->InputPitch);
-        pLastLast = pTPictures[4]->pData + (ThisLine * pInfo->InputPitch);
+        pLast = pTPictures[LastIndex]->pData + (ThisLine * pInfo->InputPitch);
+        pLastLast = pTPictures[LastLastIndex]->pData + (ThisLine * pInfo->InputPitch);
     }
 
     for( ; ThisLine < BottomLine; ++ThisLine)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.9 2002-02-23 03:22:16 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.10 2002-03-11 01:49:25 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/02/23 03:22:16  lindsey
+// Exposed the "Use this filter" settings
+//
 // Revision 1.8  2002/01/05 22:53:27  lindsey
 // Greatly reduced roundoff error for smaller decay values
 // Consolidated the 'in phase difference' settings into one 'color variation' setting
@@ -157,6 +160,9 @@ Ways this filter could be improved:
 
 void __cdecl    ExitTemporalComb( void );
 void            CleanupTemporalComb( void );
+
+BYTE*           DumbAlignedMalloc(int siz);
+BYTE*           DumbAlignedFree(BYTE* x);
 
 __declspec(dllexport) FILTER_METHOD*    GetFilterPluginInfo( long CpuFeatureFlags );
 
@@ -314,7 +320,7 @@ void CleanupTemporalComb( void )
     DWORD   Index = 0;
     if( gpShimmerMap != NULL )
     {
-        free( gpShimmerMap );
+        DumbAlignedFree( gpShimmerMap );
         gpShimmerMap = NULL;
     }
     else
@@ -325,7 +331,7 @@ void CleanupTemporalComb( void )
     {
         if( gppFieldBuffer[Index] != NULL )
         {
-            free( gppFieldBuffer[Index] );
+            DumbAlignedFree( gppFieldBuffer[Index] );
             gppFieldBuffer[Index] = NULL;
         }
         else
@@ -361,6 +367,27 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 }
 
 
+// Aligned memory allocation wrapper
+// Copied from Tom Barry's aligned malloc/free in StillSource.cpp
+
+BYTE* DumbAlignedMalloc(int siz)
+{
+	BYTE* x = (BYTE*)malloc(siz+16);
+	BYTE** y = (BYTE**) (x+16);
+	y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
+	*y = x;
+	return (BYTE*) y+4;
+}
+
+
+BYTE* DumbAlignedFree(BYTE* x)
+{
+	BYTE* y =  *(BYTE**)(x-4);
+	free(y);
+	return 0;
+}
+
+
 // Need malloc() and free(), so this is commented out
 
 /*
@@ -390,7 +417,7 @@ LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
         if( gppFieldBuffer[Index] == NULL )
         {
             HistoryWait = Index;    // ~ number of fields until buffer is filled with data
-            gppFieldBuffer[Index] = malloc( pInfo->InputPitch * pInfo->FieldHeight );
+            gppFieldBuffer[Index] = DumbAlignedMalloc( pInfo->InputPitch * pInfo->FieldHeight );
             if( gppFieldBuffer[Index] == NULL )
             {
                 return 1000;        // !! Should notify user !!

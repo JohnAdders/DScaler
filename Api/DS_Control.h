@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.112 2002-11-06 11:11:22 adcockj Exp $
+// $Id: DS_Control.h,v 1.113 2002-11-09 01:11:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.112  2002/11/06 11:11:22  adcockj
+// Added new Settings and applied Laurent's filter setup suggestions
+//
 // Revision 1.111  2002/11/05 13:07:08  adcockj
 // Logo Killer Smoothing patch from Jochen Trenner
 //
@@ -1472,6 +1475,12 @@ typedef enum
     CX2388XFASTSUBCARRIERLOCK,
     CX2388XWHITECRUSH,
     CX2388XLOWCOLORREMOVAL,
+    CX2388XCOMBFILTER,
+    CX2388XFULLLUMARANGE,
+    CX2388XREMODULATION,
+    CX2388XCHROMA2HCOMB,
+    CX2388XFORCEREMODEXCESSCHROMA,
+    CX2388XIFXINTERPOLATION,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

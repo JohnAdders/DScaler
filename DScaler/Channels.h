@@ -45,6 +45,7 @@ public:
     ~CChannel();
     LPCSTR GetName() const;
     DWORD GetFrequency() const;
+    void SetFrequency(DWORD newFrequency);
     int GetChannelNumber() const;
     eVideoFormat GetFormat() const;
     BOOL IsActive() const;
@@ -76,6 +77,7 @@ private:
 public :
     CChannelList();
     CChannelList(const CChannelList&);
+    CChannelList(DWORD dwBeginFrequency, DWORD dwEndFrequency, DWORD dwSteps);
     ~CChannelList();
 
     void Clear();
@@ -121,17 +123,17 @@ public :
 
     int AddChannels(const CChannelList* const);
     
-    BOOL WriteFile(LPCSTR, CChannelList::FileFormat);
+    BOOL WriteFile(LPCSTR, CChannelList::FileFormat)  const;
 
     BOOL ReadFile(LPCSTR, CChannelList::FileFormat);
 
     
     //Read/Write using the legacy "program.txt" file format
-    inline BOOL WriteASCII(LPCSTR szFilename) {return WriteFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
+    inline BOOL WriteASCII(LPCSTR szFilename)  const {return WriteFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
     
     inline BOOL ReadASCII(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
     
-    inline BOOL WriteXML(LPCSTR szFilename) {return WriteFile(szFilename, CChannelList::FILE_FORMAT_XML);};
+    inline BOOL WriteXML(LPCSTR szFilename)  const {return WriteFile(szFilename, CChannelList::FILE_FORMAT_XML);};
     
     inline BOOL ReadXML(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_XML);};
     
@@ -162,11 +164,11 @@ protected :
     //when a modification to the list is done (by adding/removing channels)
     virtual void UpdateFields();
 
-    virtual BOOL WriteASCIIImpl(LPCSTR szFilename) = 0;
-    virtual BOOL ReadASCIIImpl(LPCSTR szFilename) = 0;
+    virtual BOOL WriteASCIIImpl(FILE*)  const= 0;
+    virtual BOOL ReadASCIIImpl(FILE*) = 0;
 
-    virtual BOOL WriteXMLImpl(LPCSTR szFilename) = 0;
-    virtual BOOL ReadXMLImpl(LPCSTR szFilename) = 0;
+    virtual BOOL WriteXMLImpl(FILE*)  const= 0;
+    virtual BOOL ReadXMLImpl(FILE*) = 0;
 
 private:
 
@@ -190,11 +192,11 @@ public:
 
 protected :
     
-    BOOL WriteASCIIImpl(LPCSTR szFilename);
-    BOOL ReadASCIIImpl(LPCSTR szFilename);
+    BOOL WriteASCIIImpl(FILE*) const;
+    BOOL ReadASCIIImpl(FILE*);
 
-    BOOL WriteXMLImpl(LPCSTR szFilename);
-    BOOL ReadXMLImpl(LPCSTR szFilename);
+    BOOL WriteXMLImpl(FILE*) const;
+    BOOL ReadXMLImpl(FILE*);
 
 };
 
@@ -216,11 +218,11 @@ public:
     
 protected :
    
-    BOOL WriteASCIIImpl(LPCSTR szFilename);
-    BOOL ReadASCIIImpl(LPCSTR szFilename);
+    BOOL WriteASCIIImpl(FILE*) const;
+    BOOL ReadASCIIImpl(FILE*);
 
-    BOOL WriteXMLImpl(LPCSTR szFilename);
-    BOOL ReadXMLImpl(LPCSTR szFilename);
+    BOOL WriteXMLImpl(FILE*) const;
+    BOOL ReadXMLImpl(FILE*);
 
 private:
     string m_szName;
@@ -266,12 +268,16 @@ public :
     void Clear();
     
 
+    BOOL ReadASCII(FILE*);
     BOOL ReadASCII(LPCSTR);
 
+    BOOL WriteXML(FILE*) const;
+    BOOL WriteXML(LPCSTR) const;
 
 private:
     Countries m_Countries;
 
 };
+
 
 #endif

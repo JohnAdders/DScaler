@@ -68,6 +68,11 @@ DWORD CChannel::GetFrequency() const
     return m_Freq;
 }
 
+void CChannel::SetFrequency(DWORD newFrequency) 
+{
+    m_Freq = newFrequency;
+}
+
 int CChannel::GetChannelNumber() const
 {
     return m_Chan;
@@ -340,48 +345,64 @@ void CChannelList::UpdateFields()
     }   
 }
 
-BOOL CChannelList::WriteFile(LPCSTR szFilename, CChannelList::FileFormat format)
+BOOL CChannelList::WriteFile(LPCSTR szFilename, CChannelList::FileFormat format)  const
 {
     if (NULL == szFilename)
     {
         return FALSE;
     }
 
-    switch (format)
-    {
-    case FILE_FORMAT_ASCII:
-        return WriteASCIIImpl(szFilename);        
+    BOOL success = FALSE;
+    FILE* file = fopen(szFilename, "w");
+    if (NULL != file) {
+        switch (format)
+        {
+        case FILE_FORMAT_ASCII:
+            success = WriteASCIIImpl(file);        
+            break;
 
-    case FILE_FORMAT_XML:
-        return WriteXMLImpl(szFilename);        
-
-    default :
-        return false;
+        case FILE_FORMAT_XML:
+            success = WriteXMLImpl(file);        
+            break;
+        default :
+            break;
+        }//switch
+        success = (fclose(file) == 0) && success;
+        file = NULL;
     }
+
+    return success;
 }
 
 
-BOOL CChannelList::ReadFile(LPCSTR szFilename, CChannelList::FileFormat format)
+BOOL CChannelList::ReadFile(LPCSTR szFilename, CChannelList::FileFormat format) 
 {
     if (NULL == szFilename)
     {
         return FALSE;
     }
-    
-    //DB Note : note sure you want this...
-    //Clear();
 
-    switch (format)
-    {
-    case FILE_FORMAT_ASCII:
-        return ReadASCIIImpl(szFilename);        
+    BOOL success = FALSE;
+    FILE* file = fopen(szFilename, "r");
+    if (NULL != file) {
+        switch (format)
+        {
+        case FILE_FORMAT_ASCII:
+            success = ReadASCIIImpl(file);        
+            break;
 
-    case FILE_FORMAT_XML:
-        return ReadXMLImpl(szFilename);        
+        case FILE_FORMAT_XML:
+            success = ReadXMLImpl(file);        
+            break;
 
-    default :
-        return false;
+        default :
+            break;
+
+        }//switch
+        success = (fclose(file) == 0) && success;            
+        file = NULL;
     }
+    return success;
 }
 
 
@@ -405,23 +426,17 @@ CUserChannels::~CUserChannels()
 }
 
 
-BOOL CUserChannels::ReadASCIIImpl(LPCSTR szFilename)
+BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
 {
-    ASSERT(NULL != szFilename);
+    ASSERT(NULL != SettingFile);
 
-    char sbuf[256];
-    FILE* SettingFile;  
+    char sbuf[256];    
     DWORD Frequency = -1;
     int Channel = 1;
     int Format = -1;
     BOOL Active = TRUE;
     string Name;
     
-    SettingFile = fopen(szFilename, "r");
-    if (SettingFile == NULL)
-    {
-        return FALSE;
-    }
     while(!feof(SettingFile))
     {
         sbuf[0] = '\0';
@@ -506,8 +521,7 @@ BOOL CUserChannels::ReadASCIIImpl(LPCSTR szFilename)
     {
         AddChannel(new CChannel(Name.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
     }
-
-    fclose(SettingFile);
+    
     return TRUE;
 }
 
@@ -524,34 +538,31 @@ BOOL CUserChannels::ReadASCIIImpl(LPCSTR szFilename)
 // 10 October 2002 - Denis Balazuc
 // Moved to Channels.cpp
 
-BOOL CUserChannels::WriteASCIIImpl(LPCSTR szFilename)
+BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
 {
-    ASSERT(NULL != szFilename);
+    ASSERT(NULL != SettingFile);
     
     BOOL bSuccess = FALSE;
-    FILE* SettingFile;    
     
-    if ((SettingFile = fopen(szFilename, "w")) != NULL)
+    for(int i = 0; i < GetSize(); i++)
     {
-        for(int i = 0; i < GetSize(); i++)
+        fprintf(SettingFile, "Name: %s\n", GetChannelName(i));
+        //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
+        fprintf(SettingFile, "Freq: %ld\n", GetChannelFrequency(i)/1000);
+        fprintf(SettingFile, "Chan: %d\n", GetChannelNumber(i));
+        fprintf(SettingFile, "Active: %d\n", GetChannelActive(i));
+        if(GetChannelFormat(i) != -1)
         {
-            fprintf(SettingFile, "Name: %s\n", GetChannelName(i));
-            //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
-            fprintf(SettingFile, "Freq: %ld\n", GetChannelFrequency(i)/1000);
-            fprintf(SettingFile, "Chan: %d\n", GetChannelNumber(i));
-            fprintf(SettingFile, "Active: %d\n", GetChannelActive(i));
-            if(GetChannelFormat(i) != -1)
-            {
-                fprintf(SettingFile, "Form: %d\n", GetChannelFormat(i));
-            }
+            fprintf(SettingFile, "Form: %d\n", GetChannelFormat(i));
         }
-        fclose(SettingFile);
-        bSuccess = TRUE;
-    }    
+    }
+    
+    bSuccess = TRUE;
+    
     return bSuccess;
 }
 
-BOOL CUserChannels::ReadXMLImpl(LPCSTR szFilename)
+BOOL CUserChannels::ReadXMLImpl(FILE* file)
 {
     BOOL returned = FALSE;
 
@@ -560,36 +571,31 @@ BOOL CUserChannels::ReadXMLImpl(LPCSTR szFilename)
     return returned;
 }
 
-BOOL CUserChannels::WriteXMLImpl(LPCSTR szFilename)
+BOOL CUserChannels::WriteXMLImpl(FILE* SettingFile)  const
 {
     //quick and dirty
-     ASSERT(NULL != szFilename);
+    ASSERT(NULL != SettingFile);
     
     BOOL bSuccess = FALSE;
-    FILE* SettingFile;    
-    
-    if ((SettingFile = fopen(szFilename, "w")) != NULL)
+    //fprintf(SettingFile, "<?xml-stylesheet type=\"text/xsl\" href=\"program-list.xsl\"?>");
+    fprintf(SettingFile, "<channel-list>\n");
+    for(int i = 0; i < GetSize(); i++)
     {
-        fprintf(SettingFile, "<?xml-stylesheet type=\"text/xsl\" href=\"program-list.xsl\"?>");
-        fprintf(SettingFile, "<program-list>\n");
-        for(int i = 0; i < GetSize(); i++)
+        fprintf(SettingFile, "\t<channel id=\"%d\">\n", i);
+        fprintf(SettingFile, "\t\t<name>%s</name>\n", GetChannelName(i));            
+        fprintf(SettingFile, "\t\t<frequency>%ld</frequency>\n", GetChannelFrequency(i));//watch out. ASCII has freq/1000
+        fprintf(SettingFile, "\t\t<number>%d</number>\n", GetChannelNumber(i));
+        fprintf(SettingFile, "\t\t<active>%d</active>\n", GetChannelActive(i));
+        if(GetChannelFormat(i) != -1)
         {
-            fprintf(SettingFile, "\t<channel id=\"%d\">\n", i);
-            fprintf(SettingFile, "\t\t<name>%s</name>\n", GetChannelName(i));            
-            fprintf(SettingFile, "\t\t<frequency>%ld</frequency>\n", GetChannelFrequency(i));//watch out. ASCII has freq/1000
-            fprintf(SettingFile, "\t\t<number>%d</number>\n", GetChannelNumber(i));
-            fprintf(SettingFile, "\t\t<active>%d</active>\n", GetChannelActive(i));
-            if(GetChannelFormat(i) != -1)
-            {
-                fprintf(SettingFile, "\t\t<format>%d</format>\n", GetChannelFormat(i));
-            }
-            fprintf(SettingFile, "\t</channel>\n");
-        }//for
-        fprintf(SettingFile, "</program-list>\n");
-        fclose(SettingFile);
-        bSuccess = TRUE;
-    }    
-    return bSuccess;
+            fprintf(SettingFile, "\t\t<format>%d</format>\n", GetChannelFormat(i));
+        }
+        fprintf(SettingFile, "\t</channel>\n");
+    }//for
+    fprintf(SettingFile, "</channel-list>\n");
+    bSuccess = TRUE;
+    
+    return bSuccess;//TRUE
 }
 
 
@@ -633,24 +639,48 @@ const eVideoFormat CCountryChannels::GetCountryFormat() const
 }
 
 
-BOOL CCountryChannels::WriteASCIIImpl(LPCSTR szFilename)
+BOOL CCountryChannels::WriteASCIIImpl(FILE* file) const
 {
     return FALSE; //never been implemented...
 }
 
 
-BOOL CCountryChannels::ReadASCIIImpl(LPCSTR szFilename)
+BOOL CCountryChannels::ReadASCIIImpl(FILE* file)
 {
     return FALSE;
 }
 
 
-BOOL CCountryChannels::WriteXMLImpl(LPCSTR szFilename)
+BOOL CCountryChannels::WriteXMLImpl(FILE* xmlCountryFile)  const 
 {
-    return FALSE;
+   
+    ASSERT(NULL != xmlCountryFile);
+    
+    BOOL bSuccess = FALSE;
+        
+    fprintf(xmlCountryFile, "\t<country>\n");
+    fprintf(xmlCountryFile, "\t\t<name>%s</name>\n", GetCountryName());
+    fprintf(xmlCountryFile, "\t\t<format>%d</format>\n", GetCountryFormat());
+    for(int i = 0; i < GetSize(); i++)
+    {
+        fprintf(xmlCountryFile, "\t\t<channel id=\"%d\">\n", i);
+        fprintf(xmlCountryFile, "\t\t\t<name>%s</name>\n", GetChannelName(i));            
+        fprintf(xmlCountryFile, "\t\t\t<frequency>%ld</frequency>\n", GetChannelFrequency(i));
+        fprintf(xmlCountryFile, "\t\t\t<number>%d</number>\n", GetChannelNumber(i));
+        fprintf(xmlCountryFile, "\t\t\t<active>%d</active>\n", GetChannelActive(i));
+        if(GetChannelFormat(i) != -1)
+        {
+            fprintf(xmlCountryFile, "\t\t\t<format>%d</format>\n", GetChannelFormat(i));
+        }
+        fprintf(xmlCountryFile, "\t\t</channel>\n");
+    }//for each channel
+    fprintf(xmlCountryFile, "\t</country>\n");
+    
+    bSuccess = TRUE;    
+    return bSuccess; 
 }
 
-BOOL CCountryChannels::ReadXMLImpl(LPCSTR szFilename)
+BOOL CCountryChannels::ReadXMLImpl(FILE* file)
 {
     return FALSE;
 }
@@ -770,26 +800,36 @@ eVideoFormat StrToVideoFormat(char* pszFormat)
     return VIDEOFORMAT_LASTONE;
 }
 
-
-BOOL CCountryList::ReadASCII(LPCSTR szFilename)
+BOOL CCountryList::ReadASCII(LPCSTR szFilename) 
 {
-    ASSERT(NULL != szFilename);
+    if (NULL == szFilename) {
+        return FALSE;
+    }
+
+    FILE* file = fopen(szFilename, "r");
+    if (NULL == file) {
+        return FALSE;
+    }
+
+    BOOL returned = ReadASCII(file);
+    returned = (fclose(file) == 0) && returned;
     
-    FILE*     CountryFile;
+    return returned;
+}
+
+BOOL CCountryList::ReadASCII(FILE* CountryFile)
+{
+    ASSERT(NULL != CountryFile);
+    
     char      line[128];
     char*     Pos;
     char*     Pos1;
     char*     eol_ptr;
-    string    Name;
+    CString   channelName;
     CCountryChannels* NewCountry = NULL;
     eVideoFormat Format = VIDEOFORMAT_LASTONE;     
     int channelCounter = 0;
-
-    if ((CountryFile = fopen(szFilename, "r")) == NULL)
-    {
-        return FALSE;
-    }
-
+   
     while (fgets(line, sizeof(line), CountryFile) != NULL)
     {
         eol_ptr = strstr(line, ";");
@@ -799,7 +839,11 @@ BOOL CCountryList::ReadASCII(LPCSTR szFilename)
         }
         if(eol_ptr != NULL)
         {
-            *eol_ptr = '\0';
+            channelName.ReleaseBuffer();
+            channelName = eol_ptr;
+            //_snprintf(Name, 254,"%s", eol_ptr);
+            //Name[255] = '\0';
+            *eol_ptr = '\0';            
         }
         if(eol_ptr == line)
         {
@@ -822,8 +866,7 @@ BOOL CCountryList::ReadASCII(LPCSTR szFilename)
         else
         {
             if (NewCountry == NULL)
-            {
-                fclose(CountryFile);                
+            {                                
                 return FALSE;
             }
             
@@ -851,8 +894,17 @@ BOOL CCountryList::ReadASCII(LPCSTR szFilename)
                         int channelNumber = NewCountry->GetMinChannelNumber() + channelCounter;
                         DWORD freq = (DWORD)atol(Pos);
                         if (freq > 0)
-                        {
-                            NewCountry->AddChannel(freq, channelNumber, Format, FALSE);
+                        {                            
+                            channelName.TrimLeft();
+                            channelName.TrimRight();
+                            //eliminate the trailing ";" in name if it exists,
+                            //otherwise pickup a default name
+                            if (channelName.GetLength() < 2) {
+                                NewCountry->AddChannel(freq, channelNumber, Format, FALSE);                            
+                            }
+                            else {                                
+                                NewCountry->AddChannel(channelName.Right(channelName.GetLength() - 2), freq, channelNumber, Format, FALSE);                            
+                            }
                         }
                         channelCounter++;
                         break;
@@ -866,10 +918,48 @@ BOOL CCountryList::ReadASCII(LPCSTR szFilename)
     {
         AddChannels(NewCountry);
     }
-
-    fclose(CountryFile);
-    return (GetSize() > 0);
+    
+    return TRUE;
 }
+
+BOOL CCountryList::WriteXML(LPCSTR szFilename)  const
+{
+    if (NULL == szFilename) {
+        return FALSE;
+    }
+
+    FILE* file = fopen(szFilename, "w");
+    if (NULL == file) {
+        return FALSE;
+    }
+
+    BOOL returned = WriteXML(file);
+    returned = (fclose(file) == 0) && returned;
+    
+    return returned;
+}
+
+
+BOOL CCountryList::WriteXML(FILE* xmlCountryFile)  const 
+{
+    ASSERT(NULL != xmlCountryFile);
+    
+    BOOL bSuccess = FALSE;
+    
+    fprintf(xmlCountryFile, "<channel-list>\n");
+    for (int j = 0; j < GetSize(); j++) {
+        const CCountryChannels* channels = GetChannels(j);
+        channels->WriteXMLImpl(xmlCountryFile);        
+    }//for each channel list
+    fprintf(xmlCountryFile, "</channel-list>\n");
+    
+    bSuccess = TRUE;
+    
+    return bSuccess;
+}
+
 
 // ------------ CCountryList END --------------
 // ------------------------------------------------
+
+

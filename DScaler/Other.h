@@ -45,7 +45,7 @@ SETTING* Other_GetSetting(OTHER_SETTING Setting);
 void Other_ReadSettingsFromIni();
 void Other_WriteSettingsToIni();
 
-#define DSCALER_MAX_WIDTH 922
+#define DSCALER_MAX_WIDTH 768
 #define DSCALER_MAX_HEIGHT 576
 
 void ExitDD(void);

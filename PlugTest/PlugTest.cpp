@@ -541,6 +541,14 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
 			QueryPerformanceCounter(&EndTime);
 			double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
 			printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+
+            info.IsOdd = !info.IsOdd;
+            QueryPerformanceCounter(&StartTime);
+			FilterMethod->pfnAlgorithm(&info);
+			QueryPerformanceCounter(&EndTime);
+			Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
+			printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+            info.IsOdd = !info.IsOdd;
 		}
 	}
 
@@ -615,6 +623,10 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
 	    {
 		    return 1;
 	    }
+		for (i = 0; i < DeintMethod->nSettings; i++)
+		{
+			ReadFromIni(&(DeintMethod->pSettings[i]), szIniFile);
+		}
 
 	    QueryPerformanceCounter(&StartTime);
 	    DeintMethod->pfnAlgorithm(&info);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.19 2002-09-28 13:34:08 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.20 2002-09-28 18:08:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/28 13:34:08  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.18  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -1668,8 +1671,12 @@ void SettingsPerChannel_EventHandler(void *pThis, CEventObject *pEventObject, eE
        {
            //if (pEventObject == Providers_GetCurrentSource())
 		   //{
-			SettingsPerChannel_InputAndChannelChange((Event == EVENT_VIDEOINPUT_PRECHANGE), (CSource*)pEventObject, ((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue), 
-                Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue)), NO_CHANNEL, iSpcCurrentVideoFormat);
+           CSource* pSource = dynamic_cast<CSource*>(pEventObject);
+           if(pSource != NULL)
+           {
+			    SettingsPerChannel_InputAndChannelChange((Event == EVENT_VIDEOINPUT_PRECHANGE), pSource, ((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue), 
+                    Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue)), NO_CHANNEL, iSpcCurrentVideoFormat);
+           }
 		   //}
        } 
        else if ((Event == EVENT_CHANNEL_PRECHANGE) || (Event == EVENT_CHANNEL_CHANGE))
@@ -1678,7 +1685,11 @@ void SettingsPerChannel_EventHandler(void *pThis, CEventObject *pEventObject, eE
 		   //{			   
 			//SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
 		   //}
-		   SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), (CSource*)pEventObject, iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
+           CSource* pSource = dynamic_cast<CSource*>(pEventObject);
+           if(pSource != NULL)
+           {
+    		   SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), pSource, iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
+           }
        } 
    } 
    catch (...)

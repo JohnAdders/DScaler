@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.19 2003-01-10 17:38:21 adcockj Exp $
+// $Id: Setting.cpp,v 1.20 2003-01-10 17:52:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/10 17:38:21  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.18  2002/10/15 15:06:01  kooiman
 // Split setting.cpp in parts + cleanup.
 //
@@ -129,7 +136,7 @@ static char THIS_FILE[]=__FILE__;
 */
 CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, 
                                LPCSTR Section, LPCSTR Entry, long StepValue, 
-                               CSettingGroup* pGroup, eSettingFlags SettingFlags)
+                               CSettingGroup* pGroup)
 {
     m_pSetting = new SETTING;
     m_bFreeSettingOnExit = TRUE;
@@ -172,8 +179,7 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
     static callback function, pointer for callback function
 
 */
-CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup, 
-                               eSettingFlags SettingFlags)
+CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup)
 {    
     m_pSetting = pSetting;
     m_bFreeSettingOnExit = FALSE;
@@ -575,15 +581,15 @@ void CSimpleSetting::OnChange(long NewValue, long OldValue)
     for the rest of the parameters: 
     @see CSimpleSetting
 */
-CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup* pGroup, eSettingFlags SettingFlags) :
-    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup, SettingFlags)    
+CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, CSettingGroup* pGroup) :
+    CSimpleSetting(DisplayName, Default, 0, Max, Section, Entry, 1, pGroup)    
 {
     m_pSetting->Type = ITEMFROMLIST;
     m_pSetting->pszList = pszList;
 }
 
-CListSetting::CListSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags) : 
-	CSimpleSetting(pSetting, pGroup, SettingFlags)
+CListSetting::CListSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
+	CSimpleSetting(pSetting, pGroup)
 {   
 }
 
@@ -630,15 +636,15 @@ void CListSetting::SetFromControl(HWND hWnd)
     For the parameters: 
     @see CSimpleSetting
 */
-CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup, eSettingFlags SettingFlags) :
-    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup, SettingFlags)
+CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+    CSimpleSetting(DisplayName, Default, Min, Max, Section, Entry, 1, pGroup)
 {
     m_pSetting->OSDDivider = 1;
     m_pSetting->Type = SLIDER;
 }
 
-CSliderSetting::CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags) : 
-	CSimpleSetting(pSetting, pGroup, SettingFlags)
+CSliderSetting::CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
+	CSimpleSetting(pSetting, pGroup)
 {    
 }
 
@@ -726,14 +732,14 @@ void CSliderSetting::SetFromControl(HWND hWnd)
     For the rest of the parameters: 
     @see CSimpleSetting
 */
-CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup, eSettingFlags SettingFlags) :
-    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup, SettingFlags)
+CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+    CSimpleSetting(DisplayName, Default, 0, 1, Section, Entry, 1, pGroup)
 {
     m_pSetting->Type = YESNO;
 }
 
-CYesNoSetting::CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup, eSettingFlags SettingFlags) : 
-	CSimpleSetting(pSetting, pGroup, SettingFlags)
+CYesNoSetting::CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
+	CSimpleSetting(pSetting, pGroup)
 {  
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.28 2003-01-10 17:37:52 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.29 2003-01-10 17:51:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/01/10 17:37:52  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.27  2003/01/08 19:59:36  laurentg
 // Analogue Blanking setting by source
 //
@@ -354,39 +361,39 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pH3DGroup = pCX2388xGroup->GetGroup("H3D","H3D");
     CSettingGroup *pAudioGroup = pCX2388xGroup->GetGroup("Audio","Audio");
 
-    eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
 
-    m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_Brightness = new CBrightnessSetting(this, "Brightness", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
 
-    m_Contrast = new CContrastSetting(this, "Contrast", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_Contrast = new CContrastSetting(this, "Contrast", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Contrast);
 
-    m_Hue = new CHueSetting(this, "Hue", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_Hue = new CHueSetting(this, "Hue", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Hue);
 
-    m_Saturation = new CSaturationSetting(this, "Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_Saturation = new CSaturationSetting(this, "Saturation", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_Saturation);
 
-    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationU);
 
-    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationV);
 
-    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup, FlagsAll);
+    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
-    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
 
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_BottomOverscan);
 
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_LeftOverscan);
 
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
@@ -410,98 +417,98 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");
     m_Settings.push_back(m_bSavePerChannel);
 
-    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pH3DGroup, FlagsAll);
+    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pH3DGroup);
     m_Settings.push_back(m_IsVideoProgressive);
 
-    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup, FlagsAll);
+    m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup);
     m_Settings.push_back(m_FLIFilmDetect);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pVideoGroup, FlagsAll);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pVideoGroup);
     m_VDelay->SetStepValue(4);
     m_Settings.push_back(m_VDelay);
 
-    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 12, 0, 100, IniSection, pH3DGroup, FlagsAll);
+    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 12, 0, 100, IniSection, pH3DGroup);
     m_Settings.push_back(m_EatLinesAtTop);
     
-    m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup, FlagsAll);
+    m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup);
     m_Settings.push_back(m_Sharpness);
 
-    m_LumaAGC = new CLumaAGCSetting(this, "Luma AGC", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_LumaAGC = new CLumaAGCSetting(this, "Luma AGC", FALSE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_LumaAGC);
 
-    m_ChromaAGC = new CChromaAGCSetting(this, "Chroma AGC", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_ChromaAGC = new CChromaAGCSetting(this, "Chroma AGC", FALSE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_ChromaAGC);
 
-    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_FastSubcarrierLock);
 
-    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", FALSE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_WhiteCrush);
 
-    m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_LowColorRemoval);
 
-    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pCX2388xGroup, FlagsAll);
+    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pCX2388xGroup);
     m_Settings.push_back(m_CombFilter);
 
-    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_FullLumaRange);
 
-    m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
+    m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
     m_Settings.push_back(m_Remodulation);
 
-    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
+    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
     m_Settings.push_back(m_Chroma2HComb);
 
-    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
+    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
     m_Settings.push_back(m_ForceRemodExcessChroma);
 
-    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
+    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
     m_Settings.push_back(m_IFXInterpolation);
 
-    m_CombRange = new CCombRangeSetting(this, "Adaptative Comb Filter Threshold", 0x01f, 0, 0x3ff, IniSection, pVideoGroup, FlagsAll);
+    m_CombRange = new CCombRangeSetting(this, "Adaptative Comb Filter Threshold", 0x01f, 0, 0x3ff, IniSection, pVideoGroup);
     m_Settings.push_back(m_CombRange);
 
-    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
+    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
     m_Settings.push_back(m_SecondChromaDemod);
 
-    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
+    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
     m_Settings.push_back(m_ThirdChromaDemod);
 
-    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pCX2388xGroup, FlagsAll);
+    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pCX2388xGroup);
     m_PixelWidth->SetStepValue(2);
     m_Settings.push_back(m_PixelWidth);
 
-    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pCX2388xGroup, FlagsAll);
+    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pCX2388xGroup);
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
-    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, "White Crush Up", 15, 0, 63, IniSection, pCX2388xGroup, FlagsAll);
+    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, "White Crush Up", 15, 0, 63, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_WhiteCrushUp);
 
-    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, "White Crush Down", 63, 0, 63, IniSection, pCX2388xGroup, FlagsAll);
+    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, "White Crush Down", 63, 0, 63, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_WhiteCrushDown);
 
-    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, "White Crush Majority Point", CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pCX2388xGroup, FlagsAll);
+    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, "White Crush Majority Point", CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pCX2388xGroup);
     m_Settings.push_back(m_WhiteCrushMajorityPoint);
 
-    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pCX2388xGroup);
     m_Settings.push_back(m_WhiteCrushPerFrame);
 
-    m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioGroup, FlagsAll);
+    m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioGroup);
     m_Volume->SetStepValue(20);
     m_Settings.push_back(m_Volume);
 
-    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioGroup, FlagsAll);
+    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioGroup);
     m_Settings.push_back(m_Balance);
 
-    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", CCX2388xCard::AUDIO_STANDARD_AUTO, CCX2388xCard::AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup, FlagsAll);
+    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", CCX2388xCard::AUDIO_STANDARD_AUTO, CCX2388xCard::AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup);
     m_Settings.push_back(m_AudioStandard);
 
-    m_StereoType = new CStereoTypeSetting(this, "Stereo Type", CCX2388xCard::STEREOTYPE_AUTO, CCX2388xCard::STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup, FlagsAll);
+    m_StereoType = new CStereoTypeSetting(this, "Stereo Type", CCX2388xCard::STEREOTYPE_AUTO, CCX2388xCard::STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
     m_Settings.push_back(m_StereoType);
 
 #ifdef _DEBUG    

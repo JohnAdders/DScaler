@@ -59,15 +59,6 @@ void CSettingGroup::AddSetting(ISetting *pSetting)
 }
 
 /** 
-    Adds group to pSetting
-    Set additional parameters
-*/
-void CSettingGroup::AddSetting(ISetting *pSetting, eSettingFlags Flags)
-{
-    pSetting->SetGroup(this);
-}
-
-/** 
     Get a subgroup from this group using the grouplist
 */
 CSettingGroup *CSettingGroup::GetGroup(LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText)

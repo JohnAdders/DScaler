@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.61 2003-01-10 17:38:44 adcockj Exp $
+// $Id: DSSource.cpp,v 1.62 2003-01-10 17:52:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2003/01/10 17:38:44  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.60  2003/01/08 21:47:13  laurentg
 // New setting for analogue blanking by source
 //
@@ -599,31 +606,31 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pVideoGroup = pDSGroup->GetGroup("Video","Video");
     CSettingGroup *pOverscanGroup = pDSGroup->GetGroup("Overscan","Overscan");
 
-    eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
 
 	//at this time we dont know what the min and max will be
-	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
+	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
 	m_Settings.push_back(m_Brightness);
 
-	m_Contrast = new CContrastSetting(this, "Contrast", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
+	m_Contrast = new CContrastSetting(this, "Contrast", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
 	m_Settings.push_back(m_Contrast);
 
-	m_Hue = new CHueSetting(this, "Hue", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
+	m_Hue = new CHueSetting(this, "Hue", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
 	m_Settings.push_back(m_Hue);
 
-	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
+	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
 	m_Settings.push_back(m_Saturation);
 
-	m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
+	m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", 0, 0, 150, IniSection, pOverscanGroup);
 	m_Settings.push_back(m_TopOverscan);
 
-	m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
+	m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", 0, 0, 150, IniSection, pOverscanGroup);
 	m_Settings.push_back(m_BottomOverscan);
 
-	m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
+	m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", 0, 0, 150, IniSection, pOverscanGroup);
 	m_Settings.push_back(m_LeftOverscan);
 
-	m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
+	m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", 0, 0, 150, IniSection, pOverscanGroup);
 	m_Settings.push_back(m_RightOverscan);
 
 	m_VideoInput = new CVideoInputSetting(this, "VideoInput", 0, 0, LONG_MAX, IniSection);

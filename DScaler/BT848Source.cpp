@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.103 2003-01-10 17:37:43 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.104 2003-01-10 17:51:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2003/01/10 17:37:43  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.102  2003/01/08 19:59:34  laurentg
 // Analogue Blanking setting by source
 //
@@ -524,107 +531,107 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pAdvancedTimingGroup = pBT8x8Group->GetGroup("AdvTiming","Advanced Timing");
     
 
-    eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
-    eSettingFlags FlagsInput = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
-    eSettingFlags FlagsInputFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
-    eSettingFlags FlagsFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ONCHANGE_ALL);
-    eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsInput = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsInputFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ONCHANGE_ALL);
+    //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
     
-    m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup, FlagsAll);
+    m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
 
-    m_Contrast = new CContrastSetting(this, "Contrast", DEFAULT_CONTRAST_NTSC, 0, 511, IniSection, pVideoGroup, FlagsAll);
+    m_Contrast = new CContrastSetting(this, "Contrast", DEFAULT_CONTRAST_NTSC, 0, 511, IniSection, pVideoGroup);
     m_Settings.push_back(m_Contrast);
 
-    m_Hue = new CHueSetting(this, "Hue", DEFAULT_HUE_NTSC, -128, 127, IniSection, pVideoGroup, FlagsAll);
+    m_Hue = new CHueSetting(this, "Hue", DEFAULT_HUE_NTSC, -128, 127, IniSection, pVideoGroup);
     m_Settings.push_back(m_Hue);
 
-    m_Saturation = new CSaturationSetting(this, "Saturation", (DEFAULT_SAT_V_NTSC + DEFAULT_SAT_U_NTSC) / 2, 0, 511, IniSection, pVideoGroup, FlagsAll);
+    m_Saturation = new CSaturationSetting(this, "Saturation", (DEFAULT_SAT_V_NTSC + DEFAULT_SAT_U_NTSC) / 2, 0, 511, IniSection, pVideoGroup);
     m_Settings.push_back(m_Saturation);
 
-    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", DEFAULT_SAT_U_NTSC, 0, 511, IniSection, pVideoGroup, FlagsAll);
+    m_SaturationU = new CSaturationUSetting(this, "Blue Saturation", DEFAULT_SAT_U_NTSC, 0, 511, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationU);
 
-    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", DEFAULT_SAT_V_NTSC, 0, 511, IniSection, pVideoGroup, FlagsAll);
+    m_SaturationV = new CSaturationVSetting(this, "Red Saturation", DEFAULT_SAT_V_NTSC, 0, 511, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationV);
 
-    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
 
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_BottomOverscan);
 
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_LeftOverscan);
 
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
 
-    m_BDelay = new CBDelaySetting(this, "Macrovision Timing", 0, 0, 255, IniSection, pAdvancedTimingGroup, FlagsAll);
+    m_BDelay = new CBDelaySetting(this, "Macrovision Timing", 0, 0, 255, IniSection, pAdvancedTimingGroup);
     m_Settings.push_back(m_BDelay);
 
-    m_BtAgcDisable = new CBtAgcDisableSetting(this, "AGC Disable", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtAgcDisable = new CBtAgcDisableSetting(this, "AGC Disable", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtAgcDisable);
 
-    m_BtCrush = new CBtCrushSetting(this, "Crush", TRUE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtCrush = new CBtCrushSetting(this, "Crush", TRUE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtCrush);
 
-    m_BtEvenChromaAGC = new CBtEvenChromaAGCSetting(this, "Even Chroma AGC", TRUE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtEvenChromaAGC = new CBtEvenChromaAGCSetting(this, "Even Chroma AGC", TRUE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtEvenChromaAGC);
 
-    m_BtOddChromaAGC = new CBtOddChromaAGCSetting(this, "Odd Chroma AGC", TRUE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtOddChromaAGC = new CBtOddChromaAGCSetting(this, "Odd Chroma AGC", TRUE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtOddChromaAGC);
 
-    m_BtEvenLumaPeak = new CBtEvenLumaPeakSetting(this, "Even Luma Peak", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtEvenLumaPeak = new CBtEvenLumaPeakSetting(this, "Even Luma Peak", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtEvenLumaPeak);
 
-    m_BtOddLumaPeak = new CBtOddLumaPeakSetting(this, "Odd Luma Peak", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtOddLumaPeak = new CBtOddLumaPeakSetting(this, "Odd Luma Peak", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtOddLumaPeak);
 
-    m_BtFullLumaRange = new CBtFullLumaRangeSetting(this, "Full Luma Range", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtFullLumaRange = new CBtFullLumaRangeSetting(this, "Full Luma Range", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtFullLumaRange);
 
-    m_BtEvenLumaDec = new CBtEvenLumaDecSetting(this, "Even Luma Dec", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtEvenLumaDec = new CBtEvenLumaDecSetting(this, "Even Luma Dec", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtEvenLumaDec);
 
-    m_BtOddLumaDec = new CBtOddLumaDecSetting(this, "Odd Luma Dec", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtOddLumaDec = new CBtOddLumaDecSetting(this, "Odd Luma Dec", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtOddLumaDec);
 
-    m_BtEvenComb = new CBtEvenCombSetting(this, "Even Comb", TRUE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtEvenComb = new CBtEvenCombSetting(this, "Even Comb", TRUE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtEvenComb);
 
-    m_BtOddComb = new CBtOddCombSetting(this, "Odd Comb", TRUE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtOddComb = new CBtOddCombSetting(this, "Odd Comb", TRUE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtOddComb);
 
-    m_BtColorBars = new CBtColorBarsSetting(this, "Color Bars", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtColorBars = new CBtColorBarsSetting(this, "Color Bars", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtColorBars);
 
-    m_BtGammaCorrection = new CBtGammaCorrectionSetting(this, "Gamma Correction", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtGammaCorrection = new CBtGammaCorrectionSetting(this, "Gamma Correction", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtGammaCorrection);
 
-    m_BtCoring = new CBtCoringSetting(this, "Coring", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtCoring = new CBtCoringSetting(this, "Coring", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtCoring);
 
-    m_BtHorFilter = new CBtHorFilterSetting(this, "Horizontal Filter", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtHorFilter = new CBtHorFilterSetting(this, "Horizontal Filter", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtHorFilter);
 
-    m_BtVertFilter = new CBtVertFilterSetting(this, "Vertical Filter", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtVertFilter = new CBtVertFilterSetting(this, "Vertical Filter", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtVertFilter);
 
-    m_BtColorKill = new CBtColorKillSetting(this, "Color Kill", FALSE, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtColorKill = new CBtColorKillSetting(this, "Color Kill", FALSE, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtColorKill);
 
-    m_BtWhiteCrushUp = new CBtWhiteCrushUpSetting(this, "White Crush Upper", 0xCF, 0, 255, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtWhiteCrushUp = new CBtWhiteCrushUpSetting(this, "White Crush Upper", 0xCF, 0, 255, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtWhiteCrushUp);
 
-    m_BtWhiteCrushDown = new CBtWhiteCrushDownSetting(this, "White Crush Lower", 0x7F, 0, 255, IniSection, pAdvancedGroup, FlagsAll);
+    m_BtWhiteCrushDown = new CBtWhiteCrushDownSetting(this, "White Crush Lower", 0x7F, 0, 255, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtWhiteCrushDown);
 
-    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pAdvancedGroup, FlagsAll);
+    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pAdvancedGroup);
     m_PixelWidth->SetStepValue(2);
     m_Settings.push_back(m_PixelWidth);
 
-    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pAdvancedGroup, FlagsAll);
+    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pAdvancedGroup);
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
@@ -634,14 +641,14 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pAdvancedTimingGroup, FlagsAll);
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection, pAdvancedTimingGroup);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pAdvancedTimingGroup, FlagsAll);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection, pAdvancedTimingGroup);
     m_VDelay->SetStepValue(2);
     m_Settings.push_back(m_VDelay);
 
-    m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity", pAdvancedGroup, FlagsAll);
+    m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity", pAdvancedGroup);
     m_Settings.push_back(m_ReversePolarity);
 
     m_CardType = new CSliderSetting("Card Type", TVCARD_UNKNOWN, TVCARD_UNKNOWN, TVCARD_LASTONE - 1, IniSection, "CardType");
@@ -650,27 +657,27 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
-    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource, FlagsAll);
+    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource1);
 
-    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection, pAudioChannel, FlagsAll);
+    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection, pAudioChannel);
     m_Settings.push_back(m_AudioChannel);
 
-    m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", FALSE, IniSection, pAudioChannel, FlagsAll);
+    m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", FALSE, IniSection, pAudioChannel);
     m_Settings.push_back(m_AutoStereoSelect);
 
-    m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioControl, FlagsAll);
+    m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioControl);
     m_Volume->SetStepValue(20);
     //m_Volume->SetOSDDivider(10);
     m_Settings.push_back(m_Volume);
 
-    m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection, pAudioControl, FlagsAll);
+    m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection, pAudioControl);
     m_Settings.push_back(m_Bass);
 
-    m_Treble = new CTrebleSetting(this, "Treble", 0, -96, 127, IniSection, pAudioControl, FlagsAll);
+    m_Treble = new CTrebleSetting(this, "Treble", 0, -96, 127, IniSection, pAudioControl);
     m_Settings.push_back(m_Treble);
 
-    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioControl, FlagsAll);
+    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioControl);
     m_Settings.push_back(m_Balance);
 
     m_bSavePerInput = new CYesNoSetting("Save Per Input", FALSE, IniSection, "SavePerInput");
@@ -679,76 +686,76 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
     m_Settings.push_back(m_bSavePerFormat);
     
-    m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource, FlagsAll);
+    m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource2);
 
-    m_AudioSource3 = new CAudioSource3Setting(this, "Audio Source 3", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource, FlagsAll);
+    m_AudioSource3 = new CAudioSource3Setting(this, "Audio Source 3", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource3);
 
-    m_AudioSource4 = new CAudioSource4Setting(this, "Audio Source 4", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource, FlagsAll);
+    m_AudioSource4 = new CAudioSource4Setting(this, "Audio Source 4", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource4);
 
-    m_AudioSource5 = new CAudioSource5Setting(this, "Audio Source 5", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource, FlagsAll);
+    m_AudioSource5 = new CAudioSource5Setting(this, "Audio Source 5", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource5);
 
-    m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource, FlagsAll);
+    m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource6);
 
-    m_UseInputPin1 = new CUseInputPin1Setting(this, "Use MSP Input Pin 1", FALSE, IniSection, pAudioChannel, FlagsAll);
+    m_UseInputPin1 = new CUseInputPin1Setting(this, "Use MSP Input Pin 1", FALSE, IniSection, pAudioChannel);
     m_Settings.push_back(m_UseInputPin1);
 
-    m_UseEqualizer = new CUseEqualizerSetting(this, "Use equalizer", FALSE, IniSection, pAudioEqualizerGroup, FlagsAll);
+    m_UseEqualizer = new CUseEqualizerSetting(this, "Use equalizer", FALSE, IniSection, pAudioEqualizerGroup);
     m_Settings.push_back(m_UseEqualizer);
 
-    m_EqualizerBand1 = new CEqualizerBand1Setting(this, "Equalizer band 1", 0, -96, 96, IniSection, pAudioEqualizerGroup, FlagsAll);
+    m_EqualizerBand1 = new CEqualizerBand1Setting(this, "Equalizer band 1", 0, -96, 96, IniSection, pAudioEqualizerGroup);
     m_Settings.push_back(m_EqualizerBand1);
 
-    m_EqualizerBand2 = new CEqualizerBand2Setting(this, "Equalizer band 2", 0, -96, 96, IniSection, pAudioEqualizerGroup, FlagsAll);
+    m_EqualizerBand2 = new CEqualizerBand2Setting(this, "Equalizer band 2", 0, -96, 96, IniSection, pAudioEqualizerGroup);
     m_Settings.push_back(m_EqualizerBand2);
 
-    m_EqualizerBand3 = new CEqualizerBand3Setting(this, "Equalizer band 3", 0, -96, 96, IniSection, pAudioEqualizerGroup, FlagsAll);
+    m_EqualizerBand3 = new CEqualizerBand3Setting(this, "Equalizer band 3", 0, -96, 96, IniSection, pAudioEqualizerGroup);
     m_Settings.push_back(m_EqualizerBand3);
 
-    m_EqualizerBand4 = new CEqualizerBand4Setting(this, "Equalizer band 4", 0, -96, 96, IniSection, pAudioEqualizerGroup, FlagsAll);
+    m_EqualizerBand4 = new CEqualizerBand4Setting(this, "Equalizer band 4", 0, -96, 96, IniSection, pAudioEqualizerGroup);
     m_Settings.push_back(m_EqualizerBand4);
 
-    m_EqualizerBand5 = new CEqualizerBand5Setting(this, "Equalizer band 5", 0, -96, 96, IniSection, pAudioEqualizerGroup, FlagsAll);
+    m_EqualizerBand5 = new CEqualizerBand5Setting(this, "Equalizer band 5", 0, -96, 96, IniSection, pAudioEqualizerGroup);
     m_Settings.push_back(m_EqualizerBand5);
 
-    m_AudioLoudness = new CAudioLoudnessSetting(this, "Loudness", 0, 0, 255, IniSection, pAudioControl, FlagsAll);
+    m_AudioLoudness = new CAudioLoudnessSetting(this, "Loudness", 0, 0, 255, IniSection, pAudioControl);
     m_Settings.push_back(m_AudioLoudness);
 
-    m_AudioSuperbass = new CAudioSuperbassSetting(this, "Super Bass", FALSE, IniSection, pAudioControl, FlagsAll);
+    m_AudioSuperbass = new CAudioSuperbassSetting(this, "Super Bass", FALSE, IniSection, pAudioControl);
     m_Settings.push_back(m_AudioSuperbass);
 
-    m_AudioSpatialEffect = new CAudioSpatialEffectSetting(this, "Spatial Effect", 0, -128, 127, IniSection, pAudioControl, FlagsAll);
+    m_AudioSpatialEffect = new CAudioSpatialEffectSetting(this, "Spatial Effect", 0, -128, 127, IniSection, pAudioControl);
     m_Settings.push_back(m_AudioSpatialEffect);
 
-    m_AudioAutoVolumeCorrection = new CAudioAutoVolumeCorrectionSetting(this, "Automatic Volume Correction", 0, 0, 60*1000, IniSection, pAudioControl, FlagsAll);
+    m_AudioAutoVolumeCorrection = new CAudioAutoVolumeCorrectionSetting(this, "Automatic Volume Correction", 0, 0, 60*1000, IniSection, pAudioControl);
     m_Settings.push_back(m_AudioAutoVolumeCorrection);
 
-    m_AudioStandardDetect = new CAudioStandardDetectSetting(this, "Audio Standard Detect", 0, 0, 4, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardDetect = new CAudioStandardDetectSetting(this, "Audio Standard Detect", 0, 0, 4, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardDetect);
     
-    m_AudioStandardDetectInterval = new CAudioStandardDetectIntervalSetting(this, "Audio Standard Detect Interval (ms)", 200, 0, 10000, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardDetectInterval = new CAudioStandardDetectIntervalSetting(this, "Audio Standard Detect Interval (ms)", 200, 0, 10000, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardDetectInterval);
 
-    m_AudioStandardManual = new CAudioStandardManualSetting(this, "Audio Standard Manual", 0, 0, 0x7ff-1, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardManual = new CAudioStandardManualSetting(this, "Audio Standard Manual", 0, 0, 0x7ff-1, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardManual);
 
-    m_AudioStandardMajorCarrier = new CAudioStandardMajorCarrierSetting(this, "Audio Standard Major carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardMajorCarrier = new CAudioStandardMajorCarrierSetting(this, "Audio Standard Major carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardMajorCarrier);
 
-    m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardMinorCarrier);
 
-    m_AudioStandardInStatusBar = new CAudioStandardInStatusBarSetting(this, "Audio Standard in Statusbar", FALSE, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardInStatusBar = new CAudioStandardInStatusBarSetting(this, "Audio Standard in Statusbar", FALSE, IniSection, pAudioStandard);
     m_Settings.push_back(m_AudioStandardInStatusBar);
 
-    m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection, pAudioOther, FlagsSource);
+    m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection, pAudioOther);
     m_Settings.push_back(m_MSP34xxFlags);    
 
-    m_AutoStereoDetectInterval = new CAutoStereoDetectIntervalSetting(this, "Auto Stereo Detect Interval", 0, 0, 24*60*1000, IniSection, pAudioChannel, FlagsAll);
+    m_AutoStereoDetectInterval = new CAutoStereoDetectIntervalSetting(this, "Auto Stereo Detect Interval", 0, 0, 24*60*1000, IniSection, pAudioChannel);
     m_Settings.push_back(m_AutoStereoDetectInterval);
 
 #ifdef _DEBUG    

@@ -160,9 +160,6 @@ string CSettingsHolder::GetLocation(ISetting *pSetting)
         m_NewSubLocations = FALSE;
         m_Location = "";
 
-        //Make name for ini section. Depends on flags & sublocations
-        long CurrentFlag = SETTINGFLAG_GLOBAL;
-
         for (int i = 0; i < m_SubLocations.size(); i++)
         {
             m_Location += m_SubLocations[i]+"_";

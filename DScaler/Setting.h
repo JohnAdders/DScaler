@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.15 2003-01-10 17:38:24 adcockj Exp $
+// $Id: Setting.h,v 1.16 2003-01-10 17:52:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,8 +29,8 @@ class CSimpleSetting : public ISetting
 {
 public:
     CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
-    CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+                   CSettingGroup* pGroup = NULL);
+    CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
     virtual ~CSimpleSetting();
         
     long GetDefault();
@@ -111,8 +111,8 @@ class CYesNoSetting : public CSimpleSetting
 {
 public:
     CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
-    CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+                   CSettingGroup* pGroup = NULL);
+    CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
 
     ~CYesNoSetting();
     SETTING_TYPE GetType() {return YESNO;};
@@ -130,8 +130,8 @@ class CSliderSetting : public CSimpleSetting
 {
 public:    
     CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
-    CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+                   CSettingGroup* pGroup = NULL);
+    CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
     
     ~CSliderSetting();
     SETTING_TYPE GetType() {return SLIDER;};
@@ -152,8 +152,8 @@ class CListSetting : public CSimpleSetting
 {
 public:
     CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
-    CListSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+                   CSettingGroup* pGroup = NULL);
+    CListSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
 
     ~CListSetting();
     SETTING_TYPE GetType() {return ITEMFROMLIST;};
@@ -180,8 +180,8 @@ private:
     class C ## Name ## Setting : public CYesNoSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, BOOL Default, LPCSTR Section, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL)) : \
-             CYesNoSetting(DisplayName, Default, Section, #Name, pGroup, SettingFlags), m_Parent((Class*)Parent) {;} \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, BOOL Default, LPCSTR Section, CSettingGroup* pGroup = NULL) : \
+             CYesNoSetting(DisplayName, Default, Section, #Name, pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \
@@ -195,8 +195,8 @@ private:
     class C ## Name ## Setting : public CSliderSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL)) : \
-             CSliderSetting(DisplayName, Default, Min, Max, Section, #Name, pGroup, SettingFlags), m_Parent((Class*)Parent) {;} \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, CSettingGroup* pGroup = NULL) : \
+             CSliderSetting(DisplayName, Default, Min, Max, Section, #Name, pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \
@@ -210,8 +210,8 @@ private:
     class C ## Name ## Setting : public CListSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Max, LPCSTR Section, const char** pszList, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL)) : \
-             CListSetting(DisplayName, Default, Max, Section, #Name, pszList, pGroup, SettingFlags), m_Parent((Class*)Parent) {;} \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Max, LPCSTR Section, const char** pszList, CSettingGroup* pGroup = NULL) : \
+             CListSetting(DisplayName, Default, Max, Section, #Name, pszList, pGroup), m_Parent((Class*)Parent) {;} \
         void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \

@@ -1147,7 +1147,6 @@ IDC_STILL MENU DISCARDABLE
 BEGIN
     POPUP "S&till"
     BEGIN
-        MENUITEM "Select Picture ...",          IDM_SELECT_PICTURE, GRAYED
         MENUITEM "&Close",                      IDM_CLOSE_FILE
     END
 END

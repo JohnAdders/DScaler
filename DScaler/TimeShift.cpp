@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// TimeShift.c
+// $Id: TimeShift.cpp,v 1.2 2001-07-24 12:24:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //	This file is subject to the terms of the GNU General Public License as
@@ -28,6 +28,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/07/23 20:52:07  ericschmidt
+// Added TimeShift class.  Original Release.  Got record and playback code working.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 

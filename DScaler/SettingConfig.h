@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.h,v 1.2 2004-08-08 17:03:38 atnak Exp $
+// $Id: SettingConfig.h,v 1.3 2004-08-12 14:04:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/08 17:03:38  atnak
+// Minor fixes and added Begin() and End() general methods.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -321,28 +324,43 @@ public:
 	// Gets the number of dependencies in the associations.
 	virtual inline BYTE GetDependencyCount();
 	// Gets the title of a single dependency.
-	virtual std::string GetDependencyTitle(BYTE dependencyIndex);
+	virtual inline std::string GetDependencyTitle(BYTE dependencyIndex);
 
-	// For the dependency setting at index given, GetBlockedDependant()
-	// returns the bits of dependencyIndexes that cannot be set as
-	// dependants because of cyclic dependencies.
-	virtual ULONG GetBlockedDependant(ULONG index);
+	// Enables the dependency bit.
+	virtual inline BOOL EnableDependency(BYTE dependencyIndex, BOOL enable);
+	virtual inline BOOL IsDependencyEnabled(BYTE dependencyIndex);
+
+	// For the dependency setting at index given, IsDependantBlocked()
+	// returns if the dependencyIndex cannot be set as dependant a because
+	// of cyclic dependencies.
+	virtual BOOL IsDependantBlocked(ULONG index, BYTE dependencyIndex);
+	// Since IsDependantBlocked() uses cached values for performance,
+	// RecalculateBlocked() needs to be called to update blocked bits when
+	// a master setting has changed dependants.
+	virtual void RecalculateBlocked();
 
 	// Called when the OK or Apply button is pressed.
 	virtual void ApplyValue();
+
+	// Called when the configuration interface begins.
+	virtual void Begin();
 
 protected:
 	class CAssociation
 	{
 	public:
-		CAssociation(std::string title) : title(title), dependee(NULL) { };
+		CAssociation(std::string title) : title(title), dependee(NULL), blockedBits(0) { };
 		std::string					title;
 		CSettingConfigDependant*	dependee;
+		DBIT						blockedBits;
 	};
 	typedef std::vector<CAssociation> ASSOCIATIONVECTOR;
 
+	virtual void RecalculateBlocked(BYTE dependencyIndex);
+
 	PSETTINGGROUPEX		m_associationGroup;
 	ASSOCIATIONVECTOR	m_associationVector;
+	DBIT				m_enabledDependencyBits;
 };
 
 

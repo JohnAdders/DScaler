@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.cpp,v 1.2 2004-08-08 17:03:38 atnak Exp $
+// $Id: SettingConfig.cpp,v 1.3 2004-08-12 14:04:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/08 17:03:38  atnak
+// Minor fixes and added Begin() and End() general methods.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -524,6 +527,11 @@ CSettingConfigDependant::CSettingConfigDependant(PSETTINGKEY key) :
 {
 	ASSERT(m_title != "");
 	ASSERT(m_settingGroupEx != NULL);
+
+	// Initialize the internal cache
+	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
+	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
+	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
 }
 
 
@@ -536,6 +544,11 @@ CSettingConfigDependant::CSettingConfigDependant(std::string title,
 {
 	ASSERT(m_title != "");
 	ASSERT(m_settingGroupEx != NULL);
+
+	// Initialize the internal cache
+	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
+	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
+	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
 }
 
 
@@ -552,19 +565,19 @@ BOOL CSettingConfigDependant::IsDependee()
 
 BOOL CSettingConfigDependant::IsDependee(BYTE dependencyIndex)
 {
-	return (m_dependeeBits & (dependencyIndex << 1)) != 0;
+	return (m_dependeeBits & (1 << dependencyIndex)) != 0;
 }
 
 
 BOOL CSettingConfigDependant::IsDependant(BYTE dependencyIndex)
 {
-	return (m_dependantBits & (dependencyIndex << 1)) != 0;
+	return (m_dependantBits & (1 << dependencyIndex)) != 0;
 }
 
 
 BOOL CSettingConfigDependant::IsDependantLocked(BYTE dependencyIndex)
 {
-	return (m_dependantLockedBits & (dependencyIndex << 1)) != 0;
+	return (m_dependantLockedBits & (1 << dependencyIndex)) != 0;
 }
 
 
@@ -572,11 +585,11 @@ BOOL CSettingConfigDependant::SetDependant(BYTE dependencyIndex, BOOL set)
 {
 	if (set)
 	{
-		m_dependantBits |= dependencyIndex << 1;
+		m_dependantBits |= 1 << dependencyIndex;
 		return TRUE;
 	}
 
-	m_dependantBits &= ~(dependencyIndex << 1);
+	m_dependantBits &= ~(1 << dependencyIndex);
 	return FALSE;
 }
 
@@ -764,31 +777,92 @@ std::string CSettingConfigAssociation::GetDependencyTitle(BYTE dependencyIndex)
 }
 
 
-ULONG CSettingConfigAssociation::GetBlockedDependant(ULONG index)
+BOOL CSettingConfigAssociation::EnableDependency(BYTE dependencyIndex, BOOL enable)
+{
+	if (enable)
+	{
+		m_enabledDependencyBits |= 1 << dependencyIndex;
+	}
+	else
+	{
+		m_enabledDependencyBits &= ~(1 << dependencyIndex);
+	}
+	return enable;
+}
+
+
+BOOL CSettingConfigAssociation::IsDependencyEnabled(BYTE dependencyIndex)
+{
+	return (m_enabledDependencyBits & (1 << dependencyIndex)) != 0;
+}
+
+
+BOOL CSettingConfigAssociation::IsDependantBlocked(ULONG index, BYTE dependencyIndex)
 {
 	CSettingConfigDependant* cfg = (CSettingConfigDependant*)GetConfig(index);
 
 	if (!cfg->IsDependee())
 	{
-		return 0;
+		return FALSE;
 	}
 
 	// Look for the bits that need to be blocked to prevent cyclic dependencies.
-	DBIT dependeeBits = cfg->m_dependeeBits;
 	BYTE dependencyCount = GetDependencyCount();
 	for (BYTE i = 0; i < dependencyCount; i++)
 	{
-		if (m_associationVector.at(i).dependee->m_dependantBits & dependeeBits)
+		if (m_associationVector.at(i).dependee == cfg)
 		{
-			DBIT changedBits = dependeeBits | m_associationVector.at(i).dependee->m_dependeeBits;
-			if (changedBits != dependeeBits)
+			if (m_associationVector.at(i).blockedBits & (1 << dependencyIndex))
 			{
-				dependeeBits = changedBits;
-				i = (BYTE)-1;
+				return TRUE;
 			}
 		}
 	}
-	return dependeeBits;
+	return FALSE;
+}
+
+
+void CSettingConfigAssociation::RecalculateBlocked()
+{
+	BYTE dependencyCount = m_associationVector.size();
+	for (BYTE i = 0; i < dependencyCount; i++)
+	{
+		m_associationVector.at(i).blockedBits = 0;
+	}
+
+	for (BYTE j = 0; j < dependencyCount; j++)
+	{
+		if (m_associationVector.at(j).blockedBits == 0)
+		{
+			RecalculateBlocked(j);
+		}
+	}
+}
+
+
+void CSettingConfigAssociation::RecalculateBlocked(BYTE dependencyIndex)
+{
+	CSettingConfigDependant* dependee = m_associationVector.at(dependencyIndex).dependee;
+	DBIT dependeeBits = (dependee != NULL) ? dependee->m_dependeeBits : (1 << dependencyIndex);
+
+	BYTE dependencyCount = m_associationVector.size();
+	for (BYTE i = 0; i < dependencyCount; i++)
+	{
+		if ((dependee = m_associationVector.at(i).dependee) == NULL)
+		{
+			continue;
+		}
+
+		if (dependee->m_dependantBits & dependeeBits)
+		{
+			if (m_associationVector.at(i).blockedBits == 0)
+			{
+				RecalculateBlocked(i);
+			}
+			dependeeBits |= m_associationVector.at(i).blockedBits;
+		}
+	}
+	m_associationVector.at(dependencyIndex).blockedBits = dependeeBits;
 }
 
 
@@ -805,6 +879,9 @@ void CSettingConfigAssociation::ApplyValue()
 	// Apply the values on all the contained config objects.
 	CSettingConfigContainer::ApplyValue();
 
+	// Apply the enabled dependency mask.
+	m_associationGroup->SetEnabledOptionalDependencies(m_enabledDependencyBits, TRUE);
+
 	if (!suspended)
 	{
 		// Reactivate if it wasn't suspended.
@@ -814,4 +891,16 @@ void CSettingConfigAssociation::ApplyValue()
 	// Save the changed optional dependencies.
 	m_associationGroup->SaveOptionalDependencies();
 }
+
+
+void CSettingConfigAssociation::Begin()
+{
+	CSettingConfigContainer::Begin();
+
+	m_enabledDependencyBits = m_associationGroup->GetEnabledOptionalDependencies();
+
+	// Initialize blocked bits for master settings.
+	RecalculateBlocked();
+}
+
 

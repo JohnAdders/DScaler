@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.h,v 1.2 2002-10-24 01:38:32 atnak Exp $
+// $Id: VTTopText.h,v 1.3 2003-01-01 20:30:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/24 01:38:32  atnak
+// Added subtitle message
+//
 // Revision 1.1  2002/10/23 16:51:01  atnak
 // TOP-Text support initial release
 //
@@ -28,7 +31,7 @@
 #define __VTTOPTEXT_H__
 
 #include "stdafx.h"
-#include "VBI_VideoText.h"
+#include "VTCommon.h"
 
 
 class CVTTopText

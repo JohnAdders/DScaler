@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.cpp,v 1.4 2002-10-24 09:34:58 atnak Exp $
+// $Id: VTTopText.cpp,v 1.5 2003-01-01 20:30:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/24 09:34:58  atnak
+// Changed '-' dash to minus to fix codepage difference
+//
 // Revision 1.3  2002/10/24 01:38:32  atnak
 // Added subtitle message
 //
@@ -32,7 +35,7 @@
 
 #include "stdafx.h"
 #include "VTTopText.h"
-
+/*
 extern unsigned char UnhamTab[256];
 
 char* CVTTopText::m_WaitMessage     = "Please wait";

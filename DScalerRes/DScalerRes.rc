@@ -495,7 +495,7 @@ BEGIN
                     IDC_STATIC,11,214,354,24
     LTEXT           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.",
                     IDC_STATIC,11,238,351,24
-    LTEXT           "MultiDec (c) Espresso",IDC_STATIC,13,153,163,9
+    LTEXT           "MultiDec (c) Espresso",IDC_STATIC,13,154,163,9
     GROUPBOX        "Authors",IDC_STATIC,6,37,180,100
     CTEXT           "http://www.dscaler.org",IDC_LINK2,6,13,288,9,SS_NOTIFY | 
                     SS_SUNKEN
@@ -518,7 +518,9 @@ BEGIN
                     IDC_STATIC,12,52,74,81
     GROUPBOX        "DScaler Uses",IDC_STATIC,194,143,180,58
     LTEXT           "LibTiff Copyright (c) Sam Leffler && Silicon Graphics",
-                    IDC_STATIC,199,154,169,9
+                    IDC_STATIC,199,155,169,9
+    LTEXT           "LibJpeg a work of the Independent JPEG Group",
+                    IDC_STATIC,199,166,169,9
 END
 
 IDD_SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 230

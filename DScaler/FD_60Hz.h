@@ -35,6 +35,8 @@ SETTING* FD60_GetSetting(FD60_SETTING Setting);
 void FD60_ReadSettingsFromIni();
 void FD60_WriteSettingsToIni();
 void FD60_SetMenu(HMENU hMenu);
+void FD60_ShowUI();
+
 
 #define MAXMODESWITCHES 50	// Maximum number of switches to track in TrackModeSwitches()
 

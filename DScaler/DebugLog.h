@@ -7,6 +7,7 @@
 SETTING* Debug_GetSetting(DEBUG_SETTING Setting);
 void Debug_ReadSettingsFromIni();
 void Debug_WriteSettingsToIni();
+void Debug_ShowUI();
 
 #if !defined(NOLOGGING)
 void LOG(LPCSTR format, ...);

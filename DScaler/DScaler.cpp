@@ -1297,6 +1297,34 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			ShowVideoModeUI();
 			break;
 
+		case IDM_32PULLDOWN_SETTINGS:
+			FD60_ShowUI();
+			break;
+
+		case IDM_22PULLDOWN_SETTINGS:
+			FD50_ShowUI();
+			break;
+
+		case IDM_PULLDOWNCOMMON_SETTINGS:
+			FD_Common_ShowUI();
+			break;
+
+		case IDM_DEBUG_SETTINGS:
+			Debug_ShowUI();
+			break;
+
+		case IDM_BT848_SETTINGS:
+			BT848_ShowUI();
+			break;
+
+		case IDM_GAMMA_SETTINGS:
+			Filter_ShowUI("Gamma");
+			break;
+
+		case IDM_NOISE_SETTINGS:
+			Filter_ShowUI("Noise");
+			break;
+
 		case IDM_HELP_HOMEPAGE:
 			ShellExecute(hWnd, "open", "http://deinterlace.sourceforge.net/", NULL, NULL, SW_SHOWNORMAL);
 			break;

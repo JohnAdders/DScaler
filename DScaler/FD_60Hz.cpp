@@ -46,6 +46,7 @@
 #include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
 
 // Settings
 // Default values which can be overwritten by the INI file
@@ -762,4 +763,9 @@ void FD60_WriteSettingsToIni()
 void FD60_SetMenu(HMENU hMenu)
 {
 	CheckMenuItem(hMenu, IDM_FALLBACK, bFallbackToVideo?MF_CHECKED:MF_UNCHECKED);
+}
+
+void FD60_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("3:2 Pulldown Settings",FD60Settings, FD60_SETTING_LASTONE);
 }

@@ -30,10 +30,9 @@
 #include "DScaler.h"
 #include "OSD.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
 
 long NumFilters = 0;
-BOOL TNoiseFilterOn;
-BOOL GammaFilterOn;
 
 FILTER_METHOD* Filters[100] = {NULL,};
 
@@ -303,3 +302,13 @@ void Filter_SetMenu(HMENU hMenu)
 	}
 }
 
+void Filter_ShowUI(LPCSTR SearchText)
+{
+	for(int i(0); i < NumFilters; i++)
+	{
+		if(strstr(Filters[i]->szName, SearchText) != NULL)
+		{
+			CSettingsDlg::ShowSettingsDlg(Filters[i]->szName, Filters[i]->pSettings, Filters[i]->nSettings);
+		}
+	}
+}

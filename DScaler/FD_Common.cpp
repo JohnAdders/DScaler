@@ -46,6 +46,7 @@
 #include "FD_CommonFunctions.h"
 #include "DebugLog.h"
 #include "Other.h"
+#include "SettingsDlg.h"
 
 
 // Settings
@@ -807,3 +808,7 @@ void FD_Common_SetMenu(HMENU hMenu)
 	CheckMenuItem(hMenu, IDM_USECHROMA, UseChromaInDetect?MF_CHECKED:MF_UNCHECKED);
 }
 
+void FD_Common_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("Pulldown Shared Settings",FD_CommonSettings, FD_COMMON_SETTING_LASTONE);
+}

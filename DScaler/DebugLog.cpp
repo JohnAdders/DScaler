@@ -4,6 +4,7 @@
 */
 #include "StdAfx.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
 
 static FILE *debugLog = NULL;
 char DebugLogFilename[MAX_PATH] = "DScaler.txt";
@@ -100,4 +101,9 @@ void Debug_WriteSettingsToIni()
 		Setting_WriteToIni(&(DebugSettings[i]));
 	}
 	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
+}
+
+void Debug_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
 }

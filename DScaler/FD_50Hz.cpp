@@ -38,6 +38,7 @@
 #include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
 
 long gPALFilmFallbackIndex = INDEX_VIDEO_2FRAME;
 // Default values which can be overwritten by the INI file
@@ -440,3 +441,7 @@ void FD50_WriteSettingsToIni()
 	}
 }
 
+void FD50_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("2:2 Pulldown Settings",FD50Settings, FD50_SETTING_LASTONE);
+}

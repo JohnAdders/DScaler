@@ -39,6 +39,8 @@ LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam,
 void Filter_ReadSettingsFromIni();
 void Filter_SetMenu(HMENU hMenu);
 void Filter_WriteSettingsToIni();
+void Filter_ShowUI(LPCSTR SearchText);
+
 
 void Filter_DoInput(DEINTERLACE_INFO *info, BOOL HurryUp);
 void Filter_DoOutput(DEINTERLACE_INFO *info, BOOL HurryUp);

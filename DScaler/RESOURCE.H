@@ -849,13 +849,20 @@
 #define IDM_RETURN_TO_WINDOW            2013
 #define IDM_USECHROMA                   2014
 #define IDM_AUTO_FORMAT                 2015
+#define IDM_22PULLDOWN_SETTINGS         2016
+#define IDM_32PULLDOWN_SETTINGS         2017
+#define IDM_GAMMA_SETTINGS              2018
+#define IDM_NOISE_SETTINGS              2019
+#define IDM_PULLDOWNCOMMON_SETTINGS     2020
+#define IDM_DEBUG_SETTINGS              2021
+#define IDM_BT848_SETTINGS              2022
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        183
-#define _APS_NEXT_COMMAND_VALUE         2016
+#define _APS_NEXT_COMMAND_VALUE         2023
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

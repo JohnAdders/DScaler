@@ -54,7 +54,7 @@
 #include "Other.h"
 #include "VideoSettings.h"
 #include "VBI.h"
-
+#include "SettingsDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Structures, funtions and data
@@ -2022,4 +2022,9 @@ void BT848_SetMenu(HMENU hMenu)
 	CheckMenuItem(hMenu, IDM_TYPEFORMAT_7, (TVFormat == 7)?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_TYPEFORMAT_8, (TVFormat == 8)?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_TYPEFORMAT_9, (TVFormat == 9)?MF_CHECKED:MF_UNCHECKED);
+}
+
+void BT848_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("BT848 Chip Settings",BT848Settings, BT848_SETTING_LASTONE);
 }

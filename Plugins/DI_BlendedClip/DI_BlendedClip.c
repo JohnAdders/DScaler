@@ -841,10 +841,10 @@ SETTING DI_BlendedClipSettings[DI_BLENDEDCLIP_SETTING_LASTONE] =
 		"Deinterlace", "BlcMotionAvgPeriod", NULL,
 	},
 	{
-		"BlcPixelMotionSense", SLIDER, 0, &BlcPixelMotionSense,
-		17, 0, 200, 1, 1,
+		"BlcRecentMotionSense", SLIDER, 0, &BlcRecentMotionSense,
+		0, -100, 100, 1, 1,
 		NULL,
-		"Deinterlace", "BlcPixelMotionSense", NULL,
+		"Deinterlace", "BlcRecentMotionSense", NULL,
 	},
 	{
 		"BlcPixelCombSense", SLIDER, 0, &BlcPixelCombSense,

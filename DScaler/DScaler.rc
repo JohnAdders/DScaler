@@ -463,7 +463,7 @@ IDD_SETTINGS DIALOGEX 0, 0, 245, 178
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Settings"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_SETTINGS_LIST,7,1,100,171,LBS_SORT | 
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
@@ -743,7 +743,7 @@ BEGIN
             , GRAYED
         END
     END
-    POPUP "&Hardware"
+    POPUP "Hard&ware"
     BEGIN
         MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
         MENUITEM "&Hardware Info ...",          IDM_HWINFO
@@ -832,6 +832,17 @@ BEGIN
                 MENUITEM "THREAD_PRIORITY_HIGHEST",     IDM_TREADPRIOR_3
                 MENUITEM "THREAD_PRIORITY_TIME_CRITICAL", IDM_TREADPRIOR_4
             END
+        END
+        POPUP "&Other Settings"
+        BEGIN
+            MENUITEM "2:2 Pludown Detection",       IDM_22PULLDOWN_SETTINGS
+            MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
+            MENUITEM "Pulldown Shared",             IDM_PULLDOWNCOMMON_SETTINGS
+
+            MENUITEM "Gamma Filter",                IDM_GAMMA_SETTINGS
+            MENUITEM "Noise Filter",                IDM_NOISE_SETTINGS
+            MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
+            MENUITEM "BT848 Chip",                  IDM_BT848_SETTINGS
         END
         MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP

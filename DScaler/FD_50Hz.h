@@ -34,6 +34,7 @@
 SETTING* FD50_GetSetting(FD50_SETTING Setting);
 void FD50_ReadSettingsFromIni();
 void FD50_WriteSettingsToIni();
+void FD50_ShowUI();
 
 void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo);
 BOOL FilmModePALEven(DEINTERLACE_INFO *pInfo);

@@ -102,6 +102,7 @@ SETTING* BT848_GetSetting(BT848_SETTING Setting);
 void BT848_ReadSettingsFromIni();
 void BT848_WriteSettingsToIni();
 void BT848_SetMenu(HMENU hMenu);
+void BT848_ShowUI();
 
 // create new type for physical memory
 typedef unsigned long PHYS;

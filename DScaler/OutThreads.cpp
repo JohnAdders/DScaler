@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.116 2003-03-25 13:10:19 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.117 2003-03-25 13:41:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.116  2003/03/25 13:10:19  laurentg
+// New settings for stills : one to disable OSD when taking stills, one to limit the memory usage when storing stills in memory and two to define the number of frames in preview mode
+//
 // Revision 1.115  2003/03/23 09:24:27  laurentg
 // Automatic leave preview mode when necessary
 //
@@ -959,7 +962,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 					// Add the memory needed for the new snapshot
 					MemUsed += Info.OverlayPitch * Info.FrameHeight;
-					LOG(1, "MemUsed %d Mo", MemUsed / 1048576);
+					LOG(2, "MemUsed %d Mo", MemUsed / 1048576);
 
 					// Check that the max is not reached
 					if ((MemUsed / 1048576) >= Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)))

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.38 2002-07-27 16:27:35 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.39 2002-07-29 21:33:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/07/27 16:27:35  laurentg
+// Deinterlace and Settings menus updated
+//
 // Revision 1.37  2002/06/18 19:46:06  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -620,6 +623,14 @@ void DecrementDeinterlaceMode()
     }
 }
 
+void ShowVideoModeUI()
+{
+    if(VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI != NULL)
+    {
+        VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI(hWnd);
+    }
+}
+
 BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
 {
     int     nDeinterlaceIndex = 0;
@@ -970,6 +981,8 @@ void Deinterlace_SetMenu(HMENU hMenu)
             CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, FALSE);
         }
     }
+
+    EnableMenuItem(hMenu, IDM_DEINTERLACE_SHOWVIDEOMETHODUI, bIsProgressiveMode || (VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI == NULL) ? MF_GRAYED : MF_ENABLED);
 }
 
 BOOL CopyFrame(TDeinterlaceInfo* pInfo)

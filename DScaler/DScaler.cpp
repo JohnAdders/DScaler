@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.200 2002-07-27 16:27:35 laurentg Exp $
+// $Id: DScaler.cpp,v 1.201 2002-07-29 21:33:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.200  2002/07/27 16:27:35  laurentg
+// Deinterlace and Settings menus updated
+//
 // Revision 1.199  2002/07/27 15:20:34  laurentg
 // Channels menu updated
 //
@@ -2533,6 +2536,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             CTreeSettingsDlg::ShowTreeSettingsDlg(DEINTERLACE_SETTINGS_MASK);
             bInMenuOrDialogBox = FALSE;
             Cursor_UpdateVisibility();
+            break;
+
+        case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
+            ShowVideoModeUI();
             break;
 
         default:

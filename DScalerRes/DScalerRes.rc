@@ -926,7 +926,9 @@ BEGIN
         MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
         MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
         MENUITEM SEPARATOR
-        MENUITEM "&Video Modes Settings...",    IDM_SETTINGS_DEINTERLACESETTINGS
+        MENUITEM "Show Video Method &UI",       IDM_DEINTERLACE_SHOWVIDEOMETHODUI
+
+        MENUITEM "&Video Methods Settings...",  IDM_SETTINGS_DEINTERLACESETTINGS
 
         MENUITEM SEPARATOR
         MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN

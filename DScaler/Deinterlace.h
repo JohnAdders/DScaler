@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.17 2002-06-13 12:10:21 adcockj Exp $
+// $Id: Deinterlace.h,v 1.18 2002-07-29 21:33:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,8 @@ char* GetDeinterlaceModeName();
 void IncrementDeinterlaceMode();
 void DecrementDeinterlaceMode();
 void PrepareDeinterlaceMode();
+
+void ShowVideoModeUI();
 
 BOOL CopyFrame(TDeinterlaceInfo* pInfo);
 

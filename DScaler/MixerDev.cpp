@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.36 2002-12-09 00:32:14 atnak Exp $
+// $Id: MixerDev.cpp,v 1.37 2002-12-10 12:15:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/12/09 00:32:14  atnak
+// Added new muting stuff
+//
 // Revision 1.35  2002/10/26 17:51:53  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -976,17 +979,16 @@ void Mixer_OnInputChange(int NewVideoInputNr)
         return;
     }
 
-    if(Providers_GetCurrentSource()!=NULL )
+    if(Providers_GetCurrentSource() != NULL)
     {
-        int NewInputIndex = -1;
-        
-        if (   (NewVideoInputNr >=0 ) 
-            && (NewVideoInputNr < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT)) 
-            && (NewVideoInputNr < 6) 
-           )
+        if( (NewVideoInputNr < 0) ||
+            (NewVideoInputNr >= Providers_GetCurrentSource()->NumInputs(VIDEOINPUT)) ||
+            (NewVideoInputNr >= 6) )
         {
-            NewInputIndex = InputIndexes[NewVideoInputNr];
+            return;
         }
+
+        int NewInputIndex = InputIndexes[NewVideoInputNr];
         
         // Mute mixer source lines for inactive video inputs
         for(int i(0) ; i < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT); ++i)
@@ -1001,13 +1003,9 @@ void Mixer_OnInputChange(int NewVideoInputNr)
         }
 
         // Enable mixer source line for the new video input
-        if( (NewInputIndex != -1) && (DestLine->GetSourceLine(NewInputIndex) != NULL) )
+        if( DestLine->GetSourceLine(NewInputIndex) != NULL )
         {
-            // Only unmute if it's supposed to be unmuted
-            if(Audio_IsMute() == FALSE)
-            {
-                DestLine->GetSourceLine(NewInputIndex)->SetMute(FALSE);
-            }
+            DestLine->GetSourceLine(NewInputIndex)->SetMute(Audio_IsMute());
 
             // \todo This needs to be set! --AtNak 2002-12-09+10
             //long Volume = 

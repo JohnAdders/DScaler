@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.32 2004-04-06 12:20:48 adcockj Exp $
+// $Id: Setting.cpp,v 1.33 2004-08-06 16:24:36 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2004/04/06 12:20:48  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.31  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -209,7 +212,6 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
     m_ReadWriteFlags = 0;
 
     m_SectionLastSavedValue = Default;
-    m_pOnChangeHook = NULL;
 }
 
 
@@ -235,7 +237,6 @@ CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup)
     m_ReadWriteFlags = 0;
 
     m_SectionLastSavedValue = pSetting->Default;
-    m_pOnChangeHook = NULL;
 }
 
 CSimpleSetting::~CSimpleSetting()
@@ -276,6 +277,7 @@ long CSimpleSetting::GetValue()
 */
 void CSimpleSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
 {
+    long OldValue = *m_pSetting->pValue;
     if(NewValue < m_pSetting->MinValue)
     {
         NewValue = m_pSetting->MinValue;
@@ -283,25 +285,8 @@ void CSimpleSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
     if(NewValue > m_pSetting->MaxValue)
     {
         NewValue = m_pSetting->MaxValue;
-    }
-
-    _SetValue(NewValue, bSuppressOnChange);
-}
-
-void CSimpleSetting::_SetValue(long NewValue, BOOL bSuppressOnChange)
-{
-    long OldValue = *m_pSetting->pValue;
-
+    }    
     *m_pSetting->pValue = NewValue;
-
-    // If there's a hook, call that prior to OnChange.  If it
-    // returns TRUE, normal OnChange should be suppressed
-    if (m_pOnChangeHook != NULL && (m_pOnChangeHook)(NewValue,
-        OldValue, bSuppressOnChange, m_pHookContext))
-    {
-        bSuppressOnChange = TRUE;
-    }
-
     if (!bSuppressOnChange && DoOnChange(NewValue, OldValue))
     {
         OnChange(NewValue, OldValue);
@@ -313,7 +298,12 @@ void CSimpleSetting::_SetValue(long NewValue, BOOL bSuppressOnChange)
 */
 void CSimpleSetting::SetDefault()
 {
-    _SetValue(m_pSetting->Default, FALSE);
+    long OldValue = *m_pSetting->pValue;
+    *m_pSetting->pValue = m_pSetting->Default;
+    if (DoOnChange(*m_pSetting->pValue, OldValue))
+    {
+        OnChange(*m_pSetting->pValue, OldValue);
+    }
 }
 
 long CSimpleSetting::GetDefault()
@@ -348,12 +338,6 @@ LPCSTR CSimpleSetting::GetEntry()
     return m_pSetting->szIniEntry;
 }
 
-void CSimpleSetting::HookOnChange(tOnChangeHook* pCallback, void* pContextPtr)
-{
-    m_pOnChangeHook = pCallback;
-    m_pHookContext = pContextPtr;
-}
-
 
 /** Read value from sub section in .ini file
     @param szSubSection Set to NULL to read from the default location
@@ -370,56 +354,61 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
     if(m_pSetting->szIniSection != NULL)
     {        
         string sEntry;
-		char* szIniEntry;
+        char* szIniEntry;
 
         sEntry = m_pSetting->szIniSection;
-		sEntry += "_";
-		sEntry+= m_pSetting->szIniEntry;
-		szIniEntry = (char*)sEntry.c_str();
-		
-		char szDefaultString[] = {0};
-		char szBuffer[256];
-		
-		int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        sEntry += "_";
+        sEntry+= m_pSetting->szIniEntry;
+        szIniEntry = (char*)sEntry.c_str();
+        
+        char szDefaultString[] = {0};
+        char szBuffer[256];
+        
+        int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
         LOG(2, " ReadFromIniSubSection %s %s Result %s", szSubSection, szIniEntry, szBuffer);
 
-		if (Len <= 0)
-		{
-			IsSettingInIniFile = FALSE;
-			nValue = m_pSetting->Default;
-			nSavedValue = nValue;
-		}
-		else
-		{
-			IsSettingInIniFile = TRUE;
-
-			char* szValue = szBuffer;
-			nValue = atoi(szValue);
-			nSavedValue = nValue;
-		       
-			// If the value is out of range, set it to its default value
-			if ( (nValue < m_pSetting->MinValue)
-			  || (nValue > m_pSetting->MaxValue) )
-			{
-				if(nValue < m_pSetting->MinValue)
-				{
-					LOG(1, "toto %s %s Was out of range - %d is too low", szSubSection, szIniEntry, nValue);
-				}
-				else
-				{
-					LOG(1, "%s %s Was out of range - %d is too high", szSubSection, szIniEntry, nValue);
-				}
-				nValue = m_pSetting->Default;
-			}
-		}
-
-        if (nValue != *m_pSetting->pValue)
+        if (Len <= 0)
         {
-            _SetValue(nValue, FALSE);
+            IsSettingInIniFile = FALSE;
+            nValue = m_pSetting->Default;
+            nSavedValue = nValue;
         }
-		
-	    m_SectionLastSavedValue = nSavedValue;
-		m_SectionLastSavedValueIniSection = szSubSection;
+        else
+        {
+            IsSettingInIniFile = TRUE;
+
+            char* szValue = szBuffer;
+            nValue = atoi(szValue);
+            nSavedValue = nValue;
+               
+            // If the value is out of range, set it to its default value
+            if ( (nValue < m_pSetting->MinValue)
+              || (nValue > m_pSetting->MaxValue) )
+            {
+                if(nValue < m_pSetting->MinValue)
+                {
+                    LOG(1, "toto %s %s Was out of range - %d is too low", szSubSection, szIniEntry, nValue);
+                }
+                else
+                {
+                    LOG(1, "%s %s Was out of range - %d is too high", szSubSection, szIniEntry, nValue);
+                }
+                nValue = m_pSetting->Default;
+            }
+        }
+
+        int OldValue = *m_pSetting->pValue;
+        *m_pSetting->pValue = nValue;
+
+        // only call OnChange when there actually is a change
+        // this will help keep channel changes slick
+        if(*m_pSetting->pValue != OldValue && DoOnChange(*m_pSetting->pValue, OldValue))
+        {
+            OnChange(*m_pSetting->pValue, OldValue);
+        }
+
+        m_SectionLastSavedValue = nSavedValue;
+        m_SectionLastSavedValueIniSection = szSubSection;
 
     }
     else
@@ -440,46 +429,51 @@ BOOL CSimpleSetting::ReadFromIni()
 
     if(m_pSetting->szIniSection != NULL)
     {        
-		char szDefaultString[] = {0};
-		char szBuffer[256];
-		
-		int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        char szDefaultString[] = {0};
+        char szBuffer[256];
+        
+        int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
         LOG(2, " ReadFromIni %s %s Result %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, szBuffer);
 
-		if (Len <= 0)
-		{
-			IsSettingInIniFile = FALSE;
-			nValue = m_pSetting->Default;
-		}
-		else
-		{
-			IsSettingInIniFile = TRUE;
-
-			char* szValue = szBuffer;
-			nValue = atoi(szValue);
-			nSavedValue = nValue;
-		       
-			// If the value is out of range, set it to its default value
-			if ( (nValue < m_pSetting->MinValue)
-			  || (nValue > m_pSetting->MaxValue) )
-			{
-				if(nValue < m_pSetting->MinValue)
-				{
-					LOG(1, "titi %s %s Was out of range - %d is too low", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
-				}
-				else
-				{
-					LOG(1, "%s %s Was out of range - %d is too high", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
-				}
-				nValue = m_pSetting->Default;
-			}
-		}
-        if (IsSettingInIniFile)
+        if (Len <= 0)
         {
-            _SetValue(nValue, FALSE);
+            IsSettingInIniFile = FALSE;
+            nValue = m_pSetting->Default;
+        }
+        else
+        {
+            IsSettingInIniFile = TRUE;
 
+            char* szValue = szBuffer;
+            nValue = atoi(szValue);
+            nSavedValue = nValue;
+               
+            // If the value is out of range, set it to its default value
+            if ( (nValue < m_pSetting->MinValue)
+              || (nValue > m_pSetting->MaxValue) )
+            {
+                if(nValue < m_pSetting->MinValue)
+                {
+                    LOG(1, "titi %s %s Was out of range - %d is too low", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
+                }
+                else
+                {
+                    LOG(1, "%s %s Was out of range - %d is too high", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
+                }
+                nValue = m_pSetting->Default;
+            }
+        }
+        if (IsSettingInIniFile)
+        {            
+            int OldValue = *m_pSetting->pValue;
+            *m_pSetting->pValue = nValue;
+
+            if (DoOnChange(*m_pSetting->pValue, OldValue))
+            {
+                OnChange(*m_pSetting->pValue, OldValue);
+            }
             m_pSetting->LastSavedValue = nSavedValue;
-			m_sLastSavedValueIniSection = m_pSetting->szIniSection;
+            m_sLastSavedValueIniSection = m_pSetting->szIniSection;
         }        
         else
         {
@@ -502,14 +496,14 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFil
     if(m_pSetting->szIniSection != NULL)
     {
         string sEntry;
-		char* szIniEntry;
+        char* szIniEntry;
 
         sEntry = m_pSetting->szIniSection;
-		sEntry += "_";
-		sEntry+= m_pSetting->szIniEntry;
-		szIniEntry = (char*)sEntry.c_str();
+        sEntry += "_";
+        sEntry+= m_pSetting->szIniEntry;
+        szIniEntry = (char*)sEntry.c_str();
 
-		long Val = *m_pSetting->pValue; 
+        long Val = *m_pSetting->pValue; 
 
         BOOL bWriteValue = FALSE;
 
@@ -532,7 +526,7 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFil
         // hopefully stops noise 
         if(bWriteValue)
         {
-		    WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
+            WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
             LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, Val);
         }
         else
@@ -542,7 +536,7 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFil
 
 
         m_SectionLastSavedValue = Val;
-		m_SectionLastSavedValueIniSection = szSubSection;
+        m_SectionLastSavedValueIniSection = szSubSection;
     }
 }
 
@@ -550,14 +544,14 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
     if(m_pSetting->szIniSection != NULL)
     {
-		long Val = *m_pSetting->pValue; 
+        long Val = *m_pSetting->pValue; 
 
         // here we want all settings in the ini file
         // so we only optimize if the value and section 
         // were the same as what was loaded
         if(!bOptimizeFileAccess || Val != m_pSetting->LastSavedValue || m_sLastSavedValueIniSection != m_pSetting->szIniSection)
         {
-		    WritePrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, GetIniFileForSettings());
+            WritePrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, GetIniFileForSettings());
             LOG(2, " WriteToIni %s %s Value %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val);
         }
         else
@@ -566,8 +560,8 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
         }
 
         m_pSetting->LastSavedValue = Val;
-		
-		m_sLastSavedValueIniSection = m_pSetting->szIniSection;
+        
+        m_sLastSavedValueIniSection = m_pSetting->szIniSection;
     }
 }
  
@@ -745,7 +739,7 @@ CListSetting::CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Se
 }
 
 CListSetting::CListSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-	CSimpleSetting(pSetting, pGroup)
+    CSimpleSetting(pSetting, pGroup)
 {   
 }
 
@@ -800,7 +794,7 @@ CSliderSetting::CSliderSetting(LPCSTR DisplayName, long Default, long Min, long 
 }
 
 CSliderSetting::CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-	CSimpleSetting(pSetting, pGroup)
+    CSimpleSetting(pSetting, pGroup)
 {    
 }
 
@@ -900,7 +894,7 @@ CYesNoSetting::CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, L
 }
 
 CYesNoSetting::CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-	CSimpleSetting(pSetting, pGroup)
+    CSimpleSetting(pSetting, pGroup)
 {  
 }
 
@@ -941,16 +935,16 @@ CStringSetting::CStringSetting(LPCSTR DisplayName, long Default, LPCSTR Section,
     CSimpleSetting(DisplayName, Default, 0, 0, Section, Entry, 1, pGroup)
 {
     m_pSetting->Type = CHARSTRING;
-	if (*m_pSetting->pValue != NULL)
-	{
-		char* str = new char[strlen((char *)(*m_pSetting->pValue)) + 1];
-		strcpy(str, (char *)(*m_pSetting->pValue));
-		*m_pSetting->pValue = (long)str;
-	}
+    if (*m_pSetting->pValue != NULL)
+    {
+        char* str = new char[strlen((char *)(*m_pSetting->pValue)) + 1];
+        strcpy(str, (char *)(*m_pSetting->pValue));
+        *m_pSetting->pValue = (long)str;
+    }
 }
 
 CStringSetting::CStringSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
-	CSimpleSetting(pSetting, pGroup)
+    CSimpleSetting(pSetting, pGroup)
 {
 }
 
@@ -958,10 +952,10 @@ CStringSetting::~CStringSetting()
 {
     if (m_bFreeSettingOnExit)
     {
-		if (*m_pSetting->pValue != NULL)
-		{
-			delete (char *)(*m_pSetting->pValue);
-		}
+        if (*m_pSetting->pValue != NULL)
+        {
+            delete (char *)(*m_pSetting->pValue);
+        }
         delete m_pSetting;
         m_pSetting = NULL;
     }
@@ -979,31 +973,23 @@ void CStringSetting::GetDisplayText(LPSTR szBuffer)
 
 void CStringSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
 {
-    char* pNewString = (char*)NewValue;
-    char* pOldString = (char*)*m_pSetting->pValue;
-
-    // There's no reason to continue if the new string isn't different
-    if (pOldString != NULL && strcmp(pNewString, pOldString) == 0)
+    long OldValue = *m_pSetting->pValue;
+    char* str = new char[strlen((char *)NewValue) + 1];
+    strcpy(str, (char *)NewValue);
+    *m_pSetting->pValue = (long)str;
+    if (!bSuppressOnChange && DoOnChange(NewValue, OldValue))
     {
-        return;
+        OnChange(NewValue, OldValue);
     }
-
-    // Allocate a buffer for the new string
-	char* pBuffer = new char[strlen(pNewString)+1];
-	strcpy(pBuffer, pNewString);
-
-    _SetValue((long)pBuffer, bSuppressOnChange);
-
-	if (pOldString != NULL)
-	{
-        // Purge the old buffer
-		delete [] pOldString;
-	}
+    if (OldValue != NULL)
+    {
+        delete (char *)OldValue;
+    }
 }
 
 void CStringSetting::SetDefault()
 {
-    CStringSetting::SetValue(m_pSetting->Default);
+    SetValue(m_pSetting->Default);
 }
 
 /** Read value from sub section in .ini file
@@ -1019,34 +1005,49 @@ BOOL CStringSetting::ReadFromIniSubSection(LPCSTR szSubSection)
     if(m_pSetting->szIniSection != NULL)
     {        
         string sEntry;
-		char* szIniEntry;
+        char* szIniEntry;
 
         sEntry = m_pSetting->szIniSection;
-		sEntry += "_";
-		sEntry+= m_pSetting->szIniEntry;
-		szIniEntry = (char*)sEntry.c_str();
-		
-		char szDefaultString[] = {0};
-		char szBuffer[256];
-		char* szValue;
-		
-		int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        sEntry += "_";
+        sEntry+= m_pSetting->szIniEntry;
+        szIniEntry = (char*)sEntry.c_str();
+        
+        char szDefaultString[] = {0};
+        char szBuffer[256];
+        char* szValue;
+        
+        int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
         LOG(2, " ReadFromIniSubSection %s %s Result %s", szSubSection, szIniEntry, szBuffer);
 
-		if (Len <= 0)
-		{
-			IsSettingInIniFile = FALSE;
-			szValue = (char *)(m_pSetting->Default);
-		}
-		else
-		{
-			IsSettingInIniFile = TRUE;
-			szValue = (char *)szBuffer;		       
-		}
+        if (Len <= 0)
+        {
+            IsSettingInIniFile = FALSE;
+            szValue = (char *)(m_pSetting->Default);
+        }
+        else
+        {
+            IsSettingInIniFile = TRUE;
+            szValue = (char *)szBuffer;            
+        }
 
-        CStringSetting::SetValue((long)szValue, FALSE);
+        int OldValue = *m_pSetting->pValue;
+        char* str = new char[strlen(szValue) + 1];
+        strcpy(str, szValue);
+        *m_pSetting->pValue = (long)str;
 
-		m_SectionLastSavedValueIniSection = szSubSection;
+        // only call OnChange when there actually is a change
+        // this will help keep channel changes slick
+        if(strcmp((char*)*m_pSetting->pValue, (char*)OldValue) && DoOnChange(*m_pSetting->pValue, OldValue))
+        {
+            OnChange(*m_pSetting->pValue, OldValue);
+        }
+
+        if (OldValue != NULL)
+        {
+            delete (char *)OldValue;
+        }   
+
+        m_SectionLastSavedValueIniSection = szSubSection;
     }
     else
     {
@@ -1064,27 +1065,41 @@ BOOL CStringSetting::ReadFromIni()
 
     if(m_pSetting->szIniSection != NULL)
     {        
-		char szDefaultString[] = {0};
-		char szBuffer[256];
-		char* szValue;
-		
-		int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        char szDefaultString[] = {0};
+        char szBuffer[256];
+        char* szValue;
+        
+        int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
         LOG(2, " ReadFromIni %s %s Result %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, szBuffer);
 
-		if (Len <= 0)
-		{
-			IsSettingInIniFile = FALSE;
-			szValue = (char *)(m_pSetting->Default);
-		}
-		else
-		{
-			IsSettingInIniFile = TRUE;
-			szValue = (char *)szBuffer;
-		}
-        if (IsSettingInIniFile)
+        if (Len <= 0)
         {
-            CStringSetting::SetValue((long)szValue, FALSE);
-			m_sLastSavedValueIniSection = m_pSetting->szIniSection;
+            IsSettingInIniFile = FALSE;
+            szValue = (char *)(m_pSetting->Default);
+        }
+        else
+        {
+            IsSettingInIniFile = TRUE;
+            szValue = (char *)szBuffer;
+        }
+        if (IsSettingInIniFile)
+        {            
+            int OldValue = *m_pSetting->pValue;
+            char* str = new char[strlen(szValue) + 1];
+            strcpy(str, szValue);
+            *m_pSetting->pValue = (long)str;
+
+            if (DoOnChange(*m_pSetting->pValue, OldValue))
+            {
+                OnChange(*m_pSetting->pValue, OldValue);
+            }
+
+            if (OldValue != NULL)
+            {
+                delete (char *)OldValue;
+            }
+
+            m_sLastSavedValueIniSection = m_pSetting->szIniSection;
         }        
         else
         {
@@ -1107,17 +1122,17 @@ void CStringSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFil
     if(m_pSetting->szIniSection != NULL)
     {
         string sEntry;
-		char* szIniEntry;
+        char* szIniEntry;
 
         sEntry = m_pSetting->szIniSection;
-		sEntry += "_";
-		sEntry+= m_pSetting->szIniEntry;
-		szIniEntry = (char*)sEntry.c_str();
+        sEntry += "_";
+        sEntry+= m_pSetting->szIniEntry;
+        szIniEntry = (char*)sEntry.c_str();
 
-		WritePrivateProfileString(szSubSection, szIniEntry, (char*)(*m_pSetting->pValue), GetIniFileForSettings());
+        WritePrivateProfileString(szSubSection, szIniEntry, (char*)(*m_pSetting->pValue), GetIniFileForSettings());
         LOG(2, " WriteToIniSubSection %s %s Value %s", szSubSection, szIniEntry, (char*)(*m_pSetting->pValue));
 
-		m_SectionLastSavedValueIniSection = szSubSection;
+        m_SectionLastSavedValueIniSection = szSubSection;
     }
 }
 
@@ -1125,10 +1140,10 @@ void CStringSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
     if(m_pSetting->szIniSection != NULL)
     {
-		WritePrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)(*m_pSetting->pValue), GetIniFileForSettings());
+        WritePrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)(*m_pSetting->pValue), GetIniFileForSettings());
         LOG(2, " WriteToIni %s %s Value %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)(*m_pSetting->pValue));
 
-		m_sLastSavedValueIniSection = m_pSetting->szIniSection;
+        m_sLastSavedValueIniSection = m_pSetting->szIniSection;
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.6 2002-10-18 16:12:31 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.7 2002-10-22 18:52:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/18 16:12:31  adcockj
+// Tidy up and fixes for Cx2388x analogue support
+//
 // Revision 1.5  2002/10/17 13:31:37  adcockj
 // Give Holo3d different menu and updated settings
 //
@@ -118,6 +121,8 @@ private:
     } TAutoDectect;
 
 public:
+    void SetACPIStatus(int ACPIStatus);
+    int GetACPIStatus();
 	void HandleTimerMessages(int TimerId);
     CCT2388xCard(CHardwareDriver* pDriver);
 	~CCT2388xCard();

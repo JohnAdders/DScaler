@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.12 2002-10-22 11:39:50 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.13 2002-10-22 18:52:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/22 11:39:50  adcockj
+// Changes to test 8xFsc mode
+//
 // Revision 1.11  2002/10/21 07:19:33  adcockj
 // Preliminary Support for PixelView XCapture
 //
@@ -93,6 +96,50 @@ CCT2388xCard::~CCT2388xCard()
 
     ClosePCICard();
 }
+
+// this functions returns 0 if the BT878 is in ACPI state D0 or on error/BT848
+// returns 3 if in D3 state (full off)
+int CCT2388xCard::GetACPIStatus()
+{
+    PCI_COMMON_CONFIG PCI_Config;
+
+    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
+
+        LOG(1, "CX2388x ACPI status: D%d", ACPIStatus);
+        return ACPIStatus;
+    }
+
+    return 0;
+}
+
+// Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
+void CCT2388xCard::SetACPIStatus(int ACPIStatus)
+{
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // only the BT878 and BT878a are able to power down
+    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        return;
+    }
+    PCI_Config.DeviceSpecific[0x10] &= ~3;
+    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
+
+    LOG(1, "Attempting to set CX2388x ACPI status to D%d", ACPIStatus);
+
+    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+
+    if(ACPIStatus == 0)
+    {
+        ::Sleep(500);
+        // reset the chip
+	    WriteDword( 0x310304, 0x1 );
+    }
+    LOG(1, "Set CX2388x ACPI status complete");
+}
+
 
 void CCT2388xCard::CloseCard()
 {

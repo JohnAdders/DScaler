@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.17 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: CT2388xSource.cpp,v 1.18 2002-10-22 18:52:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/22 04:08:50  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.16  2002/10/21 16:07:26  adcockj
 // Added H & V delay options for CX2388x cards
 //
@@ -121,6 +125,12 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
     
+    m_InitialACPIStatus = m_pCard->GetACPIStatus();
+    // if the chip is powered down we need to power it up
+    if(m_InitialACPIStatus != 0)
+    {
+        m_pCard->SetACPIStatus(0);
+    }
     
     ReadFromIni();
     ChangeDefaultsForCard();
@@ -145,6 +155,11 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
 
 CCT2388xSource::~CCT2388xSource()
 {
+    // if the chip was not in D0 state we restore the original ACPI power state
+    if(m_InitialACPIStatus != 0)
+    {
+        m_pCard->SetACPIStatus(m_InitialACPIStatus);
+    }
     EventCollector->Unregister(this);
     delete m_pCard;
 }

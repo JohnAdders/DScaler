@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.9 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: CT2388xSource.h,v 1.10 2002-10-22 18:52:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,9 @@ private:
 	DEFINE_YESNO_CALLBACK_SETTING(CCT2388xSource, FLIFilmDetect);
     DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, HDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, VDelay);
+
 protected:
+    int m_InitialACPIStatus;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.23 2002-01-26 17:54:48 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.24 2002-02-08 19:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/01/26 17:54:48  laurentg
+// Bug correction regarding pixel width updates
+//
 // Revision 1.22  2002/01/24 00:00:13  robmuller
 // Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
 //
@@ -147,7 +150,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_CurrentY(480),
     m_CurrentVBILines(19),
     m_Section(IniSection),
-    m_IsFieldOdd(FALSE)
+    m_IsFieldOdd(FALSE),
+    m_InSaturationUpdate(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -983,36 +987,42 @@ void CBT848Source::ContrastOnChange(long Contrast, long OldValue)
 void CBT848Source::SaturationUOnChange(long SatU, long OldValue)
 {
     m_pBT848Card->SetSaturationU(SatU);
-    if(SatU < OldValue - 2 || SatU > OldValue + 2)
+    if(m_InSaturationUpdate == FALSE)
     {
+        m_InSaturationUpdate = TRUE;
         m_Saturation->SetValue((SatU + m_SaturationV->GetValue()) / 2);
         m_Saturation->SetMin(abs(SatU - m_SaturationV->GetValue()) / 2);
         m_Saturation->SetMax(511 - abs(SatU - m_SaturationV->GetValue()) / 2);
+        m_InSaturationUpdate = FALSE;
     }
 }
 
 void CBT848Source::SaturationVOnChange(long SatV, long OldValue)
 {
     m_pBT848Card->SetSaturationV(SatV);
-    if(SatV < OldValue - 2 || SatV > OldValue + 2)
+    if(m_InSaturationUpdate == FALSE)
     {
+        m_InSaturationUpdate = TRUE;
         m_Saturation->SetValue((SatV + m_SaturationU->GetValue()) / 2);
         m_Saturation->SetMin(abs(SatV - m_SaturationU->GetValue()) / 2);
         m_Saturation->SetMax(511 - abs(SatV - m_SaturationU->GetValue()) / 2);
+        m_InSaturationUpdate = FALSE;
     }
 }
 
 
 void CBT848Source::SaturationOnChange(long Sat, long OldValue)
 {
-    if(Sat != OldValue)
+    if(m_InSaturationUpdate == FALSE)
     {
+        m_InSaturationUpdate = TRUE;
         long NewSaturationU = m_SaturationU->GetValue() + (Sat - OldValue);
         long NewSaturationV = m_SaturationV->GetValue() + (Sat - OldValue);
         m_SaturationU->SetValue(NewSaturationU);
         m_SaturationV->SetValue(NewSaturationV);
         m_Saturation->SetMin(abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
         m_Saturation->SetMax(511 - abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
+        m_InSaturationUpdate = FALSE;
     }
 }
 

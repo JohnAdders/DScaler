@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.17 2002-02-02 01:31:19 laurentg Exp $
+// $Id: BT848Source.h,v 1.18 2002-02-08 19:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -107,6 +107,7 @@ private:
     long         m_CurrentY;
     long         m_CurrentVBILines;
     BOOL         m_IsFieldOdd;
+    BOOL         m_InSaturationUpdate;
 
     std::string  m_Section;
 

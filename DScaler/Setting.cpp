@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.6 2002-01-24 00:00:13 robmuller Exp $
+// $Id: Setting.cpp,v 1.7 2002-02-08 19:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/01/24 00:00:13  robmuller
+// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
+//
 // Revision 1.5  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -433,11 +436,16 @@ void CSliderSetting::GetDisplayText(LPSTR szBuffer)
 
 void CSliderSetting::SetupControl(HWND hWnd)
 {
-    Slider_ClearTicks(hWnd, TRUE);
-    Slider_SetRangeMax(hWnd, m_Max - m_Min);
     Slider_SetRangeMin(hWnd, 0);
     Slider_SetPageSize(hWnd, m_StepValue);
     Slider_SetLineSize(hWnd, m_StepValue);
+    SetControlValue(hWnd);
+}
+
+void CSliderSetting::SetControlValue(HWND hWnd)
+{
+    Slider_ClearTicks(hWnd, TRUE);
+    Slider_SetRangeMax(hWnd, m_Max - m_Min);
     if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
     {
         Slider_SetTic(hWnd, m_Max - m_Default);
@@ -446,11 +454,7 @@ void CSliderSetting::SetupControl(HWND hWnd)
     {
         Slider_SetTic(hWnd, m_Default - m_Min);
     }
-    SetControlValue(hWnd);
-}
 
-void CSliderSetting::SetControlValue(HWND hWnd)
-{
     if(GetWindowLong(hWnd, GWL_STYLE) & TBS_VERT)
     {
         Slider_SetPos(hWnd, m_Max - m_Value);

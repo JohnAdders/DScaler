@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.cpp,v 1.1 2004-10-30 19:30:22 to_see Exp $
+// $Id: TDA9887.cpp,v 1.2 2004-11-27 21:43:09 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Torsten Seeboth. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/10/30 19:30:22  to_see
+// initial checkin
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -45,11 +48,13 @@ CTDA9887::~CTDA9887()
 
 BOOL CTDA9887::Detect()
 {
-	#define I2C_TDA9887_0	0x86
-	#define I2C_TDA9887_1	0x96
+	#define I2C_TDA9887_0	0x86	// MAD1
+	#define I2C_TDA9887_1	0x96	// MAD3
+	#define I2C_TDA9887_2	0x84	// MAD2
+	#define I2C_TDA9887_3	0x94	// MAD4
 
 	BYTE bDetectBytes[]	= { 0x00, 0x00, 0x54, 0x70, 0x44 };
-	BYTE bI2CAdress[]	= { I2C_TDA9887_0, I2C_TDA9887_1, NULL };
+	BYTE bI2CAdress[]	= { I2C_TDA9887_0, I2C_TDA9887_1, I2C_TDA9887_2, I2C_TDA9887_3, NULL };
 	BOOL bSucces		= FALSE;
 
 /*
@@ -65,6 +70,11 @@ BOOL CTDA9887::Detect()
 	for(int i = 0; bI2CAdress[i]; i++)
 	{
 		bDetectBytes[0] = bI2CAdress[i];
+
+		if(bI2CAdress[i] == NULL)
+		{
+			break;
+		}
 
 		if(m_pPCICard->WriteToI2C(bDetectBytes, sizeof(bDetectBytes)))
 		{

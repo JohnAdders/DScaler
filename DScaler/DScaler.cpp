@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.187 2002-06-30 00:33:39 robmuller Exp $
+// $Id: DScaler.cpp,v 1.188 2002-06-30 20:10:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.187  2002/06/30 00:33:39  robmuller
+// Change volume with the mousewheel when the right mouse button is down.
+//
 // Revision 1.186  2002/06/25 22:41:29  robmuller
 // Fixed: entering digits in non-tuner mode causes weird behaviour.
 //
@@ -1327,6 +1330,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
             }
+            else if(GetKeyState(VK_CONTROL) < 0)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS, 0);
+            }
             else
             {
                 PostMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
@@ -1337,6 +1344,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(GetKeyState(VK_SHIFT) < 0)
             {
                 PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+            }
+            else if(GetKeyState(VK_CONTROL) < 0)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT, 0);
             }
             else
             {
@@ -2869,6 +2880,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             else
             {
                 PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+            }
+            // make sure the context menu is not shown when the right mouse button is released
+            if(bIsRightButtonDown)
+            {
+                bIgnoreNextRightButtonUpMsg = TRUE;
+            }
+        }
+        // if ctrl key down change playlist file
+        else if ((wParam & MK_CONTROL) != 0)
+        {
+            // crack the mouse wheel delta
+            // +ve is forward (away from user)
+            // -ve is backward (towards user)
+            if((short)HIWORD(wParam) > 0)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS, 0);
+            }
+            else
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT, 0);
             }
             // make sure the context menu is not shown when the right mouse button is released
             if(bIsRightButtonDown)

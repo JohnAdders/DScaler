@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.25 2002-10-15 19:16:29 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.26 2002-10-26 17:47:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/10/15 19:16:29  kooiman
+// Fixed Spatial effect for Audio decoder & MSP
+//
 // Revision 1.24  2002/10/11 21:40:32  ittarnavsky
 // changes due to the new CMSP34x0AudioDecoder and  eAudioDecoderType move
 // removed GetNumAudioInputs()
@@ -489,22 +492,31 @@ bool CBT848Card::HasAudioAutoVolumeCorrection()
 
 bool CBT848Card::GetHasUseInputPin1()
 {
-    if (m_AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+    CMSP34x0AudioDecoder* MSP34x0AudioDecoder = dynamic_cast<CMSP34x0AudioDecoder*>(m_AudioDecoder);
+    if(MSP34x0AudioDecoder != NULL)
+    {
         return true;
+    }
     return false;
 }
 
 bool CBT848Card::GetUseInputPin1()
 {
-    if (m_AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
-        return ((CMSP34x0AudioDecoder*)m_AudioDecoder)->GetUseInputPin1();
+    CMSP34x0AudioDecoder* MSP34x0AudioDecoder = dynamic_cast<CMSP34x0AudioDecoder*>(m_AudioDecoder);
+    if(MSP34x0AudioDecoder != NULL)
+    {
+        return MSP34x0AudioDecoder->GetUseInputPin1();
+    }
     return false;
 }
 
 void CBT848Card::SetUseInputPin1(bool AValue)
 {
-    if (m_AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
-        ((CMSP34x0AudioDecoder*)m_AudioDecoder)->SetUseInputPin1(AValue);
+    CMSP34x0AudioDecoder* MSP34x0AudioDecoder = dynamic_cast<CMSP34x0AudioDecoder*>(m_AudioDecoder);
+    if(MSP34x0AudioDecoder != NULL)
+    {
+        MSP34x0AudioDecoder->SetUseInputPin1(AValue);
+    }
 }
 
 BOOL CBT848Card::IsMyAudioDecoder(CAudioDecoder* pAudioDecoder)

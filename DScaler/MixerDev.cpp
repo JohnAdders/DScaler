@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.51 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.52 2005-03-04 09:58:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.50  2003/10/10 11:16:37  laurentg
 // Bug fixed : access to the audio mixer
 //
@@ -419,6 +422,26 @@ void Mixer_SetupDlg(HWND hWndParent)
 
 		if (mixerFinder.GetMixerCount() > 0)
 		{
+			BOOL bWasInvalidSection = g_bMixerDevInvalidSection;
+
+			// This Mixer_SetupDlg(...) function can be called in the early stages of
+			// configuration, before a "current source" is properly set from a raised
+			// EVENT_SOURCE_CHANGE event.  As such, g_bMixerDevInvalidSection can be
+			// TRUE to indicate that this file is working with a "null-source".  If
+			// this is the case, temporary set the "current source" based on the return
+			// value of 'source = Providers_GetCurrentSource()'.  (Because there is no
+			// point for the user to configure the null-source.)
+			if (bWasInvalidSection)
+			{
+				// Change the mixer settings to the given source.  A single call to
+				// Mixer_OnSourceChange(source) could be used here instead of the
+				// two below, but Mixer_OnSourceChange(...) performs mixer resource
+				// management as well, when what we need here are only the setting
+				// values and the INI section to be pointing at the right section.
+				MixerDev_SettingSetSection(source);
+				_MixerDev_ReadSettingsFromIni();
+			}
+
 			DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
 
 			if (source->GetVolume() != NULL)
@@ -428,6 +451,16 @@ void Mixer_SetupDlg(HWND hWndParent)
 			else
 			{
 				EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
+			}
+
+			if (bWasInvalidSection)
+			{
+				// Restore the mixer source to the null-source.  Likewise to above,
+				// if Mixer_OnSourceChange(source) was used above, it would be
+				// Mixer_OnSourceChange(NULL) here to free the resources allocated
+				// there.  The two below are much more light-weight.
+				MixerDev_SettingSetSection((CSource*)NULL);
+				_MixerDev_ReadSettingsFromIni();
 			}
 		}
 		else
@@ -564,6 +597,18 @@ static void Mixer_OnInputChange(long nVideoInput)
 }
 
 
+// The mixer code in this file generally works with a single set of
+// mixer settings.  However, there're multiple CSources in DScaler,
+// each which need their own audio mixer setting.  This function
+// Mixer_OnSourceChange(..) is responsible for switching the settings
+// around for different sources.  When the settings are is switched
+// for a specific CSource, all calls in this file, including those
+// such as WriteSettingsToIni and ReadSettingsFromIni, will work
+// exclusively for the settings of that CSource only.
+//
+// The special call Mixer_OnSourceChange(NULL) is used to set the mode
+// to a null-source.  Mixer settings for this null-source are neither
+// read or written.  This null-source is used to close all audio lines.
 static void Mixer_OnSourceChange(CSource *pSource)
 {
     Mixer_DoSettingsTransition(LoadSourceSettingsCallback, pSource);
@@ -693,6 +738,69 @@ static void Mixer_StoreRestoreInputs(long nDestinationIndex, long* pIndexes, lon
 }
 
 
+// This function handles what happens when audio line selections change.
+//
+// Background: A "Source" in DScaler is CSource object.  One instance of CSource
+// is used for each one of these:
+//   - TV card interfaced by DScaler's BT8x8, SAA713x or CX233x bridges.
+//   - TV card or other hardware interfaced using DirectShow (WDM)
+//   - One of the miscellaneous sources such as Patterns of video playback.
+//
+// To avoid confusion, these type of "Sources" will be referred from here as "CSources".
+//
+// Example: If I have a "FlyVideo SAA7134" card and a "Medion SAA7134" card,
+// I may have all up five CSources:
+//   - An SAA7134 object for the "FlyVideo SAA7134" card.
+//   - An SAA7134 object for the "Medion SAA7134" card.
+//   - A DirectShow object for the "FlyVideo SAA7134" card.
+//   - A DirectShow object for the "Medion SAA7134" card.
+//   - A Patterns object for display pictures.
+//
+// Each one of the CSources has its own "Audio Mixer" setting.  An audio mixer
+// setting consists of:
+//   - Whether it is used or not.
+//   - Which sound device to use for incoming audio.
+//   - Which sound device "destination" to use for incoming audio.
+//   - Which Audio Lines (aka Audio Source) to use for incoming audio.
+//   - Whether or not to "disable the use of hardware mute".
+//   - Whether to "reset mixer settings on exit".
+//
+// The "Audio Line" are lines such as "Line-In", "Microphone", "CD Audio",
+// that are provided by the system for each sound device -> destination.
+//
+// Each sound device (a.k.a "mixer") its own set of "destinations" (incoming
+// audio is also considered a "destination") and each "destination" has its
+// own set of audio lines:
+//
+// Sound Device (CMixer)
+//   -> Destination ("Playback" / "Recording")
+//     -> Audio Lines ("Line In", "Microphone", etc).
+//
+// Description:
+// The purpose of this function is so that when the "Audio Mixer" setting
+// changes (either because CSource changed or because the user reconfigured),
+// all newly required Audio Lines are prepared, and all no longer needed
+// Audio Lines are closed.
+//
+// Example: If my FlyVideo SAA7134 card is configured to use "Line-In" of
+// mixer_1 and my Medion SAA7134 card is configured to use "Auxiliary" of
+// mixer_1, and the current CSource changes from the FlyVideo to Medion,
+// this function needs to close the "Line-In" line and prepare the
+// "Auxiliary" line.
+//
+// If on the other hand, the Medion card is configured to use the same
+// "Line-In" line on mixer_1, no preparation or closing is done.
+//
+// An Audio Line is "prepared" by creating the necessary programming objects.
+// It is "closed" by either muting the line, or, if "restore mixer settings
+// on exit" is set, restoring the mute state to the previous state, then
+// releasing the line's resources.
+//
+// This function does not perform the Audio Mixer changes itself.  It calls
+// 'pSyncfunc' whose purpose is to make the necessary changes for the occasion.
+// (i.e. CSource changing or the user reconfiguring)  The function saves all
+// settings before calling 'pSyncfunc' then compares to determine which lines
+// are new and which are no longer needed.
 static void Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void* pContext)
 {
     long nOldDestination = -1;
@@ -1384,17 +1492,25 @@ static int ComboBox_GetCurSelItemData(HWND hControl)
 //  Long array utilities
 //----------------------------------------------------------------------
 
+// This function fills the 'dest' array with unique elements
+// from the 'source' array.  Example, given the 'source' array
+// { 3, 4, 5, 5, 4, 1 }, 'dest' will become { 3, 4, 5, 1 } and
+// return value 4.  'size' is the number of elements in 'source'.
 static long LongArrayUnique(const long* source, long size, long* dest)
 {
-    long resultCount = 0;
+    long resultCount;
     int i, j;
 
     if (size > 0)
     {
-        dest[resultCount++] = source[0];
+		// Copy the first element over.
+        dest[0] = source[0];
+		resultCount = 1;
 
+		// Run through every value in source.
         for (i = 1; i < size; i++)
         {
+			// See if this source[i] value is already in the destination.
             for (j = 0; j < resultCount; j++)
             {
                 if (dest[j] == source[i])
@@ -1403,6 +1519,7 @@ static long LongArrayUnique(const long* source, long size, long* dest)
                 }
             }
 
+			// If the value was not already in the destination, add it.
             if (j == resultCount)
             {
                 dest[resultCount++] = source[i];
@@ -1414,13 +1531,21 @@ static long LongArrayUnique(const long* source, long size, long* dest)
 }
 
 
+// Given two arrays of longs: 'values' of size 'valuesSize', and 'subtract'
+// of size 'subtractSize'.  All values in the array 'values' that are also in
+// the array 'subtract' are removed.  Upon return, 'values' will not contain
+// any values that're also in 'subtract', and 'valuesSize' will be updated to
+// represent the new size of the array if necessary.
+// Set definition: R = S - U
 static void LongArraySubstract(long* values, long* valuesSize,
                                const long* subtract, long substractSize)
 {
     int i, j;
 
+	// Run through every value in the array 'subtract'.
     for (i = 0; i < substractSize; i++)
     {
+		// See if this subtract[i] value is also in 'values'.
         for (j = 0; j < *valuesSize; j++)
         {
             if (values[j] == subtract[i])
@@ -1429,9 +1554,20 @@ static void LongArraySubstract(long* values, long* valuesSize,
             }
         }
 
+		// If the value WAS found (i.e. the above loop broke early).
         if (j != *valuesSize)
         {
-            if (--(*valuesSize) != j)
+			// Subtract one from the size of 'values' array.
+			*valuesSize -= 1;
+
+			// 'j' is the index of the value that is being removed.
+			// *valueSize is now representing the new size of the array
+			// where there is one less element.  This new size value is
+			// also the same as the index of the last element from the
+			// previous/ size (i.e. because: last index = size - 1).  If
+			// 'j' was not the last index, put the value at the last index
+			// where 'j' is.
+            if (j != *valuesSize)
             {
                 values[j] = values[*valuesSize];
             }
@@ -1440,14 +1576,24 @@ static void LongArraySubstract(long* values, long* valuesSize,
 }
 
 
+// Give two arrays: 'dividend' of size 'dividendSize' and 'divisor'
+// of size 'divisorSize', two resulting arrays are created.
+// One array holds values that were only in 'dividend' and is
+// returned in a modified 'dividend'.  The holds values that were
+// only in 'divisor' and is returned in a modified 'divisor'.
+// e.g. dividend: { 2, 2, 4, 1, 3, 4 }, divisor { 1, 4, 5, 7, 7 }
+//      result dividend: { 2, 2, 3 }, result divisor: { 5, 7, 7 }
+// Set definition: R1 = S - (S intersect U), R2 = U - (S intersect U)
 static void LongArrayDivide(long* dividend, long *dividendSize,
                             long* divisor, long *divisorSize)
 {
     long resultCount = 0;
     int i, j;
 
+	// Run through every element in the array 'dividend'.
     for (i = 0; i < *dividendSize; i++)
     {
+		// See if this dividend[i] value is also in 'divisor'.
         for (j = 0; j < *divisorSize; j++)
         {
             if (divisor[j] == dividend[i])
@@ -1456,12 +1602,19 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
             }
         }
 
+		// If the value was not also in 'divisor'.
         if (j == *divisorSize)
         {
+			// Put the value in the result array.
             dividend[resultCount++] = dividend[i];
         }
+		// If the value was also in 'divisor'.
         else
         {
+			// Remove the value from 'divisor' in the same way
+			// commented in LongArraySubstract().  (i.e. reduce the
+			// size of the array and shuffle the last element into the
+			// newly created gap.)
             if (--(*divisorSize) != j)
             {
                 divisor[j] = divisor[*divisorSize];
@@ -1469,6 +1622,8 @@ static void LongArrayDivide(long* dividend, long *dividendSize,
         }
     }
 
+	// The resulting array was created "in place" over the 'dividend'
+	// array.  Update the correct size of 'dividend' before returning.
     *dividendSize = resultCount;
 }
 
@@ -1511,7 +1666,7 @@ CMixerLineSrc::CMixerLineSrc(HMIXER hMixer, DWORD nDstIndex, DWORD nSrcIndex)
 
     mmresult = mixerGetLineControls((HMIXEROBJ)hMixer, &mxlc, MIXER_GETLINECONTROLSF_ALL);
 
-    for (int i = 0; i < m_mxl.cControls; i++)
+    for (DWORD i = 0; i < m_mxl.cControls; i++)
     {
         if (pmxctrl[i].dwControlType == MIXERCONTROL_CONTROLTYPE_VOLUME)
         {
@@ -1663,7 +1818,7 @@ CMixerLineDst::CMixerLineDst(HMIXER hMixer, DWORD nDstIndex)
     m_nSourceCount = m_mxl.cConnections;
     m_pSourceLines = new CMixerLineSrc*[m_nSourceCount];
 
-    for (int i = 0; i < m_nSourceCount; i++)
+    for (DWORD i = 0; i < m_nSourceCount; i++)
     {
         m_pSourceLines[i] = new CMixerLineSrc(hMixer, nDstIndex, i);
     }
@@ -1674,7 +1829,7 @@ CMixerLineDst::~CMixerLineDst()
 {
     if (m_pSourceLines != NULL)
     {
-        for (int i = 0; i < m_nSourceCount; i++)
+        for (DWORD i = 0; i < m_nSourceCount; i++)
         {
             delete m_pSourceLines[i];
         }
@@ -1708,7 +1863,7 @@ CMixerLineSrc* CMixerLineDst::GetSourceLine(DWORD nIndex)
 
 void CMixerLineDst::StoreState()
 {
-    for (int i = 0; i < m_nSourceCount; i++)
+    for (DWORD i = 0; i < m_nSourceCount; i++)
     {
         m_pSourceLines[i]->StoreState();
     }
@@ -1717,7 +1872,7 @@ void CMixerLineDst::StoreState()
 
 void CMixerLineDst::RestoreState()
 {
-    for (int i = 0; i < m_nSourceCount; i++)
+    for (DWORD i = 0; i < m_nSourceCount; i++)
     {
         m_pSourceLines[i]->RestoreState();
     }
@@ -1767,7 +1922,7 @@ CMixer::CMixer(DWORD nMixerIndex)
     m_nDestinationCount = m_mxcaps.cDestinations;
     m_pDestinationLines = new CMixerLineDst*[m_nDestinationCount];
 
-    for (int i = 0; i < m_nDestinationCount; i++)
+    for (DWORD i = 0; i < m_nDestinationCount; i++)
     {
         m_pDestinationLines[i] = new CMixerLineDst(m_hMixer, i);
     }
@@ -1778,7 +1933,7 @@ CMixer::~CMixer()
 {
     if (m_pDestinationLines != NULL)
     {
-        for (int i = 0; i < m_nDestinationCount; i++)
+        for (DWORD i = 0; i < m_nDestinationCount; i++)
         {
             delete m_pDestinationLines[i];
         }
@@ -1824,7 +1979,7 @@ CMixerLineDst* CMixer::GetDestinationLine(DWORD nIndex)
 
 void CMixer::StoreState()
 {
-    for (int i = 0; i < m_nDestinationCount; i++)
+    for (DWORD i = 0; i < m_nDestinationCount; i++)
     {
         m_pDestinationLines[i]->StoreState();
     }
@@ -1833,7 +1988,7 @@ void CMixer::StoreState()
 
 void CMixer::RestoreState()
 {
-    for (int i = 0; i < m_nDestinationCount; i++)
+    for (DWORD i = 0; i < m_nDestinationCount; i++)
     {
         m_pDestinationLines[i]->RestoreState();
     }
@@ -1866,7 +2021,7 @@ BOOL CMixerFinder::GetMixerName(long nMixerIndex, char szName[MAXPNAMELEN])
     MIXERCAPS mxcaps;
     MMRESULT mmresult;
 
-    ASSERT(nMixerIndex >= 0 && nMixerIndex < m_nMixerCount);
+    ASSERT(nMixerIndex >= 0 && (UINT)nMixerIndex < m_nMixerCount);
 
     mmresult = mixerGetDevCaps(nMixerIndex, &mxcaps, sizeof(MIXERCAPS));
     if (mmresult == MMSYSERR_NOERROR)
@@ -1882,7 +2037,7 @@ long CMixerFinder::FindMixer(const char* szName)
 {
     char buffer[MAXPNAMELEN];
 
-    for (int i = 0; i < m_nMixerCount; i++)
+    for (UINT i = 0; i < m_nMixerCount; i++)
     {
         if (GetMixerName(i, buffer) && lstrcmp(buffer, szName) == 0)
         {

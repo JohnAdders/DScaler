@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.7 2003-01-08 22:40:21 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.8 2003-01-12 17:12:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -259,27 +259,11 @@ void CVTDecoder::DecodeLine(BYTE* data)
             }
         }
 
-        // Check if we need this page
-        if (IsNonVisiblePage(wPageHex))
+        // See if this is an invalid page
+        if ((wPageHex & 0xFF) == 0xFF)
         {
-            // non-visible pages
-            if ((wPageHex & 0xFF) == 0xFF)
-            {
-                // NULL page
-                return;
-            }
-
-            BOOL bPageNeeded = FALSE;
-
-            if (m_pVTTopText->IsTopTextPage(MAKELONG(wPageHex, wPageSubCode)))
-            {
-                bPageNeeded = TRUE;
-            }
-
-            if (bPageNeeded == FALSE)
-            {
-                return;
-            }
+            // Time filling page
+            return;
         }
 
         EnterCriticalSection(&m_MagazineStateMutex);
@@ -605,13 +589,6 @@ void CVTDecoder::CompleteMagazine(TMagazineState* magazineState)
     WORD wPageSubCode = magazineState->wPageSubCode;
     WORD wControlBits = magazineState->wControlBits;
 
-    if (IsNonVisiblePage(wPageHex))
-    {
-        // There are currently no non-visible pages
-        // that need to be cached
-        return;
-    }
-
     BOOL bErasePage = (wControlBits & VTCONTROL_ERASEPAGE) != 0;
     BOOL bPageUpdate = (wControlBits & VTCONTROL_UPDATE) != 0;
     BOOL bFlushLines = FALSE;
@@ -796,6 +773,7 @@ void CVTDecoder::CompleteMagazine(TMagazineState* magazineState)
     // Copy the page control bits
     pPage->wControlBits = wControlBits;
 
+
     // Update the cache count
     if (pPage->bReceived == FALSE)
     {
@@ -810,9 +788,6 @@ void CVTDecoder::CompleteMagazine(TMagazineState* magazineState)
         pPage->bReceived = TRUE;
         m_ReceivedPages++;
     }
-
-    // Update the latest subpage
-    m_LatestSubPage[PageHex2ArrayIndex(wPageHex)] = wPageSubCode;
 
     LeaveCriticalSection(&m_PageStoreMutex);
 
@@ -866,10 +841,10 @@ BOOL CVTDecoder::HighGranularityLineCache(TVTPage* pPage, BYTE nRow, BYTE* pSour
 
 WORD CVTDecoder::PageHex2ArrayIndex(WORD wPageHex)
 {
-    if ((wPageHex & 0xF00) < 0x100 ||
-        (wPageHex & 0xF00) > 0x800 ||
-        (wPageHex & 0x0F0) > 0x090 ||
-        (wPageHex & 0x00F) > 0x009)
+    if ((wPageHex & 0xFF00) < 0x0100 ||
+        (wPageHex & 0xFF00) > 0x0800 ||
+        (wPageHex & 0x00F0) > 0x0090 ||
+        (wPageHex & 0x000F) > 0x0009)
     {
         return 0xFFFF;
     }
@@ -918,10 +893,7 @@ void CVTDecoder::ResetPageStore()
 
     for (int i(0); i < 800; i++)
     {
-        m_VisiblePage[i].bReceived = FALSE;
-        m_VisiblePage[i].bBufferReserved = FALSE;
-
-        pPage = m_VisiblePage[i].pNextPage;
+        pPage = m_VisiblePageList[i];
         for ( ; pPage != NULL; pPage = pPage->pNextPage)
         {
             pPage->bReceived = FALSE;
@@ -931,12 +903,13 @@ void CVTDecoder::ResetPageStore()
 }
 
 
-TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bCreateMissing)
+TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bUpdate)
 {
     WORD wPageHex = LOWORD(dwPageCode);
 
-    TVTPage*  pPage = NULL;
-    TVTPage** hPage = &pPage;
+    TVTPage* pPage;
+    TVTPage** hPage;
+    TVTPage** hList;
 
     if (IsNonVisiblePage(wPageHex))
     {
@@ -945,7 +918,7 @@ TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bCreateMissing)
             return NULL;
         }
 
-        hPage = &m_NonVisiblePageList;
+        hList = &m_NonVisiblePageList;
     }
     else
     {
@@ -956,23 +929,44 @@ TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bCreateMissing)
             return NULL;
         }
 
-        *hPage = &m_VisiblePage[wPageIndex];
+        hList = &m_VisiblePageList[wPageIndex];
     }
 
+    WORD nCount = 0;
+
     // Look for an available page buffer
-    for ( ; *hPage != NULL; hPage = &(*hPage)->pNextPage)
+    for (hPage = hList; *hPage != NULL; hPage = &(*hPage)->pNextPage)
     {
         if ((*hPage)->bBufferReserved == FALSE)
         {
             break;
         }
-        else if ((*hPage)->dwPageCode == dwPageCode)
+        else if ((*hPage)->dwPageCode == dwPageCode ||
+                 (HIWORD(dwPageCode) >= 0x3F7F &&
+                 LOWORD((*hPage)->dwPageCode) == LOWORD(dwPageCode)))
         {
+            if (bUpdate != FALSE)
+            {
+                // Move the element to the front
+                if (hPage != hList)
+                {
+                    pPage = *hPage;
+                    *hPage = pPage->pNextPage;
+                    pPage->pNextPage = *hList;
+                    *hList = pPage;
+                }
+                return *hList;
+            }
+
             return *hPage;
+        }
+        else if (++nCount == kMAX_PAGELIST)
+        {
+            break;
         }
     }
 
-    if (bCreateMissing == FALSE)
+    if (bUpdate == FALSE)
     {
         return NULL;
     }
@@ -985,12 +979,22 @@ TVTPage* CVTDecoder::GetPageStore(DWORD dwPageCode, BOOL bCreateMissing)
         (*hPage)->bReceived = FALSE;
     }
 
-    (*hPage)->bBufferReserved = TRUE;
-    
-    InitializePage(*hPage);
-    (*hPage)->dwPageCode = dwPageCode;
+    pPage = *hPage;
 
-    return *hPage;
+    // Move the new buffer to the front
+    if (hPage != hList)
+    {
+        *hPage = pPage->pNextPage;
+        pPage->pNextPage = *hList;
+        *hList = pPage;
+    }
+
+    pPage->bBufferReserved = TRUE;
+    
+    InitializePage(pPage);
+    pPage->dwPageCode = dwPageCode;
+
+    return pPage;
 }
 
 
@@ -1006,13 +1010,11 @@ void CVTDecoder::FreePageStore()
 
     for (int i(0); i < 800; i++)
     {
-        while ((pPage = m_VisiblePage[i].pNextPage) != NULL)
+        while ((pPage = m_VisiblePageList[i]) != NULL)
         {
-            m_VisiblePage[i].pNextPage = pPage->pNextPage;
+            m_VisiblePageList[i] = pPage->pNextPage;
             free(pPage);
         }
-        m_VisiblePage[i].bReceived = FALSE;
-        m_VisiblePage[i].bBufferReserved = FALSE;
     }
 }
 
@@ -1044,6 +1046,63 @@ BYTE CVTDecoder::GetCharacterSubsetCode()
 }
 
 
+WORD CVTDecoder::GetVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize)
+{
+    WORD nPagesCount = 0;
+    TVTPage* pPage;
+
+    EnterCriticalSection(&m_PageStoreMutex);
+
+    for (WORD i = 0; i < 800 && nPagesCount < nListSize; i++)
+    {
+        pPage = FindReceivedPage(m_VisiblePageList[i]);
+        if (pPage != NULL)
+        {
+            lpNumberList[nPagesCount] = LOWORD(pPage->dwPageCode);
+            nPagesCount++;
+        }
+    }
+
+    LeaveCriticalSection(&m_PageStoreMutex);
+
+    return nPagesCount;
+}
+
+
+WORD CVTDecoder::GetNonVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize)
+{
+    WORD nPagesCount = 0;
+    TVTPage* pPage;
+
+    ASSERT(nListSize != 0);
+
+    EnterCriticalSection(&m_PageStoreMutex);
+
+    for (pPage = FindReceivedPage(m_NonVisiblePageList);
+        pPage != NULL && nPagesCount < nListSize;
+        pPage = FindReceivedPage(pPage->pNextPage))
+    {
+        for (WORD i = 0; i < nPagesCount; i++)
+        {
+            if (lpNumberList[i] == LOWORD(pPage->dwPageCode))
+            {
+                break;
+            }
+        }
+
+        if (i == nPagesCount)
+        {
+            lpNumberList[nPagesCount] = LOWORD(pPage->dwPageCode);
+            nPagesCount++;
+        }
+    }
+
+    LeaveCriticalSection(&m_PageStoreMutex);
+
+    return nPagesCount;
+}
+
+
 void CVTDecoder::GetDisplayHeader(TVTPage* pBuffer, BOOL bClockOnly)
 {
     if (bClockOnly != FALSE)
@@ -1066,34 +1125,26 @@ void CVTDecoder::GetDisplayHeader(TVTPage* pBuffer, BOOL bClockOnly)
 
 DWORD CVTDecoder::GetDisplayPage(DWORD dwPageCode, TVTPage* pBuffer)
 {
-    WORD wPageHex = LOWORD(dwPageCode);
-    WORD wPageIndex = PageHex2ArrayIndex(wPageHex);
-
-    // Check that this is a valid visible page
-    if (wPageIndex == 0xFFFF)
-    {
-        return 0;
-    }
-
-    WORD wPageSubCode = HIWORD(dwPageCode);
-
     EnterCriticalSection(&m_PageStoreMutex);
 
-    if (wPageSubCode >= 0x3F7F)
-    {
-        wPageSubCode = m_LatestSubPage[wPageIndex];
-    }
+    TVTPage* pPage = GetPageStore(dwPageCode, FALSE);
 
-    TVTPage* pPage = GetPageStore(MAKELONG(wPageHex, wPageSubCode), FALSE);
     if (pPage != NULL)
     {
-        CopyPageForDisplay(pBuffer, pPage);
-        UnsetUpdatedStates(pPage);
+        if (pPage->bReceived != FALSE)
+        {
+            CopyPageForDisplay(pBuffer, pPage);
+            UnsetUpdatedStates(pPage);
+        }
+        else
+        {
+            pPage = NULL;
+        }
     }
 
     LeaveCriticalSection(&m_PageStoreMutex);
 
-    return (pPage != NULL) ? MAKELONG(wPageHex, wPageSubCode) : 0;
+    return pPage != NULL ? pPage->dwPageCode : 0;
 }
 
 
@@ -1102,45 +1153,51 @@ DWORD CVTDecoder::GetNextDisplayPage(DWORD dwPageCode, TVTPage* pBuffer,
 {
     WORD wPageHex = LOWORD(dwPageCode);
     WORD wPageIndex = PageHex2ArrayIndex(wPageHex);
-
-    if (wPageIndex == 0xFFFF)
-    {
-        if (bReverse != FALSE)
-        {
-            wPageIndex = 0;
-        }
-        else
-        {
-            wPageIndex = 799;
-        }
-    }
-
-    char delta = (bReverse ? -1 : 1);
-    DWORD dwNextPageCode = 0UL;
-
+    
     TVTPage* pPage = NULL;
+    DWORD dwNextPageCode = 0UL;
 
     EnterCriticalSection(&m_PageStoreMutex);
 
-    // Loop around the available pages to find the next or previous page
-    for (WORD i = 800 + wPageIndex + delta; (i % 800) != wPageIndex; i += delta)
+    if (wPageIndex == 0xFFFF)
     {
-        if (m_VisiblePage[i % 800].bReceived != FALSE)
+        // Find the closest visible page
+        if (IsNonVisiblePage(wPageHex))
         {
-            pPage = &m_VisiblePage[i % 800];
-            break;
+            wPageIndex = ((wPageHex & 0xF00) >> 8) * 100;
+        }
+        else
+        {
+            wPageIndex = 800;
+        }
+
+        if (bReverse != FALSE)
+        {
+            wPageIndex--;
+        }
+
+        wPageIndex %= 800;
+
+        pPage = FindReceivedPage(m_VisiblePageList[wPageIndex]);
+    }
+
+    if (pPage == NULL)
+    {
+        char delta = (bReverse ? -1 : 1);
+
+        // Loop around the available pages to find the next or previous page
+        for (WORD i = 800 + wPageIndex + delta; (i % 800) != wPageIndex; i += delta)
+        {
+            pPage = FindReceivedPage(m_VisiblePageList[i % 800]);
+            if (pPage != NULL)
+            {
+                break;
+            }
         }
     }
 
     if (pPage != NULL)
     {
-        // Get the subpage.  This loop will work because
-        // no state that ruins this can exist.
-        while (HIWORD(pPage->dwPageCode) != m_LatestSubPage[i % 800])
-        {
-            pPage = pPage->pNextPage;
-        }
-
         CopyPageForDisplay(pBuffer, pPage);
         UnsetUpdatedStates(pPage);
 
@@ -1158,37 +1215,50 @@ DWORD CVTDecoder::GetNextDisplaySubPage(DWORD dwPageCode, TVTPage* pBuffer,
 {
     WORD wPageHex = LOWORD(dwPageCode);
     WORD wPageIndex = PageHex2ArrayIndex(wPageHex);
+    TVTPage* pSubPageList;
 
     if (wPageIndex == 0xFFFF)
     {
-        return 0UL;
+        if (!IsNonVisiblePage(wPageHex))
+        {
+            return 0UL;
+        }
+
+        pSubPageList = m_NonVisiblePageList;
+    }
+    else
+    {
+        pSubPageList = m_VisiblePageList[wPageIndex];
     }
 
     DWORD dwNextPageCode = 0UL;
-    TVTPage* pPage;
+    TVTPage* pPage = NULL;
 
     EnterCriticalSection(&m_PageStoreMutex);
 
-    pPage = FindNextSubPage(&m_VisiblePage[wPageIndex], dwPageCode, bReverse);
-
-    if (pPage == NULL)
+    if (pSubPageList != NULL)
     {
-        if (bReverse == FALSE)
-        {
-            pPage = FindSubPage(&m_VisiblePage[wPageIndex], MAKELONG(wPageHex, 0));
-        }
+        pPage = FindNextSubPage(pSubPageList, dwPageCode, bReverse);
 
         if (pPage == NULL)
         {
-            pPage = FindNextSubPage(&m_VisiblePage[wPageIndex],
-                MAKELONG(wPageHex, bReverse == FALSE ? 0 : 0xFFFF), bReverse);
-        }
-
-        if (pPage != NULL)
-        {
-            if (pPage->dwPageCode == dwPageCode)
+            if (bReverse == FALSE)
             {
-                pPage = NULL;
+                pPage = FindSubPage(pSubPageList, MAKELONG(wPageHex, 0));
+            }
+
+            if (pPage == NULL)
+            {
+                pPage = FindNextSubPage(pSubPageList,
+                    MAKELONG(wPageHex, bReverse == FALSE ? 0 : 0xFFFF), bReverse);
+            }
+
+            if (pPage != NULL)
+            {
+                if (pPage->dwPageCode == dwPageCode)
+                {
+                    pPage = NULL;
+                }
             }
         }
     }
@@ -1239,7 +1309,7 @@ DWORD CVTDecoder::FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive,
     {
         if (bInclusive != FALSE)
         {
-            pPage = FindSubPage(&m_VisiblePage[i % 800], dwFromPageCode);
+            pPage = FindSubPage(m_VisiblePageList[i % 800], dwFromPageCode);
 
             if (pPage != NULL)
             {
@@ -1254,7 +1324,7 @@ DWORD CVTDecoder::FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive,
 
         do
         {
-            pPage = FindNextSubPage(&m_VisiblePage[i % 800], dwFromPageCode, bReverse);
+            pPage = FindNextSubPage(m_VisiblePageList[i % 800], dwFromPageCode, bReverse);
 
             if (pPage == NULL)
             {
@@ -1272,11 +1342,13 @@ DWORD CVTDecoder::FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive,
             break;
         }
 
+        // Find the next page to search in
         for (i += delta; (i % 800) != wPageIndex; i += delta)
         {
-            if (m_VisiblePage[i % 800].bReceived != FALSE)
+            pPage = FindReceivedPage(m_VisiblePageList[i % 800]);
+            if (pPage != NULL)
             {
-                wPageHex = LOWORD(m_VisiblePage[i % 800].dwPageCode);
+                wPageHex = LOWORD(pPage->dwPageCode);
                 dwFromPageCode = MAKELONG(wPageHex, (bReverse != FALSE) ? 0x3F7F : 0);
                 bInclusive = TRUE;
                 break;
@@ -1359,7 +1431,7 @@ BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
         uChar = 0x00;
     }
 
-    if (_toupper(uChar) == _toupper(lpSearchString[*pIndex]))
+    if (toupper(uChar) == toupper(lpSearchString[*pIndex]))
     {
         // Check if the last character was matched
         if (lpSearchString[++*pIndex] == '\0')
@@ -1387,7 +1459,7 @@ BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
             {
                 // We found a possible substring, try to match
                 // the failed character again.
-                if (_toupper(uChar) == _toupper(lpSearchString[*pIndex - j]))
+                if (toupper(uChar) == toupper(lpSearchString[*pIndex - j]))
                 {
                     *pIndex -= j;
                     if (lpSearchString[++*pIndex] == '\0')
@@ -1417,7 +1489,7 @@ BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
 
                 // We have restarted the matching, try to match
                 // the failed character one last time.
-                if (_toupper(uChar) == _toupper(lpSearchString[*pIndex]))
+                if (toupper(uChar) == toupper(lpSearchString[*pIndex]))
                 {
                     *pIndex++;
                 }
@@ -1676,13 +1748,30 @@ void CVTDecoder::UnsetUpdatedStates(TVTPage* pPage)
 }
 
 
+TVTPage* CVTDecoder::FindReceivedPage(TVTPage* pPageList)
+{
+    if (pPageList == NULL || pPageList->bBufferReserved == FALSE)
+    {
+        return NULL;
+    }
+
+    if (pPageList->bReceived != FALSE)
+    {
+        return pPageList;
+    }
+
+    return FindReceivedPage(pPageList->pNextPage);
+}
+
+
 TVTPage* CVTDecoder::FindSubPage(TVTPage* pPageList, DWORD dwPageCode)
 {
     TVTPage* pPage = pPageList;
 
-    while (pPage != NULL && pPage->bReceived != FALSE)
+    while (pPage != NULL && pPage->bBufferReserved != FALSE)
     {
-        if (pPage->dwPageCode == dwPageCode)
+        if (pPage->bReceived != FALSE &&
+            pPage->dwPageCode == dwPageCode)
         {
             return pPage;
         }
@@ -1695,16 +1784,17 @@ TVTPage* CVTDecoder::FindSubPage(TVTPage* pPageList, DWORD dwPageCode)
 
 
 TVTPage* CVTDecoder::FindNextSubPage(TVTPage* pPageList, DWORD dwPageCode,
-                                                 BOOL bReverse)
+                                     BOOL bReverse)
 {
     TVTPage* pPage = pPageList;
     TVTPage* pNextPage = NULL;
 
     WORD wPageSubCode = HIWORD(dwPageCode);
 
-    while (pPage->bReceived != FALSE)
+    while (pPage != NULL && pPage->bBufferReserved != FALSE)
     {
-        if (LOWORD(pPage->dwPageCode) == LOWORD(dwPageCode))
+        if (pPage->bReceived != FALSE &&
+            LOWORD(pPage->dwPageCode) == LOWORD(dwPageCode))
         {
             if (bReverse == FALSE && HIWORD(pPage->dwPageCode) > wPageSubCode)
             {
@@ -1724,10 +1814,7 @@ TVTPage* CVTDecoder::FindNextSubPage(TVTPage* pPageList, DWORD dwPageCode,
             }
         }
 
-        if ((pPage = pPage->pNextPage) == NULL)
-        {
-            break;
-        }
+        pPage = pPage->pNextPage;
     }
 
     return pNextPage;

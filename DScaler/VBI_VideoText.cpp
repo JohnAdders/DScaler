@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.63 2003-01-07 18:40:18 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.64 2003-01-12 17:12:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2003/01/07 18:40:18  adcockj
+// Fixed silly bug in new teletext code
+//
 // Revision 1.62  2003/01/07 16:49:11  adcockj
 // Changes to allow variable sampling rates for VBI
 //
@@ -249,6 +252,8 @@ void VT_DeleteHilightList(TVTLeftRight** pHilightList);
 void VT_UpdateHilightList(BOOL bUpdatedOnly = FALSE);
 BYTE VT_UpdateHilightListProc(TVTPage*, WORD, LPWORD, WORD, BYTE, BYTE, LPVOID);
 
+WORD VT_Input2PageHex(char Input[3]);
+
 BOOL VT_RegionOnChange(long NewValue);
 BOOL VT_ShowSubcodeInOSDOnChange(long NewValue);
 BOOL VT_CachingControlOnChange(long NewValue);
@@ -258,6 +263,8 @@ BOOL VT_SubstituteErrorsWithSpacesOnChange(long NewValue);
 
 CVTDecoder          VTDecoder(VT_DecoderEventProc);
 CVTDrawer           VTDrawer;
+
+int                 VTStep;
 
 eVTCodepage         VTCodepage = VTCODEPAGE_ENGLISH;
 eVTCodepage         VTUserCodepage = VTCODEPAGE_ENGLISH;
@@ -308,9 +315,9 @@ BYTE                VTDoubleProfile[25];
 WORD                VTCursorRowCol = 0xFFFF;
 WORD                VTCursorPageHex = 0;
 
-CRITICAL_SECTION    VTPageChangeMutex;
+HWND                VTGotoProcDlg = NULL;
 
-int VTStep;
+CRITICAL_SECTION    VTPageChangeMutex;
 
 
 void VBI_VT_Init()
@@ -381,8 +388,8 @@ void VT_SetState(HDC hDC, LPRECT lpRect, eVTState State)
 
     if (State == VT_OFF)
     {
-        if ((VTPageHex & 0xF00) == 0x000 ||
-            (VTPageHex & 0xF00) >= 0x900)
+        if ((VTPageHex & 0xFF00) < 0x0100 ||
+            (VTPageHex & 0xFF00) > 0x0800)
         {
             VTSavePageHex = 0x100;
             VTSavePageSubCode = 0xFFFF;
@@ -534,8 +541,7 @@ void VT_SetOverlayColour(COLORREF ColorRef)
 BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
 {
     if (wPageHex < 0x100 ||
-        wPageHex > 0x899 ||
-        CVTCommon::IsNonVisiblePage(wPageHex))
+        wPageHex > 0x8FF)
     {
         return FALSE;
     }
@@ -962,26 +968,20 @@ BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
     {
         VTPageInput[0] = VTPageInput[1];
         VTPageInput[1] = VTPageInput[2];
-        VTPageInput[2] = cInput;
+        VTPageInput[2] = toupper(cInput);
     }
     else
     {
-        VTPageInput[nLength] = cInput;
+        VTPageInput[nLength] = toupper(cInput);
         VTPageInput[++nLength] = '\0';
     }
 
     if (nLength == 3)
     {
-        WORD i = atoi(VTPageInput);
+        WORD wPageHex = VT_Input2PageHex(VTPageInput);
 
-        if (i >= 100 && i < 900)
+        if (wPageHex != 0)
         {
-            WORD wPageHex = 0;
-
-            wPageHex |= i / 100 * 0x100;
-            wPageHex |= i % 100 / 10 * 0x10;
-            wPageHex |= i % 10;
-
             return VT_SetPage(hDC, lpRect, wPageHex);
         }
         else
@@ -1016,6 +1016,35 @@ void VT_OnInputTimer(HDC hDC, LPRECT lpRect)
 
     VT_SetPageOSD(NULL, FALSE);
     VT_Redraw(hDC, lpRect, VTDF_HEADERONLY);
+}
+
+
+WORD VT_Input2PageHex(char Input[3])
+{
+    if (Input[0] < '1' || Input[0] > '8')
+    {
+        return 0;
+    }
+
+    WORD wPageHex = 0;
+
+    wPageHex |= (Input[0] - '0') * 0x100;
+
+    for (int i = 1; i < 3; i++)
+    {
+        if (Input[i] >= '0' &&
+            Input[i] <= '9')
+        {
+            wPageHex |= (Input[i] - '0') * (i == 1 ? 0x10 : 1);
+        }
+        else if (Input[i] >= 'A' &&
+                 Input[i] <= 'F')
+        {
+            wPageHex |= (Input[i] - 'A' + 0xA) * (i == 1 ? 0x10 : 1);
+        }
+    }
+
+    return wPageHex;
 }
 
 
@@ -1183,6 +1212,12 @@ BOOL VT_ProcessCommentUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
 
 BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
 {
+    if (VTGotoProcDlg != NULL)
+    {
+        // Update the goto dialog
+        SendMessage(VTGotoProcDlg, WM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwPageCode);
+    }
+
     if (VTState == VT_OFF)
     {
         return FALSE;
@@ -1244,6 +1279,7 @@ BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
             return TRUE;
         }
     }
+
     return FALSE;
 }
 
@@ -1475,7 +1511,7 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
         uChar = 0x00;
     }
 
-    if (_toupper(uChar) == _toupper(VTSearchString[nIndex]))
+    if (toupper(uChar) == toupper(VTSearchString[nIndex]))
     {
         // Check if the last character was matched
         if (VTSearchString[++nIndex] == '\0')
@@ -1509,7 +1545,7 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
             {
                 // We found a possible substring, try to match
                 // the failed character again.
-                if (_toupper(uChar) == _toupper(VTSearchString[nIndex - j]))
+                if (toupper(uChar) == toupper(VTSearchString[nIndex - j]))
                 {
                     nIndex -= j;
                     if (VTSearchString[++nIndex] == '\0')
@@ -1545,7 +1581,7 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
 
                 // We have restarted the matching, try to match
                 // the failed character one last time.
-                if (_toupper(uChar) == _toupper(VTSearchString[nIndex]))
+                if (toupper(uChar) == toupper(VTSearchString[nIndex]))
                 {
                     nIndex++;
                 }
@@ -1628,6 +1664,149 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
             KillTimer(hDlg, 0);
             EndDialog(hDlg, TRUE);
+        }
+        break;
+    }
+
+    return FALSE;
+}
+
+
+BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    char szBuffer[4];
+    HWND hItem;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        {
+            hItem = GetDlgItem(hDlg, IDC_VTPAGEGROUP);
+
+            TCITEM TCItem;
+            TCItem.mask = TCIF_TEXT;
+
+            TCItem.pszText = "All";
+            TabCtrl_InsertItem(hItem, 0, &TCItem);
+
+            TCItem.pszText = "Hex Pages";
+            TabCtrl_InsertItem(hItem, 0, &TCItem);
+
+            TCItem.pszText = "Normal Pages";
+            int iItem = TabCtrl_InsertItem(hItem, 0, &TCItem);
+            TabCtrl_SetCurSel(hItem, iItem);
+
+            VTGotoProcDlg = hDlg;
+            SendMessage(hDlg, WM_COMMAND, IDC_VTPAGEGROUP, 0);
+
+            hItem = GetDlgItem(hDlg, IDC_VTPAGESELECT);
+            SendMessage(hItem, CB_LIMITTEXT, 3, 0);
+
+            SetFocus(hItem);
+        }
+        break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+            {
+                GetDlgItemText(hDlg, IDC_VTPAGESELECT, szBuffer, 4);
+                SendDlgItemMessage(hDlg, IDC_VTPAGESELECT,
+                    CB_SETEDITSEL, 0, MAKELPARAM(0, -1));
+
+                WORD wPageHex = VT_Input2PageHex(szBuffer);
+
+                if (wPageHex != 0)
+                {
+                    if (VT_GetState() == VT_OFF)
+                    {
+                        SendMessage(::hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
+                    }
+
+                    if (VT_SetPage(NULL, NULL, wPageHex))
+                    {
+                        InvalidateDisplayAreaRect(::hWnd, NULL, FALSE);
+                    }
+                }
+            }
+            break;
+
+        case IDCANCEL:
+            VTGotoProcDlg = NULL;
+            EndDialog(hDlg, TRUE);
+            break;
+
+        case IDC_VTPAGEGROUP:
+            {
+                int iItem = TabCtrl_GetCurSel(GetDlgItem(hDlg, IDC_VTPAGEGROUP));
+
+                WORD wPageHexList[800];
+                WORD nPagesCount;
+
+                hItem = GetDlgItem(hDlg, IDC_VTPAGESELECT);
+                SendMessage(hItem, CB_RESETCONTENT, 0, 0);
+
+                if (iItem != 1)
+                {
+                    nPagesCount = VTDecoder.GetVisiblePageNumbers(wPageHexList, 800);
+                    for (int i = 0; i < nPagesCount; i++)
+                    {
+                        sprintf(szBuffer, "%03X", wPageHexList[i] & 0xFFF);
+                        SendMessage(hItem, CB_ADDSTRING, 0, (LPARAM)szBuffer);
+                    }
+                }
+
+                if (iItem != 0)
+                {
+                    nPagesCount = VTDecoder.GetNonVisiblePageNumbers(wPageHexList, 800);
+                    for (int i = 0; i < nPagesCount; i++)
+                    {
+                        sprintf(szBuffer, "%03X", wPageHexList[i] & 0xFFF);
+                        SendMessage(hItem, CB_ADDSTRING, 0, (LPARAM)szBuffer);
+                    }
+                }
+            }
+            break;
+
+        case IDC_VTPAGESELECT:
+            if (HIWORD(wParam) == CBN_DBLCLK)
+            {
+                SendMessage(hDlg, WM_COMMAND, IDOK, 0);
+            }
+            break;
+        }
+        break;
+
+    case WM_NOTIFY:
+        if (wParam == IDC_VTPAGEGROUP)
+        {
+            LPNMHDR pnmh = (LPNMHDR)lParam;
+
+            if (pnmh->code == TCN_SELCHANGE)
+            {
+                SendMessage(hDlg, WM_COMMAND, IDC_VTPAGEGROUP, 0);
+            }
+        }
+        break;
+
+    case WM_VIDEOTEXT:
+        if (wParam == VTM_VTPAGEUPDATE)
+        {
+            WORD wPageHex = lParam & 0xFFF;
+
+            int iItem = TabCtrl_GetCurSel(GetDlgItem(hDlg, IDC_VTPAGEGROUP));
+
+            if (iItem == 2 || CVTCommon::IsNonVisiblePage(wPageHex) == (iItem == 1))
+            {
+                sprintf(szBuffer, "%03X", wPageHex);
+
+                hItem = GetDlgItem(hDlg, IDC_VTPAGESELECT);
+                if (SendMessage(hItem, CB_FINDSTRINGEXACT, 0, (LPARAM)szBuffer) == CB_ERR)
+                {
+                    SendMessage(hItem, CB_ADDSTRING, 0, (LPARAM)szBuffer);
+                }
+            }
         }
         break;
     }

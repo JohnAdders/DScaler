@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.32 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI_VideoText.H,v 1.33 2003-01-12 17:12:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,7 @@ void VT_GetStation(LPSTR lpBuffer, LONG nLength);
 
 BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 SETTING* VT_GetSetting(VT_SETTING Setting);
 void VT_ReadSettingsFromIni();

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.283 2003-01-12 16:19:34 adcockj Exp $
+// $Id: DScaler.cpp,v 1.284 2003-01-12 17:12:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.283  2003/01/12 16:19:34  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.282  2003/01/11 15:22:25  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -1716,7 +1720,6 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_VIDEOTEXT:
-        if (VT_GetState() != VT_OFF)
         {
             switch(LOWORD(wParam))
             {
@@ -3088,6 +3091,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_VT_OUT:
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSTATUS), hWnd, VTInfoProc);
+            break;
+
+        case IDM_VT_GOTO:
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTGOTO), hWnd, VTGotoProc);
             break;
 
         case IDM_VBI:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.cpp,v 1.2 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTCommon.cpp,v 1.3 2003-01-12 17:12:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.1  2003/01/01 20:40:48  atnak
 // Inital release of videotext common + utilities class.
 //
@@ -297,11 +300,18 @@ void CVTCommon::InitializeDecodeTable()
 
 BOOL CVTCommon::IsNonVisiblePage(WORD wPageHex)
 {
-    if ((wPageHex & 0x0F0) >= 0x0A0 ||
-        (wPageHex & 0x00F) >= 0x00A)
+    if ((wPageHex & 0xFF00) < 0x0100 ||
+        (wPageHex & 0xFF00) > 0x0800)
+    {
+        return FALSE;
+    }
+
+    if ((wPageHex & 0x00F0) >= 0x00A0 ||
+        (wPageHex & 0x000F) >= 0x000A)
     {
         return TRUE;
     }
+
     return FALSE;
 }
 
@@ -750,6 +760,7 @@ BYTE CVTCommon::ParseLineElements(TVTPage* pPage, BYTE nRow, LPWORD lpFlags,
         if ((bBoxedElementsOnly != FALSE) && !(DisplayModes & VTMODE_BOXED))
         {
             DisplayChar = 0x20;
+            DisplayColour = VTCOLOR_NONE;
             DisplayBkColour = VTCOLOR_NONE;
         }
         else

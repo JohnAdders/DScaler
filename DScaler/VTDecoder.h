@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.h,v 1.2 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTDecoder.h,v 1.3 2003-01-12 17:12:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.1  2003/01/01 20:38:11  atnak
 // New videotext decoder
 //
@@ -64,6 +67,12 @@ enum
 class CVTDecoder : CVTCommon
 {
 public:
+    // Changable constants
+    enum
+    {
+        kMAX_PAGELIST           = 64,
+    };
+
     /// The callback proc for catching decoder events
     typedef void (TDecoderCallback)(BYTE uMsg, DWORD dwParam);
 
@@ -85,6 +94,12 @@ public:
 
     // Get the status display in the broadcast service data
     void GetStatusDisplay(LPSTR lpBuffer, LONG nLength);
+
+    // Gets the list of visible page numbers in the cache
+    WORD GetVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize);
+
+    // Gets the list of non-visible page numbers in the cache
+    WORD GetNonVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize);
 
     // Gets the rolling header
     void GetDisplayHeader(TVTPage* pBuffer, BOOL bClockOnly = FALSE);
@@ -192,6 +207,7 @@ protected:
     void CopyPageForDisplay(TVTPage* pBuffer, TVTPage* pPage);
     void UnsetUpdatedStates(TVTPage* pPage);
 
+    TVTPage* FindReceivedPage(TVTPage* pPageList);
     TVTPage* FindSubPage(TVTPage* pPageList, DWORD dwPageCode);
     TVTPage* FindNextSubPage(TVTPage* pPageList, DWORD dwPageCode,  BOOL bReverse);
 
@@ -216,8 +232,7 @@ private:
     ULONG               m_ReceivedPages;
 
     TVTPage*            m_NonVisiblePageList;
-    TVTPage             m_VisiblePage[800];
-    WORD                m_LatestSubPage[800];
+    TVTPage*            m_VisiblePageList[800];
 
     TServiceData        m_BroadcastServiceData;
     TPDC                m_PDC[4];

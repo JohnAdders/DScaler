@@ -2628,6 +2628,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\SchedMessageBox.cpp">
+			</File>
+			<File
 				RelativePath="Setting.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3917,6 +3920,9 @@
 			</File>
 			<File
 				RelativePath="SAA7134Source.h">
+			</File>
+			<File
+				RelativePath=".\SchedMessageBox.h">
 			</File>
 			<File
 				RelativePath="Setting.h">

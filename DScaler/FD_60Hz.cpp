@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.cpp,v 1.25 2003-10-27 10:39:51 adcockj Exp $
+// $Id: FD_60Hz.cpp,v 1.26 2004-08-12 16:27:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 //  This software is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details
+//  GNU General Pub, like asic License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // Refinements made by Mark Rejhon and Steve Grimm
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.24  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //

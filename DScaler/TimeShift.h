@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.20 2003-12-29 01:27:54 robmuller Exp $
+// $Id: TimeShift.h,v 1.21 2004-08-12 16:27:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/12/29 01:27:54  robmuller
+// Added AVI file splitting.
+//
 // Revision 1.19  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -171,7 +174,12 @@ public:
         record, popup options, etc.  Call Destroy() as often as you want to
         assure that all timeshift resources are freed.
     */
+
+    /// Can only call this when stopped.  Call before control methods.
     static bool OnDestroy(void);
+
+	/// mini routine to set cancel schedule flag
+	static bool CancelSchedule(void);
 
     /// Standard control method.
     static bool OnRecord(void);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.9 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TSOptionsDlg.h,v 1.10 2004-08-12 16:27:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,14 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
+// EMU: 23rd June 2004 added a simple scheduler / timer and
+// custom AV sync setting (it is stored in the INI file).
+// Put radio button to enable / disable 'TimeShift' warnings.
+//
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.8  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -56,10 +63,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/**
- * @file tsoptionsdlg.h tsoptionsdlg Header
- */
-
 #if !defined(AFX_TSOPTIONSDLG_H__C76FD300_76CF_11D5_A1E2_AD9180F1D520__INCLUDED_)
 #define AFX_TSOPTIONSDLG_H__C76FD300_76CF_11D5_A1E2_AD9180F1D520__INCLUDED_
 
@@ -86,6 +89,9 @@ public:
 	enum { IDD = IDD_TSOPTIONS };
 	CComboBox	m_WaveOutComboBox;
 	CComboBox	m_WaveInComboBox;
+	int m_Sync;
+	int m_Start;
+	int	m_Time;
 	//}}AFX_DATA
     int m_RecHeight;
 
@@ -102,13 +108,19 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CTSOptionsDlg)
 	afx_msg void OnButtonCompression();
-	afx_msg void OnButtonOK();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnCompressionhelp();
 	afx_msg void OnWavehelp();
 	afx_msg void OnHeighthelp();
 	afx_msg void OnMixerhelp();
 	afx_msg void OnButtonMixer();
+	afx_msg void OnSyncHelp();
+	afx_msg void OnTimerHelp();
+	afx_msg void OnButtonUpdate();
+	afx_msg void OnAdvance();
+	afx_msg void OnRetard();
+	afx_msg void OnQuit();
+	afx_msg void UpdateINI();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

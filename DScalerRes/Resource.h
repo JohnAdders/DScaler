@@ -1143,6 +1143,16 @@
 #define IDM_CX2388X_AUDIO_STD_BTSC_SAP  8094
 #define IDM_CX2388X_AUDIO_STD_NICAM     8095
 #define IDM_CX2388X_AUDIO_STD_FM        8096
+#define IDC_RECORD_START                8097
+#define IDC_RECORD_TIME                 8098
+#define IDC_SYNC                        8099
+#define IDC_SYNCHELP                    8100
+#define IDC_UPDATE                      8101
+#define IDC_SYNTEXT                     8102
+#define IDC_RETARD                      8103
+#define IDC_TIMERHELP                   8104
+#define IDC_ADVANCE                     8105
+
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1253,10 +1263,10 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                     1
+#define _APS_3D_CONTROLS                1
 #define _APS_NEXT_RESOURCE_VALUE        267
 #define _APS_NEXT_COMMAND_VALUE         32979
-#define _APS_NEXT_CONTROL_VALUE         8090
+#define _APS_NEXT_CONTROL_VALUE         
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

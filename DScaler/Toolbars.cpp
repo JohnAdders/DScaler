@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.4 2002-10-01 15:53:16 adcockj Exp $
+// $Id: Toolbars.cpp,v 1.5 2002-10-02 10:52:35 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/01 15:53:16  adcockj
+// Fixed crash on startup
+//
 // Revision 1.3  2002/09/28 13:34:36  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -147,7 +150,7 @@ LRESULT CALLBACK CToolbarChannels::MyComboProcWrap(HWND hDlg, UINT message, WPAR
 
 void CToolbarChannels::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (pEventObject != Providers_GetCurrentSource())
+    if (pEventObject != (CEventObject*)Providers_GetCurrentSource())
 	{
 		return;
 	}
@@ -353,7 +356,7 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
     {
         m_Mute = (NewValue)? TRUE : FALSE;
     } 
-    else if ((Event == EVENT_VOLUME) && (pObject == Providers_GetCurrentSource()))
+    else if ((Event == EVENT_VOLUME) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
     {
         m_Volume = NewValue;
     }

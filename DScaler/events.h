@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.4 2002-09-28 13:34:07 kooiman Exp $
+// $Id: events.h,v 1.5 2002-10-02 10:52:35 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@
 
 #ifndef __EVENTS_H___
 #define __EVENTS_H___
+
+//See top of events.cpp for a description of how to use it
 
 #include <vector>
 #include <deque>
@@ -54,6 +56,8 @@ typedef void (__cdecl EVENTCALLBACK)(void *pThis, CEventObject *pEventObject, eE
 class CEventObject
 {
 public:
+    CEventObject();
+    ~CEventObject();
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp) {;}
 };
 
@@ -112,7 +116,7 @@ public:
 
 	void EventTimer();
 
-    void RaiseEvent(void *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
+    void RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
 
 	int LastEventValues(eEventType Event, CEventObject **pObject, long *OldValue, long *NewValue);
 	int LastEventValues(CEventObject *pObject, eEventType Event, long *OldValue, long *NewValue);

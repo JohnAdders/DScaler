@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.30 2002-09-27 14:13:27 kooiman Exp $
+// $Id: BT848Card.h,v 1.31 2002-10-02 10:52:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/09/27 14:13:27  kooiman
+// Improved stereo detection & manual audio standard dialog box.
+//
 // Revision 1.29  2002/09/16 14:37:35  kooiman
 // Added stereo autodetection.
 //
@@ -336,6 +339,7 @@ public:
     LPCSTR GetAudioInputName(eAudioInput nInput);
     int GetNumAudioInputs();
     
+    BOOL IsMyAudioDecoder(CAudioDecoder* pAudioDecoder);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.11 2002-09-27 14:13:27 kooiman Exp $
+// $Id: AudioDecoder.h,v 1.12 2002-10-02 10:52:35 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/09/27 14:13:27  kooiman
+// Improved stereo detection & manual audio standard dialog box.
+//
 // Revision 1.10  2002/09/16 14:37:35  kooiman
 // Added stereo autodetection.
 //
@@ -65,6 +68,7 @@
 
 #include "Bt848_Defines.h"
 #include "TVFormats.h"
+#include "Events.h"
 
 enum eAudioInput
 {
@@ -86,7 +90,7 @@ enum eSupportedSoundChannels
 };
 
 
-class CAudioDecoder
+class CAudioDecoder : public CEventObject
 {
 public:
     CAudioDecoder();

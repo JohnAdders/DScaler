@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.22 2002-09-27 14:13:28 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.23 2002-10-02 10:52:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/09/27 14:13:28  kooiman
+// Improved stereo detection & manual audio standard dialog box.
+//
 // Revision 1.21  2002/09/16 14:37:36  kooiman
 // Added stereo autodetection.
 //
@@ -479,4 +482,9 @@ bool CBT848Card::HasAudioBalance()
 bool CBT848Card::HasAudioAutoVolumeCorrection()
 {
     return m_AudioControls->HasAutoVolumeCorrection();
+}
+
+BOOL CBT848Card::IsMyAudioDecoder(CAudioDecoder* pAudioDecoder)
+{
+    return (m_AudioDecoder == pAudioDecoder);
 }

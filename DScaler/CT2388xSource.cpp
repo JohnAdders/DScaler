@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.11 2002-09-29 16:16:21 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.12 2002-10-02 10:55:46 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/09/29 16:16:21  adcockj
+// Holo3d imrprovements
+//
 // Revision 1.10  2002/09/29 13:53:40  adcockj
 // Ensure Correct History stored
 //
@@ -131,7 +134,7 @@ CCT2388xSource::~CCT2388xSource()
 
 void CCT2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (pEventObject != this)
+    if (pEventObject != (CEventObject*)this)
 	{
 		return;
 	}

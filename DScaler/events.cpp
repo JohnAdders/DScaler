@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.4 2002-09-28 13:34:07 kooiman Exp $
+// $Id: events.cpp,v 1.5 2002-10-02 10:52:35 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/28 13:34:07  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.3  2002/09/27 14:11:35  kooiman
 // Added audio standard detect event & implemented event scheduler.
 //
@@ -41,6 +44,56 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+/**
+    The event collector has one global instance 'EventCollector'.
+    From everywhere in the code (also from threads), you can raise 
+    an event and all registered objects get notified through
+    a timer in the main program thread.
+    This eliminates some thread difficulties.
+    
+    To raise an event, use:    
+    EventCollector->RaiseEvent(...), with arguments:
+        -Sender object.
+         A class derived from CEventObject or NULL for a global event.
+        -EventType. Defined as an enum list in Events.h
+         You can add new event if you want to at the end of the list.
+        -Old & new value. Depends on event. E.g. old/new channel or old/new video format
+        -ComingUp event list. If you know you will send more events right
+         after this one, you can specify that as an array of event types,
+         ending with EVENT_ENDOFLIST
+         Right now, it's up to the receiver to do something with that.
+         Set to NULL if you don't need it.
+
+    You can receive an event if you:
+        1: Register the object to the event collector
+           EventCollect->Register(this, EventList);
+           or EventCollect->Register(EventObject, EventList) for external object           
+        
+           Specify which events you want to receive in the
+           EventList array. Conclude the list with 'EVENT_ENDOFLIST'
+           E.g.:
+            eEventType EventList[] = {EVENT_CHANNEL_CHANGE,EVENT_VIDEOINPUT_CHANGE,EVENT_ENDOFLIST};
+
+           To stop receiving events before the object's destruction,
+           use EventCollector->Unregister(object).
+                      
+        2: Override the virtual OnEvent(...) function of the CEventObject.
+           The arguments are the same as RaiseEvent.
+           Test which object raised the event.
+           Watch out for C++ type casting. To compare to yourself use
+           if (pEventObject == (CEventObject*)this)
+    
+*/
+
+CEventObject::CEventObject()
+{
+    //EventCollector->Register(this, List);
+}
+
+CEventObject::~CEventObject()
+{
+    EventCollector->Unregister(this);
+}
 
 CEventCollector::CEventCollector()
 {	
@@ -149,9 +202,9 @@ void CEventCollector::Unregister(CEventObject *pObject)
     m_EventObjects = NewList;
 }
 
-void CEventCollector::RaiseEvent(void *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CEventCollector::RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {    
-	ScheduleEvent((CEventObject*)pEventObject, Event, OldValue, NewValue, ComingUp);
+	ScheduleEvent(pEventObject, Event, OldValue, NewValue, ComingUp);
 }
 
 void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)

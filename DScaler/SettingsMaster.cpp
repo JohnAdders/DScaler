@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster.cpp,v 1.8 2003-01-21 10:41:40 adcockj Exp $
+// $Id: SettingsMaster.cpp,v 1.9 2003-04-23 08:30:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/21 10:41:40  adcockj
+// Added header
+//
 /////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 
@@ -137,7 +140,13 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
         {
             SubSection = m_SourceName;
             SubSection += "_";
-            SubSection += m_ChannelName;
+            for(int i(0); i < m_ChannelName.length(); ++i)
+            {
+                if(m_ChannelName[i] != '[' && m_ChannelName[i] != ']')
+                {
+                    SubSection += m_ChannelName[i];
+                }
+            }
             return;
         }
         if(pGroup->IsSetByInput() && SettingsPerChannel_IsPerInput())

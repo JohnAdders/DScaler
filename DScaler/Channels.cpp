@@ -849,7 +849,7 @@ BOOL CCountryList::ReadASCII(FILE* CountryFile)
         {
             continue;
         }
-        if(((Pos = strstr(line, "[")) != 0) && ((Pos1 = strstr(line, "]")) != 0) && Pos1 > Pos)
+        if(((Pos = strchr(line, '[')) != 0) && ((Pos1 = strrchr(line, ']')) != 0) && Pos1 > Pos)
         {
             if(NewCountry != NULL)
             {

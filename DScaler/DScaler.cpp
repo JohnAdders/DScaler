@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.192 2002-07-19 13:02:32 laurentg Exp $
+// $Id: DScaler.cpp,v 1.193 2002-07-19 15:31:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.192  2002/07/19 13:02:32  laurentg
+// OSD menu simplified (one depth level less)
+//
 // Revision 1.191  2002/07/19 12:04:51  laurentg
 // Auto hide (OSD) menu deleted
 //
@@ -1868,11 +1871,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
-        case IDM_AUTOHIDE_CURSOR:
-            bAutoHideCursor = !bAutoHideCursor;
-            Cursor_UpdateVisibility();
-            break;
-
         case IDM_TOGGLECURSOR:
             if(!bAutoHideCursor && bIsFullScreen == FALSE)
             {
@@ -2010,10 +2008,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             WorkoutOverlaySize(FALSE);
             break;
 
-        case IDM_SCREENSAVEROFF:
-            ScreensaverOff_OnChange(!bScreensaverOff);
-            break;
-        
         case IDM_VT_AUTOCODEPAGE:
             bVTAutoCodePage = !bVTAutoCodePage;
             break;
@@ -2021,10 +2015,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_ANTIALIAS:
             VTAntiAlias = !VTAntiAlias;
             InvalidateRect(hWnd, NULL, FALSE);
-            break;
-
-        case IDM_SPLASH_ON_STARTUP:
-            bDisplaySplashScreen = !bDisplaySplashScreen;
             break;
 
         case IDM_KEYBOARDLOCK:
@@ -3525,16 +3515,12 @@ void SetMenuAnalog()
 
     CheckMenuItemBool(hMenu, IDM_TOGGLECURSOR, bShowCursor);
     EnableMenuItem(hMenu,IDM_TOGGLECURSOR, bAutoHideCursor?MF_GRAYED:MF_ENABLED);
-    CheckMenuItemBool(hMenu, IDM_AUTOHIDE_CURSOR, bAutoHideCursor);
     CheckMenuItemBool(hMenu, IDM_STATUSBAR, bDisplayStatusBar);
     CheckMenuItemBool(hMenu, IDM_TOGGLE_MENU, bShowMenu);
     CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
-    CheckMenuItemBool(hMenu, IDM_SCREENSAVEROFF, bScreensaverOff);
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, VTAntiAlias);
-    CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
-    CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
 
     CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
     EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
@@ -3737,7 +3723,7 @@ HMENU GetChannelsSubmenu()
 
 HMENU GetOSDSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(2, 9, "OSD");
+    HMENU hmenu = GetOrCreateSubSubMenu(2, 6, "OSD");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3746,7 +3732,7 @@ HMENU GetOSDSubmenu()
 
 HMENU GetOSDSubmenu2()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 9, 2, "A&ctivate Screen");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 6, 2, "A&ctivate Screen");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -4174,12 +4160,6 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "AlwaysOnTop", AlwaysOnTop_OnChange,
     },
     {
-        "Splash Screen", ONOFF, 0, (long*)&bDisplaySplashScreen,
-        TRUE, 0, 1, 1, 1,
-        NULL,
-        "MainWindow", "DisplaySplashScreen", NULL,
-    },
-    {
         "Full Screen", YESNO, 0, (long*)&bIsFullScreen,
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -4202,12 +4182,6 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "Show", "Menu", ShowMenu_OnChange,
-    },
-    {
-        "Auto Hide Cursor", ONOFF, 0, (long*)&bAutoHideCursor,
-        TRUE, 0, 1, 1, 1,
-        NULL,
-        "Show", "AutoHideCursor", NULL,
     },
     {
         "Window Processor", SLIDER, 0, (long*)&MainProcessor,
@@ -4250,6 +4224,18 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "ShowCrashDialog", NULL,
+    },
+    {
+        "Splash Screen", ONOFF, 0, (long*)&bDisplaySplashScreen,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "DisplaySplashScreen", NULL,
+    },
+    {
+        "Auto Hide Cursor", ONOFF, 0, (long*)&bAutoHideCursor,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "Show", "AutoHideCursor", NULL,
     },
     {
         "Lock keyboard", ONOFF, 0, (long*)&bKeyboardLock,
@@ -4331,4 +4317,9 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 {
     return new CTreeSettingsGeneric("Threads Priority Settings", &DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
+}
+
+CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
+{
+    return new CTreeSettingsGeneric("Other Settings", &DScalerSettings[DISPLAYSPLASHSCREEN], AUTOCODEPAGE - DISPLAYSPLASHSCREEN);
 }

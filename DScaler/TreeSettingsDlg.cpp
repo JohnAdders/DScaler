@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.9 2002-07-19 11:59:12 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.10 2002-07-19 15:31:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/07/19 11:59:12  laurentg
+// OSD settings added in the tree settings
+//
 // Revision 1.8  2002/07/11 17:41:37  tobbej
 // dont allow focus to change if Show() failed
 //
@@ -482,6 +485,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	dlg.AddPage(pPage, Root);
 
     pPage = OSD_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_ADVANCED);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = DScaler_GetTreeSettingsPage2();
 	pPage->SetHelpID(IDH_ADVANCED);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);

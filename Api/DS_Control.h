@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.70 2002-07-08 17:44:58 adcockj Exp $
+// $Id: DS_Control.h,v 1.71 2002-07-19 15:25:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/07/08 17:44:58  adcockj
+// Corrected Settings messages
+//
 // Revision 1.69  2002/07/08 13:53:35  trbarry
 // First cut at motion compensated deinterlace
 //
@@ -485,12 +488,10 @@ typedef enum
     STARTWIDTH,
     STARTHEIGHT,
     ALWAYSONTOP,
-    DISPLAYSPLASHSCREEN,
     ISFULLSCREEN,
     FORCEFULLSCREEN,
     SHOWSTATUSBAR,
     SHOWMENU,
-    AUTOHIDECURSOR,
     WINDOWPROCESSOR,
     THREADPROCESSOR,
     WINDOWPRIORITY,
@@ -498,6 +499,8 @@ typedef enum
     AUTOSAVESETTINGS,
     ALWAYSONTOPFULL,
     SHOWCRASHDIALOG,
+    DISPLAYSPLASHSCREEN,
+    AUTOHIDECURSOR,
     LOCKKEYBOARD,
     SCREENSAVEROFF,
     AUTOCODEPAGE,

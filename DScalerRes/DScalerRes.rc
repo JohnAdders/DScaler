@@ -831,12 +831,9 @@ BEGIN
         MENUITEM "Toggle &Menu\tTab",           IDM_TOGGLE_MENU
         MENUITEM "Toggle &Status Bar\tS",       IDM_STATUSBAR, CHECKED
         MENUITEM "Toggle Show &Cursor   \tCtrl+Enter", IDM_TOGGLECURSOR
-        MENUITEM "Au&tohide Cursor",            IDM_AUTOHIDE_CURSOR
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
-        MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
         MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
-        MENUITEM "&Disable Screensaver",        IDM_SCREENSAVEROFF
         POPUP "&OSD"
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
@@ -986,7 +983,6 @@ BEGIN
         MENUITEM "&Reset Statistics",           IDM_RESET_STATS
         MENUITEM SEPARATOR
         MENUITEM "Vertical &Mirror",            IDM_VERTICAL_FLIP
-        MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
     END
     POPUP "&Sources"
     BEGIN

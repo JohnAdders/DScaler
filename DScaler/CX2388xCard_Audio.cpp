@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.25 2004-06-19 20:13:47 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.26 2004-06-28 20:18:16 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2004/06/19 20:13:47  to_see
+// Faster and better A2 Stereo Detection
+//
 // Revision 1.24  2004/06/02 18:44:06  to_see
 // New TAudioRegList structure to hold audio register
 // settings for better handling
@@ -679,6 +682,7 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
     {
         switch (TVFormat)
         {
+		/* moved by default to A2 (to_see)
         case VIDEOFORMAT_PAL_D:
         case VIDEOFORMAT_PAL_G:
         case VIDEOFORMAT_PAL_I:
@@ -693,6 +697,7 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
             Standard = AUDIO_STANDARD_NICAM;
             break;
 
+		*/
         case VIDEOFORMAT_NTSC_M:
             Standard = AUDIO_STANDARD_BTSC;
             break;
@@ -700,6 +705,18 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
         case VIDEOFORMAT_NTSC_M_Japan:
             Standard = AUDIO_STANDARD_EIAJ;
             break;
+
+        case VIDEOFORMAT_PAL_D:
+        case VIDEOFORMAT_PAL_G:
+        case VIDEOFORMAT_PAL_I:
+        case VIDEOFORMAT_SECAM_B:
+        case VIDEOFORMAT_SECAM_D:
+        case VIDEOFORMAT_SECAM_G:
+        case VIDEOFORMAT_SECAM_H:
+        case VIDEOFORMAT_SECAM_K:
+        case VIDEOFORMAT_SECAM_K1:
+        case VIDEOFORMAT_SECAM_L:
+        case VIDEOFORMAT_SECAM_L1:
 
         case VIDEOFORMAT_PAL_B:
         case VIDEOFORMAT_PAL_H:
@@ -912,8 +929,6 @@ void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType Ster
 
 void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-	DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
-
 	switch (TVFormat)
 	{
 	case VIDEOFORMAT_PAL_B:
@@ -924,27 +939,6 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
 		
 		SetAudioRegisters(m_RegList_A2_BG);
-		
-		switch(StereoType)
-		{
-		case STEREOTYPE_MONO:
-		case STEREOTYPE_ALT1:
-			dwTemp |= EN_A2_FORCE_MONO1;
-			break;
-
-		case STEREOTYPE_ALT2:
-			dwTemp |= EN_A2_FORCE_MONO2;
-			break;
-
-		case STEREOTYPE_STEREO:
-			dwTemp |= EN_A2_FORCE_STEREO;
-			break;
-
-		case STEREOTYPE_AUTO:
-			dwTemp |= EN_A2_AUTO_STEREO;
-			break;
-		}
-		
 		break;
 
 	case VIDEOFORMAT_PAL_D:
@@ -956,7 +950,6 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
 
 		SetAudioRegisters(m_RegList_A2_DK);
-		dwTemp |= EN_A2_FORCE_MONO1;
 		break;
 
 	case VIDEOFORMAT_PAL_I:
@@ -966,14 +959,37 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		// don't know when needed
 		//SetAudioRegisters(m_RegList_A2_I_Deemph2);
 		//SetAudioRegisters(m_RegList_A2_I_Special);
-
-		dwTemp |= EN_A2_FORCE_MONO1;
 		break;
 
 	// not tested !
 	case VIDEOFORMAT_NTSC_M:
 		SetAudioRegisters(m_RegList_A2_M);
+		break;
+	}
+
+	if(TVFormat == VIDEOFORMAT_PAL_I)
+	{
+		StereoType = STEREOTYPE_MONO;
+	}
+
+	DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
+	switch(StereoType)
+	{
+	case STEREOTYPE_MONO:
+	case STEREOTYPE_ALT1:
 		dwTemp |= EN_A2_FORCE_MONO1;
+		break;
+
+	case STEREOTYPE_ALT2:
+		dwTemp |= EN_A2_FORCE_MONO2;
+		break;
+
+	case STEREOTYPE_STEREO:
+		dwTemp |= EN_A2_FORCE_STEREO;
+		break;
+
+	case STEREOTYPE_AUTO:
+		dwTemp |= EN_A2_AUTO_STEREO;
 		break;
 	}
 

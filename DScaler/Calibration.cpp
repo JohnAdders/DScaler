@@ -1299,6 +1299,8 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 	 || ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC)))
 		return;
 
+	last_tick_count = tick_count;
+
     // Test to check if all steps are already executed
     if ((current_step - initial_step) >= nb_steps)
     {
@@ -1360,7 +1362,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 5:     // Step to initialize next step
-        if (step_init2(ADJ_BRIGHTNESS_CONTRAST, BRIGHTNESS, -128, 127, CONTRAST, 0, 511))
+        if (step_init2(ADJ_BRIGHTNESS_CONTRAST, BRIGHTNESS, -128, 127, 5, CONTRAST, 0, 511, 5, HUE, -128, 127, 0))
         {
             // We jump to next step
             current_step++;
@@ -1372,7 +1374,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 6:     // Step to adjust fine brightness + contradt
-        if (step_process2(Lines, height, width, BRIGHTNESS, CONTRAST, 4))
+        if (step_process2(Lines, height, width, BRIGHTNESS, CONTRAST, HUE, 4))
         {
             // We jump to next step
             current_step++;
@@ -1380,7 +1382,10 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 7:     // Step to initialize next step
-        if (step_init(ADJ_SATURATION_U, SATURATIONU, 0, 511))
+        Setting_SetValue(BT848_GetSetting(HUE), 0);
+
+        if ( step_init(ADJ_SATURATION_U, HUE, 0, 0)
+          && step_init(ADJ_SATURATION_U, SATURATIONU, 0, 511) )
         {
             // We jump to next step
             current_step++;
@@ -1401,7 +1406,8 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
    case 9:     // Step to initialize next step
-        if (step_init(ADJ_SATURATION_V, SATURATIONV, 0, 511))
+        if ( step_init(ADJ_SATURATION_V, HUE, 0, 0)
+          && step_init(ADJ_SATURATION_V, SATURATIONV, 0, 511) )
         {
             // We jump to next step
             current_step++;
@@ -1422,7 +1428,8 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 11:    // Step to initialize next step
-        if (step_init2(ADJ_COLOR, SATURATIONU, 0, 511, SATURATIONV, 0, 511))
+//        if (step_init2(ADJ_COLOR, SATURATIONU, 0, 511, 7, SATURATIONV, 0, 511, 7, HUE, -128, 127, (current_test_pattern->GetVideoFormat() == FORMAT_NTSC) ? 2 : 0))
+        if (step_init2(ADJ_COLOR, SATURATIONU, 0, 511, 7, SATURATIONV, 0, 511, 7, HUE, -128, 127, 2))
         {
             // We jump to next step
             current_step++;
@@ -1434,7 +1441,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 12:    // Step to adjust fine color saturation
-        if (step_process2(Lines, height, width, SATURATIONU, SATURATIONV, 8))
+        if (step_process2(Lines, height, width, SATURATIONU, SATURATIONV, HUE, 8))
         {
             // We jump to next step
             current_step++;
@@ -1444,8 +1451,6 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     default:
         break;
     }
-
-	last_tick_count = tick_count;
 }
 
 BOOL CCalibration::step_init(eTypeAdjust type_adjust, BT848_SETTING setting, int min, int max)
@@ -1540,7 +1545,7 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, BT848_SETT
     }
 }
 
-BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, int min1, int max1, BT848_SETTING setting2, int min2, int max2)
+BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, int min1, int max1, int delta1, BT848_SETTING setting2, int min2, int max2, int delta2, BT848_SETTING setting3, int min3, int max3, int delta3)
 {
     // Get the bar to use for this step
     current_sub_pattern = GetSubPattern(type_adjust);
@@ -1551,12 +1556,12 @@ BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, i
     else
     {
         // Initialize
-        min_val = Setting_GetValue(BT848_GetSetting(setting1)) - 7;
+        min_val = Setting_GetValue(BT848_GetSetting(setting1)) - delta1;
         if (min_val < min1)
         {
             min_val = min1;
         }
-        max_val = Setting_GetValue(BT848_GetSetting(setting1)) + 7;
+        max_val = Setting_GetValue(BT848_GetSetting(setting1)) + delta1;
         if (max_val > max1)
         {
             max_val = max1;
@@ -1564,12 +1569,12 @@ BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, i
         current_val = min_val;
         best_val = min_val;
 
-        min_val2 = Setting_GetValue(BT848_GetSetting(setting2)) - 7;
+        min_val2 = Setting_GetValue(BT848_GetSetting(setting2)) - delta2;
         if (min_val2 < min2)
         {
             min_val2 = min2;
         }
-        max_val2 = Setting_GetValue(BT848_GetSetting(setting2)) + 7;
+        max_val2 = Setting_GetValue(BT848_GetSetting(setting2)) + delta2;
         if (max_val2 > max2)
         {
             max_val2 = max2;
@@ -1577,18 +1582,32 @@ BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, i
         current_val2 = min_val2;
         best_val2 = min_val2;
 
+        min_val3 = Setting_GetValue(BT848_GetSetting(setting3)) - delta3;
+        if (min_val3 < min3)
+        {
+            min_val3 = min3;
+        }
+        max_val3 = Setting_GetValue(BT848_GetSetting(setting3)) + delta3;
+        if (max_val3 > max3)
+        {
+            max_val3 = max3;
+        }
+        current_val3 = min_val3;
+        best_val3 = min_val3;
+
         min_dif = 1000000;
         nb_calcul = 0;
 
         // Set the settings to their minimum
         Setting_SetValue(BT848_GetSetting(setting1), current_val);
         Setting_SetValue(BT848_GetSetting(setting2), current_val2);
+        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
 
         return TRUE;
     }
 }
 
-BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, unsigned int sig_component)
+BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, BT848_SETTING setting3, unsigned int sig_component)
 {
     int val[4];
     BOOL YUV;
@@ -1628,6 +1647,7 @@ BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SET
     // Waiting at least 5 calculations
     if (nb_calcul < 5)
     {
+	    last_tick_count = -1;
         return FALSE;
     }
     else
@@ -1641,14 +1661,27 @@ BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SET
         min_dif = dif;
         best_val = current_val;
         best_val2 = current_val2;
+        best_val3 = current_val3;
     }
-    LOG(3, "Automatic Calibration - step %d - %d %d => %d %d", current_step, current_val, current_val2, dif, min_dif);
+    LOG(3, "Automatic Calibration - step %d - %d %d %d => %d %d", current_step, current_val, current_val2, current_val3, dif, min_dif);
 
-    if (current_val2 < max_val2)
+    if (current_val3 < max_val3)
+    {
+        // Increase the third setting
+        current_val3++;
+        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
+
+        return FALSE;
+    }
+    else if (current_val2 < max_val2)
     {
         // Increase the second setting
         current_val2++;
         Setting_SetValue(BT848_GetSetting(setting2), current_val2);
+
+        // Set the third setting to its minimum
+        current_val3 = min_val3;
+        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
 
         return FALSE;
     }
@@ -1662,15 +1695,20 @@ BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SET
         current_val2 = min_val2;
         Setting_SetValue(BT848_GetSetting(setting2), current_val2);
 
+        // Set the third setting to its minimum
+        current_val3 = min_val3;
+        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
+
         return FALSE;
     }
     else
     {
-        // Set the setitngs to the best values found
+        // Set the settings to the best values found
         Setting_SetValue(BT848_GetSetting(setting1), best_val);
         Setting_SetValue(BT848_GetSetting(setting2), best_val2);
+        Setting_SetValue(BT848_GetSetting(setting3), best_val3);
 
-        LOG(2, "Automatic Calibration - step %d finished - %d %d => %d", current_step, best_val, best_val2, min_dif);
+        LOG(2, "Automatic Calibration - step %d finished - %d %d %d => %d", current_step, best_val, best_val2, best_val3, min_dif);
 
         return TRUE;
     }

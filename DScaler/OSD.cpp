@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.26 2001-08-26 18:33:42 laurentg Exp $
+// $Id: OSD.cpp,v 1.27 2001-09-02 22:07:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/08/26 18:33:42  laurentg
+// Automatic calibration improved
+//
 // Revision 1.25  2001/08/23 16:03:26  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
 //
@@ -551,7 +554,6 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     CTestPattern *pTestPattern;
     CSubPattern *pSubPattern;
     CColorBar* pColorBar;
-    BOOL ShowStepCal;
 
     // Case : no OSD screen
     if (IdxCurrentScreen == -1)
@@ -681,11 +683,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
         // Video settings
         nLine = 2;
-        sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
+        sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+        sprintf (szInfo, "Contrast : %+04d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Hue : %03d", Setting_GetValue(BT848_GetSetting(HUE)));
+        sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Color : %03u", Setting_GetValue(BT848_GetSetting(SATURATION)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
@@ -966,14 +968,90 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
         // Video settings
-        sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-        sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-        sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
-        sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
+        if (pCalibration->GetType() == CAL_MANUAL)
+        {
+            sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            sprintf (szInfo, "Contrast : %+04d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+            sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+            sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+        }
+        else
+        {
+            sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 1)
+                || (pCalibration->GetCurrentStep() == 2)
+                || (pCalibration->GetCurrentStep() == 5)
+                || (pCalibration->GetCurrentStep() == 6) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = 0;
+            }
+            OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
+            sprintf (szInfo, "Contrast : %+04d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 3)
+                || (pCalibration->GetCurrentStep() == 4)
+                || (pCalibration->GetCurrentStep() == 5)
+                || (pCalibration->GetCurrentStep() == 6) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = 0;
+            }
+            OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
+            sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 7)
+                || (pCalibration->GetCurrentStep() == 8)
+                || (pCalibration->GetCurrentStep() == 11)
+                || (pCalibration->GetCurrentStep() == 12) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = 0;
+            }
+            OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
+            sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 9)
+                || (pCalibration->GetCurrentStep() == 10)
+                || (pCalibration->GetCurrentStep() == 11)
+                || (pCalibration->GetCurrentStep() == 12) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = 0;
+            }
+            OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
+            sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 11)
+                || (pCalibration->GetCurrentStep() == 12) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = 0;
+            }
+            OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
+        }
 
 		// Name of the test pattern
 		pTestPattern = pCalibration->GetCurrentTestPattern();
@@ -984,61 +1062,47 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
         if (pCalibration->IsRunning() && (pTestPattern != NULL))
 		{
-            switch (pCalibration->GetType())
-            {
-            case CAL_AUTO_BRIGHT_CONTRAST:
-                OSD_AddText("AUTOMATIC", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-                ShowStepCal = TRUE;
-                break;
-            case CAL_AUTO_COLOR:
-                OSD_AddText("AUTOMATIC", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-                ShowStepCal = TRUE;
-                break;
-            case CAL_AUTO_FULL:
-                OSD_AddText("AUTOMATIC", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-                ShowStepCal = TRUE;
-                break;
-            case CAL_MANUAL:
-            default:
-                OSD_AddText("MANUAL", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-                ShowStepCal = FALSE;
-                break;
-            }
-            if (ShowStepCal)
+            if (pCalibration->GetType() != CAL_MANUAL)
             {
                 switch (pCalibration->GetCurrentStep())
                 {
                 case 0:
-                    OSD_AddText("Finished", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Calibration finished");
                     break;
                 case 1:
                 case 2:
-                    OSD_AddText("Brightness ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Adjusting Brightness ...");
                     break;
                 case 3:
                 case 4:
-                    OSD_AddText("Contrast ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Adjusting Contrast ...");
                     break;
                 case 5:
                 case 6:
-                    OSD_AddText("Fine adjustment ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Fine adjusting of brightness and contrast ...");
                     break;
                 case 7:
                 case 8:
-                    OSD_AddText("Saturation U ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Adjusting Saturation U ...");
                     break;
                 case 9:
                 case 10:
-                    OSD_AddText("Saturation V ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Adjusting Saturation V ...");
                     break;
                 case 11:
                 case 12:
-                    OSD_AddText("Fine adjustment ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    strcpy(szInfo, "Fine adjusting of color ...");
                     break;
                 default:
+                    strcpy(szInfo, "");
                     break;
                 }
+                OSD_AddText(szInfo, Size, OSD_COLOR_CURRENT, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (5, dfMargin, Size));
             }
+
+            if ( (pCalibration->GetType() == CAL_MANUAL)
+              || (pCalibration->GetCurrentStep() == 0) )
+            {
 
             nLine = 5;
 
@@ -1054,21 +1118,30 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             }
             while (pColorBar != NULL)
 			{
-                pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
-                if ((val1 == 0) && (val2 == 0) && (val3 == 0))
-				{
-				    Color = RGB(1, 0, 0);
-				}
-                else
-				{
-				    Color = RGB(val1, val2, val3);
-				}
+                if (pCalibration->GetType() == CAL_MANUAL)
+                {
+                    pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
+                    if ((val1 == 0) && (val2 == 0) && (val3 == 0))
+				    {
+				        Color = RGB(1, 0, 0);
+				    }
+                    else
+				    {
+				        Color = RGB(val1, val2, val3);
+				    }
+                }
                 pColorBar->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
-                sprintf (szInfo, "RGB (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
-                OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                if (pCalibration->GetType() == CAL_MANUAL)
+                {
+                    sprintf (szInfo, "RGB (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
+                    OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                }
                 pColorBar->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
-                sprintf (szInfo, "YUV (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
-                OSD_AddText(szInfo, Size, Color, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                if (pCalibration->GetType() == CAL_MANUAL)
+                {
+                    sprintf (szInfo, "YUV (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
+                    OSD_AddText(szInfo, Size, Color, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                }
 
                 sprintf (szInfo, "(%d) ", dif_total1);
                 if (dif_total1 < dif_total2)
@@ -1100,7 +1173,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 					strcat (szInfo, "very bad");
 				}
                 sprintf (&szInfo[strlen(szInfo)], " (%d)", dif_total2);
-				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                if (pCalibration->GetType() == CAL_MANUAL)
+                {
+				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                }
+                else
+                {
+				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                }
 
 //				j++;
 
@@ -1148,6 +1228,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 //                sprintf (&szInfo[strlen(szInfo)], " (%d)", dif_total2);
 //				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine, dfMargin, Size));
 //			}
+            }
 		}
         break;
 

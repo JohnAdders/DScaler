@@ -310,8 +310,8 @@ protected:
 private:
     BOOL step_init(eTypeAdjust type_adjust, BT848_SETTING setting, int min, int max);
     BOOL step_process(short **Lines, int height, int width, BT848_SETTING setting, unsigned int sig_component);
-    BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, int min1, int max1, BT848_SETTING setting2, int min2, int max2);
-    BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, unsigned int sig_component);
+    BOOL step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, int min1, int max1, int delta1, BT848_SETTING setting2, int min2, int max2, int delta2, BT848_SETTING setting3, int min3, int max3, int delta3);
+    BOOL step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, BT848_SETTING setting3, unsigned int sig_component);
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;
@@ -324,6 +324,10 @@ private:
     int max_val2;
     int current_val2;
     int best_val2;
+    int min_val3;
+    int max_val3;
+    int current_val3;
+    int best_val3;
     int min_dif;
     int total_dif;
     int nb_calcul;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.93 2002-12-09 00:32:13 atnak Exp $
+// $Id: ProgramList.cpp,v 1.94 2002-12-10 12:33:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2002/12/09 00:32:13  atnak
+// Added new muting stuff
+//
 // Revision 1.92  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -1009,45 +1012,13 @@ void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
 }
 
 
-void CloseDialog(HWND hDlg, BOOL bCancelled)
+void TidyUp(HWND hDlg)
 {    
     if (MyInScan)
     {
         EndScan(hDlg);
     }
-
-    if (TRUE == bCancelled)
-    {   
-        MyChannels.Clear();
-        MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
-    }
-    else 
-    {
-        BOOL channelsSaved = FALSE;
-
-        while(!channelsSaved) 
-        {
-            channelsSaved = MyChannels.WriteASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
-            channelsSaved = MyChannels.WriteXML("programs.xml");
-            if (!channelsSaved)
-            {
-                CString dummy("Unable to write to file \n\""); 
-                dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
-                dummy += "\"";
-                channelsSaved = (MessageBox(
-                               hDlg, 
-                               (LPCSTR)dummy, 
-                               "Cannot Save Channels!", 
-                               MB_RETRYCANCEL | MB_APPLMODAL | MB_ICONEXCLAMATION) 
-                             == IDCANCEL);
-                dummy.Empty();
-            }
-        }//while 
-        WriteSettingsToIni(TRUE);
-    }
-
     MyCountries.Clear();
-    EndDialog(hDlg, TRUE);
 }
 
 
@@ -1059,6 +1030,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     static eScanMode OldScanMode;
     static int OldCountryCode;
     static BOOL OldIsUsingAFC;
+    static int OldCurrentProgram;
 
     switch (message)
     {
@@ -1069,6 +1041,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 
             OldScanMode = MyScanMode;            
             OldCountryCode = CountryCode;
+            OldCurrentProgram = CurrentProgram;
         
             OldIsUsingAFC = MyIsUsingAFC;
             //Test AFC caps of current source
@@ -1514,16 +1487,36 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDOK:   
-            CloseDialog(hDlg, FALSE);            
+            TidyUp(hDlg);
+            // try to write out programs
+            if (!MyChannels.WriteASCII(SZ_DEFAULT_PROGRAMS_FILENAME))
+            {
+                CString dummy("Unable to write to file \n\""); 
+                dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
+                dummy += "\"";
+                ErrorBox((LPCSTR)dummy);
+                dummy.Empty();
+            }
+            WriteSettingsToIni(TRUE);
+            EndDialog(hDlg, TRUE);
             break;
 
         case IDCANCEL:
-             //bCustomChannelOrder = OldCustom;
+            TidyUp(hDlg);
+            // revert to previously saved channel list
+            MyChannels.Clear();
+            MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
+            // revert to previous settings
             MyScanMode = OldScanMode;
             CountryCode = OldCountryCode;    
+            CurrentProgram = OldCurrentProgram;
             MyIsUsingAFC = OldIsUsingAFC;
-            CloseDialog(hDlg, TRUE);
+            // Tune in to whatever we were showing before 
+            // we went into dialog
+            Channel_Change(CurrentProgram);
+            EndDialog(hDlg, FALSE);
             break;
+
         case IDC_HELPBTN:
             HtmlHelp(hWnd, "DScaler.chm::/ProgramList.htm", HH_DISPLAY_TOPIC, 0);
             break;

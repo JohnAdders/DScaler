@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.16 2003-01-27 22:04:05 laurentg Exp $
+// $Id: BT848Source_UI.cpp,v 1.17 2003-03-23 10:25:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/01/27 22:04:05  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.15  2003/01/25 23:44:14  laurentg
 // Default video settings for SECAM
 //
@@ -1382,6 +1387,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pBT848Card->IsInputATuner(nValue))
 				{
 					ShowText(hWnd, m_pBT848Card->GetInputName(nValue));
+					SetTrayTip(m_pBT848Card->GetInputName(nValue));
 					m_VideoSource->SetValue(nValue);
 					SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
 				}

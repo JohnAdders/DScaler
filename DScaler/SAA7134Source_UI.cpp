@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.38 2003-01-28 07:22:28 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.39 2003-03-23 10:25:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/01/28 07:22:28  atnak
+// Visual changes
+//
 // Revision 1.37  2003/01/27 22:04:15  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -1485,6 +1488,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pSAA7134Card->IsInputATuner(nValue))
 				{
 					ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
+					SetTrayTip(m_pSAA7134Card->GetInputName(nValue));
 					m_VideoSource->SetValue(nValue);
 					SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
 				}

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.340 2003-08-15 10:06:40 laurentg Exp $
+// $Id: DScaler.cpp,v 1.341 2003-08-15 10:23:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.340  2003/08/15 10:06:40  laurentg
+// Automatic update of the volume toolbar when updating the volume outside DScaler
+//
 // Revision 1.339  2003/08/14 19:38:14  laurentg
 // Timer for toolbar only when the toolbar is visible
 //
@@ -4396,8 +4399,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				}
 				if (Mixer_IsEnabled())
 				{
-					EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, -1, Mixer_GetVolume());
-					EventCollector->RaiseEvent(NULL, EVENT_MUTE, -1, Mixer_GetMute() || Audio_IsMute());
+					long val = Mixer_GetVolume();
+					if (val != -1)
+					{
+						EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, -1, val);
+					}
+					val = Mixer_GetMute();
+					if (val != -1)
+					{
+						EventCollector->RaiseEvent(NULL, EVENT_MUTE, -1, val || Audio_IsMute());
+					}
 				}
 			}
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.42 2004-11-27 19:11:44 atnak Exp $
+// $Id: SAA7134Card.h,v 1.43 2004-11-28 20:46:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2004/11/27 19:11:44  atnak
+// Added settings specific tor TDA9887 to the card list.
+//
 // Revision 1.41  2004/11/20 14:20:09  atnak
 // Changed the card list to an ini file.
 //
@@ -268,8 +271,19 @@ private:
         DWORD dwGPIOMode;
         DWORD AutoDetectId[SA_AUTODETECT_ID_PER_CARD];
         BOOL bUseTDA9887;
-        std::vector<TTDA9887FormatModes> tda9887Modes;
     } TCardType;
+
+    /// Same as TCardType but required to store dynamic values.
+    class CCardTypeEx : public TCardType
+    {
+    public:
+        /// Card specific TDA9887 modes for various video formats.
+        std::vector<TTDA9887FormatModes> tda9887Modes;
+
+        CCardTypeEx() { };
+        /// TCardType to CCardTypeEx implicit conversion constructor.
+        CCardTypeEx(const TCardType& card) : TCardType(card) { };
+    };
 
     /// used to store the ID for autodetection
     typedef struct
@@ -285,9 +299,9 @@ private:
     typedef struct
     {
         // List of all cards parsed and last item for currently parsing.
-        std::vector<TCardType>*     pCardList;
+        std::vector<CCardTypeEx>*   pCardList;
         // Pointer to the last item in pCardList when a card is being parsed.
-        TCardType*                  pCurrentCard;
+        CCardTypeEx*                pCurrentCard;
         // Number of cards successfully parsed so far.
         size_t                      nGoodCards;
         // Pointer to the HCParser instance doing the parsing.
@@ -533,7 +547,7 @@ private:
 private:
     /// Holds the list of all cards
     static const TCardType          m_SAA7134UnknownCard;
-    static std::vector<TCardType>   m_SAA713xCards;
+    static std::vector<CCardTypeEx> m_SAA713xCards;
 
     static const HCParser::ParseConstant k_parseSAA713xInputAudioPinConstants[];
     static const HCParser::ParseConstant k_parseSAA713xInputTypeConstants[];

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.52 2004-11-27 19:11:56 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.53 2004-11-28 20:46:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2004/11/27 19:11:56  atnak
+// Added settings specific tor TDA9887 to the card list.
+//
 // Revision 1.51  2004/11/20 17:58:03  atnak
 // Code change for VS6 compatibility.
 //
@@ -161,7 +164,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134UnknownCard =
     0,
 };
 
-std::vector<CSAA7134Card::TCardType> CSAA7134Card::m_SAA713xCards;
+std::vector<CSAA7134Card::CCardTypeEx> CSAA7134Card::m_SAA713xCards;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -411,6 +414,7 @@ void CSAA7134Card::ReadCardUseTDA9887Proc(int report, const ParseTag* tag, unsig
             // If there are any non-zero mask.
             if (count > 0)
             {
+                // Pre-reserve the correct amount of blocks.
                 parseInfo->pCurrentCard->tda9887Modes.clear();
                 parseInfo->pCurrentCard->tda9887Modes.reserve(count);
 

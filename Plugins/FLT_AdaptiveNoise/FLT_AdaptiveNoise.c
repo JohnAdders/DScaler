@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1.1.1  2001/12/31 01:25:19  lindsey
+// Added FLT_AdaptiveNoise
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +43,7 @@ And lose the name of action.
 Adaptive noise reduction filter
 
 This plug-in detects the global noise level based on the histogram of noise throughout
-the image.  The estimated noise is combined user supplied noise/motion tradeoff values 
+the image.  The estimated noise is combined with user supplied noise/motion tradeoff values 
 to decide how to best combine the old and new pixel values to choose a displayed pixel
 color.
 
@@ -99,7 +102,8 @@ for computational reasons: It saves a multiplication.
 
 Optimally, you would want to derive the spatial decay factor from the level of
 detail (specifically, the frequency with which the image switches between mooving
-and stationary regions) and the amount of change in the regions of motion.
+and stationary regions) and the temporal decay from the amount of change in the
+regions of motion.
 
 MaxNoise exists to prevent a single dramatic change from causing too great a
 perturbation of N.  Beyond a certain point, motion is certain, so the statistic
@@ -149,21 +153,37 @@ multiplier H are determined.  Specifically:
 
 R = P' - Q' = "Curve width"  (which is used as a general measure of the curve's breadth)
 
-G = Q' + R/4 - R*(100 - Stability)/100
+The noise multiplier is determined as
 
-So G is in the range
-(Q' - R*3/4, Q' + R/4)
-with the default
-G = Q' - R/4
-
-And the noise multiplier is determined as
-
-H = Q' + R/4 + R*NoiseReduction/50
+H = (low quantile) + (curve width)/4 + (curve width)*NoiseReduction/25
+H = Q' + R/4 + R*NoiseReduction/25
 
 So H is in the range
 (Q' + R/4, Q' + 17R/4)
 with the default
 H = Q' + 5R/4 = P' + R/4
+
+And the baseline G is
+
+G = (Q' - R) + Stability% * (difference between (Q' - R) and the noise reduction value)
+G = Q' - R + (H - (Q' - R))*Stability/100
+  = Q' - R + (Q' + R/4 + R*NoiseReduction/25 - Q' + R)*Stability/100
+  = Q' - R + R(5/4 + NoiseReduction/25)*Stability/100
+if (G < 0), G = 0
+
+So G is in the range
+(Q' - R, H)
+or, in terms of NoiseReduction
+(Q' - R, Q' + R*(1/4 + NoiseReduction/25))
+This is limited on the low end to 0, if necessary.
+
+The default (Stability = 35) gives
+G = Q' - R + R(5/4 + NoiseReduction/25)*35/100
+  = Q' + R(-9/16 + 7*NoiseReduction/500)
+
+and for both defaults (Stability = 35, NoiseReduction = 25)
+G = Q' + R(-9/16 + 7*25/500)
+  = Q' - 17R/80
 
 
 Things tried and discarded:
@@ -196,7 +216,8 @@ Potential improvements:
 - Get the Ornstein-Uhlenbeck stuff to work (see above)
 - Transmit the information up and to the left, as well as down and to the right.  Maybe do
   two passes and use a FIR filter to blur the color difference measures?
-- Delay one or more fields, and make use of future colors and motion.
+- Delay one or more fields, and make use of future colors and motion.  I suspect this won't
+  help all that much.
 - Use picture information to determine the decay coefficients used to calculate N
 - Optimization: My sole optimization has been the addition of a few prefetch instructions.
   They sped the filter 2x (from 600 MHz to 300 MHz on my SDR Athlon), but there's probably
@@ -227,17 +248,17 @@ Potential improvements:
 // Total length of the histogram
 // If gDecayCoefficient is increased above ~95%, this should be increased, too
 
-#define HISTOGRAM_LENGTH    1024
+#define HISTOGRAM_LENGTH                        1024
 
 // Rate of decay of the mean and mean^2 averaging for determining peak variance
 
-#define PEAK_VARIANCE_DECAY 0.80
+#define PEAK_VARIANCE_DECAY                     0.80
 
 // Intervals at which to make comparisons when finding peaks in the histogram
 
-#define PEAK_NEAR_COMPARISON    1
-#define PEAK_MIDDLE_COMPARISON  4
-#define PEAK_FAR_COMPARISON     16
+#define PEAK_NEAR_COMPARISON                    1
+#define PEAK_MIDDLE_COMPARISON                  4
+#define PEAK_FAR_COMPARISON                     16
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -273,12 +294,12 @@ long            gDecayCoefficient = 78;
 // Determines the placement toward the "start" of the N histogram at which we completely
 // compensate for noise
 
-long            gStability = 50;
+long            gStability = 35;
 
 // Determines the placement after the peak of the N histogram where we decide that there
 // must be motion in a block
 
-long            gNoiseReduction = 50;
+long            gNoiseReduction = 25;
 
 // Turn on a histogram and statistics readout
 
@@ -334,13 +355,13 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 {
     {
         "Stability", SLIDER, 0, &gStability,
-        50, 0, 100, 1, 1,
+        35, 0, 100, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AStability", NULL,
     },
     {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
-        50, 0, 200, 1, 1,
+        25, 0, 100, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveNoiseReduction", NULL,
     },
@@ -624,13 +645,13 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
     {
         for( Index = 0; Index < pInfo->FieldHeight - 20; ++Index )
         {
-            if ( ((((DWORD*)gpHistogram)[Index*HISTOGRAM_SCALE]) < 1280) )
+            if ( ((DWORD*)gpHistogram)[Index*HISTOGRAM_SCALE] < (DWORD) (pInfo->FrameWidth*2 - 20) )
             {
                 *(pInfo->PictureHistory[0]->pData + ((Index+20) * pInfo->InputPitch) + (((DWORD*)gpHistogram)[Index*HISTOGRAM_SCALE]/2)*2) = 0xFF;
             }
             else
             {
-                *(pInfo->PictureHistory[0]->pData + ((Index+20) * pInfo->InputPitch) + 1280) = 0xFF;
+                *(pInfo->PictureHistory[0]->pData + ((Index+20) * pInfo->InputPitch) + pInfo->FrameWidth*2 - 20) = 0xFF;
             }
             if (Index % 10 == 0)
             {
@@ -757,7 +778,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         }
 /*      This alternative causes reliability to fall too fast if it's already low
         sReliability = sReliability*((sReliability)/(SignalStrength+sReliability)) +
-            (SignalStrength/0.008)*(SignalStrength)/(sReliability+SignalStrength); //0.00006;
+            (SignalStrength/0.008)*(SignalStrength)/(sReliability+SignalStrength);
 */
         if( gIndicator == TRUE )
         {   // Show reliability estimate

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1.1.1  2001/12/31 01:25:17  lindsey
+// Added FLT_AdaptiveNoise
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +70,8 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     __int64         qwMaxNoise = 0;                                 // Maximum allowed movement measure
     const __int64   qwHighDWord = 0xFFFFFFFF00000000;
     const __int64   qwHistogramMax = HISTOGRAM_LENGTH - 1;          // Avoid histogram buffer overruns
+    static DWORD    sLastInputPitch = 0;
+    static DWORD    sLastFieldHeight = 0;
 
     // Most of this could be done with fixed point, but that would make my head hurt
     static DOUBLE   sCumBaseline = 10.0;                            // The derived cumulative baseline noise color difference
@@ -88,6 +93,15 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     {
         return 1000;
     }
+
+    if( (pInfo->InputPitch != sLastInputPitch) || ((DWORD)pInfo->FieldHeight != sLastFieldHeight) )
+    {
+        sLastInputPitch = pInfo->InputPitch;
+        sLastFieldHeight = pInfo->FieldHeight;
+        CleanupAdaptiveNoise();
+    }
+
+
 
 
 #if defined( IS_DEBUG_FLAG )
@@ -138,21 +152,24 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     // Interpret parameters
 
     CurveWidth = sCumDifferencePeak - sCumBaseline;
-    DoubleBaseline = sCumBaseline + CurveWidth/4.0 - (100.0 - gStability)*CurveWidth/100.0;
 
-    LongBaseline = (LONG) (DoubleBaseline + 0.5);  // Convert double to long
-    if( LongBaseline < 0 )
-    {
-        LongBaseline = 0;
-    }
-    qwNoiseBaseline = LongBaseline;
-    DoubleNoiseThreshold = sCumBaseline + CurveWidth/4.0 + CurveWidth*gNoiseReduction/50.0;
+    DoubleNoiseThreshold = sCumBaseline + CurveWidth/4.0 + CurveWidth*gNoiseReduction/25.0;
     if( DoubleNoiseThreshold < 5.0 )
     {
         DoubleNoiseThreshold = 5.0;
     }
     DWordNoiseMultiplier = (DWORD)((0x10000+(DoubleNoiseThreshold/2.0))/DoubleNoiseThreshold);
     qwNoiseMultiplier = DWordNoiseMultiplier;
+
+    DoubleBaseline = (sCumBaseline - CurveWidth) + ((DoubleNoiseThreshold - (sCumBaseline - CurveWidth))*(gStability/100.0));
+    LongBaseline = (LONG) (DoubleBaseline + 0.5);
+    if( LongBaseline < 0 )
+    {
+        LongBaseline = 0;
+    }
+    qwNoiseBaseline = LongBaseline;
+
+
 
     // Don't let the cumulative noise difference get too large -- otherwise, there will be a delay after a scene
     // change before noise reduction kicks in.  This also makes sense in terms of the noise statistic: A change of

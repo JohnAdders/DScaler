@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.70 2002-09-28 11:10:16 laurentg Exp $
+// $Id: Calibration.cpp,v 1.71 2002-10-05 18:28:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/09/28 11:10:16  laurentg
+// Manage the case when there is only one unique setting for color
+//
 // Revision 1.69  2002/08/02 20:16:43  laurentg
 // Suppress call to RemoveMenu
 //
@@ -1913,7 +1916,8 @@ void CCalibration::SetMenu(HMENU hMenu)
     {
         SourceHeight = pSource->GetHeight();
 		OkBK = (pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL);
-		OkC = (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL);
+		OkC = ( (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL)
+		     || (pSource->GetSaturationU() == NULL && pSource->GetSaturationV() == NULL && pSource->GetSaturation() != NULL) );
 		OkH = (pSource->GetHue() != NULL);
     }
     else

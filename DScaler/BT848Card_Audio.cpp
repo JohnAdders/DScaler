@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.28 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.29 2004-01-05 13:25:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.27  2002/10/27 12:33:33  adcockj
 // Fixed UseInputPin1 code
 //
@@ -122,6 +125,10 @@
 #include "MSP34x0AudioControls.h"
 #include "MSP34x0AudioDecoder.h"
 
+#include "TDA9875.h"
+#include "TDA9875AudioControls.h"
+#include "TDA9875AudioDecoder.h"
+
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneNew.h"
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneOld.h"
 #include "Bt8x8GPIOAudioDecoderGVBCTV3.h"
@@ -145,7 +152,8 @@ void CBT848Card::InitAudio(bool UsePin1)
 
 
     if (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
-        || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+        || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0
+		|| GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9875)
     {
         CMSP34x0AudioControls* MSPControls = new CMSP34x0AudioControls();
 
@@ -157,25 +165,54 @@ void CBT848Card::InitAudio(bool UsePin1)
         int rev1 = MSPControls->GetVersion();
         int rev2 = MSPControls->GetProductCode();
 
-        if (0 == rev1 && 0 == rev2)
+        if (0 != rev1 || 0 != rev2)
         {
-            delete MSPControls;
-            m_AudioDecoder = new CAudioDecoder();
-            m_AudioControls = new CAudioControls();
-            sprintf(m_AudioDecoderType, "None");
+	        m_AudioControls = MSPControls;
+    
+			// need to create two so that we can delete all objects properly
+			CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
+			MSPDecoder->SetUseInputPin1(UsePin1);
+			MSPDecoder->Attach(m_I2CBus);
+
+			m_AudioDecoder =  MSPDecoder;
+
+			sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
+
             return;
         }
 
-        m_AudioControls = MSPControls;
+        delete MSPControls;
+
+		// TDA9875 autodetect
+        CTDA9875AudioControls* TDA9875Controls = new CTDA9875AudioControls();
+
+        TDA9875Controls->Attach(m_I2CBus);
+        TDA9875Controls->Reset();
+        ::Sleep(4);
+
+        // setup version information
+		int dic;
+		int rev;
+		if (TDA9875Controls->IsDevicePresent(dic, rev))
+		{
+	        m_AudioControls = TDA9875Controls;
     
-        // need to create two so that we can delete all objects properly
-        CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
-        MSPDecoder->SetUseInputPin1(UsePin1);
-        MSPDecoder->Attach(m_I2CBus);
+			CTDA9875AudioDecoder* TDA9875Decoder = new CTDA9875AudioDecoder(TDA9875Controls);
+			TDA9875Decoder->SetUseInputPin1(UsePin1);
+			TDA9875Decoder->Attach(m_I2CBus);
 
-        m_AudioDecoder =  MSPDecoder;
+			m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
 
-        sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
+			sprintf(m_AudioDecoderType, "TDA9875%c Rev. %d", (dic==0) ? "":"A", rev); 
+            return;
+        }
+
+		delete TDA9875Controls;
+
+        m_AudioDecoder = new CAudioDecoder();
+        m_AudioControls = new CAudioControls();
+        sprintf(m_AudioDecoderType, "None");
+
     }
     else
     {
@@ -524,10 +561,16 @@ bool CBT848Card::GetUseInputPin1()
 void CBT848Card::SetUseInputPin1(bool AValue)
 {
     CMSP34x0AudioDecoder* MSP34x0AudioDecoder = dynamic_cast<CMSP34x0AudioDecoder*>(m_AudioDecoder);
-    if(MSP34x0AudioDecoder != NULL)
+    CTDA9875AudioDecoder* TDA9875AudioDecoder = dynamic_cast<CTDA9875AudioDecoder*>(m_AudioDecoder);
+    if(MSP34x0AudioDecoder)
     {
         MSP34x0AudioDecoder->SetUseInputPin1(AValue);
     }
+	else if (TDA9875AudioDecoder)
+    {
+        TDA9875AudioDecoder->SetUseInputPin1(AValue);
+    }
+
 }
 
 BOOL CBT848Card::IsMyAudioDecoder(CAudioDecoder* pAudioDecoder)

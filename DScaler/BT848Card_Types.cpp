@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.39 2003-12-17 10:36:29 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.40 2004-01-05 13:25:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/12/17 10:36:29  adcockj
+// Added Nebula DigiTV
+//
 // Revision 1.38  2003/10/27 16:22:56  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -383,7 +386,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         },
         PLL_NONE,
         TUNER_USER_SETUP,
-        SOUNDCHIP_NONE,
+        SOUNDCHIP_TDA9875,
         NULL,
         StandardBT848InputSelect,
         SetAnalogContrastBrightness,

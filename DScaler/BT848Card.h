@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.42 2003-11-13 17:32:48 adcockj Exp $
+// $Id: BT848Card.h,v 1.43 2004-01-05 13:25:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/11/13 17:32:48  adcockj
+// Added BT8x8 register debugger
+//
 // Revision 1.41  2003/11/03 17:29:47  adcockj
 // Fixes for new PMS deluxe
 //
@@ -168,6 +171,7 @@ private:
     {
         SOUNDCHIP_NONE,
         SOUNDCHIP_MSP,
+		SOUNDCHIP_TDA9875
     };
 
     /// Does the card have a PLL generator - used for PAL & SECAM

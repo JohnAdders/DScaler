@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.23 2003-11-14 13:24:55 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.24 2004-01-05 13:25:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/11/14 13:24:55  adcockj
+// PMS card fixes
+//
 // Revision 1.22  2003/11/13 17:32:49  adcockj
 // Added BT8x8 register debugger
 //
@@ -1235,7 +1238,8 @@ void CBT848Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO, TRUE);
     CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
 
-    if (m_pBT848Card->GetAudioDecoderType() == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+    if (m_pBT848Card->GetAudioDecoderType() == CAudioDecoder::AUDIODECODERTYPE_MSP34x0 ||
+		m_pBT848Card->GetAudioDecoderType() == CAudioDecoder::AUDIODECODERTYPE_TDA9875)
     {
         EnableMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, TRUE);
         CheckMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, m_UseInputPin1->GetValue());

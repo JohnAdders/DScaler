@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SizeSettings.cpp,v 1.1 2003-01-16 22:34:21 laurentg Exp $
+// $Id: SizeSettings.cpp,v 1.2 2003-01-18 13:56:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/16 22:34:21  laurentg
+// First step to add a new dialog box to adjust image size
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,10 +43,14 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     static long TBottomOverscan;
     static long TLeftOverscan;
     static long TRightOverscan;
+    static long THDelay;
+    static long TVDelay;
     static ISetting* TopOverscan = NULL;
     static ISetting* BottomOverscan = NULL;
     static ISetting* LeftOverscan = NULL;
     static ISetting* RightOverscan = NULL;
+    static ISetting* HDelay = NULL;
+    static ISetting* VDelay = NULL;
 
     switch (message)
     {
@@ -52,6 +59,8 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         BottomOverscan = Providers_GetCurrentSource()->GetBottomOverscan();
         LeftOverscan = Providers_GetCurrentSource()->GetLeftOverscan();
         RightOverscan = Providers_GetCurrentSource()->GetRightOverscan();
+        HDelay = Providers_GetCurrentSource()->GetHDelay();
+        VDelay = Providers_GetCurrentSource()->GetVDelay();
 
         if(TopOverscan != NULL)
         {
@@ -101,11 +110,29 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER4), FALSE);
         }
 
-        Edit_Enable(GetDlgItem(hDlg, IDC_D5), FALSE);
-        Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER5), FALSE);
+        if(HDelay != NULL)
+        {
+            THDelay = HDelay->GetValue();
+            SetDlgItemInt(hDlg, IDC_D5, THDelay, TRUE);
+            HDelay->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
+        }
+        else
+        {
+			Edit_Enable(GetDlgItem(hDlg, IDC_D5), FALSE);
+			Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER5), FALSE);
+        }
 
-        Edit_Enable(GetDlgItem(hDlg, IDC_D6), FALSE);
-        Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER6), FALSE);
+        if(VDelay != NULL)
+        {
+            TVDelay = VDelay->GetValue();
+            SetDlgItemInt(hDlg, IDC_D6, TVDelay, TRUE);
+            VDelay->SetupControl(GetDlgItem(hDlg, IDC_SLIDER6));
+        }
+        else
+        {
+			Edit_Enable(GetDlgItem(hDlg, IDC_D6), FALSE);
+			Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER6), FALSE);
+        }
 
         return TRUE;
         break;
@@ -133,6 +160,14 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if(RightOverscan != NULL)
             {
                 RightOverscan->SetValue(TRightOverscan);
+            }
+            if(HDelay != NULL)
+            {
+                HDelay->SetValue(THDelay);
+            }
+            if(VDelay != NULL)
+            {
+                VDelay->SetValue(TVDelay);
             }
             EndDialog(hDlg, TRUE);
             break;
@@ -162,6 +197,18 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 RightOverscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
                 SetDlgItemInt(hDlg, IDC_D4, RightOverscan->GetValue(), FALSE);
             }
+            if(HDelay != NULL)
+            {
+                HDelay->SetDefault();
+                HDelay->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
+                SetDlgItemInt(hDlg, IDC_D5, HDelay->GetValue(), TRUE);
+            }
+            if(VDelay != NULL)
+            {
+                VDelay->SetDefault();
+                VDelay->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
+                SetDlgItemInt(hDlg, IDC_D6, VDelay->GetValue(), TRUE);
+            }
             break;
         default:
             break;
@@ -188,6 +235,16 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
             RightOverscan->SetFromControl((HWND)lParam);
             SetDlgItemInt(hDlg, IDC_D4, RightOverscan->GetValue(), FALSE);
+        }
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
+        {
+            HDelay->SetFromControl((HWND)lParam);
+            SetDlgItemInt(hDlg, IDC_D5, HDelay->GetValue(), TRUE);
+        }
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER6))
+        {
+            VDelay->SetFromControl((HWND)lParam);
+            SetDlgItemInt(hDlg, IDC_D6, VDelay->GetValue(), TRUE);
         }
         break;
     default:

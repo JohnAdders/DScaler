@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.32 2004-08-30 16:17:02 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.33 2004-09-25 16:22:25 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2004/08/30 16:17:02  adcockj
+// Fixed issue with TDA9875 detection
+//
 // Revision 1.31  2004/08/09 14:01:14  atnak
 // Corrected missing break in switch statement.
 //
@@ -134,9 +137,13 @@
 #include "MSP34x0AudioControls.h"
 #include "MSP34x0AudioDecoder.h"
 
+#include "PIC16C54.h"
+
 #include "TDA9875.h"
 #include "TDA9875AudioControls.h"
 #include "TDA9875AudioDecoder.h"
+#include "TDA9874.h"
+#include "TDA9874AudioDecoder.h"
 #include "TDA9873AudioDecoder.h"
 
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneNew.h"
@@ -248,6 +255,38 @@ void CBT848Card::InitAudio(bool UsePin1)
 		    delete TDA9875Controls;
         }
     }
+
+	if (m_AudioDecoder == NULL &&
+        (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
+		|| GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9874))
+    {		
+		CTDA9874* TDADecoder = new CTDA9874();
+		TDADecoder->Attach(m_I2CBus);
+		
+		int dic, sic;
+		bool isPresent = TDADecoder->IsDevicePresent(dic, sic);
+
+		if(isPresent)
+		{
+			CTDA9874AudioDecoder* TDA9874Decoder = new CTDA9874AudioDecoder();
+			TDA9874Decoder->Attach(m_I2CBus);
+			TDA9874Decoder->Initialize();
+			m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;					
+			m_AudioControls = new CAudioControls();			
+
+			// need to switch unmute from PIC one time only
+			// used only for PV951 (Hercules SmartTV)
+			CPIC16C54 pic = CPIC16C54();
+			pic.Attach(m_I2CBus);
+			bool picAlive = pic.IsDevicePresent();
+
+			sprintf(m_AudioDecoderType, "TDA9874%c Rev. %d%s", (dic==0x11) ? "A":"H", sic, picAlive ? "" : " + Pic16c54"); 
+		}
+        else
+        {
+			delete TDADecoder;
+		}
+	}
 
     if (m_AudioDecoder == NULL)
     {

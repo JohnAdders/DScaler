@@ -129,10 +129,6 @@ SOURCE=.\DEBUGOUT.H
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\DSDrv.H
-# End Source File
-# Begin Source File
-
 SOURCE=.\KernelDriver.H
 # End Source File
 # Begin Source File

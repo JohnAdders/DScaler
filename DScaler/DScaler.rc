@@ -316,7 +316,7 @@ END
 IDD_ABOUT DIALOGEX 22, 17, 374, 274
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
     CTEXT           "DScaler Version 3.x",IDC_VERSION,0,3,293,9
@@ -341,14 +341,16 @@ BEGIN
     GROUPBOX        "Support",IDC_STATIC,192,37,180,100
     LTEXT           "The best place to get support for DScaler is the Home Theater Computers foum at the AV Science Forums.",
                     IDC_STATIC,200,47,166,27
-    LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nHermes Conrad\nTorbjörn Jansson\nEric Schmidt",
-                    IDC_STATIC,11,50,74,81
+    LTEXT           "Eric Schmidt\nMuljadi Budiman\n",IDC_STATIC,103,52,74,
+                    81
     LTEXT           "Please read the FAQ and the appropriate release thread for the version you are using before posting",
                     IDC_STATIC,200,104,166,26
     CTEXT           "http://www.avsforum.com/",IDC_LINK,201,78,162,12,
                     SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "VirtualDub - Copyright (c) Avery Lee",IDC_STATIC,13,189,
                     187,9
+    LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nHermes Conrad\nTorbjörn Jansson",
+                    IDC_STATIC,12,52,74,81
 END
 
 IDD_SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 230

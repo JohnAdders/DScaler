@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.9 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Other.cpp,v 1.10 2001-07-27 12:30:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.8  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -88,6 +91,16 @@ DWORD PhysicalOverlayColor = RGB(32, 16, 16);
 long BackBuffers = -1;     // Make new user parm, TRB 10/28/00
 BOOL bCanDoBob = FALSE;
 BOOL bCanDoColorKey = FALSE;
+DDCOLORCONTROL OriginalColorControls;
+LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
+BOOL bUseOverlayControls = FALSE;
+
+long OverlayBrightness = 750;
+long OverlayContrast = 10000;
+long OverlayHue = 0;
+long OverlaySaturation = 10000;
+long OverlayGamma = 1;
+long OverlaySharpness = 5;
 
 //-----------------------------------------------------------------------------
 // Tells whether or not video overlay is active
@@ -270,6 +283,56 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
     }
     return TRUE;
 }
+
+void Overlay_ResetColorControls()
+{
+    if (pDDColorControl == NULL)
+    {
+        return;
+    }
+
+    HRESULT ddrval = pDDColorControl->SetColorControls(&OriginalColorControls);
+    if (FAILED(ddrval))
+    {
+        char szErrorMsg[200];
+        sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
+        ErrorBox(szErrorMsg);
+    }
+}
+
+void Overlay_SetColorControls()
+{
+    DDCOLORCONTROL sColorControl;
+
+    if (pDDColorControl == NULL)
+    {
+        return;
+    }
+
+    sColorControl.dwSize = sizeof(DDCOLORCONTROL);
+    if (SUCCEEDED(pDDColorControl->GetColorControls(&sColorControl)))
+    {
+        sColorControl.lBrightness = OverlayBrightness * 100;
+        sColorControl.lContrast = OverlayContrast * 100;
+        sColorControl.lHue = OverlayHue;
+        sColorControl.lSaturation = OverlaySaturation * 100;
+        sColorControl.lGamma = OverlayGamma;
+        sColorControl.lGamma = OverlaySharpness;
+
+        HRESULT ddrval = pDDColorControl->SetColorControls(&sColorControl);
+        if (FAILED(ddrval))
+        {
+            char szErrorMsg[200];
+            sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
+            ErrorBox(szErrorMsg);
+        }
+    }
+    else
+    {
+        ErrorBox("Cannot get color control");
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 // Create new video overlay
@@ -468,6 +531,21 @@ BOOL Overlay_Create()
         }
     }
 
+    // New Code - Getting the DD color control
+    ddrval = lpDDOverlay->QueryInterface(IID_IDirectDrawColorControl, (void **) &pDDColorControl);
+    if(SUCCEEDED(ddrval))
+    {
+        pDDColorControl->GetColorControls(&OriginalColorControls);
+        if(bUseOverlayControls)
+        {
+           Overlay_SetColorControls();
+        }
+    }
+    else
+    {
+       pDDColorControl = NULL;
+    }
+
     Overlay_Clean();
     
     return (TRUE);
@@ -532,6 +610,15 @@ DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
 // 
 BOOL Overlay_Destroy()
 {
+    // reset overlay control to previous settings so that
+    // DVD's will look OK
+    if(pDDColorControl != NULL)
+    {
+        Overlay_ResetColorControls();
+        pDDColorControl->Release();
+        pDDColorControl = NULL;
+
+    }
     // Now destroy the Back Overlay
     if (lpDDOverlayBack != NULL)
     {
@@ -895,6 +982,63 @@ void SaveStill()
     return;
 }
 
+
+BOOL Overlay_Brightness_OnChange(long NewValue)
+{
+   OverlayBrightness = NewValue;
+   Overlay_SetColorControls();
+   return FALSE;
+}
+
+BOOL Overlay_Contrast_OnChange(long NewValue)
+{
+   OverlayContrast = NewValue;
+   Overlay_SetColorControls();
+   return FALSE;
+}
+
+BOOL Overlay_Hue_OnChange(long NewValue)
+{
+   OverlayHue = NewValue;
+   Overlay_SetColorControls();
+   return FALSE;
+}
+
+BOOL Overlay_Saturation_OnChange(long NewValue)
+{
+   OverlaySaturation = NewValue;
+   Overlay_SetColorControls();
+   return FALSE;
+}
+
+BOOL Overlay_Gamma_OnChange(long NewValue)
+{
+   OverlayGamma = NewValue;
+   Overlay_SetColorControls();
+   return FALSE;
+}
+
+BOOL Overlay_Sharpness_OnChange(long NewValue)
+{
+   OverlaySharpness = NewValue;
+   Overlay_SetColorControls();
+   return FALSE;
+}
+
+BOOL Overlay_UseControls_OnChange(long NewValue)
+{
+    bUseOverlayControls = NewValue;
+    if(bUseOverlayControls)
+    {
+       Overlay_SetColorControls();
+    }
+    else
+    {
+       Overlay_ResetColorControls();
+    }
+    return FALSE;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -912,6 +1056,49 @@ SETTING OtherSettings[OTHER_SETTING_LASTONE] =
         RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
         NULL,
         "Overlay", "OverlayColor", NULL,
+    },
+    {
+        "Overlay Controls", ONOFF, 0, (long*)&bUseOverlayControls,
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "Overlay", "UseOverlayControls", Overlay_UseControls_OnChange,
+    },
+    {
+        "Overlay Brightness", SLIDER, 0, (long*)&OverlayBrightness,
+        50, 0, 100, 1, 1,
+        NULL,
+        "Overlay", "OverlayBrightness", Overlay_Brightness_OnChange,
+    },
+    {
+        "Overlay Contrast", SLIDER, 0, (long*)&OverlayContrast,
+        100, 0, 200, 1, 1,
+        NULL,
+        "Overlay", "OverlayContrast", Overlay_Contrast_OnChange,
+    },
+    {
+        "Overlay Hue", SLIDER, 0, (long*)&OverlayHue,
+        0, -180, 180, 1, 1,
+        NULL,
+        "Overlay", "OverlayHue", Overlay_Hue_OnChange,
+    },
+    {
+        "Overlay Saturation", SLIDER, 0, (long*)&OverlaySaturation,
+        100, 0, 200, 1, 1,
+        NULL,
+        "Overlay", "OverlaySaturation", Overlay_Saturation_OnChange,
+    },
+    {
+        "Overlay Gamma", SLIDER, 0, (long*)&OverlayGamma,
+        1, 1, 500, 1, 1,
+        NULL,
+        "Overlay", "OverlayGamma", Overlay_Gamma_OnChange,
+    },
+    {
+        "Overlay Sharpness", SLIDER, 0, (long*)&OverlaySharpness,
+        5, 
+        0, 10, 1, 1,
+        NULL,
+        "Overlay", "OverlaySharpness", Overlay_Sharpness_OnChange,
     },
 };
 

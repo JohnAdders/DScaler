@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.26 2001-07-26 21:59:15 laurentg Exp $
+// $Id: DS_Control.h,v 1.27 2001-07-27 12:30:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/07/26 21:59:15  laurentg
+// New entry in OSD section of ini file
+//
 // Revision 1.25  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -350,6 +353,13 @@ typedef enum
 {
     BACKBUFFERS = 0,
     OVERLAYCOLOR,
+    USEOVERLAYCONTROLS,
+    OVERLAYBRIGHTNESS,
+    OVERLAYCONTRAST,
+    OVERLAYHUE,
+    OVERLAYSATURATION,
+    OVERLAYGAMMA,
+    OVERLAYSHARPNESS,
     OTHER_SETTING_LASTONE,
 } OTHER_SETTING;
 

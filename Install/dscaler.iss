@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.31 2005-03-08 13:48:04 adcockj Exp $
+;// $Id: dscaler.iss,v 1.32 2005-03-09 20:26:52 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.31  2005/03/08 13:48:04  adcockj
+;// Moved items based on Rob's comments
+;//
 ;// Revision 1.30  2005/03/07 18:01:58  adcockj
 ;// Prep for release
 ;//
@@ -180,7 +183,7 @@ Source: "..\Release\DScaler.vdi"; DestDir: "{app}"; Flags: ignoreversion; Compon
 Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\channel.txt"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "..\Release\channel.txt"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DScaler.chm"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\cx2388xCards.ini"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\SAA713xCards.ini"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; Flags: ignoreversion; Components: main

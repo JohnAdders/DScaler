@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.10 2001-09-05 15:08:01 adcockj Exp $
+// $Id: Other.h,v 1.11 2001-09-21 20:47:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ BOOL Overlay_Flip(DWORD FlipFlag);
 HDC Overlay_GetDC();
 void Overlay_ReleaseDC(HDC hDC);
 
-void SaveStill();
+BOOL SaveStill(char *FileName);
 
 extern DWORD DestSizeAlign;
 extern DWORD SrcSizeAlign;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.74 2001-09-21 16:43:54 adcockj Exp $
+// $Id: DScaler.cpp,v 1.75 2001-09-21 20:47:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2001/09/21 16:43:54  adcockj
+// Teletext improvements by Mike Temperton
+//
 // Revision 1.73  2001/09/21 15:39:01  adcockj
 // Added Russian and German code pages
 // Corrected UK code page
@@ -1395,8 +1398,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TAKESTILL:
             Pause_Capture();
             Sleep(100);
-            SaveStill();
-            ShowText(hWnd, "Snapshot");
+            if (SaveStill(Text1))
+            {
+                sprintf(Text, "Snapshot (%s)", Text1);
+                ShowText(hWnd, Text);
+            }
             UnPause_Capture();
             Sleep(100);
             break;

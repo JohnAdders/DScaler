@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.19 2001-09-19 10:05:50 adcockj Exp $
+// $Id: Other.cpp,v 1.20 2001-09-21 20:47:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/09/19 10:05:50  adcockj
+// Updated feature help
+//
 // Revision 1.18  2001/09/09 17:41:08  adcockj
 // Fixed bug in sharpness code
 //
@@ -1188,7 +1191,8 @@ static void FillTiffHeader(TTiffHeader* head, char* description, char* make, cha
 
 //-----------------------------------------------------------------------------
 // Save still image snapshot as TIFF format to disk
-void SaveStill()
+// FileName is an output parameter : the file generated
+BOOL SaveStill(char *FileName)
 {
     int y, cr, cb, r, g, b, i, j, n = 0;
     FILE* file;
@@ -1201,93 +1205,97 @@ void SaveStill()
     HRESULT ddrval;
     char description[80];
 
-    if (lpDDOverlay != NULL)
+    *FileName = '\0';
+
+    if (lpDDOverlay == NULL)
     {
-        memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
-        SurfaceDesc.dwSize = sizeof(SurfaceDesc);
+        return FALSE;
+    }
 
-        ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
-        if (FAILED(ddrval))
-        {
-            ErrorBox("Error Locking Overlay");
-            return;
-        }
+    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
+    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
 
-        while (n < 100)
-        {
-            sprintf(name,"tv%06d.tif",++n) ;
-            if (stat(name, &st))
-                break;
-        }
-        if(n == 100)
-        {
-            ErrorBox("Could not create a file.  You may have too many captures already.");
-            ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
-            if (FAILED(ddrval))
-            {
-                ErrorBox("Error Unlocking Overlay");
-                return;
-            }
-            return;
-        }
+    ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
+    if (FAILED(ddrval))
+    {
+        ErrorBox("Error Locking Overlay");
+        return FALSE;
+    }
 
-        file = fopen(name,"wb");
-        if (!file)
-        {
-            ErrorBox("Could not open file in SaveStill");
-            ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
-            if (FAILED(ddrval))
-            {
-                ErrorBox("Error Unlocking Overlay");
-                return;
-            }
-            return;
-        }
-
-        sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
-        // How do we figure out our version number?!?!
-        FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x");
-        fwrite(&head, sizeof(head), 1, file);
-
-        for (i = 0; i < CurrentY; i++ )
-        {
-            buf = (BYTE*)SurfaceDesc.lpSurface + i * SurfaceDesc.lPitch;
-            for (j = 0; j < CurrentX ; j+=2)
-            {
-                cb = buf[1] - 128;
-                cr = buf[3] - 128;
-                y = buf[0] - 16;
-
-                r = ( 76284*y + 104595*cr             )>>16;
-                g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-                b = ( 76284*y             + 132252*cb )>>16;
-                rgb[0] = LIMIT(r);
-                rgb[1] = LIMIT(g);
-                rgb[2] = LIMIT(b);
-
-                fwrite(rgb,3,1,file) ;
-
-                y = buf[2] - 16;
-                r = ( 76284*y + 104595*cr             )>>16;
-                g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-                b = ( 76284*y             + 132252*cb )>>16;
-                rgb[0] = LIMIT(r);
-                rgb[1] = LIMIT(g);
-                rgb[2] = LIMIT(b);
-                fwrite(rgb,3,1,file);
-
-                buf += 4;
-            }
-        }
-        fclose(file);
+    while (n < 100)
+    {
+        sprintf(name,"tv%06d.tif",++n) ;
+        if (stat(name, &st))
+            break;
+    }
+    if(n == 100)
+    {
+        ErrorBox("Could not create a file.  You may have too many captures already.");
         ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
         if (FAILED(ddrval))
         {
             ErrorBox("Error Unlocking Overlay");
-            return;
+        }
+        return FALSE;
+    }
+
+    file = fopen(name,"wb");
+    if (!file)
+    {
+        ErrorBox("Could not open file in SaveStill");
+        ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
+        if (FAILED(ddrval))
+        {
+            ErrorBox("Error Unlocking Overlay");
+        }
+        return FALSE;
+    }
+
+    strcpy(FileName, name);
+
+    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    // How do we figure out our version number?!?!
+    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x");
+    fwrite(&head, sizeof(head), 1, file);
+
+    for (i = 0; i < CurrentY; i++ )
+    {
+        buf = (BYTE*)SurfaceDesc.lpSurface + i * SurfaceDesc.lPitch;
+        for (j = 0; j < CurrentX ; j+=2)
+        {
+            cb = buf[1] - 128;
+            cr = buf[3] - 128;
+            y = buf[0] - 16;
+
+            r = ( 76284*y + 104595*cr             )>>16;
+            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+            b = ( 76284*y             + 132252*cb )>>16;
+            rgb[0] = LIMIT(r);
+            rgb[1] = LIMIT(g);
+            rgb[2] = LIMIT(b);
+
+            fwrite(rgb,3,1,file) ;
+
+            y = buf[2] - 16;
+            r = ( 76284*y + 104595*cr             )>>16;
+            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+            b = ( 76284*y             + 132252*cb )>>16;
+            rgb[0] = LIMIT(r);
+            rgb[1] = LIMIT(g);
+            rgb[2] = LIMIT(b);
+            fwrite(rgb,3,1,file);
+
+            buf += 4;
         }
     }
-    return;
+    fclose(file);
+    ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
+    if (FAILED(ddrval))
+    {
+        ErrorBox("Error Unlocking Overlay");
+        return FALSE;
+    }
+    return TRUE;
 }
 
 BOOL Overlay_ColorKey_OnChange(long NewValue)

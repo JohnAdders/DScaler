@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/01 23:16:29  lindsey
+// Added code for MMX computers
+// Removed MMXEXT version (since it didn't do anything)
+//
 // Revision 1.3  2001/12/31 00:02:59  lindsey
 // Fixed crashing bug when pixel width not evenly divisible by 8
 // Added prefetching for a substantial speed up
@@ -270,7 +274,6 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
     {
         GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_MMX;
     }
-        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_MMX;
     return &GradualNoiseMethod;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.28 2003-04-16 14:43:16 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.29 2003-04-16 15:11:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/04/16 14:43:16  atnak
+// Updated FlyVideo2000 radio GPIO setting
+//
 // Revision 1.27  2003/02/14 09:10:40  atnak
 // Updated Manli M-TV002
 //
@@ -644,8 +647,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
-        TUNER_PHILIPS_PAL,
-        AUDIOCRYSTAL_24576Hz,
+        TUNER_PHILIPS_FM1216ME_MK3,
+        AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
     },

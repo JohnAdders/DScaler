@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.16 2001-08-18 17:24:12 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.17 2001-10-22 10:32:58 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/08/18 17:24:12  adcockj
+// Removed free causing crash on exit
+//
 // Revision 1.15  2001/08/14 11:36:03  adcockj
 // Mixer change to allow restore of initial mixer settings
 //
@@ -541,7 +544,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         switch (LOWORD(wParam))
         {
         case IDC_RESETONEXIT:
-            bResetOnExit = (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED);
+            bResetOnExit = (Button_GetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT)) == BST_CHECKED);
             break;
 
         case IDC_USE_MIXER:

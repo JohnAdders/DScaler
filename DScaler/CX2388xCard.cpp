@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.40 2003-02-03 17:25:20 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.41 2003-02-15 13:04:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/02/03 17:25:20  adcockj
+// Fixes for PlayHD
+//
 // Revision 1.39  2003/01/29 18:24:49  adcockj
 // Test fix for crashing in other apps after running DScaler
 //
@@ -581,10 +584,10 @@ void CCX2388xCard::SetChroma2HComb(eFlagWithDefault Chroma2HComb)
     switch(Chroma2HComb)
     {
     case FLAG_ON:
-        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 9));
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 9));
         break;
     case FLAG_OFF:
-        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 9));
+        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 9));
         break;
     default:
         MaskDataDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault, (1 << 9));

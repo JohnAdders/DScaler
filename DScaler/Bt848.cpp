@@ -1593,7 +1593,7 @@ BOOL TVFormat_OnChange(long NewValue)
 	VideoSettings_Save();
 	TVFormat = NewValue;
 	VideoSettings_Load();
-    if (BT848_CCIRsource()) BT848_ResetHardware();
+    BT848_ResetHardware();
 	BT848_SetGeoSize();
 	WorkoutOverlaySize();
 	Start_Capture();

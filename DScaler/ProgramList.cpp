@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.47 2002-02-09 02:51:38 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.48 2002-02-11 21:23:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/02/09 02:51:38  laurentg
+// Grayed the channels when the source has no tuner
+//
 // Revision 1.46  2002/02/08 08:14:42  adcockj
 // Select saved channel on startup if in tuner mode
 //
@@ -1361,6 +1364,7 @@ void Channels_SetMenu(HMENU hMenu)
     if(hMenuChannels == NULL) return;
 
     BOOL bHasTuner = Providers_GetCurrentSource()->HasTuner();
+    BOOL bInTunerMode = Providers_GetCurrentSource()->IsInTunerMode();
 
     for (int i(0); i < GetMenuItemCount(hMenuChannels); ++i)
     {
@@ -1375,9 +1379,9 @@ void Channels_SetMenu(HMENU hMenu)
         }
     }
 
-    EnableMenuItem(hMenu, IDM_CHANNELPLUS, bHasTuner?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_CHANNELMINUS, bHasTuner?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_CHANNELPLUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.147 2003-07-02 21:43:16 laurentg Exp $
+// $Id: DS_Control.h,v 1.148 2003-07-18 09:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.147  2003/07/02 21:43:16  laurentg
+// TimeShift settings
+//
 // Revision 1.146  2003/04/26 19:37:15  laurentg
 // New character string settings
 //
@@ -1154,6 +1157,7 @@ typedef enum
     SLEEPSKIPFIELDSLATE,
 	MAXFIELDSHIFT,
 	ALWAYSSLEEP,
+    GIVEUPPROCDURINGJT,
     TIMING_SETTING_LASTONE,
 } TIMING_SETTING;
 

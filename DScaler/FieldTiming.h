@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.16 2003-03-09 19:46:26 laurentg Exp $
+// $Id: FieldTiming.h,v 1.17 2003-07-18 09:39:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,7 @@ CTreeSettingsGeneric* Timing_GetTreeSettingsPage();
 
 void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields);
 void Timing_Setup();
+void Timing_CleanUp();
 void Timing_WaitForNextField(TDeinterlaceInfo* pInfo);
 void Timing_Reset();
 void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread);

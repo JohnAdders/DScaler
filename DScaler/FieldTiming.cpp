@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.36 2003-07-14 19:18:46 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.37 2003-07-18 09:39:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/07/14 19:18:46  adcockj
+// Made format change cope better with dropped frames
+//
 // Revision 1.35  2003/03/09 19:46:25  laurentg
 // Updated field statistics
 //
@@ -115,6 +118,8 @@
 #include "Providers.h"
 
 LARGE_INTEGER TimerFrequency;
+HANDLE hTimerEvent;
+UINT   wTimerRes;
 double RunningAverageCounterTicks;
 double StartAverageCounterTicks;
 LARGE_INTEGER LastFieldTime;
@@ -138,14 +143,32 @@ long SleepSkipFields = 0;       // Number of fields to skip before doing sleep i
 long SleepSkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 long MaxFieldShift = 1;		// Maximum shift beween the last received field and the field to process
 BOOL bAlwaysSleep = FALSE;	// Define if sleep must be called in all circonstances
+BOOL bGiveUpProcDuringJT = FALSE;
 
 void Timing_Setup()
 {
+    #define TARGET_RESOLUTION 3
+
+    TIMECAPS tc;
+
+    if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR) 
+    {
+        ErrorBox("Failed to get Timer Resolution");
+    }
+
+    wTimerRes = min(max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
+    timeBeginPeriod(wTimerRes); 
+
     bIsPAL = GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps;
 
     // get the Frequency of the high resolution timer
     QueryPerformanceFrequency(&TimerFrequency);
 
+    hTimerEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    if(hTimerEvent == NULL)
+    {
+        ErrorBox("Failed to create timing event");
+    }
     if(bIsPAL)
     {
         RunningAverageCounterTicks = (double)TimerFrequency.QuadPart / 25.0;
@@ -159,6 +182,18 @@ void Timing_Setup()
     FlipAdjust = FALSE;
     Timing_Reset();
 }
+
+void Timing_CleanUp()
+{
+    if(hTimerEvent != NULL)
+    {
+        CloseHandle(hTimerEvent);
+    }
+
+    // reset the timer resolution
+    timeEndPeriod(wTimerRes); 
+}
+
 
 void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields)
 {
@@ -355,6 +390,42 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
                 TicksToWait = (LONGLONG)(RunningAverageCounterTicks * 30.0 / (double)CurrentMethod->FrameRate60Hz);
             }
             QueryPerformanceCounter(&CurrentFlipTime);
+
+            if(bGiveUpProcDuringJT == TRUE)
+            {
+                // see if we can afford to allow another process to cut in at this point
+                // if we don't give up some time here we will hog the processor
+                // this method is in test and should be used with an elevated priority on the
+                // decoding thread so that when the event is fired out thread gets priority
+                long MilliSecondsToWait = (CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) * 1000 / TimerFrequency.QuadPart;
+                if(MilliSecondsToWait > wTimerRes * 2)
+                {
+                    ResetEvent(hTimerEvent);
+
+                    MMRESULT wTimerID = timeSetEvent(
+                                                    MilliSecondsToWait - wTimerRes,
+                                                    wTimerRes,
+                                                    (LPTIMECALLBACK)hTimerEvent,
+                                                    (DWORD)NULL,
+                                                    TIME_ONESHOT | TIME_CALLBACK_EVENT_SET
+                                                 );
+                    if(wTimerID != NULL)
+                    {
+                        // if this succeeded then wait for our event to be fired
+                        // but allow for the timer to not work and fall out after 
+                        // 1/5 of a second.
+                        // note we don't really care if this works or not
+                        // as the downside is using all the CPU
+                        WaitForSingleObject(hTimerEvent, 200);
+                    }
+                }
+                QueryPerformanceCounter(&CurrentFlipTime);
+                if((CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) > TicksToWait)
+                {
+                    LOG(1, " Too late back from mm timer - %d", (long)(CurrentFlipTime.QuadPart - LastFlipTime.QuadPart));
+                }
+            }
+
             while(!(*bStopThread) && (CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) < TicksToWait)
             {
                 QueryPerformanceCounter(&CurrentFlipTime);
@@ -512,6 +583,12 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "Timing", "AlwaysSleep", NULL,
+    },
+    {
+        "Give Up processor during JudderTerminator", ONOFF, 0, (long*)&bGiveUpProcDuringJT,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "Timing", "GiveUpProcDuringJT", NULL,
     },
 };
 

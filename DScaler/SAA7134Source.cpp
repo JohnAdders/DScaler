@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.28 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: SAA7134Source.cpp,v 1.29 2002-10-23 17:05:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/10/22 04:08:50  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.27  2002/10/20 09:27:55  atnak
 // Fixes negative dropped frames for accurate
 //
@@ -363,6 +367,11 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioStandardCh2FMDeemph = new CSliderSetting("Audio Channel 2 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, "AudioChannel2FMDeemph");
     m_Settings.push_back(m_AudioStandardCh2FMDeemph);
 
+    // Lower means better VBI reception/decoding but how
+    // far it can be lowered depends on individual cards.
+    m_VBIUpscaleDivisor = new CVBIUpscaleDivisorSetting(this, "VBI Upscale Divisor", 0x1A8, 0x186, 0x400, IniSection);
+    m_Settings.push_back(m_VBIUpscaleDivisor);
+
     ReadFromIni();
 }
 
@@ -393,6 +402,8 @@ void CSAA7134Source::Reset()
     m_pSAA7134Card->SetWhitePeak(m_WhitePeak->GetValue());
     m_pSAA7134Card->SetColorPeak(m_ColorPeak->GetValue());
     m_pSAA7134Card->SetCombFilter(m_AdaptiveCombFilter->GetValue());
+
+    m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
 
     if (m_AutoStereoSelect->GetValue())
     {
@@ -503,7 +514,8 @@ void CSAA7134Source::SetupVideoAudioStandards()
                                     m_CurrentX,
                                     m_CurrentY,
                                     m_HDelay->GetValue(),
-                                    m_VDelay->GetValue());
+                                    m_VDelay->GetValue(),
+                                    m_VBIUpscaleDivisor->GetValue());
     NotifySizeChange();
 
     m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
@@ -1188,6 +1200,13 @@ void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
     m_pSAA7134Card->SetCombFilter(NewValue);
 }
 
+void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    m_pSAA7134Card->SetVBIGeometry(NewValue);
+    Start_Capture();
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -1335,20 +1354,22 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     // Convert SAA7134's VBI buffer to the way DScaler wants it
     // 1. Shift the data 40 bytes to to the left
     // 2. Horizontal scale 262.54% (0x400/0x186)  Some of this is already
-    //    done.  We get the card to do 243.80% (0x400/0x1A4) scaling for
-    //    us in SAA7134Card, so we need to trim this up a bit.
-    //      - ala. SAA7134Card::SetupVBI()
+    //    done.  We get the card to do 0x400/m_VBIUpscaleDivisor scaling
+    //    for us in SAA7134Card, so we need to trim this up a bit.
+    //      - ala. SAA7134Card::SetTaskVBIGeometry()
     //
     for (int i(0); i < 40; i++)
     {
         ConvertBuffer[i] = 0x00;
     }
 
+    double ScaleRatio = (double) 0x186 / m_VBIUpscaleDivisor->GetValue();
+
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
         for (int i(40), j(0); i < 2048; i++, j++)
         {
-            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)((double) j * 0x186 / 0x1A4)];
+            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)(j * ScaleRatio)];
         }
         VBI_DecodeLine(ConvertBuffer, nLineTarget, m_IsFieldOdd);
     }
@@ -1357,7 +1378,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 
 /*
 // This tries to decode VideoText by first calculating the clock
-// sync.. but doesn't work all the time.
+// sync.. but doesn't work very well.
 void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
 {
     static double StepLength = 0;
@@ -1438,9 +1459,8 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
     {
         // Space between the mean of the two falling edges
         // divided by the number of bits in between (14)
-        // Add 0.5 to for rounding
         StepLength = (double) ((FallingEdge[7] + EdgeStop7) -
-                               (FallingEdge[0] + EdgeStop0)) / 2 / 14 + 0.5;
+                               (FallingEdge[0] + EdgeStop0)) / 2 / 14;
     }
 
     // We can't proceed until we have a valid StepLength
@@ -1452,8 +1472,6 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
     // Calculate the high/low threshold
     Threshold = Threshold / 16;
 
-    LOG(0, "StepLength: %f", StepLength);
-
 
     // (VBI_decode_vt wants bits in reverse)
     RawData[0] = 0x55;
@@ -1461,13 +1479,12 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
     RawData[2] = 0x00;
 
     // this should bring us to the start of 11100100
-    BitIndex = (double) Trench[7] + StepLength;
-
-    #define ROUND(f)  ((int)(((double)f) + 0.5))
+    // Add 0.5 to for rounding
+    BitIndex = (double) Trench[7] + StepLength + 0.5;
 
     for (j = 0; j < 8; j++, BitIndex += StepLength)
     {
-        if (VBILine[ROUND(BitIndex)] > Threshold)
+        if (VBILine[(USHORT)BitIndex] > Threshold)
         {
             RawData[2] |= 1 << j;
         }
@@ -1485,15 +1502,13 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
         RawData[i] = 0x00;
         for (j = 0; j < 8; j++, BitIndex += StepLength)
         {
-            if (VBILine[ROUND(BitIndex)] > Threshold)
+            if (VBILine[(USHORT)BitIndex] > Threshold)
             {
                 RawData[i] |= 1 << j;
             }
         }
     }
   
-    #undef ROUND
-
     VBI_decode_vt(RawData);
 }
 */

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.6 2002-10-20 07:41:04 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.7 2002-10-23 17:05:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/20 07:41:04  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.5  2002/10/15 04:34:26  atnak
 // increased the amount of VBI samples to get better decoding
 //
@@ -98,7 +101,8 @@ BYTE CSAA7134Card::GetHue()
 
 void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines,
                                     long& VideoWidth, long& VideoHeight,
-                                    long HDelayShift, long VDelayShift)
+                                    long HDelayShift, long VDelayShift,
+                                    long VBIUpscaleDivisor)
 {
     BYTE SyncControl    = 0;
     BYTE LumaControl    = 0;
@@ -182,24 +186,68 @@ void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines
 
     UpdateAudioClocksPerField(VideoStandard);
 
-    WORD VBIStartLine   = m_VideoStandards[VideoStandard].wVBIStartLine;
-    WORD VBIStopLine    = m_VideoStandards[VideoStandard].wVBIStopLine;
+    VBILines = m_VideoStandards[VideoStandard].wVBIStopLine -
+        m_VideoStandards[VideoStandard].wVBIStartLine + 1;
 
-    if (VBIStopLine - VBIStartLine + 1 > VBILines)
-    {
-        VBIStopLine = VBIStartLine + VBILines - 1;
-    }
-    else
-    {
-        VBILines = VBIStopLine - VBIStartLine + 1;
-    }
-
-    SetVBIGeometry(TASKID_A, 0, 719, VBIStartLine, VBIStopLine);
-    SetVBIGeometry(TASKID_B, 0, 719, VBIStartLine, VBIStopLine);
+    SetVBIGeometry(VBIUpscaleDivisor);
 
     VideoHeight = m_VideoStandards[VideoStandard].wFieldHeight * 2;
 
     SetGeometry(VideoWidth, VideoHeight, HDelayShift, VDelayShift);
+}
+
+
+void CSAA7134Card::SetVBIGeometry(WORD UpscaleDivisor)
+{
+    if (m_VideoStandard == VIDEOSTANDARD_INVALID)
+    {
+        return;
+    }
+
+    WORD VStart = m_VideoStandards[m_VideoStandard].wVBIStartLine;
+    WORD VStop  = m_VideoStandards[m_VideoStandard].wVBIStopLine;
+
+    SetTaskVBIGeometry(TASKID_A, 0, 719, VStart, VStop, UpscaleDivisor);
+    SetTaskVBIGeometry(TASKID_B, 0, 719, VStart, VStop, UpscaleDivisor);
+}
+
+
+void CSAA7134Card::SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
+                                  WORD VStart, WORD VStop, WORD UpscaleDivisor)
+{
+    BYTE TaskMask = TaskID2TaskMask(TaskID);
+
+    WORD SampleBytes = (double) 0x400 / UpscaleDivisor * (HStop - HStart + 1);
+
+    WriteWord(SAA7134_VBI_H_START(TaskMask), HStart);
+    WriteWord(SAA7134_VBI_H_STOP(TaskMask), HStop);
+    WriteWord(SAA7134_VBI_V_START(TaskMask), VStart);
+    WriteWord(SAA7134_VBI_V_STOP(TaskMask), VStop);
+
+    // SAA7134_VBI_H_SCALE_INC:
+    //   0x400 for 100%, 0x200 for 200%
+
+    // (This may be specific to PAL-BG)
+    // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
+    // can't handle this scaling.  Instead, we scale UpscaleDivisor
+    // and manually scale a little more in SAA7134Source.cpp
+    //
+    WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), UpscaleDivisor);
+
+    WORD Lines = VStop - VStart + 1;
+
+    eRegionID RegionID = TaskID2VBIRegion(TaskID);
+    if (GetDMA(RegionID))
+    {
+        // Make sure we aren't grabbing more lines than we have memory
+        WORD LinesAvailable = CalculateLinesAvailable(RegionID, SampleBytes);
+
+        if (LinesAvailable < Lines)
+            Lines = LinesAvailable;
+    }
+
+    WriteWord(SAA7134_VBI_V_LEN(TaskMask), Lines);
+    WriteWord(SAA7134_VBI_H_LEN(TaskMask), SampleBytes);
 }
 
 
@@ -250,46 +298,6 @@ void CSAA7134Card::SetGeometry(WORD ScaleWidth, WORD ScaleHeight,
 }
 
 
-void CSAA7134Card::SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
-                                  WORD VStart, WORD VStop)
-{
-    BYTE TaskMask = TaskID2TaskMask(TaskID);
-
-    WORD SampleBytes = (double) 0x400 / 0x1A4 * 720;
-
-    WriteWord(SAA7134_VBI_H_START(TaskMask), HStart);
-    WriteWord(SAA7134_VBI_H_STOP(TaskMask), HStop);
-    WriteWord(SAA7134_VBI_V_START(TaskMask), VStart);
-    WriteWord(SAA7134_VBI_V_STOP(TaskMask), VStop);
-
-    // SAA7134_VBI_H_SCALE_INC:
-    //   0x400 for 100%, 0x200 for 200%
-
-    // (This may be specific to PAL-BG)
-    // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
-    // can't handle this scaling.  Instead, we scale 0x1A4 (close
-    // enough) and manually scale a little more in SAA7134Source.cpp
-    // WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x0186);
-    //
-    WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x1A4);
-
-    WORD Lines = VStop - VStart + 1;
-
-    eRegionID RegionID = TaskID2VBIRegion(TaskID);
-    if (GetDMA(RegionID))
-    {
-        // Make sure we aren't grabbing more lines than we have memory
-        WORD LinesAvailable = CalculateLinesAvailable(RegionID, SampleBytes);
-
-        if (LinesAvailable < Lines)
-            Lines = LinesAvailable;
-    }
-
-    WriteWord(SAA7134_VBI_H_LEN(TaskMask), SampleBytes);
-    WriteWord(SAA7134_VBI_V_LEN(TaskMask), Lines);
-}
-
-
 void CSAA7134Card::SetTaskGeometry(eTaskID TaskID,
                                    WORD Width, WORD Height,
                                    WORD HDelay, WORD VDelay,
@@ -326,9 +334,9 @@ void CSAA7134Card::SetTaskGeometry(eTaskID TaskID,
             Lines = LinesAvailable;
     }
 
-    // The number of pixels and lines to DMA
-    WriteWord(SAA7134_VIDEO_PIXELS(TaskMask), ScaleWidth);
+    // The number of lines and pixels to DMA
     WriteWord(SAA7134_VIDEO_LINES(TaskMask), Lines);
+    WriteWord(SAA7134_VIDEO_PIXELS(TaskMask), ScaleWidth);
 }
 
 

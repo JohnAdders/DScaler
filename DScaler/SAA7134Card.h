@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.15 2002-10-20 07:41:04 atnak Exp $
+// $Id: SAA7134Card.h,v 1.16 2002-10-23 17:05:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/20 07:41:04  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.14  2002/10/16 11:40:10  atnak
 // Added KWORLD KW-TV713XRF card.  Thanks "b"
 //
@@ -203,11 +206,12 @@ public:
     LPCSTR GetChipType();
     LPCSTR GetTunerType();
 
-    void SetVideoStandard(eVideoStandard VideoStandard, long& VBILines, long& VideoWidth, long& VideoHeight, long HDelayShift, long VDelayShift);
+    void SetVideoStandard(eVideoStandard VideoStandard, long& VBILines, long& VideoWidth, long& VideoHeight, long HDelayShift, long VDelayShift, long VBIUpscaleDivisor);
     void SetGeometry(WORD ScaleWidth, WORD ScaleHeight, long HDelayShift, long VDelayShift);
+    void SetVBIGeometry(WORD UpscaleDivisor);
     
     void SetTaskGeometry(eTaskID TaskID, WORD Width, WORD Height, WORD HDelay, WORD VDelay, WORD ScaleWidth, WORD ScaleHeight);
-    void SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart, WORD VStop);
+    void SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart, WORD VStop, WORD UpscaleDivisor);
 
     long GetMinimumVDelay();
     long GetMinimumVDelayWithVBI();

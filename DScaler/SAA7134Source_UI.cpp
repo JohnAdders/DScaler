@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.16 2002-10-28 11:10:09 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.17 2002-10-28 12:04:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/28 11:10:09  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.15  2002/10/26 17:51:53  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -150,6 +153,12 @@ void CSAA7134Source::InitializeUI()
             InsertMenuItem(hSubMenu, i, TRUE, &MenuItemInfo);
         }
     }
+
+#ifndef _DEBUG
+    // These menus are useless to the general user
+    RemoveMenu(m_hMenu, IDM_AUDIOSETTINGS, MF_BYCOMMAND);
+    RemoveMenu(m_hMenu, IDM_ADV_VIDEOSETTINGS, MF_BYCOMMAND);
+#endif
 }
 
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.211 2002-08-08 10:34:23 robmuller Exp $
+// $Id: DScaler.cpp,v 1.212 2002-08-08 12:23:18 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.211  2002/08/08 10:34:23  robmuller
+// Updated command line message example.
+//
 // Revision 1.210  2002/08/08 10:31:21  robmuller
 // Fixed problem when command line OSD message contains quotes.
 //
@@ -675,6 +678,9 @@
 #include "hardwaredriver.h"
 #include "StillSource.h"
 #include "TreeSettingsDlg.h"
+#include "SettingsPerChannel.h"
+
+extern long CurrentProgram;
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -2697,6 +2703,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Cursor_UpdateVisibility();
             break;
 
+        case ID_SETTINGS_SAVESETTINGSPERCHANNEL:
+            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_ENABLED), !SettingsPerChannel());
+            CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel());
+            EnableMenuItemBool(hMenu, ID_SETTINGS_CLEARCHANNELSETTINGS, SettingsPerChannel());
+            break;
+        case ID_SETTINGS_CLEARCHANNELSETTINGS:
+            SettingsPerChannel_ClearSettings(NULL, CurrentProgram, 1);
+            break;
+        
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
             ShowVideoModeUI();
             break;
@@ -3551,6 +3566,9 @@ void MainWndOnInitBT(HWND hWnd)
 
         AddSplashTextLine("Start Video");
         Start_Capture();
+
+        // Setup settings per channel
+        SettingsPerChannel_Setup(1, CurrentProgram);
     }
     else
     {
@@ -3703,10 +3721,12 @@ void MainWndOnDestroy()
     
     __try
     {
+        SettingsPerChannel_Setup(0, CurrentProgram);
         // save settings
         // must be done before providers are unloaded
         LOG(1, "WriteSettingsToIni");
         WriteSettingsToIni(TRUE);
+        
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 
@@ -3788,6 +3808,9 @@ void SetMenuAnalog()
     {
         pCalibration->SetMenu(hMenu);
     }
+
+    CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel());
+    EnableMenuItemBool(hMenu, ID_SETTINGS_CLEARCHANNELSETTINGS, SettingsPerChannel());
 }
 
 // This function checks the name of the menu item. A message box is shown with a debug build

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.167 2002-05-30 19:09:46 robmuller Exp $
+// $Id: DScaler.cpp,v 1.168 2002-05-30 19:48:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.167  2002/05/30 19:09:46  robmuller
+// Redraw screen after Videotext Reset.
+//
 // Revision 1.166  2002/05/30 13:06:41  robmuller
 // Removed variable bIgnoreMouse.
 //
@@ -2575,6 +2578,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     Cursor_VTUpdate(true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             }
         }
+        break;
+
+    case WM_NCMOUSEMOVE:
+        Cursor_UpdateVisibility();
         break;
 
     case WM_ENTERMENULOOP:

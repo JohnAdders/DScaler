@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.65 2003-08-16 09:20:57 laurentg Exp $
+// $Id: Providers.cpp,v 1.66 2003-08-16 18:40:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2003/08/16 09:20:57  laurentg
+// Disable access to audio mixer dialog box when the current source is a still
+//
 // Revision 1.64  2003/08/16 08:06:04  laurentg
 // New message box to introduce audio mixer dialog box
 //
@@ -474,8 +477,28 @@ int Providers_Load(HMENU hMenu)
         Source->DisplayInMenu = TRUE;
         Sources.push_back(Source);
 
-		// todo : display the mixer setup dialog box
-		// at first setup of a card
+		// Set CurrentSource for Providers_GetCurrentSource function
+		// used in mixer code
+        CurrentSource = Sources.size()-1;
+		// The first time, setup the audio mixer for the card
+		if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
+		{
+			MessageBox(hWnd,
+				"The proceeding dialog will allow you to configure how "
+				"DScaler uses the system mixer.  Configuring DScaler to use the "
+				"system mixer allows DScaler to change the volume level and the "
+				"mute state of your card by using the Windows mixer.  This is a "
+				"must for cards that do not support these functions in hardware. "
+				"You should specify the line into which your TV card's loopback "
+				"sound cable is attached.\n"
+				"\n"
+				"If you do not wish to let DScaler use the system mixer, leave "
+				"the \"Use the system mixer\" option unchecked.  If unsure, it "
+				"is recommended you use the system mixer.", "Next...", MB_OK);
+			Mixer_Init();
+			Mixer_SetupDlg(hWnd);
+			Mixer_Exit();
+		}
 
         DSProvider->GetSource(i)->Mute();
     }
@@ -632,11 +655,29 @@ CSource* Providers_GetIntroSource()
 
 BOOL Providers_IsStillSource(CSource* source)
 {
-	for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
+	if (StillProvider != NULL)
 	{
-		if (StillProvider->GetSource(i) == source)
+		for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
 		{
-			return TRUE;
+			if (StillProvider->GetSource(i) == source)
+			{
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+BOOL Providers_IsMovieFileSource(CSource* source)
+{
+	if (DSProvider != NULL)
+	{
+		for (int i=0 ; i<DSProvider->GetNumberOfSources() ; i++)
+		{
+			if ((DSProvider->GetSource(i) == source) && !((CDSSourceBase*)source)->IsCaptureSource())
+			{
+				return TRUE;
+			}
 		}
 	}
 	return FALSE;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.344 2003-08-16 09:25:10 laurentg Exp $
+// $Id: DScaler.cpp,v 1.345 2003-08-16 18:40:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.344  2003/08/16 09:25:10  laurentg
+// Disable access to audio mixer dialog box when the current source is a still
+//
 // Revision 1.343  2003/08/15 17:18:35  laurentg
 // Factorize treatments
 //
@@ -5507,7 +5510,7 @@ void SetMenuAnalog()
     EnableMenuItem(hMenu, IDM_OVERLAY_STOP, bMinimized ? MF_GRAYED : MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_TAKECYCLICSTILL, bTakingCyclicStills);
 
-    EnableMenuItem(hMenu, IDM_AUDIO_MIXER, ((Providers_GetCurrentSource() == NULL) || Providers_IsStillSource(Providers_GetCurrentSource())) ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_AUDIO_MIXER, ((Providers_GetCurrentSource() == NULL) || Providers_IsStillSource(Providers_GetCurrentSource()) || Providers_IsMovieFileSource(Providers_GetCurrentSource())) ? MF_GRAYED : MF_ENABLED);
 
     SetMixedModeMenu(hMenu, !bVTSingleKeyToggle);
 

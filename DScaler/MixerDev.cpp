@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.47 2003-08-16 09:20:57 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.48 2003-08-16 18:40:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2003/08/16 09:20:57  laurentg
+// Disable access to audio mixer dialog box when the current source is a still
+//
 // Revision 1.46  2003/08/15 17:18:36  laurentg
 // Factorize treatments
 //
@@ -392,7 +395,7 @@ void Mixer_Volume_Down()
 void Mixer_SetupDlg(HWND hWndParent)
 {
 	CSource* source = Providers_GetCurrentSource();
-	if ((source == NULL) || Providers_IsStillSource(source))
+	if ((source == NULL) || Providers_IsStillSource(source) || Providers_IsMovieFileSource(source))
 	{
         MessageBox(hWnd, "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.23 2003-08-10 11:55:29 tobbej Exp $
+// $Id: DSGraph.h,v 1.24 2004-12-11 21:53:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/08/10 11:55:29  tobbej
+// implemented the base for seeking in files
+//
 // Revision 1.22  2003/03/09 12:14:39  tobbej
 // use the new graph debuging functions (only in loglevel 2 and 3)
 //
@@ -300,8 +303,8 @@ private:
 	/// used in getFilterName and showPropertyPage
 	vector<CFilterPages> m_filters;
 
-#ifdef _DEBUG
 	DWORD m_hROT;
+#ifdef _DEBUG
 	HANDLE m_hLogFile;
 #endif
 };

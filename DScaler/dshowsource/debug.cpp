@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: debug.cpp,v 1.5 2003-11-11 21:26:43 robmuller Exp $
+// $Id: debug.cpp,v 1.6 2004-12-11 21:53:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/11/11 21:26:43  robmuller
+// Exclude some more when WANT_DSHOW_SUPPORT is not defined.
+//
 // Revision 1.4  2003/08/10 12:12:45  tobbej
 // some smal changes to debug output
 //
@@ -51,7 +54,7 @@
 #include "pinenum.h"
 #include <dvdmedia.h>
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 
 
 HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister)
@@ -81,7 +84,7 @@ void RemoveFromRot(DWORD pdwRegister)
 		pROT->Revoke(pdwRegister);
 	}
 }
-#endif
+//#endif
 
 ///@return name of the guid
 char* GetGUIDName(GUID &guid)

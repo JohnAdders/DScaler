@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.30 2003-09-28 09:22:41 adcockj Exp $
+// $Id: DSGraph.cpp,v 1.31 2004-12-11 21:53:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/09/28 09:22:41  adcockj
+// Fixed crash when graph doesn't support seeking
+//
 // Revision 1.29  2003/08/11 20:48:04  laurentg
 // Bad include command suppressed
 //
@@ -162,10 +165,10 @@ CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,bool
 	m_pSource=new CDShowCaptureDevice(m_pGraph,device,deviceName,bConnectAudio);
 	m_pSource->SetAudioDevice(AudioDevice);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	//this makes it posibel to connect graphedit to the graph
 	AddToRot(m_pGraph,&m_hROT);
-#endif
+//#endif
 }
 
 CDShowGraph::CDShowGraph(string filename,string AudioDevice)
@@ -177,9 +180,9 @@ CDShowGraph::CDShowGraph(string filename,string AudioDevice)
 	m_pSource=new CDShowFileSource(m_pGraph,filename);
 	m_pSource->SetAudioDevice(AudioDevice);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	AddToRot(m_pGraph,&m_hROT);
-#endif
+//#endif
 }
 
 CDShowGraph::~CDShowGraph()
@@ -206,14 +209,14 @@ CDShowGraph::~CDShowGraph()
 		m_pSource=NULL;
 	}
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	RemoveFromRot(m_hROT);
 	/*m_pGraph->SetLogFile(NULL);
 	if(m_hLogFile!=INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hLogFile);
 	}*/
-#endif
+//#endif
 }
 
 void CDShowGraph::InitGraph()

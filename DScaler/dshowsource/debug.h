@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: debug.h,v 1.2 2003-03-05 21:44:22 tobbej Exp $
+// $Id: debug.h,v 1.3 2004-12-11 21:53:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/03/05 21:44:22  tobbej
+// new debuging functions
+//
 // Revision 1.1  2001/12/09 22:01:48  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -35,10 +38,10 @@
  * @file debug.h some dshow debuging functions
  */
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 
 /**
- * This function makes it posibel to use graphedit to view/change a running filter graph.
+ * This function makes it posible to use graphedit to view/change a running filter graph.
  * @param pUnkGraph filter graph
  * @param pdwRegister
  */
@@ -50,7 +53,7 @@ HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister);
  */
 void RemoveFromRot(DWORD pdwRegister);
 
-#endif
+//#endif
 
 /**
  * @param pGraph

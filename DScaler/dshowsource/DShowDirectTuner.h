@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowDirectTuner.h,v 1.1 2002-10-29 19:30:43 tobbej Exp $
+// $Id: DShowDirectTuner.h,v 1.2 2002-11-08 21:11:34 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 19:30:43  tobbej
+// new tuner class for direct tuning to a frequency
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -41,8 +44,8 @@
 
 /**
  * DirectShow tuner class.
- * This class uses both the normal directshow IAMTVTuner and
- * also IKsPropertySet to be able to tune directly to a frequency.
+ * This class uses IKsPropertySet to bypas IAMTVTuner interface, this makes 
+ * it posibel to tune directly to a frequency.
  */
 class CDShowDirectTuner : public CDShowObject  
 {
@@ -111,10 +114,7 @@ public:
 	long GetAvailableTVFormats();
 
 private:
-
-	CComPtr<IAMTVTuner> m_pTVTuner;
 	CComPtr<IKsPropertySet> m_pKSProp;
-
 };
 
 #endif // !defined(AFX_DSHOWDIRECTTUNER_H__BCD904DA_6DA2_47DF_A759_09ABA502617F__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowDirectTuner.cpp,v 1.1 2002-10-29 19:30:43 tobbej Exp $
+// $Id: DShowDirectTuner.cpp,v 1.2 2002-11-08 21:11:34 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 19:30:43  tobbej
+// new tuner class for direct tuning to a frequency
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -86,9 +89,9 @@ void GetKSData(CComPtr<IKsPropertySet> pKSProp,KSPROPERTY_TUNER Property,DataTyp
 //////////////////////////////////////////////////////////////////////
 
 CDShowDirectTuner::CDShowDirectTuner(CComPtr<IAMTVTuner> pTVTuner,IGraphBuilder *pGraph)
-:CDShowObject(pGraph),m_pTVTuner(pTVTuner)
+:CDShowObject(pGraph)
 {
-	HRESULT hr=m_pTVTuner.QueryInterface(&m_pKSProp);
+	HRESULT hr=pTVTuner.QueryInterface(&m_pKSProp);
 	if(FAILED(hr))
 	{
 		throw CDShowException("TVTuner does not support IKsPropertySet !!",hr);
@@ -102,23 +105,28 @@ CDShowDirectTuner::~CDShowDirectTuner()
 
 AMTunerModeType CDShowDirectTuner::GetTunerMode()
 {
-	AMTunerModeType mode;
-	HRESULT hr=m_pTVTuner->get_Mode(&mode);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowDirectTuner::GetTunerMode Failed",hr);
-	}
-	return mode;
+	KSPROPERTY_TUNER_MODE_S TunerMode;
+	memset(&TunerMode,0,sizeof(KSPROPERTY_TUNER_MODE_S));
+	GetKSData(m_pKSProp,KSPROPERTY_TUNER_MODE,TunerMode);
+	return (AMTunerModeType)TunerMode.Mode;
 }
 
 void CDShowDirectTuner::SetTunerMode(AMTunerModeType Mode)
 {
 	if(Mode&GetAvailableModes())
 	{
-		HRESULT hr=m_pTVTuner->put_Mode(Mode);
+		KSPROPERTY_TUNER_MODE_S TunerMode;
+		memset(&TunerMode,0,sizeof(KSPROPERTY_TUNER_MODE_S));
+		TunerMode.Mode=Mode;
+		HRESULT hr=m_pKSProp->Set(PROPSETID_TUNER,
+			KSPROPERTY_TUNER_MODE,
+			INSTANCE_DATA_OF_PROPERTY_PTR(&TunerMode),
+			INSTANCE_DATA_OF_PROPERTY_SIZE(TunerMode),
+			&TunerMode,
+			sizeof(TunerMode));
 		if(FAILED(hr))
 		{
-			throw CDShowException("CDShowDirectTuner::SetTunerMode Failed",hr);
+			throw CDShowException("CDShowDirectTuner::SetTunerMode failed to set tuner mode",hr);
 		}
 	}
 	else
@@ -129,13 +137,10 @@ void CDShowDirectTuner::SetTunerMode(AMTunerModeType Mode)
 
 long CDShowDirectTuner::GetAvailableModes()
 {
-	long modes;
-	HRESULT hr=m_pTVTuner->GetAvailableModes(&modes);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowDirectTuner::GetAvailableModes Failed",hr);	
-	}
-	return modes;
+	KSPROPERTY_TUNER_CAPS_S TunerCaps;
+	memset(&TunerCaps,0,sizeof(KSPROPERTY_TUNER_CAPS_S));
+	GetKSData(m_pKSProp,KSPROPERTY_TUNER_CAPS,TunerCaps);
+	return TunerCaps.ModesSupported;
 }
 
 long CDShowDirectTuner::GetFrequency()
@@ -150,14 +155,23 @@ void CDShowDirectTuner::SetFrequency(long Freq,AMTunerModeType Mode,AnalogVideoS
 {
 	SetTunerMode(Mode);
 	
-	//it doesn't matter if SetTVFormat fails
-	try
+	//CDSCaptureSource::ConvertVideoFmt uses AnalogVideo_None when it can't 
+	//convert from eVideoFormat
+	if(GetAvailableTVFormats()|Format && Format!=AnalogVideo_None)
 	{
-		SetTVFormat(Format);
+		//it doesn't matter if SetTVFormat fails, just log it and continue
+		try
+		{
+			SetTVFormat(Format);
+		}
+		catch(CDShowException e)
+		{
+			LOG(1,"CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.getErrorText());
+		}
 	}
-	catch(CDShowException e)
+	else
 	{
-		LOG(1,"CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.getErrorText());
+		LOG(1,"CDShowDirectTuner::SetFrequency: Specified video format is not supported (format: %d)",Format);
 	}
 	
 	KSPROPERTY_TUNER_MODE_CAPS_S ModeCaps;
@@ -245,18 +259,22 @@ long CDShowDirectTuner::GetSignalStrength(CDShowDirectTuner::eSignalType &type)
 
 long CDShowDirectTuner::GetInput()
 {
-	long index;
-	HRESULT hr=m_pTVTuner->get_ConnectInput(&index);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowDirectTuner::GetInput Failed",hr);
-	}
-	return index;
+	KSPROPERTY_TUNER_INPUT_S TunerInput;
+	memset(&TunerInput,0,sizeof(KSPROPERTY_TUNER_INPUT_S));
+	GetKSData(m_pKSProp,KSPROPERTY_TUNER_INPUT,TunerInput);
+	return TunerInput.InputIndex;
 }
 
 void CDShowDirectTuner::SetInput(long Input)
 {
-	HRESULT hr=m_pTVTuner->put_ConnectInput(Input);
+	KSPROPERTY_TUNER_INPUT_S TunerInput;
+	memset(&TunerInput,0,sizeof(KSPROPERTY_TUNER_INPUT_S));
+	HRESULT hr=m_pKSProp->Set(PROPSETID_TUNER,
+		KSPROPERTY_TUNER_INPUT,
+		INSTANCE_DATA_OF_PROPERTY_PTR(&TunerInput),
+		INSTANCE_DATA_OF_PROPERTY_SIZE(TunerInput),
+		&TunerInput,
+		sizeof(TunerInput));
 	if(FAILED(hr))
 	{
 		throw CDShowException("CDShowDirectTuner::SetInput Failed",hr);
@@ -265,13 +283,11 @@ void CDShowDirectTuner::SetInput(long Input)
 
 long CDShowDirectTuner::GetNumInputs()
 {
-	long count;
-	HRESULT hr=m_pTVTuner->get_NumInputConnections(&count);
-	if(FAILED(hr))
-	{
-		throw CDShowException("CDShowDirectTuner::GetNumInputs Failed",hr);
-	}
-	return count;
+	KSPROPERTY_TUNER_MODE_CAPS_S ModeCaps;
+	memset(&ModeCaps,0,sizeof(KSPROPERTY_TUNER_MODE_CAPS_S));
+	ModeCaps.Mode=GetTunerMode();
+	GetKSData(m_pKSProp,KSPROPERTY_TUNER_MODE_CAPS,ModeCaps);
+	return ModeCaps.NumberOfInputs;
 }
 
 AnalogVideoStandard CDShowDirectTuner::GetTVFormat()

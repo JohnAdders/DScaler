@@ -80,7 +80,6 @@ IDB_RUSSIAN_VTCHARS     BITMAP  DISCARDABLE     "RES\\VTRUSSIANX15X18.bmp"
 IDB_GERMAN_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTGERMANX15X18.BMP"
 IDB_GREEK_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTGREEKX15X18.BMP"
 
-
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -92,9 +91,9 @@ VS_VERSION_INFO VERSIONINFO
  PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
- FILEFLAGS 0x1L
+ FILEFLAGS 0x29L
 #else
- FILEFLAGS 0x0L
+ FILEFLAGS 0x28L
 #endif
  FILEOS 0x40004L
  FILETYPE 0x1L
@@ -105,17 +104,17 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "John Adcock\0"
-            VALUE "CompanyName", "\0"
+            VALUE "CompanyName", "DScaler Team\0"
             VALUE "FileDescription", "DScaler\0"
-            VALUE "FileVersion", "4, 0, 0, 0\0"
+            VALUE "FileVersion", "4.0.0\0"
             VALUE "InternalName", "DScaler\0"
             VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScaler.exe\0"
-            VALUE "PrivateBuild", "\0"
+            VALUE "PrivateBuild", "0\0"
             VALUE "ProductName", "DScaler\0"
             VALUE "ProductVersion", "4.0.0\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "SpecialBuild", "0\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -794,6 +794,7 @@
 #define IDM_SAVE_BY_INPUT               2089
 #define IDM_SAVE_BY_CHANNEL             2090
 #define IDA_DSCALER                     2091
+#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 

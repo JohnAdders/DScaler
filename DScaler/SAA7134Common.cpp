@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.13 2003-06-01 19:41:41 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.14 2003-06-20 03:57:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/06/01 19:41:41  atnak
+// Adjusted video vdelays to avoid VBI overlap
+//
 // Revision 1.12  2003/05/26 20:49:03  laurentg
 // Corrections for datacasting
 // Enable the Cancel button in the setup card dialog box
@@ -88,45 +91,46 @@ CSAA7134Common::TVideoStandardDefinition CSAA7134Common::m_VideoStandards[] =
     },
     // VIDEOSTANDARD_PAL_BGDHI
     {
-        720, 288, 0, 20, TRUE, 1, 19, 0x0,
+        720, 288, 0, 19, TRUE, 1, 19, 0x0,
     },
     // VIDEOSTANDARD_PAL_N_COMBO
     {
-        720, 288, 0, 20, TRUE, 1, 19, 0x2,
+        720, 288, 0, 19, TRUE, 1, 19, 0x2,
     },
     // VIDEOSTANDARD_PAL_60
     {
-        720, 240, 0, 20, FALSE, 1, 19, 0x1,
+        720, 240, 0, 19, FALSE, 1, 19, 0x1,
     },
     // VIDEOSTANDARD_PAL_M
     {
-        720, 240, 0, 20, FALSE, 1, 19, 0x3,
+        720, 240, 0, 19, FALSE, 1, 19, 0x3,
     },
     // VIDEOSTANDARD_SECAM
     {
-        720, 288, 0, 20, TRUE, 1, 19, 0x5,
+        720, 288, 0, 19, TRUE, 1, 19, 0x5,
     },
     // VIDEOSTANDARD_NTSC_M
     {
-        720, 240, 0, 20, FALSE, 1, 19, 0x0,
+        720, 240, 0, 16, FALSE, 1, 19, 0x0,
     },
     // VIDEOSTANDARD_NTSC_60 (NTSC 4.43)
     {
-        720, 240, 0, 20, FALSE, 1, 19, 0x2,
+        720, 240, 0, 16, FALSE, 1, 19, 0x2,
     },
     // VIDEOSTANDARD_NTSC_Japan
     {
-        720, 240, 0, 20, FALSE, 1, 19, 0x4,
+        720, 240, 0, 16, FALSE, 1, 19, 0x4,
     },
     // VIDEOSTANDARD_NTSC_50
     {
-        720, 288, 0, 20, TRUE, 1, 19, 0x1,
+        720, 288, 0, 16, TRUE, 1, 19, 0x1,
     },
     // VIDEOSTANDARD_NTSC_N
     {
-        720, 288, 0, 20, TRUE, 1, 19, 0x3,
+        720, 288, 0, 16, TRUE, 1, 19, 0x3,
     },
 };
+
 
 CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
 {

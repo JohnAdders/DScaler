@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.33 2002-01-26 18:04:29 laurentg Exp $
+// $Id: Other.cpp,v 1.34 2002-02-09 13:04:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/01/26 18:04:29  laurentg
+// Locking and unlocking the overlay and not the overlay back buffer when taking stills
+//
 // Revision 1.32  2002/01/19 11:56:26  robmuller
 // Fixed overlay error 80004001 on startup with 3dfx cards.
 //
@@ -1360,5 +1363,6 @@ void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 void Other_ShowUI()
 {
-    CSettingsDlg::ShowSettingsDlg("Overlay Settings",OtherSettings, OTHER_SETTING_LASTONE);
+//    CSettingsDlg::ShowSettingsDlg("Overlay Settings",OtherSettings, OTHER_SETTING_LASTONE);
+    CSettingsDlg::ShowSettingsDlg("Overlay Settings",OtherSettings, USEOVERLAYCONTROLS);
 }

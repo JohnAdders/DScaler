@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.19 2002-08-14 22:03:23 kooiman Exp $
+// $Id: DSSource.h,v 1.20 2002-08-15 14:20:11 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/08/14 22:03:23  kooiman
+// Added TV tuner support for DirectShow capture devices
+//
 // Revision 1.18  2002/08/13 21:04:42  kooiman
 // Add IDString() to Sources for identification purposes.
 //
@@ -176,9 +179,9 @@ public:
     LPCSTR IDString() { return m_IDString.c_str(); }
 
     void SettingsPerChannelSetup(int Start);
-
+    void TunerChannelChange(int PreChange, int OldChannel, int NewChannel);
 private:
-	void updateDroppedFields();
+	void updateDroppedFields();  
 
 	CDShowGraph *m_pDSGraph;
 	string m_device;
@@ -208,6 +211,9 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Hue);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Saturation);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Overscan);
+
+  DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, VideoInput);
+  DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, LastTunerChannel);
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

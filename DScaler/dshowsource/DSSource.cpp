@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.29 2002-08-14 22:03:23 kooiman Exp $
+// $Id: DSSource.cpp,v 1.30 2002-08-15 14:20:12 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/08/14 22:03:23  kooiman
+// Added TV tuner support for DirectShow capture devices
+//
 // Revision 1.28  2002/08/13 21:04:43  kooiman
 // Add IDString() to Sources for identification purposes.
 //
@@ -149,6 +152,7 @@
 #include "TreeSettingsDlg.h"
 #include "TreeSettingsOleProperties.h"
 #include "SettingsPerChannel.h"
+#include "ProgramList.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -188,6 +192,34 @@ videoStandardsType videoStandards[] =
 		AnalogVideo_PAL_N_COMBO,"PAL_N_COMBO",
 		0,NULL
 	};
+
+// For conversion from eVideoformat to DShow AnalogVideoStandard
+const AnalogVideoStandard eVideoFormatTable[] =
+{
+    AnalogVideo_PAL_B,
+		AnalogVideo_PAL_D,
+		AnalogVideo_PAL_G,
+		AnalogVideo_PAL_H,
+		AnalogVideo_PAL_I,
+		AnalogVideo_PAL_M,
+		AnalogVideo_PAL_N,
+		AnalogVideo_PAL_60,
+    AnalogVideo_PAL_N_COMBO,
+
+    AnalogVideo_SECAM_B,
+		AnalogVideo_SECAM_D,
+		AnalogVideo_SECAM_G,
+		AnalogVideo_SECAM_H,
+		AnalogVideo_SECAM_K,
+		AnalogVideo_SECAM_K1,
+		AnalogVideo_SECAM_L,
+		AnalogVideo_SECAM_L1,
+
+    AnalogVideo_NTSC_M,
+		AnalogVideo_NTSC_M_J,
+		AnalogVideo_NTSC_433,     // == VIDEOFORMAT_NTSC_50 ?
+};
+
 
 struct resolutionType
 {
@@ -566,6 +598,11 @@ void CDSSource::CreateSettings(LPCSTR IniSection)
 	m_Overscan = new COverscanSetting(this, "Overscan", 0, 0, 150, IniSection);
 	m_Settings.push_back(m_Overscan);
 
+  m_VideoInput = new CVideoInputSetting(this, "VideoInput", 0, 0, LONG_MAX, IniSection);
+	m_Settings.push_back(m_VideoInput);
+
+  m_LastTunerChannel = new CLastTunerChannelSetting(this, "LastTunerChannel", 0, 0, LONG_MAX, IniSection);
+	m_Settings.push_back(m_LastTunerChannel);
 }
 
 BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -582,7 +619,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 	if(LOWORD(wParam)>=IDM_CROSSBAR_INPUT0 && LOWORD(wParam)<=IDM_CROSSBAR_INPUT_MAX)
 	{
-		try
+		/*try
 		{
 			if(pCap!=NULL)
 			{
@@ -605,7 +642,8 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		catch(CDShowException &e)
 		{
 			ErrorBox(CString("Failed to change input\n\n")+e.getErrorText());
-		}
+		} */
+    m_VideoInput->SetValue(LOWORD(wParam)-IDM_CROSSBAR_INPUT0);
 
 		return TRUE;
 	}
@@ -643,6 +681,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		try
 		{
 			m_pDSGraph->start();
+      VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
 		}
 		catch(CDShowException &e)
 		{
@@ -755,6 +794,8 @@ void CDSSource::Start()
 		
 		//get the stored settings
 		ReadFromIni();
+    //
+    VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
 	}
 	catch(CDShowException &e)
 	{
@@ -898,17 +939,16 @@ BOOL CDSSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
       }
       
       // set video format
-      long lAnalogVideoStandard;
+      long lAnalogVideoStandard = pCap->getTVFormat();
       long lNewAnalogVideoStandard;
-      lAnalogVideoStandard = pCap->getTVFormat();
-
-      switch (VideoFormat)
-      {
-          case VIDEOFORMAT_PAL_B:
-          default:
-              lNewAnalogVideoStandard = AnalogVideo_PAL_B;
-              break;          
+      if ((int)VideoFormat < 0)
+      {          
+          lNewAnalogVideoStandard = lAnalogVideoStandard;
       }
+      else
+      {
+          lNewAnalogVideoStandard = eVideoFormatTable[VideoFormat];
+      }      
 
       if (lAnalogVideoStandard != lNewAnalogVideoStandard)
       {
@@ -1258,9 +1298,18 @@ void CDSSource::updateDroppedFields()
 	m_lastNumDroppedFrames=dropped;
 }
 
+void DSSource_ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel)
+{
+    if (pThis != NULL)
+    {
+        
+        ((CDSSource*)pThis)->TunerChannelChange(PreChange,OldChannel,NewChannel);        
+    }
+}
+
 void CDSSource::SettingsPerChannelSetup(int Start)
 {
-    if (Start)
+    if (Start&1)
     {
         SettingsPerChannel_RegisterSetSection(m_IDString.c_str());
         SettingsPerChannel_RegisterSetting("DSBrightness","DShow - Brightness",TRUE, m_Brightness);
@@ -1269,14 +1318,88 @@ void CDSSource::SettingsPerChannelSetup(int Start)
         SettingsPerChannel_RegisterSetting("DSSaturation","DShow - Saturation",TRUE, m_Saturation);
 
         SettingsPerChannel_RegisterSetting("DSOverscan","DShow - Overscan",TRUE, m_Overscan);
+
+        Channel_Register_Change_Notification(this, DSSource_ChannelChange);
+
     }    
     else
     {
         SettingsPerChannel_UnregisterSection(m_IDString.c_str());        
+        Channel_UnRegister_Change_Notification(this, DSSource_ChannelChange);
     }
 }
 
     
+
+void CDSSource::VideoInputOnChange(long input, long OldValue)
+{
+    if(m_pDSGraph==NULL)
+	  {
+		    return;
+	  }
+	  CDShowCaptureDevice *pCap=NULL;
+	  if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	  {
+		    pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+	  }
+    try
+		{
+	      if(pCap!=NULL)
+		    {
+				    CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+				    if(pCrossbar!=NULL)
+				    {
+					      //if changing a video input, set the related pin too
+					      long CurrentInputIndex = pCrossbar->GetInputIndex();
+                long CurrentInputType = pCrossbar->GetInputType(CurrentInputIndex);
+                SettingsPerChannel_VideoInputChange(this, 1, CurrentInputIndex, CurrentInputType == PhysConn_Video_Tuner);          
+          
+                long NewInputType = pCrossbar->GetInputType(input);
+					      pCrossbar->SetInputIndex(input,(NewInputType<4096));          
+
+                if (NewInputType == PhysConn_Video_Tuner)
+                {
+                    if (pCap->getTVTuner()!=NULL)
+                    {
+                        pCap->getTVTuner()->setInputPin(input);
+                        LastTunerChannelOnChange(m_LastTunerChannel->GetValue(), m_LastTunerChannel->GetValue());
+                    }
+                }
+          
+                SettingsPerChannel_VideoInputChange(this, 0, input, NewInputType == PhysConn_Video_Tuner);
+				      }
+         }
+	  }
+    catch(CDShowException &e)
+		{
+			ErrorBox(CString("Failed to change input\n\n")+e.getErrorText());
+		}
+
+}
+
+void CDSSource::TunerChannelChange(int PreChange, int OldChannel, int NewChannel)
+{
+    if (!PreChange)
+    {
+        m_LastTunerChannel->SetValue(NewChannel);
+    }
+}
+
+void CDSSource::LastTunerChannelOnChange(long Channel, long OldValue)
+{
+   static int RecurseLevel = 1;
+   if (RecurseLevel > 1)
+   {
+      return;
+   }   
+   RecurseLevel++;
+   if (IsInTunerMode())
+   {      
+      Channel_Change(Channel, 0);
+   }
+   RecurseLevel--;
+}
+
 
 
 #endif

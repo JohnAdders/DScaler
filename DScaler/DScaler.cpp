@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.184 2002-06-22 21:50:47 robmuller Exp $
+// $Id: DScaler.cpp,v 1.185 2002-06-23 20:51:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.184  2002/06/22 21:50:47  robmuller
+// Generate a valid dscaler.ini at startup.
+//
 // Revision 1.183  2002/06/22 15:06:30  laurentg
 // New vertical flip mode
 //
@@ -3651,7 +3654,7 @@ HMENU GetOSDSubmenu2()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(4, 7, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(4, 8, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

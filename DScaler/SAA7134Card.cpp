@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.20 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.21 2002-10-26 06:58:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.19  2002/10/26 04:41:44  atnak
 // Clean up + added auto card detection
 //
@@ -234,7 +237,7 @@ void CSAA7134Card::SetTypicalSettings()
     WriteByte(SAA7134_HSYNC_START,              0xEB);
     WriteByte(SAA7134_HSYNC_STOP,               0xE0);
 
-    WriteByte(SAA7134_SYNC_CTRL,                0x98);  // standard adjust
+    WriteByte(SAA7134_SYNC_CTRL,                0xB8);  // standard adjust
     WriteByte(SAA7134_LUMA_CTRL,                0x40);  // standard adjust
     WriteByte(SAA7134_DEC_LUMA_BRIGHT,          0x80);  // bright 128
     WriteByte(SAA7134_DEC_LUMA_CONTRAST,        0x44);  // contrast 68

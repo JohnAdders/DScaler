@@ -96,6 +96,10 @@ height="2"></td>
         <li>press pause with the remote control to be sure to have the same signal 
           during the calibration,</li>
         <li>select the corresponding test pattern in the DScaler Hardware menu,</li>
+        <li>start a <a href="#manual_calibration">manual calibration</a> and adjust 
+          your player left and right cropping to have the drawn analyzed zones 
+          correctly centered. This must be done only the first time you use this 
+          player for calibration. When it is done, stop the calibration.</li>
         <li>start the calibration choosing between a <a href="#manual_calibration">manual 
           calibration</a> and an <a href="#automatic_calibration">automatic calibration</a>, 
         </li>
@@ -116,39 +120,88 @@ height="2"></td>
       <p><font face="Arial" size="3"><b>Manual calibration<a name="#manual_calibration"></a></b></font></p>
       <p>During a manual calibration, the user must adjust the different video 
         settings using either the "Video adjustements" dialog box, either the 
-        <a href="keyboard.htm">shortcut keys</a>.<br>
-        Just after starting a manual calibration, an OSD is automatically displayed 
-        to help the user to decide what to adjust.<br>
+        <a href="keyboard.htm">shortcut keys</a>.</p>
+      <p>Just after starting a manual calibration, all analyzed zones of the test 
+        pattern are drawn with a (black or white) rectangle. You must verify that 
+        these zones are correctly centered with the content of your test pattern. 
+        All consumer players crop a little the video signal at left and at right. 
+        Two DScaler <a href="#parameters">parameters</a> allow to define the left 
+        and the right cropping done by your player. With a correct value for these 
+        parameters, the drawn rectangles should be correctly placed in the video 
+        signal.</p>
+      <p>An OSD is automatically displayed to help the user to decide what to 
+        adjust. The user can show and hide this OSD using Enter and Backspace 
+        keys.<br>
         On the left side ; "delta". Difference in RGB colorspace between the reference 
         values and the ones after the grab process.<br>
         On the right side ; same as what is on the left side, but with YUV colorspace.<br>
-        In the middle ; same info but with clear text infos ranging from "very 
-        good" to "very bad".</p>
+        In the middle ; same info but with a text compound of stars which summarizes 
+        the result; from one star (very bad) to five stars (very good). </p>
       <p>Depending on what setting the user is currently tuning, he will work 
         mainly with :<br>
-        <ul>
-          <li>black bars for brightness,</li>
-          <li>white bars for contrast,</li>
-          <li>blue bar for saturation U,</li>
-          <li>red bar for saturation V,</li>
-          <li>cyan and magenta bars for hue.</li>
-        </ul>
-      </p>
-      <p></p>
-      <p></p>
-      <p></p>
-      <p></p>
-      <p></p>
-      <p></p>
-      <p></p>
-      <p></p>
-      <p></p>
+      <ul>
+        <li>black bars for brightness,</li>
+        <li>white bars for contrast,</li>
+        <li>blue bar for saturation U,</li>
+        <li>red bar for saturation V,</li>
+        <li>cyan and magenta bars for hue.</li>
+      </ul>
       <p><font face="Arial" size="3"><b>Automatic calibration<a name="#automatic_calibration"></a></b></font></p>
       <p>During an automatic calibration, the user has nothing to do. Just wait 
         for DScaler to find the best settings. An OSD is displayed allowing to 
-        see the progress of the operation. At the end, the user can see the new 
-        video settings, and a quality indicator for each analyzed zone of the 
-        test pattern shows how good is the card calibration for this zone.</p>
+        see the progress of the operation, and analyzed zones used for the calibration 
+        are drawn in video signal.<br>
+        At the end, the user can see the new video settings, and a quality indicator 
+        for each analyzed zone of the test pattern shows how good (from one to 
+        five stars) is the card calibration for this zone. He is asked to confirm 
+        if he wants to keep these settings. If he responds &quot;No&quot;, the 
+        video settings before calibration are restored. </p>
+      <p><font face="Arial" size="3"><b>Parameters<a name="parameters"></a></b></font></p>
+      <p>All these parameters are defined in the section &quot;Calibration&quot; 
+        of the ini file.</p>
+      <table border="1">
+        <tr> 
+          <th>Setting</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+        <tr> 
+          <td>SourceOverscan</td>
+          <td>0</td>
+          <td>This is the overscan to be used during calibration. This value must 
+            be set to 0, except in very particular cases.</td>
+        </tr>
+        <tr> 
+          <td>LeftPlayerCropping</td>
+          <td>8</td>
+          <td>This value defines the left cropping done by the player. It is a 
+            n/1000 value. 8 means a crop of 0,8% of the video signal.</td>
+        </tr>
+        <tr> 
+          <td>RightPlayerCropping</td>
+          <td>16</td>
+          <td>This value defines the right cropping done by the player. It is 
+            a n/1000 value. 16 means a crop of 1,6% of the video signal.</td>
+        </tr>
+        <tr> 
+          <td>ShowRGBDelta</td>
+          <td>1</td>
+          <td>This boolean defines if the delta in RGB colorspace have to be displayed 
+            in OSD during manual calibration.</td>
+        </tr>
+        <tr> 
+          <td>ShowYUBDelta</td>
+          <td>1</td>
+          <td>This boolean defines if the delta in YUV colorspace have to be displayed 
+            in OSD during manual calibration.</td>
+        </tr>
+      </table>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
       <p></p>
       <p><font face="Arail" size="5"><b><font face="Arial">What do you need ?</font></b></font></p>
       <p>You need at least one of the referenced media with patterns and a player 
@@ -158,22 +211,32 @@ height="2"></td>
       <p><font face="Arial" size="2"><b>DVD Collector Les Ann&eacute;es Laser 
         2000</b></font></p>
       <p>A range of gray test pattern - title 36 chapter 1<br>
-        A color test pattern - title 31 chapter 1</p>
+        <img src="images/lal36-1.jpg" width="300" height="240"> </p>
+      <p>A color test pattern - title 31 chapter 1<br>
+        <img src="images/lal31-1.jpg" width="300" height="240"> </p>
       <p><font face="Arial" size="2"><b>THX Optimode (Pal)</b></font></p>
-      <p>Monitor Performance test pattern</p>
+      <p>Monitor Performance test pattern<br>
+        <img src="images/thxMonitorPerfPal.jpg" width="300" height="240"> </p>
       <p>You can find this test pattern on several Pal THX DVD. For instance, 
         &quot;Les Rivi&egrave;res Pourpres&quot; in region 2.</p>
       <p><font face="Arial" size="2"><b>THX Optimode (Ntsc)</b></font></p>
       <p>Monitor Performance test pattern<br>
-        Tint Color test pattern</p>
+        <img src="images/thxMonitorPerfNtsc.jpg" width="300" height="200"> </p>
+      <p>Tint Color test pattern<br>
+        <img src="images/thxTintColorNtsc.jpg" width="300" height="200"> </p>
       <p>You can find these test patterns on several Ntsc THX DVD. For instance, 
         &quot;Toy Story Ultimate Toy Box&quot; in region 1.</p>
       <p><font face="Arial" size="2"><b>DVD Video Essentials</b></font></p>
       <p>A range of gray test pattern - title 18 chapter 2<br>
-        A color test pattern - tile 18 chapter 10</p>
+        <img src="images/ve18-2.jpg" width="300" height="200"> </p>
+      <p>A color test pattern - tile 15 chapter 5<br>
+        <img src="images/ve15-5.jpg" width="300" height="200"> </p>
       <p><font size="2"><b><font face="Arial">DVD AVIA</font></b></font></p>
       <p>A range of gray test pattern - title 1 chapter 7<br>
-        A color test pattern - tile 4 chapter 4</p>
+        <img src="images/aviaT1Ch7.jpg" width="300" height="200"> </p>
+      <p>A color test pattern - tile 4 chapter 4<br>
+        <img src="images/aviaT4Ch4.jpg" width="300" height="200"> </p>
+      <p>&nbsp;</p>
       <!-- #EndEditable --> </td>
 </tr>
 

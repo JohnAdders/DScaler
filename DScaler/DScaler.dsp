@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="DScaler" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
 CFG=DScaler - Win32 Debug
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
+!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
+!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
 !MESSAGE NMAKE /f "DScaler.mak".
 !MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
+!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
 !MESSAGE NMAKE /f "DScaler.mak" CFG="DScaler - Win32 Debug"
 !MESSAGE 
-!MESSAGE Possible choices for configuration are:
+!MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "DScaler - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE "DScaler - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "DScaler - Win32 Debug" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "DScaler - Win32 Release" (basierend auf  "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -59,10 +59,10 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
-# ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /stack:0x4000,0x4000 /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
+# ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib /nologo /stack:0x4000,0x4000 /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Source\deinterlace\DScaler\Debug\DScaler.exe
+InputPath=\deinterlace\DScaler\Debug\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -109,10 +109,10 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
-# ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
+# ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Source\deinterlace\DScaler\Release\DScaler.exe
+InputPath=\deinterlace\DScaler\Release\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1512,6 +1512,10 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1521,8 +1525,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.39 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.40 2004-02-05 21:47:52 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.38  2003/07/18 09:41:23  adcockj
 // Added PDI input to holo3d (doesn't yet work)
 //
@@ -655,6 +658,7 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
     vSettingsList.push_back(m_HDelay);
     vSettingsList.push_back(m_VDelay);
     vSettingsList.push_back(m_AnalogueBlanking);
+    vSettingsList.push_back(m_ConexxantStartStopDriver);
     if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
     {
         vSettingsList.push_back(m_EatLinesAtTop);

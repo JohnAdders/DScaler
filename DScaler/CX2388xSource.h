@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.29 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.30 2004-02-05 21:47:52 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -212,6 +212,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Balance);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexxantStartStopDriver);
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);
     void ChangeDefaultsForVideoInput(BOOL bDontSetValue);

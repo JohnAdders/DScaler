@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.22 2004-01-18 21:13:59 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.23 2004-02-05 21:47:52 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -231,6 +231,7 @@ public:
     void SetAudioVolume(WORD nVolume);
     void SetAudioBalance(WORD nBalance);
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
+	void SetEnableStartStopConexxantDriver(BOOL bEnable);
 
 protected:
     void ManageMyState();
@@ -291,6 +292,7 @@ private:
     void AudioInitFM(eStereoType StereoType);
     void AudioInitNICAM(eStereoType StereoType);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+	BOOL StartStopConexxantDriver(DWORD NewState);
 
 private:
     eCX2388xCardId m_CardType;
@@ -306,6 +308,8 @@ private:
     int             m_CurrentInput;
     DWORD           m_FilterDefault;
     DWORD           m_2HCombDefault;
+    BOOL			m_EnableConexxantDriver2Stopp;
+    BOOL			m_ConexxantDriverStopped;
 
 private:
     static const TCardType m_TVCards[CX2388xCARD_LASTONE];

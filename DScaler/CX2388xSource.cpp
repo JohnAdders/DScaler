@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.57 2003-11-06 19:36:58 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.58 2004-02-05 21:47:52 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/11/06 19:36:58  adcockj
+// Increase size of vertical delay
+//
 // Revision 1.56  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -633,6 +636,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
+    m_ConexxantStartStopDriver = new CConexxantStartStopDriverSetting(this, "Stopping Conexxant driver while DScaler is running", TRUE, IniSection, pVideoGroup);
+    m_Settings.push_back(m_ConexxantStartStopDriver);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -666,6 +672,7 @@ void CCX2388xSource::Start()
 
 void CCX2388xSource::Reset()
 {
+	m_pCard->SetEnableStartStopConexxantDriver(m_ConexxantStartStopDriver->GetValue());
     m_pCard->ResetHardware();
     m_pCard->SetVideoSource(m_VideoSource->GetValue());
 
@@ -2042,4 +2049,9 @@ BOOL CCX2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
 ITuner* CCX2388xSource::GetTuner()
 {
     return m_pCard->GetTuner();
+}
+
+void CCX2388xSource::ConexxantStartStopDriverOnChange(long NewValue,long OldValue)
+{
+    m_pCard->SetEnableStartStopConexxantDriver(NewValue);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.89 2002-10-29 03:05:48 atnak Exp $
+// $Id: BT848Source.cpp,v 1.90 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2002/10/29 03:05:48  atnak
+// Added a virtual GetTreeSettingsPage() to all CSources
+//
 // Revision 1.88  2002/10/26 17:51:52  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -1704,7 +1707,7 @@ ITuner* CBT848Source::GetTuner()
 }
 
 
-CTreeSettingsGeneric* CBT848Source::GetTreeSettingsPage()
+CTreeSettingsPage* CBT848Source::GetTreeSettingsPage()
 {
     vector <CSimpleSetting*>vSettingsList;
 

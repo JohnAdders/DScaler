@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.25 2002-10-29 11:05:28 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.26 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.24  2002/10/29 03:05:47  atnak
 // Added a virtual GetTreeSettingsPage() to all CSources
 //
@@ -608,7 +611,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     if (mask & ADVANCED_SETTINGS_MASK)
     {
         int Root = dlg.AddPage(&AdvRootPage);
-        CTreeSettingsGeneric* pPage;
+        CTreeSettingsPage* pPage;
 
         if (Providers_GetCurrentSource())
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.2 2002-10-29 22:00:30 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.3 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ public:
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
   
-    CTreeSettingsGeneric* GetTreeSettingsPage();
+    CTreeSettingsPage* GetTreeSettingsPage();
 
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);

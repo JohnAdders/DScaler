@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.25 2002-10-29 03:05:47 atnak Exp $
+// $Id: Source.h,v 1.26 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ public:
     virtual ITuner* GetTuner() = 0;
 
     /// returns NULL if there is no tree settings page
-    virtual CTreeSettingsGeneric* GetTreeSettingsPage() = 0;
+    virtual CTreeSettingsPage* GetTreeSettingsPage() = 0;
 
 protected:
     CSource(long SetMessage, long MenuId);

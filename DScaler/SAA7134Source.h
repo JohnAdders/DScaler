@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.20 2002-10-29 03:07:18 atnak Exp $
+// $Id: SAA7134Source.h,v 1.21 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/10/29 03:07:18  atnak
+// Added SAA713x TreeSettings Page
+//
 // Revision 1.19  2002/10/28 11:10:11  atnak
 // Various changes and revamp to settings
 //
@@ -158,7 +161,7 @@ public:
     
     ITuner* GetTuner();
 
-    CTreeSettingsGeneric* CSAA7134Source::GetTreeSettingsPage();
+    CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

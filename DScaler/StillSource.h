@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.49 2002-10-29 03:05:47 atnak Exp $
+// $Id: StillSource.h,v 1.50 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ public:
     ISetting* GetSaturationV() {return NULL;};
     ISetting* GetOverscan() {return NULL;};
 
-    CTreeSettingsGeneric* GetTreeSettingsPage() {return NULL;};
+    CTreeSettingsPage* GetTreeSettingsPage() {return NULL;};
 
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};

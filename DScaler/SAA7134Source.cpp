@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.37 2002-10-30 04:35:47 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.38 2002-10-31 03:10:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/10/30 04:35:47  atnak
+// Added attempt to reduce driver conflict instability
+//
 // Revision 1.36  2002/10/30 03:28:21  atnak
 // Added helpid to SAA713x Advanced tree settings page
 //
@@ -2062,7 +2065,7 @@ ITuner* CSAA7134Source::GetTuner()
 }
 
 
-CTreeSettingsGeneric* CSAA7134Source::GetTreeSettingsPage()
+CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
 {
     CTreeSettingsGeneric* pPage;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.11 2001-08-02 17:43:19 koreth Exp $
+// $Id: AspectDetect.cpp,v 1.12 2001-08-03 09:44:06 koreth Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/08/02 17:43:19  koreth
+// Maybe fix WSS handling; the code was using an integer expression expecting it to behave like a floating-point one.
+//
 // Revision 1.10  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -148,6 +151,7 @@ static inline int GetNonBlackCount(short* Line, int StartX, int EndX)
     __int64 luminances;
     __int64 chromaMins;
     __int64 chromaMaxes;
+	__int64 totals;
     const __int64 YMask = 0x00FF00FF00FF00FF;
     const __int64 OneMask = 0x0001000100010001;
     int chromaMin, chromaMax;
@@ -206,18 +210,16 @@ BlackLoop:
         add     eax, 8              // Next qword
         loop    BlackLoop
 
-        // Now add up all four words in mm4 to get the total overall Count.
-        pextrw  ebx, mm4, 0
-        pextrw  eax, mm4, 1
-        add     ebx, eax
-        pextrw  eax, mm4, 2
-        add     ebx, eax
-        pextrw  eax, mm4, 3
-        add     ebx, eax
-        mov     counts, ebx
-
+		movq	totals, mm4			// Save totals so C code can deal with them
         emms
     }
+
+	// Add up the four totals (each in one word of the "totals" qword) to
+	// get the total overall count.
+	counts = (int)(totals & 0xffff) +
+			 (int)((totals >> 16) & 0xffff) +
+			 (int)((totals >> 32) & 0xffff) +
+			 (int)((totals >> 48) & 0xffff);
 
     //
     // Log the offending pixels
@@ -378,7 +380,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
         if (newMode == 2)
         {
             // Convert ratio to a 16/9 ratio
-            newRatio = (newRatio * 1333) / 1000;
+            newRatio = (newRatio * 4) / 3;
         }
 
         // The ratio must be at least the ratio defined in WSS data

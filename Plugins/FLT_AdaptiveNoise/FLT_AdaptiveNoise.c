@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/01/17 07:55:12  lindsey
+// Turned off the debug flag
+//
 // Revision 1.3  2002/01/17 07:50:32  lindsey
 // Increased effect of nearby motion on averaging
 // Moved some magic numbers into #defines
@@ -40,208 +43,9 @@
 #include "windows.h"
 #include "DS_Filter.h"
 
-/////////////////////////////////////////////////////////////////////////////
-/*
 
-And thus the native hue of resolution
-Is sicklied o'er with the pale cast of thought,
-And enterprises of great pitch and moment
-With this regard their currents turn awry,
-And lose the name of action.
-                             -- Hamlet
+// See FLT_AdaptiveNoise.txt for an explanation of this filter.
 
-Adaptive noise reduction filter
-
-This plug-in detects the global noise level based on the histogram of noise throughout
-the image.  The estimated noise is combined with user supplied noise/motion tradeoff values 
-to decide how to best combine the old and new pixel values to choose a displayed pixel
-color.
-
-This is as much a motion detector as it is a noise detector.  Feel free to pull ideas
-from here to improve motion detection in other parts of the program.
-
-
-A note to developers:
-
-Hidden in this filter is a very useful motion detection indicator.  Just #define
-ADAPTIVE_NOISE_DEBUG and turn on "pink dots" and you'll get a histogram of the
-N statistic (see below) along with some other less useful stats. (These stats are
-explained just above the AnalyzeHistogram() routine.)
-
-In addition, you can have the filter periodically flash all pixels whose N value
-is in a certain range.  To do so, set the Testing Threshold and Second Testing Threshold
-sliders to the bottom and top of the range of N you want to view, then turn on
-Use Testing Switch.
-
-Together these provide a nice way to see whether an alteration to a motion detection
-statistic has helped differentiate particular regions.  Its use is limited to N-like
-statistics, though.
-
-
-The algorithm:
-
-At each four pixel horizontal block, the sum of absolute byte differences is calculated 
-between the block and the same block in the previous frame.  The block size and the absolute
-difference statistic were chosen entirely for speed reasons.  It would probably make more
-sense to use a squarer block and a sum of squared differences statistic, instead.
-
-The "cumulative absolute difference statistic" will be called "N". It is calculated as:
-
-A = Max(N for the ~corresponding block from the previous _field_, MaxNoise)
-B = Max(N for the block to the left in the current field, MaxNoise)
-C = Max(N for the block above in the current field, MaxNoise)
-
-D = Decay factor (fixed to 0.78 in the current build)
-E = Horizontal decay factor (fixed to (0.78)^2 in the current build)
-
-F = Absolute byte difference between current block and block in previous frame
-
-Then,
-N = Max(A*D, B*E, C*D) + F
-
-In other words, it's a weird IIRish filter -- The oddity comes from the use of
-the Max function.  The reasoning behind this is that strong evidence for motion
-from any direction should have a high weight, overruling the lack of evidence from
-any other direction.  This was done in a desperate attempt to cut down on blurring
-of faces, grass fields, and other low contrast moving textures.
-
-The horizontal decay is faster because the blocks are approximately
-2 horizontal x 1 vertical when you take the interlace into account.  On top of that,
-noise tends to be horizontally correlated.  Vertical and temporal decay are the same
-for computational reasons: It saves a multiplication.
-
-Optimally, you would want to derive the spatial decay factor from the level of
-detail (specifically, the frequency with which the image switches between mooving
-and stationary regions) and the temporal decay from the amount of change in the
-regions of motion.
-
-MaxNoise exists to prevent a single dramatic change from causing too great a
-perturbation of N.  Beyond a certain point, motion is certain, so the statistic
-shouldn't increase further.  Yes, this could be handled more effectively.
-
-Note that the filter is entirely unidirectional.  There's surely some room for
-improvement, there.
-
-The new N value is then used to determine what kind of weighting to use between
-the old and new pixel values in that block.  This is similar to the method used
-in the "Gradual Noise" filter, but N is used in place of the simple sum of absolute
-differences, and there is a new "noise baseline" term.  More exactly,
-
-G = Noise baseline
-H = Noise multiplier
-
-M = motion evidence = 1             if (N - G)/H > 1
-                      (N - G)/H     if 0 < (N - G)/H < 1
-                      0**           if (N - G)/H < 0
-
-Result pixel = (bytewise) oldPixel * (1 - M) + newPixel * M
-** As with the Gradual Noise filter, the amount of change is always set to a minimum
-of 1.  So if oldPixel != newPixel, then even if M would be 0, the result pixel is
-oldPixel moved 1 bit toward the newPixel value.
-
-
-The Noise baseline G and Noise multiplier H are determined through analysis of a
-histogram of the N statistic from the entire previous field.  The histogram is collected
-from all pixels whose values are not too near 0 or 255.  The noise at low and
-(to a lesser extent) high valued pixels is reduced due to an edge effect, resulting
-in a different and lower distribution, which would foil the peak finder.
-
-When there is no motion, the histogram is distributed as something like a chi^2.
-An arbitrary low (pixel width / 16) quantile Q of the histogram is collected, along with the
-lowest "significant" peak P.  These measures were chosen for robustness to motion
-and interference: The higher part of the distribution changes a great deal in response
-to motion or interference.
-
-These estimates along with the past estimate of Q and P are combined according to the
-reliability of the current and past estimates to produce the new estimates Q' and P'.
-See below in the comments for the AnalyzeHistogram() procedure for detail.  But it's
-weird, arbitrary stuff, so I wouldn't look if I were you.
-
-From the curve determined by Q' and P', combined with the user specified
-"Noise Reduction" and "Stability", the new Noise baseline G and Noise
-multiplier H are determined.  Specifically:
-
-R = P' - Q' = "Curve width"  (which is used as a general measure of the curve's breadth)
-
-The noise multiplier is determined as
-
-H = (low quantile) + (curve width)*NoiseReduction/25
-H = Q' + R*NoiseReduction/25
-
-So H is in the range
-(Q', Q' + 4R)
-with the default
-H = Q' + R = P'
-
-And the baseline G is
-
-G = (Q' - R) + Stability% * (difference between (Q' - R) and the noise reduction value)
-G = Q' - R + (H - (Q' - R))*Stability/100
-  = Q' - R + (Q' + R*NoiseReduction/25 - Q' + R)*Stability/100
-  = Q' - R + R(1 + NoiseReduction/25)*Stability/100
-if (G < 0), G = 0
-
-So G is in the range
-(Q' - R, H)
-or, in terms of NoiseReduction
-(Q' - R, Q' + R*NoiseReduction/25)
-This is limited on the low end to 0, if necessary.
-
-The default (Stability = 35) gives
-G = Q' - R + R(1 + NoiseReduction/25)*35/100
-  = Q' + R(-65/100 + 7*NoiseReduction/500)
-
-and for both defaults (Stability = 35, NoiseReduction = 25)
-G = Q' + R(-65/100 + 7*25/500)
-  = Q' - 3R/10
-
-
-Things tried and discarded:
-
-Ornstein-Uhlenbeck ("red") noise reduction
-If you look closely at the noise in a normal TV signal, you'll notice that it
-is horizontally highly correlated.  So it makes sense to model the noise as a random
-walk with bias toward return to 0 -- an Ornstein-Uhlenbeck process.  I have come up with
-some ways to successfully cut way back on horizontally correlated noise (generally, I've
-used the previous horizontal noise estimate as a predictor of the next noise estimate),
-but so far they've all caused artifacts.  There's probably a good way to do this.
-
-Temporal gradients
-In most gradual motion, the color changes directionally -- or so you'd think.  I tried to
-use the direction of change at a pixel as an additional contribution to the motion evidence,
-but it was completely useless.  Using indicator pink pixels, it was clear that directionality
-of change was worthless as an indicator -- It showed up reliably only when the motion was so
-obvious that the mechanisms already in place could identify it without help.
-
-Things which need to be done:
-- Lots of cleanup.  This is still a mess, and there are a bunch of unnecessarily arbitrary
-  constants hanging around.
-
-Potential improvements:
-- Global motion detection.  Full screen pans are this filter's worst enemy, since they
-  often cause a low peak which is different from the noise peak.  Partial screen motion
-  is much less of a problem.  And -- very importantly -- Global motion detection is a much
-  easier problem, and very possibly doable in real time.  Maybe some kind of mipmappish
-  approach would be the way to go?
-- Get the Ornstein-Uhlenbeck stuff to work (see above)
-- Transmit the information up and to the left, as well as down and to the right.  Maybe do
-  two passes and use a FIR filter to blur the color difference measures?
-- Delay one or more fields, and make use of future colors and motion.  I suspect this won't
-  help all that much.
-- Use picture information to determine the decay coefficients used to calculate N
-- Consideration of variation in the picture when choosing the noise/motion tradeoff.  This
-  was very roughly incorporated in the model which was used to justify the averaging method
-  (see FLT_GradualNoise.c for its description).  But the lowering of noise compensation in
-  low contrast areas of the picture would greatly reduce blurring.  On the other hand, this
-  is completely impossible with flat backgrounds.  (On a flat background, you can never
-  distinguish noise from motion because there's no sign whatsoever of motion.)  So this would
-  have to be done in moderation.
-- Optimization: My sole optimization has been the addition of a few prefetch instructions.
-  They sped the filter 2x (from 600 MHz to 300 MHz on my SDR Athlon), but there's probably
-  a bit more to speed to be had.
-
-*/
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 // Constants
@@ -264,10 +68,15 @@ Potential improvements:
 #define NOISE_MAX_CURVE_WIDTHS                  8
 #define NOISE_MAX_EXTRA                         25
 
-// To get the baseline, we count the pixels in the histogram until we there
-// are lineLength/LOW_QUANTILE pixels with that or lower a value.
+// Minimum acceptable height at the low quantile
 
-#define LOW_QUANTILE                            16
+#define MIN_QUANTILE_HEIGHT                     6
+
+// Intervals at which to make comparisons when finding peaks in the histogram
+
+#define PEAK_NEAR_COMPARISON                    1
+#define PEAK_MIDDLE_COMPARISON                  4
+#define PEAK_FAR_COMPARISON                     16
 
 // Location (horizontal and vertical distance from the top left) of the "lock dot"
 // V is defined as lines within the field
@@ -300,23 +109,17 @@ Potential improvements:
 // Vertical scale of the histogram display: Each hash mark represents 10*HISTOGRAM_SCALE points of
 // the cumulative color difference.
 
-#define HISTOGRAM_SCALE                         8
+#define HISTOGRAM_SCALE                         4
 
 // Total length of the histogram
 // If gDecayCoefficient is increased above ~95%, this should be increased, too
+// This must be evenly divisible by sizeof(DOUBLE) because of the way it is cleared
 
-#define HISTOGRAM_LENGTH                        2048
+#define HISTOGRAM_LENGTH                        1024
 
 // Rate of decay of the mean and mean^2 averaging for determining peak variance
 
 #define PEAK_VARIANCE_DECAY                     0.80
-
-// Intervals at which to make comparisons when finding peaks in the histogram
-
-#define PEAK_NEAR_COMPARISON                    1
-#define PEAK_MIDDLE_COMPARISON                  4
-#define PEAK_FAR_COMPARISON                     16
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Function prototypes
@@ -344,10 +147,15 @@ static BYTE*    gpChangeMap = NULL;
 
 static BYTE*    gpHistogram = NULL;
 
-// Percent of N which is added below and after the current block
-// This setting is currently hidden, since it doesn't have much useful play.
+// Percent (well, sort of a percent) of spatially and temporally shared motion
+// evidence
 
-long            gDecayCoefficient = 78;
+// This setting is currently hidden, since it doesn't have much useful play.
+// 88 looks like the best compromise between keeping old information (which improves
+// detection of motion) and stability of the motion estimate. (If the decay is any
+// higher, the peak becomes bimodal as ~half of it is displaced downward.)
+
+long            gDecayCoefficient = 88;
 
 // Determines the placement toward the "start" of the N histogram at which we completely
 // compensate for noise
@@ -357,7 +165,7 @@ long            gStability = 35;
 // Determines the placement after the peak of the N histogram where we decide that there
 // must be motion in a block
 
-long            gNoiseReduction = 25;
+long            gNoiseReduction = 50;
 
 // Turn on a histogram and statistics readout
 
@@ -413,13 +221,13 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 {
     {
         "Stability", SLIDER, 0, &gStability,
-        35, 0, 100, 1, 1,
+        25, 0, 100, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AStability", NULL,
     },
     {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
-        25, 0, 100, 1, 1,
+        50, 0, 200, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AdaptiveNoiseReduction", NULL,
     },
@@ -456,9 +264,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 #else
         "Motion memory (percent)", NOT_PRESENT, 0, &gDecayCoefficient,
 #endif // Show motion memory slider when testing
-        90, 0, 95, 1, 1,
+        88, 0, 99, 1, 1,
         NULL,
-        "AdaptiveNoiseFilter", "MotionDecay", NULL,
+        "AdaptiveNoiseFilter", "MotionSharing", NULL,
     },
 #ifdef ADAPTIVE_NOISE_DEBUG
     {
@@ -766,7 +574,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         {
 
             Accumulator += pDWordHistogram[Index];
-            if( (pDWordHistogram[Index] >= 5) && (Accumulator >  pInfo->LineLength/LOW_QUANTILE) )
+            if( (pDWordHistogram[Index] >= MIN_QUANTILE_HEIGHT) && (Accumulator >  pInfo->LineLength) )
             {
                 if( (gIndicator == TRUE) && (Index/HISTOGRAM_SCALE < pInfo->FieldHeight - 20) )
                 {   // Show this field's baseline
@@ -797,22 +605,24 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
                     DeltaPeak * (1.0 - PEAK_VARIANCE_DECAY);
                 sPeakSquaredMean = sPeakSquaredMean * PEAK_VARIANCE_DECAY +
                     (DeltaPeak * DeltaPeak) * (1.0 - PEAK_VARIANCE_DECAY);
-                if( sPeakMean < .999 )
+                CoeffVar = sPeakSquaredMean - sPeakMean*sPeakMean;  // the variance
+                if( sPeakSquaredMean < .999 )
                 {   // Avoid division by 0
-                    CoeffVar = .999;
+                    sPeakSquaredMean = .999;
                 }
-                else
+                CoeffVar /= sPeakSquaredMean;                       // really CV^2
+                if( CoeffVar < 0.000001 )
+                {   // Avoid division by 0
+                    CoeffVar = 0.000001;
+                }
+                CoeffVar = 1.0/sqrt(CoeffVar);
+                CoeffVar /= 50.0;  // Should be a function of the screen size
+                if (CoeffVar > 0.999999)
                 {
-                    CoeffVar = sPeakSquaredMean - sPeakMean*sPeakMean;  // the variance
-                    CoeffVar /= sPeakSquaredMean;                       // really CV^2
+                    CoeffVar = 0.999999;
                 }
-                CoeffVar = 1.0 - sqrt(CoeffVar);                        // really 1.0 - CV
-                CoeffVar *= CoeffVar;
-                CoeffVar *= CoeffVar;
-                CoeffVar *= CoeffVar;
-                CoeffVar *= CoeffVar;
                 // Show Coefficient of variation statistic
-                if( gIndicator == TRUE )
+                if( (gIndicator == TRUE) && (CoeffVar < 1.0) )
                 {
                     DWORD  Jindex = 0;
                     Jindex = (DWORD)(CoeffVar*pInfo->FrameWidth);
@@ -822,7 +632,7 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
 
                 SignalStrength = pDWordHistogram[DeltaPeak]*sqrt((DOUBLE)DeltaPeak);
                 // Normalize the maximum strength of signal to the amount of data collected
-                SignalStrength /= pInfo->FrameWidth*(pInfo->SourceRect.bottom - pInfo->SourceRect.top)/2;
+                SignalStrength /= pInfo->FrameWidth*(pInfo->DestRect.bottom - pInfo->DestRect.top)/2;
                 SignalStrength *= SIGNAL_STRENGTH_MULTIPLIER;
                 SignalStrength *= CoeffVar;
                 if (SignalStrength > 1.0)

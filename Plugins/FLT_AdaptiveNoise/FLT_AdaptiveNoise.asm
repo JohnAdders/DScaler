@@ -16,6 +16,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/01/17 07:49:18  lindsey
+// Fixed vertical correlation information bug
+// Increased effect of nearby motion on averaging
+// Changed indexing into motion map
+// Moved some magic numbers into #defines
+// Reduced artifacts with the "lock dot"
+// Slightly changed parameterization
+//
 // Revision 1.2  2002/01/04 01:29:54  lindsey
 // Changed parameterization
 //
@@ -55,16 +63,18 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     const __int64   qwWhiteMask = 0x00000000EFEFEFEF;           // Maximum color value above which a pixel is left out of the histogram
 
     // Amount of motion correlation between adjacent (up-down or temporal) blocks
-    const __int64   qwMotionDecay = (0x10000*gDecayCoefficient + 50)/100;
+    // 356 is (100 * 1/(maximum allowable decay rate = 0.28))
+    const __int64   qwMotionDecay = (0x10000*gDecayCoefficient + 178)/356;
     // Amount of motion correlation between adjacent (horizontal) blocks
-    const __int64   qwHorizontalDecay= (0x10000*gDecayCoefficient*gDecayCoefficient + 5000)/10000;
+    // 126736 is (356)^2 (see the last comment for why 356 is a meaningful number)
+    const __int64   qwHorizontalDecay= (0x10000*gDecayCoefficient*gDecayCoefficient + 63368)/(126736);
     const __int64   qwChromaMask = 0xFF00FF00FF00FF00;
     const __int64   qwOnes = 0x0101010101010101;
 
     BYTE*           pMap= NULL;                                 // Motion map pointer
     const DWORD     LocalInputPitch = pInfo->InputPitch;
-    DWORD           BottomLine = pInfo->SourceRect.bottom/2;    // Limit processing to displayed picture; !!! Wrong for half-height !!!
-    DWORD           ThisLine = pInfo->SourceRect.top/2;         // !!! Wrong for half-height modes !!!
+    DWORD           BottomLine = pInfo->DestRect.bottom/2;    // Limit processing to displayed picture;
+    DWORD           ThisLine = pInfo->DestRect.top/2;
     DWORD           OldSI;
     DWORD           OldSP;
     DWORD           DWordNoiseMultiplier = 0;
@@ -84,6 +94,8 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     DOUBLE          DoubleNoiseThreshold = 0.0;                 // Derived multiplier for noise compensation; affected by "Noise Reduction"
 
     DOUBLE          MeanNoise = 0.0;
+    DWORD           DWordDifferencePeak = 0;
+
     static BOOLEAN  sDoShowDot = FALSE;
 
 #if defined( IS_DEBUG_FLAG )
@@ -132,9 +144,9 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
         {
             return 1000;    // !! Should notify user !!
         }
-        for ( Index = 0 ; (DWORD)Index < (pInfo->InputPitch * pInfo->FieldHeight)/sizeof(DWORD); ++Index)
+        for ( Index = 0 ; (DWORD)Index < (pInfo->InputPitch * pInfo->FieldHeight)/sizeof(DOUBLE); ++Index)
         {
-            gpChangeMap[Index] = 0;
+            ((DOUBLE*)gpChangeMap)[Index] = 0.0;
         }
     }
 
@@ -147,6 +159,8 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
         }
     }
     // Histogram needs to be emptied before each field
+    // But: at the top and bottom, instead set the map value to the low peak value.
+    // this helps avoid artifacts at the top and bottom of the screen
     for( Index = 0; Index < HISTOGRAM_LENGTH * sizeof(DWORD) / sizeof(DOUBLE); ++Index)
     {
         ((DOUBLE*)gpHistogram)[Index] = 0.0;
@@ -171,25 +185,29 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 
 
     // Interpret parameters
-    // Read FLT_AdaptiveNoise.c for a description of what's going on, here
+    // Read FLT_AdaptiveNoise.txt for a description of what's going on, here
 
     CurveWidth = sCumDifferencePeak - sCumBaseline;
-
-    DoubleNoiseThreshold = sCumBaseline + CurveWidth*gNoiseReduction/25.0;
-    if( DoubleNoiseThreshold < 5.0 )
-    {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply
-        DoubleNoiseThreshold = 5.0;
+    if (CurveWidth < 5.0)
+    {
+        CurveWidth = 5.0;
     }
-    DWordNoiseMultiplier = (DWORD)((0x10000+(DoubleNoiseThreshold/2.0))/DoubleNoiseThreshold);
-    qwNoiseMultiplier = DWordNoiseMultiplier;
 
-    DoubleBaseline = (sCumBaseline - CurveWidth) + ((DoubleNoiseThreshold - (sCumBaseline - CurveWidth))*(gStability/100.0));
+    DoubleBaseline = sCumBaseline - CurveWidth + (CurveWidth*gNoiseReduction/12.5)*(gStability/100.0);
     LongBaseline = (LONG) (DoubleBaseline + 0.5);
     if( LongBaseline < 0 )
     {
         LongBaseline = 0;
     }
     qwNoiseBaseline = LongBaseline;
+
+    DoubleNoiseThreshold = (CurveWidth*gNoiseReduction/12.5)*((100-gStability)/100.0);
+    if( DoubleNoiseThreshold < 5.0 )
+    {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply
+        DoubleNoiseThreshold = 5.0;
+    }
+    DWordNoiseMultiplier = (DWORD)((0x10000+(DoubleNoiseThreshold/2.0))/DoubleNoiseThreshold);
+    qwNoiseMultiplier = DWordNoiseMultiplier;
 
 
 
@@ -206,7 +224,7 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 
     if( gDecayCoefficient != 0 )
     {
-        DWordMaxNoise = (DWORD) ( (DoubleNoiseThreshold +
+        DWordMaxNoise = (DWORD) ( (DoubleNoiseThreshold + sCumBaseline +
             NOISE_MAX_CURVE_WIDTHS*CurveWidth)*(100/gDecayCoefficient) +
             NOISE_MAX_EXTRA );
         if( DWordMaxNoise > SHRT_MAX )
@@ -228,10 +246,24 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     {
         ThisLine = 1;
     }
-    if( (LONG)BottomLine > pInfo->FieldHeight - 2 )   // !!! Wrong for half height modes !!!
+    if( (LONG)BottomLine > pInfo->FieldHeight - 2 )
     {
         BottomLine = pInfo->FieldHeight - 2;
     }
+
+    // At the (first?) and last lines, set the map value to the low peak value.
+    // this helps avoid artifacts at the top and bottom of the screen
+    DWordDifferencePeak = (DWORD) (sCumDifferencePeak + 0.5);
+    for( Index = 0; (DWORD)Index < pInfo->LineLength/sizeof(DWORD); ++Index )
+    {
+        *(DWORD*)(gpChangeMap + (BottomLine * pInfo->InputPitch) + Index*sizeof(DWORD)) = DWordDifferencePeak;
+    }
+/*  Doesn't seem to be necessary
+    for( Index = 0; (DWORD)Index < pInfo->LineLength/sizeof(DWORD); ++Index )
+    {
+        *(DWORD*)(gpChangeMap + (ThisLine * pInfo->InputPitch) + Index*sizeof(DWORD)) = DWordDifferencePeak;
+    }
+*/
 
     // Prepare pointers for image processing
 
@@ -255,25 +287,26 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
         {
             mov     ecx, Cycles
 
-            mov     OldSI, esi                  // Preserve si register
-            mov     OldSP, esp                  // Preserve sp register
+            mov     OldSI, esi              // Preserve si register
+            mov     OldSP, esp              // Preserve sp register
             
             // Load pointers into normal registers
+            mov     eax, dword ptr[pMap]
+            mov     edx, LocalInputPitch    // edx = bytes between lines in the map
+
+            movq    mm6, qword ptr[eax]     // mm6 = upMapValue
+
             mov     edi, dword ptr[pSource]
             mov     ebx, dword ptr[pLast]
-            mov     eax, dword ptr[pMap]
-
-            mov     edx, LocalInputPitch        // edx = bytes between lines in the map
 
 align 8
 MAINLOOP_LABEL:
 
             // Asterisks indicate register assignments which are used much later in the routine
 
+            movq    mm3, qword ptr[eax + edx] // mm3 = mapValue
             movq    mm0, qword ptr[edi]     // * mm0 = NewPixel
             movq    mm1, qword ptr[ebx]     // * mm1 = OldPixel
-            movq    mm3, qword ptr[eax + edx] // mm3 = mapValue
-            movq    mm6, qword ptr[eax]     // mm6 = upMapValue
 
             // Get the noise/motion statistic "N"
 
@@ -281,36 +314,35 @@ MAINLOOP_LABEL:
 
             movq    mm2, mm0                // mm2 = NewPixel
             psadbw  mm2, mm1                // mm2 = Sum(|byte differences Old,New|)
-            prefetchnta[edi + PREFETCH_STRIDE]
+            prefetchnta[ebx + PREFETCH_STRIDE]
             paddusw mm2, mm3                // mm2 = Cumulative weighted sum of differences ("N")
-            movq    mm4, mm2                // mm4 = Cumulative weighted sum of differences
+            pminsw  mm2, qwMaxNoise         // * mm2 = N limited to reasonable range
 
             // Deal with correlations
             
             // Decay the movement at this pixel
-            pminsw  mm4, qwMaxNoise         // limit noise value to reasonable range
-
+            movq    mm4, mm2                // mm4 = N limited to reasonable range
             pmulhuw mm4, qwMotionDecay      // mm4 = temporally decayed sum of differences
-            prefetchnta[ebx + PREFETCH_STRIDE]
-            movq    qword ptr[eax + edx], mm4     // store updated map
-            movq    mm3, qword ptr[eax + 2*edx] // mm3 = downMapValue
+            movq    qword ptr[eax + edx], mm4   // store updated map
 
             // Decay the movement below and to the right
+            movq    mm3, qword ptr[eax + 2*edx] // mm3 = downMapValue
             movq    mm5, qword ptr[eax + 8] // get next map
             movq    mm7, mm2                // mm7 = Cumulative weights
             pmulhuw mm7, qwHorizontalDecay  // mm7 = weight to apply to next horizontal block
             prefetchnta[eax + 2*edx + PREFETCH_STRIDE]
-            pmaxsw  mm5, mm7                // mm5 = max(old next weight, proposed new next weight)
-            movq    qword ptr[eax + 8], mm5 // store updated next map
+            paddusw mm5, mm7
+            movq    qword ptr[eax + 8], mm5 // store updated rightMap
 
             movq    mm5, qword ptr[eax - 8] // get previous map
-            pmaxsw  mm5, mm7                // mm5 = max(old next weight, proposed new next weight)
+            paddusw mm5, mm7                // mm5 = max(old next weight, proposed new next weight)
             movq    qword ptr[eax - 8], mm5 // store updated previous map
 
-            pmaxsw  mm6, mm4                // mm6 = max(up map value, decayed value at this pixel)
-            movq    qword ptr[eax], mm6
-            pmaxsw  mm3, mm4                // mm3 = max(down map value, decayed value at this pixel)
-            movq    qword ptr[eax + 2*edx], mm3
+            // mm6 (= up map value) is collected at the bottom of the loop to avoid some cache problems
+            paddusw  mm6, mm4                // mm6 = max(up map value, decayed value at this pixel)
+            movq     qword ptr[eax], mm6
+            paddusw  mm3, mm4                // mm3 = max(down map value, decayed value at this pixel)
+            movq     qword ptr[eax + 2*edx], mm3
 
 
 #if defined( IS_DEBUG_FLAG )
@@ -319,7 +351,7 @@ MAINLOOP_LABEL:
             movq    mm5, qwPinkLowThreshold
             pcmpgtd mm5, mm6                // mm5 (low dword) on if difference < second test threshold
             pcmpgtd mm6, qwPinkThreshold    // mm6 (low dword) on if difference > test threshold
-            pand     mm6, mm5 
+            pand    mm6, mm5 
             movq    qwPinkHolder, mm6
 #endif  // Cumulative difference range indicator
 
@@ -327,15 +359,14 @@ MAINLOOP_LABEL:
             // Statistics
 
             // Edge ("black") effect compensation: Skip statistics if color value is near 0
+            // "White" edge effect stuff (less important than the black edge): skip if value is near 255
             movq    mm6, mm0                // mm6 = NewPixel
             pxor    mm5, mm5                // mm5 = 0
             psubusb mm6, qwBlackMask        // mm6 (low dword bytes) = 0 where near to "black"
-            pcmpeqb mm6, mm5                // mm6 bytewise on where near to black
-            pcmpeqd mm6, mm5                // mm6 = (low dword) on iff no elements near black
-
-            // "White" edge effect stuff (less important than the black edge): skip if value is near 255
             movq    mm7, mm0                // mm7 = NewPixel
+            pcmpeqb mm6, mm5                // mm6 bytewise on where near to black
             psubusb mm7, qwWhiteMask        // mm7 (low dword bytes) = 0 where not near to "white"
+            pcmpeqd mm6, mm5                // mm6 = (low dword) on iff no elements near black
             pcmpgtb mm7, mm5                // mm7 bytewise on where near to white (mm7 < 127 due to previous step)
             pcmpeqd mm7, mm5                // mm7 = (low dword) on iff no elements near white
 
@@ -344,28 +375,29 @@ MAINLOOP_LABEL:
             pcmpeqb mm5, mm5                // mm5 = all on
             pxor    mm6, mm5                // mm6 off iff no elements near white or black
             movq    mm4, mm2                // mm4 = Cumulative weighted sum of differences
+            // Subtract out the ~miniumum noise value
+            psubusw mm2, qwNoiseBaseline
             por     mm4, mm6                // mm4 = cumulative weighted sum, or low word on where ~black
 
             // Accumulate the histogram data
             pand    mm4, qwPositive         // mm4 limited to positive values (rarely necessary)
             pminsw  mm4, qwHistogramMax     // mm4 limited to fit in histogram array
             movd    esp, mm4                // esp = (limited) cumulative weighted sum
+            prefetchnta[edi + PREFETCH_STRIDE]
             shl     esp, 2                  // esp = corresponding jump from pHistogram
+            pmaddwd mm2, qwNoiseMultiplier  // mm2 (low Dword) = Multiplier to move toward new pixel value
             mov     esi, dword ptr[pLocalHistogram]
+            movq    mm3, mm2                // mm3 (low Dword) = Multiplier to move toward new pixel value
             add     esi, esp                // esi = Pointer into histogram array
             inc     dword ptr[esi]
 
 
             // Calculate the noise correction for this block:
 
-            // Subtract out the ~miniumum noise value
-            psubusw mm2, qwNoiseBaseline
 
             // Determine the proper muliplier to use:
             // NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
-            pmaddwd mm2, qwNoiseMultiplier  // mm2 (low Dword) = Multiplier to move toward new pixel value
             prefetchnta[eax + edx + PREFETCH_STRIDE]
-            movq    mm3, mm2                // mm3 = same
             pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
             psrlq   mm2, 16                 // mm2 (low word) = FFFF if ignoring old pixel value (else 0)
@@ -381,16 +413,16 @@ MAINLOOP_LABEL:
             pcmpeqb mm0, mm6                // * mm0 = bytewise on where old >= new
             movq    mm5, mm4                // mm5 = bytewise |new - old|
             pcmpeqb mm5, mm6                // mm5 bytewise on where |new - old| = 0
-            pandn   mm5, qwOnes             // mm5 bytewise 1 where |new - old| != 0 (used for "round at least 1")
 
             pcmpeqw mm6, mm6                // mm6 = all on
             pcmpeqw mm6, mm2                // mm6 = all on iff multiplier = 0xFFFF (~= 1 in fixed point)
+            pandn   mm5, qwOnes             // mm5 bytewise 1 where |new - old| != 0 (used for "round at least 1")
             pand    mm6, mm4                // mm6 = bytewise |new - old| iff multiplier = 0xFFFF
             pmaxub  mm6, mm5                // mm6 = same, corrected to a minimum of 1 where there is change
 
             // Multiply the change by the determined compensation factor
-            movq    mm7, mm4                // mm7 = bytewise |new - old|
             movq    mm3, qwChromaMask
+            movq    mm7, mm4                // mm7 = bytewise |new - old|
             pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
             prefetchnta[eax + PREFETCH_STRIDE]
@@ -410,10 +442,11 @@ MAINLOOP_LABEL:
 #if defined( IS_DEBUG_FLAG )
             // Set a pink block if the cumulative difference was between the test thresholds
             movq    mm6, qwPinkHolder
-            por     mm1, mm6                // mm1 low dword all on if above threshold
+            por     mm1, mm6                 // mm1 low dword all on if above threshold
 #endif
+            movq    mm6, qword ptr[eax + 8]  // * mm6 = upMapValue (done in a weird place to avoid a bank conflict)
 
-            movq    qword ptr[edi], mm1
+            movq    qword ptr[edi], mm1      // store the pixel's adjusted value
 
             add     edi, 8
             add     eax, 8
@@ -423,8 +456,8 @@ MAINLOOP_LABEL:
             dec     ecx
             jnz     MAINLOOP_LABEL
 
-            mov     esi, OldSI                  // Restore si register
-            mov     esp, OldSP                  // Restore sp register
+            mov     esi, OldSI              // Restore si register
+            mov     esp, OldSP              // Restore sp register
         }
 
 #undef MAINLOOP_LABEL

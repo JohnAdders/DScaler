@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.22 2003-08-12 09:38:31 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.23 2003-08-12 15:34:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/08/12 09:38:31  atnak
+// Fixed new mute with SAA7130 problem
+//
 // Revision 1.21  2003/08/12 06:46:01  atnak
 // Fix for initial muting of SAA7130 cards
 //
@@ -904,7 +907,7 @@ void CSAA7134Card::SetAudioMute()
 {
     if (m_DeviceId == 0x7130)
     {
-        BYTE MuteLine;
+        BYTE MuteLine = 0x00;
 
         // Mute by selecting the opposite audio line
         switch (GetCardSetup()->Inputs[0].AudioLineSelect)

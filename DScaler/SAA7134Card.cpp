@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.39 2003-08-12 06:46:01 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.40 2003-08-12 15:34:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/08/12 06:46:01  atnak
+// Fix for initial muting of SAA7130 cards
+//
 // Revision 1.38  2003/07/29 12:02:15  atnak
 // Fixes card might not mute on exit
 //
@@ -348,7 +351,11 @@ void CSAA7134Card::ManageMyState()
     // ManageByte(SAA7134_AUDIO_MUTE_CTRL);
 
     ManageByte(SAA7134_SIF_SAMPLE_FREQ);
-    ManageByte(SAA7134_ANALOG_IO_SELECT);
+
+    // Managing this causes problems for cards that
+    // use audio line for muting
+    //ManageByte(SAA7134_ANALOG_IO_SELECT);
+
     ManageDword(SAA7134_AUDIO_CLOCK);
     ManageByte(SAA7134_AUDIO_PLL_CTRL);
     ManageDword(SAA7134_AUDIO_CLOCKS_PER_FIELD);

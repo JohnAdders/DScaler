@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.230 2002-09-28 13:34:08 kooiman Exp $
+// $Id: DScaler.cpp,v 1.231 2002-09-28 18:20:28 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.230  2002/09/28 13:34:08  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.229  2002/09/27 14:11:35  kooiman
 // Added audio standard detect event & implemented event scheduler.
 //
@@ -3309,6 +3312,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     case INIT_BT:
         MainWndOnInitBT(hWnd);
+
+#ifdef _DEBUG
+        // Check if someone broke the menu system
+        // We can't check this earlier since the menu is created at initialization of the BT chip
+        // if this gives an error you must also correct the same thing in the WM_CHAR handler
+
+        GetSubMenuWithName(GetSubMenu(hMenu, 1), 0, "&Video Input");
+#endif
         break;
 
 // 2000-10-31 Added by Mark Rejhon
@@ -3784,7 +3795,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 // first get the right name for the chosen input
                 hSubMenu = GetSubMenu(hMenu, 1);
-                hSubMenu = GetSubMenuWithName(hSubMenu, 0, "Video &Input");
+                hSubMenu = GetSubMenuWithName(hSubMenu, 0, "&Video Input");
                 if(hSubMenu != NULL)
                 {
                     if(GetMenuString(hSubMenu, strlen(ChannelString) -1, string,

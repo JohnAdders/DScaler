@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ErrorBox.cpp,v 1.8 2002-09-04 17:58:09 robmuller Exp $
+// $Id: ErrorBox.cpp,v 1.9 2003-01-25 12:44:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/04 17:58:09  robmuller
+// Second attempt:
+// Changed the debug log level to zero to make sure that the error message is written to the log file.
+//
 // Revision 1.7  2002/09/04 17:56:57  robmuller
 // RealErrorBox() now writes the error message to the log file.
 // Changed the debug log level to zero to make sure that the error message is written to the log file.
@@ -54,6 +58,7 @@
 
 #ifndef _DEBUG
 #include "OSD.h"
+#include "DScaler.h"
 #endif
 
 extern HWND hWnd;
@@ -77,14 +82,22 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
     {
 		AlreadyInErrorBox = TRUE;
         HDC hDC = GetDC(hWnd);
-        if(hDC != NULL)
+        if (hDC != NULL)
         {
-            // Show OSD text immediately and pause for 2 seconds.
-            // OSD will continue to show after 2 seconds,
-            // if there are no other OSD's pending afterwards. (thus the reason for 2 second delay)
+            // Show OSD text immediately and pause for 2 seconds.  OSD will
+            // continue to show after the 2 seconds if there are no other
+            // OSDs pending.
             _snprintf(szDispMessage, sizeof(szDispMessage), "ERROR: %s\nFile %s Line %d", szMessage, szFile, Line);
-            OSD_ShowTextPersistent(hWnd, szDispMessage, 4);
-            OSD_Redraw(hWnd, hDC);
+            OSD_ShowTextPersistent(szDispMessage, 4);
+
+            RECT OSDDisplayRect;
+            GetDisplayAreaRect(hWnd, &OSDDisplayRect);
+
+            // This code is special case.  Normally, OSD_ProcessDisplayUpdate()
+            // is called only from one location in DScaler.cpp so that all
+            // screen painting is strictly controlled. (and double buffered)
+            OSD_ProcessDisplayUpdate(hDC, &OSDDisplayRect);
+
             ReleaseDC(hWnd, hDC);
             Sleep(2000);
         }

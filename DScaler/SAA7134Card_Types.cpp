@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.12 2002-11-12 01:26:25 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.13 2002-12-10 11:05:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/12 01:26:25  atnak
+// Changed the define name of a card
+//
 // Revision 1.11  2002/10/28 11:10:13  atnak
 // Various changes and revamp to settings
 //
@@ -149,19 +152,19 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN0,
-                AUDIOINPUTSOURCE_LINE1,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
-                AUDIOINPUTSOURCE_LINE1,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
-                AUDIOINPUTSOURCE_LINE1,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Radio",
@@ -173,7 +176,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_24576Hz,
         NULL,
-        StandardSAA7134InputSelect,
+        FLYVIDEO3000CardInputSelect,
     },
     // SAA7134CARD_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
     {
@@ -563,18 +566,47 @@ const CSAA7134Card::TCardType* CSAA7134Card::GetCardSetup()
 }
 
 
+void CSAA7134Card::FLYVIDEO3000CardInputSelect(int nInput)
+{
+    StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case 0: // Tuner
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
+        break;
+    case 1: // Composite
+    case 2: // Composite 2
+    case 3: // S-Video
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x04000, 0xE000);
+        break;
+    case 4: // Radio
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x00000, 0xE000);
+        break;
+    case -1: // Ending cleanup
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
+        break;
+    default:
+        break;
+    }
+}
+
+
 void CSAA7134Card::FLYVIDEO2000CardInputSelect(int nInput)
 {
     StandardSAA7134InputSelect(nInput);
     switch(nInput)
     {
-    case 0:
+    case 0: // Tuner
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x6000);
         break;
-    case 1:
-    case 2:
-    case 3:
+    case 1: // Composite
+    case 2: // Composite 2
+    case 3: // S-Video
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0x6000);
         break;
@@ -618,6 +650,13 @@ void CSAA7134Card::KWTV713XRFCardInputSelect(int nInput)
 void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
 {
     eVideoInputSource VideoInput;
+
+    // -1 for finishing clean up
+    if(nInput == -1)
+    {
+        // do nothing
+        return;
+    }
 
     if(nInput >= m_SAA7134Cards[m_CardType].NumInputs)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.47 2002-12-09 00:32:13 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.48 2002-12-10 11:05:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/12/09 00:32:13  atnak
+// Added new muting stuff
+//
 // Revision 1.46  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -284,8 +287,10 @@ CSAA7134Source::~CSAA7134Source()
     }
 
     CleanupUI();
-
     KillTimer(hWnd, TIMER_MSP);
+
+    // SAA7134 reserves input -1 as the clean up indicator
+    m_pSAA7134Card->SetVideoSource(-1);
     delete m_pSAA7134Card;
 }
 

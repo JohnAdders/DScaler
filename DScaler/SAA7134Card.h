@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.26 2002-11-10 09:30:57 atnak Exp $
+// $Id: SAA7134Card.h,v 1.27 2002-12-10 11:05:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/11/10 09:30:57  atnak
+// Added Chroma only comb filter mode for SECAM
+//
 // Revision 1.25  2002/11/10 05:11:24  atnak
 // Added adjustable audio input level
 //
@@ -415,6 +418,7 @@ private:
 
     void StandardSAA7134InputSelect(int nInput);
 
+    void FLYVIDEO3000CardInputSelect(int nInput);
     void FLYVIDEO2000CardInputSelect(int nInput);
     void MEDION5044CardInputSelect(int nInput);
     void KWTV713XRFCardInputSelect(int nInput);

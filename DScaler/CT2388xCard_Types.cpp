@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.8 2002-10-23 20:26:53 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.9 2002-10-24 16:03:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/23 20:26:53  adcockj
+// Bug fixes for cx2388x
+//
 // Revision 1.7  2002/10/23 16:10:50  adcockj
 // Fixed some filter setting bugs and added SECAM tests for Laurent
 //
@@ -51,34 +54,34 @@
 
 const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] = 
 {
-	// Card Number 0 - Unknown
-	{
-		"Unknown",
-		4,
-		{
-			{
-				"Tuner",
-				INPUTTYPE_TUNER,
-				0,
-			},
-			{
-				"Composite",
-				INPUTTYPE_COMPOSITE,
-				1,
-			},
-			{
-				"S-Video",
-				INPUTTYPE_SVIDEO,
-				2,
-			},
-			{
-				"Colour Bars",
-				INPUTTYPE_COLOURBARS,
-				0,
-			},
-		},
-		NULL,
-		StandardInputSelect,
+    // Card Number 0 - Unknown
+    {
+        "Unknown",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Colour Bars",
+                INPUTTYPE_COLOURBARS,
+                0,
+            },
+        },
+        NULL,
+        StandardInputSelect,
         SetAnalogBrightness,
         SetAnalogContrast,
         SetAnalogHue,
@@ -87,34 +90,34 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         StandardSetFormat,
         TUNER_PHILIPS_NTSC,
         IDC_CT2388X,
- 	},
-	{
-		"Conexant CX23880 TV/FM EVK",
-		4,
-		{
-			{
-				"Tuner",
-				INPUTTYPE_TUNER,
-				0,
-			},
-			{
-				"Composite",
-				INPUTTYPE_COMPOSITE,
-				1,
-			},
-			{
-				"S-Video",
-				INPUTTYPE_SVIDEO,
-				2,
-			},
-			{
-				"Colour Bars",
-				INPUTTYPE_COLOURBARS,
-				0,
-			},
-		},
-		NULL,
-		StandardInputSelect,
+    },
+    {
+        "Conexant CX23880 TV/FM EVK",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Colour Bars",
+                INPUTTYPE_COLOURBARS,
+                0,
+            },
+        },
+        NULL,
+        StandardInputSelect,
         SetAnalogBrightness,
         SetAnalogContrast,
         SetAnalogHue,
@@ -123,34 +126,34 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         StandardSetFormat,
         TUNER_PHILIPS_NTSC,
         IDC_CT2388X,
- 	},
-	{
-		"Conexant CX23880 TV/FM EVK (PAL)",
-		4,
-		{
-			{
-				"Tuner",
-				INPUTTYPE_TUNER,
-				0,
-			},
-			{
-				"Composite",
-				INPUTTYPE_COMPOSITE,
-				1,
-			},
-			{
-				"S-Video",
-				INPUTTYPE_SVIDEO,
-				2,
-			},
-			{
-				"Colour Bars",
-				INPUTTYPE_COLOURBARS,
-				0,
-			},
-		},
-		NULL,
-		StandardInputSelect,
+    },
+    {
+        "Conexant CX23880 TV/FM EVK (PAL)",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Colour Bars",
+                INPUTTYPE_COLOURBARS,
+                0,
+            },
+        },
+        NULL,
+        StandardInputSelect,
         SetAnalogBrightness,
         SetAnalogContrast,
         SetAnalogHue,
@@ -159,54 +162,54 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         StandardSetFormat,
         TUNER_PHILIPS_PAL,
         IDC_CT2388X,
- 	},
-	{
-		"Holo 3d Graph",
-		8,
-		{
-			{
-				"Component",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"RGsB",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"S-Video",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"SDI",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"Composite G",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"Composite B",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"Composite R",
-				INPUTTYPE_CCIR,
-				3,
-			},
-			{
-				"Composite BNC",
-				INPUTTYPE_CCIR,
-				3,
-			},
-		},
-		InitH3D,
-		H3DInputSelect,
+    },
+    {
+        "Holo 3d Graph",
+        8,
+        {
+            {
+                "Component",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "RGsB",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "SDI",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "Composite G",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "Composite B",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "Composite R",
+                INPUTTYPE_CCIR,
+                3,
+            },
+            {
+                "Composite BNC",
+                INPUTTYPE_CCIR,
+                3,
+            },
+        },
+        InitH3D,
+        H3DInputSelect,
         SetH3DBrightness,
         SetH3DContrast,
         SetH3DHue,
@@ -215,24 +218,24 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         H3DSetFormat,
         TUNER_ABSENT,
         IDC_CT2388X_H3D,
- 	},
-	{
-		"PixelView XCapture",
-		2,
-		{
-			{
-				"Composite",
-				INPUTTYPE_COMPOSITE,
-				1,
-			},
-			{
-				"S-Video",
-				INPUTTYPE_SVIDEO,
-				2,
-			},
-		},
-		NULL,
-		StandardInputSelect,
+    },
+    {
+        "PixelView XCapture",
+        2,
+        {
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+        },
+        NULL,
+        StandardInputSelect,
         SetAnalogBrightness,
         SetAnalogContrast,
         SetAnalogHue,
@@ -241,14 +244,14 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         StandardSetFormat,
         TUNER_ABSENT,
         IDC_CT2388X,
- 	},
+    },
 };
 
 const CCT2388xCard::TAutoDectect CCT2388xCard::m_AutoDectect[] =
 {
-	{ 0x006614F1, CT2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
-	//Tee Added support for PAL EVK and also added support for SSVID
-	{ 0x016614F1, CT2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
+    { 0x006614F1, CT2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
+    //Tee Added support for PAL EVK and also added support for SSVID
+    { 0x016614F1, CT2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
     { 0, (eCT2388xCardId)-1, NULL }
 };
 
@@ -318,29 +321,29 @@ void CCT2388xCard::StandardInputSelect(int nInput)
         AndDataDword(CT2388X_VIDEO_COLOR_FORMAT, 0xFFFFBFFF);
     
         // Read and mask the video input register
-        DWORD dwVal = ReadDword(CT2388X_VIDEO_INPUT);
+        DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
         // zero out mux and svideo bit
         // and force auto detect
-		// also turn off CCIR input
-		// also VERTEN & SPSPD
-        dwVal &= 0x0F;
-		
+        // also turn off CCIR input
+        // also VERTEN & SPSPD
+        VideoInput &= 0x0F;
+        
         // start with default values except turn of CFILT
         DWORD FilterSetup(1 << 19);
 
-		// set the Mux up from the card setup
-        dwVal |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CT2388X_VIDEO_INPUT_MUX_SHIFT);
+        // set the Mux up from the card setup
+        VideoInput |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CT2388X_VIDEO_INPUT_MUX_SHIFT);
 
         // set the comp bit for svideo
         switch (m_TVCards[m_CardType].Inputs[nInput].InputType)
         {
             case INPUTTYPE_SVIDEO: // SVideo
-                dwVal |= CT2388X_VIDEO_INPUT_SVID_C_SEL; 
-                dwVal |= CT2388X_VIDEO_INPUT_SVID;
-                WriteDword(CT2388X_VIDEO_INPUT, dwVal);
+                VideoInput |= CT2388X_VIDEO_INPUT_SVID_C_SEL; 
+                VideoInput |= CT2388X_VIDEO_INPUT_SVID;
 
                 // Switch chroma DAC to chroma channel
                 OrDataDword(MO_AFECFG_IO, 0x00000001);
+
                 // switch off luma notch
                 // Luma notch is 1 = off
                 FilterSetup |= CT2388X_FILTER_LNOTCH;
@@ -349,15 +352,16 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 // Disbale luma dec
                 FilterSetup |= 1 << 12;
                 break;
+            
             case INPUTTYPE_CCIR:
-				dwVal |= CT2388X_VIDEO_INPUT_PE_SRCSEL;
-                dwVal |= CT2388X_VIDEO_INPUT_SVID_C_SEL; 
-                WriteDword(CT2388X_VIDEO_INPUT, dwVal);
+                VideoInput |= CT2388X_VIDEO_INPUT_PE_SRCSEL;
+                VideoInput |= CT2388X_VIDEO_INPUT_SVID_C_SEL; 
                 break;
-		
+        
             case INPUTTYPE_TUNER:
             case INPUTTYPE_COMPOSITE:
             default:
+
                 // test for Laurent
                 // Try out SECAM Notch Filter
                 if(false)
@@ -370,11 +374,12 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                     FilterSetup |= CT2388X_FILTER_SNOTCH;
                 }
 
-                WriteDword(CT2388X_VIDEO_INPUT,dwVal);
                 // Switch chroma DAC to audio
                 AndDataDword(MO_AFECFG_IO, 0xFFFFFFFE);
                 break;
         }
+        
+        WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
 
         // test for Laurent
         // other stuff that may be required

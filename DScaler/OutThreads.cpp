@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.87 2002-09-29 13:53:40 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.88 2002-10-07 18:36:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2002/09/29 13:53:40  adcockj
+// Ensure Correct History stored
+//
 // Revision 1.86  2002/09/29 10:14:14  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -679,7 +682,17 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             bFlipNow = FALSE;
             GetDestRect(&Info.DestRect);
             
-            pSource->GetNextField(&Info, Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo));
+            // Go and get the next input field
+            // JudderTerminator
+            // We pass down a flag telling the function if we are
+            // requesting accurate timings of the incoming fields
+            // This will use up CPU but will
+            // allow us to flip at the right times
+            // collect the timings even if we are in video
+            // mode and bJudderTerminatorOnVideo if off
+            // to build up more accurate timings ready for
+            // when film is detected.
+            pSource->GetNextField(&Info, Info.bDoAccurateFlips);
 
             pPerf->StopCount(PERF_WAIT_FIELD);
 
@@ -962,9 +975,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 }
                             }
 
-                            // Need to wait for a good time to flip
-                            // only if we have been in the same Mode for at least one flip
-                            if(Info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
+                            // JudderTerminator
+                            // Here we space out the flips by waiting for a fixed time between
+                            // flip calls.
+                            // We need to go in if:
+                            // - JudderTerminator is On
+                            // - We are in film mode or we want JT on Video
+                            // - the deinterlace method is the same as last time
+                            if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo) && PrevDeintMethod == CurrentMethod)
                             {
                                 Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
                             }

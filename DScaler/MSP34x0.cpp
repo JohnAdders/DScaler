@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.12 2002-01-21 12:06:33 robmuller Exp $
+// $Id: MSP34x0.cpp,v 1.13 2002-01-23 22:57:28 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/01/21 12:06:33  robmuller
+// RevA improvements.
+//
 // Revision 1.11  2002/01/16 19:24:28  adcockj
 // Added Rob Muller's msp patch #504469
 //
@@ -61,6 +64,9 @@
 #include "stdafx.h"
 #include "MSP34x0.h"
 #include "DebugLog.h"
+#include "DScaler.h"
+
+static BOOL bAutoDetectionInProgress = FALSE;
 
 CMSP34x0::CMSP34x0()
 {
@@ -76,7 +82,7 @@ WORD CMSP34x0::GetRegister(BYTE subAddress, WORD reg)
     BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF};
     BYTE result[2] = {0, 0};
     ReadFromSubAddress(subAddress, write, sizeof(write), result, sizeof(result));
-    LOG(1, "MSP: %02X %02X %02X=%02X %02X",
+    LOG(2, "MSP: %02X %02X %02X=%02X %02X",
         subAddress,
         write[0],
         write[1],
@@ -88,12 +94,25 @@ WORD CMSP34x0::GetRegister(BYTE subAddress, WORD reg)
 void CMSP34x0::SetRegister(BYTE subAddress, WORD reg, WORD value)
 {
     BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF, (value >> 8) & 0xFF, value & 0xFF};
-    LOG(1, "MSP: %02X %02X %02X %02X %02X",
+    LOG(2, "MSP: %02X %02X %02X %02X %02X",
         subAddress,
         write[0],
         write[1],
         write[2],
         write[3]);
+
+    // no writes until Auto Standard Detection is finished
+    if(bAutoDetectionInProgress)
+    {
+        while(1)
+        {
+            if(GetDEMRegister(DEM_RD_STANDARD_RESULT) < 0x07FF)
+            {
+                break;
+            }
+            Sleep(50);
+        }
+    }
     WriteToSubAddress(subAddress, write, sizeof(write));
 }
 
@@ -129,13 +148,13 @@ CMSP34x0Controls::CMSP34x0Controls() : CMSP34x0()
 void CMSP34x0::Reset()
 {
     BYTE reset[2] = {0x80, 0};
-    LOG(1, "MSP: %02X %02X %02X",
+    LOG(2, "MSP: %02X %02X %02X",
         0,
         reset[0],
         reset[1]);
     WriteToSubAddress(0, reset, sizeof(reset));
     reset[0] = 0;
-    LOG(1, "MSP: %02X %02X %02X",
+    LOG(2, "MSP: %02X %02X %02X",
         0,
         reset[0],
         reset[1]);
@@ -270,11 +289,6 @@ WORD CMSP34x0Controls::GetTreble()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-
-CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
-{
-    m_bRevisionChecked = false;
-}
 
 CMSP34x0Decoder::TStandardDefinition CMSP34x0Decoder::m_MSPStandards[] =
 {
@@ -498,55 +512,122 @@ void CMSP34x0Decoder::SetSCARTxbar(eScartOutput output, eScartInput input)
 	SetDSPRegister(DSP_WR_ACB, acb);
 }
 
-void CMSP34x0Decoder::ReconfigureRevD()
+CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
 {
-    /// SCART Signal Path
-    switch (m_AudioInput)
+    m_IsInitialized = false;
+    TimerAction = TimerAction_None;
+}
+
+CMSP34x0Decoder::~CMSP34x0Decoder()
+{
+    KillTimer(hWnd, TIMER_MSP_INTERNAL);
+}
+
+void CMSP34x0Decoder::Initialize()
+{
+    Reset();
+
+    if(GetVersion() & 0xFF >= 0x07)
     {
-    case AUDIOINPUT_RADIO:
-		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_2);
-        break;
-    case AUDIOINPUT_EXTERNAL:
-		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_1);
-        break;
-    case AUDIOINPUT_MUTE:
-        SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MUTE);
-        break;
+        m_MSPVersion = MSPVersionG;
     }
-
-    /// Demodulator programming
-
-    WORD modus = 0x0003;
-    WORD standard = MSP34x0_STANDARD_AUTO;
-
-    if (m_AudioInput == AUDIOINPUT_RADIO)
+    else if(GetVersion() & 0xFF >= 0x04)
     {
-        standard = MSP34x0_STANDARD_FM_RADIO;
+        m_MSPVersion = MSPVersionD;
     }
     else
     {
-        switch(m_VideoFormat)
-        {
-        case VIDEOFORMAT_PAL_D:
-            // make the autodetection prefer the NICAM or DK2 modes
-            modus = 0x1003;
-            break;
-        case VIDEOFORMAT_NTSC_M:
-            modus = 0x2003;
-            standard = MSP34x0_STANDARD_M_BTSC;
-            break;
-        case VIDEOFORMAT_NTSC_M_Japan:
-            modus = 0x4003;
-            break;
-        case VIDEOFORMAT_PAL_I:
-            modus = 0x0003;
-            standard = MSP34x0_STANDARD_I_NICAM_FM;
-            break;        
-		default:
-            break;
-        }
+        m_MSPVersion = MSPVersionA;
     }
 
+    if(m_MSPVersion != MSPVersionG)
+    {
+        return;
+    }
+
+    SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
+    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
+    SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
+    SetDSPRegister(DSP_WR_I2S1_PRESCALE, 0x1000);
+    SetDSPRegister(DSP_WR_I2S2_PRESCALE, 0x1000);
+
+    // set up so that we fall back to AM/FM if there is no NICAM
+    // required on D series chips
+    if(m_MSPVersion == MSPVersionD)
+    {
+        SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
+    }
+
+    m_IsInitialized = true;
+}
+
+/*
+All models:
+    The demodulator only needs to be programmed if m_AudioInput is AUDIOINPUT_RADIO or 
+    AUDIOINPUT_TUNER.
+Model G: 
+    Features:
+    - Automatic Standard Detection. TV sound standard is detected automatically.
+    - Automatic Sound Select. Automatic setup of FM matrix. If NICAM or FM/stereo is available it is
+        automatically enabled. No action needed when changing tuner channels.
+
+    This code uses both Automatic Standard Detection and Automatic Sound Select.
+    Once a valid audio standard and carrier has been found everything is finished.
+    If no valid standard/carrier is detected a timer is set that will restart the detection
+    process until a standard/carrier has been found.
+    There is no action needed on channel changes. The Automatic Sound Select will take care
+    of switching to NICAM or analog stereo and back to mono.
+
+    When video format or audio input is changed (to tuner or radio) the detection process is restarted.
+
+Model D:
+    Automatic Standard Detection (TV sound standard is detected automatically)
+    FM matrix must be programmed manually.
+
+    Uses currently Model A code.
+
+Model A:
+    Everything is set up manually.
+*/
+
+// call this when changing SoundChannel or VideoFormat
+void CMSP34x0Decoder::RevG_SetModus()
+{
+    WORD modus = 0;
+
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
+
+    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
+    if(m_SoundChannel == SOUNDCHANNEL_MONO)
+    {
+        modus = 0;
+    }
+    else
+    {
+        modus = 1;
+    }
+
+    switch(m_VideoFormat)
+    {
+    case VIDEOFORMAT_PAL_D:
+        // make the autodetection prefer the NICAM or DK2 modes
+        modus |= 0x1000;
+        break;
+    case VIDEOFORMAT_NTSC_M:
+        modus |= 0x2000;
+        break;
+    case VIDEOFORMAT_NTSC_M_Japan:
+        modus |= 0x4000;
+        break;
+    default:
+        break;
+    }
+
+    // choose sound IF2 input pin if needed.
+    // todo: Maybe some cards are using IF1?
     switch(m_AudioInput)
     {
     case AUDIOINPUT_RADIO:
@@ -557,127 +638,275 @@ void CMSP34x0Decoder::ReconfigureRevD()
         break;
     }
 
-    // 1. MODUS register
     SetDEMRegister(DEM_WR_MODUS, modus);
+}
 
-    // set up so that we fall back to AM/FM if there is no NICAM
-    // required on D series chips
-    SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
 
-    SetDSPRegister(DSP_WR_LDSPK_SOURCE, 0x0320);
-    SetDSPRegister(DSP_WR_HEADPH_SOURCE, 0x0420);
-    SetDSPRegister(DSP_WR_SCART1_SOURCE, 0x0120);
+void CMSP34x0Decoder::HandleTimerMessages(int TimerId)
+{
+    if(TimerId == TIMER_MSP_INTERNAL)
+    {
+        switch(TimerAction)
+        {
+        case TimerAction_CheckAutoStandardDetect:
+            KillTimer(hWnd, TIMER_MSP_INTERNAL);
+            RevD_CheckAutoStandardDetect();
+            break;
+        case TimerAction_NoStandardDetected:
+            KillTimer(hWnd, TIMER_MSP_INTERNAL);
+            StartAutoDetect();
+            break;
+        default:
+            break;
+        }
+    }
+}
 
-    // 2. FM and NICAM prescale
-    SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x2403);
-    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
+void CMSP34x0Decoder::RevD_CheckAutoStandardDetect()
+{
+    if(!m_IsInitialized)
+    {
+        return;
+    }
     
-    // 3. STANDARD SELECT register
-    SetDEMRegister(DEM_WR_STANDARD_SELECT, standard);
+    WORD standard = 0;
 
-    if (standard == MSP34x0_STANDARD_AUTO)
+    standard = GetDEMRegister(DEM_RD_STANDARD_RESULT);
+    if(!(standard < MSP34x0_STANDARD_AUDODETECTION_IN_PROGRESS))
     {
-        while (1)
-        {
-            ::Sleep(100);
-            standard = GetDEMRegister(DEM_RD_STANDARD_RESULT);
-            LOG(1, "MSP: std:0x%04X", standard);
-            if (standard < MSP34x0_STANDARD_AUDODETECTION_IN_PROGRESS)
-            {
-                break;
-            }
-        }
+        TimerAction = TimerAction_CheckAutoStandardDetect;
+        SetTimer(hWnd, TIMER_MSP_INTERNAL, 150, NULL);
+        return;
     }
-    LOG(1, "MSP: status:0x%04X", GetDEMRegister(DEM_RD_STATUS));
 
-    // 4. FM matrix
-    WORD fmMatrix = 0x3000;
-    if (m_SoundChannel == SOUNDCHANNEL_STEREO)
+    bAutoDetectionInProgress = FALSE;
+
+    LOG(1, "MSP: std:0x%04X", standard);
+
+    // if no standard is detected do another auto detect in x seconds
+    if(standard == 0)
     {
-        if (m_AudioInput == AUDIOINPUT_TUNER || IsNTSCVideoFormat(m_VideoFormat))
-        {
-            fmMatrix |= 2;
-        }
-        else
-        {
-            fmMatrix |= 1;
-        }
-    }
-    else if (m_SoundChannel = SOUNDCHANNEL_LANGUAGE1)
-    {
-        fmMatrix |= 3;
-    }
-    else if (m_SoundChannel = SOUNDCHANNEL_LANGUAGE2)
-    {
-        fmMatrix |= 4;
-    }
-    SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmMatrix);
-
-    /// SCART and I2S inputs
-
-    // 1. SCART prescale
-    SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
-
-    // 2. I2S inputs prescale
-
-    /// Ouput channels
-
-    // 1. sources and matrix
-    WORD source = 0x0100;
-    if (m_AudioInput == AUDIOINPUT_RADIO)
-    {
-        source = 0x0220;
+        TimerAction = TimerAction_NoStandardDetected;
+        SetTimer(hWnd, TIMER_MSP_INTERNAL, 1000, NULL);
     }
     else
-    {
-        switch (m_SoundChannel)
+    {        
+        WORD Status = GetDEMRegister(DEM_RD_STATUS);
+
+        // if no carrier found
+        if((Status & 0x2) > 0 || (Status & 0x4) > 0)
         {
-        case SOUNDCHANNEL_MONO:
-            source |= 0x30;
-            break;
-        case SOUNDCHANNEL_STEREO:
-            source |= 0x20;
-            break;
-        case SOUNDCHANNEL_LANGUAGE2:
-            source |= 0x10;
+            TimerAction = TimerAction_NoStandardDetected;
+            SetTimer(hWnd, TIMER_MSP_INTERNAL, 1000, NULL);
+            return;
         }
+
+        // 3. reset volume to 0dB
+        // todo this must be restored to the old values
+        SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
+        SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
+        SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
+        SetDSPRegister(DSP_WR_SCART2_VOLUME, 0x7300);
+    }
+}
+
+void CMSP34x0Decoder::StartAutoDetect()
+{
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
+
+    bAutoDetectionInProgress = TRUE;
+
+    // mute the output during Auto Standard Detect
+    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0xff00);
+    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0xff00);
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0xff00);
+    SetDSPRegister(DSP_WR_SCART2_VOLUME, 0xff00);
+
+    SetDEMRegister(DEM_WR_STANDARD_SELECT, MSP34x0_STANDARD_AUTO);
+
+    TimerAction = TimerAction_CheckAutoStandardDetect;
+    SetTimer(hWnd, TIMER_MSP_INTERNAL, 150, NULL);
+}
+
+void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
+{
+    CAudioDecoder::SetVideoFormat(videoFormat);
+
+    if(m_MSPVersion != MSPVersionG)
+    {
+        ReconfigureRevA();
+        return;
+    }
+
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
+
+    RevG_SetModus();
+
+    StartAutoDetect();
+}
+
+void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
+{
+    CAudioDecoder::SetSoundChannel(soundChannel);
+
+    if(m_MSPVersion != MSPVersionG)
+    {
+        ReconfigureRevA();
+        return;
+    }
+
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
+
+    // Disable/enable Automatic Sound Select
+    RevG_SetModus();
+
+    WORD source = 0;
+
+    if(m_SoundChannel == SOUNDCHANNEL_MONO)
+    {
+        // set FM matrix
+        SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3003);
+    }
+    switch (m_SoundChannel)
+    {
+    case SOUNDCHANNEL_MONO:
+        source = 0x20;
+        break;
+    case SOUNDCHANNEL_STEREO:
+        source = 0x120;
+        break;
+    case SOUNDCHANNEL_LANGUAGE1:
+        // if not bilingual then stereo is automatically enabled if available
+        source = 0x320;
+        break;
+    case SOUNDCHANNEL_LANGUAGE2:
+        // if not bilingual then stereo is automatically enabled if available
+        source = 0x420;
+        break;
+    default:
+        break;
     }
 
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
+    SetDSPRegister(DSP_WR_SCART2_SOURCE, source);
     SetDSPRegister(DSP_WR_I2S_SOURCE, source);
-    // 2. audio baseband
-
-    // 3. reset volume to 0dB
-    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
-    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
-    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
 }
 
-void CMSP34x0Decoder::Reconfigure()
+void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
 {
-    Reset();
-
-    if (!m_bRevisionChecked)
-    {
-        m_bRevisionChecked = true;
-        m_bHasRevD = (GetVersion() & 0xFF >= 0x04);
-    }
-
-    if (m_bHasRevD)
-    {
-        ReconfigureRevD();
-    }
-    else
+    CAudioDecoder::SetAudioInput(audioInput);
+    if(m_MSPVersion != MSPVersionG)
     {
         ReconfigureRevA();
+        return;
     }
+
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
+
+    switch (m_AudioInput)
+    {
+    case AUDIOINPUT_RADIO:
+		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_4);
+        break;
+    case AUDIOINPUT_STEREO:
+		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_3);
+        break;
+    case AUDIOINPUT_INTERNAL:
+		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_2);
+        break;
+    case AUDIOINPUT_EXTERNAL:
+		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_1);
+        break;
+    case AUDIOINPUT_MUTE:
+        SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MUTE);
+        break;
+    default:
+        break;
+    }
+
+    switch (m_AudioInput)
+    {
+    case AUDIOINPUT_RADIO:
+    case AUDIOINPUT_TUNER:
+        StartAutoDetect();
+        break;
+    default:
+        break;
+    }
+// todo:
+    // Just some inputs are selected. DScaler does not yet support this correctly
 }
+
+LPCSTR CMSP34x0Decoder::GetAudioName()
+{
+    if(m_MSPVersion != MSPVersionG)
+    {
+        return "not implemented";
+    }
+
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
+
+    WORD Status = GetDEMRegister(DEM_RD_STATUS);
+
+    if((Status & 0x2) > 0 || (Status & 0x4) > 0)
+    {
+        return "No carrier";
+    }
+    // if bilingual sound mode present
+    if((Status & 0x100) > 0)
+    {
+        switch(m_SoundChannel)
+        {
+        case SOUNDCHANNEL_LANGUAGE1:
+            return "Mono L1";
+        case SOUNDCHANNEL_LANGUAGE2:            
+            return "Mono L2";
+        default:
+            return "Mono (L1/L2)";
+        }
+    }
+    if((Status & 0x20) > 0)
+    {
+        return "NICAM";
+    }
+    if((Status & 0x40) > 0)
+    {
+        return "Stereo";
+    }
+    return "Mono";
+}
+
+eSoundChannel CMSP34x0Decoder::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
+{
+    return desiredAudioChannel;
+}
+
 
 void CMSP34x0Decoder::ReconfigureRevA()
 {
     int i;
+
+    if(!m_IsInitialized)
+    {
+        Initialize();
+    }
 
     /// SCART Signal Path
     switch (m_AudioInput)
@@ -941,27 +1170,3 @@ void CMSP34x0Decoder::ReconfigureRevA()
 
 }
 
-void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
-{
-    CAudioDecoder::SetVideoFormat(videoFormat);
-    Reconfigure();
-}
-
-void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
-{
-    CAudioDecoder::SetSoundChannel(soundChannel);
-    Reconfigure();
-}
-
-void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
-{
-    CAudioDecoder::SetAudioInput(audioInput);
-    Reconfigure();
-}
-
-eSoundChannel CMSP34x0Decoder::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
-{
-    eSoundChannel result = desiredAudioChannel;
-    /// \todo FIXME
-    return result; 
-}

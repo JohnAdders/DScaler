@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.11 2002-01-21 08:40:27 robmuller Exp $
+// $Id: BT848Card_Audio.cpp,v 1.12 2002-01-23 22:57:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/01/21 08:40:27  robmuller
+// Removed unnecessary delay in SetAudioSource().
+//
 // Revision 1.10  2001/12/19 19:24:44  ittarnavsky
 // prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
 //
@@ -199,7 +202,7 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
         }
         eVideoFormat videoFormat = m_AudioDecoder->GetVideoFormat();
         strcat(Text, VideoFormatNames[videoFormat]);
-        switch (m_AudioDecoder->GetSoundChannel())
+        /*switch (m_AudioDecoder->GetSoundChannel())
         {
         case SOUNDCHANNEL_MONO:
             strcat(Text, " (Mono)");
@@ -213,7 +216,9 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
         case SOUNDCHANNEL_LANGUAGE2:
             strcat(Text, " (Channel 2)");
             break;
-        }
+        }*/
+        strcat(Text, " - ");
+        strcat(Text, m_AudioDecoder->GetAudioName());
     }
 }
 

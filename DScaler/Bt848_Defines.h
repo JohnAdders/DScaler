@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.11 2002-01-16 19:16:20 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.12 2002-01-23 22:57:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -512,7 +512,7 @@ enum eSoundChannel
 };
 
 #define TIMER_MSP           8
-#define TIMER_MSP_MS        10000
+#define TIMER_MSP_MS        1000
 
 // 10/19/2000 Mark Rejhon
 // Better NTSC defaults

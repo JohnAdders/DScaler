@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.9 2001-12-21 11:07:31 adcockj Exp $
+// $Id: MSP34x0.h,v 1.10 2002-01-23 22:57:28 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/21 11:07:31  adcockj
+// Even more RevA fixes
+//
 // Revision 1.8  2001/12/20 23:46:21  ittarnavsky
 // further RevA programming changes
 //
@@ -256,8 +259,10 @@ private:
 class CMSP34x0Decoder : public CMSP34x0, public CAudioDecoder
 {
 public:
+	LPCSTR GetAudioName();
+	void HandleTimerMessages(int TimerId);
     CMSP34x0Decoder();
-	virtual ~CMSP34x0Decoder() {};
+	virtual ~CMSP34x0Decoder();
     // from CAudioDecoder the default Getters are used
     void SetVideoFormat(eVideoFormat videoFormat);
     void SetSoundChannel(eSoundChannel soundChannel);
@@ -372,21 +377,37 @@ private:
         MSP34x0_SCARTINPUT_SCART_4,
         MSP34x0_SCARTINPUT_LASTONE
     };
+
+    enum eTimerAction
+    {
+        TimerAction_None = 0,
+        TimerAction_CheckAutoStandardDetect,
+        TimerAction_NoStandardDetected
+    };
+
+    enum eMSPVersion
+    {
+        MSPVersionA,
+        MSPVersionD,
+        MSPVersionG,
+    };
+
     void SetSCARTxbar(eScartOutput output, eScartInput input);
 
-    void Reconfigure();
-
 private:
-    void ReconfigureRevD();
+    void StartAutoDetect();
     void ReconfigureRevA();
 
 private:
-    bool m_bHasRevD;
-    bool m_bRevisionChecked;
+	void RevD_CheckAutoStandardDetect();
+	eTimerAction TimerAction;
+	void RevG_SetModus();
+	void Initialize();
+	BOOL m_IsInitialized;
+    eMSPVersion m_MSPVersion;
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];
 };
-
 
 #endif // !defined(__MSP34X0_H__)

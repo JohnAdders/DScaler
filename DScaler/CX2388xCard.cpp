@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.14 2002-11-08 11:54:51 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.15 2002-11-09 00:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/11/08 11:54:51  adcockj
+// try looking for TDA9887 with MT2032 tuners
+//
 // Revision 1.13  2002/11/07 21:06:12  adcockj
 // Fixes to prevent hanging with card that's not been initilaised
 //
@@ -410,6 +413,89 @@ void CCX2388xCard::SetLowColorRemoval(BOOL LowColorRemoval)
     }
 }
 
+void CCX2388xCard::SetCombFilter(eCombFilter CombFilter)
+{
+	switch(CombFilter)
+	{
+	case COMBFILTER_OFF:
+        OrDataDword(CX2388X_FILTER_EVEN, (1 << 5) | (1 << 6));
+        OrDataDword(CX2388X_FILTER_ODD, (1 << 5) | (1 << 6));
+		break;
+	case COMBFILTER_CHROMA_ONLY:
+        OrDataDword(CX2388X_FILTER_EVEN, (1 << 5));
+        AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 6));
+        OrDataDword(CX2388X_FILTER_ODD, (1 << 5));
+        AndDataDword(CX2388X_FILTER_ODD, ~(1 << 6));
+		break;
+	case COMBFILTER_FULL:
+        AndDataDword(CX2388X_FILTER_EVEN, ~((1 << 5) | (1 << 6)));
+        AndDataDword(CX2388X_FILTER_ODD, ~((1 << 5) | (1 << 6)));
+		break;
+	default:
+		break;
+	}
+}
+
+void CCX2388xCard::SetFullLumaRange(BOOL FullLumaRange)
+{
+    if(FullLumaRange)
+    {
+        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 3));
+    }
+    else
+    {
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 3));
+    }
+}
+
+void CCX2388xCard::SetRemodulation(BOOL Remodulation)
+{
+    if(Remodulation)
+    {
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 8));
+    }
+    else
+    {
+        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 8));
+    }
+}
+
+void CCX2388xCard::SetChroma2HComb(BOOL Chroma2HComb)
+{
+    if(Chroma2HComb)
+    {
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 9));
+    }
+    else
+    {
+        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 9));
+    }
+}
+
+void CCX2388xCard::SetForceRemodExcessChroma(BOOL ForceRemodExcessChroma)
+{
+    if(ForceRemodExcessChroma)
+    {
+        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 10));
+    }
+    else
+    {
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 10));
+    }
+}
+
+void CCX2388xCard::SetIFXInterpolation(BOOL IFXInterpolation)
+{
+    if(IFXInterpolation)
+    {
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 15));
+    }
+    else
+    {
+        OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 15));
+    }
+}
+
 LPCSTR CCX2388xCard::GetTunerType()
 {
     return m_TunerType;
@@ -609,7 +695,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             FilterSetup |= (1<<11);
             // 29 Tap first chroma demod
             FilterSetup |= (1<<15);
-            // Laurent : very important for Secam
+            // Third Chroma Demod - on
             FilterSetup |= (1<<17);
             break;
         case VIDEOFORMAT_NTSC_M:

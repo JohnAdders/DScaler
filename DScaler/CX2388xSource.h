@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.8 2002-11-07 20:33:17 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.9 2002-11-09 00:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -172,6 +172,12 @@ private:
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FastSubcarrierLock);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrush);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LowColorRemoval);
+    DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, CombFilter);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FullLumaRange);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, Remodulation);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, Chroma2HComb);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ForceRemodExcessChroma);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, IFXInterpolation);
 
 protected:
 };

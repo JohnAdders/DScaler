@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.8 2002-11-07 20:33:17 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.9 2002-11-09 00:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/11/07 20:33:17  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.7  2002/11/06 20:14:51  adcockj
 // Centered pixels to work with my equipment
 //
@@ -140,6 +143,13 @@
 #include "Providers.h"
 
 extern long EnableCancelButton;
+
+const char* CombFilterSzList[] =
+{
+    { "Full Comb"			},
+    { "Chroma comb only"    },
+    { "Off	"				},
+};
 
 void CX2388x_OnSetup(void *pThis, int Start)
 {
@@ -325,6 +335,24 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_LowColorRemoval);
 
+    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", COMBFILTER_OFF, COMBFILTER_FULL, IniSection, CombFilterSzList, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_CombFilter);
+
+    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_FullLumaRange);
+
+    m_Remodulation = new CRemodulationSetting(this, "Remodulation", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_Remodulation);
+
+    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_Chroma2HComb);
+
+    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_ForceRemodExcessChroma);
+
+    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_IFXInterpolation);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -384,6 +412,12 @@ void CCX2388xSource::Reset()
         m_pCard->SetFastSubcarrierLock(m_FastSubcarrierLock->GetValue());
         m_pCard->SetWhiteCrushEnable(m_WhiteCrush->GetValue());
         m_pCard->SetLowColorRemoval(m_LowColorRemoval->GetValue());
+        m_pCard->SetCombFilter((eCombFilter)(m_CombFilter->GetValue()));
+        m_pCard->SetFullLumaRange(m_FullLumaRange->GetValue());
+        m_pCard->SetRemodulation(m_Remodulation->GetValue());
+        m_pCard->SetChroma2HComb(m_Chroma2HComb->GetValue());
+        m_pCard->SetForceRemodExcessChroma(m_ForceRemodExcessChroma->GetValue());
+        m_pCard->SetIFXInterpolation(m_IFXInterpolation->GetValue());
     }
     NotifySizeChange();
 }
@@ -1232,6 +1266,36 @@ void CCX2388xSource::WhiteCrushOnChange(long NewValue, long OldValue)
 void CCX2388xSource::LowColorRemovalOnChange(long NewValue, long OldValue)
 {
     m_pCard->SetLowColorRemoval(NewValue);
+}
+
+void CCX2388xSource::CombFilterOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetCombFilter((eCombFilter)NewValue);
+}
+
+void CCX2388xSource::FullLumaRangeOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetFullLumaRange(NewValue);
+}
+
+void CCX2388xSource::RemodulationOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetRemodulation(NewValue);
+}
+
+void CCX2388xSource::Chroma2HCombOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetChroma2HComb(NewValue);
+}
+
+void CCX2388xSource::ForceRemodExcessChromaOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetForceRemodExcessChroma(NewValue);
+}
+
+void CCX2388xSource::IFXInterpolationOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetIFXInterpolation(NewValue);
 }
 
 void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)

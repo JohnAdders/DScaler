@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.7 2002-11-07 20:33:17 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.8 2002-11-09 00:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,13 @@
 #include "AudioDecoder.h"
 #include "AudioControls.h"
 #include "SAA7118.h"
+
+enum eCombFilter
+{
+    COMBFILTER_OFF = 0,
+    COMBFILTER_CHROMA_ONLY,
+    COMBFILTER_FULL,
+};
 
 #define CT_INPUTS_PER_CARD 8
 
@@ -148,6 +155,12 @@ public:
     void SetFastSubcarrierLock(BOOL LockFast);
     void SetWhiteCrushEnable(BOOL WhiteCrush);
     void SetLowColorRemoval(BOOL LowColorRemoval);
+    void SetCombFilter(eCombFilter CombFilter);
+    void SetFullLumaRange(BOOL FullLumaRange);
+	void SetRemodulation(BOOL Remodulation);
+	void SetChroma2HComb(BOOL Chroma2HComb);
+	void SetForceRemodExcessChroma(BOOL ForceRemodExcessChroma);
+	void SetIFXInterpolation(BOOL IFXInterpolation);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

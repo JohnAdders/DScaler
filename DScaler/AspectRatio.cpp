@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.35 2002-08-05 21:01:55 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.36 2002-08-12 21:29:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/08/05 21:01:55  laurentg
+// Square pixels mode updated
+//
 // Revision 1.34  2002/06/24 21:49:28  laurentg
 // New option to use or not WSS data when doing AR detection
 //
@@ -410,6 +413,7 @@ int UpdateSquarePixelsMode(BOOL set)
 {
     static int SavedSourceAspect = -1;
     static int SavedAspectMode = -1;
+    static BOOL SavedAutodetectAspect = FALSE;
     int result = 0;
 
     if (set)
@@ -418,8 +422,10 @@ int UpdateSquarePixelsMode(BOOL set)
         {
             SavedSourceAspect = AspectSettings.SourceAspect;
             SavedAspectMode = AspectSettings.AspectMode;
+            SavedAutodetectAspect = AspectSettings.AutoDetectAspect;
             result = 1;
         }
+        AspectSettings.AutoDetectAspect = FALSE;
         if (Providers_GetCurrentSource() != NULL)
         {
             int width = Providers_GetCurrentSource()->GetWidth();
@@ -438,6 +444,7 @@ int UpdateSquarePixelsMode(BOOL set)
         {
             AspectSettings.SourceAspect = SavedSourceAspect;
             AspectSettings.AspectMode = SavedAspectMode;
+            AspectSettings.AutoDetectAspect = SavedAutodetectAspect;
             result = 1;
         }
     }

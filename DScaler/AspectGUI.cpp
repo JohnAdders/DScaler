@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.44 2002-08-08 12:47:22 kooiman Exp $
+// $Id: AspectGUI.cpp,v 1.45 2002-08-12 21:29:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/08/08 12:47:22  kooiman
+// Added Aspect ratio settings to settings per channel.
+//
 // Revision 1.43  2002/08/05 22:33:38  laurentg
 // WSS decoding and VBI decoding locked when AR autodetection mode is ON and this mode used is set to use WSS
 //
@@ -178,13 +181,13 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItem(hMenu, IDM_SASPECT_235A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_UNCHECKED);
 
-    if(AspectSettings.AutoDetectAspect)
-    {
-        CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_CHECKED);
-    }
-    else if(AspectSettings.SquarePixels)
+    if(AspectSettings.SquarePixels)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_SQUARE, MF_CHECKED);
+    }
+    else if(AspectSettings.AutoDetectAspect)
+    {
+        CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_CHECKED);
     }
     else if (AspectSettings.AspectMode == 1)
     {
@@ -443,7 +446,6 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         break;
     case IDM_SASPECT_SQUARE:
-        AspectSettings.AutoDetectAspect = FALSE;
         UpdateSquarePixelsMode(!AspectSettings.SquarePixels);
         if (AspectSettings.SquarePixels)
         {

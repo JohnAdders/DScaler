@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.5 2004-11-21 23:18:34 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.6 2004-11-22 20:38:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/11/21 23:18:34  atnak
+// Added another reporting.
+//
 // Revision 1.4  2004/11/21 16:21:16  atnak
 // Bug fix and slight change.
 //
@@ -49,6 +52,10 @@
 using namespace std;
 using namespace HCParser;
 
+
+void HCParser::PASS_TO_PARENT(int, const ParseTag*, unsigned char, const char*, void*)
+{
+};
 
 CHCParser::CHCParser(const ParseTag* tagList)
 {
@@ -1071,17 +1078,18 @@ void CHCParser::InitializeParseState()
 {
 	m_parseStates.clear();
 
-	static ParseTag s_rootParent[2] =
-	{
-		{ "",	PARSE_CHILDREN,	0, 1, m_tagListEntry,	NULL, NULL },
-		{ NULL,	0,				0, 0, NULL,				NULL, NULL },
-	};
+	memset(m_rootParent, 0, sizeof(m_rootParent));
+	m_rootParent[0].tagName			= "";
+	m_rootParent[0].parseTypes		= PARSE_CHILDREN;
+	m_rootParent[0].maxParseLength	= 1;
+	m_rootParent[0].subTags			= m_tagListEntry;
+
 
 	ParseState parseState;
 	parseState.paramIndex = -1;
 	parseState.bracketOpened = false;
 	parseState.iterateValues = false;
-	parseState.parseTags = s_rootParent;
+	parseState.parseTags = m_rootParent;
 	parseState.expect = 0;
 	parseState.paramCounts = NULL;
 	parseState.valueOpened = false;
@@ -1373,7 +1381,7 @@ bool CHCParser::ReportClose(const ParseTag* parseTag)
 	return ReportValue(parseTag, 0, NULL, REPORT_CLOSE);
 }
 
-bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const char* value, int reason)
+bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const char* value, int report)
 {
 #ifdef _DEBUG
 	if (value != NULL)
@@ -1384,14 +1392,30 @@ bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const 
 		case PARSE_NUMERIC: DebugOut(DEBUG_OUT_REPORT, "Numeric"); break;
 		case PARSE_STRING: DebugOut(DEBUG_OUT_REPORT, "String"); break;
 		}
-		DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value);
+		// Don't look at the value for PARSE_CONSTANT (see PC_VALUE()).
+		if (type != PARSE_CONSTANT)
+		{
+			DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value);
+		}
 	}
 #endif
 
-	if (parseTag->readProc != NULL)
+	ParseReadProc* readProc = parseTag->readProc;
+
+	if (readProc == PASS_TO_PARENT)
+	{
+		list<ParseState>::iterator it = m_parseStates.begin();
+
+		// There's a sentinel value at the end (m_rootParent) so there's
+		// no need to check 'it' against m_parseStates.end().
+		for ( ; it->parseTags->readProc != PASS_TO_PARENT; it++) ;
+		readProc = it->parseTags->readProc;
+	}
+
+	if (readProc != NULL)
 	{
 		try {
-			(parseTag->readProc)(reason, parseTag, type, value, m_reportContext);
+			(readProc)(report, parseTag, type, value, m_reportContext);
 		}
 		catch (string error) {
 			SetParseError(PointError() << error.c_str());

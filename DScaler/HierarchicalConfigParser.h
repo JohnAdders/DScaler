@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.5 2004-11-21 23:18:35 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.6 2004-11-22 20:38:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/11/21 23:18:35  atnak
+// Added another reporting.
+//
 // Revision 1.4  2004/11/20 16:43:16  atnak
 // Made an enum public so sub classes can access them.
 //
@@ -99,8 +102,8 @@ namespace HCParser
 //
 // const ParseTag tagList[] =
 // {
-//   { "Foo",			PARSE_STRING|PARSE_CONSTANT,	1, 127, NULL, constants, ReportFooProc },
-//   { "Bar",			PARSE_CHILDREN,					1, 127, tagList2, NULL, ReportBarProc },
+//   { "Foo",			PARSE_STRING|PARSE_CONSTANT,	1, 127, NULL, constants, ReadFooProc },
+//   { "Bar",			PARSE_CHILDREN,					1, 127, tagList2, NULL, ReadBarProc },
 //   { NULL } // Terminating NULL entry.
 // };
 //
@@ -112,9 +115,9 @@ namespace HCParser
 // }
 //
 //
-// In this example, ReportFooProc() is called with REPORT_OPEN, REPORT_VALUE and REPORT_CLOSE
+// In this example, ReadFooProc() is called with REPORT_OPEN, REPORT_VALUE and REPORT_CLOSE
 // when a "Foo" is parsed.  REPORT_VALUE may not be called if there is no value specified.
-// In this case, the default value should be used (or an error thrown).  ReportBarProc() is
+// In this case, the default value should be used (or an error thrown).  ReadBarProc() is
 // is called when a "Bar" is parsed.  For a PARSE_CHILDREN entry, a REPORT_OPEN will be
 // called, and a REPORT_CLOSE only after all child entries have been parsed.  There is no
 // REPORT_VALUE for a PARSE_CHILDREN.
@@ -129,7 +132,7 @@ namespace HCParser
 // Parses the full content of the file given.  If the parsing encounters an error, false is
 // returned and CHCParser.GetError() returns a std::string value indicating the error.
 // 'filename' is the path to the filename that should be read.  'context' is an arbitrary
-// pointer that will be given to the report callback and it is not used by CHCParser for
+// pointer that will be given to the read callback and it is not used by CHCParser for
 // any other purpose.  If 'filepointer' (FILE*) is specified instead, parsing starts at the
 // current position in the file and continues to the end of the file.  The file is not
 // closed afterwards.  ParseLocalFile() will look in the same directory as the program if
@@ -154,10 +157,10 @@ namespace HCParser
 // the return value is 0.
 //
 //
-// ParseReportProc(reason, tag, type, value, context)
+// ParseReadProc(report, tag, type, value, context)
 //
 // A callback of this function type is called every time an entry in a file is parsed.
-// 'reason' can be either REPORT_OPEN, REPORT_CLOSE or REPORT_VALUE and signifies the
+// 'report' can be either REPORT_OPEN, REPORT_CLOSE or REPORT_VALUE and signifies the
 // various stages of parsing the entry.  'tag' is a pointer to the significant ParseTag
 // element in the ParseTag array given to CHCParse at construction.  'type' can be one of
 // PARSE_STRING, PARSE_NUMERIC, PARSE_CONSTANT or any combination of the three bit-wise
@@ -199,7 +202,7 @@ enum
 	PARSE_CHILDREN		= 1 << 3,
 };
 
-// ParseReadProc reasons
+// ParseReadProc reports
 enum
 {
 	REPORT_TAG,
@@ -212,8 +215,19 @@ typedef struct _ParseConstant ParseConstant;
 typedef struct _ParseTag ParseTag;
 
 // Callback function type for ParseTag
-typedef void (ParseReportProc)(int reason, const ParseTag* tag, unsigned char type,
-							   const char* value, void* context);
+typedef void (ParseReadProc)(int report, const ParseTag* tag, unsigned char type,
+							 const char* value, void* context);
+
+// This PASS_TO_PARENT value can be specified as the 'readProc' value of
+// ParseTag to have to parent tag's callback function called.
+ParseReadProc PASS_TO_PARENT; 
+
+// This macro can be used to make any type be accepted as the value in
+// the ParseConstant list.  Care should be taken when doing this.
+// ParseConstant values are passed as the 'value' parameter of
+// ParserReadProc and are not used by CHParser for any other purpose.
+// The respective type-cast will return 'value' back to the original type.
+#define PC_VALUE(value)				((const char*)(value))
 
 // Constants definition for ParseTag
 struct _ParseConstant
@@ -230,7 +244,7 @@ struct _ParseTag
 	unsigned long			maxParseLength;
 	const ParseTag*			subTags;
 	const ParseConstant*	constants;
-	ParseReportProc*		readProc;
+	ParseReadProc*			readProc;
 };
 
 //
@@ -385,7 +399,7 @@ private:
 	bool ReportOpen(const ParseTag* parseTag);
 	bool ReportClose(const ParseTag* parseTag);
 	bool ReportValue(const ParseTag* parseTag, unsigned char type,
-					 const char* value, int reason = REPORT_VALUE);
+					 const char* value, int report = REPORT_VALUE);
 
 	void TrimLeft();
 	bool TagTakesValues(const ParseTag* parseTag);
@@ -424,6 +438,7 @@ private:
 	void*						m_reportContext;
 
 	const ParseTag*				m_tagListEntry;
+	ParseTag					m_rootParent[2];
 	std::list<ParseState>		m_parseStates;
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.42 2002-10-29 11:05:28 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.43 2002-10-30 12:56:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.41  2002/09/11 18:19:40  adcockj
 // Prelimainary support for CX2388x based cards
 //
@@ -904,13 +907,21 @@ BOOL LoadDeinterlacePlugins()
         BOOL RetVal = TRUE;
         while(RetVal != 0)
         {
-            __try
+            // check to see if the extension is .dll
+            // FindFirst... searches long and short file names so a filter that is named
+            // FLT_bogus.dllasdf will be found when searching for FLT_*.dll since it's short
+            // file name is FLT_bo~1.dll
+
+            if(_stricmp(".dll", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
             {
-                LoadDeintPlugin(FindFileData.cFileName);
-            }
-            __except (EXCEPTION_EXECUTE_HANDLER) 
-            { 
-                LOG(1, "Crash Loading %s", FindFileData.cFileName);
+                __try
+                {
+                    LoadDeintPlugin(FindFileData.cFileName);
+                }
+                __except (EXCEPTION_EXECUTE_HANDLER) 
+                { 
+                    LOG(1, "Crash Loading %s", FindFileData.cFileName);
+                }
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }

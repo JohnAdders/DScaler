@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.30 2002-09-17 17:41:54 tobbej Exp $
+// $Id: Filter.cpp,v 1.31 2002-10-30 12:56:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/09/17 17:41:54  tobbej
+// added fpu/mmx check
+//
 // Revision 1.29  2002/08/15 14:16:18  kooiman
 // Cleaner settings per channel implementation
 //
@@ -318,14 +321,22 @@ BOOL LoadFilterPlugins()
         BOOL RetVal = TRUE;
         while(RetVal != 0)
         {
-            __try
+            // check to see if the extension is .dll
+            // FindFirst... searches long and short file names so a filter that is named
+            // FLT_bogus.dllasdf will be found when searching for FLT_*.dll since it's short
+            // file name is FLT_bo~1.dll
+
+            if(_stricmp(".dll", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
             {
-                LOG(1, "Loading %s ...", FindFileData.cFileName);
-                LoadFilterPlugin(FindFileData.cFileName);
-            }
-            __except (EXCEPTION_EXECUTE_HANDLER) 
-            { 
-                LOG(1, "Crash Loading %s", FindFileData.cFileName);
+                __try
+                {
+                    LOG(1, "Loading %s ...", FindFileData.cFileName);
+                    LoadFilterPlugin(FindFileData.cFileName);
+                }
+                __except (EXCEPTION_EXECUTE_HANDLER) 
+                { 
+                    LOG(1, "Crash Loading %s", FindFileData.cFileName);
+                }
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }

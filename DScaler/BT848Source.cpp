@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.84 2002-10-11 21:45:31 ittarnavsky Exp $
+// $Id: BT848Source.cpp,v 1.85 2002-10-15 15:25:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2002/10/11 21:45:31  ittarnavsky
+// commented out the call to GetNumAudioInputs()
+//
 // Revision 1.83  2002/10/08 21:16:09  kooiman
 // Fixed accidental remove of line of code.
 //
@@ -459,18 +462,19 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pBT8x8Group = SettingsMaster->Groups()->GetGroup(this,"BT8x8");
-    CSettingGroup *pVideoGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"Video","Video");
-    CSettingGroup *pAudioGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"Audio","Audio");
-    CSettingGroup *pAudioStandard = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Standard","Standard");
-    CSettingGroup *pAudioSource = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Source","Source");
-    CSettingGroup *pAudioChannel = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Channel","Channel");
-    CSettingGroup *pAudioControl = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Control","Control");
-    CSettingGroup *pAudioOther  = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Other","Other");
-    CSettingGroup *pAudioEqualizerGroup = SettingsMaster->Groups()->GetSubGroup(pAudioControl,"Equalizer","Equalizer");
+    CSettingGroup *pBT8x8Group = GetSettingsGroup("BT8x8","BT8x8","BT8x8 Card");
+    CSettingGroup *pVideoGroup = pBT8x8Group->GetGroup("Video","Video");
+    CSettingGroup *pAudioGroup = pBT8x8Group->GetGroup("Audio","Audio");
+    CSettingGroup *pAudioStandard = pAudioGroup->GetGroup("Standard","Standard");
+    CSettingGroup *pAudioSource = pAudioGroup->GetGroup("Source","Source");
+    CSettingGroup *pAudioChannel = pAudioGroup->GetGroup("Channel","Channel");
+    CSettingGroup *pAudioControl = pAudioGroup->GetGroup("Control","Control");
+    CSettingGroup *pAudioOther  = pAudioGroup->GetGroup("Other","Other");
+    CSettingGroup *pAudioEqualizerGroup = pAudioControl->GetGroup("Equalizer","Equalizer");
     
-    CSettingGroup *pAdvancedGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"AdvFlags","Advanced Flags");
-    CSettingGroup *pAdvancedTimingGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"AdvTiming","Advanced Timing");
+    CSettingGroup *pAdvancedGroup = pBT8x8Group->GetGroup("AdvFlags","Advanced Flags");
+    CSettingGroup *pAdvancedTimingGroup = pBT8x8Group->GetGroup("AdvTiming","Advanced Timing");
+    
 
     eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
     eSettingFlags FlagsInput = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
@@ -687,8 +691,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection, pAudioOther, FlagsSource);
     m_Settings.push_back(m_MSP34xxFlags);    
-
-    SettingsMaster->Register(BT848_SETTINGID, this, TRUE);  
 
     ReadFromIni();
 }

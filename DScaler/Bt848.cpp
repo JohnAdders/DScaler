@@ -1779,13 +1779,13 @@ SETTING BT848Settings[BT848_SETTING_LASTONE] =
 		NULL, NULL, BT848_Saturation_OnChange,
 	},
 	{
-		"SaturationU", SLIDER, 0, (long*)&InitialSaturationU,
+		"Blue Saturation", SLIDER, 0, (long*)&InitialSaturationU,
 		DEFAULT_SAT_U_NTSC, 0, 255, 1, 1,
 		NULL,
 		"Hardware", "InitialSaturationU", BT848_SaturationU_OnChange,
 	},
 	{
-		"SaturationV", SLIDER, 0, (long*)&InitialSaturationV,
+		"Red Saturation", SLIDER, 0, (long*)&InitialSaturationV,
 		DEFAULT_SAT_V_NTSC, 0, 255, 1, 1,
 		NULL,
 		"Hardware", "InitialSaturationV", BT848_SaturationV_OnChange,

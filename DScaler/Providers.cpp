@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.6 2001-11-23 10:49:17 adcockj Exp $
+// $Id: Providers.cpp,v 1.7 2001-11-24 17:58:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.5  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -56,6 +59,7 @@
 #include "Providers.h"
 #include "BT848Provider.h"
 #include "StillProvider.h"
+#include "TiffSource.h"
 #include "HardwareDriver.h"
 #include "OutThreads.h"
 
@@ -197,7 +201,7 @@ void Providers_UpdateMenu(HMENU hMenu)
     }
 }
 
-BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam, HMENU hMenu)
 {
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {
@@ -210,6 +214,67 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Start_Capture();
             return TRUE;
         }
+    }
+    else if ( (LOWORD(wParam) == IDM_OPEN_FILE) && (Sources.size() < 100) )
+    {
+        OPENFILENAME OpenFileInfo;
+        char FilePath[256];
+        char FileFilters[128];
+
+        OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
+        OpenFileInfo.hwndOwner = hWnd;
+        strcpy(FileFilters, "TIFF Files");
+        strcpy(&FileFilters[11], "*.TIF;*.TIFF");
+        strcpy(&FileFilters[24], "");
+        OpenFileInfo.lpstrFilter = FileFilters;
+        OpenFileInfo.lpstrCustomFilter = NULL;
+        FilePath[0] = 0;
+        OpenFileInfo.lpstrFile = FilePath;
+        OpenFileInfo.nMaxFile = sizeof(FilePath);
+        OpenFileInfo.lpstrFileTitle = NULL;
+        OpenFileInfo.lpstrInitialDir = NULL;
+        OpenFileInfo.lpstrTitle = NULL;
+        OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+        OpenFileInfo.lpstrDefExt = NULL;
+        if (GetOpenFileName(&OpenFileInfo))
+        {
+            Stop_Capture();
+            CTiffSource* TiffSource = new CTiffSource(FilePath);
+            StillProvider->AddStillSource(TiffSource);
+            HMENU hSubMenu = GetSubMenu(hMenu, 5);
+            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), FilePath);
+            Sources.push_back(TiffSource);
+            CurrentSource = Sources.size() - 1;
+            Providers_UpdateMenu(GetMenu(hWnd));
+            Start_Capture();
+            return TRUE;
+        }
+    }
+    else if (LOWORD(wParam) == IDM_CLOSE_FILE)
+    {
+        Stop_Capture();
+        CSource* pCurrentSource = Providers_GetCurrentSource();
+        StillProvider->RemoveStillSource((CStillSource*)pCurrentSource);
+        HMENU hSubMenu = GetSubMenu(hMenu, 5);
+        RemoveMenu(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, MF_BYCOMMAND);
+//        for(vector<CSource*>::iterator it = Sources.begin();
+//            it != Sources.end();
+//            ++it)
+//        {
+//            if (*it == pCurrentSource)
+//            {
+//                Sources.erase(it);
+//            }
+//        }
+//        if (CurrentSource >= Sources.size())
+//        {
+//            CurrentSource--;
+//        }
+        CurrentSource = 0;
+        CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, TRUE);
+        Providers_UpdateMenu(GetMenu(hWnd));
+        Start_Capture();
+        return TRUE;
     }
 
     if(CurrentSource >= 0 && CurrentSource < Sources.size())

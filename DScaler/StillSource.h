@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.4 2001-11-21 15:21:39 adcockj Exp $
+// $Id: StillSource.h,v 1.5 2001-11-24 17:58:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 class CStillSource : public CSource
 {
 public:
-    CStillSource();
+    CStillSource(LPCSTR FilePath);
     ~CStillSource();
     void CreateSettings(LPCSTR IniSection);
     void Start();
@@ -33,27 +33,37 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     LPCSTR GetStatus();
-    CSetting* GetVolume();
-    CSetting* GetBalance();
-    void Mute();
-    void UnMute();
-    CSetting* GetBrightness();
-    CSetting* GetContrast();
-    CSetting* GetHue();
-    CSetting* GetSaturation();
-    CSetting* GetSaturationU();
-    CSetting* GetSaturationV();
+    CSetting* GetVolume() {return NULL;};
+    CSetting* GetBalance() {return NULL;};
+    void Mute() {;};
+    void UnMute() {;};
+    CSetting* GetBrightness() {return NULL;};
+    CSetting* GetContrast() {return NULL;};
+    CSetting* GetHue() {return NULL;};
+    CSetting* GetSaturation() {return NULL;};
+    CSetting* GetSaturationU() {return NULL;};
+    CSetting* GetSaturationV() {return NULL;};
     eVideoFormat GetFormat();
-    BOOL IsInTunerMode() {return FALSE;}
-    int GetWidth() {return 720;};
-    int GetHeight() {return 480;};
-    BOOL HasTuner();
+    BOOL IsInTunerMode() {return FALSE;};
+    int GetWidth();
+    int GetHeight();
+    BOOL HasTuner() {return FALSE;};
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
     BOOL IsVideoPresent() {return TRUE;};
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
+
+protected:
+    int         m_Width;
+    int         m_Height;
+    TPicture    m_StillFrame;
+    char        m_FilePath[256];
+
 private:
+    virtual void ReadStillFile() = 0;
+
+    DWORD       m_LastTickCount;
 };
 
 #endif

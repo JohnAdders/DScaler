@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
+// $Id: Providers.h,v 1.4 2001-11-24 17:58:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 
 int Providers_Load(HMENU hMenu);
 void Providers_Unload();
-BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam, HMENU hMenu);
 void Provider_HandleTimerMessages(int TimerId);
 CSource* Providers_GetCurrentSource();
 void Providers_SetMenu(HMENU hMenu);

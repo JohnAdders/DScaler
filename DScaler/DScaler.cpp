@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.90 2001-11-23 10:47:44 adcockj Exp $
+// $Id: DScaler.cpp,v 1.91 2001-11-24 18:01:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2001/11/23 10:47:44  adcockj
+// Added Hebrew and Hungarian codepages
+//
 // Revision 1.89  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -1694,7 +1697,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             if(!bDone)
             {
-                bDone = Providers_HandleWindowsCommands(hWnd, wParam, lParam);
+                bDone = Providers_HandleWindowsCommands(hWnd, wParam, lParam, hMenu);
             }
             break;
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.6 2001-11-23 10:49:17 adcockj Exp $
+// $Id: StillSource.cpp,v 1.7 2001-11-24 17:58:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.5  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -56,11 +59,26 @@
 #include "resource.h"
 #include "StillSource.h"
 #include "DScaler.h"
+#include "FieldTiming.h"
+#include "DebugLog.h"
 
-CStillSource::CStillSource() :
+CStillSource::CStillSource(LPCSTR FilePath) :
     CSource(0, IDC_STILL)
 {
     CreateSettings("StillSource");
+    if (strlen(FilePath) < 255)
+    {
+        strcpy(m_FilePath, FilePath);
+    }
+    else
+    {
+        *m_FilePath = '\0';
+    }
+    m_Width = 0;
+    m_Height = 0;
+    m_StillFrame.pData = NULL;
+    m_StillFrame.Flags = PICTURE_PROGRESSIVE;
+    m_StillFrame.IsFirstInSeries = FALSE;
 }
 
 CStillSource::~CStillSource()
@@ -71,21 +89,77 @@ void CStillSource::CreateSettings(LPCSTR IniSection)
 {
 }
 
-
 void CStillSource::Start()
 {
+    if (strlen(m_FilePath) > 0)
+    {
+        ReadStillFile();
+    }
+    m_LastTickCount = 0;
 }
 
 void CStillSource::Stop()
+{
+    if (m_StillFrame.pData != NULL)
+    {
+        free(m_StillFrame.pData);
+        m_StillFrame.pData = NULL;
+    }
+    m_Width = 0;
+    m_Height = 0;
+}
+
+void CStillSource::Reset()
 {
 }
 
 void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
-    pInfo->LineLength = 720 * 2;
-    pInfo->FrameWidth = 720;
-    pInfo->FrameHeight = 480;
-    pInfo->FieldHeight = 480 / 2;
+    BOOL bSlept = FALSE;
+    DWORD CurrentTickCount;
+    int Diff;
+    int FrameDuration = 1000 / m_FieldFrequency;
+
+    CurrentTickCount = GetTickCount();
+    if (m_LastTickCount == 0)
+    {
+        m_LastTickCount = CurrentTickCount;
+    }
+    while((CurrentTickCount - m_LastTickCount) < FrameDuration)
+    {
+        Timing_SmartSleep(pInfo, FALSE, bSlept);
+        pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        CurrentTickCount = GetTickCount();
+    }
+
+    Diff = (CurrentTickCount - m_LastTickCount) / FrameDuration;
+    if(Diff > 1)
+    {
+        // delete all history
+        memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+        pInfo->bMissedFrame = TRUE;
+        Timing_AddDroppedFields(Diff - 1);
+        LOG(2, " Dropped Frame");
+    }
+    else
+    {
+        pInfo->bMissedFrame = FALSE;
+        if (pInfo->bRunningLate)
+        {
+            Timing_AddDroppedFields(1);
+            LOG(2, "Running Late");
+        }
+
+        pInfo->LineLength = m_Width * 2;
+        pInfo->FrameWidth = m_Width;
+        pInfo->FrameHeight = m_Height;
+        pInfo->FieldHeight = m_Height;
+        pInfo->InputPitch = pInfo->LineLength;
+        pInfo->PictureHistory[0] = &m_StillFrame;
+        pInfo->PictureHistory[1] = &m_StillFrame;
+    }
+
+    m_LastTickCount += Diff * FrameDuration;
 }
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -98,68 +172,19 @@ LPCSTR CStillSource::GetStatus()
     return "Still Picture";
 }
 
-CSetting* CStillSource::GetVolume()
-{
-    return NULL;
-}
-
-CSetting* CStillSource::GetBalance()
-{
-    return NULL;
-}
-
-void CStillSource::Mute()
-{
-    return;
-}
-
-void CStillSource::UnMute()
-{
-    return;
-}
-
-CSetting* CStillSource::GetBrightness()
-{
-    return NULL;
-}
-
-CSetting* CStillSource::GetContrast()
-{
-    return NULL;
-}
-
-CSetting* CStillSource::GetHue()
-{
-    return NULL;
-}
-
-CSetting* CStillSource::GetSaturation()
-{
-    return NULL;
-}
-
-CSetting* CStillSource::GetSaturationU()
-{
-    return NULL;
-}
-
-CSetting* CStillSource::GetSaturationV()
-{
-    return NULL;
-}
-
 eVideoFormat CStillSource::GetFormat()
 {
-    return FORMAT_NTSC;
+    return FORMAT_PAL_BDGHI;
 }
 
-void CStillSource::Reset()
+int CStillSource::GetWidth()
 {
+    return m_Width;
 }
 
-BOOL CStillSource::HasTuner()
+int CStillSource::GetHeight()
 {
-    return FALSE;
+    return m_Height;
 }
 
 void CStillSource::SetMenu(HMENU hMenu)
@@ -169,4 +194,3 @@ void CStillSource::SetMenu(HMENU hMenu)
 void CStillSource::HandleTimerMessages(int TimerId)
 {
 }
-

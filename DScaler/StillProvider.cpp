@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.4 2001-11-23 10:49:17 adcockj Exp $
+// $Id: StillProvider.cpp,v 1.5 2001-11-24 17:58:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.3  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -40,28 +43,47 @@
 
 CStillProvider::CStillProvider()
 {
-    m_StillSource = new CStillSource();
 }
 
 CStillProvider::~CStillProvider()
 {
-    delete m_StillSource;
 }
 
 int CStillProvider::GetNumberOfSources()
 {
-    return 1;
+    return m_StillSources.size();
 }
 
 
 CSource* CStillProvider::GetSource(int SourceIndex)
 {
-    if(SourceIndex == 0)
+    if(SourceIndex >= 0 && SourceIndex < m_StillSources.size())
     {
-        return m_StillSource;
+        return m_StillSources[SourceIndex];
     }
     else
     {
         return NULL;
     }
+}
+
+BOOL CStillProvider::AddStillSource(CStillSource* pStillSource)
+{
+    m_StillSources.push_back(pStillSource);
+    return TRUE;
+}
+
+BOOL CStillProvider::RemoveStillSource(CStillSource* pStillSource)
+{
+    for(vector<CStillSource*>::iterator it = m_StillSources.begin();
+        it != m_StillSources.end();
+        ++it)
+    {
+        if (*it == pStillSource)
+        {
+            m_StillSources.erase(it);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.h,v 1.6 2001-12-03 19:33:59 adcockj Exp $
+// $Id: BT848Provider.h,v 1.7 2002-08-11 16:56:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,8 @@ private:
                                         WORD VendorID, 
                                         WORD DeviceID, 
                                         int DeviceIndex, 
-                                        DWORD SubSystemId);
+                                        DWORD SubSystemId,
+                                        char* ChipName);
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();

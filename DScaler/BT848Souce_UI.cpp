@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.36 2002-08-11 14:16:54 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.37 2002-08-11 16:56:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/08/11 14:16:54  laurentg
+// Disable Cancel button when the select card is displayed at startup
+//
 // Revision 1.35  2002/08/11 12:12:10  laurentg
 // Cut BT Card setup and general hardware setup in two different windows
 //
@@ -253,6 +256,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 {
     int i;
     int nIndex;
+    char buf[128];
     static long OrigTuner;
     static CBT848Source* pThis;
 
@@ -260,6 +264,8 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
     {
     case WM_INITDIALOG:
         pThis = (CBT848Source*)lParam;
+        sprintf(buf, "Card & Tuner Setup for card %u with chip %s", pThis->GetDeviceIndex() + 1, pThis->GetChipName());
+        SetWindowText(hDlg, buf);
         Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < TVCARD_LASTONE; i++)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.51 2002-08-11 14:16:54 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.52 2002-08-11 16:56:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/08/11 14:16:54  laurentg
+// Disable Cancel button when the select card is displayed at startup
+//
 // Revision 1.50  2002/08/11 12:08:24  laurentg
 // Cut BT Card setup and general hardware setup in two different windows
 //
@@ -237,7 +240,7 @@ void BT848_OnSetup(void *pThis, int Start)
 }
 
 
-CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
+CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_BT848_GETVALUE, IDC_BT848),
     m_pBT848Card(pBT848Card),
     m_CurrentX(720),
@@ -247,7 +250,10 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_IsFieldOdd(FALSE),
     m_InSaturationUpdate(FALSE),
     m_CurrentChannel(-1),
-    m_SettingsByChannelStarted(FALSE)
+    m_SettingsByChannelStarted(FALSE),
+    m_ChipName(ChipName),
+    m_DeviceIndex(DeviceIndex)
+
 {
     CreateSettings(IniSection);
 
@@ -1323,4 +1329,14 @@ void CBT848Source::SavePerChannelSetup(int Start)
             SettingsPerChannel_UnregisterSection(m_ChannelSubSection.c_str());
         }
     }
+}
+
+int CBT848Source::GetDeviceIndex()
+{
+    return m_DeviceIndex;
+}
+
+const char* CBT848Source::GetChipName()
+{
+    return m_ChipName.c_str();
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.7 2001-11-30 10:46:43 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.8 2002-08-11 16:56:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/30 10:46:43  adcockj
+// Fixed crashes and leaks
+//
 // Revision 1.6  2001/11/29 22:16:22  adcockj
 // Fixed memory leak
 //
@@ -133,7 +136,8 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
                                                                 BT848Chips[i].VendorId, 
                                                                 BT848Chips[i].DeviceId, 
                                                                 CardsFound, 
-                                                                SubSystemId
+                                                                SubSystemId,
+                                                                BT848Chips[i].szName
                                                           );
             if(pNewSource != NULL)
             {
@@ -156,13 +160,13 @@ CBT848Provider::~CBT848Provider()
 }
 
 
-CBT848Source* CBT848Provider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
+CBT848Source* CBT848Provider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId, char* ChipName)
 {
     /// \todo use the subsystem id to create the correct specilized version of the card
     CBT848Card* pNewCard = new CBT848Card(pHardwareDriver);
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
-        CBT848Source* pNewSource = new CBT848Source(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
+        CBT848Source* pNewSource = new CBT848Source(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
         return pNewSource;
     }
     else

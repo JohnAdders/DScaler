@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.29 2002-08-11 12:08:24 laurentg Exp $
+// $Id: BT848Source.h,v 1.30 2002-08-11 16:56:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ class CBT848Source : public CSource
 {
     DECLARE_CLASS_SETTINGS(CBT848Source);
 public:
-    CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection);
+    CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CBT848Source();
     void Start();
     void Stop();
@@ -75,6 +75,8 @@ public:
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
     void ChannelChange(int PreChange,int OldChannel,int NewChannel);
     void SavePerChannelSetup(int Start);
+    int GetDeviceIndex();
+    const char* GetChipName();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -120,6 +122,8 @@ private:
     int          m_CurrentChannel;    
     std::string  m_ChannelSubSection;
     BOOL         m_SettingsByChannelStarted;
+    std::string  m_ChipName;
+    int          m_DeviceIndex;
 
     std::string  m_Section;
 

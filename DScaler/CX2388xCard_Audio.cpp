@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.19 2004-03-28 19:34:11 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.20 2004-04-08 17:44:32 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2004/03/28 19:34:11  to_see
+// added TVFormat for an call to CCX2388xCard::AudioInitxxx
+// more on chip sound; BTSC and Nicam for PAL(I)
+// set to LOG(2) when an tuner in CCX2388xCard::AutoDetectTuner was found
+// added GPIO Settings for Leadtek WinFast TV2000 XP Expert
+//
 // Revision 1.18  2004/03/07 12:20:12  to_see
 // added 2 Cards
 // working Nicam-Sound
@@ -748,24 +754,23 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 	WriteDword(AUD_RDSQ_SHIFT,				0x00000000);
 	WriteDword(AUD_POLYPH80SCALEFAC,		0x00000001);
    
-	switch(StereoType)
+
+	switch (TVFormat)
 	{
-	case STEREOTYPE_AUTO:
-	case STEREOTYPE_STEREO:
-	case STEREOTYPE_ALT1:
-	case STEREOTYPE_ALT2:
-		// Table 1
+	// 5.5 MHz
+	case VIDEOFORMAT_PAL_B:
+	case VIDEOFORMAT_PAL_G:
 		WriteDword(AUD_DMD_RA_DDS,			0x002a73bd);
 		WriteDword(AUD_C1_UP_THR,			0x00007000);
 		WriteDword(AUD_C1_LO_THR,			0x00005400);
 		WriteDword(AUD_C2_UP_THR,			0x00005400);
 		WriteDword(AUD_C2_LO_THR,			0x00003000);
+		break;
 
-		// found this in WDM-driver for A2, must country spec.
-		// test it...
-
-		// Table 2
-		/*
+	// 6.5 MHz
+	case VIDEOFORMAT_PAL_D:
+	case VIDEOFORMAT_SECAM_K:
+	case VIDEOFORMAT_SECAM_D:
 		WriteDword(AUD_DMD_RA_DDS,			0x002a73bd);
 		WriteDword(AUD_C1_UP_THR,			0x00007000);
 		WriteDword(AUD_C1_LO_THR,			0x00005400);
@@ -773,10 +778,10 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		WriteDword(AUD_C2_LO_THR,			0x00003000);
 		WriteDword(AUD_DN0_FREQ,			0x00003a1c);
 		WriteDword(AUD_DN2_FREQ,			0x0000d2e0);
-		*/
+		break;
 
-		// Table 3
-		/*
+	// ?.?? Mhz ,untested !
+	case VIDEOFORMAT_PAL_I:
 		WriteDword(AUD_DMD_RA_DDS,			0x002a2873);
 		WriteDword(AUD_C1_UP_THR,			0x00003c00);
 		WriteDword(AUD_C1_LO_THR,			0x00003000);
@@ -786,8 +791,6 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		WriteDword(AUD_DN1_FREQ,			0x00003418);
 		WriteDword(AUD_DN2_FREQ,			0x000029c7);
 		WriteDword(AUD_POLY0_DDS_CONSTANT,	0x000a7540);
-		*/
-
 		break;
 	}
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.13 2001-08-05 09:54:54 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.14 2001-08-05 17:14:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/08/05 09:54:54  laurentg
+// Bug fixed concerning WSS AR data in AR autodetection mode
+//
 // Revision 1.12  2001/08/03 09:44:06  koreth
 // Remove an SSE dependency in black bar detection.
 //
@@ -245,8 +248,6 @@ BlackLoop:
 int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
 {
     int y;
-    int maxY = CurrentY / 2 - AspectSettings.InitialOverscan;
-    int maxX;
     short* line;
     int skipCount = 0;
     int skipCountPercent = AspectSettings.SkipPercent;
@@ -254,7 +255,6 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
 
     skipCount = (CurrentX * AspectSettings.SkipPercent / 100) +
                 AspectSettings.InitialOverscan;
-    maxX = CurrentX - skipCount * 2;
 
     // Decide whether we're scanning from the top or bottom
     if (direction < 0)
@@ -282,10 +282,12 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
         if (pixelCount > AspectSettings.IgnoreNonBlackPixels)
             break;
 
-        if (y < 0 || y > CurrentY)
+// LG        if (y < 0 || y > CurrentY)
+        if (y < 0 || y >= CurrentY)
         {
             LOG(2, "Sanity check failed; scanned past edge of screen");
-            y = (direction > 0) ? AspectSettings.InitialOverscan : CurrentY - AspectSettings.InitialOverscan;
+// LG            y = (direction > 0) ? AspectSettings.InitialOverscan : CurrentY - AspectSettings.InitialOverscan;
+            y = (direction > 0) ? AspectSettings.InitialOverscan : CurrentY - 1 - AspectSettings.InitialOverscan;
             break;
         }
     }
@@ -314,7 +316,8 @@ int FindAspectRatio(short** EvenField, short** OddField)
     topBorder = FindEdgeOfImage(EvenField, OddField, 1) - AspectSettings.InitialOverscan;
 
     // Now find the size of the border at the bottom of the image.
-    bottomBorder = CurrentY - FindEdgeOfImage(EvenField, OddField, -1) - AspectSettings.InitialOverscan;
+// LG    bottomBorder = CurrentY - FindEdgeOfImage(EvenField, OddField, -1) - AspectSettings.InitialOverscan;
+    bottomBorder = CurrentY - 1 - FindEdgeOfImage(EvenField, OddField, -1) - AspectSettings.InitialOverscan;
 
     // The border size is the smaller of the two.
     border = (topBorder < bottomBorder) ? topBorder : bottomBorder;
@@ -325,7 +328,16 @@ int FindAspectRatio(short** EvenField, short** OddField)
     //
     // We compute effective width from height using the source-frame aspect ratio, since
     // this will change depending on whether or not the image is anamorphic.
-    ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
+// LG    ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
+    if ((imageHeight - border * 2) > 0)
+	{
+        ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
+	}
+	else
+	{
+        // Screen is all black => don't change ratio
+        ratio = AspectSettings.SourceAspect;
+	}
     LOG(2, " top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
 
     return ratio;
@@ -378,13 +390,6 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
             newMode = AspectSettings.AspectMode;
             WssSourceRatio = -1;
         }
-
-        // If source is anamorphic
-//        if (newMode == 2)
-//        {
-            // Convert ratio to a 16/9 ratio
-//            newRatio = (newRatio * 4) / 3;
-//        }
 
         // The ratio must be at least the ratio defined in WSS data
         if (newRatio < WssSourceRatio)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.17 2003-10-11 15:45:50 laurentg Exp $
+// $Id: TimeShift.h,v 1.18 2003-10-11 17:25:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/10/11 15:45:50  laurentg
+// Saving of compression options fixed
+//
 // Revision 1.16  2003/09/13 13:59:09  laurentg
 // half height mode removed - Some menu actions like play or pause disabled
 //
@@ -126,7 +129,6 @@ class CTSOptionsDlg;
   - TWEAK: You can see the live feed peek in between clips during play mode.
   - Add slowforward/backward feature.
   - Play audio (option) during fastforward/backward.
-  - Implement full height recording option.
   - Use the standard DScaler Settings for ini file stuff?
   - Use -height for right-side-up AVI?  Matches odd/even field orientation.
 
@@ -138,8 +140,6 @@ class CTSOptionsDlg;
   - Must setup Audio Mixer through its dialog.  You can then uncheck the box
     if you don't normally use it, but all the dropdowns should point to the
     input on your audio card that your capture card's audio is attached to.
-  - For speed, video clips are saved at 1/2 height.  Perhaps future versions can
-    be optimized to handle full-height recording.
   - pixel width affects DF/S.  Choose a low enough pixel width for 0 DF/S.
   - Currently, If you record with audio at, say, 44.1kHz, etc, make sure you
     have these same settings on playback.

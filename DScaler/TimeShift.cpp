@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.28 2003-10-11 15:45:50 laurentg Exp $
+// $Id: TimeShift.cpp,v 1.29 2003-10-11 17:25:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/10/11 15:45:50  laurentg
+// Saving of compression options fixed
+//
 // Revision 1.27  2003/09/13 13:59:09  laurentg
 // half height mode removed - Some menu actions like play or pause disabled
 //
@@ -2628,7 +2631,6 @@ bool CTimeShift::UpdateAudioInfo(void)
 bool CTimeShift::ReadFromIni(void)
 {
     extern char szIniFile[MAX_PATH];
-    char temp[1000] = "";
 
     AVICOMPRESSOPTIONS opts;
     if (GetPrivateProfileStruct(
@@ -2650,7 +2652,6 @@ bool CTimeShift::ReadFromIni(void)
     {
         opts.lpFormat = new BYTE[opts.cbFormat];
 
-        // If this one fails, that's ok, there may not be compression params.
         GetPrivateProfileStruct(
             "TimeShift", "FormatAudio", opts.lpFormat, opts.cbFormat, szIniFile);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.17 2002-10-22 16:01:41 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.18 2002-11-27 17:42:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/22 16:01:41  adcockj
+// Changed definition of IOCTLs
+//
 // Revision 1.16  2002/08/10 10:25:41  robmuller
 // Unload the driver when uninstalling.
 //
@@ -85,6 +88,7 @@
 #include "HardwareDriver.h"
 #include "DebugLog.h"
 #include "aclapi.h"
+#include "ErrorBox.h"
 
 // define this to force uninstallation of the NT driver on every destruction of the class.
 //#define ALWAYS_UNINSTALL_NTDRIVER
@@ -774,3 +778,4 @@ BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int Dev
         return FALSE;
     }
 }
+

@@ -67,7 +67,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GR- /GX /ZI /Od /I "..\api" /I ".\DScaler" /I ".\\" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /D "_WIN32_DCOM" /Yu"stdafx.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -90,6 +90,22 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\DScaler\ErrorBox.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GenericCard.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\DScaler\HardwareDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\DScaler\PCICard.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\RegLog.cpp
 # End Source File
 # Begin Source File
@@ -105,6 +121,18 @@ SOURCE=.\StdAfx.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\GenericCard.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\DScaler\HardwareDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\DScaler\PCICard.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\RegLog.h
@@ -125,14 +153,6 @@ SOURCE=.\StdAfx.h
 
 SOURCE=.\RegLog.ico
 # End Source File
-# Begin Source File
-
-SOURCE=.\small.ico
-# End Source File
 # End Group
-# Begin Source File
-
-SOURCE=.\ReadMe.txt
-# End Source File
 # End Target
 # End Project

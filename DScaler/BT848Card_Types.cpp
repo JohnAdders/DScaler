@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.8 2001-12-18 13:12:11 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.9 2001-12-19 19:24:44 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.7  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -3405,14 +3408,14 @@ void CBT848Card::SetAudioGVBCTV3PCI(eSoundChannel soundChannel)
     OrDataDword(BT848_GPIO_DATA, 0x300);
     switch(soundChannel)
     {
-    case STEREO:
+    case SOUNDCHANNEL_STEREO:
         AndOrDataDword(BT848_GPIO_DATA, 0x200, ~0x300);
         break;
-    case LANGUAGE2:
+    case SOUNDCHANNEL_LANGUAGE2:
         AndOrDataDword(BT848_GPIO_DATA, 0x300, ~0x300);
         break;
     default:
-    case LANGUAGE1:
+    case SOUNDCHANNEL_LANGUAGE1:
         AndOrDataDword(BT848_GPIO_DATA, 0x000, ~0x300);
         break;
     }
@@ -3422,14 +3425,14 @@ void CBT848Card::SetAudioLT9415(eSoundChannel soundChannel)
 {
     switch(soundChannel)
     {
-    case STEREO:
+    case SOUNDCHANNEL_STEREO:
         AndOrDataDword(BT848_GPIO_DATA, 0x0880, ~0x0880);
         break;
-    case LANGUAGE2:
+    case SOUNDCHANNEL_LANGUAGE2:
         AndOrDataDword(BT848_GPIO_DATA, 0x0080, ~0x0880);
         break;
     default:
-    case LANGUAGE1:
+    case SOUNDCHANNEL_LANGUAGE1:
         AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x0880);
         break;
     }
@@ -3440,14 +3443,14 @@ void CBT848Card::SetAudioTERRATV(eSoundChannel soundChannel)
     OrDataDword(BT848_GPIO_DATA, 0x180000);
     switch(soundChannel)
     {
-    case STEREO:
+    case SOUNDCHANNEL_STEREO:
         AndOrDataDword(BT848_GPIO_DATA, 0x180000, ~0x180000);
         break;
-    case LANGUAGE2:
+    case SOUNDCHANNEL_LANGUAGE2:
         AndOrDataDword(BT848_GPIO_DATA, 0x080000, ~0x180000);
         break;
     default:
-    case LANGUAGE1:
+    case SOUNDCHANNEL_LANGUAGE1:
         AndOrDataDword(BT848_GPIO_DATA, 0x000000, ~0x180000);
         break;
     }
@@ -3458,10 +3461,10 @@ void CBT848Card::SetAudioAVER_TVPHONE(eSoundChannel soundChannel)
     OrDataDword(BT848_GPIO_DATA, 0x180000);
     switch(soundChannel)
     {
-    case STEREO:
+    case SOUNDCHANNEL_STEREO:
         AndOrDataDword(BT848_GPIO_DATA, 0x01, ~0x03);
         break;
-    case LANGUAGE1:
+    case SOUNDCHANNEL_LANGUAGE1:
         AndOrDataDword(BT848_GPIO_DATA, 0x02, ~0x03);
         break;
     default:
@@ -3474,13 +3477,13 @@ void CBT848Card::SetAudioWINFAST2000(eSoundChannel soundChannel)
     OrDataDword(BT848_GPIO_DATA, 0x180000);
     switch(soundChannel)
     {
-    case STEREO:
+    case SOUNDCHANNEL_STEREO:
         AndOrDataDword(BT848_GPIO_DATA, 0x020000, ~0x430000);
         break;
-    case LANGUAGE1:
+    case SOUNDCHANNEL_LANGUAGE1:
         AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
         break;
-    case LANGUAGE2:
+    case SOUNDCHANNEL_LANGUAGE2:
         AndOrDataDword(BT848_GPIO_DATA, 0x410000, ~0x430000);
         break;
     default:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.16 2001-12-18 13:12:11 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.17 2001-12-19 19:24:45 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.15  2001/12/16 10:14:16  laurentg
 // Calculation of used fields restored
 //
@@ -289,7 +292,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
     m_Settings.push_back(m_AudioSource);
 
-    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", STEREO, MONO, LANGUAGE2, IniSection);
+    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection);
     m_Settings.push_back(m_AudioChannel);
 
     m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", FALSE, IniSection);

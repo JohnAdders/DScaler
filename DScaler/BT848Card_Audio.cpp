@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.9 2001-12-18 23:36:01 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.10 2001-12-19 19:24:44 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/18 23:36:01  adcockj
+// Split up the MSP chip support into two parts to avoid probelms when deleting objects
+//
 // Revision 1.8  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -195,16 +198,16 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
         strcat(Text, VideoFormatNames[videoFormat]);
         switch (m_AudioDecoder->GetSoundChannel())
         {
-        case MONO:
+        case SOUNDCHANNEL_MONO:
             strcat(Text, " (Mono)");
             break;
-        case STEREO:
+        case SOUNDCHANNEL_STEREO:
             strcat(Text, " (Stereo)");
             break;
-        case LANGUAGE1:
+        case SOUNDCHANNEL_LANGUAGE1:
             strcat(Text, " (Channel 1)");
             break;
-        case LANGUAGE2:
+        case SOUNDCHANNEL_LANGUAGE2:
             strcat(Text, " (Channel 2)");
             break;
         }
@@ -259,10 +262,11 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
         m_LastAudioSource = nChannel;
         break;
     }
-    /// \todo FIXME propagate audioInput to m_AudioDecoder...
-
+    
     // select direct input 
     //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
     AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup()->GPIOMask); 
+
+    m_AudioDecoder->SetAudioInput(nChannel);
 }
 

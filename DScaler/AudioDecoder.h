@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.1 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: AudioDecoder.h,v 1.2 2001-12-19 19:24:44 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__AUDIODECODER_H__)
@@ -40,9 +43,7 @@ enum eAudioInput
     AUDIOINPUT_RADIO,
     AUDIOINPUT_EXTERNAL,
     AUDIOINPUT_INTERNAL,
-    /// XXX: do we need this?
     AUDIOINPUT_MUTE,
-    /// XXX: do we need this?
     AUDIOINPUT_STEREO 
 };
 

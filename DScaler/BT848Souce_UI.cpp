@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.11 2001-12-18 17:56:11 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.12 2001-12-19 19:24:45 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/12/18 17:56:11  adcockj
+// Backed out menu modification functions for inputs
+//
 // Revision 1.10  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -522,16 +525,16 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SOUNDCHANNEL_MONO:
-            m_AudioChannel->SetValue(MONO);
+            m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
             break;
         case IDM_SOUNDCHANNEL_STEREO:
-            m_AudioChannel->SetValue(STEREO);
+            m_AudioChannel->SetValue(SOUNDCHANNEL_STEREO);
             break;
         case IDM_SOUNDCHANNEL_LANGUAGE1:
-            m_AudioChannel->SetValue(LANGUAGE1);
+            m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE1);
             break;
         case IDM_SOUNDCHANNEL_LANGUAGE2:
-            m_AudioChannel->SetValue(LANGUAGE2);
+            m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE2);
             break;
 
         case IDM_AUTOSTEREO:

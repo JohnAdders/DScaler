@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.1 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: AudioDecoder.cpp,v 1.2 2001-12-19 19:24:44 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -34,7 +37,7 @@
 CAudioDecoder::CAudioDecoder()
 {
     m_VideoFormat = VIDEOFORMAT_NTSC_M;
-    m_SoundChannel = MONO;
+    m_SoundChannel = SOUNDCHANNEL_MONO;
     m_AudioInput = AUDIOINPUT_TUNER;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.9 2001-12-18 13:12:11 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.10 2001-12-19 19:24:44 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -502,21 +502,12 @@ enum eTunerId
     TUNER_LASTONE,
 };
 
-#define MSP_MODE_AM_DETECT   0
-#define MSP_MODE_AM_DETECT2  1
-#define MSP_MODE_FM_RADIO    2
-#define MSP_MODE_FM_TERRA    3
-#define MSP_MODE_FM_SAT      4
-#define MSP_MODE_FM_NICAM1   5
-#define MSP_MODE_FM_NICAM2   6
-#define MSP_MODE_AM_NICAM    7
-
 enum eSoundChannel
 {
-    MONO = 1,
-    STEREO,
-    LANGUAGE1,
-    LANGUAGE2,
+    SOUNDCHANNEL_MONO = 1,
+    SOUNDCHANNEL_STEREO,
+    SOUNDCHANNEL_LANGUAGE1,
+    SOUNDCHANNEL_LANGUAGE2,
 };
 
 #define TIMER_MSP           8

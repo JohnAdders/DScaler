@@ -451,11 +451,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		{
 		case IDM_SETUPCARD:
 			Stop_Capture();
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "SELECTCARD", hWnd, (DLGPROC) SelectCardProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			Card_Init();
 			Tuner_Init();
             Reset_Capture();
@@ -617,11 +613,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_ABOUT:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "ABOUT", hWnd, AboutProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_BRIGHTNESS_PLUS:
@@ -1004,11 +996,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 		        
 		case IDM_HWINFO:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "HWINFO", hWnd, (DLGPROC) ChipSettingProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_VBI_VT:
@@ -1071,51 +1059,27 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_AUDIOSETTINGS:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "AUDIOSETTINGS", hWnd, AudioSettingProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_AUDIOSETTINGS1:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "AUDIOEQUALIZER", hWnd, AudioSettingProc1);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_VIDEOSETTINGS:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "VIDEOSETTINGS", hWnd, VideoSettingProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_ADV_VIDEOSETTINGS:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "ADV_VIDEOSETTINGS", hWnd, AdvVideoSettingProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_VPS_OUT:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "VPSSTATUS", hWnd, VPSInfoProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_VT_OUT:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "VTSTATUS", hWnd, VTInfoProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_VBI:
@@ -1130,11 +1094,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_AUDIO_MIXER:
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "MIXERSETUP", hWnd, MixerSetupProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_STATUSBAR:
@@ -1152,21 +1112,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
 		case IDM_ANALOGSCAN:
 			SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			DialogBox(hInst, "ANALOGSCAN", hWnd, (DLGPROC) AnalogScanProc);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 			break;
 
 		case IDM_CHANNEL_LIST:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
-				bInMenuOrDialogBox = TRUE;
-				Cursor_UpdateVisibility();
 				DialogBox(hInst, "CHANNELLIST", hWnd, (DLGPROC) ProgramListProc);
-				bInMenuOrDialogBox = FALSE;
-				Cursor_UpdateVisibility();
 				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
 			}
 			break;
@@ -1540,6 +1492,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	    break;
 
+	case WM_KILLFOCUS:
+		bInMenuOrDialogBox = TRUE;
+		Cursor_UpdateVisibility();
+		break;
+
+	case WM_SETFOCUS:
+		bInMenuOrDialogBox = FALSE;
+		Cursor_UpdateVisibility();
+		break;
+
 	case WM_TIMER:
         
         switch (LOWORD(wParam))
@@ -1860,11 +1822,7 @@ void MainWndOnInitBT(HWND hWnd)
 		if(Setting_GetValue(TVCard_GetSetting(CURRENTCARDTYPE)) == TVCARD_UNKNOWN)
 		{
 			HideSplashScreen();
-			bInMenuOrDialogBox = TRUE;
-			Cursor_UpdateVisibility();
 			TVCard_FirstTimeSetupHardware(hInst, hWnd);
-			bInMenuOrDialogBox = FALSE;
-			Cursor_UpdateVisibility();
 		}
 
 		WStyle = GetWindowLong(hWnd, GWL_EXSTYLE);

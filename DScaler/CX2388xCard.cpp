@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.45 2004-01-05 13:12:24 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.46 2004-01-07 10:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/01/05 13:12:24  adcockj
+// Added patch from Lavrenov Dmitrij (midimaker)
+//
 // Revision 1.44  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -905,7 +908,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
             HTotal = HLNotchFilter135PAL | 864;
-            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
@@ -1113,7 +1115,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_H:
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
-            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;

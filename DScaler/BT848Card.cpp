@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.36 2003-01-29 18:24:49 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.37 2003-02-06 19:52:21 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/01/29 18:24:49  adcockj
+// Test fix for crashing in other apps after running DScaler
+//
 // Revision 1.35  2003/01/28 09:14:54  adcockj
 // Added patch by Billy Chang
 //
@@ -165,6 +168,7 @@
 #include "ProgramList.h"
 /// \todo remove need for this
 #include "OutThreads.h"
+#include "VBI.h"
 
 //===========================================================================
 // CCIR656 Digital Input Support

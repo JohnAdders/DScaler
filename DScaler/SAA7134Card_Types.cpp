@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.30 2003-04-17 09:17:46 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.31 2003-04-28 06:28:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/04/17 09:17:46  atnak
+// Added V-Gear MyTV SAP PK
+//
 // Revision 1.29  2003/04/16 15:11:50  atnak
 // Fixed Medion TV-Tuner 7134 MK2/3 audio clock and default tuner
 //
@@ -757,6 +760,42 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         VGearMyTVSAPCardInputSelect,
     },
+    // SAA7134CARDID_ASUS_TVFM - ASUS TV/FM
+	// Thanks "Wolfgang Scholz" <wolfgang.scholz@ka...>
+    {
+        "ASUS TV/FM",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN4,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Radio",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_32110Hz,
+        NULL,
+        StandardSAA7134InputSelect,
+    },
 };
 
 
@@ -773,6 +812,7 @@ const CSAA7134Card::TAutoDetectSAA7134 CSAA7134Card::m_AutoDetectSAA7134[] =
     { 0x7133, 0x5168, 0x0138, SAA7134CARDID_PRIMETV7133  },
     { 0x7134, 0x153b, 0x1143, SAA7134CARDID_CINERGY600   },
     { 0x7134, 0x16be, 0x0003, SAA7134CARDID_MEDION7134   },
+    { 0x7134, 0x1043, 0x4842, SAA7134CARDID_ASUS_TVFM    },
 };
 
 

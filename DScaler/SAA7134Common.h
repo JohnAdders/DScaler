@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.20 2003-04-17 09:17:45 atnak Exp $
+// $Id: SAA7134Common.h,v 1.21 2003-04-28 06:28:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/04/17 09:17:45  atnak
+// Added V-Gear MyTV SAP PK
+//
 // Revision 1.19  2003/02/12 22:09:44  atnak
 // Added M-TV002
 //
@@ -126,6 +129,7 @@ protected:
         SAA7134CARDID_TYPHOON90031,
         SAA7134CARDID_MANLIMTV002,
 		SAA7134CARDID_VGEAR_MYTV_SAP,
+		SAA7134CARDID_ASUS_TVFM,
         SAA7134CARDID_LASTONE,
     };
 

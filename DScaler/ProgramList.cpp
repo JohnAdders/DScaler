@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.83 2002-10-25 15:04:39 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.84 2002-10-26 07:37:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2002/10/25 15:04:39  adcockj
+// Made sure current channels are loaded in the list
+//
 // Revision 1.82  2002/10/25 12:53:44  adcockj
 // First cut at making new ProgramList dialog behave properly
 //
@@ -1537,6 +1540,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
             {
 				int OldChannel = CurrentProgram;                
                 Audio_Mute();             
+                Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.                
                 if (EventCollector != NULL)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);

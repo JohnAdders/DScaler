@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.90 2002-11-03 06:00:29 atnak Exp $
+// $Id: ProgramList.cpp,v 1.91 2002-11-26 19:29:48 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2002/11/03 06:00:29  atnak
+// Added redrawing the menu bar when it changes
+//
 // Revision 1.89  2002/10/31 14:02:53  adcockj
 // Added Help Button
 //
@@ -1847,7 +1850,7 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
         found = CurrentProgram == ChannelNumber;
     }
 
-    if (found)
+    if (found && CurrentProgram>=0 && CurrentProgram<MyChannels.GetSize())
     {
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
         OSD_ShowText(hWnd, MyChannels.GetChannel(CurrentProgram)->GetName(), 0);

@@ -951,6 +951,17 @@ BEGIN
             MENUITEM "&French",                     IDM_VT_FRENCH
             MENUITEM "&Czech",                      IDM_VT_CZECH
             MENUITEM "&Greek",                      IDM_VT_GREEK
+            MENUITEM "&Russian",                    IDM_VT_RUSSIAN
+            MENUITEM "G&erman",                     IDM_VT_GERMAN
+        END
+        POPUP "Teletext Remote Button"
+        BEGIN
+            MENUITEM "Red\tF5",                     IDM_TELETEXT_KEY1
+            MENUITEM "Green\tF6",                   IDM_TELETEXT_KEY2
+            MENUITEM "Yellow\tF7",                  IDM_TELETEXT_KEY3
+            MENUITEM "Blue\tF8",                    IDM_TELETEXT_KEY4
+            MENUITEM "Index\tF9",                   IDM_TELETEXT_KEY5
+            MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
         END
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED

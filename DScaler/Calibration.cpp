@@ -1260,7 +1260,7 @@ void CCalibration::Start(eTypeCalibration type)
     case CAL_MANUAL:
     default:
         initial_step = 0;
-        nb_steps = 0;
+        nb_steps = 1;
         break;
     }
     current_step = initial_step;
@@ -1301,22 +1301,15 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
 	last_tick_count = tick_count;
 
-    // Test to check if all steps are already executed
-    if ((current_step - initial_step) >= nb_steps)
-    {
-        current_step = 0;
-        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
-        if (current_sub_pattern == NULL)
-        {
-            current_step = -1;
-        }
-    }
-
     switch (current_step)
     {
     case 0:     // Calibration finished
-        // Calculations with current setitngs
-        current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
+        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
+        if (current_sub_pattern != NULL)
+        {
+            // Calculations with current setitngs
+            current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
+        }
         break;
 
     case 1:     // Step to initialize next step
@@ -1328,7 +1321,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         else
         {
             // We stop calibration
-            current_step = 0;
+            current_step = initial_step + nb_steps;
         }
         break;
 
@@ -1349,7 +1342,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         else
         {
             // We stop calibration
-            current_step = 0;
+            current_step = initial_step + nb_steps;
         }
         break;
 
@@ -1393,7 +1386,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         else
         {
             // We stop calibration
-            current_step = 0;
+            current_step = initial_step + nb_steps;
         }
         break;
 
@@ -1415,7 +1408,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         else
         {
             // We stop calibration
-            current_step = 0;
+            current_step = initial_step + nb_steps;
         }
         break;
 
@@ -1450,6 +1443,18 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     default:
         break;
+    }
+
+    // Test to check if all steps are already done
+    if ((current_step - initial_step) >= nb_steps)
+    {
+        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
+        if (current_sub_pattern != NULL)
+        {
+            // Calculations with current setitngs
+            current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
+        }
+        current_step = -1;
     }
 }
 

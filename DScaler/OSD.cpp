@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.27 2001-09-02 22:07:42 laurentg Exp $
+// $Id: OSD.cpp,v 1.28 2001-09-04 21:03:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/09/02 22:07:42  laurentg
+// OSD screen for automatic calibration modified
+// Hue taken into account during automatic calibration
+//
 // Revision 1.26  2001/08/26 18:33:42  laurentg
 // Automatic calibration improved
 //
@@ -544,13 +548,13 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     char            szInfo[64];
     int             nLine, nCol;
     int             i;
-//    int             j;
     long            Color;
     double          pos;
     DEINTERLACE_METHOD* DeintMethod;
     unsigned char   val1, val2, val3;
     int             dif_val1, dif_val2, dif_val3;
     int             dif_total, dif_total1, dif_total2;
+    char            szQual[16];
     CTestPattern *pTestPattern;
     CSubPattern *pSubPattern;
     CColorBar* pColorBar;
@@ -1066,7 +1070,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             {
                 switch (pCalibration->GetCurrentStep())
                 {
-                case 0:
+                case -1:
                     strcpy(szInfo, "Calibration finished");
                     break;
                 case 1:
@@ -1079,7 +1083,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     break;
                 case 5:
                 case 6:
-                    strcpy(szInfo, "Fine adjusting of brightness and contrast ...");
+                    strcpy(szInfo, "Fine tuning of brightness and contrast ...");
                     break;
                 case 7:
                 case 8:
@@ -1091,7 +1095,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     break;
                 case 11:
                 case 12:
-                    strcpy(szInfo, "Fine adjusting of color ...");
+                    strcpy(szInfo, "Fine tuning of color ...");
                     break;
                 default:
                     strcpy(szInfo, "");
@@ -1101,12 +1105,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             }
 
             if ( (pCalibration->GetType() == CAL_MANUAL)
-              || (pCalibration->GetCurrentStep() == 0) )
+              || (pCalibration->GetCurrentStep() == -1) )
             {
 
             nLine = 5;
 
-//			j = 0;
     		pSubPattern = pCalibration->GetCurrentSubPattern();
             if (pSubPattern != NULL)
             {
@@ -1143,7 +1146,6 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     OSD_AddText(szInfo, Size, Color, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
                 }
 
-                sprintf (szInfo, "(%d) ", dif_total1);
                 if (dif_total1 < dif_total2)
                 {
                     dif_total = dif_total1;
@@ -1154,80 +1156,37 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                 }
 				if (dif_total <= 3)
 				{
-					strcat (szInfo, "very good");
+					strcpy (szQual, "very good");
 				}
 				else if (dif_total <= 9)
 				{
-					strcat (szInfo, "good");
+					strcpy (szQual, "good");
 				}
 				else if (dif_total <= 18)
 				{
-					strcat (szInfo, "medium");
+					strcpy (szQual, "medium");
 				}
 				else if (dif_total <= 30)
 				{
-					strcat (szInfo, "bad");
+					strcpy (szQual, "bad");
 				}
 				else
 				{
-					strcat (szInfo, "very bad");
+					strcpy (szQual, "very bad");
 				}
-                sprintf (&szInfo[strlen(szInfo)], " (%d)", dif_total2);
                 if (pCalibration->GetType() == CAL_MANUAL)
                 {
+                    sprintf (szInfo, "(%d) %s (%d)", dif_total1, szQual, dif_total2);
 				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 }
                 else
                 {
+                    sprintf (szInfo, "%s (%d)", szQual, dif_total);
 				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 }
 
-//				j++;
-
                 pColorBar = pSubPattern->GetNextColorBar();
 			}
-//			if (j > 0)
-//			{
-//                pTestPattern->GetSumDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
-//                sprintf (szInfo, "RGB (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
-//                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-//                pTestPattern->GetSumDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
-//                sprintf (szInfo, "YUV (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
-//                OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-//				dif_total1 = (dif_total1 + (j / 2)) / j;
-//				dif_total2 = (dif_total2 + (j / 2)) / j;
-//                if (dif_total1 < dif_total2)
-//                {
-//                    dif_total = dif_total1;
-//                }
-//                else
-//                {
-//                    dif_total = dif_total2;
-//                }
-//				sprintf (szInfo, "(%d) ", dif_total1);
-//				if (dif_total <= 3)
-//				{
-//					strcat (szInfo, "very good");
-//				}
-//				else if (dif_total <= 9)
-//				{
-//					strcat (szInfo, "good");
-//				}
-//				else if (dif_total <= 18)
-//				{
-//					strcat (szInfo, "medium");
-//				}
-//				else if (dif_total <= 30)
-//				{
-//					strcat (szInfo, "bad");
-//				}
-//				else
-//				{
-//					strcat (szInfo, "very bad");
-//				}
-//                sprintf (&szInfo[strlen(szInfo)], " (%d)", dif_total2);
-//				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine, dfMargin, Size));
-//			}
             }
 		}
         break;

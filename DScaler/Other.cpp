@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.39 2002-06-16 10:05:09 adcockj Exp $
+// $Id: Other.cpp,v 1.40 2002-07-03 00:41:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/06/16 10:05:09  adcockj
+// Commented out primary suface locks awaiting tests
+//
 // Revision 1.38  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -1389,5 +1392,5 @@ void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 CTreeSettingsGeneric* Other_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Overlay Settings",OtherSettings, USEOVERLAYCONTROLS);
+    return new CTreeSettingsGeneric("Overlay Settings",OtherSettings, OVERLAYBRIGHTNESS);
 }

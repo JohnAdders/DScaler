@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.32 2003-12-29 01:27:53 robmuller Exp $
+// $Id: TimeShift.cpp,v 1.33 2003-12-29 01:58:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/12/29 01:27:53  robmuller
+// Added AVI file splitting.
+//
 // Revision 1.31  2003/12/28 22:59:00  robmuller
 // IsRunning() returns TRUE now if timeshifting is being done.
 //
@@ -441,13 +444,13 @@ bool CTimeShift::OnNewInputFrame(TDeinterlaceInfo *pInfo)
         }
 
 		LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
 
-	// It would be a good idea to fix the file size limitation. Until then we split the AVI.
-	if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024)
-	{
-		m_pTimeShift->OnStop();
-		m_pTimeShift->OnRecord();
+		// It would be a good idea to fix the file size limitation. Until then we split the AVI.
+		if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024)
+		{
+			m_pTimeShift->OnStop();
+			m_pTimeShift->OnRecord();
+		}
 	}
 
     return result;
@@ -474,11 +477,12 @@ bool CTimeShift::OnNewOutputFrame(TDeinterlaceInfo *pInfo)
         }
 
 		LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-	if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024)
-	{
-		m_pTimeShift->OnStop();
-		m_pTimeShift->OnRecord();
+
+		if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024)
+		{
+			m_pTimeShift->OnStop();
+			m_pTimeShift->OnRecord();
+		}
 	}
 
     return result;

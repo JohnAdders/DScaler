@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.7 2002-12-05 17:11:11 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.8 2003-02-03 17:25:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/12/05 17:11:11  adcockj
+// Sound fixes
+//
 // Revision 1.6  2002/12/04 17:43:49  adcockj
 // Contrast and Brightness adjustments so that h3d card behaves in expected way
 //
@@ -116,6 +119,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
+        NULL,
         StandardInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
@@ -151,6 +155,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
+        NULL,
         StandardInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
@@ -185,6 +190,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 0,
             },
         },
+        NULL,
         NULL,
         StandardInputSelect,
         SetAnalogContrastBrightness,
@@ -241,6 +247,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         InitH3D,
+        NULL,
         H3DInputSelect,
         SetH3DContrastBrightness,
         SetH3DHue,
@@ -265,6 +272,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 2,
             },
         },
+        NULL,
         NULL,
         StandardInputSelect,
         SetAnalogContrastBrightness,
@@ -301,6 +309,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
+        NULL,
         MSIInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
@@ -336,6 +345,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
+        NULL,
         MSIInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
@@ -365,6 +375,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 2,
             },
         },
+        NULL,
         NULL,
         AsusInputSelect,
         SetAnalogContrastBrightness,
@@ -396,6 +407,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
+        PlayHDStopCapture,
         PlayHDInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
@@ -562,20 +574,21 @@ void CCX2388xCard::PlayHDInputSelect(int nInput)
     {
         // GPIO pins set according to values supplied by
         // Tom Fotja
-        WriteDword(MO_GP0_IO, 0x00000ff1);
-        WriteDword(MO_GP1_IO, 0x000000c0);
-        WriteDword(MO_GP2_IO, 0x0000ff80); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GP0_IO, 0x0000ff00);
     }
     else
     {
         // Turn off anything audio if we're not the tuner
-        WriteDword(MO_GP0_IO, 0x0000ff00);
-        WriteDword(MO_GP1_IO, 0x0000ff00);
-        WriteDword(MO_GP2_IO, 0x0000ff00); 
-        WriteDword(MO_GP3_IO, 0x0000ff00); 
+        WriteDword(MO_GP0_IO, 0x00000ff1);
     }
 }
+
+void CCX2388xCard::PlayHDStopCapture()
+{
+    // Turn off audio
+    WriteDword(MO_GP0_IO, 0x00000ff1);
+}
+
 
 void CCX2388xCard::AsusInputSelect(int nInput)
 {

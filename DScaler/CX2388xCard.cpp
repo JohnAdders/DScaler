@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.39 2003-01-29 18:24:49 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.40 2003-02-03 17:25:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/01/29 18:24:49  adcockj
+// Test fix for crashing in other apps after running DScaler
+//
 // Revision 1.38  2003/01/27 22:04:07  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -304,6 +307,13 @@ void CCX2388xCard::StopCapture()
     SetRISCStartAddressVBI(0x00000000);
 
     m_RISCIsRunning = FALSE;
+
+    // perform card specific Stop Capture
+    if(m_TVCards[m_CardType].pStopCaptureCardFunction != NULL)
+    {
+        // call correct function
+        (*this.*m_TVCards[m_CardType].pStopCaptureCardFunction)();
+    }
 }
 
 void CCX2388xCard::SetCardType(int CardType)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.16 2003-01-13 17:46:45 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.17 2003-02-03 17:25:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -120,6 +120,8 @@ private:
 
         /// Any card specific initialization - may be NULL
         void (CCX2388xCard::*pInitCardFunction)(void);
+        /// Any card specific routine required to stop capture - may be NULL
+        void (CCX2388xCard::*pStopCaptureCardFunction)(void);
         /** Function used to switch between sources
             Cannot be NULL
             Default is StandardBT848InputSelect
@@ -266,6 +268,7 @@ private:
 	void H3DInputSelect(int nInput);
     void MSIInputSelect(int nInput);
     void PlayHDInputSelect(int nInput);
+    void PlayHDStopCapture();
     void AsusInputSelect(int nInput);
 
 	void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);

@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
-# ADD LINK32 ..\Driver\DSDrv\Debug\DSDrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe"
+# ADD LINK32 ..\Driver\DSDrv\Debug\DSDrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe"
 # SUBTRACT LINK32 /profile
 # Begin Special Build Tool
 ProjDir=.
@@ -100,7 +100,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
-# ADD LINK32 ..\Driver\DSDrv\Release\DSdrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /incremental:yes /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe"
+# ADD LINK32 ..\Driver\DSDrv\Release\DSdrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib /nologo /subsystem:windows /incremental:yes /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe"
 # SUBTRACT LINK32 /profile /debug /nodefaultlib
 # Begin Special Build Tool
 ProjDir=.

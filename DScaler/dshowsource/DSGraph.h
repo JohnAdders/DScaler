@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.11 2002-05-11 15:22:00 tobbej Exp $
+// $Id: DSGraph.h,v 1.12 2002-05-24 15:15:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/05/11 15:22:00  tobbej
+// fixed object reference leak when opening filter settings
+// added filter graph loging in debug build
+//
 // Revision 1.10  2002/05/02 19:50:39  tobbej
 // changed dshow source filter submenu to use new tree based dialog
 //
@@ -122,8 +126,6 @@ public:
 	void stop();
 	FILTER_STATE getState() {return m_pGraphState;}
 
-	//bool getFilterName(int index,string &filterName,bool &hasPropertyPages);
-
 	/**
 	 * Creates a propertypage for a filter.
 	 * This function creates a propertypage for the filter indicated by index.
@@ -134,9 +136,16 @@ public:
 	 *
 	 * @param index filter index
 	 * @param ppPage pointer to created propertypage
+	 * @param bHasSubPages true if specified filter has subpages
 	 * @return true if the propertypage was successfully created
 	 */
-	bool getFilterPropertyPage(int index,CTreeSettingsPage **ppPage);
+	bool getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,bool &bHasSubPages);
+
+	/**
+	 * This function works almost the same as getFilterPropertyPage() but returns the subpage.
+	 * @return true if successfull
+	 */
+	bool getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
 
 	/**
 	 * Change the resolution
@@ -192,8 +201,14 @@ private:
 
 	CComPtr<IReferenceClock> m_pOldRefClk;
 	
+	class CFilterPages
+	{
+	public:
+		CComPtr<IBaseFilter> m_pFilter;
+		vector<CComPtr<IPin> > m_SubPage;
+	};
 	/// used in getFilterName and showPropertyPage
-	vector<CComPtr<IBaseFilter> > m_filters;
+	vector<CFilterPages> m_filters;
 
 #ifdef _DEBUG
 	DWORD m_hROT;

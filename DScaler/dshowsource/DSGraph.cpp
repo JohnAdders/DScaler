@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.14 2002-05-11 15:22:00 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.15 2002-05-24 15:15:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/05/11 15:22:00  tobbej
+// fixed object reference leak when opening filter settings
+// added filter graph loging in debug build
+//
 // Revision 1.13  2002/05/02 19:50:39  tobbej
 // changed dshow source filter submenu to use new tree based dialog
 //
@@ -324,40 +328,44 @@ void CDShowGraph::buildFilterList()
 	CComPtr<IBaseFilter> pFilter;
 	while(hr=filterEnum.next(&pFilter),hr==S_OK && pFilter!=NULL)
 	{
-		m_filters.push_back(pFilter);
+		CFilterPages tmp;
+		tmp.m_pFilter=pFilter;
+		
+		//check for any propertypages on the pins
+		try
+		{
+			CComPtr<IPin> pPin;
+			CDShowPinEnum pins(pFilter);
+			while(pPin=pins.next(),pPin!=NULL)
+			{
+				//add only if the pin has propertypages
+				CComPtr<ISpecifyPropertyPages> pPages;
+				hr=pPin.QueryInterface(&pPages);
+				if(SUCCEEDED(hr))
+				{
+					//just because a pin supports ISpecifyPropertyPages doesnt
+					//nessesarily mean that it has any pages.
+					CAUUID pages;
+					hr=pPages->GetPages(&pages);
+					if(SUCCEEDED(hr) && pages.cElems>0)
+					{
+						tmp.m_SubPage.push_back(pPin);
+						pPages.Release();
+						CoTaskMemFree(pages.pElems);
+					}
+				}
+			}
+		}
+		catch(CDShowException e)
+		{
+		}
+
+		m_filters.push_back(tmp);
 		pFilter.Release();
 	}
 }
 
-/*bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPages)
-{
-	USES_CONVERSION;
-	if(index>=m_filters.size())
-	{
-		return false;
-	}
-
-	CComPtr<IBaseFilter> pFilter;
-	pFilter=m_filters[index];
-
-	FILTER_INFO info;
-	HRESULT hr=pFilter->QueryFilterInfo(&info);
-	if(SUCCEEDED(hr))
-	{
-		filterName=W2A(info.achName);
-		if(info.pGraph!=NULL)
-		{
-			info.pGraph->Release();
-			info.pGraph=NULL;
-		}
-		CComPtr<ISpecifyPropertyPages> pPages;
-		hasPropertyPages=SUCCEEDED(pFilter.QueryInterface(&pPages));
-		return true;
-	}
-	return false;
-}*/
-
-bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage)
+bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,bool &bHasSubPages)
 {
 	USES_CONVERSION;
 	if(ppPage==NULL)
@@ -365,7 +373,9 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage)
 	
 	if(index>=0 && index<m_filters.size())
 	{
-		CComPtr<IBaseFilter> pFilter=m_filters[index];
+
+		CComPtr<IBaseFilter> pFilter=m_filters[index].m_pFilter;
+		bHasSubPages=m_filters[index].m_SubPage.size()>0;
 		FILTER_INFO info;
 		HRESULT hr=pFilter->QueryFilterInfo(&info);
 		if(SUCCEEDED(hr))
@@ -381,7 +391,7 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage)
 			{
 				CAUUID pages;
 				hr=pSpecifyPages->GetPages(&pages);
-				if(SUCCEEDED(hr))
+				if(SUCCEEDED(hr) && pages.cElems>0)
 				{
 					IUnknown *pUnk;
 					hr=pFilter->QueryInterface(IID_IUnknown,(void**)&pUnk);
@@ -410,6 +420,48 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage)
 	{
 		return false;
 	}
+}
+
+bool CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage)
+{
+	USES_CONVERSION;
+	if(filterIndex>=0 && filterIndex<m_filters.size())
+	{
+		if(subIndex>=0 && subIndex<m_filters[filterIndex].m_SubPage.size())
+		{
+			PIN_INFO pinInfo;
+			CComPtr<IPin> pPin=m_filters[filterIndex].m_SubPage[subIndex];
+			HRESULT hr=pPin->QueryPinInfo(&pinInfo);
+			if(SUCCEEDED(hr))
+			{
+				if(pinInfo.pFilter!=NULL)
+				{
+					pinInfo.pFilter->Release();
+					pinInfo.pFilter=NULL;
+				}
+				CComPtr<ISpecifyPropertyPages> pSpecifyPages;
+				hr=pPin.QueryInterface(&pSpecifyPages);
+				if(SUCCEEDED(hr))
+				{
+					CAUUID pages;
+					hr=pSpecifyPages->GetPages(&pages);
+					if(SUCCEEDED(hr) && pages.cElems>0)
+					{
+						IUnknown *pUnk;
+						hr=pPin->QueryInterface(IID_IUnknown,(void**)&pUnk);
+						ASSERT(SUCCEEDED(hr));
+						
+						*ppPage=new CTreeSettingsOleProperties(W2A(pinInfo.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
+						pUnk->Release();
+						pUnk=NULL;
+						CoTaskMemFree(pages.pElems);
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 long CDShowGraph::getDroppedFrames()

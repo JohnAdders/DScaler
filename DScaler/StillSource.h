@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.19 2002-02-11 21:33:13 laurentg Exp $
+// $Id: StillSource.h,v 1.20 2002-02-13 00:23:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -130,6 +130,9 @@ private:
     DWORD       m_LastTickCount;
     double      m_FrameDuration;
     BOOL        m_SlideShowActive;
+    BOOL        m_ReallocRequested;
+
+    MEMCPY_FUNC*    m_pMemcpy;
 
     std::string m_Section;
 

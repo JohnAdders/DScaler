@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.31 2002-02-11 21:33:13 laurentg Exp $
+// $Id: StillSource.cpp,v 1.32 2002-02-13 00:23:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/02/11 21:33:13  laurentg
+// Patterns as a new source from the Still provider
+//
 // Revision 1.30  2002/02/10 09:23:45  laurentg
 // Only display the basename of the file path in the still menu
 //
@@ -188,6 +191,8 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_IsPictureRead = FALSE;
     m_Position = -1;
     m_SlideShowActive = FALSE;
+    m_pMemcpy = NULL;
+    m_ReallocRequested = TRUE;
 }
 
 CStillSource::~CStillSource()
@@ -284,21 +289,37 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
 
 BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 {
+    BOOL FileRead = FALSE;
+
+    if (m_OriginalFrame.pData != NULL)
+    {
+        free(m_OriginalFrame.pData);
+        m_OriginalFrame.pData = NULL;
+    }
+    m_IsPictureRead = FALSE;
+
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
         strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
     {
         CTiffHelper TiffHelper(this, TIFF_CLASS_R);
-        return TiffHelper.OpenMediaFile(FileName);
+        FileRead = TiffHelper.OpenMediaFile(FileName);
     }
     else if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".pat") == 0)
     {
         CPatternHelper CPatternHelper(this);
-        return CPatternHelper.OpenMediaFile(FileName);
+        FileRead = CPatternHelper.OpenMediaFile(FileName);
+    }
+
+    if (!FileRead)
+    {
+        m_OriginalFrame.pData = NULL;
     }
     else
     {
-        return FALSE;
+        m_ReallocRequested = TRUE;
     }
+
+    return FileRead;
 }
 
 
@@ -409,16 +430,22 @@ void CStillSource::Start()
 
 void CStillSource::Stop()
 {
-    if (m_StillFrame.pData != NULL)
-    {
-        free(m_StillFrame.pData);
-        m_StillFrame.pData = NULL;
-    }
     if (m_SlideShowActive)
     {
         m_SlideShowActive = FALSE;
         KillTimer(hWnd, TIMER_SLIDESHOW);
     }
+    if (m_StillFrame.pData != NULL)
+    {
+        free(m_StillFrame.pData);
+        m_StillFrame.pData = NULL;
+    }
+    if (m_OriginalFrame.pData != NULL)
+    {
+        free(m_OriginalFrame.pData);
+        m_OriginalFrame.pData = NULL;
+    }
+    m_IsPictureRead = FALSE;
 }
 
 void CStillSource::Reset()
@@ -431,6 +458,8 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     DWORD CurrentTickCount;
     int Diff;
     
+    m_pMemcpy = pInfo->pMemcpy;
+
     if(!ReadNextFrameInFile())
     {
         pInfo->bRunningLate = TRUE;
@@ -654,14 +683,25 @@ BOOL CStillSource::ReadNextFrameInFile()
 {
     if (m_IsPictureRead)
     {
-        if(m_StillFrame.pData != NULL)
+        if (m_ReallocRequested)
         {
-            free(m_StillFrame.pData);
+            if(m_StillFrame.pData != NULL)
+            {
+                free(m_StillFrame.pData);
+            }
+            m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
+            m_ReallocRequested = FALSE;
         }
-        m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
-        if (m_StillFrame.pData != NULL)
+        if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
-            memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+            if (m_pMemcpy == NULL)
+            {
+                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+            }
+            else
+            {
+                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+            }
             return TRUE;
         }
         return FALSE;

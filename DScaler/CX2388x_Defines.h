@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.7 2002-11-25 11:04:45 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.8 2002-11-29 17:09:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -343,7 +343,7 @@
 #define AUD_PLL_FRAC             0x32060c
 #define AUD_PLL_JTAG             0x320620
 #define AUD_PLL_SPMP             0x320624
-#define AUD_AFE_16DB_EN          0x320628
+#define AUD_AFE_12DB_EN          0x320628
 
 // Audio QAM Register Addresses
 

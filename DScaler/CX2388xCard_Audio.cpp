@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.4 2002-11-28 18:07:37 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.5 2002-11-29 17:09:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/11/28 18:07:37  adcockj
+// Fixed overflowing registers
+//
 // Revision 1.3  2002/11/27 17:41:57  adcockj
 // Fixed setting PLL registers in DumpRegister
 //
@@ -120,10 +123,15 @@ void CCX2388xCard::AudioInitDMA()
 
 void CCX2388xCard::AudioInitBTSC()
 {
+    // increase level of input by 12dB
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
+
     // initialize BTSC
     WriteDword(AUD_INIT,                 0x0001);
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
+
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_BTSC_AUTO_STEREO);
     
     // These dbx values should be right....
     //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
@@ -162,8 +170,8 @@ void CCX2388xCard::AudioInitBTSC()
     WriteDword(AUD_IIR1_4_SEL,           0x0023);
 
     // setup Audio PLL
-    WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    WriteDword(AUD_PLL_INT,              0x001f);
+    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    //WriteDword(AUD_PLL_INT,              0x001f);
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
@@ -177,6 +185,9 @@ void CCX2388xCard::AudioInitBTSC()
 
 void CCX2388xCard::AudioInitEIAJ()
 {
+    // increase level of input by 12dB
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
+
     // EIAJ stereo -> RAM -> DAC standard setup
     // xtal = 28.636 MHz
 
@@ -184,6 +195,9 @@ void CCX2388xCard::AudioInitEIAJ()
     WriteDword(AUD_INIT,                 0x0002);
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
+
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_EIAJ_AUTO_STEREO);
+    
     // fix pilot detection
     WriteDword(AUD_HP_PROG_IIR4_1,       0x0019);
     WriteDword(AUD_IIR4_0_CA0,           0x000392ad);
@@ -277,8 +291,8 @@ void CCX2388xCard::AudioInitEIAJ()
     WriteDword(AUD_DEEMPH1_SRC_SEL,      0x0025);
 
     // setup Audio PLL
-    WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    WriteDword(AUD_PLL_INT,              0x001f);
+    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    //WriteDword(AUD_PLL_INT,              0x001f);
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);
@@ -292,27 +306,24 @@ void CCX2388xCard::AudioInitEIAJ()
 
 void CCX2388xCard::AudioInitNICAM()
 {
-    // initialize BTSC
-    WriteDword(AUD_INIT,                 0x0001);
-    WriteDword(AUD_INIT_LD,              0x0001);
-    WriteDword(AUD_SOFT_RESET,           0x0001);
-
-    //; NICAM stereo -> RAM -> DAC bogus xtal setup
-    //; xtal = 28.636 MHz
-
-    //; WARNING!!!! Stereo mode is FORCED!!!!
+    // increase level of input by 12dB
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
 
     //; initialize NICAM
     WriteDword(AUD_INIT,                 0x0010);
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
-    WriteDword(AUD_CTL,                  0x1922);
-    WriteDword(AUD_RATE_ADJ1,            0x1000);
-    WriteDword(AUD_RATE_ADJ2,            0x2000);
-    WriteDword(AUD_RATE_ADJ3,            0x3000);
-    WriteDword(AUD_RATE_ADJ4,            0x4000);
-    WriteDword(AUD_RATE_ADJ5,            0x5000);
-    WriteDword(AUD_DMD_RA_DDS,           0xc0d5ce);
+
+    //; WARNING!!!! Stereo mode is FORCED!!!!
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_LR | EN_NICAM_FORCE_STEREO);
+
+    WriteDword(AUD_SOFT_RESET,           0x0001);
+    WriteDword(AUD_RATE_ADJ1,            0x0010);
+    WriteDword(AUD_RATE_ADJ2,            0x0040);
+    WriteDword(AUD_RATE_ADJ3,            0x0100);
+    WriteDword(AUD_RATE_ADJ4,            0x0400);
+    WriteDword(AUD_RATE_ADJ5,            0x1000);
+    //WriteDword(AUD_DMD_RA_DDS,           0xc0d5ce);
 
 
     //; setup QAM registers
@@ -324,8 +335,8 @@ void CCX2388xCard::AudioInitNICAM()
     WriteByte(0x320d2b,                  0x4c);
 
     // setup Audio PLL
-    WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    WriteDword(AUD_PLL_INT,              0x001f);
+    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    //WriteDword(AUD_PLL_INT,              0x001f);
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
@@ -339,11 +350,17 @@ void CCX2388xCard::AudioInitNICAM()
 
 void CCX2388xCard::AudioInitA2()
 {
+    // increase level of input by 12dB
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
+
     // initialize A2
     WriteDword(AUD_INIT,                 0x0004);
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
     
+    //; WARNING!!! A2 STEREO DEMATRIX HAS TO BE
+    //; SET MANUALLY!!!  Value sould be 0x100c
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMR | EN_A2_AUTO_STEREO);
 
     WriteDword(AUD_DN0_FREQ,             0x0000312b);
     WriteDword(AUD_POLY0_DDS_CONSTANT,   0x000a62b4);
@@ -429,7 +446,6 @@ void CCX2388xCard::AudioInitA2()
     WriteDword(AUD_C2_LO_THR,            0xe800);
     WriteDword(AUD_C1_UP_THR,            0x8c00);
     WriteDword(AUD_C1_LO_THR,            0x6c00);
-    WriteDword(AUD_CTL,                  0x100c);
 
     //  ; Completely ditch AFC feedback
     WriteDword(AUD_DCOC_0_SRC,           0x0021);
@@ -445,10 +461,6 @@ void CCX2388xCard::AudioInitA2()
     WriteDword(AUD_DCOC_2_SRC,           0x001b);
     WriteDword(AUD_IIR4_1_SEL,           0x0025);
 
-    //; WARNING!!! A2 STEREO DEMATRIX AS TO BE
-    //; SET MANUALLY!!!  Value sould be 0x100c
-    WriteDword(AUD_CTL,                  0x188c);
-
     //; WARNING!!! THIS CHANGE WAS NOT EXPECTED!!!
     //; Swap I & Q inputs into second rotator
     //; to reverse frequency and therefor invert
@@ -458,9 +470,9 @@ void CCX2388xCard::AudioInitA2()
     WriteDword(AUD_DN2_FREQ,             0x00003551);
 
 
-        // setup Audio PLL
-    WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    WriteDword(AUD_PLL_INT,              0x001f);
+    // setup Audio PLL
+    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    //WriteDword(AUD_PLL_INT,              0x001f);
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.11 2001-12-08 13:43:20 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.12 2001-12-12 17:12:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/12/08 13:43:20  adcockj
+// Fixed logging and memory leak bugs
+//
 // Revision 1.10  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -715,16 +718,15 @@ BOOL CBT848Card::GetGammaCorrection()
 
 
 //-------------------------------
-void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay)
+void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride)
 {
-    int vscale;
-    int hscale;
-    DWORD sr;
-    int hdelay;
-    int vdelay;
-    int hactive;
-    int vactive;
-    BYTE crop;
+    int VertScale;
+    int HorzScale;
+    int HorzDelay;
+    int VertDelay;
+    int HorzActive;
+    int VertActive;
+    BYTE Crop;
 
     CurrentY = GetTVFormat(TVFormat)->wCropHeight;
     CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
@@ -743,9 +745,10 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
         MaskDataByte(BT848_TGCTRL, BT848_TGCTRL_TGMODE_RESET, BT848_TGCTRL_TGMODE_RESET);
         MaskDataByte(BT848_TGCTRL, 0, BT848_TGCTRL_TGMODE_RESET);
 
-        // MAE 20Mar2001
-        if (CurrentY == 576)
+        // Load up the right table which is depandant on the number of lines
+        if (GetTVFormat(TVFormat)->wCropHeight == 576)
         {
+            CurrentY = 576;
             // Load up the TG table for CCIR656
             for (i=0;i<SRAMTable_PAL[0];++i)
             {
@@ -754,6 +757,7 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
         }
         else
         {
+            CurrentY = 480;
             // Load up the TG table for CCIR656
             for (i=0;i<SRAMTable_NTSC[0];++i)
             {
@@ -773,8 +777,9 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
         // Enable 656 Mode, bypass chroma filters
         WriteByte(BT848_DVSIF, BT848_DVSIF_VSIF_BCF | BT848_DVSIF_CCIR656);
 
-        // MAE 20Mar2001
-        if (CurrentY == 576)
+        // Since we are digital here we don't really care which
+        // format we choose as long as it has the right number of lines
+        if (GetTVFormat(TVFormat)->wCropHeight == 576)
         {
             // Enable PAL Mode (or SECAM)
             MaskDataByte(BT848_IFORM, (BT848_IFORM_PAL_BDGHI | BT848_IFORM_XTBOTH), (BT848_IFORM_NORM | BT848_IFORM_XTBOTH));
@@ -792,21 +797,37 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
         WriteByte(BT848_E_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
         WriteByte(BT848_O_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
 
-        // Standard NTSC 525 line Count
+        // Standard line Count
         WriteByte(BT848_VTOTAL_LO, 0x00);
         WriteByte(BT848_VTOTAL_HI, 0x00);
 
-        // Setup parameters for overlay scale and crop calculation
-        hactive = CurrentX;
-        vactive = CurrentY;
-        hscale = 0;
-        vdelay = 16;
-        hdelay = 0x80;
-        vscale = 0;
+        // Setup parameters for overlay scale and Crop calculation
+        HorzActive = CurrentX;
+        VertActive = CurrentY;
+        HorzScale = 0;
+        HorzDelay = 0x80;
+        VertScale = 0;
+
+        if(VDelayOverride != 0)
+        {
+            VertDelay = VDelayOverride;
+        }
+        else
+        {
+            VertDelay = 16;
+        }
+
+        if(HDelayOverride != 0)
+        {
+            HorzDelay = HDelayOverride;
+        }
+        else
+        {
+            HorzDelay = 0x80;
+        }
 
         WriteByte(BT848_E_VTC, BT848_VTC_HSFMT_32);
         WriteByte(BT848_O_VTC, BT848_VTC_HSFMT_32);
-
     }
     else
     {
@@ -826,31 +847,31 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
         WriteByte(BT848_VBI_PACK_SIZE, (BYTE)(GetTVFormat(TVFormat)->VBIPacketSize & 0xff));
         WriteByte(BT848_VBI_PACK_DEL, (BYTE)(GetTVFormat(TVFormat)->VBIPacketSize >> 8));
         MaskDataByte(BT848_IFORM, GetTVFormat(TVFormat)->bIForm, BT848_IFORM_NORM | BT848_IFORM_XTBOTH);
-        hactive = CurrentX & ~2;
+        HorzActive = CurrentX & ~2;
         if(CurrentX <= GetTVFormat(TVFormat)->wHActivex1)
         {
-            hscale = ((GetTVFormat(TVFormat)->wHActivex1 - CurrentX) * 4096UL) / CurrentX;
+            HorzScale = ((GetTVFormat(TVFormat)->wHActivex1 - CurrentX) * 4096UL) / CurrentX;
         }
         else
         {
             CurrentX = GetTVFormat(TVFormat)->wHActivex1;
-            hscale = 0;
+            HorzScale = 0;
         }
-        if(VDelay == 0)
+        if(VDelayOverride != 0)
         {
-            vdelay = GetTVFormat(TVFormat)->wVDelay;
-        }
-        else
-        {
-            vdelay = VDelay;
-        }
-        if(HDelay == 0)
-        {
-            hdelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+            VertDelay = VDelayOverride;
         }
         else
         {
-            hdelay = ((CurrentX * HDelay) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+            VertDelay = GetTVFormat(TVFormat)->wVDelay;
+        }
+        if(HDelayOverride != 0)
+        {
+            HorzDelay = ((CurrentX * HDelayOverride) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+        }
+        else
+        {
+            HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
 
         if(TVFormat == VIDEOFORMAT_PAL_60)
@@ -864,17 +885,17 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
             WriteByte(BT848_VTOTAL_HI, (BYTE)(625 >> 8));
         }
 
-        sr = (GetTVFormat(TVFormat)->wCropHeight * 512) / CurrentY - 512;
-        vscale = (WORD) (0x10000UL - sr) & 0x1fff;
-        vactive = GetTVFormat(TVFormat)->wCropHeight;
-
+        DWORD sr = (GetTVFormat(TVFormat)->wCropHeight * 512) / CurrentY - 512;
+        VertScale = (WORD) (0x10000UL - sr) & 0x1fff;
+        VertActive = GetTVFormat(TVFormat)->wCropHeight;
     }
 
     // YUV 4:2:2 linear pixel format
     WriteByte(BT848_COLOR_FMT, (BYTE)((BT848_COLOR_FMT_YUY2 << 4) | BT848_COLOR_FMT_YUY2));
-    crop = ((hactive >> 8) & 0x03) | ((hdelay >> 6) & 0x0c) | ((vactive >> 4) & 0x30) | ((vdelay >> 2) & 0xc0);
-    SetGeometryEvenOdd(FALSE, hscale, vscale, hactive, vactive, hdelay, vdelay, crop);
-    SetGeometryEvenOdd(TRUE, hscale, vscale, hactive, vactive, hdelay, vdelay, crop);
+
+    Crop = ((HorzActive >> 8) & 0x03) | ((HorzDelay >> 6) & 0x0c) | ((VertActive >> 4) & 0x30) | ((VertDelay >> 2) & 0xc0);
+    SetGeometryEvenOdd(FALSE, HorzScale, VertScale, HorzActive, VertActive, HorzDelay, VertDelay, Crop);
+    SetGeometryEvenOdd(TRUE, HorzScale, VertScale, HorzActive, VertActive, HorzDelay, VertDelay, Crop);
 }
 
 

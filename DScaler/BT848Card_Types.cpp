@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.41 2004-01-29 15:14:41 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.42 2004-03-25 17:59:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2004/01/29 15:14:41  adcockj
+// Added TDA9873 patch from Sven Grothklags
+//
 // Revision 1.40  2004/01/05 13:25:25  adcockj
 // Added patch for Diamond DTV2000 from Robert Milharcic
 //
@@ -4254,6 +4257,85 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
+    {
+        "Sweetspot",
+        12,
+        {
+            {
+                "Component",
+                INPUTTYPE_CCIR,
+                0
+            },
+            {
+                "S-Video 1",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "S-Video 2",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 1 (Red)",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 2 (Green)",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 3 (Blue)",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "PDI",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 1 over S-video 1",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 2 over S-video 1",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 1 over S-video 2",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "Composite 2 over S-video 2",
+                INPUTTYPE_CCIR,
+                0,
+            },
+            {
+                "RGBS / RGsB",
+                INPUTTYPE_CCIR,
+                0,
+            },
+        },
+        PLL_28,
+        TUNER_ABSENT,
+        SOUNDCHIP_NONE,
+        InitPMSDeluxe,
+        PMSDeluxeInputSelect,
+        SetPMSDeluxeContrastBrightness,
+        SetPMSDeluxeSaturationU,
+        SetPMSDeluxeSaturationV,
+        SetPMSDeluxeHue,
+        SetPMSDeluxeFormat,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
+        0,
+        {0, 0, 0, 0, 0, 0, }
+    },
 };
 
 const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
@@ -5200,7 +5282,7 @@ void CBT848Card::CtrlSilkSDISwitch(BYTE SLV, BYTE IEN)
 
 HMENU CBT848Card::GetCardSpecificMenu()
 {
-    if(m_CardType == TVCARD_PMSDELUXE)
+    if(m_CardType == TVCARD_PMSDELUXE || m_CardType == TVCARD_SWEETSPOT)
     {
         return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_PMS));
     }

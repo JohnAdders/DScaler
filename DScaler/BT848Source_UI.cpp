@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.24 2004-01-05 13:25:25 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.25 2004-03-25 17:59:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 // Revision 1.23  2003/11/14 13:24:55  adcockj
 // PMS card fixes
 //
@@ -1566,7 +1569,7 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        if(m_CardType->GetValue() != TVCARD_PMSDELUXE)
+        if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
         {
             m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_NTSC, bDontSetValue);
             m_Contrast->ChangeDefault(DEFAULT_CONTRAST_NTSC, bDontSetValue);
@@ -1592,7 +1595,7 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     }
     else if(IsSECAMVideoFormat(format))
     {
-        if(m_CardType->GetValue() != TVCARD_PMSDELUXE)
+        if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
         {
             m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_SECAM, bDontSetValue);
             m_Contrast->ChangeDefault(DEFAULT_CONTRAST_SECAM, bDontSetValue);
@@ -1617,7 +1620,7 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     }
     else
     {
-        if(m_CardType->GetValue() != TVCARD_PMSDELUXE)
+        if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
         {
             m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL, bDontSetValue);
             m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL, bDontSetValue);

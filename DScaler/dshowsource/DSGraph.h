@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.15 2002-08-21 20:29:20 kooiman Exp $
+// $Id: DSGraph.h,v 1.16 2002-09-04 17:12:01 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/08/21 20:29:20  kooiman
+// Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
+//
 // Revision 1.14  2002/08/01 20:24:19  tobbej
 // implemented AvgSyncOffset counter in dsrend
 //
@@ -102,6 +105,54 @@ class CDShowGraph
 {
 public:
 	/**
+	 * Video format settins.
+	 */
+	class CVideoFormat
+	{
+	public:
+		CVideoFormat()
+			:m_Width(0),m_Height(0),m_bForceYUY2(false),m_FieldFmt(DSREND_FIELD_FORMAT_AUTO)
+		{
+		}
+		bool operator==(CVideoFormat &fmt)
+		{
+			if(m_Width==fmt.m_Width && 
+				m_Height==fmt.m_Height && 
+				m_bForceYUY2==fmt.m_bForceYUY2 &&
+				m_FieldFmt==fmt.m_FieldFmt)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		string m_Name;
+		///Width
+		long m_Width;
+		///Height
+		long m_Height;
+		///Make dsrend filter only accept YUY2
+		bool m_bForceYUY2;
+		///Field format
+		DSREND_FIELD_FORMAT m_FieldFmt;
+	};
+	
+	///failure codes from ChangeRes
+	enum eChangeRes_Error
+	{
+		///format changed
+		SUCCESS,
+		///no filter graph
+		ERROR_NO_GRAPH,
+		///failed to change format, changed back to old
+		ERROR_CHANGED_BACK,
+		///failed to change format and coud not restor old format
+		ERROR_FAILED_TO_CHANGE_BACK
+	};
+
+	/**
 	 * Creates a filtergraph with a capture device as source.
 	 * @throws CDShowException
 	 */
@@ -129,11 +180,12 @@ public:
 	 * @return number of dropped frames
 	 */
 	long getDroppedFrames();
-
-	void start(int Run = 1);
+	
+	void ConnectGraph();
+	void start();
 	void pause();
 	void stop();
-	FILTER_STATE getState() {return m_pGraphState;}
+	FILTER_STATE getState() {return m_GraphState;}
 
 	/**
 	 * Creates a propertypage for a filter.
@@ -157,18 +209,20 @@ public:
 	bool getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPage **ppPage);
 
 	/**
-	 * Change the resolution
+	 * Changes connection settings to dsrend filter.
+	 *
 	 * @throws CDShowException
+	 * @param fmt new format to change to
+	 * @return 
 	 */
-	void changeRes(long &x,long &y);
+	eChangeRes_Error ChangeRes(CDShowGraph::CVideoFormat fmt);
 
-  /**
+	/**
 	 * Checks if a resolution is valid and can be selected.
-	 * @param x width
-	 * @param y height
+	 * @param fmt video format to check
 	 * @return true if valid
 	 */
-	bool isValidRes(long x, long y);
+	bool IsValidRes(CDShowGraph::CVideoFormat fmt);
 
 	/**
 	 * Disables the graph reference clock
@@ -184,7 +238,7 @@ public:
 
 private:
 	void initGraph();
-	void createRenderer();
+	void CreateRenderer();
 
 	void findStreamConfig();
 	
@@ -196,6 +250,7 @@ private:
 	///Interface used for geting media samples from the renderer filter
 	CComPtr<IDSRendFilter> m_DSRend;
 	CComPtr<IQualProp> m_pQualProp;
+	CComPtr<IDSRendSettings> m_pDSRendSettings;
 	
 	///IAMStreamConfig interface for the filter connected to our renderer
 	CComPtr<IAMStreamConfig> m_pStreamCfg;
@@ -206,7 +261,7 @@ private:
 		
 	CDShowBaseSource *m_pSource;
 
-	FILTER_STATE m_pGraphState;
+	FILTER_STATE m_GraphState;
 
 	CComPtr<IReferenceClock> m_pOldRefClk;
 	

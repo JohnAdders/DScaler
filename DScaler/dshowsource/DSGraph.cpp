@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.20 2002-08-21 20:29:20 kooiman Exp $
+// $Id: DSGraph.cpp,v 1.21 2002-09-04 17:12:01 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/08/21 20:29:20  kooiman
+// Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
+//
 // Revision 1.19  2002/08/20 16:19:57  tobbej
 // removed graph loging from debug build
 //
@@ -121,10 +124,10 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowGraph::CDShowGraph(string device,string deviceName)
-:m_pSource(NULL),m_pGraphState(State_Stopped)
+:m_pSource(NULL),m_GraphState(State_Stopped)
 {
 	initGraph();
-	createRenderer();
+	CreateRenderer();
 
 	m_pSource=new CDShowCaptureDevice(m_pGraph,device,deviceName);
 
@@ -135,10 +138,10 @@ CDShowGraph::CDShowGraph(string device,string deviceName)
 }
 
 CDShowGraph::CDShowGraph(string filename)
-:m_pSource(NULL),m_pGraphState(State_Stopped)
+:m_pSource(NULL),m_GraphState(State_Stopped)
 {
 	initGraph();
-	createRenderer();
+	CreateRenderer();
 
 	m_pSource=new CDShowFileSource(m_pGraph,filename);
 
@@ -207,7 +210,7 @@ void CDShowGraph::initGraph()
 
 }
 
-void CDShowGraph::createRenderer()
+void CDShowGraph::CreateRenderer()
 {
 	HRESULT hr=m_renderer.CoCreateInstance(CLSID_DSRendFilter);
 	if(FAILED(hr))
@@ -229,6 +232,19 @@ void CDShowGraph::createRenderer()
 	if(FAILED(hr))
 	{
 		throw CDShowException("SetFieldHistory failed",hr);
+	}
+
+	//find IDSRendSettings interface
+	CDShowPinEnum pins(m_renderer,PINDIR_INPUT);
+	CComPtr<IPin> pInPin=pins.next();
+	if(pInPin==NULL)
+	{
+		throw CDShowException("DScaler input renderer filter don't have any input pins!! (bug)");
+	}
+	hr=pInPin.QueryInterface(&m_pDSRendSettings);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Failed to find IDSRendSettings",hr);
 	}
 }
 
@@ -252,12 +268,9 @@ bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &in
 	return true;
 }
 
-// Run = 0: Connect to dsrend, but don't run
-// Run = 1: Connect to dsrend and run
-// Run = 2: Just run
-void CDShowGraph::start(int Run)
+void CDShowGraph::ConnectGraph()
 {
-	if((m_pSource!=NULL) && (Run<=1))
+	if(m_pSource!=NULL)
 	{
 		//check if the dsrend is unconnected
 		bool IsUnConnected=false;
@@ -270,26 +283,30 @@ void CDShowGraph::start(int Run)
 		{
 			IsUnConnected=true;
 		}
-
+		
 		if(IsUnConnected || !m_pSource->isConnected())
 		{
 			m_pSource->connect(m_renderer);
 		}
-    buildFilterList();    
-  }  
-		
-  if((m_pSource!=NULL) && (Run!=0))
-  {
-        HRESULT hr=m_pControl->Run();
-		    if(FAILED(hr))
-		    {
-			    throw CDShowException("Failed to start filter graph",hr);
-		    }
-		    m_pGraphState=State_Running;
-  }
-  else
-  {
-        m_pGraphState=State_Stopped;  
+		buildFilterList();
+	}
+}
+
+void CDShowGraph::start()
+{
+	if(m_pSource!=NULL)
+	{
+		ConnectGraph();
+		HRESULT hr=m_pControl->Run();
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to start filter graph",hr);
+		}
+		m_GraphState=State_Running;
+	}
+	else
+	{
+		m_GraphState=State_Stopped;
 	}
 }
 
@@ -307,7 +324,7 @@ void CDShowGraph::pause()
 		{
 			throw CDShowException("Failed to pause filter graph",hr);
 		}
-		m_pGraphState=State_Paused;
+		m_GraphState=State_Paused;
 	}
 }
 
@@ -322,7 +339,7 @@ void CDShowGraph::stop()
 	{
 		throw CDShowException("Failed to stop filter graph",hr);
 	}
-	m_pGraphState=State_Stopped;
+	m_GraphState=State_Stopped;
 }
 
 CDShowBaseSource* CDShowGraph::getSourceDevice()
@@ -527,11 +544,11 @@ long CDShowGraph::getDroppedFrames()
 	return frames+m_pSource->getNumDroppedFrames();
 }
 
-void CDShowGraph::changeRes(long &x,long &y)
+CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat fmt)
 {
 	if(m_renderer==NULL)
 	{
-		return;
+		return eChangeRes_Error::ERROR_NO_GRAPH;
 	}
 
 	CDShowPinEnum RendPins(m_renderer,PINDIR_INPUT);
@@ -557,7 +574,7 @@ void CDShowGraph::changeRes(long &x,long &y)
 	FILTER_STATE oldState=getState();
 	if(oldState!=State_Stopped)
 	{
-		//the only time the format can be changed is when the graph is stopped
+		//the only time the format can be changed is when the graph is stopped.
 		stop();
 	}
 
@@ -618,68 +635,82 @@ void CDShowGraph::changeRes(long &x,long &y)
 	ASSERT(newType.pbFormat!=NULL);
 
 	pbmiHeader->biSize=sizeof(BITMAPINFOHEADER);
-	pbmiHeader->biWidth=x;
-	pbmiHeader->biHeight=y;
-	pbmiHeader->biSizeImage=x*y*pbmiHeader->biBitCount/8;
+	pbmiHeader->biWidth=fmt.m_Width;
+	pbmiHeader->biHeight=fmt.m_Height;
+	pbmiHeader->biSizeImage=fmt.m_Width*fmt.m_Height*pbmiHeader->biBitCount/8;
 
+	//change dsrend filter settings acording to fmt
+	hr=m_pDSRendSettings->put_ForceYUY2(fmt.m_bForceYUY2 ? TRUE : FALSE);
+	if(FAILED(hr))
+	{
+		//@todo handle error
+	}
+	
+	hr=m_pDSRendSettings->put_FieldFormat(fmt.m_FieldFmt);
+	if(FAILED(hr))
+	{
+		//@todo handle error
+	}
+	
+	eChangeRes_Error result=eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK;
 	//change the format
 	hr=m_pStreamCfg->SetFormat(&newType);
 	if(FAILED(hr))
 	{
-		BOOL bBackToOldResolution = FALSE;
-    // Resolution failed
-    x = 0;
-    y = 0;
-    
-    //reconnect using the old mediatype
-		CComPtr<IPin> tmp;
-		hr=InPin->ConnectedTo(&tmp);
-		if(hr==VFW_E_NOT_CONNECTED)
+		//retry with RGB24
+		newType.subtype=MEDIASUBTYPE_RGB24;
+		hr=m_pStreamCfg->SetFormat(&newType);
+		if(FAILED(hr))
 		{
-			//reconnect
-			hr=OutPin->Connect(InPin,mt);
-			if(SUCCEEDED(hr))
+			//reconnect using the old mediatype
+			///@todo reset ForceYUY2 and FieldFormat first
+			CComPtr<IPin> tmp;
+			hr=InPin->ConnectedTo(&tmp);
+			if(hr==VFW_E_NOT_CONNECTED)
 			{
-				//failed to change mediatype, but was able to reconnect using old mediatype          
-        bBackToOldResolution = TRUE;
-      }
+				//reconnect
+				hr=OutPin->Connect(InPin,mt);
+				if(SUCCEEDED(hr))
+				{
+					//failed to change mediatype, but was able to reconnect using old mediatype          
+					result=eChangeRes_Error::ERROR_CHANGED_BACK;
+				}
+			}
+			else
+			{
+				hr=m_pStreamCfg->SetFormat(mt);
+				if(SUCCEEDED(hr))
+				{
+					//was able to change back to old format
+					result=eChangeRes_Error::ERROR_CHANGED_BACK;
+				}
+			}
+			
+			/*if(bBackToOldResolution && (mt->pbFormat!=NULL))
+			{
+				if(mt->formattype==FORMAT_VideoInfo)
+				{
+					VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
+					fmt.m_Width = videoInfo->bmiHeader.biWidth;
+					fmt.m_Height = videoInfo->bmiHeader.biHeight;
+				}
+				else if(mt->formattype==FORMAT_VideoInfo2)
+				{
+					VIDEOINFOHEADER2 *videoInfo=(VIDEOINFOHEADER2*)mt->pbFormat;
+					fmt.m_Width = videoInfo->bmiHeader.biWidth;
+					fmt.m_Height = videoInfo->bmiHeader.biHeight;
+				}
+			}*/
+			//throw CDShowException("Failed to change resolution, and coud not change back to old resolution",hr);
 		}
 		else
 		{
-			hr=m_pStreamCfg->SetFormat(mt);
-			if(SUCCEEDED(hr))
-			{
-				//was able to change back to old format
-        bBackToOldResolution = TRUE;
-			}
+			result=eChangeRes_Error::SUCCESS;
 		}
-
-    if(bBackToOldResolution && (mt->pbFormat!=NULL))
-    {
-		     if(mt->formattype==FORMAT_VideoInfo)
-		     {
-                  VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
-                  x = videoInfo->bmiHeader.biWidth;
-                  y = videoInfo->bmiHeader.biHeight;
-         }
-         else if(mt->formattype==FORMAT_VideoInfo2)
-         {
-                  VIDEOINFOHEADER2 *videoInfo=(VIDEOINFOHEADER2*)mt->pbFormat;
-                  x = videoInfo->bmiHeader.biWidth;
-                  y = videoInfo->bmiHeader.biHeight;
-         }
-    }
-		//throw CDShowException("Failed to change resolution, and coud not change back to old resolution",hr);
 	}
-	
-	//restore old graph state
-	if(oldState==State_Running)
+	else
 	{
-		start();
-	}
-	else if(oldState==State_Paused)
-	{
-		pause();
+		result=eChangeRes_Error::SUCCESS;
 	}
 	
 	//free mediatypes
@@ -700,9 +731,21 @@ void CDShowGraph::changeRes(long &x,long &y)
 		newType.pbFormat=NULL;
 		newType.cbFormat=NULL;
 	}
+
+	//restore old graph state
+	if(oldState==State_Running)
+	{
+		start();
+	}
+	else if(oldState==State_Paused)
+	{
+		pause();
+	}
+
+	return result;
 }
 
-bool CDShowGraph::isValidRes(long x,long y)
+bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 {
 	if(m_renderer==NULL)
 	{
@@ -747,10 +790,10 @@ bool CDShowGraph::isValidRes(long x,long y)
 			
 			//maybe check VIDEO_STREAM_CONFIG_CAPS::VideoStandard too
 
-			//check x and y
-			if(x<=vCaps.MaxOutputSize.cx && y<=vCaps.MaxOutputSize.cy && 
-				x>=vCaps.MinOutputSize.cx && y>=vCaps.MinOutputSize.cy &&
-				x%vCaps.OutputGranularityX==0 && y%vCaps.OutputGranularityY==0)
+			//check width and height
+			if(fmt.m_Width<=vCaps.MaxOutputSize.cx && fmt.m_Height<=vCaps.MaxOutputSize.cy && 
+				fmt.m_Width>=vCaps.MinOutputSize.cx && fmt.m_Height>=vCaps.MinOutputSize.cy &&
+				fmt.m_Width%vCaps.OutputGranularityX==0 && fmt.m_Height%vCaps.OutputGranularityY==0)
 			{
 				return true;
 			}

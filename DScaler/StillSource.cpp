@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.86 2003-01-24 22:25:53 laurentg Exp $
+// $Id: StillSource.cpp,v 1.87 2003-02-26 21:58:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2003/01/24 22:25:53  laurentg
+// Memory leak fixed
+//
 // Revision 1.85  2003/01/24 01:55:17  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -502,8 +505,8 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_OriginalFrame.pData = NULL;
     m_OriginalFrame.Flags = PICTURE_PROGRESSIVE;
     m_OriginalFrame.IsFirstInSeries = FALSE;
-    m_FieldFrequency = 50.0;
-    m_FrameDuration = 1000.0 / m_FieldFrequency;
+    m_FieldFrequency = 50.0;	// 50 Hz
+    m_FrameDuration = 20;		// 20 ms
     m_IsPictureRead = FALSE;
     m_Position = -1;
     m_SlideShowActive = FALSE;
@@ -1203,8 +1206,9 @@ void CStillSource::Reset()
 void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     DWORD CurrentTickCount;
-    int Diff;
+    int FieldDistance;
     
     m_pMemcpy = pInfo->pMemcpy;
 
@@ -1223,31 +1227,57 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         m_LastTickCount = CurrentTickCount;
     }
-    Diff = (int)((double)(CurrentTickCount - m_LastTickCount) / m_FrameDuration);
-    while(Diff < 1)
+    while((CurrentTickCount - m_LastTickCount) < m_FrameDuration)
     {
-        Timing_SmartSleep(pInfo, FALSE, bSlept);
+		if (!AccurateTiming)
+		{
+	        Timing_SmartSleep(pInfo, FALSE, bSlept);
+		}
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
         CurrentTickCount = GetTickCount();
-        Diff = (int)((double)(CurrentTickCount - m_LastTickCount) / m_FrameDuration);
     }
-    m_LastTickCount += (int)floor((double)Diff * m_FrameDuration + 0.5);
-    if(Diff > 1)
+    FieldDistance = (CurrentTickCount - m_LastTickCount) / m_FrameDuration;
+    if(FieldDistance == 1)
     {
-        // delete all history
-        ClearPictureHistory(pInfo);
-        pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+	    m_LastTickCount += m_FrameDuration;
+        pInfo->bMissedFrame = FALSE;
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+			if (pInfo->bRunningLate)
+			{
+				Timing_AddDroppedFields(1);
+			}
+			else
+			{
+	            Timing_AddLateFields(1);
+			}
+		}
+    }
+    else if (FieldDistance <= (MaxFieldShift+1))
+    {
+	    m_LastTickCount += m_FrameDuration;
+		if (AccurateTiming)
+		{
+			Timing_SetFlipAdjustFlag(TRUE);
+		}
+        pInfo->bMissedFrame = FALSE;
+        Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
     {
-        pInfo->bMissedFrame = FALSE;
-        if (pInfo->bRunningLate)
-        {
-            Timing_AddDroppedFields(1);
-            LOG(2, "Running Late");
-        }
+	    m_LastTickCount += m_FrameDuration * FieldDistance;
+        // delete all history
+        ClearPictureHistory(pInfo);
+        pInfo->bMissedFrame = TRUE;
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
+		if (AccurateTiming)
+		{
+			Timing_Reset();
+		}
     }
 
     pInfo->LineLength = m_Width * 2;
@@ -1256,6 +1286,11 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FieldHeight = m_Height;
     pInfo->InputPitch = m_LinePitch;
     pInfo->PictureHistory[0] =  &m_StillFrame;
+
+	if (AccurateTiming)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 
     Timing_IncrementUsedFields();
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.60 2003-01-19 21:02:05 laurentg Exp $
+// $Id: StillSource.h,v 1.61 2003-02-26 21:58:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ protected:
 
 private:
     DWORD       m_LastTickCount;
-    double      m_FrameDuration;
+    DWORD		m_FrameDuration;
     BOOL        m_SlideShowActive;
     
     eStillNewFileRequest    m_NewFileRequested;

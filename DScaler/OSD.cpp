@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.25 2001-08-23 16:03:26 adcockj Exp $
+// $Id: OSD.cpp,v 1.26 2001-08-26 18:33:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/08/23 16:03:26  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
 // Revision 1.24  2001/08/16 21:17:34  laurentg
 // Automatic calibration improved with a fine adjustment
 //
@@ -546,6 +549,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     int             dif_val1, dif_val2, dif_val3;
     int             dif_total, dif_total1, dif_total2;
     CTestPattern *pTestPattern;
+    CSubPattern *pSubPattern;
     CColorBar* pColorBar;
     BOOL ShowStepCal;
 
@@ -1039,7 +1043,15 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             nLine = 5;
 
 //			j = 0;
-            pColorBar = pTestPattern->GetFirstColorBar();
+    		pSubPattern = pCalibration->GetCurrentSubPattern();
+            if (pSubPattern != NULL)
+            {
+                pColorBar = pSubPattern->GetFirstColorBar();
+            }
+            else
+            {
+                pColorBar = NULL;
+            }
             while (pColorBar != NULL)
 			{
                 pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
@@ -1092,7 +1104,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
 //				j++;
 
-                pColorBar = pTestPattern->GetNextColorBar();
+                pColorBar = pSubPattern->GetNextColorBar();
 			}
 //			if (j > 0)
 //			{

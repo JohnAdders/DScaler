@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.31 2001-08-03 14:24:32 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.32 2001-08-26 18:33:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/08/03 14:24:32  adcockj
+// added extra info to splash screen and log
+//
 // Revision 1.30  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -438,6 +441,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     int nHistory = 0;
     BOOL bIsPAL = BT848_GetTVFormat()->Is25fps;
     long SourceAspectAdjust = 1000;
+    long overscan;
 
     Timing_Setup();
 
@@ -536,7 +540,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				// Card calibration
 				if (Info.IsOdd && (Info.OddLines[0] != NULL))
 				{
-					pCalibration->Make(Info.OddLines[0], Info.FieldHeight, Info.FrameWidth, GetTickCount());
+                    overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+					pCalibration->Make(Info.OddLines[0], Info.FieldHeight - 2 * overscan, Info.FrameWidth - 2 * overscan, GetTickCount());
 				}
 
                 // update the source area

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.38 2002-07-26 22:40:55 laurentg Exp $
+// $Id: Providers.cpp,v 1.39 2002-07-29 17:43:29 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/07/26 22:40:55  laurentg
+// Menus updates
+//
 // Revision 1.37  2002/05/01 13:00:18  laurentg
 // Support of JPEG files added
 //
@@ -480,9 +483,9 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         char* FileFilters;
         FileFilters =
 #ifndef WANT_DSHOW_SUPPORT
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg\0"
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;\0"
 #else
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv;*.grf\0"
 #endif
                         "TIFF Files\0*.tif;*.tiff\0"
                         "JPEG Files\0*.jpg;*.jpeg\0"
@@ -490,6 +493,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                         "DScaler Patterns\0*.pat\0"
 #ifdef WANT_DSHOW_SUPPORT
                         "Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
+						"GraphEdit Filter Graphs (*.grf)\0*.grf\0"
 #endif
                         ;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.8 2002-07-17 19:18:08 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.9 2002-07-29 17:41:44 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/07/17 19:18:08  tobbej
+// try to connect the videoport pin first if there is one.
+// commented out unused ir code
+//
 // Revision 1.7  2002/04/16 15:30:53  tobbej
 // fixed dropped frames counter, previously it didnt find the IAMDroppedFrames when it was on one of the output pins
 //
@@ -123,8 +127,11 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 {	
 	//this will connect the capture device and add all needed filters upstream like tuners and crossbars
 	
-	// if there is videoport pin, try to connect it
-	CComPtr<IPin> pVPPin;
+	//the following code tries to connect the video port pin of the 
+	//caputure filter it it has one.
+	//it looks like this code needs some tweaking since it doesnt work yet.
+	//winxp has a special filter that other os:es dont have.
+	/*CComPtr<IPin> pVPPin;
 	HRESULT hr=m_pBuilder->FindPin(m_vidDev,PINDIR_OUTPUT,&PIN_CATEGORY_VIDEOPORT,NULL,TRUE,0,&pVPPin);
 	if(SUCCEEDED(hr))
 	{
@@ -152,10 +159,10 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 			//hope that RenderStream can fix this?
 			LOG(2, "Failed to connect VideoPort pin to VBI Surface Allocator");
 		}
-	}
+	}*/
 
 	//first try to render interleaved (dv source), if it fails try normal render
-	hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
+	HRESULT hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
 	if(FAILED(hr))
 	{
 		hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,filter);

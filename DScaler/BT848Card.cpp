@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.27 2002-11-07 13:37:42 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.28 2002-11-07 19:02:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/11/07 13:37:42  adcockj
+// Added State restoration code to PCICard
+// Functionality disabled prior to testing and not done for SAA7134
+//
 // Revision 1.26  2002/10/11 21:36:11  ittarnavsky
 // removed GetAudioDecoderType()
 //
@@ -287,7 +291,6 @@ void CBT848Card::ManageMyState()
     ManageByte(BT848_VBI_PACK_SIZE);
     ManageByte(BT848_VBI_PACK_DEL);
     ManageByte(BT848_INT_MASK);
-    ManageByte(BT848_INT_ETBF);
     ManageByte(BT848_GPIO_OUT_EN);
     ManageByte(BT848_GPIO_OUT_EN_HIBYTE);
     ManageByte(BT848_GPIO_DATA);

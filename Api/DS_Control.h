@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.36 2001-08-15 17:45:41 laurentg Exp $
+// $Id: DS_Control.h,v 1.37 2001-08-23 06:48:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2001/08/15 17:45:41  laurentg
+// UseRGB ini parameter suppressed
+//
 // Revision 1.35  2001/08/14 11:36:03  adcockj
 // Mixer change to allow restore of initial mixer settings
 //
@@ -908,5 +911,24 @@ typedef enum
 #define WM_FLT_SHARPNESS_GETVALUE     (WM_USER + 34)
 #define WM_FLT_SHARPNESS_SETVALUE     (WM_USER + 134)
 #define WM_FLT_SHARPNESS_CHANGEVALUE  (WM_USER + 234)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_TemporalComb.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    MAXPHASELUMADIFF = 0,
+    MAXPHASECHROMADIFF,
+    SHIMMERHISTPERCENT,
+    SHIMMERPERCENT,
+    USETCOMB,
+    FLT_TCOMB_SETTING_LASTONE,
+} FLT_TCOMB_SETTING;
+
+#define WM_FLT_TCOMB_GETVALUE     (WM_USER + 35)
+#define WM_FLT_TCOMB_SETVALUE     (WM_USER + 135)
+#define WM_FLT_TCOMB_CHANGEVALUE  (WM_USER + 235)
+
 
 #endif

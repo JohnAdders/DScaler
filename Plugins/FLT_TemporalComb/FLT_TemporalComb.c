@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.1 2001-08-23 06:38:44 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.2 2001-08-23 06:48:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/23 06:38:44  adcockj
+// Added First version of Lindsey Dubb's filter
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -136,7 +139,7 @@ static FILTER_METHOD TemporalCombMethod;
 // The "old shimmering weight" is limited to 5 on the low end because rounding errors
 // make settings lower than that useless.
 
-static SETTING FLT_TemporalCombSettings[FLT_TNOISE_SETTING_LASTONE] =
+static SETTING FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
 {
     {
         "Maximum in phase luminance difference", SLIDER, 0, &gInPhaseLuminanceThreshold,
@@ -174,19 +177,19 @@ static FILTER_METHOD TemporalCombMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
-    "Temporal Noise Filter",                // Displayed name !!! Should be changed to "Temporal Comb Filter" !!!                          
-    "Temporal Comb\tN",                     // Name to use in menu
+    "Temporal Comb Filter",                 // Displayed name                          
+    NULL,                                   // Use same name in menu
     FALSE,                                  // Not initially active
     TRUE,                                   // Do call on input
     FilterTemporalComb_MMX, 
-    768,                                    // IDM_NOISE_FILTER menu ID so that accelerator works
+    0,                                      
     FALSE,                                  // Does not run if we've run out of time
     NULL,                                   // No initialization procedure
     CleanupTemporalComb,                    // Deallocation routine
-    NULL,                                   // Module handle; Heck if I know what it does
-    FLT_TNOISE_SETTING_LASTONE,             // Number of settings  !!! Needs to be changed !!!
+    NULL,                                   // Module handle; Filled in by DScaler
+    FLT_TCOMB_SETTING_LASTONE,              // Number of settings
     FLT_TemporalCombSettings,
-    WM_FLT_TNOISE_GETVALUE - WM_USER,       // Settings offset  !!! Needs to be changed !!!
+    WM_FLT_TCOMB_GETVALUE - WM_USER,        // Settings offset
 };
 
 

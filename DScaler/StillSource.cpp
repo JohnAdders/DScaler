@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.15 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: StillSource.cpp,v 1.16 2001-12-08 12:04:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.14  2001/12/05 00:08:41  laurentg
 // Use of LibTiff DLL
 //
@@ -112,10 +115,11 @@ int CPlayListItem::GetSecondsToDisplay()
     return m_SecondsToDisplay;
 }
 
-CStillSource::CStillSource() :
-    CSource(0, IDC_STILL)
+CStillSource::CStillSource(LPCSTR IniSection) :
+    CSource(0, IDC_STILL),
+    m_Section(IniSection)
 {
-    CreateSettings("StillSource");
+    CreateSettings(IniSection);
     m_Width = 0;
     m_Height = 0;
     m_StillFrame.pData = NULL;
@@ -231,15 +235,31 @@ BOOL CStillSource::ShowPreviousInPlayList()
 
 void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
-    // TUDO : add a parameter in ini file to choose the format of snapshot saving
-    // and take this parameter into account here to create the correct Helper
-    //CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
-    CTiffHelper TiffHelper(this, TIFF_CLASS_R);
-    TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+    switch ((eStillFormat)m_StillFormat->GetValue())
+    {
+    case STILL_TIFF_RGB:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_R);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            break;
+        }
+    case STILL_TIFF_YCbCr:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            break;
+        }
+    default:
+        break;
+    }
 }
 
 void CStillSource::CreateSettings(LPCSTR IniSection)
 {
+    m_StillFormat = new CSliderSetting("Format of Still Pictures", STILL_TIFF_RGB, STILL_TIFF_RGB, STILL_FORMAT_LASTONE - 1, IniSection, "StillFormat");
+    m_Settings.push_back(m_StillFormat);
+
+    ReadFromIni();
 }
 
 void CStillSource::Start()

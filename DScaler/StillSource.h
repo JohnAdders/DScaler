@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.10 2001-11-29 14:04:07 adcockj Exp $
+// $Id: StillSource.h,v 1.11 2001-12-08 12:04:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,13 @@
 #define __STILLSOURCE_H___
 
 #include "Source.h"
+
+enum eStillFormat
+{
+    STILL_TIFF_RGB = 0,
+    STILL_TIFF_YCbCr,
+    STILL_FORMAT_LASTONE,
+};
 
 class CStillSource;
 class CTiffHelper;
@@ -56,7 +63,7 @@ private:
 class CStillSource : public CSource
 {
 public:
-    CStillSource();
+    CStillSource(LPCSTR IniSection);
     ~CStillSource();
     void CreateSettings(LPCSTR IniSection);
     void Start();
@@ -111,7 +118,9 @@ private:
     DWORD       m_LastTickCount;
     double      m_FrameDuration;
 
+    std::string m_Section;
 
+    CSliderSetting* m_StillFormat;
 };
 
 #endif

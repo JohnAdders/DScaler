@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.141 2003-03-22 13:10:23 laurentg Exp $
+// $Id: DS_Control.h,v 1.142 2003-03-25 13:07:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.141  2003/03/22 13:10:23  laurentg
+// New filter from Michael Joubert
+//
 // Revision 1.140  2003/03/13 00:41:45  laurentg
 // New filter black & white
 //
@@ -1416,6 +1419,10 @@ typedef enum
     STILLSINMEMORY,
     NBCONSECUTIVESTILLS,
 	KEEPORIGINALRATIO,
+	OSDFORSTILLS,
+	PREVIESTILLSWNBCOLS,
+	PREVIEWSTILLSNBROWS,
+	MAXMEMFORSTILLS,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.34 2001-09-22 18:07:53 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.35 2001-09-24 23:14:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/09/22 18:07:53  laurentg
+// Automatic calibration now done for odd and even fields
+//
 // Revision 1.33  2001/09/05 15:08:22  adcockj
 // Wrapped overlay calls with critical section
 // Updated Loging
@@ -480,14 +483,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				// Card calibration
 				if (pCalibration->IsRunning())
 				{
-                    long overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
                     if (Info.IsOdd && (Info.OddLines[0] != NULL))
                     {
-    					pCalibration->Make(Info.OddLines[0], Info.FieldHeight - 2 * overscan, Info.FrameWidth - 2 * overscan, GetTickCount());
+    					pCalibration->Make(Info.OddLines[0], Info.FieldHeight, Info.FrameWidth, GetTickCount());
                     }
                     else if (!Info.IsOdd && (Info.EvenLines[0] != NULL))
                     {
-    					pCalibration->Make(Info.EvenLines[0], Info.FieldHeight - 2 * overscan, Info.FrameWidth - 2 * overscan, GetTickCount());
+    					pCalibration->Make(Info.EvenLines[0], Info.FieldHeight, Info.FrameWidth, GetTickCount());
                     }
 				}
 

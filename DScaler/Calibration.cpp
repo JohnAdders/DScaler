@@ -28,6 +28,7 @@
 #include "DScaler.h"
 #include "Settings.h"
 #include "OSD.h"
+#include "AspectRatio.h"
 #include "DebugLog.h"
 
 
@@ -41,6 +42,9 @@
 #define DELTA_STOP              5
 // Maximum value
 #define MAX_VALUE               1000000000
+
+#define PIXEL_CROPPING_G        6
+#define PIXEL_CROPPING_D        10
 
 // Macro to restrict range to [0,255]
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
@@ -178,6 +182,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     int left, right, top, bottom, i, j;
     unsigned int Y, U, V, nb_Y, nb_U, nb_V;
     BYTE *buf;
+    int overscan;
 
     if (reinit)
     {
@@ -188,10 +193,11 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    left = width * left_border / 10000;
-    right = width * right_border / 10000;
-    top = height * top_border / 10000;
-    bottom = height * bottom_border / 10000;
+    overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+    left = (width - 2 * overscan) * left_border / 10000 + overscan;
+    right = (width - 2 * overscan) * right_border / 10000 + overscan;
+    top = (height - overscan) * top_border / 10000 + overscan / 2;
+    bottom = (height - overscan) * bottom_border / 10000 + overscan / 2;
 
     // Sum separately Y, U and V in this rectangular zone
     // Each line is like this : YUYVYUYV...
@@ -268,6 +274,54 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     else
     {
         return FALSE;
+    }
+}
+
+// This method draws in the video signal a rectangle around the color bar
+void CColorBar::DrawPosition(short **Lines, int height, int width)
+{
+    int left, right, top, bottom, i;
+    BYTE *buf;
+    int overscan;
+
+    // Calculate the exact coordinates of rectangular zone in the buffer
+    overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+    left = (width - 2 * overscan) * left_border / 10000 + overscan;
+    right = (width - 2 * overscan) * right_border / 10000 + overscan;
+    top = (height - overscan) * top_border / 10000 + overscan / 2;
+    bottom = (height - overscan) * bottom_border / 10000 + overscan / 2;
+
+    if ((left % 2) == 1)
+    {
+        left--;
+    }
+    if ((right % 2) == 1)
+    {
+        right--;
+    }
+
+    for (i = top ; i <= bottom ; i++)
+    {
+        buf = (BYTE *)Lines[i];
+        buf[left*2  ] = (ref_Y_val < 128) ? 235 : 16;
+        buf[left*2+1] = 128;
+        buf[left*2+2] = (ref_Y_val < 128) ? 235 : 16;
+        buf[left*2+3] = 128;
+        buf[right*2  ] = (ref_Y_val < 128) ? 235 : 16;
+        buf[right*2+1] = 128;
+        buf[right*2+2] = (ref_Y_val < 128) ? 235 : 16;
+        buf[right*2+3] = 128;
+    }
+
+    right++;
+    for (i = left ; i <= right ; i++)
+    {
+        buf = (BYTE *)Lines[top];
+        buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
+        buf[i*2+1] = 128;
+        buf = (BYTE *)Lines[bottom];
+        buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
+        buf[i*2+1] = 128;
     }
 }
 
@@ -478,6 +532,19 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, in
     *pTotal = sum_delta[3];
 }
 	
+// This method draws in the video signal rectangles around each color bar of the sub-pattern
+void CSubPattern::DrawPositions(short **Lines, int height, int width)
+{
+    // Do the job for each defined color bar
+    for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
+    {
+        if (color_bars[i] != NULL)
+        {
+            color_bars[i]->DrawPosition(Lines, height, width);
+        }
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Class CTestPattern
 
@@ -1720,11 +1787,19 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     BOOL found;
 
 	if (!running
-	 || (current_test_pattern == NULL)
-	 || ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC)))
+	 || (current_test_pattern == NULL))
 		return;
 
-	last_tick_count = tick_count;
+	if ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC))
+    {
+        if (current_sub_pattern != NULL)
+        {
+            current_sub_pattern->DrawPositions(Lines, height, width);
+        }
+		return;
+    }
+
+    last_tick_count = tick_count;
 
     switch (current_step)
     {
@@ -2060,6 +2135,11 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     {
         current_step = 0;
         first_calc = TRUE;
+    }
+
+    if (current_sub_pattern != NULL)
+    {
+        current_sub_pattern->DrawPositions(Lines, height, width);
     }
 }
 

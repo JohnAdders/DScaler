@@ -97,6 +97,9 @@ public:
     // in the zone defined by the color bar
     BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width);
 
+    // This method draws in the video signal a rectangle around the color bar
+    void DrawPosition(short **Lines, int height, int width);
+
 protected: 
     // Left position of the rectangular zone in the full test pattern
     // Range between 0 and 10000
@@ -198,6 +201,9 @@ public:
     // This methode returns the sum of absolute delta between reference color
     // and calculated average color through all the color bars
     void GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal);
+
+    // This method draws in the video signal rectangles around each color bar of the sub-pattern
+    void DrawPositions(short **Lines, int height, int width);
 
 protected:
     // type of settings that can be adjusted with this sub-pattern

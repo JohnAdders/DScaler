@@ -53,27 +53,59 @@ height="2"></td>
   <tr> 
     <td colspan="3"> <!-- #BeginEditable "Text" --> 
       <p><b><font face="Arial" size="5">What is Calibration ?</font></b></p>
-      <p>The calibration is a proceduce using test patterns which allows to find 
+      <p>The calibration is a procedure using test patterns which allows to find 
         the best video settings for the capture card.</p>
-      <p>DScaler is able to analyze certain test patterns from commercial DVD 
-        and then adjust the video settings of the capture card so that the output 
-        signal from the capture card is the closest as possible with the real 
-        content of the test pattern stored on the disc.</p>
-      <p> <font face="Arial" size="5"><b>How it works ?</b></font></p>
+      <p>DScaler is able to analyze certain <a href="#referenced_patterns">test 
+        patterns from commercial DVD</a> and then adjust the video settings of 
+        the capture card so that the output signal from the capture card is the 
+        closest as possible with the real content of the test pattern stored on 
+        the disc.</p>
+      <p> <font face="Arial" size="5"><b>How does it work ?</b></font></p>
+      <p><font face="Arial" size="3"><b>Types of test pattern</b></font></p>
+      <p></p>
+      <p>There are three types of test patterns used by DScaler : </p>
+      <p> 
+      <ol>
+        <li>test patterns that contains only range of grey including black and 
+          white,</li>
+        <li>test patterns that contains only generic colors (red, green, blue, 
+          yellow, cyan, magenta, ...),</li>
+        <li>test patterns whose contains is a merge of the two precedent types.</li>
+      </ol>
+      <p>the first type of test pattern is used to adjust only brightness and 
+        contrast.<br>
+        The second type of test pattern is used to adjust only color and hue.<br>
+        The third type of test pattern allows to do a full adjustment of all video 
+        settings.</p>
+      <p>Without a test pattern of the third type, the user has to do the calibration 
+        in two steps :<br>
+      </p>
+      <p> 
+      <ul>
+        <li>first adjust contrast and brightness using a test pattern contaning 
+          range of gray,</li>
+        <li>second adjust color and hue using a test pattern containing generic 
+          colors. </li>
+      </ul>
+      <p><font face="Arial" size="3"><b>Procedure</b></font></p>
       <p>The user has to do the following actions :</p>
       <p> 
-        <ol>
-          <li>play one of the referenced test patterns in his DVD player,</li>
-          <li>press pause with the remote control to be sure to have the same 
-            signal during the calibration,</li>
-          <li>select the corresponding test pattern in the DScaler Hardware menu,</li>
-          <li>start the calibration choosing between a manual and an automatic 
-            calibration; (the commands are in the DScaler Hardware menu),</li>
-          <li>if a manual calibration was chosen, adjust the different video settings,</li>
-          <li>Stop the calibration when finished.</li>
-        </ol>
-      </p>
-      <p>The user must adjust the video settings in this order :</p>
+      <ol>
+        <li>play one of the referenced test patterns in his player (laserdisc, 
+          dvd, ...),</li>
+        <li>press pause with the remote control to be sure to have the same signal 
+          during the calibration,</li>
+        <li>select the corresponding test pattern in the DScaler Hardware menu,</li>
+        <li>start the calibration choosing between a <a href="#manual_calibration">manual 
+          calibration</a> and an <a href="#automatic_calibration">automatic calibration</a>, 
+        </li>
+        <li>if a manual calibration was chosen, adjust the different video settings 
+          so that the values on the left and right are the lowest possible, meaning 
+          the digitized image is as close as possible as the analog original,</li>
+        <li>Stop the calibration when finished.</li>
+      </ol>
+      <p></p>
+      <p>The video settings must be adjusted in this order :</p>
       <p> 
       <ol>
         <li>brightness,</li>
@@ -81,67 +113,61 @@ height="2"></td>
         <li>color (saturation U + saturation V),</li>
         <li>hue.</li>
       </ol>
-      <p></p>
-      <p></p>
-      <p>There are three types of test patterns used by DScaler : </p>
-      <p> 
-        <ol>
-          <li>test patterns that content only range of grey including black and 
-            white,</li>
-          <li>test patterns that content only generic colors (red, green, blue, 
-            yellow, cyan, magenta, ...),</li>
-          <li>test patterns whose content is a merge of the two precedent types.</li>
-        </ol>
-        <p>the first type of test pattern is used to adjust only brightness and 
-          contrast.<br>
-          The second type of test pattern is used to adjust only color and hue.<br>
-          The third type of test pattern allows to do a full adjustment of all 
-          video settings.</p>
-        <p>Without a test pattern of the third type, the user has to do the calibration 
-          in two steps :<br>
-        </p>
-        <p> 
-          <ul>
-            <li>first adjust contrast and brightness using a test pattern contaning 
-              range of gray,</li>
-            <li>second adjust color and hue using a test pattern containing generic 
-              colors. </li>
-          </ul>
-        </p>
-        <p>The user can choose between a manual calibration and an automatic calibration.<br>
-          During a manual calibration, the user must adjust by hand the video 
-          settings using keyboard shortcuts or the video adjustments dialog box. 
-          An OSD screen is automatically displayed to help the user to decide 
-          what to do when the user starts the calibration. For each analyzed zone 
-          of the test pattern (having a unique color) is displayed the current 
-          differences for R,G,B and Y,U,V components between the current signal 
-          and the reference signal. The user should try to reduce these differences 
-          as much as possible; the ideal should be to have 0 everywhere.<br>
-          During an automatic calibration, the user has nothing to do, just waiting 
-          that DScaler finds the best settings. An OSD screen is displayed allowing 
-          to see the progress of the operation. At the end, the user can see the 
-          new video settings, and a quality indicator for each analyzed zone of 
-          the test pattern shows how good is the card calibration for this zone.</p>
+      <p><font face="Arial" size="3"><b>Manual calibration<a name="#manual_calibration"></a></b></font></p>
+      <p>During a manual calibration, the user must adjust the different video 
+        settings using either the "Video adjustements" dialog box, either the 
+        <a href="keyboard.htm">shortcut keys</a>.<br>
+        Just after starting a manual calibration, an OSD is automatically displayed 
+        to help the user to decide what to adjust.<br>
+        On the left side ; "delta". Difference in RGB colorspace between the reference 
+        values and the ones after the grab process.<br>
+        On the right side ; same as what is on the left side, but with YUV colorspace.<br>
+        In the middle ; same info but with clear text infos ranging from "very 
+        good" to "very bad".</p>
+      <p>Depending on what setting the user is currently tuning, he will work 
+        mainly with :<br>
+        <ul>
+          <li>black bars for brightness,</li>
+          <li>white bars for contrast,</li>
+          <li>blue bar for saturation U,</li>
+          <li>red bar for saturation V,</li>
+          <li>cyan and magenta bars for hue.</li>
+        </ul>
       </p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p><font face="Arial" size="3"><b>Automatic calibration<a name="#automatic_calibration"></a></b></font></p>
+      <p>During an automatic calibration, the user has nothing to do. Just wait 
+        for DScaler to find the best settings. An OSD is displayed allowing to 
+        see the progress of the operation. At the end, the user can see the new 
+        video settings, and a quality indicator for each analyzed zone of the 
+        test pattern shows how good is the card calibration for this zone.</p>
+      <p></p>
       <p><font face="Arail" size="5"><b><font face="Arial">What do you need ?</font></b></font></p>
-      <p>You need at least one of the referenced DVD and a DVD player connected 
-        to the capture card to play the test patterns.</p>
-      <p>You can even use a LD player if you have the Video Essentials LaserDisc.</p>
+      <p>You need at least one of the referenced media with patterns and a player 
+        connected to the capture card to play the test patterns.</p>
       <p><font face="Arial" size="5"><b>What are the referenced test patterns 
-        ?</b></font></p>
+        ?<a name="referenced_patterns"></a></b></font></p>
       <p><font face="Arial" size="2"><b>DVD Collector Les Ann&eacute;es Laser 
         2000</b></font></p>
       <p>A range of gray test pattern - title 36 chapter 1<br>
         A color test pattern - title 31 chapter 1</p>
       <p><font face="Arial" size="2"><b>THX Optimode (Pal)</b></font></p>
-      <p>Screen Performance test pattern</p>
+      <p>Monitor Performance test pattern</p>
       <p>You can find this test pattern on several Pal THX DVD. For instance, 
         &quot;Les Rivi&egrave;res Pourpres&quot; in region 2.</p>
       <p><font face="Arial" size="2"><b>THX Optimode (Ntsc)</b></font></p>
       <p>Monitor Performance test pattern<br>
         Tint Color test pattern</p>
       <p>You can find these test patterns on several Ntsc THX DVD. For instance, 
-        &quot;Toy Story II&quot; in region 1.</p>
+        &quot;Toy Story Ultimate Toy Box&quot; in region 1.</p>
       <p><font face="Arial" size="2"><b>DVD Video Essentials</b></font></p>
       <p>A range of gray test pattern - title 18 chapter 2<br>
         A color test pattern - tile 18 chapter 10</p>

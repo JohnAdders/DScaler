@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.265 2002-12-09 00:32:14 atnak Exp $
+// $Id: DScaler.cpp,v 1.266 2002-12-15 15:19:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.265  2002/12/09 00:32:14  atnak
+// Added new muting stuff
+//
 // Revision 1.264  2002/12/07 16:06:54  adcockj
 // Tidy up muting code
 //
@@ -3992,11 +3995,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
         }
+        return FALSE;
         break;
 
     case UWM_INPUTSIZE_CHANGE:
         //the input source has changed its size, update overlay.
         WorkoutOverlaySize(FALSE);
+        return FALSE;
         break;
     
     case UWM_SQUAREPIXELS_CHECK:
@@ -4007,6 +4012,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 WorkoutOverlaySize(TRUE);
             }
         }
+        return FALSE;
         break;       
 
     case UWM_EVENTADDEDTOQUEUE:
@@ -4014,6 +4020,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
             EventCollector->ProcessEvents();
         }
+        return FALSE;
         break;
 
     //TJ 010506 make sure we dont erase the background
@@ -4492,9 +4499,10 @@ void MainWndOnDestroy()
     __try
     {
         LOG(1, "Try free EventCollector");
-        if (EventCollector!=NULL)
+        if (EventCollector != NULL)
         {
             delete EventCollector;
+            EventCollector = NULL;
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free EventCollector");}

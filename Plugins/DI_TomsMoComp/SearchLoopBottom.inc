@@ -16,16 +16,16 @@
 // JA 9/Dec/2002
 // failed experiment
 // but leave in placeholder for me to play about
-#ifdef DONT_USE_STRANGE_BOB
+#ifdef USE_STRANGE_BOB
         // Use the best weave if diffs less than 10 as that
         // means the image is still or moving cleanly
         // if there is motion we will clip which will catch anything
-        psubusb mm7, TENS           // bias it a bit toward weave
+        psubusb mm7, FOURS          // sets bits to zero if weave diff < 4
         pxor    mm0, mm0
-        pcmpeqb mm7, mm0            // all ff where bob better, else 00
-        pcmpeqb mm0, mm7            // all ff where weave better, else 00
-        pand    mm7, mm6            // use bob for these pixel values
-        pand    mm0, mm5            // use weave for these
+        pcmpeqb mm7, mm0            // all ff where weave better, else 00
+        pcmpeqb mm0, mm7            // all ff where bob better, else 00
+        pand    mm0, mm6            // use bob for these pixel values
+        pand    mm7, mm5            // use weave for these
         por     mm0, mm7            // combine both
 #else
         // Use the better of bob or weave

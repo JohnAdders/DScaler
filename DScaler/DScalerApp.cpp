@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.6 2001-11-09 12:42:07 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.7 2001-11-14 11:28:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.5  2001/11/04 14:44:58  adcockj
 // Bug fixes
 //
@@ -99,6 +102,8 @@ BOOL CDScalerApp::InitInstance()
         return FALSE;
     }
     
+    AfxSetResourceHandle(hResourceInst);
+
     // If we change WritePrivateProfileInt/WritePrivateProfileString to AfxGetApp()->WriteProfileInt/string
     // we coud easily change DScaler to write to eighter registry or ini file.
     //
@@ -109,6 +114,7 @@ BOOL CDScalerApp::InitInstance()
     // call the real winmain
     WinMainOld(m_hInstance, m_hPrevInstance, m_lpCmdLine,m_nCmdShow);
 
+    AfxSetResourceHandle(m_hInstance);
     FreeLibrary(hResourceInst);
 
     // return false so message loop doesn't start

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
+// $Id: Providers.cpp,v 1.4 2001-11-14 11:28:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.2  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -137,6 +140,23 @@ CInterlacedSource* Providers_GetCurrentSource()
 
 void Providers_SetMenu(HMENU hMenu)
 {
+    if(Providers_GetCurrentSource()->HasTuner())
+    {
+        EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_ENABLED);
+    }
+    else
+    {
+        EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_GRAYED);
+    }
+    
     for(int i(0); i < Sources.size(); ++i)
     {
         CheckMenuItemBool(hMenu, IDM_SOURCE_FIRST + i, (CurrentSource == i));

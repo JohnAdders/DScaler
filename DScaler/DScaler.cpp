@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.85 2001-11-09 14:19:34 adcockj Exp $
+// $Id: DScaler.cpp,v 1.86 2001-11-14 11:28:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2001/11/09 14:19:34  adcockj
+// Bug fixes
+//
 // Revision 1.84  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -1150,6 +1153,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_VT_RESET:
             VT_ChannelChange();
+            break;
+
+        case IDM_VIDEOSETTINGS:
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VIDEOSETTINGS), hWnd, VideoSettingProc);
             break;
 
         case IDM_VPS_OUT:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.10 2001-11-09 12:42:07 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.11 2001-11-14 11:28:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.9  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -178,6 +181,8 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
 
         TOverscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
         SetDlgItemInt(hDlg, IDC_D7, TOverscan, FALSE);
+        Setting_SetupSlider(Aspect_GetSetting(OVERSCAN), GetDlgItem(hDlg, IDC_SLIDER7));
+
         Button_SetCheck(GetDlgItem(hDlg, IDC_BYFORMAT), bSavePerFormat?BST_CHECKED:BST_UNCHECKED);
         Button_SetCheck(GetDlgItem(hDlg, IDC_BYINPUT), bSavePerInput?BST_CHECKED:BST_UNCHECKED);
 

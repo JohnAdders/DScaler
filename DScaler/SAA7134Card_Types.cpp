@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.19 2003-01-27 03:17:46 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.20 2003-01-27 12:32:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/27 03:17:46  atnak
+// Added card support for "MEDION TV-TUNER 7134 MK2/3"
+//
 // Revision 1.18  2002/12/26 05:06:17  atnak
 // Added Terratec Cinergy 600 TV
 //
@@ -589,13 +592,19 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Thanks "DavidbowiE" Guest@dscaler.forums
     {
         "Medion TV-Tuner 7134 MK2/3",
-        1,
+        2,
         {
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_PHILIPS_PAL,

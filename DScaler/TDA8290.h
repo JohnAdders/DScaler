@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.h,v 1.3 2005-03-09 07:04:39 atnak Exp $
+// $Id: TDA8290.h,v 1.4 2005-03-09 13:19:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/09 07:04:39  atnak
+// Added code for radio.
+//
 // Revision 1.2  2005/03/08 18:12:17  atnak
 // Updates.
 //
@@ -100,11 +103,14 @@ enum eTDA8290Standard
 
 
 // This class is closely coupled with the TDA8275 class.
-class CTDA8290 : IExternalIFDemodulator
+class CTDA8290 : public IExternalIFDemodulator
 {
 public:
 	CTDA8290();
 	virtual ~CTDA8290();
+
+	// Return a CTDA8290 object or NULL if none is detected.
+	static CTDA8290* CreateDetectedTDA8290(IN CI2CBus* i2cBus);
 
 	// from IExternalIFDemodulator
 
@@ -125,6 +131,9 @@ public:
 	static eTDA8290Standard GetTDA8290Standard(eVideoFormat videoFormat);
 
 protected:
+	// from CI2CDevice
+	virtual BYTE GetDefaultAddress() const { return I2C_ADDR_TDA8290; }
+
 	// Programs the TDA8290 for an audio standard to match the video format.
 	virtual void SetVideoSystemStandard(eTDA8290Standard standard);
 };

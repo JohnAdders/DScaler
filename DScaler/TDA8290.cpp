@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.cpp,v 1.3 2005-03-09 07:04:39 atnak Exp $
+// $Id: TDA8290.cpp,v 1.4 2005-03-09 13:19:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/09 07:04:39  atnak
+// Added code for radio.
+//
 // Revision 1.2  2005/03/08 18:12:16  atnak
 // Updates.
 //
@@ -50,6 +53,18 @@ CTDA8290::CTDA8290()
 
 CTDA8290::~CTDA8290()
 {
+}
+
+CTDA8290* CTDA8290::CreateDetectedTDA8290(IN CI2CBus* i2cBus)
+{
+	CTDA8290* pTDA8290 = new CTDA8290();
+
+	if (!pTDA8290->SetDetectedI2CAddress(i2cBus))
+	{
+		delete pTDA8290;
+		return NULL;
+	}
+	return pTDA8290;
 }
 
 void CTDA8290::Init(bool bPreInit, eVideoFormat videoFormat)

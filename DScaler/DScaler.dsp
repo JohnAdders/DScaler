@@ -236,6 +236,10 @@ SOURCE=.\DScalerApp.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DSFileSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\DSGraph.cpp
 # End Source File
 # Begin Source File
@@ -257,6 +261,10 @@ SOURCE=.\dshowsource\DSProvider.cpp
 # Begin Source File
 
 SOURCE=.\dshowsource\DSSource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSSourceBase.cpp
 # End Source File
 # Begin Source File
 
@@ -663,6 +671,10 @@ SOURCE=.\DScalerApp.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DSFileSource.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\DSGraph.h
 # End Source File
 # Begin Source File
@@ -684,6 +696,10 @@ SOURCE=.\dshowsource\DSProvider.h
 # Begin Source File
 
 SOURCE=.\dshowsource\DSSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSSourceBase.h
 # End Source File
 # Begin Source File
 

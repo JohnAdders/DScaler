@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.29 2003-06-14 13:27:48 laurentg Exp $
+// $Id: Setting.cpp,v 1.30 2003-08-16 10:29:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/06/14 13:27:48  laurentg
+// Use default value when the current value in ini file is out of range, and correct the value in the ini file
+//
 // Revision 1.28  2003/04/28 12:42:20  laurentg
 // Management of character string settings updated
 //
@@ -196,6 +199,7 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
     m_ReadWriteFlags = 0;
 
     m_SectionLastSavedValue = Default;
+    m_pOnChangeHook = NULL;
 }
 
 
@@ -221,6 +225,7 @@ CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup)
     m_ReadWriteFlags = 0;
 
     m_SectionLastSavedValue = pSetting->Default;
+    m_pOnChangeHook = NULL;
 }
 
 CSimpleSetting::~CSimpleSetting()
@@ -259,9 +264,8 @@ long CSimpleSetting::GetValue()
 /**
     Set value
 */
-void CSimpleSetting::SetValue(long NewValue, BOOL bSupressOnChange)
+void CSimpleSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
 {
-    long OldValue = *m_pSetting->pValue;
     if(NewValue < m_pSetting->MinValue)
     {
         NewValue = m_pSetting->MinValue;
@@ -269,9 +273,26 @@ void CSimpleSetting::SetValue(long NewValue, BOOL bSupressOnChange)
     if(NewValue > m_pSetting->MaxValue)
     {
         NewValue = m_pSetting->MaxValue;
-    }    
+    }
+
+    _SetValue(NewValue, bSuppressOnChange);
+}
+
+void CSimpleSetting::_SetValue(long NewValue, BOOL bSuppressOnChange)
+{
+    long OldValue = *m_pSetting->pValue;
+
     *m_pSetting->pValue = NewValue;
-    if (!bSupressOnChange && DoOnChange(NewValue, OldValue))
+
+    // If there's a hook, call that prior to OnChange.  If it
+    // returns TRUE, normal OnChange should be suppressed
+    if (m_pOnChangeHook != NULL && (m_pOnChangeHook)(NewValue,
+        OldValue, bSuppressOnChange, m_pHookContext))
+    {
+        bSuppressOnChange = TRUE;
+    }
+
+    if (!bSuppressOnChange && DoOnChange(NewValue, OldValue))
     {
         OnChange(NewValue, OldValue);
     }
@@ -282,12 +303,7 @@ void CSimpleSetting::SetValue(long NewValue, BOOL bSupressOnChange)
 */
 void CSimpleSetting::SetDefault()
 {
-    long OldValue = *m_pSetting->pValue;
-    *m_pSetting->pValue = m_pSetting->Default;
-    if (DoOnChange(*m_pSetting->pValue, OldValue))
-    {
-        OnChange(*m_pSetting->pValue, OldValue);
-    }
+    _SetValue(m_pSetting->Default, FALSE);
 }
 
 long CSimpleSetting::GetDefault()
@@ -320,6 +336,12 @@ void CSimpleSetting::SetEntry(LPCSTR NewValue)
 LPCSTR CSimpleSetting::GetEntry() 
 { 
     return m_pSetting->szIniEntry;
+}
+
+void CSimpleSetting::HookOnChange(tOnChangeHook* pCallback, void* pContextPtr)
+{
+    m_pOnChangeHook = pCallback;
+    m_pHookContext = pContextPtr;
 }
 
 
@@ -381,15 +403,10 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 			}
 		}
 
-		int OldValue = *m_pSetting->pValue;
-		*m_pSetting->pValue = nValue;
-	
-        // only call OnChange when there actually is a change
-        // this will help keep channel changes slick
-		if(*m_pSetting->pValue != OldValue && DoOnChange(*m_pSetting->pValue, OldValue))
-	    {
-		    OnChange(*m_pSetting->pValue, OldValue);
-		}
+        if (nValue != *m_pSetting->pValue)
+        {
+            _SetValue(nValue, FALSE);
+        }
 		
 	    m_SectionLastSavedValue = nSavedValue;
 		m_SectionLastSavedValueIniSection = szSubSection;
@@ -448,15 +465,10 @@ BOOL CSimpleSetting::ReadFromIni()
 			}
 		}
         if (IsSettingInIniFile)
-        {            
-			int OldValue = *m_pSetting->pValue;
-			*m_pSetting->pValue = nValue;
-		
-			if (DoOnChange(*m_pSetting->pValue, OldValue))
-	        {
-		        OnChange(*m_pSetting->pValue, OldValue);
-			}
-			m_pSetting->LastSavedValue = nSavedValue;
+        {
+            _SetValue(nValue, FALSE);
+
+            m_pSetting->LastSavedValue = nSavedValue;
 			m_sLastSavedValueIniSection = m_pSetting->szIniSection;
         }        
         else
@@ -955,25 +967,33 @@ void CStringSetting::GetDisplayText(LPSTR szBuffer)
     sprintf(szBuffer, "%s %s", szName, *m_pSetting->pValue ? (char*)(*m_pSetting->pValue) : "");
 }
 
-void CStringSetting::SetValue(long NewValue, BOOL bSupressOnChange)
+void CStringSetting::SetValue(long NewValue, BOOL bSuppressOnChange)
 {
-    long OldValue = *m_pSetting->pValue;
-	char* str = new char[strlen((char *)NewValue) + 1];
-	strcpy(str, (char *)NewValue);
-	*m_pSetting->pValue = (long)str;
-    if (!bSupressOnChange && DoOnChange(NewValue, OldValue))
+    char* pNewString = (char*)NewValue;
+    char* pOldString = (char*)*m_pSetting->pValue;
+
+    // There's no reason to continue if the new string isn't different
+    if (pOldString != NULL && strcmp(pNewString, pOldString) == 0)
     {
-        OnChange(NewValue, OldValue);
+        return;
     }
-	if (OldValue != NULL)
+
+    // Allocate a buffer for the new string
+	char* pBuffer = new char[strlen(pNewString)+1];
+	strcpy(pBuffer, pNewString);
+
+    _SetValue((long)pBuffer, bSuppressOnChange);
+
+	if (pOldString != NULL)
 	{
-		delete (char *)OldValue;
+        // Purge the old buffer
+		delete [] pOldString;
 	}
 }
 
 void CStringSetting::SetDefault()
 {
-	SetValue(m_pSetting->Default);
+    CStringSetting::SetValue(m_pSetting->Default);
 }
 
 /** Read value from sub section in .ini file
@@ -1014,22 +1034,7 @@ BOOL CStringSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 			szValue = (char *)szBuffer;		       
 		}
 
-		int OldValue = *m_pSetting->pValue;
-		char* str = new char[strlen(szValue) + 1];
-		strcpy(str, szValue);
-		*m_pSetting->pValue = (long)str;
-
-        // only call OnChange when there actually is a change
-        // this will help keep channel changes slick
-		if(strcmp((char*)*m_pSetting->pValue, (char*)OldValue) && DoOnChange(*m_pSetting->pValue, OldValue))
-	    {
-		    OnChange(*m_pSetting->pValue, OldValue);
-		}
-
-		if (OldValue != NULL)
-		{
-			delete (char *)OldValue;
-		}	
+        CStringSetting::SetValue((long)szValue, FALSE);
 
 		m_SectionLastSavedValueIniSection = szSubSection;
     }
@@ -1067,22 +1072,8 @@ BOOL CStringSetting::ReadFromIni()
 			szValue = (char *)szBuffer;
 		}
         if (IsSettingInIniFile)
-        {            
-			int OldValue = *m_pSetting->pValue;
-			char* str = new char[strlen(szValue) + 1];
-			strcpy(str, szValue);
-			*m_pSetting->pValue = (long)str;
-
-			if (DoOnChange(*m_pSetting->pValue, OldValue))
-	        {
-		        OnChange(*m_pSetting->pValue, OldValue);
-			}
-
-			if (OldValue != NULL)
-			{
-				delete (char *)OldValue;
-			}
-
+        {
+            CStringSetting::SetValue((long)szValue, FALSE);
 			m_sLastSavedValueIniSection = m_pSetting->szIniSection;
         }        
         else

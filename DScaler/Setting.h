@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.20 2003-04-28 13:45:55 laurentg Exp $
+// $Id: Setting.h,v 1.21 2003-08-16 10:29:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,12 @@
 
 #include "ISetting.h"
 #include "SettingHolder.h"
+
+
+/** Function definition for callbacks used to trap the OnChange call
+    @returns TRUE to suppress call to the normal OnChange
+*/
+typedef BOOL (tOnChangeHook)(long NewValue, long OldValue, BOOL bSuppressOnChange, void* pContextPtr);
 
 
 /** Base class for settings that can be represented as a long    
@@ -47,6 +53,8 @@ public:
     operator long();
         
     void SetValue(long NewValue, BOOL bSupressOnChange = FALSE);
+    void _SetValue(long NewValue, BOOL bSuppressOnChange = FALSE);
+
     void Up();
     void Down();
     void ChangeValue(eCHANGEVALUE NewValue);    
@@ -72,6 +80,8 @@ public:
     virtual void OnChange(long NewValue, long OldValue);   
     void DisableOnChange();
     void EnableOnChange();
+
+    void HookOnChange(tOnChangeHook* pCallback, void* pContextPtr);
 
     virtual void GetDisplayText(LPSTR szBuffer) = 0;    
 protected:    
@@ -105,6 +115,11 @@ protected:
     
     ///Check flags and decide if onchange should be called
     BOOL DoOnChange(long NewValue, long OldValue);
+
+    /// A pointer to the function that should be called prior to OnChange
+    tOnChangeHook* m_pOnChangeHook;
+    /// The context pointer for the hook function
+    void*          m_pHookContext;
 };
 
 /** Simple setting with a BOOL value

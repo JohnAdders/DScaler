@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.11 2002-10-23 15:18:07 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.12 2002-10-24 16:04:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -117,6 +117,7 @@ private:
     BYTE*        m_pVBILines[5];
     CUserMemory* m_VBIDMAMem[5];
     DWORD        m_RiscBasePhysical; 
+    DWORD        m_RiscBasePhysicalVBI; 
     DWORD*       m_RiscBaseLinear;
     long         m_BytesPerRISCField;
     TPicture     m_EvenFields[5];

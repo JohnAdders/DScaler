@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388x_Defines.h,v 1.5 2002-10-23 16:10:50 adcockj Exp $
+// $Id: CT2388x_Defines.h,v 1.6 2002-10-24 16:04:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -747,13 +747,58 @@ enum eCT2388xCardId
     CT2388xCARD_LASTONE,
 };
 #define SRAM_CMDS_21                0x180040 // 48 DWORDS
-#define SRAM_INSTRUCTION_QUEUE_BASE 0x180340 // 48 DWORDS
-#define SRAM_CLUSTER_TABLE_BASE     0x180400 // 3 * 4 DWORDS
-#define SRAM_CLUSTER_BUFFER_1       0x180430 // 720 WORDS (0x5A0)
-#define SRAM_CLUSTER_BUFFER_2       0x1809D0 // 720 WORDS (0x5A0)
-#define SRAM_CLUSTER_BUFFER_3       0x180F70 // 720 WORDS (0x5A0)
-#define SRAM_AUDIO_BASE             0x184A90 // 101 bytes?
-#define SRAM_RISC_BASE              0x1850E8 // 2314 DWORDS, see BT848_CreateRiscCode (0x2428)
+#define SRAM_CMDS_24                0x180100 // 48 DWORDS
+
+///////////////////////////////////////////////////////////////////////////////
+// SRAM defines
+// Need to break up space in SRAM so we'll increment previous pointer with size
+// of previous space be careful
+// We have 32k of SRAM to play with
+// so we have to be careful that we don't use it all up
+// the bottom of the SRAM is reserved for the CMDS structures
+// and the free space for buffers starts at 0x180340
+///////////////////////////////////////////////////////////////////////////////
+
+// say how many buffers we want to have for each channel
+#define SRAM_VIDEO_BUFFERS               6
+#define SRAM_VBI_BUFFERS                 6
+
+// say how big each buffer is
+// we need to hold a complete line in each buffer
+#define SRAM_FIFO_VIDEO_BUFFER_SIZE      0x5a0  // 720 WORDS (0x5A0)
+#define SRAM_FIFO_VBI_BUFFER_SIZE        0x800
+
+
+// Instruction Queue for video
+#define SRAM_INSTRUCTION_QUEUE_VIDEO     0x180340
+#define SRAM_INSTRUCTION_QUEUE_SIZE 0xC0      
+
+// Cluster table for video
+#define SRAM_CLUSTER_TABLE_VIDEO         (SRAM_INSTRUCTION_QUEUE_VIDEO + SRAM_INSTRUCTION_QUEUE_SIZE)
+#define SRAM_CLUSTER_TABLE_VIDEO_SIZE    (SRAM_VIDEO_BUFFERS * 0x10)
+
+// FIFO buffers for video
+#define SRAM_FIFO_VIDEO_BUFFERS          (SRAM_CLUSTER_TABLE_VIDEO + SRAM_CLUSTER_TABLE_VIDEO_SIZE)
+#define SRAM_FIFO_VIDEO_BUFFERS_SIZE     (SRAM_FIFO_VIDEO_BUFFER_SIZE * SRAM_VIDEO_BUFFERS)
+
+// Instruction Queue for VBI
+#define SRAM_INSTRUCTION_QUEUE_VBI       (SRAM_FIFO_VIDEO_BUFFERS + SRAM_FIFO_VIDEO_BUFFERS_SIZE)
+
+// Cluster table for VBI
+#define SRAM_CLUSTER_TABLE_VBI           (SRAM_INSTRUCTION_QUEUE_VBI + SRAM_INSTRUCTION_QUEUE_SIZE)
+#define SRAM_CLUSTER_TABLE_VBI_SIZE      (SRAM_VBI_BUFFERS * 0x10)
+
+// FIFO buffers for VBI
+#define SRAM_FIFO_VBI_BUFFERS            (SRAM_CLUSTER_TABLE_VBI + SRAM_CLUSTER_TABLE_VBI_SIZE)
+#define SRAM_FIFO_VBI_BUFFERS_SIZE       (SRAM_FIFO_VBI_BUFFER_SIZE * SRAM_VIDEO_BUFFERS)
+
+// if adding new buffers the next one to be defined must use this value
+// you should maintain SRAM_NEXT as it is used as a safety check that
+#define SRAM_NEXT                      (SRAM_FIFO_VBI_BUFFERS + SRAM_FIFO_VBI_BUFFERS_SIZE)
+
+// largest possible value in SRAM
+#define SRAM_MAX                       0x187FFF
+
 
 
 #endif

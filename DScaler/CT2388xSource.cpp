@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.20 2002-10-23 20:26:53 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.21 2002-10-24 16:04:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/10/23 20:26:53  adcockj
+// Bug fixes for cx2388x
+//
 // Revision 1.19  2002/10/23 15:18:07  adcockj
 // Added preliminary code for VBI
 //
@@ -293,7 +296,7 @@ void CCT2388xSource::Start()
 	// \todo fix VBI
     CreateRiscCode(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
     // only capture VBI if we are expecting them
-    m_pCard->StartCapture(m_RiscBasePhysical, false && (bCaptureVBI && (m_CurrentVBILines > 0)));
+    m_pCard->StartCapture(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
     Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
@@ -472,6 +475,56 @@ void CCT2388xSource::CreateRiscCode(BOOL bCaptureVBI)
     *(pRiscCode++) = m_RiscBasePhysical; 
 
     m_pCard->SetRISCStartAddress(m_RiscBasePhysical);
+
+    // attempt to do VBI
+    // for this chip I think we need a seperate RISC program for VBI
+    // so we'll tag the VBI program at the end
+    if(bCaptureVBI == TRUE && IsVideo480P == FALSE)
+    {
+        // work out the physical start position of the VBI program
+        m_RiscBasePhysicalVBI = m_RiscBasePhysical + ((DWORD)pRiscCode - (DWORD)m_RiscBaseLinear);
+
+        m_NumFields = 10;
+        for (nField = 0; nField < m_NumFields; nField++)
+        {
+            DWORD Instruction(0);
+
+            // First we sync onto either the odd or even field
+            if (nField & 1)
+            {
+                Instruction = RISC_RESYNC_EVEN;
+            }
+            else
+            {
+                Instruction = RISC_RESYNC_ODD;
+            }
+
+            *(pRiscCode++) = Instruction;
+
+            pUser = m_pVBILines[nField / 2];
+            if((nField & 1) == 1)
+            {
+                pUser += m_CurrentVBILines * 2048;
+            }
+            for (nLine = 0; nLine < m_CurrentVBILines; nLine++)
+            {
+                pPhysical = m_VBIDMAMem[nField / 2]->TranslateToPhysical(pUser, VBI_SPL, &GotBytesPerLine);
+                if(pPhysical == 0 || VBI_SPL > GotBytesPerLine)
+                {
+                    return;
+                }
+                *(pRiscCode++) = RISC_WRITE | RISC_SOL | RISC_EOL | VBI_SPL;
+                *(pRiscCode++) = pPhysical;
+                pUser += 2048;
+            }
+        }
+
+        // jump back to start
+        *(pRiscCode++) = RISC_JUMP;
+        *(pRiscCode++) = m_RiscBasePhysicalVBI; 
+
+        m_pCard->SetRISCStartAddressVBI(m_RiscBasePhysicalVBI);
+    }
 }
 
 

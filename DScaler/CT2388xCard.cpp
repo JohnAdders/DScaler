@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.16 2002-10-23 20:26:52 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.17 2002-10-24 16:04:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/23 20:26:52  adcockj
+// Bug fixes for cx2388x
+//
 // Revision 1.15  2002/10/23 16:10:50  adcockj
 // Fixed some filter setting bugs and added SECAM tests for Laurent
 //
@@ -84,7 +87,6 @@ CCT2388xCard::CCT2388xCard(CHardwareDriver* pDriver) :
     m_Tuner(NULL),
 	m_SAA7118(NULL),
     m_RISCIsRunning(FALSE),
-    m_RiscBasePhysical(0),
     m_CurrentInput(0)
 {
     strcpy(m_TunerType,"n/a");
@@ -154,30 +156,20 @@ void CCT2388xCard::CloseCard()
     ClosePCICard();
 }
 
-void CCT2388xCard::StartCapture(DWORD RiscBasePhysical, BOOL bCaptureVBI)
+void CCT2388xCard::StartCapture(BOOL bCaptureVBI)
 {
     DWORD value1;
     DWORD value2;
-    DWORD dwval;
-
    
     // Clear Interrupt Status bits
     WriteDword(CT2388X_VID_INTSTAT, 0x0000000);
     
-    WriteDword( SRAM_CMDS_21, RiscBasePhysical);
-    
-    // Set and clear the ISRP bit to indicate whether the RISC progam is
-    // in PCI memory space
-    dwval = ReadDword(SRAM_CMDS_21 + 0x10);
-    dwval &= 0x7fffffff;
-    WriteDword( SRAM_CMDS_21 + 0x10, dwval); 
-
     value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
     value2 = (ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00);
     if(bCaptureVBI == TRUE)
     {
         value1 |= 0x99;
-        value2 |= 0x3E;
+        value2 |= 0x1E;
     }
     else
     {
@@ -776,10 +768,6 @@ DWORD CCT2388xCard::GetRISCPos()
 
 void CCT2388xCard::ResetHardware()
 {
-    DWORD dwval,dwaddr;
-
-    DWORD i,j;
-
     PCI_COMMON_CONFIG PCI_Config;
 
     // try and switch on the card using the PCI Command value
@@ -801,10 +789,10 @@ void CCT2388xCard::ResetHardware()
 
     // Clear out the SRAM Channel Management data structures
     // for all 12 devices
-    for (i=1;i<=12;++i)
+    for (int i(1); i<=12; ++i)
     {   
-        dwaddr = 0x180000+i*0x40;
-        for (j=0;j<5;++j)
+        DWORD dwaddr = 0x180000+i*0x40;
+        for (int j(0); j<5; ++j)
         {
             WriteDword(dwaddr+(j*4),0);
         }
@@ -820,40 +808,92 @@ void CCT2388xCard::ResetHardware()
 
     ::Sleep(500);
 
+    /////////////////////////////////////////////////////////////////
     // Setup SRAM tables
+    /////////////////////////////////////////////////////////////////
+
+    // first check that everything we want to fit in SRAM
+    // actually does fit, I'd hope this gets picked up in debug
+    if(SRAM_NEXT > SRAM_MAX)
+    {
+        ErrorBox("Too much to fit in SRAM")
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // Setup for video channel 21
+    /////////////////////////////////////////////////////////////////
         
     // Instruction Queue Base
-    WriteDword(SRAM_CMDS_21 + 0x0c, SRAM_INSTRUCTION_QUEUE_BASE);
+    WriteDword(SRAM_CMDS_21 + 0x0c, SRAM_INSTRUCTION_QUEUE_VIDEO);
     
-    // Instruction Queue Size
-    dwval = ReadDword(SRAM_CMDS_21 + 0x10);
-    dwval = (dwval & 0x80000000) | 0x30;  // 48 DWORD instruction queue (was 16)
-    WriteDword(SRAM_CMDS_21 + 0x10, dwval);
+    // Instruction Queue Size is in DWORDs
+    WriteDword(SRAM_CMDS_21 + 0x10, (SRAM_INSTRUCTION_QUEUE_SIZE / 4));
     
     // Cluster table base 
-    WriteDword(SRAM_CMDS_21 + 0x04, SRAM_CLUSTER_TABLE_BASE); 
+    WriteDword(SRAM_CMDS_21 + 0x04, SRAM_CLUSTER_TABLE_VIDEO); 
 
-    // Cluster table size is 6 QWORDS
-    WriteDword(SRAM_CMDS_21 + 0x08, 0x06);    // 3 cluster buffers * 2 QWORDS/entry
+    // Cluster table size is in QWORDS
+    WriteDword(SRAM_CMDS_21 + 0x08, SRAM_CLUSTER_TABLE_VIDEO_SIZE / 8);
 
     // Fill in cluster buffer entries
-    WriteDword(SRAM_CLUSTER_TABLE_BASE, SRAM_CLUSTER_BUFFER_1); // Buffer one
-    
-    WriteDword(SRAM_CLUSTER_TABLE_BASE + 0x10,SRAM_CLUSTER_BUFFER_2); // Buffer two
-
-    WriteDword(SRAM_CLUSTER_TABLE_BASE + 0x20,SRAM_CLUSTER_BUFFER_3); // Buffer three
+    for(i = 0; i < SRAM_VIDEO_BUFFERS; ++i)
+    {
+        WriteDword(
+                    SRAM_CLUSTER_TABLE_VIDEO + (i * 0x10), 
+                    SRAM_FIFO_VIDEO_BUFFERS * (i * SRAM_FIFO_VIDEO_BUFFER_SIZE)
+                  );
+    }
     
     // Copy the cluster buffer info to the DMAC 
     
     // Set the DMA Cluster Table Address
-    WriteDword( MO_DMA21_PTR2, SRAM_CLUSTER_TABLE_BASE );
+    WriteDword( MO_DMA21_PTR2, SRAM_CLUSTER_TABLE_VIDEO);
     
-    // Set the DMA buffer limit (size (number of INT64's))
-    WriteDword( MO_DMA21_CNT1, (0x5A0 / 8) - 1 );
+    // Set the DMA buffer limit size in qwords
+    WriteDword( MO_DMA21_CNT1, SRAM_FIFO_VIDEO_BUFFER_SIZE / 8);
     
-    // Set the DMA Cluster Table Size
-    WriteDword( MO_DMA21_CNT2, 0x06 );
+    // Set the DMA Cluster Table Size in qwords
+    WriteDword( MO_DMA21_CNT2, SRAM_CLUSTER_TABLE_VIDEO_SIZE / 8);
 
+    /////////////////////////////////////////////////////////////////
+    // Setup for VBI channel 24
+    /////////////////////////////////////////////////////////////////
+        
+    // Instruction Queue Base
+    WriteDword(SRAM_CMDS_24 + 0x0c, SRAM_INSTRUCTION_QUEUE_VBI);
+    
+    // Instruction Queue Size is in DWORDs
+    WriteDword(SRAM_CMDS_24 + 0x10, (SRAM_INSTRUCTION_QUEUE_SIZE / 4));
+    
+    // Cluster table base 
+    WriteDword(SRAM_CMDS_24 + 0x04, SRAM_CLUSTER_TABLE_VBI); 
+
+    // Cluster table size is in QWORDS
+    WriteDword(SRAM_CMDS_24 + 0x08, (SRAM_CLUSTER_TABLE_VBI_SIZE / 8));
+
+    // Fill in cluster buffer entries
+    for(i = 0; i < SRAM_VBI_BUFFERS; ++i)
+    {
+        WriteDword(
+                    SRAM_CLUSTER_TABLE_VBI + (i * 0x10), 
+                    SRAM_FIFO_VBI_BUFFERS * (i * SRAM_FIFO_VBI_BUFFER_SIZE)
+                  );
+    }
+    
+    // Copy the cluster buffer info to the DMAC 
+    
+    // Set the DMA Cluster Table Address
+    WriteDword( MO_DMA24_PTR2, SRAM_CLUSTER_TABLE_VBI);
+    
+    // Set the DMA buffer limit size in qwords
+    WriteDword( MO_DMA24_CNT1, SRAM_FIFO_VBI_BUFFER_SIZE / 8);
+    
+    // Set the DMA Cluster Table Size in qwords
+    WriteDword( MO_DMA24_CNT2, (SRAM_CLUSTER_TABLE_VBI_SIZE / 8));
+
+    /////////////////////////////////////////////////////////////////
+    // Other one off settings for the chip
+    /////////////////////////////////////////////////////////////////
 
     // set format to YUY2
     MaskDataDword(CT2388X_VIDEO_COLOR_FORMAT, 0x00000044, 0x000000FF);
@@ -1100,9 +1140,15 @@ void CCT2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)
     WriteDword( SRAM_CMDS_21, RiscBasePhysical); // RISC STARTING ADDRESS
 
     // Set as PCI address
-    DWORD dwval = ReadDword(SRAM_CMDS_21 + 0x10);
-    dwval &= 0x7fffffff;
-    WriteDword( SRAM_CMDS_21 + 0x10, dwval); 
+    AndDataDword( SRAM_CMDS_21 + 0x10, 0x7fffffff); 
+}
+
+void CCT2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
+{
+    WriteDword( SRAM_CMDS_24, RiscBasePhysical); // RISC STARTING ADDRESS
+
+    // Set as PCI address
+    AndDataDword( SRAM_CMDS_24 + 0x10, 0x7fffffff); 
 }
 
 ITuner* CCT2388xCard::GetTuner() const

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.8 2002-10-23 15:18:07 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.9 2002-10-24 16:04:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/23 15:18:07  adcockj
+// Added preliminary code for VBI
+//
 // Revision 1.7  2002/10/22 18:52:18  adcockj
 // Added ASPI support
 //
@@ -132,7 +135,7 @@ public:
 
 	void CloseCard();
 
-    void StartCapture(DWORD RiscBasePhysical, BOOL bCaptureVBI);
+    void StartCapture(BOOL bCaptureVBI);
     void StopCapture();
 
     void SetCardType(int CardType);
@@ -162,6 +165,7 @@ public:
     eTunerId AutoDetectTuner(eCT2388xCardId CardId);
     BOOL InitTuner(eTunerId tunerId);
     void SetRISCStartAddress(DWORD RiscBasePhysical);
+    void SetRISCStartAddressVBI(DWORD RiscBasePhysical);
 	void SetFLIFilmDetect(BOOL FLIFilmDetect);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
@@ -223,7 +227,6 @@ private:
 	CSAA7118*       m_SAA7118;
 
     BOOL            m_RISCIsRunning;
-    DWORD           m_RiscBasePhysical;
     CAudioDecoder*  m_AudioDecoder;
     CAudioControls* m_AudioControls;
     char            m_TunerType[32];

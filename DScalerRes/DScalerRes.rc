@@ -799,7 +799,7 @@ BEGIN
                     IDC_STATIC,5,30,149,50
 END
 
-IDD_DSHOW_VIDEOFMTS DIALOG DISCARDABLE  0, 0, 321, 141
+IDD_DSHOW_VIDEOFMTS DIALOG DISCARDABLE  0, 0, 207, 141
 STYLE DS_CONTROL | WS_CHILD
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -835,21 +835,10 @@ BEGIN
     CONTROL         "Spin6",IDC_SPIN6,"msctls_updown32",UDS_SETBUDDYINT | 
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,135,105,
                     11,14
-    COMBOBOX        IDC_DSHOW_VIDEOFMTS_FIELDFMT,256,25,60,30,
-                    CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Force YUY2 Input",IDC_DSHOW_VIDEOFMTS_YUY2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,215,40,100,10
-    CONTROL         "Swap even and odd fields",IDC_DSHOW_VIDEOFMTS_SWAP,
-                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,215,
-                    50,100,10
-    CONTROL         "Vertical mirror",IDC_DSHOW_VIDEOFMTS_VERTMIRROR,"Button",
-                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,215,60,100,10
     GROUPBOX        "General",IDC_STATIC,85,10,120,65
     LTEXT           "Width",IDC_STATIC,90,45,20,8
     LTEXT           "Height",IDC_STATIC,90,60,22,8
-    LTEXT           "Field format",IDC_STATIC,215,25,37,8
     LTEXT           "Name:",IDC_STATIC,90,25,22,8
-    GROUPBOX        "Advanced settings",IDC_STATIC,210,10,110,65
     PUSHBUTTON      "Clear",IDC_DSHOW_VIDEOFMTS_CLEAR,5,120,35,20
     PUSHBUTTON      "Reset to default",IDC_DSHOW_VIDEOFMTS_DEFAULTS,45,120,
                     35,20,BS_MULTILINE | WS_DISABLED

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.h,v 1.4 2002-09-17 17:34:21 tobbej Exp $
+// $Id: DSVideoFormatPage.h,v 1.5 2003-01-06 21:31:09 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/17 17:34:21  tobbej
+// added a few todo items
+//
 // Revision 1.3  2002/09/11 16:41:03  tobbej
 // implemented clear button
 //
@@ -71,8 +74,8 @@ public:
 	CDragListBox m_ListBox;
 	CSpinButtonCtrl	m_SpinWidth;
 	CSpinButtonCtrl	m_SpinHeight;
-	CButton m_YUY2Check;
-	CComboBox m_SampleFormat;
+	//CButton m_YUY2Check;
+	//CComboBox m_SampleFormat;
 	//}}AFX_DATA
 
 
@@ -95,8 +98,8 @@ protected:
 	afx_msg void OnChangeWidth();
 	afx_msg void OnChangeHeight();
 	afx_msg void OnChangeName();
-	afx_msg void OnClickedYUY2();
-	afx_msg void OnSelEndOkFieldFmt();
+	//afx_msg void OnClickedYUY2();
+	//afx_msg void OnSelEndOkFieldFmt();
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnClickedDelete();
 	afx_msg void OnClickedNew();

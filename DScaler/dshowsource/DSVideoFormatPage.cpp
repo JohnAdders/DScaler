@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.cpp,v 1.4 2002-09-17 19:29:56 adcockj Exp $
+// $Id: DSVideoFormatPage.cpp,v 1.5 2003-01-06 21:31:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/17 19:29:56  adcockj
+// Fixed compile problems with dshow off
+//
 // Revision 1.3  2002/09/11 16:41:02  tobbej
 // implemented clear button
 //
@@ -78,8 +81,8 @@ void CDSVideoFormatPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_FMTLIST, m_ListBox);
 	DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_WIDTH_SPIN,m_SpinWidth);
 	DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_HEIGHT_SPIN,m_SpinHeight);
-	DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_YUY2,m_YUY2Check);
-	DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_FIELDFMT, m_SampleFormat);
+	//DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_YUY2,m_YUY2Check);
+	//DDX_Control(pDX, IDC_DSHOW_VIDEOFMTS_FIELDFMT, m_SampleFormat);
 	//}}AFX_DATA_MAP
 }
 
@@ -92,8 +95,8 @@ BEGIN_MESSAGE_MAP(CDSVideoFormatPage, CTreeSettingsPage)
 	ON_EN_CHANGE(IDC_DSHOW_VIDEOFMTS_WIDTH,OnChangeWidth)
 	ON_EN_CHANGE(IDC_DSHOW_VIDEOFMTS_HEIGHT,OnChangeHeight)
 	ON_EN_CHANGE(IDC_DSHOW_VIDEOFMTS_NAME,OnChangeName)
-	ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_YUY2,OnClickedYUY2)
-	ON_CBN_SELENDOK(IDC_DSHOW_VIDEOFMTS_FIELDFMT,OnSelEndOkFieldFmt)
+	//ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_YUY2,OnClickedYUY2)
+	//ON_CBN_SELENDOK(IDC_DSHOW_VIDEOFMTS_FIELDFMT,OnSelEndOkFieldFmt)
 	ON_WM_CONTEXTMENU()
 	ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_NEW,OnClickedNew)
 	ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_DELETE,OnClickedDelete)
@@ -120,12 +123,12 @@ BOOL CDSVideoFormatPage::OnInitDialog()
 		}
 	}
 	
-	int cbindex=m_SampleFormat.AddString(_T("Auto"));
+	/*int cbindex=m_SampleFormat.AddString(_T("Auto"));
 	m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_AUTO);
 	cbindex=m_SampleFormat.AddString(_T("Frame"));
 	m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_FRAME);
 	cbindex=m_SampleFormat.AddString(_T("Field"));
-	m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_FIELD);
+	m_SampleFormat.SetItemData(cbindex,DSREND_FIELD_FORMAT_FIELD);*/
 	
 	//select first entry
 	m_ListBox.SetCurSel(0);
@@ -206,8 +209,8 @@ void CDSVideoFormatPage::UpdateControlls()
 		SetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,m_VideoFmt[pos].m_Name.c_str());
 		SetDlgItemInt(IDC_DSHOW_VIDEOFMTS_WIDTH,m_VideoFmt[pos].m_Width);
 		SetDlgItemInt(IDC_DSHOW_VIDEOFMTS_HEIGHT,m_VideoFmt[pos].m_Height);
-		m_YUY2Check.SetCheck(m_VideoFmt[pos].m_bForceYUY2 ? BST_CHECKED : BST_UNCHECKED);
-		m_SampleFormat.SetCurSel(m_VideoFmt[pos].m_FieldFmt);
+		//m_YUY2Check.SetCheck(m_VideoFmt[pos].m_bForceYUY2 ? BST_CHECKED : BST_UNCHECKED);
+		//m_SampleFormat.SetCurSel(m_VideoFmt[pos].m_FieldFmt);
 
 		///@todo update the range of the spinboxes with proper values
 		m_SpinWidth.SetRange(16,DSCALER_MAX_WIDTH);
@@ -384,7 +387,7 @@ void CDSVideoFormatPage::OnChangeName()
 	}
 }
 
-void CDSVideoFormatPage::OnClickedYUY2()
+/*void CDSVideoFormatPage::OnClickedYUY2()
 {
 	if(m_bInUpdateControlls)
 	{
@@ -414,7 +417,7 @@ void CDSVideoFormatPage::OnSelEndOkFieldFmt()
 		m_VideoFmt[pos].m_FieldFmt=(DSREND_FIELD_FORMAT)m_SampleFormat.GetItemData(m_SampleFormat.GetCurSel());
 		GenerateName(pos);
 	}
-}
+}*/
 
 void CDSVideoFormatPage::OnContextMenu(CWnd* pWnd, CPoint point) 
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.25 2003-02-12 22:09:46 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.26 2003-02-14 08:59:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/02/12 22:09:46  atnak
+// Added M-TV002
+//
 // Revision 1.24  2003/02/06 21:30:44  ittarnavsky
 // changes to support primetv 7133
 //
@@ -692,13 +695,13 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN1,
-                AUDIOINPUTSOURCE_LINE2,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
-                VIDEOINPUTSOURCE_PIN0,
-                AUDIOINPUTSOURCE_LINE2,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
@@ -707,7 +710,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
-        TUNER_LG_B11D_PAL,  // Might need to be LG TPI8PSB12P PAL B/G
+        TUNER_LG_B11D_PAL,  // Should be LG TPI8PSB02P PAL B/G
         AUDIOCRYSTAL_NONE,
         NULL,
         ManliMTV002CardInputSelect,
@@ -973,8 +976,17 @@ void CSAA7134Card::ManliMTV002CardInputSelect(int nInput)
     StandardSAA7134InputSelect(nInput);
     switch(nInput)
     {
+    case 0: // Tuner
+    case 1: // Composite
+    case 2: // S-Video
     case -1: // Ending cleanup
-        SetAudioSource(AUDIOINPUTSOURCE_DAC);
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x8000, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x8000, 0x8000);
+        break;
+    case 3: // Radio
+        // Unverified GPIO setup
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x8000, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x8000);
         break;
     default:
         break;

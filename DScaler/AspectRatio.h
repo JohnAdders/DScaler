@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.18 2001-08-09 12:21:40 adcockj Exp $
+// $Id: AspectRatio.h,v 1.19 2001-09-05 21:05:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -74,6 +74,11 @@ enum eHorzPos
     HORZ_POS_CENTRE,
     HORZ_POS_LEFT,
 };
+
+#define AR_STRETCH       0
+#define AR_NONANAMORPHIC 1
+#define AR_ANAMORPHIC    2
+
 
 BOOL    ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID);
 void    AspectRatio_SetMenu(HMENU hMenu);
@@ -222,5 +227,6 @@ typedef struct
 
 extern TRatioStatistics RatioStatistics[MAX_RATIO_STATISTICS];
 extern int nNbRatioSwitch;
+
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.23 2001-09-03 13:06:49 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.24 2001-09-05 21:05:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/09/03 13:06:49  adcockj
+// Increment version
+//
 // Revision 1.22  2001/08/06 22:32:13  laurentg
 // Little improvments for AR autodetection
 //
@@ -68,10 +71,6 @@
 #include "BT848.h"
 #include "DScaler.h"
 #include "SettingsDlg.h"
-
-#define AR_STRETCH       0
-#define AR_NONANAMORPHIC 1
-#define AR_ANAMORPHIC    2
 
 // From DScaler.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()

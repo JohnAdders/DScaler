@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.16 2001-09-05 15:07:48 adcockj Exp $
+// $Id: Other.cpp,v 1.17 2001-09-05 21:05:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/09/05 15:07:48  adcockj
+// Wrapped overlay calls with critical section
+// Updated Loging
+//
 // Revision 1.15  2001/09/02 14:17:51  adcockj
 // Improved teletext code
 //
@@ -258,11 +262,11 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
                 if (PhysicalOverlayColor == 0)      // sometimes we glitch and can't get the Value
                 {
-                    LOG(1, "Physical overlay color is zero!  Retrying.");
+                    LOG(3, "Physical overlay color is zero!  Retrying.");
                     PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
                     LeaveCriticalSection(&hDDCritSect);
                 }
-                LOG(1, "Physical overlay color is %x", PhysicalOverlayColor);
+                LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
             }
             else
             {
@@ -272,7 +276,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                     LOG(1, "Physical overlay color is zero!  Retrying.");
                     PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
                 }
-                LOG(1, "Physical overlay color is %x", PhysicalOverlayColor);
+                LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
             }
 
             DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;
@@ -755,6 +759,7 @@ DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
 BOOL Overlay_Destroy()
 {
     EnterCriticalSection(&hDDCritSect);
+
     // reset overlay control to previous settings so that
     // DVD's will look OK
     if(pDDColorControl != NULL)
@@ -899,13 +904,17 @@ BOOL Overlay_Flip(DWORD FlipFlag)
     FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
     if(FAILED(FlipResult))
     {
-        if(FlipResult != DDERR_WASSTILLDRAWING && FlipResult != DDERR_SURFACELOST)
+        if(FlipResult != DDERR_WASSTILLDRAWING && 
+            FlipResult != DDERR_SURFACELOST &&
+            FlipResult != DDERR_NOTFLIPPABLE)
         {
             LOG(1, "Surface Flip failed %8x", FlipResult);
         }
         // return OK if we get DDERR_WASSTILLDRAWING
         // we'll do the flip next time
-        RetVal = (FlipResult == DDERR_WASSTILLDRAWING);
+        // also if we get DDERR_NOTFLIPPABLE
+        // as this probably means the overlay has been hiden
+        RetVal = (FlipResult == DDERR_WASSTILLDRAWING) || (FlipResult == DDERR_NOTFLIPPABLE);
     }
     LeaveCriticalSection(&hDDCritSect);
     return RetVal;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.16 2004-11-28 06:54:34 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.17 2005-01-15 01:27:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/11/28 06:54:34  atnak
+// Changed IF demodulator scanning to use CTDA9887's DetectAttach().
+//
 // Revision 1.15  2004/11/27 19:31:57  atnak
 // Updated to use CTDA9887Ex class and tda9887 settings in card list.
 //
@@ -88,7 +91,9 @@
 #include "MT2050.h"
 #include "GenericTuner.h"
 #include "TDA9887.h"
+#include "TEA5767.h"
 #include "DebugLog.h"
+
 
 BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 {
@@ -181,13 +186,14 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
 
-    int kk = strlen(m_TunerType);
-    for (BYTE test = 0xC0; test < 0xCF; test +=2)
+	BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+    for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
-            m_Tuner->Attach(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
+			int kk = strlen(m_TunerType);
+			m_Tuner->Attach(m_I2CBus, test>>1);
+			sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.h,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: TVFormats.h,v 1.5 2002-10-18 11:41:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -65,6 +68,10 @@ typedef struct
     BOOL Is25fps;
     WORD VBIPacketSize;
     WORD VBILines;
+    /** Colour subcarrier frequency in MHz
+        For SECAM this is the Db frequency
+        for others it is Fsc
+    */
     double Fsc;
     BOOL NeedsPLL;
     WORD CC_Clock;

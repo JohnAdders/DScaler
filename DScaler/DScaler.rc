@@ -1273,7 +1273,7 @@ BEGIN
             VALUE "OriginalFilename", "DScaler.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DScaler\0"
-            VALUE "ProductVersion", "3.0.3\0"
+            VALUE "ProductVersion", "3.0.4\0"
             VALUE "SpecialBuild", "\0"
         END
     END

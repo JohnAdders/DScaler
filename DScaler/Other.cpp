@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.13 2001-08-11 11:17:57 adcockj Exp $
+// $Id: Other.cpp,v 1.14 2001-08-13 18:54:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/08/11 11:17:57  adcockj
+// Fixed problems when using zero backbuffers
+//
 // Revision 1.12  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -126,10 +129,11 @@ BOOL OverlayActive()
 // Blank out video overlay
 void Overlay_Clean()
 {
-    int nPixel;
-    int nLine;
+    unsigned int nPixel;
+    unsigned int nLine;
     HRESULT ddrval;
     DDSURFACEDESC SurfaceDesc;
+    unsigned short* pPixel;
 
     if (lpDDOverlay != NULL)
     {
@@ -138,11 +142,13 @@ void Overlay_Clean()
 
         ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
 
-        for (nLine = 0; nLine < (signed) SurfaceDesc.dwHeight; nLine++)
+        for (nLine = 0; nLine < SurfaceDesc.dwHeight; nLine++)
         {
-            for (nPixel = 0; nPixel < (signed) SurfaceDesc.dwWidth * 2; nPixel += 4)
+            pPixel = (unsigned short*)((BYTE*)SurfaceDesc.lpSurface + nLine * SurfaceDesc.lPitch);
+            for (nPixel = 0; nPixel < SurfaceDesc.dwWidth; ++nPixel)
             {
-                *((int*)SurfaceDesc.lpSurface + (nLine * SurfaceDesc.lPitch + nPixel) / 4) = 0x80008000;
+                *pPixel = 0x8000;
+                pPixel++;
             }
         }
         ddrval = lpDDOverlay->Unlock(SurfaceDesc.lpSurface);
@@ -154,11 +160,13 @@ void Overlay_Clean()
 
         ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
 
-        for (nLine = 0; nLine < (signed) SurfaceDesc.dwHeight; nLine++)
+        for (nLine = 0; nLine < SurfaceDesc.dwHeight; nLine++)
         {
-            for (nPixel = 0; nPixel < (signed) SurfaceDesc.dwWidth * 2; nPixel += 4)
+            pPixel = (unsigned short*)((BYTE*)SurfaceDesc.lpSurface + nLine * SurfaceDesc.lPitch);
+            for (nPixel = 0; nPixel < SurfaceDesc.dwWidth; ++nPixel)
             {
-                *((int*)SurfaceDesc.lpSurface + (nLine * SurfaceDesc.lPitch + nPixel) / 4) = 0x80008000;
+                *pPixel = 0x8000;
+                pPixel++;
             }
         }
         ddrval = lpDDOverlayBack->Unlock(SurfaceDesc.lpSurface);

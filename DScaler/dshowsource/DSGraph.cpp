@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.13 2002-05-02 19:50:39 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.14 2002-05-11 15:22:00 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/05/02 19:50:39  tobbej
+// changed dshow source filter submenu to use new tree based dialog
+//
 // Revision 1.12  2002/05/01 20:38:40  tobbej
 // fixed memory leak
 //
@@ -134,6 +137,11 @@ CDShowGraph::~CDShowGraph()
 
 #ifdef _DEBUG
 	RemoveFromRot(m_hROT);
+	m_pGraph->SetLogFile(NULL);
+	if(m_hLogFile!=INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(m_hLogFile);
+	}
 #endif
 }
 
@@ -156,6 +164,16 @@ void CDShowGraph::initGraph()
 	{
 		throw CDShowException("Failed to get IMediaControl interface",hr);
 	}
+
+#ifdef _DEBUG
+	m_hLogFile=CreateFile("DShowGraphLog.txt",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	if(m_hLogFile!=INVALID_HANDLE_VALUE)
+	{
+		hr=m_pGraph->SetLogFile((DWORD_PTR)m_hLogFile);
+		ASSERT(SUCCEEDED(hr));
+	}
+#endif
+
 }
 
 void CDShowGraph::createRenderer()
@@ -371,6 +389,8 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage)
 					ASSERT(SUCCEEDED(hr));
 					
 					*ppPage=new CTreeSettingsOleProperties(W2A(info.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
+					pUnk->Release();
+					pUnk=NULL;
 					CoTaskMemFree(pages.pElems);
 				}
 				else
@@ -522,6 +542,12 @@ void CDShowGraph::changeRes(long x,long y)
 		CoTaskMemFree(mt->pbFormat);
 		mt->pbFormat=NULL;
 		mt->cbFormat=0;
+	}
+	if(newType.pbFormat!=NULL && mt->cbFormat>0)
+	{
+		CoTaskMemFree(newType.pbFormat);
+		newType.pbFormat=NULL;
+		newType.cbFormat=NULL;
 	}
 }
 

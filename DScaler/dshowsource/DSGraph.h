@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.10 2002-05-02 19:50:39 tobbej Exp $
+// $Id: DSGraph.h,v 1.11 2002-05-11 15:22:00 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/05/02 19:50:39  tobbej
+// changed dshow source filter submenu to use new tree based dialog
+//
 // Revision 1.9  2002/04/16 15:26:55  tobbej
 // fixed filter reference leak when geting filter names (filters submenu)
 // added waitForNextField
@@ -194,6 +197,7 @@ private:
 
 #ifdef _DEBUG
 	DWORD m_hROT;
+	HANDLE m_hLogFile;
 #endif
 };
 

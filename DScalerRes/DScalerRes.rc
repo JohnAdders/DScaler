@@ -1101,6 +1101,7 @@ BEGIN
         MENUITEM "Always On &Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On To&p (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
         MENUITEM "A&uto-Size Window",           IDM_WINPOS_AUTOSIZE
+        MENUITEM "Minimize to Tra&y",           IDM_MINTOTRAY
         MENUITEM SEPARATOR
         POPUP "Toolbars"
         BEGIN
@@ -1724,6 +1725,18 @@ BEGIN
     END
 END
 
+IDC_TRAYMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "SysTray"
+    BEGIN
+        MENUITEM "E&xit",                       IDM_TRAYEND
+        MENUITEM SEPARATOR
+        MENUITEM "&Options",                    IDM_OPTIONS
+        MENUITEM SEPARATOR
+        MENUITEM "&Show/Hide",                  IDM_TRAYSHOW
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1876,6 +1889,7 @@ IDI_TOOLBAR_VOLUME_MONO ICON    DISCARDABLE     "toolbar_volume_mono.ico"
 IDI_TOOLBAR_VOLUME_STEREO ICON    DISCARDABLE     "toolbar_volume_stereo.ico"
 IDI_TOOLBAR_VOLUME_LANG1 ICON    DISCARDABLE     "toolbar_volume_lang1.ico"
 IDI_TOOLBAR_VOLUME_LANG2 ICON    DISCARDABLE     "toolbar_volume_lang2.ico"
+IDI_TRAYICON            ICON    DISCARDABLE     "DScalerSysTray.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.296 2003-01-27 22:06:39 laurentg Exp $
+// $Id: DScaler.cpp,v 1.297 2003-02-05 14:26:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.296  2003/01/27 22:06:39  laurentg
+// Forbid key O or key Shift+O as soon as one of the overscans is at its minimum or maximum
+//
 // Revision 1.295  2003/01/27 16:40:13  adcockj
 // Fixed maximize bug spotted by Atsushi
 //
@@ -976,6 +979,7 @@ long WStyle;
 BOOL    bShowMenu=TRUE;
 HMENU   hMenu;
 HMENU   hSubMenuChannels = NULL;
+HMENU	hMenuTray;
 HACCEL  hAccel;
 
 char ChannelString[10] = "";
@@ -1013,6 +1017,9 @@ BOOL bVTAntiAlias = FALSE;
 BOOL bMinimized = FALSE;
 BOOL bReverseChannelScroll = FALSE;
 
+BOOL bMinToTray = FALSE;
+BOOL bIconOn = FALSE;
+
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
 
@@ -1030,6 +1037,8 @@ BOOL bIgnoreNextRightButtonUpMsg = FALSE;
 
 UINT MsgWheel;
 UINT MsgOSDShow;
+
+NOTIFYICONDATA nIcon;
 
 // Current sleepmode timers (minutes)
 TSMState SMState;
@@ -1081,6 +1090,9 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
+void SetTray(BOOL Way);
+int On_IconHandler(WPARAM wParam, LPARAM lParam);
+void SetTrayTip(char*);
 
 static const char* UIPriorityNames[3] = 
 {
@@ -1395,6 +1407,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         StatusBar_ShowWindow(FALSE);
     }
+
+	if (bMinToTray)
+	{
+        SetTray(TRUE);
+	}
 
     MsgWheel = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 
@@ -2536,6 +2553,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return 0;
     }
     
+    if (message == IDI_TRAYICON)
+    {
+        return On_IconHandler(wParam, lParam);
+    }
+
     switch (message)
     {
 
@@ -3133,6 +3155,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             PostMessage(hWnd, WM_DESTROY, wParam, lParam);
             break;
 
+        case IDM_TRAYEND:
+            SendMessage(hWnd, WM_COMMAND, IDM_END, NULL);
+            break;
+
         case IDM_VBI_VT:
             if (VT_GetState() != VT_OFF)
             {
@@ -3425,6 +3451,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 ShowWindow(hWnd, SW_MINIMIZE);
             }
+            break;
+
+        case IDM_MINTOTRAY:
+            bMinToTray = !bMinToTray;
+            SetTray(bMinToTray);
+            break;
+
+        case IDM_TRAYSHOW:
+            SendMessage(hWnd, IDI_TRAYICON, 0, WM_LBUTTONDBLCLK);
             break;
 
         case IDM_TAKESTREAMSNAP:
@@ -3774,7 +3809,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             InvalidateRect(hWnd, NULL, FALSE);
             break;
         
-        default:
+		default:
             bDone = FALSE;
 
             if ((LOWORD(wParam)>=IDM_SKIN_FIRST) && (LOWORD(wParam)<=IDM_SKIN_LAST))
@@ -4829,6 +4864,14 @@ void MainWndOnDestroy()
 
     __try
     {
+        LOG(1, "Try SetTray(FALSE)");
+        if (bIconOn)
+            SetTray(FALSE);
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SetTray(FALSE)");}
+
+    __try
+    {
         LOG(1, "Try free EventCollector");
         if (EventCollector != NULL)
         {
@@ -4955,14 +4998,18 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
         case SIZE_MAXIMIZED:
             if(bIsFullScreen == FALSE || bMinimized == TRUE)
             {
-                bMinimized = FALSE;
+				bMinimized = FALSE;
                 bIsFullScreen = TRUE;
                 IsFullScreen_OnChange(TRUE);
             }
             break;
         case SIZE_MINIMIZED:
             Overlay_Update(NULL, NULL, DDOVER_HIDE);
-            bMinimized = TRUE;
+			bMinimized = TRUE;
+            if (bMinToTray)
+			{
+                ShowWindow(hWnd, SW_HIDE);
+			}
             break;
         case SIZE_RESTORED:
             bMinimized = FALSE;
@@ -4992,6 +5039,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
     CheckMenuItemBool(hMenu, IDM_FULL_SCREEN, bIsFullScreen);
+    CheckMenuItemBool(hMenu, IDM_MINTOTRAY, bMinToTray);
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, bVTAntiAlias);
 
@@ -5761,6 +5809,109 @@ int ProcessCommandLine(char* CommandLine, char* ArgValues[], int SizeArgv)
    }
    return ArgCount;
 }
+
+
+void SetTray(BOOL Way)
+{
+    switch (Way)
+    {
+    case TRUE:
+        if (bIconOn==FALSE)
+        {
+            nIcon.cbSize = sizeof(nIcon);
+            nIcon.uID = 0;
+            nIcon.hIcon = LoadIcon(hResourceInst, MAKEINTRESOURCE(IDI_TRAYICON));
+            nIcon.hWnd = hWnd;
+            nIcon.uCallbackMessage = IDI_TRAYICON;
+            sprintf(nIcon.szTip, "DScaler");
+            nIcon.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+            Shell_NotifyIcon(NIM_ADD, &nIcon);
+            bIconOn = TRUE;
+        }
+        break;
+    case FALSE:
+        if (bIconOn==TRUE)
+        {
+            Shell_NotifyIcon(NIM_DELETE, &nIcon);
+            bIconOn = FALSE;
+        }
+        break;
+    }
+}
+
+void SetTrayTip(char* ChannelName)
+{
+    if (bIconOn)
+    {
+        nIcon.uFlags = NIF_TIP;
+        sprintf(nIcon.szTip, "DScaler - %s", ChannelName);
+		SetWindowText(nIcon.hWnd, nIcon.szTip);
+        Shell_NotifyIcon(NIM_MODIFY, &nIcon);
+    }
+}
+
+static void Init_IconMenu()
+{
+    hMenuTray = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_TRAYMENU));
+    if (hMenuTray!=NULL)
+    {
+        MENUITEMINFO mInfo;
+
+        hMenuTray = GetSubMenu(hMenuTray, 0);
+
+        mInfo.cbSize = sizeof(mInfo);
+        mInfo.fMask = MIIM_SUBMENU;
+        mInfo.hSubMenu = CreateDScalerPopupMenu();
+
+        SetMenuItemInfo(hMenuTray, 2, TRUE, &mInfo);
+		
+        SetMenuDefaultItem(hMenuTray, 4, TRUE);
+	}
+}
+
+int On_IconHandler(WPARAM wParam, LPARAM lParam)
+{
+    UINT uID;
+    UINT uMouseMsg;
+    POINT mPoint;
+
+    uID = (UINT) wParam;
+    uMouseMsg = (UINT) lParam;
+
+    switch (uID)
+    {
+    case 0:
+        switch (uMouseMsg)
+        {
+        case WM_LBUTTONDBLCLK:
+            if (bMinimized == FALSE)
+            {
+                ShowWindow(hWnd, SW_MINIMIZE);
+            }
+            else
+            {
+                ShowWindow(hWnd, SW_SHOW);
+                ShowWindow(hWnd, SW_RESTORE);
+                SetForegroundWindow(hWnd);
+            }
+            break;
+
+        case WM_RBUTTONUP:
+			if (hMenuTray==NULL)
+			{
+				Init_IconMenu();
+			}
+            GetCursorPos(&mPoint);
+            TrackPopupMenuEx(hMenuTray, TPM_RIGHTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON, mPoint.x, mPoint.y, hWnd, NULL);
+            break;
+
+        }
+        break;
+    }
+	
+    return 0;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////

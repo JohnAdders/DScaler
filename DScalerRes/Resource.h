@@ -75,6 +75,8 @@
 #define IDD_VTGOTO                      254
 #define IDD_CREDITS                     255
 #define IDD_SIZESETTINGS                256
+#define IDC_TRAYMENU                    258
+#define IDI_TRAYICON                    259
 #define IDM_VT_RESET                    261
 #define IDM_AUDIOSETTINGS               264
 #define IDM_VIDEOSETTINGS               265
@@ -1159,6 +1161,11 @@
 #define IDM_CREDITS                     32850
 #define IDM_SIZESETTINGS                32851
 #define IDM_SAVE_ALL_IN_FILE            32852
+#define IDM_TRAYEND                     32853
+#define IDM_OPTIONS                     32854
+#define IDM_TRAYSHOW                    32855
+#define ID_VIEW_MINIMIZETOTRAY          32856
+#define IDM_MINTOTRAY                   32857
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1178,8 +1185,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        258
-#define _APS_NEXT_COMMAND_VALUE         32853
+#define _APS_NEXT_RESOURCE_VALUE        260
+#define _APS_NEXT_COMMAND_VALUE         32858
 #define _APS_NEXT_CONTROL_VALUE         8071
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

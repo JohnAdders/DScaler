@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.27 2001-11-26 13:02:27 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.28 2001-12-15 17:41:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.26  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -157,13 +160,13 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Use Comb Info", "3:2 Comb", FALSE, TRUE, FilmModeNTSCComb, 1000, 60, 
-        50, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        50, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_22_PULLDOWN_COMB
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "2:2 Pulldown Use Comb Info", "2:2 Comb", FALSE, TRUE, FilmModePALComb, 1000, 60, 
-        50, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        50, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
 };
 

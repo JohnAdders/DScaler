@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.12 2002-02-18 23:25:01 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.13 2002-03-29 09:14:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/02/18 23:25:01  laurentg
+// At startup, go to the first source having a content
+// Order of still sources changed (Patterns before Snapshots)
+//
 // Revision 1.11  2002/02/11 21:33:13  laurentg
 // Patterns as a new source from the Still provider
 //
@@ -133,6 +137,7 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
             if(n == 100)
             {
                 ErrorBox("Could not create a file.  You may have too many captures already.");
+                Overlay_Unlock();
                 return;
             }
 

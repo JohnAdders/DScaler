@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.22 2002-06-18 19:46:06 adcockj Exp $
+// $Id: Filter.cpp,v 1.23 2002-08-08 12:39:13 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/06/18 19:46:06  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.21  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -86,10 +89,17 @@
 #include "DScaler.h"
 #include "OSD.h"
 #include "DebugLog.h"
+#include "SettingsPerChannel.h"
 
 long NumFilters = 0;
 
 FILTER_METHOD* Filters[100] = {NULL,};
+
+// Internal functions for per channel settings
+void Filter_ChannelSubSection(FILTER_METHOD *Filter, char *szSubSection);
+void Filter_RegisterChannelSettings(FILTER_METHOD *Filter, const char *szSubSection);
+void Filter_SaveByChannelSetup(void *pThis, int Start);
+
 
 long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
 {
@@ -280,6 +290,8 @@ BOOL LoadFilterPlugins()
         SortFilterPlugins();
     }
 
+    SettingsPerChannel_RegisterOnSetup(NULL,Filter_SaveByChannelSetup);
+
     if(NumFilters > 0)
     {
         HMENU hFilterMenu = GetFiltersSubmenu();
@@ -422,5 +434,76 @@ void Filter_SetMenu(HMENU hMenu)
     for(i = 0; i < NumFilters; i++)
     {
         CheckMenuItemBool(hMenu, Filters[i]->MenuId, Filters[i]->bActive);
+    }
+}
+
+
+void Filter_SaveByChannelSetup(void *pThis, int Start)
+
+{
+    if (Start)
+    {
+        int i;
+        char szSubSection[100];                
+        for(i = 0; i < NumFilters; i++)
+        {            
+            Filter_ChannelSubSection(Filters[i], szSubSection);
+            SettingsPerChannel_UnregisterSection(szSubSection);
+            Filter_RegisterChannelSettings(Filters[i], szSubSection);            
+        }     
+    }   
+}
+
+void Filter_RegisterChannelSettings(FILTER_METHOD *Filter, const char *szSubSection)
+{
+    // register settings for this channel    
+
+    if (Filter == NULL)
+    {
+        return;
+    }
+
+    char szDescription[100];
+        
+    sprintf(szDescription,"Flt - %s",Filter->szName);
+    SettingsPerChannel_RegisterSetSection(szSubSection);
+
+    int iOnOffSetting = -1;
+
+    int i;
+    for (i = 0; i < Filter->nSettings; i++ )
+    {        
+        if (Filter->pSettings[i].pValue == (long*)&Filter->bActive)
+        {            
+            SettingsPerChannel_RegisterSetting(szSubSection,szDescription,FALSE, &Filter->pSettings[i]); 
+            iOnOffSetting = i;
+            break;
+        }        
+    }
+    if (iOnOffSetting < 0) 
+    {
+        SettingsPerChannel_RegisterSetting(szSubSection,szDescription,FALSE, (long**)NULL);         
+    }
+    for (i = 0; i < Filter->nSettings; i++ )
+    {        
+        if (i != iOnOffSetting)
+        {
+            SettingsPerChannel_RegisterSetting(szSubSection,szDescription,FALSE, &Filter->pSettings[i]); 
+        }
+    }
+}
+
+
+void Filter_ChannelSubSection(FILTER_METHOD *Filter, char *szSubSection)
+{
+    if ( (Filter->nSettings>0) 
+          && (Filter->pSettings[0].szIniSection!=NULL) 
+          && (Filter->pSettings[0].szIniSection[0]!=0) )
+    {
+        strcpy(szSubSection,Filter->pSettings[0].szIniSection);
+    }
+    else
+    {
+        strcpy(szSubSection,Filter->szName);
     }
 }

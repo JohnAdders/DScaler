@@ -16,7 +16,7 @@
 // JA 9/Dec/2002
 // failed experiment
 // but leave in placeholder for me to play about
-#ifdef USE_STRANGE_BOB
+#ifdef DONT_USE_STRANGE_BOB
         // Use the best weave if diffs less than 10 as that
         // means the image is still or moving cleanly
         // if there is motion we will clip which will catch anything

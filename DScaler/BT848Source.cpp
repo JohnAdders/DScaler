@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.85 2002-10-15 15:25:19 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.86 2002-10-15 18:31:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2002/10/15 15:25:19  kooiman
+// Setting groups changes.
+//
 // Revision 1.84  2002/10/11 21:45:31  ittarnavsky
 // commented out the call to GetNumAudioInputs()
 //
@@ -691,6 +694,17 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection, pAudioOther, FlagsSource);
     m_Settings.push_back(m_MSP34xxFlags);    
+
+    m_AutoStereoDetectInterval = new CAutoStereoDetectIntervalSetting(this, "Auto Stereo Detect Interval", 0, 0, 24*60*1000, IniSection, pAudioChannel, FlagsAll);
+    m_Settings.push_back(m_AutoStereoDetectInterval);
+
+#ifdef _DEBUG    
+    if (BT848_SETTING_LASTONE != m_Settings.size())
+    {
+        LOGD("Number of settings in BT848 source is not equal to the number of settings in DS_Control.h");
+        LOGD("DS_Control.h or BT848Source.cpp are probably not in sync with eachother.");
+    }
+#endif
 
     ReadFromIni();
 }
@@ -1570,11 +1584,11 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
     
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
-        //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
-        AudioStandardDetectOnChange(m_AudioStandardDetect->GetValue(),m_AudioStandardDetect->GetValue());
+        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);
     } 
     else if ((!PreChange) && m_AutoStereoSelect->GetValue())
     {      
+        m_KeepDetectingStereo = 0;
         m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2,
             (m_AutoStereoSelect->GetValue())?SOUNDCHANNEL_STEREO : (eSoundChannel)(m_AudioChannel->GetValue()));
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.29 2002-10-11 21:48:33 ittarnavsky Exp $
+// $Id: BT848Source_Audio.cpp,v 1.30 2002-10-15 18:31:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/10/11 21:48:33  ittarnavsky
+// added back in support for UseInputPin1
+//
 // Revision 1.28  2002/10/07 22:31:27  kooiman
 // Fixed audio initialization.
 //
@@ -210,8 +213,13 @@ void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
     if (NewValue)
     {
         //Detect stereo
+        m_KeepDetectingStereo = 0;
         m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
     }
+}
+
+void CBT848Source::AutoStereoDetectIntervalOnChange(long NewValue, long OldValue)
+{
 }
 
 void CBT848Source::UseInputPin1OnChange(long NewValue, long OldValue)
@@ -321,7 +329,8 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             if (m_DetectingAudioStandard) 
 			{
 				//Abort detection
-				m_pBT848Card->DetectAudioStandard(-1,0,(eSoundChannel)0);
+				m_KeepDetectingStereo = 0;
+                m_pBT848Card->DetectAudioStandard(-1,0,(eSoundChannel)0);
 				m_DetectingAudioStandard = 0;
 			}
 			long Standard = m_pBT848Card->GetAudioStandardFromVideoFormat((eVideoFormat)m_VideoFormat->GetValue());
@@ -336,6 +345,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
                 if (m_AutoStereoSelect->GetValue())
                 {
                     // Find stereo modes
+                    m_KeepDetectingStereo = 0;
                     m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
                 }
                 else
@@ -360,6 +370,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
     case 3:
         {
             m_DetectingAudioStandard = 1;
+            m_KeepDetectingStereo = 0;
             m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 1,
                 (m_AutoStereoSelect->GetValue())?SOUNDCHANNEL_STEREO : (eSoundChannel)(m_AudioChannel->GetValue()));
         }
@@ -369,6 +380,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             if (m_DetectingAudioStandard) 
 			{
 				//Abort detection
+                m_KeepDetectingStereo = 0;
 				m_pBT848Card->DetectAudioStandard(-1,0,(eSoundChannel)0);
 				m_DetectingAudioStandard = 0;
 			}
@@ -385,6 +397,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             // Find stereo modes
             if (m_AutoStereoSelect->GetValue())
             {
+                m_KeepDetectingStereo = 0;
                 m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
             }
             else
@@ -421,6 +434,7 @@ void CBT848Source::SupportedSoundChannelsDetected(eSupportedSoundChannels suppor
             //Set value to compatible channel (probably mono)
             m_AudioChannel->SetValue(m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue()), ONCHANGE_NONE);
         }
+        m_KeepDetectingStereo = 1;
     }    
 }
 
@@ -480,53 +494,67 @@ void CBT848Source::MSP34xxFlagsOnChange(long NewValue, long OldValue)
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
-    char Text[256];
-    char szAudioStandard[128];
-    
-    szAudioStandard[0]=0;
-    
-    if (m_AudioStandardInStatusBar->GetValue())
-    {
-        if (m_DetectingAudioStandard)
+    if (TimerId == TIMER_MSP)
+    {        
+        char Text[256];
+        char szAudioStandard[128];
+
+        if (m_AutoStereoSelect->GetValue() && (m_AutoStereoDetectInterval->GetValue() > 0) && (m_KeepDetectingStereo > 0))
         {
-            strcpy(szAudioStandard," [Detecting...]");
-        }
-        else 
+            m_KeepDetectingStereo++;
+            if ( ((m_KeepDetectingStereo-1) * TIMER_MSP_MS ) >= m_AutoStereoDetectInterval->GetValue())
+            {
+               //Waited at least 'AutoStereoDetectInterval' milliseconds, startup a new stereo detection
+               // Accuracy is 1 second (TIMER_MSP_MS)
+               m_KeepDetectingStereo = 0;
+               m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
+            }
+        }         
+        
+        szAudioStandard[0]=0;
+        
+        if (m_AudioStandardInStatusBar->GetValue())
         {
-            char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
-            if (s != NULL)
-            {           
-                sprintf(szAudioStandard," [%s]",s);
+            if (m_DetectingAudioStandard)
+            {
+                strcpy(szAudioStandard," [Detecting...]");
+            }
+            else 
+            {
+                char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
+                if (s != NULL)
+                {           
+                    sprintf(szAudioStandard," [%s]",s);
+                }
             }
         }
+        
+        switch(m_AudioChannel->GetValue())
+        {
+        case SOUNDCHANNEL_MONO:
+            {
+                sprintf(Text,"Mono%s",szAudioStandard);
+                break;
+            }
+        case SOUNDCHANNEL_STEREO:
+            {
+                sprintf(Text,"Stereo%s",szAudioStandard);
+                break;
+            }
+        case SOUNDCHANNEL_LANGUAGE1:
+            {
+                sprintf(Text,"Language 1%s",szAudioStandard);
+                break;
+            }
+        case SOUNDCHANNEL_LANGUAGE2:
+            {
+                sprintf(Text,"Language 2%s",szAudioStandard);
+                break;
+            }
+        }
+        
+        StatusBar_ShowText(STATUS_AUDIO, Text);
     }
-    
-    switch(m_AudioChannel->GetValue())
-    {
-    case SOUNDCHANNEL_MONO:
-        {
-            sprintf(Text,"Mono%s",szAudioStandard);
-            break;
-        }
-    case SOUNDCHANNEL_STEREO:
-        {
-            sprintf(Text,"Stereo%s",szAudioStandard);
-            break;
-        }
-    case SOUNDCHANNEL_LANGUAGE1:
-        {
-            sprintf(Text,"Language 1%s",szAudioStandard);
-            break;
-        }
-    case SOUNDCHANNEL_LANGUAGE2:
-        {
-            sprintf(Text,"Language 2%s",szAudioStandard);
-            break;
-        }
-    }
-    
-    StatusBar_ShowText(STATUS_AUDIO, Text);
-    
 }
 
 ISetting* CBT848Source::GetCurrentAudioSetting()

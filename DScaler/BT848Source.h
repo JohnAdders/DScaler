@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.42 2002-10-11 21:44:40 ittarnavsky Exp $
+// $Id: BT848Source.h,v 1.43 2002-10-15 18:31:44 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/10/11 21:44:40  ittarnavsky
+// added rcs/cvs log tag
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BT848SOURCE_H___
@@ -148,6 +151,7 @@ private:
     std::string  m_IDString;
     int          m_DetectingAudioStandard;
     BOOL         m_InitAudioControls;
+    int          m_KeepDetectingStereo;
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;
@@ -219,6 +223,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMinorCarrier);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioStandardInStatusBar);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSP34xxFlags);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AutoStereoDetectInterval);
 
 protected:
     int m_InitialACPIStatus;

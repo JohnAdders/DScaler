@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.91 2002-10-15 15:46:49 kooiman Exp $
+// $Id: DS_Control.h,v 1.92 2002-10-15 18:32:01 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2002/10/15 15:46:49  kooiman
+// Updated BT848_SETTING
+//
 // Revision 1.90  2002/09/26 06:05:21  kooiman
 // Added toolbar settings
 //
@@ -588,6 +591,7 @@ typedef enum
     AUDIOSTANDARDMINORCARRIER,
     AUDIOSTANDARDINSTATUSBAR,
     MSP34XXFLAGS,
+    AUTOSTEREODETECTINTERVAL,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.166 2002-05-30 13:06:41 robmuller Exp $
+// $Id: DScaler.cpp,v 1.167 2002-05-30 19:09:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.166  2002/05/30 13:06:41  robmuller
+// Removed variable bIgnoreMouse.
+//
 // Revision 1.165  2002/05/30 12:58:28  robmuller
 // Prevent bogus WM_MOUSEMOVE messages to unhide the cursor.
 //
@@ -1795,6 +1798,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_VT_RESET:
             VT_ChannelChange();
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
 
         case IDM_VIDEOSETTINGS:

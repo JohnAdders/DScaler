@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.13 2002-10-10 12:12:15 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.14 2002-10-12 01:37:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/10 12:12:15  atnak
+// fixed writing byte to SAA7134_SOURCE_TIMING should be word
+//
 // Revision 1.12  2002/10/09 13:20:16  atnak
 // fixed up field start lines
 //
@@ -268,6 +271,9 @@ void CSAA7134Card::SetupTasks()
     WriteWord(SAA7134_H_PHASE_OFF_LUMA(SAA7134_TASK_B_MASK), 0x00);
     WriteWord(SAA7134_H_PHASE_OFF_CHROMA(SAA7134_TASK_A_MASK), 0x00);
     WriteWord(SAA7134_H_PHASE_OFF_CHROMA(SAA7134_TASK_B_MASK), 0x00);
+
+    WriteByte(SAA7134_FIR_PREFILTER_CTRL(SAA7134_TASK_A_MASK), 0x00);
+    WriteByte(SAA7134_FIR_PREFILTER_CTRL(SAA7134_TASK_B_MASK), 0x00);
 
     WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(SAA7134_TASK_A_MASK), 0x00);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(SAA7134_TASK_B_MASK), 0x00);

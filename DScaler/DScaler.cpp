@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.329 2003-07-18 09:41:23 adcockj Exp $
+// $Id: DScaler.cpp,v 1.330 2003-07-18 09:48:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.329  2003/07/18 09:41:23  adcockj
+// Added PDI input to holo3d (doesn't yet work)
+//
 // Revision 1.328  2003/07/02 20:35:12  laurentg
 // Allow virtual screen with origin different from (0,0)
 //
@@ -5191,6 +5194,12 @@ void MainWndOnDestroy()
         SetKeyboardLock(FALSE);
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SetKeyboardLock(FALSE)");}
+
+    __try
+    {
+        Timing_CleanUp();
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Timing_CleanUp()");}
 
 }
 

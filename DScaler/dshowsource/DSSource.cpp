@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.64 2003-01-12 16:19:36 adcockj Exp $
+// $Id: DSSource.cpp,v 1.65 2003-01-12 21:27:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2003/01/12 16:19:36  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.63  2003/01/11 15:22:28  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -611,10 +615,8 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 {
 	CDSSourceBase::CreateSettings(IniSection);
 
-    CSettingGroup *pVideoGroup = GetSettingsGroup("DS - Video");
-    CSettingGroup *pOverscanGroup = GetSettingsGroup("DS - Overscan");
-
-    //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    CSettingGroup *pVideoGroup = GetSettingsGroup("DS - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pOverscanGroup = GetSettingsGroup("DS - Overscan", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
 	//at this time we dont know what the min and max will be
 	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup);
@@ -647,7 +649,7 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	m_AudioInput = new CAudioInputSetting(this, "AudioInput", 0, 0, LONG_MAX, IniSection);
 	m_Settings.push_back(m_AudioInput);
 
-	m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection);
+	m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection, pVideoGroup);
 	m_Settings.push_back(m_Resolution);
 
 	//restore m_VideoFmt from ini file

@@ -474,7 +474,7 @@ public:
         }
         else
         {
-    		int dx = (int)floor(ar.rCurrentOverlayDest.width() * (1.0 - 1.0/xZoom));
+    		int dx = (int)floor(ar.rCurrentOverlayDest.width() * xZoom);
     		ar.rCurrentOverlayDest.shrink(0,dx,0,0);
 	    	ar.rCurrentOverlayDest.shift((int)floor(dx*xPos), 0);
         }
@@ -487,7 +487,7 @@ public:
         }
         else
         {
-    		int dy = (int)floor(ar.rCurrentOverlayDest.height() * (1.0 - 1.0/yZoom));
+    		int dy = (int)floor(ar.rCurrentOverlayDest.height() * yZoom);
     		ar.rCurrentOverlayDest.shrink(0,0,0,dy);
 	    	ar.rCurrentOverlayDest.shift(0, (int)floor(dy*yPos));
         }

@@ -1110,6 +1110,7 @@ BEGIN
         MENUITEM "&Next\tPgUp",                 IDM_CHANNELPLUS
         MENUITEM "&Previous\tPgDn",             IDM_CHANNELMINUS
         MENUITEM "&Last\tCtrl+Back",            IDM_CHANNEL_PREVIOUS
+        MENUITEM "Previe&w (experimental)",     IDM_CHANNEL_PREVIEW
         MENUITEM SEPARATOR
     END
     POPUP "&View"

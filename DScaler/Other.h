@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.18 2003-01-02 16:22:09 adcockj Exp $
+// $Id: Other.h,v 1.19 2003-03-16 18:29:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer);
 BOOL Overlay_Lock(TDeinterlaceInfo* pInfo);
 BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer);
 BOOL Overlay_Unlock();
-BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo);
+BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo);
 HDC Overlay_GetDC();
 void Overlay_ReleaseDC(HDC hDC);
 

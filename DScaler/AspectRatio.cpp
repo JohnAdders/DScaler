@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.41 2003-01-07 23:27:01 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.42 2003-03-16 18:31:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/01/07 23:27:01  laurentg
+// New overscan settings
+//
 // Revision 1.40  2003/01/04 13:36:42  laurentg
 // Two modes for AR autodetection
 //
@@ -166,6 +169,7 @@
 #include "AspectFilters.h"
 #include "Deinterlace.h"
 #include "Providers.h"
+#include "MultiFrames.h"
 
 #define AR_STRETCH       0
 #define AR_NONANAMORPHIC 1
@@ -231,20 +235,22 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     CAspectRectangles ar;
     CSource* pSource = Providers_GetCurrentSource();
 
-    /*
-    if(pSource==NULL)
-    {
-        //this shoud never happen, but if it does, just log it and return so it doesn't crash
-        LOG(2,"No input source in WorkoutOverlaySize()!");
-        LOGD("No input source in WorkoutOverlaySize()!\n");
-        return;
-    }
-    */
-
-    SourceHeight = pSource ? pSource->GetHeight() : 720;
-    SourceWidth = pSource ? pSource->GetWidth() : 480;
+	if (pMultiFrames && pMultiFrames->IsActive())
+	{
+		SourceHeight = pMultiFrames->GetHeight();
+		SourceWidth = pMultiFrames->GetWidth();
+	}
+	else if (pSource)
+	{
+		SourceHeight = pSource->GetHeight();
+		SourceWidth = pSource->GetWidth();
+	}
+	else
+	{
+		SourceHeight = 720;
+		SourceWidth = 480;
+	}
     // If source width or source height is null, we do nothing
-//    if (pSource->GetWidth() == 0 || pSource->GetHeight() == 0)
     if (SourceWidth == 0 || SourceHeight == 0)
     {
         LOG(2,"Zero height or width in WorkoutOverlaySize!");
@@ -439,7 +445,18 @@ int UpdateSquarePixelsMode(BOOL set)
             result = 1;
         }
         AspectSettings.AutoDetectAspect = 0;
-        if (Providers_GetCurrentSource() != NULL)
+		if (pMultiFrames && pMultiFrames->IsActive())
+		{
+            int width = pMultiFrames->GetWidth();
+            int height = pMultiFrames->GetHeight();
+            if (height != 0)
+            {
+                AspectSettings.SourceAspect = width * 1000 / height;
+                AspectSettings.AspectMode = AR_NONANAMORPHIC;
+                result = 1;
+            }
+		}
+        else if (Providers_GetCurrentSource() != NULL)
         {
             int width = Providers_GetCurrentSource()->GetWidth();
             int height = Providers_GetCurrentSource()->GetHeight();

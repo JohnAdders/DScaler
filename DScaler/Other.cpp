@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.60 2003-03-05 13:54:55 adcockj Exp $
+// $Id: Other.cpp,v 1.61 2003-03-16 18:29:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2003/03/05 13:54:55  adcockj
+// Use optimized memcpy in output filter copy
+//
 // Revision 1.59  2003/02/17 11:39:00  adcockj
 // Added group flags for setting per channel on more settings
 //
@@ -1160,6 +1163,28 @@ BOOL Overlay_Unlock()
     return RetVal;
 }
 
+void Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
+{
+    BYTE* FromPtr = lpExternalMemoryBuffer + (16 - ((DWORD)lpExternalMemoryBuffer % 16));
+    long FromPitch = ExternalPitch;
+    Overlay_Lock_Back_Buffer(pInfo, FALSE);
+    BYTE* ToPtr = pInfo->Overlay;
+
+    for(int i(0) ; i < pInfo->FrameHeight; ++i)
+    {
+        pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
+        FromPtr += FromPitch;
+        ToPtr += pInfo->OverlayPitch;
+    }
+    _asm
+    {
+        emms
+    }
+
+    Overlay_Unlock_Back_Buffer(FALSE);
+}
+
+
 void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
 {
     Overlay_Lock_Extra_Buffer(pInfo);
@@ -1183,7 +1208,7 @@ void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
 }
 
 
-BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo)
+BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
 {
     if(lpDDOverlay == NULL)
     {
@@ -1191,10 +1216,14 @@ BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo)
         return FALSE;
     }
 
+    if(bUseExtraBuffer && lpExternalMemoryBuffer != NULL)
+    {
+        Overlay_Copy_External(lpExternalMemoryBuffer, ExternalPitch, pInfo);
+    }
 
     // if we have been using the extra surface then we need to copy
     // the picture onto the overlay
-    if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
+    else if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {
         Overlay_Copy_Extra(pInfo);
     }

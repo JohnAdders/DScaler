@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.311 2003-03-08 20:50:58 laurentg Exp $
+// $Id: DScaler.cpp,v 1.312 2003-03-16 18:31:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.311  2003/03/08 20:50:58  laurentg
+// Updated combobox to select the usage of DScaler
+//
 // Revision 1.310  2003/02/27 01:37:51  atnak
 // Fixes skin problem introduced when paint code was changed.
 //
@@ -998,6 +1001,7 @@
 #include "SizeSettings.h"
 #include "PaintingHDC.h"
 #include "OutReso.h"
+#include "MultiFrames.h"
 
 
 #ifdef _DEBUG
@@ -2823,6 +2827,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             break;
+
+		case IDM_CHANNEL_PREVIEW:
+//            if (Providers_GetCurrentSource()->IsInTunerMode())
+//            {
+                if (pMultiFrames == NULL)
+				{
+					pMultiFrames = new CMultiFrames(9, 2000);
+				}
+				pMultiFrames->RequestSwitch();
+//            }
+			break;
 
         case IDC_TOOLBAR_CHANNELS_LIST:
             if (!ProcessVTMessage(hWnd, message, wParam, lParam))

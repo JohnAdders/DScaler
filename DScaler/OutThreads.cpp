@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.113 2003-03-05 22:08:44 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.114 2003-03-16 18:29:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.113  2003/03/05 22:08:44  laurentg
+// Updated management of 16 bytes aligned buffer for stills
+//
 // Revision 1.112  2003/02/22 13:37:49  laurentg
 // New statistics to check fields runnign late and no flip at time
 //
@@ -427,6 +430,8 @@
 #include "StillProvider.h"
 #include "Perf.h"
 #include "OSD.h"
+#include "MultiFrames.h"
+
 
 typedef enum
 {
@@ -755,9 +760,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	BYTE* pAllocBuf = NULL;
 	BOOL bTakeStill = FALSE;
 	BOOL bUseOverlay = TRUE;
-    BOOL bUseExtraBuffer = Filter_WillWeDoOutput();
+    BOOL bUseExtraBuffer = Filter_WillWeDoOutput() || (pMultiFrames && pMultiFrames->IsActive());
 	BOOL bIsPresent;
 	int nMissing = 0;
+	BYTE* lpMultiBuffer = NULL;
+	int MultiPitch = 0;
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -869,8 +876,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			pAllocBuf = NULL;
 			bUseOverlay = TRUE;
             GetDestRect(&Info.DestRect);
-            
-            // Go and get the next input field
+
+			if (pMultiFrames && pMultiFrames->IsActive())
+			{
+				pMultiFrames->SelectFrame();
+			}
+
+			// Go and get the next input field
             // JudderTerminator
             // We pass down a flag telling the function if we are
             // requesting accurate timings of the incoming fields
@@ -1257,6 +1269,16 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								}
 							}
 
+							if (pMultiFrames && pMultiFrames->IsActive())
+							{
+								pMultiFrames->UpdateFrame(&Info, &bUseExtraBuffer, &lpMultiBuffer, &MultiPitch);
+							}
+							else
+							{
+								lpMultiBuffer = NULL;
+								MultiPitch = 0;
+							}
+
 							// JudderTerminator
 							// Here we space out the flips by waiting for a fixed time between
 							// flip calls.
@@ -1273,7 +1295,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								Timing_IncrementNoFlipAtTime();
 							}
 
-							if(!Overlay_Flip(FlipFlag, bUseExtraBuffer, &Info))
+							if(!Overlay_Flip(FlipFlag, bUseExtraBuffer, lpMultiBuffer, MultiPitch, &Info))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Flip");
@@ -1284,7 +1306,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							}
                             
                             // update which surface we write to only after a flip
-                            bUseExtraBuffer = Filter_WillWeDoOutput();
+                            bUseExtraBuffer = Filter_WillWeDoOutput() || (pMultiFrames && pMultiFrames->IsActive());
 
 #ifdef _DEBUG
 	                        pPerf->StopCount(PERF_FLIP_OVERLAY);
@@ -1409,6 +1431,16 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 SaveStreamSnapshot(&Info);
                 RequestStillType = STILL_NONE;
             }
+
+			if (pMultiFrames && pMultiFrames->IsSwitchRequested())
+			{
+				pMultiFrames->DoSwitch();
+				if (!pMultiFrames->IsActive())
+				{
+					delete pMultiFrames;
+					pMultiFrames = NULL;
+				}
+			}
 
             // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;

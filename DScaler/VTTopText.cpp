@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.cpp,v 1.5 2003-01-01 20:30:12 atnak Exp $
+// $Id: VTTopText.cpp,v 1.6 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/01/01 20:30:12  atnak
+// Commented out everything so I can redo TopText for the new CVTCommon
+// functions later
+//
 // Revision 1.4  2002/10/24 09:34:58  atnak
 // Changed '-' dash to minus to fix codepage difference
 //
@@ -34,64 +38,74 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "VTCommon.h"
 #include "VTTopText.h"
-/*
-extern unsigned char UnhamTab[256];
+
 
 char* CVTTopText::m_WaitMessage     = "Please wait";
 char* CVTTopText::m_NoneMessage     = "Page not included";
 char* CVTTopText::m_MultiMessage    = "Multi-page with %d sub-pages";
 char* CVTTopText::m_SubtitleMessage = "Subtitle page";
-char* CVTTopText::m_EmptyADIPText   = "    ????    ";
+char* CVTTopText::m_EmptyTitleText  = "    ????    ";
 
 
 CVTTopText::CVTTopText()
 {
+    InitializeCriticalSection(&m_IntegrityMutex);
+
     for (int i(0); i < 800; i++)
     {
-        m_ADIP[i] = NULL;
+        m_AITable[i] = NULL;
     }
 
     Reset();
 }
 
+
 CVTTopText::~CVTTopText()
 {
     for (int i(0); i < 800; i++)
     {
-        if (m_ADIP[i] != NULL)
+        if (m_AITable[i] != NULL)
         {
-            delete [] m_ADIP[i];
+            delete [] m_AITable[i];
         }
     }
+
+    DeleteCriticalSection(&m_IntegrityMutex);
 }
+
 
 void CVTTopText::Reset()
 {
-    int i;
+    EnterCriticalSection(&m_IntegrityMutex);
 
     m_ExtraPagesHead = 1;
-    m_ExtraTopPages[0].Type = 0xFF;
+    m_ExtraTopPages[0].uType = 0xFF;
 
-    m_LastPagesHead = 0;
-    m_LastPages[0] = -1;
+    ResetWaitingPages();
 
-    ClearWaitingPages();
+    memset(m_BTTable, TOP_UNRECEIVED, sizeof(BYTE) * 800);
+    memset(m_MPTable, 0x00, sizeof(BYTE) * 800);
 
-    memset(m_TOP, TOP_UNRECEIVED, sizeof(BYTE) * 800);
-    memset(m_MultiPage, 0, sizeof(BYTE) * 800);
-
-    for (i = 0; i < 800; i++)
+    for (int i = 0; i < 800; i++)
     {
-        if (m_ADIP[i] != NULL)
+        if (m_AITable[i] != NULL)
         {
-            delete [] m_ADIP[i];
+            delete [] m_AITable[i];
         }
-        m_ADIP[i] = NULL;
+        m_AITable[i] = NULL;
+        m_AITReceived[i] = FALSE;
     }
+
+    m_LastPageCode = 0UL;
+    memset(m_LastBuffer, 0x00, sizeof(BYTE) * 40);
+
+    LeaveCriticalSection(&m_IntegrityMutex);
 }
 
-void CVTTopText::ClearWaitingPages()
+
+void CVTTopText::ResetWaitingPages()
 {
     for (int i = 0; i < TOPWAIT_LASTONE; i++)
     {
@@ -99,7 +113,8 @@ void CVTTopText::ClearWaitingPages()
     }
 }
 
-BOOL CVTTopText::IsWaitingTOPPage(short Page)
+
+BOOL CVTTopText::IsWaitingBTTPage(short Page)
 {
     for (int i = TOPWAIT_GREEN; i <= TOPWAIT_BLUE; i++)
     {
@@ -111,9 +126,10 @@ BOOL CVTTopText::IsWaitingTOPPage(short Page)
     return FALSE;
 }
 
-BOOL CVTTopText::IsWaitingADIPPage(short Page)
+
+BOOL CVTTopText::IsWaitingAITPage(short Page)
 {
-    for (int i = TOPWAIT_YELLOWADIP; i <= TOPWAIT_BLUEADIP; i++)
+    for (int i = TOPWAIT_YELLOW_AIT; i <= TOPWAIT_BLUE_AIT; i++)
     {
         if (m_WaitingPage[i] == Page)
         {
@@ -123,198 +139,284 @@ BOOL CVTTopText::IsWaitingADIPPage(short Page)
     return FALSE;
 }
 
-BOOL CVTTopText::IsWaitingMultiPage(short Page)
+
+BOOL CVTTopText::IsWaitingMPTPage(short Page)
 {
-    if (m_WaitingPage[TOPWAIT_MULTIPAGE] == Page)
+    if (m_WaitingPage[TOPWAIT_MPT] == Page)
     {
         return TRUE;
     }
     return FALSE;
 }
 
-BOOL CVTTopText::DecodePageRow(TVTPage* pPage, unsigned char* pData, int nRow)
-{
-    BYTE Type;
 
-    if (pPage->Page == 0x1F0)
+DWORD CVTTopText::DecodePageRow(DWORD dwPageCode, BYTE nRow, BYTE* pData)
+{
+    // 0x1F0 is always the Basic TOP page
+    if (LOWORD(dwPageCode) == 0x1F0)
     {
-        return DecodeTOPPageRow(pData, nRow);
+        if (DecodeBTTPageRow(nRow, pData))
+        {
+            return m_LastPageCode;
+        }
+        return 0UL;
     }
 
-    Type = GetExtraPageType(pPage->Page, pPage->SubPage);
+    // Determine if this page is a TOP page
+    BYTE Type = GetExtraPageType(dwPageCode);
+
     if (Type == 0xFF)
     {
-        return FALSE;
+        return 0UL;
     }
 
     switch (Type)
     {
-    case TOPTYPE_MULTIPAGE:
-        return DecodeMultiPageRow(pData, nRow);
+    case TOPTYPE_MPT:
+        if (DecodeMPTPageRow(nRow, pData))
+        {
+            return m_LastPageCode;
+        }
+        break; 
 
-    case TOPTYPE_ADIP:
-        return DecodeADIPPageRow(pData, nRow);
+    case TOPTYPE_AIT:
+        if (DecodeAITPageRow(nRow, pData))
+        {
+            return m_LastPageCode;
+        }
+        break;
     }
-    return FALSE;
+
+    return 0UL;
 }
 
-BOOL CVTTopText::DecodeTOPPageRow(unsigned char* pData, int nRow)
+
+BOOL CVTTopText::DecodeBTTPageRow(BYTE nRow, BYTE* pData)
 {
-    int     i;
-    int     Page;
-    BOOL    bCallRedraw = FALSE;
+    BOOL    bError;
+    BOOL    bLastPageUpdated = FALSE;
+
+    EnterCriticalSection(&m_IntegrityMutex);
 
     if (nRow >= 1 && nRow <= 20)
     {
-        for (i = 0, Page = ((nRow - 1) * 40); i < 40; i++, Page++)
+        for (int i = 0, Page = ((nRow - 1) * 40); i < 40; i++, Page++)
         {
-            m_TOP[Page] = UnhamTab[pData[i]];
+            BYTE uLevel = Unham84(pData[i], &(bError = FALSE));
+
+            if (bError != FALSE)
+            {
+                continue;
+            }
+
+            m_BTTable[Page] = uLevel;
 
             // See if a missing page was received
-            if (IsWaitingTOPPage(Page))
+            if (IsWaitingBTTPage(Page))
             {
-                ClearWaitingPages();
-                bCallRedraw = TRUE;
+                ResetWaitingPages();
+                bLastPageUpdated = TRUE;
             }
         }
     }
     else if (nRow >= 21 && nRow <= 22)
     {
-        int     Mag;
-        int     Type;
-        int     Page;
-        int     SubPage;
+        BYTE    Type;
+        BYTE    Magazine;
+        WORD    wPageHex;
+        WORD    wPageSubCode;
+        BYTE    s1, s2, s3, s4;
 
-        for (i = 0; i < 5; i++)
+        for (int n = 0; n < 5; n++)
         {
-            Mag = UnhamTab[pData[i * 8]];
+            Magazine = Unham84(pData[n*8], &(bError = FALSE));
 
-            if (Mag == 0x0F)
+            if (bError != FALSE || Magazine == 0x0F)
             {
                 break;
             }
-            if (Mag == 0x0E)
+            if (Magazine >= 0x08)
             {
                 continue;
             }
 
-            Type = UnhamTab[pData[i * 8 + 7]];
+            Type = Unham84(pData[n*8 + 7], &bError);
 
-            if (Type != TOPTYPE_MULTIPAGE && Type != TOPTYPE_ADIP)
+            if (bError != FALSE ||
+                (Type != TOPTYPE_MPT && Type != TOPTYPE_AIT))
             {
                 continue;
             }
 
-            Page = (UnhamTab[pData[i * 8 + 1]] & 0x0F) << 4 |
-                   (UnhamTab[pData[i * 8 + 2]] & 0x0F);
+            // These units are MSB first 
+            wPageHex = UnhamTwo84_MSBF(&pData[n*8 + 1], &bError);
 
-            SubPage = (UnhamTab[pData[i * 8 + 3]] & 0x03) << 11 |
-                      (UnhamTab[pData[i * 8 + 4]] & 0x0F) << 07 |
-                      (UnhamTab[pData[i * 8 + 5]] & 0x07) << 04 |
-                      (UnhamTab[pData[i * 8 + 6]] & 0x0F);
-            SubPage = (SubPage >> 4) * 10 + (SubPage & 0x0F);
-            
-            Page = VT_MakeHexPage(Mag & 0x07, Page);
+            s1 = Unham84(pData[n*8 + 3], &bError);
+            s2 = Unham84(pData[n*8 + 4], &bError);
+            s3 = Unham84(pData[n*8 + 5], &bError);
+            s4 = Unham84(pData[n*8 + 6], &bError);
 
-            if (!IsTopTextPage(Page, SubPage))
+            if (bError != FALSE)
             {
-                m_ExtraTopPages[m_ExtraPagesHead].HexPage  = Page;
-                m_ExtraTopPages[m_ExtraPagesHead].SubPage  = SubPage;
-                m_ExtraTopPages[m_ExtraPagesHead].Type     = Type;
+                continue;
+            }
+
+            wPageHex |= (Magazine == 0 ? 0x800 : Magazine * 0x100);
+            wPageSubCode = (s4 | ((s3 & 0x7) << 4));
+            wPageSubCode |= ((s2 << 7) | ((s1 & 0x3) << 11));
+
+            DWORD dwPageCode = MAKELONG(wPageHex, wPageSubCode);
+
+            if (!IsTopTextPage(dwPageCode))
+            {
+                // Multi-thread protection
+                m_ExtraTopPages[m_ExtraPagesHead].uType      = 0xFF;
+
+                m_ExtraTopPages[m_ExtraPagesHead].dwPageCode = dwPageCode;
+                m_ExtraTopPages[m_ExtraPagesHead].uType      = Type;
 
                 m_ExtraPagesHead = (m_ExtraPagesHead + 1) % TOPMAX_EXTRAPAGES;
             }
         }
     }
-    return bCallRedraw;
+
+    LeaveCriticalSection(&m_IntegrityMutex);
+
+    return bLastPageUpdated;
 }
 
-BOOL CVTTopText::DecodeMultiPageRow(unsigned char* pData, int nRow)
+
+BOOL CVTTopText::DecodeMPTPageRow(BYTE nRow, BYTE* pData)
 {
-    BOOL    bCallRedraw = FALSE;
+    BOOL    bError;
+    BOOL    bLastPageUpdated = FALSE;
+
+    EnterCriticalSection(&m_IntegrityMutex);
 
     if (nRow >= 1 && nRow <= 20)
     {
         for (int i = 0, Page = (nRow - 1) * 40; i < 40; i++, Page++)
         {
-            m_MultiPage[Page] = UnhamTab[pData[i]];
-            
-            if (IsWaitingMultiPage(Page))
-            {
-                ClearWaitingPages();
-                bCallRedraw = TRUE;
-            }
-        }
-    }
-    return bCallRedraw;
-}
+            BYTE uPages = Unham84(pData[i], &(bError = FALSE));
 
-BOOL CVTTopText::DecodeADIPPageRow(unsigned char* pData, int nRow)
-{
-    int     i, j;
-    BOOL    bCallRedraw = FALSE;
-
-    if (nRow >= 1 && nRow <= 22)
-    {
-        int    Mag;
-        int    Page;
-
-        for (i = 0; i < 2; i++)
-        {
-            Mag = UnhamTab[pData[i * 20]];
-            
-            if (Mag == 0x0F)
-            {
-                break;
-            }
-            if (Mag == 0x0E)
+            if (bError != FALSE)
             {
                 continue;
             }
 
-            Page = (UnhamTab[pData[i * 20 + 1]] & 0x0F) << 4 |
-                   (UnhamTab[pData[i * 20 + 2]] & 0x0F);
-
-            Page = VT_MakePage(Mag & 0x07, Page) - 100;
-
-            if (Page >= 0 && Page < 800)
+            m_MPTable[Page] = uPages;
+            
+            if (IsWaitingMPTPage(Page))
             {
-                if (m_ADIP[Page] != NULL)
+                ResetWaitingPages();
+                bLastPageUpdated = TRUE;
+            }
+        }
+    }
+
+    LeaveCriticalSection(&m_IntegrityMutex);
+
+    return bLastPageUpdated;
+}
+
+
+BOOL CVTTopText::DecodeAITPageRow(BYTE nRow, BYTE* pData)
+{
+    BOOL    bError;
+    BOOL    bLastPageUpdated = FALSE;
+    BOOL    bTitleChanged;
+    BYTE    uChar;
+
+    EnterCriticalSection(&m_IntegrityMutex);
+
+    if (nRow >= 1 && nRow <= 22)
+    {
+        BYTE    Magazine;
+        WORD    wPageHex;
+        short   Page;
+
+        for (int n = 0; n < 2; n++)
+        {
+            Magazine = Unham84(pData[n*20], &(bError = FALSE));
+
+            if (bError != FALSE || Magazine == 0x0F)
+            {
+                break;
+            }
+            if (Magazine >= 0x08)
+            {
+                continue;
+            }
+
+            wPageHex = UnhamTwo84_MSBF(&pData[n*20 + 1], &bError);
+            wPageHex |= (Magazine == 0 ? 0x800 : Magazine * 0x100);
+
+            if (bError != FALSE || (Page = PageHex2Page(wPageHex)) == -1)
+            {
+                continue;
+            }
+
+            if (m_AITable[Page] == NULL)
+            {
+                m_AITable[Page] = new BYTE[12];
+            }
+
+            bTitleChanged = FALSE;
+
+            for (int i = 0; i < 12; i++)
+            {
+                uChar = pData[n*20 + 8 + i];
+
+                if (m_AITReceived[Page] == FALSE)
                 {
-                    delete [] m_ADIP[Page];
+                    m_AITable[Page][i] = (uChar & 0x7F) < 0x20 ? 0x20 : (uChar & 0x7F);
+                    bTitleChanged = TRUE;
                 }
                 else
                 {
-                    // See if a missing text was received
-                    if (IsWaitingADIPPage(Page))
+                    if (CheckParity(&uChar, 1, TRUE))
                     {
-                        ClearWaitingPages();
-                        bCallRedraw = TRUE;
+                        if (uChar != m_AITable[Page][i])
+                        {
+                            m_AITable[Page][i] = uChar;
+                            bTitleChanged = TRUE;
+                        }
                     }
                 }
+            }
 
-                m_ADIP[Page] = new BYTE[12];
+            m_AITReceived[Page] = TRUE;
 
-                for (j = 0; j < 12; j++)
+            if (bTitleChanged != FALSE)
+            {
+                if (IsWaitingAITPage(Page))
                 {
-                    m_ADIP[Page][j] = ((pData[i * 20 + 8 + j] & 0x7F) < 0x20) ?
-                                        0x20 : pData[i * 20 + 8 + j];
+                    ResetWaitingPages();
+                    bLastPageUpdated = TRUE;
                 }
             }
         }
     }
-    return bCallRedraw;
+
+    LeaveCriticalSection(&m_IntegrityMutex);
+
+    return bLastPageUpdated;
 }
 
-BYTE CVTTopText::GetExtraPageType(int HexPage, int SubPage)
+
+BYTE CVTTopText::GetExtraPageType(DWORD dwPageCode)
 {
     int i = m_ExtraPagesHead;
 
-    while (m_ExtraTopPages[i = (TOPMAX_EXTRAPAGES + i - 1) %
-        TOPMAX_EXTRAPAGES].Type != 0xFF)
+    while (1)
     {
-        if (m_ExtraTopPages[i].HexPage == HexPage &&
-            m_ExtraTopPages[i].SubPage == SubPage)
+        i = (TOPMAX_EXTRAPAGES + i - 1) % TOPMAX_EXTRAPAGES;
+
+        if (m_ExtraTopPages[i].uType == 0xFF)
+        {
+            break;
+        }
+        if (m_ExtraTopPages[i].dwPageCode == dwPageCode)
         {
             break;
         }
@@ -323,38 +425,42 @@ BYTE CVTTopText::GetExtraPageType(int HexPage, int SubPage)
             return 0xFF;
         }
     }
-    return m_ExtraTopPages[i].Type;
+
+    return m_ExtraTopPages[i].uType;
 }
 
-BOOL CVTTopText::IsTopTextPage(int HexPage, int SubPage)
+
+BOOL CVTTopText::IsTopTextPage(DWORD dwPageCode)
 {
-    if (HexPage == 0x1F0)
+    if (LOWORD(dwPageCode) == 0x1F0)
     {
         return TRUE;
     }
 
-    return GetExtraPageType(HexPage, SubPage) != 0xFF;
+    return GetExtraPageType(dwPageCode) != 0xFF;
 }
 
-BOOL CVTTopText::IsMultiPage(int Page)
+
+BOOL CVTTopText::IsMultiPage(short Page)
 {
-    switch (m_TOP[Page])
+    switch (m_BTTable[Page])
     {
-    case 3:
-    case 5:
-    case 7:
-    case 10:
-    case 11:
+    case 0x03:
+    case 0x05:
+    case 0x07:
+    case 0x0A:
+    case 0x0B:
         return TRUE;
     }
     return FALSE;
 }
 
+
 short CVTTopText::GetFirstInBlock(short Page, short* MissingPage)
 {
     for ( ; Page > 0; Page--)
     {
-        if (m_TOP[Page] & TOP_UNRECEIVED)
+        if (m_BTTable[Page] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -362,20 +468,23 @@ short CVTTopText::GetFirstInBlock(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[Page] >= TOPLEVEL_PROGRAM &&
-            m_TOP[Page] < TOPLEVEL_GROUP)
+
+        if (m_BTTable[Page] >= TOPLEVEL_PROGRAM &&
+            m_BTTable[Page] < TOPLEVEL_GROUP)
         {
             return Page;
         }
     }
+
     return 0;
 }
+
 
 short CVTTopText::GetFirstInGroup(short Page, short* MissingPage)
 {
     for ( ; Page > 0; Page--)
     {
-        if (m_TOP[Page] & TOP_UNRECEIVED)
+        if (m_BTTable[Page] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -383,22 +492,23 @@ short CVTTopText::GetFirstInGroup(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[Page] >= TOPLEVEL_GROUP &&
-            m_TOP[Page] < TOPLEVEL_NORMAL)
+
+        if (m_BTTable[Page] >= TOPLEVEL_GROUP &&
+            m_BTTable[Page] < TOPLEVEL_NORMAL)
         {
             return Page;
         }
     }
+
     return 0;
 }
 
+
 short CVTTopText::GetNextBlock(short Page, short* MissingPage)
 {
-    int i;
-
-    for (i = Page + 1; i != Page; i = (i + 1) % 800)
+    for (int i = Page + 1; i != Page; i = (i + 1) % 800)
     {
-        if (m_TOP[i] & TOP_UNRECEIVED)
+        if (m_BTTable[i] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -406,22 +516,23 @@ short CVTTopText::GetNextBlock(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[i] >= TOPLEVEL_PROGRAM &&
-            m_TOP[i] < TOPLEVEL_GROUP)
+
+        if (m_BTTable[i] >= TOPLEVEL_PROGRAM &&
+            m_BTTable[i] < TOPLEVEL_GROUP)
         {
             break;
         }
     }
+
     return i;
 }
+
 
 short CVTTopText::GetNextGroup(short Page, short* MissingPage)
 {
-    int i;
-
-    for (i = Page + 1; i != Page; i = (i + 1) % 800)
+    for (int i = Page + 1; i != Page; i = (i + 1) % 800)
     {
-        if (m_TOP[i] & TOP_UNRECEIVED)
+        if (m_BTTable[i] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -429,20 +540,23 @@ short CVTTopText::GetNextGroup(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[i] >= TOPLEVEL_PROGRAM &&
-            m_TOP[i] < TOPLEVEL_NORMAL)
+
+        if (m_BTTable[i] >= TOPLEVEL_PROGRAM &&
+            m_BTTable[i] < TOPLEVEL_NORMAL)
         {
             break;
         }
     }
+
     return i;
 }
+
 
 short CVTTopText::GetNextGroupInBlock(short Page, short* MissingPage)
 {
     for (int i = Page + 1; i < 800; i++)
     {
-        if (m_TOP[i] & TOP_UNRECEIVED)
+        if (m_BTTable[i] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -450,25 +564,29 @@ short CVTTopText::GetNextGroupInBlock(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[i] >= TOPLEVEL_SUBTITLE &&
-            m_TOP[i] < TOPLEVEL_GROUP)
+
+        if (m_BTTable[i] >= TOPLEVEL_SUBTITLE &&
+            m_BTTable[i] < TOPLEVEL_GROUP)
         {
             break;
         }
-        if (m_TOP[i] >= TOPLEVEL_GROUP &&
-            m_TOP[i] < TOPLEVEL_NORMAL)
+
+        if (m_BTTable[i] >= TOPLEVEL_GROUP &&
+            m_BTTable[i] < TOPLEVEL_NORMAL)
         {
             return i;
         }
     }
+
     return GetFirstInBlock(Page, MissingPage);
 }
+
 
 short CVTTopText::GetNextPage(short Page, short* MissingPage)
 {
     for (int i = Page + 1; i != Page; i = (i + 1) % 800)
     {
-        if (m_TOP[i] & TOP_UNRECEIVED)
+        if (m_BTTable[i] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -476,20 +594,23 @@ short CVTTopText::GetNextPage(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[i] >= TOPLEVEL_SUBTITLE &&
-            m_TOP[i] <= TOPLEVEL_LASTLEVEL)
+
+        if (m_BTTable[i] >= TOPLEVEL_SUBTITLE &&
+            m_BTTable[i] <= TOPLEVEL_LASTLEVEL)
         {
             break;
         }
     }
+
     return i;
 }
+
 
 short CVTTopText::GetNextPageInGroup(short Page, short* MissingPage)
 {
     for (int i = Page + 1; i < 800; i++)
     {
-        if (m_TOP[i] & TOP_UNRECEIVED)
+        if (m_BTTable[i] & TOP_UNRECEIVED)
         {
             if (MissingPage != NULL)
             {
@@ -497,237 +618,333 @@ short CVTTopText::GetNextPageInGroup(short Page, short* MissingPage)
             }
             return -1;
         }
-        if (m_TOP[i] >= TOPLEVEL_SUBTITLE &&
-            m_TOP[i] < TOPLEVEL_NORMAL)
+
+        if (m_BTTable[i] >= TOPLEVEL_SUBTITLE &&
+            m_BTTable[i] < TOPLEVEL_NORMAL)
         {
             break;
         }
-        if (m_TOP[i] >= TOPLEVEL_NORMAL &&
-            m_TOP[i] <= TOPLEVEL_LASTLEVEL)
+
+        if (m_BTTable[i] >= TOPLEVEL_NORMAL &&
+            m_BTTable[i] <= TOPLEVEL_LASTLEVEL)
         {
             return i;
         }
     }
+
     return GetFirstInGroup(Page, MissingPage);
 }
 
-short CVTTopText::GetLastPage(short Page)
-{
-    int i = (TOPMAX_LASTPAGES + m_LastPagesHead - 1) % TOPMAX_LASTPAGES;
 
-    if (m_LastPages[i] != -1)
+short CVTTopText::PageHex2Page(WORD wPageHex)
+{
+    if ((wPageHex & 0xF00) < 0x100 ||
+        (wPageHex & 0xF00) > 0x800 ||
+        (wPageHex & 0x0F0) > 0x090 ||
+        (wPageHex & 0x00F) > 0x009)
     {
-        Page = m_LastPages[i];
+        return -1;
     }
+
+    short Page;
+
+    Page = (((wPageHex & 0xF00) >> 8) * 100) - 100;
+    Page += ((wPageHex & 0x0F0) >> 4) * 10;
+    Page += ((wPageHex & 0x00F));
+
     return Page;
 }
 
-void CVTTopText::WindBackLast()
+
+WORD CVTTopText::Page2PageHex(short Page)
 {
-    if (m_LastPages[m_LastPagesHead] != -1)
+    if (Page < 0 || Page > 799)
     {
-        m_LastPages[m_LastPagesHead] = -1;
-        m_LastPagesHead = (TOPMAX_LASTPAGES + m_LastPagesHead - 1) % TOPMAX_LASTPAGES;
+        return 0;
     }
+
+    WORD wPageHex = 0;
+
+    wPageHex |= Page / 100 * 0x100 + 0x100;
+    wPageHex |= Page % 100 / 10 * 0x10;
+    wPageHex |= Page % 10;
+
+    return wPageHex;
 }
 
-void CVTTopText::GetTopTextDetails(TVTPage* pPage)
+
+BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWaitMessage)
 {
-    int     i;
-    int     NextPage;
-    BYTE*   pBuffer;
-    LPSTR   Message;
+    short   Page;
+    short   LinkPage;
+    short   MissingPage;
+    BYTE*   pLineInput;
+    LPSTR   pMessage;
 
-    if (pPage == NULL || pPage->Page < 0 || pPage->Page > 799)
+    if ((Page = PageHex2Page(LOWORD(dwPageCode))) == -1)
     {
-        return;
+        return FALSE;
     }
 
-    // Add this page to the last pages list
-    if (m_LastPages[m_LastPagesHead] != pPage->Page)
+    ResetWaitingPages();
+
+    m_LastPageCode = dwPageCode;
+
+    // We can't do much more if we don't have a Basic TOP
+    if (m_BTTable[Page] == TOP_UNRECEIVED)
     {
-        m_LastPagesHead = (m_LastPagesHead + 1) % TOPMAX_LASTPAGES;
-        m_LastPages[m_LastPagesHead] = pPage->Page;
+        m_WaitingPage[TOPWAIT_GREEN] = Page;
+
+        // Multi-thread protection
+        if (m_BTTable[Page] == TOP_UNRECEIVED)
+        {
+            return FALSE;
+        }
+        else
+        {
+            m_WaitingPage[TOPWAIT_GREEN] = -1;
+        }
     }
-
-    ClearWaitingPages();
-
-    // We can't do much more if we don't have a TOP
-    if (m_TOP[pPage->Page] == TOP_UNRECEIVED)
-    {
-        m_WaitingPage[TOPWAIT_GREEN] = pPage->Page;
-        return;
-    }
-
-    pBuffer = pPage->Frame[24];
-    pPage->CommentaryRow = 24;
-    pPage->bFlofUpdated = 1;
 
     // Set the RED Flof key
-    NextPage = GetLastPage(pPage->Page);
-    pPage->FlofPage[FLOF_RED] = NextPage + 100;
+    pBuffer->EditorialLink[VTFLOF_RED] = VTPAGE_PREVIOUS;
 
-    // Set the GREEN Flof key
-    NextPage = GetNextPage(pPage->Page, &m_WaitingPage[TOPWAIT_GREEN]);
-    if (NextPage != -1)
+    // Get the GREEN Flof link
+    LinkPage = GetNextPage(Page, &MissingPage);
+
+    while (LinkPage == -1)
     {
-        pPage->FlofPage[FLOF_GREEN] = NextPage + 100;
+        m_WaitingPage[TOPWAIT_GREEN] = MissingPage;
+
+        // Multi-thread protection
+        if (m_BTTable[MissingPage] == TOP_UNRECEIVED)
+        {
+            break;
+        }
+
+        m_WaitingPage[TOPWAIT_GREEN] = -1;
+        LinkPage = GetNextPage(Page, &MissingPage);
     }
 
-    // If the page hasn't yet been received
-    if (!pPage->bUpdated)
-    {
-        char buf[40];
+    // Set the GREEN Flof key
+    pBuffer->EditorialLink[VTFLOF_GREEN] = Page2PageHex(LinkPage);
 
-        if (m_TOP[pPage->Page] == 0x00)
+    pBuffer->bShowRow24 = TRUE;
+    pBuffer->LineState[24] = CACHESTATE_HASDATA;
+
+    pLineInput = pBuffer->Frame[24];
+
+    // See if a wait message is required instead
+    if (bWaitMessage != FALSE)
+    {
+        char    szBuffer[40];
+
+        // Invalidate the YELLOW and BLUE Flof keys
+        pBuffer->EditorialLink[VTFLOF_YELLOW] = 0UL;
+        pBuffer->EditorialLink[VTFLOF_BLUE] = 0UL;
+
+        if (m_BTTable[Page] == 0x00)
         {
-            Message = m_NoneMessage;
+            pMessage = m_NoneMessage;
         }
-        else if (m_TOP[pPage->Page] == TOPLEVEL_SUBTITLE)
+        else if (m_BTTable[Page] == TOPLEVEL_SUBTITLE)
         {
-            Message = m_SubtitleMessage;
+            pMessage = m_SubtitleMessage;
         }
-        else if (IsMultiPage(pPage->Page))
+        else if (IsMultiPage(Page))
         {
-            if (m_MultiPage[pPage->Page] != 0)
+            if (m_MPTable[Page] == 0)
             {
-                sprintf(buf, m_MultiMessage, m_MultiPage[pPage->Page]);
-                Message = buf;
+                m_WaitingPage[TOPWAIT_MPT] = Page;
+
+                // Multi-thread protection
+                if (m_MPTable[Page] != 0)
+                {
+                    m_WaitingPage[TOPWAIT_MPT] = -1;
+                }
+            }
+
+            if (m_MPTable[Page] != 0)
+            {
+                sprintf(szBuffer, m_MultiMessage, m_MPTable[Page]);
+                pMessage = szBuffer;
             }
             else
             {
-                m_WaitingPage[TOPWAIT_MULTIPAGE] = pPage->Page + 100;
-                Message = m_WaitMessage;
+                pMessage = m_WaitMessage;
             }
         }
         else
         {
-            Message = m_WaitMessage;
+            pMessage = m_WaitMessage;
         }
 
-        int Length = strlen(Message);
-        int Start = (40 - Length) / 2;
+        int nLength = strlen(pMessage);
+        int nStart = (40 - nLength) / 2;
 
-        memset(pBuffer, 0x20, Start);
-        memcpy(&pBuffer[Start], Message, Length);
-        memset(&pBuffer[Start + Length], 0x20, 40 - Start - Length);
-        return;
-    }
-
-    // Red section
-    *pBuffer++ = 0x11;       // Red Mosaic
-    *pBuffer++ = 0x3C;       // Box Mosaic
-    *pBuffer++ = 0x01;       // Red text
-    *pBuffer++ = 0x2D;       // '-'
-    *pBuffer++ = 0x20;       // Space
-
-    // Green section
-    if (NextPage != -1)
-    {
-        *pBuffer++ = 0x12;       // Green Mosaic
-        *pBuffer++ = 0x3C;       // Box Mosaic
-        *pBuffer++ = 0x02;       // Green text
-        *pBuffer++ = 0x2B;       // '+'
-        *pBuffer++ = 0x20;       // Space
+        memset(pLineInput, 0x20, nStart);
+        memcpy(&pLineInput[nStart], pMessage, nLength);
+        memset(&pLineInput[nStart + nLength], 0x20, 40 - nStart - nLength);
     }
     else
     {
-        memset(pBuffer, 0x20, 5);
-        pBuffer += 5;
-    }
+        // Red section
+        *pLineInput++ = 0x11;       // Red Mosaic
+        *pLineInput++ = 0x3C;       // Box Mosaic
+        *pLineInput++ = 0x01;       // Red text
+        *pLineInput++ = 0x2D;       // '-'
+        *pLineInput++ = 0x20;       // Space
 
-    // Yellow section
-    NextPage = GetNextGroup(pPage->Page, &m_WaitingPage[TOPWAIT_YELLOW]);
-    if (NextPage != -1)
-    {
-        if ((Message = (char*)m_ADIP[NextPage]) == NULL)
+        // Green section
+        if (LinkPage != -1)
         {
-            m_WaitingPage[TOPWAIT_YELLOWADIP] = NextPage;
-            Message = m_EmptyADIPText;
+            *pLineInput++ = 0x12;       // Green Mosaic
+            *pLineInput++ = 0x3C;       // Box Mosaic
+            *pLineInput++ = 0x02;       // Green text
+            *pLineInput++ = 0x2B;       // '+'
+            *pLineInput++ = 0x20;       // Space
+        }
+        else
+        {
+            memset(pLineInput, 0x20, 5);
+            pLineInput += 5;
         }
 
-        // Set the YELLOW Flof key
-        pPage->FlofPage[FLOF_YELLOW] = NextPage + 100;
+        // Yellow Flof link
+        LinkPage = GetNextGroup(Page, &MissingPage);
 
-        *pBuffer++ = 0x13;       // Yellow Mosaic
-        *pBuffer++ = 0x3C;       // Box Mosaic
-        *pBuffer++ = 0x03;       // Yellow text
-        for (i = 0; i < 12; i++)
+        while (LinkPage == -1)
         {
-            *pBuffer++ = Message[i];
-        }
-    }
-    else
-    {
-        memset(pBuffer, 0x20, 15);
-        pBuffer += 15;
-    }
+            m_WaitingPage[TOPWAIT_YELLOW] = MissingPage;
 
-    // Blue section
-    NextPage = GetNextBlock(pPage->Page, &m_WaitingPage[TOPWAIT_BLUE]);
-    if (NextPage != -1)
-    {
-        if ((Message = (char*)m_ADIP[NextPage]) == NULL)
-        {
-            m_WaitingPage[TOPWAIT_BLUEADIP] = NextPage;
-            Message = m_EmptyADIPText;
+            // Multi-thread protection
+            if (m_BTTable[MissingPage] == TOP_UNRECEIVED)
+            {
+                break;
+            }
+
+            m_WaitingPage[TOPWAIT_YELLOW] = -1;
+            LinkPage = GetNextPage(Page, &MissingPage);
         }
 
-        // Set the BLUE Flof key
-        pPage->FlofPage[FLOF_BLUE] = NextPage + 100;
+        pBuffer->EditorialLink[VTFLOF_YELLOW] = Page2PageHex(LinkPage);
 
-        *pBuffer++ = 0x16;       // Cyan Mosaic
-        *pBuffer++ = 0x3C;       // Box Mosaic
-        *pBuffer++ = 0x06;       // Cyan text
-
-        for (i = 0; i < 12; i++)
+        if (LinkPage != -1)
         {
-            *pBuffer++ = Message[i];
+            m_WaitingPage[TOPWAIT_YELLOW_AIT] = LinkPage;
+
+            if (m_AITReceived[LinkPage] != FALSE)
+            {
+                pMessage = (char*)m_AITable[LinkPage];
+            }
+            else
+            {
+                pMessage = m_EmptyTitleText;
+            }
+
+            *pLineInput++ = 0x13;       // Yellow Mosaic
+            *pLineInput++ = 0x3C;       // Box Mosaic
+            *pLineInput++ = 0x03;       // Yellow text
+
+            memcpy(pLineInput, pMessage, 12);
+            pLineInput += 12;
+        }
+        else
+        {
+            memset(pLineInput, 0x20, 15);
+            pLineInput += 15;
+        }
+
+        // Blue section
+        LinkPage = GetNextBlock(Page, &MissingPage);
+
+        while (LinkPage == -1)
+        {
+            m_WaitingPage[TOPWAIT_BLUE] = MissingPage;
+
+            // Multi-thread protection
+            if (m_BTTable[MissingPage] == TOP_UNRECEIVED)
+            {
+                break;
+            }
+
+            m_WaitingPage[TOPWAIT_BLUE] = -1;
+            LinkPage = GetNextPage(Page, &MissingPage);
+        }
+
+        pBuffer->EditorialLink[VTFLOF_BLUE] = Page2PageHex(LinkPage);
+
+        if (LinkPage != -1)
+        {
+            m_WaitingPage[TOPWAIT_BLUE_AIT] = LinkPage;
+
+            if (m_AITReceived[LinkPage] != FALSE)
+            {
+                pMessage = (char*)m_AITable[LinkPage];
+            }
+            else
+            {
+                pMessage = m_EmptyTitleText;
+            }
+
+            *pLineInput++ = 0x16;       // Cyan Mosaic
+            *pLineInput++ = 0x3C;       // Box Mosaic
+            *pLineInput++ = 0x06;       // Cyan text
+
+            memcpy(pLineInput, pMessage, 12);
+            pLineInput += 12;
+        }
+        else
+        {
+            memset(pLineInput, 0x20, 15);
+            pLineInput += 15;
         }
     }
-    else
+
+    if (memcmp(pBuffer->Frame[24], m_LastBuffer, 40) != 0)
     {
-        memset(pBuffer, 0x20, 15);
-        pBuffer += 15;
+        memcpy(m_LastBuffer, pBuffer->Frame[24], 40);
+        pBuffer->LineState[24] |= CACHESTATE_UPDATED;
     }
+
+    return TRUE;
 }
-
 
 
 /*  This creates the traditional red, green, yellow, blue
  *  box background TOP-Text commentary but it doesn't look
- *  very nice.
+ *  very nice.  This code is outdated.
 
     // Red
-    *pBuffer++ = 0x01;       // Red
-    *pBuffer++ = 0x1d;       // Red Background
-    *pBuffer++ = 0x07;       // White text
-    *pBuffer++ = 0x60;       // '-'
-    *pBuffer++ = 0x20;       // Space
-    *pBuffer++ = 0x02;       // Green
+    *pLineInput++ = 0x01;       // Red
+    *pLineInput++ = 0x1d;       // Red Background
+    *pLineInput++ = 0x07;       // White text
+    *pLineInput++ = 0x60;       // '-'
+    *pLineInput++ = 0x20;       // Space
+    *pLineInput++ = 0x02;       // Green
 
     // Green
-    *pBuffer++ = 0x1d;       // Green Background
-    *pBuffer++ = 0x00;       // Black text
-    *pBuffer++ = 0x2B;        // '+'
-    *pBuffer++ = 0x20;       // Space
-    *pBuffer++ = 0x03;       // Yellow
+    *pLineInput++ = 0x1d;       // Green Background
+    *pLineInput++ = 0x00;       // Black text
+    *pLineInput++ = 0x2B;        // '+'
+    *pLineInput++ = 0x20;       // Space
+    *pLineInput++ = 0x03;       // Yellow
 
     // Yellow
-    *pBuffer++ = 0x1d;       // Yellow Background
-    *pBuffer++ = 0x00;       // Black text
+    *pLineInput++ = 0x1d;       // Yellow Background
+    *pLineInput++ = 0x00;       // Black text
     for (i = 0; i < 12; i++)
     {
-        *pBuffer++ = (m_ADIP[Page] == NULL) ? ' ' : m_ADIP[Page][i];
+        *pLineInput++ = (m_AITable[Page] == NULL) ? ' ' : m_AITable[Page][i];
     }
-    *pBuffer++ = 0x04;       // Blue
+    *pLineInput++ = 0x04;       // Blue
 
     // Cyan
-    *pBuffer++ = 0x1d;       // Blue Background
-    *pBuffer++ = 0x07;       // White text
+    *pLineInput++ = 0x1d;       // Blue Background
+    *pLineInput++ = 0x07;       // White text
     for (i = 0; i < 12; i++)
     {
-        *pBuffer++ = (m_ADIP[Page] == NULL) ? ' ' : m_ADIP[Page][i];
+        *pLineInput++ = (m_AITable[Page] == NULL) ? ' ' : m_AITable[Page][i];
     }
 */
 

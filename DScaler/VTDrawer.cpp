@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.18 2003-01-02 21:25:41 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.19 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/01/02 21:25:41  atnak
+// Fixes for row24 find page number
+//
 // Revision 1.17  2003/01/01 20:43:13  atnak
 // New drawer for new videotext layout
 //
@@ -246,6 +249,11 @@ BYTE CVTDrawer::DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags, WORD wColour
     if ((uVTDFlags & VTDF_HEADERONLY) && LOBYTE(wPoint) > 0)
     {
         return PARSE_STOPPAGE;
+    }
+
+    if ((uVTDFlags & VTDF_ROW24ONLY) && LOBYTE(wPoint) < 24)
+    {
+        return PARSE_CONTINUE;
     }
 
     /*
@@ -644,26 +652,23 @@ BYTE CVTDrawer::FindRow24PageNumberProc(TVTPage*, WORD wPoint, LPWORD, WORD wCol
 
         if (*pPageHex == 0xFFFF)
         {
-            if (uChar != 0x20)
+            switch (Foreground)
             {
-                switch (Foreground)
-                {
-                    case VTCOLOR_RED:
-                        *pPageHex = VTPAGE_FLOFRED;
-                        break;
+                case VTCOLOR_RED:
+                    *pPageHex = VTPAGE_FLOFRED;
+                    break;
 
-                    case VTCOLOR_GREEN:
-                        *pPageHex = VTPAGE_FLOFGREEN;
-                        break;
+                case VTCOLOR_GREEN:
+                    *pPageHex = VTPAGE_FLOFGREEN;
+                    break;
 
-                    case VTCOLOR_YELLOW:
-                        *pPageHex = VTPAGE_FLOFYELLOW;
-                        break;
+                case VTCOLOR_YELLOW:
+                    *pPageHex = VTPAGE_FLOFYELLOW;
+                    break;
 
-                    case VTCOLOR_CYAN:
-                        *pPageHex = VTPAGE_FLOFBLUE;
-                        break;
-                }
+                case VTCOLOR_CYAN:
+                    *pPageHex = VTPAGE_FLOFBLUE;
+                    break;
             }
         }
 

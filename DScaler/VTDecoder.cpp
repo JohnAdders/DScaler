@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.3 2003-01-03 13:46:10 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.4 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/03 13:46:10  atnak
+// Fixed editorial link page number
+//
 // Revision 1.2  2003/01/02 23:36:24  robmuller
 // Small bug fix.
 //
@@ -63,8 +66,6 @@
  *  This class is programmed to be multi-thread safe
  */
 
-//CVTTopText VTTopText;
-
 
 CVTDecoder::CVTDecoder(TDecoderCallback* fnDecoderEventProc)
 {
@@ -81,6 +82,8 @@ CVTDecoder::CVTDecoder(TDecoderCallback* fnDecoderEventProc)
     InitializeCriticalSection(&m_PageStoreMutex);
     InitializeCriticalSection(&m_PDCStoreMutex);
 
+    m_pVTTopText = new CVTTopText;
+
     ResetDecoder();
 }
 
@@ -90,6 +93,8 @@ CVTDecoder::~CVTDecoder()
     EnterCriticalSection(&m_PageStoreMutex);
     FreePageStore();
     LeaveCriticalSection(&m_PageStoreMutex);
+
+    delete m_pVTTopText;
 
     DeleteCriticalSection(&m_PDCStoreMutex);
     DeleteCriticalSection(&m_PageStoreMutex);
@@ -124,7 +129,7 @@ void CVTDecoder::ResetDecoder()
     }
     LeaveCriticalSection(&m_PageStoreMutex);
 
-    // VTTopText.Reset();
+    m_pVTTopText->Reset();
 
     m_BroadcastServiceData.InitialPage = 0UL;
     m_BroadcastServiceData.NetworkIDCode = 0;
@@ -255,7 +260,14 @@ void CVTDecoder::DecodeLine(BYTE* data)
                 return;
             }
 
-            //if (!VTTopText.IsTopTextPage(pnum, sub))
+            BOOL bPageNeeded = FALSE;
+
+            if (m_pVTTopText->IsTopTextPage(MAKELONG(wPageHex, wPageSubCode)))
+            {
+                bPageNeeded = TRUE;
+            }
+
+            if (bPageNeeded == FALSE)
             {
                 return;
             }
@@ -304,25 +316,41 @@ void CVTDecoder::DecodeLine(BYTE* data)
     case 23:
     case 24:
     case 25:
-        EnterCriticalSection(&m_MagazineStateMutex);
-
-        if (m_MagazineState[magazine].bReceiving != FALSE)
         {
-            BYTE line = packetNumber - 1;
+            DWORD dwTTUpdate = 0UL;
 
-            CopyMemory(m_MagazineState[magazine].Line[line], data + 5, 40);
-            m_MagazineState[magazine].bLineReceived[line] = TRUE;
+            EnterCriticalSection(&m_MagazineStateMutex);
 
-            /*
-            if (VTTopText.IsTopTextPage(pnum, sub))
+            if (m_MagazineState[magazine].bReceiving != FALSE)
             {
-                BOOL bRedraw = VTTopText.DecodePageRow(pPage, pPage->Frame[row], row);
+                BYTE line = packetNumber - 1;
 
+                CopyMemory(m_MagazineState[magazine].Line[line], data + 5, 40);
+                m_MagazineState[magazine].bLineReceived[line] = TRUE;
+
+                dwPageCode = m_MagazineState[magazine].dwPageCode;
+
+                if (m_pVTTopText->IsTopTextPage(dwPageCode))
+                {
+                    dwTTUpdate = m_pVTTopText->DecodePageRow(dwPageCode,
+                        packetNumber, m_MagazineState[magazine].Line[line]);
+                }
             }
-            */
-        }
 
-        LeaveCriticalSection(&m_MagazineStateMutex);
+            LeaveCriticalSection(&m_MagazineStateMutex);
+
+            if (dwTTUpdate != 0UL)
+            {
+                if (m_bTopTextForComment != FALSE)
+                {
+                    NotifyDecoderEvent(DECODEREVENT_COMMENTUPDATE, dwTTUpdate);
+                }
+                else
+                {
+                    NotifyDecoderEvent(DECODEREVENT_PAGEUPDATE, dwTTUpdate);
+                }
+            }
+        }
         break;
 
     case 26:
@@ -1267,6 +1295,19 @@ DWORD CVTDecoder::FindInDisplayPage(DWORD dwFromPageCode, BOOL bInclusive,
 }
 
 
+BOOL CVTDecoder::GetDisplayComment(DWORD dwPageCode, TVTPage* pBuffer)
+{
+    m_bTopTextForComment = TRUE;
+
+    if (m_pVTTopText->GetTopTextDetails(dwPageCode, pBuffer, TRUE))
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
 BOOL CVTDecoder::SearchPage(TVTPage* pPage, LPSTR lpSearchString,
                             BOOL bIncludeRow25)
 {
@@ -1603,7 +1644,13 @@ void CVTDecoder::CopyPageForDisplay(TVTPage* pBuffer, TVTPage* pPage)
     }
 
     CopyMemory(pBuffer->EditorialLink, pPage->EditorialLink, sizeof(DWORD) * 6);
-    
+
+    if (pBuffer->bShowRow24 == FALSE)
+    {
+        m_bTopTextForComment = FALSE;
+        m_pVTTopText->GetTopTextDetails(pBuffer->dwPageCode, pBuffer);
+    }
+
     pBuffer->bBufferReserved = TRUE;
     pBuffer->bReceived = TRUE;
     pBuffer->pNextPage = NULL;

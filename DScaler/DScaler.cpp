@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.273 2003-01-05 10:30:08 atnak Exp $
+// $Id: DScaler.cpp,v 1.274 2003-01-05 16:09:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.273  2003/01/05 10:30:08  atnak
+// Added Cursor_IsOurs()  --fixes cursor hiding/changing problems
+//
 // Revision 1.272  2003/01/02 20:06:20  atnak
 // Fixed teletext menu.
 //
@@ -1671,6 +1674,11 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
             case VTM_VTHEADERUPDATE:
                 VT_ProcessHeaderUpdate(hDC, &Rect);
+                bHandled = TRUE;
+                break;
+
+            case VTM_VTCOMMENTUPDATE:
+                bPageChanged = VT_ProcessCommentUpdate(hDC, &Rect, lParam);
                 bHandled = TRUE;
                 break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.40 2003-01-01 20:58:30 atnak Exp $
+// $Id: DScaler.h,v 1.41 2003-01-05 16:09:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -137,6 +137,7 @@ typedef struct
 #define VTM_VTHEADERUPDATE     0x0001
 #define VTM_VTPAGEUPDATE       0x0002
 #define VTM_VTPAGEREFRESH      0x0003
+#define VTM_VTCOMMENTUPDATE    0x0004
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.30 2003-01-02 12:03:13 robmuller Exp $
+// $Id: VBI_VideoText.H,v 1.31 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -96,6 +96,7 @@ void VT_RedrawFlash(HDC hDC, LPRECT lpRect);
 void VT_Redraw(HDC hDC, LPRECT lpRect, WORD uVTDFFlags = 0);
 
 void VT_ProcessHeaderUpdate(HDC hDC, LPRECT lpRect);
+BOOL VT_ProcessCommentUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode);
 BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode);
 BOOL VT_ProcessPageRefresh(HDC hDC, LPRECT lpRect, DWORD dwPageCode);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.cpp,v 1.1 2003-01-01 20:40:48 atnak Exp $
+// $Id: VTCommon.cpp,v 1.2 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/01 20:40:48  atnak
+// Inital release of videotext common + utilities class.
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -816,6 +819,14 @@ BYTE CVTCommon::CheckLineParsable(TVTPage* pPage, BYTE nRow, LPWORD lpFlags)
             uCheckResult = PARSE_SUPPRESSHEADER;
         }
     }
+    // If this row has data and is the commentary row
+    else if (nRow == 24)
+    {
+        if (pPage->bShowRow24 == FALSE)
+        {
+            uCheckResult = PARSE_ROW24HIDDEN;
+        }
+    }
     // If this row has data and is the keywords row
     else if (nRow == 25)
     {
@@ -831,14 +842,6 @@ BYTE CVTCommon::CheckLineParsable(TVTPage* pPage, BYTE nRow, LPWORD lpFlags)
         if ((pPage->wControlBits & VTCONTROL_INHIBITDISP) != 0)
         {
             uCheckResult = PARSE_INHIBITDISP;
-        }
-
-        if (nRow == 24)
-        {
-            if (pPage->bShowRow24 == FALSE)
-            {
-                uCheckResult = PARSE_ROW24HIDDEN;
-            }
         }
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.10 2003-01-01 20:43:13 atnak Exp $
+// $Id: VTDrawer.h,v 1.11 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/01/01 20:43:13  atnak
+// New drawer for new videotext layout
+//
 // Revision 1.9  2002/10/30 03:31:47  atnak
 // Made mixed mode use nonantialias fonts iff there is a transparent background.
 //
@@ -86,6 +89,7 @@ enum
     VTDF_FORCEHEADER        = 0x0040,
     VTDF_HEADERONLY         = 0x0080,
     VTDF_CLOCKONLY          = 0x0100,
+    VTDF_ROW24ONLY          = 0x0200,
 };
 
 

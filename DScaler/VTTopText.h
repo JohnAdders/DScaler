@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.h,v 1.3 2003-01-01 20:30:12 atnak Exp $
+// $Id: VTTopText.h,v 1.4 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/01 20:30:12  atnak
+// Commented out everything so I can redo TopText for the new CVTCommon
+// functions later
+//
 // Revision 1.2  2002/10/24 01:38:32  atnak
 // Added subtitle message
 //
@@ -34,18 +38,17 @@
 #include "VTCommon.h"
 
 
-class CVTTopText
+class CVTTopText : CVTCommon
 {
 private:
 
     // Variable constants
     enum
     {
-        TOPMAX_LASTPAGES    = 64,
         TOPMAX_EXTRAPAGES   = 10,
     };
 
-    // Bits used in m_TOP[800]
+    // Bits used in m_BTTable[800]
     enum
     {
         TOP_VALUEMASK       = 0x0F,
@@ -54,18 +57,18 @@ private:
 
     enum eTopLevel
     {
-        TOPLEVEL_SUBTITLE   = 1,
-        TOPLEVEL_PROGRAM    = 2,
-        TOPLEVEL_BLOCK      = 4,
-        TOPLEVEL_GROUP      = 6,
-        TOPLEVEL_NORMAL     = 8,
-        TOPLEVEL_LASTLEVEL  = 11,
+        TOPLEVEL_SUBTITLE   = 0x01,
+        TOPLEVEL_PROGRAM    = 0x02,
+        TOPLEVEL_BLOCK      = 0x04,
+        TOPLEVEL_GROUP      = 0x06,
+        TOPLEVEL_NORMAL     = 0x08,
+        TOPLEVEL_LASTLEVEL  = 0x0B,
     };
 
     enum
     {
-        TOPTYPE_MULTIPAGE   = 1,
-        TOPTYPE_ADIP        = 2,
+        TOPTYPE_MPT         = 0x01,
+        TOPTYPE_AIT         = 0x02,
     };
 
     enum
@@ -73,17 +76,16 @@ private:
         TOPWAIT_GREEN       = 0,
         TOPWAIT_YELLOW,
         TOPWAIT_BLUE,
-        TOPWAIT_YELLOWADIP,
-        TOPWAIT_BLUEADIP,
-        TOPWAIT_MULTIPAGE,
+        TOPWAIT_YELLOW_AIT,
+        TOPWAIT_BLUE_AIT,
+        TOPWAIT_MPT,
         TOPWAIT_LASTONE
     };
     
     typedef struct
     {
-        BYTE    Type;
-        WORD    HexPage;
-        WORD    SubPage;
+        BYTE    uType;
+        DWORD   dwPageCode;
     } TExtraTopPage;
 
 public:
@@ -92,24 +94,25 @@ public:
 
     void Reset();
 
-    BOOL DecodePageRow(TVTPage* pPage, unsigned char* pData, int nRow);
-    BOOL IsTopTextPage(int HexPage, int SubPage);
-    void GetTopTextDetails(TVTPage* pPage);
-    void WindBackLast();
+    DWORD DecodePageRow(DWORD dwPageCode, BYTE nRow, BYTE* pData);
+
+    BOOL IsTopTextPage(DWORD dwPageCode);
+    BOOL GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWaitMessage = FALSE);
 
 private:
-    BOOL DecodeTOPPageRow(unsigned char* pData, int nRow);
-    BOOL DecodeMultiPageRow(unsigned char* pData, int nRow);
-    BOOL DecodeADIPPageRow(unsigned char* pData, int nRow);
+    BOOL DecodeBTTPageRow(BYTE nRow, BYTE* pData);
+    BOOL DecodeMPTPageRow(BYTE nRow, BYTE* pData);
+    BOOL DecodeAITPageRow(BYTE nRow, BYTE* pData);
 
-    BYTE GetExtraPageType(int HexPage, int SubPage);
+    BYTE GetExtraPageType(DWORD dwPageCode);
 
-    BOOL IsWaitingTOPPage(short Page);
-    BOOL IsWaitingADIPPage(short Page);
-    BOOL IsWaitingMultiPage(short Page);
-    void ClearWaitingPages();
+    BOOL IsWaitingBTTPage(short Page);
+    BOOL IsWaitingMPTPage(short Page);
+    BOOL IsWaitingAITPage(short Page);
 
-    BOOL IsMultiPage(int Page);
+    void ResetWaitingPages();
+
+    BOOL IsMultiPage(short Page);
 
     short GetFirstInBlock(short Page, short* MissingPage);
     short GetFirstInGroup(short Page, short* MissingPage);
@@ -118,24 +121,32 @@ private:
     short GetNextGroupInBlock(short Page, short* MissingPage);
     short GetNextPage(short Page, short* MissingPage);
     short GetNextPageInGroup(short Page, short* MissingPage);
-    short GetLastPage(short Page);
+
+    short PageHex2Page(WORD wPageHex);
+    WORD  Page2PageHex(short Page);
 
 private:
-    BYTE                    m_TOP[800];
-    BYTE                    m_MultiPage[800];
-    BYTE*                   m_ADIP[800];
+    BYTE                    m_BTTable[800];         // Basic TOP
+    BYTE                    m_MPTable[800];         // Multi-Page
+    BYTE*                   m_AITable[800];         // Additional Information
+
+    BYTE                    m_AITReceived[800];
+
     TExtraTopPage           m_ExtraTopPages[TOPMAX_EXTRAPAGES];
     BYTE                    m_ExtraPagesHead;
-    short                   m_LastPages[TOPMAX_LASTPAGES];
-    BYTE                    m_LastPagesHead;
 
     short                   m_WaitingPage[TOPWAIT_LASTONE];
+
+    CRITICAL_SECTION        m_IntegrityMutex;
+
+    DWORD                   m_LastPageCode;
+    BYTE                    m_LastBuffer[40];
 
     static char*            m_WaitMessage;
     static char*            m_NoneMessage;
     static char*            m_MultiMessage;
     static char*            m_SubtitleMessage;
-    static char*            m_EmptyADIPText;
+    static char*            m_EmptyTitleText;
 };
 
 #endif

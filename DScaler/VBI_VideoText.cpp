@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.58 2003-01-03 14:44:19 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.59 2003-01-05 16:09:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/01/03 14:44:19  robmuller
+// Removed wPageSubCode from VT_PerformFlofKey() as suggested by Atsushi.
+//
 // Revision 1.57  2003/01/02 21:26:33  atnak
 // Only redraw the clock if it changed
 //
@@ -217,8 +220,15 @@
 #include "VBI.h"
 #include "DScaler.h"
 
+#define VT_MAXPAGEHISTORY   64
+
 
 BOOL VT_SetCodepage(HDC hDC, LPRECT lpRect, eVTCodepage Codepage);
+
+void VT_HistoryReset();
+void VT_HistoryPushPage(WORD wPageHex);
+WORD VT_HistoryPopLastPage(WORD wCurrentPageHex);
+
 void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam);
 void VT_PerformUpscrollDuplicationFilter();
 void VT_PerformDoubleHeightSubtitlesFilter();
@@ -274,6 +284,9 @@ char                VTOSDBuffer[4] = "";
 char*               VTPageOSD = NULL;
 char                VTPageInput[4] = "";
 
+WORD                VTPageHistoryHead;
+WORD                VTPageHistory[VT_MAXPAGEHISTORY];
+
 TVTLeftRight**      VTHilightListPtr = NULL;
 TVTLeftRight*       VTHilightListArray[25];
 
@@ -293,6 +306,8 @@ void VBI_VT_Init()
 
     VTSavePageHex = 0x100;
     VTSavePageSubCode = 0xFFFF;
+
+    VT_HistoryReset();
 
     for (int i = 0; i < 25; i++)
     {
@@ -378,6 +393,8 @@ eVTState VT_GetState()
 void VT_ChannelChange()
 {
     VTDecoder.ResetDecoder();
+
+    VT_HistoryReset();
 
     VTHilightListPtr = NULL;
     *VTSearchString = '\0';
@@ -513,6 +530,7 @@ BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
         SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        VT_HistoryPushPage(VTPageHex);
     }
     else
     {
@@ -521,6 +539,11 @@ BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
         VTFlashTimer = 0;
         VTDecoder.GetDisplayHeader(&VTVisiblePage, FALSE);
         VTVisiblePage.wControlBits = VTCONTROL_INHIBITDISP;
+        VTVisiblePage.bShowRow24 = FALSE;
+
+        // Get the loading status message
+        VTDecoder.GetDisplayComment(dwPageCode, &VTVisiblePage);
+        
         VT_SetPageOSD(NULL, FALSE);
         VT_Redraw(hDC, lpRect);
     }
@@ -557,6 +580,7 @@ BOOL VT_PageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
         SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        VT_HistoryPushPage(VTPageHex);
 
         return TRUE;
     }
@@ -690,6 +714,7 @@ BOOL VT_PerformSearch(HDC hDC, LPRECT lpRect, BOOL bInclusive, BOOL bReverse)
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
         SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        VT_HistoryPushPage(VTPageHex);
 
         return TRUE;
     }
@@ -734,6 +759,7 @@ BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey)
 
     if (!VTVisiblePage.bShowRow24)
     {
+        MessageBeep(MB_OK);
         return FALSE;
     }
 
@@ -741,8 +767,14 @@ BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey)
 
     WORD wPageHex = LOWORD(dwPageCode);
 
+    if (wPageHex == VTPAGE_PREVIOUS)
+    {
+        wPageHex = VT_HistoryPopLastPage(VTPageHex);
+    }
+
     if (wPageHex == 0 || (wPageHex & 0xFF) == 0xFF)
     {
+        MessageBeep(MB_OK);
         return FALSE;
     }
 
@@ -823,6 +855,54 @@ BOOL VT_IsTransparencyInPage()
     }
 
     return FALSE;
+}
+
+
+void VT_HistoryReset()
+{
+    VTPageHistoryHead = 0;
+    VTPageHistory[0] = 0;
+}
+
+
+void VT_HistoryPushPage(WORD wPageHex)
+{
+    if (VTPageHistory[VTPageHistoryHead] != wPageHex)
+    {
+        VTPageHistoryHead = (VTPageHistoryHead + 1) % VT_MAXPAGEHISTORY;
+        VTPageHistory[VTPageHistoryHead] = wPageHex;
+    }
+}
+
+
+WORD VT_HistoryPopLastPage(WORD wCurrentPageHex)
+{
+    WORD wPageHex;
+
+    if (VTPageHistory[VTPageHistoryHead] == wCurrentPageHex)
+    {
+        WORD wLastHistoryHead = (VT_MAXPAGEHISTORY +
+            VTPageHistoryHead - 1) % VT_MAXPAGEHISTORY;
+
+        if (VTPageHistory[wLastHistoryHead] == 0)
+        {
+            return 0;
+        }
+
+        VTPageHistory[VTPageHistoryHead] = 0;
+        VTPageHistoryHead = wLastHistoryHead;
+    }
+
+    wPageHex = VTPageHistory[VTPageHistoryHead];
+
+    if (VTPageHistory[VTPageHistoryHead] != 0)
+    {
+        VTPageHistory[VTPageHistoryHead] = 0;
+        VTPageHistoryHead = (VT_MAXPAGEHISTORY +
+            VTPageHistoryHead - 1) % VT_MAXPAGEHISTORY;
+    }
+
+    return wPageHex;
 }
 
 
@@ -938,8 +1018,13 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
         PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTHEADERUPDATE, NULL);
         break;
 
+    case DECODEREVENT_COMMENTUPDATE:
+        PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTCOMMENTUPDATE, dwParam);
+        break;
+
     case DECODEREVENT_PAGEUPDATE:
-        /*if (TryEnterCriticalSection(&VTPageChangeMutex))
+        /* // TryEnterCriticalSection is not defined in my API
+        if (TryEnterCriticalSection(&VTPageChangeMutex))
         {
             if (LOWORD(dwParam) == VTPageHex)
             {
@@ -957,7 +1042,8 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
         break;
 
     case DECODEREVENT_PAGEREFRESH:
-        /*if (TryEnterCriticalSection(&VTPageChangeMutex))
+        /* // TryEnterCriticalSection is not defined in my API
+        if (TryEnterCriticalSection(&VTPageChangeMutex))
         {
             if (LOWORD(dwParam) == VTPageHex)
             {
@@ -1013,6 +1099,40 @@ void VT_ProcessHeaderUpdate(HDC hDC, LPRECT lpRect)
 }
 
 
+BOOL VT_ProcessCommentUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
+{
+    if (VTState == VT_OFF)
+    {
+        return FALSE;
+    }
+
+    if (LOWORD(dwPageCode) != VTPageHex ||
+        HIWORD(dwPageCode) != VTPageSubCode)
+    {
+        return FALSE;
+    }
+
+    if (LOWORD(VTLoadedPageCode) != VTPageHex)
+    {    
+        if (VTDecoder.GetDisplayComment(dwPageCode, &VTVisiblePage))
+        {
+            if (VTVisiblePage.LineState[24] & CACHESTATE_UPDATED)
+            {
+                if (LOBYTE(VTCursorRowCol) == 24)
+                {
+                    VTCursorRowCol = 0xFFFF;
+                }
+
+                VT_UpdateFlashTimer();
+                VT_Redraw(hDC, lpRect, VTDF_ROW24ONLY);
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+
 BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
 {
     if (VTState == VT_OFF)
@@ -1047,6 +1167,7 @@ BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
                 VT_UpdateHilightList();
                 VT_UpdateFlashTimer();
                 VT_Redraw(hDC, lpRect);
+                VT_HistoryPushPage(VTPageHex);
             }
             else
             {
@@ -1856,15 +1977,3 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
     return;
 }
 
-
-/*
-  into visible page:
-
-    // Get TOP-Text details if it exists
-    VTTopText.GetTopTextDetails(pPage);
-
-  on channel change:
-
-    VTTopText.Reset();
-
-*/

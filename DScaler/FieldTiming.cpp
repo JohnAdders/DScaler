@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.30 2002-09-19 17:33:44 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.31 2003-01-24 08:57:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/09/19 17:33:44  adcockj
+// Made looging for format detect less noisy
+//
 // Revision 1.29  2002/09/16 20:08:21  adcockj
 // fixed format detect for cx2388x
 //
@@ -262,7 +265,6 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                         if(RepeatCount > FormatChangeThreshold)
                         {
 						    Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
-                            PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
                             LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                         }
                     }

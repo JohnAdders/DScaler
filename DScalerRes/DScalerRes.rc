@@ -896,22 +896,30 @@ BEGIN
         MENUITEM "Select &Filters",             IDM_SHOW_SCREEN
         MENUITEM "Filter &Settings",            IDM_SHOW_SCREEN
         MENUITEM SEPARATOR
-        MENUITEM "Test &Pattern Select",        IDM_SHOW_SCREEN
-        POPUP "St&art Card Calibration"
+        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        POPUP "Video &Overlay"
         BEGIN
-            MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
+            MENUITEM "Groups of Settings",          IDM_SHOW_SCREEN, GRAYED
+            MENUITEM "&Adjustment ...",             IDM_OVERLAYSETTINGS
+            MENUITEM "Show &Patterns",              IDM_SHOW_PATTERNS
+            , GRAYED
+            MENUITEM "St&op",                       IDM_OVERLAY_STOP
+            MENUITEM "St&art",                      IDM_OVERLAY_START
+        END
+        POPUP "Card &Calibration"
+        BEGIN
+            MENUITEM "Test &Patterns",              IDM_SHOW_SCREEN
+            MENUITEM "Start &Manual",               IDM_START_MANUAL_CALIBRATION
 
-            MENUITEM "&Automatic (full)",           IDM_START_AUTO_CALIBRATION
+            MENUITEM "Start &Automatic (full)",     IDM_START_AUTO_CALIBRATION
 
-            MENUITEM "Automatic (brightness / contrast) (experimental)", 
+            MENUITEM "Start Automatic (&brightness / contrast)", 
                                                     IDM_START_AUTO_CALIBRATION2
 
-            MENUITEM "Automatic (color) (experimental)", 
-                                                    IDM_START_AUTO_CALIBRATION3
+            MENUITEM "Start Automatic (&color)",    IDM_START_AUTO_CALIBRATION3
 
+            MENUITEM "&Stop",                       IDM_STOP_CALIBRATION
         END
-        MENUITEM "St&op Card Calibration",      IDM_STOP_CALIBRATION
-        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
         MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
     END
@@ -999,13 +1007,6 @@ BEGIN
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
             MENUITEM "Calibration",                 IDM_CALIBR_SETTINGS
             MENUITEM "OSD",                         IDM_OSD_SETTINGS
-        END
-        POPUP "Video &Overlay"
-        BEGIN
-            MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS
-            MENUITEM "Groups of Settings",          IDM_SHOW_SCREEN, GRAYED
-            MENUITEM "St&op",                       IDM_OVERLAY_STOP
-            MENUITEM "St&art",                      IDM_OVERLAY_START
         END
     END
     POPUP "&Help"

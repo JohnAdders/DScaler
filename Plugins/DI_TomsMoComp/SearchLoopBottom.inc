@@ -82,6 +82,7 @@
         pSrcP += src_pitch2;
         pDest += dst_pitch2;
         pBob += src_pitch2;
+        pBobP += src_pitch2;
     }
     
     return 0;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.10 2002-09-14 17:03:11 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.11 2002-09-24 17:22:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.9  2002/08/14 22:03:23  kooiman
 // Added TV tuner support for DirectShow capture devices
 //
@@ -96,9 +99,9 @@ public:
 	
 	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
 
-	void Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter);
-	bool isConnected() {return m_bIsConnected;};
-	long getNumDroppedFrames();
+	void Connect(CComPtr<IBaseFilter> VideoFilter);
+	bool IsConnected() {return m_bIsConnected;};
+	long GetNumDroppedFrames();
 
 	/**
 	 * This method returns a pointer to the crossbar if any.

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.12 2002-09-14 17:03:11 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.13 2002-09-24 17:22:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.11  2002/08/14 22:03:23  kooiman
 // Added TV tuner support for DirectShow capture devices
 //
@@ -138,7 +141,7 @@ CDShowCaptureDevice::~CDShowCaptureDevice()
 	}
 }
 
-void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter)
+void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
 {	
 	//this will connect the capture device and add all needed filters upstream like tuners and crossbars
 	
@@ -201,6 +204,7 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBase
 	{
 		findIAMDroppedFrames(VideoFilter);
 	}
+
 	/*if(driverSupportsIR())
 	{
 		TRACE("Yes! driver supports ir\n");
@@ -241,7 +245,7 @@ void CDShowCaptureDevice::findIAMDroppedFrames(CComPtr<IBaseFilter> filter)
 	}
 }
 
-long CDShowCaptureDevice::getNumDroppedFrames()
+long CDShowCaptureDevice::GetNumDroppedFrames()
 {
 	if(m_pDroppedFrames==NULL)
 	{

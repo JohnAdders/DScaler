@@ -34,6 +34,7 @@ void SettingsPerChannel_WriteSettings(BOOL bOptimizeFileAccess);
 void SettingsPerChannel_ReadDefaults(const char *szSubSection, int Input, int Channel);
 void SettingsPerChannel_ClearSettings(const char *szSubSection, int Input, int Channel, int ClearIniSection);
  
+void SettingsPerChannel_NewDefaults(const char* szSubSection,BOOL bCurrentValue);
 void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int Input, int Channel);
 
 // Setup startup/shutdown functions

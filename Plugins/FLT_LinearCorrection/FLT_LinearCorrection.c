@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.15 2001-11-26 15:27:19 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.16 2002-01-18 14:17:48 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/11/26 15:27:19  adcockj
+// Changed filter structure
+//
 // Revision 1.14  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -74,18 +77,19 @@ typedef struct _BlendStruct
                         // double value between 0 and 1 multiplied by 1000 to use integer
 } BlendStruct;
 
-int PictureWidth = -1;
-int PictureHeight = -1;
-int NbPixelsPerLineTab[MAX_HEIGHT];
-BlendStruct LinearFilterTab[MAX_WIDTH+1][MAX_WIDTH];
-BYTE TmpBuf[MAX_WIDTH*2];
+BOOL          IsInitialised = FALSE;
+int           PictureWidth = -1;
+int           PictureHeight = -1;
+int           NbPixelsPerLineTab[MAX_HEIGHT];
+BlendStruct   LinearFilterTab[MAX_WIDTH+1][MAX_WIDTH];
+BYTE          TmpBuf[MAX_WIDTH*2];
 
-BOOL DoOnlyMasking = FALSE;
-int MaskType = 0;
-int MaskParam1 = 0;
-int MaskParam2 = 0;
-int MaskParam3 = 0;
-int MaskParam4 = 0;
+BOOL          DoOnlyMasking = FALSE;
+int           MaskType = 0;
+int           MaskParam1 = 0;
+int           MaskParam2 = 0;
+int           MaskParam3 = 0;
+int           MaskParam4 = 0;
 
 void UpdStretchTables(int Width)
 {
@@ -470,14 +474,18 @@ BOOL LinearCorrection(TDeinterlaceInfo* pInfo)
         return 1000;
     }
 
-    // If there is a change concerning the height or the width of the picture
-    if ((pInfo->FrameWidth != PictureWidth) || (pInfo->FrameHeight != PictureHeight))
+    // If there is a change concerning the height or the width of the picture,
+    // or if the internal tables have not been calculated before.
+    if ((pInfo->FrameWidth != PictureWidth) || (pInfo->FrameHeight != PictureHeight) ||
+        !IsInitialised)
     {
         // Verify that the filter can manage this size of picture
         if ((pInfo->FrameWidth > MAX_WIDTH) || (pInfo->FrameHeight > MAX_HEIGHT))
         {
             return 1000;
         }
+
+        IsInitialised = TRUE;
 
         // Update the internal tables of the filter
         UpdNbPixelsPerLineTable(pInfo->FrameHeight, pInfo->FrameWidth);
@@ -503,15 +511,6 @@ BOOL LinearCorrection(TDeinterlaceInfo* pInfo)
     {
         return 1000;
     }
-}
-
-void LinearCorrStart(void)
-{
-    // Update the internal tables of the filter
-    UpdNbPixelsPerLineTable(576, 720);
-    UpdLinearFilterTables(720);
-    PictureWidth = 720;
-    PictureHeight = 576;
 }
 
 BOOL MaskParam1_OnChange(long NewValue)
@@ -615,7 +614,7 @@ FILTER_METHOD LinearCorrMethod =
     LinearCorrection, 
     0,
     TRUE,
-    LinearCorrStart,
+    NULL,
     NULL,
     NULL,
     FLT_LINEAR_CORR_SETTING_LASTONE,

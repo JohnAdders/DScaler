@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.12 2003-06-17 12:45:19 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.13 2003-09-28 09:10:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -602,6 +602,11 @@
 #define CX2388X_AGC_SYNC_SLICE  0x00310204
 #define CX2388X_AGC_SYNC_TIP1   0x00310208
 #define CX2388X_AGC_SYNC_TIP2   0x0031020C
+#define CX2388X_AGC_SYNC_TIP3   0x00310210
+#define CX2388X_AGC_GAIN1       0x00310214
+#define CX2388X_AGC_GAIN2       0x00310218
+#define CX2388X_AGC_GAIN3       0x0031021C
+#define CX2388X_AGC_GAIN4       0x00310220
 #define CX2388X_VIDY_GP_CNT     0x0031C020
 #define CX2388X_VID_DMA_CNTRL   0x0031C040
 #define CX2388X_VID_INTMSK      0x00200050

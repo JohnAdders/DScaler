@@ -1052,6 +1052,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_CHANNEL_LIST:
 			SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
+			Channels_UpdateMenu(hMenu);
 			break;
 
 		case IDM_TREADPRIOR_0:
@@ -2089,7 +2090,7 @@ HMENU GetChannelsSubmenu()
 	if(hMenu == NULL) return NULL;
 	hSubMenu = GetSubMenu(hMenu, 1);
 	if(hSubMenu == NULL) return NULL;
-	hSubMenu = GetSubMenu(hSubMenu, 2);
+	hSubMenu = GetSubMenu(hSubMenu, 1);
 	return hSubMenu;
 }
 

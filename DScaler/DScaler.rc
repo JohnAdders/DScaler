@@ -70,8 +70,8 @@ BEGIN
     CONTROL         "Keyed Numbers are channels not postions",
                     IDC_CUTOMCHANNELORDER,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,124,17,195,8
-    COMBOBOX        IDC_COUNTRY,121,35,152,75,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COUNTRY,121,35,152,75,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
     PUSHBUTTON      "Scan",IDC_SCAN,282,35,43,13
     GROUPBOX        "Details",IDC_STATIC,115,55,218,103
     LTEXT           "Name",IDC_STATIC,121,68,46,8
@@ -80,8 +80,8 @@ BEGIN
     EDITTEXT        IDC_FREQUENCY,173,83,126,14,ES_AUTOHSCROLL | WS_DISABLED
     SCROLLBAR       IDC_FINETUNE,304,84,22,13
     LTEXT           "Channel",IDC_STATIC,121,104,48,12
-    COMBOBOX        IDC_CHANNEL,174,102,47,107,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_CHANNEL,174,102,47,107,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
     CONTROL         "Active",IDC_ACTIVE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,229,102,93,12
     LTEXT           "Format",IDC_STATIC,121,123,40,11

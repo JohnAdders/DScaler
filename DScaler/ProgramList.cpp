@@ -160,53 +160,59 @@ const char* Channel_GetName()
 	}
 }
 
+void SelectChannel(HWND hDlg, long ChannelToSelect)
+{
+    // then loop through looking for the correct channel
+    for(int i(0); i < Countries[CountryCode]->m_Frequencies.size() + 1; ++i)
+    {
+        int Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), i);
+        if(Channel == ChannelToSelect)
+        {
+        	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), i);
+        }
+    }
+
+}
+
 void UpdateDetails(HWND hDlg)
 {
-	if(CurrentProgramm < MyChannels.size())
+	if(EditChan < MyChannels.size())
 	{
         char sbuf[256];
 
-		EditChan = CurrentProgramm;
         // set the name		
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), MyChannels[EditChan]->GetName());
 
         // set the frequency
-		sprintf(sbuf, "%10.2f MHz", (double)MyChannels[EditChan]->GetFrequency() / 16.0);
+		sprintf(sbuf, "%10.4f MHz", (double)MyChannels[EditChan]->GetFrequency() / 16.0);
 		Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
 
         // set the channel
         // select none to start off with
         ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
 
-        // then loop through looking for the correct channel
-        for(int i(0); i < Countries[CountryCode]->m_Frequencies.size() + 1; ++i)
-        {
-            int Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), i);
-            if(Channel == MyChannels[EditChan]->GetChannelNumber())
-            {
-        		ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), i);
-            }
-        }
+        SelectChannel(hDlg, MyChannels[EditChan]->GetChannelNumber());
         
         // set format
 		ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), MyChannels[EditChan]->GetFormat() + 1);
 
-        // set active
-        if(MyChannels[EditChan]->IsActive())
-        {
-            Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_CHECKED);
-        }
-        else
-        {
-            Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_UNCHECKED);
-        }
+		// set active
+		if(MyChannels[EditChan]->IsActive())
+		{
+			Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_CHECKED);
+		}
+		else
+		{
+			Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_UNCHECKED);
+		}
+
 	}
 }
 
 void ResetProgramList(HWND hDlg)
 {
     CHANNELLIST::iterator it;
-	ComboBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
+	ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
     CurrentProgramm = 0;
     for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
     {
@@ -220,16 +226,17 @@ void ResetProgramList(HWND hDlg)
             if(Countries[CountryCode]->m_Frequencies[i] != 0)
             {
                 char sbuf[256];
-                sprintf(sbuf, "%d", i + Countries[CountryCode]->m_MinChannel + i);
+                sprintf(sbuf, "%d", Countries[CountryCode]->m_MinChannel + i);
                 MyChannels.push_back(new CChannel(sbuf, 
                                         Countries[CountryCode]->m_Frequencies[i],
                                         Countries[CountryCode]->m_MinChannel + i,
                                         -1,
                                         TRUE));
+				ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
             }
         }
-        CurrentProgramm = 0;
-    	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgramm);
+        EditChan = 0;
+    	ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), EditChan);
         UpdateDetails(hDlg);
     }
 }
@@ -238,14 +245,14 @@ void RefreshProgramList(HWND hDlg, long ProgToSelect)
 {
     CHANNELLIST::iterator it;
 
-	SendMessage(GetDlgItem(hDlg, IDC_PROGRAMLIST), LB_RESETCONTENT, 0, 0);
+	ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
     for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
     {
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), (*it)->GetName());
+		ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), (*it)->GetName());
     }
 
-	ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ProgToSelect);
+	ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ProgToSelect);
 }
 
 void RefreshChannelList(HWND hDlg)
@@ -275,9 +282,13 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
     }
     int i = 0;
 
+	MyChannels[ChannelNum]->SetActive(FALSE);
+
+    EditChan = ChannelNum;
+	UpdateDetails(hDlg);
+	ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ChannelNum);
+
     DWORD Freq = MyChannels[ChannelNum]->GetFrequency();
-	sprintf(sbuf, "%10.2f", (double)Freq / 16.0);
-    Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
     if (!Tuner_SetFrequency(Freq))
 	{
@@ -290,16 +301,13 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
 
 	while ((i < 75) && (BT848_IsVideoPresent() == FALSE))
 	{
-      	MSG msg;
+       	MSG msg;
+ 		if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
+ 		{
+ 			SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+ 		}
+ 
 		i++;
-		if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
-		{
-			SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-		}
-
-		if (InScan == FALSE)
-			return;
-
 		Sleep(3);
 	}
 
@@ -316,8 +324,9 @@ void ScanFrequency(HWND hDlg, int FreqNum)
     int i = 0;
     char sbuf[256];
 
+    SelectChannel(hDlg, FreqNum);
 	DWORD Freq = Countries[CountryCode]->m_Frequencies[FreqNum];
-	sprintf(sbuf, "%10.2f", (double)Freq / 16.0);
+	sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
 	if (!Tuner_SetFrequency(Freq))
@@ -331,16 +340,12 @@ void ScanFrequency(HWND hDlg, int FreqNum)
 
 	while ((i < 75) && (BT848_IsVideoPresent() == FALSE))
 	{
-      	MSG msg;
+       	MSG msg;
+ 		if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
+ 		{
+ 			SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+ 		}
 		i++;
-		if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
-		{
-			SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-		}
-
-		if (InScan == FALSE)
-			return;
-
 		Sleep(3);
 	}
     
@@ -371,12 +376,18 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 	{
 	case WM_INITDIALOG:
         InScan = FALSE;
+		EditChan = CurrentProgramm;
 		SetCapture(hDlg);
         RefreshControls(hDlg);
-		ComboBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
+		ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
         RefreshProgramList(hDlg, CurrentProgramm);
 
+		Button_SetCheck(GetDlgItem(hDlg, IDC_CUTOMCHANNELORDER), bCustomChannelOrder?BST_CHECKED:BST_UNCHECKED);
+
 		SetFocus(GetDlgItem(hDlg, IDC_PROGRAMLIST)); 
+		
+		ScrollBar_SetRange(GetDlgItem(hDlg, IDC_FINETUNE), 0, 100, FALSE);
+		ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
 
         // fill the formats box
         ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Same as Tuner");
@@ -386,9 +397,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "PAL-N");
 		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "NTSC-J");
 		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "PAL60");
+        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
 
-        // if we have any channels then also fill the details box with the current program
-        UpdateDetails(hDlg);
 
         // load up the counrty settings
     	Load_Country_Settings();
@@ -406,6 +416,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
 
             RefreshChannelList(hDlg);
+
+			// if we have any channels then also fill the details box with the current program
+			UpdateDetails(hDlg);
+
         }
         else
         {
@@ -424,8 +438,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
             double dFreq = strtod(sbuf, &cLast);
             long Freq = (long)(dFreq * 16.0);
-            ++Freq;
-		    sprintf(sbuf, "%10.2f", (double)Freq / 16.0);
+            --Freq;
+		    sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
             Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
             Tuner_SetFrequency(Freq);
         }
@@ -438,57 +452,60 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
             double dFreq = strtod(sbuf, &cLast);
             long Freq = (long)(dFreq * 16.0);
-            --Freq;
-		    sprintf(sbuf, "%10.2f", (double)Freq / 16.0);
+            ++Freq;
+		    sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
             Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
             Tuner_SetFrequency(Freq);
         }
         break;
     case WM_USER:
-        if(InScan == FALSE)
-        {
-            if(!bCustomChannelOrder)
-            {
-                ScanCustomChannel(hDlg, wParam);
-                if(wParam < MyChannels.size())
-                {
-                    PostMessage(hDlg, WM_USER, wParam + 1, 0);
-                }
-                else
-                {
-                    InScan = FALSE;
-                    PostMessage(hDlg, WM_USER, -1, 0);
-                }
-            }
-            else
-            {
-                EditChan = 0;
-                ScanFrequency(hDlg, wParam);
-                if(wParam < Countries[CountryCode]->m_Frequencies.size())
-                {
-                    PostMessage(hDlg, WM_USER, wParam + 1, 0);
-                }
-                else
-                {
-                    InScan = FALSE;
-                    PostMessage(hDlg, WM_USER, -1, 0);
-                }
-            }
-        }
-        else
-        {
-            Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Scan");
-            if(MyChannels.size() > 0)
-            {
-                EditChan = 0;
-				Channel_Change(0);
-                UpdateDetails(hDlg);
-            }
-            else
-            {
-                Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), "");
-            }
-        }
+		if(lParam == 101)
+		{
+			if(InScan == TRUE)
+			{
+				if(bCustomChannelOrder)
+				{
+					ScanCustomChannel(hDlg, wParam);
+					if(wParam < MyChannels.size())
+					{
+						PostMessage(hDlg, WM_USER, wParam + 1, 101);
+					}
+					else
+					{
+						InScan = FALSE;
+						PostMessage(hDlg, WM_USER, -1, 101);
+					}
+				}
+				else
+				{
+					EditChan = 0;
+					ScanFrequency(hDlg, wParam);
+					if(wParam < Countries[CountryCode]->m_Frequencies.size())
+					{
+						PostMessage(hDlg, WM_USER, wParam + 1, 101);
+					}
+					else
+					{
+						InScan = FALSE;
+						PostMessage(hDlg, WM_USER, -1, 101);
+					}
+				}
+			}
+			else
+			{
+				Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Scan");
+				if(MyChannels.size() > 0)
+				{
+					EditChan = 0;
+					Channel_Change(0);
+					UpdateDetails(hDlg);
+				}
+				else
+				{
+					Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), "");
+				}
+			}
+		}
         break;
 	case WM_COMMAND:
         switch(LOWORD(wParam))
@@ -497,15 +514,13 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EditChan = -1;
 			if (HIWORD(wParam) == LBN_SELCHANGE)
 			{
-				i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST));
+				i = ListBox_GetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
 				if ((i >= 0) && (i < MyChannels.size()))
 				{
-					if (i != CurrentProgramm)
-					{
-						Channel_Change(i);
-					}
-                    EditChan = i;
+					CurrentProgramm = i;
+					EditChan = i;
+					Channel_Change(CurrentProgramm);
                     UpdateDetails(hDlg);
 				}
 			}
@@ -527,8 +542,11 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 char sbuf[256];
                 // set the frequency
-		        sprintf(sbuf, "%10.2f", (double)MyChannels[EditChan]->GetFrequency() / 16.0);
+				int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
+				Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
+		        sprintf(sbuf, "%10.4f MHz", (double)Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel] / 16.0);
 		        Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
+				ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
             }
             break;
 
@@ -546,6 +564,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
                 BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
                 MyChannels[EditChan] = new CChannel(sbuf, Freq, Channel, Format, Active);
+				ListBox_DeleteString(GetDlgItem(hDlg, IDC_PROGRAMLIST), EditChan);
+				ListBox_InsertString(GetDlgItem(hDlg, IDC_PROGRAMLIST), EditChan, sbuf);
             }
             break;
         case IDC_ADD:
@@ -558,19 +578,22 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
                 Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
-                delete MyChannels[EditChan];
                 Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
                 BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
                 MyChannels.push_back(new CChannel(sbuf, Freq, Channel, Format, Active));
-                ComboBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
+                EditChan = ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
+				ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), EditChan);
             }
             break;
         case IDC_REMOVE:
-            if(EditChan >= 0)
+            if(EditChan >= 0 && EditChan < MyChannels.size())
             {
                 delete MyChannels[EditChan];
                 MyChannels.erase(&MyChannels[EditChan]);
-                ComboBox_DeleteString(GetDlgItem(hDlg, IDC_PROGRAMLIST), EditChan);
+                ListBox_DeleteString(GetDlgItem(hDlg, IDC_PROGRAMLIST), EditChan);
+				EditChan = -1;
+				Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
+				Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), "");
             }
             break;
         case IDC_UP:
@@ -579,6 +602,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 CChannel* Temp = MyChannels[EditChan];
                 MyChannels[EditChan] = MyChannels[EditChan - 1];
                 MyChannels[EditChan - 1] = Temp;
+				--EditChan; 
                 RefreshProgramList(hDlg, EditChan - 1);
             }
             break;
@@ -587,6 +611,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 CChannel* Temp = MyChannels[EditChan];
                 MyChannels[EditChan] = MyChannels[EditChan + 1];
+				++EditChan; 
                 MyChannels[EditChan + 1] = Temp;
                 RefreshProgramList(hDlg, EditChan + 1);
             }
@@ -595,7 +620,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if(InScan == TRUE)
             {
                 InScan = FALSE;
-                PostMessage(hDlg, WM_USER, -1, 0);
+                PostMessage(hDlg, WM_USER, -1, 101);
             }
             else
             {
@@ -604,19 +629,21 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 if(!bCustomChannelOrder)
                 {
                     ResetProgramList(hDlg);
-                    PostMessage(hDlg, WM_USER, 0, 0);
+				    Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
+				    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
                 }
-                else
-                {
-                    PostMessage(hDlg, WM_USER, 0, 0);
-                }
+				else
+                PostMessage(hDlg, WM_USER, 0, 101);
             }
             break;
         case IDOK:
+			Write_Program_List_ASCII();
+    		Unload_Country_Settings();
 			EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
-            // TODO save and restore old settings
+			Load_Program_List_ASCII();
+    		Unload_Country_Settings();
 			EndDialog(hDlg, TRUE);
             break;
         }

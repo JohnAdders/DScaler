@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.23 2002-12-04 15:54:09 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.24 2002-12-05 08:08:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/12/04 15:54:09  adcockj
+// Hacky fix for settings by channel code with mutiple cards
+//
 // Revision 1.22  2002/11/28 13:38:01  atnak
 // Removed saa7134res.dll checking where it was unneeded
 //
@@ -342,7 +345,7 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
             SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_SETITEMDATA, nIndex, i);
             if (i == 0)
             {
-                SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_SETCURSEL, nIndex, i);
+                SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_SETCURSEL, nIndex, 0);
             }
         }
         SetFocus(hDlg);

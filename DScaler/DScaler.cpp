@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.114 2002-01-20 10:05:02 robmuller Exp $
+// $Id: DScaler.cpp,v 1.115 2002-01-22 14:50:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.114  2002/01/20 10:05:02  robmuller
+// On channel setup prevent switch to tuner mode if already in tuner mode.
+//
 // Revision 1.113  2002/01/20 09:59:32  robmuller
 // In tuner mode STATUS_TEXT in statusbar shows channel number if channel name is not available.
 //
@@ -412,6 +415,9 @@ BOOL bIsFullScreen = FALSE;
 BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
 
+BOOL bKeyboardLock = FALSE;
+HHOOK hKeyboardHook = NULL;
+
 HFONT hCurrentFont = NULL;
 
 BOOL bInMenuOrDialogBox = FALSE;
@@ -429,7 +435,7 @@ void Cursor_VTUpdate(bool PosValid, int x, int y);
 void MainWndOnDestroy();
 void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
-
+void SetKeyboardLock(BOOL Enabled);
 
 ///**************************************************************************
 //
@@ -759,6 +765,42 @@ void SetVTShowHidden(bool Enabled)
         VTShowHidden = Enabled;
         VT_DoUpdate_Page(VTPage - 100, VTSubPage);
         InvalidateRect(hWnd, NULL, FALSE);
+    }
+}
+
+LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
+{
+    if(code >= 0 && bKeyboardLock)
+    {
+        // if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain 
+        // or the target window procedure
+        if(!((char)wParam == 'L' && GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0))
+        {
+            return 1;
+        }
+    }
+   	return CallNextHookEx(hKeyboardHook, code, wParam, lParam);
+}
+
+void SetKeyboardLock(BOOL Enabled)
+{
+    if(Enabled)
+    {
+        bKeyboardLock = TRUE;
+        if(hKeyboardHook == NULL)
+        {
+            hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)KeyboardHookProc, NULL, 
+                                             GetCurrentThreadId());
+        }
+    }
+    else
+    {
+        bKeyboardLock = FALSE;
+        if(hKeyboardHook != NULL)
+        {
+            UnhookWindowsHookEx(hKeyboardHook);
+            hKeyboardHook = NULL;
+        }
     }
 }
 
@@ -1342,6 +1384,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_SPLASH_ON_STARTUP:
             bDisplaySplashScreen = !bDisplaySplashScreen;
+            break;
+
+        case IDM_KEYBOARDLOCK:
+            bKeyboardLock = !bKeyboardLock;
+            SetKeyboardLock(bKeyboardLock);
+            if(bKeyboardLock)
+            {
+                OSD_ShowText(hWnd, "Keyboard lock on", 0);
+            }
+            else
+            {
+                OSD_ShowText(hWnd, "Keyboard lock off", 0);
+            }
+            
             break;
 
         case IDM_TREADPRIOR_0:
@@ -2577,6 +2633,12 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Unload plug-ins");}
 
+    __try
+    {
+        SetKeyboardLock(FALSE);
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SetKeyboardLock(FALSE)");}
+
 }
 
 //---------------------------------------------------------------------------
@@ -2604,6 +2666,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
     CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
     CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
+    CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
 
     AspectRatio_SetMenu(hMenu);
     FD60_SetMenu(hMenu);
@@ -3130,6 +3193,13 @@ BOOL ShowMenu_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL KeyboardLock_OnChange(long NewValue)
+{
+    bKeyboardLock = (BOOL)NewValue;
+    SetKeyboardLock(bKeyboardLock);
+    return FALSE;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -3243,6 +3313,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         NULL,
         "MainWindow", "ShowCrashDialog", NULL,
     },
+    {
+        "Lock keyboard", ONOFF, 0, (long*)&bKeyboardLock,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "KeyboardLock", KeyboardLock_OnChange,
+    },
 };
 
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)
@@ -3267,6 +3343,10 @@ void DScaler_ReadSettingsFromIni()
     if(bForceFullScreen)
     {
         bIsFullScreen = TRUE;
+    }
+    if(bKeyboardLock)
+    {
+        SetKeyboardLock(TRUE);
     }
 }
 

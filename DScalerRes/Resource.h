@@ -835,6 +835,7 @@
 #define IDM_VT_ITALIAN                  2245
 #define IDM_VT_SWEDISH                  2246
 #define IDM_CHARSET_TEST                2247
+#define IDM_KEYBOARDLOCK                2248
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -856,7 +857,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2248
+#define _APS_NEXT_COMMAND_VALUE         2249
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           2213
 #endif

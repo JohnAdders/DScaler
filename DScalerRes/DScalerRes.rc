@@ -95,6 +95,8 @@ BEGIN
                                                     NOINVERT
     "L",            IDM_TAKESTILL,          VIRTKEY, NOINVERT
     "L",            IDM_TAKESTREAMSNAP,     VIRTKEY, SHIFT, NOINVERT
+    "L",            IDM_KEYBOARDLOCK,       VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
     "M",            IDM_MUTE,               VIRTKEY, NOINVERT
     "M",            IDM_MUTE,               VIRTKEY, SHIFT, NOINVERT
     "N",            IDM_NOISE_FILTER,       VIRTKEY, NOINVERT
@@ -904,6 +906,7 @@ BEGIN
         MENUITEM "St&op Card Calibration",      IDM_STOP_CALIBRATION
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
+        MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
     END
     MENUITEM "Source",                      IDM_SHOW_SCREEN
     MENUITEM "Holder",                      IDM_SHOW_SCREEN

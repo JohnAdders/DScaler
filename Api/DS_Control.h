@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.47 2002-01-05 23:05:39 lindsey Exp $
+// $Id: DS_Control.h,v 1.48 2002-01-22 14:50:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/01/05 23:05:39  lindsey
+// Consolidated two settings into one from FLT_TemporalComb
+//
 // Revision 1.46  2001/12/31 00:55:55  lindsey
 // Added settings for FLT_AdaptiveNoise
 //
@@ -419,6 +422,7 @@ typedef enum
     AUTOSAVESETTINGS,
     ALWAYSONTOPFULL,
     SHOWCRASHDIALOG,
+    LOCKKEYBOARD,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

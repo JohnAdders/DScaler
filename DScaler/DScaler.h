@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.15 2002-01-23 22:57:29 robmuller Exp $
+// $Id: DScaler.h,v 1.16 2002-02-17 21:41:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -96,6 +96,9 @@ HMENU GetPatternsSubmenu();
 
 #define TIMER_VTUPDATE      68
 #define TIMER_VTUPDATE_MS   110
+
+#define TIMER_FINDPULL      46
+#define TIMER_FINDPULL_MS   4000
 
 #define WM_VIDEOTEXT        0x3001
 #define VTM_REDRAWHEADER    0x0001

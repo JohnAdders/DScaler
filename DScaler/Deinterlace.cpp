@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.32 2002-02-11 23:18:33 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.33 2002-02-17 21:41:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/02/11 23:18:33  laurentg
+// Creation of a DEINTERLACE_METHOD data structure for the progressive mode
+//
 // Revision 1.31  2002/02/10 21:42:29  laurentg
 // New menu items "Progressive Scan" and "Film Mode"
 //
@@ -830,7 +833,6 @@ void Deinterlace_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode ? MF_ENABLED : MF_GRAYED);
     CheckMenuItemBool(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode);
 
-    EnableMenuItem(hMenu, IDM_FILM_MODE, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_22PULLODD, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_22PULLEVEN, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
     EnableMenuItem(hMenu, IDM_32PULL1, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
@@ -865,8 +867,7 @@ void Deinterlace_SetMenu(HMENU hMenu)
     for(i = 0; i < NumVideoModes; i++)
     {
         EnableMenuItem(hMenu, VideoDeintMethods[i]->MenuId, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-        // don't put a video tick if we are in a manually selected film mode
-        if(!bIsProgressiveMode && (!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == TRUE)))
+        if(!bIsProgressiveMode && !bIsFilmMode)
         {
             CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, (gVideoPulldownMode == i));
         }

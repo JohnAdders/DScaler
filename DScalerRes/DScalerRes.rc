@@ -184,6 +184,8 @@ BEGIN
     VK_SPACE,       IDM_SPACEBAR,           VIRTKEY, NOINVERT
     VK_SPACE,       IDM_AUTODETECT,         VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       IDM_SHIFT_SPACEBAR,     VIRTKEY, SHIFT, NOINVERT
+    VK_SPACE,       IDM_FINDLOCK_PULL,      VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
     VK_SUBTRACT,    IDM_VOLUMEMINUS,        VIRTKEY, NOINVERT
     VK_TAB,         IDM_TOGGLE_MENU,        VIRTKEY, NOINVERT
     VK_UP,          IDM_VT_PAGE_UP,         VIRTKEY, NOINVERT
@@ -870,12 +872,14 @@ BEGIN
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
         POPUP "&Deinterlace Mode"
         BEGIN
-            MENUITEM "&Automatic Pulldown Detect\tCtrl+Spacebar", 
+            MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
                                                     IDM_AUTODETECT
             MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
             MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
             MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
             MENUITEM SEPARATOR
+            MENUITEM "&Search and Lock Film mode\tCtrl+Shift+Space", 
+                                                    IDM_FINDLOCK_PULL
             POPUP "&Manual Film Mode Select"
             BEGIN
                 MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
@@ -890,19 +894,13 @@ BEGIN
             MENUITEM "Show Video Method &UI",       IDM_SHOWPLUGINUI
             MENUITEM SEPARATOR
             MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
-            MENUITEM "Film Mode",                   IDM_FILM_MODE
+            MENUITEM "Film Mode",                   IDM_FILM_MODE, GRAYED
         END
         MENUITEM "Select &Filters",             IDM_SHOW_SCREEN
         MENUITEM "Filter &Settings",            IDM_SHOW_SCREEN
         MENUITEM SEPARATOR
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
-        POPUP "Video &Overlay"
-        BEGIN
-            MENUITEM "Groups of Settings",          IDM_SHOW_SCREEN, GRAYED
-            MENUITEM "&Adjustment ...",             IDM_OVERLAYSETTINGS
-            MENUITEM "St&op",                       IDM_OVERLAY_STOP
-            MENUITEM "St&art",                      IDM_OVERLAY_START
-        END
+        MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
         POPUP "Card &Calibration"
         BEGIN
             MENUITEM "Test &Patterns",              IDM_SHOW_SCREEN
@@ -1004,6 +1002,11 @@ BEGIN
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
             MENUITEM "Calibration",                 IDM_CALIBR_SETTINGS
             MENUITEM "OSD",                         IDM_OSD_SETTINGS
+        END
+        POPUP "Video &Overlay"
+        BEGIN
+            MENUITEM "St&op",                       IDM_OVERLAY_STOP
+            MENUITEM "St&art",                      IDM_OVERLAY_START
         END
     END
     POPUP "&Help"

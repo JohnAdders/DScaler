@@ -881,6 +881,7 @@
 #define IDM_DSVIDEO_STANDARD_MAX        2333
 #define IDM_DSHOW_FILTER_0              2334
 #define IDM_DSHOW_FILTER_1              2335
+#define IDM_FINDLOCK_PULL               2335
 #define IDM_DSHOW_FILTER_2              2336
 #define IDM_DSHOW_FILTER_3              2337
 #define IDM_DSHOW_FILTER_4              2338
@@ -921,7 +922,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2335
+#define _APS_NEXT_COMMAND_VALUE         2336
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           2354
 #endif

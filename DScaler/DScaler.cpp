@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.129 2002-02-17 20:32:34 laurentg Exp $
+// $Id: DScaler.cpp,v 1.130 2002-02-17 21:41:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.129  2002/02/17 20:32:34  laurentg
+// Audio input display suppressed from the OSD main screen
+// GetStatus modified to display the video input name in OSD main screen even when there is no signal
+//
 // Revision 1.128  2002/02/11 21:28:19  laurentg
 // Popup menu updated
 //
@@ -1117,6 +1121,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUTODETECT:
+            KillTimer(hWnd, TIMER_FINDPULL);
             if(Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
             {
                 ShowText(hWnd, "Auto Pulldown Detect OFF");
@@ -1139,6 +1144,25 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
+        case IDM_FINDLOCK_PULL:
+            if(!Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+            {
+                Setting_SetValue(OutThreads_GetSetting(AUTODETECT), TRUE);
+            }
+            // Set Deinterlace Mode to film fallback in
+            // either case
+            if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps)
+            {
+                SetVideoDeinterlaceIndex(Setting_GetValue(FD50_GetSetting(PALFILMFALLBACKMODE)));
+            }
+            else
+            {
+                SetVideoDeinterlaceIndex(Setting_GetValue(FD60_GetSetting(NTSCFILMFALLBACKMODE)));
+            }
+            SetTimer(hWnd, TIMER_FINDPULL, TIMER_FINDPULL_MS, NULL);
+//            ShowText(hWnd, "Searching Film mode ...");
+            break;
+
         case IDM_FALLBACK:
             if(Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
             {
@@ -1159,6 +1183,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_32PULL3:
         case IDM_32PULL4:
         case IDM_32PULL5:
+            KillTimer(hWnd, TIMER_FINDPULL);
             Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
             SetFilmDeinterlaceMode((eFilmPulldownMode)(LOWORD(wParam) - IDM_22PULLODD));
             ShowText(hWnd, GetDeinterlaceModeName());
@@ -2255,6 +2280,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ReleaseDC(hWnd, hDC);
             }
             break;
+        //---------------------------------
+        case TIMER_FINDPULL:
+            {
+                KillTimer(hWnd, TIMER_FINDPULL);
+                Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
+                ShowText(hWnd, GetDeinterlaceModeName());
+            }
+            break;
         default:
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
@@ -2668,6 +2701,7 @@ void KillTimers()
     KillTimer(hWnd, TIMER_HIDECURSOR);
     KillTimer(hWnd, TIMER_VTFLASHER);
     KillTimer(hWnd, TIMER_VTUPDATE);
+    KillTimer(hWnd, TIMER_FINDPULL);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.9 2002-10-30 03:31:47 atnak Exp $
+// $Id: VTDrawer.h,v 1.10 2003-01-01 20:43:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,25 @@
 //  Portions Copyright (C) 2000 John Adcock
 //
 /////////////////////////////////////////////////////////////////////////////
+//
+// Change Log
+//
+// Date          Developer             Changes
+//
+// 02 Jan 2003   Atsushi Nakagawa      Redid the CVTDrawer class to tie in
+//                                     with the new CVTCommon class.  CVS
+//                                     Log entries prior to and including
+//                                     rev 1.9 may no longer have direct
+//                                     validity but their cumulative changes
+//                                     still remain valid.
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/30 03:31:47  atnak
+// Made mixed mode use nonantialias fonts iff there is a transparent background.
+//
 // Revision 1.8  2002/10/15 11:53:38  atnak
 // Added UI feedback for some videotext stuff
 //
@@ -55,59 +71,169 @@
 #define __VTDRAWER_H__
 
 #include "stdafx.h"
-#include "VBI_VideoText.h"
+#include "VTCommon.h"
 
-typedef char TVTHeaderLine[40], *LPTVTHeaderLine, *PTVTHeaderLine;
 
-#define VTDF_HIDDEN          0x0001
-#define VTDF_HIDDENONLY      0x0002
-#define VTDF_FLASH           0x0004
-#define VTDF_FLASHONLY       0x0008
-#define VTDF_MIXMODE         0x0010
-#define VTDF_CLOCKONLY       0x0020
-#define VTDF_HEADERONLY      0x0040
-#define VTDF_FORCEDRAW       0x0080
-#define VTDF_CLEARFLASH      0x0100
-#define VTDF_THISROWONLY     0x0200
+// DrawPage flags
+enum
+{
+    VTDF_HIDDEN             = 0x0001,
+    VTDF_HIDDENONLY         = 0x0002,
+    VTDF_FLASH              = 0x0004,
+    VTDF_FLASHONLY          = 0x0008,
+    VTDF_MIXEDMODE          = 0x0010,
+    VTDF_UPDATEDONLY        = 0x0020,
+    VTDF_FORCEHEADER        = 0x0040,
+    VTDF_HEADERONLY         = 0x0080,
+    VTDF_CLOCKONLY          = 0x0100,
+};
 
-#define VTDF_HIDDENMASK      0x0003
-#define VTDF_FLASHMASK       0x000C
 
-class
-    CVTDrawer
+class CVTDrawer : CVTCommon
 {
 public:
     CVTDrawer();
     ~CVTDrawer();
-    void SetBounds(HDC hDC, RECT* Rect);
-	void SetHiliteText(const char* Text);
-    bool Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow, int iTempPageOSD);
 
-    int GetAvgWidth();
-    int GetAvgHeight();
+    /// Sets the text codepage to use when drawing
+    void SetCodepage(eVTCodepage Codepage);
+    /// Turns on or off display font antialiasing
+    void SetAntialias(BOOL bAntialias);
+    /// Sets the colour to be used as the transparent colour
+    void SetTransparencyColour(COLORREF ColorRef);
+
+    /// Draws the page to the given rect and device context
+    void DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, WORD uFlags,
+                  TVTLeftRight* pHilightList[25], BYTE pDoubleProfile[25]);
+
+    /// Works out the row and column given a display point
+    WORD GetRowColAtPoint(LPRECT lpDisplayRect, LPPOINT DisplayPoint);
+
+    /// Gets the hex page number found at the pixel point
+    WORD FindPageNumberAtPoint(TVTPage* pPage, LPRECT lpDisplayRect,
+                               LPPOINT DisplayPoint);
+
+    /// Gets the hex page number found at the point
+    WORD FindPageNumberAtRowCol(TVTPage* pPage, WORD wSearchRowCol);
 
 private:
-    void DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol, BYTE DisplayColour, BYTE BackgroundColour, BYTE DisplayModes, BYTE DisplayChar,
-                            BOOL bHighLightChar, BOOL bHasDouble, int nTopOffset, int nLeftOffset, eVTCodePage VTCodePage, HFONT& hCurrentFont,
-                            unsigned long ulFlags);
+    COLORREF GetColourRef(BYTE VTColour);
+    HBRUSH GetColourBrush(BYTE VTColour);
+
+    void SetBounds(HDC hDC, LPRECT lpRect);
+
+    void CreateMissingStandardFonts(HDC hDC);
+    void CreateMissingLowQFonts(HDC hDC);
+    void DeleteFonts();
+
+    HFONT MakeFont(HDC hDC, double iSize, double iWidth, LPCTSTR szFaceName,
+                   BOOL bAntiAliased, BOOL bWidenFont = FALSE);
+
+    static BYTE DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
+                             WORD wColour, BYTE uChar, BYTE uMode, LPVOID lpParam);
+
+    static BYTE FindPageNumberProc(TVTPage*, WORD wPoint, LPWORD, WORD,
+                                   BYTE uChar, BYTE uMode, LPVOID lpParam);
+
+    static BYTE FindRow24PageNumberProc(TVTPage*, WORD wPoint, LPWORD, WORD wColour,
+                                        BYTE uChar, BYTE uMode, LPVOID lpParam);
+
 private:
-    void DestroyFonts();  
-    HFONT MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bAntiAlias, BOOL bWidenFont = FALSE);
-	BOOL IsHiliteText(int col, const char* VTRow);
-    HBRUSH m_hBrushes[9];
-    RECT m_Rect;
-    HFONT m_hFont;
-    HFONT m_hDoubleFont;
-	HFONT m_hFontSmall;             // smaller to accomodate wide characters
-    HFONT m_hDoubleFontSmall;       // idem
-    HFONT m_hMixedFont;             // font used when there is no background
-    HFONT m_hDoubleMixedFont;
-    HFONT m_hMixedFontSmall;
-    HFONT m_hDoubleMixedFontSmall;
-    BOOL m_bFixedPitch;
-    int m_AvgWidth, m_AvgHeight;
-    double m_dAvgWidth, m_dAvgHeight;
-    char m_HiliteText[41];
+    COLORREF    m_TransparencyColour;
+    HBRUSH      m_TransparencyBrush;
+
+    HBRUSH      m_hColourBrush[8];
+
+    BOOL        m_bAntialias;
+    RECT        m_BoundsRect;
+
+    eVTCodepage m_CurrentCodepage;
+    WORD        m_CharacterSet[96];
+
+    HFONT       m_hNormalFont;
+    HFONT       m_hDoubleFont;
+	HFONT       m_hNormalFontSmaller;
+    HFONT       m_hDoubleFontSmaller;
+
+    HFONT       m_hLowQNormalFont;
+    HFONT       m_hLowQDoubleFont;
+    HFONT       m_hLowQNormalFontSmaller;
+    HFONT       m_hLowQDoubleFontSmaller;
+
+    BOOL        m_bFixedPitch;
+
+    double      m_dAvgWidth;
+    double      m_dAvgHeight;
+
+    static COLORREF     m_ColourTable[8];
+    static const char   m_szFontName[32];  
 };
 
 #endif
+
+
+/*
+ *
+ *  Constructor:
+ *
+ *  CVTDrawer();
+ *
+ *
+ *  Setup:
+ *
+ *  Set the code page.  (Default: Undefined.  Must be called before Main)
+ *  - SetCodepage(eVTCodepage Codepage);
+ *
+ *  Set anti alias option (Default: Antialias off)
+ *  - SetAntialias(BOOL bAntialias);
+ *
+ *  Set the colour to be used as the tranparency colour:  (Default: Blue)
+ *  - SetTransparencyColour(COLORREF ColorRef);
+ *
+ *
+ *  Main:
+ *
+ *  Draw a page.
+ *  - DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, BYTE uFlags,
+ *            LPPOINT lpStartRowCol = NULL, LPPOINT lpStopRowCol = NULL);
+ *
+ *    hDC            - Device context in which to draw
+ *    lpRect         - The rect in which the page is drawn in
+ *    pPage          - The page to be drawn.
+ *    uFlags         - Various flags for DrawPage (see: enum { VTDF_* })
+ *    pHilightList   - List of Left-Right spans that should be hilighted.
+ *    pDoubleProfile - Used to receive the list of double heights lines.
+ *
+ *
+ *  Utility:
+ *
+ *  Gets out the row and column given a display point
+ *  - GetRowColAtPoint(LPRECT lpDisplayRect, LPPOINT DisplayPoint);
+ *
+ *    lpDisplayRect  - The rect in which the page was drawn.
+ *    DisplayPoint   - The coordinates, with the same (0,0) reference
+ *                     point as lpDisplayRect.
+ *
+ *    Return type: WORD
+ *
+ *  Get a string of three number at a screen coordinate.  Return the
+ *  number as a hexidecimal page number (mask 0xFFF).
+ *  - FindPageNumberAtPoint(TVTPage* pPage, LPRECT lpDisplayRect,
+ *                           LPPOINT lpDisplayPoint);
+ *
+ *    pPage          - The page in which to search
+ *    lpDisplayRect  - The rect in which the page was drawn.
+ *    DisplayPoint   - The coordinates, with the same (0,0) reference
+ *                     point as lpDisplayRect.
+ *
+ *    Return type: WORD
+ *
+ *  Get a string of three number at a specific row and column.  Return
+ *  the number as a hexidecimal page number (mask 0xFFF).
+ *  - FindPageNumberAtRowCol(TVTPage* pPage, WORD wSearchRowCol);
+ *
+ *    wSearchRowCol  - LOBYTE is Row, HIBYTE is Col.
+ *
+ *    Return type: WORD
+ */
+

@@ -768,7 +768,7 @@ BEGIN
         MENUITEM "Au&tohide Cursor",            IDM_AUTOHIDE_CURSOR
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
-        MENUITEM "&Always on Top (Window)",     IDM_ON_TOP
+        MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On Top (Full Screen)",  IDM_ALWAYONTOPFULLSCREEN
         POPUP "&OSD"
         BEGIN

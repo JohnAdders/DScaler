@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.37 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.38 2002-04-10 07:14:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.36  2002/03/12 21:10:04  robmuller
 // Corrected error in TradeOff setting.
 //
@@ -383,19 +386,19 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_bSavePerChannel);
 
     m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_Settings.push_back(m_AudioSource2);
 
     m_AudioSource3 = new CAudioSource3Setting(this, "Audio Source 3", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_Settings.push_back(m_AudioSource3);
 
     m_AudioSource4 = new CAudioSource4Setting(this, "Audio Source 4", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_Settings.push_back(m_AudioSource4);
 
     m_AudioSource5 = new CAudioSource5Setting(this, "Audio Source 5", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_Settings.push_back(m_AudioSource5);
 
     m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_Settings.push_back(m_AudioSource6);
 
     ReadFromIni();
 }

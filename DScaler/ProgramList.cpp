@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.44 2002-01-19 17:23:43 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.45 2002-01-26 17:55:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/01/19 17:23:43  robmuller
+// Added patch #504738 submitted by Keng Hoo Chuah (hoo)
+// (fixed crash if channel.txt does not start with [country])
+//
 // Revision 1.43  2002/01/17 22:25:23  robmuller
 // Channel searching is no longer dependant on the duration of Sleep(3).
 // MT2032 channel searching speedup.
@@ -277,7 +281,7 @@ void UpdateDetails(HWND hDlg)
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), Name);
 
         // set the frequency
-        sprintf(sbuf, "%10.4f MHz", (double)(MyChannels[CurrentProgramm]->GetFrequency()) / 16.0);
+        sprintf(sbuf, "%10.4f", (double)(MyChannels[CurrentProgramm]->GetFrequency()) / 16.0);
         Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
 
         // set the channel
@@ -376,29 +380,16 @@ void RefreshChannelList(HWND hDlg)
     InUpdate = FALSE;
 }
 
-void ScanCustomChannel(HWND hDlg, int ChannelNum)
+//returns TRUE if a video signal is found
+BOOL FindFrequency(DWORD Freq)
 {
-    InUpdate = TRUE;
     char sbuf[256];
-
-    if(ChannelNum < 0 || ChannelNum >= MyChannels.size())
-    {
-        return;
-    }
-
-    MyChannels[ChannelNum]->SetActive(FALSE);
-
-    CurrentProgramm = ChannelNum;
-    UpdateDetails(hDlg);
-    ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ChannelNum);
-
-    DWORD Freq = MyChannels[ChannelNum]->GetFrequency();
 
     if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE))
     {
         sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
         ErrorBox(sbuf);
-        return;
+        return false;
     }
 
     int       MaxTuneDelay = 0;
@@ -437,8 +428,28 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
         ElapsedTicks = GetTickCount() - StartTick;
         Sleep(3);
     }
+    return Providers_GetCurrentSource()->IsVideoPresent();
+}
 
-    MyChannels[ChannelNum]->SetActive(Providers_GetCurrentSource()->IsVideoPresent());
+void ScanCustomChannel(HWND hDlg, int ChannelNum)
+{
+    BOOL result;
+    InUpdate = TRUE;
+
+    if(ChannelNum < 0 || ChannelNum >= MyChannels.size())
+    {
+        return;
+    }
+
+    MyChannels[ChannelNum]->SetActive(FALSE);
+
+    CurrentProgramm = ChannelNum;
+    UpdateDetails(hDlg);
+    ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ChannelNum);
+
+    result = FindFrequency(MyChannels[ChannelNum]->GetFrequency());
+
+    MyChannels[ChannelNum]->SetActive(result);
     InUpdate = FALSE;
 }
 
@@ -462,54 +473,10 @@ void ScanFrequency(HWND hDlg, int FreqNum)
 
     SelectChannel(hDlg, FreqNum + Countries[CountryCode]->m_MinChannel);
 
-    sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
+    sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
-    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE))
-    {
-        sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
-        ErrorBox(sbuf);
-        return;
-    }
-
-    int       MaxTuneDelay = 0;
-
-    switch(Providers_GetCurrentSource()->GetTunerId())
-    {
-        // The MT2032 is a silicon tuner and tunes real fast, no delay needed at this point.
-        // Even channels with interference and snow are tuned and detected in about max 80ms,
-        // so 120ms seems to be a safe value.
-    case TUNER_MT2032:
-        MaxTuneDelay = 120;
-        break;
-    default:
-        MaxTuneDelay = 225;
-        Sleep(100);
-        break;
-    }
-
-    int       StartTick = 0;
-    int       ElapsedTicks = 0;
-
-    StartTick = GetTickCount();
-    while (Providers_GetCurrentSource()->IsVideoPresent() == FALSE)
-    {
-        MSG msg;
-        if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
-        {
-            SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-        }
-
-        if(ElapsedTicks > MaxTuneDelay)
-        {
-            break;
-        }
- 
-        ElapsedTicks = GetTickCount() - StartTick;
-        Sleep(3);
-    }
-
-    if(Providers_GetCurrentSource()->IsVideoPresent())
+    if(FindFrequency(Freq))
     {
         char sbuf[256];
         ++CurrentProgramm;
@@ -637,7 +604,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 double dFreq = strtod(sbuf, &cLast);
                 long Freq = (long)(dFreq * 16.0);
                 --Freq;
-                sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
+                sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
                 ChangeChannelInfo(hDlg);
@@ -650,7 +617,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 double dFreq = strtod(sbuf, &cLast);
                 long Freq = (long)(dFreq * 16.0);
                 ++Freq;
-                sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
+                sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
                 ChangeChannelInfo(hDlg);
@@ -737,17 +704,34 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             RefreshControls(hDlg);
             ResetProgramList(hDlg);
             break;
-        
+
         case IDC_CHANNEL:
             if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
                 char sbuf[256];
                 // set the frequency
                 int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
+                long Freq = 0;
                 Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
-                sprintf(sbuf, "%10.4f MHz", (double)Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel] / 16.0);
+                Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel];
+                sprintf(sbuf, "%10.4f", Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
                 ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
+                ChangeChannelInfo(hDlg);
+            }
+            break;
+
+        case IDC_SETFREQ:
+            if(InUpdate == FALSE)
+            {
+                char* cLast;
+                Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
+                double dFreq = strtod(sbuf, &cLast);
+                long Freq = (long)(dFreq * 16.0);
+                sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
+                Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
                 ChangeChannelInfo(hDlg);
             }
             break;

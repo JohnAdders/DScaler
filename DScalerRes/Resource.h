@@ -249,6 +249,7 @@
 #define IDC_BLEND_CHROMA                1413
 #define IDC_BT848                       1414
 #define IDC_BUTTON1                     1415
+#define IDC_SETFREQ                     1415
 #define IDC_BUTTON2                     1416
 #define IDC_BUTTON3                     1417
 #define IDC_BUTTON4                     1418

@@ -48,6 +48,9 @@ long PALPulldownRepeatCount2 = 1;
 long MovementThreshold = 100;
 long CombThreshold = 150;
 extern BOOL bFallbackToVideo;
+extern long ThresholdPulldownMismatch;
+extern long ThresholdPulldownComb;
+
 ///////////////////////////////////////////////////////////////////////////////
 // UpdatePALPulldownMode
 //
@@ -64,6 +67,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	double PercentIncrease = 0;
 	static long FieldsSinceLastChange = 0;
 	static long PrivateRepeatCount = PALPulldownRepeatCount;
+	static long NotSureCount = 0;
 
 	// call with pInfo as NULL to reset static variables when we start the thread
 	// each time
@@ -77,6 +81,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 		StartFilmTicks = 0;
 		FieldsSinceLastChange = 0;
 		PrivateRepeatCount = PALPulldownRepeatCount;
+		NotSureCount = 0;
 		return;
 	}
     
@@ -142,6 +147,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 							SetFilmDeinterlaceMode(FILM_22_PULLDOWN_EVEN);
 							LOG(" Gone to Even");
 						}
+						NotSureCount = 0;
 					}
 				}
 			}
@@ -156,13 +162,17 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	}
 	else
 	{
-		if(PercentDecrease < PulldownThresholdLow && 
-			LastDiff > PulldownThresholdLow &&
-			pInfo->FieldDiff > MovementThreshold &&
-			LastCombFactor > CombThreshold &&
-			LastPolarity != pInfo->IsOdd)
-		{
+		// we are in a real 2:2 film mode but we need to check that nothing
+		// bad has happened
 
+		// if we are about to flip
+		// check that if there is movement that there is not too much combing
+		// going on
+		if(pInfo->FieldDiff >= ThresholdPulldownMismatch &&	// only force video if this field is very different,
+			LastPolarity == pInfo->IsOdd &&
+			pInfo->CombFactor > (LastCombFactor + ThresholdPulldownComb) &&   // and it'd produce artifacts
+			pInfo->CombFactor > ThresholdPulldownComb)
+		{
             if(bFallbackToVideo)
             {
         		SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
@@ -174,7 +184,35 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 				LOG(" Gone to Comb Mode");
 				RepeatCount = PrivateRepeatCount;
             }
-        }
+		}
+		if(LastPolarity == pInfo->IsOdd)
+		{
+			if(pInfo->FieldDiff >= ThresholdPulldownMismatch)
+			{
+				if(pInfo->CombFactor < LastCombFactor)
+				{
+					NotSureCount = 0;
+				}
+				else
+				{
+					++NotSureCount;
+					if(NotSureCount > 3)
+					{
+						if(bFallbackToVideo)
+						{
+        					SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+							LOG(" Gone back to because we're not sure");
+						}
+						else
+						{
+							SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+							LOG(" Gone to Comb Mode because we're not sure");
+							RepeatCount = PrivateRepeatCount;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	LastDiff = PercentDecrease;

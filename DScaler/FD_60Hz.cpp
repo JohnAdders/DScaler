@@ -58,6 +58,7 @@ long PulldownRepeatCount = 4;
 long PulldownRepeatCount2 = 2;
 long PulldownSwitchMax = 4;
 long PulldownSwitchInterval = 3000;
+long MaxCallsToComb = 20;
 
 // Module wide declarations
 long NextPulldownRepeatCount = 0;    // for temporary increases of PullDownRepeatCount
@@ -543,15 +544,23 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO *pInfo)
     static long LastComb = 0;
     static long NumSkipped = 0;
     static long NumVideo = 0;
+    static long NumCalls = 0;
     
 	if(pInfo == NULL)
     {
         LastComb = 0;
         NumSkipped = 0;
 		NumVideo = 0;
+		NumCalls = 0;
 		return FALSE;
     }
 
+	++NumCalls;
+	if(NumCalls > MaxCallsToComb)
+	{
+        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+        LOG(" Gone back to video from Comb");
+	}
     // if we can weave these frames together without too
     // much weaving or because there is no motion then go ahead
     if(pInfo->CombFactor  < ThresholdPulldownComb ||
@@ -709,6 +718,13 @@ SETTING FD60Settings[FD60_SETTING_LASTONE] =
 		4, 0, 100, 10, 1,
 		NULL,
 		"Pulldown", "PulldownSwitchMax", NULL,
+
+	},
+	{
+		"Max Calls to Comb Method", SLIDER, 0, (long*)&MaxCallsToComb,
+		20, 0, 1000, 10, 1,
+		NULL,
+		"Pulldown", "MaxCallsToComb", NULL,
 
 	},
 };

@@ -1,5 +1,5 @@
 
-PAT	720	480	THX Optimode Ntsc - Monitor Performance
+PAT	THX Optimode Ntsc - Monitor Performance
 
 RECT	347	764	6875	7500	RGB	0	0	0	255	255	255	BORDER
 RECT	1181	1597	6875	7500	RGB	22	24	23	255	255	255	BORDER

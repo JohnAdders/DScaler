@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.14 2002-10-11 21:31:47 ittarnavsky Exp $
+// $Id: AudioDecoder.h,v 1.15 2003-02-06 19:37:54 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/11 21:31:47  ittarnavsky
+// removed GetNumAudioInputs()
+// replaced GetAudioDecoderID() with GetAudioDecoderType()
+// moved eAudioDecoderType here
+//
 // Revision 1.13  2002/10/07 20:31:02  kooiman
 // Fixed autodetect bugs.
 //
@@ -72,7 +77,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Bt848_Defines.h"
+#include "SoundChannel.h"
 #include "TVFormats.h"
 #include "Events.h"
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.70 2003-02-06 19:45:47 ittarnavsky Exp $
+// $Id: SAA7134Source.cpp,v 1.71 2003-02-22 13:42:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2003/02/06 19:45:47  ittarnavsky
+// removed dependency on BT848_Defines.h
+//
 // Revision 1.69  2003/01/27 22:04:12  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -757,10 +760,6 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         GetNextFieldNormal(pInfo);
     }
 
-    if (!pInfo->bRunningLate)
-    {
-    }
-
     FieldBuffer = GetFieldBuffer(m_CurrentFieldID);
 
     if (m_VBIDebugOverlay->GetValue())
@@ -870,12 +869,14 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int         FieldDistance;
     BOOL        bTryToCatchUp = TRUE;
     BOOL        bSlept = FALSE;
+	BOOL		bLate = TRUE;
 
     // This function waits for the next field
     if (PollForNextField(&NextFieldID, &FieldDistance, TRUE))
     {
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
+        bLate = FALSE;							// if we waited then we are not late
     }
 
     // The distance from the new field the field card
@@ -885,12 +886,19 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // No skipped fields
         pInfo->bMissedFrame = FALSE;
 
-        if (pInfo->bRunningLate)
-        {
-            // Not sure why we need to do this
-            Timing_AddDroppedFields(1);
-            LOG(2, "Running Late");
-        }
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+			if (pInfo->bRunningLate)
+			{
+				// Not sure why we need to do this
+				Timing_AddDroppedFields(1);
+			}
+			else
+			{
+	            Timing_AddLateFields(1);
+			}
+		}
     }
     else if (bTryToCatchUp && FieldDistance <= 2)
     {
@@ -899,6 +907,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // Not sure why we need to do this
         // Timing_AddDroppedFields(1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
+        Timing_AddLateFields(FieldDistance);
     }
     else
     {
@@ -922,12 +931,14 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     TFieldID    NextFieldID;
     int         FieldDistance;
     BOOL        bSlept = FALSE;
+	BOOL		bLate = TRUE;
 
     // This function waits for the next field
     if (PollForNextField(&NextFieldID, &FieldDistance, FALSE))
     {
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
+        bLate = FALSE;							// if we waited then we are not late
     }
 
     // The distance from the new field the field card
@@ -935,12 +946,18 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     if (FieldDistance == 1)
     {
         // No skipped fields, do nothing
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+            Timing_AddLateFields(1);
+		}
     }
     else if (FieldDistance == 2)
     {
         // Slightly late but try to recover
         Timing_SetFlipAdjustFlag(TRUE);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
+        Timing_AddLateFields(FieldDistance);
     }
     else
     {

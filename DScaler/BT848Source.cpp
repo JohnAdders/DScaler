@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.115 2003-02-16 10:31:38 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.116 2003-02-22 13:42:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.115  2003/02/16 10:31:38  laurentg
+// GetNextFieldAccurate : call to Timing_UpdateRunningAverage as it is done for CX2388x
+//
 // Revision 1.114  2003/02/03 19:09:16  adcockj
 // Added VBI skips so that hopefully PAL60 CC will work correctly
 //
@@ -1003,8 +1006,6 @@ void CBT848Source::Stop()
 
 void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
-    static long RepeatCount = 0;
-
     if(AccurateTiming)
     {
         GetNextFieldAccurate(pInfo);
@@ -1012,10 +1013,6 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     else
     {
         GetNextFieldNormal(pInfo);
-    }
-
-    if (!pInfo->bRunningLate)
-    {
     }
 
     ShiftPictureHistory(pInfo, 10);
@@ -1283,8 +1280,9 @@ void CBT848Source::BtHorFilterOnChange(long NewValue, long OldValue)
 void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     int NewPos;
-    int Diff;
+    int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
 
     while(OldPos == (NewPos = GetRISCPosAsInt()))
@@ -1294,25 +1292,33 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // in normal operation
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
     }
 
-    Diff = (10 + NewPos - OldPos) % 10;
-    if(Diff > 1)
+    FieldDistance = (10 + NewPos - OldPos) % 10;
+    if(FieldDistance > 1)
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
     else
     {
         pInfo->bMissedFrame = FALSE;
-        if (pInfo->bRunningLate)
-        {
-            Timing_AddDroppedFields(1);
-            LOG(2, "Running Late");
-        }
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+			if (pInfo->bRunningLate)
+			{
+				Timing_AddDroppedFields(1);
+			}
+			else
+			{
+	            Timing_AddLateFields(1);
+			}
+		}
     }
 
     switch(NewPos)
@@ -1333,39 +1339,42 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     int NewPos;
-    int Diff;
+    int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     static int FieldCount(0);
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
     }
 
-    Diff = (10 + NewPos - OldPos) % 10;
-    if(Diff == 1)
+    FieldDistance = (10 + NewPos - OldPos) % 10;
+    if(FieldDistance == 1)
     {
+        // No skipped fields, do nothing
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+            Timing_AddLateFields(1);
+		}
     }
-    else if(Diff == 2) 
+    else if((FieldDistance == 2) || (FieldDistance == 3))
     {
         NewPos = (OldPos + 1) % 10;
         Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Slightly late");
-    }
-    else if(Diff == 3) 
-    {
-        NewPos = (OldPos + 1) % 10;
-        Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Very late");
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        Timing_AddLateFields(FieldDistance);
     }
     else
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Fields", FieldDistance - 1);
         Timing_Reset();
         FieldCount = 0;
     }
@@ -1384,9 +1393,9 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
-    FieldCount += Diff;
+    FieldCount += FieldDistance;
     // do input frequency on cleanish field changes only
-    if(Diff == 1 && FieldCount > 1)
+    if(FieldDistance == 1 && !bLate && FieldCount > 1)
     {
         Timing_UpdateRunningAverage(pInfo, FieldCount);
         FieldCount = 0;

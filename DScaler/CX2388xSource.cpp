@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.44 2003-02-16 10:11:10 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.45 2003-02-22 13:42:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/02/16 10:11:10  laurentg
+// White Crush ON by default (to solve flickering problem with XCapture)
+//
 // Revision 1.43  2003/02/03 11:08:07  laurentg
 // Don't do the VBI shift line for 60 Hz video formats
 //
@@ -886,8 +889,6 @@ void CCX2388xSource::Stop()
 
 void CCX2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
-    static long RepeatCount = 0;
-
     if(m_IsVideoProgressive->GetValue())
     {
         if(AccurateTiming)
@@ -1096,8 +1097,9 @@ ISetting* CCX2388xSource::GetVDelay()
 void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     int NewPos;
-    int Diff;
+    int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
 
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
@@ -1107,25 +1109,33 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // in normal operation
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
     }
 
-    Diff = (10 + NewPos - OldPos) % 10;
-    if(Diff > 1)
+    FieldDistance = (10 + NewPos - OldPos) % 10;
+    if(FieldDistance > 1)
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
     else
     {
         pInfo->bMissedFrame = FALSE;
-        if (pInfo->bRunningLate)
-        {
-            Timing_AddDroppedFields(1);
-            LOG(2, "Running Late");
-        }
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+			if (pInfo->bRunningLate)
+			{
+				Timing_AddDroppedFields(1);
+			}
+			else
+			{
+	            Timing_AddLateFields(1);
+			}
+		}
     }
 
     switch(NewPos)
@@ -1169,8 +1179,9 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     int NewPos;
-    int Diff;
+    int FieldDistance;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
 
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
@@ -1180,25 +1191,33 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         // in normal operation
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
     }
 
-    Diff = (m_NumFields + NewPos - OldPos) % m_NumFields;
-    if(Diff > 1)
+    FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
+    if(FieldDistance > 1)
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
     else
     {
         pInfo->bMissedFrame = FALSE;
-        if (pInfo->bRunningLate)
-        {
-            Timing_AddDroppedFields(1);
-            LOG(2, "Running Late");
-        }
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+			if (pInfo->bRunningLate)
+			{
+				Timing_AddDroppedFields(1);
+			}
+			else
+			{
+	            Timing_AddLateFields(1);
+			}
+		}
     }
 
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
@@ -1207,39 +1226,42 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
 void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     int NewPos;
-    int Diff;
+    int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     static int FieldCount(0);
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
     }
 
-    Diff = (10 + NewPos - OldPos) % 10;
-    if(Diff == 1)
+    FieldDistance = (10 + NewPos - OldPos) % 10;
+    if(FieldDistance == 1)
     {
+        // No skipped fields, do nothing
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+            Timing_AddLateFields(1);
+		}
     }
-    else if(Diff == 2) 
+    else if((FieldDistance == 2) || (FieldDistance == 3))
     {
         NewPos = (OldPos + 1) % 10;
         Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Slightly late");
-    }
-    else if(Diff == 3) 
-    {
-        NewPos = (OldPos + 1) % 10;
-        Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Very late");
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        Timing_AddLateFields(FieldDistance);
     }
     else
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Fields", FieldDistance - 1);
         Timing_Reset();
         FieldCount = 0;
     }
@@ -1258,9 +1280,9 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
-    FieldCount += Diff;
+    FieldCount += FieldDistance;
     // do input frequency on cleanish field changes only
-    if(Diff == 1 && FieldCount > 1)
+    if(FieldDistance == 1 && !bLate && FieldCount > 1)
     {
         Timing_UpdateRunningAverage(pInfo, FieldCount);
         FieldCount = 0;
@@ -1273,49 +1295,51 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
+	BOOL bLate = TRUE;
     int NewPos;
-    int Diff;
+    int FieldDistance;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
     static int FieldCount(0);
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
+        bLate = FALSE;							// if we waited then we are not late
     }
 
-
-    Diff = (m_NumFields + NewPos - OldPos) % m_NumFields;
-    if(Diff == 1)
+    FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
+    if(FieldDistance == 1)
     {
+        // No skipped fields, do nothing
+		if (bLate)
+		{
+            LOG(2, " Running late but right field");
+            Timing_AddLateFields(1);
+		}
     }
-    else if(Diff == 2) 
+    else if((FieldDistance == 2) || (FieldDistance == 3))
     {
         NewPos = (OldPos + 1) % m_NumFields;
         Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Slightly late");
-    }
-    else if(Diff == 3) 
-    {
-        NewPos = (OldPos + 1) % m_NumFields;
-        Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Very late");
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
+        Timing_AddLateFields(FieldDistance);
     }
     else
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(Diff - 1);
-        LOG(2, " Dropped Frame");
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Fields", FieldDistance - 1);
         Timing_Reset();
         FieldCount = 0;
     }
 
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
     
-    FieldCount += Diff;
+    FieldCount += FieldDistance;
     // do input frequency on cleanish field changes only
-    if(Diff == 1 && FieldCount > 1)
+    if(FieldDistance == 1 && !bLate && FieldCount > 1)
     {
         Timing_UpdateRunningAverage(pInfo, FieldCount);
         FieldCount = 0;

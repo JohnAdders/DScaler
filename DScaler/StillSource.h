@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.61 2003-02-26 21:58:41 laurentg Exp $
+// $Id: StillSource.h,v 1.62 2003-03-05 22:08:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,10 +67,10 @@ class CPlayListItem
 {
 public:
     CPlayListItem(LPCSTR FileName);
-    CPlayListItem(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, char* Context);
+    CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, char* Context);
     LPCSTR GetFileName();
     void SetFileName(LPCSTR FileName);
-    BOOL GetMemoryInfo(BYTE** pFrameBuffer, BYTE** pStartFrame, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, const char** pContext);
+    BOOL GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, const char** pContext);
     BOOL IsInMemory();
     time_t GetTimeStamp();
     BOOL IsSupported();
@@ -80,7 +80,6 @@ private:
     std::string m_FileName;
     BOOL m_Supported;
     BYTE* m_FrameBuffer;
-    BYTE* m_StartFrame;
 	int m_FrameHeight;
 	int m_FrameWidth;
 	int m_LinePitch;
@@ -142,7 +141,7 @@ public:
     BOOL ReadNextFrameInFile();
     BOOL LoadPlayList(LPCSTR FileName);
     void SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch);
-	void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch, BYTE* pAllocBuffer);
+	void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pAllocBuffer, LONG LinePitch);
     void SaveInFile(int pos);
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
@@ -170,7 +169,7 @@ private:
     BOOL ShowNextInPlayList();
     BOOL ShowPreviousInPlayList();
     BOOL OpenPictureFile(LPCSTR FileName);
-	BOOL OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
+	BOOL OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
     BOOL SavePlayList(LPCSTR FileName);
 	BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight);
     BOOL IsItemInList(LPCSTR FileName);
@@ -212,7 +211,9 @@ private:
 };
 
 
-BYTE* MallocStillBuf(int siz, BYTE** start);
+//    	BYTE** y = (BYTE**) (x+16);
+//    	y = (BYTE**) ((unsigned int) y & 0xfffffff0);
+#define	START_ALIGNED16(buf)	((buf) + 16 - ((DWORD)(buf) % 16))
 
 void BuildDScalerContext(char* buf);
 

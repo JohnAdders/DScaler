@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.11 2003-01-19 11:09:10 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.12 2003-03-05 22:08:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/01/19 11:09:10  laurentg
+// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
+//
 // Revision 1.10  2002/11/01 13:09:19  laurentg
 // Management of the still capture context slightly updated - works now even with stills in memory
 //
@@ -553,13 +556,14 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 
     // Allocate memory buffer to store the final YUYV values
     LinePitch = (w * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    pFrameBuf = MallocStillBuf(LinePitch * h, &pStartFrame);
+    pFrameBuf = (BYTE*)malloc(LinePitch * h + 16);
     if (pFrameBuf == NULL)
     {
         jpeg_destroy_decompress(&cinfo);
         fclose(infile);
         return FALSE;
     }
+	pStartFrame = START_ALIGNED16(pFrameBuf);
 
     // Process data
     while (cinfo.output_scanline < h)

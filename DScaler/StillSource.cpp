@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.87 2003-02-26 21:58:40 laurentg Exp $
+// $Id: StillSource.cpp,v 1.88 2003-03-05 22:08:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2003/02/26 21:58:40  laurentg
+// Updated GetNextField method
+//
 // Revision 1.86  2003/01/24 22:25:53  laurentg
 // Memory leak fixed
 //
@@ -353,19 +356,6 @@ extern long NumFilters;
 extern FILTER_METHOD* Filters[];
 
 
-BYTE* MallocStillBuf(int siz, BYTE** start)
-{
-	BYTE* x = (BYTE*)malloc(siz+16);
-    if (x != NULL)
-    {
-    	BYTE** y = (BYTE**) (x+16);
-    	y = (BYTE**) ((unsigned int) y & 0xfffffff0);
-	    *start = (BYTE*) y;
-    }
-	return x;
-}
-
-
 void BuildDScalerContext(char* buf)
 {
     int i;
@@ -400,7 +390,6 @@ CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
 CPlayListItem::CPlayListItem(LPCSTR FileName) :
     m_FileName(FileName),
 	m_FrameBuffer(NULL),
-	m_StartFrame(NULL),
 	m_FrameHeight(0),
 	m_FrameWidth(0),
 	m_LinePitch(0),
@@ -411,10 +400,9 @@ CPlayListItem::CPlayListItem(LPCSTR FileName) :
 	m_TimeStamp = time(0);
 }
 
-CPlayListItem::CPlayListItem(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, char* Context) :
+CPlayListItem::CPlayListItem(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, char* Context) :
     m_FileName("Still only in memory"),
 	m_FrameBuffer(FrameBuffer),
-	m_StartFrame(StartFrame),
 	m_FrameHeight(FrameHeight),
 	m_FrameWidth(FrameWidth),
 	m_LinePitch(LinePitch),
@@ -434,15 +422,13 @@ void CPlayListItem::SetFileName(LPCSTR FileName)
 {
 	m_FileName = FileName;
 	m_FrameBuffer = NULL;
-	m_StartFrame = NULL;
 }
 
-BOOL CPlayListItem::GetMemoryInfo(BYTE** pFrameBuffer, BYTE** pStartFrame, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, const char** pContext)
+BOOL CPlayListItem::GetMemoryInfo(BYTE** pFrameBuffer, int* pFrameHeight, int* pFrameWidth, int* pLinePitch, BOOL* pSquarePixels, const char** pContext)
 {
 	if (m_FrameBuffer != NULL)
 	{
 		*pFrameBuffer = m_FrameBuffer;
-		*pStartFrame = m_StartFrame;
 		*pFrameHeight = m_FrameHeight;
 		*pFrameWidth = m_FrameWidth;
 		*pLinePitch = m_LinePitch;
@@ -480,10 +466,9 @@ void CPlayListItem::FreeBuffer()
 {
 	if (m_FrameBuffer != NULL)
 	{
-		LOG(2, "FreeBuffer - start buf %d, start frame %d", m_FrameBuffer, m_StartFrame);
+		LOG(2, "FreeBuffer - start buf %d", m_FrameBuffer);
 		free(m_FrameBuffer);
 		m_FrameBuffer = NULL;
-		m_StartFrame = NULL;
 	}
 }
 
@@ -655,23 +640,23 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 
 		// Allocate memory for the new YUYV buffer
 		NewPitch = (NewWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-		NewBuf = MallocStillBuf(NewPitch * NewHeight, &NewStart);
-		if (NewBuf == NULL)
+		NewBuf = (BYTE*)malloc(NewPitch * NewHeight + 16);
+		if (NewBuf != NULL)
 		{
-			;
-		}
-		else if (!ResizeFrame(m_OriginalFrame.pData, m_LinePitch, m_Width, m_Height, NewStart, NewPitch, NewWidth, NewHeight))
-        {
-			free(NewBuf);
-			NewBuf = NULL;
-        }
-		else
-		{
-			// Replace the old YUYV buffer by the new one
-			free(m_OriginalFrameBuffer);
-			m_OriginalFrameBuffer = NewBuf;
-			m_OriginalFrame.pData = NewStart;
-			m_LinePitch = NewPitch;
+			NewStart = START_ALIGNED16(NewBuf);
+			if (!ResizeFrame(m_OriginalFrame.pData, m_LinePitch, m_Width, m_Height, NewStart, NewPitch, NewWidth, NewHeight))
+			{
+				free(NewBuf);
+				NewBuf = NULL;
+			}
+			else
+			{
+				// Replace the old YUYV buffer by the new one
+				free(m_OriginalFrameBuffer);
+				m_OriginalFrameBuffer = NewBuf;
+				m_OriginalFrame.pData = NewStart;
+				m_LinePitch = NewPitch;
+			}
 		}
 		m_Width = NewWidth;
 		m_Height = NewHeight;
@@ -694,15 +679,15 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 }
 
 
-BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context)
+BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context)
 {
     int h = m_Height;
     int w = m_Width;
 
-	LOG(2, "OpenPictureMemory - start buf %d, start frame %d", FrameBuffer, StartFrame);
+	LOG(2, "OpenPictureMemory - start buf %d", FrameBuffer);
     FreeOriginalFrameBuffer();
     m_OriginalFrameBuffer = FrameBuffer;
-    m_OriginalFrame.pData = StartFrame;
+    m_OriginalFrame.pData = START_ALIGNED16(m_OriginalFrameBuffer);
     m_LinePitch = LinePitch;
     m_InitialHeight = FrameHeight;
     m_InitialWidth = FrameWidth;
@@ -774,7 +759,6 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 BOOL CStillSource::ShowNextInPlayList()
 {
 	BYTE* FrameBuffer;
-	BYTE* StartFrame;
 	int FrameHeight;
 	int FrameWidth;
 	int LinePitch;
@@ -790,8 +774,8 @@ BOOL CStillSource::ShowNextInPlayList()
             m_PlayList[Pos]->SetSupported(TRUE);
             return TRUE;
         }
-        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
-			 && OpenPictureMemory(FrameBuffer, StartFrame, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
+        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+			 && OpenPictureMemory(FrameBuffer, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
         {
             m_Position = Pos;
             m_PlayList[Pos]->SetSupported(TRUE);
@@ -809,7 +793,6 @@ BOOL CStillSource::ShowNextInPlayList()
 BOOL CStillSource::ShowPreviousInPlayList()
 {
 	BYTE* FrameBuffer;
-	BYTE* StartFrame;
 	int FrameHeight;
 	int FrameWidth;
 	int LinePitch;
@@ -825,8 +808,8 @@ BOOL CStillSource::ShowPreviousInPlayList()
             m_PlayList[Pos]->SetSupported(TRUE);
             return TRUE;
         }
-        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
-			 && OpenPictureMemory(FrameBuffer, StartFrame, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
+        else if(m_PlayList[Pos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+			 && OpenPictureMemory(FrameBuffer, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
         {
             m_Position = Pos;
             m_PlayList[Pos]->SetSupported(TRUE);
@@ -945,7 +928,11 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
 		// Allocate memory for the new YUYV buffer
 		NewLinePitch = (NewFrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-		NewBuf = MallocStillBuf(NewLinePitch * NewFrameHeight, &pNewFrameBuffer);
+		NewBuf = (BYTE*)malloc(NewLinePitch * NewFrameHeight + 16);
+		if (NewBuf != NULL)
+		{
+			pNewFrameBuffer = START_ALIGNED16(NewBuf);
+		}
 		if ((NewBuf == NULL) || !ResizeFrame(pFrameBuffer, LinePitch, FrameWidth, FrameHeight, pNewFrameBuffer, NewLinePitch, NewFrameWidth, NewFrameHeight))
 		{
 			// If resize fails, we use the non resized still
@@ -1007,15 +994,15 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 	}
 }
 
-void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch, BYTE* pAllocBuffer)
+void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pAllocBuffer, LONG LinePitch)
 {
 	char Context[1024];
 
 	if (pAllocBuffer != NULL)
 	{
-		LOG(2, "SaveSnapshotInMemory - start buf %d, start frame %d", pAllocBuffer, pFrameBuffer);
+		LOG(2, "SaveSnapshotInMemory - start buf %d", pAllocBuffer);
 		BuildDScalerContext(Context);
-		CPlayListItem* Item = new CPlayListItem(pAllocBuffer, pFrameBuffer, FrameHeight, FrameWidth, LinePitch, AspectSettings.SquarePixels, Context);
+		CPlayListItem* Item = new CPlayListItem(pAllocBuffer, FrameHeight, FrameWidth, LinePitch, AspectSettings.SquarePixels, Context);
 		m_PlayList.push_back(Item);
 		if (m_PlayList.size() == 1)
 		{
@@ -1044,10 +1031,12 @@ void CStillSource::SaveInFile(int pos)
 
     if ((pos < 0)
 	 || (pos >= m_PlayList.size())
-	 || !m_PlayList[pos]->GetMemoryInfo(&pFrameBuffer, &pStartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
+	 || !m_PlayList[pos]->GetMemoryInfo(&pFrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
 	{
 		return;
 	}
+
+    pStartFrame = START_ALIGNED16(pFrameBuffer);
 
 	if (!FindFileName(m_PlayList[pos]->GetTimeStamp(), FilePath))
 	{
@@ -1080,7 +1069,11 @@ void CStillSource::SaveInFile(int pos)
 
 		// Allocate memory for the new YUYV buffer
 		NewLinePitch = (NewFrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-		NewBuf = MallocStillBuf(NewLinePitch * NewFrameHeight, &pNewFrameBuffer);
+		NewBuf = (BYTE*)malloc(NewLinePitch * NewFrameHeight + 16);
+		if (NewBuf != NULL)
+		{
+			pNewFrameBuffer = START_ALIGNED16(NewBuf);
+		}
 		if ((NewBuf == NULL) || !ResizeFrame(pStartFrame, LinePitch, FrameWidth, FrameHeight, pNewFrameBuffer, NewLinePitch, NewFrameWidth, NewFrameHeight))
 		{
 			// If resize fails, we use the non resized still
@@ -1491,7 +1484,6 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 BOOL CStillSource::ReadNextFrameInFile()
 {
 	BYTE* FrameBuffer;
-	BYTE* StartFrame;
 	int FrameHeight;
 	int FrameWidth;
 	int LinePitch;
@@ -1509,8 +1501,8 @@ BOOL CStillSource::ReadNextFrameInFile()
             m_Position = m_NewFileReqPos;
             Realloc = TRUE;
         }
-        else if(m_PlayList[m_NewFileReqPos]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
-			 && OpenPictureMemory(FrameBuffer, StartFrame, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
+        else if(m_PlayList[m_NewFileReqPos]->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+			 && OpenPictureMemory(FrameBuffer, FrameHeight, FrameWidth, LinePitch, SquarePixels, Context))
         {
             m_PlayList[m_NewFileReqPos]->SetSupported(TRUE);
             m_Position = m_NewFileReqPos;
@@ -1609,7 +1601,11 @@ BOOL CStillSource::ReadNextFrameInFile()
         }
         if (m_StillFrameBuffer == NULL)
         {
-            m_StillFrameBuffer = MallocStillBuf(m_LinePitch * m_Height, &(m_StillFrame.pData));
+            m_StillFrameBuffer = (BYTE*)malloc(m_LinePitch * m_Height + 16);
+	        if (m_StillFrameBuffer != NULL)
+			{
+				m_StillFrame.pData = START_ALIGNED16(m_StillFrameBuffer);
+			}
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
@@ -1685,7 +1681,6 @@ int CStillSource::GetHeight()
 void CStillSource::FreeOriginalFrameBuffer()
 {
 	BYTE* FrameBuffer;
-	BYTE* StartFrame;
 	int FrameHeight;
 	int FrameWidth;
 	int LinePitch;
@@ -1702,7 +1697,7 @@ void CStillSource::FreeOriginalFrameBuffer()
         it != m_PlayList.end(); 
         ++it)
     {
-        if((*it)->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
 		&& (m_OriginalFrameBuffer == FrameBuffer))
 		{
 			OkToFree = FALSE;
@@ -1722,7 +1717,6 @@ void CStillSource::FreeOriginalFrameBuffer()
 void CStillSource::ClearPlayList()
 {
 	BYTE* FrameBuffer;
-	BYTE* StartFrame;
 	int FrameHeight;
 	int FrameWidth;
 	int LinePitch;
@@ -1733,7 +1727,7 @@ void CStillSource::ClearPlayList()
         it != m_PlayList.end(); 
         ++it)
     {
-        if((*it)->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
+        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context)
 		&& (FrameBuffer != m_OriginalFrameBuffer))
 		{
 			(*it)->FreeBuffer();

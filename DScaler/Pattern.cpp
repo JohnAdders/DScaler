@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.cpp,v 1.4 2003-01-19 11:09:11 laurentg Exp $
+// $Id: Pattern.cpp,v 1.5 2003-03-05 22:08:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/01/19 11:09:11  laurentg
+// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
+//
 // Revision 1.3  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -1169,11 +1172,12 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     // Allocate memory buffer to store the YUYV values
     LinePitch = (pattern.GetWidth() * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    pFrameBuf = MallocStillBuf(LinePitch * pattern.GetHeight(), &pStartFrame);
+    pFrameBuf = (BYTE*)malloc(LinePitch * pattern.GetHeight() + 16);
     if (pFrameBuf == NULL)
     {
         return FALSE;
     }
+	pStartFrame = START_ALIGNED16(pFrameBuf);
 
     // Set the background of the pattern to black
     for (int i=0 ; i<pattern.GetHeight() ; i++)

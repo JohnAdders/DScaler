@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.112 2003-02-22 13:37:49 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.113 2003-03-05 22:08:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.112  2003/02/22 13:37:49  laurentg
+// New statistics to check fields runnign late and no flip at time
+//
 // Revision 1.111  2003/02/05 19:57:58  laurentg
 // New option to minimize DScaler when there is no signal and to restore it when a signal is detected
 //
@@ -914,7 +917,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					// That means too that the overlay will not be updated
 					bUseOverlay = FALSE;
 					Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-					pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
+					pAllocBuf = (BYTE*)malloc(Info.OverlayPitch * Info.FrameHeight + 16);
+					Info.Overlay = START_ALIGNED16(pAllocBuf);
 					LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
 					if (pAllocBuf == NULL)
 					{
@@ -1377,7 +1381,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			{
 				if (RequestStillInMemory)
 				{
-					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch, pAllocBuf);
+					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(Info.FrameHeight, Info.FrameWidth, pAllocBuf, Info.OverlayPitch);
 				}
 				else
 				{

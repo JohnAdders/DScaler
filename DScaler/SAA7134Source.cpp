@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.79 2003-05-29 15:55:25 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.80 2003-05-29 17:07:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2003/05/29 15:55:25  laurentg
+// Settings management updated (saving of video format per video input deactivated)
+//
 // Revision 1.78  2003/05/26 20:49:04  laurentg
 // Corrections for datacasting
 // Enable the Cancel button in the setup card dialog box
@@ -616,7 +619,6 @@ void CSAA7134Source::Reset()
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
     m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)m_AudioLine1Voltage->GetValue());
     m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)m_AudioLine2Voltage->GetValue());
-//LOG(1, "CSAA7134Source::Reset 2 m_VideoSource %d m_VideoFormat %d", m_VideoSource->GetValue(), m_VideoFormat->GetValue());
 }
 
 
@@ -1562,8 +1564,8 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
-        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, m_VideoFormat->GetValue());
-        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
     }
 
     // make sure the defaults are correct

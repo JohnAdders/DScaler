@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.49 2003-03-09 19:48:28 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.50 2003-05-29 17:07:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2003/03/09 19:48:28  laurentg
+// Updated field statistics
+//
 // Revision 1.48  2003/03/09 11:35:24  laurentg
 // Judder Terminator - input timing slightly updated
 //
@@ -1445,8 +1448,8 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
-        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, m_VideoFormat->GetValue());
-        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
     }
 
     // make sure the defaults are correct

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.189 2002-07-03 00:45:41 laurentg Exp $
+// $Id: DScaler.cpp,v 1.190 2002-07-05 20:52:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.189  2002/07/03 00:45:41  laurentg
+// Add a new section in the Change Settings dialog box to set the thread priorities
+//
 // Revision 1.188  2002/06/30 20:10:15  laurentg
 // Mouse wheel + CTRL key to go to previous and next playlist file
 //
@@ -702,6 +705,22 @@ int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
 bool bScreensaverDisabled = false;
 HMENU CreateDScalerPopupMenu();
+
+static const char *UIPriorityNames[3] = 
+{
+    "Normal",
+    "High",
+    "Very High",
+};
+
+static const char *DecodingPriorityNames[5] = 
+{
+    "Low",
+    "Normal",
+    "Above Normal",
+    "High",
+    "Very High",
+};
 
 ///**************************************************************************
 //
@@ -3527,15 +3546,15 @@ void SetMenuAnalog()
     CheckMenuItem(hMenu, ThreadClassId + 1150, MF_CHECKED);
     CheckMenuItem(hMenu, PriorClassId + 1160, MF_CHECKED);
 
-    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_0, (ThreadClassId == 0));
-    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_1, (ThreadClassId == 1));
-    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_2, (ThreadClassId == 2));
-    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_3, (ThreadClassId == 3));
-    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_4, (ThreadClassId == 4));
+//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_0, (ThreadClassId == 0));
+//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_1, (ThreadClassId == 1));
+//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_2, (ThreadClassId == 2));
+//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_3, (ThreadClassId == 3));
+//    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_4, (ThreadClassId == 4));
 
-    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_0, (PriorClassId == 0));
-    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1));
-    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2));
+//    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_0, (PriorClassId == 0));
+//    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1));
+//    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2));
 
     CheckMenuItemBool(hMenu, IDM_TOGGLECURSOR, bShowCursor);
     EnableMenuItem(hMenu,IDM_TOGGLECURSOR, bAutoHideCursor?MF_GRAYED:MF_ENABLED);
@@ -4245,15 +4264,15 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Threads", "DecodeProcessor", NULL,
     },
     {
-        "Window Priority", SLIDER, 0, (long*)&PriorClassId,
+        "UI Thread", ITEMFROMLIST, 0, (long*)&PriorClassId,
         0, 0, 2, 1, 1,
-        NULL,
+        UIPriorityNames,
         "Threads", "WindowPriority", NULL,
     },
     {
-        "Thread Priority", SLIDER, 0, (long*)&ThreadClassId,
+        "Decoding / Output Thread", ITEMFROMLIST, 0, (long*)&ThreadClassId,
         1, 0, 4, 1, 1,
-        NULL,
+        DecodingPriorityNames,
         "Threads", "ThreadPriority", NULL,
     },
     {
@@ -4353,5 +4372,5 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Thread Settings", &DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
+    return new CTreeSettingsGeneric("Threads Priority Settings", &DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
 }

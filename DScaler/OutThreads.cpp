@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.58 2002-02-18 20:51:51 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.59 2002-02-19 10:24:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/02/18 20:51:51  laurentg
+// Statistics regarding deinterlace modes now takes into account the progressive mode
+// Reset of the deinterlace statistics at each start of the decoding thread
+// Reset action now resets the deinterlace statistics too
+//
 // Revision 1.57  2002/02/14 23:16:59  laurentg
 // Stop / start capture never needed when switching between files of the playlist
 // CurrentX / CurrentY not updated in StillSource but in the main decoding loop
@@ -318,7 +323,7 @@ void Stop_Thread()
 
     if (OutThread != NULL)
     {
-        i = 5;
+        i = 10;
         SetThreadPriority(OutThread, THREAD_PRIORITY_NORMAL);
         bStopThread = TRUE;
         while(i-- > 0 && !Thread_Stopped)

@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.5 2003-04-28 17:32:00 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.6 2003-08-09 14:44:57 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/04/28 17:32:00  laurentg
+// Fix to avoid crash when exiting
+//
 // Revision 1.4  2002/10/08 08:23:59  kooiman
 // Fixed window auto-resize problem.
 //
@@ -158,6 +161,10 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
         Toolbar1->DefaultColor(GetSysColor(COLOR_BTNFACE));
 		Toolbar1->Margins(MarginsDefault.l,MarginsDefault.t,MarginsDefault.r,MarginsDefault.b,MarginsDefault.child_lr,MarginsDefault.child_tb);
 		
+		//Set default margin
+		MarginsTop = MarginsDefault;
+		MarginsBottom = MarginsDefault;
+
 		//Create separator bar (maybe drag bar in future)
 		int n = CreateToolbar1Bar();
 		

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.12 2004-01-23 11:26:42 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.13 2004-01-27 22:56:26 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/01/23 11:26:42  adcockj
+// Dematrix fixes
+//
 // Revision 1.11  2004/01/14 20:01:31  robmuller
 // Fix balance.
 //
@@ -545,6 +548,44 @@ void CCX2388xCard::AudioInitA2(eStereoType StereoType)
 {
     //\todo handle StereoType
 
+	// The code below closely follows the data sheet from Feb 2002.
+
+	WriteDword(MO_AFECFG_IO, 0);
+	WriteDword(AUD_AFE_12DB_EN,				0x0001);
+    WriteDword(AUD_INIT,					0x0004);
+    WriteDword(AUD_INIT_LD,					0x0001);
+    WriteDword(AUD_SOFT_RESET,				0x0001);
+	WriteDword(AUD_DMD_RA_DDS,				0x002A73BD);
+    WriteDword(AUD_RATE_ADJ1,				0x100);
+    WriteDword(AUD_RATE_ADJ2,				0x200);
+    WriteDword(AUD_RATE_ADJ3,				0x300);
+    WriteDword(AUD_RATE_ADJ4,				0x400);
+    WriteDword(AUD_RATE_ADJ5,				0x500);
+	WriteDword(AUD_THR_FR,					0x0);
+	WriteDword(AUD_PILOT_BQD_1_K0,			0x1C000);
+	WriteDword(AUD_PILOT_BQD_1_K1,			0x0);
+	WriteDword(AUD_PILOT_BQD_1_K2,			0x0);
+	WriteDword(AUD_PILOT_BQD_1_K3,			0x0);
+	WriteDword(AUD_PILOT_BQD_1_K4,			0x0);
+	WriteDword(AUD_PILOT_BQD_2_K0,			0x0C00000);
+	WriteDword(AUD_PILOT_BQD_2_K1,			0x0);
+	WriteDword(AUD_PILOT_BQD_2_K2,			0x0);
+	WriteDword(AUD_PILOT_BQD_2_K3,			0x0);
+	WriteDword(AUD_PILOT_BQD_2_K4,			0x0);
+	WriteDword(AUD_C2_UP_THR,				0x01c00);
+	WriteDword(AUD_C2_LO_THR,				0x01000);
+	WriteDword(AUD_C1_UP_THR,				0x04c00);
+	WriteDword(AUD_C1_LO_THR,				0x04000);
+	WriteDword(AUD_MODE_CHG_TIMER,			0x30);
+	WriteDword(AUD_START_TIMER,				0x200);
+	WriteDword(AUD_CORDIC_SHIFT_0,			0x06);
+    WriteDword(AUD_SOFT_RESET,				0x0);
+	//WriteDword(AUD_VOL_CTL,					0x0);/**/
+
+
+
+/*	// Old code follows:
+
     // increase level of input by 12dB
     WriteDword(AUD_AFE_12DB_EN,          0x0001);
 
@@ -670,7 +711,7 @@ void CCX2388xCard::AudioInitA2(eStereoType StereoType)
     //WriteDword(AUD_PLL_INT,              0x001f);
 
     // de-assert Audio soft reset
-    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
+    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time/**/
 }
 
 

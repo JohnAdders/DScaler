@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.67 2002-07-30 21:20:59 laurentg Exp $
+// $Id: OSD.cpp,v 1.68 2002-08-02 20:16:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2002/07/30 21:20:59  laurentg
+// Merge of menus View, AspectRatio and OSD
+//
 // Revision 1.66  2002/07/20 10:33:06  laurentg
 // New settings to select the wished OSD screens
 //
@@ -1975,12 +1978,6 @@ void OSD_UpdateMenu(HMENU hMenu)
         return;
     }
 
-    i = GetMenuItemCount(hMenuOSD);
-    while (i > 18)
-    {
-        i--;
-        RemoveMenu(hMenuOSD, i, MF_BYPOSITION);
-    }
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     for (i=0; i < NbScreens ; i++)
     {

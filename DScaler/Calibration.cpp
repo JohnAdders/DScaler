@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.68 2002-07-20 12:09:38 laurentg Exp $
+// $Id: Calibration.cpp,v 1.69 2002-08-02 20:16:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/07/20 12:09:38  laurentg
+// Card calibration settings added in the tree settings
+//
 // Revision 1.67  2002/06/21 23:14:19  laurentg
 // New way to store address of allocated memory buffer for still source
 //
@@ -1874,13 +1877,6 @@ void CCalibration::UpdateMenu(HMENU hMenu)
 
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
-
-    i = GetMenuItemCount(hMenuPatterns);
-    while (i)
-    {
-        i--;
-        RemoveMenu(hMenuPatterns, i, MF_BYPOSITION);
-    }
 
     i = 0;
     for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 

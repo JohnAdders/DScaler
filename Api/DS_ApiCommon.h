@@ -172,7 +172,6 @@ typedef struct
 	long SleepSkipFields;
 	// How big the source will end up
 	RECT DestRect;
-	long SleepSkipFields;
 } DEINTERLACE_INFO;
 
 // Deinterlace functions return true if the overlay is ready to be displayed.

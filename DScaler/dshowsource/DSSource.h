@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.3 2002-02-02 01:35:18 laurentg Exp $
+// $Id: DSSource.h,v 1.4 2002-02-03 11:00:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/02 01:35:18  laurentg
+// Method UpdateMenu added
+//
 // Revision 1.2  2001/12/17 19:39:38  tobbej
 // implemented the picture history and field management
 // crossbar support.
@@ -53,6 +56,7 @@
  * This source controls a Direct show filter graph.
  * @see CDSProvider
  * @see CDShowGraph
+ * @bug alignment problems in picture history (SSE only)
  */
 class CDSSource : public CSource
 {
@@ -79,10 +83,10 @@ public:
 	ISetting* GetVolume() {return NULL;};
 	ISetting* GetBalance() {return NULL;};
 
-	ISetting* GetBrightness() {return NULL;};
-	ISetting* GetContrast() {return NULL;};
-	ISetting* GetHue() {return NULL;};
-	ISetting* GetSaturation() {return NULL;};
+	ISetting* GetBrightness();
+	ISetting* GetContrast();
+	ISetting* GetHue();
+	ISetting* GetSaturation();
 	ISetting* GetSaturationU() {return NULL;};
 	ISetting* GetSaturationV() {return NULL;};
 
@@ -91,6 +95,7 @@ public:
 	int GetWidth();
 	int GetHeight();
 	
+	eTunerId GetTunerId() {return TUNER_ABSENT;}
 	BOOL HasTuner();
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsVideoPresent();
@@ -104,6 +109,12 @@ public:
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 
 private:
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Hue);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Saturation);
+	
+
 	int FindMenuID(CMenu *menu,UINT menuID);
 
 	CDShowGraph *m_pDSGraph;

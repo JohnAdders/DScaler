@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.9 2002-08-07 00:41:59 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.10 2002-08-29 23:52:54 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/07 00:41:59  lindsey
+// Made prefetching into a user option.
+//
 // Revision 1.8  2002/03/11 01:49:24  lindsey
 // Adjusted for use with progressive source
 // Changed to use Tom's aligned memory allocation
@@ -397,15 +400,21 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
         ;                   // Do nothing
     }
 
+    // I wonder if there's any reason to run this filter on progressive material?
     if( (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) == 0 )
     {
         LastIndex = 1;
         LastLastIndex = 2;
     }
-    else    // Interlaced
+    else if( gMode == MODE_NTSC )    // Interlaced NTSC
     {
         LastIndex = 2;
         LastLastIndex = 4;
+    }
+    else if( gMode == MODE_PAL )     // Interlaced PAL
+    {
+        LastIndex = 4;
+        LastLastIndex = 8;
     }
 
     if( (pTPictures[0] == NULL) || (pTPictures[LastIndex] == NULL) || (pTPictures[LastLastIndex] == NULL) )

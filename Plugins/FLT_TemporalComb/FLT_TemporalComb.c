@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.13 2002-08-07 00:41:59 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.14 2002-08-29 23:52:54 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/08/07 00:41:59  lindsey
+// Made prefetching into a user option.
+//
 // Revision 1.12  2002/06/18 19:46:10  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -159,6 +162,15 @@ Ways this filter could be improved:
 
 #define ACCUMULATION_MINIMUM_METHOD_THRESHOLD   62
 
+// A menu makes the NTSC/PAL choice clearer than a checkbox would be
+
+typedef enum
+{
+    MODE_NTSC,
+    MODE_PAL,
+    MODE_LASTONE,
+} combMODE;
+
 // Uncomment this and turn on "Trade Speed for Accuracy" to turn the pixels which
 // would have been averaged pink.  (Without the Trade Speed setting, feedback will
 // make the result impossible to usefully interpret.)
@@ -198,6 +210,12 @@ LONG            UpdateBuffers( TDeinterlaceInfo *pInfo );
 /////////////////////////////////////////////////////////////////////////////
 // Begin plugin globals
 /////////////////////////////////////////////////////////////////////////////
+
+
+// Look back 4 or 8 fields?
+
+combMODE				gMode = MODE_NTSC;
+
 
 static long             gUsePrefetching = TRUE;
 
@@ -239,14 +257,21 @@ static LONG             gInPhaseColorThreshold = 35;
 // For "Trade Speed for Accuracy," store the most recent four fields (and the current
 // field) to prevent feedback effects
 
-#define NUM_BUFFERS     5
+#define MAX_BUFFERS     9
 
 static LONG             gDoFieldBuffering = FALSE;
-static BYTE*            gppFieldBuffer[NUM_BUFFERS] = {NULL, NULL, NULL, NULL, NULL};
+static BYTE*            gppFieldBuffer[MAX_BUFFERS] = { NULL };
+
 
 
 static FILTER_METHOD    TemporalCombMethod;
 
+
+LPCSTR ModeList[] =
+{
+    "NTSC",
+    "PAL"
+};
 
 static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
 {
@@ -285,6 +310,12 @@ static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "SpeedForAccuracy", NULL,
+    },
+    {
+        "Video Mode", ITEMFROMLIST, 0, (LONG*)&gMode,
+        MODE_NTSC, MODE_NTSC, MODE_LASTONE -1, 1, 1,
+        ModeList,
+        "HistogramFilter", "DisplayMode", NULL,
     },
 };
 
@@ -418,7 +449,7 @@ void CleanupTemporalComb( void )
     {
         ;       // do nothing
     }
-    for( ; Index < NUM_BUFFERS; ++Index)
+    for( ; Index < MAX_BUFFERS; ++Index)
     {
         if( gppFieldBuffer[Index] != NULL )
         {
@@ -480,13 +511,15 @@ BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lp
 
 LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
 {
+	// NTSC needs to save 4 past fields, PAL needs to save 8
+	const LONG		kUsedBuffers[2] = {5, 9};
     int             Index = 0;
-    static LONG     HistoryWait = NUM_BUFFERS + 1;
+    static LONG     HistoryWait = 0;
     BYTE*           pTempBuffer = NULL;
 
     --HistoryWait;
 
-    for ( ; Index < NUM_BUFFERS; ++Index)
+    for ( ; Index < kUsedBuffers[gMode]; ++Index)
     {
         if( gppFieldBuffer[Index] == NULL )
         {
@@ -506,8 +539,8 @@ LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
 
     // Roll the field history along
 
-    pTempBuffer = gppFieldBuffer[NUM_BUFFERS - 1];
-    for(Index = NUM_BUFFERS - 1; Index != 0; --Index)
+    pTempBuffer = gppFieldBuffer[kUsedBuffers[gMode] - 1];
+    for(Index = kUsedBuffers[gMode] - 1; Index != 0; --Index)
     {
         gppFieldBuffer[Index] = gppFieldBuffer[Index - 1];
     }

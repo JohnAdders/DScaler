@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.11 2002-10-13 07:42:55 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.12 2002-10-13 07:45:14 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/13 07:42:55  lindsey
+// Changed name of "trade speed for accuracy" to "high quality"
+// Corrected the reported HistoryRequired
+// Removed an unnecessary check for all fields when in "high quality" mode
+//
 // Revision 1.10  2002/08/29 23:52:54  lindsey
 // Corrected comb filter for PAL video
 //
@@ -433,7 +438,7 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
     }
     else if( (pTPictures[0] == NULL) || (pTPictures[LastIndex] == NULL) || (pTPictures[LastLastIndex] == NULL) )
     {
-        return 1000;;                   // Do nothing
+        return 1000;
     }
 
 

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/02/01 23:50:39  lindsey
+// Disbled the debug flag again
+//
 // Revision 1.7  2002/02/01 23:49:28  lindsey
 // Corrected filter disabling on MMX computers
 // Slightly changed starting values
@@ -177,7 +180,7 @@ static BYTE*    gpHistogram = NULL;
 // detection of motion) and stability of the motion estimate. (If the decay is any
 // higher, the peak becomes bimodal as ~half of it is displaced downward.)
 
-long            gDecayCoefficient = 88;
+long            gDecayCoefficient = 83;
 
 // Determines the placement toward the "start" of the N histogram at which we completely
 // compensate for noise
@@ -261,9 +264,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
     {
 #ifdef ADAPTIVE_NOISE_DEBUG
-        "Activate Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
+        "Use Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
 #else
-        "Activate Adaptive Noise Filter", NOT_PRESENT, 0, &AdaptiveNoiseMethod.bActive,
+        "Use Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
 #endif // Show "activate" flag when testing
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -286,7 +289,7 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 #else
         "Motion memory (percent)", NOT_PRESENT, 0, &gDecayCoefficient,
 #endif // Show motion memory slider when testing
-        88, 0, 99, 1, 1,
+        83, 0, 99, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "MotionSharing", NULL,
     },

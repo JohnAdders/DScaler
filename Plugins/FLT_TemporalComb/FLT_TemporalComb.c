@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.8 2002-01-05 22:53:27 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.9 2002-02-23 03:22:16 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/01/05 22:53:27  lindsey
+// Greatly reduced roundoff error for smaller decay values
+// Consolidated the 'in phase difference' settings into one 'color variation' setting
+// Improved formatting
+//
 // Revision 1.7  2001/12/20 03:06:20  lindsey
 // Fixed use of incorrect algorithm (hopefully for good)
 // Made the “Use temporal comb filter” setting invisible from the settings box (since
@@ -236,7 +241,7 @@ static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         "TCombFilter", "ShimmerThreshold", NULL,
     },
     {
-        "Use temporal comb filter", NOT_PRESENT, 0, &TemporalCombMethod.bActive,
+        "Use temporal comb filter", ONOFF, 0, &TemporalCombMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "UseCombFilter", NULL,

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/02/04 01:06:03  lindsey
+// Added 3DNow optimized version
+//
 // Revision 1.5  2002/02/01 23:19:49  lindsey
 // Enabled SSE version, again.  (Oops.)
 //
@@ -225,7 +228,7 @@ SETTING FLT_GradualNoiseSettings[FLT_GNOISE_SETTING_LASTONE] =
         "GradualNoiseFilter", "NoiseReduction", NULL,
     },
     {
-        "Enable Gradual Noise Filter", NOT_PRESENT, 0, &GradualNoiseMethod.bActive,
+        "Use Gradual Noise Filter", ONOFF, 0, &GradualNoiseMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "GradualNoiseFilter", "UseTemporalNoiseFilter", NULL,

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.323 2003-04-26 19:02:38 laurentg Exp $
+// $Id: DScaler.cpp,v 1.324 2003-04-28 12:41:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.323  2003/04/26 19:02:38  laurentg
+// Character string settings and memory management
+//
 // Revision 1.322  2003/04/26 16:07:48  laurentg
 // Character string settings
 //
@@ -5067,6 +5070,8 @@ void MainWndOnDestroy()
             SettingsMaster = NULL;
         }                
 		FreeSettings();
+		// Free of filters settings is done later when calling UnloadFilterPlugins
+		// Free of sources dependent settings is already done when calling Providers_Unload
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free settings");}
     
@@ -6548,13 +6553,13 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "ResoFullScreen", NULL,
     },
     {
-        "PowerStrip  for 576i source", CHARSTRING, 0, (long*)&PStrip576i,
+        "PowerStrip resolution for 576i sources", CHARSTRING, 0, (long*)&PStrip576i,
         (long)"", 0, 0, 0, 0,
         NULL,
         "PStripOutResolution", "576i", NULL,
     },
     {
-        "PowerStrip  for 480i source", CHARSTRING, 0, (long*)&PStrip480i,
+        "PowerStrip resolution for 480i sources", CHARSTRING, 0, (long*)&PStrip480i,
         (long)"", 0, 0, 0, 0,
         NULL,
         "PStripOutResolution", "480i", NULL,
@@ -6627,7 +6632,7 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 {
     // Other Settings
-    SETTING* OtherSettings[7] =
+    SETTING* OtherSettings[9] =
     {
         &DScalerSettings[DISPLAYSPLASHSCREEN    ],
         &DScalerSettings[AUTOHIDECURSOR         ],
@@ -6636,6 +6641,8 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
         &DScalerSettings[REVERSECHANNELSCROLLING],
         &DScalerSettings[SINGLEKEYTELETEXTTOGGLE],
         &DScalerSettings[MINIMIZEHANDLING       ],
+        &DScalerSettings[PSTRIPRESO576I			],
+        &DScalerSettings[PSTRIPRESO480I			],
     };
-    return new CTreeSettingsGeneric("Other Settings", OtherSettings, 7);
+    return new CTreeSettingsGeneric("Other Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
 }

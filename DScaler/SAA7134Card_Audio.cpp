@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.19 2002-12-09 00:32:13 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.20 2003-06-01 19:42:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/12/09 00:32:13  atnak
+// Added new muting stuff
+//
 // Revision 1.18  2002/11/10 05:11:24  atnak
 // Added adjustable audio input level
 //
@@ -719,7 +722,7 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
         {
         case 0x00:
         case 0x01:
-            return AUDIOCHANNEL_STEREO;
+            return AUDIOCHANNEL_EXTERNAL;
 
         case 0x03:
         case 0x04:

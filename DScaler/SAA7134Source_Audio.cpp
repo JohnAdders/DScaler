@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.16 2003-02-06 19:44:46 ittarnavsky Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.17 2003-06-01 19:42:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/02/06 19:44:46  ittarnavsky
+// changes due to the new SoundChannel.h
+//
 // Revision 1.15  2003/01/10 17:38:18  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -172,6 +175,15 @@ void CSAA7134Source::UpdateAudioStatus()
             {
                 BtSoundChannel = SOUNDCHANNEL_LANGUAGE2;
                 sprintf(szAudioChannel,"Language 2");
+                break;
+            }
+        case AUDIOCHANNEL_EXTERNAL:
+            {
+				// External means it could either be stereo
+				// or mono but we don't know because it comes
+				// from an external source.
+                BtSoundChannel = SOUNDCHANNEL_STEREO;
+                sprintf(szAudioChannel,"External");
                 break;
             }
         }

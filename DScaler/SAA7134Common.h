@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.21 2003-04-28 06:28:04 atnak Exp $
+// $Id: SAA7134Common.h,v 1.22 2003-06-01 19:42:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/04/28 06:28:04  atnak
+// Added ASUS TV/FM
+//
 // Revision 1.20  2003/04/17 09:17:45  atnak
 // Added V-Gear MyTV SAP PK
 //
@@ -249,6 +252,7 @@ protected:
         AUDIOCHANNEL_STEREO,
         AUDIOCHANNEL_LANGUAGE1,
         AUDIOCHANNEL_LANGUAGE2,
+		AUDIOCHANNEL_EXTERNAL,
     };
 
     enum eAudioCarrierMode

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.27 2002-10-07 20:31:02 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.28 2002-10-07 22:31:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/10/07 20:31:02  kooiman
+// Fixed autodetect bugs.
+//
 // Revision 1.26  2002/09/28 13:33:04  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -321,18 +324,28 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
 			long Standard = m_pBT848Card->GetAudioStandardFromVideoFormat((eVideoFormat)m_VideoFormat->GetValue());
             if ((NewValue == 0) || (Standard != 0))
             {
-                m_pBT848Card->SetAudioStandard(Standard, (eVideoFormat)m_VideoFormat->GetValue());
-                m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+                m_pBT848Card->SetAudioStandard(Standard, (eVideoFormat)m_VideoFormat->GetValue());                
 
                 m_AudioStandardManual->SetValue(Standard, ONCHANGE_NONE);
                 m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), ONCHANGE_NONE);
                 m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), ONCHANGE_NONE);
-                
-				if (m_AutoStereoSelect->GetValue())
+              
+                if (m_AutoStereoSelect->GetValue())
                 {
                     // Find stereo modes
                     m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
                 }
+                else
+                {
+                    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());                               
+                }
+                //Set controls                
+                if (m_InitAudioControls)
+                {
+                    m_InitAudioControls = FALSE;
+                    InitAudioControls();
+                }
+                m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
                 break;
             } 
             else
@@ -365,13 +378,23 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             {
                 m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), ONCHANGE_NONE);
                 m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), ONCHANGE_NONE);
-            }
-            m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+            }            
             // Find stereo modes
             if (m_AutoStereoSelect->GetValue())
             {
                 m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, SOUNDCHANNEL_STEREO);
             }
+            else
+            {
+                m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());                
+            }
+            //Set controls            
+            if (m_InitAudioControls)
+            {
+                m_InitAudioControls = FALSE;
+                InitAudioControls();
+            }
+            m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
         }
         break;
     }        
@@ -404,7 +427,12 @@ void CBT848Source::AudioStandardDetected(long Standard)
     m_AudioStandardManual->SetValue(Standard, ONCHANGE_NONE);
     m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), ONCHANGE_NONE);
     m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), ONCHANGE_NONE);
-    
+        
+    if (m_InitAudioControls)
+    {
+        m_InitAudioControls = FALSE;
+        InitAudioControls();
+    }
     m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
     m_DetectingAudioStandard = 0;
 }
@@ -521,3 +549,38 @@ ISetting* CBT848Source::GetCurrentAudioSetting()
     }
 }
 
+
+void CBT848Source::InitAudio()
+{
+    m_pBT848Card->InitAudio();
+
+    m_InitAudioControls = TRUE; //done in audiostandarddetectonchange
+    
+    m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
+	m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);
+}
+
+void CBT848Source::InitAudioControls()
+{    
+    m_Balance->SetValue(m_Balance->GetValue(),ONCHANGE_SET_FORCE);
+
+    m_UseEqualizer->SetValue(m_UseEqualizer->GetValue(),ONCHANGE_SET_FORCE);
+    if (!m_UseEqualizer->GetValue())
+    {
+        m_Bass->SetValue(m_Bass->GetValue(),ONCHANGE_SET_FORCE);
+        m_Treble->SetValue(m_Treble->GetValue(),ONCHANGE_SET_FORCE);
+    }
+    else
+    {
+        m_EqualizerBand1->SetValue(m_EqualizerBand1->GetValue(),ONCHANGE_SET_FORCE);
+        m_EqualizerBand2->SetValue(m_EqualizerBand2->GetValue(),ONCHANGE_SET_FORCE);
+        m_EqualizerBand3->SetValue(m_EqualizerBand3->GetValue(),ONCHANGE_SET_FORCE);
+        m_EqualizerBand4->SetValue(m_EqualizerBand4->GetValue(),ONCHANGE_SET_FORCE);
+        m_EqualizerBand5->SetValue(m_EqualizerBand5->GetValue(),ONCHANGE_SET_FORCE);
+    }
+
+    m_AudioLoudness->SetValue(m_AudioLoudness->GetValue(),ONCHANGE_SET_FORCE);
+    m_AudioSuperbass->SetValue(m_AudioSuperbass->GetValue(),ONCHANGE_SET_FORCE);
+    m_AudioSpatialEffect->SetValue(m_AudioSpatialEffect->GetValue(),ONCHANGE_SET_FORCE);
+    m_AudioAutoVolumeCorrection->SetValue(m_AudioAutoVolumeCorrection->GetValue(),ONCHANGE_SET_FORCE); 
+}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.80 2002-10-07 20:31:02 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.81 2002-10-07 22:31:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2002/10/07 20:31:02  kooiman
+// Fixed autodetect bugs.
+//
 // Revision 1.79  2002/09/29 13:53:40  adcockj
 // Ensure Correct History stored
 //
@@ -589,6 +592,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioControl, FlagsAll);
     m_Volume->SetStepValue(20);
+    //m_Volume->SetOSDDivider(10);
     m_Settings.push_back(m_Volume);
 
     m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection, pAudioControl, FlagsAll);
@@ -687,6 +691,7 @@ void CBT848Source::Start()
     CreateRiscCode(bCaptureVBI);
     m_pBT848Card->StartCapture(bCaptureVBI);
     m_pBT848Card->SetDMA(TRUE);
+    UnMute();
     Audio_Unmute();
     Timing_Reset();
     NotifySizeChange();
@@ -754,9 +759,8 @@ void CBT848Source::Reset()
 
     m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue(), ONCHANGE_SET_FORCE);
         
-    m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-	m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);
-    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
+    Mute();
+    InitAudio();    
 }
 
 
@@ -851,6 +855,7 @@ void CBT848Source::Stop()
 {
     // stop capture
     m_pBT848Card->StopCapture();
+    Mute();
     Audio_Mute();
     // \todo: FIXME check to see if we need this timer
     {
@@ -1436,7 +1441,7 @@ void CBT848Source::SetupCard()
     }
     m_pBT848Card->SetCardType(m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
-    m_pBT848Card->InitAudio();
+    InitAudio();
 }
 
 void CBT848Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)

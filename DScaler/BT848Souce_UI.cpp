@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.55 2002-10-07 20:31:04 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.56 2002-10-07 22:31:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/10/07 20:31:04  kooiman
+// Fixed autodetect bugs.
+//
 // Revision 1.54  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -1336,7 +1339,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             PostShowDialogOrMenu();
             m_pBT848Card->SetCardType(m_CardType->GetValue());
             m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
-            m_pBT848Card->InitAudio();
+            InitAudio();
             Start_Capture();
             break;
 

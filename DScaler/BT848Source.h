@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.40 2002-09-28 13:33:04 kooiman Exp $
+// $Id: BT848Source.h,v 1.41 2002-10-07 22:31:27 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -108,6 +108,8 @@ private:
     void ChangeDefaultsForInput();
     void LoadInputSettings();
     void SaveInputSettings(BOOL bOptimizeFileAccess);
+    void InitAudio();
+    void InitAudioControls();
 
     void ChangeChannelSectionNames();
 
@@ -141,7 +143,8 @@ private:
 
     std::string  m_Section;
     std::string  m_IDString;
-    int m_DetectingAudioStandard;
+    int          m_DetectingAudioStandard;
+    BOOL         m_InitAudioControls;
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.4 2002-02-01 23:16:29 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.5 2002-02-02 00:57:54 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/01 23:16:29  lindsey
+// Added code for MMX computers
+// Removed MMXEXT version (since it didn't do anything)
+//
 // Revision 1.3  2001/12/31 00:02:59  lindsey
 // Fixed crashing bug when pixel width not evenly divisible by 8
 // Added prefetching for a substantial speed up
@@ -188,7 +192,9 @@ MAINLOOP_LABEL:
             paddw   mm7, mm5                // mm7 = unsigned product of chroma and multiplier
             psllq   mm7, 8                  // mm7 = amount of chroma to add/subtract from old, with remainders
 #endif
+#if defined( IS_SSE )
             prefetchnta[ebx + PREFETCH_STRIDE]
+#endif
 
             pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma

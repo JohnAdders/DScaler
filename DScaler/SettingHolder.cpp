@@ -328,7 +328,7 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
 {
     LONG RetVal = 0;
     if (m_SetMessage == 0) { return 0; }
-    if(wParam > 0 && wParam < m_Settings.size())
+    if(wParam >= 0 && wParam < m_Settings.size())
     {
         if(message == m_SetMessage)
         {

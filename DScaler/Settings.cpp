@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.41 2002-10-29 11:05:28 adcockj Exp $
+// $Id: Settings.cpp,v 1.42 2003-01-03 12:38:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.40  2002/09/11 18:19:44  adcockj
 // Prelimainary support for CX2388x based cards
 //
@@ -755,35 +758,42 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
 {
     char szBuffer[1024] = "Unexpected Display Error";
 
-    switch(pSetting->Type)
+    if(pSetting->szDisplayName != NULL)
     {
-    case ITEMFROMLIST:
-        sprintf(szBuffer, "%s %s", pSetting->szDisplayName, pSetting->pszList[*(pSetting->pValue)]);
-        break;
-    case YESNO:
-        sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"YES":"NO");
-        break;
-    case ONOFF:
-        sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"ON":"OFF");
-        break;
-    case SLIDER:
-        if(pSetting->OSDDivider == 1)
+        switch(pSetting->Type)
         {
-            sprintf(szBuffer, "%s %d", pSetting->szDisplayName, *(pSetting->pValue));
+        case ITEMFROMLIST:
+            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, pSetting->pszList[*(pSetting->pValue)]);
+            break;
+        case YESNO:
+            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"YES":"NO");
+            break;
+        case ONOFF:
+            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"ON":"OFF");
+            break;
+        case SLIDER:
+            if(pSetting->OSDDivider == 1)
+            {
+                sprintf(szBuffer, "%s %d", pSetting->szDisplayName, *(pSetting->pValue));
+            }
+            else if(pSetting->OSDDivider == 8)
+            {
+                sprintf(szBuffer, "%s %.3f", pSetting->szDisplayName, (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
+            }
+            else
+            {
+                sprintf(szBuffer, "%s %.*f", pSetting->szDisplayName, (int)log10(pSetting->OSDDivider), (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
+            }
+            break;
+        default:
+            break;
         }
-        else if(pSetting->OSDDivider == 8)
-        {
-            sprintf(szBuffer, "%s %.3f", pSetting->szDisplayName, (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
-        }
-        else
-        {
-            sprintf(szBuffer, "%s %.*f", pSetting->szDisplayName, (int)log10(pSetting->OSDDivider), (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
-        }
-        break;
-    default:
-        break;
+        OSD_ShowText(hWnd, szBuffer, 0);
     }
-    OSD_ShowText(hWnd, szBuffer, 0);
+    else
+    {
+        OSD_ShowText(hWnd, "Not Supported", 0);
+    }
 }
 //---------------------------------------------------------------------------
 // This function allows for accelerated slider adjustments

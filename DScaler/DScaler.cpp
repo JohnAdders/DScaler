@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.300 2003-02-05 16:40:17 laurentg Exp $
+// $Id: DScaler.cpp,v 1.301 2003-02-05 17:21:50 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.300  2003/02/05 16:40:17  laurentg
+// New option to stop capture when DScaler is minimized
+//
 // Revision 1.299  2003/02/05 15:11:39  laurentg
 // Channel name as tip for the DScaler icon in the systray (patch from Kristian Trenskow)
 //
@@ -5944,7 +5947,11 @@ int On_IconHandler(WPARAM wParam, LPARAM lParam)
 				Init_IconMenu();
 			}
             GetCursorPos(&mPoint);
+            SetForegroundWindow(hWnd); // To correct Windows errors. See KB Q135788
             TrackPopupMenuEx(hMenuTray, TPM_RIGHTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON, mPoint.x, mPoint.y, hWnd, NULL);
+            // To correct Windows  errors. See KB Q135788. I am not really sure if this is necessary
+            // with TrackPopupMenuEx() but it doesn't hurt either.
+            PostMessage(hWnd, WM_NULL, 0, 0);
             break;
 
         }

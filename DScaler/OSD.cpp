@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.57 2002-04-27 14:08:07 laurentg Exp $
+// $Id: OSD.cpp,v 1.58 2002-05-06 15:34:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/04/27 14:08:07  laurentg
+// Automatic square pixels mode handling updated
+//
 // Revision 1.56  2002/04/06 11:46:45  laurentg
 // Check that the current source is not NULL to avoid DScaler exits
 //
@@ -543,6 +546,30 @@ void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double Size)
 }
 
 //---------------------------------------------------------------------------
+// Display source comments in OSD with autohide
+void OSD_ShowComments(HWND hWnd)
+{
+    if (bOverride)
+    {
+        return;
+    }
+
+    CSource* pSource = Providers_GetCurrentSource();
+    if ( (pSource != NULL)
+      && (strlen(pSource->GetComments()) > 0) )
+    {
+        OSD_ClearAllTexts();
+        OSD_AddText(pSource->GetComments(), DefaultSmallSizePerc, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, 0.05, 0.1);
+        OSD_Show(hWnd, OSD_AUTOHIDE, 0);
+        if (bAutoHide)
+        {
+            IdxCurrentScreen = -1;
+        }
+        bRestoreScreen = (IdxCurrentScreen != -1);
+    }
+}
+
+//---------------------------------------------------------------------------
 // Clear currently displayed OSD
 void OSD_Clear(HWND hWnd)
 {
@@ -831,12 +858,8 @@ static void OSD_RefreshGeneralScreen(double Size)
     if (pSource != NULL)
     {
         sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
-    else
-    {
-        strcpy (szInfo, "Size ???x???");
-    }
-    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Source ratio
     if (!AspectSettings.SquarePixels)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.10 2002-02-09 13:01:57 laurentg Exp $
+// $Id: OSD.h,v 1.11 2002-05-06 15:34:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -85,6 +85,7 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay);
 void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size);
 void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size);
 void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double Size);
+void OSD_ShowComments(HWND hWnd);
 void OSD_Redraw(HWND hWnd, HDC hDC);
 void OSD_Clear(HWND hWnd);
 void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType);

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerVersion.h,v 1.6 2004-03-13 14:02:13 adcockj Exp $
+// $Id: DScalerVersion.h,v 1.7 2004-08-12 17:03:08 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 // should be updated before each release
 #define DSCALERVERSION_MAJOR 4
 #define DSCALERVERSION_MINOR 1
-#define DSCALERVERSION_REVISION 9
+#define DSCALERVERSION_REVISION 10
 
 // need to have an extra macro for stingify otherwise we get the 
 // name of the definition not the value

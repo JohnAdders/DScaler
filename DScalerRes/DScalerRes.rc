@@ -1057,10 +1057,12 @@ BEGIN
             MENUITEM SEPARATOR
         END
         MENUITEM SEPARATOR
-        MENUITEM "Set Aspect Ratio detecting black bars\tA", 
-                                                IDM_SASPECT_AUTO_TOGGLE
-        MENUITEM "Set Aspect Ratio using data in signal", 
-                                                IDM_SASPECT_AUTO2_TOGGLE
+        POPUP "Set Automatically Image Aspect Ratio"
+        BEGIN
+            MENUITEM "Autodetect Black Bars\tA",    IDM_SASPECT_AUTO_TOGGLE
+            MENUITEM "Use Aspect Data embedded in Signal", 
+                                                    IDM_SASPECT_AUTO2_TOGGLE
+        END
         MENUITEM "&4:3 Fullscreen",             IDM_ASPECT_FULLSCREEN
         MENUITEM "&Letterboxed",                IDM_ASPECT_LETTERBOX
         MENUITEM "&16:9 Anamorphic",            IDM_ASPECT_ANAMORPHIC

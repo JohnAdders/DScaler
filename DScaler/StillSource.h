@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.24 2002-03-30 13:18:31 laurentg Exp $
+// $Id: StillSource.h,v 1.25 2002-04-13 18:47:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,10 +65,13 @@ class CPlayListItem
 public:
     CPlayListItem(LPCSTR FileName, int SecondsToDisplay);
     LPCSTR GetFileName();
+    BOOL IsSupported();
     int GetSecondsToDisplay();
+    void SetSupported(BOOL Supported);
 private:
     std::string m_FileName;
     int m_SecondsToDisplay;
+    BOOL m_Supported;
 };
 
 /** Source class that can read files and playlists and display

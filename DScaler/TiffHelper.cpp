@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.12 2002-04-10 22:18:12 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.13 2002-04-13 18:47:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/04/10 22:18:12  laurentg
+// Checks to avoid loading of certain TIFF files with unsupported compression modes
+//
 // Revision 1.11  2002/02/26 21:24:25  laurentg
 // Move the test on the still file size in order to have a global treatment later
 //
@@ -87,6 +90,7 @@ CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
 BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 {
     int y1, y2, cr, cb, r, g, b, i, j;
+    BYTE* pFrameBuf;
     BYTE* pDestBuf;
     TIFF* tif;
     uint32 w, h;
@@ -117,8 +121,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Allocate memory buffer to store the YUYV values
-    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(w * 2 * h * sizeof(BYTE));
-    if (m_pParent->m_OriginalFrame.pData == NULL)
+    pFrameBuf = (BYTE*)malloc(w * 2 * h * sizeof(BYTE));
+    if (pFrameBuf == NULL)
     {
         TIFFClose(tif);
         return FALSE;
@@ -128,7 +132,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     {
         if (!TIFFGetField(tif, TIFFTAG_STRIPBYTECOUNTS, &bc))
         {
-            free(m_pParent->m_OriginalFrame.pData);
+            free(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -137,7 +141,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         bufYCbCr = (uint8*) _TIFFmalloc(npixels * 2 * sizeof (uint8));
         if (bufYCbCr == NULL)
         {
-            free(m_pParent->m_OriginalFrame.pData);
+            free(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -148,7 +152,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
             StripSize = bc[Strip];
             if (TIFFReadRawStrip(tif, Strip, pSrcBuf, StripSize) != StripSize)
             {
-                free(m_pParent->m_OriginalFrame.pData);
+                free(pFrameBuf);
                 _TIFFfree(bufYCbCr);
                 TIFFClose(tif);
                 return FALSE;
@@ -157,7 +161,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         }
 
         // YYUV => YUYV
-        pDestBuf = m_pParent->m_OriginalFrame.pData;
+        pDestBuf = pFrameBuf;
         for (i = 0 ; i < h ; i++)
         {
             pSrcBuf = bufYCbCr + i * w * 2;
@@ -191,7 +195,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         bufPackedRGB = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
         if (bufPackedRGB == NULL)
         {
-            free(m_pParent->m_OriginalFrame.pData);
+            free(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -199,14 +203,14 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         // RGBA buffer filled in with data from file
         if (!TIFFReadRGBAImage(tif, w, h, bufPackedRGB, 0))
         {
-            free(m_pParent->m_OriginalFrame.pData);
+            free(pFrameBuf);
             _TIFFfree(bufPackedRGB);
             TIFFClose(tif);
             return FALSE;
         }
 
         // RGBRGB => YUYV
-        pDestBuf = m_pParent->m_OriginalFrame.pData;
+        pDestBuf = pFrameBuf;
         for (i = (h - 1) ; i >= 0 ; i--)
         {
             for (j = 0 ; j < (w/2) ; j++)
@@ -257,7 +261,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     }
     else
     {
-        free(m_pParent->m_OriginalFrame.pData);
+        free(pFrameBuf);
         TIFFClose(tif);
         return FALSE;
     }
@@ -265,6 +269,11 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
+    if (m_pParent->m_OriginalFrame.pData != NULL)
+    {
+        free(m_pParent->m_OriginalFrame.pData);
+    }
+    m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;
 

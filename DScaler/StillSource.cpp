@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.43 2002-04-11 20:46:07 laurentg Exp $
+// $Id: StillSource.cpp,v 1.44 2002-04-13 18:47:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/04/11 20:46:07  laurentg
+// Use memcpy instead of the optimized memcpy
+//
 // Revision 1.42  2002/03/30 13:18:31  laurentg
 // New ini setting to choose the directory where to save snapshots
 //
@@ -215,7 +218,8 @@ CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
 
 CPlayListItem::CPlayListItem(LPCSTR FileName, int SecondsToDisplay) :
     m_FileName(FileName),
-    m_SecondsToDisplay(SecondsToDisplay)
+    m_SecondsToDisplay(SecondsToDisplay),
+    m_Supported(TRUE)
 {
 }
 
@@ -227,6 +231,16 @@ LPCSTR CPlayListItem::GetFileName()
 int CPlayListItem::GetSecondsToDisplay()
 {
     return m_SecondsToDisplay;
+}
+
+int CPlayListItem::IsSupported()
+{
+    return m_Supported;
+}
+
+void CPlayListItem::SetSupported(BOOL Supported)
+{
+    m_Supported = Supported;
 }
 
 CStillSource::CStillSource(LPCSTR IniSection) :
@@ -348,13 +362,6 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     int h = m_Height;
     int w = m_Width;
 
-    if (m_OriginalFrame.pData != NULL)
-    {
-        free(m_OriginalFrame.pData);
-        m_OriginalFrame.pData = NULL;
-    }
-    m_IsPictureRead = FALSE;
-
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
         strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
     {
@@ -391,16 +398,12 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 
         if (!ResizeOriginalFrame(NewWidth, NewHeight))
         {
-            free(m_OriginalFrame.pData);
-            FileRead = FALSE;
+            m_Height = NewHeight;
+		    m_Width = NewWidth;
         }
     }
 
-    if (!FileRead)
-    {
-        m_OriginalFrame.pData = NULL;
-    }
-    else
+    if (FileRead)
     {
         m_IsPictureRead = TRUE;
 
@@ -433,15 +436,20 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     {
         if (LoadPlayList(FileName))
         {
-            if (!ShowNextInPlayList())
+            if (ShowNextInPlayList())
             {
-                if (i != -1)
+                return TRUE;
+            }
+            else
+            {
+                m_Position = i;
+                // All added files in the playlist are not readable
+                // => suppress them from the playlist
+                while ((m_Position + 1) < m_PlayList.size())
                 {
-                    m_Position = i;
-                    ShowNextInPlayList();
+                    m_PlayList.erase(m_PlayList.begin() + m_Position + 1);
                 }
             }
-            return TRUE;
         }
     }
     else if(OpenPictureFile(FileName))
@@ -458,29 +466,43 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 
 BOOL CStillSource::ShowNextInPlayList()
 {
-    while(m_Position < m_PlayList.size())
+    int Pos = m_Position;
+
+    while(Pos < m_PlayList.size())
     {
-        if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
+        if(OpenPictureFile(m_PlayList[Pos]->GetFileName()))
         {
+            m_Position = Pos;
+            m_PlayList[Pos]->SetSupported(TRUE);
             return TRUE;
         }
-        ++m_Position;
+        else
+        {
+            m_PlayList[Pos]->SetSupported(FALSE);
+        }
+        ++Pos;
     }
-    m_Position = m_PlayList.size() - 1;
     return FALSE;
 }
 
 BOOL CStillSource::ShowPreviousInPlayList()
 {
-    while(m_Position >= 0)
+    int Pos = m_Position;
+
+    while(Pos >= 0)
     {
-        if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
+        if(OpenPictureFile(m_PlayList[Pos]->GetFileName()))
         {
+            m_Position = Pos;
+            m_PlayList[Pos]->SetSupported(TRUE);
             return TRUE;
         }
-        --m_Position;
+        else
+        {
+            m_PlayList[Pos]->SetSupported(FALSE);
+        }
+        --Pos;
     }
-    m_Position = 0;
     return FALSE;
 }
 
@@ -513,9 +535,21 @@ void CStillSource::CreateSettings(LPCSTR IniSection)
 
 void CStillSource::Start()
 {
-    if (!m_IsPictureRead && IsAccessAllowed())
+    if (!m_IsPictureRead)
     {
-        ShowNextInPlayList();
+        // Try to load the file
+        if (!ShowNextInPlayList())
+        {
+            ShowPreviousInPlayList();
+        }
+
+        // If no file of the playlist is readable
+        if (!m_IsPictureRead)
+        {
+            LOG(1, "CStillSource::Start - PostMessage");
+            PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
+        }
+
         // The file is loaded and notification of size change is done
         // no need to call NotifySizeChange in this case
     }
@@ -727,13 +761,19 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             m_Position = m_PlayList.size() - 1;
         }
-        UpdateMenu();
-        if (m_Position == -1)
+        if (!IsAccessAllowed())
         {
+            if (m_PlayList.size() > 0)
+            {
+                ClearPlayList();
+                m_Position = -1;
+            }
+            UpdateMenu();
             PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
         }
         else
         {
+            UpdateMenu();
             m_NewFileRequested = STILL_REQ_NEXT_CIRC;
             m_NewFileReqPos = m_Position;
         }
@@ -778,41 +818,93 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 BOOL CStillSource::ReadNextFrameInFile()
 {
     BOOL Realloc = FALSE;
+    int CurrentPos = m_Position;
+
+    if (m_NewFileRequested == STILL_REQ_THIS_ONE)
+    {
+        m_NewFileRequested = STILL_REQ_NONE;
+        if (OpenPictureFile(m_PlayList[m_NewFileReqPos]->GetFileName()))
+        {
+            m_PlayList[m_NewFileReqPos]->SetSupported(TRUE);
+            m_Position = m_NewFileReqPos;
+            Realloc = TRUE;
+        }
+        else
+        {
+            m_PlayList[m_NewFileReqPos]->SetSupported(FALSE);
+
+            if (m_Position == m_NewFileReqPos)
+            {
+                // The user tried to open the current file
+                // and this time the file is not readable
+                m_NewFileRequested = STILL_REQ_NEXT_CIRC;
+            }
+        }
+    }
 
     switch (m_NewFileRequested)
     {
-    case STILL_REQ_THIS_ONE:
-        m_Position = m_NewFileReqPos;
-        OpenPictureFile(m_PlayList[m_Position]->GetFileName());
-        Realloc = TRUE;
-        break;
     case STILL_REQ_NEXT:
         m_Position = m_NewFileReqPos;
-        ShowNextInPlayList();
-        Realloc = TRUE;
+        if (ShowNextInPlayList())
+        {
+            Realloc = TRUE;
+        }
+        else
+        {
+            m_Position = CurrentPos;
+        }
         break;
     case STILL_REQ_NEXT_CIRC:
         m_Position = m_NewFileReqPos;
-        if (!ShowNextInPlayList())
+        if (ShowNextInPlayList())
+        {
+            Realloc = TRUE;
+        }
+        else
         {
             m_Position = 0;
-            ShowNextInPlayList();
+            if (ShowNextInPlayList())
+            {
+                Realloc = TRUE;
+            }
+            else
+            {
+                m_Position = CurrentPos;
+                PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
+            }
         }
-        Realloc = TRUE;
         break;
     case STILL_REQ_PREVIOUS:
         m_Position = m_NewFileReqPos;
-        ShowPreviousInPlayList();
-        Realloc = TRUE;
+        if (ShowPreviousInPlayList())
+        {
+            Realloc = TRUE;
+        }
+        else
+        {
+            m_Position = CurrentPos;
+        }
         break;
     case STILL_REQ_PREVIOUS_CIRC:
         m_Position = m_NewFileReqPos;
-        if (!ShowPreviousInPlayList())
+        if (ShowPreviousInPlayList())
+        {
+            Realloc = TRUE;
+        }
+        else
         {
             m_Position = m_PlayList.size() - 1;
-            ShowPreviousInPlayList();
+            if (ShowPreviousInPlayList())
+            {
+                Realloc = TRUE;
+            }
+            else
+            {
+                m_Position = CurrentPos;
+                PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
+            }
         }
-        Realloc = TRUE;
         break;
     case STILL_REQ_NONE:
     default:
@@ -830,7 +922,6 @@ BOOL CStillSource::ReadNextFrameInFile()
         if (m_StillFrame.pData == NULL)
         {
             m_StillFrame.pData = (BYTE*)DumbAlignedMalloc(m_Width * 2 * m_Height * sizeof(BYTE));
-//>>>            m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
@@ -851,6 +942,7 @@ BOOL CStillSource::ReadNextFrameInFile()
     }
     else
     {
+        LOG(1, "m_IsPictureRead FALSE");
         return FALSE;
     }
 }
@@ -1038,6 +1130,7 @@ void CStillSource::SetMenu(HMENU hMenu)
         {
             CheckMenuItem(hMenuFiles, i, MF_BYPOSITION | MF_UNCHECKED);
         }
+        EnableMenuItem(hMenuFiles, i, m_PlayList[i]->IsSupported() ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
     }
 }
 
@@ -1067,7 +1160,18 @@ BOOL CStillSource::IsVideoPresent()
 
 BOOL CStillSource::IsAccessAllowed()
 {
-    return (m_Position != -1 && m_PlayList.size() > 0);
+    if ((m_Position == -1) || (m_PlayList.size() == 0))
+        return FALSE;
+
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it)
+    {
+        if ((*it)->IsSupported())
+            return TRUE;
+    }
+
+    return FALSE;
 }
 
 void CStillSource::SetOverscan()

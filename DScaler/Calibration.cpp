@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.54 2002-04-06 11:46:46 laurentg Exp $
+// $Id: Calibration.cpp,v 1.55 2002-04-13 18:47:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/04/06 11:46:46  laurentg
+// Check that the current source is not NULL to avoid DScaler exits
+//
 // Revision 1.53  2002/02/26 21:24:24  laurentg
 // Move the test on the still file size in order to have a global treatment later
 //
@@ -758,11 +761,11 @@ CTestPattern::CTestPattern(char* name, int height)
 
 CTestPattern::CTestPattern(LPCSTR FileName)
 {
+    FILE* FilePat;
     CColorBar* color_bar;
     CSubPattern* sub_pattern;
     char BufferLine[512];
     char *Buffer;
-    FILE* FilePat;
     int i_val[16];
     char s_val[64];
     char s_val2[64];
@@ -1451,7 +1454,10 @@ void CCalibration::LoadTestPatterns()
                     if (!stat(Buffer, &st))
                     {
                         pattern = new CTestPattern(Buffer);
-                        m_TestPatterns.push_back(pattern);
+                        if ((pattern->GetWidth() * pattern->GetHeight()) > 0)
+                        {
+                            m_TestPatterns.push_back(pattern);
+                        }
                     }
                 }
                 else
@@ -1460,7 +1466,10 @@ void CCalibration::LoadTestPatterns()
                     if (!stat(FullPath, &st))
                     {
                         pattern = new CTestPattern(FullPath);
-                        m_TestPatterns.push_back(pattern);
+                        if ((pattern->GetWidth() * pattern->GetHeight()) > 0)
+                        {
+                            m_TestPatterns.push_back(pattern);
+                        }
                     }
                 }
             }
@@ -2333,16 +2342,27 @@ CPatternHelper::CPatternHelper(CStillSource* pParent) :
 BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 {
     CTestPattern pattern(FileName);
+    BYTE* pFrameBuf;
 
-    // Allocate memory buffer to store the YUYV values
-    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));
-    if (m_pParent->m_OriginalFrame.pData == NULL)
+    if ((pattern.GetWidth() * pattern.GetHeight()) == 0)
     {
         return FALSE;
     }
 
-    pattern.Draw(m_pParent->m_OriginalFrame.pData);
+    // Allocate memory buffer to store the YUYV values
+    pFrameBuf = (BYTE*)malloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));
+    if (pFrameBuf == NULL)
+    {
+        return FALSE;
+    }
 
+    pattern.Draw(pFrameBuf);
+
+    if (m_pParent->m_OriginalFrame.pData != NULL)
+    {
+        free(m_pParent->m_OriginalFrame.pData);
+    }
+    m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = pattern.GetHeight();
     m_pParent->m_Width = pattern.GetWidth();
 

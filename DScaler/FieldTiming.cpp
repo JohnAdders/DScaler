@@ -121,12 +121,20 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
 //
 void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 {
+	static int nSleepSkipFields = 0;
 	int NewPos;
 	int Diff;
 	int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
+
+	// Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
+	if (pInfo->SleepSkipFields)
+	{
+		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
+	}
+
 	while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
 	{
-		Sleep(pInfo->SleepInterval);
+		Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
 		pInfo->bRunningLate = FALSE;			// if we waited then we are not late
 	}
 
@@ -167,6 +175,7 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 
 void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 {
+	static int nSleepSkipFields = 0;
 	int NewPos;
 	int Diff;
 	int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
@@ -240,10 +249,16 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 	}
 	pInfo->bRunningLate = FALSE;
 
+	// Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
+	if (pInfo->SleepSkipFields)
+	{
+		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
+	}
+
 	// we have to sleep somewhere might as well be here
 	// since we don't sleep anywhere in the WaitForNextField
 	// anymore
-	Sleep(pInfo->SleepInterval);
+	Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
 }
 
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)

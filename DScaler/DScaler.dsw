@@ -359,6 +359,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_LuminChromaShift
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Colorimetry
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -412,6 +415,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_Chroma"=..\Plugins\FLT_Chroma\FLT_Chroma.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_Colorimetry"=..\Plugins\FLT_Colorimetry\FLT_Colorimetry.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

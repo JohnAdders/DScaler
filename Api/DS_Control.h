@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.143 2003-03-29 22:36:17 laurentg Exp $
+// $Id: DS_Control.h,v 1.144 2003-04-14 12:14:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.143  2003/03/29 22:36:17  laurentg
+// New filter
+//
 // Revision 1.142  2003/03/25 13:07:18  laurentg
 // New settings for stills
 //
@@ -1745,5 +1748,19 @@ typedef enum
 #define WM_FLT_LUMINCHROMASHIFT_SETVALUE     (WM_APP + 155)
 #define WM_FLT_LUMINCHROMASHIFT_CHANGEVALUE  (WM_APP + 255)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_Colorimetry.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    USECOLORIMETRY = 0,
+    COLORIMETRYTYPE,
+    FLT_COLORIMETRY_SETTING_LASTONE,
+} FLT_COLORIMETRY_SETTING;
+
+#define WM_FLT_COLORIMETRY_GETVALUE       (WM_APP + 56)
+#define WM_FLT_COLORIMETRY_SETVALUE       (WM_APP + 156)
+#define WM_FLT_COLORIMETRY_CHANGEVALUE    (WM_APP + 256)
 
 #endif

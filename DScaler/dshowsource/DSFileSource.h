@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.9 2003-01-10 17:38:43 adcockj Exp $
+// $Id: DSFileSource.h,v 1.10 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/10 17:38:43  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.8  2003/01/08 20:49:49  laurentg
 // New settings for analogue blanking by source
 //
@@ -117,9 +124,9 @@ public:
 	void Start();
 
 protected:
-    void ChangeDefaultsForVideoFormat() {};
-    void ChangeDefaultsForVideoInput() {};
-    void ChangeDefaultsForAudioInput() {};
+    void ChangeDefaultsForVideoFormat(BOOL bDontSetValue) {};
+    void ChangeDefaultsForVideoInput(BOOL bDontSetValue) {};
+    void ChangeDefaultsForAudioInput(BOOL bDontSetValue) {};
 
 private:
 	///the file this source uses

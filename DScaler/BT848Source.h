@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.51 2003-01-10 17:37:45 adcockj Exp $
+// $Id: BT848Source.h,v 1.52 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2003/01/10 17:37:45  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.50  2003/01/08 19:59:35  laurentg
 // Analogue Blanking setting by source
 //
@@ -179,9 +186,6 @@ private:
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;
     CSliderSetting* m_CardType;
-    CYesNoSetting* m_bSavePerInput;
-    CYesNoSetting* m_bSavePerFormat;
-    CYesNoSetting* m_bSavePerChannel;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Contrast);
@@ -252,9 +256,9 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AutoStereoDetectInterval);
 
 protected:
-    void ChangeDefaultsForVideoFormat();
-    void ChangeDefaultsForVideoInput() {};
-    void ChangeDefaultsForAudioInput() {};
+    void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);
+    void ChangeDefaultsForVideoInput(BOOL bDontSetValue) {};
+    void ChangeDefaultsForAudioInput(BOOL bDontSetValue) {};
 };
 
 

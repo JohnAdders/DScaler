@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.32 2003-01-10 17:38:20 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.33 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/10 17:38:20  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.31  2003/01/08 00:22:42  atnak
 // Put back VBI upscale divisor
 //
@@ -225,7 +232,6 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     int i;
     int nIndex;
     char buf[128];
-    static long OrigTuner;
     static CSAA7134Source* pThis;
 
     switch (message)
@@ -254,7 +260,6 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
         }
 
-        OrigTuner = pThis->m_TunerType->GetValue();
         SetFocus(hDlg);
         // Update the tuner combobox after the SetFocus
         // because SetFocus modifies this combobox
@@ -276,10 +281,6 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             i = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
-            if(OrigTuner != pThis->m_TunerType->GetValue())
-            {
-                pThis->ChangeTVSettingsBasedOnTuner();
-            }
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
@@ -1598,75 +1599,84 @@ void CSAA7134Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 }
 
 
+/** ChangeTVSettingsBasedOnTuner
+    This function only gets called when the tuner is set
+    when the card is first found and all it does is set the default
+    video format
+*/
 void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
 {
     // default the TVTYPE dependant on the Tuner selected
     // should be OK most of the time
     if (m_TunerType->GetValue() != TUNER_ABSENT)
     {
-        eVideoFormat videoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
-
-        // \todo need to make sure onchange gets called here
-        // so that other relevant settings are changed
-        m_VideoFormat->ChangeDefault(videoFormat);
-
-        SetupVideoStandard();
+        // be a bit defensive here to avoid a possible
+        // crash
+        if(m_pSAA7134Card->GetTuner() != NULL)
+        {
+            eVideoFormat videoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
+            m_VideoFormat->ChangeDefault(videoFormat);
+        }
+        else
+        {
+            LOG(1, " NULL Tuner in ChangeTVSettingsBasedOnTuner");
+        }
     }
 }
 
 
-void CSAA7134Source::ChangeDefaultsForVideoInput()
+void CSAA7134Source::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
 {
     int nInput = m_VideoSource->GetValue();
 
-    m_AudioSource->ChangeDefault(m_pSAA7134Card->GetInputAudioLine(nInput));
+    m_AudioSource->ChangeDefault(m_pSAA7134Card->GetInputAudioLine(nInput), bDontSetValue);
 }
 
 
-void CSAA7134Source::ChangeDefaultsForVideoFormat()
+void CSAA7134Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
 {
     eVideoFormat VideoFormat = (eVideoFormat)m_VideoFormat->GetValue();
 
     if (IsPALVideoFormat(VideoFormat))
     {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION, TRUE);
-        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
-        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
-        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
-        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION, bDontSetValue);
+        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, bDontSetValue);
+        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, bDontSetValue);
     }
     else if (IsNTSCVideoFormat(VideoFormat))
     {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION, TRUE);
-        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
-        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
-        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
-        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION, bDontSetValue);
+        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, bDontSetValue);
+        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, bDontSetValue);
     }
     else
     {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION, TRUE);
-        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
-        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
-        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
-        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION, bDontSetValue);
+        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, bDontSetValue);
+        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, bDontSetValue);
     }
 
     if (IsSECAMVideoFormat(VideoFormat))
     {
-        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_CHROMA_ONLY, TRUE);
+        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_CHROMA_ONLY, bDontSetValue);
     }
     else
     {
-        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_FULL, TRUE);
+        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_FULL, bDontSetValue);
     }
 
     eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
-    m_AudioStandard->ChangeDefault(AudioStandard, TRUE);
+    m_AudioStandard->ChangeDefault(AudioStandard, bDontSetValue);
 }
 
 
-void CSAA7134Source::ChangeDefaultsForAudioInput()
+void CSAA7134Source::ChangeDefaultsForAudioInput(BOOL bDontSetValue)
 {
 
 }

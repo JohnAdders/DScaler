@@ -21,7 +21,6 @@ public:
     void WriteToIni(BOOL bOptimizeFileAccess);
 
     void AddSetting(ISetting* pSetting);
-    void RemoveSetting(ISetting* pSetting);
 
     void AddSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.35 2003-01-15 15:54:22 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.36 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.34  2003/01/13 17:46:44  adcockj
 // HDelay and VDelay turned from absolute to adjustments
 //
@@ -677,11 +680,11 @@ void CCX2388xCard::SetHDelay(int nInput, eVideoFormat TVFormat, long CurrentX, i
     {
         if (CurrentY == 576)
         {
-            HorzDelay = ((CurrentX * 0x82) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+            HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
         else
         {
-            HorzDelay = ((CurrentX * 0x7E) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
+            HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
     }
     

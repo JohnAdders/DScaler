@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.10 2003-01-15 15:54:22 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.11 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.9  2003/01/10 17:37:49  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -865,7 +868,6 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
     int i;
     int nIndex;
     char buf[128];
-    static long OrigTuner;
     static CBT848Source* pThis;
 
     switch (message)
@@ -894,7 +896,6 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
         }
 
-        OrigTuner = pThis->m_TunerType->GetValue();
         SetFocus(hDlg);
         // Update the tuner combobox after the SetFocus
         // because SetFocus modifies this combobox
@@ -917,10 +918,6 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
-            if(OrigTuner != pThis->m_TunerType->GetValue())
-            {
-                pThis->ChangeTVSettingsBasedOnTuner();
-            }
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
@@ -1473,43 +1470,33 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     return TRUE;
 }
 
-void CBT848Source::ChangeDefaultsForVideoFormat()
+void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
 {
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_NTSC);
-        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_NTSC);
-        m_Hue->ChangeDefault(DEFAULT_HUE_NTSC);
-        m_Saturation->ChangeDefault((DEFAULT_SAT_U_NTSC + DEFAULT_SAT_V_NTSC) / 2);
-        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC);
-        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC);
-        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
-        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
-        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
-        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_NTSC, bDontSetValue);
+        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_NTSC, bDontSetValue);
+        m_Hue->ChangeDefault(DEFAULT_HUE_NTSC, bDontSetValue);
+        m_Saturation->ChangeDefault((DEFAULT_SAT_U_NTSC + DEFAULT_SAT_V_NTSC) / 2, bDontSetValue);
+        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC, bDontSetValue);
+        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC, bDontSetValue);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
     }
     else
     {
-        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL);
-        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL);
-        m_Hue->ChangeDefault(DEFAULT_HUE_PAL);
-        m_Saturation->ChangeDefault((DEFAULT_SAT_U_PAL + DEFAULT_SAT_V_PAL) / 2);
-        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL);
-        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL);
-        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
-        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
-        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
-        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
-    }
-
-    // set up defaults fro position parameters
-    if(m_bSavePerFormat->GetValue())
-    {
-        m_BDelay->ChangeDefault(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->bDelayB);
-    }
-    else
-    {
-        m_BDelay->ChangeDefault(0);
+        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL, bDontSetValue);
+        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL, bDontSetValue);
+        m_Hue->ChangeDefault(DEFAULT_HUE_PAL, bDontSetValue);
+        m_Saturation->ChangeDefault((DEFAULT_SAT_U_PAL + DEFAULT_SAT_V_PAL) / 2, bDontSetValue);
+        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL, bDontSetValue);
+        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL, bDontSetValue);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
     }
 }

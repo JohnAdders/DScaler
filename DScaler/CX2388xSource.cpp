@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.36 2003-01-13 19:00:49 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.37 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/01/13 19:00:49  adcockj
+// put reset in correct place
+//
 // Revision 1.35  2003/01/13 17:46:48  adcockj
 // HDelay and VDelay turned from absolute to adjustments
 //
@@ -316,8 +319,6 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     // loads up core settings like card and tuner type
     ReadFromIni();
     
-    ChangeDefaultsForSetup(SETUP_CHANGE_ANY);
-
     SetupCard();
 
     InitializeUI();
@@ -349,6 +350,10 @@ void CCX2388xSource::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
+
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     SettingsMaster->LoadSettings();
 
@@ -425,14 +430,14 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
-    m_bSavePerInput = new CYesNoSetting("Save Per Input", FALSE, IniSection, "SavePerInput");
-    m_Settings.push_back(m_bSavePerInput);
+    // save per input removed
+    m_Settings.push_back(NULL);
     
-    m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
-    m_Settings.push_back(m_bSavePerFormat);
-    
-    m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");
-    m_Settings.push_back(m_bSavePerChannel);
+    // save per format removed
+    m_Settings.push_back(NULL);
+
+    // save per channel removed
+    m_Settings.push_back(NULL);
 
     m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pH3DGroup);
     m_Settings.push_back(m_IsVideoProgressive);
@@ -1312,6 +1317,10 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
     }
 
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
+
     SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
@@ -1337,6 +1346,10 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
+
     SettingsMaster->LoadSettings();
 
     Start_Capture();
@@ -1442,6 +1455,9 @@ BOOL CCX2388xSource::IsInTunerMode()
 
 void CCX2388xSource::SetupCard()
 {
+    long OrigTuner = m_TunerType->GetValue();
+    long OrigCard = m_CardType->GetValue();
+
     if(m_CardType->GetValue() == CX2388xCARD_UNKNOWN)
     {
         // try to detect the card
@@ -1455,6 +1471,24 @@ void CCX2388xSource::SetupCard()
     }
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
+
+
+    // if the tuner has changed during this function
+    // change the default format
+    // but do so after the Tuner has been set on the card
+    if(OrigTuner != m_TunerType->GetValue())
+    {
+        ChangeTVSettingsBasedOnTuner();
+    }
+
+    if(OrigTuner != m_TunerType->GetValue() ||
+       OrigCard != m_CardType->GetValue())    
+    {
+        // For this card the defaults are also
+        // by card id so reset if the card has changed
+        // reset here, actaully change the values too
+        ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
+    }
 
     // set up card specific menu
     DestroyMenu(m_hMenu);
@@ -1488,14 +1522,28 @@ void CCX2388xSource::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 
 }
 
+/** ChangeTVSettingsBasedOnTuner
+    This function only gets called when the tuner is set
+    when the card is first found and all it does is set the default
+    video format
+*/
 void CCX2388xSource::ChangeTVSettingsBasedOnTuner()
 {
     // default the TVTYPE dependant on the Tuner selected
     // should be OK most of the time
     if(m_TunerType->GetValue() != TUNER_ABSENT)
     {
-        eVideoFormat videoFormat = m_pCard->GetTuner()->GetDefaultVideoFormat();
-        m_VideoFormat->ChangeDefault(videoFormat);
+        // be a bit defensive here to avoid a possible
+        // crash
+        if(m_pCard->GetTuner() != NULL)
+        {
+            eVideoFormat videoFormat = m_pCard->GetTuner()->GetDefaultVideoFormat();
+            m_VideoFormat->ChangeDefault(videoFormat);
+        }
+        else
+        {
+            LOG(1, " NULL Tuner in ChangeTVSettingsBasedOnTuner");
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.55 2003-01-10 17:38:36 adcockj Exp $
+// $Id: StillSource.h,v 1.56 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -188,9 +188,9 @@ protected:
     std::string m_IDString;
 
 protected:
-    void ChangeDefaultsForVideoFormat() {};
-    void ChangeDefaultsForVideoInput() {};
-    void ChangeDefaultsForAudioInput() {};
+    void ChangeDefaultsForVideoFormat(BOOL bDontSetValue) {};
+    void ChangeDefaultsForVideoInput(BOOL bDontSetValue) {};
+    void ChangeDefaultsForAudioInput(BOOL bDontSetValue) {};
 
 private:
     DWORD       m_LastTickCount;

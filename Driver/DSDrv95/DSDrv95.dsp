@@ -114,11 +114,6 @@ SOURCE=.\DSDrv95.def
 # End Source File
 # Begin Source File
 
-SOURCE=.\DSDrv95.rc
-# PROP Exclude_From_Build 1
-# End Source File
-# Begin Source File
-
 SOURCE=.\Ioclass.cpp
 # End Source File
 # Begin Source File
@@ -180,6 +175,11 @@ SOURCE=.\resource.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\DSDrv95.rc
+# PROP Exclude_From_Build 1
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.30 2003-01-10 17:38:35 adcockj Exp $
+// $Id: Source.h,v 1.31 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -190,10 +190,10 @@ protected:
          SETUP_CHANGE_ANY            = 0x00F0,
      };
 
-    void ChangeDefaultsForSetup(WORD Setup);
-    virtual void ChangeDefaultsForVideoFormat() = 0;
-    virtual void ChangeDefaultsForVideoInput() = 0;
-    virtual void ChangeDefaultsForAudioInput() = 0;
+    void ChangeDefaultsForSetup(WORD Setup, BOOL bDontSetValue);
+    virtual void ChangeDefaultsForVideoFormat(BOOL bDontSetValue) = 0;
+    virtual void ChangeDefaultsForVideoInput(BOOL bDontSetValue) = 0;
+    virtual void ChangeDefaultsForAudioInput(BOOL bDontSetValue) = 0;
 };
 
 

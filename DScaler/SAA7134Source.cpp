@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.62 2003-01-13 13:56:28 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.63 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/01/13 13:56:28  adcockj
+// First attemp at SAA7134 setting groups
+//
 // Revision 1.61  2003/01/12 16:19:34  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -310,9 +313,9 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
 
     ReadFromIni();
 
-    ChangeDefaultsForSetup(SETUP_CHANGE_ANY);
-
     SetupCard();
+
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
 
     InitializeUI();
 
@@ -350,6 +353,10 @@ void CSAA7134Source::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
+
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     SettingsMaster->LoadSettings();
 }
@@ -1139,7 +1146,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 
 void CSAA7134Source::SetupCard()
 {
-    BOOL bCardChanged = FALSE;
+    long OrigTuner = m_TunerType->GetValue();
 
     if (m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
@@ -1151,11 +1158,22 @@ void CSAA7134Source::SetupCard()
         m_bSelectCardCancelButton = FALSE;
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
         m_bSelectCardCancelButton = TRUE;
-
-        bCardChanged = TRUE;
     }
+
     m_pSAA7134Card->SetCardType(m_CardType->GetValue());
     m_pSAA7134Card->InitTuner((eTunerId)m_TunerType->GetValue());
+
+    // if the tuner has changed during this function
+    // change the default format
+    // but do so after the Tuner has been set on the card
+    if(OrigTuner != m_TunerType->GetValue())
+    {
+        ChangeTVSettingsBasedOnTuner();
+        // All the defaults should be set for NTSC
+        // so in case we changed the format based on the tuner
+        // reset here, actaully change the values too
+        ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
+    }
 }
 
 
@@ -1451,6 +1469,10 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
     }
 
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
+
     SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
@@ -1477,6 +1499,10 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
+
     SettingsMaster->LoadSettings();
 
     Start_Capture();

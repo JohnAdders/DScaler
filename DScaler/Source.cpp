@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.15 2003-01-12 16:19:35 adcockj Exp $
+// $Id: Source.cpp,v 1.16 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/01/12 16:19:35  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.14  2003/01/10 17:38:33  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -158,19 +162,19 @@ BOOL CSource::HasTuner()
 }
 
 
-void CSource::ChangeDefaultsForSetup(WORD Setup)
+void CSource::ChangeDefaultsForSetup(WORD Setup, BOOL bDontSetValue)
 {
     if (Setup & SETUP_CHANGE_VIDEOINPUT)
     {
-        ChangeDefaultsForVideoInput();
+        ChangeDefaultsForVideoInput(bDontSetValue);
     }
     if (Setup & SETUP_CHANGE_VIDEOFORMAT)
     {
-        ChangeDefaultsForVideoFormat();
+        ChangeDefaultsForVideoFormat(bDontSetValue);
     }
     if (Setup & SETUP_CHANGE_AUDIOINPUT)
     {
-        ChangeDefaultsForAudioInput();
+        ChangeDefaultsForAudioInput(bDontSetValue);
     }
 }
 

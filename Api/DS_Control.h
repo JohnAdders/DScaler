@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.131 2003-01-13 13:56:28 adcockj Exp $
+// $Id: DS_Control.h,v 1.132 2003-01-16 13:30:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.131  2003/01/13 13:56:28  adcockj
+// First attemp at SAA7134 setting groups
+//
 // Revision 1.130  2003/01/12 20:10:47  adcockj
 // Put analogue blanking setting in properly
 //
@@ -639,8 +642,8 @@ typedef enum
     BASS,
     TREBLE,
     BALANCE,
-    BT848SAVEPERINPUT,
-    BT848SAVEPERFORMAT,    
+    BT848SAVEPERINPUT_DISABLED,
+    BT848SAVEPERFORMAT_DISABLED,    
     AUDIOSOURCE2,
     AUDIOSOURCE3,
     AUDIOSOURCE4,
@@ -1481,9 +1484,9 @@ typedef enum
     CX2388XTVFORMAT,
     CX2388XCARDTYPE,
     CX2388XTUNERTYPE,
-    CX2388XSAVEPERINPUT,
-    CX2388XSAVEPERFORMAT,
-    CX2388XSAVETVFORMATPERINPUT,
+    CX2388XSAVEPERINPUT_DISABLED,
+    CX2388XSAVEPERFORMAT_DISABLED,
+    CX2388XSAVETVFORMATPERINPUT_DISABLED,
     CX2388XISINPUTPROGRESSIVE,
     CX2388XFLIFILMDETECT,
     CX2388XHDELAY,

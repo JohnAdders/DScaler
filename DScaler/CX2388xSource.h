@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.18 2003-01-10 17:37:54 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.19 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -193,9 +193,9 @@ private:
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
 protected:
-    void ChangeDefaultsForVideoFormat();
-    void ChangeDefaultsForVideoInput();
-    void ChangeDefaultsForAudioInput() {};
+    void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);
+    void ChangeDefaultsForVideoInput(BOOL bDontSetValue);
+    void ChangeDefaultsForAudioInput(BOOL bDontSetValue) {};
 };
 
 

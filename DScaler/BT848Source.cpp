@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.109 2003-01-13 21:13:43 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.110 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2003/01/13 21:13:43  adcockj
+// Allow h&V delays to be done in sort of real time
+//
 // Revision 1.108  2003/01/13 17:46:44  adcockj
 // HDelay and VDelay turned from absolute to adjustments
 //
@@ -464,8 +467,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     // loads up core settings like card and tuner type
     ReadFromIni();
     
-    ChangeDefaultsForSetup(SETUP_CHANGE_ANY);
-
     SetupCard();
 }
 
@@ -496,6 +497,10 @@ void CBT848Source::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
+
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     // load up any channel/input/format specifc settings
     SettingsMaster->LoadSettings();
@@ -692,11 +697,11 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioControl);
     m_Settings.push_back(m_Balance);
 
-    m_bSavePerInput = new CYesNoSetting("Save Per Input", FALSE, IniSection, "SavePerInput");
-    m_Settings.push_back(m_bSavePerInput);
+    // save per input removed
+    m_Settings.push_back(NULL);
     
-    m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
-    m_Settings.push_back(m_bSavePerFormat);
+    // save per format removed
+    m_Settings.push_back(NULL);
     
     m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection, pAudioSource);
     m_Settings.push_back(m_AudioSource2);
@@ -1384,6 +1389,10 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
     }
 
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
+
     SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
@@ -1409,6 +1418,10 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
+    // make sure the defaults are correct
+    // but don't change the values
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
+
     SettingsMaster->LoadSettings();
 
     Start_Capture();
@@ -1587,6 +1600,8 @@ BOOL CBT848Source::IsInTunerMode()
 
 void CBT848Source::SetupCard()
 {
+    long OrigTuner = m_TunerType->GetValue();
+
     if(m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
         // try to detect the card
@@ -1607,8 +1622,23 @@ void CBT848Source::SetupCard()
             m_AudioSource1->SetValue(AUDIOINPUT_EXTERNAL);
         }
     }
+    
     m_pBT848Card->SetCardType(m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
+
+    // if the tuner has changed during this function
+    // change the default format
+    // but do so after the Tuner has been set on the card
+    if(OrigTuner != m_TunerType->GetValue())
+    {
+        ChangeTVSettingsBasedOnTuner();
+
+        // All the defaults should be set for NTSC
+        // so in case we changed the format based on the tuner
+        // reset here, actaully change the values too
+        ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
+    }
+    
     InitAudio();
 }
 
@@ -1638,14 +1668,28 @@ void CBT848Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 
 }
 
+/** ChangeTVSettingsBasedOnTuner
+    This function only gets called when the tuner is set
+    when the card is first found and all it does is set the default
+    video format
+*/
 void CBT848Source::ChangeTVSettingsBasedOnTuner()
 {
     // default the TVTYPE dependant on the Tuner selected
     // should be OK most of the time
     if(m_TunerType->GetValue() != TUNER_ABSENT)
     {
-        eVideoFormat videoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
-        m_VideoFormat->ChangeDefault(videoFormat);
+        // be a bit defensive here to avoid a possible
+        // crash
+        if(m_pBT848Card->GetTuner() != NULL)
+        {
+            eVideoFormat videoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
+            m_VideoFormat->ChangeDefault(videoFormat);
+        }
+        else
+        {
+            LOG(1, " NULL Tuner in ChangeTVSettingsBasedOnTuner");
+        }
     }
 }
 

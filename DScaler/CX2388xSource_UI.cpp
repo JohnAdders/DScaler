@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.27 2003-01-15 15:54:22 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.28 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.26  2003/01/10 17:37:55  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -155,7 +158,6 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     int i;
     int nIndex;
     char buf[128];
-    static long OrigTuner;
     static CCX2388xSource* pThis;
 
     switch (message)
@@ -184,7 +186,6 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
         }
 
-        OrigTuner = pThis->m_TunerType->GetValue();
         SetFocus(hDlg);
         // Update the tuner combobox after the SetFocus
         // because SetFocus modifies this combobox
@@ -207,10 +208,6 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
 
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
-            if(OrigTuner != pThis->m_TunerType->GetValue())
-            {
-                pThis->ChangeTVSettingsBasedOnTuner();
-            }
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
@@ -519,46 +516,46 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     return TRUE;
 }
 
-void CCX2388xSource::ChangeDefaultsForVideoInput()
+void CCX2388xSource::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
 {
     if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
     {
-        m_Brightness->ChangeDefault(128, TRUE);
-        m_Contrast->ChangeDefault(0x39, TRUE);
+        m_Brightness->ChangeDefault(128, bDontSetValue);
+        m_Contrast->ChangeDefault(0x39, bDontSetValue);
         m_Hue->ChangeDefault(128, TRUE);
-        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, TRUE);
-        m_SaturationU->ChangeDefault(0x7f, TRUE);
-        m_SaturationV->ChangeDefault(0x5A, TRUE);
-        m_IsVideoProgressive->ChangeDefault(FALSE, TRUE);
+        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, bDontSetValue);
+        m_SaturationU->ChangeDefault(0x7f, bDontSetValue);
+        m_SaturationV->ChangeDefault(0x5A, bDontSetValue);
+        m_IsVideoProgressive->ChangeDefault(FALSE, bDontSetValue);
     }
     else
     {
-        m_Brightness->ChangeDefault(128, TRUE);
-        m_Contrast->ChangeDefault(128, TRUE);
-        m_Hue->ChangeDefault(128, TRUE);
-        m_Saturation->ChangeDefault(128, TRUE);
-        m_SaturationU->ChangeDefault(128, TRUE);
-        m_SaturationV->ChangeDefault(128, TRUE);
-        m_IsVideoProgressive->ChangeDefault(TRUE, TRUE);
+        m_Brightness->ChangeDefault(128, bDontSetValue);
+        m_Contrast->ChangeDefault(128, bDontSetValue);
+        m_Hue->ChangeDefault(128, bDontSetValue);
+        m_Saturation->ChangeDefault(128, bDontSetValue);
+        m_SaturationU->ChangeDefault(128, bDontSetValue);
+        m_SaturationV->ChangeDefault(128, bDontSetValue);
+        m_IsVideoProgressive->ChangeDefault(TRUE, bDontSetValue);
     }
 }
 
-void CCX2388xSource::ChangeDefaultsForVideoFormat()
+void CCX2388xSource::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
 {
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
-        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
-        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
-        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
     }
     else
     {
-        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
-        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
-        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
-        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.32 2003-01-10 17:38:17 adcockj Exp $
+// $Id: SAA7134Source.h,v 1.33 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/10 17:38:17  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.31  2003/01/08 19:59:38  laurentg
 // Analogue Blanking setting by source
 //
@@ -248,9 +255,9 @@ private:
     static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-    void ChangeDefaultsForVideoInput();
-    void ChangeDefaultsForVideoFormat();
-    void ChangeDefaultsForAudioInput();
+    void ChangeDefaultsForVideoInput(BOOL bDontSetValue);
+    void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);
+    void ChangeDefaultsForAudioInput(BOOL bDontSetValue);
     void ChangeTVSettingsBasedOnTuner();
 
 protected:
@@ -300,9 +307,6 @@ private:
     CYesNoSetting*  m_ReversePolarity;
     CYesNoSetting*  m_VBIDebugOverlay;
     CSliderSetting* m_CardType;
-    CYesNoSetting*  m_bSavePerInput;
-    CYesNoSetting*  m_bSavePerFormat;
-    CYesNoSetting*  m_bSavePerChannel;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Contrast);

@@ -69,7 +69,7 @@ void CSettingsHolder::AddSetting(ISetting* pSetting)
 {    
     for (int i = 0; i < m_Settings.size(); i++)
     {
-        if (m_Settings[i] == pSetting)
+        if (pSetting != NULL && m_Settings[i] == pSetting)
         {
             //Already in list
             return; 
@@ -105,26 +105,6 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
     }
 }
 
-/** 
-    Removes a setting from the list.
-*/
-void CSettingsHolder::RemoveSetting(ISetting* pSetting)
-{
-    vector<ISetting*> NewList;
-    for (int i = 0; i < m_Settings.size(); i++)
-    {
-        if ((m_Settings[i] == NULL) || (m_Settings[i] == pSetting))
-        {
-            //Don't add
-        }
-        else
-        {
-            NewList.push_back(m_Settings[i]);
-        }
-    }
-    m_Settings = NewList;
-}
-
 /**
     Reads alls settings of the list from the .ini file.
 */    
@@ -135,7 +115,10 @@ void CSettingsHolder::ReadFromIni()
         it != m_Settings.end();
         ++it)
     {
-        (*it)->ReadFromIni();
+        if((*it) != NULL)
+        {
+            (*it)->ReadFromIni();
+        }
     }
 }
 
@@ -149,7 +132,10 @@ void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
         it != m_Settings.end();
         ++it)
     {
-        (*it)->WriteToIni(bOptimizeFileAccess);
+        if((*it) != NULL)
+        {
+            (*it)->WriteToIni(bOptimizeFileAccess);
+        }
     }
 }
 
@@ -186,23 +172,32 @@ ISetting* CSettingsHolder::GetSetting(long SettingIndex)
 LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled)
 {
     LONG RetVal = 0;
-    if (m_SetMessage == 0) { return 0; }
+
+    if (m_SetMessage == 0)
+    { 
+        return 0; 
+    }
+
     if(wParam >= 0 && wParam < m_Settings.size())
     {
-        if(message == m_SetMessage)
+        ISetting* pSetting = m_Settings[wParam];
+        if(pSetting != NULL)
         {
-            RetVal = m_Settings[wParam]->GetValue();
-            *bHandled = TRUE;
-        }
-        else if(message == m_SetMessage + 100)
-        {
-            m_Settings[wParam]->SetValue(lParam);
-            *bHandled = TRUE;
-        }
-        else if(message == m_SetMessage + 200)
-        {
-            m_Settings[wParam]->ChangeValue((eCHANGEVALUE)lParam);
-            *bHandled = TRUE;
+            if(message == m_SetMessage)
+            {
+                RetVal = pSetting->GetValue();
+                *bHandled = TRUE;
+            }
+            else if(message == m_SetMessage + 100)
+            {
+                pSetting->SetValue(lParam);
+                *bHandled = TRUE;
+            }
+            else if(message == m_SetMessage + 200)
+            {
+                pSetting->ChangeValue((eCHANGEVALUE)lParam);
+                *bHandled = TRUE;
+            }
         }
     }
     return RetVal;

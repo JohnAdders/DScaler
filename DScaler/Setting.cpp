@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.22 2003-01-13 19:22:44 adcockj Exp $
+// $Id: Setting.cpp,v 1.23 2003-01-16 13:30:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/01/13 19:22:44  adcockj
+// Setttings bug fixes
+//
 // Revision 1.21  2003/01/12 16:19:34  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -735,6 +738,11 @@ void CSliderSetting::SetFromControl(HWND hWnd)
     else
     {
         nValue = nValue + m_pSetting->MinValue;
+    }
+    // make sure the value is only a multiple of the step size.
+    if(m_pSetting->StepValue != 1)
+    {
+        nValue = nValue - (nValue % m_pSetting->StepValue);
     }
     SetValue(nValue);
 }

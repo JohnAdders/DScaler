@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.26 2002-06-09 23:27:21 robmuller Exp $
+// $Id: BT848Souce_UI.cpp,v 1.27 2002-06-18 19:29:14 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/06/09 23:27:21  robmuller
+// Implemented canceling for advanced video settings dialog.
+//
 // Revision 1.25  2002/06/05 20:53:49  adcockj
 // Default changes and settings fixes
 //
@@ -695,6 +698,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
                 ShowText(hWnd, m_pBT848Card->GetInputName(nValue));
                 m_VideoSource->SetValue(nValue);
+                SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
             }
             break;
             

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.51 2004-11-20 17:58:03 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.52 2004-11-27 19:11:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2004/11/20 17:58:03  atnak
+// Code change for VS6 compatibility.
+//
 // Revision 1.50  2004/11/20 14:20:09  atnak
 // Changed the card list to an ini file.
 //
@@ -111,6 +114,7 @@
 #include "SAA7134_Defines.h"
 #include "DebugLog.h"
 #include "HierarchicalConfigParser.h"
+#include "ParsingCommon.h"
 
 using namespace HCParser;
 
@@ -192,63 +196,6 @@ const ParseConstant CSAA7134Card::k_parseSAA713xAudioCrystalConstants[] =
     { NULL,         NULL            },
 };
 
-const ParseConstant CSAA7134Card::k_parseSAA713xDefaultTunerConstants[] =
-{
-    // This list should really be generated at runtime but there
-    // isn't another string list in DScaler that can be used as
-    // the constants list.  I generated this code by running regex
-    // replaces on the eTunerId enum list.
-    { "ABSENT", "0" },
-    { "PHILIPS_PAL_I", "1" },
-    { "PHILIPS_NTSC", "2" },
-    { "PHILIPS_SECAM", "3" },
-    { "PHILIPS_PAL", "4" },
-    { "TEMIC_4002FH5_PAL", "5" },
-    { "TEMIC_4032FY5_NTSC", "6" },
-    { "TEMIC_4062FY5_PAL_I", "7" },
-    { "TEMIC_4036FY5_NTSC", "8" },
-    { "ALPS_TSBH1_NTSC", "9" },
-    { "ALPS_TSBE1_PAL", "10" },
-    { "ALPS_TSBB5_PAL_I", "11" },
-    { "ALPS_TSBE5_PAL", "12" },
-    { "ALPS_TSBC5_PAL", "13" },
-    { "TEMIC_4006FH5_PAL", "14" },
-    { "PHILIPS_1236D_NTSC_INPUT1", "15" },
-    { "PHILIPS_1236D_NTSC_INPUT2", "16" },
-    { "ALPS_TSCH6_NTSC", "17" },
-    { "TEMIC_4016FY5_PAL", "18" },
-    { "PHILIPS_MK2_NTSC", "19" },
-    { "TEMIC_4066FY5_PAL_I", "20" },
-    { "TEMIC_4006FN5_PAL", "21" },
-    { "TEMIC_4009FR5_PAL", "22" },
-    { "TEMIC_4039FR5_NTSC", "23" },
-    { "TEMIC_4046FM5_MULTI", "24" },
-    { "PHILIPS_PAL_DK", "25" },
-    { "PHILIPS_MULTI", "26" },
-    { "LG_I001D_PAL_I", "27" },
-    { "LG_I701D_PAL_I", "28" },
-    { "LG_R01F_NTSC", "29" },
-    { "LG_B01D_PAL", "30" },
-    { "LG_B11D_PAL", "31" },
-    { "TEMIC_4009FN5_PAL", "32" },
-    { "MT2032", "33" },
-    { "SHARP_2U5JF5540_NTSC", "34" },
-    { "LG_TAPCH701P_NTSC", "35" },
-    { "SAMSUNG_PAL_TCPM9091PD27", "36" },
-    { "TEMIC_4106FH5", "37" },
-    { "TEMIC_4012FY5", "38" },
-    { "TEMIC_4136FY5", "39" },
-    { "LG_TAPCNEW_PAL", "40" },
-    { "PHILIPS_FM1216ME_MK3", "41" },
-    { "LG_TAPCNEW_NTSC", "42" },
-    { "MT2032_PAL", "43" },
-    { "PHILIPS_FI1286_NTSC_M_J", "44" },
-    { "MT2050", "45" },
-    { "MT2050_PAL", "46" },
-    { "PHILIPS_4IN1", "47" },
-    { NULL,                 NULL    },
-};
-
 //////////////////////////////////////////////////////////////////////////
 // SAA713x card list parsing values
 //////////////////////////////////////////////////////////////////////////
@@ -281,12 +228,13 @@ const ParseTag CSAA7134Card::k_parseSAA713xCard[] =
 {
     { "Name",           PARSE_STRING,                   1, 127, NULL, NULL, ReadCardInfoProc }, 
     { "DeviceID",       PARSE_NUMERIC,                  1, 8, NULL, NULL, ReadCardInfoProc},
-    { "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC,   0, 32, NULL, k_parseSAA713xDefaultTunerConstants, ReadCardInfoProc },
+    { "DefaultTuner",   PARSE_CONSTANT|PARSE_NUMERIC,   0, 32, NULL, k_parseTunerConstants, ReadCardDefaultTunerProc },
     { "AudioCrystal",   PARSE_CONSTANT,                 0, 8, NULL, k_parseSAA713xAudioCrystalConstants, ReadCardInfoProc },
     { "GPIOMask",       PARSE_NUMERIC,                  0, 16, NULL, NULL, ReadCardInfoProc },
     { "AutoDetectID",   PARSE_CHILDREN,                 0, 1, k_parseSAA713xCardAutoDetectID, NULL, NULL },
     { "Input",          PARSE_CHILDREN,                 0, 7, k_parseSAA713xCardInput, NULL, ReadCardInputProc },
     { "Final",          PARSE_CHILDREN,                 0, 7, k_parseSAA713xCardInput+2, NULL, ReadCardInputProc },
+    { "UseTDA9887",     PARSE_CHILDREN,                 0, 1, k_parseUseTDA9887, NULL, ReadCardUseTDA9887Proc },
     { NULL,             0,                              0, 0, NULL, NULL, NULL },
 };
 
@@ -358,10 +306,10 @@ void CSAA7134Card::InitializeSAA713xUnknownCard()
 }
 
 
-void CSAA7134Card::ReadCardInputInfoProc(int reason, const ParseTag* tag, unsigned char,
+void CSAA7134Card::ReadCardInputInfoProc(int report, const ParseTag* tag, unsigned char,
                                          const char* value, void* context)
 {
-    if (reason != REPORT_VALUE)
+    if (report != REPORT_VALUE)
     {
         return;
     }
@@ -416,12 +364,12 @@ void CSAA7134Card::ReadCardInputInfoProc(int reason, const ParseTag* tag, unsign
 }
 
 
-void CSAA7134Card::ReadCardInputProc(int reason, const ParseTag* tag, unsigned char,
+void CSAA7134Card::ReadCardInputProc(int report, const ParseTag* tag, unsigned char,
                                      const char* value, void* context)
 {
     TParseCardInfo* parseInfo = (TParseCardInfo*)context;
 
-    switch (reason)
+    switch (report)
     {
     case REPORT_OPEN:
         {
@@ -440,11 +388,67 @@ void CSAA7134Card::ReadCardInputProc(int reason, const ParseTag* tag, unsigned c
     }
 }
 
+void CSAA7134Card::ReadCardUseTDA9887Proc(int report, const ParseTag* tag, unsigned char type,
+                                          const char* value, void* context)
+{
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
 
-void CSAA7134Card::ReadCardInfoProc(int reason, const ParseTag* tag, unsigned char,
+    // Return TRUE means parseInfo->useTDA9887Info is ready.
+    if (ReadUseTDA9887Proc(report, tag, type, value, &parseInfo->useTDA9887Info))
+    {
+        parseInfo->pCurrentCard->bUseTDA9887 = parseInfo->useTDA9887Info.useTDA9887;
+        if (parseInfo->pCurrentCard->bUseTDA9887)
+        {
+            int count = 0;
+            // Count the number of non-zero masks.
+            for (int i = 0; i < TDA9887_FORMAT_LASTONE; i++)
+            {
+                if (parseInfo->useTDA9887Info.tdaModes[i].mask != 0)
+                {
+                    count++;
+                }
+            }
+            // If there are any non-zero mask.
+            if (count > 0)
+            {
+                parseInfo->pCurrentCard->tda9887Modes.clear();
+                parseInfo->pCurrentCard->tda9887Modes.reserve(count);
+
+                TTDA9887FormatModes modes;
+
+                // Transfer all data to the vector.
+                for (i = 0; i < TDA9887_FORMAT_LASTONE; i++)
+                {
+                    if (parseInfo->useTDA9887Info.tdaModes[i].mask != 0)
+                    {
+                        modes.format = (eTDA9887Format)i;
+                        modes.mask = parseInfo->useTDA9887Info.tdaModes[i].mask;
+                        modes.bits = parseInfo->useTDA9887Info.tdaModes[i].bits;
+                        parseInfo->pCurrentCard->tda9887Modes.push_back(modes);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CSAA7134Card::ReadCardDefaultTunerProc(int report, const ParseTag* tag, unsigned char type,
+                                            const char* value, void* context)
+{
+    TParseCardInfo* parseInfo = (TParseCardInfo*)context;
+
+    // Return TRUE means parseInfo->tunerInfo is ready.
+    if (ReadTunerProc(report, tag, type, value, &parseInfo->tunerInfo))
+    {
+        parseInfo->pCurrentCard->TunerId = parseInfo->tunerInfo.tunerId;
+    }
+}
+
+
+void CSAA7134Card::ReadCardInfoProc(int report, const ParseTag* tag, unsigned char,
                                     const char* value, void* context)
 {
-    if (reason != REPORT_VALUE)
+    if (report != REPORT_VALUE)
     {
         return;
     }
@@ -477,16 +481,6 @@ void CSAA7134Card::ReadCardInfoProc(int reason, const ParseTag* tag, unsigned ch
         }
         parseInfo->pCurrentCard->DeviceId = (WORD)l;
     }
-    // DefaultTuner
-    else if (tag == k_parseSAA713xCard + 2)
-    {
-        long l = CHCParser::Str2Long(value);
-        if (l < 0 || l > 74)
-        {
-            throw string("TunerID must be between 0 and 74");
-        }
-        parseInfo->pCurrentCard->TunerId = (eTunerId)l;
-    }
     // AudioCrystal
     else if (tag == k_parseSAA713xCard + 3)
     {
@@ -500,10 +494,10 @@ void CSAA7134Card::ReadCardInfoProc(int reason, const ParseTag* tag, unsigned ch
     }
 }
 
-void CSAA7134Card::ReadCardAutoDetectIDProc(int reason, const ParseTag* tag, unsigned char,
+void CSAA7134Card::ReadCardAutoDetectIDProc(int report, const ParseTag* tag, unsigned char,
                                             const char* value, void* context)
 {
-    if (reason != REPORT_VALUE)
+    if (report != REPORT_VALUE)
     {
         return;
     }
@@ -515,12 +509,12 @@ void CSAA7134Card::ReadCardAutoDetectIDProc(int reason, const ParseTag* tag, uns
 }
 
 
-void CSAA7134Card::ReadCardProc(int reason, const ParseTag*, unsigned char, const char*, void* context)
+void CSAA7134Card::ReadCardProc(int report, const ParseTag*, unsigned char, const char*, void* context)
 {
-    static TCardType cardDefaults = { "", 0x0000, 0, { 0 }, TUNER_ABSENT, AUDIOCRYSTAL_NONE, 0, { 0, 0, 0 } };
+    static TCardType cardDefaults = { "", 0x0000, 0, { 0 }, TUNER_ABSENT, AUDIOCRYSTAL_NONE, 0, { 0, 0, 0 }, FALSE };
     TParseCardInfo* parseInfo = (TParseCardInfo*)context;
 
-    switch (reason)
+    switch (report)
     {
     case REPORT_OPEN:
         parseInfo->pCardList->push_back(cardDefaults);

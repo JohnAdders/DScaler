@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.41 2004-11-20 14:20:09 atnak Exp $
+// $Id: SAA7134Card.h,v 1.42 2004-11-27 19:11:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2004/11/20 14:20:09  atnak
+// Changed the card list to an ini file.
+//
 // Revision 1.40  2004/02/24 04:17:58  atnak
 // Added a help comment
 //
@@ -169,7 +172,9 @@
 #include "SAA7134_Defines.h"
 #include "SAA7134Common.h"
 #include "SAA7134I2CInterface.h"
+#include "TDA9887.h"
 #include "HierarchicalConfigParser.h"
+#include "ParsingCommon.h"
 
 #include "ITuner.h"
 //#include "AudioDecoder.h"
@@ -262,6 +267,8 @@ private:
         eAudioCrystal AudioCrystal;
         DWORD dwGPIOMode;
         DWORD AutoDetectId[SA_AUTODETECT_ID_PER_CARD];
+        BOOL bUseTDA9887;
+        std::vector<TTDA9887FormatModes> tda9887Modes;
     } TCardType;
 
     /// used to store the ID for autodetection
@@ -277,10 +284,18 @@ private:
     /// the SAA713x card list
     typedef struct
     {
-        std::vector<TCardType>* pCardList;
-        TCardType* pCurrentCard;
-        size_t nGoodCards;
-        HCParser::CHCParser* pHCParser;
+        // List of all cards parsed and last item for currently parsing.
+        std::vector<TCardType>*     pCardList;
+        // Pointer to the last item in pCardList when a card is being parsed.
+        TCardType*                  pCurrentCard;
+        // Number of cards successfully parsed so far.
+        size_t                      nGoodCards;
+        // Pointer to the HCParser instance doing the parsing.
+        HCParser::CHCParser*        pHCParser;
+        // Used by ParsingCommon's tuner parser for temporary data.
+        TParseTunerInfo             tunerInfo;
+        // Used by ParsingCommon's useTDA9887 parser for temporary data.
+        TParseUseTDA9887Info        useTDA9887Info;
     } TParseCardInfo;
 
 
@@ -304,7 +319,7 @@ public:
     /** General card setup
      */
     int     GetMaxCards();
-	int     GetCardByName(LPCSTR cardName);
+    int     GetCardByName(LPCSTR cardName);
     LPCSTR  GetCardName(eSAA7134CardId CardId);
     WORD    GetCardDeviceId(eSAA7134CardId CardId);
 
@@ -462,6 +477,8 @@ public:
      */
     static void ReadCardInputInfoProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
     static void ReadCardInputProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardUseTDA9887Proc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardDefaultTunerProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
     static void ReadCardInfoProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
     static void ReadCardAutoDetectIDProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
     static void ReadCardProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);

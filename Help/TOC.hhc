@@ -286,6 +286,11 @@
 			<param name="Local" value="IniFile.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SAA713X Advanced">
+			<param name="Local" value="SAA713xAdvanced.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Developer Information">

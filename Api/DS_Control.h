@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.77 2002-08-06 22:18:08 lindsey Exp $
+// $Id: DS_Control.h,v 1.78 2002-08-07 00:47:30 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2002/08/06 22:18:08  lindsey
+// Added constants for a prefetch option with many of the filters
+//
 // Revision 1.76  2002/08/03 00:16:01  laurentg
 // Value for WM_DI_TOMSMOCOMP_SETVALUE and WM_DI_TOMSMOCOMP_CHANGEVALUE updated to avoid conflicts
 //
@@ -742,6 +745,7 @@ typedef enum
 {
     TEMPORALLUMINANCETHRESHOLD = 0,
     TEMPORALCHROMATHRESHOLD,
+    TEMPORALNOISEPREFETCH,
     LOCKTHRESHOLDSTOGETHER,
     USETEMPORALNOISEFILTER,
     FLT_TNOISE_SETTING_LASTONE,

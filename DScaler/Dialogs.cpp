@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.15 2001-11-23 10:49:16 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.16 2002-03-04 20:49:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.14  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -173,7 +176,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EndDialog(hDlg, TRUE);
             break;
         case IDC_LINK:
-            ShellExecute(hDlg, "open", "http://www.avsforum.com/", NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hDlg, "open", "http://sourceforge.net/forum/?group_id=7420", NULL, NULL, SW_SHOWNORMAL);
             break;
         case IDC_LINK2:
             ShellExecute(hDlg, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);

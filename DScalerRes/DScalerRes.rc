@@ -477,7 +477,7 @@ BEGIN
                     158,156,10
 END
 
-IDD_ABOUT DIALOG DISCARDABLE  22, 17, 374, 274
+IDD_ABOUT DIALOG DISCARDABLE  22, 17, 379, 273
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
 FONT 8, "MS Sans Serif"
@@ -486,34 +486,37 @@ BEGIN
     CTEXT           "DScaler Version 4.x",IDC_VERSION,0,3,293,9
     CTEXT           "Copyright (C) 2000-2002 John Adcock",IDC_STATIC,0,24,
                     293,10
-    GROUPBOX        "Based On",IDC_STATIC,6,144,364,56
+    GROUPBOX        "DScaler Contains Code From These Projects",IDC_STATIC,7,
+                    143,177,58
     GROUPBOX        "GPL Information && Open Source Policy",IDC_STATIC,5,203,
                     364,65
     LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.",
                     IDC_STATIC,11,214,354,24
     LTEXT           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.",
                     IDC_STATIC,11,238,351,24
-    LTEXT           "MultiDec Source (c) Espresso (echter_espresso@hotmail.com)",
-                    IDC_STATIC,13,154,348,9
+    LTEXT           "MultiDec (c) Espresso",IDC_STATIC,13,153,163,9
     GROUPBOX        "Authors",IDC_STATIC,6,37,180,100
     CTEXT           "http://www.dscaler.org",IDC_LINK2,6,13,288,9,SS_SUNKEN
-    LTEXT           "bttv - Bt848 frame grabber driver Copyright (c) Ralph Metzler && Marcus Metzler",
-                    IDC_STATIC,13,165,347,11
+    LTEXT           "bttv - Copyright (c) Ralph Metzler && Marcus Metzler",
+                    IDC_STATIC,13,165,165,11
     LTEXT           "I2C Interface Copyright (c) Gerd Knorr",IDC_STATIC,13,
                     177,160,10
-    GROUPBOX        "Support",IDC_STATIC,192,37,180,100
-    LTEXT           "The best place to get support for DScaler is the Home Theater Computers forum at the AV Science Forums.",
+    GROUPBOX        "Support",IDC_STATIC,194,37,180,100
+    LTEXT           "The best place to get support for DScaler are the support forums at DScaler's SourceForge pages. Click on link below.",
                     IDC_STATIC,200,47,166,27
-    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton",
+    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton\nIvan Tarnavsky\nRob Muller",
                     IDC_STATIC,103,52,74,81
-    LTEXT           "Please read the Support section in the help and the appropriate release thread for the version you are using before posting.",
+    LTEXT           "Please read the Support section in the help and the FAQ before posting.",
                     IDC_STATIC,200,104,166,26
-    CTEXT           "http://www.avsforum.com/",IDC_LINK,201,78,162,12,
-                    SS_CENTERIMAGE | SS_SUNKEN
+    CTEXT           "http://sourceforge.net/forum/?group_id=7420",IDC_LINK,
+                    201,81,162,12,SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "VirtualDub - Copyright (c) Avery Lee",IDC_STATIC,13,189,
-                    187,9
+                    161,9
     LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nJochen Trenner\nTorbjörn Jansson",
                     IDC_STATIC,12,52,74,81
+    GROUPBOX        "DScaler Uses",IDC_STATIC,194,143,180,58
+    LTEXT           "LibTiff Copyright (c) Sam Leffler && Silicon Graphics",
+                    IDC_STATIC,199,154,169,9
 END
 
 IDD_SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 230
@@ -769,7 +772,7 @@ BEGIN
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
         MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
-        MENUITEM "Always On Top (Full Screen)",  IDM_ALWAYONTOPFULLSCREEN
+        MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
         POPUP "&OSD"
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
@@ -1237,8 +1240,9 @@ BEGIN
 
     IDD_ABOUT, DIALOG
     BEGIN
-        RIGHTMARGIN, 372
+        RIGHTMARGIN, 374
         TOPMARGIN, 3
+        BOTTOMMARGIN, 272
     END
 
     IDD_SELECTCARD, DIALOG

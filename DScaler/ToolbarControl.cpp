@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.3 2002-10-07 20:33:51 kooiman Exp $
+// $Id: ToolbarControl.cpp,v 1.4 2002-10-08 08:23:59 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/07 20:33:51  kooiman
+// Fixed lots of toolbar bugs & added grip/separator bars.
+//
 // Revision 1.2  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -542,14 +545,14 @@ void CToolbarControl::Free()
 		delete Toolbar1;
         Toolbar1 = NULL;
 	}
-} 
+}  
 
 //Subtract toolbar from area
 void CToolbarControl::AdjustArea(LPRECT lpRect, int Crop)
 {
     if ((Toolbar1!=NULL) && Toolbar1->Visible())
     {
-        Toolbar1->AdjustArea(lpRect,1);
+        Toolbar1->AdjustArea(lpRect,Crop);
     }            
 }
 

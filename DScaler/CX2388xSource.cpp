@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.56 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.57 2003-11-06 19:36:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.55  2003/10/03 10:44:27  laurentg
 // GetStatus enhanced to get the channel name from teletext when in tuner mode
 //
@@ -533,7 +536,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjustment", 0, -20, 20, IniSection, pVideoGroup);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjustment", 0, -40, 40, IniSection, pVideoGroup);
     m_VDelay->SetStepValue(4);
     m_Settings.push_back(m_VDelay);
 

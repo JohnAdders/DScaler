@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.129 2003-10-27 16:22:56 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.130 2003-11-06 19:36:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.129  2003/10/27 16:22:56  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.128  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -750,7 +753,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjust", 0, -20, 20, IniSection, pAdvancedTimingGroup);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay Adjust", 0, -40, 40, IniSection, pAdvancedTimingGroup);
     m_VDelay->SetStepValue(2);
     m_Settings.push_back(m_VDelay);
 

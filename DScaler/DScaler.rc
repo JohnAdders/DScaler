@@ -548,7 +548,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,57,132,45,15,WS_GROUP
     PUSHBUTTON      "&Default",IDDEFAULT,113,132,45,15
     CONTROL         "&Use DScaler settings for overlay",IDC_CHECK1,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,199,135,94,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,199,135,119,10
 END
 
 

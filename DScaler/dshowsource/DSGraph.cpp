@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.18 2002-08-04 17:25:49 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.19 2002-08-20 16:19:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/08/04 17:25:49  tobbej
+// improved error messages when creating filter graph
+//
 // Revision 1.17  2002/08/01 20:24:19  tobbej
 // implemented AvgSyncOffset counter in dsrend
 //
@@ -157,11 +160,11 @@ CDShowGraph::~CDShowGraph()
 
 #ifdef _DEBUG
 	RemoveFromRot(m_hROT);
-	m_pGraph->SetLogFile(NULL);
+	/*m_pGraph->SetLogFile(NULL);
 	if(m_hLogFile!=INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hLogFile);
-	}
+	}*/
 #endif
 }
 
@@ -190,13 +193,14 @@ void CDShowGraph::initGraph()
 	}
 
 #ifdef _DEBUG
-	m_hLogFile=CreateFile("DShowGraphLog.txt",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	/*m_hLogFile=CreateFile("DShowGraphLog.txt",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 	if(m_hLogFile!=INVALID_HANDLE_VALUE)
 	{
 		hr=m_pGraph->SetLogFile((DWORD_PTR)m_hLogFile);
 		ASSERT(SUCCEEDED(hr));
-	}
+	}*/
 #endif
+
 
 }
 
@@ -312,7 +316,7 @@ void CDShowGraph::stop()
 CDShowBaseSource* CDShowGraph::getSourceDevice()
 {
 	return m_pSource;
-};
+}
 
 void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 {

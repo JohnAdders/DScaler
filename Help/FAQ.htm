@@ -57,18 +57,20 @@ height="2"></td>
 <tr>
 <td colspan="3">Last update: May 22nd 2001</td>
 </tr>
-
+<tr>
+</tr>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<h1> </h1>
+<h1><br>
+</h1>
 
 <h1>Introduction</h1>
 
 <h2>Where can I find the latest FAQ ?</h2>
 
-<p><a href="http://deinterlace.sourceforge.net/FAQ.htm">Here at
-deinterlace.sourceforge.net/FAQ.htm</a></p>
+<p><a href="http://www.dscaler.org/FAQ.htm">Here at
+http://www.dscaler.org/FAQ.htm</a></p>
 
 <h2>What is DScaler ?</h2>
 
@@ -101,21 +103,56 @@ unknown to PC owners until now.</p>
 <li>Judder elimination</li>
 </ul>
 
-The image quality resulting from those complex operations is high
-and allows some people equipped with data capable projectors to
-feed them with progressive scan images. <br>
-<br>
- 
+<p>The image quality resulting from those complex operations is
+high and allows some people equipped with data capable projectors
+to feed them with progressive scan images.</p>
 
-<h2>What is dTV?</h2>
+<h2>What is dTV ?</h2>
 
 <p>dTV is the old name for DScaler, we changed the name as people
-use DTV to refer to digital television and this was causing
+use dTV to refer to digital television and this was causing
 confusion. In the source and on the website you will still see
 references to dTV but please refer to the program as DScaler from
 now on.</p>
 
-<h2>Who made what ?</h2>
+<h2>History of DScaler</h2>
+
+<p>The whole thing started in july 2000. See Cliff Watson's post
+regarding the home theater computer history in "<a href=
+"http://www.avsforum.com/ubb/Forum12/HTML/012706.html#7">Who are
+the pioneers of htpc ?</a>". Ali, one of the first French htpc
+addicts, was promoting a piece of software called <a href=
+"http://www.borgtech.org/">BorgTV</a> (aka bTV) that allowed him
+to deinterlace analog sources with a level of quality unknown at
+this time. Thanks to threads like "<a href=
+"http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010102-12-002950.html">
+Not so bad analog video deinterlacing with htpc</a>", people got
+interested in the subject. Among them was <a href=
+"Authors.htm">John Adcock</a>.</p>
+
+<p>He released a plugin for bTV that was doing realtime 2:2
+pulldown for PAL movies that showed that deinterlacing of such
+sources was feasable in software (see "<a href=
+"http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010102-12-003461.html">
+John Adock's great PALMovie plugin</a>").</p>
+
+<p>The lack of NTSC support in bTV made the implementation of the
+more complex 3:2 pulldown algorithm lead John to write his own
+application based on Multidec. Its name, based on its inspiration
+application ; dTV (see "<a href=
+"http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010714-12-003790.html">
+First Version of NTSC/PAL TV deinterlacing program</a>").</p>
+
+<p>This proved that complex deinterlacing techniques could be
+done in realtime and without additionnal dedicated hardware.
+Since this time, more and more users (and coders) have joined the
+dTV community and are using it on their htpc rather than using
+external line doublers.</p>
+
+<p>In may 2001, <a href=
+"http://www.avsforum.com/ubb/Forum12/HTML/010323.html">dTV got
+renamed to DScaler</a> to avoid any misunderstanding with the
+growing Digital TeleVision issue.</p>
 
 <p>See <a href="Authors.htm">Authors</a> for the main
 contributors and <a href="Thanks.htm">Thanks</a> for a list of
@@ -140,6 +177,18 @@ is not enough. Also it would be nice to <a href=
 anybody who is shipping this product as we can add a link to your
 site and keep track of who is using our software.</p>
 
+<h2>Where can I download DScaler?</h2>
+
+<p>Official releases are placed on DScaler's site, on the <a
+href="http://www.dscaler.org/downloads.htm">download page</a></p>
+
+<p>From time to time the developers release alpha test versions,
+these version are often unstable but will have all the latest
+feature. These versions are not recommended generally and are
+only supported via the developers mailing list. The test
+downloads can be found <a href=
+"http://sourceforge.net/project/showfiles.php?group_id=7420">here</a></p>
+
 <h1>General issues</h1>
 
 <h2>Should I use DScaler to deinterlace the output from my
@@ -147,11 +196,11 @@ set-top dvd player ?</h2>
 
 <p>While it's feasible and works quite well (see the "DScaler
 Windvd challenge" in the <a href=
-"/screenshots.htm">screenshots</a> section), home theatre PC's
-have shown the best results while using dvd decoding software
-along with a dvd-rom and a modern graphics card. However, there
-are people who find things easier to use with DScaler and an
-external DVD player.</p>
+"http://www.dscaler.org/screenshots/index.htm">screenshots</a>
+section), home theatre PC's have shown the best results while
+using dvd decoding software along with a dvd-rom and a modern
+graphics card. However, there are people who find things easier
+to use with DScaler and an external DVD player.</p>
 
 <p>Some people have found that DScaler does a better job with
 non-film DVDs (concert videos or DVDs of some television shows,
@@ -168,8 +217,8 @@ installed</i><br>
  Windows Me ok <i>uses VxD running in ring-0</i><br>
  Windows 2000 ok <i>uses sys running in ring-0</i><br>
  Windows XP ok <i>uses sys running in ring-0</i><br>
- Linux no <i>if you want to do a port contact the mailing
-list</i><br>
+ Linux no <i>if you want to do a port <a href="#HELP">contact
+us</a></i><br>
  OS/2 definitely no ;-)</p>
 
 <h2>What are all those deinterlace algorithms ?</h2>
@@ -297,15 +346,12 @@ rather than from their desk ;-)</p>
 shortcuts</a> for all main options so that you can do everything
 quickly.<br>
  More, we suggest the use of <a href=
-"http://www.stack.nl/~stilgar/windoze/girder.html">Girder</a>
-from Ron Bessems as the application of choice for remote
-controlling your computer.</p>
-
-<p></p>
+"http://www.girder.nl">Girder</a> from Ron Bessems as the
+application of choice for remote controlling your computer.</p>
 
 <h2>Can I record video to my hard disk with DScaler?</h2>
 
-<p>Yes! DScaler now handles basic recording and playback of
+<p>Sort of. DScaler now handles basic recording and playback of
 specifically-formatted AVI files using a compression codec of
 your choice. The end goal being a "time shifting" feature (i.e.
 pausing of live TV) and not a generic video file processor. In
@@ -313,10 +359,18 @@ other words, it handles only the video files that it creates
 itself for this purpose. This is all currently under
 construction.</p>
 
-<p>However, there are lots of alternatives to choose from for
-recording video, such as:</p>
+<p>DScaler isn't intended to be an all-in-one desktop video
+utility. The development team has chosen to concentrate on making
+it the best video processor it can be.</p>
+
+<p>If you want to record video, there are lots of alternatives to
+choose from, such as:</p>
 
 <ul>
+<li><a href="http://www.virtualdub.org/">VirtualDub</a>, an
+open-source desktop video application, can capture as well as
+edit and post-process video.</li>
+
 <li><a href="http://www.showshifter.com/">ShowShifter</a> for
 TiVo-like features such as an integrated program guide and
 pausing of live TV.</li>
@@ -324,18 +378,11 @@ pausing of live TV.</li>
 <li><a href="http://www.nct.ch/multimedia/avi_io">AVI_IO</a> is a
 video recording application that specializes in keeping audio
 locked to video even in the face of dropped frames.</li>
-
-<li><a href="http://www.virtualdub.org/">VirtualDub</a>, an
-open-source desktop video application, can capture as well as
-edit and post-process video.</li>
 </ul>
 
-<p>Keep in mind that DScaler isn't an all-in-one desktop video
-utility. The development team has chosen to concentrate primarily
-on making it the best video processor it can be, and features
-like recording require a lot of time and effort we'd rather spend
-fine-tuning the deinterlacing algorithms or adding new
-convenience features for aspect ratio control.</p>
+<p>Of course, if you want to improve DScaler's video recording,
+there's nothing stopping you! That's what open source is all
+about.</p>
 
 <h1>Hardware issues</h1>
 
@@ -377,7 +424,7 @@ newer cards support this.</p>
 
 <p>Almost any card (and that means A LOT) based of former
 Brooktree (now Conexant) chips including bt848/878/879 will work
-for video only. Why those ? These chipss are easy to program
+for video only. Why those ? These chips are easy to program
 (there has been A LOT of software based on those) and very cheap.
 Side effect ; a great number of manufacturers have (and are
 still) produced cards based on those chips.</p>
@@ -391,7 +438,7 @@ by some users.</p>
 
 <ul>
 <li>Zoltrix Genie TV <a href=
-"http://www.zoltix.com/products/GenieTVspecs.htm">http://www.zoltix.com/products/GenieTVspecs.htm</a></li>
+"http://www.zoltrix-int.com/products/video/8MMZXGENIE.htm">http://www.zoltrix-int.com/products/video/8MMZXGENIE.htm</a></li>
 
 <li>The WinTV series from Hauppage <a href=
 "http://www.hauppage.com/html/products.htm">http://www.hauppage.com/html/products.htm</a></li>
@@ -404,7 +451,8 @@ http://fr.guillemot.com/brand/gamme/video/mtvvidp3/mtvvidpci3.html</a></li>
 "http://www.pinnaclesys.com/ProductPage.asp?Product_ID=6">http://www.pinnaclesys.com/ProductPage.asp?Product_ID=6</a></li>
 </ul>
 
-<p>Take a look at the <a href="/card_support.htm">card list</a>.
+<p>Take a look at the <a href=
+"http://www.dscaler.org/card-support/index.htm">card list</a>.
 This will never be complete so feel free to drop us an email
 reporting your experience with DScaler and your card. Also note
 that just because a card is on the list does not mean that it
@@ -429,26 +477,31 @@ moment.</p>
 chipsets used in those card, you might want to help us. See the
 "<a href="#HELP">How can I help</a>" section.</p>
 
-<h2>Can I use more than one video card ?</h2>
+<h2>Can I use more than one video input ?</h2>
 
 <p>Some "nut" people (he's admitting it himself ;-) who are
 playing with Picture In Picture a lot have asked if DScaler could
 drive multiple cards or multiple inputs. A card allowing at worst
-4 video inputs is manufactured by Leadtek. It's the <a href=
-"http://www.leadtek.com.tw/ewv605.htm">Winview 605</a>.</p>
+4 video inputs has been manufactured by Leadtek. It's the Winview
+605.</p>
 
 <p>It is Brooktree based so it might work with DScaler but
 clearly nothing is done right now to drive multiple video inputs
 at the same time.</p>
 
 <p>See the <a href=
-"http://www.avsforum.com/ubb/Forum12/HTML/004431.html">associated
-topic</a> on AVS forum.</p>
+"http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010323-12-004431.html">
+associated topic</a> on AVS forum.</p>
 
 <p>However, you can easily use your a/v receiver to switch
 between multiple video inputs. Connect the monitor out of your
 equipement to your grab card and all your video devices to video
 in connectors.</p>
+
+<p>Also, some cards come with one, sometimes two composite input
+that you can use separately from within DScaler. An svideo
+connection is also quite common, allowing you to switch easily
+from 2 or 3 sources.</p>
 
 <p><a name="TROUBLE"></a></p>
 
@@ -463,8 +516,6 @@ sound issue.  Having said that we will be pleased to accept fixes
 for any card but are not in a position to add support for new
 cards ourselves.</p>
 
-<p></p>
-
 <h2>My picture jumps up and down?<br>
  I get dropped frames?</h2>
 
@@ -476,8 +527,8 @@ another pulldown method or switching off autodetection.  The
 other alternative is to buy a faster PC ;-))</p>
 
 <p>There is now a setting in Select Hardware which allows you to
-tell dTV how fast your PC is.  Try selecting alower speed if you
-get either of these problems.</p>
+tell DScaler how fast your PC is.  Try selecting alower speed if
+you get either of these problems.</p>
 
 <p><a name="PURPLESTRIPES"></a></p>
 
@@ -487,9 +538,11 @@ get either of these problems.</p>
 card/DScaler, some numerous horizontal colores lines appear on
 the image.</p>
 
-<p>See <a href="/images/Mummy_MacrovisionOn.jpg">this picture</a>
-where macrovision has been added to the video signal. The same
-video signal <a href="/images/Mummy_MacrovisionOff.jpg">without
+<p>See <a href=
+"http://www.dscaler.org/images/Mummy_MacrovisionOn.jpg">this
+picture</a> where macrovision has been added to the video signal.
+The same video signal <a href=
+"http://www.dscaler.org/images/Mummy_MacrovisionOff.jpg">without
 the macrovision protection</a> is perfectly stripes-free.</p>
 
 <p>This phenomenom seems to be, at least, <b>more visible when a
@@ -499,8 +552,8 @@ unprotected material.</p>
 
 <p>Other examples of this phenomenon can be seen here ;<br>
  <a href=
-"http://www.avsforum.com/ubb/Forum12/HTML/004317.html">avs:MacroVision
-side effect</a><br>
+"http://www.avsforum.com/ubb/Archives/Archive-000004/HTML/20010323-12-004317.html">
+avs:MacroVision side effect</a><br>
  <a href=
 "http://www.avsforum.com/ubb/Forum12/HTML/004436.html">avs:DScaler
 Purple Stripes - is this capture card dependent?</a></p>
@@ -547,18 +600,21 @@ have some settings set incorrectly</i></p>
 
 <p>Sometimes you get this error message<br>
  <code>Error calling overlay update.
-D:/source/deinterlace/dtv/other.c at line 161</code><br>
- We don't have any full explanation of the problem but it happens
+D:/source/deinterlace/DScaler/other.c at line 161</code><br>
+We don't have any full explanation of the problem but it happens
 when resizing DScaler or making it go from fullscreen to window
 mode. Also the color depth, frequency and size of the desktop
-might be related. The problem seems to have disappeared with
-DScaler starting from version 2.0.0</p>
+might be related.</p>
 
-<p>Some more info on this issue in <a href=
-"http://www.avsforum.com/ubb/Forum12/HTML/004895.html">this avs
-topic</a></p>
+<h2>What is the Crashlog.txt file, and where do I find it ?</h2>
 
-<p></p>
+<p>If one of the developers asks you for a crashlog.txt file you
+should find this file in the DScaler install directory. This file
+contains useful information that can be used to find bugs more
+easily. If you can't find one when you've been asked for one
+don't worry just inform the developer that one was not created.
+Also if you have this file but are not observing problems then
+don't worry.</p>
 
 <h2>I still have a problem?</h2>
 
@@ -597,9 +653,9 @@ something that is already in the <a href=
 Tasks list</a>, join the <a href=
 "http://lists.sourceforge.net/lists/listinfo/deinterlace-discuss">
 mailing list</a>. All relevant information to get you started are
-on the <a href=
-"http://deinterlace.sourceforge.net/developers.htm">developers
-page</a>. <!-- #EndEditable -->
+on the <a href="http://www.dscaler.org/developers.htm">developers
+page</a>. 
+<!-- #EndEditable -->
 </p>
 </td>
 </tr>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.5 2003-02-07 11:28:25 laurentg Exp $
+// $Id: OutReso.cpp,v 1.6 2003-02-07 12:46:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/02/07 11:28:25  laurentg
+// Keep more ids for the output reso menus (100)
+// New resolutions added (720x480 and 720x576)
+//
 // Revision 1.4  2003/02/06 14:08:03  laurentg
 // Only display supported resolutions
 // Do the switch only if the target display resolution is different from the current
@@ -43,6 +47,7 @@
 #include "DScaler.h"
 #include "OutReso.h"
 #include "Setting.h"
+#include "Other.h"
 #include "DebugLog.h"
 
 
@@ -270,11 +275,23 @@ void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 		  || (dm.dmBitsPerPel != dm_cur.dmBitsPerPel)
 		  || (dm.dmDisplayFrequency != dm_cur.dmDisplayFrequency))
 		{
-			Overlay_Stop(hWnd);
+			BOOL bOverlay = OverlayActive();
+
+			// Stop the overlay (and the capture)
+			if (bOverlay)
+			{
+				Overlay_Stop(hWnd);
+			}
+
 //	        ShowWindow(hWnd, SW_HIDE);
 			ChangeDisplaySettings(&dm, 0);
 //	        ShowWindow(hWnd, SW_SHOW);
-			Overlay_Start(hWnd);
+
+			// Restart the overlay (and the capture)
+			if (bOverlay)
+			{
+				Overlay_Start(hWnd);
+			}
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.307 2003-02-07 11:28:23 laurentg Exp $
+// $Id: DScaler.cpp,v 1.308 2003-02-07 12:46:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.307  2003/02/07 11:28:23  laurentg
+// Keep more ids for the output reso menus (100)
+// New resolutions added (720x480 and 720x576)
+//
 // Revision 1.306  2003/02/06 12:22:56  laurentg
 // Take the refresh rate when changing resolution (choice between 60, 72, 75, 100 and 120 Hz)
 //
@@ -4956,6 +4960,18 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error ExitDD");}
 
+//    __try
+//    {
+//        if(bIsFullScreen == TRUE)
+//        {
+			// Do this here after the ExitDD to be sure that the overlay is destroyed
+//            LOG(1, "Try restore display resolution");
+//			bIsFullScreen = FALSE;
+//			OutReso_Change(hWnd, TRUE);
+//        }
+//    }
+//    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error restore display resolution");}
+ 
     __try
     {
         // unload plug-ins
@@ -5079,16 +5095,17 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
             break;
         case SIZE_MINIMIZED:
 			bMinimized = TRUE;
+			if (OverlayActive() && (MinimizeHandling == 1))
+			{
+	            Overlay_Stop(hWnd);
+			}
+            if(bIsFullScreen)
+			{
+				OutReso_Change(hWnd, TRUE);
+			}
 			if (OverlayActive())
 			{
-	            if (MinimizeHandling == 1)
-				{
-	                Overlay_Stop(hWnd);
-				}
-				else
-				{
-		            Overlay_Update(NULL, NULL, DDOVER_HIDE);
-				}
+		        Overlay_Update(NULL, NULL, DDOVER_HIDE);
 			}
             if (bMinToTray)
 			{
@@ -5102,6 +5119,10 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 			bCheckSignalPresent = FALSE;
 			bCheckSignalMissing = (MinimizeHandling == 2);
             InvalidateRect(hWnd, NULL, FALSE);
+            if(bIsFullScreen)
+			{
+				OutReso_Change(hWnd, FALSE);
+			}
             if ((MinimizeHandling == 1) && !OverlayActive())
 			{
                 Overlay_Start(hWnd);

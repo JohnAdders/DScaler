@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.1 2002-10-03 23:42:06 atnak Exp $
+// $Id: SAA7134Common.h,v 1.2 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/03 23:42:06  atnak
+// SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +106,14 @@ protected:
         HPLLMODE_LASTONE
     };
 
+    enum eVSyncRecovery
+    {
+        VSYNCRECOVERY_NORMAL = 0,
+        VSYNCRECOVERY_FAST_TRACKING,
+        VSYNCRECOVERY_FREE_RUNNING,
+        VSYNCRECOVERY_IMMEDIATE_MODE,
+    };
+
     enum eAudioInputSource
     {
         /// standard tuner line
@@ -130,6 +141,14 @@ protected:
         AUDIOSTANDARD_LASTONE
     };
 
+    enum eAudioChannel
+    {
+        AUDIOCHANNEL_MONO = 0,
+        AUDIOCHANNEL_STEREO,
+        AUDIOCHANNEL_LANGUAGE1,
+        AUDIOCHANNEL_LANGUAGE2,
+    };
+
     enum eFIRType
     {
         FIR_BG_DK_NICAM,
@@ -140,7 +159,7 @@ protected:
         FIR_SAT_DUAL_FM,
     };
 
-    enum eAudioChannelMode
+    enum eAudioCarrierMode
     {
         AUDIOCHANNELMODE_NONE = 0,
         AUDIOCHANNELMODE_FM,
@@ -226,8 +245,8 @@ protected:
         char*               Name;
         eAudioCarrier       Carrier1;
         eAudioCarrier       Carrier2;
-        eAudioChannelMode   Channel1Mode;
-        eAudioChannelMode   Channel2Mode;
+        eAudioCarrierMode   Carrier1Mode;
+        eAudioCarrierMode   Carrier2Mode;
         eAudioFMDeemphasis  Ch1FMDeemphasis;
         eAudioFMDeemphasis  Ch2FMDeemphasis;
         eFIRType            FIRType;

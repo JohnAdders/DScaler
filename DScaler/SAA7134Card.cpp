@@ -1,23 +1,23 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.7 2002-10-04 13:24:46 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.8 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.	A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 //
 // This software was based on v4l2 device driver for philips
-// saa7134 based TV cards.	Those portions are
+// saa7134 based TV cards.  Those portions are
 // Copyright (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
 //
 // This software was based on BT848Card.cpp.  Those portions are
@@ -26,14 +26,17 @@
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
-// Date 		 Developer			   Changes
+// Date          Developer             Changes
 //
-// 09 Sep 2002	 Atsushi Nakagawa	   Initial Release
+// 09 Sep 2002   Atsushi Nakagawa      Initial Release
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/04 13:24:46  atnak
+// Audio mux select through GPIO added (for 7130 cards)
+//
 // Revision 1.6  2002/10/03 23:36:23  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -71,32 +74,32 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
-	CPCICard(pDriver),
-	m_CardType(TVCARD_UNKNOWN),
-	m_Tuner(NULL),
-	m_PreparedRegions(0x00),
+    CPCICard(pDriver),
+    m_CardType(TVCARD_UNKNOWN),
+    m_Tuner(NULL),
+    m_PreparedRegions(0x00),
     m_VideoStandard(VIDEOSTANDARD_INVALID),
-	m_AudioStandard(AUDIOSTANDARD_BG_DUAL_FM)
+    m_AudioStandard(AUDIOSTANDARD_BG_DUAL_FM)
 {
-	m_I2CInitialized = false;
-	m_I2CBus = new CSAA7134I2CBus(this);
+    m_I2CInitialized = false;
+    m_I2CBus = new CSAA7134I2CBus(this);
 }
 
 
 CSAA7134Card::~CSAA7134Card()
 {
-	// disable peripheral devices
-	WriteByte(SAA7134_SPECIAL_MODE,0);
+    // disable peripheral devices
+    WriteByte(SAA7134_SPECIAL_MODE,0);
 
-	WriteDword(SAA7134_IRQ1, 0);
-	WriteDword(SAA7134_IRQ2, 0);
-	// Completely zeroing this conflicts with Lifeview's software
-	MaskDataDword(SAA7134_MAIN_CTRL, 0, 0xFF);
+    WriteDword(SAA7134_IRQ1, 0UL);
+    WriteDword(SAA7134_IRQ2, 0UL);
+    // Completely zeroing this conflicts with Lifeview's software
+    MaskDataDword(SAA7134_MAIN_CTRL, 0, 0xFF);
 
-	delete m_I2CBus;
-	delete m_Tuner;
+    delete m_I2CBus;
+    delete m_Tuner;
 
-	ClosePCICard();
+    ClosePCICard();
 }
 
 
@@ -132,47 +135,47 @@ BYTE CSAA7134Card::TaskID2TaskMask(eTaskID TaskID)
 
 void CSAA7134Card::ResetHardware()
 {
-	// LOG(0, "Initial registery dump");
-	// DumpRegisters();
+    // LOG(0, "Initial registery dump");
+    // DumpRegisters();
 
-	WriteByte(SAA7134_REGION_ENABLE, 0x00);
-	WriteWord(SAA7134_SOURCE_TIMING, 0x00);
+    WriteByte(SAA7134_REGION_ENABLE, 0x00);
+    WriteWord(SAA7134_SOURCE_TIMING, 0x00);
 
     WriteByte(SAA7134_START_GREEN, 0x00);
-	WriteByte(SAA7134_START_BLUE, 0x00);
-	WriteByte(SAA7134_START_RED, 0x00);
+    WriteByte(SAA7134_START_BLUE, 0x00);
+    WriteByte(SAA7134_START_RED, 0x00);
 
-	for (int i = 0; i < 0x0F; i++)
-	{
-		WriteByte(SAA7134_GREEN_PATH(i), (i+1)<<4);
-		WriteByte(SAA7134_BLUE_PATH(i), (i+1)<<4);
-		WriteByte(SAA7134_RED_PATH(i), (i+1)<<4);
-	}
-	WriteByte(SAA7134_GREEN_PATH(0x0F), 0xFF);
-	WriteByte(SAA7134_BLUE_PATH(0x0F), 0xFF);
-	WriteByte(SAA7134_RED_PATH(0x0F), 0xFF);
+    for (int i = 0; i < 0x0F; i++)
+    {
+        WriteByte(SAA7134_GREEN_PATH(i), (i+1)<<4);
+        WriteByte(SAA7134_BLUE_PATH(i), (i+1)<<4);
+        WriteByte(SAA7134_RED_PATH(i), (i+1)<<4);
+    }
+    WriteByte(SAA7134_GREEN_PATH(0x0F), 0xFF);
+    WriteByte(SAA7134_BLUE_PATH(0x0F), 0xFF);
+    WriteByte(SAA7134_RED_PATH(0x0F), 0xFF);
 
-	// RAM FIFO config ???
-	WriteDword(SAA7134_FIFO_SIZE, 0x08070503);
-	WriteDword(SAA7134_THRESHOULD, 0x02020202);
+    // RAM FIFO config ???
+    WriteDword(SAA7134_FIFO_SIZE, 0x08070503);
+    WriteDword(SAA7134_THRESHOULD, 0x02020202);
 
-	// Enable audio and video processing
-	WriteDword(SAA7134_MAIN_CTRL,
-			SAA7134_MAIN_CTRL_VPLLE |
-			SAA7134_MAIN_CTRL_APLLE |
-			SAA7134_MAIN_CTRL_EXOSC |
-			SAA7134_MAIN_CTRL_EVFE1 |
-			SAA7134_MAIN_CTRL_EVFE2 |
-			SAA7134_MAIN_CTRL_ESFE	|
-			SAA7134_MAIN_CTRL_EBADC |
-			SAA7134_MAIN_CTRL_EBDAC);
+    // Enable audio and video processing
+    WriteDword(SAA7134_MAIN_CTRL,
+            SAA7134_MAIN_CTRL_VPLLE |
+            SAA7134_MAIN_CTRL_APLLE |
+            SAA7134_MAIN_CTRL_EXOSC |
+            SAA7134_MAIN_CTRL_EVFE1 |
+            SAA7134_MAIN_CTRL_EVFE2 |
+            SAA7134_MAIN_CTRL_ESFE  |
+            SAA7134_MAIN_CTRL_EBADC |
+            SAA7134_MAIN_CTRL_EBDAC);
 
-	// Disable all interrupts
-    WriteDword(SAA7134_IRQ1, 0);
-	WriteDword(SAA7134_IRQ2, 0);
+    // Disable all interrupts
+    WriteDword(SAA7134_IRQ1, 0UL);
+    WriteDword(SAA7134_IRQ2, 0UL);
 
-	// Enable peripheral devices
-	WriteByte(SAA7134_SPECIAL_MODE, 0x01);
+    // Enable peripheral devices
+    WriteByte(SAA7134_SPECIAL_MODE, 0x01);
 
     InitAudio();
 
@@ -186,12 +189,12 @@ void CSAA7134Card::SetTypicalSettings()
     // Typical settings for video decoder (according to saa7134 manual(v0.1))
 
     WriteByte(SAA7134_INCR_DELAY,               0x08);
-	WriteByte(SAA7134_ANALOG_IN_CTRL1,          0xC0);
-	WriteByte(SAA7134_ANALOG_IN_CTRL2,          0x00);
-	WriteByte(SAA7134_ANALOG_IN_CTRL3,          0x90);
-	WriteByte(SAA7134_ANALOG_IN_CTRL4,          0x90);
-	WriteByte(SAA7134_HSYNC_START,              0xEB);
-	WriteByte(SAA7134_HSYNC_STOP,               0xE0);
+    WriteByte(SAA7134_ANALOG_IN_CTRL1,          0xC0);
+    WriteByte(SAA7134_ANALOG_IN_CTRL2,          0x00);
+    WriteByte(SAA7134_ANALOG_IN_CTRL3,          0x90);
+    WriteByte(SAA7134_ANALOG_IN_CTRL4,          0x90);
+    WriteByte(SAA7134_HSYNC_START,              0xEB);
+    WriteByte(SAA7134_HSYNC_STOP,               0xE0);
 
     WriteByte(SAA7134_SYNC_CTRL,                0x98);  // standard adjust
     WriteByte(SAA7134_LUMA_CTRL,                0x40);  // standard adjust
@@ -215,22 +218,22 @@ void CSAA7134Card::SetTypicalSettings()
 
 void CSAA7134Card::SetupTasks()
 {
-	// 0x00 = YUV2
-	WriteByte(SAA7134_OFMT_VIDEO_A, 0x00);
-	WriteByte(SAA7134_OFMT_VIDEO_B, 0x00);
-	// 0x06 = raw VBI
-	WriteByte(SAA7134_OFMT_DATA_A, 0x06);
-	WriteByte(SAA7134_OFMT_DATA_B, 0x06);
+    // 0x00 = YUV2
+    WriteByte(SAA7134_OFMT_VIDEO_A, 0x00);
+    WriteByte(SAA7134_OFMT_VIDEO_B, 0x00);
+    // 0x06 = raw VBI
+    WriteByte(SAA7134_OFMT_DATA_A, 0x06);
+    WriteByte(SAA7134_OFMT_DATA_B, 0x06);
 
-	// Let Task A get Odd then Even field, follow by Task B
-	// getting Odd then Even field. (Odd is DScaler's Even)
+    // Let Task A get Odd then Even field, follow by Task B
+    // getting Odd then Even field. (Odd is DScaler's Even)
 
-	WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
-	WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
 
-	// handle two fields per task
-	WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_A_MASK), 0x02);
-	WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_B_MASK), 0x02);
+    // handle two fields per task
+    WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_A_MASK), 0x02);
+    WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_B_MASK), 0x02);
 
     WriteByte(SAA7134_V_FILTER(SAA7134_TASK_A_MASK), 0x00);
     WriteByte(SAA7134_V_FILTER(SAA7134_TASK_B_MASK), 0x00);
@@ -249,10 +252,10 @@ void CSAA7134Card::SetupTasks()
     WriteWord(SAA7134_H_PHASE_OFF_CHROMA(SAA7134_TASK_A_MASK), 0x00);
     WriteWord(SAA7134_H_PHASE_OFF_CHROMA(SAA7134_TASK_B_MASK), 0x00);
 
-	WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(SAA7134_TASK_A_MASK), 0x00);
-	WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(SAA7134_TASK_B_MASK), 0x00);
+    WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(SAA7134_TASK_A_MASK), 0x00);
+    WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(SAA7134_TASK_B_MASK), 0x00);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(SAA7134_TASK_A_MASK), 0x00);
-	WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(SAA7134_TASK_B_MASK), 0x00);
+    WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(SAA7134_TASK_B_MASK), 0x00);
 
     WriteByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 0x00);
     WriteByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 0x00);
@@ -426,75 +429,75 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
 
 void CSAA7134Card::SetDMA(eRegionID RegionID, BOOL bState)
 {
-	BYTE	Region = 0;
-	DWORD	IRQs = 0;
-	DWORD	Control = 0;
+    BYTE    Region = 0;
+    DWORD   IRQs = 0;
+    DWORD   Control = 0;
 
-	switch (RegionID)
-	{
-	case REGIONID_VIDEO_A:
-		Region = SAA7134_REGION_ENABLE_VID_ENA;
-		Control = SAA7134_MAIN_CTRL_TE0;
-		IRQs = SAA7134_IRQ1_INTE_RA0_0 | SAA7134_IRQ1_INTE_RA0_1;
-		break;
-	case REGIONID_VIDEO_B:
-		Region = SAA7134_REGION_ENABLE_VID_ENB;
-		Control = SAA7134_MAIN_CTRL_TE1;
-		IRQs = SAA7134_IRQ1_INTE_RA0_2 | SAA7134_IRQ1_INTE_RA0_3;
-		break;
-	case REGIONID_VBI_A:
-		Region = SAA7134_REGION_ENABLE_VBI_ENA;
-		Control = SAA7134_MAIN_CTRL_TE2;
-		IRQs = SAA7134_IRQ1_INTE_RA0_4 | SAA7134_IRQ1_INTE_RA0_5;
-		break;
+    switch (RegionID)
+    {
+    case REGIONID_VIDEO_A:
+        Region = SAA7134_REGION_ENABLE_VID_ENA;
+        Control = SAA7134_MAIN_CTRL_TE0;
+        IRQs = SAA7134_IRQ1_INTE_RA0_0 | SAA7134_IRQ1_INTE_RA0_1;
+        break;
+    case REGIONID_VIDEO_B:
+        Region = SAA7134_REGION_ENABLE_VID_ENB;
+        Control = SAA7134_MAIN_CTRL_TE1;
+        IRQs = SAA7134_IRQ1_INTE_RA0_2 | SAA7134_IRQ1_INTE_RA0_3;
+        break;
+    case REGIONID_VBI_A:
+        Region = SAA7134_REGION_ENABLE_VBI_ENA;
+        Control = SAA7134_MAIN_CTRL_TE2;
+        IRQs = SAA7134_IRQ1_INTE_RA0_4 | SAA7134_IRQ1_INTE_RA0_5;
+        break;
 
-	case REGIONID_VBI_B:
-		Region = SAA7134_REGION_ENABLE_VBI_ENB;
-		Control = SAA7134_MAIN_CTRL_TE3;
-		IRQs = SAA7134_IRQ1_INTE_RA0_6 | SAA7134_IRQ1_INTE_RA0_7;
-		break;
-	}
+    case REGIONID_VBI_B:
+        Region = SAA7134_REGION_ENABLE_VBI_ENB;
+        Control = SAA7134_MAIN_CTRL_TE3;
+        IRQs = SAA7134_IRQ1_INTE_RA0_6 | SAA7134_IRQ1_INTE_RA0_7;
+        break;
+    }
 
-	if (bState) {
-		m_PreparedRegions |= Region;
-		// Don't turn on interrupts because we don't have an ISR!
-		// MaskDataDword(SAA7134_IRQ1, IRQs, IRQs);
-		MaskDataDword(SAA7134_MAIN_CTRL, Control, Control);
-	}
-	else {
-		m_PreparedRegions &= ~Region;
-		AndDataByte(SAA7134_REGION_ENABLE, ~Region);
-		MaskDataDword(SAA7134_IRQ1, 0x00, IRQs);
-		MaskDataDword(SAA7134_MAIN_CTRL, 0x00, Control);
-	}
+    if (bState) {
+        m_PreparedRegions |= Region;
+        // Don't turn on interrupts because we don't have an ISR!
+        // MaskDataDword(SAA7134_IRQ1, IRQs, IRQs);
+        MaskDataDword(SAA7134_MAIN_CTRL, Control, Control);
+    }
+    else {
+        m_PreparedRegions &= ~Region;
+        AndDataByte(SAA7134_REGION_ENABLE, ~Region);
+        MaskDataDword(SAA7134_IRQ1, 0x00, IRQs);
+        MaskDataDword(SAA7134_MAIN_CTRL, 0x00, Control);
+    }
 }
 
 
 BOOL CSAA7134Card::GetDMA(eRegionID RegionID)
 {
-	DWORD Mask = 0;
+    DWORD Mask = 0;
 
-	switch (RegionID) {
-	case REGIONID_VIDEO_A: Mask = SAA7134_MAIN_CTRL_TE0; break;
-	case REGIONID_VIDEO_B: Mask = SAA7134_MAIN_CTRL_TE1; break;
-	case REGIONID_VBI_A: Mask = SAA7134_MAIN_CTRL_TE2; break;
-	case REGIONID_VBI_B: Mask = SAA7134_MAIN_CTRL_TE3; break;
-	}
+    switch (RegionID) {
+    case REGIONID_VIDEO_A: Mask = SAA7134_MAIN_CTRL_TE0; break;
+    case REGIONID_VIDEO_B: Mask = SAA7134_MAIN_CTRL_TE1; break;
+    case REGIONID_VBI_A: Mask = SAA7134_MAIN_CTRL_TE2; break;
+    case REGIONID_VBI_B: Mask = SAA7134_MAIN_CTRL_TE3; break;
+    }
 
-	return (ReadDword(SAA7134_MAIN_CTRL) & Mask) > 0;
+    return (ReadDword(SAA7134_MAIN_CTRL) & Mask) > 0;
 }
 
 
 void CSAA7134Card::StartCapture(BOOL bCaptureVBI)
 {
-	BYTE Region;
+    BYTE Region;
 
-	Region = SAA7134_REGION_ENABLE_VID_ENA | SAA7134_REGION_ENABLE_VID_ENB;
+    Region = SAA7134_REGION_ENABLE_VID_ENA | SAA7134_REGION_ENABLE_VID_ENB;
 
     VerifyMemorySize(REGIONID_VIDEO_A);
     VerifyMemorySize(REGIONID_VIDEO_B);
 
-	if (bCaptureVBI)
+    if (bCaptureVBI)
     {
         CheckVBIAndVideoOverlap(TASKID_A);
         CheckVBIAndVideoOverlap(TASKID_B);
@@ -502,31 +505,31 @@ void CSAA7134Card::StartCapture(BOOL bCaptureVBI)
         VerifyMemorySize(REGIONID_VBI_A);
         VerifyMemorySize(REGIONID_VBI_B);
 
-		Region |= SAA7134_REGION_ENABLE_VBI_ENA | SAA7134_REGION_ENABLE_VBI_ENB;
-	}
+        Region |= SAA7134_REGION_ENABLE_VBI_ENA | SAA7134_REGION_ENABLE_VBI_ENB;
+    }
 
-	MaskDataByte(SAA7134_REGION_ENABLE, Region, m_PreparedRegions);
-	MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
+    MaskDataByte(SAA7134_REGION_ENABLE, Region, m_PreparedRegions);
+    MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
 }
 
 
 void CSAA7134Card::StopCapture()
 {
-	WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
-	WriteByte(SAA7134_REGION_ENABLE, 0x00);
+    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
+    WriteByte(SAA7134_REGION_ENABLE, 0x00);
 }
 
 
 BOOL CSAA7134Card::IsVideoPresent()
 {
-	WORD CheckMask = SAA7134_STATUS_VIDEO_HLVLN | SAA7134_STATUS_VIDEO_HLCK;
+    WORD CheckMask = SAA7134_STATUS_VIDEO_HLVLN | SAA7134_STATUS_VIDEO_HLCK;
 
-	if ((ReadWord(SAA7134_STATUS_VIDEO) & CheckMask) == 0)
-	{
-		return TRUE;
-	}
+    if ((ReadWord(SAA7134_STATUS_VIDEO) & CheckMask) == 0)
+    {
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 
@@ -600,31 +603,31 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 
 BYTE CSAA7134Card::GetI2CStatus()
 {
-	return ReadByte(SAA7134_I2C_ATTR_STATUS) & 0x0F;
+    return ReadByte(SAA7134_I2C_ATTR_STATUS) & 0x0F;
 }
 
 
 void CSAA7134Card::SetI2CStatus(BYTE Status)
 {
-	MaskDataByte(SAA7134_I2C_ATTR_STATUS, Status, 0x0F);
+    MaskDataByte(SAA7134_I2C_ATTR_STATUS, Status, 0x0F);
 }
 
 
 void CSAA7134Card::SetI2CCommand(BYTE Command)
 {
-	MaskDataByte(SAA7134_I2C_ATTR_STATUS, Command, 0xC0);
+    MaskDataByte(SAA7134_I2C_ATTR_STATUS, Command, 0xC0);
 }
 
 
 void CSAA7134Card::SetI2CData(BYTE Data)
 {
-	WriteByte(SAA7134_I2C_DATA, Data);
+    WriteByte(SAA7134_I2C_DATA, Data);
 }
 
 
 BYTE CSAA7134Card::GetI2CData()
 {
-	return ReadByte(SAA7134_I2C_DATA);
+    return ReadByte(SAA7134_I2C_DATA);
 }
 
 
@@ -636,45 +639,45 @@ BYTE CSAA7134Card::GetI2CData()
 // returns 3 if in D3 state (full off)
 int CSAA7134Card::GetACPIStatus()
 {
-	PCI_COMMON_CONFIG PCI_Config;
+    PCI_COMMON_CONFIG PCI_Config;
 
-	// all new chips should be new enough to have power management
-	if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
-	{
-		DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
+    // all new chips should be new enough to have power management
+    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
 
-		LOG(1, "SAA7134 ACPI status: D%d", ACPIStatus);
-		return ACPIStatus;
-	}
+        LOG(1, "SAA7134 ACPI status: D%d", ACPIStatus);
+        return ACPIStatus;
+    }
 
-	return 0;
+    return 0;
 }
 
 
 // Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
 void CSAA7134Card::SetACPIStatus(int ACPIStatus)
 {
-	PCI_COMMON_CONFIG PCI_Config;
+    PCI_COMMON_CONFIG PCI_Config;
 
-	if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
-	{
-		return;
-	}
-	PCI_Config.DeviceSpecific[0x10] &= ~3;
-	PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
+    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        return;
+    }
+    PCI_Config.DeviceSpecific[0x10] &= ~3;
+    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
 
-	LOG(1, "Attempting to set SAA7134 ACPI status to D%d", ACPIStatus);
+    LOG(1, "Attempting to set SAA7134 ACPI status to D%d", ACPIStatus);
 
-	SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
 
-	if(ACPIStatus == 0)
-	{
-		// wait half a second to start the hardware
-		::Sleep(500);
-		// reset the chip
-		// \todo don't know how to reset
-	}
-	LOG(1, "Set SAA7134 ACPI status complete");
+    if(ACPIStatus == 0)
+    {
+        // wait half a second to start the hardware
+        ::Sleep(500);
+        // reset the chip
+        // \todo don't know how to reset
+    }
+    LOG(1, "Set SAA7134 ACPI status complete");
 }
 
 
@@ -684,119 +687,119 @@ void CSAA7134Card::SetACPIStatus(int ACPIStatus)
 
 BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-	CSAA7134Card* pThis = NULL;
-	char szCardId[9] = "n/a     ";
-	char szVendorId[9] = "n/a ";
-	char szDeviceId[9] = "n/a ";
-	DWORD dwCardId(0);
+    CSAA7134Card* pThis = NULL;
+    char szCardId[9] = "n/a     ";
+    char szVendorId[9] = "n/a ";
+    char szDeviceId[9] = "n/a ";
+    DWORD dwCardId(0);
 
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		pThis = (CSAA7134Card*)lParam; 
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        pThis = (CSAA7134Card*)lParam; 
 
-		SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType());
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType());
 
         sprintf(szVendorId,"%04X", pThis->GetVendorId());
-		SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
 
         sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
-		SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
 
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
 
         if (pThis->m_DeviceId == 0x7134)
         {
-    		SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA7134 Onchip");
+            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA7134 Onchip");
         }
 
         dwCardId = pThis->GetSubSystemId();
-		if(dwCardId != 0 && dwCardId != 0xffffffff)
-		{
-			sprintf(szCardId, "x%08X", dwCardId);
-    		SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
-		}
-		SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
-		
+        if(dwCardId != 0 && dwCardId != 0xffffffff)
+        {
+            sprintf(szCardId, "x%08X", dwCardId);
+            SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
+        }
+        SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
+        
         LPCSTR pCPUTypeString;
-		if (CpuFeatureFlags & FEATURE_SSE2)
-		{
-			pCPUTypeString = "SSE2";
-		}
-		else if (CpuFeatureFlags & FEATURE_SSE)
-		{
-			pCPUTypeString = "SSE";
-		}
-		else if (CpuFeatureFlags & FEATURE_MMXEXT)
-		{
-			pCPUTypeString = "MMXEXT";
-		}
-		else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
-		{
-			pCPUTypeString = "3DNOWEXT";
-		}
-		else if (CpuFeatureFlags & FEATURE_3DNOW)
-		{
-			pCPUTypeString = "3DNOW";
-		}
-		else
-		{
-			pCPUTypeString = "MMX";
-		}
+        if (CpuFeatureFlags & FEATURE_SSE2)
+        {
+            pCPUTypeString = "SSE2";
+        }
+        else if (CpuFeatureFlags & FEATURE_SSE)
+        {
+            pCPUTypeString = "SSE";
+        }
+        else if (CpuFeatureFlags & FEATURE_MMXEXT)
+        {
+            pCPUTypeString = "MMXEXT";
+        }
+        else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
+        {
+            pCPUTypeString = "3DNOWEXT";
+        }
+        else if (CpuFeatureFlags & FEATURE_3DNOW)
+        {
+            pCPUTypeString = "3DNOW";
+        }
+        else
+        {
+            pCPUTypeString = "MMX";
+        }
         SetDlgItemText(hDlg, IDC_CPU_TYPE, pCPUTypeString);
-		break;
+        break;
 
-	case WM_COMMAND:
-		if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
-		{
-			EndDialog(hDlg, TRUE);
-		}
-		break;
-	}
+    case WM_COMMAND:
+        if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
+        {
+            EndDialog(hDlg, TRUE);
+        }
+        break;
+    }
 
-	return (FALSE);
+    return (FALSE);
 }
 
 
 LPCSTR CSAA7134Card::GetChipType()
 {
-	switch (m_DeviceId)
-	{
-	case 0x7134:
-		return "SAA7134";
-	}
-	return "n/a";
+    switch (m_DeviceId)
+    {
+    case 0x7134:
+        return "SAA7134";
+    }
+    return "n/a";
 }
 
 
 void CSAA7134Card::SetCardType(int CardType)
 {
-	if(m_CardType != CardType)
-	{
-		m_CardType = (eTVCardId)CardType;
+    if(m_CardType != CardType)
+    {
+        m_CardType = (eTVCardId)CardType;
 
-		// perform card specific init
-		if(m_TVCards[m_CardType].pInitCardFunction != NULL)
-		{
-			// call correct function
-			// this funny syntax is the only one that works
-			// if you want help understanding what is going on
-			// I suggest you read http://www.newty.de/
-			(*this.*m_TVCards[m_CardType].pInitCardFunction)();
-		}
-	}
+        // perform card specific init
+        if(m_TVCards[m_CardType].pInitCardFunction != NULL)
+        {
+            // call correct function
+            // this funny syntax is the only one that works
+            // if you want help understanding what is going on
+            // I suggest you read http://www.newty.de/
+            (*this.*m_TVCards[m_CardType].pInitCardFunction)();
+        }
+    }
 }
 
 
 eTVCardId CSAA7134Card::GetCardType()
 {
-	return m_CardType;
+    return m_CardType;
 }
 
 
 LPCSTR CSAA7134Card::GetTunerType()
 {
-	return m_TunerType;
+    return m_TunerType;
 }
 
 
@@ -847,15 +850,15 @@ BOOL CSAA7134Card::GetIRQEventRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 // Unused - v4l2 uses this if i2s_rate exists on the card
 void CSAA7134Card::EnableI2SAudioOutput(WORD wRate)
 {
-	// set rate
-	MaskDataByte(SAA7134_SIF_SAMPLE_FREQ, wRate == 32000 ? 0x01 : 0x03, 0x03);
+    // set rate
+    MaskDataByte(SAA7134_SIF_SAMPLE_FREQ, wRate == 32000 ? 0x01 : 0x03, 0x03);
 
-	// enable I2S output -- no idea
-	WriteByte(SAA7134_DSP_OUTPUT_SELECT,	0x80);
-	WriteByte(SAA7134_I2S_OUTPUT_SELECT,	0x80);
-	WriteByte(SAA7134_I2S_OUTPUT_FORMAT,	0x01);
-	WriteByte(SAA7134_I2S_OUTPUT_LEVEL, 	0x00);	
-	WriteByte(SAA7134_I2S_AUDIO_OUTPUT, 	0x01);
+    // enable I2S output -- no idea
+    WriteByte(SAA7134_DSP_OUTPUT_SELECT,    0x80);
+    WriteByte(SAA7134_I2S_OUTPUT_SELECT,    0x80);
+    WriteByte(SAA7134_I2S_OUTPUT_FORMAT,    0x01);
+    WriteByte(SAA7134_I2S_OUTPUT_LEVEL,     0x00);  
+    WriteByte(SAA7134_I2S_AUDIO_OUTPUT,     0x01);
 }
 
 
@@ -863,16 +866,16 @@ void CSAA7134Card::EnableI2SAudioOutput(WORD wRate)
 // Unused, (v4l2 checks video_out existance in saa7134-cards.c)
 void CSAA7134Card::EnableCCIR656VideoOut()
 {
-	// enable video output for CCIR656
-	WriteByte(SAA7134_VIDEO_PORT_CTRL0, 0x00);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL1, 0xB1);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL2, 0x00);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL3, 0xA1);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL4, 0x00);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL5, 0x04);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL6, 0x06);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL7, 0x00);
-	WriteByte(SAA7134_VIDEO_PORT_CTRL8, 0x00);
+    // enable video output for CCIR656
+    WriteByte(SAA7134_VIDEO_PORT_CTRL0, 0x00);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL1, 0xB1);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL2, 0x00);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL3, 0xA1);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL4, 0x00);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL5, 0x04);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL6, 0x06);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL7, 0x00);
+    WriteByte(SAA7134_VIDEO_PORT_CTRL8, 0x00);
 }
 
 
@@ -884,16 +887,16 @@ void CSAA7134Card::EnableCCIR656VideoOut()
 // \TEMP DEBUG
 void CSAA7134Card::DumpRegisters()
 {
-	// WARNING! this dumps registers in Big Endian WORDs!!
-	// This causes addresses to be: 0x01, 0x00, 0x03, 0x02...
-	LOG(0, "WARNING! registers are dumped in Big Endian WORDs!!");
-	LOG(0, "This causes addresses to be: 0x01, 0x00, 0x03, 0x02...");
-	for (int i = 0x000; i < 0x400; i += 16)
-	{
-		LOG(0, "%03lX: %04lx %04lx %04lx %04lx|%04lx %04lx %04lx %04lx", i,
-			ReadWord(i), ReadWord(i+2), ReadWord(i+4), ReadWord(i+6),
-			ReadWord(i+8), ReadWord(i+10), ReadWord(i+12), ReadWord(i+14));
-	}
+    // WARNING! this dumps registers in Big Endian WORDs!!
+    // This causes addresses to be: 0x01, 0x00, 0x03, 0x02...
+    LOG(0, "WARNING! registers are dumped in Big Endian WORDs!!");
+    LOG(0, "This causes addresses to be: 0x01, 0x00, 0x03, 0x02...");
+    for (int i = 0x000; i < 0x400; i += 16)
+    {
+        LOG(0, "%03lX: %04lx %04lx %04lx %04lx|%04lx %04lx %04lx %04lx", i,
+            ReadWord(i), ReadWord(i+2), ReadWord(i+4), ReadWord(i+6),
+            ReadWord(i+8), ReadWord(i+10), ReadWord(i+12), ReadWord(i+14));
+    }
 }
 
 
@@ -901,14 +904,14 @@ void CSAA7134Card::DumpRegisters()
 // Don't know what this is for, came from v4l2 saa7134 code
 void CSAA7134Card::StatGPIO()
 {
-	MaskDataDword(SAA7134_GPIO_GPMODE, 0UL, SAA7134_GPIO_GPMODE_GPRESCN);
-	MaskDataDword(SAA7134_GPIO_GPMODE, SAA7134_GPIO_GPMODE_GPRESCN,
+    MaskDataDword(SAA7134_GPIO_GPMODE, 0UL, SAA7134_GPIO_GPMODE_GPRESCN);
+    MaskDataDword(SAA7134_GPIO_GPMODE, SAA7134_GPIO_GPMODE_GPRESCN,
         SAA7134_GPIO_GPMODE_GPRESCN);
 
-	DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE) & 0x0FFFFFFF;
-	DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS) & 0x0FFFFFFF;
-	LOG(0, "debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n", Mode,
-			(~Mode) & Status, Mode & Status);
+    DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE) & 0x0FFFFFFF;
+    DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS) & 0x0FFFFFFF;
+    LOG(0, "debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n", Mode,
+            (~Mode) & Status, Mode & Status);
 }
 
 

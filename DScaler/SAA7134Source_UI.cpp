@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.8 2002-10-03 23:31:50 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.9 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/03 23:31:50  atnak
+// Changes for HPLLMode menu and other various minor
+//
 // Revision 1.7  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -494,16 +497,17 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_9, (m_AudioStandard->GetValue() == 8));
     CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_10, (m_AudioStandard->GetValue() == 9));
 
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, m_pSAA7134Card->IsAudioChannelAvailable(SOUNDCHANNEL_MONO));
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, m_pSAA7134Card->IsAudioChannelAvailable(SOUNDCHANNEL_STEREO));
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->IsAudioChannelAvailable(SOUNDCHANNEL_LANGUAGE1));
-    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->IsAudioChannelAvailable(SOUNDCHANNEL_LANGUAGE2));
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_MONO));
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_STEREO));
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE1));
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2));
 
-//  Unimplemented
-//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, (m_AudioChannel->GetValue() == 1));
-//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, (m_AudioChannel->GetValue() == 2));
-//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, (m_AudioChannel->GetValue() == 3));
-//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, (m_AudioChannel->GetValue() == 4));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_MONO);
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_STEREO);
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_LANGUAGE1);
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_LANGUAGE2);
+
+    CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
 
     CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_HPLLMODE0, m_HPLLMode->GetValue() == 0);
     CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_HPLLMODE1, m_HPLLMode->GetValue() == 1);
@@ -595,20 +599,20 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SOUNDCHANNEL_MONO:
-            ShowText(hWnd, "Mono - Unimplemented");
-            // m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
+            m_AudioChannel->SetValue(AUDIOCHANNEL_MONO);
             break;
         case IDM_SOUNDCHANNEL_STEREO:
-            ShowText(hWnd, "Stereo - Unimplemented");
-            // m_AudioChannel->SetValue(SOUNDCHANNEL_STEREO);
+            m_AudioChannel->SetValue(AUDIOCHANNEL_STEREO);
             break;
         case IDM_SOUNDCHANNEL_LANGUAGE1:
-            ShowText(hWnd, "Language 1 - Unimplemented");
-            // m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE1);
+            m_AudioChannel->SetValue(AUDIOCHANNEL_LANGUAGE1);
             break;
         case IDM_SOUNDCHANNEL_LANGUAGE2:
-            ShowText(hWnd, "Language 2 - Unimplemented");
-            // m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE2);
+            m_AudioChannel->SetValue(AUDIOCHANNEL_LANGUAGE2);
+            break;
+
+        case IDM_AUTOSTEREO:
+            m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());            
             break;
 
         case IDM_SAA7134CARD_HPLLMODE0:

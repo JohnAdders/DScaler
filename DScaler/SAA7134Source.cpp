@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.15 2002-10-03 23:36:22 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.16 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/03 23:36:22  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.14  2002/09/29 13:53:40  adcockj
 // Ensure Correct History stored
 //
@@ -189,6 +192,7 @@ CSAA7134Source::~CSAA7134Source()
 
     CleanupUI();
 
+    KillTimer(hWnd, TIMER_MSP);
     delete m_pSAA7134Card;
 }
 
@@ -247,8 +251,11 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LASTONE-1, IniSection);
     m_Settings.push_back(m_AudioStandard);
 
-    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection);
+    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", AUDIOCHANNEL_STEREO, AUDIOCHANNEL_MONO, AUDIOCHANNEL_LANGUAGE2, IniSection);
     m_Settings.push_back(m_AudioChannel);
+
+    m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", TRUE, IniSection);
+    m_Settings.push_back(m_AutoStereoSelect);
 
     m_Volume = new CVolumeSetting(this, "Volume", 0, 0, 1000, IniSection);
     m_Volume->SetStepValue(20);
@@ -295,14 +302,12 @@ void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long 
 
 }
 
-void CSAA7134Source::Start()
+
+void CSAA7134Source::HandleTimerMessages(int TimerId)
 {
-    m_pSAA7134Card->StartCapture(bCaptureVBI);
-    Audio_Unmute();
-    Timing_Reset();
-    NotifySquarePixelsCheck();
-    m_ProcessingRegionID = REGIONID_INVALID;
+    UpdateAudioStatus();
 }
+
 
 void CSAA7134Source::Reset()
 {
@@ -314,74 +319,15 @@ void CSAA7134Source::Reset()
     SetupVideoAudioStandards();
 
     m_pSAA7134Card->SetHPLLMode((eHPLLMode)m_HPLLMode->GetValue());
-}
 
-
-void CSAA7134Source::SetupVideoAudioSource()
-{
-    m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
-    m_pSAA7134Card->SetAudioSource((eAudioInputSource)GetCurrentAudioSetting()->GetValue());
-}
-
-
-void CSAA7134Source::SetupVideoAudioStandards()
-{
-    eVideoFormat VideoFormat = (eVideoFormat) m_VideoFormat->GetValue();
-    eVideoStandard VideoStandard = TVFormat2VideoStandard(VideoFormat);
-
-    m_CurrentX = m_PixelWidth->GetValue();
-
-    m_CurrentVBILines = kMAX_VBILINES;
-    m_pSAA7134Card->SetVideoStandard(VideoStandard,
-                                    m_CurrentVBILines,
-                                    m_CurrentX,
-                                    m_CurrentY,
-                                    m_HDelay->GetValue(),
-                                    m_VDelay->GetValue());
-    NotifySizeChange();
-
-    m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
-    m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
-    m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
-    m_pSAA7134Card->SetHue(m_Hue->GetValue());
-
-    eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
-    m_AudioStandard->SetValue(AudioStandard);
-
-    // m_pSAA7134Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
-}
-
-
-DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable)
-{
-    const WORD PAGE_SIZE = 4096;
-    const WORD PAGE_MASK = (~(PAGE_SIZE-1));
-    LPBYTE pUser;
-    DWORD pPhysical;
-    DWORD GotBytes;
-    DWORD nPages;
-
-    if (pDMAMemory == NULL || nPagesWanted == 0 || pPageTable == NULL)
+    if (m_AutoStereoSelect->GetValue())
     {
-        return 0;
+        m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
     }
-
-    pUser = (LPBYTE) pDMAMemory->GetUserPointer();
-
-    // This routine should get nPagesWanted pages in their page boundries
-    for (nPages = 0; nPages < nPagesWanted; nPages++)
+    else
     {
-        pPhysical = pDMAMemory->TranslateToPhysical(pUser, PAGE_SIZE, &GotBytes);
-        if(pPhysical == 0 || pPhysical & ~PAGE_MASK > 0 || GotBytes < PAGE_SIZE)
-        {
-            break;
-        }
-
-        *(pPageTable++) = pPhysical;
-        pUser += PAGE_SIZE;
+        m_pSAA7134Card->SetAudioChannel((eAudioChannel)m_AudioChannel->GetValue());
     }
-
-    return nPages;
 }
 
 
@@ -430,36 +376,96 @@ void CSAA7134Source::SetupDMAMemory()
 }
 
 
+DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable)
+{
+    const WORD PAGE_SIZE = 4096;
+    const WORD PAGE_MASK = (~(PAGE_SIZE-1));
+    LPBYTE pUser;
+    DWORD pPhysical;
+    DWORD GotBytes;
+    DWORD nPages;
+
+    if (pDMAMemory == NULL || nPagesWanted == 0 || pPageTable == NULL)
+    {
+        return 0;
+    }
+
+    pUser = (LPBYTE) pDMAMemory->GetUserPointer();
+
+    // This routine should get nPagesWanted pages in their page boundries
+    for (nPages = 0; nPages < nPagesWanted; nPages++)
+    {
+        pPhysical = pDMAMemory->TranslateToPhysical(pUser, PAGE_SIZE, &GotBytes);
+        if(pPhysical == 0 || pPhysical & ~PAGE_MASK > 0 || GotBytes < PAGE_SIZE)
+        {
+            break;
+        }
+
+        *(pPageTable++) = pPhysical;
+        pUser += PAGE_SIZE;
+    }
+
+    return nPages;
+}
+
+
+void CSAA7134Source::SetupVideoAudioSource()
+{
+    m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
+    m_pSAA7134Card->SetAudioSource((eAudioInputSource)GetCurrentAudioSetting()->GetValue());
+}
+
+
+void CSAA7134Source::SetupVideoAudioStandards()
+{
+    eVideoFormat VideoFormat = (eVideoFormat) m_VideoFormat->GetValue();
+    eVideoStandard VideoStandard = TVFormat2VideoStandard(VideoFormat);
+
+    m_CurrentX = m_PixelWidth->GetValue();
+
+    m_CurrentVBILines = kMAX_VBILINES;
+    m_pSAA7134Card->SetVideoStandard(VideoStandard,
+                                    m_CurrentVBILines,
+                                    m_CurrentX,
+                                    m_CurrentY,
+                                    m_HDelay->GetValue(),
+                                    m_VDelay->GetValue());
+    NotifySizeChange();
+
+    m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
+    m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
+    m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
+    m_pSAA7134Card->SetHue(m_Hue->GetValue());
+
+    eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
+    m_AudioStandard->SetValue(AudioStandard);
+}
+
+
+void CSAA7134Source::Start()
+{
+    m_pSAA7134Card->StartCapture(bCaptureVBI);
+    Audio_Unmute();
+    Timing_Reset();
+    {
+        // This timer is used to update STATUS_AUDIO
+        SetTimer(hWnd, TIMER_MSP, 1000, NULL);
+    }
+    NotifySquarePixelsCheck();
+    m_ProcessingRegionID = REGIONID_INVALID;
+}
+
+
 void CSAA7134Source::Stop()
 {
     // stop capture
     m_pSAA7134Card->StopCapture();
     Audio_Mute();
+    {
+        KillTimer(hWnd, TIMER_MSP);
+    }
 }
 
-void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
-{
-    if (pInfo->bMissedFrame)
-    {
-        ClearPictureHistory(pInfo);
-        picture->IsFirstInSeries = TRUE;
-    }
-    else
-    {
-        picture->IsFirstInSeries = FALSE;
-    }
-
-    // Re-enumerate our 4 field cycle to a 10 field cycle
-    if ((picture->Flags & PICTURE_INTERLACED_EVEN) > 0 ||
-        pInfo->bMissedFrame)
-    {
-        pInfo->CurrentFrame = (pInfo->CurrentFrame + 1) % 5;
-    }
-
-    // we only have 4 unique fields
-    ShiftPictureHistory(pInfo, 4);
-    pInfo->PictureHistory[0] = picture;
-}
 
 void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
@@ -627,72 +633,29 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
 }
 
-int CSAA7134Source::GetWidth()
-{
-    return m_CurrentX;
-}
 
-int CSAA7134Source::GetHeight()
+void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
 {
-    return m_CurrentY;
-}
-
-
-CSAA7134Card* CSAA7134Source::GetSAA7134Card()
-{
-    return m_pSAA7134Card;
-}
-
-LPCSTR CSAA7134Source::GetStatus()
-{
-    static LPCSTR pRetVal = "";
-    if (IsInTunerMode())
+    if (pInfo->bMissedFrame)
     {
-        if (*VT_GetStation() != 0x00)
-        {
-            pRetVal = VT_GetStation();
-        }
-        else if (VPSLastName[0] != 0x00)
-        {
-            pRetVal = VPSLastName;
-        }
-        else
-        {
-            pRetVal = Channel_GetName();
-        }
+        ClearPictureHistory(pInfo);
+        picture->IsFirstInSeries = TRUE;
     }
     else
     {
-        pRetVal = m_pSAA7134Card->GetInputName(m_VideoSource->GetValue());
+        picture->IsFirstInSeries = FALSE;
     }
-    return pRetVal;
-}
 
-
-int CSAA7134Source::EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd)
-{
-    if (RegionID == REGIONID_VIDEO_A)
+    // Re-enumerate our 4 field cycle to a 10 field cycle
+    if ((picture->Flags & PICTURE_INTERLACED_EVEN) > 0 ||
+        pInfo->bMissedFrame)
     {
-        return bIsFieldOdd ? 1 : 0;
-    }
-    else if (RegionID == REGIONID_VIDEO_B)
-    {
-        return bIsFieldOdd ? 3 : 2;
+        pInfo->CurrentFrame = (pInfo->CurrentFrame + 1) % 5;
     }
 
-    return -1;
-}
-
-
-void CSAA7134Source::DenumulateField(int Index, eRegionID& RegionID, BOOL& bIsFieldOdd)
-{
-    switch (Index)
-    {
-    case 0: RegionID = REGIONID_VIDEO_A; bIsFieldOdd = FALSE; break;
-    case 1: RegionID = REGIONID_VIDEO_A; bIsFieldOdd = TRUE; break;
-    case 2: RegionID = REGIONID_VIDEO_B; bIsFieldOdd = FALSE; break;
-    case 3: RegionID = REGIONID_VIDEO_B; bIsFieldOdd = TRUE; break;
-    }
+    // we only have 4 unique fields
+    ShiftPictureHistory(pInfo, 4);
+    pInfo->PictureHistory[0] = picture;
 }
 
 
@@ -765,15 +728,63 @@ BOOL CSAA7134Source::GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFiel
 }
 
 
-
-eVideoFormat CSAA7134Source::GetFormat()
+int CSAA7134Source::EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd)
 {
-    return (eVideoFormat)m_VideoFormat->GetValue();
+    if (RegionID == REGIONID_VIDEO_A)
+    {
+        return bIsFieldOdd ? 1 : 0;
+    }
+    else if (RegionID == REGIONID_VIDEO_B)
+    {
+        return bIsFieldOdd ? 3 : 2;
+    }
+
+    return -1;
 }
 
-void CSAA7134Source::SetFormat(eVideoFormat NewFormat)
+
+void CSAA7134Source::DenumulateField(int Index, eRegionID& RegionID, BOOL& bIsFieldOdd)
 {
-    PostMessage(hWnd, WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
+    switch (Index)
+    {
+    case 0: RegionID = REGIONID_VIDEO_A; bIsFieldOdd = FALSE; break;
+    case 1: RegionID = REGIONID_VIDEO_A; bIsFieldOdd = TRUE; break;
+    case 2: RegionID = REGIONID_VIDEO_B; bIsFieldOdd = FALSE; break;
+    case 3: RegionID = REGIONID_VIDEO_B; bIsFieldOdd = TRUE; break;
+    }
+}
+
+
+// \todo this might be bad
+CSAA7134Card* CSAA7134Source::GetSAA7134Card()
+{
+    return m_pSAA7134Card;
+}
+
+
+LPCSTR CSAA7134Source::GetStatus()
+{
+    static LPCSTR pRetVal = "";
+    if (IsInTunerMode())
+    {
+        if (*VT_GetStation() != 0x00)
+        {
+            pRetVal = VT_GetStation();
+        }
+        else if (VPSLastName[0] != 0x00)
+        {
+            pRetVal = VPSLastName;
+        }
+        else
+        {
+            pRetVal = Channel_GetName();
+        }
+    }
+    else
+    {
+        pRetVal = m_pSAA7134Card->GetInputName(m_VideoSource->GetValue());
+    }
+    return pRetVal;
 }
 
 
@@ -810,6 +821,30 @@ ISetting* CSAA7134Source::GetSaturationV()
 ISetting* CSAA7134Source::GetOverscan()
 {
     return m_Overscan;
+}
+
+
+void CSAA7134Source::SetFormat(eVideoFormat NewFormat)
+{
+    PostMessage(hWnd, WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
+}
+
+
+eVideoFormat CSAA7134Source::GetFormat()
+{
+    return (eVideoFormat)m_VideoFormat->GetValue();
+}
+
+
+int CSAA7134Source::GetWidth()
+{
+    return m_CurrentX;
+}
+
+
+int CSAA7134Source::GetHeight()
+{
+    return m_CurrentY;
 }
 
 
@@ -1045,8 +1080,20 @@ BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     {
         m_VideoFormat->SetValue(VideoFormat);
     }
-    return m_pSAA7134Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
+
+    // switching to fast tracking speeds up channel changing a bit
+    m_pSAA7134Card->SetVSyncRecovery(VSYNCRECOVERY_FAST_TRACKING);
+    BOOL Success = m_pSAA7134Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
+    m_pSAA7134Card->SetVSyncRecovery(VSYNCRECOVERY_NORMAL);
+
+    if (Success)
+    {
+        StatusBar_ShowText(STATUS_AUDIO, "");
+        return TRUE;
+    }
+    return FALSE;
 }
+
 
 BOOL CSAA7134Source::IsVideoPresent()
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.8 2002-10-03 23:36:22 atnak Exp $
+// $Id: SAA7134Source.h,v 1.9 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/03 23:36:22  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.7  2002/09/28 13:33:04  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -117,6 +120,7 @@ public:
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -133,6 +137,8 @@ private:
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
     void SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate);
+
+    void UpdateAudioStatus();
 
     void SetupCard();
     void ChangeTVSettingsBasedOnCard();
@@ -224,6 +230,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource5);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, AutoStereoSelect);
 protected:
     int         m_InitialACPIStatus;
     HINSTANCE   m_hSAA7134ResourceInst;

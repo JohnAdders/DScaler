@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.6 2002-10-03 23:36:22 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.7 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/03 23:36:22  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.5  2002/09/28 13:33:04  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -72,7 +75,7 @@ void CSAA7134Source::UnMute()
 
 void CSAA7134Source::VolumeOnChange(long NewValue, long OldValue)
 {
-	EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
 void CSAA7134Source::BalanceOnChange(long NewValue, long OldValue)
@@ -144,15 +147,85 @@ void CSAA7134Source::AudioSource6OnChange(long NewValue, long OldValue)
 }
 
 
-void CSAA7134Source::AudioChannelOnChange(long NewValue, long OldValue)
+void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
 {
-    m_pSAA7134Card->SetAudioChannel((eSoundChannel)NewValue);    
+    if (AudioChannel == AUDIOCHANNEL_MONO)
+    {
+        if (m_AutoStereoSelect->GetValue())
+        {
+            m_AutoStereoSelect->SetValue(FALSE, ONCHANGE_NONE);
+        }
+    }
+    m_pSAA7134Card->SetAudioChannel((eAudioChannel)AudioChannel);
 }
 
-void CSAA7134Source::HandleTimerMessages(int TimerId)
+
+void CSAA7134Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 {
-    /// \todo FIXME autodetec stero here - check usability
+    if (NewValue)
+    {
+        m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
+    }
+    else 
+    {
+        if (m_AudioChannel->GetValue() == AUDIOCHANNEL_MONO)
+        {
+            m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_MONO);
+        }
+    }
 }
+
+
+void CSAA7134Source::UpdateAudioStatus()
+{
+    char Text[256];
+    char szAudioStandard[128];
+
+    szAudioStandard[0] = '\0';
+/*
+    if (m_AudioStandardInStatusBar->GetValue())
+    {
+        if (m_DetectingAudioStandard)
+        {
+            strcpy(szAudioStandard," [Detecting...]");
+        }
+        else 
+        {
+            char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
+            if (s != NULL)
+            {           
+                sprintf(szAudioStandard," [%s]",s);
+            }
+        }
+    }
+*/
+    switch(m_pSAA7134Card->GetAudioChannel())
+    {
+    case AUDIOCHANNEL_MONO:
+        {
+            sprintf(Text,"Mono%s",szAudioStandard);
+            break;
+        }
+    case AUDIOCHANNEL_STEREO:
+        {
+            sprintf(Text,"Stereo%s",szAudioStandard);
+            break;
+        }
+    case AUDIOCHANNEL_LANGUAGE1:
+        {
+            sprintf(Text,"Language 1%s",szAudioStandard);
+            break;
+        }
+    case AUDIOCHANNEL_LANGUAGE2:
+        {
+            sprintf(Text,"Language 2%s",szAudioStandard);
+            break;
+        }
+    }
+    
+    StatusBar_ShowText(STATUS_AUDIO, Text);
+}
+
 
 ISetting* CSAA7134Source::GetCurrentAudioSetting()
 {

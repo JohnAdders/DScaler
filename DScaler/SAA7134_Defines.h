@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.6 2002-10-04 13:24:46 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.7 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/04 13:24:46  atnak
+// Audio mux select through GPIO added (for 7130 cards)
+//
 // Revision 1.5  2002/10/03 23:36:23  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -435,15 +438,18 @@
 #define SAA7134_NICAM_ADD_DATA1                 0x140
 #define SAA7134_NICAM_ADD_DATA2                 0x141
 #define SAA7134_NICAM_STATUS                    0x142
-#define     SAA7134_NICAM_STATUS_LANG2              (1<<0)
-#define     SAA7134_NICAM_STATUS_STEREO             (1<<1)
-#define     SAA7134_NICAM_STATUS_MONO               (1<<3)
+#define     SAA7134_NICAM_STATUS_SIN                (3<<0)
+#define     SAA7134_NICAM_STATUS_CFC                (1<<2)
+#define     SAA7134_NICAM_STATUS_C0S                (1<<3)
+#define     SAA7134_NICAM_STATUS_C1                 (1<<4)
+#define     SAA7134_NICAM_STATUS_C2                 (1<<5)
+#define     SAA7134_NICAM_STATUS_C3                 (1<<6)
+#define     SAA7134_NICAM_STATUS_C4                 (1<<7)
 #define SAA7134_AUDIO_STATUS                    0x143
 #define SAA7134_NICAM_ERROR_COUNT               0x144
 #define SAA7134_IDENT_SIF                       0x145
-#define     SAA7134_IDENT_SIF_MONO                  (1<<5)
-#define     SAA7134_IDENT_SIF_LANG2                 (1<<6)
-#define     SAA7134_IDENT_SIF_STEREO                (1<<7)
+#define     SAA7134_IDENT_SIF_SIFL                  (0x1F)
+#define     SAA7134_IDENT_SIF_IDP                   (0xE0)
 #define SAA7134_LEVEL_READOUT                   0x146
 #define SAA7134_LEVEL_READOUT_HIBYTE            0x147
 #define SAA7134_NICAM_ERROR_LOW                 0x148

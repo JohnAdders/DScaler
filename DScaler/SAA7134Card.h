@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.7 2002-10-04 13:24:46 atnak Exp $
+// $Id: SAA7134Card.h,v 1.8 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/04 13:24:46  atnak
+// Audio mux select through GPIO added (for 7130 cards)
+//
 // Revision 1.6  2002/10/03 23:36:23  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -72,7 +75,7 @@
     functions.
 */
 class CSAA7134Card : public CPCICard,
-					 public ISAA7134I2CInterface,
+                     public ISAA7134I2CInterface,
                      public CSAA7134Common
 {
 
@@ -130,8 +133,6 @@ private:
             Default is StandardBT848InputSelect
         */
         void (CSAA7134Card::*pInputSwitchFunction)(int);
-        /// Any card specific method used to select stereo - may be NULL
-        void (CSAA7134Card::*pSoundChannelFunction)(eSoundChannel);
     } TCardType;
 
     /// used to store the ID for autodection
@@ -214,6 +215,7 @@ public:
     BOOL GetColourPeak();
 
     void SetHPLLMode(eHPLLMode HPLLMode);
+    void SetVSyncRecovery(eVSyncRecovery VSyncRecovery);
 
     LPCSTR GetChipType();
     LPCSTR GetTunerType();
@@ -247,6 +249,7 @@ public:
     void SetAudioBass(WORD nBass);
     void SetAudioTreble(WORD nTreble);
 
+    // \todo remove these
     void SetAudioLeftVolume(BYTE nGain);
     void SetAudioRightVolume(BYTE nGain);
     void SetAudioNicamVolume(BYTE nGain);
@@ -254,14 +257,12 @@ public:
     int GetAudioRightVolume();
     int GetAudioNicamVolume();
 
-    void CheckStereo();
-
-    void SetAudioStandard(eAudioStandard AudioStandard);
-    void SetAudioStandard(eVideoFormat VideoFormat);
     void SetAudioSource(eAudioInputSource InputSource);
-    void SetAudioChannel(eSoundChannel audioChannel);
-    void GetMSPPrintMode(LPSTR Text);
-    eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
+    void SetAudioStandard(eAudioStandard AudioStandard);
+    void SetAudioChannel(eAudioChannel AudioChannel);
+    eAudioChannel GetAudioChannel();
+
+    BOOL IsAudioChannelDetected(eAudioChannel AudioChannel);
     
     void SetAudioSampleRate(eAudioSampleRate SampleRate);
 
@@ -278,7 +279,6 @@ public:
     int GetInputAudioLine(int nInput);
 
     LPCSTR GetAudioStandardName(eAudioStandard AudioStandard);
-    BOOL IsAudioChannelAvailable(eSoundChannel soundChannel);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -309,8 +309,8 @@ public:
     void SetI2CData(BYTE Data);
     BYTE GetI2CData();
 
-	BYTE DirectGetByte(DWORD dwAddress);
-	void DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet);
+    BYTE DirectGetByte(DWORD dwAddress);
+    void DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet);
 
 
 protected:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.6 2002-10-03 23:36:23 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.7 2002-10-04 23:40:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/03 23:36:23  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.5  2002/09/16 17:51:58  atnak
 // Added controls for L/R/Nicam audio volume
 //
@@ -73,10 +76,10 @@ void CSAA7134Card::InitAudio()
     
     WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x00);
 
-	WriteByte(SAA7134_DEMODULATOR,              0x00);
-	WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
-	WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
-	WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xA0);
+    WriteByte(SAA7134_DEMODULATOR,              0x00);
+    WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
+    WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
+    WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xA0);
 
     SetAudioFMDematrix(AUDIOFMDEMATRIX_AUTOSWITCHING);
 
@@ -134,12 +137,12 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
         break;
     }
 
-    if (m_AudioStandards[AudioStandard].Channel1Mode == AUDIOCHANNELMODE_AM)
+    if (m_AudioStandards[AudioStandard].Carrier1Mode == AUDIOCHANNELMODE_AM)
     {
         Demodulator = (0xFF & SAA7134_DEMODULATOR_CH1MODE);
     }
 
-    switch (m_AudioStandards[AudioStandard].Channel2Mode)
+    switch (m_AudioStandards[AudioStandard].Carrier2Mode)
     {
     case AUDIOCHANNELMODE_FM:
         Demodulator |= 0x00;
@@ -451,80 +454,138 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 }
 
 
-
-// DEBUG: debugging purpos
-void CSAA7134Card::CheckStereo()
+BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel AudioChannel)
 {
     BYTE Status;
 
-    Status = (ReadByte(SAA7134_IDENT_SIF) & 0xE0) >> 5;
-    LOG(0, "Dual-FM Stereo: %s%s%s",
-        Status & (1 << 0) ? "MONO ": "",
-        Status & (1 << 1) ? "LANG2 ": "",
-        Status & (1 << 2) ? "STEREO ": ""
-        );
-
-    Status = ReadByte(SAA7134_NICAM_STATUS);
-    LOG(0, "NICAM Stereo: %s%s%s",
-        Status & (1 << 3) ? "MONO ": "",
-        Status & (1 << 0) ? "LANG2 ": "",
-        Status & (1 << 1) ? "STEREO ": "",
-        Status & (1 << 2) ? "BIT2 ": ""
-        );
-}
-
-BOOL CSAA7134Card::IsAudioChannelAvailable(eSoundChannel soundChannel)
-{
-    BYTE Status;
-    BYTE MonoMask;
-    BYTE StereoMask;
-    BYTE Lang2Mask;
-
-    if (IsDualFMAudioStandard(m_AudioStandard))
+    if (IsNICAMAudioStandard(m_AudioStandard))
     {
-        Status = ReadByte(SAA7134_IDENT_SIF);
+        Status = (ReadByte(SAA7134_NICAM_STATUS) & SAA7134_NICAM_STATUS_SIN);
 
-        MonoMask    = SAA7134_IDENT_SIF_MONO;
-        StereoMask  = SAA7134_IDENT_SIF_STEREO;
-        Lang2Mask   = SAA7134_IDENT_SIF_LANG2;
-    }
-    else if (IsNICAMAudioStandard(m_AudioStandard))
-    {
-        Status = ReadByte(SAA7134_NICAM_STATUS);
+        switch (AudioChannel)
+        {
+        case AUDIOCHANNEL_MONO:
+            return Status == 0x00 || Status == 0x02;
 
-        MonoMask    = SAA7134_NICAM_STATUS_MONO;
-        StereoMask  = SAA7134_NICAM_STATUS_STEREO;
-        Lang2Mask   = SAA7134_NICAM_STATUS_LANG2;
+        case AUDIOCHANNEL_STEREO:
+            return Status == 0x02;
+
+        case AUDIOCHANNEL_LANGUAGE1:
+        case AUDIOCHANNEL_LANGUAGE2:
+            return Status == 0x01;
+        }
     }
     else
     {
-        // other standards go here
-        return FALSE;
+        Status = (ReadByte(SAA7134_IDENT_SIF) & SAA7134_IDENT_SIF_IDP) >> 5;
+
+        switch (AudioChannel)
+        {
+        case AUDIOCHANNEL_MONO:
+            return (Status & (1 << 1)) == 0;
+
+        case AUDIOCHANNEL_STEREO:
+            return (Status & (1 << 2)) != 0;
+
+        case AUDIOCHANNEL_LANGUAGE1:
+        case AUDIOCHANNEL_LANGUAGE2:
+            return (Status & (1 << 1)) != 0;
+        }
     }
 
-    switch (soundChannel)
+    // NEVER_GET_HERE;
+    return FALSE;
+}
+
+
+void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
+{
+    if (AudioChannel == AUDIOCHANNEL_MONO)
     {
-    case SOUNDCHANNEL_MONO:
-        return (Status & MonoMask) > 0 && (Status & Lang2Mask) == 0;
+        // Select Left/Left
+        MaskDataByte(SAA7134_DSP_OUTPUT_SELECT, 0x10,
+            SAA7134_DSP_OUTPUT_SELECT_CSM);
+
+        // Disable automatic stereo adjustment
+        AndDataByte(SAA7134_DSP_OUTPUT_SELECT, ~SAA7134_DSP_OUTPUT_SELECT_AASDMA);
+
+        MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x00,
+            SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);    
+    }
+    else
+    {
+        MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x00,
+            SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);
+
+        // Enable automatic stereo adjustment and the card
+        // will sort itself out
+        OrDataByte(SAA7134_DSP_OUTPUT_SELECT, SAA7134_DSP_OUTPUT_SELECT_AASDMA);
+
+        if (AudioChannel == AUDIOCHANNEL_LANGUAGE1)
+        {
+            MaskDataByte(SAA7134_DSP_OUTPUT_SELECT, 0x10,
+                SAA7134_DSP_OUTPUT_SELECT_CSM);
+        }
+        else if (AudioChannel == AUDIOCHANNEL_LANGUAGE2)
+        {
+            MaskDataByte(SAA7134_DSP_OUTPUT_SELECT, 0x20,
+                SAA7134_DSP_OUTPUT_SELECT_CSM);
+        }
+    }
+}
+
+
+CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
+{
+    // If automatic select is enabled, things work a bit different
+    if (ReadByte(SAA7134_DSP_OUTPUT_SELECT) & SAA7134_DSP_OUTPUT_SELECT_AASDMA)
+    {
+        if (IsAudioChannelDetected(AUDIOCHANNEL_STEREO))
+        {
+            return AUDIOCHANNEL_STEREO;
+        }
+        else if (IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2))
+        {
+            if (ReadByte(SAA7134_DSP_OUTPUT_SELECT) & 0x20)
+            {
+                return AUDIOCHANNEL_LANGUAGE2;
+            }
+            return AUDIOCHANNEL_LANGUAGE1;
+        }
+        return AUDIOCHANNEL_MONO;
+    }
+
+    switch (ReadByte(SAA7134_DSP_OUTPUT_SELECT) &
+        SAA7134_DSP_OUTPUT_SELECT_CSM)
+    {
+    case 0x00:  // L / R
+    case 0x30:  // R / L
+    case 0x40:  // (L+R)/2 / (L+R)/2
+        if (IsAudioChannelDetected(AUDIOCHANNEL_STEREO))
+        {
+            return AUDIOCHANNEL_STEREO;
+        }
         break;
 
-    case SOUNDCHANNEL_STEREO:
-        return (Status & StereoMask) > 0;
+    case 0x10:
+        if (IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE1))
+        {
+            return AUDIOCHANNEL_LANGUAGE1;
+        }
         break;
 
-    case SOUNDCHANNEL_LANGUAGE1:
-        return (Status & Lang2Mask) > 0 && (Status & MonoMask) > 0;
-        break;
-
-    case SOUNDCHANNEL_LANGUAGE2:
-        return (Status & Lang2Mask) > 0;
+    case 0x20:
+        if (IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2))
+        {
+            return AUDIOCHANNEL_LANGUAGE2;
+        }
         break;
 
     default:
         // NEVER_GET_HERE;
         break;
     }
-    return FALSE;
+    return AUDIOCHANNEL_MONO;
 }
 
 
@@ -619,19 +680,6 @@ void CSAA7134Card::SetAudioTreble(WORD nTreble)
 {
     // TODO: Need to implement
     // SAA7134 doesn't have Treble but SAA7133 & SAA7135 does
-}
-
-// TODO: check this out
-void CSAA7134Card::SetAudioChannel(eSoundChannel soundChannel)
-{
-    if(m_TVCards[m_CardType].pSoundChannelFunction != NULL)
-    {
-        // call correct function
-        // this funny syntax is the only one that works
-        // if you want help understanding what is going on
-        // I suggest you read http://www.newty.de/
-        (*this.*m_TVCards[m_CardType].pSoundChannelFunction)(soundChannel);
-    }
 }
 
 

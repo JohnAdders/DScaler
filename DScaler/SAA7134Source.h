@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.14 2002-10-12 20:03:12 atnak Exp $
+// $Id: SAA7134Source.h,v 1.15 2002-10-20 07:41:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/12 20:03:12  atnak
+// added half second wait for DecodeVBI() after channel change
+//
 // Revision 1.13  2002/10/12 01:37:28  atnak
 // fixes negative dropped frames bug
 //
@@ -148,6 +151,7 @@ private:
     
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
@@ -253,10 +257,20 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource5);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, AutoStereoSelect);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, WhitePeak);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, ColorPeak);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, AdaptiveCombFilter);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSampleRate);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutoStereoSelect);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  WhitePeak);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  ColorPeak);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AdaptiveCombFilter);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  CustomAudioStandard);
+
+    // These settings are only effective when CustomAudioStandard is set
+    CSliderSetting*     m_AudioStandardCarrier1;
+    CSliderSetting*     m_AudioStandardCarrier2;
+    CSliderSetting*     m_AudioStandardCarrier1Mode;
+    CSliderSetting*     m_AudioStandardCarrier2Mode;
+    CSliderSetting*     m_AudioStandardCh1FMDeemph;
+    CSliderSetting*     m_AudioStandardCh2FMDeemph;
 
 protected:
     int         m_InitialACPIStatus;

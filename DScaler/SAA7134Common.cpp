@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.5 2002-10-16 11:38:46 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.6 2002-10-20 07:41:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/16 11:38:46  atnak
+// cleaned up audio standard stuff
+//
 // Revision 1.4  2002/10/12 01:38:54  atnak
 // VBI_DecodeLine() doesn't work properly with only 16 VBI lines
 //
@@ -291,6 +294,36 @@ CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
 };
 
 
+CSAA7134Common::eAudioCarrier CSAA7134Common::m_AudioCarrierList[] =
+{
+    { AUDIO_CARRIER_4_5,        },
+    { AUDIO_CARRIER_4_724212,   },
+    { AUDIO_CARRIER_5_5,        },
+    { AUDIO_CARRIER_5_7421875,  },
+    { AUDIO_CARRIER_5_85,       },
+    { AUDIO_CARRIER_6_0,        },
+    { AUDIO_CARRIER_6_12,       },
+    { AUDIO_CARRIER_6_2578125,  },
+    { AUDIO_CARRIER_6_5,        },
+    { AUDIO_CARRIER_6_552,      },
+    { AUDIO_CARRIER_6_7421875,  },
+    { AUDIO_CARRIER_7_02,       },
+    { AUDIO_CARRIER_7_20,       },
+    { AUDIO_CARRIER_10_7,       },
+};
+
+
+char* CSAA7134Common::m_AudioFMDeemphasisName[] =
+{
+    { "OFF"      },
+    { "50us"     },
+    { "60us"     },
+    { "75us"     },
+    { "J17"      },
+    { "Adaptive" },
+};
+
+
 BOOL CSAA7134Common::IsRegionIDVideo(eRegionID RegionID)
 {
     if (RegionID == REGIONID_VIDEO_A || RegionID == REGIONID_VIDEO_B)
@@ -524,4 +557,16 @@ BOOL CSAA7134Common::IsNICAMAudioStandard(eAudioStandard AudioStandard)
         return TRUE;
     }
     return FALSE;
+}
+
+
+int CSAA7134Common::GetMaxAudioCarrierNames()
+{
+    return sizeof(m_AudioCarrierList) / sizeof(eAudioCarrier);
+}
+
+
+int CSAA7134Common::GetMaxFMDeemphasisNames()
+{
+    return sizeof(m_AudioFMDeemphasisName) / sizeof(char*);
 }

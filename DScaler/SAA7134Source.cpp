@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.25 2002-10-15 04:34:26 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.26 2002-10-20 07:41:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/10/15 04:34:26  atnak
+// increased the amount of VBI samples to get better decoding
+//
 // Revision 1.24  2002/10/12 20:03:12  atnak
 // added half second wait for DecodeVBI() after channel change
 //
@@ -290,6 +293,9 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", AUDIOCHANNEL_STEREO, AUDIOCHANNEL_MONO, AUDIOCHANNEL_LANGUAGE2, IniSection);
     m_Settings.push_back(m_AudioChannel);
 
+    m_AudioSampleRate = new CAudioSampleRateSetting(this, "Audio Sample Rate", AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_32000Hz, AUDIOSAMPLERATE_48000Hz, IniSection);
+    m_Settings.push_back(m_AudioSampleRate);
+
     m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", TRUE, IniSection);
     m_Settings.push_back(m_AutoStereoSelect);
 
@@ -330,8 +336,30 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource6);
 
+    m_CustomAudioStandard = new CCustomAudioStandardSetting(this, "Use Custom Audio Standard", FALSE, IniSection);
+    m_Settings.push_back(m_CustomAudioStandard);
+
+    m_AudioStandardCarrier1 = new CSliderSetting("Audio Major Carrier", AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection, "AudioMajorCarrier");
+    m_Settings.push_back(m_AudioStandardCarrier1);
+
+    m_AudioStandardCarrier2 = new CSliderSetting("Audio Minor Carrier", AUDIO_CARRIER_5_5, 0, AUDIO_CARRIER_10_7, IniSection, "AudioMinorCarrier");
+    m_Settings.push_back(m_AudioStandardCarrier2);
+
+    m_AudioStandardCarrier1Mode = new CSliderSetting("Audio Major Carrier Mode", AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection, "AudioMajorCarrierMode");
+    m_Settings.push_back(m_AudioStandardCarrier1Mode);
+
+    m_AudioStandardCarrier2Mode = new CSliderSetting("Audio Minor Carrier2 Mode", AUDIOCHANNELMODE_FM, AUDIOCHANNELMODE_NONE, AUDIOCHANNELMODE_EIAJ, IniSection, "AudioMinorCarrierMode");
+    m_Settings.push_back(m_AudioStandardCarrier2Mode);
+
+    m_AudioStandardCh1FMDeemph = new CSliderSetting("Audio Channel 1 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, "AudioChannel1FMDeemph");
+    m_Settings.push_back(m_AudioStandardCh1FMDeemph);
+
+    m_AudioStandardCh2FMDeemph = new CSliderSetting("Audio Channel 2 FM De-emphasis", AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_OFF, AUDIOFMDEEMPHASIS_ADAPTIVE, IniSection, "AudioChannel2FMDeemph");
+    m_Settings.push_back(m_AudioStandardCh2FMDeemph);
+
     ReadFromIni();
 }
+
 
 void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
@@ -477,8 +505,18 @@ void CSAA7134Source::SetupVideoAudioStandards()
     m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
     m_pSAA7134Card->SetHue(m_Hue->GetValue());
 
-    eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
-    m_AudioStandard->SetValue(AudioStandard);
+    //\todo move this to set default loop
+    // eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
+
+    if (m_CustomAudioStandard->GetValue())
+    {
+        // All the settings are set up in the OnChange
+        m_CustomAudioStandard->SetValue(TRUE);
+    }
+    else
+    {
+        m_pSAA7134Card->SetAudioStandard((eAudioStandard)m_AudioStandard->GetValue());
+    }
 }
 
 
@@ -1144,6 +1182,9 @@ void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
     m_pSAA7134Card->SetCombFilter(NewValue);
 }
 
+
+/////////////////////////////////////////////////////////////////////////
+
 BOOL CSAA7134Source::IsInTunerMode()
 {
     return m_pSAA7134Card->IsInputATuner(m_VideoSource->GetValue());
@@ -1299,8 +1340,8 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 
     // Convert SAA7134's VBI buffer to the way DScaler wants it
     // 1. Shift the data 40 bytes to to the left
-    // 2. Horizontal scale 262.54% (0x400/0x186) Some of this is already
-    //    done.  We get the card to do 246.15% (0x400/0x1A0) scaling for
+    // 2. Horizontal scale 262.54% (0x400/0x186)  Some of this is already
+    //    done.  We get the card to do 243.80% (0x400/0x1A4) scaling for
     //    us in SAA7134Card, so we need to trim this up a bit.
     //      - ala. SAA7134Card::SetupVBI()
     //
@@ -1313,7 +1354,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     {
         for (int i(40), j(0); i < 2048; i++, j++)
         {
-            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)((double) j * 0x186 / 0x1A0)];
+            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)((double) j * 0x186 / 0x1A4)];
         }
         VBI_DecodeLine(ConvertBuffer, nLineTarget, m_IsFieldOdd);
     }

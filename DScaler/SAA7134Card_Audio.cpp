@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.11 2002-10-18 01:14:43 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.12 2002-10-20 07:41:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/18 01:14:43  atnak
+// NICAM tweaks
+//
 // Revision 1.10  2002/10/16 21:59:05  atnak
 // Nicam tweaks
 //
@@ -79,8 +82,6 @@ void CSAA7134Card::InitAudio()
         // saa7130 doesn't support most audio stuff
         return;
     }
-
-    m_AudioSampleRate = AUDIOSAMPLERATE_48000Hz;
     
     // mute all
     WriteByte(SAA7134_AUDIO_MUTE_CTRL,          0xFF);
@@ -88,9 +89,9 @@ void CSAA7134Card::InitAudio()
     // auto gain control enabled
     WriteByte(SAA7134_AGC_GAIN_SELECT,          0x00);
     
-    WriteByte(SAA7134_MONITOR_SELECT,           0x00);
-    WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x00);
+    WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x40);
 
+    WriteByte(SAA7134_MONITOR_SELECT,           0xA0);
     WriteByte(SAA7134_NICAM_ERROR_LOW,          0x14);
     WriteByte(SAA7134_NICAM_ERROR_HIGH,         0x50);
     WriteByte(SAA7134_NICAM_CONFIG,             0x00);
@@ -122,16 +123,13 @@ void CSAA7134Card::InitAudio()
     WriteByte(SAA7134_I2S_OUTPUT_SELECT,        0x00);
     WriteByte(SAA7134_I2S_OUTPUT_LEVEL,         0x00);
 
-    SetAudioLockToVideo(FALSE);
+    // Setting this FALSE for NICAM doesn't work
+    SetAudioLockToVideo(TRUE);
 }
 
 
 void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
 {
-    BYTE IdentCtrl      = 0;
-    BYTE Demodulator    = 0;
-    BYTE AudioPLLCtrl   = 0;
-
     if (m_DeviceId == 0x7130)
     {
         // saa7130 doesn't support this
@@ -141,33 +139,14 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
     DWORD Carrier1 = m_AudioStandards[AudioStandard].Carrier1;
     DWORD Carrier2 = m_AudioStandards[AudioStandard].Carrier2;
 
-    if (m_AudioStandards[AudioStandard].Carrier1Mode == AUDIOCHANNELMODE_FM_KOREA ||
-        m_AudioStandards[AudioStandard].Carrier2Mode == AUDIOCHANNELMODE_FM_KOREA)
-    {
-        IdentCtrl |= SAA7134_DCXO_IDENT_CTRL_IDAREA;
-    }
-
-    if (m_AudioStandards[AudioStandard].Carrier2Mode == AUDIOCHANNELMODE_NICAM)
-    {
-        AudioPLLCtrl |= SAA7134_AUDIO_PLL_CTRL_SWLOOP;
-    }
-
     WriteDword(SAA7134_CARRIER1_FREQ, Carrier1);
     WriteDword(SAA7134_CARRIER2_FREQ, Carrier2);
 
     SetAudioCarrier1Mode(m_AudioStandards[AudioStandard].Carrier1Mode);
     SetAudioCarrier2Mode(m_AudioStandards[AudioStandard].Carrier2Mode);
 
-    MaskDataByte(SAA7134_DCXO_IDENT_CTRL, IdentCtrl,
-        SAA7134_DCXO_IDENT_CTRL_IDAREA);
-
     SetCh1FMDeemphasis(m_AudioStandards[AudioStandard].Ch1FMDeemphasis);
     SetCh2FMDeemphasis(m_AudioStandards[AudioStandard].Ch2FMDeemphasis);
-    
-    MaskDataByte(SAA7134_AUDIO_PLL_CTRL, AudioPLLCtrl,
-        SAA7134_AUDIO_PLL_CTRL_SWLOOP);
-
-    m_AudioStandard = AudioStandard;
 }
 
 
@@ -213,7 +192,9 @@ void CSAA7134Card::SetAudioCarrier1Mode(eAudioCarrierMode Mode)
 
 void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
 {
-    BYTE Demodulator = 0x00;
+    BYTE IdentCtrl      = 0x00;
+    BYTE Demodulator    = 0x00;
+    BYTE AudioPLLCtrl   = 0x00;
 
     if (m_DeviceId == 0x7130)
     {
@@ -223,7 +204,11 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
     switch (Mode)
     {
     case AUDIOCHANNELMODE_FM:
+        Demodulator = 0x00;
+        break;
+
     case AUDIOCHANNELMODE_FM_KOREA:
+        IdentCtrl |= SAA7134_DCXO_IDENT_CTRL_IDAREA;
         Demodulator = 0x00;
         break;
 
@@ -232,6 +217,7 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
         break;
 
     case AUDIOCHANNELMODE_NICAM:
+        AudioPLLCtrl |= SAA7134_AUDIO_PLL_CTRL_SWLOOP;
         Demodulator = 0x10;
         break;
 
@@ -244,6 +230,12 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
     MaskDataByte(SAA7134_DEMODULATOR, Demodulator,
         SAA7134_DEMODULATOR_CH2MOD0 |
         SAA7134_DEMODULATOR_CH2MOD1);
+
+    MaskDataByte(SAA7134_DCXO_IDENT_CTRL, IdentCtrl,
+        SAA7134_DCXO_IDENT_CTRL_IDAREA);
+
+    MaskDataByte(SAA7134_AUDIO_PLL_CTRL, AudioPLLCtrl,
+        SAA7134_AUDIO_PLL_CTRL_SWLOOP);
 }
 
 
@@ -264,10 +256,12 @@ void CSAA7134Card::SetAudioLockToVideo(BOOL bLockAudio)
     }
 }
 
+
 void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
 {
-    DWORD AudioClock = 0x000000;
-    DWORD AudioClocksPerField = 0x00000;
+    DWORD   AudioClock = 0x000000;
+    DWORD   AudioClocksPerField = 0x00000;
+    BYTE    SampleFreq;
 
     if (m_DeviceId == 0x7130)
     {
@@ -275,8 +269,10 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
         return;
     }
 
-    if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC ||
-        m_AudioSampleRate != AUDIOSAMPLERATE_44100Hz)
+    SampleFreq = ReadByte(SAA7134_SIF_SAMPLE_FREQ) & SAA7134_SIF_SAMPLE_FREQ_SFS;
+
+    // If the sample frequency isn't 44.1KHz
+    if (SampleFreq != 0x02)
     {
         switch (GetCardSetup()->AudioCrystal)
         {
@@ -506,7 +502,8 @@ void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
 
     if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC)
     {
-        SampleFrequency = 0x00;
+        SampleFrequency = 0x40;
+        SampleRate = AUDIOSAMPLERATE_32000Hz;
     }
     else
     {
@@ -520,8 +517,6 @@ void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
 
     MaskDataByte(SAA7134_SIF_SAMPLE_FREQ, SampleFrequency,
         SAA7134_SIF_SAMPLE_FREQ_SFS);
-
-    m_AudioSampleRate = SampleRate;
 
     UpdateAudioClocksPerField(m_VideoStandard);
 }
@@ -543,16 +538,18 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 
     m_AudioInputSource = InputSource;
 
-    if (InputSource == AUDIOINPUTSOURCE_LINE2)
+    if (InputSource == AUDIOINPUTSOURCE_DAC)
     {
-        OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
+        SetAudioSampleRate(AUDIOSAMPLERATE_32000Hz);
     }
-    else
+    else if (InputSource == AUDIOINPUTSOURCE_LINE1)
     {
         AndDataByte(SAA7134_ANALOG_IO_SELECT, ~SAA7134_ANALOG_IO_SELECT_ICS);
     }
-
-    SetAudioSampleRate(m_AudioSampleRate);
+    else if (InputSource == AUDIOINPUTSOURCE_LINE2)
+    {
+        OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
+    }
 }
 
 
@@ -571,7 +568,8 @@ BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel AudioChannel)
         return FALSE;
     }
 
-    if (IsNICAMAudioStandard(m_AudioStandard))
+    // Read carrier 2 mode to see if it's NICAM
+    if (ReadByte(SAA7134_DEMODULATOR) & SAA7134_DEMODULATOR_CH2MOD1)
     {
         Status = (ReadByte(SAA7134_NICAM_STATUS) & SAA7134_NICAM_STATUS_SIN);
 
@@ -758,6 +756,39 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
         break;
     }
     return AUDIOCHANNEL_MONO;
+}
+
+
+void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
+{
+    DWORD AVStatus = ReadDword(SAA7134_AV_STATUS);
+
+    *pBuffer = '\0';
+
+    if (AVStatus & SAA7134_AV_STATUS_PILOT && nBufferSize > 2)
+    {
+        strcat(pBuffer, "FM ");
+    }
+    if (AVStatus & SAA7134_AV_STATUS_VDSP && nBufferSize > 5)
+    {
+        strcat(pBuffer, "NICAM ");
+    }
+    if (AVStatus & SAA7134_AV_STATUS_DUAL && nBufferSize > 7)
+    {
+        strcat(pBuffer, "FM_DUAL ");
+    }
+    if (AVStatus & SAA7134_AV_STATUS_STEREO && nBufferSize > 9)
+    {
+        strcat(pBuffer, "FM_STEREO ");
+    }
+    if (AVStatus & SAA7134_AV_STATUS_DMB && nBufferSize > 10)
+    {
+        strcat(pBuffer, "NICAM_DUAL ");
+    }
+    if (AVStatus & SAA7134_AV_STATUS_SMB && nBufferSize > 12)
+    {
+        strcat(pBuffer, "NICAM_STEREO ");
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.5 2002-10-15 04:34:26 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.6 2002-10-20 07:41:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/15 04:34:26  atnak
+// increased the amount of VBI samples to get better decoding
+//
 // Revision 1.4  2002/10/08 20:35:39  atnak
 // whitepeak, colorpeak, comb filter UI options
 //
@@ -252,7 +255,7 @@ void CSAA7134Card::SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
 {
     BYTE TaskMask = TaskID2TaskMask(TaskID);
 
-    WORD SampleBytes = (double) 0x400 / 0x1A0 * 720;
+    WORD SampleBytes = (double) 0x400 / 0x1A4 * 720;
 
     WriteWord(SAA7134_VBI_H_START(TaskMask), HStart);
     WriteWord(SAA7134_VBI_H_STOP(TaskMask), HStop);
@@ -264,11 +267,11 @@ void CSAA7134Card::SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
 
     // (This may be specific to PAL-BG)
     // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
-    // can't handle this scaling.  Instead, we scale 0x1A0 (close
+    // can't handle this scaling.  Instead, we scale 0x1A4 (close
     // enough) and manually scale a little more in SAA7134Source.cpp
     // WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x0186);
     //
-    WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x1A0);
+    WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x1A4);
 
     WORD Lines = VStop - VStart + 1;
 

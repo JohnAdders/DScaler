@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.8 2002-10-16 11:37:58 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.9 2002-10-20 07:41:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/16 11:37:58  atnak
+// added saa7130 support
+//
 // Revision 1.7  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -98,7 +101,29 @@ void CSAA7134Source::TrebleOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::AudioStandardOnChange(long NewValue, long OldValue)
 {
+    m_CustomAudioStandard->SetValue(FALSE, ONCHANGE_NONE);
     m_pSAA7134Card->SetAudioStandard((eAudioStandard)NewValue);
+}
+
+void CSAA7134Source::CustomAudioStandardOnChange(long NewValue, long OldValue)
+{
+    if (NewValue)
+    {
+        m_pSAA7134Card->SetAudioCarrier1Freq(m_AudioStandardCarrier1->GetValue());
+        m_pSAA7134Card->SetAudioCarrier2Freq(m_AudioStandardCarrier2->GetValue());
+        m_pSAA7134Card->SetAudioCarrier1Mode((eAudioCarrierMode)m_AudioStandardCarrier1Mode->GetValue());
+        m_pSAA7134Card->SetAudioCarrier2Mode((eAudioCarrierMode)m_AudioStandardCarrier2Mode->GetValue());
+        m_pSAA7134Card->SetCh1FMDeemphasis((eAudioFMDeemphasis)m_AudioStandardCh1FMDeemph->GetValue());
+        m_pSAA7134Card->SetCh2FMDeemphasis((eAudioFMDeemphasis)m_AudioStandardCh2FMDeemph->GetValue());
+    }
+}
+
+void CSAA7134Source::AudioSampleRateOnChange(long NewValue, long OldValue)
+{
+    if (GetCurrentAudioSetting()->GetValue() != AUDIOINPUTSOURCE_DAC)
+    {
+        m_pSAA7134Card->SetAudioSampleRate((eAudioSampleRate)NewValue);
+    }
 }
 
 void CSAA7134Source::AudioSource1OnChange(long NewValue, long OldValue)

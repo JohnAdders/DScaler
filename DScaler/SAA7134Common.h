@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.3 2002-10-16 11:38:46 atnak Exp $
+// $Id: SAA7134Common.h,v 1.4 2002-10-20 07:41:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/16 11:38:46  atnak
+// cleaned up audio standard stuff
+//
 // Revision 1.2  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -224,7 +227,6 @@ protected:
             AUDIO_CARRIER_7_02        = AUDIO_CARRIER(7.02),
             AUDIO_CARRIER_7_20        = AUDIO_CARRIER(7.20),
             AUDIO_CARRIER_10_7        = AUDIO_CARRIER(10.7),
-            AUDIO_CARRIER_10_20        = AUDIO_CARRIER(10.20),
         };
     #undef AUDIO_CARRIER
 
@@ -275,7 +277,14 @@ protected:
     BOOL IsDualFMAudioStandard(eAudioStandard AudioStandard);
     BOOL IsNICAMAudioStandard(eAudioStandard AudioStandard);
 
+    int GetMaxAudioCarrierNames();
+    int GetMaxFMDeemphasisNames();
+
 protected:
+
+    // Lists the items displayed in the UI
+    static eAudioCarrier            m_AudioCarrierList[];
+    static char*                    m_AudioFMDeemphasisName[];
 
     // Video standards (TV Formats) table, uses eVideoFormat
     static TVideoStandardDefinition m_VideoStandards[];

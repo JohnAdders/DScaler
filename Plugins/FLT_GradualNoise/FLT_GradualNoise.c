@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/28 02:52:14  lindsey
+// Corrected a settings typo
+// Prevented a crash with very low Noise Reduction settings
+//
 // Revision 1.1.1.1  2001/12/23 01:43:53  lindsey
 // Added Gradual Noise Filter
 //
@@ -164,7 +168,14 @@ you the "comical posterization" filter.
 
 */
 /////////////////////////////////////////////////////////////////////////////
+// Constants
+/////////////////////////////////////////////////////////////////////////////
 
+// This might need to be tuned for other processors.
+// Then again, it doesn't seem to matter much what I set it to on my Athlon
+// so long as it's between 64 and about 300
+
+#define PREFETCH_STRIDE                         128
 
 /////////////////////////////////////////////////////////////////////////////
 // Function prototypes
@@ -210,7 +221,7 @@ FILTER_METHOD GradualNoiseMethod =
     FILTER_CURRENT_VERSION,
     DEINTERLACE_INFO_CURRENT_VERSION,
     "Gradual Noise Filter",                 // Displayed name
-    NULL,                                   // Use same name in menu
+    "Noise Reduction (Gradual)",            // For consistency with the Temporal Noise filter
     FALSE,                                  // Not initially active
     TRUE,                                   // Call on input so pulldown/deinterlacing can benefit
     FilterGradualNoise_MMXEXT,              // Algorithm to use (really decided by GetFilterPluginInfo)

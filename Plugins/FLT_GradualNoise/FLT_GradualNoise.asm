@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.2 2001-12-28 02:51:44 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.3 2001-12-31 00:02:59 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/28 02:51:44  lindsey
+// Improved assembly formatting
+// Improved assembly multiplication
+// Corrected the copyright
+//
 // Revision 1.1.1.1  2001/12/23 01:43:52  lindsey
 // Added Gradual Noise Filter
 //
@@ -39,7 +44,7 @@ long FilterGradualNoise_MMXEXT( TDeinterlaceInfo *pInfo )
 {
     BYTE*           pSource = NULL;
     DWORD           ThisLine = pInfo->SourceRect.top/2;
-    const LONG      Cycles = pInfo->LineLength;
+    const LONG      Cycles = (pInfo->LineLength/8)*8;
     // Noise multiplier is (1/gNoiseReduction), in 0x10000 fixed point.
     // This times the measured noise gives the weight given to the new pixel color
     const DWORD     NoiseMultiplier = (0x10000+(gNoiseReduction/2))/(gNoiseReduction);
@@ -85,6 +90,7 @@ MAINLOOP_LABEL:
 
             // The NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
             pmaddwd mm2, NoiseMultiplier    // mm2 (low Dword) = Multiplier to move toward new pixel value
+            prefetchnta[edi + PREFETCH_STRIDE]
             movq    mm3, mm2                // mm3 = same
             pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
@@ -111,6 +117,8 @@ MAINLOOP_LABEL:
             movq    mm3, qwChromaMask
             pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
+            prefetchnta[ebx + PREFETCH_STRIDE]
+
             pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
             pmulhuw mm3, mm2                // mm3 = amount of luma to add/subtract from old

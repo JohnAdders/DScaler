@@ -280,6 +280,10 @@ SOURCE=.\VideoSettings.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl;fi;fd"
 # Begin Source File
 
+SOURCE=.\AspectFilters.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\AspectRatio.h
 # End Source File
 # Begin Source File

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// AspectRect.h
+// CAspectRect.h
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,15 +32,15 @@
 
 // Aspect aware smart-rectangle
 // All function in-line for efficency when compiled...
-class AspectRect : public RECT
+class CAspectRect : public RECT
 {
 public:
-	AspectRect()
+	CAspectRect()
 	{ 
 		left = right = top = bottom = 0; 
 		m_outputAdjustment = 1; 
 	}
-	AspectRect(RECT const &src)
+	CAspectRect(RECT const &src)
 	{ 
 		left = src.left; 
 		right = src.right; 
@@ -48,11 +48,11 @@ public:
 		bottom = src.bottom; 
 		m_outputAdjustment = 1; 
 	}
-	AspectRect(AspectRect const &src)
+	CAspectRect(CAspectRect const &src)
 	{ 
 		operator=(src);
 	}
-	AspectRect& operator=(AspectRect const &src)
+	CAspectRect& operator=(CAspectRect const &src)
 	{
 		if (&src != this)
 		{
@@ -65,13 +65,13 @@ public:
 		return *this;
 	}
 	// Only considers exact matches equal...
-	BOOL operator==(const AspectRect &src)
+	BOOL operator==(const CAspectRect &src)
 	{
 		return left==src.left && right==src.right && top==src.top && bottom==src.bottom
 			&& fabs(m_outputAdjustment-src.m_outputAdjustment) < .00001;
 	}
 	// Considers 2 rectangles equal if they are within n pixels of each other on each edge
-	BOOL tolerantEquals(const AspectRect &src, int tolerance = 4)
+	BOOL tolerantEquals(const CAspectRect &src, int tolerance = 4)
 	{
 		if (fabs(m_outputAdjustment-src.m_outputAdjustment) > .00001) return false;
 		if (abs(left - src.left) > tolerance) return false;
@@ -196,7 +196,7 @@ public:
 
 	// Crops this rectangle to a specified rectangle
 	// Optionally Proprotionally crops a second rectangle at the same time...
-	void crop(RECT cropToRect, AspectRect *r2)
+	void crop(RECT cropToRect, CAspectRect *r2)
 	{
 		if (width() > 0)
 		{		
@@ -387,8 +387,8 @@ public:
 		GetClientRect(hwnd, this);
 		if (useScreenCoords) 
 		{
-			ClientToScreen(hWnd, (POINT *) &left);
-			ClientToScreen(hWnd, (POINT *) &right);
+			ClientToScreen(hwnd, (POINT *) &left);
+			ClientToScreen(hwnd, (POINT *) &right);
 		}
 	}
 

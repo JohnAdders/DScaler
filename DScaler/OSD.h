@@ -65,7 +65,7 @@ typedef enum
 	OSD_XPOS_CENTER,
 } OSD_TEXT_XPOS;
 
-typedef struct OSD_INFO_TAG
+typedef struct
 {
     char            szText[512];       // Text of OSD
     double          dfSize;            // Size of OSD as percentage of screen height
@@ -74,7 +74,7 @@ typedef struct OSD_INFO_TAG
     double          dfXpos;            // X position (0 = left, 1 = right)
     double          dfYpos;            // Y position (0 = top, 1 = bottom)
 	RECT            currentRect;       // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
-} OSD_INFO;
+} TOsdInfo;
 
 void OSD_ClearAllTexts();
 void OSD_AddText(LPCTSTR szText, double dfSize, long textColor, OSD_TEXT_XPOS textXpos, double dfXpos, double dfYpos);

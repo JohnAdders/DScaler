@@ -624,7 +624,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
 	},
 };
 
-const AUTODETECT878 AutoDectect878[] =
+const TAutoDectect878 AutoDectect878[] =
 {
 	{ 0x00011002, TVCARD_HAUPPAUGE878,  "ATI TV Wonder" },
 	{ 0x00011461, TVCARD_AVPHONE98,     "AVerMedia TVPhone98" },

@@ -85,13 +85,14 @@ extern BOOL Show_Menu;
 
 int HalfHeight = FALSE;
 
+#include "AspectFilters.h"
 
 #define AR_STRETCH       0
 #define AR_NONANAMORPHIC 1
 #define AR_ANAMORPHIC    2
 
 
-AspectSettingsStruct aspectSettings = 
+TAspectSettingsStruct aspectSettings = 
 {
 	1333,0,1,0,0,40,1,17,FALSE,60,300,15,20,
 	2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
@@ -137,12 +138,9 @@ void SetHalfHeight(int IsHalfHeight)
 	}
 }
 
-// All the code for the aspect ratio filters is in this module to leave this one easier to read...
-#include "AspectFilters.hpp"
-
-AspectFilter* BuildFilterChain()
+CAspectFilter* BuildFilterChain()
 {
-	AspectFilter *head, *cur;
+	CAspectFilter *head, *cur;
 	if (aspectSettings.orbitEnabled)
 	{ 
 		int overscan = aspectSettings.InitialOverscan;
@@ -150,21 +148,21 @@ AspectFilter* BuildFilterChain()
 		{
 			overscan = (aspectSettings.orbitSize+1)/2;
 		}
-		head = cur = new OverscanAspectFilter(aspectSettings.InitialOverscan);
-		cur->next = new OrbitAspectFilter(aspectSettings.orbitPeriodX, aspectSettings.orbitPeriodY, aspectSettings.orbitSize); 
+		head = cur = new COverscanAspectFilter(aspectSettings.InitialOverscan);
+		cur->next = new COrbitAspectFilter(aspectSettings.orbitPeriodX, aspectSettings.orbitPeriodY, aspectSettings.orbitSize); 
 		cur = cur->next;
 	}
 	else 
 	{
-		head = cur = new OverscanAspectFilter(aspectSettings.InitialOverscan);
+		head = cur = new COverscanAspectFilter(aspectSettings.InitialOverscan);
 	}
 	if (aspectSettings.aspect_mode)
 	{ 
-		AspectFilter *position;
+		CAspectFilter *position;
 		
 		if (aspectSettings.bounceEnabled)
 		{
-			position = new BounceDestinationAspectFilter(aspectSettings.bouncePeriod);
+			position = new CBounceDestinationAspectFilter(aspectSettings.bouncePeriod);
 		}
 		else
 		{
@@ -193,15 +191,15 @@ AspectFilter* BuildFilterChain()
 				yPos = 0; 
 				break;
 			}
-			position = new PositionDestinationAspectFilter(xPos,yPos);
+			position = new CPositionDestinationAspectFilter(xPos,yPos);
 		}
 		
 		cur->next = position;
-		cur->next->firstChild = new CropAspectFilter();
+		cur->next->firstChild = new CCropAspectFilter();
 
 		if (!aspectSettings.aspectImageClipped)
 		{
-			AspectFilter *uncrop = new UncropAspectFilter(); 
+			CAspectFilter *uncrop = new CUnCropAspectFilter(); 
 			uncrop->firstChild = cur->next;
 			cur->next = uncrop;
 		}
@@ -213,18 +211,18 @@ AspectFilter* BuildFilterChain()
 	// See comments in AspectFilters.hpp for PanAndZoomAspectFilter details.
 	if (aspectSettings.xZoomFactor > 1.0 || aspectSettings.yZoomFactor > 1.0)
 	{
-		cur->next = new PanAndZoomAspectFilter(aspectSettings.xZoomCenter,
+		cur->next = new CPanAndZoomAspectFilter(aspectSettings.xZoomCenter,
 											   aspectSettings.yZoomCenter,
 											   aspectSettings.xZoomFactor,
 											   aspectSettings.yZoomFactor);
 		cur = cur->next;
 	}
 
-	cur->next = new ScreenSanityAspectFilter();
+	cur->next = new CScreenSanityAspectFilter();
 	cur = cur->next;
 	if (aspectSettings.autoResizeWindow)
 	{
-		cur->next = new ResizeWindowAspectFilter();
+		cur->next = new CResizeWindowAspectFilter();
 		cur = cur->next;
 	}
 	
@@ -234,15 +232,17 @@ AspectFilter* BuildFilterChain()
 //----------------------------------------------------------------------------
 // Calculate size and position coordinates for video overlay
 // Takes into account of aspect ratio control.
-void _WorkoutOverlaySize(BOOL allowResize)
+void WorkoutOverlaySize(BOOL allowResize)
 {
+	bIgnoreMouse = TRUE;
+
 	static BOOL InFunction = FALSE;
 	if(InFunction == TRUE) return;
 
 	InFunction = TRUE;
 	UpdateWindowState();
 
-	AspectRectangles ar;
+	CAspectRectangles ar;
 
 	// Setup the rectangles...
 	// Previous ones...
@@ -279,12 +279,12 @@ void _WorkoutOverlaySize(BOOL allowResize)
 
 	// Build filter chain and apply
 	// TODO: Filter chain should be saved and only rebuilt if options are changed
-	AspectFilter *head = BuildFilterChain();
+	CAspectFilter *head = BuildFilterChain();
 	if (head->applyFilters(ar, allowResize))
 	{
 		delete head;
 		InFunction = FALSE;
-		_WorkoutOverlaySize(FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
+		WorkoutOverlaySize(FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
 		return;
 	} 
 	else 
@@ -304,8 +304,8 @@ void _WorkoutOverlaySize(BOOL allowResize)
 	aspectSettings.sourceRectangle = ar.rCurrentOverlaySrc;
 	aspectSettings.destinationRectangleWindow = ar.rCurrentOverlayDest; 
 	aspectSettings.destinationRectangle = ar.rCurrentOverlayDest;
-	ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle));
-	ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle)+1);
+	ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle.left));
+	ScreenToClient(hWnd,((PPOINT)&aspectSettings.destinationRectangle.right));
 
 	// Invert the rectangle if necessary...
 	/*
@@ -353,12 +353,6 @@ void _WorkoutOverlaySize(BOOL allowResize)
 		aspectSettings.overlayNeedsSetting = FALSE;
 	}
 	InFunction = FALSE;
-}
-
-void WorkoutOverlaySize()
-{
-	bIgnoreMouse = TRUE;
-	_WorkoutOverlaySize(TRUE);
 }
 
 //----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ typedef enum
 
 BOOL    ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID);
 void    AspectRatio_SetMenu(HMENU hMenu);
-void    WorkoutOverlaySize();
+void    WorkoutOverlaySize(BOOL allowResize = TRUE);
 void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect);
 int		FindAspectRatio(short** EvenField, short** OddField);
 void	AdjustAspectRatio(short** EvenField, short** OddField);
@@ -84,7 +84,7 @@ double  GetActualSourceFrameAspect();
 
 // TODO: Cleanup this struct, possibly split into 2 or 3 structures
 // based on function of the various settings.
-typedef struct _aspectsettings 
+typedef struct 
 {
 	// Added variable in dTV.c to track which aspect mode we are currently in
 	// Use aspect * 1000 (1.66 = 1660, 2.35 = 2350, etc)
@@ -183,7 +183,8 @@ typedef struct _aspectsettings
 	long yZoomFactor;
 	long xZoomCenter;
 	long yZoomCenter;
-} AspectSettingsStruct;
-extern AspectSettingsStruct aspectSettings;
+} TAspectSettingsStruct;
+
+extern TAspectSettingsStruct aspectSettings;
 
 #endif

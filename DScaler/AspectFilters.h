@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// AspectRect.hpp
+// CAspectRect.hpp
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,8 @@ needs the original destination rectangle.
    on the aspect filter execution - if no path is specified, working directory is used. 
    This file can get big pretty quickly - only use for debugging
 */
-//#define __ASPECTFILTERDEBUG__ "AspectFilterDebug.log"
-#ifdef __ASPECTFILTERDEBUG__
+//#define __CAspectFilterDEBUG__ "CAspectFilterDebug.log"
+#ifdef __CAspectFilterDEBUG__
 	static FILE *debugLog = NULL;
 #endif
 
@@ -54,17 +54,17 @@ needs the original destination rectangle.
 	Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
 	This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
 */
-class PeriodBouncer
+class CPeriodBouncer
 {
 public:
-	PeriodBouncer(time_t period, double amplitude, double offset)
+	CPeriodBouncer(time_t period, double amplitude, double offset)
 	{ 
 		time(&m_startTime); 
 		m_period = period; 
 		m_amplitude = amplitude; 
 		m_offset = offset; 
 	}
-	PeriodBouncer(time_t startTime, time_t period, double amplitude, double offset)
+	CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset)
 	{ 
 		m_startTime = startTime; 
 		m_period = period; 
@@ -91,7 +91,7 @@ protected:
 	double m_offset;
 };
 
-class AspectRectangles
+class CAspectRectangles
 {
 /* Class containing all the rectangles a filter might want 
    Dest rectanges refer to the image rectangle on the screen
@@ -107,11 +107,11 @@ public:
 	RECT rPrevDest;
 	RECT rPrevSrc;
 
-	AspectRect rOriginalOverlayDest;
-	AspectRect rOriginalOverlaySrc;
+	CAspectRect rOriginalOverlayDest;
+	CAspectRect rOriginalOverlaySrc;
 
-	AspectRect rCurrentOverlayDest;
-	AspectRect rCurrentOverlaySrc;
+	CAspectRect rCurrentOverlayDest;
+	CAspectRect rCurrentOverlaySrc;
 
 	void DebugDump(FILE *f)
 	{
@@ -121,15 +121,15 @@ public:
 };
 
 /* Abstract Base class for the aspect filter */
-class AspectFilter
+class CAspectFilter
 {
 public:
-	AspectFilter()
+	CAspectFilter()
 	{ 
 		firstChild = next = NULL; 
 		bEnabled = TRUE; 
 	}
-	virtual ~AspectFilter()
+	virtual ~CAspectFilter()
 	{ 
 		delete firstChild; 
 		delete next; 
@@ -141,33 +141,33 @@ public:
 	//    The TRUE value is currently only used by the filter which adjusts the window rectangle
 	//    as this adjustment affects all calculations.  Current implementation only allows 
 	//    1 level of re-calculate requests.
-	virtual BOOL adjustAspect(AspectRectangles &ar) = 0; 
+	virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
 
 	// Applies all filters in a chain.  See above for return value.
 	// If allowReadjust is FALSE, the filter will ignore any re-calculate requests from filters
 	// to avoid infinite recursion.
-	virtual BOOL applyFilters(AspectRectangles &ar, BOOL allowReadjust)
+	virtual BOOL applyFilters(CAspectRectangles &ar, BOOL allowReadjust)
 	{
-		#ifdef __ASPECTFILTERDEBUG__
+		#ifdef __CAspectFilterDEBUG__
 			if (debugLog == NULL) 
 			{
-				debugLog = fopen(__ASPECTFILTERDEBUG__,"wt");
+				debugLog = fopen(__CAspectFilterDEBUG__,"wt");
 				setvbuf(debugLog,NULL,_IONBF,0);
 			}
 		#endif
 
-		AspectFilter *f = this;
+		CAspectFilter *f = this;
 		while (f)
 		{
 			if (bEnabled)
 			{
-				#ifdef __ASPECTFILTERDEBUG__
+				#ifdef __CAspectFilterDEBUG__
 					fprintf(debugLog,"PRE FILTER VALUES: %s\n",f->getFilterName());
 					f->DebugDump(debugLog);
 					ar.DebugDump(debugLog);
 				#endif
 				BOOL readjust = f->adjustAspect(ar);
-				#ifdef __ASPECTFILTERDEBUG__
+				#ifdef __CAspectFilterDEBUG__
 					fprintf(debugLog,"POST FILTER VALUES: %s\n",f->getFilterName());
 					ar.DebugDump(debugLog);
 					if (readjust) 
@@ -178,7 +178,7 @@ public:
 			}
 			else if (firstChild)
 			{
-				#ifdef __ASPECTFILTERDEBUG__
+				#ifdef __CAspectFilterDEBUG__
 					fprintf(debugLog,"DISABLED FILTER: %s\n",f->getFilterName());
 					f->DebugDump(debugLog);
 					ar.DebugDump(debugLog);
@@ -196,7 +196,7 @@ public:
 		bEnabled = enabled; 
 		if (childrenAlso)
 		{
-			AspectFilter *f = this;
+			CAspectFilter *f = this;
 			while (f)
 			{
 				f->EnableFilter(enabled,childrenAlso);
@@ -211,8 +211,8 @@ public:
 	}
 
 	// TODO: these should be protected members...
-	AspectFilter *firstChild; // First child filter
-	AspectFilter *next; // Next filter in linked list of filters
+	CAspectFilter *firstChild; // First child filter
+	CAspectFilter *next; // Next filter in linked list of filters
 
 	virtual void DebugDump(FILE *f)
 	{
@@ -227,22 +227,22 @@ protected:
 
 // This filter adjust for the overscan area of the image.  It checks the orbit settings to ensure
 // the overscan is large enough.
-class OverscanAspectFilter : public AspectFilter
+class COverscanAspectFilter : public CAspectFilter
 {
 public:
-	OverscanAspectFilter(int overscanSize)
+	COverscanAspectFilter(int overscanSize)
 	{
 		overscan = overscanSize;
 	}
 
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		ar.rCurrentOverlaySrc.shrink(overscan);
 		return FALSE;
 	}
 	virtual LPCSTR getFilterName()
 	{
-		return "OverscanAspectFilter";
+		return "COverscanAspectFilter";
 	}
 	virtual void DebugDump(FILE *f)
 	{ 
@@ -256,25 +256,25 @@ protected:
 // This filter orbits the source image using independent X and Y timers.
 // It is assumed that bouncing is enabled if this filter is in the chain.
 // The bounce comes out of the overscan (the overscan filter performs a sanity check to ensure the overscan is of appropriate size.
-class OrbitAspectFilter : public AspectFilter
+class COrbitAspectFilter : public CAspectFilter
 {
 public:
-	OrbitAspectFilter(time_t orbitPeriodX, time_t orbitPeriodY, long orbitSize)
+	COrbitAspectFilter(time_t orbitPeriodX, time_t orbitPeriodY, long orbitSize)
 	{
 		if (aspectSettings.bounceStartTime == 0)
 		{
 			time(&aspectSettings.bounceStartTime);
 		}
-		xOrbit = new PeriodBouncer(aspectSettings.bounceStartTime,orbitPeriodX,orbitSize,-orbitSize/2.0);
-		yOrbit = new PeriodBouncer(aspectSettings.bounceStartTime,orbitPeriodY,orbitSize,-orbitSize/2.0);
+		xOrbit = new CPeriodBouncer(aspectSettings.bounceStartTime,orbitPeriodX,orbitSize,-orbitSize/2.0);
+		yOrbit = new CPeriodBouncer(aspectSettings.bounceStartTime,orbitPeriodY,orbitSize,-orbitSize/2.0);
 	}
-	~OrbitAspectFilter()
+	~COrbitAspectFilter()
 	{ 
 		delete xOrbit; 
 		delete yOrbit; 
 	}
 
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		ar.rCurrentOverlaySrc.shift((int)xOrbit->position(),
 									(int)yOrbit->position());
@@ -282,7 +282,7 @@ public:
 	}
 	virtual LPCSTR getFilterName()
 	{
-		return "OrbitAspectFilter";
+		return "COrbitAspectFilter";
 	}
 	virtual void DebugDump(FILE *f)
 	{
@@ -290,36 +290,36 @@ public:
 	}
 
 protected:
-	PeriodBouncer *xOrbit;
-	PeriodBouncer *yOrbit;
+	CPeriodBouncer *xOrbit;
+	CPeriodBouncer *yOrbit;
 };
 
 
 // Applys child filters than adjusts the position of the destination rectangle - this class uses bounce filters
-class BounceDestinationAspectFilter : public AspectFilter
+class CBounceDestinationAspectFilter : public CAspectFilter
 {
 public:
-	BounceDestinationAspectFilter(time_t period)
+	CBounceDestinationAspectFilter(time_t period)
 	{
 		if (aspectSettings.bounceStartTime == 0)
 		{
 			time(&aspectSettings.bounceStartTime);
 		}
-		bouncer = new PeriodBouncer(
+		bouncer = new CPeriodBouncer(
             aspectSettings.bounceStartTime, period,
             // bounceAmplitude ranges from 0 to 100, we want 0 to 2.
             2.0 * (double)aspectSettings.bounceAmplitude / 100.0,
             // bounceAmplitude ranges from 0 to 100, we want 0 to -1.
             -1.0 * (double)aspectSettings.bounceAmplitude / 100.0);
 	}
-	~BounceDestinationAspectFilter()
+	~CBounceDestinationAspectFilter()
 	{
 		delete bouncer;
 	}
 
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
-		AspectRect oldDest = ar.rCurrentOverlayDest;
+		CAspectRect oldDest = ar.rCurrentOverlayDest;
 
 		firstChild->applyFilters(ar,FALSE);
 
@@ -330,7 +330,7 @@ public:
 	}
 	virtual LPCSTR getFilterName()
 	{
-		return "BounceDestinationAspectFilter"; 
+		return "CBounceDestinationAspectFilter"; 
 	}
 	virtual void DebugDump(FILE *f)
 	{
@@ -338,23 +338,23 @@ public:
 	}
 
 protected:
-	PeriodBouncer *bouncer;
+	CPeriodBouncer *bouncer;
 };
 
 // Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
 // from -1 to 1 (0 = centered, -1 = left/top +1 = right/bottom
-class PositionDestinationAspectFilter : public AspectFilter
+class CPositionDestinationAspectFilter : public CAspectFilter
 {
 public:
-	PositionDestinationAspectFilter(double x, double y)
+	CPositionDestinationAspectFilter(double x, double y)
 	{
 		xPos = x; 
 		yPos = y;
 	}
 	
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
-		AspectRect oldDest = ar.rCurrentOverlayDest;
+		CAspectRect oldDest = ar.rCurrentOverlayDest;
 
 		firstChild->applyFilters(ar,FALSE);
 
@@ -364,7 +364,7 @@ public:
 	}
 	virtual LPCSTR getFilterName() 
 	{ 
-		return "PositionDestinationAspectFilter"; 
+		return "CPositionDestinationAspectFilter"; 
 	}
 	virtual void DebugDump(FILE *f)
 	{
@@ -377,10 +377,10 @@ protected:
 };
 
 // Crops the source and destination rectangles to the requested aspect ratio.  
-class CropAspectFilter : public AspectFilter 
+class CCropAspectFilter : public CAspectFilter 
 {
 public:
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		double MaterialAspect = aspectSettings.source_aspect ? (aspectSettings.source_aspect/1000.0) : ar.rCurrentOverlayDest.targetAspect();
 
@@ -394,24 +394,24 @@ public:
 	}
 	virtual LPCSTR getFilterName()
 	{ 
-		return "CropAspectFilter";
+		return "CCropAspectFilter";
 	}
 };
 
 // Applies the child filters and uncrops the source image to use all the area available in
 // the original destination rectangle.
-class UncropAspectFilter : public AspectFilter
+class CUnCropAspectFilter : public CAspectFilter
 {
 public:
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		// Save source and dest going in - needed for un-cropping the window...
-		AspectRect rOriginalDest(ar.rCurrentOverlayDest);
-		AspectRect rOriginalSrc(ar.rCurrentOverlaySrc);
+		CAspectRect rOriginalDest(ar.rCurrentOverlayDest);
+		CAspectRect rOriginalSrc(ar.rCurrentOverlaySrc);
 
 		// Apply sub-filters
 		firstChild->applyFilters(ar,FALSE);
-		AspectRect lastSrc = ar.rCurrentOverlaySrc;
+		CAspectRect lastSrc = ar.rCurrentOverlaySrc;
 
 		// Figure out where we have space left and add it back in (up to the amount of image we have)
 		double vScale = ar.rCurrentOverlayDest.height() / ar.rCurrentOverlaySrc.height();
@@ -443,7 +443,7 @@ public:
 	}
 	virtual LPCSTR getFilterName()
 	{ 
-		return "UncropAspectFilter"; 
+		return "CUnCropAspectFilter"; 
 	}
 };
 
@@ -452,11 +452,11 @@ public:
 //    both zoom factors should normally be equal - any other values will wreck the 
 //    aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
 // x/yPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
-// Normally this filter will be applied just before the ScreenSanityAspectFilter
-class PanAndZoomAspectFilter : public AspectFilter
+// Normally this filter will be applied just before the CScreenSanityAspectFilter
+class CPanAndZoomAspectFilter : public CAspectFilter
 {
 public:
-	PanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom)
+	CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom)
 	{
 		xPos = _xPos / 100; 
 		yPos = _yPos / 100;
@@ -464,7 +464,7 @@ public:
 		yZoom = _yZoom / 100;
 	}
 	
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		int dx = (int)floor(ar.rCurrentOverlaySrc.width() * (1.0 - 1.0/xZoom));
 		int dy = (int)floor(ar.rCurrentOverlaySrc.height() * (1.0 - 1.0/yZoom));
@@ -478,7 +478,7 @@ public:
 
 	virtual LPCSTR getFilterName()
 	{
-		return "PanAndZoomAspectFilter";
+		return "CPanAndZoomAspectFilter";
 	}
 	virtual void DebugDump(FILE *f)
 	{ 
@@ -494,10 +494,10 @@ protected:
 
 // Performs important sanity checks on the destination rectangle
 // Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
-class ScreenSanityAspectFilter : public AspectFilter
+class CScreenSanityAspectFilter : public CAspectFilter
 {
 public:
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		// crop the Destination rect so that the overlay destination region is 
 		// always on the screen we will also update the source area to reflect this
@@ -523,21 +523,21 @@ public:
 	}
 	virtual LPCSTR getFilterName()
 	{ 
-		return "ScreenSanityAspectFilter";
+		return "CScreenSanityAspectFilter";
 	}
 };
 
 // Attemtps to resize the client window to match the aspect ratio
-class ResizeWindowAspectFilter : public AspectFilter
+class CResizeWindowAspectFilter : public CAspectFilter
 {
 public:
-	virtual BOOL adjustAspect(AspectRectangles &ar)
+	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
 		if (!bIsFullScreen) 
 		{
 			// See if we need to resize the window
-			AspectRect currentClientRect;
-			AspectRect newRect = ar.rCurrentOverlayDest;
+			CAspectRect currentClientRect;
+			CAspectRect newRect = ar.rCurrentOverlayDest;
 				
 			currentClientRect.setToClient(hWnd,TRUE);
 			if (IsStatusBarVisible())
@@ -545,7 +545,7 @@ public:
 				currentClientRect.bottom -= StatusBar_Height();
 			}
 
-			#ifdef __ASPECTFILTERDEBUG__
+			#ifdef __CAspectFilterDEBUG__
 				fprintf(debugLog, "Current Client Rect:"); currentClientRect.DebugDump(debugLog);
 				fprintf(debugLog, "Target Client Rect :"); newRect.DebugDump(debugLog);
 			#endif
@@ -558,7 +558,7 @@ public:
 
 				currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
 				
-				#ifdef __ASPECTFILTERDEBUG__
+				#ifdef __CAspectFilterDEBUG__
 					fprintf(debugLog, "New Client Rect    :"); currentClientRect.DebugDump(debugLog);
 				#endif
 							
@@ -572,7 +572,7 @@ public:
 				currentClientRect.enforceMinSize(8);
 				AdjustWindowRectEx(&currentClientRect,GetWindowLong(hWnd,GWL_STYLE),Show_Menu,0);
 				
-				#ifdef __ASPECTFILTERDEBUG__
+				#ifdef __CAspectFilterDEBUG__
 					fprintf(debugLog, "New Window Pos     :"); 
 					currentClientRect.DebugDump(debugLog);
 				#endif
@@ -581,7 +581,7 @@ public:
 				SetWindowPos(hWnd,NULL,currentClientRect.left,currentClientRect.top,currentClientRect.width(),currentClientRect.height(),
 							 SWP_NOZORDER);
 				
-				#ifdef __ASPECTFILTERDEBUG__
+				#ifdef __CAspectFilterDEBUG__
                     currentClientRect.setToClient(hWnd,TRUE);
 					if (IsStatusBarVisible())
 					{
@@ -599,6 +599,6 @@ public:
 
 	virtual LPCSTR getFilterName()
 	{
-		return "ResizeWindowAspectFilter";
+		return "CResizeWindowAspectFilter";
 	}
 };

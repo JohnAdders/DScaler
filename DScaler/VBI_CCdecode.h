@@ -49,7 +49,7 @@ typedef struct
 	BOOL bUnderline;
 	BOOL bFlash;
 	BOOL bItalics;
-} CC_Char;
+} TCC_Char;
 
 typedef enum
 {
@@ -76,11 +76,11 @@ typedef enum
 
 typedef struct
 {
-	CC_Char ScreenData[15][CC_CHARS_PER_LINE];
-} CC_Screen;
+	TCC_Char ScreenData[15][CC_CHARS_PER_LINE];
+} TCC_Screen;
 
 int CC_DecodeLine(BYTE* vbiline, CCMODE CCMode, BOOL IsOdd);
-void CC_PaintScreen(HWND hWnd, CC_Screen* Screen, HDC hDC, RECT* PaintRect);
+void CC_PaintScreen(HWND hWnd, TCC_Screen* Screen, HDC hDC, RECT* PaintRect);
 
 
 #endif

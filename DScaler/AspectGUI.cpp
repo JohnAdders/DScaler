@@ -614,7 +614,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 		// Wait till current frame is done before drawing purple...
 		// Overlay changes do not seem to take place (at least on a GeForce)
 		// until the VBI...so need to wait to avoid purple flashing
-		if (lpDD != NULL) IDirectDraw_WaitForVerticalBlank(lpDD, DDWAITVB_BLOCKBEGIN, NULL);
+		if (lpDD != NULL) lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
 	}
 
 	// Draw overlay color in the middle.

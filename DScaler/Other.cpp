@@ -99,7 +99,7 @@ void Overlay_Clean()
 		memset(&ddsd, 0x00, sizeof(ddsd));
 		ddsd.dwSize = sizeof(ddsd);
 
-		ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &ddsd, DDLOCK_WAIT, NULL);
+		ddrval = lpDDOverlay->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 
 		for (nLine = 0; nLine < (signed) ddsd.dwHeight; nLine++)
 		{
@@ -108,14 +108,14 @@ void Overlay_Clean()
 				*((int *) ddsd.lpSurface + (nLine * ddsd.lPitch + nPixel) / 4) = 0x80008000;
 			}
 		}
-		ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, ddsd.lpSurface);
+		ddrval = lpDDOverlay->Unlock(ddsd.lpSurface);
 	}
 	if (lpDDOverlayBack != NULL)
 	{
 		memset(&ddsd, 0x00, sizeof(ddsd));
 		ddsd.dwSize = sizeof(ddsd);
 
-		ddrval = IDirectDrawSurface_Lock(lpDDOverlayBack, NULL, &ddsd, DDLOCK_WAIT, NULL);
+		ddrval = lpDDOverlayBack->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 
 		for (nLine = 0; nLine < (signed) ddsd.dwHeight; nLine++)
 		{
@@ -124,7 +124,7 @@ void Overlay_Clean()
 				*((int *) ddsd.lpSurface + (nLine * ddsd.lPitch + nPixel) / 4) = 0x80008000;
 			}
 		}
-		ddrval = IDirectDrawSurface_Unlock(lpDDOverlayBack, ddsd.lpSurface);
+		ddrval = lpDDOverlayBack->Unlock(ddsd.lpSurface);
 	}
 }
 
@@ -148,13 +148,13 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags, BOOL Color
 		////////////////////////////////
 		// we are trying to hide overlay
 		////////////////////////////////
-		ddrval = IDirectDrawSurface_UpdateOverlay(lpDDOverlay, NULL, lpDDSurface, NULL, dwFlags, &DDOverlayFX);
+		ddrval = lpDDOverlay->UpdateOverlay(NULL, lpDDSurface, NULL, dwFlags, &DDOverlayFX);
 		// if another device has requested exclusive access then we
 		// can get the no hardware error, just wait a bit and try again
 		while(ddrval == DDERR_NOOVERLAYHW)
 		{
 			Sleep(100);
-			ddrval = IDirectDrawSurface_UpdateOverlay(lpDDOverlay, NULL, lpDDSurface, NULL, dwFlags, &DDOverlayFX);
+			ddrval = lpDDOverlay->UpdateOverlay(NULL, lpDDSurface, NULL, dwFlags, &DDOverlayFX);
 		}
 		// just return if we get this here
 		// all DDERR_SURFACELOST will be handled by
@@ -198,13 +198,13 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags, BOOL Color
 			dwFlags |= DDOVER_BOB;
 		}
 
-		ddrval = IDirectDrawSurface_UpdateOverlay(lpDDOverlay, pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
+		ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
 		// if another device has requested exclusive access then we
 		// can get the no hardware error, just wait a bit and try again
 		while(ddrval == DDERR_NOOVERLAYHW)
 		{
 			Sleep(100);
-			ddrval = IDirectDrawSurface_UpdateOverlay(lpDDOverlay, pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
+			ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
 		}
 		// just return if we get this here
 		// all DDERR_SURFACELOST will be handled by
@@ -222,7 +222,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags, BOOL Color
 			DDCOLORKEY ColorKey;
 
 			LOG(" Got unsupported error from Overlay Update");
-			ddrval = IDirectDrawSurface_GetColorKey(lpDDOverlay, DDCKEY_DESTOVERLAY, &ColorKey);
+			ddrval = lpDDOverlay->GetColorKey(DDCKEY_DESTOVERLAY, &ColorKey);
 			if(SUCCEEDED(ddrval))
 			{
 				OverlayColor = ColorKey.dwColorSpaceHighValue;
@@ -231,7 +231,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags, BOOL Color
 			dwFlags &= ~DDOVER_KEYDESTOVERRIDE;
 			memset(&DDOverlayFX, 0x00, sizeof(DDOverlayFX));
 			DDOverlayFX.dwSize = sizeof(DDOverlayFX);
-			ddrval = IDirectDrawSurface_UpdateOverlay(lpDDOverlay, pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
+			ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
 		}
 		if (FAILED(ddrval))
 		{
@@ -277,7 +277,7 @@ BOOL Overlay_Create()
 	ddsd.dwSize = sizeof(ddsd);
 	ddsd.dwFlags = DDSD_CAPS;
 	ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-	ddrval = IDirectDraw_CreateSurface(lpDD, &ddsd, &lpDDSurface, NULL);
+	ddrval = lpDD->CreateSurface(&ddsd, &lpDDSurface, NULL);
 	if (FAILED(ddrval))
 	{
 		sprintf(msg, "Error creating primary surface: %x", ddrval);
@@ -285,14 +285,14 @@ BOOL Overlay_Create()
 		return (FALSE);
 	}
 
-	ddrval = IDirectDrawSurface_Lock(lpDDSurface, NULL, &ddsd, DDLOCK_WAIT, NULL);
+	ddrval = lpDDSurface->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 	if (FAILED(ddrval))
 	{
 		sprintf(msg, "Error locking primary surface: %x", ddrval);
 		RealErrorBox(msg);
 		return (FALSE);
 	}
-	ddrval = IDirectDrawSurface_Unlock(lpDDSurface, ddsd.lpSurface);
+	ddrval = lpDDSurface->Unlock(ddsd.lpSurface);
 	if (FAILED(ddrval))
 	{
 		sprintf(msg, "Error unlocking primary surface: %x", ddrval);
@@ -327,7 +327,7 @@ BOOL Overlay_Create()
 	for (numBuffers = maxBuffers; numBuffers >= minBuffers; numBuffers--)
 	{
 		ddsd.dwBackBufferCount = numBuffers;
-		ddrval = IDirectDraw_CreateSurface(lpDD, &ddsd, &lpDDOverlay, NULL);
+		ddrval = lpDD->CreateSurface(&ddsd, &lpDDOverlay, NULL);
 
 		if (SUCCEEDED(ddrval) || ddrval != DDERR_OUTOFVIDEOMEMORY)
 			break;
@@ -388,17 +388,17 @@ BOOL Overlay_Create()
 	AddSplashTextLine(msg);
 	LOG(msg);
 
-	ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &ddsd, DDLOCK_WAIT, NULL);
+	ddrval = lpDDOverlay->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 	// sometimes in win98 we get weird error messages here
 	// so we need to loop until it's OK or we get a surface lost message
 	while(ddrval == DDERR_NOOVERLAYHW || ddrval == DDERR_SURFACEBUSY)
 	{
 		Sleep(100);
-		ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &ddsd, DDLOCK_WAIT, NULL);
+		ddrval = lpDDOverlay->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 	}
 	if(ddrval == DDERR_SURFACELOST)
 	{
-		ddrval = IDirectDraw_CreateSurface(lpDD, &ddsd, &lpDDOverlay, NULL);
+		ddrval = lpDD->CreateSurface(&ddsd, &lpDDOverlay, NULL);
 		if (FAILED(ddrval))
 		{
 			sprintf(msg, "Lost overlay surface and can't recreate it: %x", ddrval);
@@ -406,7 +406,7 @@ BOOL Overlay_Create()
 			lpDDOverlay = NULL;
 			return FALSE;
 		}
-		ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &ddsd, DDLOCK_WAIT, NULL);
+		ddrval = lpDDOverlay->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 	}
 	if (FAILED(ddrval))
 	{
@@ -416,7 +416,7 @@ BOOL Overlay_Create()
 		return (FALSE);
 	}
 
-	ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, ddsd.lpSurface);
+	ddrval = lpDDOverlay->Unlock(ddsd.lpSurface);
 	if (FAILED(ddrval))
 	{
 		RealErrorBox("Can't Unlock Surface");
@@ -425,7 +425,7 @@ BOOL Overlay_Create()
 
 	memset(&caps, 0, sizeof(caps));
 	caps.dwCaps = DDSCAPS_BACKBUFFER;
-	ddrval = IDirectDrawSurface_GetAttachedSurface(lpDDOverlay, &caps, &lpDDOverlayBack);
+	ddrval = lpDDOverlay->GetAttachedSurface(&caps, &lpDDOverlayBack);
 	if (FAILED(ddrval))
 	{
 		RealErrorBox("Can't create Overlay Back Surface");
@@ -434,7 +434,7 @@ BOOL Overlay_Create()
 	}
 	else
 	{
-		ddrval = IDirectDrawSurface_Lock(lpDDOverlayBack, NULL, &ddsd, DDLOCK_WAIT, NULL);
+		ddrval = lpDDOverlayBack->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 		if (FAILED(ddrval))
 		{
 			RealErrorBox("Can't Lock Back Surface");
@@ -442,7 +442,7 @@ BOOL Overlay_Create()
 		}
 		ddrval = DDERR_WASSTILLDRAWING;
 
-		ddrval = IDirectDrawSurface_Unlock(lpDDOverlayBack, ddsd.lpSurface);
+		ddrval = lpDDOverlayBack->Unlock(ddsd.lpSurface);
 		if (FAILED(ddrval))
 		{
 			RealErrorBox("Can't Unlock Back Surface");
@@ -472,18 +472,18 @@ DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
     //
     //  Use GDI SetPixel to color match for us
     //
-	hres = IDirectDrawSurface_GetDC(pdds, &hdc);
+	hres = pdds->GetDC(&hdc);
     if (SUCCEEDED(hres))
     {
         rgbT = GetPixel(hdc, 0, 0);     // Save current pixel value
         SetPixel(hdc, 0, 0, rgb);       // Set our value
-		IDirectDrawSurface_ReleaseDC(pdds, hdc);
+		pdds->ReleaseDC(hdc);
     }
     //
     // Now lock the surface so we can read back the converted color
     //
     ddsd.dwSize = sizeof(ddsd);
-    hres = IDirectDrawSurface_Lock(pdds, NULL, &ddsd, DDLOCK_WAIT, NULL);
+    hres = pdds->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
     if (SUCCEEDED(hres))
     {
         dw = *(DWORD *) ddsd.lpSurface;                 // Get DWORD
@@ -491,16 +491,16 @@ DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
 		{
             dw &= (1 << ddsd.ddpfPixelFormat.dwRGBBitCount) - 1;  // Mask it to bpp
 		}
-        IDirectDrawSurface_Unlock(pdds, NULL);
+        pdds->Unlock(NULL);
     }
     //
     //  Now put the color that was there back.
     //
-	hres = IDirectDrawSurface_GetDC(pdds, &hdc);
+	hres = pdds->GetDC(&hdc);
     if (SUCCEEDED(hres))
     {
         SetPixel(hdc, 0, 0, rgbT);
-        IDirectDrawSurface_ReleaseDC(pdds, hdc);
+        pdds->ReleaseDC(hdc);
     }
     return dw;
 }
@@ -517,7 +517,7 @@ BOOL Overlay_Destroy()
 	// Now destroy the Back Overlay
 	if (lpDDOverlayBack != NULL)
 	{
-		IDirectDrawSurface_Release(lpDDOverlayBack);
+		lpDDOverlayBack->Release();
 		lpDDOverlayBack = NULL;
 	}
 
@@ -525,14 +525,14 @@ BOOL Overlay_Destroy()
 	if (lpDDOverlay != NULL)
 	{
 		// Destroy the video overlays
-		IDirectDrawSurface_Release(lpDDOverlay);
+		lpDDOverlay->Release();
 		lpDDOverlay = NULL;
 	}
 
 	// Now destroy the primary surface
 	if (lpDDSurface != NULL) 
 	{
-		IDirectDrawSurface_Release(lpDDSurface);
+		lpDDSurface->Release();
 		lpDDSurface = NULL;
 	}
 	return TRUE;
@@ -549,7 +549,7 @@ void Overlay_WaitForVerticalBlank()
 
 	while(ddrval != DD_OK)
 	{
-		ddrval = IDirectDraw_WaitForVerticalBlank(lpDD, DDWAITVB_BLOCKEND, NULL);
+		ddrval = lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKEND, NULL);
 	}
 }
 
@@ -570,7 +570,7 @@ BOOL InitDD(HWND hWnd)
 	// can we use Overlay ??
 	memset(&DriverCaps, 0x00, sizeof(DriverCaps));
 	DriverCaps.dwSize = sizeof(DriverCaps);
-	ddrval = IDirectDraw_GetCaps(lpDD, &DriverCaps, NULL);
+	ddrval = lpDD->GetCaps(&DriverCaps, NULL);
 
 	if (SUCCEEDED(ddrval))
 	{
@@ -610,7 +610,7 @@ BOOL InitDD(HWND hWnd)
 		}
 	}
 
-	ddrval = IDirectDraw_SetCooperativeLevel(lpDD, hWnd, DDSCL_NORMAL);
+	ddrval = lpDD->SetCooperativeLevel(hWnd, DDSCL_NORMAL);
 
 	if (FAILED(ddrval))
 	{
@@ -628,7 +628,7 @@ void ExitDD(void)
 	if (lpDD != NULL)
 	{
 		Overlay_Destroy();
-		IDirectDraw_Release(lpDD);
+		lpDD->Release();
 		lpDD = NULL;
 	}
 }
@@ -638,23 +638,26 @@ void ExitDD(void)
 
 // A TIFF image-file directory entry.  There are a bunch of
 // these in a TIFF file.
-struct TiffDirEntry {
+typedef struct 
+{
 	WORD tag;		// Entry type
 	WORD type;		// 1=byte, 2=C string, 3=word, 4=dword (we always use dword)
 	DWORD count;	// Number of units (of type specified by "type") in value
 	DWORD value;
-};
+} TiffDirEntry;
 
 // Field data types.
-enum TiffDataType {
+typedef enum 
+{
 	Byte = 1,
 	String = 2,
 	Short = 3,
 	Long = 4
-};
+} eTiffDataType;
 
 // A TIFF header with some hardwired fields.
-struct TiffHeader {
+typedef struct 
+{
 	char byteOrder[2];
 	WORD version;
 	DWORD firstDirOffset;
@@ -664,20 +667,20 @@ struct TiffHeader {
 	// order.
 
 	WORD numDirEntries;
-	struct TiffDirEntry fileType;		// What kind of file this is (tag 254)
-	struct TiffDirEntry width;			// Width of image (tag 256)
-	struct TiffDirEntry height;			// Height of image (tag 257)
-	struct TiffDirEntry bitsPerSample;	// Number of bits per channel per pixel (tag 258)
-	struct TiffDirEntry compression;	// Compression settings (tag 259)
-	struct TiffDirEntry photometricInterpretation; // What kind of pixel data this is (tag 262)
-	struct TiffDirEntry description;	// Image description (tag 270)
-	struct TiffDirEntry make;			// "Scanner" maker, aka DScaler's URL (tag 271)
-	struct TiffDirEntry model;			// "Scanner" model, aka DScaler version (tag 272)
-	struct TiffDirEntry stripOffset;	// Offset to image data (tag 273)
-	struct TiffDirEntry samplesPerPixel; // Number of color channels (tag 277)
-	struct TiffDirEntry rowsPerStrip;	// Number of rows in a strip (tag 278)
-	struct TiffDirEntry stripByteCounts; // Number of bytes per strip (tag 279)
-	struct TiffDirEntry planarConfiguration; // Are channels interleaved? (tag 284)
+	TiffDirEntry fileType;		// What kind of file this is (tag 254)
+	TiffDirEntry width;			// Width of image (tag 256)
+	TiffDirEntry height;			// Height of image (tag 257)
+	TiffDirEntry bitsPerSample;	// Number of bits per channel per pixel (tag 258)
+	TiffDirEntry compression;	// Compression settings (tag 259)
+	TiffDirEntry photometricInterpretation; // What kind of pixel data this is (tag 262)
+	TiffDirEntry description;	// Image description (tag 270)
+	TiffDirEntry make;			// "Scanner" maker, aka DScaler's URL (tag 271)
+	TiffDirEntry model;			// "Scanner" model, aka DScaler version (tag 272)
+	TiffDirEntry stripOffset;	// Offset to image data (tag 273)
+	TiffDirEntry samplesPerPixel; // Number of color channels (tag 277)
+	TiffDirEntry rowsPerStrip;	// Number of rows in a strip (tag 278)
+	TiffDirEntry stripByteCounts; // Number of bytes per strip (tag 279)
+	TiffDirEntry planarConfiguration; // Are channels interleaved? (tag 284)
 	DWORD nextDirOffset;
 
 	// We store a few strings in the file; include them in the structure so
@@ -687,14 +690,13 @@ struct TiffHeader {
 	char makeText[40];
 	char modelText[16];
 	WORD bitCounts[3];
-};
+} TiffHeader;
 
 #define STRUCT_OFFSET(s,f)  ((int)(((BYTE *) &(s)->f) - (BYTE *)(s)))
 
-
 //-----------------------------------------------------------------------------
 // Fill a TIFF directory entry with information.
-static void FillTiffDirEntry(struct TiffDirEntry *entry, WORD tag, DWORD value, enum TiffDataType type)
+static void FillTiffDirEntry(TiffDirEntry *entry, WORD tag, DWORD value, eTiffDataType type)
 {
 	BYTE bValue;
 	WORD wValue;
@@ -724,9 +726,9 @@ static void FillTiffDirEntry(struct TiffDirEntry *entry, WORD tag, DWORD value, 
 
 //-----------------------------------------------------------------------------
 // Fill a TIFF header with information about the current image.
-static void FillTiffHeader(struct TiffHeader *head, char *description, char *make, char *model)
+static void FillTiffHeader(TiffHeader *head, char *description, char *make, char *model)
 {
-	memset(head, 0, sizeof(struct TiffHeader));
+	memset(head, 0, sizeof(TiffHeader));
 
 	strcpy(head->byteOrder, "II");		// Intel byte order
 	head->version = 42;					// We're TIFF 5.0 compliant, but the version field is unused
@@ -764,7 +766,7 @@ static void FillTiffHeader(struct TiffHeader *head, char *description, char *mak
 	FillTiffDirEntry(&head->height, 257, CurrentY, Short);
 	FillTiffDirEntry(&head->compression, 259, 1, Short);					// No compression
 	FillTiffDirEntry(&head->photometricInterpretation, 262, 2, Short);		// RGB image data
-	FillTiffDirEntry(&head->stripOffset, 273, sizeof(struct TiffHeader), Long);	// Image comes after header
+	FillTiffDirEntry(&head->stripOffset, 273, sizeof(TiffHeader), Long);	// Image comes after header
 	FillTiffDirEntry(&head->samplesPerPixel, 277, 3, Short);				// RGB = 3 channels/pixel
 	FillTiffDirEntry(&head->rowsPerStrip, 278, CurrentY, Short);			// Whole image is one strip
 	FillTiffDirEntry(&head->stripByteCounts, 279, CurrentX * CurrentY * 3, Long);	// Size of image data
@@ -781,7 +783,7 @@ void SaveStill()
 	BYTE* buf;
 	char name[13];
 	struct stat st;
-	struct TiffHeader head;
+	TiffHeader head;
 	DDSURFACEDESC ddsd;
 	HRESULT ddrval;
 	char description[80];

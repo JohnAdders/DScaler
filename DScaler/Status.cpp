@@ -44,15 +44,15 @@
 #endif
 
 #define MAXSTATUS 5
-typedef struct _tagStatus
+typedef struct
 {
 	HWND hwnd;
 	int iMaxWidth;
 	int iMinWidth;
 	int iGiveWidth;
-} Status;
+} TStatus;
 
-Status statusField[MAXSTATUS];
+TStatus statusField[MAXSTATUS];
 
 HWND hwndStatusBar = NULL;
 

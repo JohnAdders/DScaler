@@ -58,16 +58,16 @@
 /////////////////////////////////////////////////////////////////////////////
 // Private Structures, funtions and data
 /////////////////////////////////////////////////////////////////////////////
-typedef struct BT848_STRUCT
+typedef struct
 {
    DWORD dwPhysicalAddress;
    DWORD dwMemoryLength;
    DWORD dwMemoryBase;
    DWORD dwIrqNumber;
    DWORD dwSubSystemID;
-} BT848_STRUCT;
+} TBT848;
 
-BT848_STRUCT* hBT8X8 = NULL;
+TBT848* hBT8X8 = NULL;
 
 BOOL BT848_Brightness_OnChange(long Brightness);
 BOOL BT848_Hue_OnChange(long Hue);
@@ -1094,9 +1094,9 @@ int BT848_Open(DWORD dwVendorID, DWORD dwDeviceID, DWORD options, BOOL Lock)
 		BT848_Close();
 	}
 	
-	hBT8X8 = (BT848_STRUCT *) malloc(sizeof(BT848_STRUCT));
+	hBT8X8 = (TBT848 *) malloc(sizeof(TBT848));
 
-	memset(hBT8X8, 0, sizeof(BT848_STRUCT));
+	memset(hBT8X8, 0, sizeof(TBT848));
 
 	Ret = pciGetHardwareResources( dwVendorID,  
 									dwDeviceID,

@@ -188,7 +188,7 @@ typedef struct
 	DWORD ID;
 	TVCARDID CardId;
 	char *szName;
-} AUTODETECT878;
+} TAutoDectect878;
 
 typedef struct
 {

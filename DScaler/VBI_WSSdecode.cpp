@@ -66,10 +66,10 @@
 extern int decodebit(unsigned char *data, int threshold, int NumPixels);
 
 // WSS decoded data
-WSS_DataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FALSE,FALSE,FALSE };
+TWSS_DataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FALSE,FALSE,FALSE };
 
 // WSS control data
-WSS_CtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
+TWSS_CtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
 
 // Offsets of each clock pixels (7.09379) in VBI buffer line
 static int offsets[] = {   0,   7,  14,  21,  28,  35,  43,  50,  57,  64,

@@ -46,14 +46,14 @@
 
 #define MAXPROGS 255
 
-typedef struct tagPIDFilters
+typedef struct
 {
 	char FilterName[5];
 	unsigned char FilterId;
 	unsigned short PID;
-} PIDFilters;
+} TPIDFilters;
 
-typedef struct tagProgramm
+typedef struct
 {
 	char Name[255];
     unsigned long freq;
@@ -88,7 +88,7 @@ typedef struct tagProgramm
 	unsigned short  Temp_Audio;
     unsigned char   Buffer[10];   // For later Use
 	unsigned short  FilterNumber;
-    PIDFilters Filters[12];
+    TPIDFilters Filters[12];
 } TProgramm;
 
 

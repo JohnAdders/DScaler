@@ -92,7 +92,7 @@ BOOL bAutoHide = TRUE;
 
 //---------------------------------------------------------------------------
 // Global OSD Information structure
-OSD_INFO    grOSD[OSD_MAX_TEXT];
+TOsdInfo    grOSD[OSD_MAX_TEXT];
 static int	NbText = 0;
 static struct {
 	char	name[24];		// Name of the screen

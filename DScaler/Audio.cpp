@@ -70,7 +70,7 @@ AUDIOMUXTYPE AudioSource = AUDIOMUX_MUTE;
 #define ReadDem(wAddr) Audio_ReadMSP(MSP_RD_DEM,wAddr)  // I2C_MSP3400C_DFP
 #define ReadDSP(wAddr) Audio_ReadMSP(MSP_RD_DSP,wAddr)  // I2C_MSP3400C_DFP
 
-static struct MSP_INIT_DATA_DEM
+typedef struct
 {
 	int fir1[6];
 	int fir2[6];
@@ -81,7 +81,9 @@ static struct MSP_INIT_DATA_DEM
 	int dfp_src;
 	int dfp_matrix;
 	int autodetect; // MAE 8 Dec 2000
-} MSP_init_data[] =
+} TMSPInitData;
+
+TMSPInitData MSP_init_data[] =
 {
 	/* AM (for carrier detect / msp3400) */
 	{ { 75, 19, 36, 35, 39, 40 }, { 75, 19, 36, 35, 39, 40 },

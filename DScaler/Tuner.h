@@ -40,24 +40,12 @@ const char* Tuner_Status();
 void Load_Country_Settings();
 void Load_Country_Specific_Settings(int LPos);
 
-struct TTunerType
-{
-	WORD thresh1; /* frequency Range for UHF,VHF-L, VHF_H */
-	WORD thresh2;
-	BYTE VHF_L;
-	BYTE VHF_H;
-	BYTE UHF;
-	BYTE config;
-	BYTE I2C;
-	WORD IFPCoff;
-};
-
-typedef struct tagCountries
+typedef struct
 {
     char Name[128];
 } TCountries;
 
-typedef struct tagChannels
+typedef struct
 {
 	char Name[128];
 	int MinChannel;

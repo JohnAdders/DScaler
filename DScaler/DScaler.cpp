@@ -1303,7 +1303,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				BeginPaint(hWnd, &sPaint);
 			    PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
 				GetDestRect(&DestRect);
-			    CC_PaintScreen(hWnd, (CC_Screen*)lParam, sPaint.hdc, &DestRect);
+			    CC_PaintScreen(hWnd, (TCC_Screen*)lParam, sPaint.hdc, &DestRect);
 				EndPaint(hWnd, &sPaint);
                 ValidateRect(hWnd, &winRect);
 			}

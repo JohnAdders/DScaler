@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.361 2004-05-02 15:18:59 atnak Exp $
+// $Id: DScaler.cpp,v 1.362 2004-11-20 14:22:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.361  2004/05/02 15:18:59  atnak
+// Workaround for redrawing bug over overlay surfaces on some systems
+//
 // Revision 1.360  2004/04/24 09:14:30  atnak
 // changed maximum channel enter time to 20 seconds
 //
@@ -981,7 +984,7 @@
 // Teletext fixes
 //
 // Revision 1.68  2001/09/03 13:46:06  adcockj
-// Added PAL-NC thanks to Eduardo JosÈ Tagle
+// Added PAL-NC thanks to Eduardo JosÅETagle
 //
 // Revision 1.67  2001/09/02 14:17:51  adcockj
 // Improved teletext code
@@ -1156,6 +1159,7 @@
 #include "PaintingHDC.h"
 #include "OutReso.h"
 #include "MultiFrames.h"
+#include "SAA7134Card.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
@@ -1576,7 +1580,14 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // even if dscaler crashes a new user is able to make changes to dscaler.ini.
     WriteSettingsToIni(TRUE);
 
+    // Initialize the audio muting module
     Initialize_Mute();
+
+	// Load up the list of SAA713x cards
+	if (!CSAA7134Card::InitializeSAA713xCardList())
+	{
+		return 0;
+	}
 
 
     // load up the cursors we want to use

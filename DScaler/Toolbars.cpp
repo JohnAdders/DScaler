@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.14 2003-08-12 08:35:48 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.15 2003-08-12 19:11:35 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/08/12 08:35:48  laurentg
+// Update the file position only when releasing the time slider
+//
 // Revision 1.13  2003/08/11 22:50:50  laurentg
 // Time slider in the media player toolbar
 //
@@ -87,7 +90,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "DScalerVersion.h"
-#include "dshowsource/DSFileSource.h"
+#include "dshowsource/DSSourceBase.h"
 
 
 
@@ -914,7 +917,7 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
 				{
 					if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
 					{
-						((CDSFileSource*)Providers_GetCurrentSource())->SetPos(Position);
+						((CDSSourceBase*)Providers_GetCurrentSource())->SetPos(Position);
 					}
 				}
 				m_Scrolling = FALSE;

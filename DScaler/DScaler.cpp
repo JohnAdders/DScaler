@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.337 2003-08-11 23:03:44 laurentg Exp $
+// $Id: DScaler.cpp,v 1.338 2003-08-12 19:11:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.337  2003/08/11 23:03:44  laurentg
+// Time slider in the media player toolbar
+//
 // Revision 1.336  2003/08/09 20:18:37  laurentg
 // Automatic show/hide the toolbar when in full screen mode
 //
@@ -1078,7 +1081,7 @@
 #include "PaintingHDC.h"
 #include "OutReso.h"
 #include "MultiFrames.h"
-#include "dshowsource/DSFileSource.h"
+#include "dshowsource/DSSourceBase.h"
 
 
 #ifdef _DEBUG
@@ -4358,8 +4361,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case TIMER_TOOLBAR:
             if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
             {
-				EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSFileSource*)Providers_GetCurrentSource())->GetDuration());
-				EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSFileSource*)Providers_GetCurrentSource())->GetCurrentPos());
+				EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
+				EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
 			}
             break;
         //-------------------------------

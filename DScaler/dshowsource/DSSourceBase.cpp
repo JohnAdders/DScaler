@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.21 2003-08-12 19:02:27 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.22 2003-08-12 19:10:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/08/12 19:02:27  laurentg
+// Forward and backward actions added in menu
+//
 // Revision 1.20  2003/08/12 08:56:56  laurentg
 // OSD texts attached to media player actions
 //
@@ -679,6 +682,45 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
 LPCSTR CDSSourceBase::IDString()
 {
 	return m_IDString.c_str();
+}
+
+int CDSSourceBase::GetCurrentPos()
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+		{
+			return pSeeking->GetCurrentPos() / 1000000;
+		}
+	}
+	return -1;
+}
+
+void CDSSourceBase::SetPos(int pos)
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanSeekAbsolute)
+		{
+			LONGLONG RealPos = (LONGLONG)pos * 1000000;
+			pSeeking->SeekTo(RealPos);
+		}
+	}
+}
+
+int CDSSourceBase::GetDuration()
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+		{
+			return pSeeking->GetDuration() / 1000000;
+		}
+	}
+	return -1;
 }
 
 void CDSSourceBase::ChangePos(int delta_sec)

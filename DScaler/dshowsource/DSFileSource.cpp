@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.12 2003-08-12 08:56:56 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.13 2003-08-12 19:10:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/08/12 08:56:56  laurentg
+// OSD texts attached to media player actions
+//
 // Revision 1.11  2003/08/11 22:49:27  laurentg
 // Time slider in the media player toolbar
 //
@@ -305,45 +308,6 @@ void CDSFileSource::UnPause()
 		}
 		OSD_ShowText("Play", 0);
 	}
-}
-
-int CDSFileSource::GetCurrentPos()
-{
-	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
-	if(pSeeking!=NULL)
-	{
-		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
-		{
-			return pSeeking->GetCurrentPos() / 1000000;
-		}
-	}
-	return -1;
-}
-
-void CDSFileSource::SetPos(int pos)
-{
-	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
-	if(pSeeking!=NULL)
-	{
-		if(pSeeking->GetCaps()&AM_SEEKING_CanSeekAbsolute)
-		{
-			LONGLONG RealPos = (LONGLONG)pos * 1000000;
-			pSeeking->SeekTo(RealPos);
-		}
-	}
-}
-
-int CDSFileSource::GetDuration()
-{
-	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
-	if(pSeeking!=NULL)
-	{
-		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
-		{
-			return pSeeking->GetDuration() / 1000000;
-		}
-	}
-	return -1;
 }
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.18 2003-08-12 19:02:27 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.19 2003-08-12 19:10:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/08/12 19:02:27  laurentg
+// Forward and backward actions added in menu
+//
 // Revision 1.17  2003/08/11 20:46:52  laurentg
 // Method to know if the source can be controled through a media player
 //
@@ -141,6 +144,9 @@ public:
 
 	BOOL HasMediaControl() {return FALSE;};
 
+	int GetCurrentPos();
+	void SetPos(int pos);
+	int GetDuration();
 	void ChangePos(int delta_sec);
 
 protected:

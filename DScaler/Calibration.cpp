@@ -43,9 +43,6 @@
 // Maximum value
 #define MAX_VALUE               1000000000
 
-#define PIXEL_CROPPING_G        8
-#define PIXEL_CROPPING_D        16
-
 // Macro to restrict range to [0,255]
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
@@ -190,7 +187,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     unsigned int Y, U, V, nb_Y, nb_U, nb_V;
     BYTE *buf;
     int overscan;
-    int left_crop, right_crop;
+    int left_crop, total_crop;
 
     if (reinit)
     {
@@ -201,11 +198,10 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    SourceOverscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
     overscan = SourceOverscan * width / (height * 2);
     left_crop = ((LeftCropping * width) + 500) / 1000;
-    right_crop = ((RightCropping * width) + 500) / 1000;
-    left = (width + left_crop + right_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
+    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
+    left = (width + total_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -214,7 +210,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     {
         left = width - 1;
     }
-    right = (width + left_crop + right_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -311,14 +307,13 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
     int left, right, top, bottom, i;
     BYTE *buf;
     int overscan;
-    int left_crop, right_crop;
+    int left_crop, total_crop;
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    SourceOverscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
     overscan = SourceOverscan * width / (height * 2);
     left_crop = ((LeftCropping * width) + 500) / 1000;
-    right_crop = ((RightCropping * width) + 500) / 1000;
-    left = (width + left_crop + right_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
+    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
+    left = (width + total_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -327,7 +322,7 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
     {
         left = width - 1;
     }
-    right = (width + left_crop + right_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -1732,6 +1727,23 @@ CSubPattern *CCalibration::GetCurrentSubPattern()
 	return current_sub_pattern;
 }
 
+void CCalibration::SaveUsualOverscan()
+{
+    usual_overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
+}
+
+void CCalibration::RestoreUsualOverscan(BOOL refresh)
+{
+    if (refresh)
+    {
+        Setting_SetValue(Aspect_GetSetting(OVERSCAN), usual_overscan);
+    }
+    else
+    {
+        AspectSettings.InitialOverscan = usual_overscan;
+    }
+}
+
 void CCalibration::Start(eTypeCalibration type)
 {
     if (current_test_pattern == NULL)
@@ -1739,16 +1751,24 @@ void CCalibration::Start(eTypeCalibration type)
 
 	type_calibration = type;
 
+    // Update the objet with current video settings
     brightness->Update();
     contrast->Update();
     saturation_U->Update();
     saturation_V->Update();
     hue->Update();
+
+    // Save the current video settings to restore them later if necessary
     brightness->Save();
     contrast->Save();
     saturation_U->Save();
     saturation_V->Save();
     hue->Save();
+
+    // Save the value of usual overscan
+    SaveUsualOverscan();
+    // Set the overscan to a value specific to calibration
+    Setting_SetValue(Aspect_GetSetting(OVERSCAN), SourceOverscan);
 
     switch (type_calibration)
     {
@@ -1795,6 +1815,7 @@ void CCalibration::Stop()
 {
     if (type_calibration != CAL_MANUAL)
     {
+        OSD_ShowInfosScreen(hWnd, 4, 0);
         if ( (current_step != -1)
           || (MessageBox(hWnd, "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
         {
@@ -1805,6 +1826,9 @@ void CCalibration::Stop()
             hue->Restore();
         }
     }
+
+    // Restore the usual overscan
+    RestoreUsualOverscan(TRUE);
 
     // Erase the OSD screen
     OSD_Clear(hWnd);
@@ -2345,25 +2369,32 @@ CCalibration *pCalibration = NULL;
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
 
+BOOL Calibr_Overscan_OnChange(long Overscan)
+{
+    SourceOverscan = Overscan;
+    Setting_SetValue(Aspect_GetSetting(OVERSCAN), Overscan);
+    return FALSE;
+}
+
 SETTING CalibrSettings[CALIBR_SETTING_LASTONE] =
 {
     {
         "Overscan for calibration", SLIDER, 0, (long*)&SourceOverscan,
          0, 0, 150, 1, 1,
          NULL,
-        "Calibration", "SourceOverscan", NULL,
+        "Calibration", "SourceOverscan", Calibr_Overscan_OnChange,
     },
     {
-        "Left source cropping", SLIDER, 0, (long*)&LeftCropping,
+        "Left player cropping", SLIDER, 0, (long*)&LeftCropping,
          8, 0, 50, 1, 1,
          NULL,
-        "Calibration", "LeftSourceCropping", NULL,
+        "Calibration", "LeftPlayerCropping", NULL,
     },
     {
-        "Right source cropping", SLIDER, 0, (long*)&RightCropping,
+        "Right player cropping", SLIDER, 0, (long*)&RightCropping,
          16, 0, 50, 1, 1,
          NULL,
-        "Calibration", "RightSourceCropping", NULL,
+        "Calibration", "RightPlayerCropping", NULL,
     },
     {
         "Show RGB delta in OSD", ONOFF, 0, (long*)&ShowRGBDelta,

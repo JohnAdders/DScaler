@@ -342,6 +342,8 @@ public:
     CTestPattern *GetCurrentTestPattern();
     CSubPattern *GetSubPattern(eTypeAdjust type_adjust);
     CSubPattern *GetCurrentSubPattern();
+    void SaveUsualOverscan();
+    void RestoreUsualOverscan(BOOL refresh);
     void Start(eTypeCalibration type);
     void Stop();
     BOOL IsRunning();
@@ -365,6 +367,7 @@ protected:
 private:
     BOOL step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CCalSetting *_setting2, CCalSetting *_setting3);
     BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL *best_found);
+    int usual_overscan;
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;

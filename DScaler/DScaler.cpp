@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.124 2002-02-09 02:44:56 laurentg Exp $
+// $Id: DScaler.cpp,v 1.125 2002-02-09 13:08:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.124  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.123  2002/02/08 08:14:21  adcockj
 // Select saved channel on startup if in tuner mode
 //
@@ -1853,6 +1856,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_ASPECT_SETTINGS:
             Aspect_ShowUI();
+            break;
+
+        case IDM_CALIBR_SETTINGS:
+            Calibr_ShowUI();
+            break;
+
+        case IDM_OSD_SETTINGS:
+            OSD_ShowUI();
             break;
 
         case IDM_HELP_HOMEPAGE:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.19 2002-07-25 05:22:18 dschmelzer Exp $
+// $Id: BT848Card_Types.cpp,v 1.20 2002-07-29 13:10:20 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/07/25 05:22:18  dschmelzer
+// Added SDI Silk 200 Support
+//
 // Revision 1.18  2002/07/23 18:11:48  adcockj
 // Tuner autodetect patch from Jeroen Kooiman
 //
@@ -3318,7 +3321,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 	// Card Number 91 - SDI Silk 200 (C-Video Jumper)
 	{
 		"SDI Silk 200 (C-Video Jumper)",
-		5,
+		7,
 		{
 			{
 				"Composite 1",
@@ -4280,18 +4283,11 @@ void CBT848Card::CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN)
 void CBT848Card::CtrlSilkSDISwitch(BYTE SLV, BYTE IEN)
 {
 	BYTE Buffer[] = {SLV, IEN};
-    // The switch is flakey sometimes; retry a few times if it fails
-	if (m_I2CBus->Write(Buffer, 2)!=true)
-    {
-        Sleep();
-        if (m_I2CBus->Write(Buffer, 2)!=true)
-        {
-            Sleep();
-            if (m_I2CBus->Write(Buffer, 2)!=true)
-            {
-                Sleep();
-                m_I2CBus->Write(Buffer, 2);
-            }
-        }
-    }
+    // The switch is flakey sometimes; it will return true, but won't
+    // switch it; if you do multiple times in a row, however, it switches
+    // fine.  Not sure whether it's DScaler or the switch.  Guessing the
+    // switch.
+    m_I2CBus->Write(Buffer, 2);
+    m_I2CBus->Write(Buffer, 2);
+    m_I2CBus->Write(Buffer, 2);
 }

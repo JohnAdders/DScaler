@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.30 2002-02-27 20:47:21 laurentg Exp $
+// $Id: Settings.cpp,v 1.31 2002-06-10 23:56:28 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/02/27 20:47:21  laurentg
+// Still settings
+//
 // Revision 1.29  2002/01/24 00:00:13  robmuller
 // Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
 //
@@ -309,6 +312,138 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
     return RetVal;
 }
 
+// this function removes any comments, leading spaces and tabs, trailing spaces, tabs,
+// carriage returns and new line characters
+LPTSTR CleanUpLine(LPTSTR lpString)
+{
+    int i = 0;
+    char *string = lpString;
+    
+    if(string == NULL || string[0] == '\0')
+    {
+        return lpString;
+    }
+
+    // remove leading spaces and tabs
+    while(string[0] == ' ' || string[0] == '\t')
+    {
+        string++;
+    }
+
+    strcpy(lpString, string);
+
+    // remove any comments
+    string = strchr(lpString, ';');
+    if(string != NULL)
+    {
+        *string = '\0';
+    }
+
+    // remove trailing spaces, tabs, newline and carriage return
+    i = strlen(lpString) - 1;
+    while(i >= 0 && (lpString[i] == ' ' || lpString[i] == '\t' || lpString[i] == '\r') ||
+          lpString[i] == '\n')
+    {
+        lpString[i--] = '\0';
+    }
+    return lpString;
+}
+
+// this function returns TRUE if lpString contains a valid section name ('[blahblah]')
+BOOL IsSectionName(LPCTSTR lpString)
+{
+    char localcopy[256];
+
+    if(lpString == NULL)
+    {
+        return FALSE;
+    }
+
+    strncpy(localcopy, lpString, sizeof(localcopy));
+
+    CleanUpLine(localcopy);
+
+    if(strlen(localcopy) < 3)
+    {
+        return FALSE;
+    }
+    return (localcopy[0] == '[' && localcopy[strlen(localcopy) - 1] == ']');
+}
+
+#define TEMPFILENAME "ThisFileCanBeRemoved.tmp"
+
+// This function adds an empty line before each new section in the ini file to greatly
+// enhance readability.
+void BeautifyIniFile(LPCTSTR lpIniFileName)
+{
+    FILE* IniFile = NULL;
+    FILE* TempFile = NULL;
+    char szTempFile[MAX_PATH] = "";
+    char buf[256] = "";
+    char lastline[256] = "";
+    BOOL IOError = FALSE;
+
+    buf[255] = '\0';
+
+    GetCurrentDirectory(MAX_PATH, szTempFile);
+    strcat(szTempFile, "\\");
+    strcat(szTempFile, TEMPFILENAME);
+
+    TempFile = fopen(szTempFile, "w");
+    if(TempFile == NULL)
+    {
+        LOG(1, "BeautifyIniFile: Error opening temp file for writing.");
+        return;        
+    }
+    else
+    {
+        IniFile = fopen(lpIniFileName, "r");
+        if(IniFile == NULL)
+        {
+            fclose(TempFile);
+            remove(szTempFile);
+            LOG(1, "BeautifyIniFile: Error opening ini file for reading.");
+            return;
+        }
+        else
+        {
+            while(!feof(IniFile))
+            {
+                if(fgets(buf, 255, IniFile) == NULL && !feof(IniFile))
+                {
+                    IOError = TRUE;
+                    LOG(1, "BeautifyIniFile: Error reading ini file.");
+                }
+                if(IsSectionName(buf) && lastline[0] != '\0')
+                {
+                    if(fputs("\n", TempFile) < 0)
+                    {
+                        IOError = TRUE;
+                        LOG(1, "BeautifyIniFile: Error writing temp file (#1).");
+                    }
+                }
+                if(fputs(buf, TempFile) < 0)
+                {
+                    IOError = TRUE;
+                    LOG(1, "BeautifyIniFile: Error writing temp file (#2).");
+                }
+                if(IOError)
+                {
+                    fclose(IniFile);
+                    fclose(TempFile);
+                    remove(szTempFile);
+                    return;
+                }
+                strncpy(lastline, buf, sizeof(lastline));
+                CleanUpLine(lastline);
+            }
+        }
+        fclose(IniFile);
+        fclose(TempFile);
+    }
+    remove(lpIniFileName);
+    rename(szTempFile, lpIniFileName);
+}
 
 void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
@@ -323,11 +458,13 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
   
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
-    
+
     // Disk cache flushing:
     // The below doesn't seem to be needed and only seem to 
     // cause the video to freeze for a full second.
     //_flushall(); 
+
+    BeautifyIniFile(szIniFile);
 }
 
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName)

@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.cpp,v 1.5 2005-03-09 09:35:16 atnak Exp $
+// $Id: I2CDevice.cpp,v 1.6 2005-03-09 13:26:30 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.4  2005/03/07 09:12:18  atnak
 // Added a function for simplifying a single byte write to subaddress.
 //
@@ -44,6 +48,10 @@
 #include "stdafx.h"
 #include "I2CDevice.h"
 
+
+//////////////////////////////////////////////////////////////////////////
+// CI2CDevice
+//////////////////////////////////////////////////////////////////////////
 
 CI2CDevice::CI2CDevice()
 {
@@ -112,5 +120,28 @@ bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, si
     bool result = m_I2CBus->Read(buffer, writeBufferSize + 2, readBuffer, readBufferSize);
     free(buffer);
     return result;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CGenericI2CDevice
+//////////////////////////////////////////////////////////////////////////
+
+CGenericI2CDevice::CGenericI2CDevice()
+{
+}
+
+CGenericI2CDevice::CGenericI2CDevice(CI2CBus* i2cBus, BYTE address)
+{
+    SetI2CBus(i2cBus, address);
+}
+
+CGenericI2CDevice::~CGenericI2CDevice()
+{
+}
+
+void CGenericI2CDevice::SetI2CBus(CI2CBus* i2cBus, BYTE address)
+{
+    CI2CDevice::SetI2CBus(i2cBus, address);
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.h,v 1.7 2005-03-09 09:35:16 atnak Exp $
+// $Id: I2CDevice.h,v 1.8 2005-03-09 13:26:30 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.6  2005/03/07 09:12:18  atnak
 // Added a function for simplifying a single byte write to subaddress.
 //
@@ -65,8 +69,8 @@ public:
     CI2CDevice();
     virtual ~CI2CDevice() {};
 
-    // Set the bus and the address that should use for reading
-    // and writing to the device.
+    // Set the bus and the address that should be used for
+    // reading and writing to the device.
     void        SetI2CBus(CI2CBus* i2cBus, BYTE address = 0x00);
     CI2CBus*    GetI2CBus() const;
     BYTE        GetDeviceAddress() const;
@@ -78,13 +82,32 @@ public:
     bool ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize);
     bool ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize);
 protected:
-    // This should be overridden to provide the expected I2C
-    // address of the device.
-    virtual BYTE GetDefaultAddress() const { return 0x00; }
+    // This needs to be overridden to provide the expected
+    // I2C address of the device.
+    virtual BYTE GetDefaultAddress() const = 0;
 
 protected:
     CI2CBus *m_I2CBus;
     BYTE m_DeviceAddress;
 };
+
+
+/** Generic I2C device class
+*/
+class CGenericI2CDevice : CI2CDevice
+{
+public:
+    CGenericI2CDevice();
+    CGenericI2CDevice(CI2CBus* i2cBus, BYTE address);
+    virtual ~CGenericI2CDevice();
+
+    // Set the bus and the address that should be used for
+    // reading and writing to the device.
+    void SetI2CBus(CI2CBus* i2cBus, BYTE address);
+
+protected:
+    BYTE GetDefaultAddress() const { return 0x00; }
+};
+
 
 #endif // !defined(__I2CDEVICE_H__)

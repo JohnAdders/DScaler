@@ -90,8 +90,8 @@ height="2"></td>
 <p>This setting defines how newly received lines replace existing stored lines</p>
 <table border=0 cellspacing=0 cellpadding=0>
 <tr><td width=50></td><td><b><u>Setting</u></b></td><td width=40></td><td></td><td width=40></td><td><b><u>Description</u></b></td></tr>
-<tr><td></td>	<td>0: Normal Error Correction			</td><td></td><td>(DEFAULT)</td><td></td><td>The new lines replace the stored line only if the stored line has an error.</td></tr>
-<tr><td></td>	<td>1: Second Chance Error Correction	</td><td></td><td>	</td>		<td></td><td>The stored lines are replaced if the new lines have no errors.</td></tr>
+<tr><td></td>	<td>0: Normal Error Correction			</td><td></td><td>	</td><td></td><td>The new lines replace the stored line only if the stored line has an error.</td></tr>
+<tr><td></td>	<td>1: Second Chance Error Correction	</td><td></td><td>(DEFAULT)</td>		<td></td><td>The stored lines are replaced if the new lines have no errors.</td></tr>
 <tr><td></td>	<td>2: Always Update					</td><td></td><td>	</td>		<td></td><td>The stored lines are always replaced.</td></tr>
 </table><br>
 <p>The default is <i>0: Normal Error Correction</i> but error detection, based on parity checking, can fail to detect erroneous lines.  With the default setting, undetected erroneous lines can become permanently stored.  This can be alleviated by setting <i>1: Second Chance Error Correction</i> but this also means undetected erroneous lines can replace previously error free lines.</p>

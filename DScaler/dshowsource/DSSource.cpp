@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.38 2002-09-11 16:42:33 tobbej Exp $
+// $Id: DSSource.cpp,v 1.39 2002-09-11 17:12:05 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/09/11 16:42:33  tobbej
+// fixed so resolutions submenu can be empty and not always replaced with defaults if all resolutions is removed
+//
 // Revision 1.37  2002/09/07 13:32:35  tobbej
 // save/restore video format settings to ini file
 //
@@ -1128,13 +1131,13 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 
 				LOG(2,"DSCaptureSource: Set video input to %d", NewValue);
 
-				//if changing a video input, set the related pin too
+				//set the related pin too since this is a video pin,maybe this shoud be user configurable?
 				pCrossbar->SetInputIndex(NewValue,true);
 
 				/**
-				* @todo we also must figure out what the related pin is and then call
-				* AudioInputOnChange if it is an audio pin.
-				*/
+				 * @todo we also must figure out what the related pin is and then call
+				 * AudioInputOnChange if it is an audio pin.
+				 */
 
 				PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
 
@@ -1180,7 +1183,17 @@ void CDSCaptureSource::AudioInputOnChange(long NewValue, long OldValue)
 			if(pCrossbar!=NULL)
 			{
 				LOG(2,"DSCaptureSource: Set audio input to %d",NewValue);
-        pCrossbar->SetInputIndex(NewValue,false);
+				
+				//prevent changing to a pin that is not an audio pin
+				PhysicalConnectorType type=pCrossbar->GetInputType(NewValue);
+				if(type>=0x1000)
+				{
+					pCrossbar->SetInputIndex(NewValue,false);
+				}
+				else
+				{
+					LOG(2,"DSCaptureSource: New audio input pin is not a audio pin, will not change audio input");
+				}
 			}
 		}
 	}

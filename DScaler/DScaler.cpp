@@ -1940,7 +1940,9 @@ void MainWndOnInitBT(HWND hWnd)
 
 		SetMenuAnalog();
 
-		SetTimer(hWnd, 10, 5000, NULL);
+		//TJ 010611: what is this timer used for?
+		//its never handled in MainWndProc
+		//SetTimer(hWnd, 10, 5000, NULL);
 
 		bDoResize = TRUE;
 		Start_Capture();

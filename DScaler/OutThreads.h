@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.10 2001-12-16 13:13:34 laurentg Exp $
+// $Id: OutThreads.h,v 1.11 2001-12-16 18:40:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,6 @@ void UnPause_Capture();
 void Pause_Toggle_Capture();
 void RequestStreamSnap();
 void RequestStill();
-void RequestStatisticsReset();
 
 void Start_Thread();
 void Stop_Thread();

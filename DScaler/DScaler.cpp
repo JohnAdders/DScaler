@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.104 2001-12-16 16:31:43 adcockj Exp $
+// $Id: DScaler.cpp,v 1.105 2001-12-16 18:40:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2001/12/16 16:31:43  adcockj
+// Bug fixes
+//
 // Revision 1.103  2001/12/16 13:13:34  laurentg
 // New statistics
 //
@@ -1443,7 +1446,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_RESET_STATS:
-            RequestStatisticsReset();
+            pPerf->Reset();
             break;
 
         case IDM_TSOPTIONS:

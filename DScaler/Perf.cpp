@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.2 2001-12-16 16:31:43 adcockj Exp $
+// $Id: Perf.cpp,v 1.3 2001-12-16 18:40:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/16 16:31:43  adcockj
+// Bug fixes
+//
 // Revision 1.1  2001/12/16 13:00:51  laurentg
 // New statistics
 //
@@ -172,6 +175,8 @@ void CPerf::InitCycle()
         m_TotalUsedFields = 0;
         m_DroppedFieldsLastSec = 0;
         m_UsedFieldsLastSec = 0;
+        Timing_ResetDroppedFields();
+        Timing_ResetUsedFields();
         for (int i(0) ; i < PERF_TYPE_LASTONE ; ++i)
         {
             m_PerfItems[i]->Reset();

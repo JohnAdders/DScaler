@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.50 2001-12-16 13:13:34 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.51 2001-12-16 18:40:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2001/12/16 13:13:34  laurentg
+// New statistics
+//
 // Revision 1.49  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -237,7 +240,6 @@ typedef enum
 BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
 eStreamStillType    RequestStillType = STILL_NONE;
-BOOL                RequestStatsReset = FALSE;
 HANDLE              OutThread;
 
 // Dynamically updated variables
@@ -344,11 +346,6 @@ void RequestStreamSnap()
 void RequestStill()
 {
    RequestStillType = STILL_TIFF;
-}
-
-void RequestStatisticsReset()
-{
-   RequestStatsReset = TRUE;
 }
 
 // save the Info structure to a snapshot file
@@ -828,12 +825,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             {
                 StillProvider_SaveSnapshot(&Info);
                 RequestStillType = STILL_NONE;
-            }
-
-            if (RequestStatsReset)
-            {
-                pPerf->Reset();
-                RequestStatsReset = FALSE;
             }
 
             // save the last pulldown Mode so that we know if its changed

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.246 2002-10-15 18:14:36 kooiman Exp $
+// $Id: DScaler.cpp,v 1.247 2002-10-20 21:51:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.246  2002/10/15 18:14:36  kooiman
+// Added 'use overlay controls' to Overlay settings dialog.
+//
 // Revision 1.245  2002/10/15 15:26:09  kooiman
 // Added include for settingsmaster.h
 //
@@ -1869,7 +1872,7 @@ void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
         ///\todo Process errors    
     }
     
-    if (bShow && ((szSkinName == NULL) || (szSkinName[0]!=0)))
+    if (bShow && !bIsFullScreen && ((szSkinName == NULL) || (szSkinName[0]!=0)))
     {
         WindowBorder->Show();                        
     }

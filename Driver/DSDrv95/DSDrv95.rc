@@ -12,6 +12,8 @@
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
+#include "../../API/DScalerVersion.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // English (U.S.) resources
 
@@ -28,8 +30,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,0
- PRODUCTVERSION 4,0,0,0
+ FILEVERSION DSCALERVERSION_MAJOR,DSCALERVERSION_MINOR,DSCALERVERSION_REVISION,0
+ PRODUCTVERSION DSCALERVERSION_MAJOR,DSCALERVERSION_MINOR,DSCALERVERSION_REVISION,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -47,14 +49,14 @@ BEGIN
             VALUE "Comments", "John Adcock & Mathias Ellinger\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DSDrv4\0"
-            VALUE "FileVersion", "4, 0, 0, 0\0"
+            VALUE "FileVersion", VERSTRING_ZT
             VALUE "InternalName", "DSDrv4\0"
-            VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
+            VALUE "LegalCopyright", "Copyright © 2000, 2001, 2002, 2003\0"
             VALUE "LegalTrademarks", "This driver is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DSDrv4.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "\0"
-            VALUE "ProductVersion", "4, 0, 0, 0\0"
+            VALUE "ProductVersion", VERSTRING_ZT
             VALUE "SpecialBuild", "\0"
         END
     END

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.20 2003-01-15 15:54:22 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.21 2003-01-15 17:13:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.19  2003/01/01 20:56:00  atnak
 // Removed VPSInfoProc.  Now in VBI_VPSdecode.cpp
 //
@@ -104,81 +107,30 @@
 #include "Slider.h"
 #include "AspectRatio.h"
 #include "Crash.h"
+#include "..\API\DScalerVersion.h"
 
 BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    DWORD   dwVerInfoSize;      // Size of version information block
-    LPSTR   lpVersion;          // String pointer to 'version' text
-    DWORD   dwVerHnd=0;         // An 'ignored' parameter, always '0'
-    UINT    uVersionLen;        // Current length of full version string
-    WORD    wRootLen;           // length of the 'root' portion of string
-    char    szFullPath[MAX_PATH];   // full path of module
     char    szResult[256];      // Temporary result string
     char    szGetName[256];     // String to use for extracting version Info
 
     switch (message)
     {
     case WM_INITDIALOG:
-        // Now lets dive in and pull out the version information:
-        GetModuleFileName (hDScalerInst, szFullPath, sizeof(szFullPath));
-        dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
-        if (dwVerInfoSize)
-        {
-            LPSTR lpstrVffInfo;
-            HGLOBAL hMem;
-            hMem = (LPSTR)GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
-            lpstrVffInfo = (LPSTR)GlobalLock(hMem);
-            GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpstrVffInfo);
-            // The below 'hex' Value looks a little confusing, but
-            // essentially what it is, is the hexidecimal representation
-            // of a couple different values that represent the language
-            // and character set that we are wanting string values for.
-            // 040904E4 is a very common one, because it means:
-            //   US English, Windows MultiLingual characterset
-            // Or to pull it all apart:
-            // 04------        = SUBLANG_ENGLISH_USA
-            // --09----        = LANG_ENGLISH
-            // ----04BO        = Codepage
-            lstrcpy(szGetName, "\\StringFileInfo\\040904B0\\");	 
-            wRootLen = lstrlen(szGetName); // Save this position
-            
-            // Set the title of the dialog:
-            lstrcat (szGetName, "ProductName");
-            if(VerQueryValue((LPVOID)lpstrVffInfo,
-                (LPSTR)szGetName,
-                (void**)&lpVersion,
-                (UINT*)&uVersionLen))
-            {
-                lstrcpy(szResult, "About ");
-                lstrcat(szResult, lpVersion);
-                SetWindowText (hDlg, szResult);
+        lstrcpy(szResult, "DScaler Version ");
 
-                lstrcpy(szResult, lpVersion);
-                lstrcat(szResult, " Version ");
+        lstrcat(szResult, VERSTRING);
+        lstrcat(szResult, " Compiled ");
+        lstrcat(szResult, __DATE__);
+        lstrcat(szResult, " ");
+        lstrcat(szResult, __TIME__);
 
-                szGetName[wRootLen] = (char)0;
-                lstrcat (szGetName, "ProductVersion");
+        lstrcat(szResult, " Build (");
+        sprintf(szGetName,"%d", gBuildNum);
+        lstrcat(szResult, szGetName);
+        lstrcat(szResult, ")");
 
-                if(VerQueryValue((LPVOID)lpstrVffInfo,
-                    (LPSTR)szGetName,
-                    (void**)&lpVersion,
-                    (UINT*)&uVersionLen))
-                {
-                    lstrcat(szResult, lpVersion);
-                    lstrcat(szResult, " Compiled ");
-                    lstrcat(szResult, __DATE__);
-                    lstrcat(szResult, " ");
-                    lstrcat(szResult, __TIME__);
-
-                    lstrcat(szResult, " Build (");
-                    sprintf(szGetName,"%d", gBuildNum);
-                    lstrcat(szResult, szGetName);
-                    lstrcat(szResult, ")");
-
-                    SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
-                }
-            }
-        } // if (dwVerInfoSize)
+        SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
 
         SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
         SetClassLong(GetDlgItem(hDlg, IDC_LINK2), GCL_HCURSOR, (long) hCursorHand);

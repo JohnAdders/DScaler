@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: IAudioControls.h,v 1.1 2001-12-05 21:45:11 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,62 +22,28 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.3  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
 /////////////////////////////////////////////////////////////////////////////
 
-#if !defined(__NOTUNER_H__)
-#define __NOTUNER_H__
+#if !defined(__IAUDIOCONTROLS_H__)
+#define __IAUDIOCONTROLS_H__
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "ITuner.h"
-
-/**  Used when tuner is not present to stub out functions and avoid crashes
-*/
-class CNoTuner : public ITuner  
+class IAudioControls
 {
 public:
-    CNoTuner()
-    {
-    }
-    eTunerId GetTunerId()
-    {
-        return TUNER_ABSENT;
-    }
-    eVideoFormat GetDefaultVideoFormat()
-    {
-        return VIDEOFORMAT_NTSC_M;
-    }
-    bool HasRadio() const
-    {
-        return false;
-    }
-    bool SetRadioFrequency(long nFrequency)
-    {
-        return true;
-    }
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
-    {
-        return true;
-    }
-
-protected:
-    virtual BYTE GetDefaultAddress()const
-    {
-        return 0;
-    }
-
+    virtual void SetMute(bool mute=true) = 0;
+    virtual bool IsMuted() = 0;
+    virtual void SetVolume(WORD volume) = 0;
+    virtual WORD GetVolume() = 0;
+    virtual void SetBalance(WORD balance) = 0;
+    virtual WORD GetBalance() = 0;
+    virtual void SetBass(WORD level) = 0;
+    virtual WORD GetBass() = 0;
+    virtual void SetTreble(WORD level) = 0;
+    virtual WORD GetTreble() = 0;
 };
 
-#endif // !defined(__NOTUNER_H__)
+#endif // !defined(__IAUDIOCONTROLS_H__)

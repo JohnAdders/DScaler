@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.40 2001-11-29 17:30:52 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.41 2001-12-05 21:45:11 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.39  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -381,7 +385,7 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
 
     DWORD Freq = MyChannels[ChannelNum]->GetFrequency();
 
-    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, FORMAT_LASTONE))
+    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE))
     {
         sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
         ErrorBox(sbuf);
@@ -430,7 +434,7 @@ void ScanFrequency(HWND hDlg, int FreqNum)
     sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
-    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, FORMAT_LASTONE))
+    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE))
     {
         sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
         ErrorBox(sbuf);
@@ -533,9 +537,9 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
         // fill the formats box
         ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Same as Tuner");
-        for(i = 0; i < FORMAT_LASTONE; ++i)
+        for(i = 0; i < VIDEOFORMAT_LASTONE; ++i)
         {
-            ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), FormatList[i]);
+            ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), VideoFormatNames[i]);
         }
 
         // load up the country settings
@@ -580,8 +584,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 --Freq;
                 sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                /// \todo Sort this out
-                //Tuner_SetFrequency(Freq);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
                 ChangeChannelInfo(hDlg);
             }
             else if(LOWORD(wParam) == SB_RIGHT ||
@@ -594,8 +597,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 ++Freq;
                 sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                /// \todo Sort this out
-                //Tuner_SetFrequency(Freq);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE);
                 ChangeChannelInfo(hDlg);
             }
         }
@@ -715,7 +717,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
                 if(Format != -1)
                 {
-                    Format = FORMAT_LASTONE;
+                    Format = VIDEOFORMAT_LASTONE;
                 }
 
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
@@ -1011,7 +1013,7 @@ void Channel_Change(int NewChannel)
                 {
                     Providers_GetCurrentSource()->SetTunerFrequency(
                                                   MyChannels[CurrentProgramm]->GetFrequency(), 
-                                                  FORMAT_LASTONE
+                                                  VIDEOFORMAT_LASTONE
                                                                    );
                 }
                 Sleep(20);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.14 2001-12-05 00:08:41 laurentg Exp $
+// $Id: StillSource.cpp,v 1.15 2001-12-05 21:45:11 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/12/05 00:08:41  laurentg
+// Use of LibTiff DLL
+//
 // Revision 1.13  2001/11/30 10:46:43  adcockj
 // Fixed crashes and leaks
 //
@@ -388,7 +391,7 @@ LPCSTR CStillSource::GetStatus()
 
 eVideoFormat CStillSource::GetFormat()
 {
-    return FORMAT_PAL_BDGHI;
+    return VIDEOFORMAT_PAL_B;
 }
 
 int CStillSource::GetWidth()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.24 2001-11-23 10:49:17 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.25 2001-12-05 21:45:11 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.23  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -93,8 +96,8 @@ int nDroppedFields = 0;
 int nUsedFields = 0;
 double Weight = 0.005;
 BOOL bDoAutoFormatDetect = TRUE;
-long FiftyHzFormat = FORMAT_PAL_BDGHI;
-long SixtyHzFormat = FORMAT_NTSC;
+long FiftyHzFormat = VIDEOFORMAT_PAL_B;
+long SixtyHzFormat = VIDEOFORMAT_NTSC_M;
 long FormatChangeThreshold = 2;
 long SleepInterval = 1;         // " , default=0, how long to wait for BT chip
 long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
@@ -345,14 +348,14 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
     },
     {
         "50Hz Format", ITEMFROMLIST, 0, (long*)&FiftyHzFormat,
-        FORMAT_PAL_BDGHI, FORMAT_PAL_BDGHI, FORMAT_LASTONE - 1, 1, 1,
-        FormatList,
+        VIDEOFORMAT_PAL_B, 0, VIDEOFORMAT_LASTONE - 1, 1, 1,
+        VideoFormatNames,
         "Timing", "50Hz", NULL,
     },
     {
         "60Hz Format", ITEMFROMLIST, 0, (long*)&SixtyHzFormat,
-        FORMAT_NTSC, FORMAT_PAL_BDGHI, FORMAT_LASTONE - 1, 1, 1,
-        FormatList,
+        VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, 1, 1,
+        VideoFormatNames,
         "Timing", "60Hz", NULL,
     },
     {

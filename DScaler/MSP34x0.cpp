@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.3 2001-12-03 17:27:56 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/03 17:27:56  adcockj
+// SECAM NICAM patch from Quenotte
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -142,14 +145,18 @@ static int m_CarrierDetectMinor[8] =
     MSP_CARRIER(7.38),      //7.38  PAL SAT FM-stereo b
 };
 
-CMSP34x0::CMSP34x0() :
-    m_bNicam(FALSE),
-    m_nMode(0),
-    m_nMajorMode(0), 
-    m_nMinorMode(0),
-    m_eSoundChannel(MONO)
-
+CMSP34x0::CMSP34x0()
 {
+    m_bNicam = FALSE;
+    m_nMode = 0;
+    m_nMajorMode = MSP34x0_MAJORMODE_NTSC;
+    m_nMinorMode = MSP34x0_MINORMODE_PAL_BG_FM;
+
+    m_Muted = false;
+    m_Volume = 900;
+    m_Balance = 0;
+    m_Bass = 0;
+    m_Treble = 0;
 }
 
 BYTE CMSP34x0::GetDefaultAddress()const
@@ -189,54 +196,6 @@ WORD CMSP34x0::GetProductCode()
     WORD result = GetRegister(MSP_RD_DSP, 0x1F);
     m_bNicam = (((result >> 8) & 0xff) != 00) ? true : false;
     return result;
-}
-
-void CMSP34x0::SetMute()
-{
-    SetRegister(MSP_WR_DSP, 0, 0xFF00);
-    SetRegister(MSP_WR_DSP, 6, 0xFF00);
-}
-
-void CMSP34x0::SetVolume(long nVolume)
-{
-    if (nVolume < 0 || nVolume > 1000)
-    {
-        return;
-    }
-    nVolume = MulDiv(nVolume, 0x7f0, 1000);
-    // Use Mute if less than 0x10
-    if(nVolume < 0x10)
-    {
-        nVolume = 0;
-    }
-    SetRegister(MSP_WR_DSP, 0x00, nVolume << 4);
-    SetRegister(MSP_WR_DSP, 0x06, nVolume << 4);
-}
-
-void CMSP34x0::SetBalance(long nBalance)
-{
-    SetRegister(MSP_WR_DSP, 0x01, (nBalance & 0xFF) << 8);
-    SetRegister(MSP_WR_DSP, 0x30, (nBalance & 0xFF) << 8);
-}
-
-void CMSP34x0::SetBass(long nBass)
-{
-    if (nBass < -96)
-    {
-        return;
-    }
-    SetRegister(MSP_WR_DSP, 0x02, (nBass & 0xFF) << 8);
-    SetRegister(MSP_WR_DSP, 0x31, (nBass & 0xFF) << 8);
-}
-
-void CMSP34x0::SetTreble(long nTreble)
-{
-    if (nTreble < -96)
-    {
-        return;
-    }
-    SetRegister(MSP_WR_DSP, 0x03, (nTreble & 0xFF) << 8);
-    SetRegister(MSP_WR_DSP, 0x32, (nTreble & 0xFF) << 8);
 }
 
 void CMSP34x0::SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
@@ -313,19 +272,125 @@ void CMSP34x0::SetMode(long nMode)
     }
 }
 
-void CMSP34x0::SetStereo(eSoundChannel soundChannel)
+///////
+///////
+void CMSP34x0::SetMute(bool mute)
+{
+    m_Muted = mute;
+    if (m_Muted)
+    {
+        SetRegister(MSP_WR_DSP, 0, 0xFF00);
+        SetRegister(MSP_WR_DSP, 6, 0xFF00);
+    }
+    else
+    {
+        SetVolume(m_Volume);
+    }
+}
+
+bool CMSP34x0::IsMuted()
+{
+    return m_Muted;
+}
+
+void CMSP34x0::SetVolume(WORD nVolume)
+{
+    if (nVolume < 0 || nVolume > 1000)
+    {
+        return;
+    }
+    m_Volume = nVolume;
+    nVolume = MulDiv(nVolume, 0x7f0, 1000);
+    // Use Mute if less than 0x10
+    if(nVolume < 0x10)
+    {
+        nVolume = 0;
+    }
+    SetRegister(MSP_WR_DSP, 0x00, nVolume << 4);
+    SetRegister(MSP_WR_DSP, 0x06, nVolume << 4);
+}
+
+WORD CMSP34x0::GetVolume()
+{
+    return m_Volume;
+}
+
+void CMSP34x0::SetBalance(WORD nBalance)
+{
+    m_Balance = nBalance;
+    SetRegister(MSP_WR_DSP, 0x01, (nBalance & 0xFF) << 8);
+    SetRegister(MSP_WR_DSP, 0x30, (nBalance & 0xFF) << 8);
+}
+
+WORD CMSP34x0::GetBalance()
+{
+    return m_Balance;
+}
+
+void CMSP34x0::SetBass(WORD nBass)
+{
+    if (nBass < -96)
+    {
+        return;
+    }
+    m_Bass = nBass;
+    SetRegister(MSP_WR_DSP, 0x02, (nBass & 0xFF) << 8);
+    SetRegister(MSP_WR_DSP, 0x31, (nBass & 0xFF) << 8);
+}
+
+WORD CMSP34x0::GetBass()
+{
+    return m_Bass;
+}
+
+void CMSP34x0::SetTreble(WORD nTreble)
+{
+    if (nTreble < -96)
+    {
+        return;
+    }
+    m_Treble = nTreble;
+    SetRegister(MSP_WR_DSP, 0x03, (nTreble & 0xFF) << 8);
+    SetRegister(MSP_WR_DSP, 0x32, (nTreble & 0xFF) << 8);
+}
+
+WORD CMSP34x0::GetTreble()
+{
+    return m_Treble;
+}
+
+///////
+///////
+
+void CMSP34x0::SetVideoFormat(eVideoFormat videoFormat)
+{
+    CAudioDecoder::SetVideoFormat(videoFormat);
+/// \todo FIXME FIXME FIXME
+    /*
+    switch (m_VideoFormat)
+    {
+    case VIDEOFORMAT_NTSC_M:
+    m_nMajorMode = ???;
+    m_nMinorMode = ???;
+    break;
+    }
+    */
+}
+
+
+void CMSP34x0::SetSoundChannel(eSoundChannel soundChannel)
 {
     int nicam = 0;
     int src = 0;
     
-    m_eSoundChannel = soundChannel;
-
+    CAudioDecoder::SetSoundChannel(soundChannel);
+    
     // switch demodulator
     switch (m_nMode)
     {
     case MSP_MODE_FM_TERRA:
         SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
-        switch (m_eSoundChannel)
+        switch (m_SoundChannel)
         {
         case STEREO:
             SetRegister(MSP_WR_DSP, 0x15, 0x0000); // HC 22/Feb/2001 Identification Mode B/G
@@ -339,36 +404,36 @@ void CMSP34x0::SetStereo(eSoundChannel soundChannel)
             break;
         }
         break;
-    case MSP_MODE_FM_SAT:
-        switch (m_eSoundChannel)
-        {
-        case MONO:
-            SetCarrier(MSP_CARRIER(6.5), MSP_CARRIER(6.5));
+        case MSP_MODE_FM_SAT:
+            switch (m_SoundChannel)
+            {
+            case MONO:
+                SetCarrier(MSP_CARRIER(6.5), MSP_CARRIER(6.5));
+                break;
+            case STEREO:
+                SetCarrier(MSP_CARRIER(7.2), MSP_CARRIER(7.02));
+                break;
+            case LANGUAGE1:
+                SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
+                break;
+            case LANGUAGE2:
+                SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
+                break;
+            }
             break;
-        case STEREO:
-            SetCarrier(MSP_CARRIER(7.2), MSP_CARRIER(7.02));
-            break;
-        case LANGUAGE1:
-            SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
-            break;
-        case LANGUAGE2:
-            SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
-            break;
-        }
-        break;
-    case MSP_MODE_FM_NICAM1:
-    case MSP_MODE_FM_NICAM2:
-    case MSP_MODE_AM_NICAM:
-        SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
-        nicam = 0x0100;
-        break;
-    default:
-        // can't do stereo - abort here
-        return;
+            case MSP_MODE_FM_NICAM1:
+            case MSP_MODE_FM_NICAM2:
+            case MSP_MODE_AM_NICAM:
+                SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
+                nicam = 0x0100;
+                break;
+            default:
+                // can't do stereo - abort here
+                return;
     }
     
     // switch audio
-    switch (m_eSoundChannel)
+    switch (m_SoundChannel)
     {
     case STEREO:
         src = 0x0020 | nicam;
@@ -399,20 +464,20 @@ void CMSP34x0::SetStereo(eSoundChannel soundChannel)
 }
 
 
-void CMSP34x0::SetMajorMinorMode(int majorMode, int minorMode)
+void CMSP34x0::SetMajorMinorMode(eMajorMode majorMode, eMinorMode minorMode)
 {
     m_nMajorMode = majorMode;
     m_nMinorMode = minorMode;
 
     switch (m_nMajorMode)
     {
-    case 1:                 // 5.5
-        if (m_nMinorMode == 0)
+    case MSP34x0_MAJORMODE_PAL_BG:                 // 5.5 (1)
+        if (m_nMinorMode == MSP34x0_MINORMODE_PAL_BG_FM)
         {
             // B/G FM-stereo
-            SetStereo(MONO);
+            SetSoundChannel(MONO);
         }
-        else if (m_nMinorMode == 1 && m_bNicam)
+        else if (m_nMinorMode == MSP34x0_MINORMODE_PAL_BG_NICAM && m_bNicam)
         {
             // B/G NICAM
             SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
@@ -422,17 +487,17 @@ void CMSP34x0::SetMajorMinorMode(int majorMode, int minorMode)
             SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
         }
         break;
-    case 2:                 // 6.0
+    case MSP34x0_MAJORMODE_PAL_I:                 // 6.0
         // PAL I NICAM
         SetCarrier(MSP_CARRIER(6.55), m_CarrierDetectMajor[m_nMajorMode]);
         break;
-    case 3:                 // 6.5
-        if (m_nMinorMode == 1 || m_nMinorMode == 2)
+    case MSP34x0_MAJORMODE_PAL_DK_SECAM_SAT:                 // 6.5
+        if (m_nMinorMode == MSP34x0_MINORMODE_PAL_BG_NICAM || m_nMinorMode == MSP34x0_MINORMODE_PAL_DK_NICAM)
         {
             // D/K FM-stereo
-            SetStereo(MONO);
+            SetSoundChannel(MONO);
         }
-        else if (m_nMinorMode == 0 && m_bNicam)
+        else if (m_nMinorMode == MSP34x0_MINORMODE_PAL_BG_FM && m_bNicam)
         {
             // D/K NICAM
             SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
@@ -442,107 +507,22 @@ void CMSP34x0::SetMajorMinorMode(int majorMode, int minorMode)
             SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
         }
         break;
-    case 0:                 // 4.5
+    case MSP34x0_MAJORMODE_NTSC:                 // 4.5
     default:
         SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
         break;
     }
 }
 
-void CMSP34x0::GetPrintMode(LPSTR Text)
+
+void CMSP34x0::SetAudioInput(eAudioInput audioInput)
 {
-    switch (m_nMode)
-    {
-    case MSP_MODE_AM_DETECT:
-        strcpy(Text, "AM (msp3400)+");
-        break;
-    case MSP_MODE_AM_DETECT2:
-        strcpy(Text, "AM (msp3410)+");
-        break;
-    case MSP_MODE_FM_RADIO:
-        strcpy(Text, "FM Radio+");
-        break;
-    case MSP_MODE_FM_TERRA:
-        strcpy(Text, "TV Terrestial+");
-        break;
-    case MSP_MODE_FM_SAT:
-        strcpy(Text, "TV Sat+");
-        break;
-    case MSP_MODE_FM_NICAM1:
-        strcpy(Text, "NICAM B/G+");
-        break;
-    case MSP_MODE_FM_NICAM2:
-        strcpy(Text, "NICAM I+");
-        break;
-    case MSP_MODE_AM_NICAM:
-        strcpy(Text, "NICAM L+");
-        break;
-    }
-    
-    switch (m_nMajorMode)
-    {
-    case 0:
-        strcat(Text, "NTSC+");
-        break;
-    case 1:
-        strcat(Text, "PAL B/G+");
-        break;
-    case 2:
-        strcat(Text, "PAL I+");
-        break;
-    case 3:
-        strcat(Text, "PAL D/K (Sat+Secam)+");
-        break;
-    }
-    
-    switch (m_nMinorMode)
-    {
-    case 0:
-        strcat(Text, "FM-stereo ");
-        break;
-    case 1:
-        strcat(Text, "NICAM ");
-        break;
-    case 2:
-        strcat(Text, "NICAM ");
-        break;
-    case 3:
-        strcat(Text, "D/K1 FM-Stereo ");
-        break;
-    case 4:
-        strcat(Text, "D/K2 FM-stereo ");
-        break;
-    case 5:
-        strcat(Text, "SAT FM-stereo s/b ");
-        break;
-    case 6:
-        strcat(Text, "SAT FM-stereo s ");
-        break;
-    case 7:
-        strcat(Text, "SAT FM-stereo b ");
-        break;
-    }
-    
-    switch (m_eSoundChannel)
-    {
-    case MONO:
-        strcat(Text, "(Mono)");
-        break;
-    case STEREO:
-        strcat(Text, "(Stereo)");
-        break;
-    case LANGUAGE1:
-        strcat(Text, "(Channel 1)");
-        break;
-    case LANGUAGE2:
-        strcat(Text, "(Channel 2)");
-        break;
-    }
+    CAudioDecoder::SetAudioInput(audioInput);
 }
 
-eSoundChannel CMSP34x0::GetWatchMode(eSoundChannel desiredSoundChannel)
+eSoundChannel CMSP34x0::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
 {
-    eSoundChannel result = desiredSoundChannel;
+    eSoundChannel result = desiredAudioChannel;
     int val;
     
     switch (m_nMode)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.11 2001-12-03 19:33:59 adcockj Exp $
+// $Id: BT848Source.h,v 1.12 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -148,23 +148,12 @@ private:
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, BtCoring);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, BtColorKill);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Volume);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Spatial);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Loudness);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Bass);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Treble);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Balance);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Equalizer1);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Equalizer2);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Equalizer3);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Equalizer4);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Equalizer5);
-    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, SuperBass);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AutoStereoSelect);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSPMode);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSPStereo);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSPMajorMode);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSPMinorMode);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioChannel);
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.8 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Card.h,v 1.9 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BT848CARD_H___
 #define __BT848CARD_H___
@@ -25,8 +27,10 @@
 
 #include "I2CLineInterface.h"
 #include "I2CBusForLineInterface.h"
-#include "MSP34x0.h"
 #include "ITuner.h"
+#include "AudioDecoder.h"
+#include "IAudioControls.h"
+#include "NoAudioControls.h"
 
 /** A Generic bt848 based capture card
     The card can cope with the standard inputs,
@@ -53,22 +57,8 @@ public:
         SOURCE_CCIR656_4,
     };
 
-    /// The pins on the audio mixer on the bt848 chip
-    enum eAudioMuxType
-    {
-        AUDIOMUX_TUNER = 0,
-        AUDIOMUX_MSP_RADIO,
-        AUDIOMUX_EXTERNAL,
-        AUDIOMUX_INTERNAL,
-        AUDIOMUX_MUTE,
-        AUDIOMUX_STEREO
-    };
-
     CBT848Card(CHardwareDriver* pDriver);
 	~CBT848Card();
-
-    void Mute();
-    void UnMute(long nVolume);
 
 	BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
 	void CloseCard();
@@ -140,24 +130,25 @@ public:
     void SetRISCStartAddress(DWORD RiscBasePhysical);
     DWORD GetRISCPos();
     void SetDMA(BOOL bState);
-    void SetAudioSource(eTVCardId BtCardType, eAudioMuxType nChannel);
     void StopCapture();
     void StartCapture(BOOL bCaptureVBI);
 
     BOOL HasMSP();
 
-    void SetMSPVolume(long nVolume);
-    void SetMSPBalance(long nBalance);
-    void SetMSPBass(long nBass);
-    void SetMSPTreble(long nTreble);
-    void SetMSPSuperBassLoudness(long nLoudness, BOOL bSuperBass);
-    void SetMSPSpatial(long nSpatial);
-    void SetMSPEqualizer(long EqIndex, long nLevel);
-    void SetMSPMode(long nMode);
-    void SetMSPStereo(eSoundChannel StereoMode);
-    void SetMSPMajorMinorMode(int MajorMode, int MinorMode);
+    void InitAudio();
+
+    void SetAudioMute();
+    void SetAudioUnMute(long nVolume);
+    void SetAudioVolume(WORD nVolume);
+    void SetAudioBalance(WORD nBalance);
+    void SetAudioBass(WORD nBass);
+    void SetAudioTreble(WORD nTreble);
+
+    void SetAudioStandard(eVideoFormat videoFormat);
+    void SetAudioSource(eTVCardId tvCardId, eAudioInput nChannel);
+    void SetAudioChannel(eSoundChannel audioChannel);
     void GetMSPPrintMode(LPSTR Text);
-    eSoundChannel GetMSPWatchMode(eSoundChannel desiredSoundChannel);
+    eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
@@ -165,8 +156,6 @@ public:
 
     BOOL InitTuner(eTunerId tunerId);
     const char* GetSourceName(eVideoSourceType nVideoSource);
-
-    void InitMSP();
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -207,10 +196,11 @@ private:
     eTVCardId m_CardType;
     bool m_bHasMSP;
 
-    CI2CBus *m_I2CBus;
-    CMSP34x0 *m_MSP34x0;
-    ITuner *m_Tuner;
-    eAudioMuxType m_LastAudioSource;
+    CI2CBus*        m_I2CBus;
+    ITuner*         m_Tuner;
+    CAudioDecoder*  m_AudioDecoder;
+    IAudioControls* m_AudioControls;
+    eAudioInput     m_LastAudioSource;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.13 2001-12-03 19:33:59 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.14 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/12/03 19:33:59  adcockj
+// Bug fixes for settings and memory
+//
 // Revision 1.12  2001/12/03 17:27:56  adcockj
 // SECAM NICAM patch from Quenotte
 //
@@ -253,7 +256,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", CBT848Card::SOURCE_COMPOSITE, 0, CBT848Card::SOURCE_CCIR656_4, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Foramt", FORMAT_NTSC, 0, FORMAT_LASTONE - 1, IniSection);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
     m_HDelay = new CHDelaySetting(this, "Horzontal Delay", 0, 0, 255, IniSection);
@@ -278,20 +281,11 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_TradeOff = new CSliderSetting("Quality Trade Off", 0, 1, 1, IniSection, "TradeOff");
     m_Settings.push_back(m_TradeOff);
 
-    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", CBT848Card::AUDIOMUX_MUTE, CBT848Card::AUDIOMUX_TUNER, CBT848Card::AUDIOMUX_STEREO, IniSection);
+    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
     m_Settings.push_back(m_AudioSource);
 
-    m_MSPMode = new CMSPModeSetting(this, "MSP Mode", MSP_MODE_FM_TERRA, MSP_MODE_AM_DETECT, MSP_MODE_AM_NICAM, IniSection);
-    m_Settings.push_back(m_MSPMode);
-
-    m_MSPMajorMode = new CMSPMajorModeSetting(this, "MSP Major Mode", 0, 0, 3, IniSection);
-    m_Settings.push_back(m_MSPMajorMode);
-
-    m_MSPMinorMode = new CMSPMinorModeSetting(this, "MSP Minor Mode", 0, 0, 7, IniSection);
-    m_Settings.push_back(m_MSPMinorMode);
-
-    m_MSPStereo = new CMSPStereoSetting(this, "MSP Stereo Mode", STEREO, MONO, LANGUAGE2, IniSection);
-    m_Settings.push_back(m_MSPStereo);
+    m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", STEREO, MONO, LANGUAGE2, IniSection);
+    m_Settings.push_back(m_AudioChannel);
 
     m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", FALSE, IniSection);
     m_Settings.push_back(m_AutoStereoSelect);
@@ -299,12 +293,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection);
     m_Volume->SetStepValue(20);
     m_Settings.push_back(m_Volume);
-
-    m_Spatial = new CSpatialSetting(this, "Spatial", 0, -127, 128, IniSection);
-    m_Settings.push_back(m_Spatial);
-    
-    m_Loudness = new CLoudnessSetting(this, "Loudness", 0, 0, 68, IniSection);
-    m_Settings.push_back(m_Loudness);
 
     m_Bass = new CBassSetting(this, "Bass", 0, -96, 127, IniSection);
     m_Settings.push_back(m_Bass);
@@ -314,24 +302,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection);
     m_Settings.push_back(m_Balance);
-
-    m_SuperBass = new CSuperBassSetting(this, "SuperBass", FALSE, IniSection);
-    m_Settings.push_back(m_SuperBass);
-
-    m_Equalizer1 = new CEqualizer1Setting(this, "Equalizer 1", 0, -69, 69, IniSection);
-    m_Settings.push_back(m_Equalizer1);
-
-    m_Equalizer2 = new CEqualizer2Setting(this, "Equalizer 2", 0, -69, 69, IniSection);
-    m_Settings.push_back(m_Equalizer2);
-
-    m_Equalizer3 = new CEqualizer3Setting(this, "Equalizer 3", 0, -69, 69, IniSection);
-    m_Settings.push_back(m_Equalizer3);
-
-    m_Equalizer4 = new CEqualizer4Setting(this, "Equalizer 4", 0, -69, 69, IniSection);
-    m_Settings.push_back(m_Equalizer4);
-
-    m_Equalizer5 = new CEqualizer5Setting(this, "Equalizer 5", 0, -69, 69, IniSection);
-    m_Settings.push_back(m_Equalizer5);
 
     m_bSavePerInput = new CYesNoSetting("Save Per Input", FALSE, IniSection, "SavePerInput");
     m_Settings.push_back(m_bSavePerInput);
@@ -403,11 +373,10 @@ void CBT848Source::Reset()
                                 m_HDelay->GetValue()
                             );
 
-    m_pBT848Card->SetMSPMode(m_MSPMode->GetValue());
-    Sleep(4);
-    m_pBT848Card->SetMSPMajorMinorMode(m_MSPMajorMode->GetValue(), m_MSPMinorMode->GetValue());
-    Sleep(4);
-    m_pBT848Card->SetMSPStereo((eSoundChannel)m_MSPStereo->GetValue());
+    /// \todo FIXME anything else to initialize here?
+    m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
+    m_pBT848Card->SetAudioSource((eTVCardId)m_CardType->GetValue(), (eAudioInput)m_AudioSource->GetValue());
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 }
 
 
@@ -862,11 +831,11 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
         Reset();
         if(m_pBT848Card->HasMSP())
         {
-            m_AudioSource->SetValue(CBT848Card::AUDIOMUX_MSP_RADIO);
+            m_AudioSource->SetValue(AUDIOINPUT_RADIO);
         }
         else
         {
-            m_AudioSource->SetValue(CBT848Card::AUDIOMUX_TUNER);
+            m_AudioSource->SetValue(AUDIOINPUT_TUNER);
         }
         Channel_SetCurrent();
         break;
@@ -882,7 +851,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     case CBT848Card::SOURCE_OTHER2:
     case CBT848Card::SOURCE_COMPVIASVIDEO:
         Reset();
-        m_AudioSource->SetValue(CBT848Card::AUDIOMUX_EXTERNAL);
+        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
         break;
     default:
         break;
@@ -1060,7 +1029,7 @@ void CBT848Source::SetupCard()
     }
     m_pBT848Card->CardSpecificInit((eTVCardId)m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
-    m_pBT848Card->InitMSP();
+    m_pBT848Card->InitAudio();
 }
 
 void CBT848Source::ChangeDefaultsBasedOnHardware()
@@ -1150,7 +1119,7 @@ BOOL CBT848Source::HasTuner()
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-    if(VideoFormat == FORMAT_LASTONE)
+    if(VideoFormat == VIDEOFORMAT_LASTONE)
     {
         VideoFormat = (eVideoFormat)m_VideoFormat->GetDefault();
     }
@@ -1158,6 +1127,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     {
         m_VideoFormat->SetValue(VideoFormat);
     }
+    m_pBT848Card->SetAudioStandard(VideoFormat);
     return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
+// $Id: MSP34x0.h,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -42,6 +45,8 @@
 #include "Setting.h"
 
 #include "I2CDevice.h"
+#include "IAudioControls.h"
+#include "AudioDecoder.h"
 
 #define MSP_MODE_AM_DETECT   0
 #define MSP_MODE_FM_RADIO    2
@@ -53,42 +58,78 @@
 /** Class that allows control of feature on a MSP chip.
     Currently this class only support earlier versiosn of this chip.
 */
-class CMSP34x0 : public CI2CDevice  
+class CMSP34x0 : public CI2CDevice, public IAudioControls, public CAudioDecoder
 {
 public:
     CMSP34x0();
     void Reset();
     WORD GetVersion();
     WORD GetProductCode();
-    void SetMute();
-    void SetVolume(long nVolume);
-    void SetBalance(long nBalance);
-    void SetBass(long nBass);
-    void SetTreble(long nTreble);
+
     void SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass);
     void SetSpatialEffects(long nSpatial);
     void SetEqualizer(long EqIndex, long nLevel);
-    void SetMode(long MSPMode);
-    void SetStereo(eSoundChannel soundChannel);
-    void SetMajorMinorMode(int MajorMode, int MinorMode);
-    void GetPrintMode(LPSTR Text);
-    eSoundChannel GetWatchMode(eSoundChannel desiredSoundChannel);
+
+    // from IAudioControls
+    void SetMute(bool mute=true);
+    bool IsMuted();
+    void SetVolume(WORD volume);
+    WORD GetVolume();
+    void SetBalance(WORD balance);
+    WORD GetBalance();
+    void SetBass(WORD level);
+    WORD GetBass();
+    void SetTreble(WORD level);
+    WORD GetTreble();
+
+    // from CAudioDecoder the default Getters are used
+    void SetVideoFormat(eVideoFormat videoFormat);
+    void SetSoundChannel(eSoundChannel soundChannel);
+    void SetAudioInput(eAudioInput audioInput);
+    eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
 
 protected:
     virtual BYTE GetDefaultAddress() const;
 
 private:
+    bool m_bNicam;
+
+    int m_nMode;
+
+    enum eMajorMode
+    {
+        MSP34x0_MAJORMODE_NTSC = 0,
+        MSP34x0_MAJORMODE_PAL_BG,
+        MSP34x0_MAJORMODE_PAL_I,
+        MSP34x0_MAJORMODE_PAL_DK_SECAM_SAT,
+    };
+    eMajorMode m_nMajorMode;
+
+    enum eMinorMode
+    {
+        MSP34x0_MINORMODE_PAL_BG_FM = 0,
+        MSP34x0_MINORMODE_PAL_BG_NICAM,
+        MSP34x0_MINORMODE_PAL_DK_NICAM,
+        MSP34x0_MINORMODE_PAL_DK1_FM,
+        MSP34x0_MINORMODE_PAL_DK2_FM,
+        MSP34x0_MINORMODE_PAL_SAT_FM_SB,
+        MSP34x0_MINORMODE_PAL_SAT_FM_S,
+        MSP34x0_MINORMODE_PAL_SAT_FM_B,
+    };
+    eMinorMode m_nMinorMode;
+
+    bool m_Muted;
+    int m_Volume;
+    int m_Balance;
+    int m_Bass;
+    int m_Treble;
+
+    void SetMode(long MSPMode);
+    void SetMajorMinorMode(eMajorMode MajorMode, eMinorMode MinorMode);
     void SetCarrier(int cdo1, int cdo2);
 
     WORD GetRegister(BYTE subAddress, WORD reg);
     void SetRegister(BYTE subAddress, WORD reg, WORD value);
-
-private:
-    bool m_bNicam;
-    int m_nMode;
-    int m_nMajorMode;
-    int m_nMinorMode;
-    eSoundChannel m_eSoundChannel;
 };
 
 #endif // !defined(__MSP34X0_H__)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.6 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.7 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.5  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -41,53 +45,60 @@
 #include "BT848Card.h"
 #include "BT848_Defines.h"
 
+#include "MSP34x0.h"
+
 BOOL CBT848Card::HasMSP()
 {
     return m_bHasMSP;
 }
 
-void CBT848Card::InitMSP()
+void CBT848Card::InitAudio()
 {
-    m_MSP34x0->Attach(m_I2CBus);
-    m_MSP34x0->Reset();
+    CMSP34x0* msp = new CMSP34x0();
+
+    msp->Attach(m_I2CBus);
+    msp->Reset();
     ::Sleep(4);
 
     // setup version information
-    int rev1 = m_MSP34x0->GetVersion();
-    int rev2 = m_MSP34x0->GetProductCode();
+    int rev1 = msp->GetVersion();
+    int rev2 = msp->GetProductCode();
 
     if (0 == rev1 && 0 == rev2)
     {
+        delete msp;
         m_bHasMSP = false;
         return;
     }
     m_bHasMSP = true;
+    m_AudioControls = msp;
+    m_AudioDecoder = msp;
 
     // set volume to Mute level
-    m_MSP34x0->SetMute();
+    m_AudioControls->SetMute();
 
     sprintf(m_MSPVersion, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
 }
 
 
-void CBT848Card::Mute()
+void CBT848Card::SetAudioMute()
 {
     if(m_bHasMSP)
     {
-        m_MSP34x0->SetMute();
+        m_AudioControls->SetMute();
     }
     else
     {
-        SetAudioSource(m_CardType, AUDIOMUX_MUTE);
+        SetAudioSource(m_CardType, AUDIOINPUT_MUTE);
     }
 }
 
-void CBT848Card::UnMute(long nVolume)
+void CBT848Card::SetAudioUnMute(long nVolume)
 {
     if(m_bHasMSP)
     {
         // go back from mute to same volume as before
-        m_MSP34x0->SetVolume(nVolume);
+        m_AudioControls->SetVolume(nVolume);
     }
     else
     {
@@ -96,77 +107,32 @@ void CBT848Card::UnMute(long nVolume)
 }
 
 
-void CBT848Card::SetMSPVolume(long nVolume)
+void CBT848Card::SetAudioVolume(WORD nVolume)
 {
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetVolume(nVolume);
-    }
+    m_AudioControls->SetVolume(nVolume);
 }
 
 
-void CBT848Card::SetMSPBalance(long nBalance)
+void CBT848Card::SetAudioBalance(WORD nBalance)
 {
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetBalance(nBalance);
-    }
+    m_AudioControls->SetBalance(nBalance);
 }
 
-void CBT848Card::SetMSPBass(long nBass)
+void CBT848Card::SetAudioBass(WORD nBass)
 {
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetBass(nBass);
-    }
+    m_AudioControls->SetBass(nBass);
 }
 
-void CBT848Card::SetMSPTreble(long nTreble)
+void CBT848Card::SetAudioTreble(WORD nTreble)
 {
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetTreble(nTreble);
-    }
+    m_AudioControls->SetTreble(nTreble);
 }
 
-void CBT848Card::SetMSPSuperBassLoudness(long nLoudness, BOOL bSuperBass)
+void CBT848Card::SetAudioChannel(eSoundChannel soundChannel)
 {
     if(m_bHasMSP)
     {
-        m_MSP34x0->SetLoudnessAndSuperBass(nLoudness, bSuperBass ? true : false);
-    }
-}
-
-
-void CBT848Card::SetMSPSpatial(long nSpatial)
-{
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetSpatialEffects(nSpatial);
-    }
-}
-
-void CBT848Card::SetMSPEqualizer(long EqIndex, long nLevel)
-{
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetEqualizer(EqIndex, nLevel);
-    }
-}
-
-void CBT848Card::SetMSPMode(long nMode)
-{
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetMode(nMode);
-    }
-}
-
-void CBT848Card::SetMSPStereo(eSoundChannel soundChannel)
-{
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetStereo(soundChannel);
+        m_AudioDecoder->SetSoundChannel(soundChannel);
     }
     else
     {
@@ -193,16 +159,6 @@ void CBT848Card::SetMSPStereo(eSoundChannel soundChannel)
         }
     }
 }
-
-
-void CBT848Card::SetMSPMajorMinorMode(int majorMode, int minorMode)
-{
-    if(m_bHasMSP)
-    {
-        m_MSP34x0->SetMajorMinorMode(majorMode, minorMode);
-    }
-}
-
 
 
 void CBT848Card::SetAudioGVBCTV3PCI(eSoundChannel soundChannel)
@@ -299,19 +255,104 @@ void CBT848Card::GetMSPPrintMode(LPSTR Text)
 {
     if (m_bHasMSP == FALSE)
     {
-        strcpy(Text, "No MSP Audio Device");
+        strcpy(Text, "No Audio Decoder");
     }
     else
     {
-        m_MSP34x0->GetPrintMode(Text);
+        eAudioInput audioInput = m_AudioDecoder->GetAudioInput();
+        switch (audioInput)
+        {
+        case AUDIOINPUT_TUNER:
+            strcpy(Text, "Tuner: ");
+            break;
+        case AUDIOINPUT_RADIO:
+            strcpy(Text, "Radio: ");
+            break;
+        case AUDIOINPUT_EXTERNAL:
+            strcpy(Text, "External: ");
+            break;
+        case AUDIOINPUT_INTERNAL:
+            strcpy(Text, "Internal: ");
+            break;
+        case AUDIOINPUT_MUTE:
+            strcpy(Text, "Mute: ");
+            break;
+        case AUDIOINPUT_STEREO:
+            strcpy(Text, "Stereo: ");
+            break;
+        }
+        eVideoFormat videoFormat = m_AudioDecoder->GetVideoFormat();
+        strcat(Text, VideoFormatNames[videoFormat]);
+        switch (m_AudioDecoder->GetSoundChannel())
+        {
+        case MONO:
+            strcat(Text, " (Mono)");
+            break;
+        case STEREO:
+            strcat(Text, " (Stereo)");
+            break;
+        case LANGUAGE1:
+            strcat(Text, " (Channel 1)");
+            break;
+        case LANGUAGE2:
+            strcat(Text, " (Channel 2)");
+            break;
+        }
     }
 }
 
-eSoundChannel CBT848Card::GetMSPWatchMode(eSoundChannel desiredSoundChannel)
+eSoundChannel CBT848Card::IsAudioChannelDetected(eSoundChannel desiredSoundChannel)
 {
     if(!m_bHasMSP)
     {
         return desiredSoundChannel;
     }
-    return m_MSP34x0->GetWatchMode(desiredSoundChannel); 
+    return m_AudioDecoder->IsAudioChannelDetected(desiredSoundChannel); 
 }
+
+void CBT848Card::SetAudioStandard(eVideoFormat videoFormat)
+{
+    m_AudioDecoder->SetVideoFormat(videoFormat);
+}
+
+void CBT848Card::SetAudioSource(eTVCardId CardType, eAudioInput nChannel)
+{
+    int i;
+    DWORD MuxSelect;
+
+    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(CardType)->GPIOMask, ~GetCardSetup(CardType)->GPIOMask);
+
+    switch(nChannel)
+    {
+    case AUDIOINPUT_RADIO:
+    case AUDIOINPUT_MUTE:
+        // just get on with it
+        MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
+        break;
+    default:
+        // see if there is a video signal present
+        i = 0;
+        while ((i < 20) && (!(ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PRES)))
+        {
+            i++;
+            ::Sleep(50);
+        }
+        // if video not in H-lock, turn audio off 
+        if (i == 20)
+        {
+            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[AUDIOINPUT_MUTE];
+        }
+        else
+        {
+            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
+        }
+        m_LastAudioSource = nChannel;
+        break;
+    }
+    /// \todo FIXME propagate audioInput to m_AudioDecoder...
+
+    // select direct input 
+    //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
+    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup(CardType)->GPIOMask); 
+}
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.6 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.7 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.5  2001/11/29 14:04:06  adcockj
 // Added Javadoc comments
 //
@@ -54,116 +58,57 @@ ISetting* CBT848Source::GetBalance()
 
 void CBT848Source::Mute()
 {
-    m_pBT848Card->Mute();
+    m_pBT848Card->SetAudioMute();
 }
 
 void CBT848Source::UnMute()
 {
-    m_pBT848Card->UnMute(m_Volume->GetValue());
-}
-
-void CBT848Source::MSPModeOnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPMode(NewValue);
+    m_pBT848Card->SetAudioUnMute(m_Volume->GetValue());
 }
 
 void CBT848Source::VolumeOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPVolume(NewValue);
-}
-
-void CBT848Source::SpatialOnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPSpatial(NewValue);
+    m_pBT848Card->SetAudioVolume(NewValue);
 }
 
 void CBT848Source::BalanceOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPBalance(NewValue);
+    m_pBT848Card->SetAudioBalance(NewValue);
 }
 
 void CBT848Source::BassOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPBass(NewValue);
+    m_pBT848Card->SetAudioBass(NewValue);
 }
 
 void CBT848Source::TrebleOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPTreble(NewValue);
-}
-
-void CBT848Source::LoudnessOnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPSuperBassLoudness(NewValue, m_SuperBass->GetValue());
-}
-
-void CBT848Source::SuperBassOnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPSuperBassLoudness(m_Loudness->GetValue(), NewValue);
-}
-
-void CBT848Source::Equalizer1OnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPEqualizer(0, NewValue);
-}
-
-void CBT848Source::Equalizer2OnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPEqualizer(1, NewValue);
-}
-
-void CBT848Source::Equalizer3OnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPEqualizer(2, NewValue);
-}
-
-void CBT848Source::Equalizer4OnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPEqualizer(3, NewValue);
-}
-
-void CBT848Source::Equalizer5OnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPEqualizer(4, NewValue);
+    m_pBT848Card->SetAudioTreble(NewValue);
 }
 
 void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioSource((eTVCardId)m_CardType->GetValue(), (CBT848Card::eAudioMuxType)NewValue);
+    m_pBT848Card->SetAudioSource((eTVCardId)m_CardType->GetValue(), (eAudioInput)NewValue);
 }
 
-void CBT848Source::MSPStereoOnChange(long NewValue, long OldValue)
+void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPStereo((eSoundChannel)NewValue);
-}
-
-void CBT848Source::MSPMajorModeOnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPMajorMinorMode(NewValue,
-                                        m_MSPMinorMode->GetValue()
-                                      );
-}
-
-void CBT848Source::MSPMinorModeOnChange(long NewValue, long OldValue)
-{
-    m_pBT848Card->SetMSPMajorMinorMode(
-                                        m_MSPMajorMode->GetValue(),
-                                        NewValue
-                                      );
+    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue);
 }
 
 void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 {
+    /// \todo FIXME
 }
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
     if(TimerId == TIMER_MSP && m_AutoStereoSelect->GetValue() == TRUE && m_pBT848Card->HasMSP())
     {
-        eSoundChannel newChannel = m_pBT848Card->GetMSPWatchMode((eSoundChannel)m_MSPStereo->GetValue());
-        if (newChannel != m_MSPStereo->GetValue())
+        eSoundChannel newChannel = m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue());
+        if (newChannel != m_AudioChannel->GetValue())
         {
-            m_MSPStereo->SetValue(newChannel);
+            m_AudioChannel->SetValue(newChannel);
             if (StatusBar_IsVisible() == TRUE)
             {
                 char szText[128];

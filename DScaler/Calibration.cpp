@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.36 2001-11-29 17:30:51 adcockj Exp $
+// $Id: Calibration.cpp,v 1.37 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.35  2001/11/24 22:57:02  laurentg
 // Copyright line restored
 //
@@ -1138,7 +1142,7 @@ void CCalibration::LoadTestPatterns()
     CColorBar* color_bar;
     CSubPattern* sub_pattern;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", VIDEOFORMAT_NTSC_M);
 
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1217,7 +1221,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - tint color", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - tint color", VIDEOFORMAT_NTSC_M);
 
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1261,7 +1265,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", VIDEOFORMAT_NTSC_M);
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1314,7 +1318,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 15 C 5 - color bars", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 15 C 5 - color bars", VIDEOFORMAT_NTSC_M);
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1358,7 +1362,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 1 C 7 - range of gray", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 1 C 7 - range of gray", VIDEOFORMAT_NTSC_M);
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1413,7 +1417,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 4 C 4 - color bars", FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 4 C 4 - color bars", VIDEOFORMAT_NTSC_M);
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1457,7 +1461,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Screen Performance", FORMAT_PAL_BDGHI);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Screen Performance", VIDEOFORMAT_PAL_B);
 
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1536,7 +1540,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL 2000 - T 36 C 1 - range of gray", FORMAT_PAL_BDGHI);
+    test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL 2000 - T 36 C 1 - range of gray", VIDEOFORMAT_PAL_B);
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
@@ -1591,7 +1595,7 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL 2000 - T 31 C 1 - color bars", FORMAT_PAL_BDGHI);
+    test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL 2000 - T 31 C 1 - color bars", VIDEOFORMAT_PAL_B);
     
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);

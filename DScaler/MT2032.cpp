@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.3 2001-11-29 17:30:52 adcockj Exp $
+// $Id: MT2032.cpp,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -55,8 +59,8 @@ eTunerId CMT2032::GetTunerId()
 
 eVideoFormat CMT2032::GetDefaultVideoFormat()
 {
-    /// \todo FIXME
-    return FORMAT_NTSC;
+    /// \todo: check if this is the VoodooTV FM card anad return PAL
+    return VIDEOFORMAT_NTSC_M;
 }
 
 bool CMT2032::HasRadio() const
@@ -426,7 +430,7 @@ bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
     int if2, from, to;
 
     /* signal bandwidth and picture carrier */
-    if (videoFormat == FORMAT_NTSC)
+    if (IsNTSCVideoFormat(videoFormat))
     {
         from = 40750 * 1000;
         to = 46750 * 1000;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.8 2001-12-03 17:27:55 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.9 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/12/03 17:27:55  adcockj
+// SECAM NICAM patch from Quenotte
+//
 // Revision 1.7  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -59,13 +62,17 @@
 extern const char *TunerNames[TUNER_LASTONE];
 extern const TCardSetup TVCards[TVCARD_LASTONE];
 
+BOOL APIENTRY CBT848Source::AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    /// \todo FIXME pass control to AudioDecoder's settings dialog
+    EndDialog(hDlg, TRUE);
+    return FALSE;
+}
+
 BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    static BOOL TSuperBass;
     static int  TVolume;
     static char TBalance;
-    static char TSpatial;
-    static char TLoudness;
     static char TBass;
     static char TTreble;
     static CBT848Source* pThis;
@@ -81,25 +88,16 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         }
 
         TVolume = pThis->m_Volume->GetValue();
-        TSpatial = pThis->m_Spatial->GetValue();
-        TLoudness = pThis->m_Loudness->GetValue();
         TBass = pThis->m_Bass->GetValue();
         TTreble = pThis->m_Treble->GetValue();
         TBalance = pThis->m_Balance->GetValue();
-        TSuperBass = pThis->m_SuperBass->GetValue();
 
         SetDlgItemInt(hDlg, IDC_D1, TVolume, FALSE);
-        SetDlgItemInt(hDlg, IDC_D2, TSpatial, TRUE);
-        SetDlgItemInt(hDlg, IDC_D3, TLoudness, TRUE);
         SetDlgItemInt(hDlg, IDC_D4, TBass, TRUE);
         SetDlgItemInt(hDlg, IDC_D5, TTreble, TRUE);
         SetDlgItemInt(hDlg, IDC_D6, TBalance, TRUE);
 
-        CheckDlgButton(hDlg, IDC_CHECK1, TSuperBass);
-
         pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_SLIDER1));
-        pThis->m_Spatial->SetupControl(GetDlgItem(hDlg, IDC_SLIDER2));
-        pThis->m_Loudness->SetupControl(GetDlgItem(hDlg, IDC_SLIDER3));
         pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_SLIDER4));
         pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
         pThis->m_Balance->SetupControl(GetDlgItem(hDlg, IDC_SLIDER6));
@@ -111,16 +109,6 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         {
             pThis->m_Volume->SetFromControl((HWND)lParam);
             SetDlgItemInt(hDlg, IDC_D1, pThis->m_Volume->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER2))
-        {
-            pThis->m_Spatial->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D2, pThis->m_Spatial->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER3))
-        {
-            pThis->m_Loudness->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D3, pThis->m_Loudness->GetValue(), TRUE);
         }
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
         {
@@ -141,10 +129,6 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {
-        case IDC_CHECK1:
-            pThis->m_SuperBass->SetValue(IsDlgButtonChecked(hDlg, IDC_CHECK1));
-            break;
-
         case IDOK:
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
@@ -152,10 +136,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         
         case IDCANCEL:
             pThis->Mute();
-            pThis->m_SuperBass->SetValue(TSuperBass);
             pThis->m_Volume->SetValue(TVolume);
-            pThis->m_Spatial->SetValue(TSpatial);
-            pThis->m_Loudness->SetValue(TLoudness);
             pThis->m_Bass->SetValue(TBass);
             pThis->m_Treble->SetValue(TTreble);
             pThis->m_Balance->SetValue(TBalance);
@@ -165,24 +146,16 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         
         case IDC_DEFAULT:
             pThis->Mute();
-            pThis->m_SuperBass->SetDefault();
             pThis->m_Volume->SetDefault();
-            pThis->m_Spatial->SetDefault();
-            pThis->m_Loudness->SetDefault();
             pThis->m_Bass->SetDefault();
             pThis->m_Treble->SetDefault();
             pThis->m_Balance->SetDefault();
-            Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK1), pThis->m_SuperBass->GetValue()?BST_CHECKED:BST_UNCHECKED);
             SetDlgItemInt(hDlg, IDC_D1, pThis->m_Volume->GetValue(), FALSE);
-            SetDlgItemInt(hDlg, IDC_D2, pThis->m_Spatial->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D3, pThis->m_Loudness->GetValue(), TRUE);
             SetDlgItemInt(hDlg, IDC_D4, pThis->m_Bass->GetValue(), TRUE);
             SetDlgItemInt(hDlg, IDC_D5, pThis->m_Treble->GetValue(), TRUE);
             SetDlgItemInt(hDlg, IDC_D6, pThis->m_Balance->GetValue(), TRUE);
 
             pThis->m_Volume->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER1));
-            pThis->m_Spatial->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER2));
-            pThis->m_Loudness->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER3));
             pThis->m_Bass->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
             pThis->m_Treble->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
             pThis->m_Balance->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
@@ -196,121 +169,6 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
     }
     return (FALSE);
 }
-
-BOOL APIENTRY CBT848Source::AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    static char TEqualizer[5] = { 0, 0, 0, 0, 0};
-    static CBT848Source* pThis;
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        pThis = (CBT848Source*)lParam;
-        if (pThis->m_pBT848Card->HasMSP() == FALSE)
-        {
-            ErrorBox("No MSP Audio Device found");
-            EndDialog(hDlg, 0);
-        }
-
-        pThis->m_Equalizer1->SetupControl(GetDlgItem(hDlg, IDC_SLIDER1));
-        TEqualizer[0] = pThis->m_Equalizer1->GetValue();
-        SetDlgItemInt(hDlg, IDC_D1, pThis->m_Equalizer1->GetValue(), TRUE);
-
-        pThis->m_Equalizer2->SetupControl(GetDlgItem(hDlg, IDC_SLIDER2));
-        TEqualizer[1] = pThis->m_Equalizer2->GetValue();
-        SetDlgItemInt(hDlg, IDC_D2, pThis->m_Equalizer1->GetValue(), TRUE);
-
-        pThis->m_Equalizer3->SetupControl(GetDlgItem(hDlg, IDC_SLIDER3));
-        TEqualizer[2] = pThis->m_Equalizer3->GetValue();
-        SetDlgItemInt(hDlg, IDC_D3, pThis->m_Equalizer1->GetValue(), TRUE);
-
-        pThis->m_Equalizer4->SetupControl(GetDlgItem(hDlg, IDC_SLIDER4));
-        TEqualizer[3] = pThis->m_Equalizer4->GetValue();
-        SetDlgItemInt(hDlg, IDC_D4, pThis->m_Equalizer1->GetValue(), TRUE);
-
-        pThis->m_Equalizer5->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
-        TEqualizer[4] = pThis->m_Equalizer5->GetValue();
-        SetDlgItemInt(hDlg, IDC_D5, pThis->m_Equalizer1->GetValue(), TRUE);
-        break;
-    case WM_VSCROLL:
-    case WM_HSCROLL:
-        if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER1))
-        {
-            pThis->m_Equalizer1->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D1, pThis->m_Equalizer1->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER2))
-        {
-            pThis->m_Equalizer2->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D2, pThis->m_Equalizer2->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER3))
-        {
-            pThis->m_Equalizer3->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D3, pThis->m_Equalizer3->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
-        {
-            pThis->m_Equalizer4->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D4, pThis->m_Equalizer4->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
-        {
-            pThis->m_Equalizer5->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Equalizer5->GetValue(), TRUE);
-        }
-        break;
-
-    case WM_COMMAND:
-        switch(LOWORD(wParam))
-        {
-        case IDOK:
-			WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, TRUE);
-            break;
-
-        case IDCANCEL:
-            pThis->Mute();
-            pThis->m_Equalizer1->SetValue(TEqualizer[0]);
-            pThis->m_Equalizer2->SetValue(TEqualizer[1]);
-            pThis->m_Equalizer3->SetValue(TEqualizer[2]);
-            pThis->m_Equalizer4->SetValue(TEqualizer[3]);
-            pThis->m_Equalizer5->SetValue(TEqualizer[4]);
-            pThis->UnMute();
-            EndDialog(hDlg, TRUE);
-            break;
-
-        case IDC_DEFAULT:
-            pThis->Mute();
-            pThis->m_Equalizer1->SetDefault();
-            pThis->m_Equalizer2->SetDefault();
-            pThis->m_Equalizer3->SetDefault();
-            pThis->m_Equalizer4->SetDefault();
-            pThis->m_Equalizer5->SetDefault();
-
-            SetDlgItemInt(hDlg, IDC_D1, pThis->m_Equalizer1->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D2, pThis->m_Equalizer1->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D3, pThis->m_Equalizer1->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D4, pThis->m_Equalizer1->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Equalizer1->GetValue(), TRUE);
-
-            pThis->m_Equalizer1->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER1));
-            pThis->m_Equalizer2->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER2));
-            pThis->m_Equalizer3->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER3));
-            pThis->m_Equalizer4->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
-            pThis->m_Equalizer5->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
-
-            pThis->UnMute();
-            break;
-        }
-
-        break;
-    }
-
-    return (FALSE);
-}
-
-
 
 BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -479,16 +337,21 @@ void CBT848Source::SetMenu(HMENU hMenu)
     DoneWidth |= (m_PixelWidth->GetValue() == 320);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
 
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (m_VideoFormat->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_1, (m_VideoFormat->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_2, (m_VideoFormat->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_3, (m_VideoFormat->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_4, (m_VideoFormat->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_5, (m_VideoFormat->GetValue() == 5));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_6, (m_VideoFormat->GetValue() == 6));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (m_VideoFormat->GetValue() == 7));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (m_VideoFormat->GetValue() == 8));
-    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_9, (m_VideoFormat->GetValue() == 9));
+    eVideoFormat videoFormat = (eVideoFormat)m_VideoFormat->GetValue();
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (IsPALVideoFormat(videoFormat) 
+                                                    && videoFormat != VIDEOFORMAT_PAL_M
+                                                    && videoFormat != VIDEOFORMAT_PAL_N
+                                                    && videoFormat != VIDEOFORMAT_PAL_60
+                                                    && videoFormat != VIDEOFORMAT_PAL_N_COMBO
+                                                    ));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_1, (videoFormat == VIDEOFORMAT_NTSC_M));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_2, (IsSECAMVideoFormat(videoFormat)));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_3, (videoFormat == VIDEOFORMAT_PAL_M));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_4, (videoFormat == VIDEOFORMAT_PAL_N));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_5, (videoFormat == VIDEOFORMAT_NTSC_M_Japan));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_6, (videoFormat == VIDEOFORMAT_PAL_60));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (videoFormat == VIDEOFORMAT_NTSC_50));
+    CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
 
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (m_AudioSource->GetValue() == 0));
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (m_AudioSource->GetValue() == 1));
@@ -497,31 +360,10 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_4, (m_AudioSource->GetValue() == 4));
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_5, (m_AudioSource->GetValue() == 5));
 
-    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_2, (m_MSPMode->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_3, (m_MSPMode->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_4, (m_MSPMode->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_5, (m_MSPMode->GetValue() == 5));
-    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_6, (m_MSPMode->GetValue() == 6));
-    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_7, (m_MSPMode->GetValue() == 7));
-
-    CheckMenuItemBool(m_hMenu, IDM_MSPSTEREO_1, (m_MSPStereo->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_MSPSTEREO_2, (m_MSPStereo->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_MSPSTEREO_3, (m_MSPStereo->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_MSPSTEREO_4, (m_MSPStereo->GetValue() == 4));
-
-    CheckMenuItemBool(m_hMenu, IDM_MAJOR_CARRIER_0, (m_MSPMajorMode->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_MAJOR_CARRIER_1, (m_MSPMajorMode->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_MAJOR_CARRIER_2, (m_MSPMajorMode->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_MAJOR_CARRIER_3, (m_MSPMajorMode->GetValue() == 3));
-
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_0, (m_MSPMinorMode->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_1, (m_MSPMinorMode->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_2, (m_MSPMinorMode->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_3, (m_MSPMinorMode->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_4, (m_MSPMinorMode->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_5, (m_MSPMinorMode->GetValue() == 5));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_6, (m_MSPMinorMode->GetValue() == 6));
-    CheckMenuItemBool(m_hMenu, IDM_MINOR_CARRIER_7, (m_MSPMinorMode->GetValue() == 7));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, (m_AudioChannel->GetValue() == 1));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, (m_AudioChannel->GetValue() == 2));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, (m_AudioChannel->GetValue() == 3));
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, (m_AudioChannel->GetValue() == 4));
 
     CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
 
@@ -716,38 +558,17 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_PixelWidth->OSDShow();
             break;
 
-        case IDM_MSPMODE_2:
-        case IDM_MSPMODE_3:
-        case IDM_MSPMODE_4:
-        case IDM_MSPMODE_5:
-        case IDM_MSPMODE_6:
-        case IDM_MSPMODE_7:
-            m_MSPMode->SetValue(LOWORD(wParam) - (IDM_MSPMODE_2 - 2));
+        case IDM_SOUNDCHANNEL_MONO:
+            m_AudioChannel->SetValue(MONO);
             break;
-
-        case IDM_MAJOR_CARRIER_0:
-        case IDM_MAJOR_CARRIER_1:
-        case IDM_MAJOR_CARRIER_2:
-        case IDM_MAJOR_CARRIER_3:
-            m_MSPMajorMode->SetValue(LOWORD(wParam) - IDM_MAJOR_CARRIER_0);
+        case IDM_SOUNDCHANNEL_STEREO:
+            m_AudioChannel->SetValue(STEREO);
             break;
-
-        case IDM_MINOR_CARRIER_0:
-        case IDM_MINOR_CARRIER_1:
-        case IDM_MINOR_CARRIER_2:
-        case IDM_MINOR_CARRIER_3:
-        case IDM_MINOR_CARRIER_4:
-        case IDM_MINOR_CARRIER_5:
-        case IDM_MINOR_CARRIER_6:
-        case IDM_MINOR_CARRIER_7:
-            m_MSPMinorMode->SetValue(LOWORD(wParam) - IDM_MINOR_CARRIER_0);
+        case IDM_SOUNDCHANNEL_LANGUAGE1:
+            m_AudioChannel->SetValue(LANGUAGE1);
             break;
-
-        case IDM_MSPSTEREO_1:
-        case IDM_MSPSTEREO_2:
-        case IDM_MSPSTEREO_3:
-        case IDM_MSPSTEREO_4:
-            m_MSPStereo->SetValue(LOWORD(wParam) - (IDM_MSPSTEREO_1 - 1));
+        case IDM_SOUNDCHANNEL_LANGUAGE2:
+            m_AudioChannel->SetValue(LANGUAGE2);
             break;
 
         case IDM_AUTOSTEREO:
@@ -763,22 +584,22 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_AudioSource->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
             switch (m_AudioSource->GetValue())
             {
-            case CBT848Card::AUDIOMUX_TUNER:     
+            case AUDIOINPUT_TUNER:     
                 ShowText(hWnd, "Audio Input - Tuner");     
                 break;
-            case CBT848Card::AUDIOMUX_MSP_RADIO: 
+            case AUDIOINPUT_RADIO: 
                 ShowText(hWnd, "Audio Input - MSP/Radio"); 
                 break;
-            case CBT848Card::AUDIOMUX_EXTERNAL:  
+            case AUDIOINPUT_EXTERNAL:  
                 ShowText(hWnd, "Audio Input - External");  
                 break;
-            case CBT848Card::AUDIOMUX_INTERNAL:  
+            case AUDIOINPUT_INTERNAL:  
                 ShowText(hWnd, "Audio Input - Internal");  
                 break;
-            case CBT848Card::AUDIOMUX_MUTE:      
+            case AUDIOINPUT_MUTE:      
                 ShowText(hWnd, "Audio Input - Disabled");  
                 break;
-            case CBT848Card::AUDIOMUX_STEREO:    
+            case AUDIOINPUT_STEREO:    
                 ShowText(hWnd, "Audio Input - Stereo");    
                 break;
             }
@@ -806,27 +627,52 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUDIOSETTINGS:
-            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
             break;
 
         case IDM_AUDIOSETTINGS1:
-            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1, (LPARAM)this);
             break;
 
         case IDM_ADV_VIDEOSETTINGS:
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
             break;
 
+        // Video format (NTSC, PAL, etc)
         case IDM_TYPEFORMAT_0:
+            m_VideoFormat->SetValue(VIDEOFORMAT_PAL_B);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_1:
+            m_VideoFormat->SetValue(VIDEOFORMAT_NTSC_M);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_2:
+            m_VideoFormat->SetValue(VIDEOFORMAT_SECAM_B);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_3:
+            m_VideoFormat->SetValue(VIDEOFORMAT_PAL_M);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_4:
+            m_VideoFormat->SetValue(VIDEOFORMAT_PAL_N);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_5:
+            m_VideoFormat->SetValue(VIDEOFORMAT_NTSC_M_Japan);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_6:
+            m_VideoFormat->SetValue(VIDEOFORMAT_PAL_60);
+            ShowText(hWnd, GetStatus());
+            break;
         case IDM_TYPEFORMAT_7:
-            // Video format (NTSC, PAL, etc)
-            m_VideoFormat->SetValue(LOWORD(wParam) - IDM_TYPEFORMAT_0);
+            m_VideoFormat->SetValue(VIDEOFORMAT_NTSC_50);
+            ShowText(hWnd, GetStatus());
+            break;
+        case IDM_TYPEFORMAT_8:
+            m_VideoFormat->SetValue(VIDEOFORMAT_PAL_N_COMBO);
             ShowText(hWnd, GetStatus());
             break;
 
@@ -932,11 +778,9 @@ void CBT848Source::ChangeSectionNamesForInput()
 
 void CBT848Source::ChangeDefaultsForInput()
 {
-    switch(GetFormat())
+    eVideoFormat format = GetFormat();
+    if(IsNTSCVideoFormat(format))
     {
-    case FORMAT_NTSC:
-    case FORMAT_NTSC_J:
-    case FORMAT_NTSC50:
         m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_NTSC);
         m_Contrast->ChangeDefault(DEFAULT_CONTRAST_NTSC);
         m_Hue->ChangeDefault(DEFAULT_HUE_NTSC);
@@ -944,13 +788,9 @@ void CBT848Source::ChangeDefaultsForInput()
         m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC);
         m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC);
         //Aspect_GetSetting(OVERSCAN)->Default = DEFAULT_OVERSCAN_NTSC;
-        break;
-    case FORMAT_PAL_BDGHI:
-    case FORMAT_PAL_N:
-    case FORMAT_PAL60:
-    case FORMAT_SECAM:
-    case FORMAT_PAL_M:
-    case FORMAT_PAL_NC:
+    }
+    else
+    {
         m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL);
         m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL);
         m_Hue->ChangeDefault(DEFAULT_HUE_PAL);
@@ -958,7 +798,6 @@ void CBT848Source::ChangeDefaultsForInput()
         m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL);
         m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL);
         //Aspect_GetSetting(OVERSCAN)->Default = DEFAULT_OVERSCAN_PAL;
-        break;
     }
 
     // set up defaults fro position parameters

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.h,v 1.3 2001-11-02 17:03:59 adcockj Exp $
+// $Id: TVFormats.h,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,27 +15,44 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
+
 
 #ifndef __TVFORMATS_H___
 #define __TVFORMATS_H___
 
 enum eVideoFormat
 {
-    FORMAT_PAL_BDGHI = 0,
-    FORMAT_NTSC,
-    FORMAT_SECAM,
-    FORMAT_PAL_M,
-    FORMAT_PAL_N,
-    FORMAT_NTSC_J,
-    FORMAT_PAL60,
-    FORMAT_NTSC50,
-    FORMAT_PAL_NC,
-    FORMAT_LASTONE,
+    VIDEOFORMAT_PAL_B = 0,
+    VIDEOFORMAT_PAL_D,
+    VIDEOFORMAT_PAL_G,
+    VIDEOFORMAT_PAL_H,
+    VIDEOFORMAT_PAL_I,
+    VIDEOFORMAT_PAL_M,
+    VIDEOFORMAT_PAL_N,
+    VIDEOFORMAT_PAL_60,
+    VIDEOFORMAT_PAL_N_COMBO,
+
+    VIDEOFORMAT_SECAM_B,
+    VIDEOFORMAT_SECAM_D,
+    VIDEOFORMAT_SECAM_G,
+    VIDEOFORMAT_SECAM_H,
+    VIDEOFORMAT_SECAM_K,
+    VIDEOFORMAT_SECAM_K1,
+    VIDEOFORMAT_SECAM_L,
+    VIDEOFORMAT_SECAM_L1,
+
+    VIDEOFORMAT_NTSC_M,
+    VIDEOFORMAT_NTSC_M_Japan,
+    VIDEOFORMAT_NTSC_50,
+
+    VIDEOFORMAT_LASTONE
 };
 
 typedef struct
 {
-    LPCSTR szDesc;
     WORD wCropHeight;
     WORD wTotalWidth;
     BYTE bDelayA;
@@ -57,7 +74,11 @@ typedef struct
 } TTVFormat;
 
 TTVFormat* GetTVFormat(eVideoFormat Format);
-extern const char* FormatList[FORMAT_LASTONE];
+bool IsPALVideoFormat(eVideoFormat Format);
+bool IsNTSCVideoFormat(eVideoFormat Format);
+bool IsSECAMVideoFormat(eVideoFormat Format);
+
+extern const char* VideoFormatNames[];
 
 
 #endif

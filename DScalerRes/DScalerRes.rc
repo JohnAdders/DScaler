@@ -133,35 +133,27 @@ BEGIN
     VK_F1,          IDM_SOURCE_TUNER,       VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F1,          IDM_TYPEFORMAT_0,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F2,          IDM_SOURCE_COMPOSITE,   VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F2,          IDM_TYPEFORMAT_1,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F3,          IDM_SOURCE_SVIDEO,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F3,          IDM_TYPEFORMAT_2,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F4,          IDM_END,                VIRTKEY, ALT, NOINVERT
     VK_F4,          IDM_SOURCE_COMPVIASVIDEO, VIRTKEY, CONTROL, ALT, 
                                                     NOINVERT
     VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F4,          IDM_TYPEFORMAT_3,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F5,          IDM_TELETEXT_KEY1,      VIRTKEY, NOINVERT
     VK_F5,          IDM_SOURCE_OTHER1,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F5,          IDM_AUDIO_4,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F5,          IDM_TYPEFORMAT_4,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F6,          IDM_TELETEXT_KEY2,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SOURCE_OTHER2,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F6,          IDM_TYPEFORMAT_5,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F7,          IDM_TELETEXT_KEY3,      VIRTKEY, NOINVERT
-    VK_F7,          IDM_TYPEFORMAT_6,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F8,          IDM_TELETEXT_KEY4,      VIRTKEY, NOINVERT
-    VK_F8,          IDM_TYPEFORMAT_7,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F9,          IDM_TELETEXT_KEY5,      VIRTKEY, NOINVERT
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
@@ -329,54 +321,40 @@ BEGIN
     PUSHBUTTON      "&Default",IDC_DEFAULT,113,161,45,15
 END
 
-IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 257, 236
+IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 169, 237
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio-Settings (Analog)"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CTEXT           "Volume",IDC_STATIC,10,10,33,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,5,5,45,150
-    DEFPUSHBUTTON   "OK",IDOK,205,215,45,15
-    PUSHBUTTON      "Default",IDC_DEFAULT,105,215,45,15
-    EDITTEXT        IDC_D1,10,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+    CTEXT           "Volume",IDC_STATIC,14,10,33,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,7,45,150
+    DEFPUSHBUTTON   "OK",IDOK,117,215,45,15
+    PUSHBUTTON      "Default",IDC_DEFAULT,62,215,45,15
+    EDITTEXT        IDC_D1,13,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CTEXT           "Enhancer",IDC_STATIC,60,10,33,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,55,5,45,150
-    EDITTEXT        IDC_D2,60,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+    CTEXT           "Bass",IDC_STATIC,67,10,33,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,61,7,45,150
+    EDITTEXT        IDC_D4,65,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CTEXT           "Loudness",IDC_STATIC,110,10,33,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,105,5,45,150
-    EDITTEXT        IDC_D3,110,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CTEXT           "Bass",IDC_STATIC,160,10,33,8
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,155,5,45,150
-    EDITTEXT        IDC_D4,160,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CTEXT           "Treble",IDC_STATIC,210,10,33,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,205,5,45,150
-    EDITTEXT        IDC_D5,210,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+    CTEXT           "Treble",IDC_STATIC,121,10,33,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,117,7,45,150
+    EDITTEXT        IDC_D5,121,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
     PUSHBUTTON      "Cancel",IDCANCEL,5,215,45,15
-    GROUPBOX        "",IDC_STATIC,5,155,245,35
-    CTEXT           "Balance",IDC_STATIC,10,165,33,10
-    EDITTEXT        IDC_D6,45,165,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+    GROUPBOX        "",IDC_STATIC,5,155,157,44
+    CTEXT           "Balance",IDC_STATIC,45,165,33,10
+    EDITTEXT        IDC_D6,87,164,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CONTROL         "Activate Superbass",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,95,195,125,10
     CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,14,48,29,97
-    CONTROL         "Slider2",IDC_SLIDER2,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,63,48,29,97
-    CONTROL         "Slider3",IDC_SLIDER3,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,114,48,29,97
+                    TBS_BOTH | WS_TABSTOP,14,54,29,97
     CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,164,48,29,97
+                    TBS_BOTH | WS_TABSTOP,69,54,29,97
     CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,213,48,29,97
+                    TBS_BOTH | WS_TABSTOP,125,54,29,97
     CONTROL         "Slider6",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
-                    WS_TABSTOP,86,168,156,15
+                    WS_TABSTOP,7,178,152,15
 END
 
 IDD_AUDIOEQUALIZER DIALOG DISCARDABLE  0, 0, 257, 175
@@ -1038,16 +1016,6 @@ IDC_BT848 MENU DISCARDABLE
 BEGIN
     POPUP "&Bt848"
     BEGIN
-        POPUP "&Audio Input"
-        BEGIN
-            MENUITEM "&Mute\tM",                    IDM_MUTE
-            MENUITEM "&Tuner\tCtrl+Shift+F1",       IDM_AUDIO_0
-            MENUITEM "MSP/&Radio\tCtrl+Shift+F2",   IDM_AUDIO_1
-            MENUITEM "&External\tCtrl+Shift+F3",    IDM_AUDIO_2
-            MENUITEM "&Internal\tCtrl+Shift+F4",    IDM_AUDIO_3
-            MENUITEM "&Disabled\tCtrl+Shift+F5",    IDM_AUDIO_4
-            MENUITEM "&Stereo\tCtrl+Shift+F6",      IDM_AUDIO_5
-        END
         POPUP "Video &Input"
         BEGIN
             MENUITEM "&Tuner\tCtrl+Alt+F1",         IDM_SOURCE_TUNER
@@ -1057,7 +1025,7 @@ BEGIN
                                                     IDM_SOURCE_COMPVIASVIDEO
             MENUITEM "Other - &1\tCtrl+Alt+F5",     IDM_SOURCE_OTHER1
             MENUITEM "Other - &2\tCtrl+Alt+F6",     IDM_SOURCE_OTHER2
-            POPUP "&CCIR"
+            POPUP "CC&IR"
             BEGIN
                 MENUITEM "CCIR &1",                     IDM_SOURCE_CCIR656_1
                 MENUITEM "CCIR &2",                     IDM_SOURCE_CCIR656_2
@@ -1067,14 +1035,15 @@ BEGIN
         END
         POPUP "Video &Format"
         BEGIN
-            MENUITEM "&PAL-BDGHI\tShift+Alt+F1",    IDM_TYPEFORMAT_0
-            MENUITEM "&NTSC\tShift+Alt+F2",         IDM_TYPEFORMAT_1
-            MENUITEM "&SECAM\tShift+Alt+F3",        IDM_TYPEFORMAT_2
-            MENUITEM "PAL-&M\tShift+Alt+F4",        IDM_TYPEFORMAT_3
-            MENUITEM "PA&L-N\tShift+Alt+F5",        IDM_TYPEFORMAT_4
-            MENUITEM "NTSC Japan   \tShift+Alt+F6", IDM_TYPEFORMAT_5
-            MENUITEM "PAL&60   \tShift+Alt+F7",     IDM_TYPEFORMAT_6
-            MENUITEM "NTSC &50\tShift+Alt+F8",      IDM_TYPEFORMAT_7
+            MENUITEM "&PAL-BDGHI",                  IDM_TYPEFORMAT_0
+            MENUITEM "&NTSC",                       IDM_TYPEFORMAT_1
+            MENUITEM "&SECAM",                      IDM_TYPEFORMAT_2
+            MENUITEM "PAL-&M",                      IDM_TYPEFORMAT_3
+            MENUITEM "PA&L-N",                      IDM_TYPEFORMAT_4
+            MENUITEM "NTSC-&Japan ",                IDM_TYPEFORMAT_5
+            MENUITEM "PAL-&60",                     IDM_TYPEFORMAT_6
+            MENUITEM "NTSC-&50",                    IDM_TYPEFORMAT_7
+            MENUITEM "PAL-N&C",                     IDM_TYPEFORMAT_8
         END
         POPUP "Pixel &Width"
         BEGIN
@@ -1090,48 +1059,37 @@ BEGIN
 
             MENUITEM "320",                         IDM_SETTINGS_PIXELWIDTH_320
 
-            MENUITEM "Custom",                      IDM_SETTINGS_PIXELWIDTH_CUSTOM
+            MENUITEM "Custom ...",                  IDM_SETTINGS_PIXELWIDTH_CUSTOM
 
         END
-        MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
-        POPUP "MSP/Radio"
+        POPUP "&Audio Input"
         BEGIN
-            MENUITEM "&Tone - Control",             IDM_AUDIOSETTINGS
-            MENUITEM "Tone - Control  &Equalizer",  IDM_AUDIOSETTINGS1
-            MENUITEM SEPARATOR
-            MENUITEM "FM Radio",                    IDM_MSPMODE_2
-            MENUITEM "TV Terrestial FM-mono + FM-stereo ", IDM_MSPMODE_3
-            MENUITEM "TV Sat FM-mono ",             IDM_MSPMODE_4
-            MENUITEM "NICAM PAL BDGH && SECAM",     IDM_MSPMODE_5
-            MENUITEM "NICAM PAL I",                 IDM_MSPMODE_6
-            MENUITEM "NICAM SECAM L",               IDM_MSPMODE_7
-            MENUITEM SEPARATOR
-            POPUP "Major Carrier"
-            BEGIN
-                MENUITEM "NTSC",                        IDM_MAJOR_CARRIER_0
-                MENUITEM "PAl BGH",                     IDM_MAJOR_CARRIER_1
-                MENUITEM "PAL I",                       IDM_MAJOR_CARRIER_2
-                MENUITEM "PAL D + Sat + SECAM",         IDM_MAJOR_CARRIER_3
-            END
-            POPUP "Minor Carrier"
-            BEGIN
-                MENUITEM "PAL B/G FM-Stereo",           IDM_MINOR_CARRIER_0
-                MENUITEM "PAL B/G NICAM",               IDM_MINOR_CARRIER_1
-                MENUITEM "PAL D/K NICAM + SECAM L",     IDM_MINOR_CARRIER_2
-                MENUITEM "PAL D/K1 FM-Stereo",          IDM_MINOR_CARRIER_3
-                MENUITEM "PAL D/K2 FM-Stereo",          IDM_MINOR_CARRIER_4
-                MENUITEM "PAL SAT FM-Stereo s/b",       IDM_MINOR_CARRIER_5
-                MENUITEM "PAL SAT FM-Stereo s",         IDM_MINOR_CARRIER_6
-                MENUITEM "PAL SAT FM-Stereo b",         IDM_MINOR_CARRIER_7
-            END
-            MENUITEM SEPARATOR
-            MENUITEM "Mono",                        IDM_MSPSTEREO_1
-            MENUITEM "Stereo",                      IDM_MSPSTEREO_2
-            MENUITEM "Speech-Channel 1 ",           IDM_MSPSTEREO_3
-            MENUITEM "Speech-Channel",              IDM_MSPSTEREO_4
-            MENUITEM SEPARATOR
-            MENUITEM "Automatic Stereo Adjustment", IDM_AUTOSTEREO
+            MENUITEM "&Mute\tM",                    IDM_MUTE
+            MENUITEM "&Tuner\tCtrl+Shift+F1",       IDM_AUDIO_0
+            MENUITEM "&Radio\tCtrl+Shift+F2",       IDM_AUDIO_1
+            MENUITEM "&External\tCtrl+Shift+F3",    IDM_AUDIO_2
+            MENUITEM "&Internal\tCtrl+Shift+F4",    IDM_AUDIO_3
+            MENUITEM "&Disabled\tCtrl+Shift+F5",    IDM_AUDIO_4
+            MENUITEM "&Stereo\tCtrl+Shift+F6",      IDM_AUDIO_5
         END
+        POPUP "Audio &Channel"
+        BEGIN
+            MENUITEM "&Mono",                       IDM_SOUNDCHANNEL_MONO
+            MENUITEM "&Stereo",                     IDM_SOUNDCHANNEL_STEREO
+            MENUITEM "Speech Channel &1",           IDM_SOUNDCHANNEL_LANGUAGE1
+            MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
+            MENUITEM SEPARATOR
+            MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO
+        END
+        POPUP "Audio Settings"
+        BEGIN
+            MENUITEM "&Volume and Tone",            IDM_AUDIOSETTINGS
+            MENUITEM SEPARATOR
+            MENUITEM "MSP 34x0 &Equalizer",        IDM_MSP_EQUALIZER
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
+        MENUITEM SEPARATOR
         POPUP "Advanced"
         BEGIN
             MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
@@ -1191,9 +1149,9 @@ BEGIN
     IDD_AUDIOSETTINGS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 250
+        RIGHTMARGIN, 162
         TOPMARGIN, 7
-        BOTTOMMARGIN, 229
+        BOTTOMMARGIN, 230
     END
 
     IDD_AUDIOEQUALIZER, DIALOG

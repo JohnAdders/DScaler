@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.9 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.10 2001-12-05 21:45:10 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.8  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -139,7 +143,7 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 	CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
     m_bHasMSP(false),
-    m_LastAudioSource(AUDIOMUX_MUTE),
+    m_LastAudioSource(AUDIOINPUT_MUTE),
     m_Tuner(NULL)
 {
     strcpy(m_TunerStatus,"No Tuner");
@@ -147,14 +151,12 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 
     m_I2CInitialized = false;
     m_I2CBus = new CI2CBusForLineInterface(this);
-    m_MSP34x0 = new CMSP34x0();
+    m_AudioControls = new CNoAudioControls();
+    m_AudioDecoder = new CAudioDecoder();
 }
 
 CBT848Card::~CBT848Card()
 {
-    delete m_Tuner;
-    delete m_I2CBus;
-    delete m_MSP34x0;
     ClosePCICard();
 }
 
@@ -844,12 +846,12 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
             hdelay = ((CurrentX * HDelay) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
 
-        if(TVFormat == FORMAT_PAL60)
+        if(TVFormat == VIDEOFORMAT_PAL_60)
         {
             WriteByte(BT848_VTOTAL_LO, (BYTE)(525 & 0xff));
             WriteByte(BT848_VTOTAL_HI, (BYTE)(525 >> 8));
         }
-        else if(TVFormat == FORMAT_NTSC50)
+        else if(TVFormat == VIDEOFORMAT_NTSC_50)
         {
             WriteByte(BT848_VTOTAL_LO, (BYTE)(625 & 0xff));
             WriteByte(BT848_VTOTAL_HI, (BYTE)(625 >> 8));
@@ -935,47 +937,6 @@ BOOL CBT848Card::IsCCIRSource(eVideoSourceType nInput)
         return TRUE;
     }
     return FALSE;
-}
-
-void CBT848Card::SetAudioSource(eTVCardId CardType, eAudioMuxType nChannel)
-{
-    int i;
-    DWORD MuxSelect;
-
-    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(CardType)->GPIOMask, ~GetCardSetup(CardType)->GPIOMask);
-
-    switch(nChannel)
-    {
-    case AUDIOMUX_MSP_RADIO:
-    case AUDIOMUX_MUTE:
-        // just get on with it
-        MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
-        break;
-    default:
-        // see if there is a video signal present
-        i = 0;
-        while ((i < 20) && (!(ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PRES)))
-        {
-            i++;
-            ::Sleep(50);
-        }
-        // if video not in H-lock, turn audio off 
-        if (i == 20)
-        {
-            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[AUDIOMUX_MUTE];
-        }
-        else
-        {
-            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
-        }
-        m_LastAudioSource = nChannel;
-        break;
-    }
-
-
-    // select direct input 
-    //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
-    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup(CardType)->GPIOMask); 
 }
 
 BOOL CBT848Card::IsVideoPresent()

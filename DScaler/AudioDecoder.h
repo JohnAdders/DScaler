@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: AudioDecoder.h,v 1.1 2001-12-05 21:45:10 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,62 +22,46 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.3  2001/11/29 14:04:07  adcockj
-// Added Javadoc comments
-//
-// Revision 1.2  2001/11/26 13:02:27  adcockj
-// Bug Fixes and standards changes
-//
-// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
-// initial checkin of the new I2C code
-//
-//
 /////////////////////////////////////////////////////////////////////////////
 
-#if !defined(__NOTUNER_H__)
-#define __NOTUNER_H__
+#if !defined(__AUDIODECODER_H__)
+#define __AUDIODECODER_H__
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "ITuner.h"
+#include "Bt848_Defines.h"
+#include "TVFormats.h"
 
-/**  Used when tuner is not present to stub out functions and avoid crashes
-*/
-class CNoTuner : public ITuner  
+enum eAudioInput
 {
-public:
-    CNoTuner()
-    {
-    }
-    eTunerId GetTunerId()
-    {
-        return TUNER_ABSENT;
-    }
-    eVideoFormat GetDefaultVideoFormat()
-    {
-        return VIDEOFORMAT_NTSC_M;
-    }
-    bool HasRadio() const
-    {
-        return false;
-    }
-    bool SetRadioFrequency(long nFrequency)
-    {
-        return true;
-    }
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
-    {
-        return true;
-    }
-
-protected:
-    virtual BYTE GetDefaultAddress()const
-    {
-        return 0;
-    }
-
+    AUDIOINPUT_TUNER = 0,
+    AUDIOINPUT_RADIO,
+    AUDIOINPUT_EXTERNAL,
+    AUDIOINPUT_INTERNAL,
+    /// XXX: do we need this?
+    AUDIOINPUT_MUTE,
+    /// XXX: do we need this?
+    AUDIOINPUT_STEREO 
 };
 
-#endif // !defined(__NOTUNER_H__)
+class CAudioDecoder
+{
+public:
+    CAudioDecoder();
+    virtual ~CAudioDecoder();
+    virtual void SetVideoFormat(eVideoFormat videoFormat);
+    virtual eVideoFormat GetVideoFormat();
+    virtual void SetSoundChannel(eSoundChannel soundChannel);
+    virtual eSoundChannel GetSoundChannel();
+    virtual eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
+    virtual void SetAudioInput(eAudioInput audioInput);
+    virtual eAudioInput GetAudioInput();
+protected:
+    eSoundChannel m_SoundChannel;
+    eVideoFormat m_VideoFormat;
+    eAudioInput m_AudioInput;
+};
+
+#endif // !defined(__AUDIODECODER_H__)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.5 2001-12-20 03:06:58 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.6 2001-12-20 05:28:37 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/12/20 03:06:58  lindsey
+// Fixed use of incorrect algorithm (hopefully for good)
+// Switched to a two pixel block for motion and shimmer detection
+//  This improves the averaging of chroma shimmer and increases sensitivity
+//  to motion and to shimmer, but also increases sensitivity to noise.
+// Added a compile-time debug flag to make it easier to see what the filter is doing
+//
 // Revision 1.4  2001/12/16 16:31:43  adcockj
 // Bug fixes
 //
@@ -289,7 +296,7 @@ long FilterTemporalComb_3DNOW(TDeinterlaceInfo *pInfo)
 long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
 #endif  // processor specific routine name
 {
-    DWORD           ThisLine = 0;
+    DWORD           ThisLine = pInfo->SourceRect.top/2;
     TPicture**      pTPictures = pInfo->PictureHistory;
     BYTE*           pSource = NULL;
     BYTE*           pLastLast = NULL;
@@ -382,7 +389,6 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
     qwMotionThreshold |= (qwMotionThreshold << 48) | (qwMotionThreshold << 32) | (qwMotionThreshold << 16);
 
 
-    ThisLine = pInfo->SourceRect.top/2;
     pMap = gpShimmerMap + (ThisLine * pInfo->InputPitch);
     pSource = pTPictures[0]->pData + (ThisLine * pInfo->InputPitch);
     if (gDoFieldBuffering == TRUE)
@@ -397,12 +403,7 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
     }
 
     for ( ; ThisLine < BottomLine; ++ThisLine)
-    {
-        pMap += pInfo->InputPitch;
-        pSource += pInfo->InputPitch;
-        pLast += pInfo->InputPitch;
-        pLastLast += pInfo->InputPitch;
-        
+    {        
         __asm
         {
             // Cycles is negative for optimization reasons.  So the subtractions below actually add the
@@ -662,6 +663,11 @@ MAINLOOP_LABEL:
             add ecx, 32
             jnz MAINLOOP_LABEL
         }
+
+        pMap += pInfo->InputPitch;
+        pSource += pInfo->InputPitch;
+        pLast += pInfo->InputPitch;
+        pLastLast += pInfo->InputPitch;
     }
 
     // need to clear up MMX registers

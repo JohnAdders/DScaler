@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.27 2001-10-18 18:53:14 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.28 2001-11-02 10:15:20 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/10/18 18:53:14  adcockj
+// Corrected Mask color on change so that repaints always occur
+//
 // Revision 1.26  2001/10/18 16:24:07  adcockj
 // Added onchange for bblanking color
 //
@@ -584,7 +587,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 // during aspect ratio control
 extern LPDIRECTDRAW lpDD; // Temporary expierement MRS 2-22-01
 
-void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
+void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMiddlePainting)
 {
     // MRS 9-9-00
     HBRUSH Background = CreateSolidBrush(RGB(AspectSettings.MaskGreyShade,
@@ -677,8 +680,11 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     }
 
     // Draw overlay color in the middle.
-    IntersectRect(&r, &AspectSettings.DestinationRect, PaintRect);
-    FillRect(hDC, &r, Overlay);
+    if(!bNoMiddlePainting)
+    {
+        IntersectRect(&r, &AspectSettings.DestinationRect, PaintRect);
+        FillRect(hDC, &r, Overlay);
+    }
 
     DeleteObject(Background);
     DeleteObject(Overlay);

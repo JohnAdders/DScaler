@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.20 2001-10-18 16:20:40 adcockj Exp $
+// $Id: AspectRatio.h,v 1.21 2001-11-02 10:15:20 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ enum eHorzPos
 BOOL    ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID);
 void    AspectRatio_SetMenu(HMENU hMenu);
 void    WorkoutOverlaySize(BOOL allowResize = TRUE);
-void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect);
+void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMiddlePainting = false);
 int     FindAspectRatio(short** EvenField, short** OddField);
 void    AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddField);
 void    GetSourceRect(RECT* rect);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.81 2001-10-25 12:59:48 temperton Exp $
+// $Id: DScaler.cpp,v 1.82 2001-11-02 10:15:20 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2001/10/25 12:59:48  temperton
+// Fixed problem, when DScaler hangs on exit if we forgot to stop record.
+//
 // Revision 1.80  2001/10/22 05:55:07  temperton
 // Teletext improvements
 //
@@ -2139,7 +2142,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             BeginPaint(hWnd, &sPaint);
             if(VTState != VT_OFF)
             {
-                PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
+                PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint, true);
                 VT_Redraw(hWnd, sPaint.hdc, FALSE);
             }
             else

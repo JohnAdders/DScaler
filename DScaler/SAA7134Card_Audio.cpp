@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.32 2005-01-20 03:18:37 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.33 2005-02-03 04:26:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2005/01/20 03:18:37  atnak
+// Removed irregular tabs introduced by tabify.  Fixed wording of registerSize.
+//
 // Revision 1.31  2004/12/16 23:51:30  atnak
 // Fixed problem in Read/WriteDSPData7133 when compiling release.
 //
@@ -325,14 +328,38 @@ BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD registerMask, CB
 	}
 #endif
 
+	DWORD previousValue = 0;
+
+	if (value.mask() != registerMask)
+	//if ((value.mask() & registerMask) != 0xffffffff)
+	{
+		CBitVector b;
+		if (!ReadDSPData7133(registerOffset, 0xffffffff, b))
+		{
+			return FALSE;
+		}
+		previousValue = b.value();
+	}
+
 	// Write DSP data according to the high latency write protocol.
+	// All DSP registers are DWORD in size and this function will work
+	// exclusively with this size.  It's assumed that registerMask
+	// encompasses all operable bits in the registerOffset's DWORD space.
+	// As long as there're no registers that do otherwise (and I haven't
+	// defined any such in SAA7134_Defines.h, this optimized approach
+	// should be fine).  Otherwise, the commented out if expression above
+	// will need to be used instead (which will cause much more frequent
+	// reads).
+
 	if (!StartDSPAccess7133())
 	{
 		return FALSE;
 	}
 
-	// Write to the DSP.
-	WriteData(registerOffset, registerMask, value);
+	// Write to the DSP.  WriteData() cannot be used to write the data
+	// because it can cause a read on the same register.
+	WriteDword(registerOffset,
+		(previousValue & ~(value.mask() & registerMask)) | (value.value() & registerMask));
 
 	// Wait for the write to complete.
 	return WaitDSPAccessState7133(FALSE);
@@ -366,7 +393,7 @@ BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerMask, CBi
 	}
 
 	// Read the actual data.
-	value = ReadData(registerOffset, registerMask);
+	value = CBitVector(registerMask, ReadDword(registerOffset));
 
 	// Check the IDA flag to make sure the read data is valid.
 	CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);

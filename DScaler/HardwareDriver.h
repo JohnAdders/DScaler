@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.h,v 1.2 2001-08-09 16:46:48 adcockj Exp $
+// $Id: HardwareDriver.h,v 1.3 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,12 @@ public:
                         LPVOID pvOutput,
                         DWORD dwOutputLength,
                         LPDWORD pdwReturnedLength
+                     );
+
+    DWORD SendCommand(
+                        DWORD dwIOCommand,
+                        LPVOID pvInput,
+                        DWORD dwInputLength
                      );
 
 private:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.h,v 1.2 2001-08-09 16:46:48 adcockj Exp $
+// $Id: HardwareMemory.h,v 1.3 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ class CHardwareMemory
 {
 public:
     void* GetUserPointer();
-    DWORD TranslateToPhysical(void* pUser);
+    DWORD TranslateToPhysical(void* pUser, DWORD dwSizeWanted, DWORD* pdwSizeAvailable);
     BOOL IsValid();
 protected:
     CHardwareMemory(CHardwareDriver* m_pDriver);
@@ -34,14 +34,16 @@ protected:
     CHardwareDriver* m_pDriver;
 };
 
-class CUserMemory
+class CUserMemory : public CHardwareMemory
 {
 public:
-    CUserMemory(CHardwareDriver* m_pDriver, size_t Bytes, size_t Align);
+    CUserMemory(CHardwareDriver* m_pDriver, size_t Bytes);
     ~CUserMemory();
+private:
+    DWORD m_AllocatedBlock;
 };
 
-class CContigMemory
+class CContigMemory : public CHardwareMemory
 {
 public:
     CContigMemory(CHardwareDriver* m_pDriver, size_t Bytes);

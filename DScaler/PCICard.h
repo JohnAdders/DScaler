@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.1 2001-08-09 16:44:50 adcockj Exp $
+// $Id: PCICard.h,v 1.2 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,20 @@ protected:
     BYTE ReadByte(DWORD Offset);
     WORD ReadWord(DWORD Offset);
     DWORD ReadDword(DWORD Offset);
+
+	void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
+	void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);
+	void MaskDataDword(DWORD Offset, WORD Data, WORD Mask);
+	void AndOrDataByte(DWORD Offset, DWORD Data, BYTE Mask);
+	void AndOrDataWord(DWORD Offset, DWORD Data, WORD Mask);
+	void AndOrDataDword(DWORD Offset, DWORD Data, DWORD Mask);
+	void AndDataByte(DWORD Offset, BYTE Data);
+	void AndDataWord(DWORD Offset, WORD Data);
+	void AndDataDword(DWORD Offset, WORD Data);
+	void OrDataByte(DWORD Offset, BYTE Data);
+	void OrDataWord(DWORD Offset, WORD Data);
+	void OrDataDword(DWORD Offset, DWORD Data);
+
     BOOL bIsOpen();
 
 private:

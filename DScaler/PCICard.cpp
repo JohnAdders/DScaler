@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.1 2001-08-09 16:44:50 adcockj Exp $
+// $Id: PCICard.cpp,v 1.2 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/09 16:44:50  adcockj
+// Added extra files (Unused) for better hardware handling
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -109,17 +112,13 @@ BOOL CPCICard::OpenPCICard(DWORD dwVendorID, DWORD dwDeviceID, DWORD dwDeviceInd
 void CPCICard::ClosePCICard()
 {
     TDSDrvParam hwParam;
-    DWORD dwReturnedLength;
 
-    hwParam.dwAddress = m_MemoryAddress;
+    hwParam.dwAddress = m_MemoryBase;
     hwParam.dwValue   = m_MemoryLength;
 
     DWORD dwStatus = m_pDriver->SendCommand(ioctlUnmapMemory,
                                             &hwParam,
-                                            sizeof(hwParam),
-                                            NULL,
-                                            0,
-                                            &dwReturnedLength);
+                                            sizeof(hwParam));
 
     if (dwStatus != ERROR_SUCCESS)
     {
@@ -132,17 +131,13 @@ void CPCICard::ClosePCICard()
 void CPCICard::WriteByte(DWORD Offset, BYTE Data)
 {
     TDSDrvParam hwParam;
-    DWORD dwReturnedLength;
 
     hwParam.dwAddress = m_MemoryBase + Offset;
     hwParam.dwValue = Data;
 
     DWORD dwStatus = m_pDriver->SendCommand(ioctlWriteMemoryBYTE,
                                             &hwParam,
-                                            sizeof(hwParam),
-                                            NULL,
-                                            0,
-                                            &dwReturnedLength);
+                                            sizeof(hwParam));
 
     if (dwStatus != ERROR_SUCCESS)
     {
@@ -153,17 +148,13 @@ void CPCICard::WriteByte(DWORD Offset, BYTE Data)
 void CPCICard::WriteWord(DWORD Offset, WORD Data)
 {
     TDSDrvParam hwParam;
-    DWORD dwReturnedLength;
 
     hwParam.dwAddress = m_MemoryBase + Offset;
     hwParam.dwValue = Data;
 
     DWORD dwStatus = m_pDriver->SendCommand(ioctlWriteMemoryWORD,
                                             &hwParam,
-                                            sizeof(hwParam),
-                                            NULL,
-                                            0,
-                                            &dwReturnedLength);
+                                            sizeof(hwParam));
 
     if (dwStatus != ERROR_SUCCESS)
     {
@@ -174,17 +165,13 @@ void CPCICard::WriteWord(DWORD Offset, WORD Data)
 void CPCICard::WriteDword(DWORD Offset, DWORD Data)
 {
     TDSDrvParam hwParam;
-    DWORD dwReturnedLength;
 
     hwParam.dwAddress = m_MemoryBase + Offset;
     hwParam.dwValue = Data;
 
     DWORD dwStatus = m_pDriver->SendCommand(ioctlWriteMemoryDWORD,
                                             &hwParam,
-                                            sizeof(hwParam),
-                                            NULL,
-                                            0,
-                                            &dwReturnedLength);
+                                            sizeof(hwParam));
 
     if (dwStatus != ERROR_SUCCESS)
     {
@@ -254,3 +241,89 @@ DWORD CPCICard::ReadDword(DWORD Offset)
     }
     return dwValue;
 }
+
+
+void CPCICard::MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask)
+{
+    BYTE Result(ReadByte(Offset));
+    Result = (Result & ~Mask) | (Data & Mask);
+    WriteByte(Offset, Result);
+}
+
+void CPCICard::MaskDataWord(DWORD Offset, WORD Data, WORD Mask)
+{
+    WORD Result(ReadWord(Offset));
+    Result = (Result & ~Mask) | (Data & Mask);
+    WriteWord(Offset, Result);
+}
+
+void CPCICard::MaskDataDword(DWORD Offset, WORD Data, WORD Mask)
+{
+    DWORD Result(ReadDword(Offset));
+    Result = (Result & ~Mask) | (Data & Mask);
+    WriteDword(Offset, Result);
+}
+
+void CPCICard::AndOrDataByte(DWORD Offset, DWORD Data, BYTE Mask)
+{
+    BYTE Result(ReadByte(Offset));
+    Result = (Result & Mask) | Data;
+    WriteByte(Offset, Result);
+}
+
+void CPCICard::AndOrDataWord(DWORD Offset, DWORD Data, WORD Mask)
+{
+    WORD Result(ReadWord(Offset));
+    Result = (Result & Mask) | Data;
+    WriteWord(Offset, Result);
+}
+
+void CPCICard::AndOrDataDword(DWORD Offset, DWORD Data, DWORD Mask)
+{
+    DWORD Result(ReadDword(Offset));
+    Result = (Result & Mask) | Data;
+    WriteDword(Offset, Result);
+}
+
+void CPCICard::AndDataByte(DWORD Offset, BYTE Data)
+{
+    BYTE Result(ReadByte(Offset));
+    Result &= Data;
+    WriteByte(Offset, Result);
+}
+
+void CPCICard::AndDataWord(DWORD Offset, WORD Data)
+{
+    WORD Result(ReadWord(Offset));
+    Result &= Data;
+    WriteWord(Offset, Result);
+}
+
+void CPCICard::AndDataDword(DWORD Offset, WORD Data)
+{
+    DWORD Result(ReadDword(Offset));
+    Result &= Data;
+    WriteDword(Offset, Result);
+}
+
+void CPCICard::OrDataByte(DWORD Offset, BYTE Data)
+{
+    BYTE Result(ReadByte(Offset));
+    Result |= Data;
+    WriteByte(Offset, Result);
+}
+
+void CPCICard::OrDataWord(DWORD Offset, WORD Data)
+{
+    WORD Result(ReadWord(Offset));
+    Result |= Data;
+    WriteWord(Offset, Result);
+}
+
+void CPCICard::OrDataDword(DWORD Offset, DWORD Data)
+{
+    DWORD Result(ReadDword(Offset));
+    Result |= Data;
+    WriteDword(Offset, Result);
+}
+

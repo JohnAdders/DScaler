@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.cpp,v 1.6 2001-08-08 18:02:23 adcockj Exp $
+// $Id: DSDrv.cpp,v 1.7 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/08/08 18:02:23  adcockj
+// Fixed memorymap bug
+//
 // Revision 1.5  2001/08/08 16:37:49  adcockj
 // Made drivers stateless to support multiple cards
 // Added version check
@@ -692,7 +695,7 @@ DWORD CDSDriver::DSDrvStartDriver(void)
         if(dwVersion != DSDRV_VERSION)
         {
             DSDrvStopDriver();
-            dwResult = ERROR_PRODUCT_VERSION;
+            dwResult = ERROR_INVALID_HANDLE;
         }
     }
     bDriverRunning = (dwResult == ERROR_SUCCESS);

@@ -84,8 +84,8 @@ PostBuild_Cmds=$(ProjDir)\..\Debug\mapconv.exe $(ProjDir)\..\Debug\DScaler.map $
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /MT /W3 /Gi /Ot /I "..\driver\include\\" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /YX /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Ow /Oi /Op /Ob1 /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
-# SUBTRACT CPP /Ox /Og /Fr
+# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Ow /Oi /Op /Ob1 /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Fr /Yu"stdafx.h" /FD /c
+# SUBTRACT CPP /Ox /Og
 # ADD BASE MTL /D "NDEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
 # ADD MTL /D "NDEBUG" /mktyplib203 /win32
@@ -140,6 +140,10 @@ SOURCE=.\Audio.cpp
 # Begin Source File
 
 SOURCE=.\Bt848.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Card.cpp
 # End Source File
 # Begin Source File
 
@@ -389,6 +393,14 @@ SOURCE=.\Audio.h
 # Begin Source File
 
 SOURCE=.\bt848.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt848_Defines.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Card.h
 # End Source File
 # Begin Source File
 

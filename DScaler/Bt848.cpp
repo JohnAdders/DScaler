@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.29 2001-08-11 13:46:03 adcockj Exp $
+// $Id: Bt848.cpp,v 1.30 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/08/11 13:46:03  adcockj
+// Fix for driver problem
+//
 // Revision 1.28  2001/08/09 22:18:23  laurentg
 // Improvments in relation with calibration
 //
@@ -832,7 +835,7 @@ BOOL BT848_Saturation_OnChange(long Sat)
 
 BOOL BT848_SaturationU_OnChange(long SatU)
 {
-    if(SatU > 255) SatU = 255;
+    if(SatU > 511) SatU = 511;
     if(SatU < 0) SatU = 0;
 
     BYTE bDataHi;
@@ -849,7 +852,7 @@ BOOL BT848_SaturationU_OnChange(long SatU)
 
 BOOL BT848_SaturationV_OnChange(long SatV)
 {
-    if(SatV > 255) SatV = 255;
+    if(SatV > 511) SatV = 511;
     if(SatV < 0) SatV = 0;
 
     BYTE bDataHi;
@@ -1856,7 +1859,7 @@ SETTING BT848Settings[BT848_SETTING_LASTONE] =
     },
     {
         "Contrast", SLIDER, 0, (long*)&InitialContrast,
-        DEFAULT_CONTRAST_NTSC, 0, 255, 1, 1,
+        DEFAULT_CONTRAST_NTSC, 0, 511, 1, 1,
         NULL,
         "Hardware", "InitialContrast", BT848_Contrast_OnChange,
     },
@@ -1868,19 +1871,19 @@ SETTING BT848Settings[BT848_SETTING_LASTONE] =
     },
     {
         "Saturation", SLIDER, 0, (long*)&InitialSaturation,
-        (DEFAULT_SAT_V_NTSC + DEFAULT_SAT_U_NTSC) / 2, 0, 255, 1, 1,
+        (DEFAULT_SAT_V_NTSC + DEFAULT_SAT_U_NTSC) / 2, 0, 511, 1, 1,
         NULL,
         NULL, NULL, BT848_Saturation_OnChange,
     },
     {
         "Blue Saturation", SLIDER, 0, (long*)&InitialSaturationU,
-        DEFAULT_SAT_U_NTSC, 0, 255, 1, 1,
+        DEFAULT_SAT_U_NTSC, 0, 511, 1, 1,
         NULL,
         "Hardware", "InitialSaturationU", BT848_SaturationU_OnChange,
     },
     {
         "Red Saturation", SLIDER, 0, (long*)&InitialSaturationV,
-        DEFAULT_SAT_V_NTSC, 0, 255, 1, 1,
+        DEFAULT_SAT_V_NTSC, 0, 511, 1, 1,
         NULL,
         "Hardware", "InitialSaturationV", BT848_SaturationV_OnChange,
     },

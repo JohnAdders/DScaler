@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.1 2001-08-09 16:44:50 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.2 2001-08-13 12:05:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/09 16:44:50  adcockj
+// Added extra files (Unused) for better hardware handling
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -306,3 +309,30 @@ DWORD CHardwareDriver::SendCommand(
     }
 }
 
+DWORD CHardwareDriver::SendCommand(
+                                    DWORD dwIOCommand,
+                                    LPVOID pvInput,
+                                    DWORD dwInputLength
+                                  )
+{
+    DWORD dwDummy;
+
+    if(DeviceIoControl(
+                        m_hFile,
+                        dwIOCommand,
+                        pvInput,
+                        dwInputLength,
+                        NULL,
+                        0,
+                        &dwDummy,
+                        NULL
+                      ))
+    {
+        return 0;
+    }
+    else
+    {
+        LOG(1, "DeviceIoControl returned an error = 0x%x For Command 0x%x", GetLastError(), dwIOCommand);
+        return GetLastError();
+    }
+}

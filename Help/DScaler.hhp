@@ -8,7 +8,7 @@ Display compile progress=No
 Full text search stop list file=SearchList.stp
 Full-text search=Yes
 Index file=Index.hhk
-Language=0x409 English (United States)
+Language=0x409 Anglais (États-Unis)
 Title=DScaler Help
 
 
@@ -69,41 +69,44 @@ Standards.htm
 CVS_Instructions.htm
 32spec.htm
 SoundIssues.htm
+Still.htm
 
 [ALIAS]
-IDH_FILTERS=Filters.htm
-IDH_GAMMA=Gamma.htm
-IDH_TEMPORAL_NOISE=Noise.htm
-IDH_GRADUAL_NOISE=GradualNoise.htm
+IDH_22_PULLDOWN=22Pulldown.htm
+IDH_2FRAME=TwoFrame.htm
+IDH_32_PULLDOWN=32Pulldown.htm
 IDH_ADAPTIVE_NOISE=AdaptiveNoise.htm
-IDH_LOGO_KILLER=LogoKiller.htm
-IDH_SHARPNESS=Sharpness.htm
-IDH_HISTOGRAM=Histogram.htm
-IDH_LINEAR_CORRECTION=LinearCorrection.htm
-IDH_TEMPORAL_COMB=TemporalComb.htm
-IDH_DEINTERLACE=Deinterlace.htm
 IDH_ADAPTIVE=Adaptive.htm
+IDH_ADVANCED=Advanced.htm
+IDH_ASPECT=Aspect.htm
 IDH_BLENDEDCLIP=BlendedClip.htm
 IDH_BOB=Bob.htm
+IDH_CALIBRATION=Calibration.htm
+IDH_DEINTERLACE=Deinterlace.htm
 IDH_EVEN=EvenOnly.htm
+IDH_FILTERS=Filters.htm
+IDH_GAMMA=Gamma.htm
+IDH_GRADUAL_NOISE=GradualNoise.htm
 IDH_GREEDY=Greedy.htm
 IDH_GREEDY2=Greedy2Frame.htm
 IDH_GREEDYHM=GreedyH.htm
+IDH_HISTOGRAM=Histogram.htm
+IDH_LINEAR_CORRECTION=LinearCorrection.htm
+IDH_LOGGING=Logging.htm
+IDH_LOGO_KILLER=LogoKiller.htm
 IDH_ODD=OddOnly.htm
 IDH_OLD_GAME=OldGame.htm
+IDH_OVERLAY=Overlay.htm
+IDH_PULLDOWN_SHARED=PulldownShared.htm
 IDH_SCALER_BOB=ScalerBob.htm
-IDH_2FRAME=TwoFrame.htm
+IDH_SHARPNESS=Sharpness.htm
+IDH_STILL=Still.htm
+IDH_TEMPORAL_COMB=TemporalComb.htm
+IDH_TEMPORAL_NOISE=Noise.htm
+IDH_TIMING=Timing.htm
 IDH_VIDEOBOB=VideoBob.htm
 IDH_VIDEOWEAVE=VideoWeave.htm
 IDH_WEAVE=Weave.htm
-IDH_ADVANCED=Advanced.htm
-IDH_22_PULLDOWN=22Pulldown.htm
-IDH_32_PULLDOWN=32Pulldown.htm
-IDH_PULLDOWN_SHARED=PulldownShared.htm
-IDH_LOGGING=Logging.htm
-IDH_ASPECT=Aspect.htm
-IDH_TIMING=Timing.htm
-IDH_OVERLAY=Overlay.htm
 
 [MAP]
 #include helpids.h

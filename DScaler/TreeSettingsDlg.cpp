@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.10 2002-07-19 15:31:39 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.11 2002-07-20 12:09:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/07/19 15:31:39  laurentg
+// New settings (other settings) added in the tree settings + related menu items deleted
+//
 // Revision 1.9  2002/07/19 11:59:12  laurentg
 // OSD settings added in the tree settings
 //
@@ -68,6 +71,7 @@
 #include "StillSource.h"
 #include "DScaler.h"
 #include "OSD.h"
+#include "Calibration.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -448,11 +452,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 
-    pPage = Debug_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_LOGGING);
-	pages.push_back(pPage);
-	dlg.AddPage(pPage, Root);
-
     pPage = Aspect_GetTreeSettingsPage();
 	pPage->SetHelpID(IDH_ASPECT);
 	pages.push_back(pPage);
@@ -463,13 +462,18 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 
-    pPage = Other_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_OVERLAY);
+    pPage = AntiPlop_GetTreeSettingsPage();
+    // \todo AntiPlop Help
+	pPage->SetHelpID(IDH_ADVANCED);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 
-    pPage = AntiPlop_GetTreeSettingsPage();
-    // \todo AntiPlop Help
+    pPage = OSD_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_ADVANCED);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = DScaler_GetTreeSettingsPage();
 	pPage->SetHelpID(IDH_ADVANCED);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
@@ -479,13 +483,18 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 
-    pPage = DScaler_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_ADVANCED);
+    pPage = Calibr_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_CALIBRATION);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 
-    pPage = OSD_GetTreeSettingsPage();
-	pPage->SetHelpID(IDH_ADVANCED);
+    pPage = Other_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_OVERLAY);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = Debug_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_LOGGING);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 

@@ -34,3 +34,4 @@
 #define IDH_TIMING                      131126
 #define IDH_OVERLAY                     131127
 #define IDH_STILL                       131128
+#define IDH_CALIBRATION                 131129

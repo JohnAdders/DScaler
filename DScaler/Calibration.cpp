@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.67 2002-06-21 23:14:19 laurentg Exp $
+// $Id: Calibration.cpp,v 1.68 2002-07-20 12:09:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2002/06/21 23:14:19  laurentg
+// New way to store address of allocated memory buffer for still source
+//
 // Revision 1.66  2002/06/13 12:10:21  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -2844,5 +2847,5 @@ void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 CTreeSettingsGeneric* Calibr_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Calibration Settings",CalibrSettings, CALIBR_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Card Calibration Settings",CalibrSettings, CALIBR_SETTING_LASTONE);
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.75 2001-09-21 20:47:12 laurentg Exp $
+// $Id: DScaler.cpp,v 1.76 2001-09-29 10:51:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2001/09/21 20:47:12  laurentg
+// SaveStill modified to return the name of the written file
+// Name of the file added in the OSD text when doing a snapshot
+//
 // Revision 1.74  2001/09/21 16:43:54  adcockj
 // Teletext improvements by Mike Temperton
 //
@@ -866,17 +870,40 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_PLUS:
-            Setting_Up(Aspect_GetSetting(OVERSCAN));
-            SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
+            if (! pCalibration->IsRunning())
+            {
+                Setting_Up(Aspect_GetSetting(OVERSCAN));
+                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
+            }
+            else if (pCalibration->GetType() == CAL_MANUAL)
+            {
+                Setting_Up(Calibr_GetSetting(SOURCE_OVERSCAN));
+                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
+            }
             break;
 
         case IDM_OVERSCAN_MINUS:
-            Setting_Down(Aspect_GetSetting(OVERSCAN));
-            SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
+            if (! pCalibration->IsRunning())
+            {
+                Setting_Down(Aspect_GetSetting(OVERSCAN));
+                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
+            }
+            else if (pCalibration->GetType() == CAL_MANUAL)
+            {
+                Setting_Down(Calibr_GetSetting(SOURCE_OVERSCAN));
+                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
+            }
             break;
 
         case IDM_OVERSCAN_CURRENT:
-            Setting_OSDShow(Aspect_GetSetting(OVERSCAN), hWnd);
+            if (! pCalibration->IsRunning())
+            {
+                Setting_OSDShow(Aspect_GetSetting(OVERSCAN), hWnd);
+            }
+            else
+            {
+                Setting_OSDShow(Calibr_GetSetting(SOURCE_OVERSCAN), hWnd);
+            }
             break;
 
         case IDM_BDELAY_PLUS:
@@ -1480,11 +1507,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SHOW_OSD:
-            OSD_ShowNextInfosScreen(hWnd, 0);
+            if (pCalibration->IsRunning())
+            {
+                OSD_ShowInfosScreen(hWnd, 4, 0);
+            }
+            else
+            {
+                OSD_ShowNextInfosScreen(hWnd, 0);
+            }
             break;
 
         case IDM_OSDSCREEN_SHOW:
-            OSD_ShowInfosScreen(hWnd, lParam, 0);
+            if (!pCalibration->IsRunning())
+            {
+                OSD_ShowInfosScreen(hWnd, lParam, 0);
+            }
             break;
 
         case IDM_OSDSCREEN_ACTIVATE:
@@ -2321,6 +2358,16 @@ void MainWndOnDestroy()
         KillTimers();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Kill Timers");}
+
+    __try
+    {
+        if (pCalibration->IsRunning())
+        {
+            // Restore the usual overscan
+            pCalibration->RestoreUsualOverscan(FALSE);
+        }
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error RestoreUsualOverscan");}
 
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     __try

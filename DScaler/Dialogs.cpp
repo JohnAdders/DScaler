@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.9 2001-07-13 16:14:56 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.10 2001-07-29 10:16:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.8  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -60,6 +63,7 @@
 #include "CPU.h"
 #include "Slider.h"
 #include "AspectRatio.h"
+#include "Crash.h"
 
 BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -130,7 +134,10 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     }
                 }
             } // if (dwVerInfoSize)
-            
+            lstrcat(szResult, " Build (");
+            sprintf(szGetName,"%d", gBuildNum);
+            lstrcat(szResult, szGetName);
+            lstrcat(szResult, ")");
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

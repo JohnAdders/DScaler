@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.20 2002-10-02 10:52:55 kooiman Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.21 2002-10-15 15:03:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/10/02 10:52:55  kooiman
+// Fix memory leak.
+//
 // Revision 1.19  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -105,6 +108,7 @@
 #include "Providers.h"
 #include "BT848Source.h"
 #include "..\help\helpids.h"
+#include "SettingsMaster.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
 
@@ -113,6 +117,8 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+
 
 CTreeSettingsDlg::CTreeSettingsDlg(CString caption,CWnd* pParent /*=NULL*/)
 	: CDialog(CTreeSettingsDlg::IDD, pParent),
@@ -123,6 +129,7 @@ CTreeSettingsDlg::CTreeSettingsDlg(CString caption,CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTreeSettingsDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+
 }
 
 
@@ -224,6 +231,8 @@ BOOL CTreeSettingsDlg::OnInitDialog()
 	
 	SetWindowText(m_settingsDlgCaption);
 
+    m_tree.SetImageList(&m_ImageList, TVSIL_NORMAL);
+
 	for(int i=0;i<m_pages.size();i++)
 	{
 		HTREEITEM hParent=TVI_ROOT;
@@ -235,8 +244,13 @@ BOOL CTreeSettingsDlg::OnInitDialog()
 				hParent=m_pages[m_pages[i].m_parent].m_hTreeItem;
 			}
 		}
-		HTREEITEM hNode=m_tree.InsertItem(m_pages[i].m_pPage->GetName(),0,0,hParent);
-		m_tree.SetItemState(hNode,TVIS_EXPANDED,TVIS_EXPANDED);
+		HTREEITEM hNode=m_tree.InsertItem(m_pages[i].m_pPage->GetName(),m_pages[i].m_imageIndex,m_pages[i].m_imageIndexSelected,hParent);
+        int ExpandPage = m_iStartPage;
+        if ((ExpandPage<0) || (ExpandPage>=m_pages.size()))
+        {
+            ExpandPage = 0;
+        }
+        m_tree.SetItemState(hNode,(i==ExpandPage)?TVIS_EXPANDED:0,TVIS_EXPANDED);        
 		m_tree.SetItemData(hNode,i);
 		m_pages[i].m_hTreeItem=hNode;
 	}
@@ -255,12 +269,14 @@ BOOL CTreeSettingsDlg::OnInitDialog()
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-int CTreeSettingsDlg::AddPage(CTreeSettingsPage *pPage,int parent)
+int CTreeSettingsDlg::AddPage(CTreeSettingsPage *pPage,int parent,int imageIndex,int imageIndexSelected)
 {
 	CPageInfo newPage;
 	newPage.m_pPage=pPage;
 	newPage.m_parent=parent;
 	newPage.m_hTreeItem=NULL;
+    newPage.m_imageIndex=imageIndex;
+    newPage.m_imageIndexSelected=imageIndexSelected;
 	m_pages.push_back(newPage);
 	return m_pages.size()-1;
 }
@@ -339,11 +355,16 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		int height;
 		int width;
 
+        int righthalf;
+
+        righthalf = cx/3;
+
 		//active page
 		CWnd *pPageFrame=GetDlgItem(IDC_TREESETTINGS_PAGEFRAME);
 		pPageFrame->GetWindowRect(&rect);
 		ScreenToClient(&rect);
-		rect.right=cx-10;
+        rect.left = righthalf;
+		rect.right = cx-10;
 		rect.bottom=cy-50;
 		pPageFrame->MoveWindow(rect,FALSE);
 		
@@ -376,11 +397,11 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		rect.top=cy-40-height;
 		rect.bottom=rect.top+height;
 		pLine->MoveWindow(&rect,FALSE);
-
 		
 		//tree
 		m_tree.GetWindowRect(&rect);
-		ScreenToClient(&rect);
+		ScreenToClient(&rect);        
+        rect.right = rect.left + righthalf - 15;
 		rect.bottom=cy-40;
 		m_tree.MoveWindow(&rect,FALSE);
 		
@@ -426,41 +447,48 @@ void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTr
 		for (int i = 0; i < pGroupList->NumGroups(IndexList); i++)
 		{
 			SubIndexList[Depth] = i;
-			CSettingGroup *pGroup = pGroupList->Get(SubIndexList);			
-			if ((pGroup != NULL) && (!pGroup->ObjectOnly() || (pGroup->GetObject() == Providers_GetCurrentSource())))
+			CSettingGroup *pGroup = pGroupList->Find(SubIndexList);			
+
+            if((pGroup != NULL) && (pGroup->GetObject()!=NULL))
+            {
+                try 
+                {
+                    CSource *pSource = dynamic_cast<CSource*>(pGroup->GetObject());
+                    if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
+                    {
+                        //Don't show settings from other sources then the current
+                        pGroup = NULL;
+                    }
+                }
+                catch (...)
+                {
+                    //No source
+                }                              
+            }
+
+			if (pGroup != NULL)
 			{
 				char *szName = (char*)pGroup->GetLongName();
 				if ((szName == NULL) || (szName[0]==0)) 
 				{ 
 					szName = (char*)pGroup->GetName(); 
 				}											
+                int ImageIndex = 0;
+                int ImageIndexSelected = 0;
+                int SubNr;
+
 				pPage = SettingsMaster->GroupTreeSettings(pGroup);				
-				int SubNr;
 				if (pPage != NULL)
 				{
-					pages->push_back(pPage);
-					if (Nr<0)
-					{
-						SubNr = dlg->AddPage(pPage);
-					}
-					else
-					{
-						SubNr = dlg->AddPage(pPage, Nr);				
-					}
+					pages->push_back(pPage);					
+                    SubNr = dlg->AddPage(pPage, Nr, ImageIndex, ImageIndexSelected);
 				}
 				else
 				{
 					pRootPage = new CTreeSettingsPage(CString(szName), IDD_TREESETTINGS_EMPTY);
 					//pPage->SetHelpID();				
 					pages->push_back(pRootPage);					
-					if (Nr<0)
-					{
-						SubNr = dlg->AddPage(pRootPage);
-					}
-					else
-					{
-						SubNr = dlg->AddPage(pRootPage, Nr);				
-					}
+					SubNr = dlg->AddPage(pRootPage, Nr, ImageIndex, ImageIndexSelected);
 				}
 				if (Depth<10)
 				{

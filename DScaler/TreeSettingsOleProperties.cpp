@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.8 2002-08-17 18:04:53 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.9 2002-10-15 15:03:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/08/17 18:04:53  tobbej
+// changed parent window to be the tab controll and not the dialog
+//
 // Revision 1.7  2002/07/11 17:56:38  tobbej
 // take care of case when IPropertyPage::Activate fails
 //
@@ -258,6 +261,8 @@ void CTreeSettingsOleProperties::OnSize(UINT nType, int cx, int cy)
 	
 	CRect rect;
 	GetClientRect(&rect);
+    rect.right = cx;
+    rect.bottom = cy;
 	m_tabCtrl.MoveWindow(&rect);
 
 	m_tabCtrl.AdjustRect(FALSE,&rect);

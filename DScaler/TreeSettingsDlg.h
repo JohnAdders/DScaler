@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.6 2002-10-02 10:52:55 kooiman Exp $
+// $Id: TreeSettingsDlg.h,v 1.7 2002-10-15 15:03:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/02 10:52:55  kooiman
+// Fix memory leak.
+//
 // Revision 1.5  2002/09/28 13:34:36  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -58,6 +61,7 @@
 #define ADVANCED_SETTINGS_MASK      0x04
 #define ALL_SETTINGS_MASK			0x08
 
+
 /**
  * Tree based settings dialog.
  * @see CTreeSettingsPage
@@ -76,7 +80,7 @@ public:
 	 * note that the parent must already have been added with a call to AddPage
 	 * @return integer used when adding new pages as a child of this one
 	 */
-	int AddPage(CTreeSettingsPage *pPage,int parent=-1);
+	int AddPage(CTreeSettingsPage *pPage,int parent=-1,int imageIndex=0,int imageIndexSelected=0);
 	
 	bool ShowPage(int iPage);
 
@@ -124,6 +128,8 @@ private:
 		CTreeSettingsPage *m_pPage;
 		int m_parent;
 		HTREEITEM m_hTreeItem;
+        int m_imageIndex;
+        int m_imageIndexSelected;
 	};
 	///vector of all pages
 	std::vector<CPageInfo> m_pages;
@@ -132,6 +138,8 @@ private:
 	int m_iCurrentPage;
 	///start page
 	int m_iStartPage;
+    //image list
+    CImageList m_ImageList;
 };
 
 //{{AFX_INSERT_LOCATION}}

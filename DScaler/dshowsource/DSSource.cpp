@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.47 2002-10-22 04:10:12 flibuste2 Exp $
+// $Id: DSSource.cpp,v 1.48 2002-10-26 08:38:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/10/22 04:10:12  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.46  2002/10/07 20:35:17  kooiman
 // Fixed cursor hide problem
 //
@@ -814,81 +818,108 @@ BOOL CDSCaptureSource::IsInTunerMode()
 	}
 	return FALSE;
 }
-
-//This one was really welcomed actually..
-CDShowTVTuner* CDSCaptureSource::GetTVTuner()
+/*
+BOOL CDSCaptureSource::HasTuner()
 {
-    if(m_pDSGraph==NULL) return NULL;
+    if(m_pDSGraph==NULL)
+	{
+		return NULL;
+	}
 
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
-	if(pSrc==NULL) return FALSE;
+	if(pSrc==NULL)
+		return FALSE;
 
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
 		pCap=(CDShowCaptureDevice*)pSrc;
-		return pCap->getTVTuner();
+		if(pCap->getTVTuner()!=NULL)
+		{
+			return TRUE;
+		}
 	}
+	
+	return FALSE;
 }
-
+*/
 
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-	CDShowTVTuner *pTvTuner = GetTVTuner();
-	if(pTvTuner == NULL) return FALSE;
+	if(m_pDSGraph==NULL)
+	{
+		return FALSE;
+	}
 
-    LOG(3,"DSSource: SetTunerFrequency: Found TVTuner");
-	try
-    {
-      static BOOL bFirstTime = TRUE;
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+	{
+		return FALSE;
+	}
 
-      //Choose a country with a unicable frequency table
-      int CountryCode = 31;
-
-      long lCurrentCountryCode = pTvTuner->getCountryCode();
-      if (bFirstTime || (CountryCode != lCurrentCountryCode))
-      {
-          LOG(2,"DSSource: SetTunerFrequency: Set country code");
-          pTvTuner->putCountryCode(CountryCode);
-      }
-
-
-      TunerInputType pInputType = pTvTuner->getInputType();
-      TunerInputType pNewInputType = TunerInputCable; //unicable frequency table
-
-      if (bFirstTime || (pInputType != pNewInputType))
-      {
-          LOG(2,"DSSource: SetTunerFrequency: Set input type");
-          pTvTuner->setInputType(pNewInputType);
-      }
-
-      // set video format
-      long lAnalogVideoStandard = pCap->getTVFormat();
-      long lNewAnalogVideoStandard;
-      if ( ((int)VideoFormat < 0) || (VideoFormat >= VIDEOFORMAT_LASTONE))
-      {
-          lNewAnalogVideoStandard = lAnalogVideoStandard;
-      }
-      else
-      {
-          lNewAnalogVideoStandard = eVideoFormatTable[VideoFormat];
-      }
-
-      if (bFirstTime || (lAnalogVideoStandard != lNewAnalogVideoStandard))
-      {
-          LOG(2,"DSSource: SetTunerFrequency: pCap: Set TV format");
-          pCap->putTVFormat(lNewAnalogVideoStandard);
-      }
-
-      bFirstTime = FALSE;
-
-      LOG(2,"DSSource: SetTunerFrequency: Set Frequency %d",FrequencyId);
-      return pTvTuner->setTunerFrequency(FrequencyId);
-    }
-    catch(CDShowException e)
-    {
-       LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
-    }	
+	CDShowCaptureDevice *pCap=NULL;
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)pSrc;
+		CDShowTVTuner *pTvTuner = pCap->getTVTuner();
+		if(pTvTuner == NULL)
+		{
+			return FALSE;
+		}
+		
+		LOG(3,"DSSource: SetTunerFrequency: Found TVTuner");
+		try
+		{
+			static BOOL bFirstTime = TRUE;
+			
+			//Choose a country with a unicable frequency table
+			int CountryCode = 31;
+			
+			long lCurrentCountryCode = pTvTuner->getCountryCode();
+			if (bFirstTime || (CountryCode != lCurrentCountryCode))
+			{
+				LOG(2,"DSSource: SetTunerFrequency: Set country code");
+				pTvTuner->putCountryCode(CountryCode);
+			}
+			
+			
+			TunerInputType pInputType = pTvTuner->getInputType();
+			TunerInputType pNewInputType = TunerInputCable; //unicable frequency table
+			
+			if (bFirstTime || (pInputType != pNewInputType))
+			{
+				LOG(2,"DSSource: SetTunerFrequency: Set input type");
+				pTvTuner->setInputType(pNewInputType);
+			}
+			
+			// set video format
+			long lAnalogVideoStandard = pCap->getTVFormat();
+			long lNewAnalogVideoStandard;
+			if ( ((int)VideoFormat < 0) || (VideoFormat >= VIDEOFORMAT_LASTONE))
+			{
+				lNewAnalogVideoStandard = lAnalogVideoStandard;
+			}
+			else
+			{
+				lNewAnalogVideoStandard = eVideoFormatTable[VideoFormat];
+			}
+			
+			if (bFirstTime || (lAnalogVideoStandard != lNewAnalogVideoStandard))
+			{
+				LOG(2,"DSSource: SetTunerFrequency: pCap: Set TV format");
+				pCap->putTVFormat(lNewAnalogVideoStandard);
+			}
+			
+			bFirstTime = FALSE;
+			
+			LOG(2,"DSSource: SetTunerFrequency: Set Frequency %d",FrequencyId);
+			return pTvTuner->setTunerFrequency(FrequencyId);
+		}
+		catch(CDShowException e)
+		{
+			LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+		}
+	}
 	return FALSE;
 }
 

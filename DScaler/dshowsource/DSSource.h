@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.28 2002-10-22 04:10:12 flibuste2 Exp $
+// $Id: DSSource.h,v 1.29 2002-10-26 08:38:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/10/22 04:10:12  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.27  2002/09/28 13:36:15  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -206,8 +210,6 @@ public:
 	
 	void Start();
 	void Stop();
-
-    virtual ITuner* GetTuner() {return NULL;};
 
 private:
 	///resets m_VideoFmt to default

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.5 2002-10-22 04:09:49 flibuste2 Exp $
+// $Id: DSFileSource.h,v 1.6 2002-10-26 08:38:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/22 04:09:49  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.4  2002/09/29 09:16:25  tobbej
 // changed GetStatus to return filename only
 //
@@ -87,19 +91,17 @@ public:
 	void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 	eVideoFormat GetFormat();
 
-  int  NumInputs(eSourceInputType InputType) { return 0; };
-  BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
-  int GetInput(eSourceInputType InputType) { return -1; };
-  const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
-  BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
+	int  NumInputs(eSourceInputType InputType) { return 0; };
+	BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
+	int GetInput(eSourceInputType InputType) { return -1; };
+	const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
+	BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 	
 	void UpdateMenu();
 	void SetMenu(HMENU hMenu);
 	LPCSTR GetMenuLabel();
 
 	void Start();
-
-    ITuner* GetTuner() {return NULL;}
 
 private:
 	///the file this source uses

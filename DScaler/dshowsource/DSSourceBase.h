@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.8 2002-09-25 15:11:12 adcockj Exp $
+// $Id: DSSourceBase.h,v 1.9 2002-10-26 08:38:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.7  2002/09/24 17:15:37  tobbej
 // support for volume, balance and mute/unmute
 //
@@ -98,6 +101,8 @@ public:
 	//from CSettingsHolder
 	void CreateSettings(LPCSTR IniSection);
     void ChannelChange(int PreChange, int OldChannel, int NewChannel) {};
+
+	ITuner* GetTuner() {return NULL;}
 	
 protected:
 	CDShowGraph *m_pDSGraph;

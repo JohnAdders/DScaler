@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.21 2002-02-24 08:18:03 temperton Exp $
+// $Id: VBI_VideoText.H,v 1.22 2002-03-12 23:29:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -191,6 +191,8 @@ void VTS_DecodeLine(BYTE* VBI_Buffer);
 void VT_DoUpdate_Page(int Page, int SubPage);
 void VT_UpdateFlashTimerStatus();
 int VT_MostRecentSubPage(int Page);
+int VT_GetNextPage(int Page);
+int VT_GetPreviousPage(int Page);
 int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle);
 int VT_CompleteSubPages(int Page);
 TVTPage* VT_PageGet(int Page, int SubPage);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.35 2002-02-24 08:18:03 temperton Exp $
+// $Id: VBI_VideoText.cpp,v 1.36 2002-03-12 23:29:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/02/24 08:18:03  temperton
+// TIMER_VTFLASHER set only when displayed page contains flashed elements and only in teletext modes.
+//
 // Revision 1.34  2002/02/07 13:04:54  temperton
 // Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
 //
@@ -1197,6 +1200,82 @@ int VT_CompleteSubPages(int Page)
     } while (pPage);
 
     return a;
+}
+
+int VT_GetNextPage(int Page)
+{
+    if ((Page < 0) || (Page > 799))
+    {
+        return 0;
+    }
+
+    TVTPage* pPage = NULL;
+    BOOL Found = FALSE;
+    int BestPage = Page;
+
+    for(int i = Page + 1; i < 800; i++)
+    {
+        pPage = &VTPages[i];
+        if(pPage->bUpdated)
+        {
+            BestPage = i;
+            Found = TRUE;
+            break;
+        }
+    }
+    if(!Found)
+    {
+        for(int i = 0; i < Page; i++)
+        {
+            pPage = &VTPages[i];
+            if(pPage->bUpdated)
+            {
+                BestPage = i;
+                Found = TRUE;
+                break;
+            }
+        }
+    }
+
+    return BestPage;
+}
+
+int VT_GetPreviousPage(int Page)
+{
+    if ((Page < 0) || (Page > 799))
+    {
+        return 0;
+    }
+
+    TVTPage* pPage = NULL;
+    BOOL Found = FALSE;
+    int BestPage = Page;
+
+    for(int i = Page - 1; i >= 0; i--)
+    {
+        pPage = &VTPages[i];
+        if(pPage->bUpdated)
+        {
+            BestPage = i;
+            Found = TRUE;
+            break;
+        }
+    }
+    if(!Found)
+    {
+        for(int i = 799; i > Page; i--)
+        {
+            pPage = &VTPages[i];
+            if(pPage->bUpdated)
+            {
+                BestPage = i;
+                Found = TRUE;
+                break;
+            }
+        }
+    }
+
+    return BestPage;
 }
 
 int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle)

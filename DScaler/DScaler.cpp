@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.140 2002-03-11 22:25:56 robmuller Exp $
+// $Id: DScaler.cpp,v 1.141 2002-03-12 23:29:45 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.140  2002/03/11 22:25:56  robmuller
+// Added hand cursor.
+//
 // Revision 1.139  2002/02/28 11:27:03  temperton
 // Preserve WS_DISABLED window style in UpdateWindowState
 //
@@ -1042,10 +1045,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_PAGE_MINUS:
             if(VTState != VT_OFF)
             {
-                if(VTPage >= 100)
-                {
-                    SetVTPage(VTPage - 1, 0, false, false);
-                }
+                SetVTPage(VT_GetPreviousPage(VTPage - 100) + 100, 0, false, false);
             }
             else
             {
@@ -1056,10 +1056,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_PAGE_PLUS:
             if(VTState != VT_OFF)
             {
-                if(VTPage < 899)
-                {
-                    SetVTPage(VTPage + 1, 0, false, false);
-                }
+                SetVTPage(VT_GetNextPage(VTPage - 100) + 100, 0, false, false);
             }
             else
             {

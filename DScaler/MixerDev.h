@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.11 2001-07-16 18:07:50 adcockj Exp $
+// $Id: MixerDev.h,v 1.12 2001-08-14 11:36:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ public:
     BOOL GetMute();
     void SetVolume(int PercentageVolume);
     int GetVolume();
+    void ResetToOriginal();
 private:
     int m_ControlsCount;
     MIXERLINE m_MixerLine;
@@ -64,6 +65,8 @@ private:
     DWORD m_VolumeMin;
     DWORD m_VolumeMax;
     int m_MuteControl;
+    int m_InitialVolume;
+    BOOL m_InitialMute;
     HMIXER m_hMixer;
 };
 
@@ -75,6 +78,7 @@ public:
     int GetNumSourceLines();
     CMixerLineSource* GetSourceLine(int LineIndex);
     char* GetName();
+    void ResetToOriginal();
 private:
     int m_SourceCount;
     MIXERLINE m_MixerLine;
@@ -88,6 +92,7 @@ public:
     ~CMixer();
     int GetNumDestLines();
     CMixerLineDest* GetDestLine(int LineIndex);
+    void ResetToOriginal();
 private:
     int m_LineCount;
     MIXERCAPS m_MixerDev;

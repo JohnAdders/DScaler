@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.34 2001-08-09 21:34:59 adcockj Exp $
+// $Id: DS_Control.h,v 1.35 2001-08-14 11:36:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/08/09 21:34:59  adcockj
+// Fixed bugs raise by Timo and Keld
+//
 // Revision 1.33  2001/08/08 08:54:31  adcockj
 // Added Delay option to film modes
 // Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
@@ -721,6 +724,7 @@ typedef enum
     SVIDEOINDEX,
     OTHER1INDEX,
     OTHER2INDEX,
+    MIXERRESETONEXIT,
     MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
 

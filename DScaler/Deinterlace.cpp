@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.19 2001-08-14 07:06:27 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.20 2001-08-14 11:36:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/08/14 07:06:27  adcockj
+// Fixed problem with scroling through methods
+//
 // Revision 1.18  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -732,6 +735,14 @@ void Deinterlace_SetMenu(HMENU hMenu)
 
     for(i = 0; i < NumVideoModes; i++)
     {
-        CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, (gVideoPulldownMode == i));
+        // don't put a video tick if we are in a manually selected film mode
+        if(!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == TRUE))
+        {
+            CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, (gVideoPulldownMode == i));
+        }
+        else
+        {
+            CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, FALSE);
+        }
     }
 }

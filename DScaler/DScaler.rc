@@ -311,6 +311,9 @@ BEGIN
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_OTHER2,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Reset Mixer to Initial Settings on Exit",
+                    IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,88,
+                    155,156,10
 END
 
 IDD_ABOUT DIALOGEX 22, 17, 374, 274

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.14 2001-07-16 18:07:50 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.15 2001-08-14 11:36:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.13  2001/07/15 13:24:05  adcockj
 // Fixed crashing after overlay failure with mixer on
 //
@@ -56,10 +59,12 @@
 #include "resource.h"
 #include "MixerDev.h"
 #include "DScaler.h"
+#include "Audio.h"
 
 CSoundSystem* pSoundSystem = NULL;
 
 BOOL bUseMixer = FALSE;
+BOOL bResetOnExit = TRUE;
 long MixerIndex = 0;
 long DestIndex = 0;
 long TunerLineIndex = -1;
@@ -114,6 +119,8 @@ CMixerLineSource::CMixerLineSource(HMIXER hMixer, int DestId, int SourceId)
         }
     }
     free(MixerControls);
+    m_InitialMute = GetMute();
+    m_InitialVolume = GetVolume();
 }
 
 CMixerLineSource::~CMixerLineSource()
@@ -159,6 +166,13 @@ BOOL CMixerLineSource::GetMute()
         return FALSE;
     }
 }
+
+void CMixerLineSource::ResetToOriginal()
+{
+    SetMute(m_InitialMute);
+    SetVolume(m_InitialVolume);
+}
+
 
 // sets all channels to the same volume
 void CMixerLineSource::SetVolume(int PercentageVolume)
@@ -270,6 +284,17 @@ char* CMixerLineDest::GetName()
     return m_MixerLine.szName;
 }
 
+void CMixerLineDest::ResetToOriginal()
+{
+    if(m_SourceLines != NULL)
+    {
+        for(int i = 0; i < m_SourceCount; ++i)
+        {
+            m_SourceLines[i]->ResetToOriginal();
+        }
+    }
+}
+
 CMixer::CMixer(int MixerId)
 {
     MMRESULT mmresult = mixerGetDevCaps(MixerId, &m_MixerDev, sizeof(MIXERCAPS));
@@ -326,6 +351,19 @@ CMixerLineDest* CMixer::GetDestLine(int LineIndex)
         return NULL;
     }
 }
+
+void CMixer::ResetToOriginal()
+{
+    if(m_DestLines != NULL)
+    {
+        for(int i = 0; i < m_LineCount; ++i)
+        {
+            m_DestLines[i]->ResetToOriginal();
+        }
+        free(m_DestLines);
+    }
+}
+
 
 CSoundSystem::CSoundSystem()
 {
@@ -489,6 +527,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         Old_Other1LineIndex = Other1LineIndex;
         Old_Other2LineIndex = Other2LineIndex;
         Button_SetCheck(GetDlgItem(hDlg, IDC_USE_MIXER), bUseMixer);
+        Button_SetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT), bResetOnExit);
         if(bUseMixer == TRUE)
         {
             EnableComboBoxes(hDlg, TRUE);
@@ -498,6 +537,10 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
+        case IDC_RESETONEXIT:
+            bResetOnExit = (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED);
+            break;
+
         case IDC_USE_MIXER:
             bUseMixer = (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED);
             if(bUseMixer == TRUE)
@@ -760,11 +803,15 @@ void Mixer_Exit()
 {
     if(pSoundSystem != NULL)
     {
+        // set the chip to mute
+		Audio_SetSource(AUDIOMUX_MUTE);
+
 		if(bUseMixer)
 		{
-			// Mute all inputs
-			Mixer_OnInputChange(SOURCE_CCIR656_4);
-			pSoundSystem->SetMixer(-1);
+            if(pSoundSystem->GetMixer() != NULL && bResetOnExit)
+            {
+                pSoundSystem->GetMixer()->ResetToOriginal();
+            }
 		}
         delete pSoundSystem;
         pSoundSystem = NULL;
@@ -835,6 +882,12 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Other1LineIndex", NULL,
+    },
+    {
+        "Reset Mixer on Exit", ONOFF, 0, (long*)&bResetOnExit,
+        TRUE, 0, 1, 1, 1, 
+        NULL,
+        "Mixer", "ResetOnExit", NULL,
     },
 };
 

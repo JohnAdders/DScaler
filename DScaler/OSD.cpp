@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.70 2002-09-18 11:38:05 kooiman Exp $
+// $Id: OSD.cpp,v 1.71 2002-10-27 13:08:17 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/09/18 11:38:05  kooiman
+// Preparations for skinned dscaler look.
+//
 // Revision 1.69  2002/09/11 18:19:42  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -418,12 +421,20 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
 }
 
 //---------------------------------------------------------------------------
-// Add a new line of text to the list of texts for OSD. '\n' character is supported.
+// Add a new line of text to the list of texts for OSD.
+// "\n" and "\r\n" are supported for starting a new line.
 void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
                  eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
 {
     char      SingleLine[512];
     int       SingleLineIndex = 0;
+    char      *s;
+
+    // convert "\r\n" to "\n"
+    while(s = strstr(szText, "\r\n"))
+    {
+        strcpy(&s[0], &s[1]);
+    }
 
     for(int i = 0; i < strlen(szText); i++)
     {

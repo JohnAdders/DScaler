@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.14 2004-08-12 16:27:47 adcockj Exp $
+// $Id: TSOptionsDlg.cpp,v 1.15 2004-12-01 22:03:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // Put radio button to enable / disable 'TimeShift' warnings.
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/08/12 16:27:47  adcockj
+// added timeshift changes from emu
+//
 // Revision 1.13  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -122,6 +125,7 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_SYNC, m_Sync);
 	DDX_Text(pDX, IDC_RECORD_START, m_Start);
 	DDX_Text(pDX, IDC_RECORD_TIME, m_Time);
+	//}}AFX_DATA_MAP
     if (pDX->m_bSaveAndValidate)
     {
         if (IsChecked(IDC_TSFULLHEIGHTRADIO))

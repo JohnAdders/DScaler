@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.33 2002-08-08 21:15:08 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.34 2002-08-09 13:33:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/08/08 21:15:08  kooiman
+// Fix settings per channel timing issue.
+//
 // Revision 1.32  2002/08/08 12:35:51  kooiman
 // Better channel settings support for BT848 settings.
 //
@@ -274,12 +277,12 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 - 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Below 300 MHz");
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_SETCURSEL, pThis->m_ProcessorSpeed->GetValue(), 0);
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), 0);
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Show all frames - Lowest judder");
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Best picture quality");
-        SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_SETCURSEL, pThis->m_TradeOff->GetValue(), 0);
-        OrigProcessorSpeed = pThis->m_ProcessorSpeed->GetValue();
-        OrigTradeOff = pThis->m_TradeOff->GetValue();
+        SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(TRADEOFF)), 0);
+        OrigProcessorSpeed = Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED));
+        OrigTradeOff = Setting_GetValue(DScaler_GetSetting(TRADEOFF));
         OrigTuner = pThis->m_TunerType->GetValue();
         SetFocus(hDlg);
         // Update the tuner combobox after the SetFocus
@@ -302,12 +305,12 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
-            pThis->m_ProcessorSpeed->SetValue(ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED)));
-            pThis->m_TradeOff->SetValue(ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TRADEOFF)));
-            if(OrigProcessorSpeed != pThis->m_ProcessorSpeed->GetValue() || 
-                OrigTradeOff != pThis->m_TradeOff->GetValue())
+            Setting_SetValue(DScaler_GetSetting(PROCESSORSPEED), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED)));
+            Setting_SetValue(DScaler_GetSetting(TRADEOFF), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TRADEOFF)));
+            if(OrigProcessorSpeed != Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)) || 
+                OrigTradeOff != Setting_GetValue(DScaler_GetSetting(TRADEOFF)))
             {
-                pThis->ChangeDefaultsBasedOnHardware();
+                pThis->ChangeDefaultsBasedOnHardware(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
             }
             if(OrigTuner != pThis->m_TunerType->GetValue())
             {

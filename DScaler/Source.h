@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.15 2002-08-06 18:38:06 kooiman Exp $
+// $Id: Source.h,v 1.16 2002-08-09 13:33:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,9 @@ public:
     virtual BOOL IsAccessAllowed() = 0;
     virtual void SetOverscan() = 0;
     virtual BOOL HasSquarePixels() = 0;
+    virtual void ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff) = 0;
     char* GetComments();
+
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();

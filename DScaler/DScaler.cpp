@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.213 2002-08-08 21:16:24 kooiman Exp $
+// $Id: DScaler.cpp,v 1.214 2002-08-09 13:33:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.213  2002/08/08 21:16:24  kooiman
+// Add call to free memory for settings per channel.
+//
 // Revision 1.212  2002/08/08 12:23:18  kooiman
 // Added channel settings setup calls.
 //
@@ -798,6 +801,9 @@ static const char *DecodingPriorityNames[5] =
 };
 
 static BOOL bTakingCyclicStills = FALSE;
+
+static int ProcessorSpeed = 1;
+static int TradeOff = 1;
 
 ///**************************************************************************
 //
@@ -4510,6 +4516,18 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TIMER_KEYNUMBER_MS, 0, 5000, 1, 1,
         NULL,
         "MainWindow", "ChannelEnterTime", NULL,
+    },
+    {
+        "Processor Speed", SLIDER, 0, (long*)&ProcessorSpeed,
+        1, 0, 2, 1, 1,
+        NULL,
+        "MainWindow", "ProcessorSpeed", NULL,
+    },
+    {
+        "Quality Trade Off", SLIDER, 0, (long*)&TradeOff,
+        1, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "TradeOff", NULL,
     },
 };
 

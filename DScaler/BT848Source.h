@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.27 2002-08-08 21:15:06 kooiman Exp $
+// $Id: BT848Source.h,v 1.28 2002-08-09 13:33:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,7 @@ public:
     BOOL IsAccessAllowed() {return TRUE;};
     void SetOverscan();
     BOOL HasSquarePixels() {return FALSE;};
+    void ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff);
     void ChannelChange(int PreChange,int OldChannel,int NewChannel);
     void SavePerChannelSetup(int Start);
 
@@ -90,7 +91,6 @@ private:
     void SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate);
 
     void SetupCard();
-    void ChangeDefaultsBasedOnHardware();
     void ChangeTVSettingsBasedOnTuner();
     void ChangeSectionNamesForInput();
     void ChangeDefaultsForInput();
@@ -126,8 +126,6 @@ private:
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;
     CSliderSetting* m_CardType;
-    CSliderSetting* m_ProcessorSpeed;
-    CSliderSetting* m_TradeOff;
     CYesNoSetting* m_bSavePerInput;
     CYesNoSetting* m_bSavePerFormat;
     CYesNoSetting* m_bSavePerChannel;

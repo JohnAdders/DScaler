@@ -97,6 +97,9 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
     case SLIDER:
         pISetting = new CSliderSetting(pSetting, pGroup);
         break;
+    case CHARSTRING:
+        pISetting = new CStringSetting(pSetting, pGroup);
+        break;
     }
 
     if (pISetting != NULL)

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.26 2003-01-24 01:55:17 atnak Exp $
+// $Id: Setting.cpp,v 1.27 2003-04-26 23:19:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.25  2003/01/23 15:03:08  adcockj
 // Fix for slow channel changing
 //
@@ -885,5 +889,261 @@ void CYesNoSetting::SetControlValue(HWND hWnd)
 void CYesNoSetting::SetFromControl(HWND hWnd)
 {
     SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
+}
+
+
+/** Character string setting.
+    For the rest of the parameters: 
+    @see CSimpleSetting
+*/
+CStringSetting::CStringSetting(LPCSTR DisplayName, long Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup) :
+    CSimpleSetting(DisplayName, Default, 0, 0, Section, Entry, 1, pGroup)
+{
+    m_pSetting->Type = CHARSTRING;
+    *(m_pSetting->pValue) = NULL;
+}
+
+CStringSetting::CStringSetting(SETTING* pSetting, CSettingGroup* pGroup) : 
+	CSimpleSetting(pSetting, pGroup)
+{
+}
+
+CStringSetting::~CStringSetting()
+{
+    if (m_bFreeSettingOnExit)
+    {
+		if (*(m_pSetting->pValue) != NULL)
+		{
+			delete (char *)(*(m_pSetting->pValue));
+		}
+        delete m_pSetting;
+        m_pSetting = NULL;
+    }
+}
+
+void CStringSetting::GetDisplayText(LPSTR szBuffer)
+{
+    char* szName = m_pSetting->szDisplayName;
+    if (szName == NULL)
+    {
+        szName = m_pSetting->szIniEntry;
+    }
+    sprintf(szBuffer, "%s %s", szName, *(m_pSetting->pValue) ? (char*)*(m_pSetting->pValue) : "");
+}
+
+void CStringSetting::SetValue(long NewValue, BOOL bSupressOnChange)
+{
+    long OldValue = *(m_pSetting->pValue);
+	char* str = new char[strlen((char *)NewValue) + 1];
+	strcpy(str, (char *)NewValue);
+	*(m_pSetting->pValue) = (long)str;
+    if (!bSupressOnChange && DoOnChange(NewValue, OldValue))
+    {
+        OnChange(NewValue, OldValue);
+    }
+	if (OldValue != NULL)
+	{
+		delete (char *)OldValue;
+	}
+}
+
+void CStringSetting::SetDefault()
+{
+    long OldValue = *(m_pSetting->pValue);
+	char* str = new char[strlen((char *)(m_pSetting->Default)) + 1];
+	strcpy(str, (char *)(m_pSetting->Default));
+	*(m_pSetting->pValue) = (long)str;
+    if (DoOnChange(*(m_pSetting->pValue), OldValue))
+    {
+        OnChange(*(m_pSetting->pValue), OldValue);
+    }
+	if (OldValue != NULL)
+	{
+		delete (char *)OldValue;
+	}
+}
+
+/** Read value from sub section in .ini file
+    @param szSubSection Set to NULL to read from the default location
+    @param bSetDefaultOnFailure If the setting was not in the .ini file, set the setting's value to the default value
+    @param pSettingFlags Override setting flags of current setting if not NULL
+    @return TRUE if value was in .ini file            
+*/
+BOOL CStringSetting::ReadFromIniSubSection(LPCSTR szSubSection)
+{
+    BOOL IsSettingInIniFile = TRUE;
+
+    if(m_pSetting->szIniSection != NULL)
+    {        
+        string sEntry;
+		char* szIniEntry;
+
+        sEntry = m_pSetting->szIniSection;
+		sEntry += "_";
+		sEntry+= m_pSetting->szIniEntry;
+		szIniEntry = (char*)sEntry.c_str();
+		
+		char szDefaultString[] = {0};
+		char szBuffer[256];
+		char* szValue;
+		
+		int Len = GetPrivateProfileString(szSubSection, szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        LOG(2, " ReadFromIniSubSection %s %s Result %s", szSubSection, szIniEntry, szBuffer);
+
+		if (Len <= 0)
+		{
+			IsSettingInIniFile = FALSE;
+			szValue = (char *)m_pSetting->Default;
+		}
+		else
+		{
+			IsSettingInIniFile = TRUE;
+			szValue = (char *)szBuffer;		       
+		}
+
+		int OldValue = *m_pSetting->pValue;
+		char* str = new char[strlen(szValue) + 1];
+		strcpy(str, szValue);
+		*m_pSetting->pValue = (long)str;
+
+        // only call OnChange when there actually is a change
+        // this will help keep channel changes slick
+		if(DoOnChange(*m_pSetting->pValue, OldValue))
+	    {
+		    OnChange(*m_pSetting->pValue, OldValue);
+		}
+
+		if (OldValue != NULL)
+		{
+			delete (char *)OldValue;
+		}	
+    }
+    else
+    {
+        IsSettingInIniFile = FALSE;
+    }
+    return IsSettingInIniFile;
+}
+
+/** Read value from default location in .ini file
+*/
+BOOL CStringSetting::ReadFromIni()
+{
+    BOOL IsSettingInIniFile = TRUE;
+
+    if(m_pSetting->szIniSection != NULL)
+    {        
+		char szDefaultString[] = {0};
+		char szBuffer[256];
+		char* szValue;
+		
+		int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        LOG(2, " ReadFromIniSubSection %s %s Result %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, szBuffer);
+
+		if (Len <= 0)
+		{
+			IsSettingInIniFile = FALSE;
+			szValue = (char *)(m_pSetting->Default);
+		}
+		else
+		{
+			IsSettingInIniFile = TRUE;
+			szValue = (char *)szBuffer;
+		}
+        if (IsSettingInIniFile)
+        {            
+			int OldValue = *(m_pSetting->pValue);
+			char* str = new char[strlen(szValue) + 1];
+			strcpy(str, szValue);
+			*(m_pSetting->pValue) = (long)str;
+
+			if (DoOnChange(*(m_pSetting->pValue), OldValue))
+	        {
+		        OnChange(*(m_pSetting->pValue), OldValue);
+			}
+
+			if (OldValue != NULL)
+			{
+				delete (char *)OldValue;
+			}
+        }        
+    }
+    else
+    {
+        IsSettingInIniFile =  FALSE;
+    }
+    return IsSettingInIniFile;
+}
+
+/** Write value to szSubsection in .ini file
+    Override value and setting flags if Value and/or pSettingFlags is not NULL.
+*/
+void CStringSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess)
+{
+    if(m_pSetting->szIniSection != NULL)
+    {
+        string sEntry;
+		char* szIniEntry;
+
+        sEntry = m_pSetting->szIniSection;
+		sEntry += "_";
+		sEntry+= m_pSetting->szIniEntry;
+		szIniEntry = (char*)sEntry.c_str();
+
+		WritePrivateProfileString(szSubSection, szIniEntry, (char*)*m_pSetting->pValue, GetIniFileForSettings());
+        LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, (char*)*m_pSetting->pValue);
+    }
+}
+
+void CStringSetting::WriteToIni(BOOL bOptimizeFileAccess)
+{
+    if(m_pSetting->szIniSection != NULL)
+    {
+		WritePrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)*m_pSetting->pValue, GetIniFileForSettings());
+        LOG(2, " WriteToIniSubSection %s %s Value %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, (char*)*m_pSetting->pValue);
+    }
+}
+
+void CStringSetting::ChangeDefault(long NewDefault, BOOL bDontSetValue)
+{
+}
+
+void CStringSetting::Up()
+{
+}
+
+void CStringSetting::Down()
+{
+}
+ 
+void CStringSetting::ChangeValue(eCHANGEVALUE NewValue)
+{
+    switch(NewValue)
+    {
+    case DISPLAY:
+        OSDShow();
+        break;
+    case RESET:
+        SetDefault();
+        OSDShow();
+        break;
+    case RESET_SILENT:
+        SetDefault();
+        break;
+    default:
+        break;
+    }
+}
+
+void CStringSetting::SetupControl(HWND hWnd)
+{
+}
+
+void CStringSetting::SetControlValue(HWND hWnd)
+{
+}
+
+void CStringSetting::SetFromControl(HWND hWnd)
+{
 }
 

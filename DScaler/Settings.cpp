@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.48 2003-04-26 19:02:41 laurentg Exp $
+// $Id: Settings.cpp,v 1.49 2003-04-26 23:19:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2003/04/26 19:02:41  laurentg
+// Character string settings and memory management
+//
 // Revision 1.47  2003/04/26 16:04:54  laurentg
 // Character string settings
 //
@@ -902,7 +905,7 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
             }
             break;
         case CHARSTRING:
-            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue));
+            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue) ? (char*)*(pSetting->pValue) : "");
             break;
         default:
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.18 2003-01-19 20:07:15 adcockj Exp $
+// $Id: Setting.h,v 1.19 2003-04-26 23:19:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -168,6 +168,38 @@ public:
     void FillSettingStructure(SETTING* pSetting);
 private:
 //    const char** m_List;
+};
+
+
+/** Simple setting with a character string value
+*/
+class CStringSetting : public CSimpleSetting
+{
+public:
+    CStringSetting(LPCSTR DisplayName, long Default, LPCSTR Section, LPCSTR Entry, CSettingGroup* pGroup = NULL);
+    CStringSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
+
+    ~CStringSetting();
+    SETTING_TYPE GetType() {return CHARSTRING;};
+    void GetDisplayText(LPSTR szBuffer);
+    void SetDefault();
+    void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE);
+    void SetValue(long NewValue, BOOL bSupressOnChange = FALSE);
+	void Up();
+	void Down();
+    void ChangeValue(eCHANGEVALUE NewValue);    
+
+    BOOL ReadFromIni();
+    void WriteToIni(BOOL bOptimizeFileAccess);
+    BOOL ReadFromIniSubSection(LPCSTR szSubSection);
+    void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE);
+
+    void SetupControl(HWND hWnd);
+    void SetControlValue(HWND hWnd);
+    void SetFromControl(HWND hWnd);
+
+    void FillSettingStructure(SETTING* pSetting);
+private:
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.11 2003-01-10 17:38:38 adcockj Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.12 2003-04-26 23:19:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/01/10 17:38:38  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.10  2002/11/08 18:33:36  atnak
 // Fixed a problem with the last change
 //
@@ -68,6 +75,7 @@
 #include "resource.h"
 #include "TreeSettingsGeneric.h"
 #include "Settings.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -254,6 +262,15 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_Combo.ShowWindow(SW_SHOWNA);
         break;
 
+    case CHARSTRING:
+        m_DefaultButton.ShowWindow(SW_SHOWNA);
+        m_CheckBox.ShowWindow(SW_HIDE);
+        m_Edit.ShowWindow(SW_SHOWNA);
+        m_Slider.ShowWindow(SW_HIDE);
+        m_Spin.ShowWindow(SW_HIDE);
+        m_Combo.ShowWindow(SW_HIDE);
+        break;
+
     default:
         m_CheckBox.ShowWindow(SW_HIDE);
         m_DefaultButton.ShowWindow(SW_HIDE);
@@ -261,6 +278,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_Slider.ShowWindow(SW_HIDE);
         m_Spin.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
+        break;
     }
 
 
@@ -348,7 +366,10 @@ void CTreeSettingsGeneric::UpdateControls()
     if(m_Edit.GetStyle() & WS_VISIBLE)
     {
         CString newValue;
-        newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
+		if (m_Settings[m_CurrentSetting]->GetType() == CHARSTRING)
+	        newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
+		else
+	        newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
         m_Edit.SetWindowText(newValue);
     }
 
@@ -455,7 +476,10 @@ void CTreeSettingsGeneric::OnChangeEdit()
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        m_Settings[m_CurrentSetting]->SetValue(atol(Value));
+		if (m_Settings[m_CurrentSetting]->GetType() == CHARSTRING)
+	        m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
+		else
+		    m_Settings[m_CurrentSetting]->SetValue(atol(Value));
     }
 
     UpdateControls();

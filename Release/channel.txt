@@ -386,6 +386,47 @@ ChannelHigh=48
   321250000
   313250000
 
+[Dutch Casema Cable Frequency (The Hague)]
+ChannelLow=1
+ChannelHigh=36
+Format=PAL-B
+  161250000 ; Duitsland 2 (ZDF)
+  168250000 ; TV 5
+  175250000 ; Casema Service Kanaal
+  182250000 ; Etalagekanaal
+  189250000 ; Nederland 3
+  196250000 ; Duitsland 1 (ARD)
+  203250000 ; Nederland 1
+  210250000 ; TV West
+  217250000 ; Nederland 2
+  224250000 ; Belgie VRT TV 1
+  231250000 ; Belgie KETNET/Canvas
+  255250000 ; Canal+ 1
+  271250000 ; Canal+ 2
+  471250000 ; Stads Radio Kabelkrant
+  484250000 ; Engeland BBC 1
+  495250000 ; Engeland BBC 2
+  527250000 ; Arte
+  540250000 ; RAI Uno
+  551250000 ; TRT International
+  583250000 ; InfoThuis
+  639250000 ; SBS 6
+  652250000 ; Eurosport
+  663250000 ; TVE Internacional
+  681250000 ; NET 5 / KinderNet 5
+  695250000 ; The Music Factory
+  708250000 ; MTV Europe
+  719250000 ; RTL 4
+  737250000 ; Animal Planet/The BOX/Kunstkanaal
+  751250000 ; Yorin
+  764250000 ; Discovery Channel
+  775250000 ; CNN International
+  793250000 ; V 8 / Fox Kids
+  807250000 ; RTL 5
+  820250000 ; TCM / Cartoon Network
+  831250000 ; National Geographic
+  849250000 ; BBC World 
+
 [Dutch UPC Frequency (Amsterdam)]
 Format=PAL-B
 ChannelLow=1

@@ -836,9 +836,8 @@ BEGIN
         MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
         POPUP "&OSD"
         BEGIN
-            MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
+            MENUITEM "&Show\tEnter",                IDM_SHOW_OSD
             MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
-            MENUITEM "A&ctivate Screens",           65535
             MENUITEM SEPARATOR
         END
         MENUITEM SEPARATOR

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.71 2002-07-19 15:25:09 laurentg Exp $
+// $Id: DS_Control.h,v 1.72 2002-07-20 10:26:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2002/07/19 15:25:09  laurentg
+// New settings (other settings) added in the tree settings + related menu items deleted
+//
 // Revision 1.70  2002/07/08 17:44:58  adcockj
 // Corrected Settings messages
 //
@@ -753,6 +756,10 @@ typedef enum
     OSD_BACKGROUND,
     OSD_OUTLINE,
     OSD_AUTOHIDE_SCREEN,
+    OSD_USE_GENERAL_SCREEN,
+    OSD_USE_STATISTICS_SCREEN,
+    OSD_USE_WSS_SCREEN,
+    OSD_USE_DEVELOPER_SCREEN,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
 #define WM_OSD_GETVALUE     (WM_APP + 18)

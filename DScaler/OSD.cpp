@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.65 2002-07-19 13:02:32 laurentg Exp $
+// $Id: OSD.cpp,v 1.66 2002-07-20 10:33:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/07/19 13:02:32  laurentg
+// OSD menu simplified (one depth level less)
+//
 // Revision 1.64  2002/07/19 11:59:12  laurentg
 // OSD settings added in the tree settings
 //
@@ -1959,29 +1962,21 @@ void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double Size)
 
 void OSD_UpdateMenu(HMENU hMenu)
 {
-    HMENU           hMenuOSD1;
-    HMENU           hMenuOSD2;
+    HMENU           hMenuOSD;
     int             i;
     int             NbScreens;
 
-    hMenuOSD1 = GetOSDSubmenu();
-    hMenuOSD2 = GetOSDSubmenu2();
-    if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL))
+    hMenuOSD = GetOSDSubmenu();
+    if (hMenuOSD == NULL)
     {
         return;
     }
 
-    i = GetMenuItemCount(hMenuOSD1);
-    while (i > 4)
+    i = GetMenuItemCount(hMenuOSD);
+    while (i > 3)
     {
         i--;
-        RemoveMenu(hMenuOSD1, i, MF_BYPOSITION);
-    }
-    i = GetMenuItemCount(hMenuOSD2);
-    while (i)
-    {
-        i--;
-        RemoveMenu(hMenuOSD2, i, MF_BYPOSITION);
+        RemoveMenu(hMenuOSD, i, MF_BYPOSITION);
     }
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     for (i=0; i < NbScreens ; i++)
@@ -1989,24 +1984,19 @@ void OSD_UpdateMenu(HMENU hMenu)
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
             UINT Flags(MF_STRING);
-            AppendMenu(hMenuOSD1, Flags, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].name);
-
-            Flags | ActiveScreens[i].active ? MF_CHECKED : MF_ENABLED;
-            AppendMenu(hMenuOSD2, MF_STRING, IDM_OSDSCREEN_ACTIVATE + i, ActiveScreens[i].name);
+            AppendMenu(hMenuOSD, Flags, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].name);
         }
     }
 }
 
 void OSD_SetMenu(HMENU hMenu)
 {
-    HMENU   hMenuOSD1;
-    HMENU   hMenuOSD2;
+    HMENU   hMenuOSD;
     int     i;
     int     NbScreens;
 
-    hMenuOSD1 = GetOSDSubmenu();
-    hMenuOSD2 = GetOSDSubmenu2();
-    if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL))
+    hMenuOSD = GetOSDSubmenu();
+    if (hMenuOSD == NULL)
     {
         return;
     }
@@ -2016,8 +2006,7 @@ void OSD_SetMenu(HMENU hMenu)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            EnableMenuItem(hMenuOSD1, i+4, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
-            CheckMenuItem(hMenuOSD2, i, ActiveScreens[i].active ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
+            EnableMenuItem(hMenuOSD, i+3, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
         }
     }
 }
@@ -2127,6 +2116,30 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
          NULL,
         "OSD", "AutoHide", OSD_AutoHide_OnChange,
     },
+    {
+        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[0].active),
+         TRUE, 0, 1, 1, 1,
+         NULL,
+        "OSD", "UseGeneralScreen", NULL,
+    },
+    {
+        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[1].active),
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "OSD", "UseStatisticsScreen", NULL,
+    },
+    {
+        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "OSD", "UseWSSDecodingScreen", NULL,
+    },
+    {
+        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[3].active),
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "OSD", "UseDeveloperScreen", NULL,
+    },
 };
 
 
@@ -2144,54 +2157,21 @@ SETTING* OSD_GetSetting(OSD_SETTING Setting)
 
 void OSD_ReadSettingsFromIni()
 {
-    int i;
-    char szScreenSel[16];
-    char szIniKey[16];
-    int NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
-
-    for(i = 0; i < OSD_SETTING_LASTONE; i++)
+    for(int i = 0; i < OSD_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(OSDSettings[i]));
     }
     OSD_AutoHide_OnChange(bAutoHide);
     GetPrivateProfileString("OSD", "FontName", "Arial", szFontName, sizeof(szFontName) , GetIniFileForSettings());
-    for(i = 0; i < NbScreens; i++)
-    {
-        if (!ActiveScreens[i].managed_by_app)
-        {
-            sprintf(szIniKey, "Screen%uSelected", i+1);
-            GetPrivateProfileString("OSD", szIniKey, "undefined", szScreenSel, sizeof(szScreenSel) , GetIniFileForSettings());
-            if (!strcmp(szScreenSel, "0"))
-            {
-                ActiveScreens[i].active = FALSE;
-            }
-            else if (!strcmp(szScreenSel, "1"))
-            {
-                ActiveScreens[i].active = TRUE;
-            }
-        }
-    }
 }
 
 void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    int i;
-    char szIniKey[16];
-    int NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
-
-    for(i = 0; i < OSD_SETTING_LASTONE; i++)
+    for(int i = 0; i < OSD_SETTING_LASTONE; i++)
     {
         Setting_WriteToIni(&(OSDSettings[i]), bOptimizeFileAccess);
     }
     WritePrivateProfileString("OSD", "FontName", szFontName, GetIniFileForSettings());
-    for(i = 0; i < NbScreens; i++)
-    {
-        if (!ActiveScreens[i].managed_by_app)
-        {
-            sprintf(szIniKey, "Screen%uSelected", i+1);
-            WritePrivateProfileString("OSD", szIniKey, ActiveScreens[i].active ? "1" : "0", GetIniFileForSettings());
-        }
-    }
 }
 
 CTreeSettingsGeneric* OSD_GetTreeSettingsPage()

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.193 2002-07-19 15:31:38 laurentg Exp $
+// $Id: DScaler.cpp,v 1.194 2002-07-20 10:33:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.193  2002/07/19 15:31:38  laurentg
+// New settings (other settings) added in the tree settings + related menu items deleted
+//
 // Revision 1.192  2002/07/19 13:02:32  laurentg
 // OSD menu simplified (one depth level less)
 //
@@ -3724,15 +3727,6 @@ HMENU GetChannelsSubmenu()
 HMENU GetOSDSubmenu()
 {
     HMENU hmenu = GetOrCreateSubSubMenu(2, 6, "OSD");
-    ASSERT(hmenu != NULL);
-
-    return hmenu;
-}
-
-
-HMENU GetOSDSubmenu2()
-{
-    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 6, 2, "A&ctivate Screen");
     ASSERT(hmenu != NULL);
 
     return hmenu;

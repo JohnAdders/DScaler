@@ -402,6 +402,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\BitVector.cpp">
+			</File>
+			<File
 				RelativePath="BT848_VoodooTV_IFdem.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3654,6 +3657,9 @@
 			</File>
 			<File
 				RelativePath="BitmapAsButton.h">
+			</File>
+			<File
+				RelativePath=".\BitVector.h">
 			</File>
 			<File
 				RelativePath="Bt848_Defines.h">

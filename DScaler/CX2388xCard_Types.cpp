@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.10 2003-03-10 17:43:19 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.11 2003-06-17 12:45:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/03/10 17:43:19  adcockj
+// Added support for Hauppauge WinTV PCI-FM : patch from Tom Zoerner
+//
 // Revision 1.9  2003/02/24 11:19:51  adcockj
 // Futher fix for issues with PlayHD
 //
@@ -457,6 +460,37 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         // these cards seem similar to the bt848 except that
         // the contents are shifted by 8 bytes
         TUNER_USER_SETUP,
+        IDC_CX2388X,
+    },
+    {
+        "PixelView XCapture With PDI Mod",
+        3,
+        {
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "PDI",
+                INPUTTYPE_CCIR,
+                3,
+            },
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_ABSENT,
         IDC_CX2388X,
     },
 };

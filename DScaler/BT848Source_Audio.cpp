@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.16 2002-08-05 13:26:34 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.17 2002-08-07 09:57:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/08/05 13:26:34  kooiman
+// Added support for per channel settings including BT volume.
+//
 // Revision 1.15  2002/07/02 20:00:07  adcockj
 // New setting for MSP input pin selection
 //
@@ -108,8 +111,7 @@ void CBT848Source::UnMute()
 
 void CBT848Source::VolumeOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioVolume(NewValue);
-    ChannelSettingChanged(m_Volume);
+    m_pBT848Card->SetAudioVolume(NewValue);    
 }
 
 void CBT848Source::BalanceOnChange(long NewValue, long OldValue)
@@ -178,20 +180,17 @@ void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue, (m_UseInputPin1->GetValue() != 0));
-    ChannelSettingChanged(m_AudioChannel);
+    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue, (m_UseInputPin1->GetValue() != 0));    
 }
 
 void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 {
-    /// \todo FIXME
-    ChannelSettingChanged(m_AutoStereoSelect);
+    /// \todo FIXME    
 }
 
 void CBT848Source::UseInputPin1OnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (NewValue != 0));
-    ChannelSettingChanged(m_UseInputPin1);
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (NewValue != 0));    
 }
 
 

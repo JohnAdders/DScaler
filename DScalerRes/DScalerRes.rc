@@ -837,15 +837,13 @@ BEGIN
         MENUITEM "Toggle &Status Bar\tS",       IDM_STATUSBAR, CHECKED
         MENUITEM "Toggle Show &Cursor   \tCtrl+Enter", IDM_TOGGLECURSOR
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
-        MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
-        MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
-        MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
-    END
-    POPUP "&AspectRatio"
-    BEGIN
-        MENUITEM "4:3 Fullscreen",              IDM_ASPECT_FULLSCREEN
-        MENUITEM "Letterboxed",                 IDM_ASPECT_LETTERBOX
-        MENUITEM "16:9 Anamorphic",             IDM_ASPECT_ANAMORPHIC
+        MENUITEM "Always On &Top (Window)",     IDM_ON_TOP
+        MENUITEM "Always On To&p (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
+        MENUITEM "&Auto-Size Window",           IDM_WINPOS_AUTOSIZE
+        MENUITEM SEPARATOR
+        MENUITEM "&4:3 Fullscreen",             IDM_ASPECT_FULLSCREEN
+        MENUITEM "&Letterboxed",                IDM_ASPECT_LETTERBOX
+        MENUITEM "&16:9 Anamorphic",            IDM_ASPECT_ANAMORPHIC
         POPUP "Advanced &Image Aspect Ratios"
         BEGIN
             MENUITEM "Autodetect (experimental)\tA", IDM_SASPECT_AUTO_TOGGLE
@@ -881,7 +879,7 @@ BEGIN
             MENUITEM "2.35\tAlt+6",                 IDM_TASPECT_235
             MENUITEM "Custom  (from .INI file)\tAlt+9", IDM_TASPECT_CUSTOM
         END
-        POPUP "Window &Position"
+        POPUP "&Window Position"
         BEGIN
             MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
             MENUITEM "&Centre\tCtrl+Numpad 5",      IDM_WINPOS_VERT_CENTRE
@@ -907,6 +905,9 @@ BEGIN
             MENUITEM "3.5x",                        IDM_ZOOM_35
             MENUITEM "4x",                          IDM_ZOOM_40
         END
+        MENUITEM SEPARATOR
+        MENUITEM "Show &OSD\tEnter",            IDM_SHOW_OSD
+        MENUITEM "&Hide OSD\tBackspace",        IDM_HIDE_OSD
     END
     POPUP "Deinter&lace"
     BEGIN
@@ -959,12 +960,6 @@ BEGIN
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
         MENUITEM "Advanced &Settings...",       IDM_SETTINGS_CHANGESETTINGS
-    END
-    POPUP "&OSD"
-    BEGIN
-        MENUITEM "&Show\tEnter",                IDM_SHOW_OSD
-        MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
-        MENUITEM SEPARATOR
     END
     POPUP "Ac&tions"
     BEGIN
@@ -1071,11 +1066,9 @@ BEGIN
         MENUITEM "Source",                      IDM_POPUP_SOURCES
         MENUITEM "&Channels",                   IDM_CHANNEL_SELECT
         MENUITEM "&View",                       IDM_POPUP_SOURCES
-        MENUITEM "&Aspect Ratio",               IDM_POPUP_SOURCES
         MENUITEM "Deinter&lace",                IDM_POPUP_SOURCES
         MENUITEM "&Filters",                    IDM_POPUP_SOURCES
         MENUITEM "S&ettings",                   IDM_POPUP_SOURCES
-        MENUITEM "&OSD",                        IDM_POPUP_SOURCES
         MENUITEM "Ac&tions",                    IDM_POPUP_SOURCES
         MENUITEM "&Datacasting",                IDM_POPUP_SOURCES
         MENUITEM "E&xit",                       IDM_END
@@ -1084,7 +1077,7 @@ END
 
 IDC_BT848 MENU DISCARDABLE 
 BEGIN
-    POPUP "&Bt848"
+    POPUP "&Bt Card"
     BEGIN
         POPUP "Video &Input"
         BEGIN

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.201 2002-07-29 21:33:06 laurentg Exp $
+// $Id: DScaler.cpp,v 1.202 2002-07-30 21:20:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.201  2002/07/29 21:33:06  laurentg
+// "Show Video Method UI" feature restored
+//
 // Revision 1.200  2002/07/27 16:27:35  laurentg
 // Deinterlace and Settings menus updated
 //
@@ -1056,53 +1059,39 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,3,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 4, "&AspectRatio");
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
-        }
-
         hSubMenu = GetVideoDeinterlaceSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,4, TRUE, &MenuItemInfo);
         }
 
         hSubMenu = GetFiltersSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenuWithName(hMenu, 6, "S&ettings");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,6, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 7, "S&ettings");
+        hSubMenu = GetSubMenuWithName(hMenu, 7, "Ac&tions");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,7, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetOSDSubmenu();
+        hSubMenu = GetSubMenuWithName(hMenu, 8, "&Datacasting");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenuWithName(hMenu, 9, "Ac&tions");
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,9, TRUE, &MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenuWithName(hMenu, 10, "&Datacasting");
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,10,TRUE,&MenuItemInfo);
         }
     }
     return hMenuPopup;
@@ -3724,7 +3713,7 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
 
 HMENU GetFiltersSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 6, "&Filters");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 5, "&Filters");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3733,7 +3722,7 @@ HMENU GetFiltersSubmenu()
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 5, "Deinter&lace");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 4, "Deinter&lace");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3749,7 +3738,8 @@ HMENU GetChannelsSubmenu()
 
 HMENU GetOSDSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 8, "&OSD");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 3, "&OSD");
+//    HMENU hmenu = GetOrCreateSubSubMenu(3, 16, "&OSD");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3757,7 +3747,7 @@ HMENU GetOSDSubmenu()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(7, 1, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(6, 1, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

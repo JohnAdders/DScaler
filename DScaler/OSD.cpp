@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.66 2002-07-20 10:33:06 laurentg Exp $
+// $Id: OSD.cpp,v 1.67 2002-07-30 21:20:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/07/20 10:33:06  laurentg
+// New settings to select the wished OSD screens
+//
 // Revision 1.65  2002/07/19 13:02:32  laurentg
 // OSD menu simplified (one depth level less)
 //
@@ -1973,7 +1976,7 @@ void OSD_UpdateMenu(HMENU hMenu)
     }
 
     i = GetMenuItemCount(hMenuOSD);
-    while (i > 3)
+    while (i > 18)
     {
         i--;
         RemoveMenu(hMenuOSD, i, MF_BYPOSITION);
@@ -2006,7 +2009,7 @@ void OSD_SetMenu(HMENU hMenu)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            EnableMenuItem(hMenuOSD, i+3, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
+            EnableMenuItem(hMenuOSD, i+18, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
         }
     }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.11 2002-11-10 12:48:16 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.12 2002-11-12 09:18:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/11/10 12:48:16  laurentg
+// Order in CombFilterSzList updated
+//
 // Revision 1.10  2002/11/09 20:53:46  laurentg
 // New CX2388x settings
 //
@@ -320,7 +323,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VDelay->SetStepValue(4);
     m_Settings.push_back(m_VDelay);
 
-    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 25, 0, 100, IniSection, pH3DGroup, FlagsAll);
+    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 12, 0, 100, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_EatLinesAtTop);
     
     m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup, FlagsAll);

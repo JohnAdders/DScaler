@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.26 2002-10-31 03:10:55 atnak Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.27 2003-01-01 20:59:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/31 03:10:55  atnak
+// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
+//
 // Revision 1.25  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -123,6 +126,7 @@
 #include "SettingsPerChannel.h"
 #include "Providers.h"
 #include "BT848Source.h"
+#include "VBI_VideoText.h"
 #include "..\help\helpids.h"
 #include "SettingsMaster.h"
 
@@ -669,6 +673,12 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 
+        pPage = VideoText_GetTreeSettingsPage();
+        // \todo add help
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
         pPage = DScaler_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_ADVANCED);
 	    pages.push_back(pPage);
@@ -693,7 +703,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pPage->SetHelpID(IDH_SETTINGSBYCHANNEL);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
-
 
         pPage = Debug_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_LOGGING);

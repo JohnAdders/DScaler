@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.41 2004-02-27 20:51:00 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.42 2004-02-29 19:41:45 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2004/02/27 20:51:00  to_see
+// -more logging in CCX2388xCard::StartStopConexxantDriver
+// -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
+// -renamed eAudioStandard to eCX2388xAudioStandard,
+//  eStereoType to eCX2388xStereoType and moved from
+//  cx2388xcard.h to cx2388x_defines.h
+// -moved Audiodetecting from CX2388xCard_Audio.cpp
+//  to CX2388xSource_Audio.cpp
+// -CCX2388xCard::AutoDetectTuner read
+//  at first from Registers
+//
 // Revision 1.40  2004/02/05 21:47:52  to_see
 // Starting/Stopping connexant-drivers while dscaler is running.
 // To Enable/Disable it, go to Settings->Advanced Settings->
@@ -435,6 +446,32 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
         EnableMenuItem(m_hMenu, IDM_PROGRESSIVE, MF_GRAYED);
         EnableMenuItem(m_hMenu, IDM_FLI_FILMDETECT, MF_GRAYED);
 	}
+    
+	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,			(m_StereoType->GetValue() == STEREOTYPE_MONO  ));
+	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,			(m_StereoType->GetValue() == STEREOTYPE_STEREO));
+	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,		(m_StereoType->GetValue() == STEREOTYPE_ALT1  ));
+	CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2,		(m_StereoType->GetValue() == STEREOTYPE_ALT2  ));
+	CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO,					(m_StereoType->GetValue() == STEREOTYPE_AUTO  ));
+	EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO,			IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO,					IsInTunerMode());
+
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_AUTO			));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_A2			));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC			));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,	(m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC_SAP		));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_EIAJ			));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_FM			));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,		(m_AudioStandard->GetValue() == IDM_CX2388X_AUDIO_STD_NICAM	));
+	EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,	IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,		IsInTunerMode());
+    EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,	IsInTunerMode());
 }
 
 BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -625,7 +662,55 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_PixelWidth->OSDShow();
             break;
 
-        default:
+        case IDM_SOUNDCHANNEL_MONO:
+            m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_MONO);
+            break;
+        
+		case IDM_SOUNDCHANNEL_STEREO:
+            m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_STEREO);
+            break;
+        
+		case IDM_SOUNDCHANNEL_LANGUAGE1:
+            m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_ALT1);
+            break;
+        
+		case IDM_SOUNDCHANNEL_LANGUAGE2:
+            m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_ALT2);
+            break;
+	
+		case IDM_AUTOSTEREO:
+            m_StereoType->SetValue((eCX2388xStereoType)STEREOTYPE_AUTO);
+            break;
+		
+		case IDM_CX2388X_AUDIO_STD_AUTO:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_AUTO);
+			break;
+	
+		case IDM_CX2388X_AUDIO_STD_A2:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_A2);
+			break;
+
+		case IDM_CX2388X_AUDIO_STD_BTSC:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC);
+			break;
+		
+		case IDM_CX2388X_AUDIO_STD_BTSC_SAP:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_BTSC_SAP);
+			break;
+
+		case IDM_CX2388X_AUDIO_STD_EIAJ:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_EIAJ);
+			break;
+		
+		case IDM_CX2388X_AUDIO_STD_FM:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_FM);
+			break;
+
+		case IDM_CX2388X_AUDIO_STD_NICAM:
+			m_AudioStandard->SetValue((eCX2388xAudioStandard)AUDIO_STANDARD_NICAM);
+			break;
+		
+		default:
             return FALSE;
             break;
     }
@@ -730,6 +815,7 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
         vSettingsList.push_back(m_Balance);
         vSettingsList.push_back(m_AudioStandard);
         vSettingsList.push_back(m_StereoType);
+        vSettingsList.push_back(m_AutoMute);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.4 2004-02-27 20:51:00 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.5 2004-02-29 19:41:45 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/02/27 20:51:00  to_see
+// -more logging in CCX2388xCard::StartStopConexxantDriver
+// -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
+// -renamed eAudioStandard to eCX2388xAudioStandard,
+//  eStereoType to eCX2388xStereoType and moved from
+//  cx2388xcard.h to cx2388x_defines.h
+// -moved Audiodetecting from CX2388xCard_Audio.cpp
+//  to CX2388xSource_Audio.cpp
+// -CCX2388xCard::AutoDetectTuner read
+//  at first from Registers
+//
 // Revision 1.3  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -49,17 +60,16 @@
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
 #include "status.h"
+#include "Audio.h"
 
 void CCX2388xSource::Mute()
 {
     m_pCard->SetAudioMute();
-	m_bMuted = TRUE;
 }
 
 void CCX2388xSource::UnMute()
 {
     m_pCard->SetAudioUnMute(m_Volume->GetValue());
-	m_bMuted = FALSE;
 }
 
 void CCX2388xSource::VolumeOnChange(long NewValue, long OldValue)
@@ -120,12 +130,14 @@ void CCX2388xSource::UpdateAudioStatus()
 	{
 		if(IsVideoPresent())
 		{
-			if(m_bMuted)
+			if(TRUE == (BOOL)m_AutoMute->GetValue())
 			{
-				UnMute();
-				EventCollector->RaiseEvent(this, EVENT_MUTE, -1, m_bMuted);
+				if(Audio_IsMute() && !Audio_GetUserMute())
+				{
+					Audio_Unmute();
+				}
 			}
-			
+
 			switch(m_pCard->GetCurrentAudioStandard())
 			{
 			case AUDIO_STANDARD_A2:
@@ -167,12 +179,14 @@ void CCX2388xSource::UpdateAudioStatus()
 		// no Video present
 		else
 		{
-			if(!m_bMuted)
+			if(TRUE == (BOOL)m_AutoMute->GetValue())
 			{
-				Mute();
-				EventCollector->RaiseEvent(this, EVENT_MUTE, -1, m_bMuted);
+				if(!Audio_IsMute())
+				{
+					Audio_Mute();
+				}
 			}
-			
+		
 			m_AutoDetectA2StereoCounter		= 0;
 			m_AutoDetectA2BilingualCounter	= 0;
 		}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.31 2004-02-27 20:51:00 to_see Exp $
+// $Id: CX2388xSource.h,v 1.32 2004-02-29 19:41:45 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -176,7 +176,6 @@ private:
 
 	long		 m_AutoDetectA2StereoCounter;
 	long		 m_AutoDetectA2BilingualCounter;
-	BOOL		 m_bMuted;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);
@@ -222,6 +221,8 @@ private:
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ConexxantStartStopDriver);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, AutoMute);
+
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);
     void ChangeDefaultsForVideoInput(BOOL bDontSetValue);

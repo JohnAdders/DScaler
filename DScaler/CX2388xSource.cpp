@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.62 2004-02-27 20:50:59 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.63 2004-02-29 19:41:45 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2004/02/27 20:50:59  to_see
+// -more logging in CCX2388xCard::StartStopConexxantDriver
+// -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
+// -renamed eAudioStandard to eCX2388xAudioStandard,
+//  eStereoType to eCX2388xStereoType and moved from
+//  cx2388xcard.h to cx2388x_defines.h
+// -moved Audiodetecting from CX2388xCard_Audio.cpp
+//  to CX2388xSource_Audio.cpp
+// -CCX2388xCard::AutoDetectTuner read
+//  at first from Registers
+//
 // Revision 1.61  2004/02/21 14:11:30  to_see
 // more A2-code
 //
@@ -387,8 +398,7 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     m_hCX2388xResourceInst(NULL),
 	m_InitialSetup(FALSE),
 	m_AutoDetectA2StereoCounter(0),
-	m_AutoDetectA2BilingualCounter(0),
-	m_bMuted(FALSE)
+	m_AutoDetectA2BilingualCounter(0)
 {
     CreateSettings(IniSection);
 
@@ -657,8 +667,11 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
-    m_ConexxantStartStopDriver = new CConexxantStartStopDriverSetting(this, "Stop Conexxant driver while DScaler is running", TRUE, IniSection, pVideoGroup);
+    m_ConexxantStartStopDriver = new CConexxantStartStopDriverSetting(this, "Stop Conexxant driver while DScaler is running", TRUE, IniSection, pAudioGroup);
     m_Settings.push_back(m_ConexxantStartStopDriver);
+
+    m_AutoMute = new CAutoMuteSetting(this, "Automute if no Tunersignal", TRUE, IniSection, pVideoGroup);
+    m_Settings.push_back(m_AutoMute);
 
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
@@ -2093,4 +2106,12 @@ ITuner* CCX2388xSource::GetTuner()
 void CCX2388xSource::ConexxantStartStopDriverOnChange(long NewValue,long OldValue)
 {
     m_pCard->SetEnableStartStopConexxantDriver(NewValue);
+}
+
+void CCX2388xSource::AutoMuteOnChange(long NewValue,long OldValue)
+{
+	if(Audio_IsMute() && !Audio_GetUserMute())
+	{
+		Audio_Unmute();
+	}
 }

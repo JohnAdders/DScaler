@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.11 2002-10-08 20:43:16 kooiman Exp $
+// $Id: GenericTuner.cpp,v 1.12 2003-02-06 21:28:33 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/08 20:43:16  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.10  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
 //
@@ -376,6 +379,13 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
       {
           TUNERDEF(TUNER_LG_TAPCNEW_NTSC, VIDEOFORMAT_NTSC_M,
               16*(170.00),16*(450.00),0x01,0x02,0x08,0x8e,732);
+          break;
+      }
+    case TUNER_PHILIPS_FI1286_NTSC_M_J:
+      {
+        //  { "Philips FI1286", Philips, NTSC, 16*160.00, 16*454.00, 0x01, 0x02, 0x04, 0x8e, 940},
+          TUNERDEF(TUNER_PHILIPS_FI1286_NTSC_M_J, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(454.00),0x01,0x02,0x04,0x8e,940);
           break;
       }
     }

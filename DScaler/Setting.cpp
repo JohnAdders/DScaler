@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.24 2003-01-19 20:07:14 adcockj Exp $
+// $Id: Setting.cpp,v 1.25 2003-01-23 15:03:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/01/19 20:07:14  adcockj
+// Setting optimization fixes
+//
 // Revision 1.23  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -361,7 +364,9 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 		int OldValue = *m_pSetting->pValue;
 		*m_pSetting->pValue = nValue;
 	
-		if (DoOnChange(*m_pSetting->pValue, OldValue))
+        // only call OnChange when there actually is a change
+        // this will help keep channel changes slick
+		if(*m_pSetting->pValue != OldValue && DoOnChange(*m_pSetting->pValue, OldValue))
 	    {
 		    OnChange(*m_pSetting->pValue, OldValue);
 		}

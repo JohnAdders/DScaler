@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.8 2001-08-19 06:26:38 trbarry Exp $
+// $Id: DI_GreedyHM.c,v 1.9 2001-10-02 17:44:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/08/19 06:26:38  trbarry
+// Remove Greedy HM Low Motion Only option and files
+//
+// No longer needed
+//
 // Revision 1.7  2001/08/17 16:18:35  trbarry
 // Minor GreedyH performance Enh.
 // Only do pulldown calc when needed.
@@ -53,7 +58,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "DS_Deinterlace.h"
 #include "DI_GreedyHM.h"
 
 // Note - actual default values below may be set in DI_GreedyHSETTINGS
@@ -118,7 +122,6 @@ BYTE *lpCurOverlay = 0;
 
 // typedef void (MEMCPY_FUNC)(void* pOutput, void* pInput, size_t nSize);
 MEMCPY_FUNC* pMemcpy = 0;
-
 
 __int64 MaxComb=0;
 __int64 EdgeThreshold=0;

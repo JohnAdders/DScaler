@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHMPulldown.c,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyHMPulldown.c,v 1.3 2001-10-02 17:44:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,10 +25,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
-#include "DS_Deinterlace.h"
+//>>>>>>>>#include "DS_Deinterlace.h"
 #include "DI_GreedyHM.h"
 BOOL PullDown_V(BOOL SelectL2);
 BOOL PullDown_InBetween();

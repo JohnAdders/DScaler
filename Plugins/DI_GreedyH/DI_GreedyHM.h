@@ -1,4 +1,4 @@
-// $Id: DI_GreedyHM.h,v 1.5 2001-08-19 06:26:38 trbarry Exp $
+// $Id: DI_GreedyHM.h,v 1.6 2001-10-02 17:44:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,28 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+
+// Extra definitions we may need from DScaler           // We use a bigger array in Avisynth than DScaler
+#define BUILDING_FOR_DSCALER                         // define only in DScaler version else comment out
+#ifdef BUILDING_FOR_DSCALER
+#include "DS_Deinterlace.h"
+extern MEMCPY_FUNC* pMemcpy;
+#define FSMAXROWS 289	// allow space for max 288 rows/field, plus a spare
+#define FSMAXCOLS 1000	// allow space for max 1000 screen cols
+
+#else                   // probably building for Avisynth filter
+typedef unsigned long       DWORD;
+typedef int                 BOOL;
+typedef unsigned char       BYTE;
+typedef unsigned short      WORD;
+typedef unsigned int        UINT;
+#define MEMCPY_FUNC int // not used except in DScaler
+
+#define FSMAXROWS 541	// allow space for max 540 rows/field, plus a spare
+#define FSMAXCOLS 1928	// allow space for max 1928 screen cols
+#endif                                                  // end of DScaler/avisynth specific stuff
+
+
 extern long GreedyMaxComb;				// max comb we allow past clip
 extern long GreedyMotionThreshold;		// ignore changes < this
 extern long GreedyMotionSense;			// how rapidly to bob when > threshold
@@ -55,6 +77,7 @@ extern BOOL GreedyUseVertFilter;
 extern BOOL GreedyUseEdgeEnh;
 extern BOOL GreedySSEBox;           
 extern UINT GreedyFeatureFlags;         // Save feature flags on setup
+
 typedef struct 
 {
     int Comb;					// combs
@@ -78,8 +101,7 @@ typedef struct
 
 // A bunch of shared variables used by all the very similar routines
 #define FSFIELDS 4		// number of fields to buffer
-#define FSMAXROWS 289	// allow space for max 288 rows/field, plus a spare
-#define FSMAXCOLS 1000	// allow space for max 1000 screen cols
+// Rows & Cols defined above, differenty for DScaler & Avisynth - TRB 10/2000
 #define FSCOLCT FSMAXCOLS * FSFIELDS / 4 // number qwords in row = cols * 4 fields / 4 pixels
 #define FSCOLSIZE 32	// bytes to skip for info for next col (of 4 fields and 4 pixels)
 #define FSROWSIZE FSMAXCOLS*FSCOLSIZE/4  // bytes to skip to get to info for 2nd row
@@ -112,8 +134,6 @@ extern int FsDelay;				// display is delayed by n fields (1,2,3)
 extern __int64 FieldStore[4*FSMAXCOLS*FSMAXROWS/4];
 extern __int64* lpFieldStore;
 
-// typedef void (MEMCPY_FUNC)(void* pOutput, void* pInput, size_t nSize);
-extern MEMCPY_FUNC* pMemcpy;
 extern BOOL DI_GreedyHM();
 BOOL FieldStoreCopy(BYTE * dest, __int64 * src, int clen);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM_NV.c,v 1.3 2001-08-17 19:29:48 trbarry Exp $
+// $Id: DI_GreedyHM_NV.c,v 1.4 2001-10-02 17:44:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/17 19:29:48  trbarry
+// GreedyH performance improvement:
+//
+// Unroll non-vertical-filter loop to go as fast as with V.Filter
+//
 // Revision 1.2  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -36,7 +41,7 @@
 // It's actually now almost a copy of the Greedy_V because that ran faster with the unrolled loop.
 
 #include "windows.h"
-#include "DS_Deinterlace.h"
+//>>>>>>>>>>>> #include "DS_Deinterlace.h"
 #include "DI_GreedyHM.h"
    
 

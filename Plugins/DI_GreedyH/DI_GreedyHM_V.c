@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM_V.c,v 1.4 2001-08-17 19:30:55 trbarry Exp $
+// $Id: DI_GreedyHM_V.c,v 1.5 2001-10-02 17:44:41 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/08/17 19:30:55  trbarry
+// Fix OBO error in GreedyH Vertical Filter
+//
 // Revision 1.3  2001/08/17 17:08:42  trbarry
 // GreedyH performance enhancement:
 //
@@ -41,7 +44,7 @@
 // This version handles Greedy High Motion with Vertical Filtering
 
 #include "windows.h"
-#include "DS_Deinterlace.h"
+//>>>>>>>>>#include "DS_Deinterlace.h"
 #include "DI_GreedyHM.h"
 
 // debugging options

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.35 2003-07-14 19:17:35 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.36 2003-10-13 18:52:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/07/14 19:17:35  adcockj
+// Mew PMSVideo cards
+//
 // Revision 1.34  2003/06/01 15:04:16  adcockj
 // Added APAC Viewcomp card def from Nikola Maric
 //
@@ -2328,9 +2331,9 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
-    // Card Number 62 - Pinnacle PCTV Studio Pro
+    // Card Number 62 - Pinnacle PCTV Pro
     {
-        "Pinnacle PCTV Studio Pro",
+        "Pinnacle PCTV Pro",
         4,
         {
             {

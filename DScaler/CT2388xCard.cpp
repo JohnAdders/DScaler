@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.18 2002-10-24 17:17:17 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.19 2002-10-25 14:46:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/24 17:17:17  adcockj
+// Fixed silly bug in new buffer code
+//
 // Revision 1.17  2002/10/24 16:04:47  adcockj
 // Another attempt to get VBI working
 // Tidy up CMDS/Buffers code
@@ -597,17 +600,27 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         if (CurrentY == 576)
         {
+			DWORD RegValue;
             HorzScale = 0x0504;
             double PALFsc8(GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc * 8);
 
             SetPLL(PALFsc8);
 
 			// set up subcarrier frequency
-			DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PALFsc8) * (double)(1<<22));
+			// Comments from Laurent
+			// The sub carriers frequencies are wrong for SECAM
+			// => use the values given by AMCAP
+			if(TVFormat == VIDEOFORMAT_SECAM_L)
+				RegValue = 0x003d5985;
+			else
+				RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PALFsc8) * (double)(1<<22));
 			WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
 			// Subcarrier frequency Dr, for SECAM only but lets
 			// set it anyway
-			RegValue = (DWORD)((8.0 * 4.406250 / PALFsc8) * (double)(1<<22));
+			if(TVFormat == VIDEOFORMAT_SECAM_L)
+				RegValue = 0x003f9aee;
+			else
+				RegValue = (DWORD)((8.0 * 4.406250 / PALFsc8) * (double)(1<<22));
 			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
 
             WriteDword( CT2388X_SAMPLERATECONV, 0x19D5F);
@@ -643,6 +656,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
             HTotal = HLNotchFilter4xFsc | 864;
+			// Comments from Laurent
+			// HTotal seems to be wrong for PAL
+			// => use the same value as for SECAM because it seems to work
+			// TODO: use the correct value for each video format
+			HTotal = 0x0000046f;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
@@ -675,6 +693,10 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_SECAM_L1:
             VideoInput |= VideoFormatSECAM;
             HTotal = HLNotchFilter4xFsc | 864;
+			// Comments from Laurent
+			// HTotal is wrong for SECAM
+			// => use the value given by AMCAP
+			HTotal = 0x0000046f;
             break;
         case VIDEOFORMAT_NTSC_M:
             VideoInput |= VideoFormatNTSC;

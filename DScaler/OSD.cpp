@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.50 2002-02-17 20:32:34 laurentg Exp $
+// $Id: OSD.cpp,v 1.51 2002-02-17 22:34:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/02/17 20:32:34  laurentg
+// Audio input display suppressed from the OSD main screen
+// GetStatus modified to display the video input name in OSD main screen even when there is no signal
+//
 // Revision 1.49  2002/02/09 14:46:04  laurentg
 // OSD main screen updated to display the correct input name (or channel)
 // OSD main screen updated to display only activated filters
@@ -786,6 +790,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     CSubPattern *pSubPattern;
     CSource* pSource = Providers_GetCurrentSource();
     ISetting* pSetting = NULL;
+    DWORD CurrentTicks;
+    int ticks;
 
     // Case : no OSD screen
     if (IdxCurrentScreen == -1)
@@ -1045,6 +1051,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
         nLine = 3;
 
+        CurrentTicks = GetTickCount();
+
         OSD_AddText("Deinterlace Modes", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         sprintf (szInfo, "Number of changes : %ld", nTotalDeintModeChanges);
@@ -1062,12 +1070,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     if (DeintMethod == GetCurrentDeintMethod())
                     {
                         Color = OSD_COLOR_CURRENT;
+                        ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
                     }
                     else
                     {
                         Color = -1;
+                        ticks = DeintMethod->ModeTicks;
                     }
-                    sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, DeintMethod->ModeTicks * 100 / (double)(nLastTicks - nInitialTicks), DeintMethod->szName);
+                    sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
                     OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
                     nLine++;
                 }
@@ -1085,12 +1095,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     if (DeintMethod == GetCurrentDeintMethod())
                     {
                         Color = OSD_COLOR_CURRENT;
+                        ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
                     }
                     else
                     {
                         Color = -1;
+                        ticks = DeintMethod->ModeTicks;
                     }
-                    sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, DeintMethod->ModeTicks * 100 / (double)(nLastTicks - nInitialTicks), DeintMethod->szName);
+                    sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
                     OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
                     nLine++;
                 }

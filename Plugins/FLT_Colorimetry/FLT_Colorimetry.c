@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Colorimetry.c,v 1.1 2003-04-14 12:14:51 adcockj Exp $
+// $Id: FLT_Colorimetry.c,v 1.2 2003-04-15 13:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/04/14 12:14:51  adcockj
+// Added new Colorimetry Filter
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -186,9 +189,9 @@ SETTING FLT_ColorimetrySettings[FLT_COLORIMETRY_SETTING_LASTONE] =
         "ColorimetryFilter", "UseColorimetryFilter", NULL,
     },
     {
-        "Colorimetry Type", SLIDER, 0, &ColorimetryType,
+        "Colorimetry Type", ITEMFROMLIST, 0, &ColorimetryType,
         0, 0, COLORIMETRY_LASTONE - 1, 1, 1,
-        NULL,
+        ModeList,
         "ColorimetryFilter", "Colorimetry", Colorimetry_OnChange,
     },
 };

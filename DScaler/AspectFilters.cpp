@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.20 2002-02-26 00:16:16 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.21 2002-03-20 11:30:20 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/02/26 00:16:16  laurentg
+// "Auto resize window" option not taken into account when in "Square Pixels" mode
+//
 // Revision 1.19  2002/02/25 22:42:23  laurentg
 // Correction of a bug in method CUnCropAspectFilter::adjustAspect
 //
@@ -592,6 +595,8 @@ LPCSTR CScreenSanityAspectFilter::getFilterName()
 // Attemtps to resize the client window to match the aspect ratio
 BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
+    LONG OrigClientTop = 0;
+
     if (!bIsFullScreen) 
     {
         // See if we need to resize the window
@@ -629,7 +634,19 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             
             // Convert client rect to window rect...
             currentClientRect.enforceMinSize(8);
-            AdjustWindowRectEx(&currentClientRect,GetWindowLong(hWnd,GWL_STYLE),bShowMenu,0);
+            OrigClientTop = currentClientRect.top;
+            AdjustWindowRectEx(&currentClientRect,
+                               GetWindowLong(hWnd,GWL_STYLE),
+                               FALSE, /* we deal with the menu later */
+                               GetWindowLong(hWnd, GWL_EXSTYLE));
+            // Adjust for the menu bar
+            // Workaround since AdjustWindowRectEx does not work correct with a wrapped menu bar
+            if(bShowMenu)
+            {
+                RECT TempRect = currentClientRect;
+                SendMessage(hWnd, WM_NCCALCSIZE, FALSE, (LPARAM)(LPRECT)&TempRect);
+                currentClientRect.top -= TempRect.top - OrigClientTop;
+            }
             
             #ifdef __ASPECTFILTER_DEBUG__
                 currentClientRect.DebugDump("New Window Pos");

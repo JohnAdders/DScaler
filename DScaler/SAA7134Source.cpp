@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.21 2002-10-09 13:20:15 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.22 2002-10-10 12:13:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/10/09 13:20:15  atnak
+// fixed up field start lines
+//
 // Revision 1.20  2002/10/08 20:42:05  atnak
 // forgot to comment out debug line
 //
@@ -518,7 +521,7 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         }
         else
         {
-            GiveNextField(pInfo, &m_EvenFields[m_CurrentFrame]);
+            GiveNextField(pInfo, &m_EvenFields[(pInfo->CurrentFrame + 1) % 2]);
         }
     }
     else
@@ -529,7 +532,7 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         }
         else
         {
-            GiveNextField(pInfo, &m_OddFields[(pInfo->CurrentFrame + 1) % 2]);
+            GiveNextField(pInfo, &m_OddFields[m_CurrentFrame]);
         }
     }
 
@@ -608,6 +611,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bMissedFrame = FALSE;
         if (pInfo->bRunningLate)
         {
+            Timing_AddDroppedFields(1);
             LOG(2, "Running Late");
         }
     }

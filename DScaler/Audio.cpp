@@ -535,6 +535,7 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
 	Equalizer3_OnChange(InitialEqualizer[2]);
 	Equalizer4_OnChange(InitialEqualizer[3]);
 	Equalizer5_OnChange(InitialEqualizer[4]);
+    Audio_MSP_Set_MajorMinor_Mode(MSPMajorMode, MSPMinorMode);
 	Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, MSPStereo);
 
 	return (TRUE);

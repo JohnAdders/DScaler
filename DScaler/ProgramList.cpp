@@ -935,15 +935,21 @@ void Channel_Change(int NewChannel)
                 }
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
-                Tuner_SetFrequency(MyChannels[CurrentProgramm]->GetFrequency());
                 if(MyChannels[CurrentProgramm]->GetFormat() != -1)
                 {
-                    Setting_SetValue(BT848_GetSetting(TVFORMAT), MyChannels[CurrentProgramm]->GetFormat());
+                    if(Setting_GetValue(BT848_GetSetting(TVFORMAT)) != MyChannels[CurrentProgramm]->GetFormat())
+                    {
+                        Setting_SetValue(BT848_GetSetting(TVFORMAT), MyChannels[CurrentProgramm]->GetFormat());
+                    }
                 }
                 else
                 {
-                    Setting_SetValue(BT848_GetSetting(TVFORMAT), GetTunersTVFormat());
+                    if(Setting_GetValue(BT848_GetSetting(TVFORMAT)) != GetTunersTVFormat())
+                    {
+                        Setting_SetValue(BT848_GetSetting(TVFORMAT), GetTunersTVFormat());
+                    }
                 }
+                Tuner_SetFrequency(MyChannels[CurrentProgramm]->GetFrequency());
                 Sleep(20);
                 VT_ChannelChange();
                 if(!bSystemInMute)

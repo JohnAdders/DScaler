@@ -1927,6 +1927,10 @@ void MainWndOnInitBT(HWND hWnd)
 				Audio_Mute();
 			}
 		}
+        else
+        {
+			Audio_SetSource(AudioSource);
+        }
 
 		if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 		{

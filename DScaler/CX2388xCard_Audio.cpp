@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.20 2004-04-08 17:44:32 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.21 2004-04-19 17:33:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2004/04/08 17:44:32  to_see
+// added D/K audio (thanks to Michal)
+//
 // Revision 1.19  2004/03/28 19:34:11  to_see
 // added TVFormat for an call to CCX2388xCard::AudioInitxxx
 // more on chip sound; BTSC and Nicam for PAL(I)
@@ -312,194 +315,116 @@ void CCX2388xCard::AudioInitBTSC(eVideoFormat TVFormat, eCX2388xStereoType Stere
 
     WriteDword(AUD_CTL,			dwVal     );
     WriteDword(AUD_SOFT_RESET,	0x00000000);
-    WriteDword(AUD_VOL_CTL,		0x00000000);
-	
-/*	old code:
-
-	//\todo handle StereoType
-
-    // increase level of input by 12dB
-    WriteDword(AUD_AFE_12DB_EN,          0x0001);
-
-    // initialize BTSC
-    WriteDword(AUD_INIT,                 0x0001);
-    WriteDword(AUD_INIT_LD,              0x0001);
-    WriteDword(AUD_SOFT_RESET,           0x0001);
-
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_BTSC_AUTO_SAP);
-    
-    // These dbx values should be right....
-    //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
-    //WriteDword(AUD_DBX_WBE_GAIN,         0x4003);
-    //WriteDword(AUD_DBX_SE_GAIN,          0x7030);
-    
-    // ....but these values work a lot better
-    //WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
-    //WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
-    //WriteDword(AUD_DBX_SE_GAIN,          0x854a);
-
-    //WriteDword(AUD_OUT1_SHIFT,           0x0007);
-    //WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
-    //WriteDword(AUD_RATE_ADJ1,            0x0100);
-    //WriteDword(AUD_RATE_ADJ2,            0x0200);
-    //WriteDword(AUD_RATE_ADJ3,            0x0300);
-    //WriteDword(AUD_RATE_ADJ4,            0x0400);
-    //WriteDword(AUD_RATE_ADJ5,            0x0500);
-    //WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
-
-    // These are from the Asus TV
-    WriteDword(AUD_DBX_IN_GAIN,          0x4734);
-    WriteDword(AUD_DBX_WBE_GAIN,         0x4640);
-    WriteDword(AUD_DBX_SE_GAIN,          0x8d31);
-    WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
-
-
-    // turn down gain to iir4's...
-    WriteDword(AUD_IIR4_0_SHIFT,         0x0006);
-    WriteDword(AUD_IIR4_1_SHIFT,         0x0006);
-    WriteDword(AUD_IIR4_2_SHIFT,         0x0006);
-    
-    // ...and turn up iir3 gains
-    WriteDword(AUD_IIR3_0_SHIFT,         0x0000);
-    WriteDword(AUD_IIR3_1_SHIFT,         0x0000);
-
-    // Completely ditch AFC feedback
-    //WriteDword(AUD_DCOC_0_SRC,           0x0021);
-    //WriteDword(AUD_DCOC_1_SRC,           0x001a);
-    //WriteDword(AUD_DCOC1_SHIFT,          0x0000);
-    //WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
-    //WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
-    //WriteDword(AUD_DCOC_PASS_IN,         0x0000);
-    //WriteDword(AUD_IIR1_4_SEL,           0x0023);
-
-    // setup Audio PLL
-    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    //WriteDword(AUD_PLL_INT,              0x001f);
-
-    // de-assert Audio soft reset
-    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
-*/
 }
 
 void CCX2388xCard::AudioInitBTSCSAP(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-    //\todo code not started this is a copy of BTSC
-    //\todo handle StereoType
-
-    // increase level of input by 12dB
-    WriteDword(AUD_AFE_12DB_EN,          0x0001);
-
-    // initialize BTSC
-    WriteDword(AUD_INIT,                 0x0001);
-    WriteDword(AUD_INIT_LD,              0x0001);
-    WriteDword(AUD_SOFT_RESET,           0x0001);
-
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_BTSC_AUTO_STEREO);
+	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
+	WriteDword(AUD_INIT,				0x00000008);
+    WriteDword(AUD_INIT_LD,				0x00000001);
+    WriteDword(AUD_SOFT_RESET,			0x00000001);
+    WriteDword(AUD_DBX_IN_GAIN,			0x00007200);
+    WriteDword(AUD_DBX_WBE_GAIN,		0x00006200);
+    WriteDword(AUD_DBX_SE_GAIN,			0x00006200);
+    WriteDword(AUD_IIR1_1_SEL,			0x00000000);
+    WriteDword(AUD_IIR1_3_SEL,			0x00000001);
+    WriteDword(AUD_DN1_SRC_SEL,			0x00000007);
+    WriteDword(AUD_IIR1_4_SHIFT,		0x00000006);
+    WriteDword(AUD_IIR2_1_SHIFT,		0x00000000);
+    WriteDword(AUD_IIR2_2_SHIFT,		0x00000000);
+    WriteDword(AUD_IIR3_0_SHIFT,		0x00000000);
+    WriteDword(AUD_IIR3_1_SHIFT,		0x00000000);
+    WriteDword(AUD_IIR3_0_SEL,			0x0000000d);
+    WriteDword(AUD_IIR3_1_SEL,			0x0000000e);
+    WriteDword(AUD_DEEMPH1_SRC_SEL,		0x00000014);
+    WriteDword(AUD_DEEMPH1_SHIFT,		0x00000000);
+    WriteDword(AUD_DEEMPH1_G0,			0x00004000);
+    WriteDword(AUD_DEEMPH1_A0,			0x00000000);
+    WriteDword(AUD_DEEMPH1_B0,			0x00000000);
+    WriteDword(AUD_DEEMPH1_A1,			0x00000000);
+    WriteDword(AUD_DEEMPH1_B1,			0x00000000);
+    WriteDword(AUD_OUT0_SEL,			0x0000003f);
+    WriteDword(AUD_OUT1_SEL,			0x0000003f);
+    WriteDword(AUD_DN1_AFC,				0x00000002);
+    WriteDword(AUD_DCOC_0_SHIFT_IN0,	0x0000000a);
+    WriteDword(AUD_DCOC_0_SHIFT_IN1,	0x00000008);
+    WriteDword(AUD_DCOC_1_SHIFT_IN0,	0x0000000a);
+    WriteDword(AUD_DCOC_1_SHIFT_IN1,	0x00000008);
+    WriteDword(AUD_IIR1_0_SEL,			0x0000001d);
+    WriteDword(AUD_IIR1_2_SEL,			0x0000001e);
+    WriteDword(AUD_IIR2_1_SEL,			0x00000002);
+    WriteDword(AUD_IIR2_2_SEL,			0x00000004);
+    WriteDword(AUD_IIR3_2_SEL,			0x0000000f);
+    WriteDword(AUD_DCOC2_SHIFT,			0x00000001);
+    WriteDword(AUD_IIR3_2_SHIFT,		0x00000001);
+    WriteDword(AUD_DEEMPH0_SRC_SEL,		0x00000014);
+    WriteDword(AUD_CORDIC_SHIFT_1,		0x00000006);
+    WriteDword(AUD_POLY0_DDS_CONSTANT,	0x000e4db2);
+    WriteDword(AUD_DMD_RA_DDS,			0x00f696e6);
+    WriteDword(AUD_IIR2_3_SEL,			0x00000025);
+    WriteDword(AUD_IIR1_4_SEL,			0x00000021);
+    WriteDword(AUD_DN1_FREQ,			0x0000c965);
+    WriteDword(AUD_DCOC_PASS_IN,		0x00000003);
+    WriteDword(AUD_DCOC_0_SRC,			0x0000001a);
+    WriteDword(AUD_DCOC_1_SRC,			0x0000001b);
+    WriteDword(AUD_DCOC1_SHIFT,			0x00000000);
+    WriteDword(AUD_RDSI_SEL,			0x00000009);
+    WriteDword(AUD_RDSQ_SEL,			0x00000009);
+    WriteDword(AUD_RDSI_SHIFT,			0x00000000);
+    WriteDword(AUD_RDSQ_SHIFT,			0x00000000);
+    WriteDword(AUD_POLYPH80SCALEFAC,	0x00000003);
     
-    // These dbx values should be right....
-    //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
-    //WriteDword(AUD_DBX_WBE_GAIN,         0x4003);
-    //WriteDword(AUD_DBX_SE_GAIN,          0x7030);
-    
-    // ....but these values work a lot better
-    WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
-    WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
-    WriteDword(AUD_DBX_SE_GAIN,          0x854a);
-    WriteDword(AUD_OUT1_SHIFT,           0x0007);
-    WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
-    WriteDword(AUD_RATE_ADJ1,            0x0100);
-    WriteDword(AUD_RATE_ADJ2,            0x0200);
-    WriteDword(AUD_RATE_ADJ3,            0x0300);
-    WriteDword(AUD_RATE_ADJ4,            0x0400);
-    WriteDword(AUD_RATE_ADJ5,            0x0500);
-    WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
-
-    // turn down gain to iir4's...
-    WriteDword(AUD_IIR4_0_SHIFT,         0x0006);
-    WriteDword(AUD_IIR4_1_SHIFT,         0x0006);
-    WriteDword(AUD_IIR4_2_SHIFT,         0x0006);
-    
-    // ...and turn up iir3 gains
-    WriteDword(AUD_IIR3_0_SHIFT,         0x0000);
-    WriteDword(AUD_IIR3_1_SHIFT,         0x0000);
-
-    // Completely ditch AFC feedback
-    WriteDword(AUD_DCOC_0_SRC,           0x0021);
-    WriteDword(AUD_DCOC_1_SRC,           0x001a);
-    WriteDword(AUD_DCOC1_SHIFT,          0x0000);
-    WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
-    WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
-    WriteDword(AUD_DCOC_PASS_IN,         0x0000);
-    WriteDword(AUD_IIR1_4_SEL,           0x0023);
-
-    // setup Audio PLL
-    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    //WriteDword(AUD_PLL_INT,              0x001f);
-
-    // de-assert Audio soft reset
-    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
-
+	WriteDword(AUD_CTL,					EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_BTSC_FORCE_SAP);
+    WriteDword(AUD_SOFT_RESET,			0x00000000);
 }
 
 void CCX2388xCard::AudioInitFM(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-    //\todo code not started this is a copy of BTSC
+	// from v4l
+	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
+	WriteDword(AUD_INIT,				0x00000020);
+    WriteDword(AUD_INIT_LD,				0x00000001);
+    WriteDword(AUD_SOFT_RESET,			0x00000001);
 
-    //\todo handle StereoType
+	// don't know an better way
+	switch(TVFormat)
+	{
+    case VIDEOFORMAT_NTSC_M:
+    case VIDEOFORMAT_NTSC_M_Japan:
+    case VIDEOFORMAT_NTSC_50:
+		// (for US) Set De-emphasis filter coefficients for 75 usec
+		WriteDword(AUD_DEEMPH0_G0,		0x0000091b);
+		WriteDword(AUD_DEEMPH0_A0,		0x00006b68);
+		WriteDword(AUD_DEEMPH0_B0,		0x000011ec);
+		WriteDword(AUD_DEEMPH0_A1,		0x0003fc66);
+		WriteDword(AUD_DEEMPH0_B1,		0x0000399a);
 
-    // increase level of input by 12dB
-    WriteDword(AUD_AFE_12DB_EN,          0x0001);
+		WriteDword(AUD_DEEMPH1_G0,		0x00000aa0);
+		WriteDword(AUD_DEEMPH1_A0,		0x00006b68);
+		WriteDword(AUD_DEEMPH1_B0,		0x000011ec);
+		WriteDword(AUD_DEEMPH1_A1,		0x0003fc66);
+		WriteDword(AUD_DEEMPH1_B1,		0x0000399a);
 
-    // initialize BTSC
-    WriteDword(AUD_INIT,                 0x0001);
-    WriteDword(AUD_INIT_LD,              0x0001);
-    WriteDword(AUD_SOFT_RESET,           0x0001);
+		break;
 
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_BTSC_AUTO_STEREO);
-    
-    // These dbx values should be right....
-    //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
-    //WriteDword(AUD_DBX_WBE_GAIN,         0x4003);
-    //WriteDword(AUD_DBX_SE_GAIN,          0x7030);
-    
-    // ....but these values work a lot better
-    WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
-    WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
-    WriteDword(AUD_DBX_SE_GAIN,          0x854a);
-    WriteDword(AUD_OUT1_SHIFT,           0x0007);
-    WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
-    WriteDword(AUD_RATE_ADJ1,            0x0100);
-    WriteDword(AUD_RATE_ADJ2,            0x0200);
-    WriteDword(AUD_RATE_ADJ3,            0x0300);
-    WriteDword(AUD_RATE_ADJ4,            0x0400);
-    WriteDword(AUD_RATE_ADJ5,            0x0500);
-    WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
+	default:
+		// (for Europe) Set De-emphasis filter coefficients for 50 usec
+		WriteDword(AUD_DEEMPH0_G0,		0x00000c45);
+		WriteDword(AUD_DEEMPH0_A0,		0x00006262);
+		WriteDword(AUD_DEEMPH0_B0,		0x00001c29);
+		WriteDword(AUD_DEEMPH0_A1,		0x0003fc66);
+		WriteDword(AUD_DEEMPH0_B1,		0x0000399a);
 
-    // turn down gain to iir4's...
-    WriteDword(AUD_IIR4_0_SHIFT,         0x0006);
-    WriteDword(AUD_IIR4_1_SHIFT,         0x0006);
-    WriteDword(AUD_IIR4_2_SHIFT,         0x0006);
-    
-    // ...and turn up iir3 gains
-    WriteDword(AUD_IIR3_0_SHIFT,         0x0000);
-    WriteDword(AUD_IIR3_1_SHIFT,         0x0000);
+		WriteDword(AUD_DEEMPH1_G0,		0x00000d80);
+		WriteDword(AUD_DEEMPH1_A0,		0x00006262);
+		WriteDword(AUD_DEEMPH1_B0,		0x00001c29);
+		WriteDword(AUD_DEEMPH1_A1,		0x0003fc66);
+		WriteDword(AUD_DEEMPH1_B1,		0x0000399a);
+		break;
+	}
 
-    // Completely ditch AFC feedback
-    WriteDword(AUD_DCOC_0_SRC,           0x0021);
-    WriteDword(AUD_DCOC_1_SRC,           0x001a);
-    WriteDword(AUD_DCOC1_SHIFT,          0x0000);
-    WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
-    WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
-    WriteDword(AUD_DCOC_PASS_IN,         0x0000);
-    WriteDword(AUD_IIR1_4_SEL,           0x0023);
-
-    // setup Audio PLL
-    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
-    //WriteDword(AUD_PLL_INT,              0x001f);
-
-    // de-assert Audio soft reset
-    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
-
+	WriteDword(AUD_CTL,					EN_DAC_ENABLE|EN_FMRADIO_AUTO_STEREO);
+    WriteDword(AUD_SOFT_RESET,			0x00000000);
 }
 
 void CCX2388xCard::AudioInitEIAJ(eVideoFormat TVFormat, eCX2388xStereoType StereoType)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.6 2004-03-07 12:20:12 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.7 2004-04-19 17:33:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/03/07 12:20:12  to_see
+// added 2 Cards
+// working Nicam-Sound
+// Submenus in CX-Card for Soundsettings
+// Click in "Autodetect" in "Setup card CX2388x" is now working
+// added "Automute if no Tunersignal" in CX2388x Advanced
+//
 // Revision 1.5  2004/02/29 19:41:45  to_see
 // new Submenu's in CX Card for Audio Channel and Audio Standard
 // new AutoMute entry
@@ -150,6 +157,7 @@ void CCX2388xSource::UpdateAudioStatus()
 				case STEREOTYPE_AUTO:
 					SoundChannel = AutoDetectA2Sound();
 					break;
+				
 				case STEREOTYPE_MONO:
 					SoundChannel = SOUNDCHANNEL_MONO;
 					break;
@@ -192,10 +200,31 @@ void CCX2388xSource::UpdateAudioStatus()
 					break;
 				}
 
-			case AUDIO_STANDARD_AUTO:
+				break;
+
 			case AUDIO_STANDARD_BTSC:
-			case AUDIO_STANDARD_EIAJ:
+				switch(m_pCard->GetCurrentStereoType())
+				{
+				case STEREOTYPE_AUTO:
+				case STEREOTYPE_STEREO:
+					SoundChannel = SOUNDCHANNEL_STEREO;
+					break;
+				
+				case STEREOTYPE_MONO:
+				case STEREOTYPE_ALT1:
+				case STEREOTYPE_ALT2:
+					SoundChannel = SOUNDCHANNEL_MONO;
+					break;
+				}
+
+				break;
+
 			case AUDIO_STANDARD_BTSC_SAP:
+				SoundChannel = SOUNDCHANNEL_STEREO;
+				break;
+
+			case AUDIO_STANDARD_AUTO:
+			case AUDIO_STANDARD_EIAJ:
 			case AUDIO_STANDARD_FM:
 				break;	// \todo: add more support
 			}

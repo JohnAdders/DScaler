@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.1 2002-10-31 15:55:50 adcockj Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.2 2002-12-10 14:53:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/31 15:55:50  adcockj
+// Moved audio code from Connexant dTV version
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -43,5 +46,36 @@ void CCX2388xSource::Mute()
 
 void CCX2388xSource::UnMute()
 {
-    m_pCard->SetAudioUnMute();
+    m_pCard->SetAudioUnMute(m_Volume->GetValue());
+}
+
+void CCX2388xSource::VolumeOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetAudioVolume(NewValue);    
+	EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
+}
+
+void CCX2388xSource::BalanceOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetAudioBalance(NewValue);
+}
+
+void CCX2388xSource::AudioStandardOnChange(long NewValue, long OldValue)
+{
+    m_pCard->AudioInit(
+                        m_VideoSource->GetValue(), 
+                        (eVideoFormat)m_VideoFormat->GetValue(), 
+                        (CCX2388xCard::eAudioStandard)NewValue,
+                        (CCX2388xCard::eStereoType)m_StereoType->GetValue()
+                      );
+}
+
+void CCX2388xSource::StereoTypeOnChange(long NewValue, long OldValue)
+{
+    m_pCard->AudioInit(
+                        m_VideoSource->GetValue(), 
+                        (eVideoFormat)m_VideoFormat->GetValue(), 
+                        (CCX2388xCard::eAudioStandard)m_AudioStandard->GetValue(),
+                        (CCX2388xCard::eStereoType)NewValue
+                      );
 }

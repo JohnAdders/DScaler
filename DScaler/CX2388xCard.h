@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.14 2002-12-05 17:11:11 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.15 2002-12-10 14:53:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,26 @@ public:
         MAJSEL_1_OVER_2,
         MAJSEL_1_OVER_4,
         MAJSEL_AUTOMATIC
+    };
+
+    enum eAudioStandard
+    {
+        AUDIO_STANDARD_AUTO = 0,
+        AUDIO_STANDARD_BTSC,
+        AUDIO_STANDARD_EIAJ,
+        AUDIO_STANDARD_A2,
+        AUDIO_STANDARD_BTSC_SAP,
+        AUDIO_STANDARD_NICAM,
+        AUDIO_STANDARD_FM,
+    };
+
+    enum eStereoType
+    {
+        STEREOTYPE_AUTO = 0,
+        STEREOTYPE_STEREO, 
+        STEREOTYPE_MONO, 
+        STEREOTYPE_ALT1, 
+        STEREOTYPE_ALT2, 
     };
 
 private:
@@ -196,8 +216,11 @@ public:
     void DumpChipStatus(const char* CardName);
     HMENU GetCardSpecificMenu();
 
+    void AudioInit(int nInput, eVideoFormat TVFormat, eAudioStandard Standard, eStereoType StereoType);
     void SetAudioMute();
-    void SetAudioUnMute();
+    void SetAudioUnMute(WORD nVolume);
+    void SetAudioVolume(WORD nVolume);
+    void SetAudioBalance(WORD nBalance);
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
 
 protected:
@@ -249,12 +272,13 @@ private:
     void SetH3DSaturationU(BYTE SaturationU);
     void SetH3DSaturationV(BYTE SaturationV);
 
-    void AudioInit(eVideoFormat Format);
     void AudioInitDMA();
-    void AudioInitBTSC();
-    void AudioInitEIAJ();
-    void AudioInitA2();
-    void AudioInitNICAM();
+    void AudioInitBTSC(eStereoType StereoType);
+    void AudioInitBTSCSAP(eStereoType StereoType);
+    void AudioInitEIAJ(eStereoType StereoType);
+    void AudioInitA2(eStereoType StereoType);
+    void AudioInitFM(eStereoType StereoType);
+    void AudioInitNICAM(eStereoType StereoType);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 private:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.119 2002-12-02 13:47:01 adcockj Exp $
+// $Id: DS_Control.h,v 1.120 2002-12-10 14:53:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.119  2002/12/02 13:47:01  adcockj
+// Allow fine control over white crush settings
+//
 // Revision 1.118  2002/11/26 21:32:14  adcockj
 // Made new strange bob method optional
 //
@@ -1512,6 +1515,10 @@ typedef enum
     CX2388XWHITECRUSHDOWN,
     CX2388XWHITECRUSHMAJSEL,
     CX2388XWHITECRUSHPERFRAME,
+    CX2388XVOLUME,
+    CX2388XBALANCE,
+    CX2388XAUDIOTYPE,
+    CX2388XSTEREOTYPE,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.20 2002-12-04 16:18:25 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.21 2002-12-10 14:53:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/12/04 16:18:25  adcockj
+// Added White crush to settings dialog
+//
 // Revision 1.19  2002/12/04 15:54:09  adcockj
 // Hacky fix for settings by channel code with mutiple cards
 //
@@ -510,12 +513,6 @@ void CCX2388xSource::ChangeSectionNamesForInput()
         Format = m_VideoFormat->GetValue();
     }
 
-    if(IsInTunerMode() && m_bSavePerChannel->GetValue())
-    {
-        /// \todo save per channel settings as well
-        //Format = m_VideoFormat->GetValue()));
-    }
-
     if(Input == -1 && Format == -1)
     {
         m_Brightness->SetSection(m_Section.c_str());
@@ -702,6 +699,12 @@ void CCX2388xSource::ChangeChannelSectionNames()
             SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushDown);
             SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushMajorityPoint);
             SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushPerFrame);
+
+            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE);
+            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_Volume);
+            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_Balance);
+            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_AudioStandard);
+            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_StereoType);
         }
     }
 }
@@ -737,6 +740,10 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
         vSettingsList.push_back(m_WhiteCrushDown);
         vSettingsList.push_back(m_WhiteCrushMajorityPoint);
         vSettingsList.push_back(m_WhiteCrushPerFrame);
+        vSettingsList.push_back(m_Volume);
+        vSettingsList.push_back(m_Balance);
+        vSettingsList.push_back(m_AudioStandard);
+        vSettingsList.push_back(m_StereoType);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

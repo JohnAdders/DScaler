@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.26 2002-12-04 17:43:49 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.27 2002-12-10 14:53:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/12/04 17:43:49  adcockj
+// Contrast and Brightness adjustments so that h3d card behaves in expected way
+//
 // Revision 1.25  2002/12/02 13:47:01  adcockj
 // Allow fine control over white crush settings
 //
@@ -748,16 +751,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // PAL Invert Phase - off
             // Coring - off
             m_2HCombDefault = 0x181f0008;
-        }
-
-
-        if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER)
-        {
-            AudioInit(TVFormat);
-        }
-        else
-        {
-            SetAudioMute();
         }
 
         switch(TVFormat)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.7 2002-12-05 17:11:11 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.8 2002-12-10 14:53:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/12/05 17:11:11  adcockj
+// Sound fixes
+//
 // Revision 1.6  2002/11/29 17:19:09  adcockj
 // extra logging
 //
@@ -52,7 +55,7 @@
 #include "CPU.h"
 #include "TVFormats.h"
 
-void CCX2388xCard::AudioInit(eVideoFormat Format)
+void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eAudioStandard Standard, eStereoType StereoType)
 {
     // stop the audio and wait for buffers to clear
     WriteDword(MO_AUD_DMACNTRL, 0x00000000);
@@ -61,53 +64,95 @@ void CCX2388xCard::AudioInit(eVideoFormat Format)
     // \todo sort this out
     // most of what's below is probably rubbish
 
-    switch (Format)
+    if(Standard == AUDIO_STANDARD_AUTO)
     {
-    case VIDEOFORMAT_PAL_B:
-    case VIDEOFORMAT_PAL_H:
-    case VIDEOFORMAT_PAL_M:
-        AudioInitA2();
-        break;
+        switch (TVFormat)
+        {
 
-    case VIDEOFORMAT_PAL_D:
-    case VIDEOFORMAT_PAL_G:
-    case VIDEOFORMAT_PAL_I:
-        AudioInitNICAM();
-        break;
+        case VIDEOFORMAT_PAL_D:
+        case VIDEOFORMAT_PAL_G:
+        case VIDEOFORMAT_PAL_I:
+        case VIDEOFORMAT_SECAM_B:
+        case VIDEOFORMAT_SECAM_D:
+        case VIDEOFORMAT_SECAM_G:
+        case VIDEOFORMAT_SECAM_H:
+        case VIDEOFORMAT_SECAM_K:
+        case VIDEOFORMAT_SECAM_K1:
+        case VIDEOFORMAT_SECAM_L:
+        case VIDEOFORMAT_SECAM_L1:
+            Standard = AUDIO_STANDARD_NICAM;
+            break;
 
-    case VIDEOFORMAT_PAL_N:
-    case VIDEOFORMAT_PAL_N_COMBO:
-        AudioInitA2();
-        break;
+        case VIDEOFORMAT_NTSC_M:
+            Standard = AUDIO_STANDARD_BTSC;
+            break;
 
-    case VIDEOFORMAT_SECAM_B:
-    case VIDEOFORMAT_SECAM_D:
-    case VIDEOFORMAT_SECAM_G:
-    case VIDEOFORMAT_SECAM_H:
-    case VIDEOFORMAT_SECAM_K:
-    case VIDEOFORMAT_SECAM_K1:
-    case VIDEOFORMAT_SECAM_L:
-    case VIDEOFORMAT_SECAM_L1:
-        AudioInitNICAM();
-        break;
+        case VIDEOFORMAT_NTSC_M_Japan:
+            Standard = AUDIO_STANDARD_EIAJ;
+            break;
 
-    case VIDEOFORMAT_NTSC_M:
-        AudioInitBTSC();
-        break;
-    case VIDEOFORMAT_NTSC_M_Japan:
-        AudioInitEIAJ();
-        break;
+        case VIDEOFORMAT_PAL_B:
+        case VIDEOFORMAT_PAL_H:
+        case VIDEOFORMAT_PAL_M:
+        case VIDEOFORMAT_PAL_N:
+        case VIDEOFORMAT_PAL_N_COMBO:
+        case VIDEOFORMAT_PAL_60:
+        case VIDEOFORMAT_NTSC_50:
+        default:
+            Standard = AUDIO_STANDARD_A2;
+            break;
+        }
+    }
 
-    case VIDEOFORMAT_PAL_60:
-    case VIDEOFORMAT_NTSC_50:
+    switch(Standard)
+    {
+    case AUDIO_STANDARD_BTSC:
+        AudioInitBTSC(StereoType);
+        break;
+    case AUDIO_STANDARD_EIAJ:
+        AudioInitEIAJ(StereoType);
+        break;
+    case AUDIO_STANDARD_A2:
+        AudioInitA2(StereoType);
+        break;
+    case AUDIO_STANDARD_BTSC_SAP:
+        AudioInitBTSCSAP(StereoType);
+        break;
+    case AUDIO_STANDARD_NICAM:
+        AudioInitNICAM(StereoType);
+        break;
+    case AUDIO_STANDARD_FM:
     default:
-        AudioInitA2();
+        AudioInitFM(StereoType);
         break;
     }
 
     // start the audio running
     AudioInitDMA();
 }
+
+void CCX2388xCard::SetAudioVolume(WORD nVolume)
+{
+    // Unmute the audio and set volume
+    DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
+    WriteDword(AUD_VOL_CTL,dwval);
+}
+
+void CCX2388xCard::SetAudioBalance(WORD nBalance)
+{
+    DWORD dwval;
+    if(nBalance <=0)
+    {
+        dwval = ((-nBalance) >> 1);
+    }
+    else
+    {
+        dwval = (nBalance >> 1);
+        dwval |= (1 << 6);
+    }
+    WriteDword(AUD_BAL_CTL,dwval);
+}
+
 
 void CCX2388xCard::SetAudioMute()
 {
@@ -119,11 +164,10 @@ void CCX2388xCard::SetAudioMute()
     WriteDword(AUD_VOL_CTL,dwval);
 }
 
-void CCX2388xCard::SetAudioUnMute()
+void CCX2388xCard::SetAudioUnMute(WORD nVolume)
 {
-    DWORD dwval;
-    // Unmute the audio
-    dwval = ReadDword(AUD_VOL_CTL) & 0x0FF;
+    // Unmute the audio and set volume
+    DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
     WriteDword(AUD_VOL_CTL,dwval);
 }
 
@@ -135,8 +179,69 @@ void CCX2388xCard::AudioInitDMA()
     WriteDword(MO_AUD_DMACNTRL, 0x00000003);
 }
 
-void CCX2388xCard::AudioInitBTSC()
+void CCX2388xCard::AudioInitBTSC(eStereoType StereoType)
 {
+    //\todo handle StereoType
+
+    // increase level of input by 12dB
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
+
+    // initialize BTSC
+    WriteDword(AUD_INIT,                 0x0001);
+    WriteDword(AUD_INIT_LD,              0x0001);
+    WriteDword(AUD_SOFT_RESET,           0x0001);
+
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_BTSC_AUTO_STEREO);
+    
+    // These dbx values should be right....
+    //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
+    //WriteDword(AUD_DBX_WBE_GAIN,         0x4003);
+    //WriteDword(AUD_DBX_SE_GAIN,          0x7030);
+    
+    // ....but these values work a lot better
+    WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
+    WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
+    WriteDword(AUD_DBX_SE_GAIN,          0x854a);
+    WriteDword(AUD_OUT1_SHIFT,           0x0007);
+    WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
+    WriteDword(AUD_RATE_ADJ1,            0x0100);
+    WriteDword(AUD_RATE_ADJ2,            0x0200);
+    WriteDword(AUD_RATE_ADJ3,            0x0300);
+    WriteDword(AUD_RATE_ADJ4,            0x0400);
+    WriteDword(AUD_RATE_ADJ5,            0x0500);
+    WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
+
+    // turn down gain to iir4's...
+    WriteDword(AUD_IIR4_0_SHIFT,         0x0006);
+    WriteDword(AUD_IIR4_1_SHIFT,         0x0006);
+    WriteDword(AUD_IIR4_2_SHIFT,         0x0006);
+    
+    // ...and turn up iir3 gains
+    WriteDword(AUD_IIR3_0_SHIFT,         0x0000);
+    WriteDword(AUD_IIR3_1_SHIFT,         0x0000);
+
+    // Completely ditch AFC feedback
+    WriteDword(AUD_DCOC_0_SRC,           0x0021);
+    WriteDword(AUD_DCOC_1_SRC,           0x001a);
+    WriteDword(AUD_DCOC1_SHIFT,          0x0000);
+    WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
+    WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
+    WriteDword(AUD_DCOC_PASS_IN,         0x0000);
+    WriteDword(AUD_IIR1_4_SEL,           0x0023);
+
+    // setup Audio PLL
+    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    //WriteDword(AUD_PLL_INT,              0x001f);
+
+    // de-assert Audio soft reset
+    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
+}
+
+void CCX2388xCard::AudioInitBTSCSAP(eStereoType StereoType)
+{
+    //\todo code not started this is a copy of BTSC
+    //\todo handle StereoType
+
     // increase level of input by 12dB
     WriteDword(AUD_AFE_12DB_EN,          0x0001);
 
@@ -190,15 +295,73 @@ void CCX2388xCard::AudioInitBTSC()
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
 
-    ::Sleep(100);
+}
 
-    // adjust volume to max, unmute
-    WriteDword(AUD_VOL_CTL,0x0000);
+void CCX2388xCard::AudioInitFM(eStereoType StereoType)
+{
+    //\todo code not started this is a copy of BTSC
+
+    //\todo handle StereoType
+
+    // increase level of input by 12dB
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
+
+    // initialize BTSC
+    WriteDword(AUD_INIT,                 0x0001);
+    WriteDword(AUD_INIT_LD,              0x0001);
+    WriteDword(AUD_SOFT_RESET,           0x0001);
+
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_BTSC_AUTO_STEREO);
+    
+    // These dbx values should be right....
+    //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
+    //WriteDword(AUD_DBX_WBE_GAIN,         0x4003);
+    //WriteDword(AUD_DBX_SE_GAIN,          0x7030);
+    
+    // ....but these values work a lot better
+    WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
+    WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
+    WriteDword(AUD_DBX_SE_GAIN,          0x854a);
+    WriteDword(AUD_OUT1_SHIFT,           0x0007);
+    WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
+    WriteDword(AUD_RATE_ADJ1,            0x0100);
+    WriteDword(AUD_RATE_ADJ2,            0x0200);
+    WriteDword(AUD_RATE_ADJ3,            0x0300);
+    WriteDword(AUD_RATE_ADJ4,            0x0400);
+    WriteDword(AUD_RATE_ADJ5,            0x0500);
+    WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
+
+    // turn down gain to iir4's...
+    WriteDword(AUD_IIR4_0_SHIFT,         0x0006);
+    WriteDword(AUD_IIR4_1_SHIFT,         0x0006);
+    WriteDword(AUD_IIR4_2_SHIFT,         0x0006);
+    
+    // ...and turn up iir3 gains
+    WriteDword(AUD_IIR3_0_SHIFT,         0x0000);
+    WriteDword(AUD_IIR3_1_SHIFT,         0x0000);
+
+    // Completely ditch AFC feedback
+    WriteDword(AUD_DCOC_0_SRC,           0x0021);
+    WriteDword(AUD_DCOC_1_SRC,           0x001a);
+    WriteDword(AUD_DCOC1_SHIFT,          0x0000);
+    WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
+    WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
+    WriteDword(AUD_DCOC_PASS_IN,         0x0000);
+    WriteDword(AUD_IIR1_4_SEL,           0x0023);
+
+    // setup Audio PLL
+    //WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    //WriteDword(AUD_PLL_INT,              0x001f);
+
+    // de-assert Audio soft reset
+    WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
 
 }
 
-void CCX2388xCard::AudioInitEIAJ()
+void CCX2388xCard::AudioInitEIAJ(eStereoType StereoType)
 {
+    //\todo handle StereoType
+
     // increase level of input by 12dB
     WriteDword(AUD_AFE_12DB_EN,          0x0001);
 
@@ -310,16 +473,13 @@ void CCX2388xCard::AudioInitEIAJ()
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);
-
-    ::Sleep(100);
-
-    // adjust volume for testing
-    WriteDword(AUD_VOL_CTL,              0x0000);
 }
 
 
-void CCX2388xCard::AudioInitNICAM()
+void CCX2388xCard::AudioInitNICAM(eStereoType StereoType)
 {
+    //\todo handle StereoType
+
     // increase level of input by 12dB
     WriteDword(AUD_AFE_12DB_EN,          0x0001);
 
@@ -354,16 +514,12 @@ void CCX2388xCard::AudioInitNICAM()
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
-
-    ::Sleep(100);
-
-    // adjust volume to max, unmute
-    WriteDword(AUD_VOL_CTL,0x0000);
-
 }   
 
-void CCX2388xCard::AudioInitA2()
+void CCX2388xCard::AudioInitA2(eStereoType StereoType)
 {
+    //\todo handle StereoType
+
     // increase level of input by 12dB
     WriteDword(AUD_AFE_12DB_EN,          0x0001);
 
@@ -490,11 +646,6 @@ void CCX2388xCard::AudioInitA2()
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
-
-    ::Sleep(100);
-
-    // adjust volume to max, unmute
-    WriteDword(AUD_VOL_CTL,0x0000);
 }
 
 

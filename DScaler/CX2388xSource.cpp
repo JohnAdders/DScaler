@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.18 2002-12-10 12:58:07 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.19 2002-12-10 14:53:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/12/10 12:58:07  adcockj
+// Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
+//  calls to EventCollector->RaiseEvent
+//
 // Revision 1.17  2002/12/04 17:43:49  adcockj
 // Contrast and Brightness adjustments so that h3d card behaves in expected way
 //
@@ -195,6 +199,26 @@ const char* WhiteCrushMajorityPointList[] =
     { "Automatic"   },
 };
 
+const char* AudioStandardList[] =
+{
+    { "Auto"        },
+    { "BTSC"        },
+    { "EIAJ"        },
+    { "A2"			},
+    { "BTSC-SAP"    },
+    { "NICAM"       },
+    { "FM"          },
+};
+
+const char* StereoTypeList[] =
+{
+    { "Auto"        },
+    { "Stereo"      },
+    { "Mono"		},
+    { "Alt1"        },
+    { "Alt2"        },
+};
+
 void CX2388x_OnSetup(void *pThis, int Start)
 {
    if (pThis != NULL)
@@ -247,6 +271,7 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
 }
 
 CCX2388xSource::~CCX2388xSource()
@@ -300,6 +325,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pCX2388xGroup = GetSettingsGroup("CX2388x","CX2388x","CX Card");
     CSettingGroup *pVideoGroup = pCX2388xGroup->GetGroup("Video","Video");
     CSettingGroup *pH3DGroup = pCX2388xGroup->GetGroup("H3D","H3D");
+    CSettingGroup *pAudioGroup = pCX2388xGroup->GetGroup("Audio","Audio");
 
     eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
 
@@ -425,6 +451,19 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 
     m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_WhiteCrushPerFrame);
+
+    m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioGroup, FlagsAll);
+    m_Volume->SetStepValue(20);
+    m_Settings.push_back(m_Volume);
+
+    m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioGroup, FlagsAll);
+    m_Settings.push_back(m_Balance);
+
+    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", CCX2388xCard::AUDIO_STANDARD_AUTO, CCX2388xCard::AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup, FlagsAll);
+    m_Settings.push_back(m_AudioStandard);
+
+    m_StereoType = new CStereoTypeSetting(this, "Stereo Type", CCX2388xCard::STEREOTYPE_AUTO, CCX2388xCard::STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup, FlagsAll);
+    m_Settings.push_back(m_StereoType);
 
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())

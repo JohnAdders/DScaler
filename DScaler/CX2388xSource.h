@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.13 2002-12-03 07:56:31 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.14 2002-12-10 14:53:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,8 +47,8 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     CCX2388xCard* GetCard();
     LPCSTR GetStatus();
-    ISetting* GetVolume() {return NULL;};;
-    ISetting* GetBalance() {return NULL;};;
+    ISetting* GetVolume() {return m_Volume;};
+    ISetting* GetBalance() {return m_Balance;};
     void Mute();
     void UnMute();
     ISetting* GetBrightness();
@@ -187,6 +187,10 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, WhiteCrushDown);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, WhiteCrushMajorityPoint);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrushPerFrame);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Volume);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Balance);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, AudioStandard);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, StereoType);
 
 protected:
 };

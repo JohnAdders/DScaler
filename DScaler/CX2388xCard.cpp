@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.19 2002-11-12 19:32:21 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.20 2002-11-25 09:52:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/11/12 19:32:21  adcockj
+// Fixes for pixel width code
+//
 // Revision 1.18  2002/11/12 15:22:45  adcockj
 // Made new flag settings have default setting
 // Added pixel width for CX2388x cards
@@ -1117,6 +1120,11 @@ DWORD CCX2388xCard::GetRISCPos()
 
 void CCX2388xCard::ManageMyState()
 {
+    // just reurn for the time being as this code 
+    // seens to be associated with crashing
+    // \todo find where the crashing comes in and fix
+    return;
+
     // save and restore everything that might be used
     // by the real drivers
 

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.11 2002-01-16 19:24:28 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.12 2002-01-21 12:06:33 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/01/16 19:24:28  adcockj
+// Added Rob Muller's msp patch #504469
+//
 // Revision 1.10  2001/12/28 12:16:53  adcockj
 // Sound fixes
 //
@@ -791,9 +794,10 @@ void CMSP34x0Decoder::ReconfigureRevA()
         SetDEMRegister(DEM_WR_AD_CV, 0xD0);
     }
 
+    // I have no idea what this is supposed to do.
     /// Step 1: AUDIO_PLL
     // FIXME what should this be may need to be 0 for NICAM
-    SetDEMRegister(DEM_WR_AUDIO_PLL, 1);
+    // SetDEMRegister(DEM_WR_AUDIO_PLL, 1);
 
     /// Step 2: FAWCT_SOLL
     if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
@@ -825,7 +829,7 @@ void CMSP34x0Decoder::ReconfigureRevA()
     }
 
     /// Step 6: MODE_REG
-    WORD ModeReg = 0x0000;
+    WORD ModeReg = 1 << 10;// bit 10 must be set according to documentation
     if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
     {
         // set NICAM mode
@@ -841,7 +845,7 @@ void CMSP34x0Decoder::ReconfigureRevA()
         if(m_MSPStandards[MSPStandards].StereoType != STEREO_NONE)
         {
             // set Two carrier FM mode
-            ModeReg |= 1 << 10;
+            ModeReg |= 1 << 7;
         }
         if(m_MSPStandards[MSPStandards].MonoType == MONO_FM)
         {
@@ -855,6 +859,15 @@ void CMSP34x0Decoder::ReconfigureRevA()
         }
 
     }
+    switch(standard)
+    {
+    case MSP34x0_STANDARD_BG_DUAL_FM:
+    case MSP34x0_STANDARD_DK1_DUAL_FM:
+        ModeReg |= 1 << 13;
+        break;
+    default:
+        break;
+    }
 
     SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
 
@@ -863,24 +876,69 @@ void CMSP34x0Decoder::ReconfigureRevA()
     SetDEMRegister(DEM_WR_DCO1_HI, m_MSPStandards[MSPStandards].MinorCarrier >> 12);
     SetDEMRegister(DEM_WR_DCO2_LO, m_MSPStandards[MSPStandards].MajorCarrier & 0xfff);
     SetDEMRegister(DEM_WR_DCO2_HI, m_MSPStandards[MSPStandards].MajorCarrier >> 12);
-    
+
+    // I have no idea what this is supposed to do.
     /// Step 11: start LOAD_REG_12 process
-    SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
+    //SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
 
     /// Step 12 NICAM_START
     if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
     {
         SetDEMRegister(DEM_WR_SEARCH_NICAM, 0);
     }
+    
+    WORD source = 0;
+    switch (m_SoundChannel)
+    {
+    case SOUNDCHANNEL_MONO:
+        source = 0x30;
+        break;
+    case SOUNDCHANNEL_STEREO:
+        source = 0x20;
+        break;
+    case SOUNDCHANNEL_LANGUAGE1:
+        source = 0x10;
+        break;
+    case SOUNDCHANNEL_LANGUAGE2:
+        source = 0;
+        break;
+    default:
+        break;
+    }
+    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
+    {
+        source |= 0x0100;
+    }
 
-    WORD source = 0x0030;
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
 
     // 2. FM and NICAM prescale
-    SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
+    WORD fmprescale = 0x3000;
+    switch(standard)
+    {
+    case MSP34x0_STANDARD_BG_DUAL_FM:
+        fmprescale |= 1;
+        break;
+    case MSP34x0_STANDARD_M_DUAL_FM:
+        fmprescale |= 2;
+        break;
+    default:
+        break;
+    }
+    
+    SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmprescale);
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
+
+    // reset the ident filter
+    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);
+
+    // 3. reset volume to 0dB
+    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
+
 }
 
 void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)

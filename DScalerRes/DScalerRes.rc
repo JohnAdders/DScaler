@@ -1159,10 +1159,10 @@ IDC_DSHOWSOURCEMENU MENU DISCARDABLE
 BEGIN
     POPUP "DShow"
     BEGIN
-        MENUITEM "Video &Input",                65535
-        MENUITEM "Video &Format",               65535
-        MENUITEM "Resolution",                  65535
-        MENUITEM "&Audio Input",                65535
+        MENUITEM "Video &Input",                65535, GRAYED
+        MENUITEM "Video &Format",               65535, GRAYED
+        MENUITEM "Resolution",                  65535, GRAYED
+        MENUITEM "&Audio Input",                65535, GRAYED
         POPUP "Audio &Channel", GRAYED
         BEGIN
             MENUITEM "&Mono",                       ID_DSHOW_AUDIOCHANNEL_MONO
@@ -1182,7 +1182,7 @@ BEGIN
         MENUITEM "&Stop",                       IDM_DSHOW_STOP
         MENUITEM SEPARATOR
         MENUITEM "&Reset card",                 IDM_RESET
-        MENUITEM "Filter Properties",           65535
+        MENUITEM "Filter Properties",           65535, GRAYED
     END
 END
 

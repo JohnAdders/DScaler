@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.62 2002-06-25 22:17:17 laurentg Exp $
+// $Id: StillSource.cpp,v 1.63 2002-07-03 00:38:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/06/25 22:17:17  laurentg
+// Avoid to read the generated file just after a still capture
+//
 // Revision 1.61  2002/06/22 15:00:22  laurentg
 // New vertical flip mode
 //
@@ -253,6 +256,13 @@ static int JpegQuality = 95;
 static int PatternHeight = 576;
 static int PatternWidth = 720;
 static char DScalerContext[1024];
+
+static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
+{
+    "TIFF RGB",
+    "TIFF YCbCr",
+    "JPEG",
+};
 
 char SavingPath[MAX_PATH];
 
@@ -1354,9 +1364,9 @@ BOOL Pattern_Width_OnChange(long NewValue)
 SETTING StillSettings[STILL_SETTING_LASTONE] =
 {
     {
-        "Format of saving", SLIDER, 0, (long*)&FormatSaving,
+        "Format of saving", ITEMFROMLIST, 0, (long*)&FormatSaving,
          STILL_TIFF_RGB, STILL_TIFF_RGB, STILL_FORMAT_LASTONE - 1, 1, 1,
-         NULL,
+         StillFormatNames,
         "Still", "FormatSaving", NULL,
     },
     {

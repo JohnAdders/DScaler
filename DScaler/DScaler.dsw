@@ -75,6 +75,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "DI_GreedyH"=..\Plugins\DI_GreedyH\DI_GreedyH.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "DI_OddOnly"=..\Plugins\DI_OddOnly\DI_OddOnly.dsp - Package Owner=<4>
 
 Package=<5>
@@ -260,6 +272,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Verinc
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_GreedyH
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -373,6 +388,15 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name FLT_TNoise
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_GreedyH
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_LinearCorrection
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_LogoKill
     End Project Dependency
 }}}
 

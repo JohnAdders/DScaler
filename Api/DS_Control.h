@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.24 2001-07-13 18:13:24 adcockj Exp $
+// $Id: DS_Control.h,v 1.25 2001-07-25 12:04:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.23  2001/07/13 16:15:43  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -162,6 +165,7 @@ typedef enum
 #define INDEX_ADAPTIVE                    16
 #define INDEX_VIDEO_GREEDY                17
 #define INDEX_VIDEO_GREEDY2FRAME          18
+#define INDEX_VIDEO_GREEDYH               19
 
 /////////////////////////////////////////////////////////////////////////////
 // Allow callers to convert a WM code to do other operations
@@ -796,5 +800,32 @@ typedef enum
 #define WM_VT_SETVALUE     (WM_USER + 131)
 #define WM_VT_CHANGEVALUE  (WM_USER + 231)
 
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in DI_GreedyH.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	GR_MAX_COMB = 0,
+	GR_MOTION_THRESHOLD,
+	GR_MOTION_SENSE,
+	GR_GOOD_PULLDOWN_LVL,
+	GR_BAD_PULLDOWN_LVL,
+	GR_EDGE_ENH,			
+	GR_MEDIAN_FILTER,
+	GR_LOW_MOTION_PD_LVL,
+	GR_USE_PULLDOWN,
+	GR_USE_IN_BETWEEN,
+	GR_USE_MEDIAN_FILTER,
+	GR_USE_VERT_FILTER,
+	GR_USE_EDGE_ENH,
+	GR_USE_LOW_MOTION_ONLY, 
+	DI_GREEDYH_SETTING_LASTONE,
+} DI_GREEDYH_SETTING;
+
+#define WM_DI_GREEDYH_GETVALUE		(WM_USER + 32)
+#define WM_DI_GREEDYH_SETVALUE		(WM_USER + 132)
+#define WM_DI_GREEDYH_CHANGEVALUE	(WM_USER + 232)
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// DI_GreedyH.c
+// $Id: DI_GreedyH.c,v 1.2 2001-07-25 12:04:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,14 +33,10 @@
 // For details of the pulldown handling, see member DI_GreedyHMPulldown.c.
 //
 //////////////////////////////////////////////////////////////////////////////
-
-// This short section temp borrowed from Control.h from Greedy 
-// Is this needed anymore? Are the values OK?  ????
-#define WM_DI_GREEDYH_GETVALUE		(WM_USER + 25)
-#define WM_DI_GREEDYH_SETVALUE		(WM_USER + 125)
-#define WM_DI_GREEDYH_CHANGEVALUE	(WM_USER + 225)
-#define INDEX_VIDEO_GREEDYH          19  // ??? unique number?
-// end of Control.h stuff
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
@@ -67,24 +63,6 @@ HINSTANCE hInst = NULL;
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
-typedef enum
-{
-	GR_MAX_COMB = 0,
-	GR_MOTION_THRESHOLD,
-	GR_MOTION_SENSE,
-	GR_GOOD_PULLDOWN_LVL,
-	GR_BAD_PULLDOWN_LVL,
-	GR_EDGE_ENH,			
-	GR_MEDIAN_FILTER,
-	GR_LOW_MOTION_PD_LVL,
-	GR_USE_PULLDOWN,
-	GR_USE_IN_BETWEEN,
-	GR_USE_MEDIAN_FILTER,
-	GR_USE_VERT_FILTER,
-	GR_USE_EDGE_ENH,
-	GR_USE_LOW_MOTION_ONLY, 
-	DI_GREEDYH_SETTING_LASTONE,
-} DI_GREEDYH_SETTING;
 
 SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// DI_GreedyL.asm
+// $Id: DI_GreedyL.asm,v 1.2 2001-07-25 12:04:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000, 2001 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,11 @@
 //	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //	GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
+
 /*
 #if defined(IS_SSE)
 #define MAINLOOP_LABEL DoNext8Bytes_SSE
@@ -74,7 +79,7 @@ BOOL DeinterlaceGreedy_MMX(DEINTERLACE_INFO *info)
 	}
 #else
 
-    GreedyUseLowMotionOnly == TRUE;
+    GreedyUseLowMotionOnly = TRUE;
     GreedySSEBox = FALSE;           
 
 #endif

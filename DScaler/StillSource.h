@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.59 2003-01-19 11:09:11 laurentg Exp $
+// $Id: StillSource.h,v 1.60 2003-01-19 21:02:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -143,7 +143,7 @@ public:
     BOOL LoadPlayList(LPCSTR FileName);
     void SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch);
 	void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch, BYTE* pAllocBuffer);
-    void SaveInFile();
+    void SaveInFile(int pos);
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
     void SetAspectRatioData();

@@ -1465,7 +1465,9 @@ BEGIN
     BEGIN
         MENUITEM "&Close",                      IDM_CLOSE_FILE
         MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
+        MENUITEM SEPARATOR
         MENUITEM "Sa&ve Still in File",         IDM_SAVE_IN_FILE
+        MENUITEM "Sa&ve All Stills in Files",   IDM_SAVE_ALL_IN_FILE
         MENUITEM "S&ave Playlist As ...",       IDM_PLAYLIST_SAVE
         MENUITEM SEPARATOR
         MENUITEM "F&iles",                      IDM_PLAYLIST_FILES

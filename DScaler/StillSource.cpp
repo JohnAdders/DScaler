@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.82 2003-01-19 11:09:11 laurentg Exp $
+// $Id: StillSource.cpp,v 1.83 2003-01-19 21:02:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2003/01/19 11:09:11  laurentg
+// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
+//
 // Revision 1.81  2003/01/18 10:52:12  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -1009,7 +1012,7 @@ void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* p
 	}
 }
 
-void CStillSource::SaveInFile()
+void CStillSource::SaveInFile(int pos)
 {
 	BYTE* pFrameBuffer;
 	BYTE* pStartFrame;
@@ -1026,21 +1029,21 @@ void CStillSource::SaveInFile()
 	int NewFrameWidth;
 	BYTE* NewBuf;
 
-    if ((m_Position == -1)
-	 || (m_PlayList.size() == 0)
-	 || !m_PlayList[m_Position]->GetMemoryInfo(&pFrameBuffer, &pStartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
+    if ((pos < 0)
+	 || (pos >= m_PlayList.size())
+	 || !m_PlayList[pos]->GetMemoryInfo(&pFrameBuffer, &pStartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
 	{
 		return;
 	}
 
-	if (!FindFileName(m_PlayList[m_Position]->GetTimeStamp(), FilePath))
+	if (!FindFileName(m_PlayList[pos]->GetTimeStamp(), FilePath))
 	{
 		return;
 	}
 
 	OSD_ShowText(hWnd, strrchr(FilePath, '\\') + 1, 0);
 
-	m_PlayList[m_Position]->SetFileName(FilePath);
+	m_PlayList[pos]->SetFileName(FilePath);
     UpdateMenu();
 
 	pNewFrameBuffer = pStartFrame;
@@ -1248,6 +1251,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     OPENFILENAME SaveFileInfo;
     char FilePath[MAX_PATH];
     char* FileFilters = "DScaler Playlists\0*.d3u\0";
+	int pos;
 
     if ((m_Position == -1) || (m_PlayList.size() == 0) || (m_NewFileRequested != STILL_REQ_NONE))
         return FALSE;
@@ -1414,9 +1418,13 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         return TRUE;
         break;
     case IDM_SAVE_IN_FILE:
-		if (m_PlayList[m_Position]->IsInMemory())
+		SaveInFile(m_Position);
+        return TRUE;
+        break;
+    case IDM_SAVE_ALL_IN_FILE:
+		for (pos = 0 ; pos < m_PlayList.size() ; pos++)
 		{
-			SaveInFile();
+			SaveInFile(pos);
 		}
         return TRUE;
         break;
@@ -1711,12 +1719,12 @@ void CStillSource::UpdateMenu()
 
     hSubMenu = GetSubMenu(m_hMenu, 0);
     if(hSubMenu == NULL) return;
-    hMenuFiles = GetSubMenu(hSubMenu, 5);
+    hMenuFiles = GetSubMenu(hSubMenu, 7);
     if(hMenuFiles == NULL)
     {
-        if (ModifyMenu(hSubMenu, 5, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "F&iles"))
+        if (ModifyMenu(hSubMenu, 7, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "F&iles"))
         {
-            hMenuFiles = GetSubMenu(hSubMenu, 5);
+            hMenuFiles = GetSubMenu(hSubMenu, 7);
         }
     }
     if(hMenuFiles == NULL) return;
@@ -1816,7 +1824,7 @@ void CStillSource::SetMenu(HMENU hMenu)
 
     hSubMenu = GetSubMenu(m_hMenu, 0);
     if(hSubMenu == NULL) return;
-    hMenuFiles = GetSubMenu(hSubMenu, 5);
+    hMenuFiles = GetSubMenu(hSubMenu, 7);
     if(hMenuFiles == NULL) return;
 
     for (int i(0); (i < MAX_PLAYLIST_SIZE) && (i < GetMenuItemCount(hMenuFiles)); ++i)

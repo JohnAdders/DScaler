@@ -1,9 +1,12 @@
-<html><!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
-<!-- #BeginEditable "doctitle" --> 
+<!-- #BeginEditable "doctitle" -->
 <title>3:2 Pulldown Spec</title>
-<!-- #EndEditable --> 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
 <style type="text/css">
 <!--
 p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
@@ -19,35 +22,53 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 -->
 </style>
 </head>
-
 <body bgcolor="#FFFFFF">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr> 
-    <td height="1" width="160"><img src="images/spacer.gif" width="1" height="1"></td>
-    <td height="1" width="342"><img src="images/spacer.gif" width="1" height="1"></td>
-    <td height="1" width="501"><img src="images/spacer.gif" width="1" height="1"></td>
-  </tr>
-  <tr> 
-    <td width="160"><img src="images/dscalerlogo.jpg" alt="DScaler Logo"></td>
-    <td colspan="2" align="right" valign="bottom">
-      <font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b><!-- #BeginEditable "Page%20Title" -->DScaler
-      Authors&nbsp;<!-- #EndEditable --></b></font></td>
-  </tr>
-  <tr bgcolor="#FFCC00" align="right"> 
-    <td colspan="3"><img src="images/yellowspacer.gif" width="100%" height="2"></td>
-  </tr>
-  <tr> 
-    <td colspan="3">&nbsp;</td>
-  </tr>
-  <tr>
-    <td colspan="3">
-<!-- #BeginEditable "Text" --> 
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->DScaler Authors 
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"><!-- #BeginEditable "Text" -->
 <h1>Mark Rejhon's 3:2 Pulldown Alogrithm</h1>
 
-<p>Here's a simplified pseudocode implementation of <A HREF="http://www.avsforum.com/ubb/Forum12/HTML/000071.html" TARGET=_blank>my 3:2 pulldown detection algorithm</A>.  You might even easily be able to implement this into
-DScaler.  Almost all of us really don't care about 2:2 pulldown at all as I only see this happening only 0.1 to 0.5% of the time on NTSC television.  Without further ado, here you go!</p>
+<p>Here's a simplified pseudocode implementation of <a href=
+"http://www.avsforum.com/ubb/Forum12/HTML/000071.html" target=
+"_blank">my 3:2 pulldown detection algorithm</a>. You might even
+easily be able to implement this into DScaler. Almost all of us
+really don't care about 2:2 pulldown at all as I only see this
+happening only 0.1 to 0.5% of the time on NTSC television.
+Without further ado, here you go!</p>
 
-<P><B>START PSUEDOCODE FOR AUTOMATIC 3:2 PULLDOWN DETECTION</B><BLOCKQUOTE><pre>set MAX_MISMATCH = 12
+<p><b>START PSUEDOCODE FOR AUTOMATIC 3:2 PULLDOWN
+DETECTION</b></p>
+
+<blockquote>
+<pre>
+set MAX_MISMATCH = 12
 
 set MAX_VERIFY_CYCLES = 2
 
@@ -123,107 +144,294 @@ LOOP
 
     
 
-    ELSE IF fields match THEN</pre>
+    ELSE IF fields match THEN
+</pre>
 
-  <P>        // It's either a stationary image OR a duplicate field in a movie<BR>        IF MISMATCH_COUNT is 4<BR>            //<BR>            // 3:2 pulldown is a cycle of 5 fields where there is only<BR>            // one duplicate field pair, and 4 mismatching pairs.<BR>            // We need to continue detection for at least 2 cycles<BR>            // to be very certain that it is actually 3:2 pulldown<BR>            // This would mean a latency of 10 fields.<BR>            //<BR>            IF MOVIE_VERIFY_CYCLE equals or exceeds MAX_VERIFY_CYCLES<BR>                // <BR>                // This executes regardless whether we've just entered or <BR>                // if we're *already* in 3:2 pulldown.  Either way, we are<BR>                // currently now (re)synchronized to 3:2 pulldown and that<BR>                // we've now detected the duplicate field.<BR>                //<BR>                set MODE = MOVIE<BR>                set MOVIE_FIELD_CYCLE = 0<BR>            ELSE<BR>                increment MOVIE_VERIFY_CYCLE by 1<BR>            ENDIF<BR>            <BR>        ELSE MISMATCH_COUNT not equal to 4<BR>            //<BR>            // If execution point hits here, it is probably just <BR>            // stationary video.  That would produce lots of duplicate<BR>            // field pairs.  We can't determine whether it's video or<BR>            // movie source.  Therefore, we want to keep doing the <BR>            // current algorithm from a prior detection.  Therefore, <BR>            // don't modify any variables EXCEPT the MISMATCH_COUNT <BR>            // variable which will be reset to 0 below.<BR>            // Also, occasionally we'll hit here during synchronization<BR>            // problems during a movie, such as a spurious field added<BR>            // or dropped.  Reset MISMATCH_COUNT to 0 below and let<BR>            // detection cycle happen again in order to re-synchronize.<BR>            // Keep the MODE variable the way it currently is.<BR>        ENDIF<BR>        <BR>        set MISMATCH_COUNT = 0<BR>    ENDIF<BR>    <BR>    // Now, process the images depending on present mode<BR>    IF MODE is MOVIE<BR>        // You could replace below with movie source deinterlacer plugin<BR>        //<BR>        set FRAMES_PER_SECOND = 24<BR>        BEGIN movie-source deinterlacer<BR>            IF MOVIE_FIELD_CYCLE equals 2 or MOVIE_FIELD_CYCLE equals 4<BR>                 Weave current field with previous field<BR>                 Add resulting field to OUTPUT queue <BR>            ELSE<BR>                 // Do nothing here.<BR>                 // Do not add frame to OUTPUT queue.<BR>                 // During MOVIE_FIELD_CYCLE 0 and 3, the current and<BR>                 // previous fields come from different movie frames.<BR>                 // During MOVIE_FIELD_CYCLE 1, the current and previous<BR>                 // fields identical movie frame as MOVIE_FIELD_CYCLE 2.<BR>                 // Therefore, we skip these cycle values.<BR>            ENDIF<BR>            <BR>            // Looping counter that goes from 0, 1, 2, 3, 4 and back to 0<BR>            increment MOVIE_FIELD_CYCLE by 1<BR>            IF MOVIE_FIELD_CYCLE equals 5 THEN<BR>                set MOVIE_FIELD_CYCLE = 0<BR>            ENDIF<BR>        END <BR>                <BR>    ELSEIF MODE is VIDEO<BR>        // You could replace below with video source deinterlacer plugin<BR>        //<BR>        set FRAMES_PER_SECOND = 60<BR>        BEGIN video-source deinterlacer<BR>            Apply video source deinterlace algorithm<BR>            Add resulting field to OUTPUT queue <BR>        END<BR>    ENDIF<BR>  ENDIF<BR>  /<BR>  // You can put video output code here for the OUTPUT queue of frames.<BR>  // You can optionally synchronize to the output refresh this way.<BR>ENDLOOP<BR></pre><HR></BLOCKQUOTE><P>.<P><B>EXAMPLE SEQUENCE OF FRAMES FROM 3:2 PULLDOWN</B><P>Field 00:   Movie frame 1<BR>Field 01:   Movie frame 1<BR>Field 02:   Movie frame 1<BR>Field 03:   Movie frame 2<BR>Field 04:   Movie frame 2<BR>Field 05:   Movie frame 3<BR>Field 06:   Movie frame 3<BR>Field 07:   Movie frame 3<BR>Field 08:   Movie frame 4<BR>Field 09:   Movie frame 4<BR>Field 10:   Movie frame 5<BR>Field 11:   Movie frame 5<BR>Field 12:   Movie frame 5<BR>Field 13:   Movie frame 6<BR>Field 14:   Movie frame 6<P>Field 02 and 00 is MATCH  --- MOVIE_FIELD_CYCLE = 0<BR>Field 03 and 01 is mismatch - MOVIE_FIELD_CYCLE = 1<BR>Field 04 and 02 is mismatch - MOVIE_FIELD_CYCLE = 2<BR>Field 05 and 03 is mismatch - MOVIE_FIELD_CYCLE = 3<BR>Field 06 and 04 is mismatch - MOVIE_FIELD_CYCLE = 4<BR>Field 07 and 05 is MATCH  --- MOVIE_FIELD_CYCLE = 0<BR>Field 08 and 06 is mismatch - MOVIE_FIELD_CYCLE = 1<BR>Field 09 and 07 is mismatch - MOVIE_FIELD_CYCLE = 2<BR>Field 10 and 08 is mismatch - MOVIE_FIELD_CYCLE = 3<BR>Field 11 and 09 is mismatch - MOVIE_FIELD_CYCLE = 4<BR>Field 12 and 10 is MATCH  --- MOVIE_FIELD_CYCLE = 0<BR>Field 13 and 11 is mismatch - MOVIE_FIELD_CYCLE = 1<BR>Field 14 and 12 is mismatch - MOVIE_FIELD_CYCLE = 2<P>.<P><B>OPTIONAL: BETTER SYNCHRONIZATION TO MONITOR REFRESH</B><P>It is desirable to make the output refresh independent of the input refresh for better synchronization.  During  3/2 pulldown material, it is very desirable to synchronize to the monitor refresh instead of the input TV signal refresh.   During watching in normal TV viewers, 3/2 pulldown is doubled to 6/4 pulldown when the refresh rate is doubled to 120 Hz.  It would be very nice to have something closer to 5/5 pulldown when watching movie material instead of 6/4 pulldown.<P>In the pseudocode above in the last section,<BR>There are 24 frames per second in OUTPUT queue in MOVIE mode<BR>There are 60 frames per second in OUTPUT queue in VIDEO mode<P>You can synchronize the OUTPUT queue of fields to the monitor refresh, based on the value in the FRAMES_PER_SECOND variable.  By keeping a small output buffer of frames (of about 2 or so frames) you can keep the pipeline of output frames flowing smoothly and synchronized much better to the computer monitor.<P>Also, since the computer clock is accurate, this can help "stabilize" unstable NTSC refresh such as those from a VCR which can sometimes have slightly-varying refresh rates (fluctuating randomly as low as 59Hz all the way up to 61Hz although usually by smaller increments).  This can interact badly with a consistent computer refresh.   Regular TV sets have a very slight amount of "give" that allows it to compensate for very minor fluctuations in refresh rate, but computer monitors won't compensate.<P>It can also smooth out jerkiness problems caused by fluctuating CPU usage on a frame-by-frame basis, since deinterlacing one pair of frames might take longer than deinterlacing a different pair of frames (using certain video source deinterlacing algorithms).<P>There is also the problem of compensating for drift when the output framerate is decoupled from the refresh of the input signal.   There are two good possible ways of getting around this drift problem:<P>(1) AVOID displaying the output frame if there is less than 2 frames in the OUTPUT queue, and ACCELERATE displaying of the next frame if the number of frames in the OUTPUT queue exceeds a predetermined value such as 4.     That way, you always keep 2, 3 or 4 frames buffered at all times for maximum fluidity.   (You could experiment, and set the minimum to 1 and maximum to 3, to find out which produces the best fluidity at the minimum possible buffering.  Too much buffering will cause audio to be noticeably lagged behind the video)<P>(2) Synchronize to a clock that's generated from the TV tuner card, instead of using the computer's clock.  For example, increment an integer clock counter by 1 everytime a field arrives from the TV card.  This clock would be incremented about 59.94 times per second for most NTSC signals.   Keep an eye on the computer's clock everytime you increment the integer clock by 60 - to calculate the exact amount of time it takes for 60 fields to hit the TV tuner card.  Do this continously every second.  Divide this value by 24 to compute the amount of time there should be between frames, during MOVIE mode, during the next second.     (If you prefer, you could use 5 second cycles instead of 1 second cycles, or keep a "rolling average" every field based on the previous X number of fields).<P>.<P><B>APPENDIX: PSEUDOCODE WITHOUT COMMENTS</B><P>For determining the amount of "code bulk", this is how small the pseudocode is, when I remove my comments from the above pseudocode.  Look at how small the pseudocode is - since you already have the routines written in
-DScaler, look at how simple it is to implement automatic 3:2 pulldown deinterlacing!<P><BLOCKQUOTE><font size="1" face="Verdana, Arial">code:</font>
+<p>// It's either a stationary image OR a duplicate field in a
+movie<br>
+ IF MISMATCH_COUNT is 4<br>
+ //<br>
+ // 3:2 pulldown is a cycle of 5 fields where there is only<br>
+ // one duplicate field pair, and 4 mismatching pairs.<br>
+ // We need to continue detection for at least 2 cycles<br>
+ // to be very certain that it is actually 3:2 pulldown<br>
+ // This would mean a latency of 10 fields.<br>
+ //<br>
+ IF MOVIE_VERIFY_CYCLE equals or exceeds MAX_VERIFY_CYCLES<br>
+ //<br>
+ // This executes regardless whether we've just entered or<br>
+ // if we're *already* in 3:2 pulldown. Either way, we are<br>
+ // currently now (re)synchronized to 3:2 pulldown and that<br>
+ // we've now detected the duplicate field.<br>
+ //<br>
+ set MODE = MOVIE<br>
+ set MOVIE_FIELD_CYCLE = 0<br>
+ ELSE<br>
+ increment MOVIE_VERIFY_CYCLE by 1<br>
+ ENDIF<br>
+<br>
+ ELSE MISMATCH_COUNT not equal to 4<br>
+ //<br>
+ // If execution point hits here, it is probably just<br>
+ // stationary video. That would produce lots of duplicate<br>
+ // field pairs. We can't determine whether it's video or<br>
+ // movie source. Therefore, we want to keep doing the<br>
+ // current algorithm from a prior detection. Therefore,<br>
+ // don't modify any variables EXCEPT the MISMATCH_COUNT<br>
+ // variable which will be reset to 0 below.<br>
+ // Also, occasionally we'll hit here during synchronization<br>
+ // problems during a movie, such as a spurious field added<br>
+ // or dropped. Reset MISMATCH_COUNT to 0 below and let<br>
+ // detection cycle happen again in order to re-synchronize.<br>
+ // Keep the MODE variable the way it currently is.<br>
+ ENDIF<br>
+<br>
+ set MISMATCH_COUNT = 0<br>
+ ENDIF<br>
+<br>
+ // Now, process the images depending on present mode<br>
+ IF MODE is MOVIE<br>
+ // You could replace below with movie source deinterlacer
+plugin<br>
+ //<br>
+ set FRAMES_PER_SECOND = 24<br>
+ BEGIN movie-source deinterlacer<br>
+ IF MOVIE_FIELD_CYCLE equals 2 or MOVIE_FIELD_CYCLE equals 4<br>
+ Weave current field with previous field<br>
+ Add resulting field to OUTPUT queue<br>
+ ELSE<br>
+ // Do nothing here.<br>
+ // Do not add frame to OUTPUT queue.<br>
+ // During MOVIE_FIELD_CYCLE 0 and 3, the current and<br>
+ // previous fields come from different movie frames.<br>
+ // During MOVIE_FIELD_CYCLE 1, the current and previous<br>
+ // fields identical movie frame as MOVIE_FIELD_CYCLE 2.<br>
+ // Therefore, we skip these cycle values.<br>
+ ENDIF<br>
+<br>
+ // Looping counter that goes from 0, 1, 2, 3, 4 and back to
+0<br>
+ increment MOVIE_FIELD_CYCLE by 1<br>
+ IF MOVIE_FIELD_CYCLE equals 5 THEN<br>
+ set MOVIE_FIELD_CYCLE = 0<br>
+ ENDIF<br>
+ END<br>
+<br>
+ ELSEIF MODE is VIDEO<br>
+ // You could replace below with video source deinterlacer
+plugin<br>
+ //<br>
+ set FRAMES_PER_SECOND = 60<br>
+ BEGIN video-source deinterlacer<br>
+ Apply video source deinterlace algorithm<br>
+ Add resulting field to OUTPUT queue<br>
+ END<br>
+ ENDIF<br>
+ ENDIF<br>
+ /<br>
+ // You can put video output code here for the OUTPUT queue of
+frames.<br>
+ // You can optionally synchronize to the output refresh this
+way.<br>
+ENDLOOP<br>
+</p>
 
-  <p>set MAX_MISMATCH = 12<BR>set MAX_VERIFY_CYCLES = 2<BR>set MISMATCH_COUNT =
+<hr>
+</blockquote>
 
-  0<BR>set MOVIE_FIELD_CYCLE = 0<BR>set MOVIE_VERIFY_CYCLE = 0<BR>set MODE =
+<p>.</p>
 
-  VIDEO<BR>set FRAMES_PER_SECOND = 60<BR>LOOP<BR>  &nbsp; IF new field has now
+<p><b>EXAMPLE SEQUENCE OF FRAMES FROM 3:2 PULLDOWN</b></p>
 
-  arrived on TV card<BR>    &nbsp;&nbsp;&nbsp; GRAB new current field (add to
+<p>Field 00: Movie frame 1<br>
+Field 01: Movie frame 1<br>
+Field 02: Movie frame 1<br>
+Field 03: Movie frame 2<br>
+Field 04: Movie frame 2<br>
+Field 05: Movie frame 3<br>
+Field 06: Movie frame 3<br>
+Field 07: Movie frame 3<br>
+Field 08: Movie frame 4<br>
+Field 09: Movie frame 4<br>
+Field 10: Movie frame 5<br>
+Field 11: Movie frame 5<br>
+Field 12: Movie frame 5<br>
+Field 13: Movie frame 6<br>
+Field 14: Movie frame 6</p>
 
-  queue of fields)<BR>    &nbsp;&nbsp;&nbsp; COMPARE two fields: current field
+<p>Field 02 and 00 is MATCH --- MOVIE_FIELD_CYCLE = 0<br>
+Field 03 and 01 is mismatch - MOVIE_FIELD_CYCLE = 1<br>
+Field 04 and 02 is mismatch - MOVIE_FIELD_CYCLE = 2<br>
+Field 05 and 03 is mismatch - MOVIE_FIELD_CYCLE = 3<br>
+Field 06 and 04 is mismatch - MOVIE_FIELD_CYCLE = 4<br>
+Field 07 and 05 is MATCH --- MOVIE_FIELD_CYCLE = 0<br>
+Field 08 and 06 is mismatch - MOVIE_FIELD_CYCLE = 1<br>
+Field 09 and 07 is mismatch - MOVIE_FIELD_CYCLE = 2<br>
+Field 10 and 08 is mismatch - MOVIE_FIELD_CYCLE = 3<br>
+Field 11 and 09 is mismatch - MOVIE_FIELD_CYCLE = 4<br>
+Field 12 and 10 is MATCH --- MOVIE_FIELD_CYCLE = 0<br>
+Field 13 and 11 is mismatch - MOVIE_FIELD_CYCLE = 1<br>
+Field 14 and 12 is mismatch - MOVIE_FIELD_CYCLE = 2</p>
 
-  and two fields ago.<BR>    &nbsp;&nbsp;&nbsp; IF fields DO NOT match THEN<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>.</p>
 
-  IF MISMATCH_COUNT does not exceed MAX_MISMATCH<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p><b>OPTIONAL: BETTER SYNCHRONIZATION TO MONITOR REFRESH</b></p>
 
-  increment MISMATCH_COUNT by 1<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>It is desirable to make the output refresh independent of the
+input refresh for better synchronization. During 3/2 pulldown
+material, it is very desirable to synchronize to the monitor
+refresh instead of the input TV signal refresh. During watching
+in normal TV viewers, 3/2 pulldown is doubled to 6/4 pulldown
+when the refresh rate is doubled to 120 Hz. It would be very nice
+to have something closer to 5/5 pulldown when watching movie
+material instead of 6/4 pulldown.</p>
 
-  ELSE<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>In the pseudocode above in the last section,<br>
+There are 24 frames per second in OUTPUT queue in MOVIE mode<br>
+There are 60 frames per second in OUTPUT queue in VIDEO mode</p>
 
-  set MODE = VIDEO<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>You can synchronize the OUTPUT queue of fields to the monitor
+refresh, based on the value in the FRAMES_PER_SECOND variable. By
+keeping a small output buffer of frames (of about 2 or so frames)
+you can keep the pipeline of output frames flowing smoothly and
+synchronized much better to the computer monitor.</p>
 
-  set MOVIE_VERIFY_CYCLE = 0<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>Also, since the computer clock is accurate, this can help
+"stabilize" unstable NTSC refresh such as those from a VCR which
+can sometimes have slightly-varying refresh rates (fluctuating
+randomly as low as 59Hz all the way up to 61Hz although usually
+by smaller increments). This can interact badly with a consistent
+computer refresh. Regular TV sets have a very slight amount of
+"give" that allows it to compensate for very minor fluctuations
+in refresh rate, but computer monitors won't compensate.</p>
 
-  set MOVIE_FIELD_CYCLE = 0<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>It can also smooth out jerkiness problems caused by
+fluctuating CPU usage on a frame-by-frame basis, since
+deinterlacing one pair of frames might take longer than
+deinterlacing a different pair of frames (using certain video
+source deinterlacing algorithms).</p>
 
-  ENDIF<BR>    &nbsp;&nbsp;&nbsp; ELSE IF fields match THEN<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>There is also the problem of compensating for drift when the
+output framerate is decoupled from the refresh of the input
+signal. There are two good possible ways of getting around this
+drift problem:</p>
 
-  IF MISMATCH_COUNT is 4<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>(1) AVOID displaying the output frame if there is less than 2
+frames in the OUTPUT queue, and ACCELERATE displaying of the next
+frame if the number of frames in the OUTPUT queue exceeds a
+predetermined value such as 4. That way, you always keep 2, 3 or
+4 frames buffered at all times for maximum fluidity. (You could
+experiment, and set the minimum to 1 and maximum to 3, to find
+out which produces the best fluidity at the minimum possible
+buffering. Too much buffering will cause audio to be noticeably
+lagged behind the video)</p>
 
-  IF MOVIE_VERIFY_CYCLE equals or exceeds MAX_VERIFY_CYCLES<BR>                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>(2) Synchronize to a clock that's generated from the TV tuner
+card, instead of using the computer's clock. For example,
+increment an integer clock counter by 1 everytime a field arrives
+from the TV card. This clock would be incremented about 59.94
+times per second for most NTSC signals. Keep an eye on the
+computer's clock everytime you increment the integer clock by 60
+- to calculate the exact amount of time it takes for 60 fields to
+hit the TV tuner card. Do this continously every second. Divide
+this value by 24 to compute the amount of time there should be
+between frames, during MOVIE mode, during the next second. (If
+you prefer, you could use 5 second cycles instead of 1 second
+cycles, or keep a "rolling average" every field based on the
+previous X number of fields).</p>
 
-  set MODE = MOVIE<BR>                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>.</p>
 
-  set MOVIE_FIELD_CYCLE = 0<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p><b>APPENDIX: PSEUDOCODE WITHOUT COMMENTS</b></p>
 
-  ELSE<BR>                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p>For determining the amount of "code bulk", this is how small
+the pseudocode is, when I remove my comments from the above
+pseudocode. Look at how small the pseudocode is - since you
+already have the routines written in DScaler, look at how simple
+it is to implement automatic 3:2 pulldown deinterlacing!</p>
 
-  increment MOVIE_VERIFY_CYCLE by 1<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<blockquote><font size="1" face="Verdana, Arial">code:</font> 
 
-  ENDIF<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ELSE
+<p>set MAX_MISMATCH = 12<br>
+set MAX_VERIFY_CYCLES = 2<br>
+set MISMATCH_COUNT = 0<br>
+set MOVIE_FIELD_CYCLE = 0<br>
+set MOVIE_VERIFY_CYCLE = 0<br>
+set MODE = VIDEO<br>
+set FRAMES_PER_SECOND = 60<br>
+LOOP<br>
+   IF new field has now arrived on TV card<br>
+     GRAB new current field (add to queue of fields)<br>
+     COMPARE two fields: current field and two fields ago.<br>
+     IF fields DO NOT match THEN<br>
+         IF MISMATCH_COUNT does not exceed MAX_MISMATCH<br>
+             increment MISMATCH_COUNT by 1<br>
+         ELSE<br>
+             set MODE = VIDEO<br>
+             set MOVIE_VERIFY_CYCLE = 0<br>
+             set MOVIE_FIELD_CYCLE = 0<br>
+         ENDIF<br>
+     ELSE IF fields match THEN<br>
+         IF MISMATCH_COUNT is 4<br>
+             IF MOVIE_VERIFY_CYCLE equals or exceeds
+MAX_VERIFY_CYCLES<br>
+                 set MODE = MOVIE<br>
+                 set MOVIE_FIELD_CYCLE = 0<br>
+             ELSE<br>
+                 increment MOVIE_VERIFY_CYCLE by 1<br>
+             ENDIF<br>
+         ELSE MISMATCH_COUNT not equal to 4<br>
+         ENDIF<br>
+         set MISMATCH_COUNT = 0<br>
+     ENDIF<br>
+    <br>
+     IF MODE is MOVIE<br>
+         set FRAMES_PER_SECOND = 24<br>
+         BEGIN movie-source deinterlacer<br>
+             IF MOVIE_FIELD_CYCLE equals 2 or MOVIE_FIELD_CYCLE
+equals 4<br>
+                  Weave current field with previous field<br>
+                  Add resulting field to OUTPUT queue<br>
+             ENDIF<br>
+             increment MOVIE_FIELD_CYCLE by 1<br>
+             IF MOVIE_FIELD_CYCLE equals 5 THEN<br>
+                 set MOVIE_FIELD_CYCLE = 0<br>
+             ENDIF<br>
+         END<br>
+     ELSEIF MODE is VIDEO<br>
+         set FRAMES_PER_SECOND = 60<br>
+         BEGIN video-source deinterlacer<br>
+             Apply video source deinterlace algorithm<br>
+             Add resulting field to OUTPUT queue<br>
+         END<br>
+     ENDIF<br>
+   ENDIF<br>
+ENDLOOP<br>
+</p>
+</blockquote>
 
-  MISMATCH_COUNT not equal to 4<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<p><font size="2" face="Verdana, Arial">(c) Mark Rejhon
+2000</font></p>
 
-  ENDIF<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set MISMATCH_COUNT
-
-  = 0<BR>    &nbsp;&nbsp;&nbsp; ENDIF<BR>    &nbsp;&nbsp;&nbsp;    <BR>    &nbsp;&nbsp;&nbsp;
-
-  IF MODE is MOVIE<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set
-
-  FRAMES_PER_SECOND = 24<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  BEGIN movie-source deinterlacer<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  IF MOVIE_FIELD_CYCLE equals 2 or MOVIE_FIELD_CYCLE equals 4<BR>                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  Weave current field with previous field<BR>                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  Add resulting field to OUTPUT queue <BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  ENDIF<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  increment MOVIE_FIELD_CYCLE by 1<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  IF MOVIE_FIELD_CYCLE equals 5 THEN<BR>                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  set MOVIE_FIELD_CYCLE = 0<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  ENDIF<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; END <BR>    &nbsp;&nbsp;&nbsp;
-
-  ELSEIF MODE is VIDEO<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set
-
-  FRAMES_PER_SECOND = 60<BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  BEGIN video-source deinterlacer<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  Apply video source deinterlace algorithm<BR>            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  Add resulting field to OUTPUT queue <BR>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-  END<BR>    &nbsp;&nbsp;&nbsp; ENDIF<BR>  &nbsp; ENDIF<BR>ENDLOOP<BR></p>
-
-</FONT></BLOCKQUOTE>
-
-<p><font size="2" face="Verdana, Arial">(c) Mark Rejhon 2000</font></p>
 <!-- #EndEditable -->
-	</td>
-  </tr>
-  <tr> 
-    <td colspan="3">&nbsp;</td>
-  </tr>
-  <tr bgcolor="#FFCC00"> 
-    <td colspan="3"> 
-      <div align="center"><img src="images/yellowspacer.gif" width="100%" height="2"></div>
-    </td>
-  </tr>
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
 </table>
-<p>&nbsp;</p>
-</body>
+
+<p> </p>
+
 <!-- #EndTemplate -->
+</body>
 </html>
+

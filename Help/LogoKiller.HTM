@@ -1,9 +1,12 @@
-<html><!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
-<!-- #BeginEditable "doctitle" --> 
-<title>DScaler -- Logo Killer Settings</title>
-<!-- #EndEditable --> 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Logo Killer Filter</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
 <style type="text/css">
 <!--
 p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
@@ -19,73 +22,108 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 -->
 </style>
 </head>
-
 <body bgcolor="#FFFFFF">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr> 
-    <td height="1" width="160"><img src="images/spacer.gif" width="1" height="1"></td>
-    <td height="1" width="342"><img src="images/spacer.gif" width="1" height="1"></td>
-    <td height="1" width="501"><img src="images/spacer.gif" width="1" height="1"></td>
-  </tr>
-  <tr> 
-    <td width="160"><img src="images/dscalerlogo.jpg" alt="DScaler Logo"></td>
-    <td colspan="2" align="right" valign="bottom">
-      <font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b><!-- #BeginEditable "Page%20Title" -->Logo Killer Settings<!-- #EndEditable --></b></font></td>
-  </tr>
-  <tr bgcolor="#FFCC00" align="right"> 
-    <td colspan="3"><img src="images/yellowspacer.gif" width="100%" height="2"></td>
-  </tr>
-  <tr> 
-    <td colspan="3">&nbsp;</td>
-  </tr>
-  <tr>
-    <td colspan="3">
-<!-- #BeginEditable "Text" --> 
-      <p>Settings specific to the Logo Killer Filter</p>
-       
-      <table border="1">
-        <tr> 
-          <th> 
-            Setting
-          </th>
-          <th> 
-            Default
-          </th>
-          <th> 
-            Description
-          </th>
-        </tr>
-        <tr> 
-          <td> 
-			Sample
-          </td>
-          <td> 
-			0
-          </td>
-          <td> 
-			Put Description Here
-          </td>
-        </tr>
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
 
-      </table>
-<!-- #EndEditable -->
-	</td>
-  </tr>
-  <tr> 
-    <td colspan="3">&nbsp;</td>
-  </tr>
-  <tr>
-    <td colspan="3">
-    </td>
-  </tr>
-  <tr> 
-    <td colspan="3">&nbsp;</td>
-  </tr>
-  <tr bgcolor="#FFCC00"> 
-    <td colspan="3"> 
-      <div align="center"><img src="images/yellowspacer.gif" width="100%" height="2"></div>
-    </td>
-  </tr>
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Logo Killer Filter
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3">
+<!-- #BeginEditable "Text" -->
+<p>The Logo Killer Filter is an early attempt to deal with station logos added
+on to TV broadcasts.</p>
+<p>It currently operates in one of three modes:<ol>
+<li>Grey. In this mode the square selected is replaced by a grey square </li>
+<li>Limit to Max Value.  In this mode all internal luma values over a specified 
+maximum are clipped to a specified maximum</li>
+<li>Dynamic Max.  In this mode the top and bottom egdes are used to calculate a 
+dynamic maximum, all intenal luma values are then clipped to this maximum</li>
+</ol></p>
+
+<table border="1">
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Top</td>
+<td>20</td>
+<td>Number of pixels from top of the screen to top of logo rectangle</td>
+</tr>
+<tr>
+<td>Left</td>
+<td>20</td>
+<td>Number of pixels from left of the screen to left of logo rectangle</td>
+</tr>
+<tr>
+<td>Width</td>
+<td>20</td>
+<td>Width of the rectangle in pixels</td>
+</tr>
+<tr>
+<td>Height</td>
+<td>50</td>
+<td>Height of the rectangle in pixels</td>
+</tr>
+<tr>
+<td>Max</td>
+<td>128</td>
+<td>Maximum luma in "Limit to Max Value" mode.</td>
+</tr>
 </table>
+
+<!-- #EndEditable -->
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
 </body>
-<!-- #EndTemplate --></html>
+</html>
+

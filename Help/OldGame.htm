@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Old Game Method</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Old Game Method
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3">
+<!-- #BeginEditable "Text" -->
+<p>This filter improves the display of video games from old
+consoles on your computer. Instead of deinterlacing like most
+DScaler plugins, it smooths vertically. That gets rid of the
+weird jittering you'd otherwise see. It works nicely with just
+about any game on a PlayStation, Super Nintendo, or Genesis.
+Presumably, it will work well with a Nintendo 64, Saturn, Atari,
+NES, Megadrive, and so on. Just don't try it with your
+Vectrex.</p>
+
+<p>More exactly, this plugin assumes that you're looking at a
+progressive half height image. So any video source which fits
+that description should work well. The Old Game filter is similar
+to the OddOnly and EvenOnly plugins, but improves the picture in
+a couple ways. First, it works well with material running at any
+FPS (frames per second) rate, instead of just 25 or 30 FPS.
+Second, it optionally uses averaging between frames to reduce
+noise and color crosstalk. Averaging is an especially nice
+improvement if you've connected your console with a composite
+connector. The averaging works well alone or along with a noise
+filter.</p>
+
+<p>Later consoles such as the Dreamcast, PlayStation 2, GameCube,
+or XBox use interlaced output, and will look lousy with this
+plugin. (Well, some of them allow progressive output, too, but
+not in a way the supported input cards can understand.) To play
+them on your computer, use the more standard deinterlacing
+plugins. The Super Nintendo, PlayStation, Nintendo 64, and Saturn
+can also use an interlaced mode. The PlayStation uses interlaced
+mode for its startup logo, for example. But almost all games
+switch back into progressive half height mode for the main play
+of the game. Automatic sensing of the interlace mode is something
+I'd like to add in the future.</p>
+
+<p> </p>
+
+<p><b><font face="Arial" size="4">Who Should Use
+It?</font></b></p>
+
+<p>Anybody who plays old video games on their computer via video
+input should use this plugin. (Well, at least until something
+better comes along.)</p>
+
+<p>There's a bug in some older Matrox overlay drivers which
+allows the Scaler Bob plugin to work nearly as well as Old Game
+for progressive half height video. It doesn't use averaging to
+reduce noise, but it should run a little faster. On the other
+hand, since Old Game is fast enough to run just fine on any
+computer supported by DScaler, that doesn't really gain you
+much.</p>
+
+<p> </p>
+
+<p><b><font face="Arial" size="4">The Settings</font></b></p>
+
+<p>There are two options to set for this plugin, Composite Mode
+and Motion Threshold. Composite Mode forces the plugin to always
+average between frames. Motion Threshold is the amount of motion
+(in arbitrary units) which will convince the plugin not to
+average between frames.</p>
+
+<p>The way you should set these options depends on the way you've
+connected your console.</p>
+
+<p><b><font face="Arial">Composite or F-Connector</font></b></p>
+
+<p>With a composite connection, the biggest problem by far will
+be color crosstalk. To get rid of it, check (would you believe)
+the Composite Mode option. That way, the crosstalk will be
+averaged out. This makes the picture look much, much nicer.</p>
+
+<p>With Composite Mode checked, the Motion Threshold slider won't
+do anything at all.</p>
+
+<p>Surprisingly, the Temporal Comb plugin doesn't help at all for
+crosstalk in most old video games. That's for an obscure
+technical reason involving the phase of the color carrier signal
+and the number of scanlines per frame.</p>
+
+<p><b><font face="Arial">S-video</font></b></p>
+
+<p>With an S-video connection, you shouldn't see much color
+crosstalk. So you can afford to use the slider to prevent
+averaging when the scene is moving. Turn off the Composite Mode
+option and set Motion Threshold to about 300. Increase it a bit
+if you have a noisy picture (and turn on a noise filter) , or
+decrease it if you see blurring during fast motion.</p>
+
+<!-- #EndEditable -->
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
+</body>
+</html>
+

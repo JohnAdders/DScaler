@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.71 2004-07-08 08:17:52 adcockj Exp $
+// $Id: Providers.cpp,v 1.72 2004-07-10 11:17:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2004/07/08 08:17:52  adcockj
+// Horrible work around for cx2388x issues
+//
 // Revision 1.70  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -499,7 +502,7 @@ int Providers_Load(HMENU hMenu)
     DSProvider = new CDSProvider();
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
-        if(AllowCx2388xDShow || strstr(DSProvider->GetSource(i)->IDString, "VEN_14F1&DEV_88") == NULL)
+        if(AllowCx2388xDShow || strstr(DSProvider->GetSource(i)->IDString(), "VEN_14F1&DEV_88") == NULL)
         {
             Source = new TSource;
             Source->Name = DSProvider->GetSourceName(i);

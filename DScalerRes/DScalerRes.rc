@@ -965,6 +965,11 @@ BEGIN
         MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
         MENUITEM "&Advanced Settings...",       IDM_SETTINGS_CHANGESETTINGS
         MENUITEM SEPARATOR
+        MENUITEM "&Save settings per channel",  ID_SETTINGS_SAVESETTINGSPERCHANNEL
+
+        MENUITEM "Clear Channel Settings",      ID_SETTINGS_CLEARCHANNELSETTINGS
+        , GRAYED
+        MENUITEM SEPARATOR
         MENUITEM "&Keyboard Lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
     END
     POPUP "Ac&tions"
@@ -1164,9 +1169,6 @@ BEGIN
             MENUITEM "&Hardware Info ...",          IDM_HWINFO
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
             MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
-            MENUITEM "Save By Channel",             IDM_SAVE_BY_CHANNEL
-            MENUITEM "Clear Channel Settings",      IDM_SAVE_BY_CHANNEL_CLEARSETTINGS
-            , GRAYED
         END
     END
 END

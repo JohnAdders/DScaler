@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.22 2002-02-09 02:44:56 laurentg Exp $
+// $Id: Calibration.h,v 1.23 2002-02-09 12:57:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -373,6 +373,7 @@ extern CCalibration* pCalibration;
 SETTING* Calibr_GetSetting(CALIBR_SETTING Setting);
 void Calibr_ReadSettingsFromIni();
 void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void Calibr_ShowUI();
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.40 2002-02-09 02:44:56 laurentg Exp $
+// $Id: Calibration.cpp,v 1.41 2002-02-09 12:57:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.39  2002/02/08 00:36:06  laurentg
 // Support of a new type of file : DScaler patterns
 //
@@ -74,6 +77,7 @@
 #include "AspectRatio.h"
 #include "OutThreads.h"
 #include "Other.h"
+#include "SettingsDlg.h"
 
 
 // Minimum time in milliseconds between two consecutive evaluations
@@ -2392,3 +2396,7 @@ void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
+void Calibr_ShowUI()
+{
+    CSettingsDlg::ShowSettingsDlg("Calibration Settings",CalibrSettings, CALIBR_SETTING_LASTONE);
+}

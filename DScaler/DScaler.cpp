@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.113 2002-01-20 09:59:32 robmuller Exp $
+// $Id: DScaler.cpp,v 1.114 2002-01-20 10:05:02 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.113  2002/01/20 09:59:32  robmuller
+// In tuner mode STATUS_TEXT in statusbar shows channel number if channel name is not available.
+//
 // Revision 1.112  2002/01/19 12:53:00  temperton
 // Teletext pages updates at correct time.
 // Teletext can use variable-width font.
@@ -922,7 +925,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHANNEL_LIST:
-            SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+            if(!Providers_GetCurrentSource()->IsInTunerMode())
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+            }
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
             Channels_UpdateMenu(hMenu);
             break;

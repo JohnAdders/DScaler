@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.20 2002-08-15 14:20:11 kooiman Exp $
+// $Id: DSSource.h,v 1.21 2002-08-20 16:21:28 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/08/15 14:20:11  kooiman
+// Improved tuner support. Added setting for video input.
+//
 // Revision 1.19  2002/08/14 22:03:23  kooiman
 // Added TV tuner support for DirectShow capture devices
 //
@@ -99,7 +102,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DSSource.h interface for the CDSSource class.
+ * @file DSSource.h interface for the CDSCaptureSource class.
  */
 
 #if !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)
@@ -109,39 +112,27 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Source.h"
-#include "DSGraph.h"
+#include "DSSourceBase.h"
 
 /**
- * This source controls a Direct show filter graph.
+ * This source controls a DirectShow capture graph.
  * @see CDSProvider
  * @see CDShowGraph
+ * @see CDSSourceBase
  */
-class CDSSource : public CSource
+class CDSCaptureSource : public CDSSourceBase
 {
 public:
-	CDSSource(string device,string deviceName);
-	CDSSource();
-	virtual ~CDSSource();
+	CDSCaptureSource(string device,string deviceName);
+	virtual ~CDSCaptureSource();
 
 	//from CSettingsHolder
 	void CreateSettings(LPCSTR IniSection);
 
-	//from CSource
-	void Start();
-	void Stop();
-	void Reset();
-
-	void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 	void HandleTimerMessages(int TimerId);
 
 	LPCSTR GetStatus();
-
-	void Mute(){};
-	void UnMute(){};
-	ISetting* GetVolume() {return NULL;};
-	ISetting* GetBalance() {return NULL;};
 
 	ISetting* GetBrightness();
 	ISetting* GetContrast();
@@ -154,8 +145,6 @@ public:
 
 	eVideoFormat GetFormat();
 	BOOL IsInTunerMode();
-	int GetWidth();
-	int GetHeight();
 	
 	eTunerId GetTunerId() {return TUNER_ABSENT;}
 	BOOL HasTuner();
@@ -171,49 +160,34 @@ public:
 	
 	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
-
+	
+	///@todo this probably have to be changed
     BOOL HasSquarePixels() {return TRUE;};
 
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
-    LPCSTR IDString() { return m_IDString.c_str(); }
-
     void SettingsPerChannelSetup(int Start);
     void TunerChannelChange(int PreChange, int OldChannel, int NewChannel);
-private:
-	void updateDroppedFields();  
+	
+	static void ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel);
+	static void OnSetup(void *pThis, int Start);
+	
+	void Start();
+	void Stop();
 
-	CDShowGraph *m_pDSGraph;
+private:
 	string m_device;
 	string m_deviceName;
-	
-	bool m_bIsFileSource;
-	string m_filename;
 
-	long m_currentX;
-	long m_currentY;
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Brightness);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Contrast);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Hue);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Saturation);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Overscan);
 
-  std::string  m_IDString;
-
-	///Array for picture history, implemented as a circular queue
-	TPicture m_PictureHistory[MAX_PICTURE_HISTORY];
-
-	///number of frames dropped at last call of updateDroppedFields()
-	int m_lastNumDroppedFrames;
-
-	CRITICAL_SECTION m_hOutThreadSync;
-
-	///used for measuring how long it takes for dscaler to render a field
-	DWORD m_dwRendStartTime;
-
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Hue);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Saturation);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Overscan);
-
-  DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, VideoInput);
-  DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, LastTunerChannel);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, VideoInput);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, LastTunerChannel);
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

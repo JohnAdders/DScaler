@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.7 2002-05-01 20:36:49 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.8 2002-08-20 16:22:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/05/01 20:36:49  tobbej
+// renamed file input source
+//
 // Revision 1.6  2002/04/04 16:04:45  tobbej
 // fixed error message
 // fixed problem with file open not accepting dshow files (when no wdm driver is present)
@@ -78,7 +81,7 @@ CDSProvider::CDSProvider()
 			while(devenum.getNext()==true)
 			{
 				string deviceName=devenum.getProperty("FriendlyName");
-				CDSSource *tmpsrc=new CDSSource(devenum.getDisplayName(),deviceName);
+				CDSCaptureSource *tmpsrc=new CDSCaptureSource(devenum.getDisplayName(),deviceName);
 				m_DSSources.push_back(tmpsrc);
 				m_SourceNames[m_DSSources.size()-1]=deviceName;
 			}
@@ -89,7 +92,7 @@ CDSProvider::CDSProvider()
 		}
 
 		//add one file source
-		CDSSource *src=new CDSSource();
+		CDSFileSource *src=new CDSFileSource();
 		m_DSSources.push_back(src);
 		m_SourceNames[m_DSSources.size()-1]="Media file";
     }
@@ -110,7 +113,7 @@ CDSProvider::CDSProvider()
 CDSProvider::~CDSProvider()
 {
 	//remove all sources
-	for(vector<CDSSource*>::iterator it=m_DSSources.begin();it!=m_DSSources.end();it++)
+	for(vector<CDSSourceBase*>::iterator it=m_DSSources.begin();it!=m_DSSources.end();it++)
 	{
 		delete *it;
 	}

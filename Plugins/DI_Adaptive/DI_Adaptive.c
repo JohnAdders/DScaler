@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Adaptive.c,v 1.16 2002-06-18 19:46:06 adcockj Exp $
+// $Id: DI_Adaptive.c,v 1.17 2003-02-14 21:53:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mark Rejhon and Steve Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/06/18 19:46:06  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.15  2002/06/13 12:10:23  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -259,13 +262,13 @@ SETTING DI_AdaptiveSettings[DI_ADAPTIVE_SETTING_LASTONE] =
     },
     {
         "Low Motion Mode", ITEMFROMLIST, 0, &LowMotionMode,
-        INDEX_VIDEO_GREEDYH, 0, 99, 1, 1,
+        INDEX_VIDEO_TOMSMOCOMP, 0, 99, 1, 1,
         ModeList,
         "Pulldown", "LowMotionMode", NULL,
     },
     {
         "High Motion Mode", ITEMFROMLIST, 0, &HighMotionMode,
-        INDEX_VIDEO_GREEDYH, 0, 99, 1, 1,
+        INDEX_VIDEO_TOMSMOCOMP, 0, 99, 1, 1,
         ModeList,
         "Pulldown", "HighMotionMode", NULL,
     },

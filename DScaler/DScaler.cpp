@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.224 2002-09-18 11:38:05 kooiman Exp $
+// $Id: DScaler.cpp,v 1.225 2002-09-24 17:21:07 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.224  2002/09/18 11:38:05  kooiman
+// Preparations for skinned dscaler look.
+//
 // Revision 1.223  2002/09/17 17:28:24  tobbej
 // updated crashloging to same version as in latest virtualdub
 //
@@ -1750,19 +1753,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     if(pSetting != NULL)
                     {
                         pSetting->ChangeValue(ADJUSTUP);
-                        sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
                     }
                     else
                     {
                         strcpy(Text, "Volume not supported");
+                        ShowText(hWnd, Text);
                     }
                 }
                 else
                 {
                     Mixer_Volume_Up();
                     sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                    ShowText(hWnd, Text);
                 }
-                ShowText(hWnd, Text);
             }
             break;
 
@@ -1779,19 +1782,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     if(pSetting != NULL)
                     {
                         pSetting->ChangeValue(ADJUSTDOWN);
-                        sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
                     }
                     else
                     {
                         strcpy(Text, "Volume not supported");
+                        ShowText(hWnd, Text);
                     }
                 }
                 else
                 {
                     Mixer_Volume_Down();
                     sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                    ShowText(hWnd, Text);
                 }
-                ShowText(hWnd, Text);
             }
             break;
 

@@ -1282,6 +1282,7 @@ BEGIN
         MENUITEM "S&ettings",                   IDM_POPUP_SOURCES
         MENUITEM "Ac&tions",                    IDM_POPUP_SOURCES
         MENUITEM "&Datacasting",                IDM_POPUP_SOURCES
+        MENUITEM "&Help",                       IDM_POPUP_SOURCES
         MENUITEM "E&xit",                       IDM_END
     END
 END

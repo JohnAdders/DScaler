@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.274 2003-01-05 16:09:45 atnak Exp $
+// $Id: DScaler.cpp,v 1.275 2003-01-07 13:40:59 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.274  2003/01/05 16:09:45  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.273  2003/01/05 10:30:08  atnak
 // Added Cursor_IsOurs()  --fixes cursor hiding/changing problems
 //
@@ -1463,6 +1466,13 @@ HMENU CreateDScalerPopupMenu()
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenuWithName(hMenu, 9-reduc1, "&Help");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,9,TRUE,&MenuItemInfo);
         }
     }
     return hMenuPopup;

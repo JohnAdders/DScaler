@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.5 2001-08-08 16:37:50 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.6 2001-08-11 12:47:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/08/08 16:37:50  adcockj
+// Made drivers stateless to support multiple cards
+// Added version check
+// Changed meaning of memory access functions so that you no longer pass just the offset
+//
 // Revision 1.4  2001/08/08 10:53:30  adcockj
 // Preliminary changes to driver to support multiple cards
 //
@@ -569,7 +574,12 @@ CIOAccessDevice::unmapMemory(DWORD dwMemoryBase, DWORD dwMappedMemoryLength)
 {
     if(dwMemoryBase)
     {
+        KIRQL irql;
+        KeRaiseIrql(PASSIVE_LEVEL, &irql);
+
         debugOut(dbTrace,"MMUnmapIoSpace() %X",dwMemoryBase);
         MmUnmapIoSpace( (PVOID) dwMemoryBase, dwMappedMemoryLength);
+
+        KeLowerIrql(irql);
     }
 }

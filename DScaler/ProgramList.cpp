@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.98 2003-01-24 01:55:17 atnak Exp $
+// $Id: ProgramList.cpp,v 1.99 2003-02-05 15:11:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.97  2003/01/16 18:50:34  adcockj
 // Added code to get channel name from teletext during scan
 //
@@ -1732,7 +1736,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
                 OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-				
+				SetTrayTip(MyChannels.GetChannel(CurrentProgram)->GetName());
             }
         }
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.43 2003-01-26 10:34:57 tobbej Exp $
+// $Id: DScaler.h,v 1.44 2003-02-05 15:11:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -85,6 +85,8 @@ HMENU GetVTCodepageSubmenu();
 void SetMixedModeMenu(HMENU hMenu, BOOL bShow);
 
 void RedrawMenuBar(HMENU hChangedMenu);
+
+void SetTrayTip(const char* ChannelName);
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

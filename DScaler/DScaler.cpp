@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.298 2003-02-05 14:40:56 laurentg Exp $
+// $Id: DScaler.cpp,v 1.299 2003-02-05 15:11:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.298  2003/02/05 14:40:56  laurentg
+// DScaler in Windows system tray (patch from Kristian Trenskow)
+//
 // Revision 1.297  2003/02/05 14:26:19  laurentg
 // DScaler in systray (Patch from Kristian Trenskow)
 //
@@ -1095,7 +1098,6 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
 void SetTray(BOOL Way);
 int On_IconHandler(WPARAM wParam, LPARAM lParam);
-void SetTrayTip(char*);
 
 static const char* UIPriorityNames[3] = 
 {
@@ -5842,7 +5844,7 @@ void SetTray(BOOL Way)
     }
 }
 
-void SetTrayTip(char* ChannelName)
+void SetTrayTip(const char* ChannelName)
 {
     if (bIconOn)
     {

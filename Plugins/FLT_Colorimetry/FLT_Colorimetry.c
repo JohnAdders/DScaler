@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Colorimetry.c,v 1.3 2003-06-26 11:42:54 adcockj Exp $
+// $Id: FLT_Colorimetry.c,v 1.4 2003-11-13 13:57:26 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/06/26 11:42:54  adcockj
+// Reduced teh size of some of the dlls
+//
 // Revision 1.2  2003/04/15 13:07:50  adcockj
 // Change type from int to list
 //
@@ -231,7 +234,14 @@ FILTER_METHOD ColorimetryMethod =
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
-    return &ColorimetryMethod;
+    if(CpuFeatureFlags & (FEATURE_SSE))
+    {
+        return &ColorimetryMethod;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)

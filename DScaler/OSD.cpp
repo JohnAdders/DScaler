@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.69 2002-09-11 18:19:42 adcockj Exp $
+// $Id: OSD.cpp,v 1.70 2002-09-18 11:38:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2002/09/11 18:19:42  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.68  2002/08/02 20:16:43  laurentg
 // Suppress call to RemoveMenu
 //
@@ -282,7 +285,6 @@
 #include "OSD.h"
 #include "AspectRatio.h"
 #include "Other.h"
-#include "Status.h"
 #include "ProgramList.h"
 #include "Audio.h"
 #include "MixerDev.h"
@@ -472,18 +474,14 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     }
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     hDC = GetDC(hWnd);
-    GetClientRect(hWnd,&winRect);
+    //GetClientRect(hWnd,&winRect);
+    GetDisplayAreaRect(hWnd,&winRect);
 
 #ifdef _DEBUG
     LARGE_INTEGER count, count1, pfreq;
     BOOL bPerformanceCounter = QueryPerformanceCounter(&count);
 #endif
-
-    if (IsStatusBarVisible())
-    {
-        winRect.bottom -= StatusBar_Height();
-    }
-
+    
     //
     //  Uncomment line below to get double buffering temporary disabled
     //
@@ -512,7 +510,7 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     {
         SetTimer(hWnd, OSD_TIMER_REFRESH_ID, refresh_delay, NULL);
     }
-    StatusBar_Repaint();
+    //StatusBar_Repaint();
 }
 
 //---------------------------------------------------------------------------
@@ -627,7 +625,8 @@ void OSD_Clear(HWND hWnd)
 //        InvalidateRect(hWnd, &(grOSD[i].CurrentRect), FALSE);
 //    }
 
-    InvalidateRect(hWnd, NULL, FALSE);
+    //InvalidateRect(hWnd, NULL, FALSE);
+    InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
 
     if (bRestoreScreen && (IdxCurrentScreen != -1) && ActiveScreens[IdxCurrentScreen].active)
     {
@@ -638,7 +637,7 @@ void OSD_Clear(HWND hWnd)
         OSD_ClearAllTexts();
         IdxCurrentScreen = -1;
     }
-    StatusBar_Repaint();
+    //StatusBar_Repaint();
 }
 
 //---------------------------------------------------------------------------
@@ -659,13 +658,14 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
     nLen = strlen(grOSD[0].szText);
     if (nLen && hDC != NULL)
     {
-        GetClientRect(hWnd,&winRect);
+        //GetClientRect(hWnd,&winRect);
+        GetDisplayAreaRect(hWnd,&winRect);
         nXWinSize = winRect.right  - winRect.left;
         nYWinSize = winRect.bottom - winRect.top;
-        if (IsStatusBarVisible())
-        {
-            nYWinSize -= StatusBar_Height();
-        }
+        //if (IsStatusBarVisible())
+        //{
+        //    nYWinSize -= StatusBar_Height();
+        //}
 
         for (i = 0 ; i < NbText ; i++)
         {
@@ -754,11 +754,11 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
                         hBrushOld = (HBRUSH)SelectObject(hDC, hBrush);
                         if(bOutline)
                         {
-                            PatBlt(hDC, nXpos - 2, nYpos - 2, sizeText.cx + 4, sizeText.cy + 4, PATCOPY);
+                            PatBlt(hDC, winRect.left+ nXpos - 2, winRect.top+ nYpos - 2, sizeText.cx + 4, sizeText.cy + 4, PATCOPY);
                         }
                         else
                         {
-                            PatBlt(hDC, nXpos, nYpos, sizeText.cx, sizeText.cy, PATCOPY);
+                            PatBlt(hDC, winRect.left+nXpos, winRect.top+ nYpos, sizeText.cx, sizeText.cy, PATCOPY);
                         }
                         SelectObject(hDC, hBrushOld);
                         DeleteObject(hBrush);
@@ -773,14 +773,14 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
                 {
                     // Draw OSD outline if required
                     SetTextColor(hDC, OutlineColor);
-                    TextOut(hDC, nXpos - 2, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos + 2, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos, nYpos - 2, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos, nYpos + 2, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos - 1, nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos + 1, nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos - 1, nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
-                    TextOut(hDC, nXpos + 1, nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos - 2, winRect.top+ nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos + 2, winRect.top+ nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos, winRect.top+ nYpos - 2, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos, winRect.top+ nYpos + 2, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos - 1, winRect.top+ nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos + 1, winRect.top+ nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos - 1, winRect.top+ nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos + 1, winRect.top+ nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
                 }
 
                 // Draw OSD text
@@ -788,7 +788,7 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
                 {
                     SetTextColor(hDC, grOSD[i].TextColor);
                     SetBkColor(hDC, grOSD[i].BackgroundColor);
-                    TextOut(hDC, nXpos, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, winRect.left+nXpos, winRect.top+ nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
 
                     // MRS 2-23-01 Calculate rectnagle for the entire OSD 
                     // so we do not invalidate the entire window to remove it.

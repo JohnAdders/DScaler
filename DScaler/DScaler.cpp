@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.223 2002-09-17 17:28:24 tobbej Exp $
+// $Id: DScaler.cpp,v 1.224 2002-09-18 11:38:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.223  2002/09/17 17:28:24  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 // Revision 1.222  2002/09/16 19:34:19  adcockj
 // Fix for auto format change
 //
@@ -809,6 +812,7 @@ int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
 bool bScreensaverDisabled = false;
 HMENU CreateDScalerPopupMenu();
+BOOL IsStatusBarVisible();
 
 static const char *UIPriorityNames[3] = 
 {
@@ -1521,6 +1525,68 @@ void UpdateSleepMode(TSMState *SMState, char *Text)
         ; //NEVER_GET_HERE
     }
 }
+
+
+BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect)
+{
+    BOOL result = GetClientRect(hWnd, lpRect);
+    if(bIsFullScreen == TRUE) 
+    {
+        return result;
+    }
+
+    if (result)
+    {
+       /* if ((WindowBorder!=NULL) && WindowBorder->Visible())
+        {
+            WindowBorder->AdjustArea(lpRect,1);
+        }
+
+        if ((Toolbar1!=NULL) && Toolbar1->Visible())
+        {
+            Toolbar1->AdjustArea(lpRect,1);
+        }
+    */
+        if (IsStatusBarVisible())
+        {
+            lpRect->bottom -= StatusBar_Height();
+        }
+    }
+    return result;
+}
+
+void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect)
+{
+    /*if ((WindowBorder!=NULL) && WindowBorder->Visible())
+    { 
+       WindowBorder->AdjustArea(lpRect,0);
+    }
+
+    if ((Toolbar1!=NULL) && Toolbar1->Visible())
+    {
+        Toolbar1->AdjustArea(lpRect,0);
+    }*/
+    
+    if (IsStatusBarVisible())
+    {
+        lpRect->bottom += StatusBar_Height();
+    }   
+}
+
+void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase)
+{
+    if (lpRect == NULL)
+    {
+        RECT rc;
+        GetDisplayAreaRect(hWnd, &rc);
+        InvalidateRect(hWnd,&rc,bErase);
+    }
+    else
+    {
+        InvalidateRect(hWnd,lpRect,bErase);
+    }
+}
+
 
 ///**************************************************************************
 //

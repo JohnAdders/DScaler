@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.23 2002-08-05 21:01:55 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.24 2002-09-18 11:38:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/08/05 21:01:55  laurentg
+// Square pixels mode updated
+//
 // Revision 1.22  2002/08/04 08:43:45  kooiman
 // Moved the CResizeWindowAspectFilter before the ScreenSanity filter in the filter chain
 //
@@ -91,7 +94,6 @@
 #include "AspectRatio.h"
 #include "Other.h"
 #include "DScaler.h"
-#include "Status.h"
 #include "Providers.h"
 
 // From DScaler.cpp .... We really need to reduce reliance on globals by going C++!
@@ -609,11 +611,14 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
         CAspectRect currentClientRect;
         CAspectRect newRect = ar.m_CurrentOverlayDestRect;
             
-        currentClientRect.setToClient(hWnd,TRUE);
+        /*currentClientRect.setToClient(hWnd,TRUE);
         if (IsStatusBarVisible())
         {
             currentClientRect.bottom -= StatusBar_Height();
-        }
+        }*/
+        GetDisplayAreaRect(hWnd,&currentClientRect);
+        ClientToScreen(hWnd, (POINT*) &currentClientRect.left);
+        ClientToScreen(hWnd, (POINT*) &currentClientRect.right);
 
         #ifdef __ASPECTFILTER_DEBUG__
             currentClientRect.DebugDump("Current Client Rect");
@@ -633,13 +638,16 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             #endif
                         
             // Add the status bar back in...
-            if (IsStatusBarVisible())
+            /*if (IsStatusBarVisible())
             {
                 currentClientRect.bottom += StatusBar_Height();     
-            }
+            }*/
+                        
+            currentClientRect.enforceMinSize(8);
             
             // Convert client rect to window rect...
-            currentClientRect.enforceMinSize(8);
+            AddDisplayAreaRect(hWnd,&currentClientRect);
+
             OrigClientTop = currentClientRect.top;
             AdjustWindowRectEx(&currentClientRect,
                                GetWindowLong(hWnd,GWL_STYLE),

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.46 2002-08-13 19:35:01 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.47 2002-09-18 11:38:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/08/13 19:35:01  laurentg
+// Change menu label to "Non Anamorphic" and "Anamorphic" when AR autodetection is ON
+//
 // Revision 1.45  2002/08/12 21:29:58  laurentg
 // Disable AR autodetection when switching to square pixel mode but restore it when exiting square pixel mode
 //
@@ -137,7 +140,6 @@
 #include "Other.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
-#include "Status.h"
 #include "DScaler.h"
 #include "VBI.h"
 #include "OutThreads.h"
@@ -796,23 +798,19 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
     }
     
     // Draw black in the 4 borders
-    GetClientRect(hWnd,&winRect);
+    //GetClientRect(hWnd,&winRect);
+    GetDisplayAreaRect(hWnd,&winRect);
     
-    //TJ 010508 make sure we dont paint over the statusbar
-    //if we do, it will cause flashing
-    if(IsStatusBarVisible())
-        winRect.bottom-=StatusBar_Height();
-
     // Top
-    r2.left = 0;
-    r2.top = 0;
+    r2.left = winRect.left;
+    r2.top = winRect.top;
     r2.right = winRect.right;
     r2.bottom = AspectSettings.DestinationRect.top;
     IntersectRect(&r, &r2, PaintRect);
     FillRect(hDC, &r, Background);
 
     // Bottom
-    r2.left = 0;
+    r2.left = winRect.left;
     r2.top = AspectSettings.DestinationRect.bottom;
     r2.right = winRect.right;
     r2.bottom = winRect.bottom;
@@ -820,8 +818,8 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
     FillRect(hDC, &r, Background);
 
     // Left
-    r2.left = 0;
-    r2.top = 0;
+    r2.left = winRect.left;
+    r2.top = winRect.top;
     r2.right = AspectSettings.DestinationRect.left;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
@@ -829,7 +827,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
 
     // Right
     r2.left = AspectSettings.DestinationRect.right;
-    r2.top = 0;
+    r2.top = winRect.top;
     r2.right = winRect.right;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.31 2002-07-24 21:43:17 laurentg Exp $
+// $Id: DScaler.h,v 1.32 2002-09-18 11:38:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,10 @@ void CleanUpMemory();
 void Overlay_Stop(HWND hWnd);
 void Overlay_Start(HWND hWnd);
 void ShowText(HWND hWnd, LPCTSTR szText);
-BOOL IsStatusBarVisible();
+
+BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect);
+void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase);
+void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect);
 
 HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCSTR szMenuText);
 

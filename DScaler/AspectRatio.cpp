@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.36 2002-08-12 21:29:58 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.37 2002-09-18 11:38:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/08/12 21:29:58  laurentg
+// Disable AR autodetection when switching to square pixel mode but restore it when exiting square pixel mode
+//
 // Revision 1.35  2002/08/05 21:01:55  laurentg
 // Square pixels mode updated
 //
@@ -147,7 +150,6 @@
 #include "Other.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
-#include "Status.h"
 #include "DScaler.h"
 #include "AspectFilters.h"
 #include "Deinterlace.h"
@@ -261,13 +263,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     }
 
     // Destination rectangle
-    ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
-
-    // Adjust for status bar...
-    if (IsStatusBarVisible())
-    {
-        ar.m_OriginalOverlayDestRect.bottom -= StatusBar_Height();
-    }
+    //ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
+    GetDisplayAreaRect(hWnd,&ar.m_OriginalOverlayDestRect);
+    ClientToScreen(hWnd, (POINT*) &ar.m_OriginalOverlayDestRect.left);
+    ClientToScreen(hWnd, (POINT*) &ar.m_OriginalOverlayDestRect.right);
 
     // Set the aspect adjustment factor if the screen aspect is specified...
     if (AspectSettings.TargetAspect)

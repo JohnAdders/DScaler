@@ -62,11 +62,11 @@ public:
     CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active);
     CChannel(const CChannel& CopyFrom);
     ~CChannel();
-    LPCSTR GetName();
-    DWORD GetFrequency();
-    int GetChannelNumber();
-    int GetFormat();
-    BOOL IsActive();
+    LPCSTR GetName() const;
+    DWORD GetFrequency() const;
+    int GetChannelNumber() const;
+    int GetFormat() const;
+    BOOL IsActive() const;
     void SetActive(BOOL Active);
 private:
 	string m_Name;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.29 2001-11-02 16:30:06 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.30 2001-11-02 16:33:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/11/02 16:30:06  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.28  2001/11/02 10:15:20  temperton
 // Removed unnecessary painting of color key in middle part of screen in teletext mode.
 //
@@ -58,11 +61,9 @@
 // Revision 1.23  2001/09/03 13:06:49  adcockj
 // Increment version
 //
-=======
 // Revision 1.22.2.1  2001/08/20 16:14:19  adcockj
 // Massive tidy up of code to new structure
 //
->>>>>>> 1.22.2.1
 // Revision 1.22  2001/08/06 22:32:13  laurentg
 // Little improvments for AR autodetection
 //

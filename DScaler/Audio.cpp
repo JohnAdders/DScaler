@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.18 2001-11-02 16:30:06 adcockj Exp $
+// $Id: Audio.cpp,v 1.19 2001-11-02 16:33:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/11/02 16:30:06  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.17  2001/08/30 10:08:24  adcockj
 // Removed variable
 //
@@ -48,7 +51,6 @@
 // Revision 1.16.2.1  2001/08/14 09:40:19  adcockj
 // Interim version of code for multiple card support
 //
->>>>>>> 1.16.2.4
 // Revision 1.16  2001/08/05 16:31:55  adcockj
 // Removed Fake MSP code
 //

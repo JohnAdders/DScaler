@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.23 2001-11-02 16:30:07 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.24 2001-11-02 16:33:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.22  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -63,7 +66,6 @@
 // Renamed driver
 // Got to compile with new class based card
 //
->>>>>>> 1.19.2.4
 // Revision 1.19  2001/08/14 07:06:27  adcockj
 // Fixed problem with scroling through methods
 //

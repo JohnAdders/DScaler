@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.18 2001-11-02 16:30:08 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.19 2001-11-02 16:32:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.17  2001/10/22 10:32:58  temperton
 // bugfix.
 //
@@ -56,7 +59,6 @@
 // Renamed driver
 // Got to compile with new class based card
 //
->>>>>>> 1.14.2.3
 // Revision 1.14  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.12 2001-11-02 16:30:07 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.13 2001-11-02 16:33:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.11  2001/09/02 12:13:21  adcockj
 // Changed dscaler webiste
 // Tidied up resource spelling
@@ -55,7 +58,6 @@
 // Renamed driver
 // Got to compile with new class based card
 //
->>>>>>> 1.10.2.3
 // Revision 1.10  2001/07/29 10:16:51  adcockj
 // Added build number to about box
 //

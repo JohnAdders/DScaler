@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.80 2002-08-18 14:35:45 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.81 2002-09-07 20:59:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2002/08/18 14:35:45  robmuller
+// Changed default.
+//
 // Revision 1.79  2002/08/16 18:45:55  kooiman
 // Added optional screen update delay during tuner frequency switch.
 //
@@ -682,6 +685,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     {
         pSource->SetOverscan();
         pSource->Start();
+
+        // Anti-plop and update screen delay timers may have been cancelled.
+        // Reset to default values
+        bNoScreenUpdateDuringTuning = FALSE;   
+        Audio_Unmute();
 
         // Sets processor Affinity and Thread priority according to menu selection
         SetThreadProcessorAndPriority();

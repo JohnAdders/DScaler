@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.44 2002-06-20 20:00:35 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.45 2002-09-07 20:59:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/06/20 20:00:35  robmuller
+// Implemented videotext search highlighting.
+//
 // Revision 1.43  2002/05/30 19:09:06  robmuller
 // Clear VisiblePage on channel change.
 //
@@ -1535,7 +1538,7 @@ BOOL VT_SearchPage(TVTPage* pPage)
     for(int iRow = 1; iRow < 25; iRow++)
     {
         int iChar = 0;
-        BOOL bHasDouble;
+        BOOL bHasDouble = FALSE;
         BYTE cChar;
         //Skip second line of double line
         if (bHasDouble)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster2.cpp,v 1.1 2003-06-12 10:28:45 atnak Exp $
+// $Id: SettingsMaster2.cpp,v 1.2 2003-06-15 06:01:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/06/12 10:28:45  atnak
+// Initial release
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +113,7 @@ CSettingsMaster::~CSettingsMaster()
 
 GROUPID CSettingsMaster::CreateSettingsGroup(GROUPID nParentId, const char* szName)
 {
-	ASSERT(nParentId >= 0 && nParentId < n_vGroups.size());
+	ASSERT(nParentId >= 0 && nParentId < m_vGroups.size());
 
 	// Get the parent group
 	CSettingsGroup* pParentGroup = m_vGroups[nParentId]->pGroup;
@@ -131,7 +134,7 @@ GROUPID CSettingsMaster::CreateSettingsGroup(const char* szName)
 
 void CSettingsMaster::DeleteGroup(GROUPID nGroupId)
 {
-	ASSERT(nParentId >= 0 && nParentId < n_vGroups.size());
+	ASSERT(nGroupId >= 0 && nGroupId < m_vGroups.size());
 
 	CSettingsGroup* pGroup = GetGroupById(nGroupId);
 
@@ -549,7 +552,7 @@ CSettingWrapper::~CSettingWrapper()
 {
 	if (m_pHookFunc != NULL)
 	{
-		m_pActualSetting->HookOnChange(NULL, NULL);
+//		m_pActualSetting->HookOnChange(NULL, NULL); \todo
 	}
 }
 
@@ -642,11 +645,11 @@ void CSettingWrapper::HookExternalChange(ExternalQueryFunc* pFunc, void* pContex
 
 	if (m_pHookFunc != NULL)
 	{
-		m_pActualSetting->HookOnChange(SettingChangeCallback, this);
+//		m_pActualSetting->HookOnChange(SettingChangeCallback, this); \todo
 	}
 	else
 	{
-		m_pActualSetting->HookOnChange(NULL, NULL);
+//		m_pActualSetting->HookOnChange(NULL, NULL); \todo
 	}
 }
 

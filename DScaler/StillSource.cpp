@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.41 2002-03-08 06:54:07 trbarry Exp $
+// $Id: StillSource.cpp,v 1.42 2002-03-30 13:18:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/03/08 06:54:07  trbarry
+// Make DumbAlignedMalloc function, adjust sizes, misc bugs, add resize code
+//
 // Revision 1.38  2002/02/27 20:47:21  laurentg
 // Still settings
 //
@@ -180,6 +183,9 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 
 static eStillFormat FormatSaving = STILL_TIFF_RGB;
 static int SlideShowDelay = 5;
+
+char SavingPath[MAX_PATH];
+
 
 BYTE* DumbAlignedMalloc(int siz)
 {
@@ -362,21 +368,8 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     {
         int NewWidth;
         int NewHeight;
-/*
-        // The file can be read by DScaler but its size is too high for DScaler
-        if ( (m_Width - DSCALER_MAX_WIDTH) >= (m_Height - DSCALER_MAX_HEIGHT) )
-        {
-            NewWidth = DSCALER_MAX_WIDTH;
-            NewHeight = m_Height - m_Width + DSCALER_MAX_WIDTH;
-        }
-        else
-        {
-            NewHeight = DSCALER_MAX_HEIGHT;
-            NewWidth = m_Width - m_Height + DSCALER_MAX_HEIGHT;
-        }
-*/
-		// Laurent, not sure about the above. did you mean something like this? - TRB 3/8/2002
-		NewHeight = m_Height;
+
+        NewHeight = m_Height;
 		NewWidth = m_Width;
 
         if (m_Width > DSCALER_MAX_WIDTH)
@@ -844,8 +837,7 @@ BOOL CStillSource::ReadNextFrameInFile()
             }
             else
             {
-                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
-//                  m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
             }
             return TRUE;
         }
@@ -1113,9 +1105,21 @@ SETTING* Still_GetSetting(STILL_SETTING Setting)
 void Still_ReadSettingsFromIni()
 {
     int i;
+    char ExePath[MAX_PATH];
+    struct stat st;
+
     for(i = 0; i < STILL_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(StillSettings[i]));
+    }
+
+    GetModuleFileName (NULL, ExePath, sizeof(ExePath));
+    *(strrchr(ExePath, '\\')) = '\0';
+    GetPrivateProfileString("Still", "SavingPath", ExePath, SavingPath, MAX_PATH, GetIniFileForSettings());
+    if (stat(SavingPath, &st))
+    {
+        LOG(1, "Incorrect path %s for snapshots; using %s", SavingPath, ExePath);
+        strcpy(SavingPath, ExePath);
     }
 }
 
@@ -1126,6 +1130,10 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(StillSettings[i]), bOptimizeFileAccess);
     }
+	if(bOptimizeFileAccess == FALSE)
+	{
+	    WritePrivateProfileString("Still", "SavingPath", SavingPath, GetIniFileForSettings());
+	}
 }
 
 void Still_ShowUI()
@@ -1157,7 +1165,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     unsigned char* srcp1;
     unsigned char* srcp2;
 
-    LOG(1, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
+    LOG(2, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
 
     // Allocate memory for the new YUYV buffer
     BYTE* NewBuf = (BYTE*)malloc(NewWidth * 2 * NewHeight * sizeof(BYTE));

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.13 2002-03-29 09:14:00 robmuller Exp $
+// $Id: StillProvider.cpp,v 1.14 2002-03-30 13:18:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/03/29 09:14:00  robmuller
+// Fixed lockup when there are too many captures.
+//
 // Revision 1.12  2002/02/18 23:25:01  laurentg
 // At startup, go to the first source having a content
 // Order of still sources changed (Patterns before Snapshots)
@@ -66,6 +69,9 @@
 #include "StillProvider.h"
 #include "Other.h"
 #include "Providers.h"
+
+
+#define MAX_SNAPSHOT_FILES 10000
 
 
 CStillProvider::CStillProvider()
@@ -121,20 +127,20 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
     if(pStillSource != NULL)
     {
         int n = 0;
-        char name[13];
+        char name[MAX_PATH];
         struct stat st;
 
         if(Overlay_Lock(pInfo))
         {
-            while (n < 100)
+            while (n < MAX_SNAPSHOT_FILES)
             {
-                sprintf(name,"tv%06d.tif",++n) ;
+                sprintf(name,"%s\\tv%06d.tif",SavingPath,++n) ;
                 if (stat(name, &st))
                 {
                     break;
                 }
             }
-            if(n == 100)
+            if(n == MAX_SNAPSHOT_FILES)
             {
                 ErrorBox("Could not create a file.  You may have too many captures already.");
                 Overlay_Unlock();

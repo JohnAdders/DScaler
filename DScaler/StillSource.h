@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.23 2002-03-03 10:03:50 laurentg Exp $
+// $Id: StillSource.h,v 1.24 2002-03-30 13:18:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -155,5 +155,7 @@ SETTING* Still_GetSetting(STILL_SETTING Setting);
 void Still_ReadSettingsFromIni();
 void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Still_ShowUI();
+
+extern char SavingPath[];
 
 #endif

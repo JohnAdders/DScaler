@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.37 2002-05-23 18:45:03 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.38 2002-05-24 16:49:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/05/23 18:45:03  robmuller
+// Patch #559554 by PietOO.
+// Teletext: + text search ctrl-F & next F3
+//
 // Revision 1.36  2002/03/12 23:29:44  robmuller
 // Implemented functions VT_GetNextPage() and VT_GetPreviousPage().
 //
@@ -1486,7 +1490,7 @@ BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_INITDIALOG:
         SetDlgItemText(hDlg, IDC_COMBO1, VTSearchString);
         
-        break;
+        return TRUE;
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
@@ -1494,9 +1498,10 @@ BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDOK: 
             //Park it
             GetDlgItemText(hDlg, IDC_COMBO1, VTSearchString, 40);
-        case IDCANCEL:
-            KillTimer(hDlg, 0);
             EndDialog(hDlg, TRUE);
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, FALSE);
             break;
 
         default:

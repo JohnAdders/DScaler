@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.157 2002-05-24 15:12:12 tobbej Exp $
+// $Id: DScaler.cpp,v 1.158 2002-05-24 16:49:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.157  2002/05/24 15:12:12  tobbej
+// changed timer status updates to use strncpy insted of strcpy
+//
 // Revision 1.156  2002/05/24 10:52:58  robmuller
 // Applied patch #559718 by PietOO.
 // SleepTimer implementation.
@@ -1258,11 +1261,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_SEARCH:
             if(VTState != VT_OFF)
             {
-                //Get searchstring dialog
-                DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH), hWnd, (DLGPROC)VTSearchProc);
-
-                //Search all pages and act
-                SearchGotoVTPage(true);
+                //Get searchstring dialog, search only if user pressed OK button/enter key
+                if(DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH), hWnd, 
+                    (DLGPROC)VTSearchProc))
+                {
+                    //Search all pages and act
+                    SearchGotoVTPage(true);
+                }
 
             }
             break;

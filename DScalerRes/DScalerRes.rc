@@ -787,15 +787,15 @@ BEGIN
 END
 
 IDD_VTSEARCH DIALOG DISCARDABLE  0, 0, 186, 65
-STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
-    WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
 CAPTION "VIDEOTEXT Search."
 FONT 8, "MS Sans Serif"
 BEGIN
+    COMBOBOX        IDC_COMBO1,7,17,172,13,CBS_SIMPLE | CBS_SORT | 
+                    CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,38,36,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,96,36,50,14
-    COMBOBOX        IDC_COMBO1,7,17,172,13,CBS_DROPDOWN | CBS_SORT | 
-                    CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Please enter a plain search-text:",IDC_STATIC,7,7,104,
                     10
 END
@@ -1063,8 +1063,11 @@ BEGIN
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "Videotext-Infos",             IDM_VT_OUT, GRAYED
-        MENUITEM "VPS-Infos",                   IDM_VPS_OUT, GRAYED
+        MENUITEM "&Search VideoText ...\tCtrl+F", IDM_VT_SEARCH
+        MENUITEM "Search &Next\tF3",            IDM_VT_SEARCHNEXT
+        MENUITEM SEPARATOR
+        MENUITEM "Videotext-Infos ...",         IDM_VT_OUT, GRAYED
+        MENUITEM "VPS-Infos ...",               IDM_VPS_OUT, GRAYED
     END
     POPUP "Adva&nced"
     BEGIN

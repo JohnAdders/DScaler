@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.5 2001-08-06 03:00:17 ericschmidt Exp $
+// $Id: TSOptionsDlg.cpp,v 1.6 2001-11-20 11:43:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/08/06 03:00:17  ericschmidt
+// solidified auto-pixel-width detection
+// preliminary pausing-of-live-tv work
+//
 // Revision 1.4  2001/07/26 15:28:14  ericschmidt
 // Added AVI height control, i.e. even/odd/averaged lines.
 // Used existing cpu/mmx detection in TimeShift code.
@@ -191,11 +195,16 @@ void CTSOptionsDlg::OnButtonOK()
 {
     if (UpdateData(TRUE))
     {
-        int index = m_WaveInComboBox.GetCurSel();
-        TimeShift::OnSetWaveInDevice(index != CB_ERR ? index : 0);
+        char name[MAXPNAMELEN];
+        if(m_WaveInComboBox.GetLBText(m_WaveInComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
+        {
+            TimeShift::OnSetWaveInDevice((char*) &name);
+        }
 
-        index = m_WaveOutComboBox.GetCurSel();
-        TimeShift::OnSetWaveOutDevice(index != CB_ERR ? index : 0);
+        if(m_WaveOutComboBox.GetLBText(m_WaveOutComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
+        {
+            TimeShift::OnSetWaveOutDevice((char*) &name);
+        }
 
         TimeShift::OnSetRecHeight(m_RecHeight);
 
@@ -210,6 +219,11 @@ BOOL CTSOptionsDlg::OnInitDialog()
     // Should've already created the timeshift object elsehere.
     ASSERT(TimeShift::m_pTimeShift != NULL);
 
+    int index = 0;
+    char* waveInDevice;
+    if(!TimeShift::OnGetWaveInDevice(&waveInDevice))
+        waveInDevice = NULL;
+
     UINT numDevs = waveInGetNumDevs();
     for (UINT i = 0; i < numDevs; ++i)
     {        
@@ -217,14 +231,21 @@ BOOL CTSOptionsDlg::OnInitDialog()
         memset(&caps, 0, sizeof(caps));
         waveInGetDevCaps(i, &caps, sizeof(caps));
 
+        if(waveInDevice && !lstrcmp(caps.szPname, waveInDevice))
+        {
+            index = i;
+        }
+
         // If getdevcaps fails, this'll just put a blank line in the control.
         m_WaveInComboBox.AddString(caps.szPname);
     }
 
-    int index;
-    if (!TimeShift::OnGetWaveInDevice(&index))
-        index = 0;
     m_WaveInComboBox.SetCurSel(index);
+
+    index = 0;
+    char* waveOutDevice;
+    if(!TimeShift::OnGetWaveOutDevice(&waveOutDevice))
+        waveOutDevice = NULL;
 
     numDevs = waveOutGetNumDevs();
     for (i = 0; i < numDevs; ++i)
@@ -233,13 +254,15 @@ BOOL CTSOptionsDlg::OnInitDialog()
         memset(&caps, 0, sizeof(caps));
         waveOutGetDevCaps(i, &caps, sizeof(caps));
 
+        if(waveOutDevice && !lstrcmp(caps.szPname, waveOutDevice))
+        {
+            index = i;
+        }
+
         // If getdevcaps fails, this'll just put a blank line in the control.
         m_WaveOutComboBox.AddString(caps.szPname);
     }
 
-    index;
-    if (!TimeShift::OnGetWaveOutDevice(&index))
-        index = 0;
     m_WaveOutComboBox.SetCurSel(index);
 
     index;

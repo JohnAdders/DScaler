@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.6 2001-08-06 03:00:17 ericschmidt Exp $
+// $Id: TimeShift.h,v 1.7 2001-11-20 11:43:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/08/06 03:00:17  ericschmidt
+// solidified auto-pixel-width detection
+// preliminary pausing-of-live-tv work
+//
 // Revision 1.5  2001/07/27 15:52:26  ericschmidt
 // P3-or-better handling.
 // Preliminary pixel-width auto-setting on playback.
@@ -115,10 +119,10 @@ private:
     // Can only call this when stopped.  Call before control methods.
     static bool OnSetDimensions(void);
     static bool OnGetDimenstions(int *w, int *h);
-    static bool OnSetWaveInDevice(int index);
-    static bool OnGetWaveInDevice(int *index);
-    static bool OnSetWaveOutDevice(int index);
-    static bool OnGetWaveOutDevice(int *index);
+    static bool OnSetWaveInDevice(char *pszDevice);
+    static bool OnGetWaveInDevice(char **ppszDevice);
+    static bool OnSetWaveOutDevice(char *pszDevice);
+    static bool OnGetWaveOutDevice(char **ppszDevice);
     static bool OnSetRecHeight(int index);
     static bool OnGetRecHeight(int *index);
 
@@ -146,8 +150,10 @@ private:
 
     // These simply implement their public static counterparts.
     bool SetDimensions(); // Uses current DScaler settings to set.
-    bool SetWaveInDevice(int index);
-    bool SetWaveOutDevice(int index);
+    bool SetWaveInDevice(char* pszDevice);
+    bool SetWaveOutDevice(char* pszDevice);
+    bool GetWaveInDeviceIndex(int *index);
+    bool GetWaveOutDeviceIndex(int *index);
     bool SetRecHeight(int index);
     bool CompressionOptions(void);
 
@@ -208,13 +214,13 @@ private:
     // Also, isn't 2 all we need?  It is for waveOut for sure, but waveIn?
 
     HWAVEIN m_hWaveIn;
-    int m_waveInDevice;
+    char m_waveInDevice[MAXPNAMELEN];
     WAVEHDR m_waveInHdrs[4];
     BYTE m_waveInBufs[4][1<<17]; // 512KB total buffer space.
     int m_nextWaveInHdr;
 
     HWAVEOUT m_hWaveOut;
-    int m_waveOutDevice;
+    char m_waveOutDevice[MAXPNAMELEN];
     WAVEHDR m_waveOutHdrs[4];
     BYTE m_waveOutBufs[4][1<<15]; // 128KB total buffer space.
     int m_nextWaveOutHdr;

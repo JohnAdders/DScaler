@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.8 2001-11-04 14:44:58 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.9 2001-11-20 11:43:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/04 14:44:58  adcockj
+// Bug fixes
+//
 // Revision 1.7  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -930,15 +933,16 @@ TimeShift::TimeShift()
     m_nextSampleRecord(0),
     m_nextSamplePlay(0),
     m_hWaveIn(NULL),
-    m_waveInDevice(0),
     m_nextWaveInHdr(0),
     m_hWaveOut(NULL),
-    m_waveOutDevice(0),
     m_nextWaveOutHdr(0),
     m_recHeight(TS_HALFHEIGHTEVEN),
     m_origPixelWidth(CurrentX),
     m_origUseMixer(-1)
 {
+    m_waveInDevice[0] = 0;
+    m_waveOutDevice[0] = 0;
+
     InitializeCriticalSection(&m_lock);
 
     if (CpuFeatureFlags & P3_OR_BETTER)
@@ -1061,32 +1065,32 @@ bool TimeShift::OnGetDimenstions(int *w, int *h)
     return false;
 }
 
-bool TimeShift::OnSetWaveInDevice(int index)
+bool TimeShift::OnSetWaveInDevice(char *pszDevice)
 {
-    return m_pTimeShift ? m_pTimeShift->SetWaveInDevice(index) : false;
+    return m_pTimeShift ? m_pTimeShift->SetWaveInDevice(pszDevice) : false;
 }
 
-bool TimeShift::OnGetWaveInDevice(int *index)
+bool TimeShift::OnGetWaveInDevice(char **ppszDevice)
 {
-    if (m_pTimeShift && index)
+    if (m_pTimeShift && ppszDevice)
     {
-        *index = m_pTimeShift->m_waveInDevice;
+        *ppszDevice = (char*)&m_pTimeShift->m_waveInDevice;
         return true;
     }
 
     return false;
 }
 
-bool TimeShift::OnSetWaveOutDevice(int index)
+bool TimeShift::OnSetWaveOutDevice(char *pszDevice)
 {
-    return m_pTimeShift ? m_pTimeShift->SetWaveOutDevice(index) : false;
+    return m_pTimeShift ? m_pTimeShift->SetWaveOutDevice(pszDevice) : false;
 }
 
-bool TimeShift::OnGetWaveOutDevice(int *index)
+bool TimeShift::OnGetWaveOutDevice(char **ppszDevice)
 {
-    if (m_pTimeShift && index)
+    if (m_pTimeShift && ppszDevice)
     {
-        *index = m_pTimeShift->m_waveOutDevice;
+        *ppszDevice = (char*)&m_pTimeShift->m_waveOutDevice;
         return true;
     }
 
@@ -1271,24 +1275,44 @@ bool TimeShift::Record(bool pause)
     // Mute the current live feed if we're pausing, waveIn can still hear it.
     if (pause)
         DoMute(true);
+    
 
-    // If this fails, we just won't have any audio recorded, still continue.
-    if (waveInOpen(&m_hWaveIn,
-                   m_waveInDevice,
-                   &m_waveFormat,
-                   (DWORD)WaveInProc,
-                   0,
-                   CALLBACK_FUNCTION) == MMSYSERR_NOERROR)
+    int DeviceId;
+    if(!GetWaveInDeviceIndex(&DeviceId))
     {
-        for (int i = 0; i < sizeof(m_waveInHdrs)/sizeof(*m_waveInHdrs); ++i)
+        ;
+    }
+    else
+    {
+        MMRESULT rslt;
+
+        // If this fails, we just won't have any audio recorded, still continue.
+        rslt = waveInOpen(&m_hWaveIn,
+                        DeviceId,
+                        &m_waveFormat,
+                        (DWORD)WaveInProc,
+                        0,
+                        CALLBACK_FUNCTION);
+
+        if(rslt==MMSYSERR_NOERROR)
         {
-            memset(m_waveInHdrs + i, 0, sizeof(WAVEHDR));
-            m_waveInHdrs[i].lpData = (char *)m_waveInBufs[i];
-            m_waveInHdrs[i].dwBufferLength = sizeof(m_waveInBufs[i]);
-            waveInPrepareHeader(m_hWaveIn, m_waveInHdrs + i, sizeof(WAVEHDR));
-            waveInAddBuffer(m_hWaveIn, m_waveInHdrs + i, sizeof(WAVEHDR));
+            for (int i = 0; i < sizeof(m_waveInHdrs)/sizeof(*m_waveInHdrs); ++i)
+            {
+                memset(m_waveInHdrs + i, 0, sizeof(WAVEHDR));
+                m_waveInHdrs[i].lpData = (char *)m_waveInBufs[i];
+                m_waveInHdrs[i].dwBufferLength = sizeof(m_waveInBufs[i]);
+                waveInPrepareHeader(m_hWaveIn, m_waveInHdrs + i, sizeof(WAVEHDR));
+                waveInAddBuffer(m_hWaveIn, m_waveInHdrs + i, sizeof(WAVEHDR));
+            }
+        }
+        else
+        {
+            char szErrorMsg[200];
+            sprintf(szErrorMsg, "Error %x in waveInOpen()", rslt);
+            //TODO: tell the user, that something wrong
         }
     }
+
 
     m_mode = pause ? MODE_PAUSED : MODE_RECORDING;
 
@@ -1369,19 +1393,37 @@ bool TimeShift::Play(void)
 
     m_gotPauseBits = false;
 
-    // If this fails, we just won't have audio playback.
-    // FIXME: Need to make sure our m_waveFormat jives with the new m_infoAudio.
-    if (waveOutOpen(&m_hWaveOut,
-                    m_waveOutDevice,
-                    &m_waveFormat,
-                    (DWORD)WaveOutProc,
-                    0,
-                    CALLBACK_FUNCTION | WAVE_ALLOWSYNC) == MMSYSERR_NOERROR)
+    int DeviceId;
+    if(!GetWaveOutDeviceIndex(&DeviceId))
     {
-        // Start sending audio data to the waveOut device.
-        // Call twice to keep two buffers going at all times.
-        ReadAudio();
-        ReadAudio();
+        ;
+    }
+    else
+    {
+        MMRESULT rslt;
+  
+        // If this fails, we just won't have audio playback.
+        // FIXME: Need to make sure our m_waveFormat jives with the new m_infoAudio.
+        rslt = waveOutOpen(&m_hWaveOut,
+                           DeviceId,
+                           &m_waveFormat,
+                           (DWORD)WaveOutProc,
+                           0,
+                           CALLBACK_FUNCTION | WAVE_ALLOWSYNC);
+    
+        if(rslt==MMSYSERR_NOERROR)
+        {
+            // Start sending audio data to the waveOut device.
+            // Call twice to keep two buffers going at all times.
+            ReadAudio();
+            ReadAudio();
+        }
+        else
+        {
+            char szErrorMsg[200];
+            sprintf(szErrorMsg, "Error %x in waveOutOpen()", rslt);
+            //TODO: tell the user, that something wrong
+        }
     }
 
     m_mode = m_mode == MODE_PAUSED ? MODE_SHIFTING : MODE_PLAYING;
@@ -1819,11 +1861,11 @@ bool TimeShift::SetDimensions(void)
     return false;
 }
 
-bool TimeShift::SetWaveInDevice(int index)
+bool TimeShift::SetWaveInDevice(char* pszDevice)
 {
-    if (m_mode == MODE_STOPPED)
+    if (m_mode == MODE_STOPPED && pszDevice)
     {
-        m_waveInDevice = index;
+        lstrcpy((char*) m_waveInDevice, pszDevice);
 
         return true;
     }
@@ -1831,13 +1873,67 @@ bool TimeShift::SetWaveInDevice(int index)
     return false;
 }
 
-bool TimeShift::SetWaveOutDevice(int index)
+bool TimeShift::SetWaveOutDevice(char* pszDevice)
 {
-    if (m_mode == MODE_STOPPED)
+    if (m_mode == MODE_STOPPED && pszDevice)
     {
-        m_waveOutDevice = index;
+        lstrcpy((char*) m_waveOutDevice, pszDevice);
 
         return true;
+    }
+
+    return false;
+}
+
+bool TimeShift::GetWaveInDeviceIndex(int *index)
+{
+    int count = waveInGetNumDevs();
+
+    if(!m_waveInDevice[0] && count)
+    {
+        *index = 0;
+        return true;
+    }
+
+    for(int i=0; i < count; ++i)
+    {
+        WAVEINCAPS wic;
+        if(waveInGetDevCaps(i, &wic, sizeof(wic))==MMSYSERR_NOERROR)
+        {
+            if(!lstrcmp(m_waveInDevice, wic.szPname))
+            {
+                *index = i;
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool TimeShift::GetWaveOutDeviceIndex(int *index)
+{
+    int count = waveOutGetNumDevs();
+
+    if(!m_waveOutDevice[0] && count)
+    {
+        *index = 0;
+        return true;
+    }
+
+    for(int i=0; i < count; ++i)
+    {
+        WAVEOUTCAPS wic;
+        if(waveOutGetDevCaps(i, &wic, sizeof(wic))==MMSYSERR_NOERROR)
+        {
+            if(!lstrcmp(m_waveOutDevice, wic.szPname))
+            {
+                *index = i;
+
+                return true;
+            }
+        }
     }
 
     return false;
@@ -1995,11 +2091,11 @@ bool TimeShift::ReadFromIni(void)
 
     UpdateAudioInfo();
 
-    m_waveInDevice = GetPrivateProfileInt(
-        "TimeShift", "WaveIn", m_waveInDevice, szIniFile);
+    GetPrivateProfileString(
+        "TimeShift", "WaveInDevice", "", m_waveInDevice, MAXPNAMELEN, szIniFile);
 
-    m_waveOutDevice = GetPrivateProfileInt(
-        "TimeShift", "WaveOut", m_waveOutDevice, szIniFile);
+    GetPrivateProfileString(
+        "TimeShift", "WaveOutDevice", "", m_waveOutDevice, MAXPNAMELEN, szIniFile);
 
     m_recHeight = GetPrivateProfileInt(
         "TimeShift", "RecHeight", m_recHeight, szIniFile);
@@ -2028,14 +2124,14 @@ bool TimeShift::WriteToIni(void)
     WritePrivateProfileStruct(
         "TimeShift", "Audio", &m_waveFormat, sizeof(m_waveFormat), szIniFile);
 
-    sprintf(temp, "%u", m_waveInDevice);
-    WritePrivateProfileString("TimeShift", "WaveIn", temp, szIniFile);
+    WritePrivateProfileString("TimeShift", "WaveInDevice", m_waveInDevice, szIniFile);
 
-    sprintf(temp, "%u", m_waveOutDevice);
-    WritePrivateProfileString("TimeShift", "WaveOut", temp, szIniFile);
+    WritePrivateProfileString("TimeShift", "WaveOutDevice", m_waveOutDevice, szIniFile);
 
     sprintf(temp, "%u", m_recHeight);
     WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
 
     return true;
 }
+
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.18 2002-05-19 01:18:42 dschmelzer Exp $
+// $Id: BT848Card.h,v 1.19 2002-06-05 20:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/05/19 01:18:42  dschmelzer
+// Added a seventh input
+//
 // Revision 1.17  2002/04/07 10:37:53  adcockj
 // Made audio source work per input
 //
@@ -275,11 +278,13 @@ private:
 
     void StandardBT848InputSelect(int nInput);
     void Sasem4ChannelInputSelect(int nInput);
+    void RSBTCardInputSelect(int nInput);
 
     void InitPXC200();
     void InitHauppauge();
     void InitVoodoo();
     void InitSasem();
+    void InitRSBT();
 
     void SetAudioGVBCTV3PCI(eSoundChannel soundChannel);
     void SetAudioLT9415(eSoundChannel soundChannel);

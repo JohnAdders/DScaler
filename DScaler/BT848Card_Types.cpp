@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.16 2002-03-24 19:40:14 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.17 2002-06-05 20:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/03/24 19:40:14  adcockj
+// Added Skywell magic card
+//
 // Revision 1.15  2002/03/01 06:37:47  dschmelzer
 // Update Silk Settings for Latest Drivers
 //
@@ -1978,13 +1981,8 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 	// Card Number 54 - RS BT Card
 	{
 		"RS BT Card",
-		4,
+		7,
 		{
-			{
-				"Tuner",
-				INPUTTYPE_TUNER,
-				2,
-			},
 			{
 				"Composite",
 				INPUTTYPE_COMPOSITE,
@@ -2000,15 +1998,35 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 				INPUTTYPE_COMPOSITE,
 				1,
 			},
+			{
+				"CCIR 1",
+				INPUTTYPE_CCIR,
+				0,
+			},
+			{
+				"CCIR 2",
+				INPUTTYPE_CCIR,
+				0,
+			},
+			{
+				"CCIR 3",
+				INPUTTYPE_CCIR,
+				0,
+			},
+			{
+				"CCIR 4",
+				INPUTTYPE_CCIR,
+				0,
+			},
 		},
 		PLL_28,
 		TUNER_ABSENT,
 		SOUNDCHIP_NONE,
+		InitRSBT,
+		RSBTCardInputSelect,
 		NULL,
-		StandardBT848InputSelect,
-		NULL,
-		0x1F800,
-		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+		0,
+		{0, 0, 0, 0, 0, 0, }
 	},
 	// Card Number 55 - Cybermail AV
 	{
@@ -3380,6 +3398,37 @@ eTVCardId CBT848Card::AutoDetectCardType()
     return TVCARD_UNKNOWN;
 }
 
+void CBT848Card::RSBTCardInputSelect(int nInput)
+{
+    StandardBT848InputSelect(nInput);
+    switch(nInput)
+    {
+    case 3:
+        AndOrDataDword(BT848_GPIO_DATA, 0x1000, ~0x1F800);
+        Sleep();
+        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
+        break;
+    case 4:
+        AndOrDataDword(BT848_GPIO_DATA, 0x9000, ~0x1F800);
+        Sleep();
+        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
+        break;
+    case 5:
+        AndOrDataDword(BT848_GPIO_DATA, 0x11000, ~0x1F800);
+        Sleep();
+        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
+        break;
+    case 6:
+        AndOrDataDword(BT848_GPIO_DATA, 0x19000, ~0x1F800);
+        Sleep();
+        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
+        break;
+    default:
+        break;
+    }
+}
+
+
 void CBT848Card::StandardBT848InputSelect(int nInput)
 {
     if(nInput >= m_TVCards[m_CardType].NumInputs)
@@ -3556,6 +3605,13 @@ void CBT848Card::InitHauppauge()
 void CBT848Card::InitVoodoo()
 {
     BootMSP34xx(20);
+}
+
+void  CBT848Card::InitRSBT()
+{
+    WriteDword(BT848_GPIO_OUT_EN, 0xFFFFFF);
+    WriteDword(BT848_GPIO_DATA, 0xFFFFFF);
+    WriteDword(BT848_GPIO_OUT_EN, 0x1F800);
 }
 
 void CBT848Card::InitSasem()

@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.8 2002-10-17 06:48:22 flibuste2 Exp $
+// $Id: Toolbars.cpp,v 1.9 2002-10-22 00:12:32 flibuste2 Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/17 06:48:22  flibuste2
+// Modified the channel classes :
+// -- changed ASCII save file
+// -- added CChannelList class
+//
 // Revision 1.7  2002/10/17 00:28:41  flibuste2
 // Channels.h / Channels.cpp define the current CHANNELLIST and COUNTRYLIST
 // This first check-in is prior to other enhancements and mostly reproduces
@@ -76,9 +81,9 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 
-typedef vector<CChannel*> CHANNELLIST;
+//typedef vector<CChannel*> CHANNELLIST;
 
-extern CChannelList MyChannels;
+extern CUserChannels MyChannels;
 extern long CurrentProgram;
 
 

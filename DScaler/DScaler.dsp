@@ -199,6 +199,30 @@ SOURCE=.\Crash.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CT2388xCard.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xCard_H3D.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xCard_Types.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xProvider.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xSource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xSource_UI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\debug.cpp
 # End Source File
 # Begin Source File
@@ -323,6 +347,10 @@ InputName=FD_CommonFunctions
 # End Source File
 # Begin Source File
 
+SOURCE=.\FD_Prog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\FieldTiming.cpp
 # End Source File
 # Begin Source File
@@ -424,6 +452,10 @@ SOURCE=.\ProgramList.cpp
 # Begin Source File
 
 SOURCE=.\Providers.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SAA7118.cpp
 # End Source File
 # Begin Source File
 
@@ -635,6 +667,22 @@ SOURCE=.\Crash.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\CT2388x_Defines.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xCard.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xProvider.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CT2388xSource.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\debug.h
 # End Source File
 # Begin Source File
@@ -728,6 +776,10 @@ SOURCE=.\FD_Common.h
 # Begin Source File
 
 SOURCE=.\FD_CommonFunctions.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\FD_Prog.h
 # End Source File
 # Begin Source File
 
@@ -848,6 +900,10 @@ SOURCE=.\Providers.h
 # Begin Source File
 
 SOURCE=.\resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SAA7118.h
 # End Source File
 # Begin Source File
 

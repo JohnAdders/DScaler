@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.82 2002-09-09 03:00:15 lindsey Exp $
+// $Id: OutThreads.cpp,v 1.83 2002-09-11 18:19:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2002/09/09 03:00:15  lindsey
+// Allowed filters to ask for more than 4 fields of history
+//
 // Revision 1.81  2002/09/07 20:59:45  kooiman
 // Small fixes.
 //
@@ -313,6 +316,7 @@
 #include "Status.h"
 #include "FD_60Hz.h"
 #include "FD_50Hz.h"
+#include "FD_Prog.h"
 #include "FD_Common.h"
 #include "FD_CommonFunctions.h"
 #include "CPU.h"
@@ -701,9 +705,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
         // reset the static variables in the detection code
         if (bIsPAL)
+        {
             UpdatePALPulldownMode(NULL);
+            UpdateProgPulldownModePAL(NULL);
+        }
         else
+        {
             UpdateNTSCPulldownMode(NULL);
+            UpdateProgPulldownModeNTSC(NULL);
+        }
 
         while(!bStopThread)
         {
@@ -855,10 +865,25 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     else
                     {
                         // we have an progressive source
-                        if (SetProgressiveMode())
+                        // so do special progressive detect
+                        // so that we can do judder termination on
+                        // 24/25 fps sources even though we get the feed
+                        // at a full frame rate
+                        SetProgressiveMode();
+
+                        if(bAutoDetectMode == TRUE)
                         {
-                            CurrentMethod = GetCurrentDeintMethod();
+                            PerformProgFilmDetectCalculations(&Info);
+                            if(bIsPAL)
+                            {
+                                UpdateProgPulldownModePAL(&Info);
+                            }
+                            else
+                            {
+                                UpdateProgPulldownModeNTSC(&Info);
+                            }
                         }
+                        CurrentMethod = GetCurrentDeintMethod();
                     }
 
                     pPerf->StopCount(PERF_PULLDOWN_DETECT);
@@ -1171,7 +1196,7 @@ void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Decoding / Output Settings", OutThreadsSettings, DOACCURATEFLIPS);
+    return new CTreeSettingsGeneric("Decoding / Output Settings", OutThreadsSettings, OUTTHREADS_SETTING_LASTONE);
 }
 
 void OutThreads_SetMenu(HMENU hMenu)

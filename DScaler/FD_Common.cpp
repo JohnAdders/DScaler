@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.25 2002-07-28 08:11:27 laurentg Exp $
+// $Id: FD_Common.cpp,v 1.26 2002-09-11 18:19:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/07/28 08:11:27  laurentg
+// "Include Chroma in Detection" removed from the menus
+//
 // Revision 1.24  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -160,6 +163,47 @@ void PerformFilmDetectCalculations(TDeinterlaceInfo* pInfo, BOOL NeedComb, BOOL 
         }
     }
 }
+
+// performs a full compare over the progressive frames
+// store the result of the diff in FieldDiff
+void PerformProgFilmDetectCalculations(TDeinterlaceInfo* pInfo)
+{
+    // If we skipped a field, treat the new one as maximally different.
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL ||
+        pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK ||
+        pInfo->PictureHistory[1]->Flags & PICTURE_INTERLACED_MASK)
+    {
+        pInfo->FieldDiff = 0x7fffffff;
+        return;
+    }
+
+    int Line;
+    long DiffFactor = 0;
+    DWORD Pitch = pInfo->InputPitch;
+    
+    qwBitShift = BitShift;
+
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + 32 * Pitch;
+    BYTE* PreviousLine = pInfo->PictureHistory[1]->pData + 32 * Pitch;
+
+    for (Line = 32; Line < pInfo->FieldHeight - 32; ++Line)
+    {
+        DiffFactor += CalcDiffFactorLine(CurrentLine + 32,
+                                            PreviousLine + 32,
+                                            pInfo->LineLength - 64);
+        CurrentLine += Pitch;
+        PreviousLine += Pitch;
+    }
+
+    _asm
+    {
+        emms
+    }
+
+    pInfo->FieldDiff = DiffFactor;
+    LOG(2, "Frame %d FD = %d", pInfo->CurrentFrame, pInfo->FieldDiff);
+}
+
 
 long CalculateTotalCombFactor(DWORD* Combs, TDeinterlaceInfo* pInfo)
 {

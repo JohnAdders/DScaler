@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.8 2002-09-10 12:13:37 atnak Exp $
+// $Id: PCICard.cpp,v 1.9 2002-09-11 18:19:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/10 12:13:37  atnak
+// Fixed MaskDataDword() and AndDataDword()
+//
 // Revision 1.7  2002/06/16 18:53:36  robmuller
 // Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
 // Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
@@ -128,7 +131,17 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 
         hwParam.dwAddress = m_BusNumber;
         hwParam.dwValue = m_MemoryAddress;
-        hwParam.dwFlags = m_MemoryLength;
+
+		// we need to map much more memory for the CT2388x
+		// \todo should make this a parameter
+		if((VendorID == 0x14F1) && (DeviceID == 0x8800))
+		{
+			hwParam.dwFlags = 0x400000;
+		}
+		else
+		{
+			hwParam.dwFlags = m_MemoryLength;
+		}
 
         dwStatus = m_pDriver->SendCommand(ioctlMapMemory,
                                             &hwParam,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.41 2002-08-13 21:16:06 kooiman Exp $
+// $Id: Providers.cpp,v 1.42 2002-09-11 18:19:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/08/13 21:16:06  kooiman
+// Added source change notification.
+//
 // Revision 1.40  2002/08/11 12:12:10  laurentg
 // Cut BT Card setup and general hardware setup in two different windows
 //
@@ -169,6 +172,7 @@
 #include "Providers.h"
 #include "BT848Provider.h"
 #include "StillProvider.h"
+#include "CT2388xProvider.h"
 #include "HardwareDriver.h"
 #include "OutThreads.h"
 #include "DScaler.h"
@@ -200,6 +204,7 @@ static std::vector<TSourceChangeNotification> vSourceChangeNotificationList;
 static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
 static CBT848Provider* BT848Provider = NULL;
+static CCT2388xProvider* CT2388xProvider = NULL;
 static CStillProvider* StillProvider = NULL;
 static long CurrentSource = 0;
 static long DefSourceIdx = -1;
@@ -231,6 +236,26 @@ int Providers_Load(HMENU hMenu)
                 Source->Name = BT848Provider->GetSource(i)->GetMenuLabel();
             }
             Source->Object = BT848Provider->GetSource(i);
+            Source->DisplayInMenu = TRUE;
+            Sources.push_back(Source);
+            // Mute the audio of this source
+            CurrentSource = i;
+            Audio_Mute();
+        }
+
+        CT2388xProvider = new CCT2388xProvider(HardwareDriver);
+        for(i = 0; i < CT2388xProvider->GetNumberOfSources(); ++i)
+        {
+            Source = new TSource;
+            if (CT2388xProvider->GetSource(i)->GetMenuLabel() == NULL)
+            {
+                Source->Name = "CT Card";
+            }
+            else
+            {
+                Source->Name = CT2388xProvider->GetSource(i)->GetMenuLabel();
+            }
+            Source->Object = CT2388xProvider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
             // Mute the audio of this source
@@ -350,6 +375,11 @@ void Providers_Unload()
     {
         delete BT848Provider;
         BT848Provider = NULL;
+    }
+    if(CT2388xProvider != NULL)
+    {
+        delete CT2388xProvider;
+        CT2388xProvider = NULL;
     }
     if(HardwareDriver != NULL)
     {

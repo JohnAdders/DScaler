@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.39 2002-08-21 20:26:31 kooiman Exp $
+// $Id: Settings.cpp,v 1.40 2002-09-11 18:19:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/08/21 20:26:31  kooiman
+// Added option to ChangeDefault to only change the current value if you want it.
+//
 // Revision 1.38  2002/08/13 21:21:24  kooiman
 // Improved settings per channel to account for source and input changes.
 //
@@ -149,6 +152,7 @@
 #include "FD_50Hz.h"
 #include "FD_60Hz.h"
 #include "FD_Common.h"
+#include "FD_Prog.h"
 #include "Slider.h"
 #include "Splash.h"
 #include "OSD.h"
@@ -287,6 +291,12 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)SettingsPerChannel_GetSetting,
         SettingsPerChannel_ReadSettingsFromIni,
         SettingsPerChannel_WriteSettingsToIni,
+    },
+    {
+        WM_FDPROG_GETVALUE,
+        (GENERICGETSETTING*)FDProg_GetSetting,
+        FDProg_ReadSettingsFromIni,
+        FDProg_WriteSettingsToIni,
     },
 };
 

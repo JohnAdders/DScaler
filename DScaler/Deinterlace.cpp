@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.40 2002-08-09 09:40:25 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.41 2002-09-11 18:19:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/08/09 09:40:25  laurentg
+// Cut the deinterlace menu only if there are a lot of deinterlace modes
+//
 // Revision 1.39  2002/07/29 21:33:06  laurentg
 // "Show Video Method UI" feature restored
 //
@@ -143,6 +146,7 @@
 #include "OutThreads.h"
 #include "FD_50Hz.h"
 #include "FD_60Hz.h"
+#include "FD_Prog.h"
 #include "AspectRatio.h"
 #include "Status.h"
 #include "OSD.h"
@@ -154,12 +158,57 @@ long    nInitialTicks = -1;
 long    nLastTicks = 0;
 long    nTotalDeintModeChanges = 0;
 
-DEINTERLACE_METHOD ProgressiveMethod =
+DEINTERLACE_METHOD ProgressiveMethods[PROGPULLDOWNMODES_LAST_ONE] =
+{
+    // PROG_22_PULLDOWN_ODD
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
-        "Progressive Scan", NULL, FALSE, FALSE, CopyFrame, 25, 30, 
+        "2:2 Pulldown Flip on Odd", "2:2 Odd", FALSE, TRUE, ProgMode, 25, 30, 
         0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE, 
-    };
+    },
+    // PROG_22_PULLDOWN_EVEN
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "2:2 Pulldown Flip on Even", "2:2 Even", FALSE, TRUE, ProgMode, 25, 30, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE,
+    },
+    // FILM_32_PULLDOWN_0
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "3:2 Pulldown Skip 1st Full Frame", "3:2 1st", FALSE, TRUE, ProgMode, 1000, 24, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+    },
+    // FILM_32_PULLDOWN_1
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "3:2 Pulldown Skip 2nd Full Frame", "3:2 2nd", FALSE, TRUE, ProgMode, 1000, 24, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+    },
+    // FILM_32_PULLDOWN_2
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "3:2 Pulldown Skip 3rd Full Frame", "3:2 3rd", FALSE, TRUE, ProgMode, 1000, 24, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+    },
+    // FILM_32_PULLDOWN_3
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "3:2 Pulldown Skip 4th Full Frame", "3:2 4th", FALSE, TRUE, ProgMode, 1000, 24, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+    },
+    // FILM_32_PULLDOWN_4
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, ProgMode, 1000, 24, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+    },
+    // NORMAL_PROGRESSIVE
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "Progressive Scan", NULL, FALSE, FALSE, ProgMode, 50, 60, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE, 
+    },
+};
 
 DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 {
@@ -167,55 +216,55 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "2:2 Pulldown Flip on Odd", "2:2 Odd", FALSE, TRUE, FilmModePALOdd, 25, 30, 
-        6, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE, 
     },
     // FILM_22_PULLDOWN_EVEN
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "2:2 Pulldown Flip on Even", "2:2 Even", FALSE, TRUE, FilmModePALEven, 25, 30, 
-        7, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_0
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Skip 1st Full Frame", "3:2 1st", FALSE, TRUE, FilmModeNTSC1st, 1000, 24, 
-        8, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_1
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Skip 2nd Full Frame", "3:2 2nd", FALSE, TRUE, FilmModeNTSC2nd, 1000, 24, 
-        9, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_2
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Skip 3rd Full Frame", "3:2 3rd", FALSE, TRUE, FilmModeNTSC3rd, 1000, 24, 
-        10, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_3
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Skip 4th Full Frame", "3:2 4th", FALSE, TRUE, FilmModeNTSC4th, 1000, 24, 
-        11, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_4
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Skip 5th Full Frame", "3:2 5th", FALSE, TRUE, FilmModeNTSC5th, 1000, 24, 
-        12, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_32_PULLDOWN_COMB
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "3:2 Pulldown Use Comb Info", "3:2 Comb", FALSE, TRUE, FilmModeNTSCComb, 1000, 60, 
-        50, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
     // FILM_22_PULLDOWN_COMB
     {
         sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
         "2:2 Pulldown Use Comb Info", "2:2 Comb", FALSE, TRUE, FilmModePALComb, 1000, 60, 
-        50, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
+        0, NULL, 0, NULL, NULL, NULL, NULL, 3, 0, 0, -1, NULL, 0, FALSE, FALSE,
     },
 };
 
@@ -227,6 +276,7 @@ BOOL bIsFilmMode = FALSE;
 
 long gVideoPulldownMode = 0;
 eFilmPulldownMode gFilmPulldownMode = FILMPULLDOWNMODES_LAST_ONE;
+eProgressivePulldownMode gProgMode = NORMAL_PROGRESSIVE;
 
 BOOL bIsProgressiveMode = FALSE;
 
@@ -240,8 +290,11 @@ void ResetDeinterlaceStats()
     DWORD CurrentTickCount = GetTickCount();
     int i;
 
-    ProgressiveMethod.ModeChanges = 0;
-    ProgressiveMethod.ModeTicks = 0;
+    for(i = 0; i < PROGPULLDOWNMODES_LAST_ONE; i++)
+    {
+        ProgressiveMethods[i].ModeChanges = 0;
+        ProgressiveMethods[i].ModeTicks = 0;
+    }
     for(i = 0; i < FILMPULLDOWNMODES_LAST_ONE; i++)
     {
         FilmDeintMethods[i].ModeChanges = 0;
@@ -264,7 +317,7 @@ DEINTERLACE_METHOD* GetCurrentDeintMethod()
 {
     if(bIsProgressiveMode)
     {
-        return &ProgressiveMethod;
+        return ProgressiveMethods + gProgMode;
     }
     else if(bIsFilmMode)
     {
@@ -276,9 +329,9 @@ DEINTERLACE_METHOD* GetCurrentDeintMethod()
     }
 }
 
-DEINTERLACE_METHOD* GetProgressiveMethod()
+DEINTERLACE_METHOD* GetProgressiveMethod(int Mode)
 {
-    return &ProgressiveMethod;
+    return &(ProgressiveMethods[Mode]);
 }
 
 DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode)
@@ -353,6 +406,12 @@ eFilmPulldownMode GetFilmMode()
     }
 }
 
+eProgressivePulldownMode GetProgMode()
+{
+    return gProgMode;
+}
+
+
 BOOL SetProgressiveMode()
 {
     if (!bIsProgressiveMode)
@@ -381,7 +440,7 @@ BOOL SetProgressiveMode()
         nLastTicks = CurrentTickCount;
         Deinterlace_SetStatus(GetDeinterlaceModeName());
         nTotalDeintModeChanges++;
-        ProgressiveMethod.ModeChanges++;
+        gProgMode = NORMAL_PROGRESSIVE;
         if(WereInHalfHeight != InHalfHeightMode())
         {
             WorkoutOverlaySize(TRUE);
@@ -405,7 +464,7 @@ BOOL UnsetProgressiveMode()
         }
         else
         {
-            ProgressiveMethod.ModeTicks += CurrentTickCount - nLastTicks;
+            ProgressiveMethods[gProgMode].ModeTicks += CurrentTickCount - nLastTicks;
         }
 
         bIsProgressiveMode = FALSE;
@@ -432,72 +491,123 @@ BOOL UnsetProgressiveMode()
 
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
 {
-    if (!bIsProgressiveMode && (gFilmPulldownMode != Mode || bIsFilmMode == FALSE))
+    if(bIsProgressiveMode)
     {
-        DWORD CurrentTickCount = GetTickCount();
-        BOOL WereInHalfHeight = InHalfHeightMode();
+        if(Mode <= FILM_32_PULLDOWN_4)
+        {
+            DWORD CurrentTickCount = GetTickCount();
 
-        if (nInitialTicks == -1)
-        {
-            nInitialTicks = CurrentTickCount;
-            nLastTicks = CurrentTickCount;
-        }
-        else
-        {
-            if(bIsFilmMode == TRUE)
+            if (nInitialTicks == -1)
             {
-                FilmDeintMethods[gFilmPulldownMode].ModeTicks += CurrentTickCount - nLastTicks;
+                nInitialTicks = CurrentTickCount;
+                nLastTicks = CurrentTickCount;
             }
             else
             {
-                VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
+                ProgressiveMethods[gProgMode].ModeTicks += CurrentTickCount - nLastTicks;
             }
+            gProgMode = (eProgressivePulldownMode)Mode;
+            ProgressiveMethods[gProgMode].ModeChanges++;
+            nLastTicks = CurrentTickCount;
+            bIsFilmMode = TRUE;
+            Deinterlace_SetStatus(GetDeinterlaceModeName());
         }
-        gFilmPulldownMode = Mode;
-        bIsFilmMode = TRUE;
-        nLastTicks = CurrentTickCount;
-        Deinterlace_SetStatus(GetDeinterlaceModeName());
-        nTotalDeintModeChanges++;
-        FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
-        if(WereInHalfHeight != InHalfHeightMode())
+    }
+    else
+    {
+        if (gFilmPulldownMode != Mode || bIsFilmMode == FALSE)
         {
-            WorkoutOverlaySize(TRUE);
+            DWORD CurrentTickCount = GetTickCount();
+            BOOL WereInHalfHeight = InHalfHeightMode();
+
+            if (nInitialTicks == -1)
+            {
+                nInitialTicks = CurrentTickCount;
+                nLastTicks = CurrentTickCount;
+            }
+            else
+            {
+                if(bIsFilmMode == TRUE)
+                {
+                    FilmDeintMethods[gFilmPulldownMode].ModeTicks += CurrentTickCount - nLastTicks;
+                }
+                else
+                {
+                    VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
+                }
+            }
+            gFilmPulldownMode = Mode;
+            bIsFilmMode = TRUE;
+            nLastTicks = CurrentTickCount;
+            Deinterlace_SetStatus(GetDeinterlaceModeName());
+            nTotalDeintModeChanges++;
+            gProgMode = NORMAL_PROGRESSIVE;
+            FilmDeintMethods[gProgMode].ModeChanges++;
+            if(WereInHalfHeight != InHalfHeightMode())
+            {
+                WorkoutOverlaySize(TRUE);
+            }
         }
     }
 }
 
 void SetVideoDeinterlaceMode(int Mode)
 {
-    if (!bIsProgressiveMode && (gVideoPulldownMode != Mode || bIsFilmMode == TRUE))
+    if(bIsProgressiveMode)
     {
-        DWORD CurrentTickCount = GetTickCount();
-        BOOL WereInHalfHeight = InHalfHeightMode();
+        if(bIsFilmMode == TRUE)
+        {
+            DWORD CurrentTickCount = GetTickCount();
 
-        if (nInitialTicks == -1)
-        {
-            nInitialTicks = CurrentTickCount;
-            nLastTicks = CurrentTickCount;
-        }
-        else
-        {
-            if(bIsFilmMode == TRUE)
+            if (nInitialTicks == -1)
             {
-                FilmDeintMethods[gFilmPulldownMode].ModeTicks += CurrentTickCount - nLastTicks;
+                nInitialTicks = CurrentTickCount;
+                nLastTicks = CurrentTickCount;
             }
             else
             {
-                VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
+                ProgressiveMethods[gProgMode].ModeTicks += CurrentTickCount - nLastTicks;
             }
+            gProgMode = NORMAL_PROGRESSIVE;
+            ProgressiveMethods[gProgMode].ModeChanges++;
+            nLastTicks = CurrentTickCount;
+            bIsFilmMode = FALSE;
+            Deinterlace_SetStatus(GetDeinterlaceModeName());
         }
-        gVideoPulldownMode = Mode;
-        bIsFilmMode = FALSE;
-        nLastTicks = CurrentTickCount;
-        Deinterlace_SetStatus(GetDeinterlaceModeName());
-        nTotalDeintModeChanges++;
-        VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
-        if(WereInHalfHeight != InHalfHeightMode())
+    }
+    else
+    {
+        if (gVideoPulldownMode != Mode || bIsFilmMode == TRUE)
         {
-            WorkoutOverlaySize(TRUE);
+            DWORD CurrentTickCount = GetTickCount();
+            BOOL WereInHalfHeight = InHalfHeightMode();
+
+            if (nInitialTicks == -1)
+            {
+                nInitialTicks = CurrentTickCount;
+                nLastTicks = CurrentTickCount;
+            }
+            else
+            {
+                if(bIsFilmMode == TRUE)
+                {
+                    FilmDeintMethods[gFilmPulldownMode].ModeTicks += CurrentTickCount - nLastTicks;
+                }
+                else
+                {
+                    VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
+                }
+            }
+            gVideoPulldownMode = Mode;
+            bIsFilmMode = FALSE;
+            nLastTicks = CurrentTickCount;
+            Deinterlace_SetStatus(GetDeinterlaceModeName());
+            nTotalDeintModeChanges++;
+            VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
+            if(WereInHalfHeight != InHalfHeightMode())
+            {
+                WorkoutOverlaySize(TRUE);
+            }
         }
     }
 }
@@ -521,7 +631,7 @@ char* GetDeinterlaceModeName()
 {
     if(bIsProgressiveMode)
     {
-        return ProgressiveMethod.szName;
+        return ProgressiveMethods[gProgMode].szName;
     }
     else if(bIsFilmMode)
     {
@@ -947,26 +1057,32 @@ void Deinterlace_SetMenu(HMENU hMenu)
 {
     int i;
 
+
     EnableMenuItem(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode ? MF_ENABLED : MF_GRAYED);
-    CheckMenuItemBool(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode);
+    CheckMenuItemBool(hMenu, IDM_PROGRESSIVE_SCAN, (bIsProgressiveMode && !bIsFilmMode));
 
-    EnableMenuItem(hMenu, IDM_22PULLODD, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-    EnableMenuItem(hMenu, IDM_22PULLEVEN, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-    EnableMenuItem(hMenu, IDM_32PULL1, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-    EnableMenuItem(hMenu, IDM_32PULL2, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-    EnableMenuItem(hMenu, IDM_32PULL3, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-    EnableMenuItem(hMenu, IDM_32PULL4, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-    EnableMenuItem(hMenu, IDM_32PULL5, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
-
-    if(bIsFilmMode && !bIsProgressiveMode)
+    if(bIsFilmMode)
     {
-        CheckMenuItemBool(hMenu, IDM_22PULLODD, (gFilmPulldownMode == FILM_22_PULLDOWN_ODD) );
-        CheckMenuItemBool(hMenu, IDM_22PULLEVEN, (gFilmPulldownMode == FILM_22_PULLDOWN_EVEN) );
-        CheckMenuItemBool(hMenu, IDM_32PULL1, (gFilmPulldownMode == FILM_32_PULLDOWN_0) );
-        CheckMenuItemBool(hMenu, IDM_32PULL2, (gFilmPulldownMode == FILM_32_PULLDOWN_1) );
-        CheckMenuItemBool(hMenu, IDM_32PULL3, (gFilmPulldownMode == FILM_32_PULLDOWN_2) );
-        CheckMenuItemBool(hMenu, IDM_32PULL4, (gFilmPulldownMode == FILM_32_PULLDOWN_3) );
-        CheckMenuItemBool(hMenu, IDM_32PULL5, (gFilmPulldownMode == FILM_32_PULLDOWN_4) );
+        if(bIsProgressiveMode)
+        {
+            CheckMenuItemBool(hMenu, IDM_22PULLODD, (gProgMode == PROG_22_PULLDOWN_ODD) );
+            CheckMenuItemBool(hMenu, IDM_22PULLEVEN, (gProgMode == PROG_22_PULLDOWN_EVEN) );
+            CheckMenuItemBool(hMenu, IDM_32PULL1, (gProgMode == PROG_32_PULLDOWN_0) );
+            CheckMenuItemBool(hMenu, IDM_32PULL2, (gProgMode == PROG_32_PULLDOWN_1) );
+            CheckMenuItemBool(hMenu, IDM_32PULL3, (gProgMode == PROG_32_PULLDOWN_2) );
+            CheckMenuItemBool(hMenu, IDM_32PULL4, (gProgMode == PROG_32_PULLDOWN_3) );
+            CheckMenuItemBool(hMenu, IDM_32PULL5, (gProgMode == PROG_32_PULLDOWN_4) );
+        }
+        else
+        {
+            CheckMenuItemBool(hMenu, IDM_22PULLODD, (gFilmPulldownMode == FILM_22_PULLDOWN_ODD) );
+            CheckMenuItemBool(hMenu, IDM_22PULLEVEN, (gFilmPulldownMode == FILM_22_PULLDOWN_EVEN) );
+            CheckMenuItemBool(hMenu, IDM_32PULL1, (gFilmPulldownMode == FILM_32_PULLDOWN_0) );
+            CheckMenuItemBool(hMenu, IDM_32PULL2, (gFilmPulldownMode == FILM_32_PULLDOWN_1) );
+            CheckMenuItemBool(hMenu, IDM_32PULL3, (gFilmPulldownMode == FILM_32_PULLDOWN_2) );
+            CheckMenuItemBool(hMenu, IDM_32PULL4, (gFilmPulldownMode == FILM_32_PULLDOWN_3) );
+            CheckMenuItemBool(hMenu, IDM_32PULL5, (gFilmPulldownMode == FILM_32_PULLDOWN_4) );
+        }
     }
     else
     {
@@ -993,24 +1109,4 @@ void Deinterlace_SetMenu(HMENU hMenu)
     }
 
     EnableMenuItem(hMenu, IDM_DEINTERLACE_SHOWVIDEOMETHODUI, bIsProgressiveMode || (VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI == NULL) ? MF_GRAYED : MF_ENABLED);
-}
-
-BOOL CopyFrame(TDeinterlaceInfo* pInfo)
-{
-    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
-    if (CurrentLine != NULL)
-    {
-        BYTE *lpOverlay = pInfo->Overlay;
-        for (int i = 0; i < pInfo->FrameHeight; i++)
-        {
-            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);
-            lpOverlay += pInfo->OverlayPitch;
-            CurrentLine += pInfo->InputPitch;
-        }
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
 }

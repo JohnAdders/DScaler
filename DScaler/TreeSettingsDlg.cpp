@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.16 2002-09-02 19:07:21 kooiman Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.17 2002-09-11 18:19:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/02 19:07:21  kooiman
+// Added BT848 advanced settings to advanced settings dialog
+//
 // Revision 1.15  2002/08/07 09:55:24  kooiman
 // Added 'save per channel' settings to advanced settings.
 //
@@ -78,6 +81,7 @@
 #include "FD_50Hz.h"
 #include "FD_60Hz.h"
 #include "FD_Common.h"
+#include "FD_Prog.h"
 #include "AspectRatio.h"
 #include "FieldTiming.h"
 #include "DebugLog.h"
@@ -490,6 +494,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    dlg.AddPage(pPage, Root);
 
         pPage = FD_Common_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_PULLDOWN_SHARED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = FDProg_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_PULLDOWN_SHARED);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);

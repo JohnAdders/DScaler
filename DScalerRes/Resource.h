@@ -42,6 +42,7 @@
 #define ID_BTCARD_MSP34X0AUDIOSETTINGS  210
 #define ID_BTCARD_MSP34X0AUDIOSETTINGS211 211
 #define ID_BTCARD_MSP34X0AUIOSETTINGS   212
+#define IDC_CT2388X                     213
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -223,6 +224,8 @@
 #define IDM_SOURCE_INPUT5               1093
 #define IDM_SOURCE_INPUT6               1094
 #define IDM_SOURCE_INPUT7               1095
+#define IDM_SOURCE_INPUT8               1096
+#define IDM_SOURCE_INPUT9               1097
 #define IDM_SOURCE_CCIR656_1            1098
 #define IDM_SOURCE_CCIR656_2            1099
 #define IDM_SOURCE_CCIR656_3            1100
@@ -1034,6 +1037,7 @@
 #define IDM_AUDIOSTANDARD_9             32809
 #define IDM_AUDIOSTANDARD_10            32810
 #define IDM_INTERNAL_OSS                32811
+#define IDM_PROGRESSIVE                 32812
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1054,7 +1058,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        213
+#define _APS_NEXT_RESOURCE_VALUE        214
 #define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         8052
 #define _APS_NEXT_SYMED_VALUE           2391

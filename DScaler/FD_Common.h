@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.h,v 1.13 2002-06-13 12:10:22 adcockj Exp $
+// $Id: FD_Common.h,v 1.14 2002-09-11 18:19:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@ BOOL TrackModeSwitches();
 
 
 void PerformFilmDetectCalculations(TDeinterlaceInfo* pInfo, BOOL NeedComb, BOOL NeedDiff);
+void PerformProgFilmDetectCalculations(TDeinterlaceInfo* pInfo);
 
 typedef BOOL (__cdecl PFNFLIP)(int CurrentField, BOOL bIsOdd);
 

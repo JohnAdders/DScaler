@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.18 2002-07-29 21:33:06 laurentg Exp $
+// $Id: Deinterlace.h,v 1.19 2002-09-11 18:19:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,20 @@ enum eFilmPulldownMode
     FILMPULLDOWNMODES_LAST_ONE = 9
 };
 
+enum eProgressivePulldownMode
+{
+    PROG_22_PULLDOWN_ODD = 0,
+    PROG_22_PULLDOWN_EVEN,
+    PROG_32_PULLDOWN_0,
+    PROG_32_PULLDOWN_1,
+    PROG_32_PULLDOWN_2,
+    PROG_32_PULLDOWN_3,
+    PROG_32_PULLDOWN_4,
+    NORMAL_PROGRESSIVE,
+    PROGPULLDOWNMODES_LAST_ONE
+};
+
+
 #define MAX_FIELD_HISTORY 5
 
 BOOL LoadDeinterlacePlugins();
@@ -75,7 +89,7 @@ void UnloadDeinterlacePlugins();
 void ResetDeinterlaceStats();
 
 DEINTERLACE_METHOD* GetCurrentDeintMethod();
-DEINTERLACE_METHOD* GetProgressiveMethod();
+DEINTERLACE_METHOD* GetProgressiveMethod(int Mode);
 DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode);
 DEINTERLACE_METHOD* GetVideoDeintIndex(int Index);
 DEINTERLACE_METHOD* GetFilmDeintMethod(eFilmPulldownMode Mode);
@@ -84,11 +98,13 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID);
 BOOL IsProgressiveMode();
 BOOL IsFilmMode();
 eFilmPulldownMode GetFilmMode();
+eProgressivePulldownMode GetProgMode();
 BOOL InHalfHeightMode();
 BOOL SetProgressiveMode();
 BOOL UnsetProgressiveMode();
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode);
 void SetVideoDeinterlaceIndex(int index);
+void SetVideoDeinterlaceMode(int Mode);
 char* GetDeinterlaceModeName();
 void IncrementDeinterlaceMode();
 void DecrementDeinterlaceMode();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.68 2002-08-02 20:16:43 laurentg Exp $
+// $Id: OSD.cpp,v 1.69 2002-09-11 18:19:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/08/02 20:16:43  laurentg
+// Suppress call to RemoveMenu
+//
 // Revision 1.67  2002/07/30 21:20:59  laurentg
 // Merge of menus View, AspectRatio and OSD
 //
@@ -1159,25 +1162,28 @@ static void OSD_RefreshStatisticsScreen(double Size)
     sprintf (szInfo, "Number of changes : %ld", nTotalDeintModeChanges);
     OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 //    OSD_AddText("changes - % of time - Mode", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-    DeintMethod = GetProgressiveMethod();
-    if (DeintMethod->ModeChanges > 0)
+    for (i = 0 ; i < PROGPULLDOWNMODES_LAST_ONE ; i++)
     {
-        pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-        if (pos > 0)
+        DeintMethod = GetProgressiveMethod(i);
+        if (DeintMethod->ModeChanges > 0)
         {
-            if (DeintMethod == GetCurrentDeintMethod())
+            pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+            if (pos > 0)
             {
-                Color = OSD_COLOR_CURRENT;
-                ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
+                if (DeintMethod == GetCurrentDeintMethod())
+                {
+                    Color = OSD_COLOR_CURRENT;
+                    ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
+                }
+                else
+                {
+                    Color = -1;
+                    ticks = DeintMethod->ModeTicks;
+                }
+                sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
+                nLine++;
             }
-            else
-            {
-                Color = -1;
-                ticks = DeintMethod->ModeTicks;
-            }
-            sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
-            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
-            nLine++;
         }
     }
     for (i = 0 ; i < FILMPULLDOWNMODES_LAST_ONE ; i++)
@@ -2006,16 +2012,16 @@ void OSD_SetMenu(HMENU hMenu)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            EnableMenuItem(hMenuOSD, i+18, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
+            CheckMenuItemBool(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active);
         }
     }
 }
 
 BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID)
 {
-    if ( (wMenuID >= IDM_OSDSCREEN_ACTIVATE) && (wMenuID < (IDM_OSDSCREEN_ACTIVATE+10)) )
+    if ( (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )
     {
-        OSD_ActivateInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_ACTIVATE, 0);
+        OSD_ActivateInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_SHOW, 0);
         return TRUE;
     }
     else if ( !pCalibration->IsRunning() && (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.87 2002-09-06 15:08:10 kooiman Exp $
+// $Id: DS_Control.h,v 1.88 2002-09-11 18:19:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2002/09/06 15:08:10  kooiman
+// Mixer lines now source dependent.
+//
 // Revision 1.86  2002/08/29 23:53:40  lindsey
 // Added video mode setting to temporal comb filter
 //
@@ -1286,7 +1289,51 @@ typedef enum
 } FLT_INVERSION_SETTING;
 
 #define WM_FLT_INVERSION_GETVALUE     (WM_APP + 46)
-#define WM_FLT_INVERSION_SETVALUE     (WM_APP + 147)
-#define WM_FLT_INVERSION_CHANGEVALUE  (WM_APP + 248)
+#define WM_FLT_INVERSION_SETVALUE     (WM_APP + 146)
+#define WM_FLT_INVERSION_CHANGEVALUE  (WM_APP + 246)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in CT2388xSource.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    CT2388XBRIGHTNESS = 0,
+    CT2388XCONTRAST,
+    CT2388XHUE,
+    CT2388XSATURATION,
+    CT2388XSATURATIONU,
+    CT2388XSATURATIONV,
+    CT2388XOVERSCAN,
+    CT2388XVIDEOSOURCE,
+    CT2388XTVFORMAT,
+    CT2388XSAVEPERINPUT,
+    CT2388XSAVEPERFORMAT,
+    CT2388XSAVETVFORMATPERINPUT,
+    CT2388XISINPUTPROGRESSIVE,
+    CT2388X_SETTING_LASTONE,
+} CT2388X_SETTING;
+
+#define WM_CT2388X_GETVALUE           (WM_APP + 47)
+#define WM_CT2388X_SETVALUE           (WM_APP + 147)
+#define WM_CT2388X_CHANGEVALUE        (WM_APP + 247)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FD_Prog.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    PROGTHRESHHOLDSTILL = 0,
+    PROGTHRESHHOLDMOTION,
+    PROGREPEATCOUNT,
+    FDPROG_SETTING_LASTONE,
+} FDPROG_SETTING;
+
+#define WM_FDPROG_GETVALUE            (WM_APP + 48)
+#define WM_FDPROG_SETVALUE            (WM_APP + 148)
+#define WM_FDPROG_CHANGEVALUE         (WM_APP + 248)
+
 
 #endif

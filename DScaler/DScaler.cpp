@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.220 2002-08-13 21:19:18 kooiman Exp $
+// $Id: DScaler.cpp,v 1.221 2002-09-11 18:19:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.220  2002/08/13 21:19:18  kooiman
+// Moved settings per channel setup before first channel change.
+//
 // Revision 1.219  2002/08/12 19:59:04  laurentg
 // Selection of video card to adjust DScaler settings
 //
@@ -3049,6 +3052,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     else if(strcmp(ChannelString, "0000000") == 0)
                     {
                         SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT7, 0);
+                    }
+                    else if(strcmp(ChannelString, "00000000") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT8, 0);
                     }
                 }
             }

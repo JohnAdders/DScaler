@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.22 2002-09-04 11:58:45 kooiman Exp $
+// $Id: BT848Card_Types.cpp,v 1.23 2002-09-11 18:19:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.21  2002/08/03 17:57:52  kooiman
 // Added new cards & tuners. Changed the tuner combobox into a sorted list.
 //
@@ -4011,22 +4014,22 @@ void CBT848Card::RSBTCardInputSelect(int nInput)
     {
     case 3:
         AndOrDataDword(BT848_GPIO_DATA, 0x1000, ~0x1F800);
-        Sleep();
+        ::Sleep(50);
         AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
         break;
     case 4:
         AndOrDataDword(BT848_GPIO_DATA, 0x9000, ~0x1F800);
-        Sleep();
+        ::Sleep(50);
         AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
         break;
     case 5:
         AndOrDataDword(BT848_GPIO_DATA, 0x11000, ~0x1F800);
-        Sleep();
+        ::Sleep(50);
         AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
         break;
     case 6:
         AndOrDataDword(BT848_GPIO_DATA, 0x19000, ~0x1F800);
-        Sleep();
+        ::Sleep(50);
         AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
         break;
     default:
@@ -4250,6 +4253,11 @@ void  CBT848Card::InitRSBT()
 {
     WriteDword(BT848_GPIO_OUT_EN, 0xFFFFFF);
     WriteDword(BT848_GPIO_DATA, 0xFFFFFF);
+	::Sleep(50);
+    WriteDword(BT848_GPIO_DATA, 0x000000);
+	::Sleep(50);
+    WriteDword(BT848_GPIO_DATA, 0xFFFFFF);
+	::Sleep(50);
     WriteDword(BT848_GPIO_OUT_EN, 0x1F800);
 }
 

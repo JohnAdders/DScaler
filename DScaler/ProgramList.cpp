@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.53 2002-03-13 15:32:45 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.54 2002-04-13 18:56:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/03/13 15:32:45  robmuller
+// Fixed problem when selecting None from the channel combo box.
+//
 // Revision 1.52  2002/03/11 21:38:24  robmuller
 // Enabled auto scroll to the program list box.
 // Insert icon from the program list is now visible before the channel has moved.
@@ -1520,8 +1523,8 @@ void Channels_SetMenu(HMENU hMenu)
     HMENU hMenuChannels(GetChannelsSubmenu());
     if(hMenuChannels == NULL) return;
 
-    BOOL bHasTuner = Providers_GetCurrentSource()->HasTuner();
-    BOOL bInTunerMode = Providers_GetCurrentSource()->IsInTunerMode();
+    BOOL bHasTuner = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->HasTuner() : FALSE;
+    BOOL bInTunerMode = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->IsInTunerMode() : FALSE;
 
     for (int i(0); i < GetMenuItemCount(hMenuChannels); ++i)
     {

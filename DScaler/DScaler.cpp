@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.145 2002-04-06 11:46:46 laurentg Exp $
+// $Id: DScaler.cpp,v 1.146 2002-04-13 18:56:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.145  2002/04/06 11:46:46  laurentg
+// Check that the current source is not NULL to avoid DScaler exits
+//
 // Revision 1.144  2002/03/24 18:56:45  adcockj
 // Fix for comamnd line ini file
 //
@@ -2669,18 +2672,21 @@ void MainWndOnInitBT(HWND hWnd)
 
         bDoResize = TRUE;
         
-        // if we are in tuner mode
-        // either set channel up as requested on the command line
-        // or reset it to what is was last time
-        if (Providers_GetCurrentSource()->IsInTunerMode())
+        if (Providers_GetCurrentSource())
         {
-            if(InitialChannel >= 0)
+            // if we are in tuner mode
+            // either set channel up as requested on the command line
+            // or reset it to what is was last time
+            if (Providers_GetCurrentSource()->IsInTunerMode())
             {
-                Channel_Change(InitialChannel);
-            }
-            else
-            {
-                Channel_Reset();
+                if(InitialChannel >= 0)
+                {
+                    Channel_Change(InitialChannel);
+                }
+                else
+                {
+                    Channel_Reset();
+                }
             }
         }
         

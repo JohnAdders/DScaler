@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.29 2002-02-25 23:03:51 tobbej Exp $
+// $Id: AspectRatio.cpp,v 1.30 2002-04-13 18:56:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/02/25 23:03:51  tobbej
+// added a check for pSource==NULL in WorkoutOverlaySize
+// added logging
+//
 // Revision 1.28  2002/02/23 19:07:06  laurentg
 // New AR mode for stills having square pixels
 //
@@ -183,6 +187,8 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 {
     CFilterChain FilterChain;
     bIgnoreMouse = TRUE;
+    int SourceHeight;
+    int SourceWidth;
 
     static BOOL InFunction = FALSE;
     if(InFunction == TRUE) return;
@@ -190,6 +196,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     CAspectRectangles ar;
     CSource* pSource = Providers_GetCurrentSource();
 
+    /*
     if(pSource==NULL)
     {
         //this shoud never happen, but if it does, just log it and return so it doesn't crash
@@ -197,8 +204,13 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         LOGD("No input source in WorkoutOverlaySize()!");
         return;
     }
+    */
+
+    SourceHeight = pSource ? pSource->GetHeight() : 720;
+    SourceWidth = pSource ? pSource->GetWidth() : 480;
     // If source width or source height is null, we do nothing
-    if (pSource->GetWidth() == 0 || pSource->GetHeight() == 0)
+//    if (pSource->GetWidth() == 0 || pSource->GetHeight() == 0)
+    if (SourceWidth == 0 || SourceHeight == 0)
     {
         LOG(2,"Zero height or width in WorkoutOverlaySize!");
         LOGD("Zero height or width in WorkoutOverlaySize!");
@@ -214,18 +226,18 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     ar.m_PrevSrcRect = AspectSettings.SourceRect;
     // Source frame
     ar.m_OriginalOverlaySrcRect.left = 0;
-    ar.m_OriginalOverlaySrcRect.right = pSource->GetWidth();
+    ar.m_OriginalOverlaySrcRect.right = SourceWidth;
     ar.m_OriginalOverlaySrcRect.top = 0;
-    ar.m_OriginalOverlaySrcRect.bottom = pSource->GetHeight();
+    ar.m_OriginalOverlaySrcRect.bottom = SourceHeight;
     // Set the aspect adjustment factor...
     if (AspectSettings.SquarePixels)
     {
-        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
-                                                (double)pSource->GetWidth()/(double)pSource->GetHeight());
+        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)SourceWidth/(double)SourceHeight,
+                                                (double)SourceWidth/(double)SourceHeight);
     }
     else
     {
-        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
+        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)SourceWidth/(double)SourceHeight,
                                                 GetActualSourceFrameAspect());
     }
 
@@ -251,7 +263,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     // Build filter chain and apply
     /// \todo Filter chain should be saved and only rebuilt if options are changed
-    FilterChain.BuildFilterChain(pSource->GetWidth(), pSource->GetHeight());
+    FilterChain.BuildFilterChain(SourceWidth, SourceHeight);
     if (FilterChain.ApplyFilters(ar, allowResize))
     {
         InFunction = FALSE;

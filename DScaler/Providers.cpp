@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.30 2002-04-07 14:55:04 tobbej Exp $
+// $Id: Providers.cpp,v 1.31 2002-04-13 18:56:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/04/07 14:55:04  tobbej
+// added asf and wmv filetypes to file-open dialog
+//
 // Revision 1.29  2002/04/06 11:46:45  laurentg
 // Check that the current source is not NULL to avoid DScaler exits
 //
@@ -165,7 +168,6 @@ int Providers_Load(HMENU hMenu)
     HMENU hSubMenu = GetSubMenu(hMenu, 5);
 
     Providers_Unload();
-
     HardwareDriver = new CHardwareDriver();
     if(HardwareDriver->LoadDriver() == TRUE)
     {
@@ -188,7 +190,6 @@ int Providers_Load(HMENU hMenu)
             // Mute the audio of this source
             CurrentSource = i;
             Audio_Mute();
-            CurrentSource = 0;
         }
     }
     else
@@ -228,6 +229,7 @@ int Providers_Load(HMENU hMenu)
 #endif
 
     // Switch to the first source which access is "allowed"
+    CurrentSource = 0;
     while ((CurrentSource < Sources.size()) && !Sources[CurrentSource]->IsAccessAllowed())
     {
         CurrentSource++;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.23 2001-12-18 13:12:11 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.24 2002-04-13 18:56:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.22  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -816,7 +819,10 @@ void Mixer_Exit()
     if(pSoundSystem != NULL)
     {
         // set the chip to mute
-        Providers_GetCurrentSource()->Mute();
+        if (Providers_GetCurrentSource())
+        {
+            Providers_GetCurrentSource()->Mute();
+        }
 
 		if(bUseMixer)
 		{

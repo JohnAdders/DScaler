@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.62 2002-02-23 00:37:15 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.63 2002-04-13 18:56:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/02/23 00:37:15  laurentg
+// AR statistics included in user's action to reset statistics
+// AR statistics reseted at the startup of the decoding thread
+//
 // Revision 1.61  2002/02/20 18:38:27  tobbej
 // removed unneeded WorkoutOverlaySize
 //
@@ -461,8 +465,11 @@ void Start_Capture()
 {
     // ame sure half height Modes are set correctly
     Overlay_Clean();
-    PrepareDeinterlaceMode();
-    Start_Thread();
+    if (Providers_GetCurrentSource())
+    {
+        PrepareDeinterlaceMode();
+        Start_Thread();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -472,14 +479,19 @@ void Stop_Capture()
     {
         pCalibration->Stop();
     }
-    //  Stop The Output Thread
-    Stop_Thread();
-    Providers_GetCurrentSource()->Stop();
+    if (Providers_GetCurrentSource())
+    {
+        //  Stop The Output Thread
+        Stop_Thread();
+        Providers_GetCurrentSource()->Stop();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Reset_Capture()
 {
+    if (!Providers_GetCurrentSource())
+        return;
     Stop_Capture();
     Overlay_Clean();
     PrepareDeinterlaceMode();

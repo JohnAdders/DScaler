@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.80 2001-10-22 05:55:07 temperton Exp $
+// $Id: DScaler.cpp,v 1.81 2001-10-25 12:59:48 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2001/10/22 05:55:07  temperton
+// Teletext improvements
+//
 // Revision 1.79  2001/10/06 17:04:26  adcockj
 // Fixed teletext crashing problems
 //
@@ -321,6 +324,10 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     hPrevWindow = FindWindow((LPCTSTR) DSCALER_APPNAME, NULL);
     if (hPrevWindow != NULL)
     {
+        if (IsIconic(hPrevWindow))
+        {
+            SendMessage(hPrevWindow, WM_SYSCOMMAND, SC_RESTORE, NULL);
+        }
         SetFocus(hPrevWindow);
         SetActiveWindow(hPrevWindow);
         SetForegroundWindow(hPrevWindow);
@@ -2463,6 +2470,14 @@ void MainWndOnDestroy()
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error RestoreUsualOverscan");}
+
+    __try
+    {
+        LOG(1, "Try TimeShift::OnStop");
+
+        TimeShift::OnStop();
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnStop");}
 
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     __try

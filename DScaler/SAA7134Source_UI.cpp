@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.47 2005-03-10 05:04:55 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.48 2005-03-16 14:42:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2005/03/10 05:04:55  atnak
+// Fixed inconsistencies left from audio line reordering.  Audio Input menu was
+// broken.
+//
 // Revision 1.46  2004/11/20 14:23:56  atnak
 // Added SAA7134 card name setting for storing the card selection as text.
 //
@@ -1326,10 +1330,11 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE1));
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2));
 
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_MONO);
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_STEREO);
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_LANGUAGE1);
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_LANGUAGE2);
+	eAudioChannel audioChannel = m_pSAA7134Card->GetAudioChannel();
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, audioChannel == AUDIOCHANNEL_MONO);
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, audioChannel == AUDIOCHANNEL_STEREO || audioChannel == AUDIOCHANNEL_EXTERNAL);
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, audioChannel == AUDIOCHANNEL_LANGUAGE1);
+    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, audioChannel == AUDIOCHANNEL_LANGUAGE2);
 
     if (bDACActive)
     {

@@ -56,7 +56,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           <!-- #BeginEditable "Text" -->
           <P>
             This is yet another filter which cleans up the picture,
-            averaging out visual noise between frames.
+            averaging out visual noise between and within frames.
           </P>
           <P>
             The filter is designed to cope with the oddities of
@@ -86,7 +86,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-              Noise reduction
+              Noise Reduction
             </FONT></B>
           </P>
           <P>
@@ -98,11 +98,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             movement.
           </P>
           <P>
-            The <FONT COLOR="#993300">noise reduction</FONT>
+            The <FONT COLOR="#993300">Noise Reduction</FONT>
             setting lets you tell the filter how to make this
             tradeoff. Set it low, and the computer will play
             it safe, avoiding any parts of the image which
-            might be in motion. Set it high, and noise will be
+            might be in motion. Set it high and noise will be
             greatly reduced&nbsp;&mdash; at the cost of
             blurring and loss of detail in slowly moving
             areas. This tradeoff is affected by the amount of
@@ -122,10 +122,10 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           <P>
             There are two kinds of video which deserve some special
             consideration: cartoons and sports.  With cartoons, you
-            can use a much higher <FONT COLOR="#993300">noise
-            reduction</FONT>, since animation
+            can use a much higher <FONT COLOR="#993300">Noise
+            Reduction</FONT>, since animation
             tends to have less fine detail.  And with sports (or
-            any other show with constant motion), there isn't anything to
+            any other show with constant motion), there isn't much to
             gain from a noise filter, so you can just turn it off.  On the other
             hand, changing the settings all the time is a pain, so you might
             just want to choose a
@@ -133,7 +133,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           <P>
             Before you fine tune this setting, make sure that the
             filter has adapted to the current signal. To do so,
-            make use of the <FONT COLOR="#993300">lock dot</FONT>,
+            make use of the <FONT COLOR="#993300">Lock Dot</FONT>,
             described below.
           </P>
           <P>
@@ -149,14 +149,34 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             Regardless of your <FONT COLOR=
-            "#993300">stability</FONT> setting, the filter will
+            "#993300">Stability</FONT> setting, the filter will
             always preserve a certain amount of variation in
             order to maintain the color depth of the
             original image.
           </P>
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-              Lock dot
+              Spatial Smoothing (Enable)
+            </FONT></B>
+          </P>
+					<P>
+					  This setting decides whether you want the filter to use spatial
+						smoothing.  It&rsquo;s a very subtle smoother, and is used mostly in low
+						contrast, moving parts of the picture.  The filter is significantly 
+						(about 100 MHz) faster when spatial filtering is turned off.
+					</P>
+          <P>
+            <B><FONT FACE="Arial" COLOR="#993300">
+              Spatial Smoothing
+            </FONT></B>
+          </P>
+					<P>
+					  This determines how much spatial smoothing to use.  It&rsquo;s measured
+						in percent, relative to the amount of <FONT COLOR="#993300">Noise Reduction</FONT>.
+					</P>
+          <P>
+            <B><FONT FACE="Arial" COLOR="#993300">
+              Lock Dot
             </FONT></B>
           </P>
           <P>
@@ -192,15 +212,42 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             will <EM>never</EM> be able to figure out the noise
             level. In that case, the <A HREF="Noise.HTM">Temporal
             Noise</A> filter is probably your best bet.
-          </P>
-          <P>
+          </P>          <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-              Fast memory access
+              Readout
             </FONT></B>
           </P>
           <P>
-						 This is a <A HREF="Fast Memory Access.htm">compatability
-						 setting</A> which should normally be turned on.
+            Is the <FONT COLOR="#993300">Lock Dot</FONT> too small and green for
+						you?  Then try turning on the <FONT COLOR="#993300">Readout</FONT>!
+          </P>
+          <P>
+						 This will put a number in the upper left of the screen.  This number
+						 shows the expected color change per pixel (in Y, U, and V combined)
+						 in stationary areas of the picture.
+          </P>
+          <P>
+						 What is this good for?  <FONT COLOR="#993300">Readout</FONT> is
+						 a diagnostic, allowing people to objectively
+						 compare the noise levels of different video capture cards.
+          </P>
+					<P>
+						 Please note that noise levels depend not only on the capture card, but also
+						 on such details as contrast and color settings, pixel width, filtering,
+						 interference,
+						 and of course on the quality of the video source.  It is also worth
+						 remembering that noise level is not the only indicator of the quality
+						 of a card.  Features such as color accuracy and internal comb filtering
+						 can be much more important than a little noise.
+				  </P>					
+          <P>
+            <B><FONT FACE="Arial" COLOR="#993300">
+              Fast Memory Access
+            </FONT></B>
+          </P>
+          <P>
+            This is a <A HREF="Fast Memory Access.htm">compatibility
+            setting</A> which should normally be turned on.
           </P>
           <HR>
           <P>
@@ -286,7 +333,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             If your computer is older than a Pentium 3, Athlon, or
-            some recent Celerons, the Adaptive noise filter
+            Tualatin (~1.2 GHz) Celeron, the Adaptive noise filter
             won&rsquo;t show up in the menu&nbsp;&mdash; because
             it can&rsquo;t run. In that case, you should use either the 
             <A HREF="GradualNoise.htm">Gradual Noise</A> or
@@ -294,7 +341,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             work fine on older computers. If you can run any
             filter, Temporal Noise and Gradual Noise are roughly
             the same speed at about 100 MHz. The Adaptive Noise
-            filter is much slower, using about 200 MHz.
+            filter is much slower, using about 250 MHz.
           </P>
           <P>
             The Temporal Noise filter can give you a very
@@ -323,13 +370,14 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             well as the noise reduction.
           </P>
           <P>
+            <B><FONT FACE="Arial">Can I run more than one noise filter at the
+						same time?</FONT></B>
           </P>
           <P>
             In general, the more noise filters you run at once, the
-            <EM>worse</EM> the picture will get. In
-            particular, don&rsquo;t run the Temporal
-            Noise filter at the same time as the Gradual Noise or
-            Adaptive Noise filters. It looks awful.
+            <EM>worse</EM> the picture will get.  The combination of noise filters
+						will usually cause posterization and banding, in addition to any artifacts
+						caused by each of the individual noise filters.
           </P>
           <P>
             <B><FONT FACE="Arial">
@@ -337,12 +385,23 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             </FONT></B>
           </P>
           <P>
-            In the Advanced Video Flags dialog, there are two (well, three)
-            options which can help.  &ldquo;Horizontal Filter&rdquo; will smooth
+            If you are using a Bt8x8 card, there are a couple options in the Advanced Video Flags dialog
+            which can help.  &ldquo;Horizontal Filter&rdquo; will smooth
             the picture, cutting down on noise.  You can also reduce noise quite
             a bit (at the cost of some sharpness) by turning off &ldquo;Even Luma
             Peaking&rdquo; and &ldquo;Odd Luma Peaking&rdquo;.
           </P>
+					<HR>
+          <P>
+            <B><A NAME="Fun With Noise"><FONT FACE="Arial" SIZE="4">
+              Filter changes
+            </FONT></A></B>
+          </P>
+					<P>
+					DScaler version 4.1&nbsp;&mdash; Added spatial smoothing; Added readout;
+					Substantially improved the temporal smoothing.  As a side effect of
+					the changes, you will probably want
+					to drop your <FONT COLOR="#993300">Noise Reduction</FONT> setting by about 10 points with this release.
           <!-- #EndEditable -->
         </TD>
       </TR>

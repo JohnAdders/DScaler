@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.22 2003-08-12 19:10:05 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.23 2003-08-12 19:29:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/08/12 19:10:05  laurentg
+// Move some methods from CDSFileSource to CDSSourceBase
+//
 // Revision 1.21  2003/08/12 19:02:27  laurentg
 // Forward and backward actions added in menu
 //
@@ -706,6 +709,11 @@ void CDSSourceBase::SetPos(int pos)
 		{
 			LONGLONG RealPos = (LONGLONG)pos * 1000000;
 			pSeeking->SeekTo(RealPos);
+
+			int pos1=RealPos/10000000;
+			char text[32];
+			sprintf(text, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
+			OSD_ShowText(text, 0);
 		}
 	}
 }
@@ -741,13 +749,15 @@ void CDSSourceBase::ChangePos(int delta_sec)
 			{
 				newpos = duration;
 			}
-			if( (delta_sec < 0) && (pSeeking->GetCaps()&(AM_SEEKING_CanSeekBackwards|AM_SEEKING_CanSeekAbsolute)) )
+			if ( ( (delta_sec < 0) && (pSeeking->GetCaps()&(AM_SEEKING_CanSeekBackwards|AM_SEEKING_CanSeekAbsolute)) )
+			  || ( (delta_sec > 0) && (pSeeking->GetCaps()&(AM_SEEKING_CanSeekForwards|AM_SEEKING_CanSeekAbsolute)) ) )
 			{
 				pSeeking->SeekTo(newpos);
-			}
-			else if( (delta_sec > 0) && (pSeeking->GetCaps()&(AM_SEEKING_CanSeekForwards|AM_SEEKING_CanSeekAbsolute)) )
-			{
-				pSeeking->SeekTo(newpos);
+
+				int pos1=newpos/10000000;
+				char text[32];
+				sprintf(text, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
+				OSD_ShowText(text, 0);
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
+// $Id: GenericTuner.cpp,v 1.3 2001-11-29 17:30:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -31,7 +34,7 @@
 #include "stdafx.h"
 #include "GenericTuner.h"
 
-// FIXME not at all OO
+/// \todo not at all OO
 #define TUNERDEF(TID,VFMT,T1,T2,VHFL,VHFH,UHF,CFG,IFPC) \
         m_TunerId = (TID); \
         m_VideoFormat = (VFMT); \
@@ -303,7 +306,8 @@ eTunerId CGenericTuner::GetTunerId()
 
 eVideoFormat CGenericTuner::GetDefaultVideoFormat()
 {
-    return FORMAT_NTSC; // FIXME
+    /// \todo FIXME
+    return FORMAT_NTSC;
 }
 
 bool CGenericTuner::HasRadio() const

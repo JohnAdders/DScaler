@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.25 2001-11-26 13:02:27 adcockj Exp $
+// $Id: AspectRatio.h,v 1.26 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -91,8 +91,10 @@ void    GetDestRect(RECT* rect);
 void    SwitchToRatio(int nMode, int nRatio);
 double  GetActualSourceFrameAspect();
 
-// TODO: Cleanup this struct, possibly split into 2 or 3 structures
-// based on function of the various settings.
+/** Aspect Settings structure
+    \todo Cleanup this struct, possibly split into 2 or 3 structures
+    based on function of the various settings.
+*/
 typedef struct 
 {
     // Added variable in dTV.c to track which aspect Mode we are currently in

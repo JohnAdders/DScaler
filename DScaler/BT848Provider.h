@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.h,v 1.4 2001-11-29 14:04:06 adcockj Exp $
+// $Id: BT848Provider.h,v 1.5 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,14 @@ public:
     int GetNumberOfSources();
     CSource* GetSource(int SourceIndex);
 private:
+    ///  uses the subsystem id to determin the correct source to create
+    CBT848Source* CreateCorrectSource(
+                                        CHardwareDriver* pHardwareDriver, 
+                                        LPCSTR szSection, 
+                                        WORD VendorID, 
+                                        WORD DeviceID, 
+                                        int DeviceIndex, 
+                                        DWORD SubSystemId);
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();

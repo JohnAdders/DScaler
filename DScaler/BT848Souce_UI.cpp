@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.6 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Souce_UI.cpp,v 1.7 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.5  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -891,7 +894,7 @@ void CBT848Source::ChangeSectionNamesForInput()
 
     if(IsInTunerMode() && m_bSavePerChannel->GetValue())
     {
-        // TODO: save per channel settings as well
+        /// \todo save per channel settings as well
         //Format = m_VideoFormat->GetValue()));
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.6 2001-11-29 14:04:07 adcockj Exp $
+// $Id: PCICard.h,v 1.7 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,14 +29,13 @@ class CPCICard
 {
 public:
     DWORD GetSubSystemId();
-    DWORD ReadDword(DWORD Offset);
-protected:
-    CPCICard(CHardwareDriver* pDriver);
-    ~CPCICard();
     /**  Try to find card with given attributes on system
          @return TRUE is device is found
     */
     BOOL OpenPCICard(WORD dwVendorID, WORD dwDeviceID, int dwDeviceIndex);
+protected:
+    CPCICard(CHardwareDriver* pDriver);
+    ~CPCICard();
     /// Clos the card and unmap memory
     void ClosePCICard();
 
@@ -51,6 +50,8 @@ protected:
     BYTE ReadByte(DWORD Offset);
     /// Read a WORD from shared memory
     WORD ReadWord(DWORD Offset);
+    /// Read a DWORD from shared memory
+    DWORD ReadDword(DWORD Offset);
 
 	void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
 	void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);

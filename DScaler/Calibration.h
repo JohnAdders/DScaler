@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.19 2001-11-22 13:32:03 adcockj Exp $
+// $Id: Calibration.h,v 1.20 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,17 +31,17 @@
 #include "Setting.h"
 
 
-// Maximum number of color bars in a test pattern
+/// Maximum number of color bars in a test pattern
 #define MAX_COLOR_BARS      15
 
-// Maximum number of subset of color bars in a test pattern
+/// Maximum number of subset of color bars in a test pattern
 #define MAX_SUB_PATTERNS     8
 
-// Maximum number of test patterns managed by DScaler
+/// Maximum number of test patterns managed by DScaler
 #define MAX_TEST_PATTERNS   20
 
 
-// Define all types of content for test pattern
+/// Define all types of content for test pattern
 enum eTypeContentPattern {
     PAT_RANGE_OF_GRAY = 0,
     PAT_COLOR,
@@ -50,7 +50,7 @@ enum eTypeContentPattern {
 };
 
 
-// Define all types of adjustments for a sub-pattern
+/// Define all types of adjustments for a sub-pattern
 enum eTypeAdjust {
     ADJ_MANUAL = 0,
     ADJ_BRIGHTNESS,
@@ -63,7 +63,7 @@ enum eTypeAdjust {
 };
 
 
-// Define all types of calibration
+/// Define all types of calibration
 enum eTypeCalibration {
     CAL_MANUAL = 0,
     CAL_AUTO_BRIGHT_CONTRAST,
@@ -72,7 +72,7 @@ enum eTypeCalibration {
 };
 
 
-// Define possible colors for a bar in a test pattern
+/// Define possible colors for a bar in a test pattern
 enum eColor {
     COLOR_BLACK = 0,
     COLOR_WHITE,
@@ -83,98 +83,102 @@ enum eColor {
 };
 
 
-////////////////////////////////////////////////////////////
-// Object representing a color bar in a test pattern
-//
-// A color bar is a rectangular zone from the test pattern
-// in which all the pixels have same theoritical color.
-////////////////////////////////////////////////////////////
+/** Object representing a color bar in a test pattern
+
+    A color bar is a rectangular zone from the test pattern
+    in which all the pixels have same theoritical color.
+*/
 class CColorBar
 {
 public:
     CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
     CColorBar(CColorBar* pColorBar);
 
-    // This methode returns the position of the color bar
+    /// This method returns the position of the color bar
     void GetPosition(unsigned short int* left, unsigned short int* right, unsigned short int* top, unsigned short int* bottom);
 
-    // This methode returns the reference color
+    /// This methode returns the reference color
     void GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
-    // This methode returns the calculated average color
+    /// This methode returns the calculated average color
     void GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
-    // This methode returns the delta between reference color and calculated average color
+    /// This methode returns the delta between reference color and calculated average color
     void GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
 
-    // This method analyzed the overlay buffer to calculate average color
-    // in the zone defined by the color bar
+    /** This method analyzed the overlay buffer to calculate average color
+        in the zone defined by the color bar
+    */
     BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
-    // This method draws in the video signal a rectangle around the color bar
+    /// This method draws in the video signal a rectangle around the color bar
     void DrawPosition(TDeinterlaceInfo* pInfo);
 
 protected: 
-    // Left position of the rectangular zone in the full test pattern
-    // Range between 0 and 10000
+    /** Left position of the rectangular zone in the full test pattern
+        Range between 0 and 10000
+    */
     unsigned short int left_border;
 
-    // Right position of the rectangular zone in the full test pattern
-    // Range between 0 and 10000
+    /** Right position of the rectangular zone in the full test pattern
+        Range between 0 and 10000
+    */
     unsigned short int right_border;
 
-    // Top position of the rectangular zone in the full test pattern
-    // Range between 0 and 10000
+    /** Top position of the rectangular zone in the full test pattern
+        Range between 0 and 10000
+    */
     unsigned short int top_border;
 
-    // Bottom position of the rectangular zone in the full test pattern
-    // Range between 0 and 10000
+    /** Bottom position of the rectangular zone in the full test pattern
+        Range between 0 and 10000
+    */
     unsigned short int bottom_border;
 
-    // Abstract color of the bar
+    /// Abstract color of the bar
     eColor abstract_color;
 
-    // Reference value for luminance
+    /// Reference value for luminance
     unsigned char ref_Y_val;
 
-    // Reference value for saturation U
+    /// Reference value for saturation U
     unsigned char ref_U_val;
 
-    // Reference value for saturation V
+    /// Reference value for saturation V
     unsigned char ref_V_val;
 
-    // Reference value for red component
+    /// Reference value for red component
     unsigned char ref_R_val;
 
-    // Reference value for green component
+    /// Reference value for green component
     unsigned char ref_G_val;
 
-    // Reference value for blue component
+    /// Reference value for blue component
     unsigned char ref_B_val;
 
-    // Calculated average Y value in the corresponding zone of the overlay
+    /// Calculated average Y value in the corresponding zone of the overlay
     unsigned char Y_val;
 
-    // Calculated average U value in the corresponding zone of the overlay
+    /// Calculated average U value in the corresponding zone of the overlay
     unsigned char U_val;
 
-    // Calculated average V value in the corresponding zone of the overlay
+    /// Calculated average V value in the corresponding zone of the overlay
     unsigned char V_val;
 
-    // Calculated average R value in the corresponding zone of the overlay
+    /// Calculated average R value in the corresponding zone of the overlay
     unsigned char R_val;
 
-    // Calculated average G value in the corresponding zone of the overlay
+    /// Calculated average G value in the corresponding zone of the overlay
     unsigned char G_val;
 
-    // Calculated average B value in the corresponding zone of the overlay
+    /// Calculated average B value in the corresponding zone of the overlay
     unsigned char B_val;
 
 private:
-    // Convert RGB to YUV
+    /// Convert RGB to YUV
     void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
 
-    // Convert YUV to RGB
+    /// Convert YUV to RGB
     void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
 
     unsigned int cpt_Y;
@@ -184,119 +188,119 @@ private:
 };
 
 
-////////////////////////////////////////////////////////////
-// Object representing a subset of a predefined test pattern
-//
-// A test pattern is divided in several subsets, each subset
-// allows to adjust one or several particular settings
-////////////////////////////////////////////////////////////
+/** Object representing a subset of a predefined test pattern
+
+    A test pattern is divided in several subsets, each subset
+    allows to adjust one or several particular settings
+*/
 class CSubPattern
 {
 public:
     CSubPattern(eTypeAdjust type);
     ~CSubPattern();
 
-    // This method returns the type of settings that can be adjusted with this sub-pattern
+    /// This method returns the type of settings that can be adjusted with this sub-pattern
     eTypeAdjust GetTypeAdjust();
 
-    // This method allows to add a new color bar in the sub-pattern
+    /// This method allows to add a new color bar in the sub-pattern
     int AddColorBar(CColorBar* color_bar);
 
-    // This method returns the first bar of the test pattern
+    /// This method returns the first bar of the test pattern
     CColorBar* GetFirstColorBar();
     
-    // This method returns the next color bar of the sub-pattern
+    /// This method returns the next color bar of the sub-pattern
     CColorBar* GetNextColorBar();
 
-    // This function searches in the sub-pattern if it exists color
-    // bars with same features as the one in argument
+    /** This function searches in the sub-pattern if it exists color
+        bars with same features as the one in argument
+    */
     CColorBar* FindSameCoclorBar(CColorBar* pColorBar);
 
-    // This method analyzes the current overlay buffer
+    /// This method analyzes the current overlay buffer
     BOOL CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
-    // This methode returns the sum of absolute delta between reference color
-    // and calculated average color through all the color bars
+    /** This methode returns the sum of absolute delta between reference color
+        and calculated average color through all the color bars
+    */
     void GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
 
-    // This method draws in the video signal rectangles around each color bar of the sub-pattern
+    /// This method draws in the video signal rectangles around each color bar of the sub-pattern
     void DrawPositions(TDeinterlaceInfo* pInfo);
 
 protected:
-    // type of settings that can be adjusted with this sub-pattern
+    /// type of settings that can be adjusted with this sub-pattern
     eTypeAdjust type_adjust;
 
-    // Number of color bars in the sub-pattern
+    /// Number of color bars in the sub-pattern
     unsigned char nb_color_bars;
 
-    // Color bars of the sub-pattern
+    /// Color bars of the sub-pattern
     CColorBar* color_bars[MAX_COLOR_BARS];
 
 private:
-    // Index to current color bar
+    /// Index to current color bar
     int idx_color_bar;
 };
 
 
-////////////////////////////////////////////////////////////
-// Object representing a predefined test pattern
-//
-// Several sub-patterns can be defined for a test pattern
-////////////////////////////////////////////////////////////
+/** Object representing a predefined test pattern
+
+    Several sub-patterns can be defined for a test pattern
+*/
 class CTestPattern
 {
 public:
     CTestPattern(char* name, eVideoFormat format);
     ~CTestPattern();
 
-    // This method returns the name of the test pattern
+    /// This method returns the name of the test pattern
     char* GetName();
 
-    // This method returns the video format of the test pattern
+    /// This method returns the video format of the test pattern
     eVideoFormat GetVideoFormat();
 
-    // This method allows to add a new sub-pattern to the test pattern
+    /// This method allows to add a new sub-pattern to the test pattern
     int AddSubPattern(CSubPattern* sub_pattern);
 
-    // This method allows to create a new sub-pattern to the test pattern
-    // which is a merge of all the others sub-patterns
+    /// This method allows to create a new sub-pattern to the test pattern
+    /// which is a merge of all the others sub-patterns
     int CreateGlobalSubPattern();
 
-    // This method determines the type of content in the test pattern
-    // going all over the sub-patterns
+    /** This method determines the type of content in the test pattern
+        going all over the sub-patterns
+    */
     eTypeContentPattern DetermineTypeContent();
 
-    // This method returns the (first) sub-pattern allowing to adjust particular settings
+    /// This method returns the (first) sub-pattern allowing to adjust particular settings
     CSubPattern* GetSubPattern(eTypeAdjust type_adjust);
 
 protected:
-    // Name of the test pattern
+    /// Name of the test pattern
     char pattern_name[64];
 
-    // Video format of the test pattern
+    /// Video format of the test pattern
     eVideoFormat video_format;
 
-    // Number of sub-patterns in the test pattern
+    /// Number of sub-patterns in the test pattern
     unsigned char nb_sub_patterns;
 
-    // Sub-patterns of the test pattern
+    /// Sub-patterns of the test pattern
     CSubPattern* sub_patterns[MAX_SUB_PATTERNS];
 
 private:
-    // This method returns the first sub-pattern of the test pattern
+    /// This method returns the first sub-pattern of the test pattern
     CSubPattern* GetFirstSubPattern();
     
-    // This method returns the next sub-pattern of the test pattern
+    /// This method returns the next sub-pattern of the test pattern
     CSubPattern* GetNextSubPattern();
 
-    // Index to current sub-pattern
+    /// Index to current sub-pattern
     int idx_sub_pattern;
 };
 
 
-////////////////////////////////////////////////////////////
-// Object representing one of the BT video settings
-////////////////////////////////////////////////////////////
+/** Object representing one of the BT video settings
+*/
 class CCalSetting
 {
 public:
@@ -338,19 +342,18 @@ private:
 };
 
 
-////////////////////////////////////////////////////////////
-// Object managing the card calibration in DScaler
-////////////////////////////////////////////////////////////
+/** Object managing the card calibration in DScaler
+*/
 class CCalibration
 {
 public:
     CCalibration();
     ~CCalibration();
 
-    // This method loads all the predefined test patterns
+    /// This method loads all the predefined test patterns
     void LoadTestPatterns();
 
-    // This method unloads all the predefined test patterns
+    /// This method unloads all the predefined test patterns
     void UnloadTestPatterns();
 
     void UpdateMenu(HMENU hMenu);
@@ -401,7 +404,7 @@ private:
 };
 
 
-// Global variables
+/// Global instance of the calibration object
 extern CCalibration* pCalibration;
 
 

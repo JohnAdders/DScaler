@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.8 2001-11-26 13:02:27 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.9 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.7  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -70,8 +73,9 @@
 #include "DebugLog.h"
 #include "CPU.h"
 #include "TVFormats.h"
-// TODO: remove dependencies below
+/// \todo remove need for this
 #include "ProgramList.h"
+/// \todo remove need for this
 #include "OutThreads.h"
 
 //===========================================================================
@@ -134,7 +138,6 @@ static BYTE SRAMTable_PAL[ 60 ] =
 CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 	CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
-    m_BtCardType(BT878),
     m_bHasMSP(false),
     m_LastAudioSource(AUDIOMUX_MUTE),
     m_Tuner(NULL)
@@ -153,39 +156,6 @@ CBT848Card::~CBT848Card()
     delete m_I2CBus;
     delete m_MSP34x0;
     ClosePCICard();
-}
-
-BOOL CBT848Card::FindCard(eCardType BtCardType, int CardIndex)
-{
-    WORD VendorId(0);
-    WORD DeviceId(0);
-    m_BtCardType = BtCardType;
-
-    switch(BtCardType)
-    {
-    case BT848:
-        VendorId = 0x109e;
-        DeviceId = 0x0350;
-        break;
-    case BT849:
-        VendorId = 0x109e;
-        DeviceId = 0x0351;
-        break;
-    case BT878:
-        VendorId = 0x109e;
-        DeviceId = 0x036e;
-        break;
-    case BT878A:
-        VendorId = 0x109e;
-        DeviceId = 0x036f;
-        break;
-    default:
-        break;
-    }
-
-	BOOL bRetVal = OpenPCICard(VendorId, DeviceId, CardIndex);
-
-    return bRetVal;
 }
 
 void CBT848Card::CloseCard()
@@ -229,7 +199,7 @@ void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
 }
 
 
-void CBT848Card::SetVideoSource(eCardType BtCardType, eVideoSourceType nInput)
+void CBT848Card::SetVideoSource(eTVCardId CardType, eVideoSourceType nInput)
 {
     DWORD MuxSel;
     // 0= Tuner,
@@ -239,7 +209,7 @@ void CBT848Card::SetVideoSource(eCardType BtCardType, eVideoSourceType nInput)
     // 4= Other 2
     // 5= Composite via SVideo
 
-    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(BtCardType)->GPIOMuxMask, ~GetCardSetup(BtCardType)->GPIOMuxMask);
+    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(CardType)->GPIOMuxMask, ~GetCardSetup(CardType)->GPIOMuxMask);
     AndDataByte(BT848_IFORM, (BYTE)~BT848_IFORM_MUXSEL);
 
     // set the comp bit for svideo
@@ -248,17 +218,17 @@ void CBT848Card::SetVideoSource(eCardType BtCardType, eVideoSourceType nInput)
     case SOURCE_TUNER:
         AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
         AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(BtCardType)->MuxSelect[GetCardSetup(BtCardType)->TunerInput & 7];
+        MuxSel = GetCardSetup(CardType)->MuxSelect[GetCardSetup(CardType)->TunerInput & 7];
         break;
     case SOURCE_SVIDEO:
         OrDataByte(BT848_E_CONTROL, BT848_CONTROL_COMP);
         OrDataByte(BT848_O_CONTROL, BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(BtCardType)->MuxSelect[GetCardSetup(BtCardType)->SVideoInput & 7];
+        MuxSel = GetCardSetup(CardType)->MuxSelect[GetCardSetup(CardType)->SVideoInput & 7];
         break;
     case SOURCE_COMPVIASVIDEO:
         AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
         AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(BtCardType)->MuxSelect[GetCardSetup(BtCardType)->SVideoInput & 7];
+        MuxSel = GetCardSetup(CardType)->MuxSelect[GetCardSetup(CardType)->SVideoInput & 7];
         break;
     case SOURCE_COMPOSITE:
     case SOURCE_OTHER1:
@@ -270,12 +240,12 @@ void CBT848Card::SetVideoSource(eCardType BtCardType, eVideoSourceType nInput)
     default:
         AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
         AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(BtCardType)->MuxSelect[nInput];
+        MuxSel = GetCardSetup(CardType)->MuxSelect[nInput];
         break;
     }
     
     MaskDataByte(BT848_IFORM, (BYTE) (((MuxSel) & 3) << 5), BT848_IFORM_MUXSEL);
-    AndOrDataDword(BT848_GPIO_DATA, MuxSel >> 4, ~GetCardSetup(BtCardType)->GPIOMuxMask);
+    AndOrDataDword(BT848_GPIO_DATA, MuxSel >> 4, ~GetCardSetup(CardType)->GPIOMuxMask);
 }
 
 void CBT848Card::SetCardType(eTVCardId CardType)
@@ -423,24 +393,7 @@ BYTE CBT848Card::GetBDelay()
 
 LPCSTR CBT848Card::GetChipType()
 {
-    switch(m_CardType)
-    {
-    case BT848:
-        return "BT848";
-        break;
-    case BT849:
-        return "BT849";
-        break;
-    case BT878:
-        return "BT878";
-        break;
-    case BT878A:
-        return "BT878A";
-        break;
-    default:
-        return "Unknown";
-        break;
-    }
+    return "Unknown";
 }
 
 void CBT848Card::RestartRISCCode(DWORD RiscBasePhysical)
@@ -753,7 +706,7 @@ BOOL CBT848Card::GetGammaCorrection()
 
 
 //-------------------------------
-void CBT848Card::SetGeoSize(eCardType BtCardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay)
+void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay)
 {
     int vscale;
     int hscale;
@@ -849,9 +802,9 @@ void CBT848Card::SetGeoSize(eCardType BtCardType, eVideoSourceType nInput, eVide
     else
     {
         // set the pll on the card if appropriate
-        if(GetTVFormat(TVFormat)->NeedsPLL == TRUE && GetCardSetup(BtCardType)->pll != PLL_NONE)
+        if(GetTVFormat(TVFormat)->NeedsPLL == TRUE && GetCardSetup(CardType)->pll != PLL_NONE)
         {
-            SetPLL(GetCardSetup(BtCardType)->pll);
+            SetPLL(GetCardSetup(CardType)->pll);
         }
         else
         {
@@ -984,19 +937,19 @@ BOOL CBT848Card::IsCCIRSource(eVideoSourceType nInput)
     return FALSE;
 }
 
-void CBT848Card::SetAudioSource(eCardType BtCardType, eAudioMuxType nChannel)
+void CBT848Card::SetAudioSource(eTVCardId CardType, eAudioMuxType nChannel)
 {
     int i;
     DWORD MuxSelect;
 
-    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(BtCardType)->GPIOMask, ~GetCardSetup(BtCardType)->GPIOMask);
+    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(CardType)->GPIOMask, ~GetCardSetup(CardType)->GPIOMask);
 
     switch(nChannel)
     {
     case AUDIOMUX_MSP_RADIO:
     case AUDIOMUX_MUTE:
         // just get on with it
-        MuxSelect = GetCardSetup(BtCardType)->AudioMuxSelect[nChannel];
+        MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
         break;
     default:
         // see if there is a video signal present
@@ -1009,11 +962,11 @@ void CBT848Card::SetAudioSource(eCardType BtCardType, eAudioMuxType nChannel)
         // if video not in H-lock, turn audio off 
         if (i == 20)
         {
-            MuxSelect = GetCardSetup(BtCardType)->AudioMuxSelect[AUDIOMUX_MUTE];
+            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[AUDIOMUX_MUTE];
         }
         else
         {
-            MuxSelect = GetCardSetup(BtCardType)->AudioMuxSelect[nChannel];
+            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
         }
         m_LastAudioSource = nChannel;
         break;
@@ -1022,7 +975,7 @@ void CBT848Card::SetAudioSource(eCardType BtCardType, eAudioMuxType nChannel)
 
     // select direct input 
     //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
-    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup(BtCardType)->GPIOMask); 
+    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup(CardType)->GPIOMask); 
 }
 
 BOOL CBT848Card::IsVideoPresent()

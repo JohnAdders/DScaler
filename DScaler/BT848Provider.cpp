@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.4 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.5 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.3  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -47,59 +50,85 @@
 #include "BT848Provider.h"
 #include "BT848Source.h"
 
+typedef struct
+{
+    DWORD VendorId;
+    DWORD DeviceId;
+    char* szName;
+} TBT848Chip;
+
+TBT848Chip BT848Chips[4] = 
+{
+    {
+        0x109e,
+        0x0350,
+        "BT848",
+    },
+    {
+        0x109e,
+        0x0351,
+        "BT849",
+    },
+    {
+        0x109e,
+        0x036e,
+        "BT878",
+    },
+    {
+        0x109e,
+        0x036f,
+        "BT878A",
+    },
+};
 
 CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
 {
     char szSection[12];
+    DWORD SubSystemId;
+    BOOL IsMemoryInitialized = FALSE;
+
     // need to allocate memory for display, VBI and RISC code
     if(MemoryInit(pHardwareDriver) == FALSE)
     {
         return;
     }
 
-    int CardsFound(0);
-    CBT848Card* NewCard = new CBT848Card(pHardwareDriver);
-
-    while(NewCard->FindCard(CBT848Card::BT848, CardsFound) == TRUE)
+    for(int i(0); i < 4; ++i)
     {
-        sprintf(szSection, "BT848%d", CardsFound + 1);
-        CBT848Source* pNewSource = new CBT848Source(NewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
-        m_BT848Sources.push_back(pNewSource);
-        NewCard = new CBT848Card(pHardwareDriver);
-        ++CardsFound;
-    }
-    
-    CardsFound = 0;
-    while(NewCard->FindCard(CBT848Card::BT849, CardsFound) == TRUE)
-    {
-        sprintf(szSection, "BT849%d", CardsFound + 1);
-        CBT848Source* pNewSource = new CBT848Source(NewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
-        m_BT848Sources.push_back(pNewSource);
-        NewCard = new CBT848Card(pHardwareDriver);
-        ++CardsFound;
-    }
+        int CardsFound(0);
 
-    CardsFound = 0;
-    while(NewCard->FindCard(CBT848Card::BT878, CardsFound) == TRUE)
-    {
-        sprintf(szSection, "BT878%d", CardsFound + 1);
-        CBT848Source* pNewSource = new CBT848Source(NewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
-        m_BT848Sources.push_back(pNewSource);
-        NewCard = new CBT848Card(pHardwareDriver);
-        ++CardsFound;
-    }
+        while(pHardwareDriver->DoesThisPCICardExist( 
+                                                        BT848Chips[i].VendorId, 
+                                                        BT848Chips[i].DeviceId, 
+                                                        CardsFound, 
+                                                        SubSystemId
+                                                   ) == TRUE)
+        {
+            if(!IsMemoryInitialized)
+            {
+                if(MemoryInit(pHardwareDriver) == FALSE)
+                {
+                    return;
+                }
+                IsMemoryInitialized = TRUE;
+            }
 
-    CardsFound = 0;
-    while(NewCard->FindCard(CBT848Card::BT878A, CardsFound) == TRUE)
-    {
-        sprintf(szSection, "BT878A%d", CardsFound + 1);
-        CBT848Source* pNewSource = new CBT848Source(NewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
-        m_BT848Sources.push_back(pNewSource);
-        NewCard = new CBT848Card(pHardwareDriver);
-        ++CardsFound;
+            sprintf(szSection, "%s%d", BT848Chips[i].szName, CardsFound + 1);
+            CBT848Source* pNewSource = CreateCorrectSource(
+                                                                pHardwareDriver,
+                                                                szSection, 
+                                                                BT848Chips[i].VendorId, 
+                                                                BT848Chips[i].DeviceId, 
+                                                                CardsFound, 
+                                                                SubSystemId
+                                                          );
+            if(pNewSource != NULL)
+            {
+                m_BT848Sources.push_back(pNewSource);
+            }
+            ++CardsFound;
+        }
     }
-
-    delete NewCard;
 }
 
 CBT848Provider::~CBT848Provider()
@@ -112,6 +141,24 @@ CBT848Provider::~CBT848Provider()
         delete *it;
     }
 }
+
+
+CBT848Source* CBT848Provider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
+{
+    /// \todo use the subsystem id to create the correct specilized version of the card
+    CBT848Card* pNewCard = new CBT848Card(pHardwareDriver);
+    if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
+    {
+        CBT848Source* pNewSource = new CBT848Source(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
+        return pNewSource;
+    }
+    else
+    {
+        delete pNewCard;
+        return NULL;
+    }
+}
+
 
 int CBT848Provider::GetNumberOfSources()
 {

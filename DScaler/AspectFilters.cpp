@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.14 2001-11-23 10:49:16 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.15 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.13  2001/11/02 16:30:06  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -63,7 +66,7 @@
 #include "Other.h"
 #include "DScaler.h"
 #include "Status.h"
-// TODO: remove 
+/// \todo remove need for this
 #include "OutThreads.h"
 
 // From DScaler.cpp .... We really need to reduce reliance on globals by going C++!

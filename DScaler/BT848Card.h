@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.7 2001-11-29 14:04:06 adcockj Exp $
+// $Id: BT848Card.h,v 1.8 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -38,15 +38,6 @@ class CBT848Card : public CPCICard,
                    public II2CLineInterface
 {
 public:
-    /// Exact card type
-    enum eCardType
-    {
-        BT878,
-        BT848,
-        BT849,
-        BT878A,
-    };
-
     /// The standard inputs on a bt848 card, the CCIR656 ones will be moved later
     enum eVideoSourceType
     {
@@ -79,13 +70,13 @@ public:
     void Mute();
     void UnMute(long nVolume);
 
-	BOOL FindCard(eCardType CardType, int CardIndex);
+	BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
 	void CloseCard();
     
     void SetCardType(eTVCardId CardType);
     eTVCardId GetCardType();
     
-    void SetVideoSource(eCardType BtCardType, eVideoSourceType nInput);
+    void SetVideoSource(eTVCardId CardType, eVideoSourceType nInput);
 
     void ResetHardware(DWORD RiscBasePhysical);
 
@@ -143,13 +134,13 @@ public:
     LPCSTR GetChipType();
 
     void RestartRISCCode(DWORD RiscBasePhysical);
-    void SetGeoSize(eCardType BtCardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
+    void SetGeoSize(eTVCardId BtCardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
 
     BOOL IsVideoPresent();
     void SetRISCStartAddress(DWORD RiscBasePhysical);
     DWORD GetRISCPos();
     void SetDMA(BOOL bState);
-    void SetAudioSource(eCardType BtCardType, eAudioMuxType nChannel);
+    void SetAudioSource(eTVCardId BtCardType, eAudioMuxType nChannel);
     void StopCapture();
     void StartCapture(BOOL bCaptureVBI);
 
@@ -202,7 +193,7 @@ private:
     void HauppaugeBootMSP34xx(int pin);
     void InitPXC200();
     void CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
-    const TCardSetup* GetCardSetup(eCardType BtCardType);
+    const TCardSetup* GetCardSetup(eTVCardId CardType);
 
     void SetAudioGVBCTV3PCI(eSoundChannel soundChannel);
     void SetAudioLT9415(eSoundChannel soundChannel);
@@ -214,7 +205,6 @@ private:
     char m_TunerStatus[32];
 
     eTVCardId m_CardType;
-    eCardType m_BtCardType;
     bool m_bHasMSP;
 
     CI2CBus *m_I2CBus;

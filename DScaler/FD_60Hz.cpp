@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.cpp,v 1.22 2001-11-23 10:49:17 adcockj Exp $
+// $Id: FD_60Hz.cpp,v 1.23 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.21  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -357,18 +360,19 @@ void UpdateNTSCPulldownMode(TDeinterlaceInfo* pInfo)
                                 MOVIE_FIELD_CYCLE = 0;
                                 LOG(2, "Too much film Mode cycling, switching to video");
                                 
-                                // Require pulldown Mode to be consistent for the
-                                // rapid-Mode-switch interval before we'll lock onto
-                                // film Mode again.  This is probably too long in most
-                                // cases, but making it shorter than the interval would
-                                // run the risk of switching back to film Mode just in
-                                // time to hit a rapid sequence of Mode changes.
-                                //
-                                // 83 is (5 fields/cycle) / (60 fields/sec) * (1000 ms/sec).
-                                //
-                                // FIXME: Eliminate hardcoded values
-                                //
-                                //NextPulldownRepeatCount = PulldownSwitchInterval / 83;
+                                /** Require pulldown Mode to be consistent for the
+                                    rapid-Mode-switch interval before we'll lock onto
+                                    film Mode again.  This is probably too long in most
+                                    cases, but making it shorter than the interval would
+                                    run the risk of switching back to film Mode just in
+                                    time to hit a rapid sequence of Mode changes.
+                                
+                                    83 is (5 fields/cycle) / (60 fields/sec) * (1000 ms/sec).
+                                
+                                    \todo Eliminate hardcoded values
+                                
+                                    NextPulldownRepeatCount = PulldownSwitchInterval / 83;
+                                */
                                 NextPulldownRepeatCount = PulldownRepeatCount * 2;
                             }
                             else

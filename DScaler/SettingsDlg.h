@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.h,v 1.10 2001-11-09 12:42:07 adcockj Exp $
+// $Id: SettingsDlg.h,v 1.11 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,9 +33,8 @@
 #include "DS_ApiCommon.h"
 #include "HSListBox.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CSettingsDlg dialog
-
+/** An MFC genaeric settings dialog
+*/
 class CSettingsDlg : public CDialog
 {
 // Construction
@@ -43,7 +42,8 @@ public:
     static void ShowSettingsDlg(CString caption,SETTING* settings,long Count,CWnd* pParent=NULL);
     friend CSettingsDlg::ShowSettingsDlg(SETTING*,long );
 
-    CSettingsDlg(CWnd* pParent = NULL); // standard constructor
+    /// standard constructor
+    CSettingsDlg(CWnd* pParent = NULL);
 
 // Dialog Data
     //{{AFX_DATA(CSettingsDlg)

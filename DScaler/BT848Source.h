@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.9 2001-11-29 14:04:06 adcockj Exp $
+// $Id: BT848Source.h,v 1.10 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 #include "BT848Card.h"
 #include "HardwareMemory.h"
 #include "Setting.h"
-//TODO: get rid of dependencies below here
+/// \todo get rid of dependencies below here
 #include "Other.h"
 
 /** The source controls a specific CBT848Card to provide interlaced video

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.25 2001-11-26 13:02:27 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.26 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.24  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -445,11 +448,12 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
         return;
     }
 
-    // ADDED by Mark Rejhon: Eliminates the "tiny slit" problem in starry 
-    // scenes such as those in Star Wars or start of Toy Story 2,
-    // at least during full screen Mode.
-    // FIXME: Would be nice to access 'AdjustedWindowAspect' in WorkoutOverlaySize()
-    // so that I can also do this for windowed Mode too.
+    /** ADDED by Mark Rejhon: Eliminates the "tiny slit" problem in starry 
+        scenes such as those in Star Wars or start of Toy Story 2,
+        at least during full screen Mode.
+        \todo Would be nice to access 'AdjustedWindowAspect' in WorkoutOverlaySize()
+        so that I can also do this for windowed Mode too.
+    */
     if (AspectSettings.DetectAspectNow || AspectSettings.AutoDetectAspect)
     {
 		if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)

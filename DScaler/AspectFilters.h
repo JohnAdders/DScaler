@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.h,v 1.12 2001-08-02 18:08:17 adcockj Exp $
+// $Id: AspectFilters.h,v 1.13 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,18 +33,20 @@
 
 #include "AspectRect.h"
 
-// This module is #included by AspectRatio.cpp for now.  It defines various filters
-// which are applyed in order to adjust the aspect ratio of the video image.
-// 
-// The filters are stored in a linked list and applied in order.  A filter can have
-// child filters to allow it to take advantage of values from before and after 
-// the child filters were applied.  This is currently used by the uncrop filter which
-// needs the original destination rectangle.
-// 
-// Used to calculate positions for a given period and timing.
-// Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
-// This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
+/** This module is #included by AspectRatio.cpp for now.  It defines various filters
+    which are applyed in order to adjust the aspect ratio of the video image.
 
+    The filters are stored in a linked list and applied in order.  A filter can have
+    child filters to allow it to take advantage of values from before and after 
+    the child filters were applied.  This is currently used by the uncrop filter which
+    needs the original destination rectangle.
+*/
+
+
+/** Used to calculate positions for a given period and timing.
+    Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
+    This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
+*/
 class CPeriodBouncer
 {
 public:
@@ -58,18 +60,18 @@ protected:
     double m_Offset;
 };
 
+/** Class containing all the rectangles a filter might want 
+    Dest rectanges refer to the image rectangle on the screen
+    Src rectangles refer to the rectangle of the source image being used
+
+    Prev rectangles refer to the values from before this current filter run
+    Original rectangles refer to the initial values of "Current" passed into the filter chain
+    Current rectangles are the Value being used and adjusted.
+
+    ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
+*/
 class CAspectRectangles
 {
-    // Class containing all the rectangles a filter might want 
-    // Dest rectanges refer to the image rectangle on the screen
-    // Src rectangles refer to the rectangle of the source image being used
-    // 
-    // Prev rectangles refer to the values from before this current filter run
-    // Original rectangles refer to the initial values of "Current" passed into the filter chain
-    // Current rectangles are the Value being used and adjusted.
-    // 
-    // ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
-
 public:
     void DebugDump();
 
@@ -84,7 +86,8 @@ public:
 
 };
 
-// Abstract Base class for the aspect filter
+/** Abstract Base class for the aspect filter
+*/
 class CAspectFilter
 {
 public:
@@ -92,11 +95,12 @@ public:
     virtual ~CAspectFilter();
     virtual LPCSTR getFilterName() = 0;
 
-    // Called to actually perform the adjustment for 1 filter
-    // If it returns TRUE, this is a request from the filter to re-run the aspect calculation
-    //    The TRUE Value is currently only used by the filter which adjusts the window rectangle
-    //    as this adjustment affects all calculations.  Current implementation only allows 
-    //    1 level of re-calculate requests.
+    /** Called to actually perform the adjustment for 1 filter
+        If it returns TRUE, this is a request from the filter to re-run the aspect calculation
+            The TRUE Value is currently only used by the filter which adjusts the window rectangle
+            as this adjustment affects all calculations.  Current implementation only allows 
+            1 level of re-calculate requests.
+    */
     virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
 
     virtual void DebugDump();
@@ -105,8 +109,9 @@ protected:
     CAspectFilter* m_Child;
 };
 
-// This filter adjust for the m_Overscan area of the image.  It checks the orbit settings to ensure
-// the m_Overscan is large enough.
+/** This filter adjust for the m_Overscan area of the image.  It checks the orbit settings to ensure
+    the m_Overscan is large enough.
+*/
 class COverscanAspectFilter : public CAspectFilter
 {
 public:
@@ -119,9 +124,10 @@ protected:
     int m_Overscan;
 };
 
-// This filter orbits the source image using independent X and Y timers.
-// It is assumed that bouncing is enabled if this filter is in the chain.
-// The bounce comes out of the m_Overscan (the m_Overscan filter performs a sanity check to ensure the m_Overscan is of appropriate size.
+/** This filter orbits the source image using independent X and Y timers.
+    It is assumed that bouncing is enabled if this filter is in the chain.
+    The bounce comes out of the m_Overscan (the m_Overscan filter performs a sanity check to ensure the m_Overscan is of appropriate size.
+*/
 class COrbitAspectFilter : public CAspectFilter
 {
 public:
@@ -137,7 +143,7 @@ protected:
 };
 
 
-// Applys child filters than adjusts the position of the destination rectangle - this class uses bounce filters
+/// Applys child filters than adjusts the position of the destination rectangle - this class uses bounce filters
 class CBounceDestinationAspectFilter : public CAspectFilter
 {
 public:
@@ -151,8 +157,9 @@ protected:
     CPeriodBouncer* m_pBouncer;
 };
 
-// Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
-// from -1 to 1 (0 = centered, -1 = left/top +1 = right/bottom
+/** Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
+    from -1 to 1 (0 = centered, -1 = left/top +1 = right/bottom
+*/
 class CPositionDestinationAspectFilter : public CAspectFilter
 {
 public:
@@ -166,7 +173,7 @@ protected:
     double m_YPos;
 };
 
-// Crops the source and destination rectangles to the requested aspect ratio.  
+/// Crops the source and destination rectangles to the requested aspect ratio.  
 class CCropAspectFilter : public CAspectFilter 
 {
 public:
@@ -174,8 +181,9 @@ public:
     virtual LPCSTR getFilterName();
 };
 
-// Applies the child filters and uncrops the source image to use all the area available in
-// the original destination rectangle.
+/** Applies the child filters and uncrops the source image to use all the area available in
+    the original destination rectangle.
+*/
 class CUnCropAspectFilter : public CAspectFilter
 {
 public:
@@ -183,12 +191,13 @@ public:
     virtual LPCSTR getFilterName();
 };
 
-// Zooms in on the source image
-// x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
-//    both zoom factors should normally be equal - any other values will wreck the 
-//    aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
-// x/m_YPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
-// Normally this filter will be applied just before the CScreenSanityAspectFilter
+/** Zooms in on the source image
+    x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
+        both zoom factors should normally be equal - any other values will wreck the 
+        aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
+    x/m_YPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
+    Normally this filter will be applied just before the CScreenSanityAspectFilter
+*/
 class CPanAndZoomAspectFilter : public CAspectFilter
 {
 public:
@@ -204,8 +213,9 @@ protected:
     double m_YZoom;
 };
 
-// Performs important sanity checks on the destination rectangle
-// Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
+/** Performs important sanity checks on the destination rectangle
+    Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
+*/
 class CScreenSanityAspectFilter : public CAspectFilter
 {
 public:
@@ -213,7 +223,8 @@ public:
     virtual LPCSTR getFilterName();
 };
 
-// Attemtps to resize the client window to match the aspect ratio
+/** Attemtps to resize the client window to match the aspect ratio
+*/
 class CResizeWindowAspectFilter : public CAspectFilter
 {
 public:
@@ -221,6 +232,8 @@ public:
     virtual LPCSTR getFilterName();
 };
 
+/** Ordered list of aspect filters to be applied
+*/
 class CFilterChain
 {
 public:

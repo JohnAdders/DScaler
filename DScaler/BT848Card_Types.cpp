@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.6 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Card_Types.cpp,v 1.7 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.5  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -571,7 +574,7 @@ const TCardSetup TVCards[/*TVCARD_LASTONE*/] =
         // Lukas Gebauer <geby@volny.cz>
         "ATI TV-Wonder",
         3, 1, 0, 2, 0xf03f,
-        // TODO: check this 3.0.0 { 2, 3, 0, 1, 0, 0, 0, 0},
+        /// \todo check this 3.0.0 { 2, 3, 0, 1, 0, 0, 0, 0},
         { 2, 3, 1, 0, 0, 0, 0, 0},
         { 0xbffe, 0, 0xbfff, 0, 0xbffe, 0},
         0,
@@ -734,9 +737,10 @@ const TCardSetup TVCards[/*TVCARD_LASTONE*/] =
     },
     // 24 Jul 2001 Dan Schmelzer
     // Sasem 4-Channel Developer Card (s-video jumper chosen)
-    // TODO:  Add audio input support
-    //        Add GPIO support
-	//        Add composite jumpered card
+    /** \todo Add audio input support
+              Add GPIO support
+	          Add composite jumpered card
+    */
     {
         "Sasem 4-Channel Dev Board (S-Video Jumper)",
         1, 1, -1, 0, 0,
@@ -757,7 +761,7 @@ const TCardSetup TVCards[/*TVCARD_LASTONE*/] =
     },
     // 17 Sep 2001 Dax Sieger
     // AIMS Labs VideoHighway Extreme Card (older - original version)
-    // TODO:  ADD FM Radio Support
+    /// \todo ADD FM Radio Support
 	{
         "Aimslab VideoHighway Extreme (not 98)",
         3, 1, 0, 2, 7,
@@ -987,9 +991,9 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
     return Tuner;
 }
 
-const TCardSetup* CBT848Card::GetCardSetup(eCardType BtCardType)
+const TCardSetup* CBT848Card::GetCardSetup(eTVCardId CardType)
 {
-    return &(TVCards[BtCardType]);
+    return &(TVCards[CardType]);
 }
 
 eTVCardId CBT848Card::AutoDetectCardType()

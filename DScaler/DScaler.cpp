@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.97 2001-11-29 14:04:06 adcockj Exp $
+// $Id: DScaler.cpp,v 1.98 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2001/11/29 14:04:06  adcockj
+// Added Javadoc comments
+//
 // Revision 1.96  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -431,7 +434,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // load up the cursors we want to use
     // we load up arrow as the default and try and load up
     // the hand cursor if we are running NT 5
-    // TODO: add or find hand cursor for win 95 and up
+    /// \todo add or find hand cursor for win 95 and up
     hCursorDefault = LoadCursor(NULL, IDC_ARROW);
 
     OSVERSIONINFO version;
@@ -628,9 +631,10 @@ void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
     {
         VTSubPage = SubPage;
         VTSubPageLocked = VT_CompleteSubPages(VTPage - 100) && LockSubPage;
-        //TODO: It will be good idea to set timer for removing lock
-        //after 2-3 mins and switching back to the most recent 
-        //received subpage.
+        /** \todo It will be good idea to set timer for removing lock
+                  after 2-3 mins and switching back to the most recent 
+                  received subpage.
+        */
     }
     else
     {
@@ -1616,7 +1620,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if(VTPage >= 100)
                 {
-                    //TODO: VT_GetFlofPageNumber do not return SubPage...
+                    /// \todo VT_GetFlofPageNumber do not return SubPage...
                     i = VT_GetFlofPageNumber(VTPage-100, VTSubPage, LOWORD(wParam) - IDM_TELETEXT_KEY1);
                     if(i >= 100 && i <= 899) 
                     {

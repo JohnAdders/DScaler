@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.24 2001-11-26 13:02:27 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.25 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.23  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -112,7 +115,7 @@
 #include "DScaler.h"
 #include "AspectFilters.h"
 #include "Deinterlace.h"
-// TODO: remove 
+/// \todo remove need for this
 #include "OutThreads.h"
 
 #define AR_STRETCH       0
@@ -209,7 +212,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     ar.m_CurrentOverlayDestRect = ar.m_OriginalOverlayDestRect;
 
     // Build filter chain and apply
-    // TODO: Filter chain should be saved and only rebuilt if options are changed
+    /// \todo Filter chain should be saved and only rebuilt if options are changed
     FilterChain.BuildFilterChain();
     if (FilterChain.ApplyFilters(ar, allowResize))
     {

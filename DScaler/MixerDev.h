@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.14 2001-11-19 11:11:45 temperton Exp $
+// $Id: MixerDev.h,v 1.15 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,8 @@ void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void MixerDev_SetMenu(HMENU hMenu);
 
 
+/** Control a mixer source line on the system
+*/
 class CMixerLineSource
 {
 public:
@@ -69,6 +71,8 @@ private:
     HMIXER m_hMixer;
 };
 
+/** Control a mixer destination line on the system
+*/
 class CMixerLineDest
 {
 public:
@@ -84,6 +88,8 @@ private:
     CMixerLineSource** m_SourceLines;
 };
 
+/** Control a mixer on the system
+*/
 class CMixer
 {
 public:
@@ -99,6 +105,8 @@ private:
     HMIXER m_hMixer;
 };
 
+/** Control the systems sound system
+*/
 class CSoundSystem
 {
 public:

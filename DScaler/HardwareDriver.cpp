@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.5 2001-11-23 10:49:17 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.6 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.4  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -302,5 +305,37 @@ DWORD CHardwareDriver::SendCommand(
     {
         LOG(1, "DeviceIoControl returned an error = 0x%x For Command 0x%x", GetLastError(), dwIOCommand);
         return GetLastError();
+    }
+}
+
+BOOL CHardwareDriver::DoesThisPCICardExist(WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD& SubSystemId)
+{
+    TDSDrvParam hwParam;
+    DWORD dwStatus;
+    DWORD dwLength;
+    TPCICARDINFO PCICardInfo;
+
+    hwParam.dwAddress = VendorID;
+    hwParam.dwValue = DeviceID;
+    hwParam.dwFlags = DeviceIndex;
+
+    dwStatus = SendCommand(
+                            ioctlGetPCIInfo,
+                            &hwParam,
+                            sizeof(hwParam),
+                            &PCICardInfo,
+                            sizeof(TPCICARDINFO),
+                            &dwLength
+                          );
+
+    if(dwStatus == ERROR_SUCCESS)
+    {
+        SubSystemId = PCICardInfo.dwSubSystemId;
+        return TRUE;
+    }
+    else
+    {
+        SubSystemId = 0;
+        return FALSE;
     }
 }

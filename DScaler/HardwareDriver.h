@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.h,v 1.5 2001-11-02 16:30:08 adcockj Exp $
+// $Id: HardwareDriver.h,v 1.6 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,8 @@
 #include "DSDrv.h"
 #include <winsvc.h>
 
+/** Allows access to the DSDrv4 driver
+*/
 class CHardwareDriver
 {
 public:
@@ -45,6 +47,13 @@ public:
                         LPVOID pvInput,
                         DWORD dwInputLength
                      );
+
+    BOOL DoesThisPCICardExist(
+                                 WORD VendorID, 
+                                 WORD DeviceID, 
+                                 int DeviceIndex, 
+                                 DWORD& SubSystemId
+                              );
 
 private:
     SC_HANDLE   m_hSCManager;

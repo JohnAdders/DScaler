@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PaintingHDC.h,v 1.1 2001-11-22 13:19:37 temperton Exp $
+// $Id: PaintingHDC.h,v 1.2 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,12 +16,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/22 13:19:37  temperton
+// Added CPaintingHDC class for double buffering painting
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __PAINTINGHDC_H__
 #define __PAINTINGHDC_H__
 
+/** Class that allows easy buffered GDI painting
+*/
 class CPaintingHDC
 {
 public:

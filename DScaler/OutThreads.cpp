@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.48 2001-11-28 16:04:50 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.49 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.47  2001/11/26 15:27:18  adcockj
 // Changed filter structure
 //
@@ -245,7 +248,7 @@ BOOL                bWaitForVsync = FALSE;
 BOOL                bReversePolarity = FALSE;
 BOOL                bJudderTerminatorOnVideo = TRUE;
 
-// FIXME: should be able to get of this variable
+/// \todo should be able to get of this variable
 long                OverlayPitch = 0;
 
 // Statistics

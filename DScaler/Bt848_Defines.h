@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.6 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: Bt848_Defines.h,v 1.7 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -442,7 +442,7 @@ enum eTVCardId
     TVCARD_GMV1,
     TVCARD_BESTBUY_NEW,
     // Sasem 4 channel card has 2 jumper configurations.  s-video (1) or composite.(4)
-    // TODO:  Add composite jumpered card settings
+    /// \todo Add composite jumpered card settings
     TVCARD_SASEM4CHNLSVID,
     TVCARD_PINNACLESAT,
     TVCARD_VHXOLD,           

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.41 2001-11-29 14:04:07 adcockj Exp $
+// $Id: OSD.cpp,v 1.42 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.40  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -737,7 +740,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Video input + video format
         OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-		// TODO fix this to get correct details
+		/// \todo fix this to get correct details
         strcpy (szInfo, "Input ??? -");
         if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
         {

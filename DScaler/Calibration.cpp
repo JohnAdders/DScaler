@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.35 2001-11-24 22:57:02 laurentg Exp $
+// $Id: Calibration.cpp,v 1.36 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2001/11/24 22:57:02  laurentg
+// Copyright line restored
+//
 // Revision 1.34  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -1798,8 +1801,7 @@ void CCalibration::Start(eTypeCalibration type)
     CSource* pSource = Providers_GetCurrentSource();
     CSimpleSetting* pSetting = NULL;
 
-    // TODO: this is bad coding
-    // sort this out
+    /// \todo this is bad coding sort this out
     brightness   = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetBrightness()));
     contrast     = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetContrast()));
     saturation_U = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetSaturationU()));

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HSListBox.h,v 1.4 2001-07-14 16:06:57 tobbej Exp $
+// $Id: HSListBox.h,v 1.5 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,13 +30,13 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-//  A CListBox derived class with a horizontal scrollbar.
-//  
-// If you call any memberfunction that modifies the strings that is not implemented in this class
-//  the horizontal scrollbar might become out of sync with the text in it.
-// 
-//  It shoudn't be any problem implementing the other functions if we need it.
+/** CListBox derived class with a horizontal scrollbar.
 
+    If you call any memberfunction that modifies the strings that is not implemented in this class
+    the horizontal scrollbar might become out of sync with the text in it.
+
+    It shoudn't be any problem implementing the other functions if we need it.
+*/
 class CHSListBox : public CListBox
 {
 // Construction

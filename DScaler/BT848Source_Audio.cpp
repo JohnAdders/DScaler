@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.5 2001-11-29 14:04:06 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.6 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/29 14:04:06  adcockj
+// Added Javadoc comments
+//
 // Revision 1.4  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -126,7 +129,7 @@ void CBT848Source::Equalizer5OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioSource((CBT848Card::eCardType)m_CardType->GetValue(), (CBT848Card::eAudioMuxType)NewValue);
+    m_pBT848Card->SetAudioSource((eTVCardId)m_CardType->GetValue(), (CBT848Card::eAudioMuxType)NewValue);
 }
 
 void CBT848Source::MSPStereoOnChange(long NewValue, long OldValue)

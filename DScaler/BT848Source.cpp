@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.10 2001-11-29 14:04:06 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.11 2001-11-29 17:30:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/29 14:04:06  adcockj
+// Added Javadoc comments
+//
 // Revision 1.9  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -349,7 +352,7 @@ void CBT848Source::Start()
 void CBT848Source::Reset()
 {
     m_pBT848Card->ResetHardware(m_RiscBasePhysical);
-    m_pBT848Card->SetVideoSource((CBT848Card::eCardType)m_CardType->GetValue(), (CBT848Card::eVideoSourceType)m_VideoSource->GetValue());
+    m_pBT848Card->SetVideoSource((eTVCardId)m_CardType->GetValue(), (CBT848Card::eVideoSourceType)m_VideoSource->GetValue());
     if (m_BDelay->GetValue() != 0)
     {
         // BDELAY override from .ini file
@@ -383,7 +386,7 @@ void CBT848Source::Reset()
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pBT848Card->SetGeoSize(
-                                (CBT848Card::eCardType)m_CardType->GetValue(),
+                                (eTVCardId)m_CardType->GetValue(),
                                 (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
@@ -905,7 +908,7 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
     Stop_Capture();
     m_CurrentX = NewValue;
     m_pBT848Card->SetGeoSize(
-                                (CBT848Card::eCardType)m_CardType->GetValue(),
+                                (eTVCardId)m_CardType->GetValue(),
                                 (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
@@ -921,7 +924,7 @@ void CBT848Source::HDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     m_pBT848Card->SetGeoSize(
-                                (CBT848Card::eCardType)m_CardType->GetValue(),
+                                (eTVCardId)m_CardType->GetValue(),
                                 (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
@@ -937,7 +940,7 @@ void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     m_pBT848Card->SetGeoSize(
-                                (CBT848Card::eCardType)m_CardType->GetValue(),
+                                (eTVCardId)m_CardType->GetValue(),
                                 (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.h,v 1.5 2001-11-02 16:30:08 adcockj Exp $
+// $Id: HardwareMemory.h,v 1.6 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,8 @@
 
 #include "HardwareDriver.h"
 
+/** Base class for memory that can be accessed by the driver
+*/
 class CHardwareMemory
 {
 public:
@@ -34,6 +36,8 @@ protected:
     CHardwareDriver* m_pDriver;
 };
 
+/** Memory that is allocated in user space and mapped to driver space
+*/
 class CUserMemory : public CHardwareMemory
 {
 public:
@@ -43,6 +47,8 @@ private:
     DWORD m_AllocatedBlock;
 };
 
+/** Memory that is contiguous in both driver and user space
+*/
 class CContigMemory : public CHardwareMemory
 {
 public:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.7 2001-11-22 13:32:03 adcockj Exp $
+// $Id: TSOptionsDlg.h,v 1.8 2001-11-29 17:30:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.6  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -60,9 +63,8 @@
 // Declare this for friend declaration below.
 class CTimeShift;
 
-/////////////////////////////////////////////////////////////////////////////
-// CTSOptionsDlg dialog
-
+/** Timeshift options dialog
+*/
 class CTSOptionsDlg : public CDialog
 {
     friend CTimeShift;

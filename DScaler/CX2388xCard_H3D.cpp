@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.2 2002-10-31 14:47:20 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.3 2002-11-28 18:06:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/31 14:47:20  adcockj
+// Added Sharpness
+//
 // Revision 1.1  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -95,7 +98,7 @@ void CCX2388xCard::InitH3D()
     {
         fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
     }
-    for(i =0x39000d; i <= 0x390FFd; i += 0x10)
+    for(i = 0x39000d; i <= 0x390FFd; i += 0x10)
     {
         fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
     }

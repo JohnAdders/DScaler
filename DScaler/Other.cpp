@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.12 2001-08-02 16:43:05 adcockj Exp $
+// $Id: Other.cpp,v 1.13 2001-08-11 11:17:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.11  2001/07/28 13:24:40  adcockj
 // Added UI for Overlay Controls and fixed issues with SettingsDlg
 //
@@ -464,6 +467,12 @@ BOOL Overlay_Create()
     for (numBuffers = maxBuffers; numBuffers >= minBuffers; numBuffers--)
     {
         SurfaceDesc.dwBackBufferCount = numBuffers;
+        // if we get down to zero back buffers then the flags are different
+        if(numBuffers == 0)
+        {
+            SurfaceDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+            SurfaceDesc.ddsCaps.dwCaps = DDSCAPS_OVERLAY | DDSCAPS_VIDEOMEMORY;
+        }
         ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDOverlay, NULL);
 
         if (SUCCEEDED(ddrval) || ddrval != DDERR_OUTOFVIDEOMEMORY)
@@ -471,7 +480,9 @@ BOOL Overlay_Create()
     }
 
     if (FAILED(ddrval))
+    {
         lpDDOverlay = NULL;
+    }
 
     if (numBuffers < minBuffers)
     {
@@ -561,31 +572,39 @@ BOOL Overlay_Create()
         return (FALSE);
     }
 
-    memset(&caps, 0, sizeof(caps));
-    caps.dwCaps = DDSCAPS_BACKBUFFER;
-    ddrval = lpDDOverlay->GetAttachedSurface(&caps, &lpDDOverlayBack);
-    if (FAILED(ddrval))
+    if(numBuffers != 0)
     {
-        RealErrorBox("Can't create Overlay Back Surface");
-        lpDDOverlayBack = NULL;
-        return (FALSE);
+        memset(&caps, 0, sizeof(caps));
+        caps.dwCaps = DDSCAPS_BACKBUFFER;
+        ddrval = lpDDOverlay->GetAttachedSurface(&caps, &lpDDOverlayBack);
+        if (FAILED(ddrval))
+        {
+            RealErrorBox("Can't create Overlay Back Surface");
+            lpDDOverlayBack = NULL;
+            return (FALSE);
+        }
+        else
+        {
+            ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
+            if (FAILED(ddrval))
+            {
+                RealErrorBox("Can't Lock Back Surface");
+                return (FALSE);
+            }
+            ddrval = DDERR_WASSTILLDRAWING;
+
+            ddrval = lpDDOverlayBack->Unlock(SurfaceDesc.lpSurface);
+            if (FAILED(ddrval))
+            {
+                RealErrorBox("Can't Unlock Back Surface");
+                return (FALSE);
+            }
+        }
     }
     else
     {
-        ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
-        if (FAILED(ddrval))
-        {
-            RealErrorBox("Can't Lock Back Surface");
-            return (FALSE);
-        }
-        ddrval = DDERR_WASSTILLDRAWING;
-
-        ddrval = lpDDOverlayBack->Unlock(SurfaceDesc.lpSurface);
-        if (FAILED(ddrval))
-        {
-            RealErrorBox("Can't Unlock Back Surface");
-            return (FALSE);
-        }
+        lpDDOverlayBack = lpDDOverlay;
+        lpDDOverlayBack->AddRef();
     }
 
     // New Code - Getting the DD color control

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.40 2002-06-24 21:49:28 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.41 2002-07-28 08:09:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/06/24 21:49:28  laurentg
+// New option to use or not WSS data when doing AR detection
+//
 // Revision 1.39  2002/06/13 12:10:21  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -245,7 +248,6 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_SASPECT_CLIP, (AspectSettings.AspectImageClipped));
     CheckMenuItemBool(hMenu, IDM_WINPOS_BOUNCE, (AspectSettings.BounceEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_ORBIT, (AspectSettings.OrbitEnabled));
-    CheckMenuItemBool(hMenu, IDM_ASPECT_DEFER_OVERLAY, (AspectSettings.DeferedSetOverlay));
     CheckMenuItemBool(hMenu, IDM_WINPOS_AUTOSIZE, (AspectSettings.AutoResizeWindow));
 
     // Zoom

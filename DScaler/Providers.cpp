@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.64 2003-08-16 08:06:04 laurentg Exp $
+// $Id: Providers.cpp,v 1.65 2003-08-16 09:20:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2003/08/16 08:06:04  laurentg
+// New message box to introduce audio mixer dialog box
+//
 // Revision 1.63  2003/08/15 18:26:56  laurentg
 // Display the mixer setup dialog box at first init of a card
 //
@@ -625,6 +628,18 @@ CSource* Providers_GetPatternsSource()
 CSource* Providers_GetIntroSource()
 {
     return StillProvider->GetSource(3);
+}
+
+BOOL Providers_IsStillSource(CSource* source)
+{
+	for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
+	{
+		if (StillProvider->GetSource(i) == source)
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 int Providers_FindSource()

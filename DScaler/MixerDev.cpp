@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.46 2003-08-15 17:18:36 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.47 2003-08-16 09:20:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2003/08/15 17:18:36  laurentg
+// Factorize treatments
+//
 // Revision 1.45  2003/08/15 09:56:49  atnak
 // Another update
 //
@@ -388,15 +391,19 @@ void Mixer_Volume_Down()
 
 void Mixer_SetupDlg(HWND hWndParent)
 {
-    CMixerFinder mixerFinder;
+	CSource* source = Providers_GetCurrentSource();
+	if ((source == NULL) || Providers_IsStillSource(source))
+	{
+        MessageBox(hWnd, "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
+	}
+	else
+	{
+		CMixerFinder mixerFinder;
 
-    if (mixerFinder.GetMixerCount() > 0)
-    {
-        DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
-
-		CSource* source = Providers_GetCurrentSource();
-		if (source != NULL)
+		if (mixerFinder.GetMixerCount() > 0)
 		{
+			DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
+
 			if (source->GetVolume() != NULL)
 			{
 				EventCollector->RaiseEvent(source, EVENT_VOLUME, 0, source->GetVolume()->GetValue());
@@ -406,10 +413,10 @@ void Mixer_SetupDlg(HWND hWndParent)
 				EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
 			}
 		}
-    }
-    else
-    {
-        MessageBox(hWnd, "No mixer hardware found", "DScaler Error", MB_OK);
+		else
+		{
+			MessageBox(hWnd, "No mixer hardware found", "DScaler Error", MB_OK);
+		}
     }
 }
 

@@ -103,8 +103,8 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
             SubSection = m_SourceName;
             SubSection += "_";
             SubSection += m_AudioInputName;
+            return;
         }
-        return;
     }
 
     // if we are doing a channel

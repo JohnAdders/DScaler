@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.12 2002-10-15 11:53:38 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.13 2002-10-20 09:29:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/15 11:53:38  atnak
+// Added UI feedback for some videotext stuff
+//
 // Revision 1.11  2002/10/12 18:43:32  atnak
 // some changes for tranparency and boxed background
 //
@@ -270,6 +273,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
         DisplayModes = 0;
         DisplayColour = 7;
         Background = 0;
+        HeldGraphChar = ' ';
 
         bBoxedSecond = bUnboxedSecond = FALSE;
 
@@ -332,7 +336,11 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     DisplayModes &= ~VTMODE_DOUBLE;
                     break;
                 case 0x0d:  // Double Height
-                    SetAfterModes |= (DisplayModes & VTMODE_DOUBLE ^ VTMODE_DOUBLE);
+                    // Double on rows 0, 23, 24 not permitted
+                    if (row > 0 && row < 23)
+                    {
+                        SetAfterModes |= (DisplayModes & VTMODE_DOUBLE ^ VTMODE_DOUBLE);
+                    }
                     break;
                 case 0x0e:  // Shift Out (reserved)
                 case 0x0f:  // Shift In (reserved

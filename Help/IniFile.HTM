@@ -1115,6 +1115,36 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </td>
         </tr>
 
+        <tr>
+          <td colspan=3> 
+            <h3>[TimeShift]</h3>
+          </td>
+        </tr>
+
+        <tr>
+          <td> 
+            Video, Codec, Audio
+          </td>
+          <td> 
+            <p align="center">(empty)
+          </td>
+          <td> 
+            These 3 values represent internal binary struct data which are the audio and video compression settings that the user chose from the TimeShift Options dialog.  These are not user-editable from the ini file, but are necessary for settings to be remembered over multiple runs of DScaler.  If no data is specified, the defaults of Full-Frames, Uncompressed will be used for video, and 44.1kHz, 16-bit, Stereo for audio.
+          </td>
+        </tr>
+
+        <tr>
+          <td> 
+            WaveIn, WaveOut
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            These 2 values match the indices into their respective combo box dropdown lists found in the TimeShift Options dialog.  They are the currently selected waveIn and waveOut audio devices on the user's system used by TimeShift for recording and playing back audio.
+          </td>
+        </tr>
+
       </table>
 
 <h2 id="modes">Deinterlace Modes</h2>

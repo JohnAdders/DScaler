@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.24 2001-07-16 18:07:50 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.25 2001-07-23 20:52:07 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,10 +62,15 @@
 // 09 Jan 2001   John Adcock           Split out into new file
 //                                     Changed functions to use DEINTERLACE_INFO
 //
+// 24 Jul 2001   Eric Schmidt          Added TimeShift stuff.
+//
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.23  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -104,6 +109,7 @@
 #include "FieldTiming.h"
 #include "MixerDev.h"
 #include "Audio.h"
+#include "TimeShift.h"
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
@@ -511,6 +517,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // do any filters that operarate on the input
                 // only
                 SourceAspectAdjust = Filter_DoInput(&Info, (Info.bRunningLate || Info.bMissedFrame));
+
+                // NOTE: I might go ahead and make the TimeShift module an input
+                // filter at some point (i.e. FLT_TimeShift), but I'm not sure
+                // if that's the right thing to do since it ties into other
+                // parts of the app.
+                TimeShift::OnNewFrame(&Info);
 
                 if(!Info.bMissedFrame)
                 {

@@ -45,6 +45,7 @@
 #define IDC_CONTEXTMENU                 181
 #define IDD_SETTINGS                    182
 #define IDB_FRENCH_VTCHARS              183
+#define IDD_TSOPTIONS                   184
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -256,6 +257,7 @@
 #define IDC_LIST1                       1521
 #define IDC_BUTTON1                     1522
 #define IDC_LIST2                       1522
+#define IDC_TSCOMPRESSIONBUTTON         1522
 #define IDC_BUTTON2                     1523
 #define IDC_EDIT1                       1523
 #define IDC_SCAN                        1523
@@ -369,11 +371,13 @@
 #define IDC_EDIT42                      1563
 #define IDC_TEXT30                      1563
 #define IDC_CHOOSEFROMLIST              1563
+#define IDC_TSWAVEINCOMBO               1563
 #define IDC_COMBO2                      1564
 #define IDC_EDIT43                      1564
 #define IDC_RADIO22                     1564
 #define IDC_TEXT31                      1564
 #define IDT_THRESH1                     1564
+#define IDC_TSWAVEOUTCOMBO              1564
 #define IDC_COMBO3                      1565
 #define IDC_EDIT45                      1565
 #define IDC_RADIO23                     1565
@@ -864,13 +868,22 @@
 #define IDM_VT_FRENCH                   2027
 #define IDM_LOGOKILL_SETTINGS           2028
 #define IDM_LINCORR_SETTINGS            2029
+#define IDM_TSOPTIONS                   2030
+#define IDM_TSRECORD                    2031
+#define IDM_TSSTOP                      2032
+#define IDM_TSPLAY                      2033
+#define IDM_TSPAUSE                     2034
+#define IDM_TSFFWD                      2035
+#define IDM_TSRWND                      2036
+#define IDM_TSPREV                      2037
+#define IDM_TSNEXT                      2038
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        184
-#define _APS_NEXT_COMMAND_VALUE         2030
+#define _APS_NEXT_RESOURCE_VALUE        185
+#define _APS_NEXT_COMMAND_VALUE         2040
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

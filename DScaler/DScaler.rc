@@ -442,6 +442,27 @@ BEGIN
                     CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
+IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 154
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "TimeShift Options (under construction)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,123,133,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,133,50,14
+    PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,55,7,
+                    130,14
+    COMBOBOX        IDC_TSWAVEINCOMBO,73,59,159,88,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_TSWAVEOUTCOMBO,73,77,159,70,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "HINT:  Choose a codec that's good at compressing 24-bit RGB images. The default is full frames and you'll quickly run out of room if you stick with that.  Leave the audio at the default for best results.",
+                    IDC_STATIC,7,26,225,26
+    RTEXT           "Wave In Device:",IDC_STATIC,14,62,55,8
+    RTEXT           "Wave Out Device:",IDC_STATIC,9,80,60,8
+    LTEXT           "HINT: Choose the device to which your tuner card is directly attached.  (i.e. via an internal stereo patch cable.)  But feel free to try all your devices if you don't get audio recording/playback from the AVI.",
+                    IDC_STATIC,7,96,225,27
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -546,6 +567,19 @@ BEGIN
         MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE
         MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
         MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
+        POPUP "T&imeShift (under construction)"
+        BEGIN
+            MENUITEM "&Record\tShift+R",            IDM_TSRECORD
+            MENUITEM "Pl&ay\tShift+P",              IDM_TSPLAY
+            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE, GRAYED
+            MENUITEM "&Stop\tShift+S",              IDM_TSSTOP
+            MENUITEM "Fast &Forward\t}",            IDM_TSFFWD, GRAYED
+            MENUITEM "Fast &Backward\t{",           IDM_TSRWND, GRAYED
+            MENUITEM "&Next\t>",                    IDM_TSNEXT
+            MENUITEM "&Previous\t<",                IDM_TSPREV
+            MENUITEM SEPARATOR
+            MENUITEM "&Options...",                 IDM_TSOPTIONS
+        END
     END
     POPUP "&AspectRatio"
     BEGIN
@@ -956,6 +990,14 @@ BEGIN
         TOPMARGIN, 1
         BOTTOMMARGIN, 172
     END
+
+    IDD_TSOPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 232
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 147
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -997,7 +1039,9 @@ BEGIN
     "8",            IDM_SASPECT_155,        VIRTKEY, CONTROL, NOINVERT
     "9",            IDM_SASPECT_CUSTOM,     VIRTKEY, CONTROL, NOINVERT
     "9",            IDM_TASPECT_CUSTOM,     VIRTKEY, ALT, NOINVERT
+    "<",            IDM_TSPREV,             ASCII,  NOINVERT
     "=",            IDM_VOLUMEPLUS,         ASCII,  NOINVERT
+    ">",            IDM_TSNEXT,             ASCII,  NOINVERT
     "A",            IDM_SASPECT_AUTO_ON,    VIRTKEY, NOINVERT
     "A",            IDM_SASPECT_AUTO_OFF,   VIRTKEY, SHIFT, NOINVERT
     "A",            IDM_SASPECT_AUTO_TOGGLE, VIRTKEY, SHIFT, CONTROL, 
@@ -1040,11 +1084,14 @@ BEGIN
                                                     NOINVERT
     "P",            IDM_CAPTURE_PAUSE,      VIRTKEY, NOINVERT
     "P",            IDM_SASPECT_CLIP,       VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_TSPLAY,             VIRTKEY, SHIFT, NOINVERT
     "Q",            IDM_HDELAY_MINUS,       VIRTKEY, NOINVERT
     "Q",            IDM_HDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
     "Q",            IDM_HDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
+    "R",            IDM_TSRECORD,           VIRTKEY, SHIFT, NOINVERT
     "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
+    "S",            IDM_TSSTOP,             VIRTKEY, SHIFT, NOINVERT
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, NOINVERT
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_MINUS,  VIRTKEY, NOINVERT
@@ -1117,6 +1164,9 @@ BEGIN
     "Z",            IDM_ZOOM_PLUS,          VIRTKEY, SHIFT, NOINVERT
     "_",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
     "`",            IDM_SASPECT_COMPUTE,    ASCII,  NOINVERT
+    "{",            IDM_TSRWND,             ASCII,  NOINVERT
+    "|",            IDM_TSPAUSE,            ASCII,  NOINVERT
+    "}",            IDM_TSFFWD,             ASCII,  NOINVERT
 END
 
 

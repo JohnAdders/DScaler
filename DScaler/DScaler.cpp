@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.45 2001-07-16 18:07:50 adcockj Exp $
+// $Id: DScaler.cpp,v 1.46 2001-07-23 20:52:07 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -61,10 +61,15 @@
 //
 // 26 May 2001   Eric Schmidt          Added Custom Channel Order.
 //
+// 24 Jul 2001   Eric Schmidt          Added TimeShift stuff.
+//
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.44  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -115,6 +120,7 @@
 #include "Deinterlace.h"
 #include "FieldTiming.h"
 #include "DebugLog.h"
+#include "TimeShift.h"
 
 HWND hWnd = NULL;
 HINSTANCE hInst = NULL;
@@ -1214,10 +1220,77 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Sleep(100);
             break;
 
-      case IDM_TAKESTREAMSNAP:
-         RequestStreamSnap();
-         break;
+        case IDM_TAKESTREAMSNAP:
+            RequestStreamSnap();
+            break;
 
+        case IDM_TSOPTIONS:
+            TimeShift::OnOptions();
+            break;
+
+        case IDM_TSRECORD:
+            if (TimeShift::OnRecord())
+            {
+                ShowText(hWnd, "Recording");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSSTOP:
+            if (TimeShift::OnStop())
+            {
+                ShowText(hWnd, "Stopped");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSPLAY:
+            if (TimeShift::OnPlay())
+            {
+                ShowText(hWnd, "Playing");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSPAUSE:
+            if (TimeShift::OnPause())
+            {
+                ShowText(hWnd, "Paused");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSFFWD:
+            if (TimeShift::OnFastForward())
+            {
+                ShowText(hWnd, "Scanning >>>");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSRWND:
+            if (TimeShift::OnFastBackward())
+            {
+                ShowText(hWnd, "Scanning <<<");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSNEXT:
+            if (TimeShift::OnGoNext())
+            {
+                ShowText(hWnd, "Next Clip");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
+
+        case IDM_TSPREV:
+            if (TimeShift::OnGoPrev())
+            {
+                ShowText(hWnd, "Previous Clip");
+                TimeShift::OnSetMenu(hMenu);
+            }
+            break;
 
         case IDM_SHOW_OSD:
             OSD_ShowNextInfosScreen(hWnd, 0);
@@ -2015,6 +2088,15 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Kill Timers");}
 
+    // Kill timeshift before muting since it always exits unmuted on cleanup.
+	__try
+	{
+		LOG("Try TimeShift::OnDestroy");
+
+        TimeShift::OnDestroy();
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error TimeShift::OnDestroy");}
+
     __try
     {
         LOG("Try Mute");
@@ -2125,6 +2207,7 @@ void SetMenuAnalog()
     MixerDev_SetMenu(hMenu);
     Audio_SetMenu(hMenu);
     VT_SetMenu(hMenu);
+    TimeShift::OnSetMenu(hMenu);
 }
 
 HMENU GetFiltersSubmenu()

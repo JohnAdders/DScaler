@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.94 2002-10-27 20:39:08 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.95 2002-10-28 22:50:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2002/10/27 20:39:08  laurentg
+// Performance statistics only computed in DEBUG buildd
+// Developer OSD screen only present in DEBUG build
+//
 // Revision 1.93  2002/10/27 11:39:21  laurentg
 // Memory buffer for still must be allocated even when saving in a file
 //
@@ -644,8 +648,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     DEINTERLACE_METHOD* CurrentMethod = NULL;
     int nHistory = 0;
     long SourceAspectAdjust = 1000;
-	BYTE* pAllocBuf;
-	BOOL TakeStill;
+	BYTE* pAllocBuf = NULL;
+	BOOL bTakeStill = FALSE;
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -720,6 +724,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             Info.CombFactor = -1;
             Info.FieldDiff = -1;
             bFlipNow = FALSE;
+			bTakeStill = FALSE;
+			pAllocBuf = NULL;
             GetDestRect(&Info.DestRect);
             
             // Go and get the next input field
@@ -961,27 +967,29 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                         }
 
-						if(RequestStillType == STILL_TIFF)
+						if (RequestStillType == STILL_TIFF)
 						{
-							TakeStill = TRUE;
-							// If we are taking a still, we need to allocate
-							// a memory buffer and use this buffer as output
-							// That means too that the overlay will not be updated
-							Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-							pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
-							if (pAllocBuf == NULL)
+							bTakeStill = TRUE;
+							if (RequestStillInMemory)
 							{
-								RequestStillType = STILL_NONE;
-								TakeStill = FALSE;
+								// If we are taking a still in memory, we need to allocate
+								// a memory buffer and use this buffer as output
+								// That means too that the overlay will not be updated
+								Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+								pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
+								LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
+								if (pAllocBuf == NULL)
+								{
+									RequestStillType = STILL_NONE;
+									bTakeStill = FALSE;
+								}
 							}
-							LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
-						}
-						else
-						{
-							TakeStill = FALSE;
+							// After that line, we must use variable bTakeStill instead of RequestStillType
+							// because RequestStillType could be set by the GUI thread at the same time,
+							// and we must be certain that memory allocation has been done
 						}
 
-						if(!TakeStill)
+						if(!bTakeStill || !RequestStillInMemory)
 						{
 #ifdef _DEBUG
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
@@ -1074,39 +1082,57 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // flip if required
                         if (bFlipNow)
                         {
+							if(!bTakeStill || !RequestStillInMemory)
+							{
 #ifdef _DEBUG
-                            pPerf->StartCount(PERF_FLIP_OVERLAY);
+	                            pPerf->StartCount(PERF_FLIP_OVERLAY);
 #endif
 
-                            // setup flip flag
-                            // the odd and even flags may help the scaled bob
-                            // on some cards
-                            DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
-                            if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
-                            {
-                                if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
-                                {
-                                    FlipFlag |= DDFLIP_ODD;
-                                }
-                                else if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
-                                {
-                                    FlipFlag |= DDFLIP_EVEN;
-                                }
-                            }
+								// setup flip flag
+								// the odd and even flags may help the scaled bob
+								// on some cards
+								DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
+								if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
+								{
+									if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+									{
+										FlipFlag |= DDFLIP_ODD;
+									}
+									else if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
+									{
+										FlipFlag |= DDFLIP_EVEN;
+									}
+								}
 
-                            // JudderTerminator
-                            // Here we space out the flips by waiting for a fixed time between
-                            // flip calls.
-                            // We need to go in if:
-                            // - JudderTerminator is On
-                            // - We are in film mode or we want JT on Video
-                            // - the deinterlace method is the same as last time
-                            if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo) && PrevDeintMethod == CurrentMethod)
-                            {
-                                Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
-                            }
+								// JudderTerminator
+								// Here we space out the flips by waiting for a fixed time between
+								// flip calls.
+								// We need to go in if:
+								// - JudderTerminator is On
+								// - We are in film mode or we want JT on Video
+								// - the deinterlace method is the same as last time
+								if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo) && PrevDeintMethod == CurrentMethod)
+								{
+									Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
+								}
 
-							if(TakeStill)
+								if(!Overlay_Flip(FlipFlag))
+								{
+									Providers_GetCurrentSource()->Stop();
+									LOG(1, "Falling out after Overlay_Flip");
+									PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
+									PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+									DScalerDeinitializeThread();
+									ExitThread(1);
+									return 0;
+								}
+
+#ifdef _DEBUG
+	                            pPerf->StopCount(PERF_FLIP_OVERLAY);
+#endif
+							}
+
+							if(bTakeStill)
 							{
 								StillProvider_SaveSnapshot(&Info, pAllocBuf, RequestStillInMemory);
 								RequestStillNb--;
@@ -1123,25 +1149,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 									RequestStillType = STILL_NONE;
 								}
 							}
-							else if(!Overlay_Flip(FlipFlag))
-                            {
-                                Providers_GetCurrentSource()->Stop();
-                                LOG(1, "Falling out after Overlay_Flip");
-                                PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-                                PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                                DScalerDeinitializeThread();
-                                ExitThread(1);
-                                return 0;
-                            }
-
-#ifdef _DEBUG
-                            pPerf->StopCount(PERF_FLIP_OVERLAY);
-#endif
-                        }
-
-						if(TakeStill && !RequestStillInMemory && pAllocBuf)
-						{
-							free(pAllocBuf);
 						}
                     }
                 }                   

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.117 2002-01-31 13:02:46 robmuller Exp $
+// $Id: DScaler.cpp,v 1.118 2002-01-31 18:07:15 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.117  2002/01/31 13:02:46  robmuller
+// Improved accuracy and reliability of the performance statistics.
+//
 // Revision 1.116  2002/01/24 00:00:13  robmuller
 // Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
 //
@@ -426,6 +429,9 @@ HHOOK hKeyboardHook = NULL;
 
 HFONT hCurrentFont = NULL;
 
+int InitialChannel = -1;
+int InitialTextPage = -1;
+
 BOOL bInMenuOrDialogBox = FALSE;
 BOOL bIgnoreMouse = FALSE;
 BOOL bShowCrashDialog = FALSE;
@@ -496,8 +502,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // processed as -i<parameter> (ini file specification).
     char* ArgValues[20];
     int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
-    int InitialTextPage = -1;
-    int InitialChannel = -1;
     for (int i = 0; i < ArgCount; ++i)
     {
        if (ArgValues[i][0] != '-' && ArgValues[i][0] != '/')
@@ -585,18 +589,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
 
     MsgWheel = RegisterWindowMessage("MSWHEEL_ROLLMSG");
-
-    // Process parameters before the window is shown.
-    if(InitialChannel >= 0)
-    {
-       Channel_Change(InitialChannel);
-    }
-    if (InitialTextPage >= 100)
-    {
-       Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
-       VTPage = InitialTextPage;
-       VTState = VT_BLACK;
-    }
 
     // 2000-10-31 Added by Mark Rejhon
     // Now show the window, directly to maximized or windowed right away.
@@ -2442,8 +2434,18 @@ void MainWndOnInitBT(HWND hWnd)
         Channels_UpdateMenu(hMenu);
         SetMenuAnalog();
 
-
         bDoResize = TRUE;
+        
+        if(InitialChannel >= 0)
+        {
+            Channel_Change(InitialChannel);
+        }
+        if (InitialTextPage >= 100)
+        {
+            Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
+            VTPage = InitialTextPage;
+            VTState = VT_BLACK;
+        }
 
         AddSplashTextLine("Start Video");
         Start_Capture();

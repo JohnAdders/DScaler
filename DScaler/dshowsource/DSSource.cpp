@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.24 2002-06-22 15:03:16 laurentg Exp $
+// $Id: DSSource.cpp,v 1.25 2002-07-06 16:48:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/06/22 15:03:16  laurentg
+// New vertical flip mode
+//
 // Revision 1.23  2002/05/24 15:18:32  tobbej
 // changed filter properties dialog to include progpertypages from the pins
 // fixed input source status
@@ -197,9 +200,6 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_deviceName(deviceName),
 	m_currentX(0),
 	m_currentY(0),
-	m_cbFieldSize(0),
-	m_bProcessingFirstField(true),
-	m_pictureHistoryPos(0),
 	m_lastNumDroppedFrames(-1),
 	m_bIsFileSource(false),
 	m_dwRendStartTime(0)
@@ -207,14 +207,6 @@ CDSSource::CDSSource(string device,string deviceName) :
 {
 	InitializeCriticalSection(&m_hOutThreadSync);
 	CreateSettings(device.c_str());
-
-	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
-	{
-		m_pictureHistory[i].IsFirstInSeries=FALSE;
-		m_pictureHistory[i].pData=NULL;
-		m_pictureHistory[i].Flags= i%2 ? PICTURE_INTERLACED_ODD : PICTURE_INTERLACED_EVEN;
-		m_unalignedBuffers[i]=NULL;
-	}
 }
 
 CDSSource::CDSSource() :
@@ -222,24 +214,13 @@ CDSSource::CDSSource() :
 	m_pDSGraph(NULL),
 	m_currentX(0),
 	m_currentY(0),
-	m_cbFieldSize(0),
-	m_bProcessingFirstField(true),
-	m_pictureHistoryPos(0),
 	m_lastNumDroppedFrames(-1),
 	m_bIsFileSource(true),
 	m_dwRendStartTime(0)
 
 {
 	InitializeCriticalSection(&m_hOutThreadSync);
-
 	CreateSettings("DShowFileInput");
-	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
-	{
-		m_pictureHistory[i].IsFirstInSeries=FALSE;
-		m_pictureHistory[i].pData=NULL;
-		m_pictureHistory[i].Flags= i%2 ? PICTURE_INTERLACED_ODD : PICTURE_INTERLACED_EVEN;
-		m_unalignedBuffers[i]=NULL;
-	}
 }
 
 CDSSource::~CDSSource()
@@ -248,16 +229,6 @@ CDSSource::~CDSSource()
 	{
 		delete m_pDSGraph;
 		m_pDSGraph=NULL;
-	}
-
-	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
-	{
-		if(m_unalignedBuffers[i]!=NULL)
-		{
-			delete m_unalignedBuffers[i];
-			m_unalignedBuffers[i]=NULL;
-		}
-		m_pictureHistory[i].pData=NULL;
 	}
 	DeleteCriticalSection(&m_hOutThreadSync);
 }
@@ -269,17 +240,6 @@ BOOL CDSSource::IsAccessAllowed()
 		return TRUE;
 	}
 
-	/*
-	if(m_pDSGraph!=NULL)
-	{
-		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_FILE)
-		{
-			CDShowBaseSource *pFile=(CDShowBaseSource*)m_pDSGraph->getSourceDevice();
-			if(pFile->isConnected())
-				return TRUE;
-		}
-	}
-	*/
 	if(m_filename.size()>0)
 	{
 		return TRUE;
@@ -725,11 +685,9 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 void CDSSource::Start()
 {
-	m_pictureHistoryPos=0;
 	m_lastNumDroppedFrames=-1;
 	m_currentX=0;
 	m_currentY=0;
-	m_bProcessingFirstField=true;
 	try
 	{
 		CWaitCursor wait;
@@ -760,6 +718,7 @@ void CDSSource::Start()
 
 void CDSSource::Stop()
 {
+	CAutoCriticalSection lock(m_hOutThreadSync);
 	if(m_pDSGraph!=NULL)
 	{
 		try
@@ -775,7 +734,6 @@ void CDSSource::Stop()
 		}
 	}
 	Audio_Mute();
-	//shoud probably free the memory allocated by the picture history array
 }
 
 void CDSSource::Reset()
@@ -1049,185 +1007,76 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	}
 	if(m_dwRendStartTime!=0)
 	{
-		TRACE("time: %dL\n",timeGetTime()-m_dwRendStartTime);
+		TRACE("time: %ld\n",timeGetTime()-m_dwRendStartTime);
 		m_dwRendStartTime=0;
 	}
+	//info to return if we fail
+	pInfo->bRunningLate=TRUE;
+	pInfo->bMissedFrame=TRUE;
+	pInfo->FrameWidth=0;
+	pInfo->FrameHeight=0;
+
+	//clear the picture history
+	memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
 	
-	//which field in the history is the first one to be returned
-	int historyStart=0;
-
-	//get a new frame or not
-	if(m_bProcessingFirstField)
+	//is the graph running? there is no point in continuing if it isnt
+	/*if(m_pDSGraph->getState()!=State_Running)
 	{
-		//info to return if we fail
-		pInfo->bRunningLate=TRUE;
-		pInfo->bMissedFrame=TRUE;
-		pInfo->FrameWidth=0;
-		pInfo->FrameHeight=0;
+		return;
+	}*/
+	
+	long size=MAX_PICTURE_HISTORY;
+	FieldBuffer fields[MAX_PICTURE_HISTORY];
+	BufferInfo binfo;
+	if(!m_pDSGraph->GetFields(&size,fields,binfo))
+	{
+		m_dwRendStartTime=0;
+		updateDroppedFields();
+		return;
+	}
 
-		//clear the picture history
-        Free_Picture_History(pInfo);
-		
-		//is the graph running? there is no point in continuing if it isnt
-		/*if(m_pDSGraph->getState()!=State_Running)
-		{
-			return;
-		}*/
-		
-		CComPtr<IMediaSample> pSample;
-		if(!m_pDSGraph->getNextSample(pSample))
-		{
-			return;
-		}
+	//width must be 16 byte aligned or optimized memcpy will not work
+	//this assert will never be triggered (checked in dsrend filter)
+	ASSERT((binfo.Width&0xf)==0);
 
-		LONG size=pSample->GetActualDataLength();
-		BYTE *pData;
-		HRESULT hr=pSample->GetPointer(&pData);
-		if(FAILED(hr))
-		{
-			//oops, coudn't get any pointer
-			return;
-		}
+	//check if size has changed
+	if(m_currentX!=binfo.Width || m_currentY!=binfo.Height*2)
+	{
+		m_currentX=binfo.Width;
+		m_currentY=binfo.Height*2;
+		NotifySizeChange();
+	}
+	
+	pInfo->FrameWidth=binfo.Width;
+	pInfo->FrameHeight=binfo.Height*2;
+	pInfo->LineLength=binfo.Width*2;
+	pInfo->FieldHeight=binfo.Height;
+	pInfo->InputPitch=pInfo->LineLength;
+	pInfo->bMissedFrame=FALSE;
+	pInfo->bRunningLate=FALSE;
+	pInfo->CurrentFrame=binfo.CurrentFrame;
 
-		//get the current media type
-		AM_MEDIA_TYPE mediaType;
-		memset(&mediaType,0,sizeof(mediaType));
-		try
+	updateDroppedFields();
+	
+	static bool FieldFlag=true;
+	for(int i=0;i<size;i++)
+	{
+		m_PictureHistory[i].pData=fields[i].pBuffer;
+		m_PictureHistory[i].IsFirstInSeries=false;
+		if(fields[i].flags!=BUFFER_FLAGS_FIELD_UNKNOWN)
 		{
-			m_pDSGraph->getConnectionMediatype(&mediaType);
-		}
-		catch(CDShowException e)
-		{
-            LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
-			return;
-		}
-		
-		BITMAPINFOHEADER *bmi=NULL;
-		if(mediaType.formattype==FORMAT_VideoInfo)
-		{
-			VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mediaType.pbFormat;
-			bmi=&(videoInfo->bmiHeader);
-		}
-		else if(mediaType.formattype==FORMAT_VideoInfo2)
-		{
-			VIDEOINFOHEADER2 *videoInfo2=(VIDEOINFOHEADER2*)mediaType.pbFormat;
-			bmi=&(videoInfo2->bmiHeader);
-		}
-		//width must be 16 byte aligned or optimized memcpy will not work
-		//this assert will never be triggered (checked in dsrend filter)
-		ASSERT((bmi->biWidth&0xf)==0);
-
-		//is the buffers large enough?
-		//this needs fixing, cant allocate all buffers at once, only the current buffer that is to be used
-		LONG fieldSize=bmi->biSizeImage/2;
-		if(m_cbFieldSize<fieldSize)
-		{
-			//no, fix it
-			for(int i=0;i<MAX_PICTURE_HISTORY;i++)
-			{
-				if(m_unalignedBuffers[i]!=NULL)
-				{
-					delete m_unalignedBuffers[i];
-					m_unalignedBuffers[i]=NULL;
-				}
-				m_unalignedBuffers[i]=new BYTE[fieldSize+16];
-
-				m_pictureHistory[i].pData=m_unalignedBuffers[i]+(0x10-LOBYTE(m_unalignedBuffers[i])&0xf);
-			}
-			m_cbFieldSize=fieldSize;
-			m_pictureHistory[0].IsFirstInSeries=TRUE;
+			m_PictureHistory[i].Flags=fields[i].flags;
 		}
 		else
 		{
-			m_pictureHistory[0].IsFirstInSeries=FALSE;
+			m_PictureHistory[i].Flags= FieldFlag==true ? PICTURE_INTERLACED_EVEN : PICTURE_INTERLACED_ODD;
+			FieldFlag=!FieldFlag;
 		}
-		//ASSERT(m_cbFieldSize>=size/2);
-		
-		
-		//split the media sample into even and odd field
-		//what if the input picture upside down?
-		long lineSize=bmi->biWidth*bmi->biBitCount/8;
-		for(int i=0;i<(bmi->biHeight/2);i++)
-		{
-			pInfo->pMemcpy(m_pictureHistory[m_pictureHistoryPos].pData+i*lineSize,pData+(2*i)*lineSize,lineSize);
-			pInfo->pMemcpy(m_pictureHistory[m_pictureHistoryPos+1].pData+i*lineSize,pData+(2*i+1)*lineSize,lineSize);
-		}
-
-		m_pictureHistory[m_pictureHistoryPos].Flags=PICTURE_INTERLACED_EVEN;
-		m_pictureHistory[m_pictureHistoryPos+1].Flags=PICTURE_INTERLACED_ODD;
-		
-		//check if size has changed
-		if(m_currentX!=bmi->biWidth || m_currentY!=bmi->biHeight)
-		{
-			m_currentX=bmi->biWidth;
-			m_currentY=bmi->biHeight;
-			NotifySizeChange();
-		}
-		
-		m_bytePerPixel=bmi->biBitCount/8;
-		pInfo->FrameWidth=bmi->biWidth;
-		pInfo->FrameHeight=bmi->biHeight;
-		pInfo->LineLength=bmi->biWidth * m_bytePerPixel;
-		pInfo->FieldHeight=bmi->biHeight / 2;
-		pInfo->InputPitch=pInfo->LineLength;
-		pInfo->bMissedFrame=FALSE;
-		pInfo->bRunningLate=FALSE;
-		
-		historyStart=m_pictureHistoryPos;
-		
-		//update m_pictureHistoryPos
-		m_pictureHistoryPos+=2;
-		if(m_pictureHistoryPos>=MAX_PICTURE_HISTORY)
-		{
-			m_pictureHistoryPos=0;
-		}
-		
-		updateDroppedFields();
-
-		//free format block if any
-		if(mediaType.pbFormat!=NULL && mediaType.cbFormat!=0)
-		{
-			CoTaskMemFree((PVOID)mediaType.pbFormat);
-			mediaType.pbFormat=NULL;
-			mediaType.cbFormat=0;
-		}
-		if(mediaType.pUnk!=NULL)
-		{
-			mediaType.pUnk->Release();
-			mediaType.pUnk=NULL;
-		}
-		
-		m_bProcessingFirstField=false;
-	}
-	else
-	{
-		//this will wait until the corect time to show this field
-		m_pDSGraph->waitForNextField();
-
-		pInfo->FrameHeight=m_currentY;
-		pInfo->FrameWidth=m_currentX;
-		pInfo->LineLength=m_currentX * m_bytePerPixel;
-		pInfo->FieldHeight=pInfo->FrameHeight/2;
-		pInfo->InputPitch=pInfo->LineLength;
-		pInfo->bMissedFrame=FALSE;
-
-		historyStart=m_pictureHistoryPos-1;
-		m_bProcessingFirstField=true;
-	}
-	
-	int pos=historyStart;
-	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
-	{
-		pos--;
-		if(pos<0)
-		{
-			pos=MAX_PICTURE_HISTORY-1;
-		}
-
-		ASSERT(pos>=0 && pos<MAX_PICTURE_HISTORY);
-        Replace_Picture_In_History(pInfo, i, &m_pictureHistory[pos]);
+			
+		pInfo->PictureHistory[i]=&m_PictureHistory[i];
 	}
 	Timing_IncrementUsedFields();
+	Timimg_AutoFormatDetect(pInfo);
 	m_dwRendStartTime=timeGetTime();
 }
 

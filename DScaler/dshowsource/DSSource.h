@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.12 2002-05-24 15:18:32 tobbej Exp $
+// $Id: DSSource.h,v 1.13 2002-07-06 16:48:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/05/24 15:18:32  tobbej
+// changed filter properties dialog to include progpertypages from the pins
+// fixed input source status
+// fixed dot infront of start/pause/stop menu entries
+// changed overscan settings a bit
+// experimented a bit with measuring time for dscaler to process one field
+//
 // Revision 1.11  2002/04/16 15:33:53  tobbej
 // added overscan for capture devices
 // added audio mute/unmute when starting and stopping source
@@ -160,17 +167,7 @@ private:
 	long m_currentY;
 
 	///Array for picture history, implemented as a circular queue
-	TPicture m_pictureHistory[MAX_PICTURE_HISTORY];
-	BYTE* m_unalignedBuffers[MAX_PICTURE_HISTORY];
-
-	///Index of next position in m_pictureHistory to be used
-	int m_pictureHistoryPos;
-	///size allocated for each field in the history
-	long m_cbFieldSize;
-	
-	int m_bytePerPixel;
-	
-	bool m_bProcessingFirstField;
+	TPicture m_PictureHistory[MAX_PICTURE_HISTORY];
 
 	///number of frames dropped at last call of updateDroppedFields()
 	int m_lastNumDroppedFrames;

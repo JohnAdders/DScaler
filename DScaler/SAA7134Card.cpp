@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.35 2003-03-02 17:03:48 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.36 2003-03-23 00:20:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/03/02 17:03:48  atnak
+// Fixed broken manage state lines
+//
 // Revision 1.34  2003/02/06 21:30:43  ittarnavsky
 // changes to support primetv 7133
 //
@@ -359,6 +362,8 @@ void CSAA7134Card::ManageMyState()
     ManageByte(SAA7134_SPECIAL_MODE);
 
     // do these ones last
+    /* It is probably safer if we leave DMA
+       and IRQ stuff zeroed when we're done.
     ManageWord(SAA7134_SOURCE_TIMING);
     ManageByte(SAA7134_REGION_ENABLE);
 
@@ -381,6 +386,7 @@ void CSAA7134Card::ManageMyState()
 
     ManageDword(SAA7134_IRQ1);
     ManageDword(SAA7134_IRQ2);
+    */
 }
 
 
@@ -1023,7 +1029,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         {
             SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA713x OnChip");
         }
-		else
+        else
         {
             SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "n/a");
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.19 2001-08-05 20:14:49 laurentg Exp $
+// $Id: OSD.cpp,v 1.20 2001-08-08 21:58:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/08/05 20:14:49  laurentg
+// New OSD screen added for AR autodetection
+//
 // Revision 1.18  2001/07/30 19:51:30  laurentg
 // no message
 //
@@ -939,7 +942,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             pColorBar = pTestPattern->GetFirstColorBar();
             while (pColorBar != NULL)
 			{
-                pColorBar->GetRefPixel(FALSE, &val1, &val2, &val3);
+                pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
                 if ((val1 == 0) && (val2 == 0) && (val3 == 0))
 				{
 				    Color = RGB(1, 0, 0);
@@ -948,7 +951,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 				{
 				    Color = RGB(val1, val2, val3);
 				}
-                pColorBar->GetDiffPixel(!bUseRGB, &dif_val1, &dif_val2, &dif_val3, &dif_total);
+                pColorBar->GetDeltaColor(!bUseRGB, &dif_val1, &dif_val2, &dif_val3, &dif_total);
                 sprintf (szInfo, "%s (%+d,%+d,%+d)", bUseRGB ? "RGB" : "YUV", dif_val1, dif_val2, dif_val3);
                 OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.5 2005-03-09 09:35:16 atnak Exp $
+// $Id: TDA8275.cpp,v 1.6 2005-03-09 13:49:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.4  2005/03/09 07:04:39  atnak
 // Added code for radio.
 //
@@ -249,7 +253,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 		return false;
 	}
 
-	bool success = false;
+	bool success = true;
 
 	// 2.2 Re-initialize PLL and gain path
 	success &= WriteToSubAddress(TDA8275_AB2, 0xBF);

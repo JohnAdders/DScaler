@@ -49,6 +49,9 @@ private:
   std::vector<long> m_FrequencyTable;
 
   int   m_CustomFrequencyTable;
+  long *m_AutoTuneInfo;
+  long *m_AutoTuneTag;
+  BOOL  m_CountryOrInputChanged;      
 
   static const long DSUniFreqTable[];
     

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.35 2002-08-11 12:12:10 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.36 2002-08-11 14:16:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/08/11 12:12:10  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 // Revision 1.34  2002/08/09 13:33:24  laurentg
 // Processor speed and trade off settings moved from BT source settings to DScaler settings
 //
@@ -141,6 +144,7 @@
 #include "SettingsPerChannel.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
+long EnableCancelButton = 1;
 
 BOOL APIENTRY CBT848Source::AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -256,6 +260,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
     {
     case WM_INITDIALOG:
         pThis = (CBT848Source*)lParam;
+        Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < TVCARD_LASTONE; i++)
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.50 2002-08-11 12:08:24 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.51 2002-08-11 14:16:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/08/11 12:08:24  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 // Revision 1.49  2002/08/09 13:33:24  laurentg
 // Processor speed and trade off settings moved from BT source settings to DScaler settings
 //
@@ -222,6 +225,8 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+
+extern long EnableCancelButton;
 
 void BT848_OnSetup(void *pThis, int Start)
 {
@@ -1181,7 +1186,9 @@ void CBT848Source::SetupCard()
         m_TunerType->SetValue(m_pBT848Card->AutoDetectTuner((eTVCardId)m_CardType->GetValue()));
 
         // then display the hardware setup dialog
+        EnableCancelButton = 0;
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        EnableCancelButton = 1;
 
         if(m_TunerType->GetValue() != TUNER_ABSENT)
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsSettingConfig.cpp,v 1.2 2004-08-12 14:02:27 atnak Exp $
+// $Id: TreeSettingsSettingConfig.cpp,v 1.3 2004-08-15 03:04:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/12 14:02:27  atnak
+// minor changes
+//
 // Revision 1.1  2004/08/08 17:14:08  atnak
 // TreeSettingsPage for configuring setting repository settings.
 //
@@ -381,8 +384,8 @@ static BOOL CALLBACK ClipChildRgnProc(HWND hWnd, LPARAM lParam)
 	}
 
 	// Get the class name for the control.
-	TCHAR className[MAX_CLASS_NAME];
-	GetClassName(hWnd, className, MAX_CLASS_NAME);
+	TCHAR className[1024];
+	GetClassName(hWnd, className, sizeof(className)/sizeof(TCHAR));
 
 	// Ignore regions for group boxes.
 	if (_tcscmp(className, _T("Button")) == 0)

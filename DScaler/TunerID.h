@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.6 2004-12-29 20:17:19 to_see Exp $
+// $Id: TunerID.h,v 1.7 2005-03-06 12:43:13 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/12/29 20:17:19  to_see
+// Added TCL 2002N tuner (from v4l2)
+//
 // Revision 1.5  2004/08/27 13:11:27  to_see
 // Added Philips 4in1 tuner (from v4l2)
 //
@@ -54,9 +57,9 @@ enum eTunerId
 {
     TUNER_AUTODETECT = -2,
     TUNER_USER_SETUP = -1,
-    TUNER_ABSENT = 0,           
-    TUNER_PHILIPS_PAL_I,        
-    TUNER_PHILIPS_NTSC,     
+    TUNER_ABSENT = 0,    
+    TUNER_PHILIPS_PAL_I,
+    TUNER_PHILIPS_NTSC,                     
     TUNER_PHILIPS_SECAM,        
     TUNER_PHILIPS_PAL,      
     TUNER_TEMIC_4002FH5_PAL,
@@ -103,6 +106,16 @@ enum eTunerId
     TUNER_MT2050_PAL,
 	TUNER_PHILIPS_4IN1,
     TUNER_TCL_2002N,
+    TUNER_HITACHI_NTSC,
+    TUNER_PHILIPS_PAL_MK,
+    TUNER_PHILIPS_FM1236_MK3,
+    TUNER_LG_NTSC_TAPE,
+    TUNER_TNF_8831BGFF,
+    TUNER_PHILIPS_FM1256_IH3,
+    TUNER_PHILIPS_FQ1286,
+    TUNER_LG_PAL_TAPE,
+    TUNER_PHILIPS_FM1216ME,
+    TUNER_PHILIPS_FQ1236A_MK4,
     TUNER_LASTONE,
 };
 

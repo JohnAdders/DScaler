@@ -104,7 +104,8 @@ BEGIN
     "N",            IDM_NOISE_FILTER,       VIRTKEY, NOINVERT
     "N",            IDM_NOISE_FILTER,       VIRTKEY, SHIFT, NOINVERT
     "O",            IDM_OVERSCAN_MINUS,     VIRTKEY, NOINVERT
-    "O",            IDM_WINPOS_ORBIT,       VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_OPEN_FILE,          VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_WINPOS_ORBIT,       VIRTKEY, ALT, NOINVERT
     "O",            IDM_OVERSCAN_PLUS,      VIRTKEY, SHIFT, NOINVERT
     "O",            IDM_OVERSCAN_CURRENT,   VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
@@ -813,7 +814,7 @@ IDC_DSCALERMENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "&Open...",                    IDM_OPEN_FILE
+        MENUITEM "&Open...\tCtrl+O",            IDM_OPEN_FILE
         MENUITEM "E&xit\tAlt+F4",               IDM_END
     END
     POPUP "&Channels"
@@ -915,7 +916,7 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Bounce Window Position\tCtrl+B", IDM_WINPOS_BOUNCE
             MENUITEM "Defer Setting Overlay",       IDM_ASPECT_DEFER_OVERLAY
-            MENUITEM "Orbiting\tCtrl+O",            IDM_WINPOS_ORBIT
+            MENUITEM "Orbiting\tAlt+O",             IDM_WINPOS_ORBIT
             MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
         END
         POPUP "&Zoom"

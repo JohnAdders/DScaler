@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.28 2002-09-28 14:49:39 tobbej Exp $
+// $Id: MSP34x0.cpp,v 1.29 2002-09-28 15:04:58 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/09/28 14:49:39  tobbej
+// fixed thread init/deinit for crashloging
+//
 // Revision 1.27  2002/09/27 14:14:22  kooiman
 // MSP34xx fixes.
 //
@@ -111,6 +114,7 @@
 #include "DScaler.h"
 #include "Crash.h"
 #include "Events.h"
+#include "Providers.h"
 
 #define MSP_UNCARRIER(carrier) ((double)(carrier)*18.432/(double)(1<<24))
 #define MSP_CARRIER_HZ(freq) ((int)((double)(freq/18432000.0)*(1<<24)))
@@ -1305,7 +1309,7 @@ int CMSP34x0Decoder::DetectThread()
 
 					 SetSoundChannel34x1G(m_SoundChannel, TRUE);
 
-                     EventCollector->RaiseEvent(EVENT_AUDIOSTANDARD_DETECTED, 0, standard);
+                     EventCollector->RaiseEvent(Providers_GetCurrentSource(),EVENT_AUDIOSTANDARD_DETECTED, 0, standard);
 
 					 EnterCriticalSection(&MSP34xxCriticalSection);
                      if (!m_DetectSupportedSoundChannels)
@@ -1326,7 +1330,7 @@ int CMSP34x0Decoder::DetectThread()
 
                      SetStandard3400(standard, m_VideoFormat, TRUE, SOUNDCHANNEL_MONO);
 
-                     EventCollector->RaiseEvent(EVENT_AUDIOSTANDARD_DETECTED, 0, standard);
+                     EventCollector->RaiseEvent(Providers_GetCurrentSource(),EVENT_AUDIOSTANDARD_DETECTED, 0, standard);
 
                      EnterCriticalSection(&MSP34xxCriticalSection);
                      if (m_DetectSupportedSoundChannels)
@@ -1380,7 +1384,7 @@ int CMSP34x0Decoder::DetectThread()
                     m_SoundChannel = IsAudioChannelDetected(m_TargetSoundChannel); //m_SoundChannel);
                     SetSoundChannel(m_SoundChannel);
 
-                    EventCollector->RaiseEvent(EVENT_AUDIOCHANNELSUPPORT_DETECTED, 0, m_SupportedSoundChannels);
+                    EventCollector->RaiseEvent(Providers_GetCurrentSource(),EVENT_AUDIOCHANNELSUPPORT_DETECTED, 0, m_SupportedSoundChannels);
 
                     if (!m_KeepWatchingStereo)
                     {

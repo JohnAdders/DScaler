@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.31 2003-01-27 22:04:11 laurentg Exp $
+// $Id: SAA7134Card.cpp,v 1.32 2003-01-27 22:16:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/01/27 22:04:11  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.30  2003/01/15 15:54:23  adcockj
 // Fixed some keyboard focus issues
 //
@@ -1005,6 +1010,10 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         if (pThis->m_DeviceId == 0x7134)
         {
             SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA7134 Onchip");
+        }
+		else
+        {
+            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "");
         }
 
         dwCardId = pThis->GetSubSystemId();

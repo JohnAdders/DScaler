@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/11/04 02:08:05  lindsey
+// Allowed stability values below 0.
+//
 // Revision 1.9  2002/11/02 01:30:18  lindsey
 // Added spatial averaging
 // Changed response curve to amount of change to more closely approximate the modelled ideal
@@ -309,7 +312,7 @@
     if( LongBaseline < 0 )
     {
         LongBaseline = 0;
-        EffectiveStability = ((2*CurveWidth - sCumDifferencePeak)*100.0*12.5 / (CurveWidth*gNoiseReduction)) + 0.5;
+        EffectiveStability = (long)(((2*CurveWidth - sCumDifferencePeak)*100.0*12.5 / (CurveWidth*gNoiseReduction)) + 0.5);
     }
     else
     {

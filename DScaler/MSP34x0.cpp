@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.22 2002-09-15 19:52:22 kooiman Exp $
+// $Id: MSP34x0.cpp,v 1.23 2002-09-16 14:37:35 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/09/15 19:52:22  kooiman
+// Adressed some NICAM AM issues.
+//
 // Revision 1.21  2002/09/15 15:58:33  kooiman
 // Added Audio standard detection & some MSP fixes.
 //
@@ -404,53 +407,48 @@ CMSP34x0Decoder::TCarrierDetect CMSP34x0Decoder::CarrierDetectTable[] =
 {
   { 
     MSP34x0_CARRIER_4_5,  {  
-                              MSP34x0_CARRIER_4_5,                             
-                              MSP34x0_CARRIER_4_724212,
+                              MSP34x0_CARRIER_4_5,            //BTSC, Japan Stereo
+                              MSP34x0_CARRIER_4_724212,       //M Dual FM Stereo
                               MSP34x0_NOCARRIER
                           }
   },
   {
     MSP34x0_CARRIER_5_5,  {  
-                              MSP34x0_CARRIER_5_7421875,
-                              MSP34x0_CARRIER_5_85,
+                              MSP34x0_CARRIER_5_7421875,      //B/G Dual FM-Stereo
+                              MSP34x0_CARRIER_5_85,           //B/G NICAM FM
                               MSP34x0_NOCARRIER
                           }
   },
   {
     MSP34x0_CARRIER_6_0,  (  
-                              MSP34x0_CARRIER_6_0,
+                              MSP34x0_CARRIER_6_552,            //I NICAM FM
                               MSP34x0_NOCARRIER
                           )                             
   },
   {
     MSP34x0_CARRIER_6_12, (  
-                              MSP34x0_CARRIER_6_12,
+                              MSP34x0_CARRIER_6_12,             //SAT ADR
                               MSP34x0_NOCARRIER
                           ) 
    
   },
   {                             
     MSP34x0_CARRIER_6_5,  (  
-                              MSP34x0_CARRIER_5_7421875,
-                              MSP34x0_CARRIER_5_85,
-                              MSP34x0_CARRIER_6_2578125,
-                              MSP34x0_CARRIER_6_5,
-                              MSP34x0_CARRIER_6_7421875,
+                              MSP34x0_CARRIER_5_7421875,        //D/K3 Dual FM-Stereo
+                              MSP34x0_CARRIER_5_85,             //D/K NICAM FM, L NICAM AM
+                              MSP34x0_CARRIER_6_2578125,        //D/L1 Dual FM-Stereo
+                              MSP34x0_CARRIER_6_5,              //D/K FM-MONO, SAT-MONO
+                              MSP34x0_CARRIER_6_7421875,        //D/K2 Dual FM-Stereo
                               MSP34x0_NOCARRIER
                           )       
   },
   {
-    MSP34x0_CARRIER_7_20, (  
-                              MSP34x0_CARRIER_7_02,
+    MSP34x0_CARRIER_7_02, (  
+                              MSP34x0_CARRIER_7_20,             //SAT Stereo
+                              MSP34x0_CARRIER_7_38,             //SAT Lang1/2
                               MSP34x0_NOCARRIER
                           ) 
   },
-/*  {
-    MSP34x0_CARRIER_7_38, ( 
-                              MSP34x0_CARRIER_7_02, 
-                              MSP34x0_NOCARRIER
-                          ) 
-  },*/
   {
     MSP34x0_NOCARRIER,    ( MSP34x0_NOCARRIER )
   }
@@ -479,7 +477,10 @@ CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
     m_bStopThread = FALSE;
     m_AutoDetecting = 0;    
 
-    m_ForceVersionA = FALSE;
+    m_ForceVersionA = TRUE; //FALSE;
+    m_KeepWatchingStereo = FALSE;
+
+    m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_NONE;
 
     m_DetectInterval10ms = 20; //Detect audio standard in steps of 200 milliseconds 
 }
@@ -685,7 +686,41 @@ LPCSTR CMSP34x0Decoder::GetAudioName()
 
 eSoundChannel CMSP34x0Decoder::IsAudioChannelDetected(eSoundChannel desiredAudioChannel)
 {
-    return desiredAudioChannel;
+    switch (desiredAudioChannel)
+    {
+    case SOUNDCHANNEL_STEREO:
+        if (m_SupportedSoundChannels & SUPPORTEDSOUNDCHANNEL_STEREO)
+        {
+            return desiredAudioChannel;
+        }
+        else
+        {
+            return SOUNDCHANNEL_MONO;
+        }
+        break;
+    case SOUNDCHANNEL_LANGUAGE1:
+        if (m_SupportedSoundChannels & SUPPORTEDSOUNDCHANNEL_LANG1)
+        {
+            return desiredAudioChannel;
+        }
+        else
+        {
+            return SOUNDCHANNEL_MONO;
+        }
+        break;
+    case SOUNDCHANNEL_LANGUAGE2:
+        if (m_SupportedSoundChannels & SUPPORTEDSOUNDCHANNEL_LANG2)
+        {
+            return desiredAudioChannel;
+        }
+        else
+        {
+            return SOUNDCHANNEL_MONO;
+        }
+        break;
+    default:
+        return SOUNDCHANNEL_MONO;        
+    }
 }
 
 
@@ -788,13 +823,16 @@ void CMSP34x0Decoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat)
     }
     else
     {
+        m_AudioStandardMajorCarrier = 0;
+        m_AudioStandardMinorCarrier = 0;
+
         int nIndex = 0;
         while (m_MSPStandards[nIndex].Name != NULL)
         {
             if (m_MSPStandards[nIndex].Standard == Standard)
             {
-                m_AudioStandardMajorCarrier = m_MSPStandards[nIndex].MajorCarrier;            
-                m_AudioStandardMinorCarrier = m_MSPStandards[nIndex].MinorCarrier;
+                m_AudioStandardMajorCarrier = MSP_UNCARRIER_HZ(m_MSPStandards[nIndex].MajorCarrier);            
+                m_AudioStandardMinorCarrier = MSP_UNCARRIER_HZ(m_MSPStandards[nIndex].MinorCarrier);
             }
             nIndex++;
         }
@@ -803,12 +841,12 @@ void CMSP34x0Decoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat)
     if (m_MSPVersion == MSPVersionG)
     {
         SetStandard34x1G((eStandard)Standard, VideoFormat);
+        SetSoundChannel(m_SoundChannel);
     }
     else
     {
-        SetStandard3400((eStandard)Standard, VideoFormat);
-    }
-    SetSoundChannel(m_SoundChannel);
+        SetStandard3400((eStandard)Standard, VideoFormat, TRUE, m_SoundChannel);
+    }    
 }
 
 const char* CMSP34x0Decoder::GetAudioStandardName(long Standard)
@@ -851,7 +889,14 @@ long CMSP34x0Decoder::GetAudioStandardMajorCarrier(long Standard)
 {
     if (Standard < 0) //Current
     {
-        return m_AudioStandardMajorCarrier;
+        if (m_AudioStandardMajorCarrier == 0)
+        {
+            Standard = m_AudioStandard; //default carrier
+        }
+        else
+        {
+            return m_AudioStandardMajorCarrier;
+        }
     }
     if (Standard == MSP34x0_STANDARD_NONE)
     {
@@ -872,8 +917,15 @@ long CMSP34x0Decoder::GetAudioStandardMajorCarrier(long Standard)
 long CMSP34x0Decoder::GetAudioStandardMinorCarrier(long Standard)
 {
     if (Standard < 0) //Current
-    {
-        return m_AudioStandardMajorCarrier;
+    {        
+        if (m_AudioStandardMinorCarrier == 0)
+        {
+            Standard = m_AudioStandard; //default carrier
+        }
+        else
+        {
+            return m_AudioStandardMinorCarrier;
+        }
     }
     if (Standard == MSP34x0_STANDARD_NONE)
     {
@@ -915,27 +967,56 @@ void CMSP34x0Decoder::SetAudioStandardCarriers(long MajorCarrier, long MinorCarr
 }
 
 
-void CMSP34x0Decoder::DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard))
+void CMSP34x0Decoder::DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value))
 {
-    CAudioDecoder::DetectAudioStandard(Interval, pThis,pfnDetected);
+    CAudioDecoder::DetectAudioStandard(Interval, SupportedSoundChannels, pThis,pfnDetected);
 
     m_DetectInterval10ms = (Interval/10);
 
     if (m_AutoDetecting != 1)
-    {
-        if(m_MSPVersion == MSPVersionG)
+    {        
+        if (SupportedSoundChannels == 2)
         {
-            SetStandard34x1G(MSP34x0_STANDARD_AUTO, m_VideoFormat);
+            m_AutoDetecting = 2;
         }
         else
         {
-            SetStandard3400(MSP34x0_STANDARD_AUTO, m_VideoFormat);
+            m_DetectSupportedSoundChannels = (SupportedSoundChannels == 1);
+            if(m_MSPVersion == MSPVersionG)
+            {
+                SetStandard34x1G(MSP34x0_STANDARD_AUTO, m_VideoFormat);
+            }
+            else
+            {
+                SetStandard3400(MSP34x0_STANDARD_AUTO, m_VideoFormat, FALSE, SOUNDCHANNEL_MONO);
+            }
+            m_AutoDetecting = 1;
         }
-        
-        m_AutoDetecting = 1;
         StartThread();
     }
+    else
+    {
+        m_DetectSupportedSoundChannels = TRUE;
+    }
 }
+
+eSupportedSoundChannels CMSP34x0Decoder::DetectSoundChannels34x1G()
+{
+    int supported = SUPPORTEDSOUNDCHANNEL_MONO;
+    int val = GetDEMRegister(DEM_RD_STATUS);
+    LOG(2,"MSP34x1G: Stereo detect: status = 0x%04x",val);
+    if (val&0x0040)
+    {
+        supported |= SUPPORTEDSOUNDCHANNEL_STEREO;
+    }
+    if (val&0x0180)
+    {
+        supported |= SUPPORTEDSOUNDCHANNEL_LANG1|SUPPORTEDSOUNDCHANNEL_LANG2;
+    }
+
+    return (eSupportedSoundChannels)supported;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// MSP 3400 specific ///////////////////////////////////////////////////////////////////
@@ -1091,7 +1172,19 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
           //Duplicates
           if ((MajorCarrier == MSP34x0_CARRIER_4_5) && (MinorCarrier == MSP34x0_CARRIER_4_5))
           {
-             // BTSC or Japan Stereo?
+              // BTSC or Japan Stereo?
+
+              if (m_VideoFormat == VIDEOFORMAT_NTSC_M_Japan)
+              {
+                  Standard = MSP34x0_STANDARD_M_EIA_J;
+              }
+              else
+              {
+                  Standard = MSP34x0_STANDARD_M_BTSC;
+              }        
+                
+              LOG(2,"MSP3400: Standard can be BTSC or Japan Stereo.");
+              LOG(2,"MSP3400: Chose %s based on video format (%d)",(Standard==MSP34x0_STANDARD_M_BTSC)?"BTSC":"Japan Stereo",m_VideoFormat);
           }            
           else 
           if ((MajorCarrier == MSP34x0_CARRIER_6_5) && (MinorCarrier == MSP34x0_CARRIER_5_85))
@@ -1101,29 +1194,126 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
              {
                 Standard = MSP34x0_STANDARD_L_NICAM_AM;
              }             
+             LOG(2,"MSP3400: Standard can be NICAM AM or FM.");
+             LOG(2,"MSP3400: Chose NICAM %s based on video format (%d) (%sSECAM)",(Standard==MSP34x0_STANDARD_L_NICAM_AM)?"AM":"FM",m_VideoFormat,IsSECAMVideoFormat(m_VideoFormat)?"":"No ");
           }
           else
           if ((MajorCarrier == MSP34x0_CARRIER_6_5) && (MinorCarrier == MSP34x0_CARRIER_6_5))
           {
-             // D/K FM-Mono(HDEV3) or Sat?
+              Standard = MSP34x0_STANDARD_SAT;
+              // D/K FM-Mono(HDEV3) or Sat?
+              LOG(2,"MSP3400: Standard can be D/K FM-MONO(HDEV3) or SAT.");
+              LOG(2,"MSP3400: Chose SAT.");
           }
 
-          LOG(2,"MSP3400: Detected standard: %d",Standard);
-
-          m_AudioStandardMajorCarrier = MajorCarrier;
-          m_AudioStandardMinorCarrier = MinorCarrier;
+          m_AudioStandardMajorCarrier = MSP_UNCARRIER_HZ(MajorCarrier);
+          m_AudioStandardMinorCarrier = MSP_UNCARRIER_HZ(MinorCarrier);
           if (Standard != MSP34x0_STANDARD_NONE)
-          {              
-              return Standard;
+          {                            
+              LOG(2,"MSP3400: Detected standard: %d with carriers at %g/%g Mhz",Standard,(double)m_AudioStandardMajorCarrier/1000000.0, (double)m_AudioStandardMinorCarrier/1000000.0);              
           }
           else
           {              
-              //Try this one
-              return MSP34x0_STANDARD_M_DUAL_FM;              
+              //Just try...
+              if (IsSECAMVideoFormat(m_VideoFormat))
+              {
+                    Standard = MSP34x0_STANDARD_L_NICAM_AM;
+              }
+              else
+              {
+                    Standard = MSP34x0_STANDARD_M_DUAL_FM;              
+              }
+              LOG(2,"MSP3400: Detected standard: Unknown. Set to %d with carriers at %g/%g Mhz",Standard,(double)m_AudioStandardMajorCarrier/1000000.0, (double)m_AudioStandardMinorCarrier/1000000.0);                            
           }
+          return Standard;
     }
 
     return MSP34x0_STANDARD_NONE;    
+}
+
+eSupportedSoundChannels CMSP34x0Decoder::DetectSoundChannels3400()
+{
+    int supported = SUPPORTEDSOUNDCHANNEL_MONO;
+    switch (m_AudioStandard)
+    {
+    case MSP34x0_STANDARD_M_DUAL_FM:
+    case MSP34x0_STANDARD_BG_DUAL_FM:
+    case MSP34x0_STANDARD_DK1_DUAL_FM:
+    case MSP34x0_STANDARD_DK2_DUAL_FM:
+    case MSP34x0_STANDARD_DK_FM_MONO:
+    case MSP34x0_STANDARD_DK3_DUAL_FM:
+    case MSP34x0_STANDARD_M_EIA_J:    	
+        {
+            int val = GetDSPRegister(DSP_RD_A2_STEREO_DETECT);
+            if (val > 32767) { val -= 65536; }
+
+            if (val > 4096)
+            {
+                supported |= SUPPORTEDSOUNDCHANNEL_STEREO;
+            }
+            else if (val < -4096)
+            {
+                supported |= SUPPORTEDSOUNDCHANNEL_LANG1|SUPPORTEDSOUNDCHANNEL_LANG2;
+            }
+            LOG(2,"MSP3400: Stereo detect: val = %d",val);
+        }
+        break;
+    case MSP34x0_STANDARD_BG_NICAM_FM:
+    case MSP34x0_STANDARD_I_NICAM_FM:
+    case MSP34x0_STANDARD_DK_NICAM_FM:
+    case MSP34x0_STANDARD_DK_NICAM_FM_HDEV2:
+    case MSP34x0_STANDARD_DK_NICAM_FM_HDEV3:
+    case MSP34x0_STANDARD_L_NICAM_AM:
+        {
+            int val = GetDEMRegister(DEM_RD_C_AD_BITS);
+            LOG(2,"MSP3400: Stereo detect: Nicam sync = %d, val = %d",val&1,(val&0x1e)>>1);
+            if (val&1)
+            {                
+                // nicam synced
+                switch ((val & 0x1e) >> 1)  
+                {
+                case 0:
+                case 8:
+                    supported |= SUPPORTEDSOUNDCHANNEL_STEREO;
+                    break;
+                case 1:
+                case 9:
+                    supported |= SUPPORTEDSOUNDCHANNEL_LANG1;
+                    break;
+                case 2:
+                case 10:
+                    supported |= SUPPORTEDSOUNDCHANNEL_LANG1|SUPPORTEDSOUNDCHANNEL_LANG2;
+                    break;
+                default:
+                    supported |= SUPPORTEDSOUNDCHANNEL_MONO;
+                    break;
+                }
+            }
+            else
+            {
+                supported |= SUPPORTEDSOUNDCHANNEL_MONO;
+            }
+        }
+        break;
+    case MSP34x0_STANDARD_M_BTSC:
+    case MSP34x0_STANDARD_M_BTSC_MONO:
+        {
+            int val = GetDEMRegister(DEM_RD_STATUS);
+            LOG(2,"MSP3400: Stereo detect: BTSC status = 0x%04x",val);
+            if (val&0x0040)
+            {
+                supported |= SUPPORTEDSOUNDCHANNEL_STEREO;
+            }
+            if (val&0x0180)
+            {
+                supported |= SUPPORTEDSOUNDCHANNEL_LANG1|SUPPORTEDSOUNDCHANNEL_LANG2;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return (eSupportedSoundChannels)supported;
 }
 
 void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
@@ -1165,11 +1355,11 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
             case MSP34x0_STANDARD_SAT_ADR:
     			if ( (SoundChannel == SOUNDCHANNEL_LANGUAGE1) || (SoundChannel == SOUNDCHANNEL_LANGUAGE2) )
                 {
-    				  SetCarrier3400(MSP34x0_CARRIER_7_38, MSP34x0_CARRIER_7_02);			                    
+    				  SetCarrier3400(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_38);
     			} 
                 else if (SoundChannel == SOUNDCHANNEL_STEREO)
                 {			
-    				  SetCarrier3400(MSP34x0_CARRIER_7_20, MSP34x0_CARRIER_7_02);			                
+    				  SetCarrier3400(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20);
     			} 
                 else 
                 {
@@ -1239,7 +1429,7 @@ void CMSP34x0Decoder::Initialize3400()
     //Everything is set up in SetStandard3400 and SetSoundChannel3400
 }
 
-void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoformat)
+void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoformat, BOOL bCurrentCarriers, eSoundChannel soundChannel)
 {
     TStandardDefinition StandardDefinition;
 
@@ -1390,7 +1580,14 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
 
     
     // Set Carrier
-    SetCarrier3400(StandardDefinition.MajorCarrier, StandardDefinition.MinorCarrier);
+    if (bCurrentCarriers && (m_AudioStandardMajorCarrier!=0) && (m_AudioStandardMinorCarrier!=0) )
+    {
+        SetCarrier3400((eCarrier)MSP_CARRIER_HZ(m_AudioStandardMajorCarrier), (eCarrier)MSP_CARRIER_HZ(m_AudioStandardMinorCarrier));
+    }
+    else
+    {
+        SetCarrier3400(StandardDefinition.MajorCarrier, StandardDefinition.MinorCarrier);
+    }
 
     /// Step 12 NICAM_START
     if(m_MSPStandards[m_AudioStandard].StereoType == STEREO_NICAM)
@@ -1399,7 +1596,7 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     }
     
     // Source
-    SetSoundChannel3400(m_SoundChannel);
+    SetSoundChannel3400(soundChannel);
 
     // FM and NICAM prescale
     WORD fmprescale = 0x3000;
@@ -1421,7 +1618,9 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
     
     // reset the ident filter
-    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);    
+    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);   
+    Sleep(1);        
+    SetDSPRegister(DSP_WR_IDENT_MODE, 0x00);   
     
     /*SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
     SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
@@ -1629,6 +1828,19 @@ void CMSP34x0Decoder::SetStandard34x1G(eStandard standard, eVideoFormat videofor
     
     // Set standard
     SetDEMRegister(DEM_WR_STANDARD_SELECT, (int)standard);    
+
+    m_AudioStandardMajorCarrier = 0;
+    m_AudioStandardMinorCarrier = 0;
+    int nIndex = 0;
+    while (m_MSPStandards[nIndex].Name != NULL)
+    {
+        if (m_MSPStandards[nIndex].Standard == standard)
+        {
+            m_AudioStandardMajorCarrier = MSP_UNCARRIER_HZ(m_MSPStandards[nIndex].MajorCarrier);
+            m_AudioStandardMinorCarrier = MSP_UNCARRIER_HZ(m_MSPStandards[nIndex].MinorCarrier);
+        }
+        nIndex++;
+    }
 }
 
 void CMSP34x0Decoder::SetCarrier34x1G(eCarrier MajorCarrier, eCarrier MinorCarrier)
@@ -1736,44 +1948,129 @@ int CMSP34x0Decoder::DetectThread()
                 {
                     SetStandard34x1G(MSP34x0_STANDARD_AUTO, m_VideoFormat);
                 }
-                else  if (standard != MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS)
+                else if (standard != MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS)
                  {
-                     CAudioDecoder::SetAudioStandard(standard, m_VideoFormat);
+                     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
+                     m_AudioStandard = standard;
                      SetStandard34x1G(standard, m_VideoFormat);
-                     SetSoundChannel34x1G(m_SoundChannel);
+
                      m_AutoDetecting = 0;
+                     switch (standard)
+                     {
+                     case MSP34x0_STANDARD_M_DUAL_FM:
+                     case MSP34x0_STANDARD_BG_DUAL_FM:
+                     case MSP34x0_STANDARD_DK1_DUAL_FM:
+                     case MSP34x0_STANDARD_DK2_DUAL_FM:
+                     case MSP34x0_STANDARD_DK_FM_MONO:
+                     case MSP34x0_STANDARD_DK3_DUAL_FM:
+                     case MSP34x0_STANDARD_M_EIA_J:
+                          SetSoundChannel34x1G(SOUNDCHANNEL_MONO);
+                          m_AutoDetecting = 2;
+                          break;
+                     case MSP34x0_STANDARD_L_NICAM_AM:
+                          //m_SoundChannel = SOUNDCHANNEL_MONO;
+                          //SetSoundChannel34x1G(m_SoundChannel);
+                          SetSoundChannel34x1G(SOUNDCHANNEL_MONO);
+                          m_AutoDetecting = 2;
+                          break;
+                     case MSP34x0_STANDARD_FM_RADIO:
+                          //todo
+
+                          m_AutoDetecting = 2;
+                          break;
+                     default:
+                          m_AutoDetecting = 2; //Detect stereo modes
+                          break;
+                     }                                          
 
                      if (m_pfnDetected != NULL)
                      {
-                        m_pfnDetected(m_pfnDetected_pThis, standard);
+                        m_pfnDetected(m_pfnDetected_pThis, 1, standard);
+                     }                     
+                     
+                     if (!m_DetectSupportedSoundChannels)
+                     {
+                        m_AutoDetecting = 0;
                      }
-                     m_AutoDetecting = 2;
+                     m_DetectCounter = 0;
                  }
             }
             else
             {
-                eStandard standard = DetectStandard3400(); 
+                eStandard standard = DetectStandard3400();
                 LOG(2,"MSP3400: Detect standard: %d",standard);
                 if (standard != MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS)
                  {
-                     CAudioDecoder::SetAudioStandard(standard, m_VideoFormat);
-                     SetStandard3400(standard, m_VideoFormat);                     
-                     SetAudioStandardCarriers(m_AudioStandardMajorCarrier, m_AudioStandardMinorCarrier);                     
+                     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;                     
+                     m_AudioStandard = standard;
+                     SetStandard3400(standard, m_VideoFormat, TRUE, SOUNDCHANNEL_MONO);
                      m_AutoDetecting = 0;
 
                      if (m_pfnDetected != NULL)
                      {
-                         // Notify that autodetection is finished..
-                         m_pfnDetected(m_pfnDetected_pThis, standard);
+                         // Notify that standard autodetection is finished..
+                         m_pfnDetected(m_pfnDetected_pThis, 1, standard);
                      }
-                     m_AutoDetecting = 2;
-                 }    
+                     if ((m_AudioStandardMajorCarrier != m_AudioStandardMinorCarrier) || m_KeepWatchingStereo)
+                     {
+                         m_AutoDetecting = 2; //Try to find stereo                         
+                         m_DetectCounter = 0;
+
+                         if (!m_DetectSupportedSoundChannels)
+                         {
+                             m_AutoDetecting = 0;
+                         }
+                     }
+                     else
+                     {
+                         m_AutoDetecting = 0; //Finished
+                         m_SoundChannel = SOUNDCHANNEL_MONO;
+                         if (m_pfnDetected != NULL)
+                         {
+                            m_pfnDetected(m_pfnDetected_pThis, 2, (long)m_SoundChannel);
+                         }
+                     }
+                 }
             }
         }
         if (m_AutoDetecting==2) //Detect mono/stereo/lang1/lang2
         {
-            //
-            m_AutoDetecting = 0;
+            if ((m_DetectCounter%m_DetectInterval10ms) == 0)
+            {
+                eSupportedSoundChannels Supported;
+                if(m_MSPVersion == MSPVersionG) 
+                {
+                    Supported = DetectSoundChannels34x1G();
+                }   
+                else
+                {
+                    Supported = DetectSoundChannels3400();
+                }
+
+                if ((Supported != m_SupportedSoundChannels) || (m_DetectCounter>=100))
+                {
+                    m_SupportedSoundChannels = Supported;
+                    LOG(2,"MSP34xx: Detect stereo: Supported: %s%s%s%s",
+                        (Supported&SUPPORTEDSOUNDCHANNEL_MONO)?"Mono ":"",
+                        (Supported&SUPPORTEDSOUNDCHANNEL_STEREO)?"Stereo ":"",
+                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG1)?"Lang1 ":"",
+                        (Supported&SUPPORTEDSOUNDCHANNEL_LANG2)?"Lang2 ":"");
+                    
+                    m_SoundChannel = IsAudioChannelDetected(m_SoundChannel);
+                    SetSoundChannel(m_SoundChannel);
+                    
+                    if (m_pfnDetected != NULL)
+                    {
+                       m_pfnDetected(m_pfnDetected_pThis, 2, (long)m_SoundChannel);
+                    }
+
+                    if (!m_KeepWatchingStereo)
+                    {
+                        //Finished
+                        m_AutoDetecting = 0;
+                    }                    
+                }
+            }
         }
 
         Sleep(10);

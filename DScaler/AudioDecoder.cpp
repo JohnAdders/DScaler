@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.9 2002-09-15 15:57:27 kooiman Exp $
+// $Id: AudioDecoder.cpp,v 1.10 2002-09-16 14:37:35 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.8  2002/09/12 21:50:05  ittarnavsky
 // Removed the UseInputPin1 as this is not generic
 //
@@ -175,7 +178,7 @@ long CAudioDecoder::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
     return 0;
 }
 
-void CAudioDecoder::DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard))
+void CAudioDecoder::DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value))
 {    
     m_StandardDetectInterval = Interval;
     m_pfnDetected = pfnDetected;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.36 2002-09-15 15:57:27 kooiman Exp $
+// $Id: BT848Source.h,v 1.37 2002-09-16 14:37:34 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -113,8 +113,9 @@ private:
 
     ISetting* GetCurrentAudioSetting();
 
-    static void StaticAudioStandardDetected(void *pThis, long Standard);
+    static void StaticAudioStandardDetected(void *pThis, int What, long Value);
     void AudioStandardDetected(long Standard);
+    void SupportedSoundChannelsDetected(eSupportedSoundChannels supported);
 
 private:
     CBT848Card*  m_pBT848Card;
@@ -140,6 +141,7 @@ private:
 
     std::string  m_Section;
     std::string  m_IDString;
+    int m_DetectingAudioStandard;
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;

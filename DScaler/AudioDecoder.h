@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.9 2002-09-15 15:57:27 kooiman Exp $
+// $Id: AudioDecoder.h,v 1.10 2002-09-16 14:37:35 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.8  2002/09/12 21:50:05  ittarnavsky
 // Removed the UseInputPin1 as this is not generic
 //
@@ -70,6 +73,16 @@ enum eAudioInput
     AUDIOINPUT_STEREO 
 };
 
+enum eSupportedSoundChannels
+{
+    SUPPORTEDSOUNDCHANNEL_NONE = 0,
+    SUPPORTEDSOUNDCHANNEL_MONO = 1,
+    SUPPORTEDSOUNDCHANNEL_STEREO = 2,
+    SUPPORTEDSOUNDCHANNEL_LANG1 = 4,
+    SUPPORTEDSOUNDCHANNEL_LANG2 = 8,
+};
+
+
 class CAudioDecoder
 {
 public:
@@ -97,7 +110,10 @@ public:
     virtual long GetAudioStandardMinorCarrier(long Standard);
     virtual void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
     virtual long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
-    virtual void DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard));
+    // Interval in milliseconds
+    // SupportedSoundChannels == 1: detect after standard
+    // SupportedSoundChannels == 2: detect now, no standard detect
+    virtual void DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value));
 
 protected:
     eVideoFormat m_VideoFormat;
@@ -109,7 +125,7 @@ protected:
     long m_AudioStandardMinorCarrier; // In Hz
 
     long m_StandardDetectInterval;
-    void (*m_pfnDetected)(void *pThis, long Standard);
+    void (*m_pfnDetected)(void *pThis, int What, long Value); //What=1: standard, 2: soundchannels supported
     void *m_pfnDetected_pThis;
 };
 

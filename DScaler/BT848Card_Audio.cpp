@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.20 2002-09-15 15:57:27 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.21 2002-09-16 14:37:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.19  2002/09/12 21:59:52  ittarnavsky
 // Changes due to the new AudioDecoder handling
 // Changes due to the IAudioControls to CAudioControls transition
@@ -257,9 +260,9 @@ long CBT848Card::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
     return m_AudioDecoder->GetAudioStandardFromVideoFormat(videoFormat);
 }
 
-void CBT848Card::DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard))
+void CBT848Card::DetectAudioStandard(long Interval, int SupportedSoundChannels,  void *pThis, void (*pfnDetected)(void *pThis, int What, long Value))
 {
-    m_AudioDecoder->DetectAudioStandard(Interval, pThis, pfnDetected);
+    m_AudioDecoder->DetectAudioStandard(Interval, SupportedSoundChannels, pThis, pfnDetected);
 }
 
 // Do not call this function before changing the video source, it is checking to see if a video

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.28 2002-09-15 15:57:27 kooiman Exp $
+// $Id: BT848Card.h,v 1.29 2002-09-16 14:37:35 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.27  2002/09/12 22:00:57  ittarnavsky
 // Changes due to the new AudioDecoder handling
 // Changes due to the IAudioControls to CAudioControls transition
@@ -311,7 +314,7 @@ public:
     long GetAudioStandardMinorCarrier(long Standard);
     void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
     long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
-    void DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard));
+    void DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value));
 
 
     eTunerId AutoDetectTuner(eTVCardId CardId);

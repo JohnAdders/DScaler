@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.72 2005-03-11 13:03:08 adcockj Exp $
+// $Id: Other.cpp,v 1.73 2005-03-11 17:16:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2005/03/11 13:03:08  adcockj
+// handle MCE remote buttons for teletext
+//
 // Revision 1.71  2005/03/10 22:30:54  adcockj
 // fixed some bugs with MCE remote support
 //
@@ -338,8 +341,10 @@ static HMONITOR hCurrentMon = NULL;
 // so that we continue to run on NT 4
 HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
 BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi) = NULL;
+#ifdef WM_INPUT
 BOOL (WINAPI* lpRegisterRawInputDevices)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize) = NULL;
 UINT (WINAPI* lpGetRawInputData)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader) = NULL;
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -434,6 +439,7 @@ void LoadDynamicFunctions()
 	HINSTANCE h = LoadLibrary("user32.dll");
     lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindow");
     lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
+#ifdef WM_INPUT
     lpRegisterRawInputDevices = (BOOL (WINAPI *)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize))GetProcAddress(h,"RegisterRawInputDevices");
     lpGetRawInputData = (UINT (WINAPI*)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader))GetProcAddress(h,"GetRawInputData");;
 
@@ -453,7 +459,7 @@ void LoadDynamicFunctions()
         	LOG(1, "Registered for MCE remote messages");
         }
     }
-
+#endif
         
     // If the library was loaded by calling LoadLibrary(),
     // then you must use FreeLibrary() to let go of it.
@@ -462,6 +468,7 @@ void LoadDynamicFunctions()
     FreeLibrary(h);
 }
 
+#ifdef WM_INPUT
 LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
 {
     if(GET_RAWINPUT_CODE_WPARAM(wParam) == RIM_INPUT)
@@ -546,6 +553,7 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
         return TRUE;
     }
 }
+#endif
 
 
 //-----------------------------------------------------------------------------

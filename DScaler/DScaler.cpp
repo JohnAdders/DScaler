@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.372 2005-03-10 17:40:37 adcockj Exp $
+// $Id: DScaler.cpp,v 1.373 2005-03-11 17:16:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.372  2005/03/10 17:40:37  adcockj
+// first go at adding MCE remote support
+//
 // Revision 1.371  2005/03/06 01:40:49  robmuller
 // Changed default CPU speed to 'Above 1GHz' in the General Hardware Setup dialog.
 //
@@ -4812,13 +4815,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
+
+#ifdef WM_APPCOMMAND
     case WM_APPCOMMAND:
         return OnAppCommand(hWnd, wParam, lParam);
         break;
+#endif
 
+#ifdef WM_INPUT
     case WM_INPUT:
         return OnInput(hWnd, wParam, lParam);
         break;
+#endif
 
     case WM_PAINT:
         {
@@ -5569,6 +5577,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     return 0;
 }
 
+#ifdef WM_APPCOMMAND
 // Cope with new media commands 
 // MCE remote sends these for the basic keys
 LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
@@ -5610,7 +5619,7 @@ LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
     }
     return RetVal;
 }
-
+#endif
 
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.6 2001-12-16 01:32:53 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.7 2001-12-20 03:06:20 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/12/16 01:32:53  lindsey
+// Fixed use of incorrect algorithm on Athlon (MMXEXT) machines
+// Adjusted to use PictureHistory array instead of the old EvenLines/OldLines
+// Simplified the field buffering structure
+// Improved handling of dropped fields when the field buffer is in use
+//
 // Revision 1.5  2001/11/26 15:27:19  adcockj
 // Changed filter structure
 //
@@ -105,6 +111,40 @@ Ways this filter could be improved:
 - Average between fields instead of frames when it's beneficial.
 */
 /////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// A few constants
+/////////////////////////////////////////////////////////////////////////////
+
+// This might need to be tuned for other processors.
+// Then again, it doesn't seem to matter much what I set it to on my Athlon
+// so long as it's between 64 and about 300
+
+#define PREFETCH_STRIDE     128
+
+// This number is not arbitrary: It's 2^14, which is the highest power of 2 divisor
+// possible without triggering a sign based error.
+
+#define FIXED_POINT_DIVISOR 16384
+
+// Amount to add to the shimmer map when shimmering is detected. 327 isn't arbitrary:
+// It's MAX_SHORT/100.  That's because with the decayCoefficient = 99%, the accumulated
+// value can get up to 100*(accumulation amount).  The number is used in a signed
+// comparison, and it's important that the value doesn't wrap around:
+
+#define ACCUMULATION        327
+
+// The threshold at which motion artifacts and fade artifacts are equally problematic
+
+#define ACCUMULATION_MINIMUM_METHOD_THRESHOLD   62
+
+// Uncomment this and turn on "Trade Speed for Accuracy" to turn the pixels which
+// would have been averaged pink.  (Without the Trade Speed setting, feedback will
+// make the result impossible to usefully interpret.)
+
+//#define TCOMB_DEBUG
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Function prototypes
@@ -199,7 +239,7 @@ static SETTING FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         "TCombFilter", "ShimmerThreshold", NULL,
     },
     {
-        "Use temporal comb filter", ONOFF, 0, &TemporalCombMethod.bActive,
+        "Use temporal comb filter", NOT_PRESENT, 0, &TemporalCombMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "UseCombFilter", NULL,
@@ -291,13 +331,13 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
     // MMXEXT is (currently) the Athlon -- Coded separately since prefetchw is used
 
-    if (CpuFeatureFlags & FEATURE_MMXEXT)
-    {
-        TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_MMXEXT;
-    }
-    else if (CpuFeatureFlags & FEATURE_SSE)
+    if (CpuFeatureFlags & FEATURE_SSE)
     {
         TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_SSE;
+    }
+    else if (CpuFeatureFlags & FEATURE_MMXEXT)
+    {
+        TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_MMXEXT;
     }
     else if (CpuFeatureFlags & FEATURE_3DNOW)
     {
@@ -367,13 +407,6 @@ LONG UpdateBuffers(TDeinterlaceInfo *pInfo)
             pInfo->LineLength
         );
     }
-/*
-    pInfo->pMemcpy(
-        gppFieldBuffer[0],
-        pInfo->PictureHistory[0]->pData,
-        (pInfo->FieldHeight)*(pInfo->InputPitch)
-    );
-*/
 
     if (HistoryWait > 0)
     {

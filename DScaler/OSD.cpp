@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.45 2002-01-19 19:09:37 robmuller Exp $
+// $Id: OSD.cpp,v 1.46 2002-02-02 12:44:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/01/19 19:09:37  robmuller
+// Added support for the '\n' character in OSD_AddText().
+//
 // Revision 1.44  2001/12/16 16:31:43  adcockj
 // Bug fixes
 //
@@ -797,15 +800,15 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
 		/// \todo fix this to get correct details
-        strcpy (szInfo, "Input ??? -");
+        strcpy (szInfo, "Audio input : ???");
         if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
         {
             strcat (szInfo, " - MUTE");
         }
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        // Pixel width
-        sprintf (szInfo, "Pixel width : %u", pSource->GetWidth());
+        // Source size
+        sprintf (szInfo, "Source size : %ux%u", pSource->GetWidth(), pSource->GetHeight());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Source ratio

@@ -1481,12 +1481,13 @@ BEGIN
 
             MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
 
-            MENUITEM SEPARATOR
         END
         POPUP "Miscellaneous Settings"
         BEGIN
             MENUITEM "Non-Standard Signal (VCR)",   IDM_SAA7134CARD_NONSTANDARDSIGNAL
 
+            MENUITEM "Other Test Settings ...",     IDM_AUDIOSETTINGS
+            MENUITEM "Edit Register ...",           IDM_ADV_VIDEOSETTINGS
         END
         MENUITEM SEPARATOR
         MENUITEM "&Setup Card / Tuner ...",     IDM_SETUPCARD

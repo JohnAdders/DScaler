@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.55 2002-04-28 16:41:16 laurentg Exp $
+// $Id: DS_Control.h,v 1.56 2002-05-02 20:13:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/04/28 16:41:16  laurentg
+// New setting for aspect ratio detect
+//
 // Revision 1.54  2002/04/27 16:06:15  laurentg
 // Initial source
 //
@@ -1084,6 +1087,7 @@ typedef enum
 {
     FORMATSAVING = 0,
     SLIDESHOWDELAY,
+    JPEGQUALITY,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

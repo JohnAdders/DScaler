@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.5 2002-09-04 17:07:16 tobbej Exp $
+// $Id: DSSourceBase.h,v 1.6 2002-09-14 17:05:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/04 17:07:16  tobbej
+// renamed some variables
+// fixed bug in Reset(), it called the wrong Start()
+//
 // Revision 1.4  2002/08/27 22:09:39  kooiman
 // Add get/set input for DS capture source.
 //
@@ -75,6 +79,9 @@ public:
 	ISetting* GetBalance();
 	
 	LPCSTR IDString();
+
+	//from CSettingsHolder
+	void CreateSettings(LPCSTR IniSection);
 	
 protected:
 	CDShowGraph *m_pDSGraph;
@@ -92,10 +99,13 @@ protected:
 	///used for measuring how long it takes for dscaler to process one field
 	DWORD m_dwRendStartTime;
 
-	std::string  m_IDString;
+	std::string m_IDString;
+	
+	std::string m_AudioDevice;
 
 private:
 	void UpdateDroppedFields();
+	CString m_IniSection;
 };
 
 #endif // !defined(AFX_DSSOURCEBASE_H__E88C9FB3_4694_419D_AD7C_22F2E17260B4__INCLUDED_)

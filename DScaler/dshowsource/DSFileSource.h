@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.2 2002-08-27 22:09:39 kooiman Exp $
+// $Id: DSFileSource.h,v 1.3 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/08/27 22:09:39  kooiman
+// Add get/set input for DS capture source.
+//
 // Revision 1.1  2002/08/20 16:21:28  tobbej
 // split CDSSource into 3 different classes
 //
@@ -67,6 +70,7 @@ public:
 
 	LPCSTR GetStatus();
 	void HandleTimerMessages(int TimerId);
+	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
 	eTunerId GetTunerId();
 	BOOL HasTuner();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.9 2002-08-14 22:03:23 kooiman Exp $
+// $Id: CaptureDevice.h,v 1.10 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/14 22:03:23  kooiman
+// Added TV tuner support for DirectShow capture devices
+//
 // Revision 1.8  2002/07/17 19:18:09  tobbej
 // try to connect the videoport pin first if there is one.
 // commented out unused ir code
@@ -93,7 +96,7 @@ public:
 	
 	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
 
-	void connect(CComPtr<IBaseFilter> filter);
+	void Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter);
 	bool isConnected() {return m_bIsConnected;};
 	long getNumDroppedFrames();
 
@@ -104,8 +107,8 @@ public:
 	 */
 	CDShowBaseCrossbar* getCrossbar();
 
-  // IAMTVTuner
-  CDShowTVTuner *getTVTuner();  
+	// IAMTVTuner
+	CDShowTVTuner *getTVTuner();
 	
 	// IAMAnalogVideoDecoder
 	bool hasVideoDec() {return m_pAVideoDec!=NULL;}
@@ -130,7 +133,7 @@ private:
 	void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
 	bool m_bIsConnected;
 	CDShowBaseCrossbar *m_pCrossbar;
-  CDShowTVTuner *m_pTVTuner;
+	CDShowTVTuner *m_pTVTuner;
 
 	///video capture device
 	CComPtr<IBaseFilter> m_vidDev;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.39 2002-09-11 17:12:05 tobbej Exp $
+// $Id: DSSource.cpp,v 1.40 2002-09-14 17:05:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/09/11 17:12:05  tobbej
+// prevent audio input from changing video
+//
 // Revision 1.38  2002/09/11 16:42:33  tobbej
 // fixed so resolutions submenu can be empty and not always replaced with defaults if all resolutions is removed
 //
@@ -178,14 +181,13 @@
 #include "ProgramList.h"
 #include "TreeSettingsDlg.h"
 #include "DSVideoFormatPage.h"
+#include "DSAudioDevicePage.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
-
-extern char szIniFile[MAX_PATH];
 
 struct videoStandardsType
 {
@@ -273,13 +275,13 @@ CDSCaptureSource::~CDSCaptureSource()
 			}
 			data+=m_VideoFmt[i];
 		}
-		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),data.c_str(),szIniFile);
-		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),data.size(),szIniFile);
+		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),data.c_str(),GetIniFileForSettings());
+		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),data.size(),GetIniFileForSettings());
 	}
 	else
 	{
-		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),"",szIniFile);
-		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),0,szIniFile);
+		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),"",GetIniFileForSettings());
+		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),0,GetIniFileForSettings());
 	}
 }
 
@@ -548,6 +550,8 @@ void CDSCaptureSource::SaturationOnChange(long Saturation, long OldValue)
 
 void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 {
+	CDSSourceBase::CreateSettings(IniSection);
+
 	//at this time we dont know what the min and max will be
 	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Brightness);
@@ -578,11 +582,11 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	m_Settings.push_back(m_Resolution);
 
 	//restore m_VideoFmt from ini file
-	m_ResolutionDataIniSize=GetPrivateProfileInt(IniSection,"ResolutionSize",-1,szIniFile);
+	m_ResolutionDataIniSize=GetPrivateProfileInt(IniSection,"ResolutionSize",-1,GetIniFileForSettings());
 	if(m_ResolutionDataIniSize>0)
 	{
 		char *pcData=new char[m_ResolutionDataIniSize+1];
-		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,m_ResolutionDataIniSize+1,szIniFile);
+		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,m_ResolutionDataIniSize+1,GetIniFileForSettings());
 		if(result<m_ResolutionDataIniSize)
 		{
 			LOG(2,"DSCaptureSource: Reading too litle data, problem with ResolutionSize or ResolutionData in ini file");
@@ -619,6 +623,20 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 {
 	if(CDSSourceBase::HandleWindowsCommands(hWnd,wParam,lParam)==TRUE)
 	{
+		return TRUE;
+	}
+	
+	if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
+	{
+		CTreeSettingsDlg dlg(CString("DirectShow Settings"));
+
+		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
+		CDSVideoFormatPage VidemFmt(CString("Video format"),m_VideoFmt,m_Resolution);
+
+		dlg.AddPage(&AudioDevice);
+		dlg.AddPage(&VidemFmt);
+		dlg.DoModal();
+
 		return TRUE;
 	}
 
@@ -713,17 +731,6 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		{
 			ErrorBox(CString("Stl exception:\n\n")+e2.what());
 		}
-	}
-	else if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
-	{
-		CTreeSettingsDlg dlg(CString("DirectShow Settings"));
-
-		CTreeSettingsPage AudioDevice("Audio device",IDD_DSHOW_AUDIODEVICE);
-		CDSVideoFormatPage VidemFmt(CString("Video format"),m_VideoFmt,m_Resolution);
-
-		dlg.AddPage(&AudioDevice);
-		dlg.AddPage(&VidemFmt);
-		dlg.DoModal();
 	}
 
 	return FALSE;
@@ -1222,7 +1229,7 @@ void CDSCaptureSource::Start()
 	{
 		if(m_pDSGraph==NULL)
 		{
-			m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName);
+			m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName,m_AudioDevice);
 		}
 
 		m_pDSGraph->ConnectGraph();

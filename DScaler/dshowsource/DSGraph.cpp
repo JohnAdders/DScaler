@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.22 2002-09-07 13:32:34 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.23 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/09/07 13:32:34  tobbej
+// save/restore video format settings to ini file
+//
 // Revision 1.21  2002/09/04 17:12:01  tobbej
 // moved parts of start() to ConnectGraph()
 // some other changes for new video format dialog
@@ -112,10 +115,9 @@
 #include "DShowFileSource.h"
 #include "PinEnum.h"
 #include "DebugLog.h"
-
 #include "..\..\..\DSRend\DSRend_i.c"
-
 #include <dvdmedia.h>
+#include "DevEnum.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -127,11 +129,11 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowGraph::CDShowGraph(string device,string deviceName)
+CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice)
 :m_pSource(NULL),m_GraphState(State_Stopped)
 {
 	initGraph();
-	CreateRenderer();
+	CreateRenderer(AudioDevice);
 
 	m_pSource=new CDShowCaptureDevice(m_pGraph,device,deviceName);
 
@@ -141,11 +143,11 @@ CDShowGraph::CDShowGraph(string device,string deviceName)
 #endif
 }
 
-CDShowGraph::CDShowGraph(string filename)
+CDShowGraph::CDShowGraph(string filename,string AudioDevice)
 :m_pSource(NULL),m_GraphState(State_Stopped)
 {
 	initGraph();
-	CreateRenderer();
+	CreateRenderer(AudioDevice);
 
 	m_pSource=new CDShowFileSource(m_pGraph,filename);
 
@@ -214,7 +216,7 @@ void CDShowGraph::initGraph()
 
 }
 
-void CDShowGraph::CreateRenderer()
+void CDShowGraph::CreateRenderer(string AudioDevice)
 {
 	HRESULT hr=m_renderer.CoCreateInstance(CLSID_DSRendFilter);
 	if(FAILED(hr))
@@ -249,6 +251,17 @@ void CDShowGraph::CreateRenderer()
 	if(FAILED(hr))
 	{
 		throw CDShowException("Failed to find IDSRendSettings",hr);
+	}
+
+	if(AudioDevice.size()>0)
+	{
+		CDShowDevEnum::createDevice(AudioDevice,IID_IBaseFilter,&m_pAudioRenderer);
+
+		hr=m_pGraph->AddFilter(m_pAudioRenderer,L"Audio Renderer");
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to add audio renderer to filter graph",hr);
+		}
 	}
 }
 
@@ -290,7 +303,7 @@ void CDShowGraph::ConnectGraph()
 		
 		if(IsUnConnected || !m_pSource->isConnected())
 		{
-			m_pSource->connect(m_renderer);
+			m_pSource->Connect(m_renderer,m_pAudioRenderer);
 		}
 		buildFilterList();
 	}
@@ -320,7 +333,7 @@ void CDShowGraph::pause()
 	{
 		if(!m_pSource->isConnected())
 		{
-			m_pSource->connect(m_renderer);
+			m_pSource->Connect(m_renderer,m_pAudioRenderer);
 		}
 
 		HRESULT hr=m_pControl->Pause();

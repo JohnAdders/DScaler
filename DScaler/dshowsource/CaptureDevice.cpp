@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.11 2002-08-14 22:03:23 kooiman Exp $
+// $Id: CaptureDevice.cpp,v 1.12 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/08/14 22:03:23  kooiman
+// Added TV tuner support for DirectShow capture devices
+//
 // Revision 1.10  2002/08/10 16:52:00  tobbej
 // more videoport changes, hopfully this code works on both xp and non winxp os
 //
@@ -135,12 +138,12 @@ CDShowCaptureDevice::~CDShowCaptureDevice()
 	}
 }
 
-void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
+void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter)
 {	
 	//this will connect the capture device and add all needed filters upstream like tuners and crossbars
 	
 	//the following code tries to connect the video port pin of the 
-	//caputure filter it it has one.
+	//caputure filter if it has one.
 	//it looks like this code needs some tweaking since it doesnt work yet.
 	//winxp has a special filter that other os:es dont have.
 	CComPtr<IPin> pVPPin;
@@ -184,10 +187,10 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 	}
 	
 	//first try to render interleaved (dv source), if it fails try normal render
-	hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
+	hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,VideoFilter);
 	if(FAILED(hr))
 	{
-		hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,filter);
+		hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,VideoFilter);
 		if(FAILED(hr))
 		{
 			throw CDShowException("Failed to connect video capture device to renderer",hr);
@@ -196,7 +199,7 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 	m_bIsConnected=true;
 	if(m_pDroppedFrames==NULL)
 	{
-		findIAMDroppedFrames(filter);
+		findIAMDroppedFrames(VideoFilter);
 	}
 	/*if(driverSupportsIR())
 	{
@@ -327,31 +330,31 @@ CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()
 CDShowTVTuner *CDShowCaptureDevice::getTVTuner()
 {
 	LOG(2,"DShowCaptureDevice: getTVTuner");
-  if(m_pTVTuner==NULL)
+	if(m_pTVTuner==NULL)
 	{
 		LOG(2,"DShowCaptureDevice: find TVTuner");
 
-    CComPtr<IAMTVTuner> pTVTuner;
-    //FindInterface adds any nessesary filters upstream of the videocapture device
+		CComPtr<IAMTVTuner> pTVTuner;
+		//FindInterface adds any nessesary filters upstream of the videocapture device
 		//like tvtunners and crossbars
 		HRESULT hr=m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
-    if(hr != S_OK) 
-    {
-        hr = m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
-    }
-      
+		if(hr != S_OK) 
+		{
+			hr = m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
+		}
+		
 		if(SUCCEEDED(hr))
 		{
 			m_pTVTuner=new CDShowTVTuner(pTVTuner, m_pGraph);
-      LOG(2,"DShowCaptureDevice: getTVTuner found");
-		}    
-    else
-    {
-      LOG(2,"DShowCaptureDevice: getTVTuner not found");
-    }
-	}	
-  LOG(2,"DShowCaptureDevice: getTVTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
-  return m_pTVTuner;
+			LOG(2,"DShowCaptureDevice: getTVTuner found");
+		}
+		else
+		{
+			LOG(2,"DShowCaptureDevice: getTVTuner not found");
+		}
+	}
+	LOG(2,"DShowCaptureDevice: getTVTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
+	return m_pTVTuner;
 }
 
 long CDShowCaptureDevice::getSupportedTVFormats()

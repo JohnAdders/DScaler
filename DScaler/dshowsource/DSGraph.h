@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.17 2002-09-07 13:32:35 tobbej Exp $
+// $Id: DSGraph.h,v 1.18 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/09/07 13:32:35  tobbej
+// save/restore video format settings to ini file
+//
 // Revision 1.16  2002/09/04 17:12:01  tobbej
 // moved parts of start() to ConnectGraph()
 // some other changes for new video format dialog
@@ -78,7 +81,6 @@
 //
 // Revision 1.1  2001/12/17 19:30:24  tobbej
 // class for managing the capture graph
-//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -151,13 +153,13 @@ public:
 	 * Creates a filtergraph with a capture device as source.
 	 * @throws CDShowException
 	 */
-	CDShowGraph(string device,string deviceName);
+	CDShowGraph(string device,string deviceName,string AudioDevice);
 
 	/**
 	 * Creates a filtergraph with a file as source
 	 * @throws CDShowException
 	 */
-	CDShowGraph(string filename);
+	CDShowGraph(string filename,string AudioDevice);
 	///Destructor
 	virtual ~CDShowGraph();
 	
@@ -233,7 +235,7 @@ public:
 
 private:
 	void initGraph();
-	void CreateRenderer();
+	void CreateRenderer(string AudioDevice);
 
 	void findStreamConfig();
 	
@@ -242,6 +244,8 @@ private:
 
 	///Custom video renderer. Used for transfering the picture to dscaler
 	CComPtr<IBaseFilter> m_renderer;
+	CComPtr<IBaseFilter> m_pAudioRenderer;
+
 	///Interface used for geting media samples from the renderer filter
 	CComPtr<IDSRendFilter> m_DSRend;
 	CComPtr<IQualProp> m_pQualProp;

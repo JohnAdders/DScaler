@@ -781,17 +781,19 @@ BEGIN
     LTEXT           "Video card",-1,15,181,41,10
 END
 
-IDD_DSHOW_AUDIODEVICE DIALOG DISCARDABLE  0, 0, 166, 41
+IDD_DSHOW_AUDIODEVICE DIALOG DISCARDABLE  0, 0, 166, 85
 STYLE DS_CONTROL | WS_CHILD
 FONT 8, "MS Sans Serif"
 BEGIN
-    GROUPBOX        "",IDC_STATIC,0,0,165,40,WS_DISABLED
-    CONTROL         "Use default audio device",IDC_CHECK1,"Button",
-                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,5,0,95,10
+    GROUPBOX        "",IDC_STATIC,0,0,165,85
+    CONTROL         "Use default audio device",
+                    IDC_DSHOW_AUDIODEVICE_USEDEFAULT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,0,95,10
     COMBOBOX        IDC_DSHOW_AUDIODEVICE_DEVICE,35,15,124,30,
-                    CBS_DROPDOWNLIST | CBS_SORT | WS_DISABLED | WS_VSCROLL | 
-                    WS_TABSTOP
-    LTEXT           "Device:",IDC_STATIC,5,15,26,8,WS_DISABLED
+                    CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Device:",IDC_STATIC,5,15,26,8
+    LTEXT           "Note: Changes to this setting will not take effect immediately.\nThis setting will be ignored if you open a file that don't have any audio or if you have a capture card which is connected to the audio card by a cable.",
+                    IDC_STATIC,5,30,149,50
 END
 
 IDD_DSHOW_VIDEOFMTS DIALOG DISCARDABLE  0, 0, 321, 141
@@ -1313,6 +1315,8 @@ BEGIN
         MENUITEM "&Stop",                       IDM_DSHOW_STOP
         MENUITEM SEPARATOR
         MENUITEM "&Reset",                      IDM_RESET
+        MENUITEM SEPARATOR
+        MENUITEM "Se&ttings...",                IDM_DSHOW_SETTINGS
         MENUITEM "Filter properties...",        IDM_DSHOW_FILTERS
     END
 END

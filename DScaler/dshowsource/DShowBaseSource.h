@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowBaseSource.h,v 1.2 2002-03-15 23:01:53 tobbej Exp $
+// $Id: DShowBaseSource.h,v 1.3 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/03/15 23:01:53  tobbej
+// changed dropped frames counter to include dropped frames in source filter
+//
 // Revision 1.1  2002/02/07 22:05:43  tobbej
 // new classes for file input
 // rearanged class inheritance a bit
@@ -55,9 +58,10 @@ public:
 	
 	/**
 	 * Used to connect this source to a downstream filter (renderer)
-	 * @param filter filter to connect to
+	 * @param VideoFilter video renderer filter to connect to
+	 * @param AudioFilter audio renderer filter to connect to, or null to let the source decide.
 	 */
-	virtual void connect(CComPtr<IBaseFilter> filter)=0;
+	virtual void Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter)=0;
 
 	/**
 	 * Checks if this source is connected

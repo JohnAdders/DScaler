@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.3 2002-09-04 17:07:16 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.4 2002-09-14 17:05:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/04 17:07:16  tobbej
+// renamed some variables
+// fixed bug in Reset(), it called the wrong Start()
+//
 // Revision 1.2  2002/08/21 20:29:20  kooiman
 // Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
 //
@@ -54,7 +58,6 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-
 CDSSourceBase::CDSSourceBase(long SetMessage, long MenuId) :
 	CSource(SetMessage,MenuId),
 	m_pDSGraph(NULL),
@@ -74,6 +77,16 @@ CDSSourceBase::~CDSSourceBase()
 		m_pDSGraph=NULL;
 	}
 	DeleteCriticalSection(&m_hOutThreadSync);
+	WritePrivateProfileString(m_IniSection,_T("AudioDevice"),m_AudioDevice.c_str(),GetIniFileForSettings());
+}
+
+void CDSSourceBase::CreateSettings(LPCSTR IniSection)
+{
+	CString AudioDevice;
+	m_IniSection=IniSection;
+	GetPrivateProfileString(IniSection,_T("AudioDevice"),_T(""),AudioDevice.GetBufferSetLength(MAX_PATH),MAX_PATH,GetIniFileForSettings());
+	AudioDevice.ReleaseBuffer();
+	m_AudioDevice=AudioDevice;
 }
 
 int CDSSourceBase::GetWidth()

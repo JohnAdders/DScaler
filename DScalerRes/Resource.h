@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
+// Microsoft Developer Studio generated include file.
 // Used by DScalerRes.rc
 //
 #define IDM_POPUP_FILTERS               1
@@ -998,6 +998,7 @@
 #define IDC_BALANCE_SLIDER              8049
 #define IDC_BALANCE_VAL                 8050
 #define IDC_USEEQUALIZER                8051
+#define IDC_DSHOW_AUDIODEVICE_USEDEFAULT 8052
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1060,7 +1061,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        214
 #define _APS_NEXT_COMMAND_VALUE         32813
-#define _APS_NEXT_CONTROL_VALUE         8052
+#define _APS_NEXT_CONTROL_VALUE         8053
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

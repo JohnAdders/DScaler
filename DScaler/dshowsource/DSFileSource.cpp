@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.2 2002-08-20 16:22:42 tobbej Exp $
+// $Id: DSFileSource.cpp,v 1.3 2002-09-14 17:03:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/08/20 16:22:42  tobbej
+// fixed commit log entry (accidentaly used wrong log message)
+//
 // Revision 1.1  2002/08/20 16:19:42  tobbej
 // split CDSSource into 3 different classes
 //
@@ -41,6 +44,8 @@
 #include "DShowFileSource.h"
 #include "DebugLog.h"
 #include "AspectRatio.h"
+#include "TreeSettingsDlg.h"
+#include "DSAudioDevicePage.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -63,8 +68,28 @@ CDSFileSource::~CDSFileSource()
 
 void CDSFileSource::CreateSettings(LPCSTR IniSection)
 {
-
+	CDSSourceBase::CreateSettings(IniSection);
+	
 }
+
+BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+{
+	if(CDSSourceBase::HandleWindowsCommands(hWnd,wParam,lParam)==TRUE)
+	{
+		return TRUE;
+	}
+
+	if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
+	{
+		CTreeSettingsDlg dlg(CString("DirectShow Settings"));
+		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
+
+		dlg.AddPage(&AudioDevice);
+		dlg.DoModal();
+	}
+	return TRUE;
+}
+
 
 BOOL CDSFileSource::IsAccessAllowed()
 {
@@ -87,7 +112,7 @@ BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 	m_filename="";
 	try
 	{
-		m_pDSGraph=new CDShowGraph(FileName);
+		m_pDSGraph=new CDShowGraph(FileName,m_AudioDevice);
 		m_filename=FileName;
 		m_pDSGraph->start();
 		return TRUE;
@@ -171,7 +196,7 @@ void CDSFileSource::Start()
 	{
 		if(m_pDSGraph==NULL)
 		{
-			m_pDSGraph=new CDShowGraph(m_filename);
+			m_pDSGraph=new CDShowGraph(m_filename,m_AudioDevice);
 		}
 		CDSSourceBase::Start();
 	}

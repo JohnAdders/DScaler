@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OpenDlg.cpp,v 1.1 2003-02-22 16:45:02 tobbej Exp $
+// $Id: OpenDlg.cpp,v 1.2 2003-02-22 17:26:45 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/02/22 16:45:02  tobbej
+// added a new open file dialog that allows entering urls
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -158,7 +161,7 @@ void COpenDlg::OnBrowse()
 	OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
 	OpenFileInfo.hwndOwner = m_hWnd;
 	OpenFileInfo.lpstrFilter = FileFilters;
-	OpenFileInfo.nFilterIndex = 1;
+	OpenFileInfo.nFilterIndex = 2;
 	OpenFileInfo.lpstrCustomFilter = NULL;
 	OpenFileInfo.lpstrFile = FilePath;
 	OpenFileInfo.nMaxFile = sizeof(FilePath);

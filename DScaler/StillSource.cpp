@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.21 2001-12-16 10:15:45 laurentg Exp $
+// $Id: StillSource.cpp,v 1.22 2001-12-18 14:53:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/12/16 10:15:45  laurentg
+// Calculation of used fields restored
+// Close function added
+//
 // Revision 1.20  2001/12/08 20:00:24  laurentg
 // Access control on sources
 //
@@ -324,8 +328,8 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         pInfo->bRunningLate = TRUE;
         pInfo->bMissedFrame = TRUE;
-        pInfo->FrameWidth = 10;
-        pInfo->FrameHeight = 10;
+        pInfo->FrameWidth = 720;
+        pInfo->FrameHeight = 480;
         return;
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_BlendedClip.c,v 1.5 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_BlendedClip.c,v 1.6 2001-08-06 18:14:54 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -834,7 +837,7 @@ SETTING DI_BlendedClipSettings[DI_BLENDEDCLIP_SETTING_LASTONE] =
     },
     {
         "BlcPixelMotionSense", SLIDER, 0, &BlcPixelMotionSense,
-        17, 0, 255, 1, 1,
+        17, 0, 100, 1, 1,
         NULL,
         "Deinterlace", "BlcPixelMotionSense", NULL,
     },

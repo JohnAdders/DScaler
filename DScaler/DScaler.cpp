@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.142 2002-03-21 08:34:07 robmuller Exp $
+// $Id: DScaler.cpp,v 1.143 2002-03-21 10:26:57 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.142  2002/03/21 08:34:07  robmuller
+// Added last line ("Program exit") to log file.
+//
 // Revision 1.141  2002/03/12 23:29:45  robmuller
 // Implemented functions VT_GetNextPage() and VT_GetPreviousPage().
 //
@@ -1868,7 +1871,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERLAYSETTINGS:
-            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
+            if(!CanDoOverlayColorControl())
+            {
+                MessageBox(hWnd, "Overlay color control is not supported by your video card.",
+                           "DScaler", MB_OK);
+            }
+            else
+            {
+                DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
+            }
             break;
 
         case IDM_USE_DSCALER_OVERLAY:

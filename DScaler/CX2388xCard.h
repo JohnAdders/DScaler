@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.29 2004-06-01 20:04:50 to_see Exp $
+// $Id: CX2388xCard.h,v 1.30 2004-06-02 18:44:06 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -134,6 +134,12 @@ private:
         eCX2388xCardId CardId;
         char* szName;
     } TAutoDectect;
+
+    typedef struct
+    {
+        DWORD dwRegister;
+        DWORD dwValue;
+    } TAudioRegList;
 
 public:
 	void HandleTimerMessages(int TimerId);
@@ -277,6 +283,7 @@ private:
     void AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     void AudioInitFM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     void AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
+	void SetAudioRegisters(const TAudioRegList* pAudioList);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 private:
@@ -300,6 +307,24 @@ private:
     static const TCardType m_TVCards[CX2388xCARD_LASTONE];
     static const TAutoDectect m_AutoDectect[];
     static const eTunerId m_Tuners_Hauppauge_CX2388x_Card[];
+
+    static const TAudioRegList m_RegList_BTSC[];
+    static const TAudioRegList m_RegList_BTSC_SAP[];
+    static const TAudioRegList m_RegList_EIAJ[];
+    static const TAudioRegList m_RegList_Nicam_Common[];
+    static const TAudioRegList m_RegList_Nicam_Deemph1[];
+    static const TAudioRegList m_RegList_Nicam_Deemph2[];
+    static const TAudioRegList m_RegList_A2_BGDK_Common[];
+    static const TAudioRegList m_RegList_A2_BGDK_Special[];
+    static const TAudioRegList m_RegList_A2_BG[];
+    static const TAudioRegList m_RegList_A2_DK[];
+    static const TAudioRegList m_RegList_A2_M[];
+    static const TAudioRegList m_RegList_A2_I_Common[];
+    static const TAudioRegList m_RegList_A2_I_Deemph1[];
+    static const TAudioRegList m_RegList_A2_I_Deemph2[];
+    static const TAudioRegList m_RegList_A2_I_Special[];
+    static const TAudioRegList m_RegList_FM_Deemph50[];
+    static const TAudioRegList m_RegList_FM_Deemph75[];
 };
 
 

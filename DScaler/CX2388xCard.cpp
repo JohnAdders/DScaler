@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.61 2004-05-21 18:35:58 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.62 2004-06-02 18:43:54 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2004/05/21 18:35:58  to_see
+// Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
+//
+// More Loging when StartStopConexantDriver is not able to Stop the WDM-Driver when other SW uses the card Hardware.
+//
 // Revision 1.60  2004/05/16 19:45:08  to_see
 // Added an new class for Msi Master Card
 //
@@ -1453,18 +1458,6 @@ void CCX2388xCard::ResetChip()
 
 void CCX2388xCard::ResetHardware()
 {
-	/*
-	if(m_EnableConexxantDriver2Stopp == TRUE)
-	{
-		m_ConexxantDriverStopped = StartStopConexxantDriver(DICS_DISABLE);
-		if(m_ConexxantDriverStopped == TRUE)
-		{
-			// wake up the chip from D3 state
-			ResetChip();
-		}
-	}
-	*/
-
     // Clear out the SRAM Channel Management data structures
     // for all 12 devices
     for (int i(1); i<=12; ++i)

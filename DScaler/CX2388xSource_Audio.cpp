@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.7 2004-04-19 17:33:30 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.8 2004-06-02 18:44:07 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/04/19 17:33:30  to_see
+// Added BTSCSAP and FM Audio
+//
 // Revision 1.6  2004/03/07 12:20:12  to_see
 // added 2 Cards
 // working Nicam-Sound
@@ -279,6 +282,11 @@ void CCX2388xSource::UpdateAudioStatus()
 
 eSoundChannel CCX2388xSource::AutoDetectA2Sound()
 {
+	if(m_pCard->GetCurrentStereoType() == SOUNDCHANNEL_MONO)
+	{
+		return SOUNDCHANNEL_MONO;
+	}
+	
 	eSoundChannel SoundChannelA2 = SOUNDCHANNEL_MONO;
 	DWORD dwVal = m_pCard->GetAudioStatusRegister();
 

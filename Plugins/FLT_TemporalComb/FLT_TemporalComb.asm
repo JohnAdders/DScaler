@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.3 2001-12-16 01:34:32 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.4 2001-12-16 16:31:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/16 01:34:32  lindsey
+// Fixed use of incorrect algorithm on Athlon (MMXEXT) machines
+// Adjusted to use PictureHistory array instead of the old EvenLines/OldLines
+// Simplified the field buffering structure
+// Improved handling of dropped fields when the field buffer is in use
+//
 // Revision 1.2  2001/08/30 10:04:59  adcockj
 // Added a "trade speed for accuracy" mode which improves detection and
 //  correction of dot crawl by removing a feedback problem -- at the
@@ -457,7 +463,7 @@ MAINLOOP_LABEL:
         
             movq mm2, qword ptr[ebx + ecx]                  // mm2 = lastLastPixel
 
-#if defined(IS_3DNOW) || defined(IS_MMXEXT)
+#if defined(IS_3DNOW) //|| defined(IS_MMXEXT)
             prefetchw [eax + ecx + PREFETCH_STRIDE]
 #elif defined(IS_SSE)
             prefetchnta [eax + ecx + PREFETCH_STRIDE]
@@ -615,7 +621,7 @@ MAINLOOP_LABEL:
         
             movq mm2, qword ptr[ebx + ecx + 24]             // mm2 = lastLastPixel
 
-#if defined(IS_3DNOW) || defined(IS_MMXEXT)
+#if defined(IS_3DNOW) //|| defined(IS_MMXEXT)
             prefetchw [edx + ecx + PREFETCH_STRIDE]
 #elif defined(IS_SSE)
             prefetchnta [edx + ecx + PREFETCH_STRIDE]

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.1 2001-12-16 13:00:51 laurentg Exp $
+// $Id: Perf.cpp,v 1.2 2001-12-16 16:31:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/16 13:00:51  laurentg
+// New statistics
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +28,8 @@
 #include "Perf.h"
 #include "FieldTiming.h"
 
-static char PerfNames[PERF_TYPE_LASTONE][32] = {
+static const char* PerfNames[PERF_TYPE_LASTONE] = 
+{
     "Wait for next field",
     "Input filters",
     "Output filters",
@@ -42,13 +46,9 @@ static char PerfNames[PERF_TYPE_LASTONE][32] = {
 
 CPerf* pPerf = NULL;
 
-CPerfItem::CPerfItem(char* Name)
+CPerfItem::CPerfItem(const char* Name)
 {
-    strncpy(m_Name, Name, 31);
-    if (strlen(Name) >= 31)
-    {
-        m_Name[31] = '\0';
-    }
+    m_Name = Name;
     m_LastDuration = 0;
     m_SumDuration = 0;
     m_NbCounts = 0;
@@ -104,7 +104,7 @@ void CPerfItem::StopCount()
     m_IsCounting = FALSE;
 }
 
-char* CPerfItem::GetName()
+const char* CPerfItem::GetName()
 {
     return m_Name;
 }
@@ -230,7 +230,7 @@ BOOL CPerf::IsValid(ePerfType PerfType)
     return (GetNbCounts(PerfType) > 0) ? TRUE : FALSE;
 }
 
-char* CPerf::GetName(ePerfType PerfType)
+const char* CPerf::GetName(ePerfType PerfType)
 {
     return m_PerfItems[PerfType]->GetName();
 }

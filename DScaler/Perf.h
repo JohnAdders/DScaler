@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.h,v 1.1 2001-12-16 13:00:51 laurentg Exp $
+// $Id: Perf.h,v 1.2 2001-12-16 16:31:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/16 13:00:51  laurentg
+// New statistics
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,12 +47,12 @@ enum ePerfType
 class CPerfItem
 {
 public:
-    CPerfItem(char* Name);
+    CPerfItem(const char* Name);
     ~CPerfItem();
     void Reset();
     void StartCount();
     void StopCount();
-    char* GetName();
+    const char* GetName();
     DWORD GetLastDuration();
     unsigned int GetNbCounts();
     DWORD GetAverageDuration();
@@ -57,7 +60,7 @@ public:
     DWORD GetMaxDuration();
 
 protected:
-    char            m_Name[32];
+    const char*     m_Name;
     DWORD           m_LastDuration;
     DWORD           m_SumDuration;
     unsigned int    m_NbCounts;
@@ -81,7 +84,7 @@ public:
     int GetDurationLastCycle(ePerfType PerfType);
     unsigned int GetNbCycles(int NbFramesPerSec);
     BOOL IsValid(ePerfType PerfType);
-    char* GetName(ePerfType PerfType);
+    const char* GetName(ePerfType PerfType);
     DWORD GetLastDuration(ePerfType PerfType);
     unsigned int GetNbCounts(ePerfType PerfType);
     DWORD GetAverageDuration(ePerfType PerfType);

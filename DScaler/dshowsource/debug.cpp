@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: debug.cpp,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: debug.cpp,v 1.2 2001-12-16 16:31:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +36,8 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
 
 #ifdef _DEBUG
 
@@ -63,4 +69,6 @@ void RemoveFromRot(DWORD pdwRegister)
 		pROT->Revoke(pdwRegister);
 	}
 }
+#endif
+
 #endif

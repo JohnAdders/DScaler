@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.103 2001-12-16 13:13:34 laurentg Exp $
+// $Id: DScaler.cpp,v 1.104 2001-12-16 16:31:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2001/12/16 13:13:34  laurentg
+// New statistics
+//
 // Revision 1.102  2001/12/08 14:22:19  laurentg
 // Bug fix regarding Sources submenu in the right mouse menu
 //
@@ -2667,6 +2670,8 @@ void CleanUpMemory()
     Channels_Exit();
     delete pCalibration;
     pCalibration = NULL;
+    delete pPerf;
+    pPerf = NULL;
 }
 
 //---------------------------------------------------------------------------

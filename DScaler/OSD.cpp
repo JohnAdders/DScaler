@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.43 2001-12-16 13:13:34 laurentg Exp $
+// $Id: OSD.cpp,v 1.44 2001-12-16 16:31:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2001/12/16 13:13:34  laurentg
+// New statistics
+//
 // Revision 1.42  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -329,8 +332,10 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     hDC = GetDC(hWnd);
     GetClientRect(hWnd,&winRect);
 
+#ifdef _DEBUG
     LARGE_INTEGER count, count1, pfreq;
     BOOL bPerformanceCounter = QueryPerformanceCounter(&count);
+#endif
 
     if (IsStatusBarVisible())
     {
@@ -347,14 +352,14 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     OSD_Redraw(hWnd, hDBDC);
     PaintingHDC.EndPaint();
 
+#ifdef _DEBUG
     if(bPerformanceCounter)
     {
         QueryPerformanceFrequency(&pfreq);
         QueryPerformanceCounter(&count1);
-        char temp[200];
-        sprintf(temp, "OSD_Show in %d ms", (int) (count1.QuadPart-count.QuadPart)/(pfreq.QuadPart/1000));
-        OutputDebugString(temp);
+        LOGD("OSD_Show in %d ms\n", (int) (count1.QuadPart-count.QuadPart)/(pfreq.QuadPart/1000));
     }
+#endif
 
     ReleaseDC(hWnd, hDC);
     if (ShowType == OSD_AUTOHIDE)

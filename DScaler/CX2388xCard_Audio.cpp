@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.28 2004-08-14 13:45:22 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.29 2004-09-11 19:01:02 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2004/08/14 13:45:22  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.27  2004/07/10 11:56:02  adcockj
 // Changed back default for PAL_I to NICAM to avoid chipmonk effect
 //
@@ -397,7 +400,7 @@ const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_Nicam_Deemph2[]=
 	{0, 0},
 };
 
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BGDK_Common[]=
+const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BGDKIM_Common[]=
 {
 	{AUD_INIT,					SEL_A2},
 	{AUD_INIT_LD,				0x00000001},
@@ -459,27 +462,7 @@ const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BGDK_Common[]=
 	{0, 0},
 };
 
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BGDK_Special[]=
-{
-	{AUD_CRDC0_SRC_SEL,			0x00000501},
-	{AUD_IIR1_0_SEL,			0x00000001},
-	{AUD_IIR1_1_SEL,			0x00000000},
-	{AUD_IIR3_2_SEL,			0x00000003},
-	{AUD_IIR3_2_SHIFT,			0x00000000},
-	{AUD_IIR2_0_SEL,			0x00000021},
-	{AUD_IIR2_0_SHIFT,			0x00000002},
-	{AUD_DEEMPH0_SRC_SEL,		0x0000000b},
-	{AUD_CRDC1_SRC_SEL,			0x00000453},
-	{AUD_IIR3_0_SEL,			0x00000004},
-	{AUD_IIR3_1_SEL,			0x00000005},
-	{AUD_IIR2_1_SEL,			0x00000023},
-	{AUD_IIR2_1_SHIFT,			0x00000002},
-	{AUD_DEEMPH1_SRC_SEL,		0x0000000d},
-	{AUD_IIR1_4_SEL,			0x0000000d},
-	{0, 0},
-};
-
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BG[]=
+const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BGI[]=
 {
 	{AUD_DMD_RA_DDS,			0x002a4f2f},
 	{AUD_C1_UP_THR,				0x00007000},
@@ -518,109 +501,6 @@ const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_M[]=
 	{AUD_POLY0_DDS_CONSTANT,	0x000a7540},
 	{0, 0},
 };
-
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_I_Common[]=
-{
-	{AUD_INIT,					SEL_A2},
-	{AUD_INIT_LD,				0x00000001},
-	{AUD_SOFT_RESET,			0x00000001},
-	{AUD_ERRLOGPERIOD_R,		0x00000064},
-	{AUD_ERRINTRPTTHSHLD1_R,	0x00000fff},
-	{AUD_ERRINTRPTTHSHLD2_R,	0x0000001f},
-	{AUD_ERRINTRPTTHSHLD3_R,	0x0000000f},
-	{AUD_PDF_DDS_CNST_BYTE2,	0x06},
-	{AUD_PDF_DDS_CNST_BYTE1,	0x82},
-	{AUD_PDF_DDS_CNST_BYTE0,	0x12},
-	{AUD_QAM_MODE,				0x05},
-	{AUD_PHACC_FREQ_8MSB,		0x3a},
-	{AUD_PHACC_FREQ_8LSB,		0x93},
-	{AUD_DMD_RA_DDS,			0x002a4f2f},
-	{AUD_PLL_INT,				0x0000001e},
-	{AUD_PLL_DDS,				0x00000004},
-	{AUD_PLL_FRAC,				0x0000e542},
-	{AUD_RATE_ADJ1,				0x00000100},
-	{AUD_RATE_ADJ2,				0x00000200},
-	{AUD_RATE_ADJ3,				0x00000300},
-	{AUD_RATE_ADJ4,				0x00000400},
-	{AUD_RATE_ADJ5,				0x00000500},
-	{AUD_THR_FR,				0x00000000},
-	{AUD_PILOT_BQD_1_K0,		0x0000755b},
-	{AUD_PILOT_BQD_1_K1,		0x00551340},
-	{AUD_PILOT_BQD_1_K2,		0x006d30be},
-	{AUD_PILOT_BQD_1_K3,		0xffd394af},
-	{AUD_PILOT_BQD_1_K4,		0x00400000},
-	{AUD_PILOT_BQD_2_K0,		0x00040000},
-	{AUD_PILOT_BQD_2_K1,		0x002a4841},
-	{AUD_PILOT_BQD_2_K2,		0x00400000},
-	{AUD_PILOT_BQD_2_K3,		0x00000000},
-	{AUD_PILOT_BQD_2_K4,		0x00000000},
-	{AUD_MODE_CHG_TIMER,		0x00000060},
-	{AUD_AFE_12DB_EN,			0x00000001},
-	{AAGC_HYST,					0x0000000a},
-	{AUD_CORDIC_SHIFT_0,		0x00000007},
-	{AUD_CORDIC_SHIFT_1,		0x00000007},
-	{AUD_C1_UP_THR,				0x00007000},
-	{AUD_C1_LO_THR,				0x00005400},
-	{AUD_C2_UP_THR,				0x00005400},
-	{AUD_C2_LO_THR,				0x00003000},
-	{AUD_DCOC_0_SRC,			0x0000001a},
-	{AUD_DCOC0_SHIFT,			0x00000000},
-	{AUD_DCOC_0_SHIFT_IN0,		0x0000000a},
-	{AUD_DCOC_0_SHIFT_IN1,		0x00000008},
-	{AUD_DCOC_PASS_IN,			0x00000003},
-	{AUD_IIR3_0_SEL,			0x00000021},
-	{AUD_DN2_AFC,				0x00000002},
-	{AUD_DCOC_1_SRC,			0x0000001b},
-	{AUD_DCOC1_SHIFT,			0x00000000},
-	{AUD_DCOC_1_SHIFT_IN0,		0x0000000a},
-	{AUD_DCOC_1_SHIFT_IN1,		0x00000008},
-	{AUD_IIR3_1_SEL,			0x00000023},
-	{AUD_DN0_FREQ,				0x000035a3},
-	{AUD_DN2_FREQ,				0x000029c7},
-	{AUD_CRDC0_SRC_SEL,			0x00000511},
-	{AUD_IIR1_0_SEL,			0x00000001},
-	{AUD_IIR1_1_SEL,			0x00000000},
-	{AUD_IIR3_2_SEL,			0x00000003},
-	{AUD_IIR3_2_SHIFT,			0x00000000},
-	{AUD_IIR3_0_SEL,			0x00000002},
-	{AUD_IIR2_0_SEL,			0x00000021},
-	{AUD_IIR2_0_SHIFT,			0x00000002},
-	{AUD_DEEMPH0_SRC_SEL,		0x0000000b},
-	{AUD_DEEMPH1_SRC_SEL,		0x0000000b},
-	{AUD_POLYPH80SCALEFAC,		0x00000001},
-	{AUD_START_TIMER,			0x00000000},
-	{0, 0},
-};
-
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_I_Deemph1[]=
-{
-
-	{AUD_DEEMPH0_G0,			0x00000380},
-	{AUD_DEEMPH1_G0,			0x00000380},
-	{AUD_DEEMPHGAIN_R,			0x000011e1},
-	{AUD_DEEMPHNUMER1_R,		0x0002a7bc},
-	{AUD_DEEMPHNUMER2_R,		0x0003023c},
-	{0, 0},
-};
-
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_I_Deemph2[]=
-{
-	{AUD_DEEMPH0_G0,			0x00000480},
-	{AUD_DEEMPH1_G0,			0x00000480},
-	{AUD_DEEMPHGAIN_R,			0x00009000},
-	{AUD_DEEMPHNUMER1_R,		0x000353de},
-	{AUD_DEEMPHNUMER2_R,		0x000001b1},
-	{0, 0},
-};
-
-const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_I_Special[]=
-{
-	{AUD_DMD_RA_DDS,			0x0026df26},
-	{AUD_PLL_INT,				0x0000001c},
-	{AUD_PLL_FRAC,				0x000062a2},
-	{0, 0},
-};
-
 
 const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_FM_Deemph75[]=
 {
@@ -682,9 +562,6 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
     WriteDword(MO_AUD_DMACNTRL, 0x00000000);
     ::Sleep(100);
 
-    // \todo sort this out
-    // most of what's below is probably rubbish
-
     if(Standard == AUDIO_STANDARD_AUTO)
     {
         switch (TVFormat)
@@ -697,25 +574,6 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
             Standard = AUDIO_STANDARD_EIAJ;
             break;
 
-        case VIDEOFORMAT_PAL_I:
-        case VIDEOFORMAT_PAL_D:
-        case VIDEOFORMAT_PAL_G:
-        case VIDEOFORMAT_SECAM_B:
-        case VIDEOFORMAT_SECAM_D:
-        case VIDEOFORMAT_SECAM_G:
-        case VIDEOFORMAT_SECAM_H:
-        case VIDEOFORMAT_SECAM_K:
-        case VIDEOFORMAT_SECAM_K1:
-        case VIDEOFORMAT_SECAM_L:
-        case VIDEOFORMAT_SECAM_L1:
-
-        case VIDEOFORMAT_PAL_B:
-        case VIDEOFORMAT_PAL_H:
-        case VIDEOFORMAT_PAL_M:
-        case VIDEOFORMAT_PAL_N:
-        case VIDEOFORMAT_PAL_N_COMBO:
-        case VIDEOFORMAT_PAL_60:
-        case VIDEOFORMAT_NTSC_50:
         default:
             Standard = AUDIO_STANDARD_A2;
             break;
@@ -920,59 +778,52 @@ void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType Ster
 
 void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
- SetAudioRegisters(m_RegList_A2_BGDK_Common);
- 
- switch (TVFormat)
- {
- case VIDEOFORMAT_PAL_B:
- case VIDEOFORMAT_PAL_G:
-  SetAudioRegisters(m_RegList_A2_BG);
-  break;
- 
- case VIDEOFORMAT_PAL_D:
- case VIDEOFORMAT_SECAM_K:
- case VIDEOFORMAT_SECAM_D:
-  SetAudioRegisters(m_RegList_A2_DK);
-  break;
- 
-// new code for mono audio
- case VIDEOFORMAT_PAL_I:
-  
-  // John, is this line needed here?
-  SetAudioRegisters(m_RegList_A2_BG);
-  
-  // always mono for Pal(I)
-  StereoType = STEREOTYPE_MONO;
-  break;
- 
- case VIDEOFORMAT_NTSC_M:
-  SetAudioRegisters(m_RegList_A2_M);
-  break;
- }
- 
- DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
- switch(StereoType)
- {
- case STEREOTYPE_MONO:
- case STEREOTYPE_ALT1:
-  dwTemp |= EN_A2_FORCE_MONO1;
-  break;
- 
- case STEREOTYPE_ALT2:
-  dwTemp |= EN_A2_FORCE_MONO2;
-  break;
- 
- case STEREOTYPE_STEREO:
-  dwTemp |= EN_A2_FORCE_STEREO;
-  break;
- 
- case STEREOTYPE_AUTO:
-  dwTemp |= EN_A2_AUTO_STEREO;
-  break;
- }
- 
- WriteDword(AUD_CTL,   dwTemp);
- WriteDword(AUD_SOFT_RESET, 0x00000000);  // Causes a pop every time/**/
+	SetAudioRegisters(m_RegList_A2_BGDKIM_Common);
+
+	switch (TVFormat)
+	{
+	case VIDEOFORMAT_PAL_I:
+		StereoType = STEREOTYPE_MONO; // always mono for Pal(I), it's A1 only
+		// no break here
+	case VIDEOFORMAT_PAL_B:
+	case VIDEOFORMAT_PAL_G:
+		SetAudioRegisters(m_RegList_A2_BGI);
+		break;
+
+	case VIDEOFORMAT_PAL_D:
+	case VIDEOFORMAT_SECAM_K:
+	case VIDEOFORMAT_SECAM_D:
+		SetAudioRegisters(m_RegList_A2_DK);
+		break;
+
+	case VIDEOFORMAT_NTSC_M: // unsure if it works
+		SetAudioRegisters(m_RegList_A2_M);
+		break;
+	}
+
+	DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
+	switch(StereoType)
+	{
+	case STEREOTYPE_MONO:
+	case STEREOTYPE_ALT1:
+		dwTemp |= EN_A2_FORCE_MONO1;
+		break;
+
+	case STEREOTYPE_ALT2:
+		dwTemp |= EN_A2_FORCE_MONO2;
+		break;
+
+	case STEREOTYPE_STEREO:
+		dwTemp |= EN_A2_FORCE_STEREO;
+		break;
+
+	case STEREOTYPE_AUTO:
+		dwTemp |= EN_A2_AUTO_STEREO;
+		break;
+	}
+
+	WriteDword(AUD_CTL,			dwTemp);
+	WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
 }
 
 eCX2388xAudioStandard CCX2388xCard::GetCurrentAudioStandard()

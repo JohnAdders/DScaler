@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.28 2002-09-26 11:33:42 kooiman Exp $
+// $Id: MixerDev.cpp,v 1.29 2002-09-26 16:35:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.27  2002/09/06 15:08:10  kooiman
 // Mixer lines now source dependent.
 //
@@ -857,14 +860,17 @@ void Mixer_Volume_Up()
     if(CurLine != NULL)
     {
         long Vol = CurLine->GetVolume();
+		long NewVol;
         if(Vol <= 95)
         {
-           CurLine->SetVolume(Vol+5);
+           NewVol = Vol + 5;
         }
         else
         {
-           CurLine->SetVolume(100);
+           NewVol = 100;
         }
+		CurLine->SetVolume(NewVol);
+		EventCollector->RaiseEvent(EVENT_MIXERVOLUME,Vol,NewVol);
     }
 }
 
@@ -882,16 +888,19 @@ void Mixer_Volume_Down()
     CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
     
     if(CurLine != NULL)
-    {
-        long Vol = CurLine->GetVolume();
+    {        
+		long Vol = CurLine->GetVolume();
+		long NewVol;
         if(Vol >= 5)
         {
-            CurLine->SetVolume(Vol-5);
+           NewVol = Vol - 5;
         }
         else
         {
-            CurLine->SetVolume(0);
+           NewVol = 0;
         }
+		CurLine->SetVolume(NewVol);
+		EventCollector->RaiseEvent(EVENT_MIXERVOLUME,Vol,NewVol);
     }
 }
 
@@ -934,7 +943,9 @@ void Mixer_SetVolume(long Volume)
     
     if(CurLine != NULL)
     {
-        CurLine->SetVolume(Volume);
+        long OldVol = CurLine->GetVolume();
+		CurLine->SetVolume(Volume);		
+		EventCollector->RaiseEvent(EVENT_MIXERVOLUME,OldVol,Volume);
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.73 2002-09-26 11:33:42 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.74 2002-09-26 16:37:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.72  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -364,6 +367,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
     NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
+	EventCollector->RaiseEvent(EVENT_VOLUME, 0, m_Volume->GetValue());
 }
 
 CBT848Source::~CBT848Source()
@@ -597,7 +601,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 	m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection);
     m_Settings.push_back(m_AudioStandardMinorCarrier);
 
-    //SettingsMaster->Register(BT848_SETTINGID, this);
+    //SettingsMaster->Register(BT848_SETTINGID, this);	
 
     ReadFromIni();
 }

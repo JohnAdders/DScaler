@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.23 2002-04-13 21:52:39 laurentg Exp $
+// $Id: Audio.cpp,v 1.24 2002-09-26 16:35:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/04/13 21:52:39  laurentg
+// Management of no current source
+//
 // Revision 1.22  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -112,6 +115,7 @@ void Audio_Mute()
 	{
 		Mixer_Mute();
 	}
+	EventCollector->RaiseEvent(EVENT_MUTE,0,1);
 }
 
 void Audio_Unmute()
@@ -128,6 +132,7 @@ void Audio_Unmute()
 			Mixer_UnMute();
 		}
 	}
+	EventCollector->RaiseEvent(EVENT_MUTE,1,0);
 }
 
 BOOL SystemInMute_OnChange(long NewValue)

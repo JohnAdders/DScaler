@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.10 2002-10-07 20:31:59 kooiman Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.11 2002-10-11 13:38:14 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/07 20:31:59  kooiman
+// Added/fixed TDA9887 support for new Pinnacle cards
+//
 // Revision 1.9  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
 //
@@ -94,11 +97,11 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     switch (tunerId)
     {
     case TUNER_MT2032:
-        m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M, m_CardType);
+        m_Tuner = new CMT2032(this, VIDEOFORMAT_NTSC_M, m_CardType);
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2032_PAL:
-        m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B, m_CardType);
+        m_Tuner = new CMT2032(this, VIDEOFORMAT_PAL_B, m_CardType);
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_AUTODETECT:

@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.6 2002-10-08 20:43:16 kooiman Exp $
+// $Id: MT2032.h,v 1.7 2002-10-11 13:38:14 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/08 20:43:16  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.5  2002/10/07 20:32:00  kooiman
 // Added/fixed TDA9887 support for new Pinnacle cards
 //
@@ -48,13 +51,14 @@
 #endif // _MSC_VER > 1000
 
 #include "ITuner.h"
+#include "BT848Card.h"
 
 /**  Allows control of the MT2032 Tuner
 */
 class CMT2032: public ITuner  
 {
 public:
-    CMT2032(eVideoFormat DefaultVideoFormat, eTVCardId TVCardId);
+    CMT2032(CBT848Card *pBT848Card, eVideoFormat DefaultVideoFormat, eTVCardId TVCardId);
     WORD GetVersion();
     WORD GetVendor();
     
@@ -85,6 +89,7 @@ private:
     void SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat);
 
     void PrepareTDA9887(bool bPrepare, eVideoFormat videoFormat);
+    void PrepareVoodooTV(bool bPrepare, eVideoFormat videoFormat);
 
 private:
     int  m_XOGC;    // holds the value of XOGC register after init
@@ -94,6 +99,7 @@ private:
     long m_Frequency;
     bool m_Locked;
 	bool m_HasTDA9887;
+    CBT848Card *m_pBT848Card;
 };
 
 #endif // !defined(__MT2032_H__)

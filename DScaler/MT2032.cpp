@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.8 2002-10-08 20:43:16 kooiman Exp $
+// $Id: MT2032.cpp,v 1.9 2002-10-11 13:38:14 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/08 20:43:16  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.7  2002/10/07 20:32:00  kooiman
 // Added/fixed TDA9887 support for new Pinnacle cards
 //
@@ -54,12 +57,13 @@
 #define I2C_TDA9887_0				0x86 // Used by newer pinnacle cards
 
 
-CMT2032::CMT2032(eVideoFormat DefaultVideoFormat, eTVCardId TVCardId) :
+CMT2032::CMT2032(CBT848Card *pBT848Card, eVideoFormat DefaultVideoFormat, eTVCardId TVCardId) :
     m_XOGC(0),
     m_Initialized(false),
     m_Frequency (0),
-    m_Locked(false)
+    m_Locked(false)  
 {
+    m_pBT848Card = pBT848Card;
     m_DefaultVideoFormat = DefaultVideoFormat;
     m_TVCardId = TVCardId;
 }
@@ -131,6 +135,9 @@ void CMT2032::Initialize()
 			  }
 		  }
           break;
+      case TVCARD_VOODOOTV_FM:
+      case TVCARD_VOODOOTV_200:
+          PrepareVoodooTV(true, m_DefaultVideoFormat);
       default:
           break;      
     }	
@@ -171,6 +178,10 @@ void CMT2032::Initialize()
     } while (xok != 1);
 
 
+    if ((m_TVCardId == TVCARD_VOODOOTV_FM) || (m_TVCardId == TVCARD_VOODOOTV_200))
+    {    
+        PrepareVoodooTV(false, m_DefaultVideoFormat);     
+    }	
     if (m_HasTDA9887)
 	{
 		PrepareTDA9887(false, m_DefaultVideoFormat);
@@ -418,6 +429,10 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
         return;
     }
 
+    if ((m_TVCardId == TVCARD_VOODOOTV_FM) || (m_TVCardId == TVCARD_VOODOOTV_200))
+    {    
+        PrepareVoodooTV(true, videoFormat);     
+    }
     if (m_HasTDA9887)
 	{
 		PrepareTDA9887(true, videoFormat);
@@ -460,6 +475,10 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
 
     m_Locked = (lock==6)?true:false;
 
+    if ((m_TVCardId == TVCARD_VOODOOTV_FM) || (m_TVCardId == TVCARD_VOODOOTV_200))
+    {    
+        PrepareVoodooTV(false, videoFormat);     
+    }
     if (m_HasTDA9887)
 	{
 		PrepareTDA9887(false, videoFormat);
@@ -636,3 +655,28 @@ void CMT2032::PrepareTDA9887(bool bPrepare, eVideoFormat VideoFormat)
    m_I2CBus->Write(tda9887set, 5);   
 }
 
+void CMT2032::PrepareVoodooTV(bool bPrepare, eVideoFormat VideoFormat)
+{
+    if (bPrepare && (m_pBT848Card!=NULL))
+    {
+        //Set the demodulator using the GPIO port
+        
+        ULONG Val;
+        m_pBT848Card->SetGPOE( m_pBT848Card->GetGPOE() | (1<<16));
+        Val = m_pBT848Card->GetGPDATA();
+            
+        switch (VideoFormat)
+        {
+            case VIDEOFORMAT_PAL_N_COMBO:
+	        case VIDEOFORMAT_NTSC_M:
+            case VIDEOFORMAT_NTSC_M_Japan:
+            case VIDEOFORMAT_NTSC_50:
+                Val |= (1<<16);
+                break;
+            default:
+                Val &= ~(1<<16);
+        }
+
+        m_pBT848Card->SetGPDATA(Val);
+    }
+}

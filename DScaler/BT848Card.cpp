@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.24 2002-09-12 22:01:26 ittarnavsky Exp $
+// $Id: BT848Card.cpp,v 1.25 2002-10-11 13:38:13 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/09/12 22:01:26  ittarnavsky
+// Removed Reference to HasMSP
+// Changes due to the IAudioControls to CAudioControls transition
+//
 // Revision 1.23  2002/08/07 21:53:04  adcockj
 // Removed todo item
 //
@@ -1249,3 +1253,24 @@ void CBT848Card::SetACPIStatus(int ACPIStatus)
     LOG(1, "Set BT878 ACPI status complete");
 }
 
+
+void CBT848Card::SetGPOE(ULONG val)
+{
+    WriteDword(BT848_GPIO_OUT_EN, val);    
+}
+
+ULONG CBT848Card::GetGPOE()
+{
+    return ReadDword(BT848_GPIO_OUT_EN);    
+}
+
+void CBT848Card::SetGPDATA(ULONG val)
+{
+    WriteDword(BT848_GPIO_DATA, val);  
+}
+
+ULONG CBT848Card::GetGPDATA()
+{
+    return ReadDword(BT848_GPIO_DATA);
+    
+}

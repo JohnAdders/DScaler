@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.31 2002-10-02 10:52:36 kooiman Exp $
+// $Id: BT848Card.h,v 1.32 2002-10-11 13:38:13 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/10/02 10:52:36  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.30  2002/09/27 14:13:27  kooiman
 // Improved stereo detection & manual audio standard dialog box.
 //
@@ -197,7 +200,7 @@ private:
         eTVCardId CardId;
         char* szName;
     } TAutoDectect878;
-
+    
 public:
     BOOL Is878Family();
     void SetACPIStatus(int ACPIStatus);
@@ -329,6 +332,7 @@ public:
 
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
+    bool AutoDetectMSP3400();
 
     BOOL InitTuner(eTunerId tunerId);
     LPCSTR GetInputName(int nVideoSource);
@@ -351,6 +355,11 @@ public:
     void Sleep();
     ITuner* GetTuner() const;
 
+    // GPIO stuff
+    void SetGPOE(ULONG val);
+    ULONG GetGPOE();
+    void SetGPDATA(ULONG val);
+    ULONG GetGPDATA();
 private:
     ULONG GetTickCount();
     DWORD m_I2CSleepCycle;

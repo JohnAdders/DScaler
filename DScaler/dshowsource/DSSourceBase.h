@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.19 2003-08-12 19:10:05 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.20 2003-08-15 14:28:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/08/12 19:10:05  laurentg
+// Move some methods from CDSFileSource to CDSSourceBase
+//
 // Revision 1.18  2003/08/12 19:02:27  laurentg
 // Forward and backward actions added in menu
 //
@@ -138,6 +141,8 @@ public:
 	ITuner* GetTuner() {return NULL;}
 	
 	CTreeSettingsPage* GetTreeSettingsPage() {return NULL;}
+
+    void SetSourceAsCurrent();
 	
     void Pause() {return;};
     void UnPause() {return;};

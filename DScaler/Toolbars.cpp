@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.19 2003-08-15 12:18:39 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.20 2003-08-15 14:27:31 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/08/15 12:18:39  laurentg
+// Volume update in the toolbar when changing source
+//
 // Revision 1.18  2003/08/15 10:06:41  laurentg
 // Automatic update of the volume toolbar when updating the volume outside DScaler
 //
@@ -414,7 +417,7 @@ void CToolbarChannels::Reset()
 
 CToolbarVolume::CToolbarVolume(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
 m_Mute(0),
-m_Volume(0),
+m_Volume(999999),
 m_hIconMute(NULL),
 m_hIconUnMute(NULL),
 m_hIconMono(NULL),
@@ -575,7 +578,7 @@ void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
 
     if (bInitDialog)
     {
-        SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETRANGE, TRUE,(LPARAM)MAKELONG(0,m_VolumeMax-m_VolumeMin+1));
+        SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETRANGE, TRUE,(LPARAM)MAKELONG(m_VolumeMin,m_VolumeMax));
     }
 
 	if (m_Volume == 999999)
@@ -586,7 +589,7 @@ void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
 	{
         ShowWindow(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), SW_SHOW);
 		LOG(2,"Toolbar Volume: Update controls: volume = %d",m_Volume);
-		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_VolumeMin+m_Volume);
+		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_Volume);
 	}
   
     // Mute
@@ -650,7 +653,6 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
         if((HWND)lParam == GetDlgItem(hDlg, IDC_TOOLBAR_VOLUME_SLIDER))
         {                                        
             int Volume = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_VOLUME_SLIDER), TBM_GETPOS, 0,0);
-			Volume -= m_VolumeMin;
 
 			if (Volume != m_Volume)
 			{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.85 2003-08-15 12:18:39 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.86 2003-08-15 14:26:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2003/08/15 12:18:39  laurentg
+// Volume update in the toolbar when changing source
+//
 // Revision 1.84  2003/07/05 10:55:57  laurentg
 // New method SetWidth
 //
@@ -416,7 +419,6 @@ void CSAA7134Source::SetSourceAsCurrent()
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_AUDIOINPUT_CHANGE, -1, m_AudioSource->GetValue());
-    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, (GetVolume() != NULL) ? GetVolume()->GetValue() : 999999);
 
     int OldFormat = m_VideoFormat->GetValue();
 

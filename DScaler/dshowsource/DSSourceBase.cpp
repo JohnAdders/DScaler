@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.23 2003-08-12 19:29:26 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.24 2003-08-15 14:28:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/08/12 19:29:26  laurentg
+// OSD when jumping to a certain time
+//
 // Revision 1.22  2003/08/12 19:10:05  laurentg
 // Move some methods from CDSFileSource to CDSSourceBase
 //
@@ -760,6 +763,14 @@ void CDSSourceBase::ChangePos(int delta_sec)
 				OSD_ShowText(text, 0);
 			}
 		}
+	}
+}
+
+void CDSSourceBase::SetSourceAsCurrent()
+{
+	if (GetVolume() != NULL)
+	{
+	    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, GetVolume()->GetValue());
 	}
 }
 

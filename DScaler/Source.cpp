@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.16 2003-01-16 13:30:49 adcockj Exp $
+// $Id: Source.cpp,v 1.17 2003-08-15 14:26:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.15  2003/01/12 16:19:35  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -182,6 +185,11 @@ void CSource::SetSourceAsCurrent()
 {
     // may need to register settings in here
     // not sure yet
+
+	if (GetVolume() == NULL)
+	{
+	    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, 999999);
+	}
 }
 
 void CSource::UnsetSourceAsCurrent()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.16 2002-03-17 21:55:10 tobbej Exp $
+// $Id: DSSource.cpp,v 1.17 2002-03-26 19:48:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/03/17 21:55:10  tobbej
+// fixed resolution submenu so its properly disabled when using file input or there is no available resolutions
+//
 // Revision 1.15  2002/03/17 21:43:23  tobbej
 // added input resolution submenu
 //
@@ -96,6 +99,7 @@
 #include "CaptureDevice.h"
 #include <dvdmedia.h>		//VIDEOINFOHEADER2
 #include "AspectRatio.h"
+#include "DebugLog.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -263,6 +267,7 @@ BOOL CDSSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 	}
 	catch(CDShowException e)
 	{
+        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return FALSE;
 	}
 }
@@ -296,7 +301,9 @@ ISetting* CDSSource::GetBrightness()
 				return m_Brightness;
 			}
 			catch(CDShowException e)
-			{}
+			{
+                LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+            }
 		}
 	}
 	return NULL;
@@ -320,7 +327,7 @@ void CDSSource::BrightnessOnChange(long Brightness, long OldValue)
 	}
 	catch(CDShowException e)
 	{
-		AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONEXCLAMATION);
+		ErrorBox(e.getErrorText());
 	}
 }
 
@@ -351,7 +358,9 @@ ISetting* CDSSource::GetContrast()
 				return m_Contrast;
 			}
 			catch(CDShowException e)
-			{}
+			{
+                LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+            }
 		}
 	}
 	return NULL;
@@ -374,7 +383,7 @@ void CDSSource::ContrastOnChange(long Contrast, long OldValue)
 	}
 	catch(CDShowException e)
 	{
-		AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONEXCLAMATION);
+		ErrorBox(e.getErrorText());
 	}
 }
 
@@ -405,7 +414,9 @@ ISetting* CDSSource::GetHue()
 				return m_Hue;
 			}
 			catch(CDShowException e)
-			{}
+			{
+                LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+            }
 		}
 	}
 	return NULL;
@@ -428,7 +439,7 @@ void CDSSource::HueOnChange(long Hue, long OldValue)
 	}
 	catch(CDShowException e)
 	{
-		AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONEXCLAMATION);
+		ErrorBox(e.getErrorText());
 	}
 }
 
@@ -459,7 +470,9 @@ ISetting* CDSSource::GetSaturation()
 				return m_Saturation;
 			}
 			catch(CDShowException e)
-			{}
+			{
+                LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+            }
 		}
 	}
 	return NULL;
@@ -482,7 +495,7 @@ void CDSSource::SaturationOnChange(long Saturation, long OldValue)
 	}
 	catch(CDShowException e)
 	{
-		AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONEXCLAMATION);
+		ErrorBox(e.getErrorText());
 	}
 }
 
@@ -532,7 +545,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Failed to change input\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+			ErrorBox(CString("Failed to change input\n\n")+e.getErrorText());
 		}
 
 		return TRUE;
@@ -548,7 +561,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Failed to change video format\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+			ErrorBox(CString("Failed to change video format\n\n")+e.getErrorText());
 		}
 		return TRUE;
 	}
@@ -560,7 +573,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Failed to show property page\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+			ErrorBox(CString("Failed to show property page\n\n")+e.getErrorText());
 		}
 
 	}
@@ -572,7 +585,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Failed to change resolution\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+			ErrorBox(CString("Failed to change resolution\n\n")+e.getErrorText());
 		}
 	}
 	
@@ -585,7 +598,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Play failed\n\n")+e.getErrorText(),MB_OK|MB_ICONINFORMATION);
+			ErrorBox(CString("Play failed\n\n")+e.getErrorText());
 		}
 		return TRUE;
 		break;
@@ -597,7 +610,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Pause failed\n\n")+e.getErrorText(),MB_OK|MB_ICONINFORMATION);
+			ErrorBox(CString("Pause failed\n\n")+e.getErrorText());
 		}
 		return TRUE;
 		break;
@@ -609,7 +622,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(CString("Stop failed\n\n")+e.getErrorText(),MB_OK|MB_ICONINFORMATION);
+			ErrorBox(CString("Stop failed\n\n")+e.getErrorText());
 		}
 		return TRUE;
 		break;
@@ -646,7 +659,7 @@ void CDSSource::Start()
 	}
 	catch(CDShowException &e)
 	{
-		AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONERROR);
+		ErrorBox(e.getErrorText());
 	}
 }
 
@@ -663,7 +676,7 @@ void CDSSource::Stop()
 		}
 		catch(CDShowException &e)
 		{
-			AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONERROR);
+			ErrorBox(e.getErrorText());
 		}
 	}
 	//shoud probably free the memory allocated by the picture history array
@@ -785,7 +798,9 @@ void CDSSource::SetMenu(HMENU hMenu)
 			selectedFormat=pCap->getTVFormat();
 		}
 		catch(CDShowException e)
-		{}
+		{
+            LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+        }
 		
 		//make sure there is atleast one format to be selected
 		if(formats!=0)
@@ -953,6 +968,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		}
 		catch(CDShowException e)
 		{
+            LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 			return;
 		}
 		
@@ -1107,6 +1123,7 @@ void CDSSource::updateDroppedFields()
 	}
 	catch(CDShowException e)
 	{
+        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return;
 	}
 	

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.4 2002-02-07 22:06:26 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.5 2002-03-26 19:48:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/07 22:06:26  tobbej
+// new classes for file input
+//
 // Revision 1.3  2001/12/17 19:36:45  tobbej
 // renamed a few classes
 //
@@ -48,6 +51,7 @@
 //#include "dscaler.h"
 #include "DSProvider.h"
 #include "devenum.h"
+#include "CaptureDevice.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -58,21 +62,36 @@ static char THIS_FILE[]=__FILE__;
 
 CDSProvider::CDSProvider()
 {
-	CDShowDevEnum devenum(CLSID_VideoInputDeviceCategory);
-	
-	//get all video capture devices
-	while(devenum.getNext()==true)
-	{
-		string deviceName=devenum.getProperty("FriendlyName");
-		CDSSource *tmpsrc=new CDSSource(devenum.getDisplayName(),deviceName);
-		m_DSSources.push_back(tmpsrc);
-		m_SourceNames[m_DSSources.size()-1]=deviceName;
-	}
+    try
+    {
+	    CDShowDevEnum devenum(CLSID_VideoInputDeviceCategory);
+	    
+	    //get all video capture devices
+	    while(devenum.getNext()==true)
+	    {
+		    string deviceName=devenum.getProperty("FriendlyName");
+		    CDSSource *tmpsrc=new CDSSource(devenum.getDisplayName(),deviceName);
+		    m_DSSources.push_back(tmpsrc);
+		    m_SourceNames[m_DSSources.size()-1]=deviceName;
+	    }
 
-	//add one file source
-	CDSSource *src=new CDSSource();
-	m_DSSources.push_back(src);
-	m_SourceNames[m_DSSources.size()-1]="Movie File";
+	    //add one file source
+	    CDSSource *src=new CDSSource();
+	    m_DSSources.push_back(src);
+	    m_SourceNames[m_DSSources.size()-1]="Movie File";
+    }
+    catch(std::runtime_error e)
+    {
+        ErrorBox(e.what());
+    }
+    catch(CDShowCaptureDeviceException e)
+    {
+        ErrorBox(e.getErrorText());
+    }
+    catch(...)
+    {
+        ErrorBox("Unexpected Error");
+    }
 }
 
 CDSProvider::~CDSProvider()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.7 2002-03-17 21:43:23 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.8 2002-03-26 19:48:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/03/17 21:43:23  tobbej
+// added input resolution submenu
+//
 // Revision 1.6  2002/03/15 23:07:16  tobbej
 // changed dropped frames counter to include dropped frames in source filter.
 // added functions to enable/disable graph clock.
@@ -61,6 +64,7 @@
 #include "CaptureDevice.h"
 #include "DShowFileSource.h"
 #include "PinEnum.h"
+#include "DebugLog.h"
 
 #include "..\..\..\DSRend\DSRend_i.c"
 
@@ -308,6 +312,7 @@ bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPa
 	}
 	catch(CDShowException e)
 	{
+        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return false;
 	}
 
@@ -343,6 +348,7 @@ void CDShowGraph::showPropertyPage(HWND hParent,int index)
 	}
 	catch(CDShowException e)
 	{
+        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return;
 	}
 	FILTER_INFO info;
@@ -495,6 +501,7 @@ bool CDShowGraph::isValidRes(long x,long y)
 		}
 		catch(CDShowException e)
 		{
+            LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 			return false;
 		}
 	}

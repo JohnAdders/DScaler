@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.15 2001-11-23 10:49:17 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.16 2002-03-26 19:48:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.14  2001/08/03 19:03:52  adcockj
 // Fixed bug in initial display of settings dialog
 //
@@ -135,7 +138,7 @@ void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long Count,
 {
     if(settings==NULL || Count==0)
     {
-        AfxMessageBox("No settings to display",MB_OK|MB_ICONINFORMATION);
+        ErrorBox("No settings to display");
         return;
     }
 

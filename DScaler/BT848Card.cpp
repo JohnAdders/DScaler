@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.4 2001-11-09 12:42:07 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.5 2001-11-18 17:20:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.3  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -208,6 +211,8 @@ void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
     WriteDword(BT848_INT_STAT, (DWORD) 0x0fffffff);
     WriteDword(BT848_INT_MASK, 0);
     
+	WriteByte(BT848_ADC, BT848_ADC_RESERVED);
+
     SetPLL(PLL_NONE);
 }
 
@@ -256,7 +261,6 @@ void CBT848Card::SetVideoSource(eCardType BtCardType, eVideoSourceType nInput)
         MuxSel = GetCardSetup(BtCardType)->MuxSelect[nInput];
         break;
     }
-    LOG(1, " Test %d", BT848_IFORM);
     
     MaskDataByte(BT848_IFORM, (BYTE) (((MuxSel) & 3) << 5), BT848_IFORM_MUXSEL);
     AndOrDataDword(BT848_GPIO_DATA, MuxSel >> 4, ~GetCardSetup(BtCardType)->GPIOMuxMask);

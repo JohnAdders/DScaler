@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.3 2002-09-02 19:06:09 kooiman Exp $
+// $Id: TreeSettingsGeneric.h,v 1.4 2002-09-26 10:03:53 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ protected:
 private:
     void UpdateControls();
     long m_SettingsCount;
-    SETTING* m_Settings;
+    vector<SETTING*> m_Settings;
     vector<CSimpleSetting*> m_CSettings;
     long m_CurrentSetting;
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Adaptive.c,v 1.14 2002-06-13 08:22:07 adcockj Exp $
+// $Id: DI_Adaptive.c,v 1.15 2002-06-13 12:10:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mark Rejhon and Steve Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/06/13 08:22:07  adcockj
+// Changed default motion methods to greedyHM
+//
 // Revision 1.13  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -36,6 +39,7 @@
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
+#include "..\help\helpids.h"
 
 long        StaticImageFieldCount = 100;
 long        LowMotionFieldCount = 4;
@@ -302,6 +306,7 @@ DEINTERLACE_METHOD AdaptiveMethod =
     0,
     TRUE,
     FALSE,
+    IDH_ADAPTIVE,
 };
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags)

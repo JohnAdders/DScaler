@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.14 2001-11-25 04:33:37 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.15 2002-06-13 12:10:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/11/25 04:33:37  trbarry
+// Fix for TDeinterlace_Info. Also release UN-Filter code, 5-tap V & H sharp/soft filters optimized to reverse excessive filtering (or EE?)
+//
 // Revision 1.13  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -101,6 +104,7 @@
 #include "commctrl.h"
 #include "..\..\DScaler\Slider.h"
 #include "DI_GreedyHM.h"
+#include "..\help\helpids.h"
 
 int GreedyDiag();
 BOOL GetCheckDScalerInfo(TDeinterlaceInfo *info);
@@ -612,6 +616,7 @@ DEINTERLACE_METHOD GreedyHMethod =
 	0,								// Menu Id used for this plug-in, 0 to auto allocate one
 	FALSE,							// do we need FieldDiff filled in in info
 	FALSE,							// do we need CombFactor filled in in info
+    IDH_GREEDYHM,
 };
 
 

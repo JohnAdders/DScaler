@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/03/11 01:47:32  lindsey
+// Corrected for use with progressive source
+// Changed to use Tom's aligned memory allocation
+//
 // Revision 1.9  2002/02/23 03:22:16  lindsey
 // Exposed the "Use this filter" settings
 //
@@ -66,6 +70,7 @@
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 
 // See FLT_AdaptiveNoise.txt for an explanation of this filter.
@@ -346,6 +351,7 @@ FILTER_METHOD AdaptiveNoiseMethod =
     WM_FLT_ANOISE_GETVALUE - WM_USER,       // Settings offset
     TRUE,                                   // Can handle interlaced material
     2,                                      // Requires field before last (for interlaced material)
+    IDH_ADAPTIVE_NOISE,
 };
 
 

@@ -760,7 +760,6 @@
 #define IDM_ZOOM_MINUS                  2007
 #define IDM_ZOOM_PLUS                   2008
 #define IDM_XINVERT                     2009
-#define IDM_SHOWPLUGINUI                2011
 #define IDM_SETTINGS_PIXELWIDTH_754     2012
 #define IDM_RETURN_TO_WINDOW            2013
 #define IDM_USECHROMA                   2014
@@ -932,6 +931,7 @@
 #define IDC_TREESETTINGS_LINE           2389
 #define IDC_HELPBTN                     2390
 #define IDM_SETTINGS_FILTERSETTINGS     32771
+#define IDM_SETTINGS_CHANGESETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
 #define IDM_SHOW_INFOS                  32774

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.1 2002-04-24 19:04:01 tobbej Exp $
+// $Id: TreeSettingsGeneric.h,v 1.2 2002-06-13 12:10:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,8 @@
  * @file TreeSettingsGeneric.h Header file for CTreeSettingsGeneric class
  */
 
-#if !defined(AFX_SETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_)
-#define AFX_SETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_
+#if !defined(AFX_TREESETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_)
+#define AFX_TREESETTINGSDLG_H__AF9102F2_06B5_43B0_8DD7_C3CFFA8DCCDB__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -37,6 +37,7 @@
 #include "DS_ApiCommon.h"
 #include "HSListBox.h"
 #include "TreeSettingsPage.h"
+#include "..\DScalerRes\resource.h"
 
 /**
  * Generic settings page for tree based settings dialog.

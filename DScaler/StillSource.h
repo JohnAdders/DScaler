@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.33 2002-05-06 15:48:53 laurentg Exp $
+// $Id: StillSource.h,v 1.34 2002-06-13 12:10:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ char* BuildDScalerContext();
 SETTING* Still_GetSetting(STILL_SETTING Setting);
 void Still_ReadSettingsFromIni();
 void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void Still_ShowUI();
+CTreeSettingsGeneric* Still_GetTreeSettingsPage();
 
 extern char SavingPath[];
 

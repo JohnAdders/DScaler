@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.16 2002-02-18 20:51:52 laurentg Exp $
+// $Id: Deinterlace.h,v 1.17 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,8 @@ LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lP
 void Deinterlace_ReadSettingsFromIni();
 void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Deinterlace_SetMenu(HMENU hMenu);
+void GetDeinterlaceSettings(DEINTERLACE_METHOD**& DeinterlaceMethods,long& NumMethods);
+
 
 
 // Deinterlace Modes.  Since these Modes are referred to by number in the
@@ -87,7 +89,6 @@ BOOL SetProgressiveMode();
 BOOL UnsetProgressiveMode();
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode);
 void SetVideoDeinterlaceIndex(int index);
-void ShowVideoModeUI();
 char* GetDeinterlaceModeName();
 void IncrementDeinterlaceMode();
 void DecrementDeinterlaceMode();

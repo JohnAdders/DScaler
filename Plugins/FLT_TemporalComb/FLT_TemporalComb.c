@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.10 2002-03-11 01:49:25 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.11 2002-06-13 12:10:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/03/11 01:49:25  lindsey
+// Adjusted for use with progressive source
+// Changed to use Tom's aligned memory allocation
+// Added unbiased averaging code
+//
 // Revision 1.9  2002/02/23 03:22:16  lindsey
 // Exposed the "Use this filter" settings
 //
@@ -64,6 +69,7 @@
 #include <limits.h>
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 /////////////////////////////////////////////////////////////////////////////
 /*
@@ -280,6 +286,7 @@ static FILTER_METHOD    TemporalCombMethod =
     WM_FLT_TCOMB_GETVALUE - WM_USER,        // Settings offset
     TRUE,                                   // Can handle interlaced material (but progressive?)
     4,                                      // Required past fields
+    IDH_TEMPORAL_COMB,
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.22 2001-11-23 10:49:17 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.23 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.21  2001/11/22 22:27:00  adcockj
 // Bug Fixes
 //
@@ -80,7 +83,6 @@
 #include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 
 long PALFilmFallbackIndex = INDEX_VIDEO_2FRAME;
 long PALBadCadenceIndex = INDEX_VIDEO_GREEDY;
@@ -461,7 +463,7 @@ void FD50_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-void FD50_ShowUI()
+CTreeSettingsGeneric* FD50_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("2:2 Pulldown Settings",FD50Settings, FD50_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("2:2 Pulldown Settings",FD50Settings, FD50_SETTING_LASTONE);
 }

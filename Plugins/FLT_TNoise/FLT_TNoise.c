@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.7 2002-03-08 04:16:01 lindsey Exp $
+// $Id: FLT_TNoise.c,v 1.8 2002-06-13 12:10:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/03/08 04:16:01  lindsey
+// Changed MMXEXT (Athlon) processors to use the SSE version
+//
 // Revision 1.6  2002/02/15 15:27:48  robmuller
 // pcmpgtw -> pcmpgtb. Solved signed compare problem with pcmpgt..
 // Replaced averaging code with the AVERAGE macro. Added prefetching.
@@ -38,6 +41,7 @@
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 long TemporalLuminanceThreshold = 6;    // Pixel luminance differences below this are considered noise.
 long TemporalChromaThreshold = 7;       // Pixel chroma differences below this are considered noise.
@@ -138,6 +142,7 @@ FILTER_METHOD TemporalNoiseMethod =
     WM_FLT_TNOISE_GETVALUE - WM_USER,
     TRUE,
     3,
+    IDH_TEMPORAL_NOISE,
 };
 
 

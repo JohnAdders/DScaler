@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.2 2002-05-09 17:20:15 tobbej Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.3 2002-06-13 12:10:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/05/09 17:20:15  tobbej
+// fixed resize problem in CTreeSettingsOleProperties
+// (everytime a new page was activated the dialog size incresed)
+//
 // Revision 1.1  2002/04/24 19:04:00  tobbej
 // new treebased settings dialog
 //
@@ -29,6 +33,18 @@
 
 #include "stdafx.h"
 #include "TreeSettingsDlg.h"
+#include "TreeSettingsGeneric.h"
+#include "Filter.h"
+#include "Deinterlace.h"
+#include "FD_50Hz.h"
+#include "FD_60Hz.h"
+#include "FD_Common.h"
+#include "AspectRatio.h"
+#include "FieldTiming.h"
+#include "DebugLog.h"
+#include "Other.h"
+#include "ProgramList.h"
+#include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
 
@@ -334,4 +350,111 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		InvalidateRect(NULL);
 	}
 	
+}
+
+void CTreeSettingsDlg::ShowTreeSettingsDlg()
+{
+	//the following is just a quick test of the new treebased settings dialog
+	//it shoud probably be cleand up and moved somwere else
+
+	vector<CTreeSettingsGeneric*> pages;
+	CTreeSettingsDlg dlg(CString("Filter settings"));
+	
+	CTreeSettingsPage RootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
+	
+	//the default help id is HID_BASE_RESOURCE+dialog template id
+	//but we cant use that for empty pages and the generic property page
+	//so set a new help id to use insted.
+	//since the IDH_FILTERS already contains HID_BASE_RESOURCE, subtract that
+	RootPage.SetHelpID(IDH_FILTERS);
+	int Root = dlg.AddPage(&RootPage);
+	
+	FILTER_METHOD** FilterMethods;
+	long Num;
+	GetFilterSettings(FilterMethods, Num);
+	for(long i = 0; i < Num; i++)
+	{
+		CTreeSettingsGeneric *pPage = new CTreeSettingsGeneric(
+                                                                FilterMethods[i]->szName,
+                                                                FilterMethods[i]->pSettings,
+                                                                FilterMethods[i]->nSettings
+                                                              );
+		pPage->SetHelpID(FilterMethods[i]->HelpID);
+		
+		pages.push_back(pPage);
+		dlg.AddPage(pPage, Root);
+	}
+
+    CTreeSettingsPage DeintRootPage(CString("Video Methods"), IDD_TREESETTINGS_EMPTY);
+	
+	DeintRootPage.SetHelpID(IDH_DEINTERLACE);
+	Root = dlg.AddPage(&DeintRootPage);
+
+    DEINTERLACE_METHOD** DeintMethods;
+	GetDeinterlaceSettings(DeintMethods, Num);
+	for(i = 0; i < Num; i++)
+	{
+		CTreeSettingsGeneric* pPage = new CTreeSettingsGeneric(
+                                                                DeintMethods[i]->szName,
+                                                                DeintMethods[i]->pSettings,
+                                                                DeintMethods[i]->nSettings
+                                                              );
+		pPage->SetHelpID(DeintMethods[i]->HelpID);
+		
+		pages.push_back(pPage);
+		dlg.AddPage(pPage, Root);
+	}
+
+    CTreeSettingsPage AdvRootPage(CString("Advanced Settings"), IDD_TREESETTINGS_EMPTY);
+	AdvRootPage.SetHelpID(IDH_ADVANCED);
+	Root = dlg.AddPage(&AdvRootPage);
+
+    CTreeSettingsGeneric* pPage = FD50_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_22_PULLDOWN);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = FD60_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_32_PULLDOWN);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = FD_Common_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_PULLDOWN_SHARED);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = Debug_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_LOGGING);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = Aspect_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_ASPECT);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = Timing_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_TIMING);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = Other_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_OVERLAY);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = AntiPlop_GetTreeSettingsPage();
+    // \todo AntiPlop Help
+	pPage->SetHelpID(IDH_ADVANCED);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+	dlg.DoModal();
+
+	for(vector<CTreeSettingsGeneric*>::iterator it=pages.begin();it!=pages.end();it++)
+	{
+		delete *it;
+	}
+	pages.erase(pages.begin(),pages.end());
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.37 2002-04-27 11:46:28 laurentg Exp $
+// $Id: Other.cpp,v 1.38 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/04/27 11:46:28  laurentg
+// Error messge in UpdateOverlay restored
+//
 // Revision 1.36  2002/04/13 21:52:40  laurentg
 // Management of no current source
 //
@@ -161,7 +164,6 @@
 #include "ErrorBox.h"
 #include "Splash.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 #include "AspectRatio.h"
 
 // cope with older DX header files
@@ -1377,8 +1379,7 @@ void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-void Other_ShowUI()
+CTreeSettingsGeneric* Other_GetTreeSettingsPage()
 {
-//    CSettingsDlg::ShowSettingsDlg("Overlay Settings",OtherSettings, OTHER_SETTING_LASTONE);
-    CSettingsDlg::ShowSettingsDlg("Overlay Settings",OtherSettings, USEOVERLAYCONTROLS);
+    return new CTreeSettingsGeneric("Overlay Settings",OtherSettings, USEOVERLAYCONTROLS);
 }

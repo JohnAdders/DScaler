@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.25 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: FieldTiming.cpp,v 1.26 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.24  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -79,7 +82,6 @@
 #include "DebugLog.h"
 #include "Deinterlace.h"
 #include "DScaler.h"
-#include "SettingsDlg.h"
 #include "Providers.h"
 
 LARGE_INTEGER TimerFrequency;
@@ -419,8 +421,8 @@ void Timing_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect);
 }
 
-void Timing_ShowUI()
+CTreeSettingsGeneric* Timing_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Field Timing Settings",TimingSettings, TIMING_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Field Timing Settings",TimingSettings, TIMING_SETTING_LASTONE);
 }
 

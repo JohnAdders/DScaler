@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.30 2002-04-28 16:43:37 laurentg Exp $
+// $Id: AspectRatio.h,v 1.31 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ SETTING* Aspect_GetSetting(ASPECT_SETTING Setting);
 void Aspect_ReadSettingsFromIni();
 void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Aspect_FinalSetup();
-void Aspect_ShowUI();
+CTreeSettingsGeneric* Aspect_GetTreeSettingsPage();
 
 #define	MAX_RATIO_STATISTICS 20
 

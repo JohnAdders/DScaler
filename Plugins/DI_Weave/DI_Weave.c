@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Weave.c,v 1.7 2001-11-22 13:32:04 adcockj Exp $
+// $Id: DI_Weave.c,v 1.8 2002-06-13 12:10:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/22 13:32:04  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.6  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -36,6 +39,8 @@
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
+#include "..\help\helpids.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Simple Weave.  Copies alternating scanlines from the most recent fields.
@@ -101,6 +106,7 @@ DEINTERLACE_METHOD WeaveMethod =
     0,
     FALSE,
     FALSE,
+    IDH_WEAVE,
 };
 
 

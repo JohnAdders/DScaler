@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.62 2002-06-02 09:43:23 laurentg Exp $
+// $Id: OSD.cpp,v 1.63 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/06/02 09:43:23  laurentg
+// Settings restore at end of automatic calibration was broken
+//
 // Revision 1.61  2002/06/01 22:24:36  laurentg
 // New calibration mode to compute YUV range
 //
@@ -276,7 +279,6 @@
 #include "PaintingHDC.h"
 #include "Perf.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 
 typedef void (OSDREFRESHFUNCTION)(double Size);
 
@@ -2157,7 +2159,7 @@ void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-void OSD_ShowUI()
+CTreeSettingsGeneric* OSD_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("OSD Settings",OSDSettings, OSD_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("OSD Settings",OSDSettings, OSD_SETTING_LASTONE);
 }

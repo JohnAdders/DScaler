@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoBob.c,v 1.5 2001-07-26 11:53:08 adcockj Exp $
+// $Id: DI_VideoBob.c,v 1.6 2002-06-13 12:10:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 // Based on code from Virtual Dub Plug-in by Gunnar Thalin
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/26 11:53:08  adcockj
+// Fix for crashing in VideoBob
+//
 // Revision 1.4  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -33,6 +36,7 @@
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
+#include "..\help\helpids.h"
 
 long EdgeDetect = 625;
 long JaggieThreshold = 73;
@@ -94,6 +98,7 @@ DEINTERLACE_METHOD VideoBobMethod =
     0,
     FALSE,
     FALSE,
+    IDH_VIDEOBOB,
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.17 2002-06-01 09:38:12 robmuller Exp $
+// $Id: FLT_LinearCorrection.c,v 1.18 2002-06-13 12:10:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/06/01 09:38:12  robmuller
+// Update for progressive mode.
+//
 // Revision 1.16  2002/01/18 14:17:48  robmuller
 // Initialization is now done if the filter is used for the first time. This saves 1 second startup time on slow machines.
 //
@@ -48,6 +51,7 @@
 #include "windows.h"
 #include "DS_Filter.h"
 #include "math.h"
+#include "..\help\helpids.h"
 
 #define MAX_HEIGHT  576
 #define MAX_WIDTH   768
@@ -625,6 +629,7 @@ FILTER_METHOD LinearCorrMethod =
     WM_FLT_LINEAR_CORR_GETVALUE - WM_USER,
     TRUE,
     1,
+    IDH_LINEAR_CORRECTION,
 };
 
 

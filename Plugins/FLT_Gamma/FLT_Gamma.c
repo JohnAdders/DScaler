@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.12 2001-11-28 16:04:50 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.13 2002-06-13 12:10:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.11  2001/11/26 15:27:18  adcockj
 // Changed filter structure
 //
@@ -36,6 +39,7 @@
 #include "windows.h"
 #include "DS_Filter.h"
 #include "math.h"
+#include "..\help\helpids.h"
 
 unsigned char GammaTable[256];
 
@@ -225,6 +229,7 @@ FILTER_METHOD GammaMethod =
     WM_FLT_GAMMA_GETVALUE - WM_USER,
     TRUE,
     1,
+    IDH_GAMMA,
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.16 2002-03-21 10:26:00 robmuller Exp $
+// $Id: Other.h,v 1.17 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@
 SETTING* Other_GetSetting(OTHER_SETTING Setting);
 void Other_ReadSettingsFromIni();
 void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void Other_ShowUI();
+CTreeSettingsGeneric* Other_GetTreeSettingsPage();
 
 
 #define DSCALER_MAX_WIDTH 768

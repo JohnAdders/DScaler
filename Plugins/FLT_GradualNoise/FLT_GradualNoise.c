@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/23 03:22:16  lindsey
+// Exposed the "Use this filter" settings
+//
 // Revision 1.6  2002/02/04 01:06:03  lindsey
 // Added 3DNow optimized version
 //
@@ -42,6 +45,7 @@
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 /////////////////////////////////////////////////////////////////////////////
 /*
@@ -255,6 +259,7 @@ FILTER_METHOD GradualNoiseMethod =
     WM_FLT_GNOISE_GETVALUE - WM_USER,       // Settings offset
     TRUE,                                   // Can handle interlaced material
     2,                                      // Requires field before last
+    IDH_GRADUAL_NOISE
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.6 2002-01-31 04:57:11 lindsey Exp $
+// $Id: FLT_Sharpness.c,v 1.7 2002-06-13 12:10:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/01/31 04:57:11  lindsey
+// Added code for use on machines without SSE instructions
+// Corrected bias in averaging and weighting
+// Added prefetching for a speed up
+// Moved core code to a separate file to allow processor specific customization
+//
 // Revision 1.5  2001/11/26 15:27:19  adcockj
 // Changed filter structure
 //
@@ -38,6 +44,7 @@
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 long Sharpness = 128;
 
@@ -97,6 +104,7 @@ FILTER_METHOD SharpnessMethod =
     WM_FLT_SHARPNESS_GETVALUE - WM_USER,
     TRUE,
     1,
+    IDH_SHARPNESS,
 };
 
 

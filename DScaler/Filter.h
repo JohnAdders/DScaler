@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.h,v 1.12 2002-04-24 19:10:38 tobbej Exp $
+// $Id: Filter.h,v 1.13 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ void UnloadFilterPlugins();
 
 
 BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID);
-void GetFilterSettings(FILTER_METHOD **pSettings,long *pNumFilters);
+void GetFilterSettings(FILTER_METHOD**& MethodsArray,long& NumFilters);
 SETTING* Filter_GetSetting(long nIndex, long Setting);
 LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
 void Filter_ReadSettingsFromIni();

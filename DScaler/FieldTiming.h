@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.9 2001-11-21 15:21:39 adcockj Exp $
+// $Id: FieldTiming.h,v 1.10 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ SETTING* Timing_GetSetting(TIMING_SETTING Setting);
 void Timing_ReadSettingsFromIni();
 void Timing_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Timing_SetMenu(HMENU hMenu);
-void Timing_ShowUI();
+CTreeSettingsGeneric* Timing_GetTreeSettingsPage();
 
 void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo);
 void Timing_Setup();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.h,v 1.12 2001-11-21 15:21:39 adcockj Exp $
+// $Id: FD_Common.h,v 1.13 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ SETTING* FD_Common_GetSetting(FD_COMMON_SETTING Setting);
 void FD_Common_ReadSettingsFromIni();
 void FD_Common_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FD_Common_SetMenu(HMENU hMenu);
-void FD_Common_ShowUI();
+CTreeSettingsGeneric* FD_Common_GetTreeSettingsPage();
 
 #define MAXMODESWITCHES 50  // Maximum number of switches to track in TrackModeSwitches()
 

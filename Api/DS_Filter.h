@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Filter.h,v 1.7 2001-11-28 16:04:49 adcockj Exp $
+// $Id: DS_Filter.h,v 1.8 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/28 16:04:49  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.6  2001/11/26 15:27:17  adcockj
 // Changed filter structure
 //
@@ -51,10 +54,10 @@ typedef void (__cdecl FILTERPLUGINEXIT)(void);
 // list of supported plugin versions
 #define FILTER_VERSION_1 1
 #define FILTER_VERSION_2 2
+#define FILTER_VERSION_3 3
 
 // The current version
-#define FILTER_CURRENT_VERSION FILTER_VERSION_2
-
+#define FILTER_CURRENT_VERSION FILTER_VERSION_3
 
 typedef struct
 {
@@ -100,6 +103,9 @@ typedef struct
     BOOL CanDoInterlaced;
     // How many pictures of history do we need to run
     int HistoryRequired;
+    // Help ID
+    // needs to be in \help\helpids.h
+    int HelpID;
 } FILTER_METHOD;
 
 

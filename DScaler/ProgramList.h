@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.15 2002-06-13 10:40:37 robmuller Exp $
+// $Id: ProgramList.h,v 1.16 2002-06-13 12:10:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID);
 SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting);
 void AntiPlop_ReadSettingsFromIni();
 void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void AntiPlop_ShowUI();
+CTreeSettingsGeneric* AntiPlop_GetTreeSettingsPage();
 
 #define MAXPROGS 255
 

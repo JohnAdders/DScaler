@@ -419,10 +419,6 @@ SOURCE=.\Settings.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SettingsDlg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\dshowsource\SingleCrossbar.cpp
 # End Source File
 # Begin Source File
@@ -824,10 +820,6 @@ SOURCE=.\Setting.h
 # Begin Source File
 
 SOURCE=.\settings.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingsDlg.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.38 2002-04-28 16:43:37 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.39 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/04/28 16:43:37  laurentg
+// New setting for aspect ratio detect
+//
 // Revision 1.37  2002/04/27 14:08:05  laurentg
 // Automatic square pixels mode handling updated
 //
@@ -115,7 +118,6 @@
 #include "DebugLog.h"
 #include "Status.h"
 #include "DScaler.h"
-#include "SettingsDlg.h"
 
 // From DScaler.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
@@ -1178,7 +1180,11 @@ void Aspect_FinalSetup()
     Orbit_OnChange(AspectSettings.OrbitEnabled);
 }
 
-void Aspect_ShowUI()
+CTreeSettingsGeneric* Aspect_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Aspect Ratio Settings",AspectGUISettings, ASPECT_SETTING_LASTONE);
+    return new CTreeSettingsGeneric(
+                                    "Aspect Ratio Settings",
+                                    AspectGUISettings,
+                                    ASPECT_SETTING_LASTONE
+                                   );
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.18 2002-06-11 20:52:35 robmuller Exp $
+// $Id: DebugLog.cpp,v 1.19 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/06/11 20:52:35  robmuller
+// Enable debug logging by default. Renamed debug log file to debug.log.
+//
 // Revision 1.17  2002/05/26 19:04:13  robmuller
 // Implemented debug log level 0 (for critical errors).
 //
@@ -61,7 +64,6 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 
 static FILE* debugLog = NULL;
 char DebugLogFilename[MAX_PATH] = "DScaler.log";
@@ -203,7 +205,7 @@ void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 	}
 }
 
-void Debug_ShowUI()
+CTreeSettingsGeneric* Debug_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
 }

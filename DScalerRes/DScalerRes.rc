@@ -596,32 +596,6 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,151,105,50,14
 END
 
-IDD_SETTINGS DIALOGEX 0, 0, 245, 178
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-EXSTYLE WS_EX_APPWINDOW
-CAPTION "Settings"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
-BEGIN
-    LISTBOX         IDC_SETTINGS_LIST,7,1,100,171,LBS_SORT | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
-                    WS_TABSTOP
-    EDITTEXT        IDC_SETTINGS_EDIT,114,1,52,14,ES_AUTOHSCROLL | ES_NUMBER | 
-                    NOT WS_VISIBLE
-    CONTROL         "Spin1",IDC_SETTINGS_SPIN,"msctls_updown32",
-                    UDS_ALIGNRIGHT | UDS_ARROWKEYS | NOT WS_VISIBLE,167,1,11,
-                    14
-    CONTROL         "",IDC_SETTINGS_CHECK,"Button",BS_AUTOCHECKBOX | 
-                    BS_NOTIFY | NOT WS_VISIBLE | WS_TABSTOP,113,1,128,10
-    DEFPUSHBUTTON   "Close",IDOK,191,158,50,14
-    CONTROL         "Slider1",IDC_SETTINGS_SLIDER,"msctls_trackbar32",
-                    TBS_VERT | TBS_TOP | NOT WS_VISIBLE | WS_TABSTOP,208,1,
-                    33,148
-    PUSHBUTTON      "Default",IDC_SETTINGS_DEFAULT,115,30,45,14,NOT 
-                    WS_VISIBLE
-    COMBOBOX        IDC_CHOOSEFROMLIST,113,1,128,75,CBS_DROPDOWNLIST | 
-                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
-END
-
 IDD_DISASM_CRASH DIALOG DISCARDABLE  0, 0, 350, 233
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "DScaler Program Failure"
@@ -982,13 +956,10 @@ BEGIN
                 MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
             END
             MENUITEM SEPARATOR
-            MENUITEM "Show Video Method &UI",       IDM_SHOWPLUGINUI
-            MENUITEM SEPARATOR
             MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
             MENUITEM "Film Mode",                   IDM_FILM_MODE, GRAYED
         END
         MENUITEM "Select &Filters",             IDM_SHOW_SCREEN
-        MENUITEM "Filter &Settings",            IDM_SHOW_SCREEN
         MENUITEM SEPARATOR
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "&Use DScaler Overlay Settings", IDM_USE_DSCALER_OVERLAY
@@ -1010,7 +981,7 @@ BEGIN
         END
         MENUITEM "&Auto Format Detection",      IDM_AUTO_FORMAT
         MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
-        MENUITEM "Filter S&ettings...",         IDM_SETTINGS_FILTERSETTINGS
+        MENUITEM "Change S&ettings...",         IDM_SETTINGS_CHANGESETTINGS
     END
     POPUP "&Sources"
     BEGIN
@@ -1093,21 +1064,6 @@ BEGIN
                 MENUITEM "High",                        IDM_TREADPRIOR_3
                 MENUITEM "Very High",                   IDM_TREADPRIOR_4
             END
-        END
-        POPUP "Other &Settings"
-        BEGIN
-            MENUITEM "2:2 Pulldown Detection",      IDM_22PULLDOWN_SETTINGS
-            MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
-            MENUITEM "Pulldown Shared",             IDM_PULLDOWNCOMMON_SETTINGS
-
-            MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
-            MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
-            MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
-            MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
-            MENUITEM "Calibration",                 IDM_CALIBR_SETTINGS
-            MENUITEM "OSD",                         IDM_OSD_SETTINGS
-            MENUITEM "Still settings",              IDM_STILL_SETTINGS
-            MENUITEM "Anti Plop (mute delay)",      IDM_ANTIPLOP_SETTINGS
         END
         POPUP "Video &Overlay"
         BEGIN
@@ -1375,14 +1331,6 @@ BEGIN
         RIGHTMARGIN, 201
         TOPMARGIN, 7
         BOTTOMMARGIN, 119
-    END
-
-    IDD_SETTINGS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 241
-        TOPMARGIN, 1
-        BOTTOMMARGIN, 172
     END
 
     IDD_DISASM_CRASH, DIALOG

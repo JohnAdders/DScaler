@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.h,v 1.9 2001-11-21 15:21:39 adcockj Exp $
+// $Id: FD_60Hz.h,v 1.10 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ SETTING* FD60_GetSetting(FD60_SETTING Setting);
 void FD60_ReadSettingsFromIni();
 void FD60_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FD60_SetMenu(HMENU hMenu);
-void FD60_ShowUI();
+CTreeSettingsGeneric* FD60_GetTreeSettingsPage();
 
 
 #define MAXMODESWITCHES 50  // Maximum number of switches to track in TrackModeSwitches()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.cpp,v 1.23 2001-11-29 17:30:52 adcockj Exp $
+// $Id: FD_60Hz.cpp,v 1.24 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.22  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -87,7 +91,6 @@
 #include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 
 // Settings
 // Default values which can be overwritten by the INI file
@@ -766,7 +769,7 @@ void FD60_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_FALLBACK, bFallbackToVideo);
 }
 
-void FD60_ShowUI()
+CTreeSettingsGeneric* FD60_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("3:2 Pulldown Settings",FD60Settings, FD60_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("3:2 Pulldown Settings",FD60Settings, FD60_SETTING_LASTONE);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_EvenOnly.c,v 1.6 2001-11-22 13:32:03 adcockj Exp $
+// $Id: DI_EvenOnly.c,v 1.7 2002-06-13 12:10:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.5  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -36,7 +39,7 @@
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
-
+#include "..\help\helpids.h"
 
 BOOL DeinterlaceEvenOnly(TDeinterlaceInfo* pInfo)
 {
@@ -93,6 +96,7 @@ DEINTERLACE_METHOD EvenOnlyMethod =
     0,
     FALSE,
     FALSE,
+    IDH_EVEN,
 };
 
 

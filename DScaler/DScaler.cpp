@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.177 2002-06-13 11:24:32 robmuller Exp $
+// $Id: DScaler.cpp,v 1.178 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.177  2002/06/13 11:24:32  robmuller
+// Channel enter time is now configurable.
+//
 // Revision 1.176  2002/06/13 10:40:37  robmuller
 // Made anti plop mute delay configurable.
 //
@@ -571,8 +574,6 @@
 #include "hardwaredriver.h"
 #include "StillSource.h"
 #include "TreeSettingsDlg.h"
-#include "TreeSettingsGeneric.h"
-#include "..\help\helpids.h"
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -2309,54 +2310,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
-        case IDM_SHOWPLUGINUI:
-            ShowVideoModeUI();
-            break;
-
-        case IDM_32PULLDOWN_SETTINGS:
-            FD60_ShowUI();
-            break;
-
-        case IDM_22PULLDOWN_SETTINGS:
-            FD50_ShowUI();
-            break;
-
-        case IDM_PULLDOWNCOMMON_SETTINGS:
-            FD_Common_ShowUI();
-            break;
-
-        case IDM_DEBUG_SETTINGS:
-            Debug_ShowUI();
-            break;
-
-        case IDM_TIMING_SETTNGS:
-            Timing_ShowUI();
-            break;
-
-        case IDM_OVERLAY_SETTINGS:
-            Other_ShowUI();
-            break;
-
-        case IDM_ASPECT_SETTINGS:
-            Aspect_ShowUI();
-            break;
-
-        case IDM_CALIBR_SETTINGS:
-            Calibr_ShowUI();
-            break;
-
-        case IDM_OSD_SETTINGS:
-            OSD_ShowUI();
-            break;
-
-        case IDM_STILL_SETTINGS:
-            Still_ShowUI();
-            break;
-
-        case IDM_ANTIPLOP_SETTINGS:
-            AntiPlop_ShowUI();
-            break;
-
         case IDM_HELP_HOMEPAGE:
             ShellExecute(hWnd, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
             break;
@@ -2468,44 +2421,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 		
 		case IDM_SETTINGS_FILTERSETTINGS:
-		{
-			//the following is just a quick test of the new treebased settings dialog
-			//it shoud probably be cleand up and moved somwere else
+            bInMenuOrDialogBox = TRUE;
+            Cursor_UpdateVisibility();
+            CTreeSettingsDlg::ShowTreeSettingsDlg();
+            bInMenuOrDialogBox = FALSE;
+            Cursor_UpdateVisibility();
+            break;
 
-			vector<CTreeSettingsGeneric*> pages;
-			CTreeSettingsDlg dlg(CString("Filter settings"));
-			
-			CTreeSettingsPage rootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
-			
-			//the default help id is HID_BASE_RESOURCE+dialog template id
-			//but we cant use that for empty pages and the generic property page
-			//so set a new help id to use insted.
-			//since the IDH_FILTERS already contains HID_BASE_RESOURCE, subtract that
-			rootPage.SetHelpID(IDH_FILTERS-0x00020000UL);
-			int root=dlg.AddPage(&rootPage);
-			
-			FILTER_METHOD **pMethod;
-			long numFilters;
-			GetFilterSettings((FILTER_METHOD**)&pMethod,&numFilters);
-			for(long i=0;i<numFilters;i++)
-			{
-				CTreeSettingsGeneric *pPage=new CTreeSettingsGeneric(pMethod[i]->szName,pMethod[i]->pSettings,pMethod[i]->nSettings);
-				//pPage->SetHelpID(IDH_FILTERS);
-				
-				pages.push_back(pPage);
-				dlg.AddPage(pPage,root);
-			}
-			
-			dlg.DoModal();
-
-			for(vector<CTreeSettingsGeneric*>::iterator it=pages.begin();it!=pages.end();it++)
-			{
-				delete *it;
-			}
-			pages.erase(pages.begin(),pages.end());
-
-			break;
-		}
         default:
             // Check whether menu ID is an aspect ratio related item
             bDone = ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
@@ -3551,13 +3473,6 @@ HMENU GetFiltersSubmenu()
     return hmenu;
 }
 
-HMENU GetFilterSettingsSubmenu()
-{
-    HMENU hmenu = GetOrCreateSubSubMenu(4, 3, "Filter &Settings");
-    ASSERT(hmenu != NULL);
-
-    return hmenu;
-}
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
@@ -3602,7 +3517,7 @@ HMENU GetOSDSubmenu2()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(4, 8, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(4, 7, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

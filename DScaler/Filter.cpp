@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.20 2002-06-07 16:36:27 robmuller Exp $
+// $Id: Filter.cpp,v 1.21 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/06/07 16:36:27  robmuller
+// Added filter sorting. Added missing FindClose() statement.
+//
 // Revision 1.19  2002/04/24 19:10:38  tobbej
 // test of new tree based setting dialog
 //
@@ -80,7 +83,6 @@
 #include "DScaler.h"
 #include "OSD.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 
 long NumFilters = 0;
 
@@ -152,7 +154,7 @@ void LoadFilterPlugin(LPCSTR szFileName)
     if(pMethod != NULL)
     {
         if(pMethod->SizeOfStructure == sizeof(FILTER_METHOD) &&
-            pMethod->FilterStructureVersion >= FILTER_VERSION_2 &&
+            pMethod->FilterStructureVersion >= FILTER_VERSION_3 &&
             pMethod->InfoStructureVersion == DEINTERLACE_INFO_CURRENT_VERSION)
         {
             Filters[NumFilters] = pMethod;
@@ -196,7 +198,7 @@ void UnloadFilterPlugins()
     NumFilters = 0;
 }
 
-void AddUIForFilterPlugin(HMENU hFilterMenu, HMENU hSettingMenu, FILTER_METHOD* FilterMethod, int MenuId)
+void AddUIForFilterPlugin(HMENU hFilterMenu, FILTER_METHOD* FilterMethod, int MenuId)
 {
     if(FilterMethod->MenuId == 0)
     {
@@ -205,12 +207,10 @@ void AddUIForFilterPlugin(HMENU hFilterMenu, HMENU hSettingMenu, FILTER_METHOD* 
     if(FilterMethod->szMenuName != NULL)
     {
         AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szMenuName);
-        AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szMenuName);
     }
     else
     {
         AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
-        AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szName);
     }
 }
 
@@ -280,15 +280,14 @@ BOOL LoadFilterPlugins()
     if(NumFilters > 0)
     {
         HMENU hFilterMenu = GetFiltersSubmenu();
-        HMENU hSettingMenu = GetFilterSettingsSubmenu();
-        if(hFilterMenu == NULL || hSettingMenu == NULL)
+        if(hFilterMenu == NULL)
         {
             return FALSE;
         }
 
         for(i = 0; i < NumFilters; i++)
         {
-            AddUIForFilterPlugin(hFilterMenu, hSettingMenu, Filters[i], 7000 + i);
+            AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
         }
         return TRUE;
     }
@@ -319,20 +318,13 @@ BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
             return TRUE;
         }
     }
-    i = wMenuID - 7100;
-    if(i >= 0 && i < NumFilters)
-    {
-        CSettingsDlg::ShowSettingsDlg(Filters[i]->szName, Filters[i]->pSettings, Filters[i]->nSettings);
-        return TRUE;
-    }
     return FALSE;
 }
 
-void GetFilterSettings(FILTER_METHOD **ppSettings,long *pNumFilters)
+void GetFilterSettings(FILTER_METHOD**& MethodsArray,long& Num)
 {
-	//ASSERT(ppSettings!=NULL && *pNumFilters!=NULL);
-	*ppSettings=(FILTER_METHOD *)Filters;
-	*pNumFilters=NumFilters;
+	MethodsArray = Filters;
+	Num= NumFilters;
 }
 
 ////////////////////////////////////////////////////////////////////////////

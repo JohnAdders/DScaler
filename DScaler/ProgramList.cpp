@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.56 2002-06-13 10:40:37 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.57 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/06/13 10:40:37  robmuller
+// Made anti plop mute delay configurable.
+//
 // Revision 1.55  2002/05/28 11:51:12  robmuller
 // Prevent fine tuning to a negative frequency.
 //
@@ -1679,7 +1682,7 @@ void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-void AntiPlop_ShowUI()
+CTreeSettingsGeneric* AntiPlop_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Anti Plop Settings", AntiPlopSettings, ANTIPLOP_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Anti Plop Settings", AntiPlopSettings, ANTIPLOP_SETTING_LASTONE);
 }

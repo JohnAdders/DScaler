@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.35 2002-06-07 16:38:34 robmuller Exp $
+// $Id: Deinterlace.cpp,v 1.36 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/06/07 16:38:34  robmuller
+// Added missing FindClose() statement.
+//
 // Revision 1.34  2002/02/18 20:51:52  laurentg
 // Statistics regarding deinterlace modes now takes into account the progressive mode
 // Reset of the deinterlace statistics at each start of the decoding thread
@@ -132,7 +135,6 @@
 #include "Status.h"
 #include "OSD.h"
 #include "DebugLog.h"
-#include "SettingsDlg.h"
 #include "Providers.h"
 
 // Statistics
@@ -324,26 +326,6 @@ BOOL InHalfHeightMode()
     else
     {
         return VideoDeintMethods[gVideoPulldownMode]->bIsHalfHeight;
-    }
-}
-
-void ShowVideoModeUI()
-{
-    if(bIsFilmMode || bIsProgressiveMode)
-    {
-        return;
-    }
-    if(VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI != NULL)
-    {
-        VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI(hWnd);
-    }
-    else
-    {
-        //deinterlace plugin didnt have its own ui, show generic one
-        CString dlgCaption;
-        dlgCaption="Settings for ";
-        dlgCaption+=VideoDeintMethods[gVideoPulldownMode]->szName;
-        CSettingsDlg::ShowSettingsDlg(dlgCaption,VideoDeintMethods[gVideoPulldownMode]->pSettings,VideoDeintMethods[gVideoPulldownMode]->nSettings);
     }
 }
 
@@ -712,7 +694,7 @@ void LoadDeintPlugin(LPCSTR szFileName)
     if(pMethod != NULL)
     {
         if(pMethod->SizeOfStructure == sizeof(DEINTERLACE_METHOD) &&
-            pMethod->DeinterlaceStructureVersion >= DEINTERLACE_VERSION_2)
+            pMethod->DeinterlaceStructureVersion >= DEINTERLACE_VERSION_3)
         {
             VideoDeintMethods[NumVideoModes] = pMethod;
             pMethod->hModule = hPlugInMod;
@@ -839,6 +821,14 @@ BOOL LoadDeinterlacePlugins()
     }
 }
 
+void GetDeinterlaceSettings(DEINTERLACE_METHOD**& DeinterlaceMethods,long& NumMethods)
+{
+	//ASSERT(ppSettings!=NULL && *pNumFilters!=NULL);
+	DeinterlaceMethods = VideoDeintMethods;
+	NumMethods = NumVideoModes;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 // there are no settings at the moment but here is a good place to set
@@ -929,8 +919,6 @@ void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 void Deinterlace_SetMenu(HMENU hMenu)
 {
     int i;
-
-    EnableMenuItem(hMenu, IDM_SHOWPLUGINUI, bIsFilmMode || bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
 
     EnableMenuItem(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode ? MF_ENABLED : MF_GRAYED);
     CheckMenuItemBool(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode);

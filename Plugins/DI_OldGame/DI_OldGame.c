@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.c,v 1.5 2002-01-04 01:38:56 lindsey Exp $
+// $Id: DI_OldGame.c,v 1.6 2002-06-13 12:10:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/01/04 01:38:56  lindsey
+// Turned off the debug flag
+//
 // Revision 1.4  2001/12/20 03:42:58  lindsey
 // Corrected processor detection
 // Miscellaneous reorganization
@@ -43,6 +46,7 @@
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
+#include "..\help\helpids.h"
 
 //uncomment to turn on display of the comb factor
 //#define OLDGAME_DEBUG
@@ -167,6 +171,7 @@ static DEINTERLACE_METHOD OldGameMethod =
     0,
     FALSE,
     TRUE,
+    IDH_OLD_GAME,
 };
 
 

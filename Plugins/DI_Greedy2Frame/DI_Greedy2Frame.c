@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy2Frame.c,v 1.6 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_Greedy2Frame.c,v 1.7 2002-06-13 12:10:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,10 +25,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
+#include "..\help\helpids.h"
 
 long GreedyTwoFrameThreshold = 4;
 long GreedyTwoFrameThreshold2 = 8;
@@ -91,6 +95,7 @@ DEINTERLACE_METHOD Greedy2FrameMethod =
     0,
     FALSE,
     FALSE,
+    IDH_GREEDY2
 };
 
 

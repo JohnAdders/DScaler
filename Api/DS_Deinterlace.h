@@ -38,10 +38,10 @@ typedef void (__cdecl DEINTERLACEPLUGINSHOWUI)(HWND hwndMain);
 typedef void (__cdecl DEINTERLACEPLUGINEXIT)(void);
 
 // list of supported plugin versions
-#define DEINTERLACE_VERSION_2 2
+#define DEINTERLACE_VERSION_3 3
 
 // The current version
-#define DEINTERLACE_CURRENT_VERSION DEINTERLACE_VERSION_2
+#define DEINTERLACE_CURRENT_VERSION DEINTERLACE_VERSION_3
 
 typedef struct _DEINTERLACE_METHOD
 {
@@ -99,6 +99,9 @@ typedef struct _DEINTERLACE_METHOD
     BOOL bNeedFieldDiff;
     // do we need CombFactor filled in in Info
     BOOL bNeedCombFactor;
+    // Help ID
+    // needs to be in \help\helpids.h
+    int HelpID;
 } DEINTERLACE_METHOD;
 
 // Call this function to init a plug-in

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/18 01:23:46  lindsey
+// Changed an option name
+//
 // Revision 1.2  2002/02/16 00:24:57  lindsey
 // Added CVS tags
 //
@@ -58,6 +61,7 @@ artifactually increase the range of the distribution.
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -198,6 +202,7 @@ FILTER_METHOD HistogramMethod =
     WM_FLT_HISTOGRAM_GETVALUE - WM_USER,
     TRUE,
     1,
+    IDH_HISTOGRAM,
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.13 2002-05-24 23:04:55 robmuller Exp $
+// $Id: DScalerApp.cpp,v 1.14 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/05/24 23:04:55  robmuller
+// Patch #553392 by Anonymous.
+// Fix for VS.NET.
+//
 // Revision 1.12  2002/04/24 19:10:38  tobbej
 // test of new tree based setting dialog
 //
@@ -64,6 +68,7 @@
 #include "resource.h"
 #include "DScalerApp.h"
 #include "DScaler.h"
+#include <afxpriv.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -163,6 +168,14 @@ void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
 	if(nCmd==HELP_CONTEXT)
 	{
 		nCmd=HH_HELP_CONTEXT;
+        //the default help id is HID_BASE_RESOURCE+dialog template id
+        //but we cant use that for empty pages and the generic property page
+        //so set a new help id to use insted.
+        if(dwData >= HID_BASE_RESOURCE &&
+            dwData < HID_BASE_PROMPT)
+        {
+            dwData -= HID_BASE_RESOURCE;
+        }
 	}
 	
 	//try to open the help
@@ -173,6 +186,5 @@ void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
 		{
 			AfxMessageBox(_T("Failed to open help"),MB_OK|MB_ICONASTERISK);
 		}
-
 	}
 }

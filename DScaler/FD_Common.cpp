@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.23 2001-11-23 19:33:14 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.24 2002-06-13 12:10:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/11/23 19:33:14  adcockj
+// Fixes to bob to make is less jittery
+//
 // Revision 1.22  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -90,7 +93,6 @@
 #include "FD_CommonFunctions.h"
 #include "DebugLog.h"
 #include "Other.h"
-#include "SettingsDlg.h"
 
 
 // Settings
@@ -806,7 +808,7 @@ void FD_Common_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_USECHROMA, UseChromaInDetect);
 }
 
-void FD_Common_ShowUI()
+CTreeSettingsGeneric* FD_Common_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Pulldown Shared Settings",FD_CommonSettings, FD_COMMON_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Pulldown Shared Settings",FD_CommonSettings, FD_COMMON_SETTING_LASTONE);
 }

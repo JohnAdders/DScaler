@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Mirror.c,v 1.1 2002-06-06 12:46:56 robmuller Exp $
+// $Id: FLT_Mirror.c,v 1.2 2002-06-13 12:10:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,11 +18,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/06/06 12:46:56  robmuller
+// Initial checkin of the Mirror filter.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 #define IS_SSE
 #include "FLT_Mirror.asm"
@@ -69,6 +73,8 @@ FILTER_METHOD MirrorMethod =
     WM_FLT_MIRROR_GETVALUE - WM_USER,
     TRUE,
     1,
+    // todo write help file
+    IDH_FILTERS,
 };
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)

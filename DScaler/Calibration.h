@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.30 2002-06-01 22:24:36 laurentg Exp $
+// $Id: Calibration.h,v 1.31 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -441,7 +441,7 @@ extern CCalibration* pCalibration;
 SETTING* Calibr_GetSetting(CALIBR_SETTING Setting);
 void Calibr_ReadSettingsFromIni();
 void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void Calibr_ShowUI();
+CTreeSettingsGeneric* Calibr_GetTreeSettingsPage();
 
 
 #endif

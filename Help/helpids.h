@@ -28,7 +28,7 @@
 #define IDH_ADVANCED                    131120
 #define IDH_22_PULLDOWN                 131121
 #define IDH_32_PULLDOWN                 131122
-#define IDH_PULLLDOWN_SHARED            131123
+#define IDH_PULLDOWN_SHARED            131123
 #define IDH_LOGGING                     131124
 #define IDH_ASPECT                      131125
 #define IDH_TIMING                      131126

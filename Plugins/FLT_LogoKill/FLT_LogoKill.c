@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.10 2002-04-30 18:17:06 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.11 2002-06-13 12:10:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/04/30 18:17:06  adcockj
+// New weighted logo killer modes from Jochen Trenner
+//
 // Revision 1.9  2001/12/15 17:50:47  adcockj
 // Fix for zero width bug
 //
@@ -41,6 +44,7 @@
 
 #include "windows.h"
 #include "DS_Filter.h"
+#include "..\help\helpids.h"
 
 long Top = 5;
 long Left = 5;
@@ -590,6 +594,7 @@ FILTER_METHOD LogoKillMethod =
     WM_FLT_LOGOKILL_GETVALUE - WM_USER,
     TRUE,
     1,
+    IDH_LOGO_KILLER,
 };
 
 

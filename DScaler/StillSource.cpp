@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.58 2002-06-07 14:57:36 robmuller Exp $
+// $Id: StillSource.cpp,v 1.59 2002-06-13 12:10:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/06/07 14:57:36  robmuller
+// Added carriage returns in BuildDScalerContext().
+//
 // Revision 1.57  2002/05/27 20:39:02  laurentg
 // Reload current still when updating setting pattern height or width
 //
@@ -226,7 +229,6 @@
 #include "OutThreads.h"
 #include "AspectRatio.h"
 #include "Other.h"
-#include "SettingsDlg.h"
 #include "Filter.h"
 #include "Dialogs.h"
 
@@ -1407,9 +1409,9 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 	}
 }
 
-void Still_ShowUI()
+CTreeSettingsGeneric* Still_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Still Settings",StillSettings, STILL_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.65 2002-06-02 09:43:23 laurentg Exp $
+// $Id: Calibration.cpp,v 1.66 2002-06-13 12:10:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/06/02 09:43:23  laurentg
+// Settings restore at end of automatic calibration was broken
+//
 // Revision 1.64  2002/06/01 22:24:36  laurentg
 // New calibration mode to compute YUV range
 //
@@ -155,7 +158,6 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "OutThreads.h"
-#include "SettingsDlg.h"
 
 
 // Minimum time in milliseconds between two consecutive evaluations
@@ -2835,7 +2837,7 @@ void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-void Calibr_ShowUI()
+CTreeSettingsGeneric* Calibr_GetTreeSettingsPage()
 {
-    CSettingsDlg::ShowSettingsDlg("Calibration Settings",CalibrSettings, CALIBR_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("Calibration Settings",CalibrSettings, CALIBR_SETTING_LASTONE);
 }

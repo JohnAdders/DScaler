@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.3 2002-11-28 21:37:26 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.4 2002-12-03 16:34:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/28 21:37:26  adcockj
+// Fix for autodetect function thanks to Atsushi
+//
 // Revision 1.2  2002/11/05 14:36:22  adcockj
 // Remove bt848 advanced flags dialog, now replaced by generic one
 //
@@ -1614,63 +1617,65 @@ void CBT848Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Hue","BT8x8 - Hue",TRUE, m_Hue);            
         SettingsPerChannel_RegisterSetting("Contrast","BT8x8 - Contrast",TRUE, m_Contrast);
         
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_Saturation);
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationU);
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationV);
+        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE);
+        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_Saturation);
+        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_SaturationU);
+        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_SaturationV);
     
-        SettingsPerChannel_RegisterSetting("Overscan","BT8x8 - Overscan",FALSE, m_Overscan);
+        SettingsPerChannel_RegisterSetting("Overscan", "BT8x8 - Overscan", FALSE, m_Overscan);
         
-        SettingsPerChannel_RegisterSetting("AudioChannel","BT8x8 - Audio Channel",TRUE, m_AudioChannel);
+        SettingsPerChannel_RegisterSetting("AudioChannel", "BT8x8 - Audio Channel", TRUE, m_AudioChannel);
         
-        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE);
-        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardDetect);        
-        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardDetectInterval);        
-        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardManual);        
-        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardMajorCarrier);
-        SettingsPerChannel_RegisterSetting("AudioStandard","BT8x8 - Audio Standard",TRUE, m_AudioStandardMinorCarrier);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardDetect);        
+        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardDetectInterval);        
+        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardManual);        
+        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardMajorCarrier);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardMinorCarrier);
         
-        SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
-        SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",FALSE);            
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",FALSE, m_Bass);            
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",FALSE, m_Treble);        
+        SettingsPerChannel_RegisterSetting("Volume", "BT8x8 - Volume", TRUE, m_Volume);            
+        SettingsPerChannel_RegisterSetting("Balance", "BT8x8 - Balance", TRUE, m_Balance);
+        SettingsPerChannel_RegisterSetting("BassTreble", "BT8x8 - Bass & Treble", FALSE);            
+        SettingsPerChannel_RegisterSetting("BassTreble", "BT8x8 - Bass & Treble", FALSE, m_Bass);            
+        SettingsPerChannel_RegisterSetting("BassTreble", "BT8x8 - Bass & Treble", FALSE, m_Treble);        
 
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE);            
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_UseEqualizer);            
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand1);
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand2);
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand3);
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand4);
-        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand5);
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE);            
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_UseEqualizer);            
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand1);
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand2);
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand3);
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand4);
+        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand5);
 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE); 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE, m_AudioLoudness); 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE, m_AudioSuperbass); 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE, m_AudioSpatialEffect);         
+        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE); 
+        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE, m_AudioLoudness); 
+        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE, m_AudioSuperbass); 
+        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE, m_AudioSpatialEffect);         
 
 
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtAgcDisable);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtCrush);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtEvenChromaAGC);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddChromaAGC);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtEvenLumaPeak);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddLumaPeak);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtFullLumaRange);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtEvenLumaDec);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddLumaDec);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddComb);        
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtCoring);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtGammaCorrection);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtHorFilter);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtVertFilter);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtColorKill);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_ReversePolarity);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtWhiteCrushUp);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtWhiteCrushDown);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtAgcDisable);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtCrush);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtEvenChromaAGC);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddChromaAGC);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtEvenLumaPeak);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddLumaPeak);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtFullLumaRange);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtEvenLumaDec);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddLumaDec);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddComb);        
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtCoring);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtGammaCorrection);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtHorFilter);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtVertFilter);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtColorKill);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_ReversePolarity);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtWhiteCrushUp);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtWhiteCrushDown);
         
-        SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_HDelay);
-        SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_VDelay);
-        SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_BDelay);
+        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE);
+        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE, m_HDelay);
+        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE, m_VDelay);
+        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE, m_BDelay);
     }
 }

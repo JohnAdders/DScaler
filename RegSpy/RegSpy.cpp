@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.7 2002-12-06 00:28:40 atnak Exp $
+// $Id: RegSpy.cpp,v 1.8 2002-12-10 10:15:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/12/06 00:28:40  atnak
+// Replaced CreateDIBSection() with CreateCompatibleBitmap()
+//
 // Revision 1.6  2002/12/05 17:10:47  adcockj
 // Added new registers for debugging sound on cx2388x
 //
@@ -484,7 +487,7 @@ void NumberToBinary(char *lpBuffer, DWORD Number, BYTE Size, DWORD Mask)
     case 1:
         Byte = (BYTE)Number;
         Bmask = (BYTE)Mask;
-        for(i = 0; i < 8; i++)
+        for(i = 7; i >= 0; i--)
         {
             *lpBuffer++ = ((Bmask & (1 << i)) ? ((Byte & (1 << i)) ? '1' : '0') : '-');
         }
@@ -493,10 +496,10 @@ void NumberToBinary(char *lpBuffer, DWORD Number, BYTE Size, DWORD Mask)
     case 2:
         Word = (WORD)Number;
         Wmask = (WORD)Mask;
-        for(i = 0; i < 16; i++)
+        for(i = 15; i >= 0; i--)
         {
             *lpBuffer++ = ((Mask & (1 << i)) ? ((Word & (1 << i)) ? '1' : '0') : '-');
-            if(i == 7)
+            if(i == 8)
             {
                 *lpBuffer++ = ' ';
             }
@@ -504,10 +507,10 @@ void NumberToBinary(char *lpBuffer, DWORD Number, BYTE Size, DWORD Mask)
         break;
 
     case 4:
-        for(i = 0; i < 32; i++)
+        for(i = 31; i >= 0; i--)
         {
             *lpBuffer++ = ((Mask & (1 << i)) ? ((Number & (1 << i)) ? '1' : '0') : '-');
-            if((i % 8 == 7) && (i != 31))
+            if((i % 8 == 0) && (i != 0))
             {
                 *lpBuffer++ = ' ';
             }
@@ -759,10 +762,17 @@ void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
             c++;
         }
 
-        // Check for a "0x" prefix
-        if(*c == '0' && *++c == 'x' || *c == 'X')
+        // Init the pointer for creating the name
+        char* s = szName;
+
+        // Check for a "0x" or "x" prefix
+        if(*c == '0')
         {
-            *c++;
+            *s++ = *c++;
+        }
+        if(*c == 'x' || *c == 'X')
+        {
+            *s++ = *c++;
             bHex = TRUE;
         }
         else
@@ -775,6 +785,12 @@ void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
         // Parse the register
         for( ; *c != '=' && *c != '\0'; c++)
         {
+            // Save the characters of c as we go
+            if(s < &szName[sizeof(szName)-1])
+            {
+                *s++ = *c;
+            }
+
             if(*c < '0' || *c > '9')
             {
                 if(!bHex || ((*c < 'a' || *c > 'f') && (*c < 'A' || *c > 'F')))
@@ -808,8 +824,9 @@ void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
             dwReg += nDigit;
         }
 
-        if(*c != '=')
+        if(*c != '=' && *c != '\0')
         {
+            // Skip this set
             while(*c++ != '\0')
             {
                 // do nothing
@@ -817,13 +834,19 @@ void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
             continue;
         }
 
-        char *s = szName;
-
-        // Get the name
-        for(c++; *c != '\0' && s < &szName[sizeof(szName)-1]; )
+        if(*c == '=')
         {
-            *s++ = *c++;
+            if(*++c != '\0')
+            {
+                // Get the name
+                for(s = szName; *c != '\0' && s < &szName[sizeof(szName)-1]; )
+                {
+                    *s++ = *c++;
+                }
+            }
         }
+
+        // Add the null terminator
         *s++ = *c++;
 
         *hRegisterListTail = (TRegister*)malloc(sizeof(TRegister));

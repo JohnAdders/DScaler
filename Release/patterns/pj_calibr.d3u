@@ -2,7 +2,10 @@ centring.pat
 gray.pat
 color SDTV.pat
 color HDTV.pat
-color gradation.pat
+color gradation 1.pat
+color gradation 2.pat
+color gradation 3.pat
+color gradation 4.pat
 blue.pat
 red.pat
 white.pat

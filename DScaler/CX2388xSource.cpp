@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.52 2003-06-14 14:29:21 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.53 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2003/06/14 14:29:21  laurentg
+// Video format saved per video input for BT8x8 and CX2388x
+//
 // Revision 1.51  2003/05/30 12:21:20  laurentg
 // Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
 //
@@ -1001,6 +1004,10 @@ int CCX2388xSource::GetHeight()
     return m_CurrentY;
 }
 
+void CCX2388xSource::SetWidth(int w)
+{
+	m_PixelWidth->SetValue(w);
+}
 
 CCX2388xCard* CCX2388xSource::GetCard()
 {

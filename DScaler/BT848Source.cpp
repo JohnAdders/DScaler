@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.125 2003-06-14 14:29:21 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.126 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.125  2003/06/14 14:29:21  laurentg
+// Video format saved per video input for BT8x8 and CX2388x
+//
 // Revision 1.124  2003/06/02 15:30:11  adcockj
 // Fix for bdelay problems
 //
@@ -1118,6 +1121,10 @@ int CBT848Source::GetHeight()
     return m_CurrentY;
 }
 
+void CBT848Source::SetWidth(int w)
+{
+	m_PixelWidth->SetValue(w);
+}
 
 CBT848Card* CBT848Source::GetBT848Card()
 {

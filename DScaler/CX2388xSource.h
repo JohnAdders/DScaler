@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.23 2003-01-19 19:45:13 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.24 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,7 @@ public:
     int GetInitialHeight() {return GetHeight() / 2;};
     int GetWidth();
     int GetHeight();
+    void SetWidth(int w);
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
   

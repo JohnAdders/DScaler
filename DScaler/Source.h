@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.35 2003-01-19 19:46:27 laurentg Exp $
+// $Id: Source.h,v 1.36 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -120,6 +120,8 @@ public:
     virtual int GetWidth() = 0;
     /// Gets the height of each frame in pixels, for interlaced this is x2 FieldHeight
     virtual int GetHeight() = 0;
+    /// Sets the width of each picture in pixels
+    virtual void SetWidth(int w) = 0;
     /// Does this source have an anologue tuner
     //(kept for backward compatibility)
     /*virtual*/ BOOL HasTuner();    

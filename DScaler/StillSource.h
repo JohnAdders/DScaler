@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.67 2003-06-02 13:15:35 adcockj Exp $
+// $Id: StillSource.h,v 1.68 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -129,6 +129,7 @@ public:
     int GetInitialHeight();
     int GetWidth();
     int GetHeight();
+	void SetWidth(int w) {return;};
 
     void UpdateMenu();
     void SetMenu(HMENU hMenu);

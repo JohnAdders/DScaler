@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.56 2003-01-19 19:45:12 laurentg Exp $
+// $Id: BT848Source.h,v 1.57 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/01/19 19:45:12  laurentg
+// GetInitialHeight must return the height of the input picture
+//
 // Revision 1.55  2003/01/19 11:09:10  laurentg
 // New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
 //
@@ -122,6 +125,7 @@ public:
     int GetInitialHeight() {return GetHeight() / 2;};
     int GetWidth();
     int GetHeight();
+    void SetWidth(int w);
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
     

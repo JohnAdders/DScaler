@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.83 2003-06-15 07:12:18 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.84 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2003/06/15 07:12:18  laurentg
+// Calls to Stop_Capture and Start_Capture temporally removed in HDelayOnChange and VDelayOnChange methods
+// Call to NotifySizeChange added in Start method
+//
 // Revision 1.82  2003/05/31 18:46:27  laurentg
 // Possibility to save video format per video input corrected
 //
@@ -1380,6 +1384,10 @@ int CSAA7134Source::GetWidth()
     return m_CurrentX;
 }
 
+void CSAA7134Source::SetWidth(int w)
+{
+	m_PixelWidth->SetValue(w);
+}
 
 int CSAA7134Source::GetHeight()
 {

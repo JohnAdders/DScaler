@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.18 2003-01-19 19:46:27 laurentg Exp $
+// $Id: DVBTSource.h,v 1.19 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ public:
     int GetInitialHeight() {return GetHeight() / 2;};
     int GetWidth() {return 720;};
     int GetHeight() {return 576;};
+	void SetWidth() {return;};
    
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);

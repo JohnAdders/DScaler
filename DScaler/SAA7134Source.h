@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.38 2003-01-27 22:04:15 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.39 2003-07-05 10:55:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/01/27 22:04:15  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.37  2003/01/19 19:46:27  laurentg
 // GetInitialHeight must return the height of the input picture
 //
@@ -197,6 +202,7 @@ public:
 
     int GetWidth();
     int GetHeight();
+	void SetWidth(int w);
 
     int GetDeviceIndex();
     const char* GetChipName();

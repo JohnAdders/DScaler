@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.12 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MT2032.cpp,v 1.13 2004-01-14 17:06:44 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.11  2002/10/31 21:42:56  adcockj
 // Patch for GetAFCStatus supplied by Denis Balazuc
 //
@@ -141,7 +144,7 @@ void CMT2032::Initialize()
     
     if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
     {
-        LOG(1,"MT2032: Companycode=%02x%02x Part=%02x Revision=%02x\n",
+        LOG(1,"MT2032: Companycode=%02x%02x Part=%02x Revision=%02x",
                     rdbuf[0x11],rdbuf[0x12],rdbuf[0x13],rdbuf[0x14]);
     }
 

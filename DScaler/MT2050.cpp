@@ -1,5 +1,5 @@
 //
-// $Id: MT2050.cpp,v 1.2 2004-01-05 13:12:24 adcockj Exp $
+// $Id: MT2050.cpp,v 1.3 2004-01-14 17:06:44 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/01/05 13:12:24  adcockj
+// Added patch from Lavrenov Dmitrij (midimaker)
+//
 // Revision 1.1  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -107,7 +110,7 @@ void CMT2050::Initialize()
     
     if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
     {
-        LOG(1,"MT2050: Companycode=%02x%02x Part=%02x Revision=%02x\n",
+        LOG(1,"MT2050: Companycode=%02x%02x Part=%02x Revision=%02x",
                     rdbuf[0x11],rdbuf[0x12],rdbuf[0x13],rdbuf[0x14]);
     }
 

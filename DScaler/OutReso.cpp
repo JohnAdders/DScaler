@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.3 2003-02-06 12:22:57 laurentg Exp $
+// $Id: OutReso.cpp,v 1.4 2003-02-06 14:08:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/02/06 12:22:57  laurentg
+// Take the refresh rate when changing resolution (choice between 60, 72, 75, 100 and 120 Hz)
+//
 // Revision 1.2  2003/02/06 09:59:40  laurentg
 // Change resolution in full screen
 //
@@ -46,41 +49,42 @@ typedef struct
 	int		intResHeight;
 	int		intResDepth;
 	int		intResFreq;
+	BOOL	bSupported;
 } sResolution;
 
 
 static sResolution resSettings[] = {
-	{	FALSE,	"None",						0,		0,		0,	0	},
-	{	TRUE,	"640x480 16bit 60 Hz",		640,	480,	16,	60	},
-	{	TRUE,	"640x480 16bit 72 Hz",		640,	480,	16,	72	},
-	{	TRUE,	"640x480 16bit 75 Hz",		640,	480,	16,	75	},
-	{	TRUE,	"640x480 16bit 100 Hz",		640,	480,	16,	100	},
-	{	TRUE,	"640x480 16bit 120 Hz",		640,	480,	16,	120	},
-	{	TRUE,	"640x480 32bit 60 Hz",		640,	480,	32,	60	},
-	{	TRUE,	"640x480 32bit 72 Hz",		640,	480,	32,	72	},
-	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75	},
-	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100	},
-	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120	},
-	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60	},
-	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72	},
-	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75	},
-	{	TRUE,	"800x600 16bit 100 Hz",		800,	600,	16,	100	},
-	{	TRUE,	"800x600 16bit 120 Hz",		800,	600,	16,	120	},
-	{	TRUE,	"800x600 32bit 60 Hz",		800,	600,	32,	60	},
-	{	TRUE,	"800x600 32bit 72 Hz",		800,	600,	32,	72	},
-	{	TRUE,	"800x600 32bit 75 Hz",		800,	600,	32,	75	},
-	{	TRUE,	"800x600 32bit 100 Hz",		800,	600,	32,	100	},
-	{	TRUE,	"800x600 32bit 120 Hz",		800,	600,	32,	120	},
-	{	TRUE,	"1024x768 16bit 60 Hz",		1024,	768,	16,	60	},
-	{	TRUE,	"1024x768 16bit 72 Hz",		1024,	768,	16,	72	},
-	{	TRUE,	"1024x768 16bit 75 Hz",		1024,	768,	16,	75	},
-	{	TRUE,	"1024x768 16bit 100 Hz",	1024,	768,	16,	100	},
-	{	TRUE,	"1024x768 16bit 120 Hz",	1024,	768,	16,	120	},
-	{	TRUE,	"1024x768 32bit 60 Hz",		1024,	768,	32,	60	},
-	{	TRUE,	"1024x768 32bit 72 Hz",		1024,	768,	32,	72	},
-	{	TRUE,	"1024x768 32bit 75 Hz",		1024,	768,	32,	75	},
-	{	TRUE,	"1024x768 32bit 100 Hz",	1024,	768,	32,	100	},
-	{	TRUE,	"1024x768 32bit 120 Hz",	1024,	768,	32,	120	},
+	{	FALSE,	"None",						0,		0,		0,	0,		TRUE	},
+	{	TRUE,	"640x480 16bit 60 Hz",		640,	480,	16,	60,		TRUE	},
+	{	TRUE,	"640x480 16bit 72 Hz",		640,	480,	16,	72,		TRUE	},
+	{	TRUE,	"640x480 16bit 75 Hz",		640,	480,	16,	75,		TRUE	},
+	{	TRUE,	"640x480 16bit 100 Hz",		640,	480,	16,	100,	TRUE	},
+	{	TRUE,	"640x480 16bit 120 Hz",		640,	480,	16,	120,	TRUE	},
+	{	TRUE,	"640x480 32bit 60 Hz",		640,	480,	32,	60,		TRUE	},
+	{	TRUE,	"640x480 32bit 72 Hz",		640,	480,	32,	72,		TRUE	},
+	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75,		TRUE	},
+	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100,	TRUE	},
+	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120,	TRUE	},
+	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60,		TRUE	},
+	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72,		TRUE	},
+	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75,		TRUE	},
+	{	TRUE,	"800x600 16bit 100 Hz",		800,	600,	16,	100,	TRUE	},
+	{	TRUE,	"800x600 16bit 120 Hz",		800,	600,	16,	120,	TRUE	},
+	{	TRUE,	"800x600 32bit 60 Hz",		800,	600,	32,	60,		TRUE	},
+	{	TRUE,	"800x600 32bit 72 Hz",		800,	600,	32,	72,		TRUE	},
+	{	TRUE,	"800x600 32bit 75 Hz",		800,	600,	32,	75,		TRUE	},
+	{	TRUE,	"800x600 32bit 100 Hz",		800,	600,	32,	100,	TRUE	},
+	{	TRUE,	"800x600 32bit 120 Hz",		800,	600,	32,	120,	TRUE	},
+	{	TRUE,	"1024x768 16bit 60 Hz",		1024,	768,	16,	60,		TRUE	},
+	{	TRUE,	"1024x768 16bit 72 Hz",		1024,	768,	16,	72,		TRUE	},
+	{	TRUE,	"1024x768 16bit 75 Hz",		1024,	768,	16,	75,		TRUE	},
+	{	TRUE,	"1024x768 16bit 100 Hz",	1024,	768,	16,	100,	TRUE	},
+	{	TRUE,	"1024x768 16bit 120 Hz",	1024,	768,	16,	120,	TRUE	},
+	{	TRUE,	"1024x768 32bit 60 Hz",		1024,	768,	32,	60,		TRUE	},
+	{	TRUE,	"1024x768 32bit 72 Hz",		1024,	768,	32,	72,		TRUE	},
+	{	TRUE,	"1024x768 32bit 75 Hz",		1024,	768,	32,	75,		TRUE	},
+	{	TRUE,	"1024x768 32bit 100 Hz",	1024,	768,	32,	100,	TRUE	},
+	{	TRUE,	"1024x768 32bit 120 Hz",	1024,	768,	32,	120,	TRUE	},
 };
 
 
@@ -94,8 +98,7 @@ int OutputReso = 0;
 void OutReso_UpdateMenu(HMENU hMenu)
 {
     HMENU	hMenuReso;
-    int		i;
-    int		n;
+    int		i, j, n;
 
     hMenuReso = GetOutResoSubmenu();
     if (hMenuReso == NULL)
@@ -103,11 +106,40 @@ void OutReso_UpdateMenu(HMENU hMenu)
         return;
     }
 
+	// Add in menus only supported display settings
+
     n = sizeof (resSettings) / sizeof (resSettings[0]);
-    for (i=0; i < n ; i++)
+    for (i=0,j=0; i < n ; i++)
     {
-        UINT Flags(MF_STRING);
-        AppendMenu(hMenuReso, Flags, IDM_OUTPUTRESO + i, resSettings[i].szMenuLabel);
+		if (resSettings[i].bSwitchScreen)
+		{
+			DEVMODE dm;
+			dm.dmSize = sizeof(DEVMODE);
+			dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+			dm.dmPelsWidth = resSettings[i].intResWidth;
+			dm.dmPelsHeight = resSettings[i].intResHeight;
+			dm.dmBitsPerPel = resSettings[i].intResDepth;
+			dm.dmDisplayFrequency = resSettings[i].intResFreq;
+			if (ChangeDisplaySettings(&dm, CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+			{
+				EnableMenuItemBool(hMenuReso, IDM_OUTPUTRESO + i, FALSE);
+				resSettings[i].bSupported = FALSE;
+			}
+			else
+			{
+				resSettings[i].bSupported = TRUE;
+			}
+		}
+		else
+		{
+			resSettings[i].bSupported = TRUE;
+		}
+		if (resSettings[i].bSupported)
+		{
+			UINT Flags(MF_STRING);
+			AppendMenu(hMenuReso, Flags, IDM_OUTPUTRESO + j, resSettings[i].szMenuLabel);
+			j++;
+		}
     }
 }
 
@@ -115,8 +147,7 @@ void OutReso_UpdateMenu(HMENU hMenu)
 void OutReso_SetMenu(HMENU hMenu)
 {
     HMENU   hMenuReso;
-    int     i;
-    int     n;
+    int     i, j, n;
 
     hMenuReso = GetOutResoSubmenu();
     if (hMenuReso == NULL)
@@ -125,9 +156,13 @@ void OutReso_SetMenu(HMENU hMenu)
     }
 
     n = sizeof (resSettings) / sizeof (resSettings[0]);
-    for (i=0; i < n ; i++)
+    for (i=0,j=0; i < n ; i++)
     {
-        CheckMenuItemBool(hMenuReso, IDM_OUTPUTRESO + i, i == OutputReso);
+		if (resSettings[i].bSupported)
+		{
+	        CheckMenuItemBool(hMenuReso, IDM_OUTPUTRESO + j, j == OutputReso);
+			j++;
+		}
     }
 }
 
@@ -145,26 +180,54 @@ BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID)
 void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 {
     DEVMODE dm;
+    DEVMODE dm_cur;
+    int     i, idx, n;
 
-	if (resSettings[OutputReso].bSwitchScreen)
+    n = sizeof (resSettings) / sizeof (resSettings[0]);
+    for (idx=0,i=0; idx < n ; idx++)
+    {
+		if (resSettings[idx].bSupported)
+		{
+			if (i == OutputReso)
+			{
+				break;
+			}
+			i++;
+		}
+    }
+
+	if (resSettings[idx].bSwitchScreen)
 	{
         dm.dmSize = sizeof(DEVMODE);
         dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 		if (bUseRegistrySettings)
 		{
+			// Get the display settings from registry
 	        EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dm);
 		}
 		else
 		{
-			dm.dmPelsWidth = resSettings[OutputReso].intResWidth;
-			dm.dmPelsHeight = resSettings[OutputReso].intResHeight;
-			dm.dmBitsPerPel = resSettings[OutputReso].intResDepth;
-			dm.dmDisplayFrequency = resSettings[OutputReso].intResFreq;
+			// Use the display settings defined by the user
+			dm.dmPelsWidth = resSettings[idx].intResWidth;
+			dm.dmPelsHeight = resSettings[idx].intResHeight;
+			dm.dmBitsPerPel = resSettings[idx].intResDepth;
+			dm.dmDisplayFrequency = resSettings[idx].intResFreq;
 		}
-		Overlay_Stop(hWnd);
-//        ShowWindow(hWnd, SW_HIDE);
-        ChangeDisplaySettings(&dm, 0);
-//        ShowWindow(hWnd, SW_SHOW);
-		Overlay_Start(hWnd);
+
+		// Change display settings only if different from current
+        dm_cur.dmSize = sizeof(DEVMODE);
+        dm_cur.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+        EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm_cur);
+		if ( (dm.dmPelsWidth != dm_cur.dmPelsWidth)
+		  || (dm.dmPelsHeight != dm_cur.dmPelsHeight)
+		  || (dm.dmBitsPerPel != dm_cur.dmBitsPerPel)
+		  || (dm.dmDisplayFrequency != dm_cur.dmDisplayFrequency))
+		{
+			Overlay_Stop(hWnd);
+//	        ShowWindow(hWnd, SW_HIDE);
+			ChangeDisplaySettings(&dm, 0);
+//	        ShowWindow(hWnd, SW_SHOW);
+			Overlay_Start(hWnd);
+		}
 	}
 }

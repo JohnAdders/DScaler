@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.27 2002-02-10 21:34:31 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.28 2002-02-17 17:46:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/02/10 21:34:31  laurentg
+// Default value for "Save Settings By Format" is now ON
+//
 // Revision 1.26  2002/02/09 14:46:05  laurentg
 // OSD main screen updated to display the correct input name (or channel)
 // OSD main screen updated to display only activated filters
@@ -519,6 +522,7 @@ void CBT848Source::Stop()
 {
     // stop capture
     m_pBT848Card->StopCapture();
+    Audio_Mute();
 }
 
 void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)

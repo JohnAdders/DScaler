@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.h,v 1.1 2002-10-23 16:51:01 atnak Exp $
+// $Id: VTTopText.h,v 1.2 2002-10-24 01:38:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/23 16:51:01  atnak
+// TOP-Text support initial release
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -128,6 +131,7 @@ private:
     static char*            m_WaitMessage;
     static char*            m_NoneMessage;
     static char*            m_MultiMessage;
+    static char*            m_SubtitleMessage;
     static char*            m_EmptyADIPText;
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.cpp,v 1.2 2002-10-23 16:53:43 atnak Exp $
+// $Id: VTTopText.cpp,v 1.3 2002-10-24 01:38:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/23 16:53:43  atnak
+// small adjustment
+//
 // Revision 1.1  2002/10/23 16:51:01  atnak
 // TOP-Text support initial release
 //
@@ -29,10 +32,11 @@
 
 extern unsigned char UnhamTab[256];
 
-char* CVTTopText::m_WaitMessage   = "Please wait";
-char* CVTTopText::m_NoneMessage   = "Page not included";
-char* CVTTopText::m_MultiMessage  = "Multi-page with %d sub-pages";
-char* CVTTopText::m_EmptyADIPText = "    ????    ";
+char* CVTTopText::m_WaitMessage     = "Please wait";
+char* CVTTopText::m_NoneMessage     = "Page not included";
+char* CVTTopText::m_MultiMessage    = "Multi-page with %d sub-pages";
+char* CVTTopText::m_SubtitleMessage = "Subtitle page";
+char* CVTTopText::m_EmptyADIPText   = "    ????    ";
 
 
 CVTTopText::CVTTopText()
@@ -572,6 +576,10 @@ void CVTTopText::GetTopTextDetails(TVTPage* pPage)
         if (m_TOP[pPage->Page] == 0x00)
         {
             Message = m_NoneMessage;
+        }
+        else if (m_TOP[pPage->Page] == TOPLEVEL_SUBTITLE)
+        {
+            Message = m_SubtitleMessage;
         }
         else if (IsMultiPage(pPage->Page))
         {

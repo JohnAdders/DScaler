@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.8 2003-10-27 10:39:52 adcockj Exp $
+// $Id: ITuner.cpp,v 1.9 2005-03-09 09:35:16 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.7  2003/02/06 21:27:41  ittarnavsky
 // removed the tuner names from here
 //
@@ -54,6 +57,11 @@
 #include "stdafx.h"
 #include "ITuner.h"
 
+
+//////////////////////////////////////////////////////////////////////////
+// ITuner
+//////////////////////////////////////////////////////////////////////////
+
 ITuner::ITuner()
 {
     m_ExternalIFDemodulator = NULL;
@@ -74,6 +82,11 @@ void ITuner::AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, bool bF
     m_bFreeIFDemodulatorOnDestruction = bFreeOnDestruction;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// II2CTuner
+//////////////////////////////////////////////////////////////////////////
+
 II2CTuner::II2CTuner()
 {
 }
@@ -81,3 +94,33 @@ II2CTuner::II2CTuner()
 II2CTuner::~II2CTuner()
 {
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// IExternalIFDemodulator
+//////////////////////////////////////////////////////////////////////////
+
+bool IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
+{
+    BYTE addresses = CI2CDevice::GetDefaultAddress();
+    return SetDetectedI2CAddress(i2cBus, &addresses, 1);
+}
+
+bool IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus,
+                                                   IN BYTE* addresses, IN size_t count)
+{
+    for (size_t i = 0; i < count; ++i)
+    {
+        if (addresses[i] != 0x00)
+        {
+            SetI2CBus(i2cBus, addresses[i]);
+
+            if (Detect())
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+

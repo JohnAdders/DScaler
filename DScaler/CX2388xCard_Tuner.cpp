@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Tuner.cpp,v 1.4 2005-03-06 14:05:51 to_see Exp $
+// $Id: CX2388xCard_Tuner.cpp,v 1.5 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/06 14:05:51  to_see
+// Hauppauge Autodetection updated
+//
 // Revision 1.3  2005/01/13 19:44:17  to_see
 // Added TEA5767 autodetection
 //
@@ -102,7 +105,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         CTDA9887Ex *pTDA9887 = new CTDA9887Ex();
 
 		// Detect to make sure an IF demodulator exists.
-		if (pTDA9887->DetectAttach(m_I2CBus))
+		if (pTDA9887->SetDetectedI2CAddress(m_I2CBus))
 		{
 			// Set card specific modes that were parsed from CX2388xCards.ini.
 			size_t count = m_CX2388xCards[m_CardType].tda9887Modes.size();
@@ -150,7 +153,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
-            m_Tuner->Attach(m_I2CBus, test>>1);
+            m_Tuner->SetI2CBus(m_I2CBus, test>>1);
             sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);

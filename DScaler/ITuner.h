@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.h,v 1.8 2003-10-27 10:39:52 adcockj Exp $
+// $Id: ITuner.h,v 1.9 2005-03-09 09:35:16 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.7  2003/02/06 21:27:41  ittarnavsky
 // removed the tuner names from here
 //
@@ -69,8 +72,8 @@ enum eTunerLocked
     TUNER_LOCK_NOTSUPPORTED = -1,
     TUNER_LOCK_OFF = 0,
     TUNER_LOCK_ON = 1
-};    
-    
+};
+
 enum eTunerAFCStatus
 {
     TUNER_AFC_NOTSUPPORTED = -1,
@@ -80,6 +83,7 @@ enum eTunerAFCStatus
 
 class IExternalIFDemodulator;
 
+
 /** Interface for control of analogue tuners
 */
 class ITuner
@@ -87,22 +91,39 @@ class ITuner
 public:
     ITuner();
     virtual ~ITuner();
+
+    // Perform initializing calls on the tuner.
+    virtual bool InitializeTuner() { return true; };
+
+    // Gets the ID of this tuner.
     virtual eTunerId GetTunerId() = 0;
+    // Gets the default video format of the tuner.
     virtual eVideoFormat GetDefaultVideoFormat() = 0;
+
+    // Returns whether or not radio is supported.
     virtual bool HasRadio() const = 0;
-    virtual bool SetRadioFrequency(long nFrequency) = 0;
+
+    // Tune the tuner into the TV frequency.
     virtual bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat) = 0;
+    // Tune the tuner into the radio frequency.
+    virtual bool SetRadioFrequency(long nFrequency) = 0;
+
+    // Gets the last tuned frequency.
     virtual long GetFrequency() = 0;
+    // Returns whether or not the picture carrier is locked.
     virtual eTunerLocked IsLocked() = 0;
-    //Automatic Frequency Control status  
-      //Sets frequency deviation from optimum if there is a carrier (e.g. -62500 or 125000 Hz)
-    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0; 
+
+    //Automatic Frequency Control status
+    //Sets frequency deviation from optimum if there is a carrier (e.g. -62500 or 125000 Hz)
+    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0;
 
     virtual void AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, bool bFreeOnDestruction = FALSE);
+
 protected:
     IExternalIFDemodulator* m_ExternalIFDemodulator;
     bool m_bFreeIFDemodulatorOnDestruction;
 };
+
 
 class II2CTuner : public ITuner,
                   public CI2CDevice
@@ -112,14 +133,23 @@ public:
     virtual ~II2CTuner();
 };
 
+
 class IExternalIFDemodulator : public CI2CDevice
 {
-public:    
+public:
+    // Sets the device to use a detected known I2C address.
+    virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus);
+    // Sets the device to use an I2C address detected from the list.
+    virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus, IN BYTE* addresses, IN size_t count);
+
+    // This is called before and after a tuner it initialized.
     virtual void Init(bool bPreInit, eVideoFormat videoFormat) = 0;
+    // THis is called before and after a tuner changes channels.
     virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat) = 0;
 
+    // Return true if the demodulator exists.
     virtual bool Detect() = 0;
-        
+    // Gets the current AFC status of the demodulator.
     virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0;
 };
 

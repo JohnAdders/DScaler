@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.17 2004-04-19 20:38:37 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.18 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/04/19 20:38:37  adcockj
+// Fix for previous fix (must learn to program...)
+//
 // Revision 1.16  2004/04/19 15:13:20  adcockj
 // Fix failing to find tda9887 at alternate addresses
 //
@@ -233,7 +236,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             if (IFDemDeviceAddress[i] != 0)
             {
                 // Attach I2C bus if the demodulator chip uses it
-                pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress[i]);
+                pExternalIFDemodulator->SetI2CBus(m_I2CBus, IFDemDeviceAddress[i]);
             }
             if (pExternalIFDemodulator->Detect())
             {
@@ -260,7 +263,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
-            m_Tuner->Attach(m_I2CBus, test>>1);
+            m_Tuner->SetI2CBus(m_I2CBus, test>>1);
             sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);

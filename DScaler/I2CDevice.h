@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.h,v 1.6 2005-03-07 09:12:18 atnak Exp $
+// $Id: I2CDevice.h,v 1.7 2005-03-09 09:35:16 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/07 09:12:18  atnak
+// Added a function for simplifying a single byte write to subaddress.
+//
 // Revision 1.5  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -53,6 +56,7 @@
 
 #include "I2CBus.h"
 
+
 /** Base class for devices that support control via I2C
 */
 class CI2CDevice
@@ -60,20 +64,23 @@ class CI2CDevice
 public:
     CI2CDevice();
     virtual ~CI2CDevice() {};
-    /** Attach the device to a bus, note that this does not
-        test for the presence of a device.  Use the address 
-        parameter to overrride the default address
-    */
-    virtual void Attach(CI2CBus* i2cBus, BYTE address = 0);
-    CI2CBus* GetI2CBus() const;
-    BYTE GetDeviceAddress() const;
+
+    // Set the bus and the address that should use for reading
+    // and writing to the device.
+    void        SetI2CBus(CI2CBus* i2cBus, BYTE address = 0x00);
+    CI2CBus*    GetI2CBus() const;
+    BYTE        GetDeviceAddress() const;
+
+    // Various functions for writing data to this device.
     bool WriteToSubAddress(BYTE subAddress, BYTE writeByte);
     bool WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize);
+    // Various functions for reading data from this device.
     bool ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize);
     bool ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize);
 protected:
-    /// must override this to provide expected location on I2C bus
-    virtual BYTE GetDefaultAddress() const = 0;
+    // This should be overridden to provide the expected I2C
+    // address of the device.
+    virtual BYTE GetDefaultAddress() const { return 0x00; }
 
 protected:
     CI2CBus *m_I2CBus;

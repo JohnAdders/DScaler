@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.h,v 1.2 2005-03-09 07:53:41 atnak Exp $
+// $Id: TDA8275.h,v 1.3 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/09 07:53:41  atnak
+// Added the TDA8275 tuner.
+//
 // Revision 1.1  2005/03/08 18:14:03  atnak
 // Initial upload.
 //
@@ -69,13 +72,10 @@ public:
 	CTDA8275();
 	virtual ~CTDA8275();
 
-	// Override: Note that the tuner will be initialized upon this call.
-	virtual void Attach(CI2CBus* i2cBus, BYTE address = 0);
-
-	// Initializes the tuner.
-	virtual void InitializeTuner();
-
 	// from ITuner
+
+	// Perform initializing calls on the tuner.
+	virtual bool			InitializeTuner();
 
 	// Gets this tuner's tuner ID.
 	virtual eTunerId		GetTunerId() { return TUNER_TDA8275; }

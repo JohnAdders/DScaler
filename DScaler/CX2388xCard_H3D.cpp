@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.9 2003-11-26 17:40:58 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.10 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/11/26 17:40:58  adcockj
+// Scaler fixes
+//
 // Revision 1.8  2003/11/14 13:24:55  adcockj
 // PMS card fixes
 //
@@ -104,7 +107,7 @@ void CCX2388xCard::InitH3D()
 {
     m_SAA7118 = new CSAA7118();
 
-    m_SAA7118->Attach(m_I2CBus);
+    m_SAA7118->SetI2CBus(m_I2CBus);
 
     if(m_SAA7118->GetVersion() > 0)
     {

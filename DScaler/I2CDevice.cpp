@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.cpp,v 1.4 2005-03-07 09:12:18 atnak Exp $
+// $Id: I2CDevice.cpp,v 1.5 2005-03-09 09:35:16 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/07 09:12:18  atnak
+// Added a function for simplifying a single byte write to subaddress.
+//
 // Revision 1.3  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -41,32 +44,29 @@
 #include "stdafx.h"
 #include "I2CDevice.h"
 
+
 CI2CDevice::CI2CDevice()
 {
     this->m_I2CBus = 0;
     this->m_DeviceAddress = 0;
 }
 
+void CI2CDevice::SetI2CBus(CI2CBus* i2cBus, BYTE address)
+{
+    ASSERT(i2cBus != NULL);
+
+    this->m_I2CBus = i2cBus;
+    this->m_DeviceAddress = (address == 0x00) ? GetDefaultAddress() : address;
+}
+
 CI2CBus* CI2CDevice::GetI2CBus()const
 {
     return m_I2CBus;
 }
+
 BYTE CI2CDevice::GetDeviceAddress()const
 {
     return m_DeviceAddress;
-}
-
-void CI2CDevice::Attach(CI2CBus* i2cBus, BYTE address)
-{
-    ASSERT(i2cBus != 0);
-
-    if (address == 0)
-    {
-        address = GetDefaultAddress();
-    }
-
-    this->m_I2CBus = i2cBus;
-    this->m_DeviceAddress = address;
 }
 
 bool CI2CDevice::WriteToSubAddress(BYTE subAddress, BYTE writeByte)

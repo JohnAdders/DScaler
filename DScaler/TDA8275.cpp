@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.4 2005-03-09 07:04:39 atnak Exp $
+// $Id: TDA8275.cpp,v 1.5 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/09 07:04:39  atnak
+// Added code for radio.
+//
 // Revision 1.3  2005/03/09 06:33:41  atnak
 // More errors and omissions fixes.
 //
@@ -103,18 +106,10 @@ CTDA8275::~CTDA8275()
 {
 }
 
-
-void CTDA8275::Attach(CI2CBus* i2cBus, BYTE address)
-{
-	CI2CDevice::Attach(i2cBus, address);
-
-	// Initialize the tuner.
-	InitializeTuner();
-}
-
-void CTDA8275::InitializeTuner()
+bool CTDA8275::InitializeTuner()
 {
 	WriteTDA8275Initialization();
+	return true;
 }
 
 eVideoFormat CTDA8275::GetDefaultVideoFormat()

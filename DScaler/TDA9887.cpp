@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.18 2004-12-25 22:40:18 to_see Exp $
+// $Id: TDA9887.cpp,v 1.19 2005-03-09 09:35:16 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.17  2004/11/28 18:01:38  to_see
 // Changed TDA9887 Standard Settings to default Outport1/2 is inactive.
 //
@@ -93,33 +96,11 @@ CTDA9887::~CTDA9887()
 }
 
 
-bool CTDA9887::DetectAttach(IN CI2CBus* i2cBus, OUT BYTE* address)
+bool CTDA9887::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
 {
 	BYTE tda9887Addresses[4] = { I2C_TDA9887_0, I2C_TDA9887_1,
 								 I2C_TDA9887_2, I2C_TDA9887_3 };
-	return DetectAttach(i2cBus, tda9887Addresses, 4, address);
-}
-
-bool CTDA9887::DetectAttach(IN CI2CBus* i2cBus, IN BYTE* addresses,
-							IN size_t count, OUT BYTE* address)
-{
-	for (size_t i = 0; i < count; ++i)
-	{
-		if (addresses[i] != 0x00)
-		{
-			Attach(i2cBus, addresses[i]);
-
-			if (Detect())
-			{
-				if (address != NULL)
-				{
-					*address = addresses[i];
-				}
-				return true;
-			}
-		}
-	}
-	return false;
+	return IExternalIFDemodulator::SetDetectedI2CAddress(i2cBus, tda9887Addresses, 4);
 }
 
 bool CTDA9887::Detect()
@@ -142,20 +123,20 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
    static BYTE tda9887set_ntsc[] =     {m_DeviceAddress, 0x00, 0x96, 0x70, 0x44};
    static BYTE tda9887set_ntsc_jp[] =  {m_DeviceAddress, 0x00, 0x96, 0x70, 0x40};
    static BYTE tda9887set_fm_radio[] = {m_DeviceAddress, 0x00, 0x8e, 0x0d, 0x77};
-   
+
    if (!bPreSet)
    {
        // only setup before tuning
        return;
    }
-   
+
    BYTE *tda9887set = tda9887set_pal_bg;
 
    switch (VideoFormat)
    {
-	case VIDEOFORMAT_PAL_B:    
+	case VIDEOFORMAT_PAL_B:
     case VIDEOFORMAT_PAL_G:
-    case VIDEOFORMAT_PAL_H:        
+    case VIDEOFORMAT_PAL_H:
     case VIDEOFORMAT_PAL_N:
 	case VIDEOFORMAT_SECAM_B:
     case VIDEOFORMAT_SECAM_G:
@@ -168,24 +149,24 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 		break;
 
 	case VIDEOFORMAT_PAL_D:
-	case VIDEOFORMAT_SECAM_D:	
+	case VIDEOFORMAT_SECAM_D:
     case VIDEOFORMAT_SECAM_K:
     case VIDEOFORMAT_SECAM_K1:
 		tda9887set = tda9887set_pal_dk;
 		break;
-	
+
 	case VIDEOFORMAT_SECAM_L:
     case VIDEOFORMAT_SECAM_L1:
 		tda9887set = tda9887set_pal_l;
 		break;
 
-    case VIDEOFORMAT_PAL_60:    
+    case VIDEOFORMAT_PAL_60:
 		///\todo Video bandwidth of PAL-60?
 		break;
 
 	case VIDEOFORMAT_PAL_M:
 	case VIDEOFORMAT_PAL_N_COMBO:
-	case VIDEOFORMAT_NTSC_M:        
+	case VIDEOFORMAT_NTSC_M:
 		tda9887set = tda9887set_ntsc;
 		break;
 
@@ -199,11 +180,11 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 		tda9887set = tda9887set_fm_radio;
 		break;
    }
-      
+
    if (tda9887set != NULL)
-   {   
+   {
       LOG(2,"TDA9885/6/7: 0x%02x 0x%02x 0x%02x", tda9887set[2],tda9887set[3],tda9887set[4]);
-      m_I2CBus->Write(tda9887set, 5);   
+      m_I2CBus->Write(tda9887set, 5);
    }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.6 2004-05-12 16:52:42 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.7 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/05/12 16:52:42  adcockj
+// Added channel gains fgor PMS cards
+//
 // Revision 1.5  2003/11/14 13:24:54  adcockj
 // PMS card fixes
 //
@@ -89,7 +92,7 @@ void CBT848Card::InitPMSDeluxe()
 
     m_SAA7118 = new CSAA7118();
 
-    m_SAA7118->Attach(m_I2CBus);
+    m_SAA7118->SetI2CBus(m_I2CBus);
 
     #ifdef _DEBUG
     if(m_SAA7118->GetVersion() > 0)

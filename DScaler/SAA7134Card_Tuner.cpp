@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.17 2005-01-15 01:27:42 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.18 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2005/01/15 01:27:42  atnak
+// Added TEA5767 autodetection.
+//
 // Revision 1.16  2004/11/28 06:54:34  atnak
 // Changed IF demodulator scanning to use CTDA9887's DetectAttach().
 //
@@ -137,13 +140,10 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     }
 
     // Finished if tuner type is CNoTuner
-    switch (tunerId)
-    {
-    case TUNER_AUTODETECT:
-    case TUNER_USER_SETUP:
-    case TUNER_ABSENT:
-        return TRUE;
-    }
+	if (m_Tuner->GetTunerId() == TUNER_ABSENT)
+	{
+		return TRUE;
+	}
 
     // Look for possible external IF demodulator
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
@@ -154,7 +154,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         CTDA9887Ex *pTDA9887 = new CTDA9887Ex();
 
 		// Detect to make sure an IF demodulator exists.
-		if (pTDA9887->DetectAttach(m_I2CBus))
+		if (pTDA9887->SetDetectedI2CAddress(m_I2CBus))
 		{
 			// Set card specific modes that were parsed from SAA713xCards.ini.
 			size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
@@ -192,7 +192,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
 			int kk = strlen(m_TunerType);
-			m_Tuner->Attach(m_I2CBus, test>>1);
+			m_Tuner->SetI2CBus(m_I2CBus, test>>1);
 			sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);

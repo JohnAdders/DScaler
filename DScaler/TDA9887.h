@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.19 2004-12-25 22:40:18 to_see Exp $
+// $Id: TDA9887.h,v 1.20 2005-03-09 09:35:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.18  2004/12/12 23:57:15  atnak
 // Fixed SetMode() QSS mask conflict with TakeOverPoint mask.
 //
@@ -164,14 +167,8 @@ public:
     CTDA9887();
     virtual ~CTDA9887();
 
-	// Attaches to each known TDA9887 address on the given bus and tries to
-	// detect a TDA9887 device.
-	virtual bool DetectAttach(IN CI2CBus* i2cBus, OUT BYTE* address = NULL);
-	// Attaches to each specified address on the given bus and tries detect
-	// a device.  (This should go into a lower level class but the class
-	// below this is an interface class. --atnak 2004-11-28)
-	virtual bool DetectAttach(IN CI2CBus* i2cBus, IN BYTE* addresses,
-		IN size_t count, OUT BYTE* address = NULL);
+	// Sets the device to use a detected I2C address.
+	virtual bool SetDetectedI2CAddress(IN CI2CBus* i2cBus);
 
 	// Detects if a TDA9887 device exists at the attached address.
 	virtual bool Detect();

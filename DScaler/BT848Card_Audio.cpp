@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.33 2004-09-25 16:22:25 to_see Exp $
+// $Id: BT848Card_Audio.cpp,v 1.34 2005-03-09 09:35:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2004/09/25 16:22:25  to_see
+// Added autodetection for tda9874
+//
 // Revision 1.32  2004/08/30 16:17:02  adcockj
 // Fixed issue with TDA9875 detection
 //
@@ -176,7 +179,7 @@ void CBT848Card::InitAudio(bool UsePin1)
          || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9873))
     {
 		CTDA9873AudioDecoder* TDADecoder = new CTDA9873AudioDecoder();
-        TDADecoder->Attach(m_I2CBus);
+        TDADecoder->SetI2CBus(m_I2CBus);
 		if(TDADecoder->Initialize())
 		{
 			m_AudioDecoder = TDADecoder;
@@ -197,7 +200,7 @@ void CBT848Card::InitAudio(bool UsePin1)
     {
         CMSP34x0AudioControls* MSPControls = new CMSP34x0AudioControls();
 
-        MSPControls->Attach(m_I2CBus);
+        MSPControls->SetI2CBus(m_I2CBus);
         MSPControls->Reset();
         ::Sleep(4);
 
@@ -212,7 +215,7 @@ void CBT848Card::InitAudio(bool UsePin1)
 			// need to create two so that we can delete all objects properly
 			CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
 			MSPDecoder->SetUseInputPin1(UsePin1);
-			MSPDecoder->Attach(m_I2CBus);
+			MSPDecoder->SetI2CBus(m_I2CBus);
 
 			m_AudioDecoder =  MSPDecoder;
 
@@ -231,7 +234,7 @@ void CBT848Card::InitAudio(bool UsePin1)
 		// TDA9875 autodetect
         CTDA9875AudioControls* TDA9875Controls = new CTDA9875AudioControls();
 
-        TDA9875Controls->Attach(m_I2CBus);
+        TDA9875Controls->SetI2CBus(m_I2CBus);
         TDA9875Controls->Reset();
         ::Sleep(4);
 
@@ -244,7 +247,7 @@ void CBT848Card::InitAudio(bool UsePin1)
     
 			CTDA9875AudioDecoder* TDA9875Decoder = new CTDA9875AudioDecoder(TDA9875Controls);
 			TDA9875Decoder->SetUseInputPin1(UsePin1);
-			TDA9875Decoder->Attach(m_I2CBus);
+			TDA9875Decoder->SetI2CBus(m_I2CBus);
 
 			m_AudioDecoder = TDA9875Decoder; //TDA9875Decoder;
 
@@ -261,7 +264,7 @@ void CBT848Card::InitAudio(bool UsePin1)
 		|| GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_TDA9874))
     {		
 		CTDA9874* TDADecoder = new CTDA9874();
-		TDADecoder->Attach(m_I2CBus);
+		TDADecoder->SetI2CBus(m_I2CBus);
 		
 		int dic, sic;
 		bool isPresent = TDADecoder->IsDevicePresent(dic, sic);
@@ -269,7 +272,7 @@ void CBT848Card::InitAudio(bool UsePin1)
 		if(isPresent)
 		{
 			CTDA9874AudioDecoder* TDA9874Decoder = new CTDA9874AudioDecoder();
-			TDA9874Decoder->Attach(m_I2CBus);
+			TDA9874Decoder->SetI2CBus(m_I2CBus);
 			TDA9874Decoder->Initialize();
 			m_AudioDecoder = TDA9874Decoder; //TDA9874Decoder;					
 			m_AudioControls = new CAudioControls();			
@@ -277,7 +280,7 @@ void CBT848Card::InitAudio(bool UsePin1)
 			// need to switch unmute from PIC one time only
 			// used only for PV951 (Hercules SmartTV)
 			CPIC16C54 pic = CPIC16C54();
-			pic.Attach(m_I2CBus);
+			pic.SetI2CBus(m_I2CBus);
 			bool picAlive = pic.IsDevicePresent();
 
 			sprintf(m_AudioDecoderType, "TDA9874%c Rev. %d%s", (dic==0x11) ? "A":"H", sic, picAlive ? "" : " + Pic16c54"); 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.35 2001-10-17 11:46:11 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.36 2001-11-01 12:05:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2001/10/17 11:46:11  adcockj
+// Bug fixes
+//
 // Revision 1.34  2001/09/12 15:59:18  adcockj
 // Added mute during scan code
 //
@@ -1026,34 +1029,38 @@ void Channels_UpdateMenu(HMENU hMenu)
 
 void Channel_Increment()
 {
+    int CurrentProg;
+
     if(MyChannels.size() > 0)
     {
+        CurrentProg = CurrentProgramm;
+        PreviousProgramm = CurrentProg;
         // look for next active channel
-        ++CurrentProgramm;
-        while(CurrentProgramm < MyChannels.size() && 
-            !MyChannels[CurrentProgramm]->IsActive())
+        ++CurrentProg;
+        while(CurrentProg < MyChannels.size() && 
+            !MyChannels[CurrentProg]->IsActive())
         {
-            ++CurrentProgramm;
+            ++CurrentProg;
         }
 
         // see if we looped around
-        if(CurrentProgramm == MyChannels.size())
+        if(CurrentProg == MyChannels.size())
         {
-            CurrentProgramm = 0;
-            while(CurrentProgramm < MyChannels.size() && 
-                !MyChannels[CurrentProgramm]->IsActive())
+            CurrentProg = 0;
+            while(CurrentProg < MyChannels.size() && 
+                !MyChannels[CurrentProg]->IsActive())
             {
-                ++CurrentProgramm;
+                ++CurrentProg;
             }
 
             // see if we looped around again
-            if(CurrentProgramm == MyChannels.size())
+            if(CurrentProg == MyChannels.size())
             {
-                CurrentProgramm = 0;
+                CurrentProg = 0;
             }
         }
     
-        Channel_Change(CurrentProgramm);
+        Channel_Change(CurrentProg);
 
         StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
         OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
@@ -1067,34 +1074,38 @@ void Channel_Increment()
 
 void Channel_Decrement()
 {
+    int CurrentProg;
+
     if(MyChannels.size() > 0)
     {
+        CurrentProg = CurrentProgramm;
+        PreviousProgramm = CurrentProg;
         // look for next active channel
-        --CurrentProgramm;
-        while(CurrentProgramm > -1 && 
-            !MyChannels[CurrentProgramm]->IsActive())
+        --CurrentProg;
+        while(CurrentProg > -1 && 
+            !MyChannels[CurrentProg]->IsActive())
         {
-            --CurrentProgramm;
+            --CurrentProg;
         }
 
         // see if we looped around
-        if(CurrentProgramm == -1)
+        if(CurrentProg == -1)
         {
-            CurrentProgramm = MyChannels.size() - 1;
-            while(CurrentProgramm > -1  && 
-                !MyChannels[CurrentProgramm]->IsActive())
+            CurrentProg = MyChannels.size() - 1;
+            while(CurrentProg > -1  && 
+                !MyChannels[CurrentProg]->IsActive())
             {
-                --CurrentProgramm;
+                --CurrentProg;
             }
 
             // see if we looped around again
-            if(CurrentProgramm == -1)
+            if(CurrentProg == -1)
             {
-                CurrentProgramm = 0;
+                CurrentProg = 0;
             }
         }
     
-        Channel_Change(CurrentProgramm);
+        Channel_Change(CurrentProg);
 
         StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
         OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.34 2003-01-19 11:09:11 laurentg Exp $
+// $Id: Source.h,v 1.35 2003-01-19 19:46:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ public:
     virtual BOOL IsInTunerMode() = 0;
     /// Gets the initial width of each picture in pixels
     virtual int GetInitialWidth() = 0;
-    /// Gets the initial height of each frame in pixels, for interlaced this is x2 FieldHeight
+    /// Gets the initial height of each picture in pixels, for interlaced this is FieldHeight
     virtual int GetInitialHeight() = 0;
     /// Gets the width of each picture in pixels
     virtual int GetWidth() = 0;

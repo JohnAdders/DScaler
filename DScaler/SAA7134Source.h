@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.36 2003-01-19 11:09:11 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.37 2003-01-19 19:46:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/01/19 11:09:11  laurentg
+// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
+//
 // Revision 1.35  2003/01/18 13:55:43  laurentg
 // New methods GetHDelay and GetVDelay
 //
@@ -185,7 +188,7 @@ public:
     void SetAspectRatioData();
 
     int GetInitialWidth() {return GetWidth();};
-    int GetInitialHeight() {return GetHeight();};
+    int GetInitialHeight() {return GetHeight() / 2;};
 
     int GetWidth();
     int GetHeight();

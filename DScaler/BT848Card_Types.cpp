@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.25 2002-10-11 13:35:49 kooiman Exp $
+// $Id: BT848Card_Types.cpp,v 1.26 2002-10-11 21:41:32 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/10/11 13:35:49  kooiman
+// Improved Pinnacle/Miro pro detection.
+//
 // Revision 1.24  2002/09/12 21:58:13  ittarnavsky
 // Added new card AventMedia TVPhone Old
 // Changes due to the new AudioDecoder handling
@@ -134,7 +137,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -174,7 +177,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0x2, 0, 0, 0, 0xA, 0, }
     },
@@ -214,7 +217,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitHauppauge,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -249,7 +252,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0x4, 0, 0x2, 0x3, 0x1, 0, }
     },
@@ -279,7 +282,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -314,7 +317,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3,
         {0, 0x1, 0, 0x1, 0x3, 0, }
     },
@@ -349,7 +352,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_AVER_TVPHONE_NEW,
+        CAudioDecoder::AUDIODECODERTYPE_AVER_TVPHONE_NEW,
         0xF,
         {0xC, 0x4, 0xB, 0xB, 0, 0, }
     },
@@ -389,7 +392,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-                AUDIODECODERTYPE_DETECT,
+                CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -424,7 +427,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xC00,
         {0, 0xC00, 0x800, 0x400, 0xC00, 0, }
     },
@@ -459,7 +462,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3,
         {0x1, 0x1, 0x2, 0x3, 0, 0, }
     },
@@ -499,7 +502,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_MSP,
         InitHauppauge,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -534,7 +537,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1000F,
         {0x1, 0x10001, 0, 0, 0xA, 0, }
     },
@@ -569,7 +572,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -604,7 +607,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -639,7 +642,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -674,7 +677,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0, 0, 0x1, 0, 0xA, 0, }
     },
@@ -709,7 +712,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1FE00,
         {0x1C000, 0, 0x18000, 0x14000, 0x2000, 0, }
     },
@@ -744,7 +747,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x8300F8,
         {0x4FA007, 0xCFA007, 0xCFA007, 0xCFA007, 0xCFA007, 0xCFA007, }
     },
@@ -779,7 +782,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0x1, 0, 0, 0, 0, 0, }
     },
@@ -809,7 +812,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x8DFF00,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -844,7 +847,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -879,7 +882,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFE07,
         {0x20000, 0x1, 0x190000, 0x3, 0x4, 0, }
     },
@@ -914,7 +917,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xC00,
         {0, 0x1, 0x800, 0x400, 0xC00, 0, }
     },
@@ -939,7 +942,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -974,7 +977,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xE00,
         {0x400, 0x400, 0x400, 0x400, 0, 0, }
     },
@@ -1009,7 +1012,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFFFF,
         {0x20000, 0x1, 0x190000, 0x3, 0x4, 0, }
     },
@@ -1049,7 +1052,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -1084,7 +1087,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFF,
         {0, 0x1, 0x2, 0x3, 0xC00, 0, }
     },
@@ -1119,7 +1122,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_TERRATV,
+        CAudioDecoder::AUDIODECODERTYPE_TERRATV,
         0x70000,
         {0x20000, 0x30000, 0, 0x10000, 0x40000, 0, }
     },
@@ -1159,7 +1162,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitPXC200,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -1194,7 +1197,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x8DFE00,
         {0, 0x8DFF00, 0x8DF700, 0x8DE700, 0x8DFF00, 0, }
     },
@@ -1229,7 +1232,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1,
         {0x1, 0, 0, 0, 0, 0, }
     },
@@ -1269,7 +1272,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0x4, 0x4, 0x4, 0x4, 0x4, 0x4, }
     },
@@ -1304,7 +1307,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFF00,
         {0x500, 0, 0x300, 0x900, 0x900, 0, }
     },
@@ -1339,7 +1342,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_WINFAST2000,
+        CAudioDecoder::AUDIODECODERTYPE_WINFAST2000,
         0xFFF000,
         {0x621000, 0x620100, 0x621100, 0x620000, 0xE210000, 0x620000, }
     },
@@ -1374,7 +1377,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1800,
         {0, 0, 0x1000, 0x1000, 0x800, 0, }
     },
@@ -1409,7 +1412,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1800,
         {0, 0x800, 0, 0, 0x1800, 0, }
     },
@@ -1444,7 +1447,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFF,
         {0x21, 0x20, 0x24, 0x2C, 0x29, 0x29, }
     },
@@ -1479,7 +1482,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x551E00,
         {0x551400, 0x551200, 0, 0, 0, 0x551200, }
     },
@@ -1514,7 +1517,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3000F,
         {0x2, 0, 0, 0, 0x1, 0, }
     },
@@ -1549,7 +1552,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0x4, 0, 0x2, 0x3, 0x1, 0, }
     },
@@ -1584,7 +1587,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x4,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -1619,7 +1622,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -1654,7 +1657,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xE00B,
         {0xFF9FF6, 0xFF9FF6, 0xFF1FF7, 0, 0xFF3FFC, 0, }
     },
@@ -1679,7 +1682,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3,
         {0x1, 0x1, 0, 0x2, 0x3, 0, }
     },
@@ -1719,7 +1722,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -1754,7 +1757,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xBCF03F,
         {0xBC803F, 0, 0xBCB03F, 0, 0xBCB03F, 0, }
     },
@@ -1789,7 +1792,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1F0000,
         {0xE2FFFF, 0, 0, 0, 0xE0FFFF, 0xE2FFFF, }
     },
@@ -1824,7 +1827,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0x2, 0, 0, 0, 0x1, 0, }
     },
@@ -1859,7 +1862,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFEFF,
         {0x1000, 0x1000, 0, 0, 0x3000, 0, }
     },
@@ -1894,7 +1897,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFEFF,
         {0x1000, 0x1000, 0, 0, 0x3000, 0, }
     },
@@ -1929,7 +1932,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFF00F8,
         {0x48, 0x48, 0x48, 0x48, 0x48, 0x48, }
     },
@@ -1964,7 +1967,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFF00F8,
         {0x48, 0x48, 0x48, 0x48, 0x48, 0x48, }
     },
@@ -1999,7 +2002,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFF00F8,
         {0x48, 0x48, 0x48, 0x48, 0x48, 0x48, }
     },
@@ -2049,7 +2052,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitRSBT,
         RSBTCardInputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -2084,7 +2087,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFEFF,
         {0x1000, 0x1000, 0, 0, 0x3000, 0, }
     },
@@ -2119,7 +2122,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -2154,7 +2157,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF03F,
         {0xBFFE, 0, 0xBFFF, 0, 0xBFFE, 0, }
     },
@@ -2179,7 +2182,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1,
         {0, 0, 0x1, 0, 0, 0, }
     },
@@ -2214,7 +2217,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_GVBCTV3,
+        CAudioDecoder::AUDIODECODERTYPE_GVBCTV3,
         0x10F00,
         {0x10000, 0, 0x10000, 0, 0, 0, }
     },
@@ -2254,7 +2257,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xAA0000,
         {0x20000, 0, 0x80000, 0x80000, 0xA8000, 0x46000, }
     },
@@ -2294,7 +2297,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -2329,7 +2332,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3000F,
         {0x1, 0x10001, 0, 0, 0xA, 0, }
     },
@@ -2364,7 +2367,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1C,
         {0, 0, 0x10, 0x8, 0x4, 0, }
     },
@@ -2404,7 +2407,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_LT9415,
+        CAudioDecoder::AUDIODECODERTYPE_LT9415,
         0x18E0,
         {0, 0x800, 0x1000, 0x1000, 0x18E0, 0, }
     },
@@ -2444,7 +2447,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0x2, 0, 0, 0, 0xA, 0, }
     },
@@ -2479,7 +2482,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x18E0,
         {0, 0x18E0, 0x1000, 0x1000, 0x1080, 0x1080, }
     },
@@ -2509,7 +2512,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -2544,7 +2547,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xE00,
         {0x400, 0x400, 0x400, 0x400, 0x800, 0x400, }
     },
@@ -2584,7 +2587,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3000F,
         {0x2, 0, 0, 0, 0x1, 0, }
     },
@@ -2609,7 +2612,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xB,
         {0x2, 0, 0, 0x1, 0x8, 0, }
     },
@@ -2639,7 +2642,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xF,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -2674,7 +2677,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFF,
         {0x1, 0, 0x4, 0x4, 0x9, 0, }
     },
@@ -2709,7 +2712,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         Sasem4ChannelInputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -2739,7 +2742,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x3000F,
         {0, 0, 0, 0, 0x1, 0, }
     },
@@ -2774,7 +2777,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x2, 0x1, 0x3, 0x4, 0, }
     },
@@ -2809,7 +2812,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitVoodoo,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x4F8A00,
         {0x957FFF, 0x997FFF, 0x957FFF, 0x957FFF, 0, 0, }
     },
@@ -2844,7 +2847,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitVoodoo,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x4F8A00,
         {0x947FFF, 0x987FFF, 0x947FFF, 0x947FFF, 0, 0, }
     },
@@ -2884,7 +2887,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x7,
         {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
@@ -2919,7 +2922,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xFFFF00,
         {0x500, 0x500, 0x300, 0x900, 0x900, 0, }
     },
@@ -2959,7 +2962,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -2984,7 +2987,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -3019,7 +3022,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x18E0,
         {0, 0x18E0, 0x1000, 0x1000, 0x1080, 0x1080, }
     },
@@ -3054,7 +3057,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_GVBCTV3,
+        CAudioDecoder::AUDIODECODERTYPE_GVBCTV3,
         0x10F00,
         {0x10000, 0, 0x10000, 0, 0, 0, }
     },
@@ -3094,7 +3097,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0xAA0000,
         {0x20000, 0, 0x80000, 0x80000, 0xA8000, 0x46000, }
     },
@@ -3129,7 +3132,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitSasem,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1C,
         {0, 0, 0x10, 0x8, 0x4, 0, }
     },
@@ -3164,7 +3167,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitSasem,
         Sasem4ChannelInputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x0,
         {0, 0, 0, 0, 0, 0, }
     },
@@ -3204,7 +3207,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitSasem,
         Sasem4ChannelInputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1F800,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -3244,7 +3247,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitSasem,
         Sasem4ChannelInputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1F800,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -3279,7 +3282,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         NULL,
         StandardBT848InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x07,
         { 0, 0, 2, 0, 1, 0}
     },
@@ -3329,7 +3332,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitSasem,
         Silk200InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1F800,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -3380,7 +3383,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,
         InitSasem,
         Silk200InputSelect,
-        AUDIODECODERTYPE_DETECT,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x1F800,
         {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
@@ -3420,7 +3423,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,                                                                                  
         NULL,                                                                                            
         StandardBT848InputSelect,                                                                        
-        AUDIODECODERTYPE_DETECT,                                                                                            
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,                                                                                            
         0,                                                                                               
         { 0, 0, 0, 0, 0, 0}                                                                              
     },                                                                                                 
@@ -3455,7 +3458,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         SOUNDCHIP_NONE,                                                                                  
         NULL,                                                                                            
         StandardBT848InputSelect,                                                                        
-        AUDIODECODERTYPE_WINDVR,                                                                                  
+        CAudioDecoder::AUDIODECODERTYPE_WINDVR,                                                                                  
         0x140007,                                                                                        
         { 0, 1, 2, 3, 4, 0 }                                                                             
     },
@@ -3489,7 +3492,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         /* SoundChip */ SOUNDCHIP_NONE,
         /* pInitCardFunction */ NULL,
         /* pInputSwitchFunction */ StandardBT848InputSelect,
-        /* AudioDecoderType */ AUDIODECODERTYPE_AVER_TVPHONE_OLD,
+        /* AudioDecoderType */ CAudioDecoder::AUDIODECODERTYPE_AVER_TVPHONE_OLD,
         /* GPIOMask */ 0x703F,
         /* AudioMuxSelect */
         /* TUNER   RADIO     EXTERNAL  INTERNAL  MUTE      STEREO */

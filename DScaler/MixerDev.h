@@ -118,6 +118,8 @@ void Mixer_UnMute();
 void Mixer_Volume_Up();
 void Mixer_Volume_Down();
 void Mixer_OnInputChange(VIDEOSOURCETYPE NewType);
+long Mixer_GetVolume();
+void Mixer_Init();
 void Mixer_Exit();
 
 #endif

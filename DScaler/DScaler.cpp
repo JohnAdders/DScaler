@@ -861,11 +861,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				if (InitialVolume < 1000)
 					InitialVolume += 20;
 				Audio_SetVolume(InitialVolume);
-				sprintf(Text, "BT-Volume %d", InitialVolume);
+				sprintf(Text, "BT-Volume %d", InitialVolume / 10);
 			}
 			else
 			{
 				Mixer_Volume_Up();
+				sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
 			}
 			ShowText(hWnd, Text);
 			break;
@@ -876,11 +877,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				if (InitialVolume > 20)
 					InitialVolume -= 20;
 				Audio_SetVolume(InitialVolume);
-				sprintf(Text, "BT-Volume %d", InitialVolume);
+				sprintf(Text, "BT-Volume %d", InitialVolume / 10);
 			}
 			else
 			{
 				Mixer_Volume_Down();
+				sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
 			}
 			ShowText(hWnd, Text);
 			break;
@@ -1883,6 +1885,8 @@ void MainWndOnInitBT(HWND hWnd)
 		{
 			AddSplashTextLine("No MSP Device");
 		}
+
+		Mixer_Init();
 
 		// JA 8 Jan 2001 End of Tidy
 		// MAE 8 Dec 2000 End of change

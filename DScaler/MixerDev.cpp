@@ -108,16 +108,17 @@ void CMixerLineSource::SetMute(BOOL Mute)
 {
     if(m_MuteControl != -1)
     {
-        MIXERCONTROLDETAILS_BOOLEAN Bools[6] = {Mute, Mute, Mute, Mute, Mute, Mute};
+        MIXERCONTROLDETAILS_BOOLEAN Bool[1] = {Mute};
         MIXERCONTROLDETAILS ControlDetails;
         ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = m_MixerLine.cChannels;
+        ControlDetails.cChannels = 1;
         ControlDetails.dwControlID = m_MuteControl;
         ControlDetails.cMultipleItems = 0;
         ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_BOOLEAN);
-        ControlDetails.paDetails = &Bools;
+        ControlDetails.paDetails = &Bool;
 
         MMRESULT mmr = mixerSetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
+		//MMSYSERR_INVALFLAG
     }
 }
 
@@ -125,17 +126,17 @@ BOOL CMixerLineSource::GetMute()
 {
     if(m_MuteControl != -1)
     {
-        MIXERCONTROLDETAILS_BOOLEAN Bools[6] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+        MIXERCONTROLDETAILS_BOOLEAN Bool[1] = {FALSE};
         MIXERCONTROLDETAILS ControlDetails;
         ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = m_MixerLine.cChannels;
+        ControlDetails.cChannels = 1;
         ControlDetails.dwControlID = m_MuteControl;
         ControlDetails.cMultipleItems = 0;
         ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_BOOLEAN);
-        ControlDetails.paDetails = &Bools;
+        ControlDetails.paDetails = &Bool;
 
         MMRESULT mmr = mixerGetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
-        return Bools[0].fValue;
+        return Bool[0].fValue;
     }
     else
     {
@@ -148,15 +149,14 @@ void CMixerLineSource::SetVolume(int PercentageVolume)
 {
     if(m_VolumeControl != -1)
     {
-        DWORD Vol = MulDiv(PercentageVolume, (m_VolumeMax - m_VolumeMin), 100);
-        MIXERCONTROLDETAILS_UNSIGNED Vols[6] = {Vol, Vol, Vol, Vol, Vol, Vol};
+        MIXERCONTROLDETAILS_UNSIGNED Vol[1] = {MulDiv(PercentageVolume, (m_VolumeMax - m_VolumeMin), 100)};
         MIXERCONTROLDETAILS ControlDetails;
         ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = m_MixerLine.cChannels;
+        ControlDetails.cChannels = 1;
         ControlDetails.dwControlID = m_VolumeControl;
         ControlDetails.cMultipleItems = 0;
         ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-        ControlDetails.paDetails = &Vols;
+        ControlDetails.paDetails = &Vol;
 
         MMRESULT mmr = mixerSetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
     }
@@ -167,24 +167,19 @@ int CMixerLineSource::GetVolume()
 {
     if(m_VolumeControl != -1)
     {
-        MIXERCONTROLDETAILS_UNSIGNED Vols[6] = {0, 0, 0, 0, 0, 0};
+        MIXERCONTROLDETAILS_UNSIGNED Vol[1] = {0,};
         MIXERCONTROLDETAILS ControlDetails;
         ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = m_MixerLine.cChannels;
+        ControlDetails.cChannels = 1;
         ControlDetails.dwControlID = m_VolumeControl;
         ControlDetails.cMultipleItems = 0;
         ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-        ControlDetails.paDetails = &Vols;
+        ControlDetails.paDetails = &Vol;
 
         MMRESULT mmr = mixerGetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
         if(mmr == MMSYSERR_NOERROR)
         {
-            DWORD Vol(0);
-            for(WORD i(0); i < m_MixerLine.cChannels; ++i)
-            {
-                Vol += Vols[i].dwValue / m_MixerLine.cChannels;
-            }
-            return MulDiv(Vol, 100, m_VolumeMax - m_VolumeMin);
+            return MulDiv(Vol[0].dwValue, 100, m_VolumeMax - m_VolumeMin);
         }
         else
         {
@@ -625,6 +620,10 @@ void Mixer_Volume_Up()
        {
            CurLine->SetVolume(Vol+5);
        }
+	   else
+	   {
+           CurLine->SetVolume(100);
+	   }
    }
 }
 
@@ -638,8 +637,26 @@ void Mixer_Volume_Down()
        {
            CurLine->SetVolume(Vol-5);
        }
+	   else
+	   {
+           CurLine->SetVolume(0);
+	   }
    }
 }
+
+long Mixer_GetVolume()
+{
+   CMixerLineSource* CurLine = Mixer_GetInputLine(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+   if(CurLine != NULL)
+   {
+       return CurLine->GetVolume();
+   }
+   else
+   {
+	   return 0;
+   }
+}
+
 
 // here we go down and mute all input execpt the one we want
 void Mixer_OnInputChange(VIDEOSOURCETYPE NewType)
@@ -671,6 +688,25 @@ void Mixer_OnInputChange(VIDEOSOURCETYPE NewType)
 
 void Mixer_Exit()
 {
+	if(bUseMixer)
+	{
+		// Mute all inputs
+		Mixer_OnInputChange(SOURCE_CCIR656_4);
+		SoundSystem.SetMixer(-1);
+	}
+}
+
+void Mixer_Init()
+{
+	if(bUseMixer)
+	{
+		SoundSystem.SetMixer(MixerIndex);
+		Mixer_OnInputChange((VIDEOSOURCETYPE)Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+	}
+	else
+	{
+		SoundSystem.SetMixer(-1);
+	}
 }
 
 SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =

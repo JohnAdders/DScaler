@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.24 2001-09-05 21:05:29 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.25 2001-10-18 16:20:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/09/05 21:05:29  adcockj
+// Bug Fixes for new overlay code
+//
 // Revision 1.23  2001/09/03 13:06:49  adcockj
 // Increment version
 //
@@ -578,18 +581,20 @@ extern LPDIRECTDRAW lpDD; // Temporary expierement MRS 2-22-01
 void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 {
     // MRS 9-9-00
-    HBRUSH black = CreateSolidBrush(RGB(0,0,0));
-    HBRUSH overlay;
+    HBRUSH Background = CreateSolidBrush(RGB(AspectSettings.MaskGreyShade,
+                                        AspectSettings.MaskGreyShade,
+                                        AspectSettings.MaskGreyShade));
+    HBRUSH Overlay;
     RECT r;
     RECT r2, winRect;
 
     if (bEnable && OverlayActive())
     {
-        overlay = CreateSolidBrush(GetNearestColor(hDC, Overlay_GetColor()));
+        Overlay = CreateSolidBrush(GetNearestColor(hDC, Overlay_GetColor()));
     }
     else
     {
-        overlay = CreateSolidBrush(RGB(0,0,0));
+        Overlay = CreateSolidBrush(RGB(0,0,0));
     }
 
     // MRS 2-22-01 - Reworked to fixup the rectangle rather than not draw piecemeal to help out defered overlay setting
@@ -618,7 +623,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     r2.right = winRect.right;
     r2.bottom = AspectSettings.DestinationRect.top;
     IntersectRect(&r, &r2, PaintRect);
-    FillRect(hDC, &r, black);
+    FillRect(hDC, &r, Background);
 
     // Bottom
     r2.left = 0;
@@ -626,7 +631,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     r2.right = winRect.right;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
-    FillRect(hDC, &r, black);
+    FillRect(hDC, &r, Background);
 
     // Left
     r2.left = 0;
@@ -634,7 +639,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     r2.right = AspectSettings.DestinationRect.left;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
-    FillRect(hDC, &r, black);
+    FillRect(hDC, &r, Background);
 
     // Right
     r2.left = AspectSettings.DestinationRect.right;
@@ -642,7 +647,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     r2.right = winRect.right;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
-    FillRect(hDC, &r, black);
+    FillRect(hDC, &r, Background);
 
     if (AspectSettings.OverlayNeedsSetting)
     { 
@@ -667,10 +672,10 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 
     // Draw overlay color in the middle.
     IntersectRect(&r, &AspectSettings.DestinationRect, PaintRect);
-    FillRect(hDC, &r, overlay);
+    FillRect(hDC, &r, Overlay);
 
-    DeleteObject(black);
-    DeleteObject(overlay);
+    DeleteObject(Background);
+    DeleteObject(Overlay);
 }
 
 //----------------------------------------------------------------------------
@@ -1031,6 +1036,12 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "ASPECT_DETECT", "AllowGreaterThanScreen", NULL,
+    },
+    {
+        "Mask Grey Shade", SLIDER, 0, (long*)&AspectSettings.MaskGreyShade,
+        0, 0, 255, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "MaskGreyShade", NULL,
     },
 };
 

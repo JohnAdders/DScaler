@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.19 2001-09-05 21:05:29 adcockj Exp $
+// $Id: AspectRatio.h,v 1.20 2001-10-18 16:20:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -213,6 +213,8 @@ typedef struct
     // this is used by filters to adjust the aspect ratio
     int SourceAspectAdjust;
 
+    // which shade of grey to use for mask
+    int MaskGreyShade;
 } TAspectSettings;
 
 extern TAspectSettings AspectSettings;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.40 2001-09-25 22:24:04 laurentg Exp $
+// $Id: DS_Control.h,v 1.41 2001-10-18 16:20:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2001/09/25 22:24:04  laurentg
+// New control settings for calibration
+//
 // Revision 1.39  2001/09/12 14:32:45  tobbej
 // fix for invalid DEINTERLACE_METHOD.nSettings (nSettings was more that the real number of settings)
 //
@@ -286,6 +289,7 @@ typedef enum
     WAITFORVERTBLANKINDRAW,
     ZOOMOUTFRAMECOUNT,
     ALLOWGREATERTHANSCREEN,
+    MASKGREYSHADE,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 

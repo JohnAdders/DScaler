@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.19 2001-08-09 12:21:40 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.20 2001-10-18 16:20:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/08/09 12:21:40  adcockj
+// Structure name changes
+//
 // Revision 1.18  2001/08/06 22:32:13  laurentg
 // Little improvments for AR autodetection
 //
@@ -111,7 +114,8 @@ TAspectSettings AspectSettings =
     0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
     100,100,50,50,
     FALSE,
-    1000
+    1000,
+    0
 };
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...

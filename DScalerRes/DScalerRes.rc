@@ -28,35 +28,35 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Accelerator
 //
 
-IDA_DSCALER ACCELERATORS DISCARDABLE 
+IDA_DSCALER ACCELERATORS DISCARDABLE
 BEGIN
     "+",            IDM_VOLUMEPLUS,         ASCII,  NOINVERT
     "-",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
     "0",            IDM_SASPECT_0,          VIRTKEY, CONTROL, NOINVERT
     "0",            IDM_TASPECT_0,          VIRTKEY, ALT, NOINVERT
-    "0",            IDM_SASPECT_SQUARE,     VIRTKEY, SHIFT, CONTROL, 
+    "0",            IDM_SASPECT_SQUARE,     VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "1",            IDM_SASPECT_133,        VIRTKEY, CONTROL, NOINVERT
     "1",            IDM_TASPECT_133,        VIRTKEY, ALT, NOINVERT
     "2",            IDM_SASPECT_166,        VIRTKEY, CONTROL, NOINVERT
     "2",            IDM_TASPECT_166,        VIRTKEY, ALT, NOINVERT
-    "2",            IDM_SASPECT_166A,       VIRTKEY, SHIFT, CONTROL, 
+    "2",            IDM_SASPECT_166A,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "3",            IDM_SASPECT_178,        VIRTKEY, CONTROL, NOINVERT
     "3",            IDM_TASPECT_178,        VIRTKEY, ALT, NOINVERT
-    "3",            IDM_SASPECT_178A,       VIRTKEY, SHIFT, CONTROL, 
+    "3",            IDM_SASPECT_178A,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "4",            IDM_SASPECT_185,        VIRTKEY, CONTROL, NOINVERT
     "4",            IDM_TASPECT_185,        VIRTKEY, ALT, NOINVERT
-    "4",            IDM_SASPECT_185A,       VIRTKEY, SHIFT, CONTROL, 
+    "4",            IDM_SASPECT_185A,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "5",            IDM_SASPECT_200,        VIRTKEY, CONTROL, NOINVERT
     "5",            IDM_TASPECT_200,        VIRTKEY, ALT, NOINVERT
-    "5",            IDM_SASPECT_200A,       VIRTKEY, SHIFT, CONTROL, 
+    "5",            IDM_SASPECT_200A,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "6",            IDM_SASPECT_235,        VIRTKEY, CONTROL, NOINVERT
     "6",            IDM_TASPECT_235,        VIRTKEY, ALT, NOINVERT
-    "6",            IDM_SASPECT_235A,       VIRTKEY, SHIFT, CONTROL, 
+    "6",            IDM_SASPECT_235A,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "7",            IDM_SASPECT_144,        VIRTKEY, CONTROL, NOINVERT
     "8",            IDM_SASPECT_155,        VIRTKEY, CONTROL, NOINVERT
@@ -68,39 +68,39 @@ BEGIN
     "?",            IDM_TELETEXT_KEY6,      ASCII,  NOINVERT
     "A",            IDM_SASPECT_AUTO_ON,    VIRTKEY, NOINVERT
     "A",            IDM_SASPECT_AUTO_OFF,   VIRTKEY, SHIFT, NOINVERT
-    "A",            IDM_SASPECT_AUTO_TOGGLE, VIRTKEY, SHIFT, CONTROL, 
+    "A",            IDM_SASPECT_AUTO_TOGGLE, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "B",            IDM_BRIGHTNESS_MINUS,   VIRTKEY, NOINVERT
     "B",            IDM_WINPOS_BOUNCE,      VIRTKEY, CONTROL, NOINVERT
     "B",            IDM_BRIGHTNESS_PLUS,    VIRTKEY, SHIFT, NOINVERT
-    "B",            IDM_BRIGHTNESS_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+    "B",            IDM_BRIGHTNESS_CURRENT, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "C",            IDM_COLOR_MINUS,        VIRTKEY, NOINVERT
     "C",            IDM_COLOR_PLUS,         VIRTKEY, SHIFT, NOINVERT
-    "C",            IDM_COLOR_CURRENT,      VIRTKEY, SHIFT, CONTROL, 
+    "C",            IDM_COLOR_CURRENT,      VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "D",            IDM_BDELAY_MINUS,       VIRTKEY, NOINVERT
     "D",            IDM_BDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
-    "D",            IDM_BDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
+    "D",            IDM_BDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "E",            IDM_VDELAY_MINUS,       VIRTKEY, NOINVERT
     "E",            IDM_VDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
-    "E",            IDM_VDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
+    "E",            IDM_VDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "F",            IDM_VT_SEARCH,          VIRTKEY, CONTROL, NOINVERT
     "F",            IDM_FLI_FILMDETECT,     VIRTKEY, CONTROL, ALT, NOINVERT
     "H",            IDM_HUE_MINUS,          VIRTKEY, NOINVERT
     "H",            IDM_HUE_PLUS,           VIRTKEY, SHIFT, NOINVERT
-    "H",            IDM_HUE_CURRENT,        VIRTKEY, SHIFT, CONTROL, 
+    "H",            IDM_HUE_CURRENT,        VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "I",            IDM_SHOW_INFOS,         VIRTKEY, NOINVERT
     "K",            IDM_KONTRAST_MINUS,     VIRTKEY, NOINVERT
     "K",            IDM_KONTRAST_PLUS,      VIRTKEY, SHIFT, NOINVERT
-    "K",            IDM_KONTRAST_CURRENT,   VIRTKEY, SHIFT, CONTROL, 
+    "K",            IDM_KONTRAST_CURRENT,   VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "L",            IDM_TAKESTILL,          VIRTKEY, NOINVERT
     "L",            IDM_TAKESTREAMSNAP,     VIRTKEY, SHIFT, NOINVERT
-    "L",            IDM_KEYBOARDLOCK,       VIRTKEY, SHIFT, CONTROL, 
+    "L",            IDM_KEYBOARDLOCK,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "M",            IDM_MUTE,               VIRTKEY, NOINVERT
     "M",            IDM_MUTE,               VIRTKEY, SHIFT, NOINVERT
@@ -110,7 +110,7 @@ BEGIN
     "O",            IDM_OPEN_FILE,          VIRTKEY, CONTROL, NOINVERT
     "O",            IDM_WINPOS_ORBIT,       VIRTKEY, ALT, NOINVERT
     "O",            IDM_OVERSCAN_PLUS,      VIRTKEY, SHIFT, NOINVERT
-    "O",            IDM_OVERSCAN_CURRENT,   VIRTKEY, SHIFT, CONTROL, 
+    "O",            IDM_OVERSCAN_CURRENT,   VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "P",            IDM_CAPTURE_PAUSE,      VIRTKEY, NOINVERT
     "P",            IDM_SASPECT_CLIP,       VIRTKEY, CONTROL, NOINVERT
@@ -118,7 +118,7 @@ BEGIN
     "P",            IDM_TSPLAY,             VIRTKEY, SHIFT, NOINVERT
     "Q",            IDM_HDELAY_MINUS,       VIRTKEY, NOINVERT
     "Q",            IDM_HDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
-    "Q",            IDM_HDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
+    "Q",            IDM_HDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "R",            IDM_RESET_STATS,        VIRTKEY, NOINVERT
     "R",            IDM_TSRECORD,           VIRTKEY, SHIFT, NOINVERT
@@ -128,11 +128,11 @@ BEGIN
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_MINUS,  VIRTKEY, NOINVERT
     "U",            IDM_USATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
-    "U",            IDM_USATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+    "U",            IDM_USATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "V",            IDM_VSATURATION_MINUS,  VIRTKEY, NOINVERT
     "V",            IDM_VSATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
-    "V",            IDM_VSATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+    "V",            IDM_VSATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_ADD,         IDM_VOLUMEPLUS,         VIRTKEY, NOINVERT
     VK_BACK,        IDM_HIDE_OSD,           VIRTKEY, NOINVERT
@@ -143,27 +143,27 @@ BEGIN
     VK_ESCAPE,      IDM_RETURN_TO_WINDOW,   VIRTKEY, NOINVERT
     VK_F1,          IDM_HELP_README,        VIRTKEY, NOINVERT
     VK_F1,          IDM_SOURCE_INPUT1,      VIRTKEY, CONTROL, ALT, NOINVERT
-    VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
+    VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_F11,         IDM_CHARSET_TEST,       VIRTKEY, NOINVERT
     VK_F2,          IDM_SOURCE_INPUT2,      VIRTKEY, CONTROL, ALT, NOINVERT
-    VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
+    VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_F3,          IDM_VT_SEARCHNEXT,      VIRTKEY, NOINVERT
     VK_F3,          IDM_SOURCE_INPUT3,      VIRTKEY, CONTROL, ALT, NOINVERT
-    VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL, 
+    VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_F4,          IDM_END,                VIRTKEY, ALT, NOINVERT
     VK_F4,          IDM_SOURCE_INPUT4,      VIRTKEY, CONTROL, ALT, NOINVERT
-    VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL, 
+    VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_F5,          IDM_TELETEXT_KEY1,      VIRTKEY, NOINVERT
     VK_F5,          IDM_SOURCE_INPUT5,      VIRTKEY, CONTROL, ALT, NOINVERT
-    VK_F5,          IDM_AUDIO_4,            VIRTKEY, SHIFT, CONTROL, 
+    VK_F5,          IDM_AUDIO_4,            VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_F6,          IDM_TELETEXT_KEY2,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SOURCE_INPUT6,      VIRTKEY, CONTROL, ALT, NOINVERT
-    VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL, 
+    VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_F7,          IDM_TELETEXT_KEY3,      VIRTKEY, NOINVERT
     VK_F7,          IDM_SOURCE_INPUT7,      VIRTKEY, CONTROL, ALT, NOINVERT
@@ -175,7 +175,7 @@ BEGIN
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
     VK_LEFT,        IDM_RIGHT_CROP_MINUS,   VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        IDM_LEFT_CROP_PLUS,     VIRTKEY, SHIFT, NOINVERT
-    VK_LEFT,        IDM_LEFT_CROP_CURRENT,  VIRTKEY, SHIFT, CONTROL, 
+    VK_LEFT,        IDM_LEFT_CROP_CURRENT,  VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_NEXT,        IDM_CHANNELMINUS,       VIRTKEY, NOINVERT
     VK_NEXT,        IDM_PLAYLIST_NEXT,      VIRTKEY, CONTROL, NOINVERT
@@ -190,19 +190,19 @@ BEGIN
     VK_RIGHT,       IDM_VT_PAGE_PLUS,       VIRTKEY, NOINVERT
     VK_RIGHT,       IDM_RIGHT_CROP_PLUS,    VIRTKEY, CONTROL, NOINVERT
     VK_RIGHT,       IDM_LEFT_CROP_MINUS,    VIRTKEY, SHIFT, NOINVERT
-    VK_RIGHT,       IDM_RIGHT_CROP_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+    VK_RIGHT,       IDM_RIGHT_CROP_CURRENT, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_SPACE,       IDM_SPACEBAR,           VIRTKEY, NOINVERT
     VK_SPACE,       IDM_AUTODETECT,         VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       IDM_SHIFT_SPACEBAR,     VIRTKEY, SHIFT, NOINVERT
-    VK_SPACE,       IDM_FINDLOCK_PULL,      VIRTKEY, SHIFT, CONTROL, 
+    VK_SPACE,       IDM_FINDLOCK_PULL,      VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     VK_SUBTRACT,    IDM_VOLUMEMINUS,        VIRTKEY, NOINVERT
     VK_TAB,         IDM_TOGGLE_MENU,        VIRTKEY, NOINVERT
     VK_UP,          IDM_VT_PAGE_UP,         VIRTKEY, NOINVERT
     "W",            IDM_PIXELWIDTH_MINUS,   VIRTKEY, NOINVERT
     "W",            IDM_PIXELWIDTH_PLUS,    VIRTKEY, SHIFT, NOINVERT
-    "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+    "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
     "X",            IDM_CLEAROSD,           VIRTKEY, NOINVERT
     "Z",            IDM_ZOOM_MINUS,         VIRTKEY, NOINVERT
@@ -253,32 +253,32 @@ STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION
 CAPTION "Channel List"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LISTBOX         IDC_PROGRAMLIST,10,50,100,130,LBS_NOINTEGRALHEIGHT | 
+    LISTBOX         IDC_PROGRAMLIST,10,50,100,130,LBS_NOINTEGRALHEIGHT |
                     LBS_WANTKEYBOARDINPUT | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_SCAN_RADIO1,"Button",BS_AUTORADIOBUTTON | 
+    CONTROL         "",IDC_SCAN_RADIO1,"Button",BS_AUTORADIOBUTTON |
                     BS_CENTER | BS_VCENTER | WS_TABSTOP,120,5,10,10
     CONTROL         "Keys as Channels (US Style)",IDC_CUSTOMCHANNELORDER,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,19,112,8
-    COMBOBOX        IDC_COUNTRY,136,37,149,75,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_COUNTRY,136,37,149,75,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
-    CONTROL         "",IDC_SCAN_RADIO2,"Button",BS_AUTORADIOBUTTON | 
+    CONTROL         "",IDC_SCAN_RADIO2,"Button",BS_AUTORADIOBUTTON |
                     BS_CENTER | BS_VCENTER | WS_TABSTOP,120,70,10,10
     EDITTEXT        IDC_SCAN_MAX_FREQ,250,85,40,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_SCAN_MIN_FREQ,175,85,50,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_SCAN_STEPS,175,105,50,12,ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "Use AFC",IDC_SCAN_AFC,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Use AFC",IDC_SCAN_AFC,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,250,105,45,15
     PUSHBUTTON      "Up",IDC_UP,15,185,30,10
     PUSHBUTTON      "Down",IDC_DOWN,70,185,35,10
-    COMBOBOX        IDC_CHANNEL,175,145,63,107,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_CHANNEL,175,145,63,107,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
-    CONTROL         "Active",IDC_ACTIVE,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Active",IDC_ACTIVE,"Button",BS_AUTOCHECKBOX |
                     BS_LEFTTEXT | BS_RIGHT | BS_VCENTER | WS_TABSTOP,240,145,
                     45,12
     EDITTEXT        IDC_NAME,175,166,110,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_FREQUENCY,175,190,44,12,ES_AUTOHSCROLL
     SCROLLBAR       IDC_FINETUNE,261,190,22,15
-    COMBOBOX        IDC_FORMAT,175,215,106,60,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_FORMAT,175,215,106,60,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
     PUSHBUTTON      "Add",IDC_ADD,296,145,45,15
     PUSHBUTTON      "Remove",IDC_REMOVE,296,170,45,15
@@ -305,60 +305,60 @@ BEGIN
     CONTROL         253,IDC_STATIC,"Static",SS_BITMAP,11,10,100,34,
                     WS_EX_TRANSPARENT
     GROUPBOX        "",IDC_STATIC,5,0,110,215,BS_CENTER,WS_EX_TRANSPARENT
-    CONTROL         "Mute",IDC_CHANNEL_MUTE,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Mute",IDC_CHANNEL_MUTE,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,15,200,55,10
 END
 
 IDD_SPLASHBOX DIALOGEX 0, 0, 145, 192
-STYLE DS_NOIDLEMSG | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_POPUP | 
+STYLE DS_NOIDLEMSG | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_POPUP |
     WS_BORDER
 EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_TOOLWINDOW
 FONT 8, "System", 0, 0, 0x1
 BEGIN
-    LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY | 
+    LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY |
                     LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_TABSTOP
 END
 
 IDD_VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 358, 183
-STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU
 CAPTION "Video Settings"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "&Brightness",IDC_STATIC,6,13,33,10
-    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,5,258,20
-    EDITTEXT        IDC_D1,315,10,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D1,315,10,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "Con&trast",IDC_STATIC,6,33,33,10
-    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,25,258,20
-    EDITTEXT        IDC_D2,315,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D2,315,30,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Hue",IDC_STATIC,6,52,33,10
-    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,45,258,20
-    EDITTEXT        IDC_D3,315,50,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D3,315,50,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Color",IDC_STATIC,6,73,33,10
-    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,65,258,20
-    EDITTEXT        IDC_D4,315,70,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D4,315,70,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "Color &U",IDC_STATIC,6,93,33,10
-    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,85,258,20
-    EDITTEXT        IDC_D5,315,90,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D5,315,90,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "Color &V",IDC_STATIC,6,113,33,10
-    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,105,258,20
-    EDITTEXT        IDC_D6,315,110,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D6,315,110,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Overscan",IDC_STATIC,6,133,33,10
-    CONTROL         "Slider1",IDC_SLIDER7,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER7,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,50,125,258,20
-    EDITTEXT        IDC_D7,315,130,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D7,315,130,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     DEFPUSHBUTTON   "&OK",IDOK,6,161,45,15
     PUSHBUTTON      "Cancel",IDCANCEL,57,161,45,15,WS_GROUP
@@ -366,29 +366,29 @@ BEGIN
 END
 
 IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 352, 202
-STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio Controls"
 FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_VOLUME_VAL,14,154,20,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_VOLUME_VAL,14,154,20,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
-    EDITTEXT        IDC_BAND1_VAL,69,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND1_VAL,69,52,18,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
-    EDITTEXT        IDC_BAND2_VAL,99,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND2_VAL,99,52,18,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
-    CONTROL         "",IDC_VOLUME_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_VOLUME_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,11,62,29,93
-    CONTROL         "",IDC_BAND1_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_BAND1_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,64,71,24,97
-    CONTROL         "",IDC_BAND2_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_BAND2_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,94,71,24,97
     LTEXT           "Balance:",IDC_STATIC,11,2,40,9
-    EDITTEXT        IDC_BALANCE_VAL,15,32,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BALANCE_VAL,15,32,18,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
-    CONTROL         "",IDC_BALANCE_SLIDER,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "",IDC_BALANCE_SLIDER,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,5,10,40,23
-    CONTROL         "Bass Boost",IDC_SUPERBASS,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Bass Boost",IDC_SUPERBASS,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,156,9,55,12
     PUSHBUTTON      "Cancel",IDCANCEL,173,179,45,15
     PUSHBUTTON      "Default",IDC_DEFAULT,7,180,45,15
@@ -396,23 +396,23 @@ BEGIN
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,57,6,160,165
     LTEXT           "Spatial effect",IDC_STATIC,265,57,48,8
     LTEXT           "Loudness",IDC_STATIC,227,57,32,8
-    CONTROL         "",IDC_LOUDNESS_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_LOUDNESS_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,229,71,24,97
-    CONTROL         "",IDC_SPATIALEFFECT_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_SPATIALEFFECT_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,265,70,24,97
     CONTROL         "Use equalizer",IDC_USEEQUALIZER,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,62,12,59,10
-    CONTROL         "",IDC_BAND5_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_BAND5_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,184,71,24,97
-    CONTROL         "",IDC_BAND4_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_BAND4_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,154,71,24,97
-    CONTROL         "",IDC_BAND3_SLIDER,"msctls_trackbar32",TBS_VERT | 
+    CONTROL         "",IDC_BAND3_SLIDER,"msctls_trackbar32",TBS_VERT |
                     TBS_BOTH | WS_TABSTOP,124,71,24,97
-    EDITTEXT        IDC_BAND3_VAL,129,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND3_VAL,129,52,18,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
-    EDITTEXT        IDC_BAND4_VAL,159,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND4_VAL,159,52,18,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
-    EDITTEXT        IDC_BAND5_VAL,189,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND5_VAL,189,52,18,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED
     CTEXT           "120 Hz",IDC_BAND1_TEXT,70,30,18,18
     CTEXT           "500 Hz",IDC_BAND2_TEXT,100,30,20,18
@@ -423,26 +423,26 @@ BEGIN
 END
 
 IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 98
-STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION |
     WS_SYSMENU
 CAPTION "DScaler Videotext Info"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,49,80,50,15
     LTEXT           "SubCode",IDC_STATIC,9,55,30,10
-    EDITTEXT        IDC_TEXT3,105,54,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_TEXT3,105,54,45,12,ES_RIGHT | ES_AUTOHSCROLL |
                     ES_READONLY
     LTEXT           "Pages Cached",IDC_STATIC,10,25,55,10
-    EDITTEXT        IDC_TEXT1,105,25,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_TEXT1,105,25,45,12,ES_RIGHT | ES_AUTOHSCROLL |
                     ES_READONLY
     LTEXT           "Current Page",IDC_STATIC,10,40,55,10
-    EDITTEXT        IDC_TEXT2,105,40,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_TEXT2,105,40,45,12,ES_RIGHT | ES_AUTOHSCROLL |
                     ES_READONLY
     GROUPBOX        "Supervisor state",IDC_STATIC,5,15,150,60
 END
 
 IDD_VPSSTATUS DIALOG DISCARDABLE  22, 17, 187, 66
-STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION |
     WS_SYSMENU
 CAPTION "DScaler VPS Info"
 FONT 8, "MS Sans Serif"
@@ -451,7 +451,7 @@ BEGIN
     CTEXT           "",IDC_TEXT1,10,20,165,10
     GROUPBOX        "VPS-Identifier",IDC_STATIC,5,10,180,35
     LTEXT           "VBI-FPS",IDC_STATIC,120,0,30,10
-    EDITTEXT        IDC_VBI_FPS,155,0,25,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_VBI_FPS,155,0,25,12,ES_RIGHT | ES_AUTOHSCROLL |
                     ES_READONLY
 END
 
@@ -460,28 +460,28 @@ STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "DScaler Mixer Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "Use Mixer",IDC_USE_MIXER,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Use Mixer",IDC_USE_MIXER,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,6,7,47,10
     LTEXT           "Mixer",IDC_STATIC,6,25,18,11
-    COMBOBOX        IDC_MIXER,66,23,178,50,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_MIXER,66,23,178,50,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Destination",IDC_STATIC,6,43,36,11
-    COMBOBOX        IDC_DEST,66,41,178,47,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_DEST,66,41,178,47,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "",IDC_MIXER_INPUT0NAME,6,61,59,19
-    COMBOBOX        IDC_INPUT1,66,59,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT1,66,59,178,49,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "",IDC_MIXER_INPUT1NAME,6,79,59,16
-    COMBOBOX        IDC_INPUT2,66,77,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT2,66,77,178,49,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "",IDC_MIXER_INPUT2NAME,6,97,59,18
-    COMBOBOX        IDC_INPUT3,66,95,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT3,66,95,178,49,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "",IDC_MIXER_INPUT3NAME,6,115,59,15
-    COMBOBOX        IDC_INPUT4,66,113,178,45,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT4,66,113,178,45,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     LTEXT           "",IDC_MIXER_INPUT4NAME,6,133,59,17
-    COMBOBOX        IDC_INPUT5,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT5,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,5,175,32,15
     PUSHBUTTON      "Cancel",IDCANCEL,41,175,32,15
@@ -489,7 +489,7 @@ BEGIN
                     IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,83,
                     176,156,10
     LTEXT           "",IDC_MIXER_INPUT5NAME,5,152,59,18
-    COMBOBOX        IDC_INPUT6,65,150,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT6,65,150,178,51,CBS_DROPDOWNLIST | CBS_SORT |
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
 END
 
@@ -512,7 +512,7 @@ BEGIN
     LTEXT           "MultiDec - Copyright © Espresso",IDC_STATIC,13,154,163,
                     9
     GROUPBOX        "Authors",IDC_STATIC,6,37,180,100
-    CTEXT           "http://www.dscaler.org",IDC_LINK2,6,13,288,9,SS_NOTIFY | 
+    CTEXT           "http://www.dscaler.org",IDC_LINK2,6,13,288,9,SS_NOTIFY |
                     SS_SUNKEN
     LTEXT           "bttv - Copyright © Ralph Metzler && Marcus Metzler",
                     IDC_STATIC,13,165,165,11
@@ -546,9 +546,9 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,108,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,65,108,50,14
     PUSHBUTTON      "&Auto-Detect",IDC_AUTODETECT,201,108,50,14
-    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST |
                     CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST |
                     CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Use this dialog to select the card closest to your card type.\nSome tuners are autodetected and will be selected here.  Otherwise you must try and find out what tuner you have.",
                     IDC_STATIC,7,7,286,25
@@ -568,9 +568,9 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,12,13,84,10
     CONTROL         "Adaptive AGC (CRUSH)",IDC_CRUSH,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,12,26,88,10
-    CONTROL         "Even Chroma AGC",IDC_E_CAGC,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Even Chroma AGC",IDC_E_CAGC,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,12,38,72,10
-    CONTROL         "Odd Chroma AGC",IDC_O_CAGC,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Odd Chroma AGC",IDC_O_CAGC,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,12,52,70,10
     CONTROL         "Even Luma Peaking",IDC_E_LUMA_PEAK,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,12,65,76,10
@@ -584,11 +584,11 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,13,87,10
     CONTROL         "Odd Luma Decimation ",IDC_O_LUMA_DEC,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,26,84,10
-    CONTROL         "Even Chroma Comb",IDC_E_COMB,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Even Chroma Comb",IDC_E_COMB,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,106,39,76,10
-    CONTROL         "Odd Chroma Comb",IDC_O_COMB,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Odd Chroma Comb",IDC_O_COMB,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,106,52,74,10
-    CONTROL         "Color Bars",IDC_COLOR_BARS,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Color Bars",IDC_COLOR_BARS,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,106,65,48,10
     CONTROL         "Gamma Corr Removal",IDC_GAMMA_CORR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,78,83,10
@@ -603,13 +603,13 @@ CAPTION "DScaler Program Failure"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,342,213,50,14
-    LISTBOX         IDC_ASMBOX,7,19,279,100,LBS_OWNERDRAWFIXED | 
-                    LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | LBS_NODATA | 
+    LISTBOX         IDC_ASMBOX,7,19,279,100,LBS_OWNERDRAWFIXED |
+                    LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | LBS_NODATA |
                     LBS_NOSEL | WS_VSCROLL | WS_TABSTOP
     LTEXT           "crash reason: programmer needs good whack on head",
                     IDC_STATIC_BOMBREASON,8,182,219,8
-    LISTBOX         IDC_REGDUMP,291,19,101,158,NOT LBS_NOTIFY | 
-                    LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL | 
+    LISTBOX         IDC_REGDUMP,291,19,101,158,NOT LBS_NOTIFY |
+                    LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL |
                     WS_HSCROLL | WS_TABSTOP
     LTEXT           "Program disassembly",IDC_STATIC,7,7,66,8
     LTEXT           "CPU registers",IDC_STATIC,293,5,44,8
@@ -617,7 +617,7 @@ BEGIN
                     IDC_STATIC,7,196,274,24
     PUSHBUTTON      "Save",IDC_SAVE2,342,180,50,14
     PUSHBUTTON      "Help",IDC_HELP2,342,197,50,14,WS_DISABLED
-    LISTBOX         IDC_CALL_STACK,7,139,279,38,LBS_NOINTEGRALHEIGHT | 
+    LISTBOX         IDC_CALL_STACK,7,139,279,38,LBS_NOINTEGRALHEIGHT |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Estimated call stack",IDC_STATIC,7,128,64,8
     LTEXT           "Exiting this dialog may be followed by a system crash please save all your work!",
@@ -635,15 +635,15 @@ BEGIN
     PUSHBUTTON      "Audio-Mixer Setup...",IDC_TSMIXERBUTTON,47,26,146,14
     PUSHBUTTON      "Help",IDC_TSMIXERHELP,202,26,30,14
     RTEXT           "Wave In:",IDC_STATIC,13,51,30,8
-    COMBOBOX        IDC_TSWAVEINCOMBO,47,48,146,88,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TSWAVEINCOMBO,47,48,146,88,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Help",IDC_TSWAVEHELP,202,56,30,14
     RTEXT           "Wave Out:",IDC_STATIC,8,69,36,8
-    COMBOBOX        IDC_TSWAVEOUTCOMBO,47,66,146,70,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TSWAVEOUTCOMBO,47,66,146,70,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     GROUPBOX        "Recording Height",IDC_STATIC,39,85,160,61
     CONTROL         "Full-height (not yet implemented)",
-                    IDC_TSFULLHEIGHTRADIO,"Button",BS_AUTORADIOBUTTON | 
+                    IDC_TSFULLHEIGHTRADIO,"Button",BS_AUTORADIOBUTTON |
                     WS_DISABLED,47,96,117,10
     CONTROL         "1/2-height Even lines",IDC_TSHALFEVENRADIO,"Button",
                     BS_AUTORADIOBUTTON,47,107,83,10
@@ -658,40 +658,40 @@ BEGIN
 END
 
 IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 372, 185
-STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU
 CAPTION "Overlay Settings"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "&Brightness",IDC_STATIC,12,39,33,10
-    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,56,31,258,20
-    EDITTEXT        IDC_D1,322,36,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D1,322,36,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "Con&trast",IDC_STATIC,12,60,33,10
-    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,56,52,258,20
-    EDITTEXT        IDC_D2,322,57,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D2,322,57,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Hue",IDC_STATIC,12,79,33,10
-    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,56,71,258,20
-    EDITTEXT        IDC_D3,322,76,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D3,322,76,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Color",IDC_STATIC,12,100,33,10
-    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,56,92,258,20
-    EDITTEXT        IDC_D4,322,97,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D4,322,97,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Gamma",IDC_STATIC,12,119,33,10
-    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,56,111,258,20
-    EDITTEXT        IDC_D5,322,116,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D5,322,116,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     LTEXT           "&Sharpness",IDC_STATIC,12,140,33,10
-    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
+    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP |
                     WS_TABSTOP,56,132,258,20
-    EDITTEXT        IDC_D6,322,137,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_D6,322,137,35,12,ES_CENTER | ES_AUTOHSCROLL |
                     WS_DISABLED | NOT WS_TABSTOP
     DEFPUSHBUTTON   "&OK",IDOK,5,165,45,15
     PUSHBUTTON      "Cancel",IDCANCEL,57,165,45,15,WS_GROUP
@@ -707,15 +707,16 @@ CAPTION "Dialog"
 FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Tree1",IDC_TREESETTINGS_TREE,"SysTreeView32",
-                    TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS | 
+                    TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS |
                     TVS_TRACKSELECT | WS_BORDER | WS_TABSTOP,5,5,123,170
-    CONTROL         "",IDC_TREESETTINGS_PAGEFRAME,"Static",SS_BLACKFRAME | 
-                    NOT WS_VISIBLE,133,5,197,169
+    CONTROL         "",IDC_TREESETTINGS_PAGEFRAME,"Static",SS_BLACKFRAME |
+                    NOT WS_VISIBLE,133,25,197,149
     PUSHBUTTON      "OK",IDOK,165,180,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,220,180,50,14
     PUSHBUTTON      "Help",IDC_HELPBTN,275,180,50,14
     CONTROL         "",IDC_TREESETTINGS_LINE,"Static",SS_ETCHEDHORZ,100,175,
                     230,1
+    LTEXT           "",IDC_TREESETTINGS_STATIC,133,5,197,15,SS_CENTERIMAGE
 END
 
 IDD_TREESETTINGS_EMPTY DIALOG DISCARDABLE  0, 0, 6, 6
@@ -737,8 +738,8 @@ STYLE DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_APPWINDOW
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LISTBOX         IDC_TREESETTINGS_GENERIC_LIST,0,37,197,73,LBS_SORT | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+    LISTBOX         IDC_TREESETTINGS_GENERIC_LIST,0,37,197,73,LBS_SORT |
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL |
                     WS_TABSTOP
     EDITTEXT        IDC_TREESETTINGS_GENERIC_EDIT,11,125,63,14,
                     ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
@@ -746,10 +747,10 @@ BEGIN
                     UDS_ALIGNRIGHT | UDS_ARROWKEYS | NOT WS_VISIBLE,75,125,
                     11,14
     CONTROL         "",IDC_TREESETTINGS_GENERIC_CHECK,"Button",
-                    BS_AUTOCHECKBOX | BS_NOTIFY | NOT WS_VISIBLE | 
+                    BS_AUTOCHECKBOX | BS_NOTIFY | NOT WS_VISIBLE |
                     WS_TABSTOP,11,128,174,10
     CONTROL         "Slider1",IDC_TREESETTINGS_GENERIC_SLIDER,
-                    "msctls_trackbar32",TBS_TOP | NOT WS_VISIBLE | 
+                    "msctls_trackbar32",TBS_TOP | NOT WS_VISIBLE |
                     WS_TABSTOP,7,142,133,21
     PUSHBUTTON      "Default",IDC_TREESETTINGS_GENERIC_DEFAULT,142,145,45,14,
                     NOT WS_VISIBLE
@@ -785,12 +786,12 @@ BEGIN
 END
 
 IDD_VTSEARCH DIALOG DISCARDABLE  0, 0, 186, 65
-STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_VISIBLE | 
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | DS_CENTER | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU
 CAPTION "VIDEOTEXT Search."
 FONT 8, "MS Sans Serif"
 BEGIN
-    COMBOBOX        IDC_COMBO1,7,17,172,13,CBS_SIMPLE | CBS_SORT | 
+    COMBOBOX        IDC_COMBO1,7,17,172,13,CBS_SIMPLE | CBS_SORT |
                     CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,38,36,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,96,36,50,14
@@ -805,9 +806,9 @@ FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,217,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,65,217,50,14
-    COMBOBOX        IDC_PROCESSOR_SPEED,72,35,178,190,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_PROCESSOR_SPEED,72,35,178,190,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_TRADEOFF,73,81,178,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TRADEOFF,73,81,178,190,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
     LTEXT           "In order for DScaler to give the best results it needs to know how powerful your machine is.  Please select the nearest speed range to your machine.  If in doubt use the lower setting. (This setting is not detected)",
                     -1,7,7,277,26
@@ -815,12 +816,12 @@ BEGIN
     LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
                     -1,7,57,286,17
     LTEXT           "Defaults",-1,15,82,41,10
-    COMBOBOX        IDC_FULLCPU,73,130,178,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_FULLCPU,73,130,178,190,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
     LTEXT           "DScaler can use your full CPU for best results or keep CPU for other applications running at the same time. Choose the option below that best matches your preferences.",
                     -1,7,106,286,17
     LTEXT           "CPU using",-1,15,130,41,10
-    COMBOBOX        IDC_VIDEOCARD,73,188,178,190,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_VIDEOCARD,73,188,178,190,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "DScaler can adapt its settings regarding the video card you are using.  Choose your video card below or select ""Other cards"" if your video card is not listed. (This setting is not detected)",
                     -1,7,157,286,26
@@ -847,35 +848,35 @@ STYLE DS_CONTROL | WS_CHILD
 FONT 8, "MS Sans Serif"
 BEGIN
     LISTBOX         IDC_DSHOW_VIDEOFMTS_FMTLIST,5,15,75,100,
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL |
                     WS_TABSTOP
     EDITTEXT        IDC_DSHOW_VIDEOFMTS_NAME,115,20,85,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DSHOW_VIDEOFMTS_WIDTH,115,40,50,14,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_DSHOW_VIDEOFMTS_WIDTH,115,40,50,14,ES_AUTOHSCROLL |
                     ES_NUMBER
     CONTROL         "Spin1",IDC_DSHOW_VIDEOFMTS_WIDTH_SPIN,"msctls_updown32",
-                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY |
                     UDS_ARROWKEYS,165,40,11,14
-    EDITTEXT        IDC_DSHOW_VIDEOFMTS_HEIGHT,115,55,50,14,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_DSHOW_VIDEOFMTS_HEIGHT,115,55,50,14,ES_AUTOHSCROLL |
                     ES_NUMBER
     CONTROL         "Spin2",IDC_DSHOW_VIDEOFMTS_HEIGHT_SPIN,"msctls_updown32",
-                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY |
                     UDS_ARROWKEYS,165,55,11,14
-    EDITTEXT        IDC_EDIT4,115,90,30,12,ES_AUTOHSCROLL | ES_NUMBER | 
+    EDITTEXT        IDC_EDIT4,115,90,30,12,ES_AUTOHSCROLL | ES_NUMBER |
                     WS_DISABLED
-    CONTROL         "Spin3",IDC_SPIN3,"msctls_updown32",UDS_SETBUDDYINT | 
+    CONTROL         "Spin3",IDC_SPIN3,"msctls_updown32",UDS_SETBUDDYINT |
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,135,90,11,
                     14
-    EDITTEXT        IDC_EDIT5,170,90,30,12,ES_AUTOHSCROLL | ES_NUMBER | 
+    EDITTEXT        IDC_EDIT5,170,90,30,12,ES_AUTOHSCROLL | ES_NUMBER |
                     WS_DISABLED
-    CONTROL         "Spin4",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT | 
+    CONTROL         "Spin4",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT |
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,195,90,11,
                     14
     EDITTEXT        IDC_EDIT6,170,105,30,12,ES_AUTOHSCROLL | WS_DISABLED
-    CONTROL         "Spin5",IDC_SPIN5,"msctls_updown32",UDS_SETBUDDYINT | 
+    CONTROL         "Spin5",IDC_SPIN5,"msctls_updown32",UDS_SETBUDDYINT |
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,195,105,
                     11,14
     EDITTEXT        IDC_EDIT7,115,105,30,12,ES_AUTOHSCROLL | WS_DISABLED
-    CONTROL         "Spin6",IDC_SPIN6,"msctls_updown32",UDS_SETBUDDYINT | 
+    CONTROL         "Spin6",IDC_SPIN6,"msctls_updown32",UDS_SETBUDDYINT |
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,135,105,
                     11,14
     COMBOBOX        IDC_DSHOW_VIDEOFMTS_FIELDFMT,256,25,60,30,
@@ -898,7 +899,7 @@ BEGIN
                     35,20,BS_MULTILINE | WS_DISABLED
     LTEXT           "Video formats:",IDC_STATIC,5,5,46,8
     GROUPBOX        "",IDC_STATIC,85,75,120,65,WS_DISABLED
-    CONTROL         "Enable crop/zoom",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Enable crop/zoom",IDC_CHECK3,"Button",BS_AUTOCHECKBOX |
                     WS_DISABLED | WS_TABSTOP,90,75,74,10
     LTEXT           "Top",IDC_STATIC,90,90,14,8,WS_DISABLED
     LTEXT           "Left",IDC_STATIC,150,90,13,8,WS_DISABLED
@@ -914,7 +915,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,256,201,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,184,201,50,14
     LTEXT           "Audio standards:",IDC_STATIC,5,5,54,8
-    LISTBOX         IDC_AUDIOSTANDARD_LIST,7,20,161,175,LBS_NOINTEGRALHEIGHT | 
+    LISTBOX         IDC_AUDIOSTANDARD_LIST,7,20,161,175,LBS_NOINTEGRALHEIGHT |
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Major carrier:",IDC_STATIC,184,23,42,8
     COMBOBOX        IDC_AUDIOSTANDARD_MAJORCARRIER,232,20,54,162,
@@ -949,7 +950,7 @@ FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,252,176,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,316,176,50,14
-    LISTBOX         IDC_AUDIOSTANDARD_LIST,4,16,112,148,LBS_NOINTEGRALHEIGHT | 
+    LISTBOX         IDC_AUDIOSTANDARD_LIST,4,16,112,148,LBS_NOINTEGRALHEIGHT |
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_AUDIOSTANDARD_MAJORCARRIER,136,25,68,30,
                     CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -972,13 +973,13 @@ BEGIN
     CONTROL         "Korean Dual FM Standard",IDC_AUDIOSTANDARD_KOREAN,
                     "Button",BS_AUTOCHECKBOX | BS_RIGHT | WS_TABSTOP,184,152,
                     96,10
-    CONTROL         "Major For Both",IDC_LINKED,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Major For Both",IDC_LINKED,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,300,25,62,10
     CONTROL         "Slider1",IDC_AUDIOSTANDARD_MAJOR_ADJUST,
-                    "msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | 
+                    "msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS |
                     WS_TABSTOP,304,49,16,119
     CONTROL         "Slider1",IDC_AUDIOSTANDARD_MINOR_ADJUST,
-                    "msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | 
+                    "msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS |
                     WS_TABSTOP,340,49,16,119
     LTEXT           "MHz",IDC_STATIC,208,28,16,8
     GROUPBOX        "FM De-emphasis",IDC_STATIC,132,41,88,31
@@ -1008,13 +1009,13 @@ IDD_TOOLBAR_CHANNELS DIALOG DISCARDABLE  0, 0, 111, 16
 STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "",IDC_TOOLBAR_CHANNELS_SPINUP,"Button",BS_OWNERDRAW | 
+    CONTROL         "",IDC_TOOLBAR_CHANNELS_SPINUP,"Button",BS_OWNERDRAW |
                     BS_ICON | BS_FLAT,0,0,10,7
-    CONTROL         "",IDC_TOOLBAR_CHANNELS_SPINDOWN,"Button",BS_OWNERDRAW | 
+    CONTROL         "",IDC_TOOLBAR_CHANNELS_SPINDOWN,"Button",BS_OWNERDRAW |
                     BS_ICON | BS_FLAT,0,7,10,7
-    COMBOBOX        IDC_TOOLBAR_CHANNELS_LIST,13,0,80,495,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TOOLBAR_CHANNELS_LIST,13,0,80,495,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_TOOLBAR_CHANNELS_PREVIOUS,"Button",BS_OWNERDRAW | 
+    CONTROL         "",IDC_TOOLBAR_CHANNELS_PREVIOUS,"Button",BS_OWNERDRAW |
                     BS_ICON | WS_TABSTOP,95,0,16,14
 END
 
@@ -1025,12 +1026,12 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE DISCARDABLE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE DISCARDABLE
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -1038,7 +1039,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE DISCARDABLE
 BEGIN
     "\r\n"
     "\0"
@@ -1052,7 +1053,7 @@ END
 // Menu
 //
 
-IDC_DSCALERMENU MENU DISCARDABLE 
+IDC_DSCALERMENU MENU DISCARDABLE
 BEGIN
     POPUP "&Sources"
     BEGIN
@@ -1100,7 +1101,7 @@ BEGIN
             MENUITEM SEPARATOR
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Autodetect Image Aspect Ratio\tA", 
+        MENUITEM "&Autodetect Image Aspect Ratio\tA",
                                                 IDM_SASPECT_AUTO_TOGGLE
         MENUITEM "&4:3 Fullscreen",             IDM_ASPECT_FULLSCREEN
         MENUITEM "&Letterboxed",                IDM_ASPECT_LETTERBOX
@@ -1125,7 +1126,7 @@ BEGIN
             MENUITEM "2.35   Anamorphic\tCtrl+Shift+6", IDM_SASPECT_235A
             MENUITEM "Custom  (from .INI file)\tCtrl+9", IDM_SASPECT_CUSTOM
             MENUITEM SEPARATOR
-            MENUITEM "&Clipped (Add Black Bars if Necessary)\tCtrl+P", 
+            MENUITEM "&Clipped (Add Black Bars if Necessary)\tCtrl+P",
                                                     IDM_SASPECT_CLIP
         END
         POPUP "Aspect Ratio of &Display Screen"
@@ -1171,10 +1172,10 @@ BEGIN
     END
     POPUP "Deinter&lace"
     BEGIN
-        MENUITEM "&Search and Lock mode\tCtrl+Shift+Space", 
+        MENUITEM "&Search and Lock mode\tCtrl+Shift+Space",
                                                 IDM_FINDLOCK_PULL
         MENUITEM SEPARATOR
-        MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
+        MENUITEM "&Automatic Film / Video Detection\tCtrl+Space",
                                                 IDM_AUTODETECT
         MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
         MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
@@ -1210,7 +1211,7 @@ BEGIN
 
             MENUITEM "Start &Automatic (full)",     IDM_START_AUTO_CALIBRATION
 
-            MENUITEM "Start Automatic (&brightness / contrast)", 
+            MENUITEM "Start Automatic (&brightness / contrast)",
                                                     IDM_START_AUTO_CALIBRATION2
 
             MENUITEM "Start Automatic (&color)",    IDM_START_AUTO_CALIBRATION3
@@ -1302,7 +1303,7 @@ BEGIN
             MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
         END
         MENUITEM "Teletext Font &Anti-aliasing", IDM_VT_ANTIALIAS
-        MENUITEM "&Videotext Reset (After switch over Composite)  ", 
+        MENUITEM "&Videotext Reset (After switch over Composite)  ",
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "&Search VideoText ...\tCtrl+F", IDM_VT_SEARCH, GRAYED
@@ -1326,7 +1327,7 @@ BEGIN
     END
 END
 
-IDC_CONTEXTMENU MENU DISCARDABLE 
+IDC_CONTEXTMENU MENU DISCARDABLE
 BEGIN
     POPUP "Menu1"
     BEGIN
@@ -1343,7 +1344,7 @@ BEGIN
     END
 END
 
-IDC_BT848 MENU DISCARDABLE 
+IDC_BT848 MENU DISCARDABLE
 BEGIN
     POPUP "&Bt Card"
     BEGIN
@@ -1442,7 +1443,7 @@ BEGIN
     END
 END
 
-IDC_STILL MENU DISCARDABLE 
+IDC_STILL MENU DISCARDABLE
 BEGIN
     POPUP "Pla&ylist"
     BEGIN
@@ -1464,7 +1465,7 @@ BEGIN
     END
 END
 
-IDC_DSHOWSOURCEMENU MENU DISCARDABLE 
+IDC_DSHOWSOURCEMENU MENU DISCARDABLE
 BEGIN
     POPUP "DShow"
     BEGIN
@@ -1497,7 +1498,7 @@ BEGIN
     END
 END
 
-IDC_DSHOW_FILESOURCE_MENU MENU DISCARDABLE 
+IDC_DSHOW_FILESOURCE_MENU MENU DISCARDABLE
 BEGIN
     POPUP "DShow"
     BEGIN
@@ -1510,7 +1511,7 @@ BEGIN
     END
 END
 
-IDC_DSHOW_VIDEOFMTS_CONTEXTMENU MENU DISCARDABLE 
+IDC_DSHOW_VIDEOFMTS_CONTEXTMENU MENU DISCARDABLE
 BEGIN
     POPUP "PopUp"
     BEGIN
@@ -1520,7 +1521,7 @@ BEGIN
     END
 END
 
-IDC_SAA7134 MENU DISCARDABLE 
+IDC_SAA7134 MENU DISCARDABLE
 BEGIN
     POPUP "SAA&7134 Card"
     BEGIN
@@ -1619,7 +1620,7 @@ BEGIN
     END
 END
 
-IDC_CT2388X MENU DISCARDABLE 
+IDC_CT2388X MENU DISCARDABLE
 BEGIN
     POPUP "&CT Card"
     BEGIN
@@ -1658,7 +1659,7 @@ BEGIN
     END
 END
 
-IDC_CT2388X_H3D MENU DISCARDABLE 
+IDC_CT2388X_H3D MENU DISCARDABLE
 BEGIN
     POPUP "&H3D Card"
     BEGIN
@@ -1754,36 +1755,36 @@ END
 IDD_VTSEARCH DLGINIT
 BEGIN
     IDC_COMBO1, 0x403, 10, 0
-0x5553, 0x5442, 0x5449, 0x454c, 0x0053, 
+0x5553, 0x5442, 0x5449, 0x454c, 0x0053,
     0
 END
 
 IDD_HWSETUP DLGINIT
 BEGIN
     IDC_PROCESSOR_SPEED, 0x403, 13, 0
-0x6241, 0x766f, 0x2065, 0x3035, 0x4d30, 0x7a48, "\000" 
+0x6241, 0x766f, 0x2065, 0x3035, 0x4d30, 0x7a48, "\000"
     IDC_PROCESSOR_SPEED, 0x403, 17, 0
-0x3033, 0x4d30, 0x7a68, 0x2d20, 0x3520, 0x3030, 0x4d20, 0x7a48, "\000" 
+0x3033, 0x4d30, 0x7a68, 0x2d20, 0x3520, 0x3030, 0x4d20, 0x7a48, "\000"
     IDC_PROCESSOR_SPEED, 0x403, 13, 0
-0x6542, 0x6f6c, 0x2077, 0x3033, 0x4d30, 0x7a48, "\000" 
+0x6542, 0x6f6c, 0x2077, 0x3033, 0x4d30, 0x7a48, "\000"
     IDC_TRADEOFF, 0x403, 30, 0
-0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20, 
-0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072, 
+0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20,
+0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072,
     IDC_TRADEOFF, 0x403, 21, 0
-0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c, 
-0x7974, "\000" 
+0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c,
+0x7974, "\000"
     IDC_FULLCPU, 0x403, 30, 0
-0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20, 
-0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072, 
+0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20,
+0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072,
     IDC_FULLCPU, 0x403, 21, 0
-0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c, 
-0x7974, "\000" 
+0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c,
+0x7974, "\000"
     IDC_VIDEOCARD, 0x403, 30, 0
-0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20, 
-0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072, 
+0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20,
+0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072,
     IDC_VIDEOCARD, 0x403, 21, 0
-0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c, 
-0x7974, "\000" 
+0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c,
+0x7974, "\000"
     0
 END
 
@@ -1801,7 +1802,7 @@ IDC_CURSOR_HAND         CURSOR  DISCARDABLE     "hand_point.cur"
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     IDD_OVERLAYSETTINGS, DIALOG
     BEGIN
@@ -1883,9 +1884,9 @@ FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Slider1",IDC_TOOLBAR_VOLUME_SLIDER,"msctls_trackbar32",
                     WS_TABSTOP,17,0,86,13
-    CONTROL         "",IDC_TOOLBAR_VOLUME_MUTE,"Button",BS_OWNERDRAW | 
+    CONTROL         "",IDC_TOOLBAR_VOLUME_MUTE,"Button",BS_OWNERDRAW |
                     BS_ICON,0,0,16,16
-    CONTROL         "",IDC_TOOLBAR_VOLUME_CHANNEL,"Button",BS_OWNERDRAW | 
+    CONTROL         "",IDC_TOOLBAR_VOLUME_CHANNEL,"Button",BS_OWNERDRAW |
                     BS_ICON | WS_TABSTOP,104,0,30,16
 END
 
@@ -1901,7 +1902,7 @@ IDD_TOOLBAR_VIDEOINPUT DIALOG DISCARDABLE  0, 0, 84, 12
 STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Sans Serif"
 BEGIN
-    COMBOBOX        IDC_TOOLBAR_VIDEOINPUT_LIST,0,0,83,12,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TOOLBAR_VIDEOINPUT_LIST,0,0,83,12,CBS_DROPDOWNLIST |
                     WS_VSCROLL | WS_TABSTOP
 END
 
@@ -1912,7 +1913,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     IDD_TOOLBAR_VOLUME, DIALOG
     BEGIN

@@ -1076,6 +1076,7 @@
 #define IDC_CT2388X_H3D                 8065
 #define IDC_AUDIOSTANDARD_STATUS        8066
 #define IDC_LINKED                      8067
+#define IDC_TREESETTINGS_STATIC         8068
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1128,6 +1129,7 @@
 #define IDM_SAA7134_WHITEPEAK           32835
 #define IDM_SAA7134_COLORPEAK           32836
 #define IDM_SAA7134_COMBFILTER          32837
+#define IDM_THREAD_DBG                  32838
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1144,13 +1146,13 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        254
-#define _APS_NEXT_COMMAND_VALUE         32838
-#define _APS_NEXT_CONTROL_VALUE         8066
+#define _APS_NEXT_COMMAND_VALUE         32839
+#define _APS_NEXT_CONTROL_VALUE         8069
 #define _APS_NEXT_SYMED_VALUE           2491
 #endif
 #endif

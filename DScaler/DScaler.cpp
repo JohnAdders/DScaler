@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.179 2002-06-14 21:20:10 robmuller Exp $
+// $Id: DScaler.cpp,v 1.180 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.179  2002/06/14 21:20:10  robmuller
+// Enter zero's to switch video input.
+// Fixed: direct switching to channel number > 99 is not possible.
+//
 // Revision 1.178  2002/06/13 12:10:21  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -2477,10 +2481,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_AUTOSAVE);
             SetTimer(hWnd, TIMER_AUTOSAVE, TIMER_AUTOSAVE_MS, NULL);
         }
+        return 0;
         break;
 
     case WM_CREATE:
         MainWndOnCreate(hWnd);
+        return 0;
         break;
 
     case INIT_BT:
@@ -2532,6 +2538,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     case WM_LBUTTONDBLCLK:
         SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
+        return 0;
         break;
 
 //  case WM_RBUTTONUP:
@@ -2560,12 +2567,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             return DefWindowProc(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, lParam);
         }
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
     case WM_RBUTTONDOWN:
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_MOUSEMOVE:
@@ -2584,24 +2593,29 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     Cursor_VTUpdate(true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             }
         }
+        return 0;
         break;
 
     case WM_NCMOUSEMOVE:
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_ENTERMENULOOP:
         bInMenuOrDialogBox = TRUE;
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_EXITMENULOOP:
         bInMenuOrDialogBox = FALSE;
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_INITMENU: 
         SetMenuAnalog();
+        return 0;
         break;
 
     case WM_CONTEXTMENU: 
@@ -2612,11 +2626,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_KILLFOCUS:
         bInMenuOrDialogBox = TRUE;
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_SETFOCUS:
         bInMenuOrDialogBox = FALSE;
         Cursor_UpdateVisibility();
+        return 0;
         break;
 
     case WM_TIMER:
@@ -2787,13 +2803,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         }
         pPerf->Resume();
-
-        return FALSE;
+        return 0;
         break;
     
     // support for mouse wheel
     // the WM_MOUSEWHEEL message is not defined but this is it's Value
-    case WM_MOUSELAST + 1:
+    case WM_MOUSEWHEEL:
         // if shift down change volume
         if ((wParam & MK_SHIFT) != 0)
         {
@@ -2824,6 +2839,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 PostMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
             }
         }
+        return 0;
         break;
 
     case WM_SYSCOMMAND:
@@ -2865,6 +2881,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 break;
             }
         }
+        return 0;
         break;
 
     case WM_MOVE:
@@ -2873,6 +2890,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
             WorkoutOverlaySize(FALSE);
         }
+        return 0;
         break;
 
     case WM_CHAR:
@@ -2944,6 +2962,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
         }
+        return 0;
         break;
 
     case WM_PAINT:
@@ -2963,6 +2982,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             EndPaint(hWnd, &sPaint);
         }
         return 0;
+        break;
 
     case WM_VIDEOTEXT:
         {
@@ -3004,12 +3024,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return TRUE;
     
     case WM_QUERYENDSESSION:
+        return TRUE;
+        break;
+
+    case WM_ENDSESSION:
     case WM_DESTROY:
         //Reset screensaver-mode if necessary
         SetScreensaverMode(false);
 
         MainWndOnDestroy();
         PostQuitMessage(0);
+        return 0;
         break;
 
     default:
@@ -3046,6 +3071,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
         }
+        return 0;
         break;
     }
     return DefWindowProc(hWnd, message, wParam, lParam);

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy2Frame.c,v 1.7 2002-06-13 12:10:24 adcockj Exp $
+// $Id: DI_Greedy2Frame.c,v 1.8 2002-06-18 19:46:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/06/13 12:10:24  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.6  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -90,7 +93,7 @@ DEINTERLACE_METHOD Greedy2FrameMethod =
     4,
     0,
     0,
-    WM_DI_GREEDY2FRAME_GETVALUE - WM_USER,
+    WM_DI_GREEDY2FRAME_GETVALUE - WM_APP,
     NULL,
     0,
     FALSE,

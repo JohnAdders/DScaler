@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.8 2002-06-13 12:10:26 adcockj Exp $
+// $Id: FLT_TNoise.c,v 1.9 2002-06-18 19:46:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/13 12:10:26  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.7  2002/03/08 04:16:01  lindsey
 // Changed MMXEXT (Athlon) processors to use the SSE version
 //
@@ -139,7 +142,7 @@ FILTER_METHOD TemporalNoiseMethod =
     NULL,
     FLT_TNOISE_SETTING_LASTONE,
     FLT_TNoiseSettings,
-    WM_FLT_TNOISE_GETVALUE - WM_USER,
+    WM_FLT_TNOISE_GETVALUE - WM_APP,
     TRUE,
     3,
     IDH_TEMPORAL_NOISE,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Adaptive.c,v 1.15 2002-06-13 12:10:23 adcockj Exp $
+// $Id: DI_Adaptive.c,v 1.16 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mark Rejhon and Steve Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/06/13 12:10:23  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.14  2002/06/13 08:22:07  adcockj
 // Changed default motion methods to greedyHM
 //
@@ -301,7 +304,7 @@ DEINTERLACE_METHOD AdaptiveMethod =
     4,
     0,
     0,
-    WM_DI_ADAPTIVE_GETVALUE - WM_USER,
+    WM_DI_ADAPTIVE_GETVALUE - WM_APP,
     NULL,
     0,
     TRUE,

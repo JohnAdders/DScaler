@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.36 2002-06-13 12:10:21 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.37 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/06/13 12:10:21  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.35  2002/06/07 16:38:34  robmuller
 // Added missing FindClose() statement.
 //
@@ -857,7 +860,7 @@ LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lP
     SETTING* pSetting;
     for(i = 0; i < NumVideoModes; i++)
     {
-        if(message == (UINT)(WM_USER + VideoDeintMethods[i]->nSettingsOffset))
+        if(message == (UINT)(WM_APP + VideoDeintMethods[i]->nSettingsOffset))
         {
             *bDone = TRUE;
             pSetting = Deinterlace_GetSetting(i, wParam);
@@ -867,7 +870,7 @@ LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lP
             }
             break;
         }
-        else if(message == (UINT)(WM_USER + VideoDeintMethods[i]->nSettingsOffset + 100))
+        else if(message == (UINT)(WM_APP + VideoDeintMethods[i]->nSettingsOffset + 100))
         {
             *bDone = TRUE;
             pSetting = Deinterlace_GetSetting(i, wParam);
@@ -877,7 +880,7 @@ LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lP
             }
             break;
         }
-        else if(message == (UINT)(WM_USER + VideoDeintMethods[i]->nSettingsOffset + 200))
+        else if(message == (UINT)(WM_APP + VideoDeintMethods[i]->nSettingsOffset + 200))
         {
             *bDone = TRUE;
             pSetting = Deinterlace_GetSetting(i, wParam);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.21 2002-06-13 12:10:22 adcockj Exp $
+// $Id: Filter.cpp,v 1.22 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/06/13 12:10:22  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.20  2002/06/07 16:36:27  robmuller
 // Added filter sorting. Added missing FindClose() statement.
 //
@@ -354,7 +357,7 @@ LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam,
     SETTING* pSetting;
     for(i = 0; i < NumFilters; i++)
     {
-        if(message == (UINT)(WM_USER + Filters[i]->nSettingsOffset))
+        if(message == (UINT)(WM_APP + Filters[i]->nSettingsOffset))
         {
             *bDone = TRUE;
             pSetting = Filter_GetSetting(i, wParam);
@@ -364,7 +367,7 @@ LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam,
             }
             break;
         }
-        else if(message == (UINT)(WM_USER + Filters[i]->nSettingsOffset + 100))
+        else if(message == (UINT)(WM_APP + Filters[i]->nSettingsOffset + 100))
         {
             *bDone = TRUE;
             pSetting = Filter_GetSetting(i, wParam);
@@ -374,7 +377,7 @@ LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam,
             }
             break;
         }
-        else if(message == (UINT)(WM_USER + Filters[i]->nSettingsOffset + 200))
+        else if(message == (UINT)(WM_APP + Filters[i]->nSettingsOffset + 200))
         {
             *bDone = TRUE;
             pSetting = Filter_GetSetting(i, wParam);

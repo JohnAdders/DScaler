@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/06/13 12:10:25  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.3  2002/02/18 01:23:46  lindsey
 // Changed an option name
 //
@@ -199,7 +202,7 @@ FILTER_METHOD HistogramMethod =
     NULL,
     FLT_HISTOGRAM_SETTING_LASTONE,
     FLT_HistogramSettings,
-    WM_FLT_HISTOGRAM_GETVALUE - WM_USER,
+    WM_FLT_HISTOGRAM_GETVALUE - WM_APP,
     TRUE,
     1,
     IDH_HISTOGRAM,

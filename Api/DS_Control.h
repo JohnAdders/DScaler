@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.64 2002-06-13 11:24:32 robmuller Exp $
+// $Id: DS_Control.h,v 1.65 2002-06-18 19:46:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/06/13 11:24:32  robmuller
+// Channel enter time is now configurable.
+//
 // Revision 1.63  2002/06/13 10:40:37  robmuller
 // Made anti plop mute delay configurable.
 //
@@ -302,9 +305,9 @@ typedef enum
 // Allow callers to convert a WM code to do other operations
 /////////////////////////////////////////////////////////////////////////////
 
-#define WM_CONVERT_TO_GETVALUE(x)     (((x - WM_USER) % 100) + WM_USER)
-#define WM_CONVERT_TO_SETVALUE(x)    ((((x - WM_USER) % 100) + 100) + WM_USER)
-#define WM_CONVERT_TO_CHANGEVALUE(x) ((((x - WM_USER) % 100) + 200) + WM_USER)
+#define WM_CONVERT_TO_GETVALUE(x)     (((x - WM_APP) % 100) + WM_APP)
+#define WM_CONVERT_TO_SETVALUE(x)    ((((x - WM_APP) % 100) + 100) + WM_APP)
+#define WM_CONVERT_TO_CHANGEVALUE(x) ((((x - WM_APP) % 100) + 200) + WM_APP)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -373,9 +376,9 @@ typedef enum
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 
-#define WM_ASPECT_GETVALUE          (WM_USER + 1)
-#define WM_ASPECT_SETVALUE          (WM_USER + 101)
-#define WM_ASPECT_CHANGEVALUE       (WM_USER + 201)
+#define WM_ASPECT_GETVALUE          (WM_APP + 1)
+#define WM_ASPECT_SETVALUE          (WM_APP + 101)
+#define WM_ASPECT_CHANGEVALUE       (WM_APP + 201)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Bt848.c
@@ -449,9 +452,9 @@ typedef enum
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 
-#define WM_BT848_GETVALUE           (WM_USER + 2)
-#define WM_BT848_SETVALUE           (WM_USER + 102)
-#define WM_BT848_CHANGEVALUE        (WM_USER + 202)
+#define WM_BT848_GETVALUE           (WM_APP + 2)
+#define WM_BT848_SETVALUE           (WM_APP + 102)
+#define WM_BT848_CHANGEVALUE        (WM_APP + 202)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DScaler.c
@@ -486,9 +489,9 @@ typedef enum
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 
-#define WM_DSCALER_GETVALUE             (WM_USER + 3)
-#define WM_DSCALER_SETVALUE             (WM_USER + 103)
-#define WM_DSCALER_CHANGEVALUE          (WM_USER + 203)
+#define WM_DSCALER_GETVALUE             (WM_APP + 3)
+#define WM_DSCALER_SETVALUE             (WM_APP + 103)
+#define WM_DSCALER_CHANGEVALUE          (WM_APP + 203)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in OutThreads.c
@@ -505,9 +508,9 @@ typedef enum
     OUTTHREADS_SETTING_LASTONE,
 } OUTTHREADS_SETTING;
 
-#define WM_OUTTHREADS_GETVALUE      (WM_USER + 4)
-#define WM_OUTTHREADS_SETVALUE      (WM_USER + 104)
-#define WM_OUTTHREADS_CHANGEVALUE   (WM_USER + 204)
+#define WM_OUTTHREADS_GETVALUE      (WM_APP + 4)
+#define WM_OUTTHREADS_SETVALUE      (WM_APP + 104)
+#define WM_OUTTHREADS_CHANGEVALUE   (WM_APP + 204)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Other.c
@@ -527,9 +530,9 @@ typedef enum
     OTHER_SETTING_LASTONE,
 } OTHER_SETTING;
 
-#define WM_OTHER_GETVALUE           (WM_USER + 5)
-#define WM_OTHER_SETVALUE           (WM_USER + 105)
-#define WM_OTHER_CHANGEVALUE        (WM_USER + 205)
+#define WM_OTHER_GETVALUE           (WM_APP + 5)
+#define WM_OTHER_SETVALUE           (WM_APP + 105)
+#define WM_OTHER_CHANGEVALUE        (WM_APP + 205)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_50Hz.c
@@ -547,9 +550,9 @@ typedef enum
     FD50_SETTING_LASTONE,
 } FD50_SETTING;
 
-#define WM_FD50_GETVALUE            (WM_USER + 6)
-#define WM_FD50_SETVALUE            (WM_USER + 106)
-#define WM_FD50_CHANGEVALUE         (WM_USER + 206)
+#define WM_FD50_GETVALUE            (WM_APP + 6)
+#define WM_FD50_SETVALUE            (WM_APP + 106)
+#define WM_FD50_CHANGEVALUE         (WM_APP + 206)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_50Hz.c
@@ -571,9 +574,9 @@ typedef enum
     FD60_SETTING_LASTONE,
 } FD60_SETTING;
 
-#define WM_FD60_GETVALUE            (WM_USER + 7)
-#define WM_FD60_SETVALUE            (WM_USER + 107)
-#define WM_FD60_CHANGEVALUE         (WM_USER + 207)
+#define WM_FD60_GETVALUE            (WM_APP + 7)
+#define WM_FD60_SETVALUE            (WM_APP + 107)
+#define WM_FD60_CHANGEVALUE         (WM_APP + 207)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_Common.c
@@ -590,9 +593,9 @@ typedef enum
     FD_COMMON_SETTING_LASTONE,
 } FD_COMMON_SETTING;
 
-#define WM_FD_COMMON_GETVALUE       (WM_USER + 8)
-#define WM_FD_COMMON_SETVALUE       (WM_USER + 108)
-#define WM_FD_COMMON_CHANGEVALUE    (WM_USER + 208)
+#define WM_FD_COMMON_GETVALUE       (WM_APP + 8)
+#define WM_FD_COMMON_SETVALUE       (WM_APP + 108)
+#define WM_FD_COMMON_CHANGEVALUE    (WM_APP + 208)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_Adaptive.c
@@ -610,9 +613,9 @@ typedef enum
     DI_ADAPTIVE_SETTING_LASTONE,
 } DI_ADAPTIVE_SETTING;
 
-#define WM_DI_ADAPTIVE_GETVALUE     (WM_USER + 9)
-#define WM_DI_ADAPTIVE_SETVALUE     (WM_USER + 109)
-#define WM_DI_ADAPTIVE_CHANGEVALUE  (WM_USER + 209)
+#define WM_DI_ADAPTIVE_GETVALUE     (WM_APP + 9)
+#define WM_DI_ADAPTIVE_SETVALUE     (WM_APP + 109)
+#define WM_DI_ADAPTIVE_CHANGEVALUE  (WM_APP + 209)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_VideoBob.c
@@ -625,9 +628,9 @@ typedef enum
     DI_VIDEOBOB_SETTING_LASTONE,
 } DI_VIDEOBOB_SETTING;
 
-#define WM_DI_VIDEOBOB_GETVALUE     (WM_USER + 10)
-#define WM_DI_VIDEOBOB_SETVALUE     (WM_USER + 110)
-#define WM_DI_VIDEOBOB_CHANGEVALUE  (WM_USER + 210)
+#define WM_DI_VIDEOBOB_GETVALUE     (WM_APP + 10)
+#define WM_DI_VIDEOBOB_SETVALUE     (WM_APP + 110)
+#define WM_DI_VIDEOBOB_CHANGEVALUE  (WM_APP + 210)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_BlendedClip.c
@@ -651,9 +654,9 @@ typedef enum
     DI_BLENDEDCLIP_SETTING_LASTONE,
 } DI_BLENDEDCLIP_SETTING;
 
-#define WM_DI_BLENDEDCLIP_GETVALUE      (WM_USER + 11)
-#define WM_DI_BLENDEDCLIP_SETVALUE      (WM_USER + 111)
-#define WM_DI_BLENDEDCLIP_CHANGEVALUE   (WM_USER + 211)
+#define WM_DI_BLENDEDCLIP_GETVALUE      (WM_APP + 11)
+#define WM_DI_BLENDEDCLIP_SETVALUE      (WM_APP + 111)
+#define WM_DI_BLENDEDCLIP_CHANGEVALUE   (WM_APP + 211)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_TwoFrame.c
@@ -666,9 +669,9 @@ typedef enum
     DI_TWOFRAME_SETTING_LASTONE,
 } DI_TWOFRAME_SETTING;
 
-#define WM_DI_TWOFRAME_GETVALUE     (WM_USER + 12)
-#define WM_DI_TWOFRAME_SETVALUE     (WM_USER + 112)
-#define WM_DI_TWOFRAME_CHANGEVALUE  (WM_USER + 212)
+#define WM_DI_TWOFRAME_GETVALUE     (WM_APP + 12)
+#define WM_DI_TWOFRAME_SETVALUE     (WM_APP + 112)
+#define WM_DI_TWOFRAME_CHANGEVALUE  (WM_APP + 212)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_Greedy.c
@@ -687,9 +690,9 @@ typedef enum
     DI_GREEDY_SETTING_LASTONE,
 } DI_GREEDY_SETTING;
 
-#define WM_DI_GREEDY_GETVALUE       (WM_USER + 15)
-#define WM_DI_GREEDY_SETVALUE       (WM_USER + 115)
-#define WM_DI_GREEDY_CHANGEVALUE    (WM_USER + 215)
+#define WM_DI_GREEDY_GETVALUE       (WM_APP + 15)
+#define WM_DI_GREEDY_SETVALUE       (WM_APP + 115)
+#define WM_DI_GREEDY_CHANGEVALUE    (WM_APP + 215)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_TNoise.c
@@ -704,9 +707,9 @@ typedef enum
     FLT_TNOISE_SETTING_LASTONE,
 } FLT_TNOISE_SETTING;
 
-#define WM_FLT_TNOISE_GETVALUE      (WM_USER + 14)
-#define WM_FLT_TNOISE_SETVALUE      (WM_USER + 114)
-#define WM_FLT_TNOISE_CHANGEVALUE   (WM_USER + 214)
+#define WM_FLT_TNOISE_GETVALUE      (WM_APP + 14)
+#define WM_FLT_TNOISE_SETVALUE      (WM_APP + 114)
+#define WM_FLT_TNOISE_CHANGEVALUE   (WM_APP + 214)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in OSD.c
@@ -731,9 +734,9 @@ typedef enum
     OSD_AUTOHIDE_SCREEN,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
-#define WM_OSD_GETVALUE     (WM_USER + 18)
-#define WM_OSD_SETVALUE     (WM_USER + 118)
-#define WM_OSD_CHANGEVALUE  (WM_USER + 218)
+#define WM_OSD_GETVALUE     (WM_APP + 18)
+#define WM_OSD_SETVALUE     (WM_APP + 118)
+#define WM_OSD_CHANGEVALUE  (WM_APP + 218)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_Gamma.c
@@ -749,9 +752,9 @@ typedef enum
     FLT_GAMMA_SETTING_LASTONE,
 } FLT_GAMMA_SETTING;
 
-#define WM_FLT_GAMMA_GETVALUE       (WM_USER + 20)
-#define WM_FLT_GAMMA_SETVALUE       (WM_USER + 120)
-#define WM_FLT_GAMMA_CHANGEVALUE    (WM_USER + 220)
+#define WM_FLT_GAMMA_GETVALUE       (WM_APP + 20)
+#define WM_FLT_GAMMA_SETVALUE       (WM_APP + 120)
+#define WM_FLT_GAMMA_CHANGEVALUE    (WM_APP + 220)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in VBI.c
@@ -767,9 +770,9 @@ typedef enum
     VBI_SETTING_LASTONE,
 } VBI_SETTING;
 
-#define WM_VBI_GETVALUE     (WM_USER + 21)
-#define WM_VBI_SETVALUE     (WM_USER + 121)
-#define WM_VBI_CHANGEVALUE  (WM_USER + 221)
+#define WM_VBI_GETVALUE     (WM_APP + 21)
+#define WM_VBI_SETVALUE     (WM_APP + 121)
+#define WM_VBI_CHANGEVALUE  (WM_APP + 221)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_Greedy2Frame.c
@@ -782,9 +785,9 @@ typedef enum
     DI_GREEDY2FRAME_SETTING_LASTONE,
 } DI_GREEDY2FRAME_SETTING;
 
-#define WM_DI_GREEDY2FRAME_GETVALUE     (WM_USER + 22)
-#define WM_DI_GREEDY2FRAME_SETVALUE     (WM_USER + 122)
-#define WM_DI_GREEDY2FRAME_CHANGEVALUE  (WM_USER + 222)
+#define WM_DI_GREEDY2FRAME_GETVALUE     (WM_APP + 22)
+#define WM_DI_GREEDY2FRAME_SETVALUE     (WM_APP + 122)
+#define WM_DI_GREEDY2FRAME_CHANGEVALUE  (WM_APP + 222)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_VideoWeave.c
@@ -798,9 +801,9 @@ typedef enum
     DI_VIDEOWEAVE_SETTING_LASTONE,
 } DI_VIDEOWEAVE_SETTING;
 
-#define WM_DI_VIDEOWEAVE_GETVALUE       (WM_USER + 23)
-#define WM_DI_VIDEOWEAVE_SETVALUE       (WM_USER + 123)
-#define WM_DI_VIDEOWEAVE_CHANGEVALUE    (WM_USER + 223)
+#define WM_DI_VIDEOWEAVE_GETVALUE       (WM_APP + 23)
+#define WM_DI_VIDEOWEAVE_SETVALUE       (WM_APP + 123)
+#define WM_DI_VIDEOWEAVE_CHANGEVALUE    (WM_APP + 223)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_LinearCorrection.c
@@ -818,9 +821,9 @@ typedef enum
     FLT_LINEAR_CORR_SETTING_LASTONE,
 } FLT_LINEAR_CORR_SETTING;
 
-#define WM_FLT_LINEAR_CORR_GETVALUE     (WM_USER + 24)
-#define WM_FLT_LINEAR_CORR_SETVALUE     (WM_USER + 124)
-#define WM_FLT_LINEAR_CORR_CHANGEVALUE  (WM_USER + 224)
+#define WM_FLT_LINEAR_CORR_GETVALUE     (WM_APP + 24)
+#define WM_FLT_LINEAR_CORR_SETVALUE     (WM_APP + 124)
+#define WM_FLT_LINEAR_CORR_CHANGEVALUE  (WM_APP + 224)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in MixerDev.c
@@ -840,9 +843,9 @@ typedef enum
     MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
 
-#define WM_MIXERDEV_GETVALUE        (WM_USER + 25)
-#define WM_MIXERDEV_SETVALUE        (WM_USER + 125)
-#define WM_MIXERDEV_CHANGEVALUE     (WM_USER + 225)
+#define WM_MIXERDEV_GETVALUE        (WM_APP + 25)
+#define WM_MIXERDEV_SETVALUE        (WM_APP + 125)
+#define WM_MIXERDEV_CHANGEVALUE     (WM_APP + 225)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FieldTiming.c
@@ -860,9 +863,9 @@ typedef enum
     TIMING_SETTING_LASTONE,
 } TIMING_SETTING;
 
-#define WM_TIMING_GETVALUE          (WM_USER + 26)
-#define WM_TIMING_SETVALUE          (WM_USER + 126)
-#define WM_TIMING_CHANGEVALUE       (WM_USER + 226)
+#define WM_TIMING_GETVALUE          (WM_APP + 26)
+#define WM_TIMING_SETVALUE          (WM_APP + 126)
+#define WM_TIMING_CHANGEVALUE       (WM_APP + 226)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Program.c
@@ -876,9 +879,9 @@ typedef enum
     CHANNELS_SETTING_LASTONE,
 } CHANNELS_SETTING;
 
-#define WM_CHANNELS_GETVALUE            (WM_USER + 27)
-#define WM_CHANNELS_SETVALUE            (WM_USER + 127)
-#define WM_CHANNELS_CHANGEVALUE         (WM_USER + 227)
+#define WM_CHANNELS_GETVALUE            (WM_APP + 27)
+#define WM_CHANNELS_SETVALUE            (WM_APP + 127)
+#define WM_CHANNELS_CHANGEVALUE         (WM_APP + 227)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Audio.c
@@ -890,9 +893,9 @@ typedef enum
     AUDIO_SETTING_LASTONE,
 } AUDIO_SETTING;
 
-#define WM_AUDIO_GETVALUE               (WM_USER + 28)
-#define WM_AUDIO_SETVALUE               (WM_USER + 128)
-#define WM_AUDIO_CHANGEVALUE            (WM_USER + 228)
+#define WM_AUDIO_GETVALUE               (WM_APP + 28)
+#define WM_AUDIO_SETVALUE               (WM_APP + 128)
+#define WM_AUDIO_CHANGEVALUE            (WM_APP + 228)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Debug.c
@@ -906,9 +909,9 @@ typedef enum
     DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 
-#define WM_DEBUG_GETVALUE               (WM_USER + 29)
-#define WM_DEBUG_SETVALUE               (WM_USER + 129)
-#define WM_DEBUG_CHANGEVALUE            (WM_USER + 229)
+#define WM_DEBUG_GETVALUE               (WM_APP + 29)
+#define WM_DEBUG_SETVALUE               (WM_APP + 129)
+#define WM_DEBUG_CHANGEVALUE            (WM_APP + 229)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_LogoKill.c
@@ -926,9 +929,9 @@ typedef enum
     FLT_LOGOKILL_SETTING_LASTONE,
 } FLT_LOGOKILL_SETTING;
 
-#define WM_FLT_LOGOKILL_GETVALUE        (WM_USER + 30)
-#define WM_FLT_LOGOKILL_SETVALUE        (WM_USER + 130)
-#define WM_FLT_LOGOKILL_CHANGEVALUE     (WM_USER + 230)
+#define WM_FLT_LOGOKILL_GETVALUE        (WM_APP + 30)
+#define WM_FLT_LOGOKILL_SETVALUE        (WM_APP + 130)
+#define WM_FLT_LOGOKILL_CHANGEVALUE     (WM_APP + 230)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in VT.c
@@ -940,9 +943,9 @@ typedef enum
     VT_SETTING_LASTONE,
 } VT_SETTING;
 
-#define WM_VT_GETVALUE     (WM_USER + 31)
-#define WM_VT_SETVALUE     (WM_USER + 131)
-#define WM_VT_CHANGEVALUE  (WM_USER + 231)
+#define WM_VT_GETVALUE     (WM_APP + 31)
+#define WM_VT_SETVALUE     (WM_APP + 131)
+#define WM_VT_CHANGEVALUE  (WM_APP + 231)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -969,9 +972,9 @@ typedef enum
 	DI_GREEDYH_SETTING_LASTONE,
 } DI_GREEDYH_SETTING;
 
-#define WM_DI_GREEDYH_GETVALUE		(WM_USER + 32)
-#define WM_DI_GREEDYH_SETVALUE		(WM_USER + 132)
-#define WM_DI_GREEDYH_CHANGEVALUE	(WM_USER + 232)
+#define WM_DI_GREEDYH_GETVALUE		(WM_APP + 32)
+#define WM_DI_GREEDYH_SETVALUE		(WM_APP + 132)
+#define WM_DI_GREEDYH_CHANGEVALUE	(WM_APP + 232)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_OldGame.c
@@ -984,9 +987,9 @@ typedef enum
     DI_OLDGAME_SETTING_LASTONE,
 } DI_OLDGAME_SETTING;
 
-#define WM_DI_OLDGAME_GETVALUE     (WM_USER + 33)
-#define WM_DI_OLDGAME_SETVALUE     (WM_USER + 133)
-#define WM_DI_OLDGAME_CHANGEVALUE  (WM_USER + 233)
+#define WM_DI_OLDGAME_GETVALUE     (WM_APP + 33)
+#define WM_DI_OLDGAME_SETVALUE     (WM_APP + 133)
+#define WM_DI_OLDGAME_CHANGEVALUE  (WM_APP + 233)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_Sharpness.c
@@ -999,9 +1002,9 @@ typedef enum
     FLT_SHARPNESS_SETTING_LASTONE,
 } FLT_SHARPNESS_SETTING;
 
-#define WM_FLT_SHARPNESS_GETVALUE     (WM_USER + 34)
-#define WM_FLT_SHARPNESS_SETVALUE     (WM_USER + 134)
-#define WM_FLT_SHARPNESS_CHANGEVALUE  (WM_USER + 234)
+#define WM_FLT_SHARPNESS_GETVALUE     (WM_APP + 34)
+#define WM_FLT_SHARPNESS_SETVALUE     (WM_APP + 134)
+#define WM_FLT_SHARPNESS_CHANGEVALUE  (WM_APP + 234)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_TemporalComb.c
@@ -1017,9 +1020,9 @@ typedef enum
     FLT_TCOMB_SETTING_LASTONE,
 } FLT_TCOMB_SETTING;
 
-#define WM_FLT_TCOMB_GETVALUE     (WM_USER + 35)
-#define WM_FLT_TCOMB_SETVALUE     (WM_USER + 135)
-#define WM_FLT_TCOMB_CHANGEVALUE  (WM_USER + 235)
+#define WM_FLT_TCOMB_GETVALUE     (WM_APP + 35)
+#define WM_FLT_TCOMB_SETVALUE     (WM_APP + 135)
+#define WM_FLT_TCOMB_CHANGEVALUE  (WM_APP + 235)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1036,9 +1039,9 @@ typedef enum
     CALIBR_SETTING_LASTONE,
 } CALIBR_SETTING;
 
-#define WM_CALIBR_GETVALUE     (WM_USER + 36)
-#define WM_CALIBR_SETVALUE     (WM_USER + 136)
-#define WM_CALIBR_CHANGEVALUE  (WM_USER + 236)
+#define WM_CALIBR_GETVALUE     (WM_APP + 36)
+#define WM_CALIBR_SETVALUE     (WM_APP + 136)
+#define WM_CALIBR_CHANGEVALUE  (WM_APP + 236)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1050,9 +1053,9 @@ typedef enum
     DVBT_SETTING_LASTONE = 0,
 } DVBT_SETTING;
 
-#define WM_DVBT_GETVALUE     (WM_USER + 37)
-#define WM_DVBT_SETVALUE     (WM_USER + 137)
-#define WM_DVBT_CHANGEVALUE  (WM_USER + 237)
+#define WM_DVBT_GETVALUE     (WM_APP + 37)
+#define WM_DVBT_SETVALUE     (WM_APP + 137)
+#define WM_DVBT_CHANGEVALUE  (WM_APP + 237)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1066,9 +1069,9 @@ typedef enum
     FLT_GNOISE_SETTING_LASTONE,
 } FLT_GNOISE_SETTING;
 
-#define WM_FLT_GNOISE_GETVALUE      (WM_USER + 38)
-#define WM_FLT_GNOISE_SETVALUE      (WM_USER + 138)
-#define WM_FLT_GNOISE_CHANGEVALUE   (WM_USER + 238)
+#define WM_FLT_GNOISE_GETVALUE      (WM_APP + 38)
+#define WM_FLT_GNOISE_SETVALUE      (WM_APP + 138)
+#define WM_FLT_GNOISE_CHANGEVALUE   (WM_APP + 238)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1086,9 +1089,9 @@ typedef enum
     FLT_ANOISE_SETTING_LASTONE,
 } FLT_ANOISE_SETTING;
 
-#define WM_FLT_ANOISE_GETVALUE      (WM_USER + 39)
-#define WM_FLT_ANOISE_SETVALUE      (WM_USER + 139)
-#define WM_FLT_ANOISE_CHANGEVALUE   (WM_USER + 239)
+#define WM_FLT_ANOISE_GETVALUE      (WM_APP + 39)
+#define WM_FLT_ANOISE_SETVALUE      (WM_APP + 139)
+#define WM_FLT_ANOISE_CHANGEVALUE   (WM_APP + 239)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1103,9 +1106,9 @@ typedef enum
     FLT_HISTOGRAM_SETTING_LASTONE,
 } FLT_HISTOGRAM_SETTING;
 
-#define WM_FLT_HISTOGRAM_GETVALUE      (WM_USER + 40)
-#define WM_FLT_HISTOGRAM_SETVALUE      (WM_USER + 140)
-#define WM_FLT_HISTOGRAM_CHANGEVALUE   (WM_USER + 240)
+#define WM_FLT_HISTOGRAM_GETVALUE      (WM_APP + 40)
+#define WM_FLT_HISTOGRAM_SETVALUE      (WM_APP + 140)
+#define WM_FLT_HISTOGRAM_CHANGEVALUE   (WM_APP + 240)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1122,9 +1125,9 @@ typedef enum
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 
-#define WM_STILL_GETVALUE     (WM_USER + 41)
-#define WM_STILL_SETVALUE     (WM_USER + 141)
-#define WM_STILL_CHANGEVALUE  (WM_USER + 241)
+#define WM_STILL_GETVALUE     (WM_APP + 41)
+#define WM_STILL_SETVALUE     (WM_APP + 141)
+#define WM_STILL_CHANGEVALUE  (WM_APP + 241)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_Mirror.c
@@ -1136,9 +1139,9 @@ typedef enum
     FLT_MIRROR_SETTING_LASTONE,
 } FLT_MIRROR_SETTING;
 
-#define WM_FLT_MIRROR_GETVALUE     (WM_USER + 42)
-#define WM_FLT_MIRROR_SETVALUE     (WM_USER + 142)
-#define WM_FLT_MIRROR_CHANGEVALUE  (WM_USER + 242)
+#define WM_FLT_MIRROR_GETVALUE     (WM_APP + 42)
+#define WM_FLT_MIRROR_SETVALUE     (WM_APP + 142)
+#define WM_FLT_MIRROR_CHANGEVALUE  (WM_APP + 242)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in ProgramList.cpp
@@ -1151,8 +1154,8 @@ typedef enum
     ANTIPLOP_SETTING_LASTONE,
 } ANTIPLOP_SETTING;
 
-#define WM_ANTIPLOP_GETVALUE     (WM_USER + 43)
-#define WM_ANTIPLOP_SETVALUE     (WM_USER + 143)
-#define WM_ANTIPLOP_CHANGEVALUE  (WM_USER + 243)
+#define WM_ANTIPLOP_GETVALUE     (WM_APP + 43)
+#define WM_ANTIPLOP_SETVALUE     (WM_APP + 143)
+#define WM_ANTIPLOP_CHANGEVALUE  (WM_APP + 243)
 
 #endif

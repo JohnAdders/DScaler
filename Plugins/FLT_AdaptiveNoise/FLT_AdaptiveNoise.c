@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/06/13 12:10:25  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.10  2002/03/11 01:47:32  lindsey
 // Corrected for use with progressive source
 // Changed to use Tom's aligned memory allocation
@@ -348,7 +351,7 @@ FILTER_METHOD AdaptiveNoiseMethod =
     FLT_ANOISE_SETTING_LASTONE,             // Number of settings
 #endif  // More settings when in debug mode
     FLT_AdaptiveNoiseSettings,
-    WM_FLT_ANOISE_GETVALUE - WM_USER,       // Settings offset
+    WM_FLT_ANOISE_GETVALUE - WM_APP,        // Settings offset
     TRUE,                                   // Can handle interlaced material
     2,                                      // Requires field before last (for interlaced material)
     IDH_ADAPTIVE_NOISE,

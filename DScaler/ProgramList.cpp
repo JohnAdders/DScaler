@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.58 2002-06-13 14:00:41 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.59 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/06/13 14:00:41  adcockj
+// Removed old Settings dialog header
+//
 // Revision 1.57  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -710,7 +713,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
         }
         break;
-    case WM_USER:
+    case WM_APP:
         if(lParam == 101)
         {
             if(InScan == TRUE)
@@ -720,12 +723,12 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     ScanCustomChannel(hDlg, wParam);
                     if(wParam < MyChannels.size())
                     {
-                        PostMessage(hDlg, WM_USER, wParam + 1, 101);
+                        PostMessage(hDlg, WM_APP, wParam + 1, 101);
                     }
                     else
                     {
                         InScan = FALSE;
-                        PostMessage(hDlg, WM_USER, -1, 101);
+                        PostMessage(hDlg, WM_APP, -1, 101);
                     }
                 }
                 else
@@ -733,12 +736,12 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     ScanFrequency(hDlg, wParam);
                     if(wParam < Countries[CountryCode]->m_Frequencies.size())
                     {
-                        PostMessage(hDlg, WM_USER, wParam + 1, 101);
+                        PostMessage(hDlg, WM_APP, wParam + 1, 101);
                     }
                     else
                     {
                         InScan = FALSE;
-                        PostMessage(hDlg, WM_USER, -1, 101);
+                        PostMessage(hDlg, WM_APP, -1, 101);
                     }
                 }
             }
@@ -935,7 +938,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if(InScan == TRUE)
             {
                 InScan = FALSE;
-                PostMessage(hDlg, WM_USER, -1, 101);
+                PostMessage(hDlg, WM_APP, -1, 101);
             }
             else
             {
@@ -943,7 +946,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Audio_Mute();
                 Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Cancel");
                 CurrentProgram = MyChannels.size();
-                PostMessage(hDlg, WM_USER, 0, 101);
+                PostMessage(hDlg, WM_APP, 0, 101);
             }
             break;
         case IDOK:

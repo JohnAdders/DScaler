@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_BlendedClip.c,v 1.9 2002-06-13 12:10:23 adcockj Exp $
+// $Id: DI_BlendedClip.c,v 1.10 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/06/13 12:10:23  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.8  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -950,7 +953,7 @@ DEINTERLACE_METHOD BlendedClipMethod =
     3,
     0,
     0,
-    WM_DI_BLENDEDCLIP_GETVALUE - WM_USER,
+    WM_DI_BLENDEDCLIP_GETVALUE - WM_APP,
     NULL,
     0,
     FALSE,

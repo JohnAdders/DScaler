@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoBob.c,v 1.6 2002-06-13 12:10:25 adcockj Exp $
+// $Id: DI_VideoBob.c,v 1.7 2002-06-18 19:46:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 // Based on code from Virtual Dub Plug-in by Gunnar Thalin
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/06/13 12:10:25  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.5  2001/07/26 11:53:08  adcockj
 // Fix for crashing in VideoBob
 //
@@ -93,7 +96,7 @@ DEINTERLACE_METHOD VideoBobMethod =
     2,
     0,
     0,
-    WM_DI_VIDEOBOB_GETVALUE - WM_USER,
+    WM_DI_VIDEOBOB_GETVALUE - WM_APP,
     NULL,
     0,
     FALSE,

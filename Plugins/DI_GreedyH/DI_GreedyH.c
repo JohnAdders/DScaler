@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.15 2002-06-13 12:10:24 adcockj Exp $
+// $Id: DI_GreedyH.c,v 1.16 2002-06-18 19:46:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/06/13 12:10:24  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.14  2001/11/25 04:33:37  trbarry
 // Fix for TDeinterlace_Info. Also release UN-Filter code, 5-tap V & H sharp/soft filters optimized to reverse excessive filtering (or EE?)
 //
@@ -611,7 +614,7 @@ DEINTERLACE_METHOD GreedyHMethod =
 	3,								// how many fields are required to run this plug-in
 	0,								// Track number of mode Changes
 	0,								// Track Time in mode
-	WM_DI_GREEDYH_GETVALUE - WM_USER, // the offset used by the external settings API
+	WM_DI_GREEDYH_GETVALUE - WM_APP, // the offset used by the external settings API
 	NULL,							// Dll module so that we can unload the dll cleanly at the end
 	0,								// Menu Id used for this plug-in, 0 to auto allocate one
 	FALSE,							// do we need FieldDiff filled in in info

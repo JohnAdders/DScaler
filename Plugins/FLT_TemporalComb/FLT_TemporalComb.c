@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.11 2002-06-13 12:10:26 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.12 2002-06-18 19:46:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/06/13 12:10:26  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.10  2002/03/11 01:49:25  lindsey
 // Adjusted for use with progressive source
 // Changed to use Tom's aligned memory allocation
@@ -283,7 +286,7 @@ static FILTER_METHOD    TemporalCombMethod =
     NULL,                                   // Module handle; Filled in by DScaler
     FLT_TCOMB_SETTING_LASTONE,              // Number of settings
     FLT_TemporalCombSettings,
-    WM_FLT_TCOMB_GETVALUE - WM_USER,        // Settings offset
+    WM_FLT_TCOMB_GETVALUE - WM_APP,         // Settings offset
     TRUE,                                   // Can handle interlaced material (but progressive?)
     4,                                      // Required past fields
     IDH_TEMPORAL_COMB,

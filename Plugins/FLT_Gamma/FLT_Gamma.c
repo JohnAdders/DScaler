@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.13 2002-06-13 12:10:25 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.14 2002-06-18 19:46:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/06/13 12:10:25  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.12  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -226,7 +229,7 @@ FILTER_METHOD GammaMethod =
     NULL,
     FLT_GAMMA_SETTING_LASTONE,
     FLT_GammaSettings,
-    WM_FLT_GAMMA_GETVALUE - WM_USER,
+    WM_FLT_GAMMA_GETVALUE - WM_APP,
     TRUE,
     1,
     IDH_GAMMA,

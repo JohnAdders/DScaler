@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.7 2002-06-13 12:10:26 adcockj Exp $
+// $Id: FLT_Sharpness.c,v 1.8 2002-06-18 19:46:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/06/13 12:10:26  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.6  2002/01/31 04:57:11  lindsey
 // Added code for use on machines without SSE instructions
 // Corrected bias in averaging and weighting
@@ -101,7 +104,7 @@ FILTER_METHOD SharpnessMethod =
     NULL,
     FLT_SHARPNESS_SETTING_LASTONE,
     FLT_SharpnessSettings,
-    WM_FLT_SHARPNESS_GETVALUE - WM_USER,
+    WM_FLT_SHARPNESS_GETVALUE - WM_APP,
     TRUE,
     1,
     IDH_SHARPNESS,

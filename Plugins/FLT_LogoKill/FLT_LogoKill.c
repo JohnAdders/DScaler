@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.11 2002-06-13 12:10:26 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.12 2002-06-18 19:46:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/06/13 12:10:26  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.10  2002/04/30 18:17:06  adcockj
 // New weighted logo killer modes from Jochen Trenner
 //
@@ -591,7 +594,7 @@ FILTER_METHOD LogoKillMethod =
     NULL,
     FLT_LOGOKILL_SETTING_LASTONE,
     FLT_LogoKillSettings,
-    WM_FLT_LOGOKILL_GETVALUE - WM_USER,
+    WM_FLT_LOGOKILL_GETVALUE - WM_APP,
     TRUE,
     1,
     IDH_LOGO_KILLER,

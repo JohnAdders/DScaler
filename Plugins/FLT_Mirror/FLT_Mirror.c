@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Mirror.c,v 1.2 2002-06-13 12:10:26 adcockj Exp $
+// $Id: FLT_Mirror.c,v 1.3 2002-06-18 19:46:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/06/13 12:10:26  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.1  2002/06/06 12:46:56  robmuller
 // Initial checkin of the Mirror filter.
 //
@@ -70,7 +73,7 @@ FILTER_METHOD MirrorMethod =
     NULL,
     FLT_MIRROR_SETTING_LASTONE,
     FLT_MirrorSettings,
-    WM_FLT_MIRROR_GETVALUE - WM_USER,
+    WM_FLT_MIRROR_GETVALUE - WM_APP,
     TRUE,
     1,
     // todo write help file

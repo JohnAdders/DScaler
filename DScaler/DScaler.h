@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.25 2002-06-13 12:10:21 adcockj Exp $
+// $Id: DScaler.h,v 1.26 2002-06-18 19:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -118,10 +118,10 @@ typedef struct
     time_t SleepAt;
 } TSMState;
 
-#define WM_VIDEOTEXT        0x3001
-#define UWM_INPUTSIZE_CHANGE WM_APP+1
-#define UWM_SQUAREPIXELS_CHECK WM_APP+2
-#define VTM_REDRAWHEADER    0x0001
+#define WM_VIDEOTEXT           WM_APP + 0x1000
+#define UWM_INPUTSIZE_CHANGE   WM_APP + 0x1001
+#define UWM_SQUAREPIXELS_CHECK WM_APP + 0x1002
+#define VTM_REDRAWHEADER       0x0001
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;

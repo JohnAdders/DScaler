@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TwoFrame.c,v 1.5 2002-06-13 12:10:24 adcockj Exp $
+// $Id: DI_TwoFrame.c,v 1.6 2002-06-18 19:46:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/06/13 12:10:24  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.4  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -89,7 +92,7 @@ DEINTERLACE_METHOD TwoFrameMethod =
     4,
     0,
     0,
-    WM_DI_TWOFRAME_GETVALUE - WM_USER,
+    WM_DI_TWOFRAME_GETVALUE - WM_APP,
     NULL,
     0,
     FALSE,

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/13 12:10:25  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.7  2002/02/23 03:22:16  lindsey
 // Exposed the "Use this filter" settings
 //
@@ -256,7 +259,7 @@ FILTER_METHOD GradualNoiseMethod =
     NULL,                                   // Menu handle (for DScaler)
     FLT_GNOISE_SETTING_LASTONE,             // Number of settings            
     FLT_GradualNoiseSettings,
-    WM_FLT_GNOISE_GETVALUE - WM_USER,       // Settings offset
+    WM_FLT_GNOISE_GETVALUE - WM_APP,        // Settings offset
     TRUE,                                   // Can handle interlaced material
     2,                                      // Requires field before last
     IDH_GRADUAL_NOISE

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/06/18 19:46:09  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.4  2002/06/13 12:10:25  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -111,10 +114,13 @@ typedef enum
 /////////////////////////////////////////////////////////////////////////////
 
 __declspec(dllexport)   FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
+BOOL WINAPI             _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved );
 
 void                    ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color );
 LONG __cdecl            DispatchHistogram( TDeinterlaceInfo* pInfo );
 
+LONG                    GatherHistogram_SSE_PREFETCH( TDeinterlaceInfo* pInfo );
+LONG                    GatherHistogram_3DNOW_PREFETCH( TDeinterlaceInfo* pInfo );
 LONG                    GatherHistogram_SSE( TDeinterlaceInfo* pInfo );
 LONG                    GatherHistogram_3DNOW( TDeinterlaceInfo* pInfo );
 LONG                    GatherHistogram_MMX( TDeinterlaceInfo* pInfo );
@@ -125,6 +131,8 @@ LONG                    GatherHistogram_MMX( TDeinterlaceInfo* pInfo );
 /////////////////////////////////////////////////////////////////////////////
 
 FILTER_METHOD HistogramMethod;
+
+long    gUsePrefetching = TRUE;
 
 
 // The histograms
@@ -171,7 +179,13 @@ SETTING FLT_HistogramSettings[FLT_HISTOGRAM_SETTING_LASTONE] =
         "HistogramFilter", "DisplayMode", NULL,
     },
     {
-        "Use Histogram Filter", ONOFF, 0, &(HistogramMethod.bActive),
+        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "HistogramFilter", "UsePrefetching", NULL,
+    },
+    {
+        "Histogram Filter", ONOFF, 0, &(HistogramMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "HistogramFilter", "UseHistogramFilter", NULL,
@@ -238,6 +252,12 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 }
 
 
+BOOL WINAPI _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved )
+{
+    return TRUE;
+}
+
+
 // Traffic organizer -- Run the appropriate version of the data
 // gatherer, then call the appropriate display routines.
 
@@ -260,16 +280,26 @@ LONG __cdecl DispatchHistogram( TDeinterlaceInfo* pInfo )
         gpVHistogram[Index] = 0;
     }
 
-    if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+    if( gUsePrefetching )
     {
-        FilterResult = GatherHistogram_SSE(pInfo);
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterResult = GatherHistogram_SSE(pInfo);
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterResult = GatherHistogram_3DNOW(pInfo);
+        }
+        else  // MMX version
+        {
+            FilterResult = GatherHistogram_MMX(pInfo);
+        }
     }
-    else if( gCpuFeatureFlags & FEATURE_3DNOW )
+    else
     {
-        FilterResult = GatherHistogram_3DNOW(pInfo);
-    }
-    else  // MMX version
-    {
+        // 3DNOW and SSE are just used for prefetching, so switch to the MMX
+        // version if prefetching is disabled.
+
         FilterResult = GatherHistogram_MMX(pInfo);
     }
 
@@ -305,9 +335,9 @@ void ShowHistogram( DWORD* pHistogram, TDeinterlaceInfo* pInfo, DWORD Color )
 
     for( ; (Index < 256) && (Index * 2 < (DWORD) pInfo->FrameWidth); ++Index )
     {
-        DOUBLE      ScaledValue = 0.0;
-        DWORD       DWordScaledValue = 0;
-        DWORD       BottomLine = pInfo->FieldHeight - MARGIN;
+        DOUBLE          ScaledValue = 0.0;
+        DWORD           DWordScaledValue = 0;
+        const DWORD     BottomLine = pInfo->FieldHeight - MARGIN;
         
         ScaledValue = HISTOGRAM_SCALE*log(1.0 + pHistogram[Index]);
         DWordScaledValue = (DWORD) (ScaledValue + 1.00001);

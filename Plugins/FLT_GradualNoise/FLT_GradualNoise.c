@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/06/18 19:46:08  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.8  2002/06/13 12:10:25  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -209,19 +212,29 @@ you the "comical posterization" filter.
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
 BOOL WINAPI     _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved );
-long            FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo );
-long            FilterGradualNoise_3DNOW( TDeinterlaceInfo *pInfo );
-long            FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo );
+long            DispatchGradualNoise( TDeinterlaceInfo *pInfo );
+
+static long         FilterGradualNoise_SSE_PREFETCH( TDeinterlaceInfo *pInfo );
+static long         FilterGradualNoise_3DNOW_PREFETCH( TDeinterlaceInfo *pInfo );
+static long         FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo );
+static long         FilterGradualNoise_3DNOW( TDeinterlaceInfo *pInfo );
+static long         FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo );
 
 
 /////////////////////////////////////////////////////////////////////////////
 // Begin plugin globals
 /////////////////////////////////////////////////////////////////////////////
 
+long        gUsePrefetching = TRUE;
+
+// Stored information about the machine, used when choosing which code version to run
+
+static long gCpuFeatureFlags = 0;
+
 // The maximum sum of absolute differences in a four pixel
 // block.  Above this, the old pixel values will be ignored.
 
-long gNoiseReduction = 40;
+long        gNoiseReduction = 40;
 
 
 FILTER_METHOD GradualNoiseMethod;
@@ -235,10 +248,16 @@ SETTING FLT_GradualNoiseSettings[FLT_GNOISE_SETTING_LASTONE] =
         "GradualNoiseFilter", "NoiseReduction", NULL,
     },
     {
-        "Use Gradual Noise Filter", ONOFF, 0, &GradualNoiseMethod.bActive,
+        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "GradualNoiseFilter", "UsePrefetching", NULL,
+    },
+    {
+        "Gradual Noise Filter", ONOFF, 0, &GradualNoiseMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "GradualNoiseFilter", "UseTemporalNoiseFilter", NULL,
+        "GradualNoiseFilter", "UseGradualNoiseFilter", NULL,
     },
 };
 
@@ -251,7 +270,7 @@ FILTER_METHOD GradualNoiseMethod =
     "Noise Reduction (Gradual)",            // For consistency with the Temporal Noise filter
     FALSE,                                  // Not initially active
     TRUE,                                   // Call on input so pulldown/deinterlacing can benefit
-    FilterGradualNoise_MMX,                 // Algorithm to use (really decided by GetFilterPluginInfo)
+    DispatchGradualNoise,                   // Algorithm to use (really decided by GetFilterPluginInfo)
     0,                                      // Menu: assign automatically
     FALSE,                                  // Does not run if we've run out of time
     NULL,                                   // No initialization procedure
@@ -270,6 +289,18 @@ FILTER_METHOD GradualNoiseMethod =
 // Main code (included from FLT_GNoise.asm)
 /////////////////////////////////////////////////////////////////////////////
 
+#define USE_PREFETCH
+
+#define IS_SSE
+#include "FLT_GradualNoise.asm"
+#undef IS_SSE
+
+#define IS_3DNOW
+#include "FLT_GradualNoise.asm"
+#undef IS_3DNOW
+
+#undef USE_PREFETCH
+
 #define IS_SSE
 #include "FLT_GradualNoise.asm"
 #undef IS_SSE
@@ -283,24 +314,52 @@ FILTER_METHOD GradualNoiseMethod =
 #undef IS_MMX
 
 
+long DispatchGradualNoise( TDeinterlaceInfo *pInfo )
+{
+
+    if( gUsePrefetching == TRUE )
+    {
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterGradualNoise_SSE_PREFETCH( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterGradualNoise_3DNOW_PREFETCH( pInfo );
+        }
+        else
+        {
+            FilterGradualNoise_MMX( pInfo );
+        }
+    }
+    else
+    {
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterGradualNoise_SSE( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterGradualNoise_3DNOW( pInfo );
+        }
+        else
+        {
+            FilterGradualNoise_MMX( pInfo );
+        }
+    }
+    return 1000;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of utility code
 /////////////////////////////////////////////////////////////////////////////
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 {
-    if( (CpuFeatureFlags & FEATURE_SSE) || (CpuFeatureFlags & FEATURE_MMXEXT) )
-    {
-        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_SSE;
-    }
-    else if( CpuFeatureFlags & FEATURE_3DNOW )
-    {
-        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_3DNOW;
-    }
-    else
-    {
-        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_MMX;
-    }
+    GradualNoiseMethod.pfnAlgorithm = DispatchGradualNoise;
+    gCpuFeatureFlags = CpuFeatureFlags;
+
     return &GradualNoiseMethod;
 }
 

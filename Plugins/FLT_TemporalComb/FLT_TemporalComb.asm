@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.8 2002-03-11 01:49:24 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.9 2002-08-07 00:41:59 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/03/11 01:49:24  lindsey
+// Adjusted for use with progressive source
+// Changed to use Tom's aligned memory allocation
+// Added unbiased averaging code
+//
 // Revision 1.7  2002/01/05 22:53:27  lindsey
 // Greatly reduced roundoff error for smaller decay values
 // Consolidated the 'in phase difference' settings into one 'color variation' setting
@@ -176,16 +181,25 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #undef MAINLOOP_LABEL
-#if defined( IS_MMXEXT )
-#define MAINLOOP_LABEL DoNext32Bytes_MMXEXT
-#elif defined( IS_SSE )
-#define MAINLOOP_LABEL DoNext32Bytes_SSE
-#elif defined( IS_3DNOW )
-#define MAINLOOP_LABEL DoNext32Bytes_3DNow
-#else
-#define MAINLOOP_LABEL DoNext32Bytes_MMX
-#endif // processor specific inner loop jump target
-
+#if defined( USE_PREFETCH )
+    #if defined( IS_MMXEXT_ )
+    #define MAINLOOP_LABEL DoNext32Bytes_MMXEXT_PREFETCH
+    #elif defined( IS_SSE )
+    #define MAINLOOP_LABEL DoNext32Bytes_SSE_PREFETCH
+    #else // IS_3DNOW
+    #define MAINLOOP_LABEL DoNext32Bytes_3DNow_PREFETCH
+    #endif // processor specific inner loop jump target
+#else // no prefetch
+    #if defined( IS_MMXEXT )
+    #define MAINLOOP_LABEL DoNext32Bytes_MMXEXT
+    #elif defined( IS_SSE )
+    #define MAINLOOP_LABEL DoNext32Bytes_SSE
+    #elif defined( IS_3DNOW )
+    #define MAINLOOP_LABEL DoNext32Bytes_3DNow
+    #else
+    #define MAINLOOP_LABEL DoNext32Bytes_MMX
+    #endif // processor specific inner loop jump target
+#endif // main loop label
 
 /////////////////////////////////////////////////////////////////////////////
 // The actual main code.  Wow.
@@ -203,6 +217,8 @@
 #else
 #define RESCALING_PROCEDURE_NAME    RescaleParameters_MMX
 #endif  // processor specific routine name
+
+#ifndef USE_PREFETCH  // Skip this procedure when compiling prefetching versions, since prefetching is irrelevant for it
 
 void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation )
 {
@@ -302,19 +318,30 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
     return;
 }
 
+#endif // No procedure version when prefetching is toggled
 
 
 // The image processing routine
 
-#if defined( IS_MMXEXT )
-long FilterTemporalComb_MMXEXT( TDeinterlaceInfo *pInfo )
-#elif defined( IS_SSE )
-long FilterTemporalComb_SSE( TDeinterlaceInfo *pInfo )
-#elif defined( IS_3DNOW )
-long FilterTemporalComb_3DNOW( TDeinterlaceInfo *pInfo )
-#else
-long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
-#endif  // processor specific routine name
+#if defined( USE_PREFETCH )
+    #if defined( IS_MMXEXT )
+    long FilterTemporalComb_MMXEXT_PREFETCH( TDeinterlaceInfo *pInfo )
+    #elif defined( IS_SSE )
+    long FilterTemporalComb_SSE_PREFETCH( TDeinterlaceInfo *pInfo )
+    #else // IS_3DNOW
+    long FilterTemporalComb_3DNOW_PREFETCH( TDeinterlaceInfo *pInfo )
+    #endif  // processor specific routine name
+#else // no prefetch
+    #if defined( IS_MMXEXT )
+    long FilterTemporalComb_MMXEXT( TDeinterlaceInfo *pInfo )
+    #elif defined( IS_SSE )
+    long FilterTemporalComb_SSE( TDeinterlaceInfo *pInfo )
+    #elif defined( IS_3DNOW )
+    long FilterTemporalComb_3DNOW( TDeinterlaceInfo *pInfo )
+    #else
+    long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
+    #endif  // processor specific routine name
+#endif // main routine name
 {
     DWORD           ThisLine = pInfo->SourceRect.top/2;             // Needs change to work right in a half-height mode
     TPicture**      pTPictures = pInfo->PictureHistory;
@@ -501,10 +528,12 @@ MAINLOOP_LABEL:
         
             movq    mm2, qword ptr[ebx + ecx]               // mm2 = lastLastPixel
 
-#if defined( IS_3DNOW ) || defined( IS_MMXEXT )
+#if defined( USE_PREFETCH )
+    #if defined( IS_3DNOW ) || defined( IS_MMXEXT )
             prefetchw [eax + ecx + PREFETCH_STRIDE]
-#elif defined( IS_SSE )
+    #elif defined( IS_SSE )
             prefetchnta [eax + ecx + PREFETCH_STRIDE]
+    #endif
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
@@ -559,8 +588,10 @@ MAINLOOP_LABEL:
         
             movq    mm2, qword ptr[ebx + ecx + 8]           // mm2 = lastLastPixel
 
-#if defined( IS_SSE ) || defined( IS_MMXEXT )
+#if defined( USE_PREFETCH )
+    #if defined( IS_SSE ) || defined( IS_MMXEXT )
             prefetchnta [edi + ecx + PREFETCH_STRIDE]
+    #endif
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
@@ -615,8 +646,10 @@ MAINLOOP_LABEL:
         
             movq    mm2, qword ptr[ebx + ecx + 16]          // mm2 = lastLastPixel
 
-#if defined( IS_SSE ) || defined( IS_MMXEXT )
+#if defined( USE_PREFETCH)
+    #if defined( IS_SSE ) || defined( IS_MMXEXT )
             prefetchnta [ebx + ecx + PREFETCH_STRIDE]
+    #endif
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta
@@ -671,10 +704,12 @@ MAINLOOP_LABEL:
         
             movq    mm2, qword ptr[ebx + ecx + 24]          // mm2 = lastLastPixel
 
-#if defined( IS_3DNOW ) || defined( IS_MMXEXT )
+#if defined( USE_PREFETCH )
+    #if defined( IS_3DNOW ) || defined( IS_MMXEXT )
             prefetchw [edx + ecx + PREFETCH_STRIDE]
-#elif defined( IS_SSE )
+    #elif defined( IS_SSE )
             prefetchnta [edx + ecx + PREFETCH_STRIDE]
+    #endif
 #endif
 
             ABSOLUTE_DIFFERENCE_BYTES(mm4, mm0, mm2, mm7)   // mm4 = inPhase delta

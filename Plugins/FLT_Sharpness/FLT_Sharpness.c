@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.8 2002-06-18 19:46:09 adcockj Exp $
+// $Id: FLT_Sharpness.c,v 1.9 2002-08-07 00:43:41 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/18 19:46:09  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.7  2002/06/13 12:10:26  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -49,10 +52,31 @@
 #include "DS_Filter.h"
 #include "..\help\helpids.h"
 
-long Sharpness = 128;
+long        DispatchSharpness( TDeinterlaceInfo *pInfo );
+
+
+long        gUsePrefetching = TRUE;
+
+// Stored information about the machine, used when choosing which code version to run
+
+static long gCpuFeatureFlags = 0;
+
+long        Sharpness = 128;
 
 // The main code is included from a separate file to allow different versions
 // for different processors.
+
+#define USE_PREFETCH
+
+#define IS_SSE
+#include "FLT_Sharpness.asm"
+#undef  IS_SSE
+
+#define IS_3DNOW
+#include "FLT_Sharpness.asm"
+#undef  IS_3DNOW
+
+#undef USE_PREFETCH
 
 #define IS_SSE
 #include "FLT_Sharpness.asm"
@@ -80,6 +104,12 @@ SETTING FLT_SharpnessSettings[FLT_SHARPNESS_SETTING_LASTONE] =
         "SharpnessFilter", "Sharpness", NULL,
     },
     {
+        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "SharpnessFilter", "UsePrefetching", NULL,
+    },
+    {
         "Sharpness Filter", ONOFF, 0, &(SharpnessMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -96,7 +126,7 @@ FILTER_METHOD SharpnessMethod =
     "&Sharpness",
     FALSE,
     TRUE,
-    FilterSharpness_MMX, 
+    DispatchSharpness, 
     0,
     TRUE,
     NULL,
@@ -111,23 +141,51 @@ FILTER_METHOD SharpnessMethod =
 };
 
 
-__declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
+
+long DispatchSharpness( TDeinterlaceInfo *pInfo )
 {
-    if(CpuFeatureFlags & FEATURE_MMXEXT || CpuFeatureFlags & FEATURE_SSE)
+
+    if( gUsePrefetching == TRUE )
     {
-        SharpnessMethod.pfnAlgorithm = FilterSharpness_SSE;
-    }
-    else if(CpuFeatureFlags & FEATURE_3DNOW)
-    {
-        SharpnessMethod.pfnAlgorithm = FilterSharpness_3DNOW;
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterSharpness_SSE_PREFETCH( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterSharpness_3DNOW_PREFETCH( pInfo );
+        }
+        else
+        {
+            FilterSharpness_MMX( pInfo );
+        }
     }
     else
     {
-        SharpnessMethod.pfnAlgorithm = FilterSharpness_MMX;
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterSharpness_SSE( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterSharpness_3DNOW( pInfo );
+        }
+        else
+        {
+            FilterSharpness_MMX( pInfo );
+        }
     }
+    return 1000;
+}
+
+
+__declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
+{
+    gCpuFeatureFlags = CpuFeatureFlags;
 
     return &SharpnessMethod;
 }
+
 
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.12 2002-06-18 19:46:10 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.13 2002-08-07 00:41:59 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/06/18 19:46:10  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.11  2002/06/13 12:10:26  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -174,12 +177,16 @@ BYTE*           DumbAlignedMalloc(int siz);
 BYTE*           DumbAlignedFree(BYTE* x);
 
 __declspec(dllexport) FILTER_METHOD*    GetFilterPluginInfo( long CpuFeatureFlags );
+long            DispatchTemporalComb( TDeinterlaceInfo *pInfo );
 
 void            RescaleParameters_MMXEXT( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 void            RescaleParameters_SSE( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 void            RescaleParameters_3DNOW( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 void            RescaleParameters_MMX( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 
+long            FilterTemporalComb_MMXEXT_PREFETCH( TDeinterlaceInfo *pInfo );
+long            FilterTemporalComb_SSE_PREFETCH( TDeinterlaceInfo *pInfo );
+long            FilterTemporalComb_3DNOW_PREFETCH( TDeinterlaceInfo *pInfo );
 long            FilterTemporalComb_MMXEXT( TDeinterlaceInfo *pInfo );
 long            FilterTemporalComb_SSE( TDeinterlaceInfo *pInfo );
 long            FilterTemporalComb_3DNOW( TDeinterlaceInfo *pInfo );
@@ -191,6 +198,12 @@ LONG            UpdateBuffers( TDeinterlaceInfo *pInfo );
 /////////////////////////////////////////////////////////////////////////////
 // Begin plugin globals
 /////////////////////////////////////////////////////////////////////////////
+
+static long             gUsePrefetching = TRUE;
+
+// Stored information about the machine, used when choosing which code version to run
+
+static long             gCpuFeatureFlags = 0;
 
 // Array of time decayed average of shimmering at each pixel (well, sort of at each pixel)
 
@@ -238,31 +251,37 @@ static FILTER_METHOD    TemporalCombMethod;
 static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
 {
     {   // Keep old name for .ini file for backward compatibility
-        "Maximum color variation", SLIDER, 0, &gInPhaseColorThreshold,
+        "Maximum Color Variation", SLIDER, 0, &gInPhaseColorThreshold,
         35, 0, 255, 1, 1,
         NULL,
         "TCombFilter", "InPhaseChromaThreshold", NULL,
     },
     {
-        "Recall of past shimmering (percent)", SLIDER, 0, &gDecayCoefficient,
+        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "TCombFilter", "UsePrefetching", NULL,
+    },
+    {
+        "Recall of Past Shimmering (Percent)", SLIDER, 0, &gDecayCoefficient,
         85, 0, 99, 1, 1,
         NULL,
         "TCombFilter", "ShimmerRecall", NULL,
     },
     {
-        "Shimmering to activate (percent)", SLIDER, 0, &gShimmerThreshold,
+        "Shimmering to Activate (Percent)", SLIDER, 0, &gShimmerThreshold,
         70, 0, 100, 1, 1,
         NULL,
         "TCombFilter", "ShimmerThreshold", NULL,
     },
     {
-        "Use temporal comb filter", ONOFF, 0, &TemporalCombMethod.bActive,
+        "Temporal Comb Filter", ONOFF, 0, &TemporalCombMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "UseCombFilter", NULL,
     },
     {
-        "Trade speed for accuracy", ONOFF, 0, &gDoFieldBuffering,
+        "Trade Speed for Accuracy", ONOFF, 0, &gDoFieldBuffering,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "SpeedForAccuracy", NULL,
@@ -278,7 +297,7 @@ static FILTER_METHOD    TemporalCombMethod =
     "Temporal Comb",                        // Name in menu
     FALSE,                                  // Not initially active
     TRUE,                                   // Call on input so pulldown can benefit from it
-    FilterTemporalComb_MMX,                 // Algorithm to use (really decided by GetFilterPluginInfo) 
+    DispatchTemporalComb,                   // Algorithm to use (really decided by GetFilterPluginInfo) 
     0,                                      // Menu: assign automatically
     FALSE,                                  // Does not run if we're out of time
     NULL,                                   // No initialization procedure
@@ -293,25 +312,87 @@ static FILTER_METHOD    TemporalCombMethod =
 };
 
 
+long DispatchTemporalComb( TDeinterlaceInfo *pInfo )
+{
+
+    if( gUsePrefetching == TRUE )
+    {
+       // MMXEXT with 3DNOW is the Athlon -- Coded separately since prefetchw is used
+        if( (gCpuFeatureFlags & FEATURE_MMXEXT) && (gCpuFeatureFlags & FEATURE_3DNOW) )
+        {
+            FilterTemporalComb_MMXEXT_PREFETCH( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_SSE )
+        {
+            FilterTemporalComb_SSE_PREFETCH( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterTemporalComb_3DNOW_PREFETCH( pInfo );
+        }
+        else
+        {
+            FilterTemporalComb_MMX( pInfo );
+        }
+    }
+    else
+    {
+        if( (gCpuFeatureFlags & FEATURE_MMXEXT) && (gCpuFeatureFlags & FEATURE_3DNOW) )
+        {
+            FilterTemporalComb_MMXEXT( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_SSE )
+        {
+            FilterTemporalComb_SSE( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterTemporalComb_3DNOW( pInfo );
+        }
+        else
+        {
+            FilterTemporalComb_MMX( pInfo );
+        }
+    }
+    return 1000;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // Main code (included from FLT_TemporalComb.asm)
 /////////////////////////////////////////////////////////////////////////////
 
-#define IS_MMXEXT
-#include "FLT_TemporalComb.asm"
-#undef  IS_MMXEXT
+#define USE_PREFETCH
 
-#define IS_SSE
-#include "FLT_TemporalComb.asm"
-#undef  IS_SSE
+    #define IS_MMXEXT
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_MMXEXT
 
-#define IS_3DNOW
-#include "FLT_TemporalComb.asm"
-#undef  IS_3DNOW
+    #define IS_SSE
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_SSE
 
-#define IS_MMX
-#include "FLT_TemporalComb.asm"
-#undef  IS_MMX
+    #define IS_3DNOW
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_3DNOW
+
+#undef USE_PREFETCH
+
+    #define IS_MMXEXT
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_MMXEXT
+
+    #define IS_SSE
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_SSE
+
+    #define IS_3DNOW
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_3DNOW
+
+    #define IS_MMX
+    #include "FLT_TemporalComb.asm"
+    #undef  IS_MMX
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -355,24 +436,7 @@ void CleanupTemporalComb( void )
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 {
-    // MMXEXT with 3DNOW is the Athlon -- Coded separately since prefetchw is used
-
-    if( (CpuFeatureFlags & FEATURE_MMXEXT) && (CpuFeatureFlags & FEATURE_3DNOW) )
-    {
-        TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_MMXEXT;
-    }
-    else if( CpuFeatureFlags & FEATURE_SSE )
-    {
-        TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_SSE;
-    }
-    else if( CpuFeatureFlags & FEATURE_3DNOW )
-    {
-        TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_3DNOW;
-    }
-    else
-    {
-        TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_MMX;
-    }
+    gCpuFeatureFlags = CpuFeatureFlags;
     return &TemporalCombMethod;
 }
 

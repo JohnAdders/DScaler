@@ -63,23 +63,39 @@
 #endif // processor specific averaging routine
 
 
-#if defined(IS_SSE)
-#define LOOP_LABEL DoNext8Bytes_SSE
-#elif defined(IS_3DNOW)
-#define LOOP_LABEL DoNext8Bytes_3DNow
-#else
-#define LOOP_LABEL DoNext8Bytes_MMX
-#endif
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
+    #define LOOP_LABEL DoNext8Bytes_SSE_PREFETCH
+    #else // IS_3DNOW
+    #define LOOP_LABEL DoNext8Bytes_3DNow_PREFETCH
+    #endif
+#else // no prefetching
+    #if defined(IS_SSE)
+    #define LOOP_LABEL DoNext8Bytes_SSE
+    #elif defined(IS_3DNOW)
+    #define LOOP_LABEL DoNext8Bytes_3DNow
+    #else
+    #define LOOP_LABEL DoNext8Bytes_MMX
+    #endif
+#endif // loop label name
 
 // Hidden in the preprocessor stuff below is the actual routine
 
-#if defined(IS_SSE)
-long FilterSharpness_SSE(TDeinterlaceInfo* pInfo)
-#elif defined(IS_3DNOW)
-long FilterSharpness_3DNOW(TDeinterlaceInfo* pInfo)
-#else
-long FilterSharpness_MMX(TDeinterlaceInfo* pInfo)
-#endif
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
+    long FilterSharpness_SSE_PREFETCH(TDeinterlaceInfo* pInfo)
+    #else // IS_3DNOW
+    long FilterSharpness_3DNOW_PREFETCH(TDeinterlaceInfo* pInfo)
+    #endif
+#else // no prefetching
+    #if defined(IS_SSE)
+    long FilterSharpness_SSE(TDeinterlaceInfo* pInfo)
+    #elif defined(IS_3DNOW)
+    long FilterSharpness_3DNOW(TDeinterlaceInfo* pInfo)
+    #else
+    long FilterSharpness_MMX(TDeinterlaceInfo* pInfo)
+    #endif
+#endif // main procedure name
 {
     BYTE* Pixels = pInfo->PictureHistory[0]->pData;
     int y;
@@ -143,11 +159,13 @@ LOOP_LABEL:
             paddusw mm7, qwRounding         // correct for rounding
             paddusw mm0, qwRounding         // correct for rounding
 
-#if defined(IS_SSE)
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
             prefetchnta[eax + PREFETCH_STRIDE]
-#elif defined(IS_3DNOW)
+    #elif defined(IS_3DNOW)
             prefetchw[eax + PREFETCH_STRIDE]
-#endif
+    #endif
+#endif // prefetching
             psrlw   mm7, 8                  // now have diff*EdgeEnhAmt/256 ratio
             psrlw   mm0, 8                  // now have diff*EdgeEnhAmt/256 ratio
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.9 2002-06-18 19:46:10 adcockj Exp $
+// $Id: FLT_TNoise.c,v 1.10 2002-08-07 00:44:12 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/06/18 19:46:10  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.8  2002/06/13 12:10:26  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -46,6 +49,8 @@
 #include "DS_Filter.h"
 #include "..\help\helpids.h"
 
+long        DispatchTemporalNoise( TDeinterlaceInfo *pInfo );
+
 long TemporalLuminanceThreshold = 6;    // Pixel luminance differences below this are considered noise.
 long TemporalChromaThreshold = 7;       // Pixel chroma differences below this are considered noise.
 BOOL LockThresholdsTogether = FALSE;
@@ -60,6 +65,18 @@ FILTER_METHOD TemporalNoiseMethod;
 // current and previous values.
 /////////////////////////////////////////////////////////////////////////////
 
+#define USE_PREFETCH
+
+#define IS_SSE 1
+#include "FLT_TNoise.asm"
+#undef IS_SSE
+
+#define IS_3DNOW 1
+#include "FLT_TNoise.asm"
+#undef IS_3DNOW
+
+#undef USE_PREFETCH
+
 #define IS_SSE 1
 #include "FLT_TNoise.asm"
 #undef IS_SSE
@@ -71,6 +88,18 @@ FILTER_METHOD TemporalNoiseMethod;
 #define IS_MMX 1
 #include "FLT_TNoise.asm"
 #undef IS_MMX
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Begin plugin globals
+/////////////////////////////////////////////////////////////////////////////
+
+long        gUsePrefetching = TRUE;
+
+// Stored information about the machine, used when choosing which code version to run
+
+static long gCpuFeatureFlags = 0;
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -105,6 +134,12 @@ SETTING FLT_TNoiseSettings[FLT_TNOISE_SETTING_LASTONE] =
         "NoiseFilter", "TemporalLuminanceThreshold", LuminanceThreshold_OnChange,
     },
     {
+        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "NoiseFilter", "UsePrefetching", NULL,
+    },
+    {
         "Temporal Chroma Threshold", SLIDER, 0, &TemporalChromaThreshold,
         7, 0, 255, 1, 1,
         NULL,
@@ -133,7 +168,7 @@ FILTER_METHOD TemporalNoiseMethod =
     "Noise Reduction (Temporal)\tN",
     FALSE,
     TRUE,
-    FilterTemporalNoise_MMX, 
+    DispatchTemporalNoise, 
     // IDM_NOISE_FILTER so that accelerator works
     768,
     FALSE,
@@ -148,21 +183,45 @@ FILTER_METHOD TemporalNoiseMethod =
     IDH_TEMPORAL_NOISE,
 };
 
-
-__declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
+long DispatchTemporalNoise( TDeinterlaceInfo *pInfo )
 {
-    if ((CpuFeatureFlags & FEATURE_SSE) || (CpuFeatureFlags & FEATURE_MMXEXT))
+
+    if( gUsePrefetching == TRUE )
     {
-        TemporalNoiseMethod.pfnAlgorithm = FilterTemporalNoise_SSE;
-    }
-    else if (CpuFeatureFlags & FEATURE_3DNOW)
-    {
-        TemporalNoiseMethod.pfnAlgorithm = FilterTemporalNoise_3DNOW;
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterTemporalNoise_SSE_PREFETCH( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterTemporalNoise_3DNOW_PREFETCH( pInfo );
+        }
+        else
+        {
+            FilterTemporalNoise_MMX( pInfo );
+        }
     }
     else
     {
-        TemporalNoiseMethod.pfnAlgorithm = FilterTemporalNoise_MMX;
+        if( (gCpuFeatureFlags & FEATURE_SSE) || (gCpuFeatureFlags & FEATURE_MMXEXT) )
+        {
+            FilterTemporalNoise_SSE( pInfo );
+        }
+        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        {
+            FilterTemporalNoise_3DNOW( pInfo );
+        }
+        else
+        {
+            FilterTemporalNoise_MMX( pInfo );
+        }
     }
+    return 1000;
+}
+
+__declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
+{
+    gCpuFeatureFlags = CpuFeatureFlags;
     return &TemporalNoiseMethod;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.asm,v 1.8 2002-02-15 15:27:48 robmuller Exp $
+// $Id: FLT_TNoise.asm,v 1.9 2002-08-07 00:44:12 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/02/15 15:27:48  robmuller
+// pcmpgtw -> pcmpgtb. Solved signed compare problem with pcmpgt..
+// Replaced averaging code with the AVERAGE macro. Added prefetching.
+//
 // Revision 1.7  2002/02/01 19:51:31  robmuller
 // Changed the replacement value. The new value favors the new pixel value.
 // This reduces the speckles, posterization and noise reduction.
@@ -73,20 +77,36 @@
     }
 #endif // processor specific averaging routine
 
-#if defined(IS_SSE)
-#define MAINLOOP_LABEL DoNext8Bytes_SSE
-#elif defined(IS_3DNOW)
-#define MAINLOOP_LABEL DoNext8Bytes_3DNow
-#else
-#define MAINLOOP_LABEL DoNext8Bytes_MMX
-#endif
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
+    #define MAINLOOP_LABEL DoNext8Bytes_SSE_PREFETCH
+    #else // IS_3DNOW
+    #define MAINLOOP_LABEL DoNext8Bytes_3DNow_PREFETCH
+    #endif
+#else // No prefetching
+    #if defined(IS_SSE)
+    #define MAINLOOP_LABEL DoNext8Bytes_SSE
+    #elif defined(IS_3DNOW)
+    #define MAINLOOP_LABEL DoNext8Bytes_3DNow
+    #else
+    #define MAINLOOP_LABEL DoNext8Bytes_MMX
+    #endif
+#endif // Main loop name
 
-#if defined(IS_SSE)
-long FilterTemporalNoise_SSE(TDeinterlaceInfo* pInfo)
-#elif defined(IS_3DNOW)
-long FilterTemporalNoise_3DNOW(TDeinterlaceInfo* pInfo)
-#else
-long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
+    long FilterTemporalNoise_SSE_PREFETCH(TDeinterlaceInfo* pInfo)
+    #else // IS_3DNOW
+    long FilterTemporalNoise_3DNOW_PREFETCH(TDeinterlaceInfo* pInfo)
+    #endif
+#else // No prefetching
+    #if defined(IS_SSE)
+    long FilterTemporalNoise_SSE(TDeinterlaceInfo* pInfo)
+    #elif defined(IS_3DNOW)
+    long FilterTemporalNoise_3DNOW(TDeinterlaceInfo* pInfo)
+    #else
+    long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
+    #endif
 #endif
 {
     BYTE* NewLine; 
@@ -151,17 +171,21 @@ MAINLOOP_LABEL:
             movq    mm1, qword ptr[ebx]         // mm1 = OldPixel
             movq    mm2, mm0                    // mm2 = NewPixel
 
-#if defined(IS_SSE)
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
             prefetchnta[eax + 64]
-#elif defined(IS_3DNOW)
+    #elif defined(IS_3DNOW)
             prefetchw[eax + 48]
-#endif
+    #endif
+#endif  // prefetching
             // Now determine the weighted averages of the old and new pixel values.
             AVERAGE(mm2, mm1, mm4, mm6, mm7)    // mm6 = qwShiftMask, mm7 = qwNoLowBitsMask
             AVERAGE(mm2, mm1, mm4, mm6, mm7)    // mm6 = qwShiftMask, mm7 = qwNoLowBitsMask
 
-#if defined(IS_SSE)
+#if defined( USE_PREFETCH )
+    #if defined(IS_SSE)
             prefetchnta[ebx + 64]
+    #endif
 #endif
             // Figure out which pixels are sufficiently different from their predecessors
             // to be considered new.  There is, unfortunately, no absolute-difference

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.7 2002-03-11 01:45:41 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.8 2002-08-07 00:42:38 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/03/11 01:45:41  lindsey
+// Corrected for use with progressive source
+//
 // Revision 1.6  2002/02/04 01:06:03  lindsey
 // Added 3DNow optimized version
 //
@@ -85,21 +88,37 @@
 
 // This is the implementation of the noise filter described in FLT_GradualNoise.c
 
-#if defined( IS_SSE )
-#define MAINLOOP_LABEL DoNext8Bytes_SSE
-#elif defined( IS_3DNOW )
-#define MAINLOOP_LABEL DoNext8Bytes_3DNOW
-#else // IS_MMX
-#define MAINLOOP_LABEL DoNext8Bytes_MMX
-#endif
+#if defined ( USE_PREFETCH )
+    #if defined( IS_SSE )
+    #define MAINLOOP_LABEL DoNext8Bytes_SSE_PREFETCH
+    #else // IS_3DNOW
+    #define MAINLOOP_LABEL DoNext8Bytes_3DNOW_PREFETCH
+    #endif
+#else // no prefetching
+    #if defined( IS_SSE )
+    #define MAINLOOP_LABEL DoNext8Bytes_SSE
+    #elif defined( IS_3DNOW )
+    #define MAINLOOP_LABEL DoNext8Bytes_3DNOW
+    #else // IS_MMX
+    #define MAINLOOP_LABEL DoNext8Bytes_MMX
+    #endif
+#endif // Mainloop names
 
-#if defined( IS_SSE )
-long FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo )
-#elif defined( IS_3DNOW )
-long FilterGradualNoise_3DNOW( TDeinterlaceInfo *pInfo )
-#else // IS_MMX
-long FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo )
-#endif
+#if defined ( USE_PREFETCH )
+    #if defined( IS_SSE )
+    long FilterGradualNoise_SSE_PREFETCH( TDeinterlaceInfo *pInfo )
+    #else // IS_3DNOW
+    long FilterGradualNoise_3DNOW_PREFETCH( TDeinterlaceInfo *pInfo )
+    #endif
+#else // no prefetching
+    #if defined( IS_SSE )
+    long FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo )
+    #elif defined( IS_3DNOW )
+    long FilterGradualNoise_3DNOW( TDeinterlaceInfo *pInfo )
+    #else // IS_MMX
+    long FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo )
+    #endif
+#endif // Main procedure names
 {
     BYTE*           pSource = NULL;
     const LONG      Cycles = (pInfo->LineLength/8)*8;
@@ -164,11 +183,14 @@ MAINLOOP_LABEL:
 
             // The NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
             pmaddwd mm2, qwNoiseMultiplier    // mm2 (low Dword) = Multiplier to move toward new pixel value
-#if defined( IS_SSE )
+
+#if defined ( USE_PREFETCH )
+    #if defined( IS_SSE )
             prefetchnta[edi + PREFETCH_STRIDE]
-#elif defined( IS_3DNOW )
+    #elif defined( IS_3DNOW )
             prefetch[edi + PREFETCH_STRIDE]
-#endif
+    #endif
+#endif // prefetch
             movq    mm3, mm2                // mm3 = same
             pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
@@ -217,9 +239,12 @@ MAINLOOP_LABEL:
             paddw   mm7, mm5                // mm7 = unsigned product of chroma and multiplier
             psllq   mm7, 8                  // mm7 = amount of chroma to add/subtract from old, without remainders
 #endif
-#if defined( IS_SSE )
+
+#if defined ( USE_PREFETCH )
+    #if defined( IS_SSE )
             prefetchnta[ebx + PREFETCH_STRIDE]
-#endif
+    #endif
+#endif // prefetch
 
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
 #if defined( IS_SSE )

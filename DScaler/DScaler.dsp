@@ -62,7 +62,7 @@ LINK32=link.exe
 # ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\dTV\DScaler\Debug\DScaler.exe
+InputPath=\Development\CVSDumps\deinterlace.sf\DScaler\Debug\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -106,7 +106,7 @@ LINK32=link.exe
 # ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\dTV\DScaler\Release\DScaler.exe
+InputPath=\Development\CVSDumps\deinterlace.sf\DScaler\Release\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -453,10 +453,6 @@ SOURCE=.\ISetting.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ISetting.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ITuner.cpp
 # End Source File
 # Begin Source File
@@ -593,19 +589,11 @@ SOURCE=.\SettingHolder.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SettingHolder.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Settings.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\SettingsMaster.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SettingsMaster.h
 # End Source File
 # Begin Source File
 
@@ -754,6 +742,10 @@ SOURCE=.\VTDrawer.cpp
 # Begin Source File
 
 SOURCE=.\VTMosaicGraphics.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VTTopText.cpp
 # End Source File
 # Begin Source File
 
@@ -1065,6 +1057,10 @@ SOURCE=.\I2CLineInterface.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ISetting.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ITuner.h
 # End Source File
 # Begin Source File
@@ -1181,7 +1177,15 @@ SOURCE=.\Setting.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SettingHolder.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\settings.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingsMaster.h
 # End Source File
 # Begin Source File
 
@@ -1305,6 +1309,10 @@ SOURCE=.\VTMosaicGraphics.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\VTTopText.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\WindowBorder.h
 # End Source File
 # End Group
@@ -1334,6 +1342,10 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1343,8 +1355,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoBob.c,v 1.4 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_VideoBob.c,v 1.5 2001-07-26 11:53:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 // Based on code from Virtual Dub Plug-in by Gunnar Thalin
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -83,7 +86,7 @@ DEINTERLACE_METHOD VideoBobMethod =
     NULL,
     NULL,
     NULL,
-    1,
+    2,
     0,
     0,
     WM_DI_VIDEOBOB_GETVALUE - WM_USER,

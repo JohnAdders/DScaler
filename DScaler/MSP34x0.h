@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.7 2001-12-20 12:55:54 adcockj Exp $
+// $Id: MSP34x0.h,v 1.8 2001-12-20 23:46:21 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/12/20 12:55:54  adcockj
+// First stab at supporting older MSP chips
+//
 // Revision 1.6  2001/12/19 19:26:17  ittarnavsky
 // started rewrite of the sound standard selection
 //
@@ -94,7 +97,7 @@ protected:
         DEM_WR_A2_THRE = 0x0022,
         DEM_WR_CM_THRE = 0x0024,
         DEM_WR_AD_CV = 0x00BB,
-        DEM_WR_MODE_REG = 0x0063,
+        DEM_WR_MODE_REG = 0x0083,
         DEM_WR_FIR1 = 0x0001,
         DEM_WR_FIR2 = 0x0005,
         DEM_WR_DCO1_LO = 0x0093,
@@ -102,7 +105,13 @@ protected:
         DEM_WR_DCO2_LO = 0x00A3,
         DEM_WR_DCO2_HI = 0x00AB,
         DEM_WR_PLL_CAPS = 0x001F,
-        DEM_WR_XXXXXXXX_FIXME = 0x56,
+        DEM_WR_LOAD_REG_12 = 0x0056,
+        DEM_WR_LOAD_REG_1 = 0x0060,
+        DEM_WR_SEARCH_NICAM = 0x0078,
+        DEM_WR_SELF_TEST = 0x0792,
+        DEM_WR_FAW_CT_SOLL = 0x0107,
+        DEM_WR_FAW_ER_TOL = 0x010F,
+        DEM_WR_AUDIO_PLL = 0x02D7,
     };
     void SetDEMRegister(eDEMWriteRegister reg, WORD value);
 
@@ -364,14 +373,13 @@ private:
 
     void Reconfigure();
 
-    void SetCarrier(int cdo1, int cdo2);
-
 private:
     void ReconfigureRevD();
     void ReconfigureRevA();
 
 private:
     bool m_bHasRevD;
+    bool m_bRevisionChecked;
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.7 2001-12-20 12:55:54 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.8 2001-12-20 23:46:20 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/12/20 12:55:54  adcockj
+// First stab at supporting older MSP chips
+//
 // Revision 1.6  2001/12/19 19:26:17  ittarnavsky
 // started rewrite of the sound standard selection
 //
@@ -172,12 +175,12 @@ void CMSP34x0Controls::SetEqualizer(long EqIndex, long nLevel)
 void CMSP34x0Controls::SetMute(bool mute)
 {
     m_Muted = mute;
-    //if (m_Muted)
-    //{
-        //SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0xFF00);
-        //SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0xFF00);
-    //}
-    //else
+    if (m_Muted)
+    {
+        SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0xFF00);
+        SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0xFF00);
+    }
+    else
     {
         SetVolume(m_Volume);
     }
@@ -258,16 +261,7 @@ WORD CMSP34x0Controls::GetTreble()
 
 CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
 {
-    m_bHasRevD = false;
-}
-
-void CMSP34x0Decoder::SetCarrier(int cdo1, int cdo2)
-{
-    SetDEMRegister(DEM_WR_DCO1_LO, cdo1 & 0xfff);
-    SetDEMRegister(DEM_WR_DCO1_HI, cdo1 >> 12);
-    SetDEMRegister(DEM_WR_DCO2_LO, cdo2 & 0xfff);
-    SetDEMRegister(DEM_WR_DCO2_HI, cdo2 >> 12);
-    SetDEMRegister(DEM_WR_XXXXXXXX_FIXME, 0);
+    m_bRevisionChecked = false;
 }
 
 CMSP34x0Decoder::TStandardDefinition CMSP34x0Decoder::m_MSPStandards[] =
@@ -637,15 +631,18 @@ void CMSP34x0Decoder::Reconfigure()
 {
     Reset();
 
-    WORD Version = GetVersion();
-    if(Version & 0x0F00 >= 0x0400)
+    if (!m_bRevisionChecked)
     {
-        m_bHasRevD = true;
-        ReconfigureRevD();
+        m_bRevisionChecked = true;
+        m_bHasRevD = (GetVersion() & 0x0F00 >= 0x0400);
+    }
+
+    if (m_bHasRevD)
+    {
+        ReconfigureRevA(); /// FIXME D();
     }
     else
     {
-        m_bHasRevD = false;
         ReconfigureRevA();
     }
 }
@@ -745,6 +742,9 @@ void CMSP34x0Decoder::ReconfigureRevA()
         ++MSPStandards;
     }
 
+    /// LOAD_SEQ_1/2: General Initialization followed by LOAD_REG_12
+
+    /// Step 0: AD_CV
     if(m_MSPStandards[MSPStandards].StereoType == STEREO_SAT)
     {
         SetDEMRegister(DEM_WR_AD_CV, 0x47);
@@ -752,19 +752,28 @@ void CMSP34x0Decoder::ReconfigureRevA()
     else if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM && 
                 m_MSPStandards[MSPStandards].MonoType == MONO_AM)
     {
-        SetDEMRegister(DEM_WR_AD_CV, 0x47);
+        SetDEMRegister(DEM_WR_AD_CV, 0xC6);///FIXME 0x47);
     }
     else
     {
-        SetDEMRegister(DEM_WR_AD_CV, 0x51);
+        SetDEMRegister(DEM_WR_AD_CV, 0xD0);///FIXME 0x51);
     }
 
+    /// Step 1: AUDIO_PLL
+
+    /// Step 2: FAW_CT_SOLL
+    
+    /// Step 3: FAW_CT_TOL
+
+    /// Step 4: FIR_REG_1
     int FIRType = m_MSPStandards[MSPStandards].FIRType;
     for (i = 5; i >= 0; i--)
     {
         SetDEMRegister(DEM_WR_FIR1, m_FIRTypes[FIRType].FIR1[i]);
     }
     
+
+    /// Step 5: FIR_REG_2
     SetDEMRegister(DEM_WR_FIR2, 0x0004);
     SetDEMRegister(DEM_WR_FIR2, 0x0040);
     SetDEMRegister(DEM_WR_FIR2, 0x0000);
@@ -774,7 +783,9 @@ void CMSP34x0Decoder::ReconfigureRevA()
         SetDEMRegister(DEM_WR_FIR2, m_FIRTypes[FIRType].FIR2[i]);
     }
 
-    WORD ModeReg = 0x0000;
+    /// Step 6: MODE_REG
+    WORD ModeReg = 0x0480;
+/* \todo FIXME
     if(FIRType == FIR_BG_DK_DUAL_FM)
     {
         ModeReg |= 1 << 13;
@@ -783,94 +794,33 @@ void CMSP34x0Decoder::ReconfigureRevA()
     {
         ModeReg |= 1 << 6;
     }
-
+*/
     SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
 
-    // load up carrier information
-    SetDEMRegister(DEM_WR_DCO1_LO, m_MSPStandards[MSPStandards].MajorCarrier & 0xfff);
-    SetDEMRegister(DEM_WR_DCO1_HI, m_MSPStandards[MSPStandards].MajorCarrier >> 12);
-    SetDEMRegister(DEM_WR_DCO2_LO, m_MSPStandards[MSPStandards].MinorCarrier & 0xfff);
-    SetDEMRegister(DEM_WR_DCO2_HI, m_MSPStandards[MSPStandards].MinorCarrier >> 12);
+    /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI
+    SetDEMRegister(DEM_WR_DCO1_LO, m_MSPStandards[MSPStandards].MinorCarrier & 0xfff);
+    SetDEMRegister(DEM_WR_DCO1_HI, m_MSPStandards[MSPStandards].MinorCarrier >> 12);
+    SetDEMRegister(DEM_WR_DCO2_LO, m_MSPStandards[MSPStandards].MajorCarrier & 0xfff);
+    SetDEMRegister(DEM_WR_DCO2_HI, m_MSPStandards[MSPStandards].MajorCarrier >> 12);
     
-    // start the processing
-    SetDEMRegister(DEM_WR_XXXXXXXX_FIXME, 0);
+    /// Step 11: start LOAD_REG_12 process
+    SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
+
+
+    /// \todo FIXME add all steps from the datasheet
 
     // set up so that we fall back to AM/FM if there is no NICAM
     // required on D series chips
-    SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
+    ///SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
 
-    SetDSPRegister(DSP_WR_LDSPK_SOURCE, 0x0320);
-    SetDSPRegister(DSP_WR_HEADPH_SOURCE, 0x0420);
-    SetDSPRegister(DSP_WR_SCART1_SOURCE, 0x0120);
-
-    // 2. FM and NICAM prescale
-    SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x2403);
-    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
-    
-    // 3. STANDARD SELECT register
-    SetDEMRegister(DEM_WR_STANDARD_SELECT, standard);
-
-    // 4. FM matrix
-    WORD fmMatrix = 0x3000;
-    if (m_SoundChannel == SOUNDCHANNEL_STEREO)
-    {
-        if (m_AudioInput == AUDIOINPUT_TUNER || IsNTSCVideoFormat(m_VideoFormat))
-        {
-            fmMatrix |= 2;
-        }
-        else
-        {
-            fmMatrix |= 1;
-        }
-    }
-    else if (m_SoundChannel = SOUNDCHANNEL_LANGUAGE1)
-    {
-        fmMatrix |= 3;
-    }
-    else if (m_SoundChannel = SOUNDCHANNEL_LANGUAGE2)
-    {
-        fmMatrix |= 4;
-    }
-    SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmMatrix);
-
-    /// SCART and I2S inputs
-
-    // 1. SCART prescale
-    SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
-
-    // 2. I2S inputs prescale
-
-    /// Ouput channels
-
-    // 1. sources and matrix
-    WORD source = 0x0100;
-    if (m_AudioInput == AUDIOINPUT_RADIO)
-    {
-        source = 0x0220;
-    }
-    else
-    {
-        switch (m_SoundChannel)
-        {
-        case SOUNDCHANNEL_MONO:
-            source |= 0x30;
-            break;
-        case SOUNDCHANNEL_STEREO:
-            source |= 0x20;
-            break;
-        case SOUNDCHANNEL_LANGUAGE2:
-            source |= 0x10;
-        }
-    }
-
+    WORD source = 0x0030;
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
-    SetDSPRegister(DSP_WR_I2S_SOURCE, source);
-    // 2. audio baseband
 
-    // 3. volume
-    /// \todo FIXME
+    // 2. FM and NICAM prescale
+    SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
+    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
 }
 
 void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)

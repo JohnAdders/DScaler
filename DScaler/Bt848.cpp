@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.33 2001-08-15 09:04:28 adcockj Exp $
+// $Id: Bt848.cpp,v 1.34 2001-09-03 13:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2001/08/15 09:04:28  adcockj
+// Fix for whitecrush settings with no PLL
+//
 // Revision 1.32  2001/08/14 10:30:39  adcockj
 // Reverted to old driver code in main branch
 //
@@ -238,6 +241,13 @@ TTVFormat TVFormats[FORMAT_LASTONE] =
         3.579545,  FALSE, 71, 626, 15,      
         16, 
     },
+    // PAL-NC thanks to Eduardo José Tagle
+    { 
+        "PAL-NC", 576, 916, 0x68, 0x5c, (BT848_IFORM_PAL_NC|BT848_IFORM_XT0), 
+        149, 745, 0x20, 0, TRUE, 511, 19, 
+        3.579545, FALSE, 71, 626, 15, 
+        16, 
+    }, 
 };
 
 const char* FormatList[FORMAT_LASTONE];
@@ -573,6 +583,7 @@ int BT848_IsPAL()
     case FORMAT_PAL_N:
     case FORMAT_SECAM:  // Okay, this one is not PAL but has same number of scanlines
     case FORMAT_NTSC50: // Okay, this one is not PAL but has same number of scanlines
+    case FORMAT_PAL_NC:
         return TRUE;
     }
     return FALSE;

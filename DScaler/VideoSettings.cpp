@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.7 2001-08-21 13:23:08 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.8 2001-09-03 13:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/08/21 13:23:08  adcockj
+// Increment build
+//
 // Revision 1.6  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -237,6 +240,8 @@ void VideoSettings_SetupDefaults()
     case FORMAT_PAL60:
     case FORMAT_SECAM:
     case FORMAT_PAL_M:
+    case FORMAT_PAL_NC:
+    default:
         BT848_GetSetting(BRIGHTNESS)->Default = DEFAULT_BRIGHTNESS_PAL;
         BT848_GetSetting(CONTRAST)->Default = DEFAULT_CONTRAST_PAL;
         BT848_GetSetting(HUE)->Default = DEFAULT_HUE_PAL;

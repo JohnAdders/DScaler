@@ -740,6 +740,7 @@ BEGIN
             MENUITEM "NTSC Japan   \tShift+Alt+F6", IDM_TYPEFORMAT_5
             MENUITEM "PAL&60   \tShift+Alt+F7",     IDM_TYPEFORMAT_6
             MENUITEM "NTSC &50\tShift+Alt+F8",      IDM_TYPEFORMAT_7
+            MENUITEM "PAL-N&C\tShift+Alt+F9",       IDM_TYPEFORMAT_8
             MENUITEM SEPARATOR
             MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
         END

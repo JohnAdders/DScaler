@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.h,v 1.14 2001-08-14 10:30:39 adcockj Exp $
+// $Id: Bt848.h,v 1.15 2001-09-03 13:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,7 @@ enum eVideoFormat
     FORMAT_NTSC_J,
     FORMAT_PAL60,
     FORMAT_NTSC50,
+    FORMAT_PAL_NC,
     FORMAT_LASTONE,
 };
 
@@ -197,6 +198,7 @@ void BT848_SaveSettings(LPCSTR szFileName);
 #define BT848_IFORM_PAL_M      4
 #define BT848_IFORM_PAL_N      5
 #define BT848_IFORM_SECAM      6
+#define BT848_IFORM_PAL_NC     7
 #define BT848_IFORM_AUTO       0
 #define BT848_IFORM_NORM       7
 

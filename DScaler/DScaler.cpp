@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.67 2001-09-02 14:17:51 adcockj Exp $
+// $Id: DScaler.cpp,v 1.68 2001-09-03 13:46:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2001/09/02 14:17:51  adcockj
+// Improved teletext code
+//
 // Revision 1.66  2001/09/02 12:13:21  adcockj
 // Changed dscaler webiste
 // Tidied up resource spelling
@@ -1223,6 +1226,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TYPEFORMAT_5:
         case IDM_TYPEFORMAT_6:
         case IDM_TYPEFORMAT_7:
+        case IDM_TYPEFORMAT_8:
             // Video format (NTSC, PAL, etc)
             Setting_SetValue(BT848_GetSetting(TVFORMAT), LOWORD(wParam) - IDM_TYPEFORMAT_0);
             ShowText(hWnd, BT848_GetTVFormat()->szDesc);

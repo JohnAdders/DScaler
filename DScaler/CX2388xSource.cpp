@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.59 2004-02-06 08:01:21 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.60 2004-02-15 21:18:16 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2004/02/06 08:01:21  adcockj
+// Fixed a couple of minor issues with Torsten's changes
+//
 // Revision 1.58  2004/02/05 21:47:52  to_see
 // Starting/Stopping connexant-drivers while dscaler is running.
 // To Enable/Disable it, go to Settings->Advanced Settings->
@@ -1789,7 +1792,17 @@ BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     {
         m_VideoFormat->SetValue(VideoFormat);
     }
-    return m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
+	
+	BOOL bReturn = m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
+	if(bReturn == TRUE)
+	{
+		// when switching from channel to channel the sound often hangs, 
+		// so let's make an reset
+		m_pCard->WriteDword(AUD_SOFT_RESET, 1);	
+		m_pCard->WriteDword(AUD_SOFT_RESET, 0);
+	}
+
+	return bReturn;
 }
 
 BOOL CCX2388xSource::IsVideoPresent()

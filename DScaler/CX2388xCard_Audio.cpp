@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.13 2004-01-27 22:56:26 robmuller Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.14 2004-02-15 21:18:14 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/01/27 22:56:26  robmuller
+// New A2 code.
+//
 // Revision 1.12  2004/01/23 11:26:42  adcockj
 // Dematrix fixes
 //
@@ -176,19 +179,38 @@ void CCX2388xCard::SetAudioBalance(WORD nBalance)
 
 void CCX2388xCard::SetAudioMute()
 {
-    DWORD dwval;
+	// Causes no pop every time
+	if(m_CardType == CX2388xCARD_HAUPPAUGE_PCI_FM)
+	{
+		// set U1 (4052) pin 6 (INH) to 1
+		DWORD dwval = ReadDword(MO_GP0_IO) | 0x04;
+		WriteDword(MO_GP0_IO, dwval);
+	}
 
-    // Mute the audio
-    dwval = ReadDword(AUD_VOL_CTL) & 0x1FF;
-    dwval |= 0x100;
-    WriteDword(AUD_VOL_CTL,dwval);
+	else
+	{
+		// Mute the audio
+		DWORD dwval = ReadDword(AUD_VOL_CTL) & 0x1FF;
+		dwval |= 0x100;
+		WriteDword(AUD_VOL_CTL,dwval);
+	}
 }
 
 void CCX2388xCard::SetAudioUnMute(WORD nVolume)
 {
-    // Unmute the audio and set volume
-    DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
-    WriteDword(AUD_VOL_CTL,dwval);
+	// Causes no pop every time
+	if(m_CardType == CX2388xCARD_HAUPPAUGE_PCI_FM)
+	{
+		// set U1 (4052) pin 6 (INH) to 0
+		DWORD dwval = ReadDword(MO_GP0_IO) & ~0x04;
+		WriteDword(MO_GP0_IO, dwval);
+	}
+	
+	{
+		// Unmute the audio and set volume
+		DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
+		WriteDword(AUD_VOL_CTL,dwval);
+	}
 }
 
 
@@ -546,6 +568,81 @@ void CCX2388xCard::AudioInitNICAM(eStereoType StereoType)
 
 void CCX2388xCard::AudioInitA2(eStereoType StereoType)
 {
+    // exactly taken from conexant-driver
+	// tested with Hauppauge WinTV
+	WriteDword(AUD_INIT,					0x00000004);
+    WriteDword(AUD_INIT_LD,					0x00000001);
+    WriteDword(AUD_SOFT_RESET,				0x00000001);
+    WriteByte(AUD_PDF_DDS_CNST_BYTE2,		0x06);
+    WriteByte(AUD_PDF_DDS_CNST_BYTE1,		0x82);
+    WriteByte(AUD_PDF_DDS_CNST_BYTE0,		0x12);
+    WriteByte(AUD_QAM_MODE,					0x05);
+    WriteByte(AUD_PHACC_FREQ_8MSB,			0x34);
+    WriteByte(0x320d2b,						0x4c);
+    WriteDword(AUD_RATE_ADJ1,				0x00001000);
+    WriteDword(AUD_RATE_ADJ2,				0x00002000);
+    WriteDword(AUD_RATE_ADJ3,				0x00003000);
+    WriteDword(AUD_RATE_ADJ4,				0x00004000);
+    WriteDword(AUD_RATE_ADJ5,				0x00005000);
+	WriteDword(AUD_THR_FR,					0x00000000);
+	WriteDword(AAGC_HYST,					0x0000001a);
+	WriteDword(AUD_PILOT_BQD_1_K0,			0x0000755b);
+	WriteDword(AUD_PILOT_BQD_1_K1,			0x00551340);
+	WriteDword(AUD_PILOT_BQD_1_K2,			0x006d30be);
+	WriteDword(AUD_PILOT_BQD_1_K3,			0xffd394af);
+	WriteDword(AUD_PILOT_BQD_1_K4,			0x00400000);
+	WriteDword(AUD_PILOT_BQD_2_K0,			0x00040000);
+	WriteDword(AUD_PILOT_BQD_2_K1,			0x002a4841);
+	WriteDword(AUD_PILOT_BQD_2_K2,			0x00400000);
+	WriteDword(AUD_PILOT_BQD_2_K3,			0x00000000);
+	WriteDword(AUD_PILOT_BQD_2_K4,			0x00000000);
+	WriteDword(AUD_MODE_CHG_TIMER,			0x00000040);
+	WriteDword(AUD_START_TIMER,				0x00000200);
+	WriteDword(AUD_AFE_12DB_EN,				0x00000000);
+	WriteDword(AUD_CORDIC_SHIFT_0,			0x00000007);
+	WriteDword(AUD_CORDIC_SHIFT_1,			0x00000007);
+	WriteDword(AUD_DEEMPH0_G0,				0x00000380);
+	WriteDword(AUD_DEEMPH1_G0,				0x00000380);
+	WriteDword(AUD_DCOC_0_SRC,				0x0000001a);
+	WriteDword(AUD_DCOC0_SHIFT,				0x00000000);
+	WriteDword(AUD_DCOC_0_SHIFT_IN0,		0x0000000a);
+	WriteDword(AUD_DCOC_0_SHIFT_IN1,		0x00000008);
+	WriteDword(AUD_DCOC_PASS_IN,			0x00000003);
+	WriteDword(AUD_IIR3_0_SEL,				0x00000021);
+	WriteDword(AUD_DN2_AFC,					0x00000002);
+	WriteDword(AUD_DCOC_1_SRC,				0x0000001b);
+	WriteDword(AUD_DCOC1_SHIFT,				0x00000000);
+	WriteDword(AUD_DCOC_1_SHIFT_IN0,		0x0000000a);
+	WriteDword(AUD_DCOC_1_SHIFT_IN1,		0x00000008);
+	WriteDword(AUD_IIR3_1_SEL,				0x00000023);
+	WriteDword(AUD_RDSI_SEL,				0x00000017);
+	WriteDword(AUD_RDSI_SHIFT,				0x00000000);
+	WriteDword(AUD_RDSQ_SEL,				0x00000017);
+	WriteDword(AUD_RDSQ_SHIFT,				0x00000000);
+	WriteDword(AUD_POLYPH80SCALEFAC,		0x00000001);
+   
+	switch(StereoType)
+	{
+	case STEREOTYPE_MONO:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_BYPASS|EN_DMTRX_MONO|EN_A2_AUTO_STEREO);
+		break;
+
+	case STEREOTYPE_AUTO:
+	case STEREOTYPE_STEREO:
+		WriteDword(AUD_DMD_RA_DDS,			0x002a73bd);
+		WriteDword(AUD_C1_UP_THR,			0x00007000);
+		WriteDword(AUD_C1_LO_THR,			0x00005400);
+		WriteDword(AUD_C2_UP_THR,			0x00005400);
+		WriteDword(AUD_C2_LO_THR,			0x00003000);
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_A2_AUTO_STEREO);
+		break;
+
+	// todo: STEREOTYPE_ALT1 / STEREOTYPE_ALT2
+	}
+    
+	WriteDword(AUD_SOFT_RESET,				0x00000000);  // Causes a pop every time/**/
+
+/*
     //\todo handle StereoType
 
 	// The code below closely follows the data sheet from Feb 2002.
@@ -580,7 +677,8 @@ void CCX2388xCard::AudioInitA2(eStereoType StereoType)
 	WriteDword(AUD_START_TIMER,				0x200);
 	WriteDword(AUD_CORDIC_SHIFT_0,			0x06);
     WriteDword(AUD_SOFT_RESET,				0x0);
-	//WriteDword(AUD_VOL_CTL,					0x0);/**/
+	//WriteDword(AUD_VOL_CTL,				0x0);
+*/
 
 
 

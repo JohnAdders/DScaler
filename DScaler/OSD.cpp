@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.53 2002-02-23 12:02:40 laurentg Exp $
+// $Id: OSD.cpp,v 1.54 2002-02-23 13:56:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/02/23 12:02:40  laurentg
+// % of time used by each AR added in the AR statistics
+//
 // Revision 1.52  2002/02/18 20:51:51  laurentg
 // Statistics regarding deinterlace modes now takes into account the progressive mode
 // Reset of the deinterlace statistics at each start of the decoding thread
@@ -248,6 +251,8 @@
 #include "DebugLog.h"
 #include "SettingsDlg.h"
 
+typedef void (OSDREFRESHFUNCTION)(double Size);
+
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
 
@@ -270,6 +275,12 @@ CPaintingHDC PaintingHDC; //Not a good way to instantiate it here, but it only t
 // Global OSD Information structure
 TOsdInfo    grOSD[OSD_MAX_TEXT];
 static int  NbText = 0;
+static void OSD_RefreshGeneralScreen(double Size);
+static void OSD_RefreshStatisticsScreen(double Size);
+static void OSD_RefreshWSSScreen(double Size);
+static void OSD_RefreshARScreen(double Size);
+static void OSD_RefreshCalibrationScreen(double Size);
+static void OSD_RefreshDeveloperScreen(double Size);
 static struct 
 {
     char    name[24];       // Name of the screen
@@ -278,12 +289,14 @@ static struct
     int     refresh_delay;  // Refresh period in ms (0 means no refresh)
     BOOL    active;         // TRUE if user can show the screen
     BOOL    lock;           // TRUE if display of the screen should lock OSD
+    OSDREFRESHFUNCTION* RefreshFunction;    // Function to call to fill the screen
 } ActiveScreens[] = {
-    { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE },
-    { "Statistics screen",       FALSE, TRUE,  1000,                    FALSE, FALSE },
-    { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE },
-    { "AR autodetection screen", FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE },
-    { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE  },
+    { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
+    { "Statistics screen",       FALSE, TRUE,  1000,                    FALSE, FALSE, OSD_RefreshStatisticsScreen },
+    { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshWSSScreen },
+//  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
+    { "Developer screen",        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
+    { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
 static BOOL bRestoreScreen = FALSE; // Restore Info screen when clear OSD
@@ -749,325 +762,225 @@ static void OSD_GetTextResult(int delta, char *text, long *color)
     if (delta <= 3)
     {
         strcpy (text, "*****");
-//        strcpy (text, "very good");
-//        *color = RGB(0,192,0);
     }
     else if (delta <= 9)
     {
         strcpy (text, "****");
-//        strcpy (text, "good");
-//        *color = RGB(0,255,0);
     }
     else if (delta <= 18)
     {
         strcpy (text, "***");
-//        strcpy (text, "medium");
-//        *color = RGB(255,255,0);
     }
     else if (delta <= 30)
     {
         strcpy (text, "**");
-//        strcpy (text, "bad");
-//        *color = RGB(255,192,0);
     }
     else
     {
         strcpy (text, "*");
-//        strcpy (text, "very bad");
-//        *color = RGB(255,0,0);
     }
     *color = -1;
 }
 
-//---------------------------------------------------------------------------
-// Display/Refresh on screen the current information screen
-void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
+static void OSD_RefreshGeneralScreen(double Size)
 {
-    double          dfMargin = 0.02;    // 2% of screen height/width
-    char            szInfo[64];
-    int             nLine, nCol;
-    int             i;
-    long            Color, BackColor;
-    double          pos;
-    DEINTERLACE_METHOD* DeintMethod;
-    unsigned char   val1, val2, val3;
-    int             dif_val1, dif_val2, dif_val3;
-    int             dif_total1, dif_total2;
-    char            szResult[16];
-    CTestPattern *pTestPattern;
-    CSubPattern *pSubPattern;
+    double  dfMargin = 0.02;    // 2% of screen height/width
+    char    szInfo[64];
+    int     nLine;
+    int     i;
     CSource* pSource = Providers_GetCurrentSource();
     ISetting* pSetting = NULL;
-    DWORD CurrentTicks;
-    int ticks;
-
-    // Case : no OSD screen
-    if (IdxCurrentScreen == -1)
-    {
-        return;
-    }
 
     if (Size == 0)
     {
         Size = DefaultSmallSizePerc;
     }
 
-    OSD_ClearAllTexts();
+    // DScaler version
+    OSD_AddText(GetProductNameAndVersion(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size));
 
-    switch (IdxCurrentScreen)
+    // Channel
+    nLine = 2;
+
+    // Video input
+    OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    // Audio mute
+    if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
     {
-    // GENERAL SCREEN
-    case 0:
-        // DScaler version
-        OSD_AddText(GetProductNameAndVersion(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size));
+        OSD_AddText("Volume Mute", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
 
-        // Channel
-        nLine = 2;
+    // Source size
+    sprintf (szInfo, "Source size : %ux%u", pSource->GetWidth(), pSource->GetHeight());
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        // Video input
-        OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    // Source ratio
+    sprintf(szInfo, "Source %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
+    if ( (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 1)
+      && (Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) != 1333) )
+    {
+        strcat(szInfo, " Letterbox");
+    }
+    else if (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 2)
+    {
+        strcat(szInfo, " Anamorphic");
+    }
+    if (Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)))
+    {
+        strcat(szInfo, " auto");
+    }
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        // Audio mute
-        if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
-        {
-            OSD_AddText("Volume Mute", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
+    // Display ratio
+    if (Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) == 0)
+    {
+        strcpy(szInfo, "Display ratio from current resolution");
+    }
+    else
+    {
+        sprintf(szInfo, "Display %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
+    }
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        // Source size
-        sprintf (szInfo, "Source size : %ux%u", pSource->GetWidth(), pSource->GetHeight());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-        // Source ratio
-        sprintf(szInfo, "Source %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
-        if ( (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 1)
-          && (Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) != 1333) )
-        {
-            strcat(szInfo, " Letterbox");
-        }
-        else if (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 2)
-        {
-            strcat(szInfo, " Anamorphic");
-        }
-        if (Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)))
-        {
-            strcat(szInfo, " auto");
-        }
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-        // Display ratio
-        if (Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) == 0)
-        {
-            strcpy(szInfo, "Display ratio from current resolution");
-        }
-        else
-        {
-            sprintf(szInfo, "Display %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
-        }
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-        // Video settings
-        nLine = 2;
-        pSetting = pSource->GetBrightness();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-        pSetting = pSource->GetContrast();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-        pSetting = pSource->GetHue();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Hue : %03d", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-        pSetting = pSource->GetSaturation();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-        pSetting = pSource->GetSaturationU();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-        pSetting = pSource->GetSaturationV();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-
-        // Deinterlace Mode
-        nLine = -1;
-        if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
-        {
-            OSD_AddText("Judder Terminator", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-        }
-        if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
-        {
-            OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-        }
-        if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
-        {
-            OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-        }
-        OSD_AddText(GetDeinterlaceModeName(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-
-        // Filters
-        nLine = -1;
-        for (i = 0 ; i < NumFilters ; i++)
-        {
-            strcpy(szInfo, Filters[i]->szName);
-            if (Filters[i]->bActive)
-            {
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-            }
-        }
-        break;
-
-    // WSS DATA DECODING SCREEN
-    case 2:
-        // Title
-        OSD_AddText("WSS data decoding", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
-
-        nLine = 3;
-
-        OSD_AddText("Status", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-        sprintf (szInfo, "Errors : %d", WSS_CtrlData.NbDecodeErr);
+    // Video settings
+    nLine = 2;
+    pSetting = pSource->GetBrightness();
+    if(pSetting != NULL)
+    {
+        sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Ok : %d", WSS_CtrlData.NbDecodeOk);
+    }
+    pSetting = pSource->GetContrast();
+    if(pSetting != NULL)
+    {
+        sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        if ((WSS_CtrlData.NbDecodeErr+WSS_CtrlData.NbDecodeOk) > 0)
+    }
+    pSetting = pSource->GetHue();
+    if(pSetting != NULL)
+    {
+        sprintf (szInfo, "Hue : %03d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
+    pSetting = pSource->GetSaturation();
+    if(pSetting != NULL)
+    {
+        sprintf (szInfo, "Color : %03u", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
+    pSetting = pSource->GetSaturationU();
+    if(pSetting != NULL)
+    {
+        sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
+    pSetting = pSource->GetSaturationV();
+    if(pSetting != NULL)
+    {
+        sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
+
+    // Deinterlace Mode
+    nLine = -1;
+    if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
+    {
+        OSD_AddText("Judder Terminator", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+    }
+    if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
+    {
+        OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+    }
+    if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+    {
+        OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+    }
+    OSD_AddText(GetDeinterlaceModeName(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+
+    // Filters
+    nLine = -1;
+    for (i = 0 ; i < NumFilters ; i++)
+    {
+        strcpy(szInfo, Filters[i]->szName);
+        if (Filters[i]->bActive)
         {
-            sprintf (szInfo, "Last : %s", (WSS_CtrlData.DecodeStatus == WSS_STATUS_OK) ? "OK" : "ERROR");
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        }
-
-        if ((WSS_CtrlData.NbDecodeOk+WSS_CtrlData.NbDecodeErr) > 0)
-        {
-
-            nLine = -1;
-
-            // Debug informations
-            if (WSS_CtrlData.NbDecodeOk > 0)
-            {
-                sprintf (szInfo, "Start position min / max : %d / %d", WSS_CtrlData.MinPos, WSS_CtrlData.MaxPos);
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-            }
-            sprintf (szInfo, "Errors searching start position : %d", WSS_CtrlData.NbErrPos);
             OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-            OSD_AddText("Debug", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-
-            if (WSS_CtrlData.DecodeStatus != WSS_STATUS_ERROR)
-            {
-                nLine = 3;
-
-                OSD_AddText("Data", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-                // WSS data
-                if (WSS_Data.AspectRatio > 0)
-                {
-                    sprintf (szInfo, "Aspect ratio : %.3f", WSS_Data.AspectRatio / 1000.0);
-                    if (WSS_Data.AspectMode == 1)
-                        strcat (szInfo, " Letterboxed");
-                    else if (WSS_Data.AspectMode == 2)
-                        strcat (szInfo, " Anamorphic");
-                }
-                else
-                {
-                    strcpy (szInfo, "Aspect ratio : undefined");
-                }
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film Mode" : "camera Mode");     
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Helper signals : %s", WSS_Data.HelperSignals ? "yes" : "no");     
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Color encoding : %s", WSS_Data.ColorPlus ? "ColorPlus" : "normal");
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Teletext subtitles : %s", WSS_Data.TeletextSubtitle ? "yes" : "no");      
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                switch (WSS_Data.OpenSubtitles)
-                {
-                case WSS625_SUBTITLE_NO:
-                    strcpy (szInfo, "Open subtitles : no");
-                    break;
-                case WSS625_SUBTITLE_INSIDE:
-                    strcpy (szInfo, "Open subtitles : inside picture");
-                    break;
-                case WSS625_SUBTITLE_OUTSIDE:
-                    strcpy (szInfo, "Open subtitles : outside picture");
-                    break;
-                default:
-                    strcpy (szInfo, "Open subtitles : ???");
-                    break;
-                }
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Surround sound : %s", WSS_Data.SurroundSound ? "yes" : "no");     
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Copyright asserted : %s", WSS_Data.CopyrightAsserted ? "yes" : "no");     
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                sprintf (szInfo, "Copy protection : %s", WSS_Data.CopyProtection ? "yes" : "no");       
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-            }
         }
-        break;
+    }
+}
 
-    // STATISTICS SCREEN
-    case 1:
-        // Title
-        OSD_AddText("Statistics", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+static void OSD_RefreshStatisticsScreen(double Size)
+{
+    double              dfMargin = 0.02;    // 2% of screen height/width
+    char                szInfo[64];
+    int                 nLine, nCol, nFirstLine;
+    int                 i;
+    long                Color;
+    double              pos;
+    DEINTERLACE_METHOD* DeintMethod;
+    DWORD               CurrentTicks;
+    int                 ticks;
 
-        nLine = 1;
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
 
-        OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    // Title
+    OSD_AddText("Statistics", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-        sprintf (szInfo, "Number : %ld", pPerf->GetNumberDroppedFields());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    nLine = 1;
 
-        OSD_AddText("Used fields", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        sprintf (szInfo, "Last second : %d", pPerf->GetUsedFieldsLastSecond());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageUsedFields());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Number : %ld", pPerf->GetNumberDroppedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        OSD_AddText("Average Time per cycle (1/10 ms)", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        for (i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
+    OSD_AddText("Used fields", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Last second : %d", pPerf->GetUsedFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageUsedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    nLine = 1;
+
+    CurrentTicks = GetTickCount();
+
+    OSD_AddText("Deinterlace Modes", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Number of changes : %ld", nTotalDeintModeChanges);
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+//    OSD_AddText("changes - % of time - Mode", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    DeintMethod = GetProgressiveMethod();
+    if (DeintMethod->ModeChanges > 0)
+    {
+        pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+        if (pos > 0)
         {
-            if (pPerf->IsValid((ePerfType)i))
+            if (DeintMethod == GetCurrentDeintMethod())
             {
-                sprintf(szInfo, "%s : %d",
-                        pPerf->GetName((ePerfType)i), 
-                        pPerf->GetAverageDuration((ePerfType)i));
-                pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, pos);
-                nLine++;
+                Color = OSD_COLOR_CURRENT;
+                ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
             }
+            else
+            {
+                Color = -1;
+                ticks = DeintMethod->ModeTicks;
+            }
+            sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
+            nLine++;
         }
-
-        nLine = 3;
-
-        CurrentTicks = GetTickCount();
-
-        OSD_AddText("Deinterlace Modes", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-        sprintf (szInfo, "Number of changes : %ld", nTotalDeintModeChanges);
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        nLine++;
-        OSD_AddText("changes - % of time - Mode", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        DeintMethod = GetProgressiveMethod();
+    }
+    for (i = 0 ; i < FILMPULLDOWNMODES_LAST_ONE ; i++)
+    {
+        DeintMethod = GetFilmDeintMethod((eFilmPulldownMode)i);
         if (DeintMethod->ModeChanges > 0)
         {
             pos = OSD_GetLineYpos (nLine, dfMargin, Size);
@@ -1088,421 +1001,633 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                 nLine++;
             }
         }
-        for (i = 0 ; i < FILMPULLDOWNMODES_LAST_ONE ; i++)
+    }
+    i = 0;
+    DeintMethod = GetVideoDeintMethod(i);
+    while(DeintMethod != NULL)
+    {
+        if (DeintMethod->ModeChanges > 0)
         {
-            DeintMethod = GetFilmDeintMethod((eFilmPulldownMode)i);
-            if (DeintMethod->ModeChanges > 0)
+            pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+            if (pos > 0)
             {
-                pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-                if (pos > 0)
+                if (DeintMethod == GetCurrentDeintMethod())
                 {
-                    if (DeintMethod == GetCurrentDeintMethod())
-                    {
-                        Color = OSD_COLOR_CURRENT;
-                        ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
-                    }
-                    else
-                    {
-                        Color = -1;
-                        ticks = DeintMethod->ModeTicks;
-                    }
-                    sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
-                    OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
-                    nLine++;
+                    Color = OSD_COLOR_CURRENT;
+                    ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
                 }
+                else
+                {
+                    Color = -1;
+                    ticks = DeintMethod->ModeTicks;
+                }
+                sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
+                nLine++;
             }
         }
-        i = 0;
+        i++;
         DeintMethod = GetVideoDeintMethod(i);
-        while(DeintMethod != NULL)
+    }
+
+    nLine++;
+    if (nLine < 7)
+    {
+        nLine = 7;
+    }
+
+    OSD_AddText("Aspect Ratios", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Number of changes : %d", nNbRatioSwitch);
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+//    OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    if (nNbRatioSwitch > 0)
+    {
+        nFirstLine = nLine;
+        nCol = 1;
+
+        CurrentTicks = GetTickCount();
+
+        for (i = 0 ; i < MAX_RATIO_STATISTICS ; i++)
         {
-            if (DeintMethod->ModeChanges > 0)
+            if (RatioStatistics[i].switch_count > 0)
             {
                 pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+                if (pos == 0)
+                {
+                    nCol++;
+                    nLine = nFirstLine;
+                    if (nCol <= 2)
+                    {
+//                        OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, OSD_GetLineYpos (nFirstLine-1, dfMargin, Size));
+                        pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+                    }
+                }
                 if (pos > 0)
                 {
-                    if (DeintMethod == GetCurrentDeintMethod())
+                    if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
                     {
                         Color = OSD_COLOR_CURRENT;
-                        ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
+                        ticks = RatioStatistics[i].ticks + CurrentTicks - nARLastTicks;
                     }
                     else
                     {
                         Color = -1;
-                        ticks = DeintMethod->ModeTicks;
+                        ticks = RatioStatistics[i].ticks;
                     }
-                    sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
-                    OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
+                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "L");
+                    OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
                     nLine++;
                 }
             }
-            i++;
-            DeintMethod = GetVideoDeintMethod(i);
         }
-        break;
+    }
+}
 
+static void OSD_RefreshWSSScreen(double Size)
+{
+    double      dfMargin = 0.02;    // 2% of screen height/width
+    char        szInfo[64];
+    int         nLine;
 
-    // ASPECT RATIO AUTODETECTION SCREEN
-    case 3:
-        // Title
-        OSD_AddText("Aspect Ratio Autodetection", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
 
-        sprintf (szInfo, "Number of changes : %d", nNbRatioSwitch);
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
-        OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
+    // Title
+    OSD_AddText("WSS data decoding", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-        if (nNbRatioSwitch > 0)
+    nLine = 3;
+
+    OSD_AddText("Status", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Errors : %d", WSS_CtrlData.NbDecodeErr);
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Ok : %d", WSS_CtrlData.NbDecodeOk);
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    if ((WSS_CtrlData.NbDecodeErr+WSS_CtrlData.NbDecodeOk) > 0)
+    {
+        sprintf (szInfo, "Last : %s", (WSS_CtrlData.DecodeStatus == WSS_STATUS_OK) ? "OK" : "ERROR");
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    }
+
+    if ((WSS_CtrlData.NbDecodeOk+WSS_CtrlData.NbDecodeErr) > 0)
+    {
+
+        nLine = -1;
+
+        // Debug informations
+        if (WSS_CtrlData.NbDecodeOk > 0)
         {
-            nLine = 5;
-            nCol = 1;
+            sprintf (szInfo, "Start position min / max : %d / %d", WSS_CtrlData.MinPos, WSS_CtrlData.MaxPos);
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        }
+        sprintf (szInfo, "Errors searching start position : %d", WSS_CtrlData.NbErrPos);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        OSD_AddText("Debug", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
 
-            CurrentTicks = GetTickCount();
+        if (WSS_CtrlData.DecodeStatus != WSS_STATUS_ERROR)
+        {
+            nLine = 3;
 
-            for (i = 0 ; i < MAX_RATIO_STATISTICS ; i++)
+            OSD_AddText("Data", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+            // WSS data
+            if (WSS_Data.AspectRatio > 0)
             {
-                if (RatioStatistics[i].switch_count > 0)
+                sprintf (szInfo, "Aspect ratio : %.3f", WSS_Data.AspectRatio / 1000.0);
+                if (WSS_Data.AspectMode == 1)
+                    strcat (szInfo, " Letterboxed");
+                else if (WSS_Data.AspectMode == 2)
+                    strcat (szInfo, " Anamorphic");
+            }
+            else
+            {
+                strcpy (szInfo, "Aspect ratio : undefined");
+            }
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film Mode" : "camera Mode");     
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Helper signals : %s", WSS_Data.HelperSignals ? "yes" : "no");     
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Color encoding : %s", WSS_Data.ColorPlus ? "ColorPlus" : "normal");
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Teletext subtitles : %s", WSS_Data.TeletextSubtitle ? "yes" : "no");      
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            switch (WSS_Data.OpenSubtitles)
+            {
+            case WSS625_SUBTITLE_NO:
+                strcpy (szInfo, "Open subtitles : no");
+                break;
+            case WSS625_SUBTITLE_INSIDE:
+                strcpy (szInfo, "Open subtitles : inside picture");
+                break;
+            case WSS625_SUBTITLE_OUTSIDE:
+                strcpy (szInfo, "Open subtitles : outside picture");
+                break;
+            default:
+                strcpy (szInfo, "Open subtitles : ???");
+                break;
+            }
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Surround sound : %s", WSS_Data.SurroundSound ? "yes" : "no");     
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Copyright asserted : %s", WSS_Data.CopyrightAsserted ? "yes" : "no");     
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+            sprintf (szInfo, "Copy protection : %s", WSS_Data.CopyProtection ? "yes" : "no");       
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
+    }
+}
+
+static void OSD_RefreshARScreen(double Size)
+{
+    double      dfMargin = 0.02;    // 2% of screen height/width
+    char        szInfo[64];
+    int         nLine, nCol, nFirstLine;
+    int         i;
+    long        Color;
+    double      pos;
+    DWORD CurrentTicks;
+    int ticks;
+
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
+
+    // Title
+    OSD_AddText("Aspect Ratio", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+    nLine = 3;
+
+    sprintf (szInfo, "Number of changes : %d", nNbRatioSwitch);
+    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    if (nNbRatioSwitch > 0)
+    {
+        nFirstLine = nLine;
+        nCol = 1;
+
+        CurrentTicks = GetTickCount();
+
+        for (i = 0 ; i < MAX_RATIO_STATISTICS ; i++)
+        {
+            if (RatioStatistics[i].switch_count > 0)
+            {
+                pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+                if (pos == 0)
                 {
-                    pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-                    if (pos == 0)
+                    nCol++;
+                    nLine = nFirstLine;
+                    if (nCol <= 2)
                     {
-                        nCol++;
-                        nLine = 5;
-                        if (nCol <= 2)
-                        {
-                            OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
-                            pos = OSD_GetLineYpos (nLine, dfMargin, Size);
-                        }
+                        OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, OSD_GetLineYpos (4, dfMargin, Size));
+                        pos = OSD_GetLineYpos (nLine, dfMargin, Size);
                     }
-                    if (pos > 0)
+                }
+                if (pos > 0)
+                {
+                    if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
                     {
-                        if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
-                        {
-                            Color = OSD_COLOR_CURRENT;
-                            ticks = RatioStatistics[i].ticks + CurrentTicks - nARLastTicks;
-                        }
-                        else
-                        {
-                            Color = -1;
-                            ticks = RatioStatistics[i].ticks;
-                        }
-                        sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "L");
-                        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
-                        nLine++;
+                        Color = OSD_COLOR_CURRENT;
+                        ticks = RatioStatistics[i].ticks + CurrentTicks - nARLastTicks;
                     }
+                    else
+                    {
+                        Color = -1;
+                        ticks = RatioStatistics[i].ticks;
+                    }
+                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "L");
+                    OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
+                    nLine++;
                 }
             }
         }
-        break;
+    }
+}
 
-    // CARD CALIBRATION SCREEN
-    case 4:
-        // Title
-        OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+static void OSD_RefreshCalibrationScreen(double Size)
+{
+    double          dfMargin = 0.02;    // 2% of screen height/width
+    char            szInfo[64];
+    int             nLine;
+    long            Color, BackColor;
+    unsigned char   val1, val2, val3;
+    int             dif_val1, dif_val2, dif_val3;
+    int             dif_total1, dif_total2;
+    char            szResult[16];
+    CTestPattern*   pTestPattern;
+    CSubPattern*    pSubPattern;
+    CSource*        pSource = Providers_GetCurrentSource();
+    ISetting*       pSetting = NULL;
 
-        // Video settings
-        if (pCalibration->GetType() == CAL_MANUAL)
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
+
+    // Title
+    OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+    // Video settings
+    if (pCalibration->GetType() == CAL_MANUAL)
+    {
+        pSetting = pSource->GetBrightness();
+        if(pSetting != NULL)
         {
-            pSetting = pSource->GetBrightness();
-            if(pSetting != NULL)
+            sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+        }
+        pSetting = pSource->GetContrast();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+        }
+        pSetting = pSource->GetSaturationU();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+        }
+        pSetting = pSource->GetSaturationV();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+        }
+        pSetting = pSource->GetHue();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Hue : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+        }
+    }
+    else
+    {
+        // do brightness
+        pSetting = pSource->GetBrightness();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 1)
+                || (pCalibration->GetCurrentStep() == 2)
+                || (pCalibration->GetCurrentStep() == 3)
+                || (pCalibration->GetCurrentStep() == 4)
+                || (pCalibration->GetCurrentStep() == 9)
+                || (pCalibration->GetCurrentStep() == 10)
+                || (pCalibration->GetCurrentStep() == 11) ) )
             {
-                sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+                Color = OSD_COLOR_CURRENT;
             }
-            pSetting = pSource->GetContrast();
-            if(pSetting != NULL)
+            else
             {
-                sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-            }
-            pSetting = pSource->GetSaturationU();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-            }
-            pSetting = pSource->GetSaturationV();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-            }
-            pSetting = pSource->GetHue();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Hue : %03u", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+                Color = -1;
             }
         }
         else
         {
-            // do brightness
-            pSetting = pSource->GetBrightness();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
-                if ( pCalibration->IsRunning()
-                  && ( (pCalibration->GetCurrentStep() == 1)
-                    || (pCalibration->GetCurrentStep() == 2)
-                    || (pCalibration->GetCurrentStep() == 3)
-                    || (pCalibration->GetCurrentStep() == 4)
-                    || (pCalibration->GetCurrentStep() == 9)
-                    || (pCalibration->GetCurrentStep() == 10)
-                    || (pCalibration->GetCurrentStep() == 11) ) )
-                {
-                    Color = OSD_COLOR_CURRENT;
-                }
-                else
-                {
-                    Color = -1;
-                }
-            }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-
-            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
-
-            // do Contrast
-            pSetting = pSource->GetContrast();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Contrast : %03d", pSetting->GetValue());
-                if ( pCalibration->IsRunning()
-                  && ( (pCalibration->GetCurrentStep() == 5)
-                    || (pCalibration->GetCurrentStep() == 6)
-                    || (pCalibration->GetCurrentStep() == 7)
-                    || (pCalibration->GetCurrentStep() == 8)
-                    || (pCalibration->GetCurrentStep() == 9)
-                    || (pCalibration->GetCurrentStep() == 10)
-                    || (pCalibration->GetCurrentStep() == 11) ) )
-                {
-                    Color = OSD_COLOR_CURRENT;
-                }
-                else
-                {
-                    Color = -1;
-                }
-            }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
-
-
-
-            // do Color U
-            pSetting = pSource->GetSaturationU();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-                if ( pCalibration->IsRunning()
-                  && ( (pCalibration->GetCurrentStep() == 12)
-                    || (pCalibration->GetCurrentStep() == 13)
-                    || (pCalibration->GetCurrentStep() == 14)
-                    || (pCalibration->GetCurrentStep() == 15)
-                    || (pCalibration->GetCurrentStep() == 22)
-                    || (pCalibration->GetCurrentStep() == 23) ) )
-                {
-                    Color = OSD_COLOR_CURRENT;
-                }
-                else
-                {
-                    Color = -1;
-                }
-            }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
-
-
-            // do Color V
-            pSetting = pSource->GetSaturationV();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-                if ( pCalibration->IsRunning()
-                  && ( (pCalibration->GetCurrentStep() == 16)
-                    || (pCalibration->GetCurrentStep() == 17)
-                    || (pCalibration->GetCurrentStep() == 18)
-                    || (pCalibration->GetCurrentStep() == 19)
-                    || (pCalibration->GetCurrentStep() == 22)
-                    || (pCalibration->GetCurrentStep() == 23) ) )
-                {
-                    Color = OSD_COLOR_CURRENT;
-                }
-                else
-                {
-                    Color = -1;
-                }
-            }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
-
-            // do Hue
-            pSetting = pSource->GetHue();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
-                if ( pCalibration->IsRunning()
-                  && ( (pCalibration->GetCurrentStep() == 20)
-                    || (pCalibration->GetCurrentStep() == 21)
-                    || (pCalibration->GetCurrentStep() == 22)
-                    || (pCalibration->GetCurrentStep() == 23) ) )
-                {
-                    Color = OSD_COLOR_CURRENT;
-                }
-                else
-                {
-                    Color = -1;
-                }
-            }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
+            strcpy(szInfo, "Not Supported on this Source");
         }
 
-		// Name of the test pattern
-		pTestPattern = pCalibration->GetCurrentTestPattern();
-        if (pTestPattern != NULL)
-		{
-            OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
-		}
+        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
 
-        if (pCalibration->IsRunning() && (pTestPattern != NULL))
-		{
-            if (pCalibration->GetType() != CAL_MANUAL)
+        // do Contrast
+        pSetting = pSource->GetContrast();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Contrast : %03d", pSetting->GetValue());
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 5)
+                || (pCalibration->GetCurrentStep() == 6)
+                || (pCalibration->GetCurrentStep() == 7)
+                || (pCalibration->GetCurrentStep() == 8)
+                || (pCalibration->GetCurrentStep() == 9)
+                || (pCalibration->GetCurrentStep() == 10)
+                || (pCalibration->GetCurrentStep() == 11) ) )
             {
-                switch (pCalibration->GetCurrentStep())
-                {
-                case -1:
-                    strcpy(szInfo, "Calibration finished");
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    strcpy(szInfo, "Adjusting Brightness ...");
-                    break;
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                    strcpy(szInfo, "Adjusting Contrast ...");
-                    break;
-                case 10:
-                case 11:
-                    strcpy(szInfo, "Fine tuning of brightness and contrast ...");
-                    break;
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                    strcpy(szInfo, "Adjusting Saturation U ...");
-                    break;
-                case 16:
-                case 17:
-                case 18:
-                case 19:
-                    strcpy(szInfo, "Adjusting Saturation V ...");
-                    break;
-                case 20:
-                case 21:
-                    strcpy(szInfo, "Adjusting Hue ...");
-                    break;
-                case 22:
-                case 23:
-                    strcpy(szInfo, "Fine tuning of color ...");
-                    break;
-                default:
-                    strcpy(szInfo, "");
-                    break;
-                }
-                OSD_AddText(szInfo, Size, OSD_COLOR_CURRENT, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (5, dfMargin, Size));
+                Color = OSD_COLOR_CURRENT;
             }
-
-            if ( (pCalibration->GetType() == CAL_MANUAL)
-              || (pCalibration->GetCurrentStep() == -1) )
+            else
             {
-                nLine = 4;
+                Color = -1;
+            }
+        }
+        else
+        {
+            strcpy(szInfo, "Not Supported on this Source");
+        }
+        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
 
-                if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                  && (pCalibration->GetType() == CAL_MANUAL) )
-                {
-                    OSD_AddText("Delta RGB", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                }
-                if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
-                  && (pCalibration->GetType() == CAL_MANUAL) )
-                {
-                    OSD_AddText("Delta YUV", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                }
-                nLine++;
 
-        		pSubPattern = pCalibration->GetCurrentSubPattern();
-                if (pSubPattern != NULL)
-                {
-                    for(vector<CColorBar*>::iterator it = pSubPattern->m_ColorBars.begin(); 
-                        it != pSubPattern->m_ColorBars.end(); 
-                        ++it)
-    	    		{
-                        (*it)->GetRefColor(FALSE, &val1, &val2, &val3);
-    	    			BackColor = RGB(val1, val2, val3);
 
-                        (*it)->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
+        // do Color U
+        pSetting = pSource->GetSaturationU();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 12)
+                || (pCalibration->GetCurrentStep() == 13)
+                || (pCalibration->GetCurrentStep() == 14)
+                || (pCalibration->GetCurrentStep() == 15)
+                || (pCalibration->GetCurrentStep() == 22)
+                || (pCalibration->GetCurrentStep() == 23) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = -1;
+            }
+        }
+        else
+        {
+            strcpy(szInfo, "Not Supported on this Source");
+        }
+        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
+
+
+        // do Color V
+        pSetting = pSource->GetSaturationV();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 16)
+                || (pCalibration->GetCurrentStep() == 17)
+                || (pCalibration->GetCurrentStep() == 18)
+                || (pCalibration->GetCurrentStep() == 19)
+                || (pCalibration->GetCurrentStep() == 22)
+                || (pCalibration->GetCurrentStep() == 23) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = -1;
+            }
+        }
+        else
+        {
+            strcpy(szInfo, "Not Supported on this Source");
+        }
+        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
+
+        // do Hue
+        pSetting = pSource->GetHue();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
+            if ( pCalibration->IsRunning()
+              && ( (pCalibration->GetCurrentStep() == 20)
+                || (pCalibration->GetCurrentStep() == 21)
+                || (pCalibration->GetCurrentStep() == 22)
+                || (pCalibration->GetCurrentStep() == 23) ) )
+            {
+                Color = OSD_COLOR_CURRENT;
+            }
+            else
+            {
+                Color = -1;
+            }
+        }
+        else
+        {
+            strcpy(szInfo, "Not Supported on this Source");
+        }
+        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
+    }
+
+	// Name of the test pattern
+	pTestPattern = pCalibration->GetCurrentTestPattern();
+    if (pTestPattern != NULL)
+	{
+        OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+	}
+
+    if (pCalibration->IsRunning() && (pTestPattern != NULL))
+	{
+        if (pCalibration->GetType() != CAL_MANUAL)
+        {
+            switch (pCalibration->GetCurrentStep())
+            {
+            case -1:
+                strcpy(szInfo, "Calibration finished");
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                strcpy(szInfo, "Adjusting Brightness ...");
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                strcpy(szInfo, "Adjusting Contrast ...");
+                break;
+            case 10:
+            case 11:
+                strcpy(szInfo, "Fine tuning of brightness and contrast ...");
+                break;
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                strcpy(szInfo, "Adjusting Saturation U ...");
+                break;
+            case 16:
+            case 17:
+            case 18:
+            case 19:
+                strcpy(szInfo, "Adjusting Saturation V ...");
+                break;
+            case 20:
+            case 21:
+                strcpy(szInfo, "Adjusting Hue ...");
+                break;
+            case 22:
+            case 23:
+                strcpy(szInfo, "Fine tuning of color ...");
+                break;
+            default:
+                strcpy(szInfo, "");
+                break;
+            }
+            OSD_AddText(szInfo, Size, OSD_COLOR_CURRENT, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (5, dfMargin, Size));
+        }
+
+        if ( (pCalibration->GetType() == CAL_MANUAL)
+          || (pCalibration->GetCurrentStep() == -1) )
+        {
+            nLine = 4;
+
+            if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                OSD_AddText("Delta RGB", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+            }
+            if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                OSD_AddText("Delta YUV", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+            }
+            nLine++;
+
+        	pSubPattern = pCalibration->GetCurrentSubPattern();
+            if (pSubPattern != NULL)
+            {
+                for(vector<CColorBar*>::iterator it = pSubPattern->m_ColorBars.begin(); 
+                    it != pSubPattern->m_ColorBars.end(); 
+                    ++it)
+    	    	{
+                    (*it)->GetRefColor(FALSE, &val1, &val2, &val3);
+    	    		BackColor = RGB(val1, val2, val3);
+
+                    (*it)->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
+                    if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                      && (pCalibration->GetType() == CAL_MANUAL) )
+                    {
+                        sprintf (szInfo, "(%+d,%+d,%+d) (%d)", dif_val1, dif_val2, dif_val3, dif_total1);
+                        OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                    }
+                    (*it)->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
+                    if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+                      && (pCalibration->GetType() == CAL_MANUAL) )
+                    {
+                        sprintf (szInfo, "(%d) (%+d,%+d,%+d)", dif_total2, dif_val1, dif_val2, dif_val3);
+                        OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                    }
+
+                    if (pCalibration->GetType() == CAL_MANUAL)
+                    {
                         if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                          && (pCalibration->GetType() == CAL_MANUAL) )
+                          && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
                         {
-                            sprintf (szInfo, "(%+d,%+d,%+d) (%d)", dif_val1, dif_val2, dif_val3, dif_total1);
-                            OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                            OSD_GetTextResult(dif_total1, szInfo, &Color);
                         }
-                        (*it)->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
-                        if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
-                          && (pCalibration->GetType() == CAL_MANUAL) )
+                        else if ( ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                               && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
                         {
-                            sprintf (szInfo, "(%d) (%+d,%+d,%+d)", dif_total2, dif_val1, dif_val2, dif_val3);
-                            OSD_AddText(szInfo, Size, -1, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                        }
-
-                        if (pCalibration->GetType() == CAL_MANUAL)
-                        {
-                            if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                              && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
-                            {
-                                OSD_GetTextResult(dif_total1, szInfo, &Color);
-                            }
-                            else if ( ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
-                                   && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
-                            {
-                                OSD_GetTextResult(dif_total2, szInfo, &Color);
-                            }
-                            else
-                            {
-                                OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szInfo, &Color);
-                            }
-    		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            OSD_GetTextResult(dif_total2, szInfo, &Color);
                         }
                         else
                         {
-                            OSD_GetTextResult(dif_total2, szResult, &Color);
-                            sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
-		    		        OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                            OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szInfo, &Color);
                         }
-    	    		}
-                }
+    		    		OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                    }
+                    else
+                    {
+                        OSD_GetTextResult(dif_total2, szResult, &Color);
+                        sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
+		    		    OSD_AddText(szInfo, Size, Color, BackColor, OSDB_SHADED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                    }
+    	    	}
             }
-		}
-        break;
+        }
+	}
+}
 
-    default:
-        break;
+static void OSD_RefreshDeveloperScreen(double Size)
+{
+    double      dfMargin = 0.02;    // 2% of screen height/width
+    char        szInfo[64];
+    int         nLine;
+    int         i;
+    double      pos;
+
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
+
+    // Title
+    OSD_AddText("Informations for developers", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+    nLine = 3;
+
+    OSD_AddText("Average Time per cycle (1/10 ms)", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    for (i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
+    {
+        if (pPerf->IsValid((ePerfType)i))
+        {
+            sprintf(szInfo, "%s : %d",
+                    pPerf->GetName((ePerfType)i), 
+                    pPerf->GetAverageDuration((ePerfType)i));
+            pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
+            nLine++;
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+// Display/Refresh on screen the current information screen
+void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
+{
+    // Case : no OSD screen
+    if (IdxCurrentScreen == -1)
+    {
+        return;
+    }
+
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
+
+    OSD_ClearAllTexts();
+
+    if (ActiveScreens[IdxCurrentScreen].RefreshFunction != NULL)
+    {
+        (*(ActiveScreens[IdxCurrentScreen].RefreshFunction))(Size);
     }
 
     if (ActiveScreens[IdxCurrentScreen].lock)

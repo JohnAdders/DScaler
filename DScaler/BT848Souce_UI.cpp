@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.25 2002-06-05 20:53:49 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.26 2002-06-09 23:27:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/06/05 20:53:49  adcockj
+// Default changes and settings fixes
+//
 // Revision 1.24  2002/05/19 01:19:23  dschmelzer
 // Added a seventh input
 //
@@ -394,41 +397,75 @@ void CBT848Source::SetMenu(HMENU hMenu)
 BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     static CBT848Source* pThis = NULL;
+
+    static BOOL OldAgcDisable;
+    static BOOL OldCrush;
+    static BOOL OldEvenChromaAGC;
+    static BOOL OldOddChromaAGC;
+    static BOOL OldEvenLumaPeak;
+    static BOOL OldOddLumaPeak;
+    static BOOL OldFullLumaRange;
+    static BOOL OldEvenLumaDec;
+    static BOOL OldOddLumaDec;
+    static BOOL OldEvenComb;
+    static BOOL OldOddComb;
+    static BOOL OldColorBars;
+    static BOOL OldGammaCorrection;
+    static BOOL OldVertFilter;
+    static BOOL OldHorFilter;
+
     switch (message)
     {
     case WM_INITDIALOG:
         pThis = (CBT848Source*) lParam;
+
+        OldAgcDisable = pThis->m_BtAgcDisable->GetValue();
+        OldCrush = pThis->m_BtCrush->GetValue();
+        OldEvenChromaAGC = pThis->m_BtEvenChromaAGC->GetValue();
+        OldOddChromaAGC = pThis->m_BtOddChromaAGC->GetValue();
+        OldEvenLumaPeak = pThis->m_BtEvenLumaPeak->GetValue();
+        OldOddLumaPeak = pThis->m_BtOddLumaPeak->GetValue();
+        OldFullLumaRange = pThis->m_BtFullLumaRange->GetValue();
+        OldEvenLumaDec = pThis->m_BtEvenLumaDec->GetValue();
+        OldOddLumaDec = pThis->m_BtOddLumaDec->GetValue();
+        OldEvenComb = pThis->m_BtEvenComb->GetValue();
+        OldOddComb = pThis->m_BtOddComb->GetValue();
+        OldColorBars = pThis->m_BtColorBars->GetValue();
+        OldGammaCorrection = pThis->m_BtGammaCorrection->GetValue();
+        OldVertFilter = pThis->m_BtVertFilter->GetValue();
+        OldHorFilter = pThis->m_BtHorFilter->GetValue();
+
         // Luma AGC, 0 says AGC enabled
-        CheckDlgButton(hDlg, IDC_AGC, !(pThis->m_BtAgcDisable->GetValue()));
+        CheckDlgButton(hDlg, IDC_AGC, !OldAgcDisable);
         // Adaptive AGC, 0 says Crush disabled
-        CheckDlgButton(hDlg, IDC_CRUSH, pThis->m_BtCrush->GetValue());
+        CheckDlgButton(hDlg, IDC_CRUSH, OldCrush);
         // Even CAGC, 0 says CAGC disable
-        CheckDlgButton(hDlg, IDC_E_CAGC, pThis->m_BtEvenChromaAGC->GetValue()); 
+        CheckDlgButton(hDlg, IDC_E_CAGC, OldEvenChromaAGC); 
         // Odd CAGC
-        CheckDlgButton(hDlg, IDC_O_CAGC, pThis->m_BtOddChromaAGC->GetValue());
+        CheckDlgButton(hDlg, IDC_O_CAGC, OldOddChromaAGC);
         // Even Peak, 0 says normal, not Luma peak
-        CheckDlgButton(hDlg, IDC_E_LUMA_PEAK, pThis->m_BtEvenLumaPeak->GetValue());
+        CheckDlgButton(hDlg, IDC_E_LUMA_PEAK, OldEvenLumaPeak);
         // Odd Peak
-        CheckDlgButton(hDlg, IDC_O_LUMA_PEAK, pThis->m_BtOddLumaPeak->GetValue());
+        CheckDlgButton(hDlg, IDC_O_LUMA_PEAK, OldOddLumaPeak);
         // Luma Output Range, 0 says Luma Normal, 1=Full    
-        CheckDlgButton(hDlg, IDC_LUMA_RANGE, pThis->m_BtFullLumaRange->GetValue());
+        CheckDlgButton(hDlg, IDC_LUMA_RANGE, OldFullLumaRange);
         // Even Luma decimation,  0 says disable
-        CheckDlgButton(hDlg, IDC_E_LUMA_DEC, pThis->m_BtEvenLumaDec->GetValue());
+        CheckDlgButton(hDlg, IDC_E_LUMA_DEC, OldEvenLumaDec);
         // Odd Luma decimation
-        CheckDlgButton(hDlg, IDC_O_LUMA_DEC, pThis->m_BtOddLumaDec->GetValue());
+        CheckDlgButton(hDlg, IDC_O_LUMA_DEC, OldOddLumaDec);
         // Even COMB, 0 = disable
-        CheckDlgButton(hDlg, IDC_E_COMB, pThis->m_BtEvenComb->GetValue());
+        CheckDlgButton(hDlg, IDC_E_COMB, OldEvenComb);
         // Odd COMB
-        CheckDlgButton(hDlg, IDC_O_COMB, pThis->m_BtOddComb->GetValue());
+        CheckDlgButton(hDlg, IDC_O_COMB, OldOddComb);
         // Color Bars, 0 = disable
-        CheckDlgButton(hDlg, IDC_COLOR_BARS, pThis->m_BtColorBars->GetValue());
+        CheckDlgButton(hDlg, IDC_COLOR_BARS, OldColorBars);
         // Gamma correction removal, 0=enabled
-        CheckDlgButton(hDlg, IDC_GAMMA_CORR, !pThis->m_BtGammaCorrection->GetValue());
+        CheckDlgButton(hDlg, IDC_GAMMA_CORR, !OldGammaCorrection);
         // More Vertical Filter, 0=no, 4=yes, other values no good at our res
         // (Z filter)   TRB 12/19/00
-        CheckDlgButton(hDlg, IDC_VERT_FILTER, pThis->m_BtVertFilter->GetValue());
+        CheckDlgButton(hDlg, IDC_VERT_FILTER, OldVertFilter);
         // More Horizontal Filter, 0=no, else max full res filter TRB 12/19/00
-        CheckDlgButton(hDlg, IDC_HOR_FILTER, pThis->m_BtHorFilter->GetValue());
+        CheckDlgButton(hDlg, IDC_HOR_FILTER, OldHorFilter);
         break;
 
     case WM_MOUSEMOVE:
@@ -438,6 +475,26 @@ BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wP
 
         switch LOWORD(wParam)
         {
+        case IDCANCEL:                      //  Restore settings
+            pThis->m_BtAgcDisable->SetValue(OldAgcDisable);
+            pThis->m_BtCrush->SetValue(OldCrush);
+            pThis->m_BtEvenChromaAGC->SetValue(OldEvenChromaAGC);
+            pThis->m_BtOddChromaAGC->SetValue(OldOddChromaAGC);
+            pThis->m_BtEvenLumaPeak->SetValue(OldEvenLumaPeak);
+            pThis->m_BtOddLumaPeak->SetValue(OldOddLumaPeak);
+            pThis->m_BtFullLumaRange->SetValue(OldFullLumaRange);
+            pThis->m_BtEvenLumaDec->SetValue(OldEvenLumaDec);
+            pThis->m_BtOddLumaDec->SetValue(OldOddLumaDec);
+            pThis->m_BtEvenComb->SetValue(OldEvenComb);
+            pThis->m_BtOddComb->SetValue(OldOddComb);
+            pThis->m_BtColorBars->SetValue(OldColorBars);
+            pThis->m_BtGammaCorrection->SetValue(OldGammaCorrection);
+            pThis->m_BtVertFilter->SetValue(OldVertFilter);
+            pThis->m_BtHorFilter->SetValue(OldHorFilter);
+
+            EndDialog(hDlg, TRUE);
+            break;
+
         case IDOK:                          // Is Done
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);

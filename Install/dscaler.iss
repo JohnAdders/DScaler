@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.13 2002-09-17 17:32:36 tobbej Exp $
+;// $Id: dscaler.iss,v 1.14 2002-11-02 11:42:37 robmuller Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.13  2002/09/17 17:32:36  tobbej
+;// updated crashloging to same version as in latest virtualdub
+;//
 ;// Revision 1.12  2002/08/19 19:00:57  adcockj
 ;// Updated Version
 ;//
@@ -129,6 +132,8 @@ Source: "..\Release\channel.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\dscaler.chm"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite
 Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite
+Source: "..\Release\Skins\*.bmp"; DestDir: "{app}\Skins"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
+Source: "..\Release\Skins\*.ini"; DestDir: "{app}\Skins"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
 Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite

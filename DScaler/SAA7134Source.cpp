@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.26 2002-10-20 07:41:04 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.27 2002-10-20 09:27:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/20 07:41:04  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.25  2002/10/15 04:34:26  atnak
 // increased the amount of VBI samples to get better decoding
 //
@@ -602,7 +605,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     BOOL        bIsFieldOdd;
     int         FieldIndex;
     int         SkippedFields;
-    BOOL        bTolerateDrops = FALSE;
+    BOOL        bTolerateDrops = TRUE;
     BOOL        bFirstTime;
 
     bFirstTime = (m_ProcessingRegionID == REGIONID_INVALID);
@@ -700,7 +703,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
     if (bFirstTime)
     {
-        m_LastFieldIndex = EnumulateField(RegionID, bIsFieldOdd);
+        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
         SkippedFields = 0;
     }
     else

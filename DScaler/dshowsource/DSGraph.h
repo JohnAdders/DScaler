@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.12 2002-05-24 15:15:11 tobbej Exp $
+// $Id: DSGraph.h,v 1.13 2002-07-06 16:50:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/05/24 15:15:11  tobbej
+// changed filter properties dialog to include progpertypages from the pins
+//
 // Revision 1.11  2002/05/11 15:22:00  tobbej
 // fixed object reference leak when opening filter settings
 // added filter graph loging in debug build
@@ -109,9 +112,8 @@ public:
 	 * @return pointer to the source device or NULL if there is no source
 	 */
 	CDShowBaseSource* getSourceDevice();
-	bool getNextSample(CComPtr<IMediaSample> &pSample);
 	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
-	void waitForNextField();
+	bool GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info);
 
 	/**
 	 * Get number of dropped frames.

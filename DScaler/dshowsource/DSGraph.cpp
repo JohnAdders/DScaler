@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.15 2002-05-24 15:15:11 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.16 2002-07-06 16:50:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/05/24 15:15:11  tobbej
+// changed filter properties dialog to include progpertypages from the pins
+//
 // Revision 1.14  2002/05/11 15:22:00  tobbej
 // fixed object reference leak when opening filter settings
 // added filter graph loging in debug build
@@ -133,6 +136,12 @@ CDShowGraph::CDShowGraph(string filename)
 
 CDShowGraph::~CDShowGraph()
 {
+	if(m_DSRend!=NULL)
+	{
+		//make shure that all fields are marked as free
+		//(prevents deadlock and problems in dsrend filter)
+		m_DSRend->FreeFields();
+	}
 	if(m_pSource!=NULL)
 	{
 		delete m_pSource;
@@ -198,55 +207,57 @@ void CDShowGraph::createRenderer()
 	{
 		throw CDShowException("QueryInterface failed on video renderer",hr);
 	}
-}
-
-bool CDShowGraph::getNextSample(CComPtr<IMediaSample> &pSample)
-{
-	if(m_DSRend==NULL)
-	{
-		return false;
-	}
-
-	//FIXME: fix the timeout
-	pSample=NULL;
-	HRESULT hr=m_DSRend->GetNextSample(&pSample.p,400);
+	hr=m_DSRend->SetFieldHistory(MAX_PICTURE_HISTORY);
 	if(FAILED(hr))
 	{
-		TRACE("GetNextSample failed\n");
-		return false;
+		throw CDShowException("SetFieldHistory failed",hr);
 	}
-	
-	return true;
 }
 
-void CDShowGraph::waitForNextField()
+bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info)
 {
 	if(m_DSRend==NULL)
 	{
-		return;
+		return false;
 	}
-	HRESULT hr=m_DSRend->WaitForNextField(400);
+	ASSERT(ppFields!=NULL && pcFields!=NULL);
+	HRESULT hr=m_DSRend->GetFields(ppFields,pcFields,&info,400);
 	if(FAILED(hr))
 	{
 		CString tmpstr;
 		DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
 		tmpstr.ReleaseBuffer(len);
-		LOG(3, "WaitForNextField failed - Error Code: '0x%x' Error Text: '%s'", hr,(LPCSTR)tmpstr);
+		LOG(3, "GetFields failed - Error Code: '0x%x' Error Text: '%s'", hr,(LPCSTR)tmpstr);
+		LOGD("GetFields failed - Error Code: '0x%x' Error Text: '%s'\n", hr,(LPCSTR)tmpstr);
+		return false;
 	}
+	return true;
 }
 
 void CDShowGraph::start()
 {
 	if(m_pSource!=NULL)
 	{
-		if(!m_pSource->isConnected())
+		//check if the dsrend is unconnected
+		bool IsUnConnected=false;
+		CDShowPinEnum pins(m_renderer,PINDIR_INPUT);
+		CComPtr<IPin> InPin=pins.next();
+		ASSERT(InPin!=NULL);
+		CComPtr<IPin> OutPin;
+		HRESULT hr=InPin->ConnectedTo(&OutPin);
+		if(hr==VFW_E_NOT_CONNECTED)
+		{
+			IsUnConnected=true;
+		}
+
+		if(IsUnConnected || !m_pSource->isConnected())
 		{
 			m_pSource->connect(m_renderer);
 		}
 
 		buildFilterList();
 
-		HRESULT hr=m_pControl->Run();
+		hr=m_pControl->Run();
 		if(FAILED(hr))
 		{
 			throw CDShowException("Failed to start filter graph",hr);
@@ -275,6 +286,10 @@ void CDShowGraph::pause()
 
 void CDShowGraph::stop()
 {
+	if(m_DSRend!=NULL)
+	{
+		m_DSRend->FreeFields();
+	}
 	HRESULT hr=m_pControl->Stop();
 	if(FAILED(hr))
 	{
@@ -492,10 +507,24 @@ void CDShowGraph::changeRes(long x,long y)
 		return;
 	}
 
-	if(m_pStreamCfg==NULL)
+	CDShowPinEnum RendPins(m_renderer,PINDIR_INPUT);
+	CComPtr<IPin> InPin;
+	InPin=RendPins.next();
+	//if this assert is trigered there is most likely s bug in the renderer filter
+	ASSERT(InPin!=NULL);
+	//get the upstream pin
+	CComPtr<IPin> OutPin;
+	HRESULT hr=InPin->ConnectedTo(&OutPin);
+	if(FAILED(hr))
 	{
-		//this will throw an exception if it cant find IAMStreamConfig interface
-		findStreamConfig();
+		throw CDShowException("Failed to find pin",hr);
+	}
+	//get IAMStreamConfig on the output pin
+	m_pStreamCfg=NULL;
+	hr=OutPin.QueryInterface(&m_pStreamCfg);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Query interface for IAMStreamConfig failed",hr);
 	}
 
 	FILTER_STATE oldState=getState();
@@ -507,7 +536,7 @@ void CDShowGraph::changeRes(long x,long y)
 
 	//get current mediatype
 	AM_MEDIA_TYPE *mt=NULL;
-	HRESULT hr=m_pStreamCfg->GetFormat(&mt);
+	hr=m_pStreamCfg->GetFormat(&mt);
 	if(FAILED(hr))
 	{
 		throw CDShowException("Failed to get old mediatype",hr);
@@ -570,7 +599,27 @@ void CDShowGraph::changeRes(long x,long y)
 	hr=m_pStreamCfg->SetFormat(&newType);
 	if(FAILED(hr))
 	{
-		throw CDShowException("Failed to change resolution",hr);
+		//reconnect using the old mediatype
+		CComPtr<IPin> tmp;
+		hr=InPin->ConnectedTo(&tmp);
+		if(hr==VFW_E_NOT_CONNECTED)
+		{
+			//reconnect
+			hr=OutPin->Connect(InPin,mt);
+			if(SUCCEEDED(hr))
+			{
+				//failed to change mediatype, but was able to reconnect using old mediatype
+			}
+		}
+		else
+		{
+			hr=m_pStreamCfg->SetFormat(mt);
+			if(SUCCEEDED(hr))
+			{
+				//was able to change back to old format
+			}
+		}
+		//throw CDShowException("Failed to change resolution, and coud not change back to old resolution",hr);
 	}
 	
 	//restore old graph state

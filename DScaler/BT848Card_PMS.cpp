@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.1 2003-10-27 16:22:56 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.2 2003-10-30 22:05:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/10/27 16:22:56  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -201,6 +204,8 @@ void CBT848Card::PMSDeluxeInputSelect(int nInput)
 {
     //hcho, enforce to use those nInput with type INPUTTYPE_CCIR
     RSBTCardInputSelect(nInput); 
+
+    m_CurrentInput = nInput;
 
     switch(nInput)
     {
@@ -412,7 +417,7 @@ void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness)
             m_SAA7118->SetComponentBrightness((BYTE)NewBrightness);
             m_SAA7118->SetComponentContrast(ContrastLimited);
 
-            SetAnalogContrastBrightness(0x80, 0x80);
+            SetAnalogContrastBrightness(0x80, 0x00);
         }
        break;
     case PMS_SVIDEO:
@@ -430,7 +435,7 @@ void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness)
             // operation to the bt848 which means that the calibration code
             // may work properly
 
-            int NewBrightness = (Brightness - 128) + ContrastLimited;
+            int NewBrightness = Brightness + ContrastLimited;
             if(NewBrightness < 0)
             {
                 NewBrightness = 0;
@@ -441,7 +446,7 @@ void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness)
             }
             m_SAA7118->SetBrightness((BYTE)NewBrightness);
             m_SAA7118->SetContrast(ContrastLimited);
-            SetAnalogContrastBrightness(0x80, 0x80);
+            SetAnalogContrastBrightness(0x80, 0x00);
         }
         break;
     case PMS_XPORT:

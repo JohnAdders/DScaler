@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.11 2001-11-22 17:41:08 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.12 2001-12-03 20:40:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/11/22 17:41:08  adcockj
+// Updated plugtest to be compatable with new structure
+//
 // Revision 1.10  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -118,7 +121,7 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
     }
 
     // read in fields
-    for (i = 0; i < MAX_PICTURE_HISTORY; i++)
+    for (i = 0; i < 5; i++)
     {
         if (pInfo->PictureHistory[i] == NULL)
         {
@@ -145,6 +148,7 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
         }
     }
 
+	pInfo->InputPitch = pInfo->LineLength;
     pInfo->Overlay = (BYTE*)malloc(pInfo->OverlayPitch * pInfo->FrameHeight);
     pInfo->CpuFeatureFlags = CpuFeatureFlags;
     pInfo->pMemcpy = memcpyMMX;
@@ -157,7 +161,7 @@ void EmptyInfoStruct(TDeinterlaceInfo* pInfo)
    int i;
 
     i = 0;
-    while(i < MAX_PICTURE_HISTORY && pInfo->PictureHistory[i] != NULL)
+    while(i < 5 && pInfo->PictureHistory[i] != NULL)
     {
         free(pInfo->PictureHistory[i]->pData);
         free(pInfo->PictureHistory[i]);

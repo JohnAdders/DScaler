@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.26 2002-02-08 00:36:06 laurentg Exp $
+// $Id: StillSource.cpp,v 1.27 2002-02-08 19:11:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/02/08 00:36:06  laurentg
+// Support of a new type of file : DScaler patterns
+//
 // Revision 1.25  2002/02/02 01:31:18  laurentg
 // Access to the files of the playlist added in the menus
 // Save Playlist added
@@ -258,18 +261,26 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
             }
             fclose(Playlist);
         }
+
+        if (FirstNewAdded)
+        {
+            ShowNextInPlayList();
+            return TRUE;
+        }
     }
-    else
+    else if(OpenPictureFile(FileName))
     {
         CPlayListItem* Item = new CPlayListItem(FileName, 10);
         m_PlayList.push_back(Item);
         m_Position = m_PlayList.size() - 1;
+        return TRUE;
+    }
+    else if ((m_Position != -1) && (m_PlayList.size() > 0))
+    {
+        OpenPictureFile(m_PlayList[m_Position]->GetFileName());
     }
 
-    if ((m_Position == -1) || (m_PlayList.size() == 0))
-        return FALSE;
-    else
-        return ShowNextInPlayList();
+    return FALSE;
 }
 
 BOOL CStillSource::ShowNextInPlayList()
@@ -283,7 +294,6 @@ BOOL CStillSource::ShowNextInPlayList()
         ++m_Position;
     }
     m_Position = m_PlayList.size() - 1;
-//    OpenPictureFile("..\\Help\\images\\dscalerlogo.tif");
     return FALSE;
 }
 

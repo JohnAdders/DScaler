@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.78 2002-10-17 00:28:41 flibuste2 Exp $
+// $Id: ProgramList.cpp,v 1.79 2002-10-17 06:49:27 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2002/10/17 00:28:41  flibuste2
+// Channels.h / Channels.cpp define the current CHANNELLIST and COUNTRYLIST
+// This first check-in is prior to other enhancements and mostly reproduces
+// the existing data structures for channel settings and user program list
+//
 // Revision 1.77  2002/10/08 20:48:29  kooiman
 // Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -283,7 +288,7 @@ SCAN_MODE MyScanMode = SCAN_MODE_CUSTOM_ORDER;
 extern BOOL bNoScreenUpdateDuringTuning;
 
 
-CHANNELLIST MyChannels;
+CChannelList MyChannels;
 COUNTRYLIST MyCountries;
 
 int CountryCode = 1;
@@ -294,10 +299,6 @@ long PreviousProgram = 0;
 
 BOOL MyInScan = FALSE;
 BOOL MyInUpdate = FALSE;
-BOOL MyIsAudioMuted = FALSE;
-
-int WM_DRAGLISTMESSAGE = 0;
-long DragItemIndex = 0;
 
 int PreSwitchMuteDelay = 0;
 int PostSwitchMuteDelay = 0;
@@ -312,30 +313,9 @@ static int InitialNbMenuItems = -1;
 //TODO->Remove this (find a way to store user channels in DScaler APP)
 //The implementation is now in Channels
 BOOL Load_Program_List_ASCII() {
-    return Load_Program_List_ASCII(SZ_DEFAULT_PROGRAMS_FILENAME, &MyChannels);
+    return MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
 }
-
-//This is a helper method (copied from some code)
-//that is best for muting/restoring audio.
-void MuteAudio(BOOL muted)
-{        
-    if (MyIsAudioMuted == muted)
-    {
-        return;
-    }
-    if (TRUE == muted) 
-    {
-        Audio_Mute();
-    }
-    else 
-    {
-        Audio_Unmute();
-    }
-    
-    Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise. 
-    MyIsAudioMuted = muted;
-}
-                     
+                   
 
 void Channel_SetCurrent()
 {
@@ -344,9 +324,9 @@ void Channel_SetCurrent()
 
 const char* Channel_GetName()
 {
-    if(CurrentProgram < MyChannels.size())
+    if(CurrentProgram < MyChannels.GetSize())
     {
-        return MyChannels[CurrentProgram]->GetName();
+        return MyChannels.GetChannel(CurrentProgram)->GetName();
     }
     else
     {
@@ -372,27 +352,27 @@ void SelectChannel(HWND hDlg, long ChannelToSelect)
 void UpdateDetails(HWND hDlg)
 {
     MyInUpdate = TRUE;
-    if(CurrentProgram < MyChannels.size())
+    if(CurrentProgram < MyChannels.GetSize())
     {
         char sbuf[256];
 
         // set the name     
-        LPCSTR Name = MyChannels[CurrentProgram]->GetName();
+        LPCSTR Name = MyChannels.GetChannel(CurrentProgram)->GetName();
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), Name);
 
         // set the frequency
-        sprintf(sbuf, "%10.4f", (double)(MyChannels[CurrentProgram]->GetFrequency()) / 1000000.0);
+        sprintf(sbuf, "%10.4f", (double)(MyChannels.GetChannel(CurrentProgram)->GetFrequency()) / 1000000.0);
         Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
 
         // set the channel
         // select none to start off with
-        SelectChannel(hDlg, (MyChannels[CurrentProgram]->GetChannelNumber()));
+        SelectChannel(hDlg, (MyChannels.GetChannelNumber(CurrentProgram)));
         
         // set format
-        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), (MyChannels[CurrentProgram]->GetFormat() + 1));
+        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), (MyChannels.GetChannel(CurrentProgram)->GetFormat() + 1));
 
         // set active
-        if(MyChannels[CurrentProgram]->IsActive())
+        if(MyChannels.GetChannel(CurrentProgram)->IsActive())
         {
             Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_CHECKED);
         }
@@ -441,14 +421,12 @@ void UpdateAutoScanDetails(HWND hDlg)
 //and selects the given program index
 void RefreshProgramList(HWND hDlg, int ProgToSelect)
 {
-    MyInUpdate = TRUE;
-    CHANNELLIST::iterator it;
-
+    MyInUpdate = TRUE;    
     ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
-    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    for(int i = 0; i < MyChannels.GetSize(); i++)
     {
-        ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), (*it)->GetName());
+        ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), MyChannels.GetChannelName(i));
     }
     
     CurrentProgram = ProgToSelect;
@@ -462,13 +440,8 @@ void RefreshProgramList(HWND hDlg, int ProgToSelect)
 //and restores the current country settings for the given country code
 void ResetProgramList(HWND hDlg, int iCountryCode)
 {
-    MyInUpdate = TRUE;
-    CHANNELLIST::iterator it;       
-    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
-    {
-        delete *it;
-    }
-    MyChannels.clear();
+    MyInUpdate = TRUE;  
+    MyChannels.Clear();
 
     if(SCAN_MODE_CUSTOM_ORDER == MyScanMode)
     {
@@ -479,11 +452,10 @@ void ResetProgramList(HWND hDlg, int iCountryCode)
                 char sbuf[256];
                 int currentChannel = MyCountries[iCountryCode]->GetMinChannel() + i;
                 sprintf(sbuf, "%d", currentChannel);
-                MyChannels.push_back(new CChannel(sbuf, 
+                MyChannels.AddChannel(sbuf, 
                                         MyCountries[iCountryCode]->GetFrequency(i),
                                         currentChannel,
-                                        MyCountries[iCountryCode]->GetFormat(i),
-                                        TRUE));        
+                                        MyCountries[iCountryCode]->GetFormat(i));
             }
         }
         
@@ -576,20 +548,20 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
     BOOL result;
     MyInUpdate = TRUE;
 
-    if(ChannelNum < 0 || ChannelNum >= MyChannels.size())
+    if(ChannelNum < 0 || ChannelNum >= MyChannels.GetSize())
     {
         return;
     }
 
-    MyChannels[ChannelNum]->SetActive(FALSE);
+    MyChannels.SetChannelActive(ChannelNum, FALSE);
 
     CurrentProgram = ChannelNum;
     UpdateDetails(hDlg);
     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ChannelNum);
 
-    result = FindFrequency(MyChannels[ChannelNum]->GetFrequency(), MyChannels[ChannelNum]->GetFormat(), FALSE);
+    result = FindFrequency(MyChannels.GetChannelFrequency(ChannelNum), MyChannels.GetChannelFormat(ChannelNum), FALSE);
 
-    MyChannels[ChannelNum]->SetActive(result);
+    MyChannels.SetChannelActive(ChannelNum, result);
     MyInUpdate = FALSE;
 }
 
@@ -611,9 +583,9 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         return;
     }
 
-    for(int i = 0; i < MyChannels.size(); i++)
+    for(int i = 0; i < MyChannels.GetSize(); i++)
     {
-        if(MyChannels[i]->GetFrequency() == Freq)
+        if(MyChannels.GetChannelFrequency(i) == Freq)
         {
             return;
         }
@@ -632,13 +604,11 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         char sbuf[256];
         ++CurrentProgram;
         sprintf(sbuf, "Channel %d", CurrentProgram);
-        MyChannels.push_back(new CChannel(
-                                            sbuf, 
-                                            Freq, 
-                                            MyCountries[CountryCode]->GetMinChannel()+ FreqNum, 
-                                            Format, 
-                                            TRUE
-                                         ));
+        MyChannels.AddChannel(sbuf, 
+                                    Freq, 
+                                    MyCountries[CountryCode]->GetMinChannel()+ FreqNum, 
+                                    Format);
+
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram - 1);
     }
@@ -657,15 +627,14 @@ DWORD AutoScanFrequency(HWND hDlg, DWORD dFrequency)
     
     BOOL isAFCInUse =(Button_GetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC)) == BST_CHECKED);
     if (FindFrequency(dFrequency, videoFormat, isAFCInUse)) {        
-        
-        CChannel * newChannel = new CChannel(
+           
+        MyChannels.AddChannel(
                 sbuf, 
                 dFrequency, 
-                MyChannels.size(), 
+                MyChannels.GetSize(), 
                 videoFormat, 
-                TRUE
-            );
-        MyChannels.push_back(newChannel);
+                TRUE);
+
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);        
     }
 
@@ -773,7 +742,7 @@ void BeginScan(HWND hDlg)
 
     //Audio_Mute();
     Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Abort");
-    CurrentProgram = MyChannels.size();
+    CurrentProgram = MyChannels.GetSize();
     
     switch (MyScanMode) 
     {
@@ -807,9 +776,9 @@ void EndScan(HWND hDlg)
     MyInScan = FALSE;
 
     Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Scan");
-    if(MyChannels.size() > 0)
+    if(MyChannels.GetSize() > 0)
     {
-        CurrentProgram = CurrentProgram = MyChannels.size()-1;
+        CurrentProgram = CurrentProgram = MyChannels.GetSize()-1;
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
         Channel_Change(CurrentProgram);
     }    
@@ -827,7 +796,7 @@ void ChangeChannelInfo(HWND hDlg)
     MyInUpdate = TRUE;
     char sbuf[265];
 
-    if(CurrentProgram < MyChannels.size())
+    if(CurrentProgram < MyChannels.GetSize())
     {
         char* cLast;
         Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
@@ -835,11 +804,10 @@ void ChangeChannelInfo(HWND hDlg)
         long Freq = (long)(dFreq * 1000000.0);
         int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
         Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
-        int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
-        delete MyChannels[CurrentProgram];
+        int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;        
         Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
         BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
-        MyChannels[CurrentProgram] = new CChannel(sbuf, Freq, Channel, Format, Active);
+        MyChannels.SetChannel(CurrentProgram, new CChannel(sbuf, Freq, Channel, (eVideoFormat)Format, Active));
         ListBox_DeleteString(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
         ListBox_InsertString(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram, sbuf);
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
@@ -869,8 +837,9 @@ void CloseDialog(HWND hDlg, BOOL bCancelled)
     }
 
     if (TRUE == bCancelled)
-    {       
-        Load_Program_List_ASCII(SZ_DEFAULT_PROGRAMS_FILENAME, &MyChannels);
+    {   
+        MyChannels.Clear();
+        MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
     }
     else 
     {
@@ -878,7 +847,7 @@ void CloseDialog(HWND hDlg, BOOL bCancelled)
 
         while(!channelsSaved) 
         {
-            channelsSaved = Write_Program_List_ASCII(SZ_DEFAULT_PROGRAMS_FILENAME, &MyChannels);
+            channelsSaved = MyChannels.WriteASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
             if (!channelsSaved)
             {
                 CString dummy("Unable to write to file \n\""); 
@@ -908,7 +877,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     char sbuf[256];
     static SCAN_MODE OldScanMode;
     static int OldCountryCode;
-    static BOOL OldIsAudioMuted;
 
     switch (message)
     {
@@ -918,14 +886,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 
         OldScanMode = MyScanMode;
         OldCountryCode = CountryCode;
-        OldIsAudioMuted = MyIsAudioMuted;
 
         SetCapture(hDlg);
         ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
-       
-        WM_DRAGLISTMESSAGE = RegisterWindowMessage(DRAGLISTMSGSTRING);
-        MakeDragList(GetDlgItem(hDlg, IDC_PROGRAMLIST));
-        
+      
         ScrollBar_SetRange(GetDlgItem(hDlg, IDC_FINETUNE), 0, 100, FALSE);
         ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
         
@@ -969,8 +933,9 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO2), BST_CHECKED);                    
                     break;
             }   
-            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), MyIsAudioMuted);
+            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_IsMuted()) ? BST_CHECKED : BST_UNCHECKED));
             ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);            
+            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);  
             RefreshChannelList(hDlg);
 
             RefreshProgramList(hDlg, CountryCode);            
@@ -1035,7 +1000,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_SCAN_CUSTOM_ORDER :
         if (MyInScan == TRUE) {
             ScanCustomChannel(hDlg, wParam);
-            if(wParam < MyChannels.size())
+            if(wParam < MyChannels.GetSize())
             {
                 PostMessage(hDlg, WM_SCAN_CUSTOM_ORDER, wParam + 1, 0);
             }
@@ -1071,7 +1036,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             
             if ((newFrequency > 0) && (newFrequency < lParam))
             {            
-                if (MyChannels.size() >= MAX_CHANNELS) 
+                if (MyChannels.GetSize() >= MAX_CHANNELS) 
                 {
                     MessageBox(
                             hDlg, 
@@ -1111,7 +1076,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 i = ListBox_GetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
-                if ((i >= 0) && (i < MyChannels.size()))
+                if ((i >= 0) && (i < MyChannels.GetSize()))
                 {
                     CurrentProgram = i;
                     Channel_Change(CurrentProgram);
@@ -1194,6 +1159,11 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_NAME:
+            //(DB) Although it's nice to have 
+            //the listbox updated immediately, 
+            //reacting to each textbox change is not good
+            //according to the way ChangeChannelInfo is currently implemented
+            
             if(MyInUpdate == FALSE)
             {
                 ChangeChannelInfo(hDlg);
@@ -1201,6 +1171,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_ACTIVE:
+            //(DB) Same comment as for IDC_NAME
             if(MyInUpdate == FALSE)
             {
                 ChangeChannelInfo(hDlg);
@@ -1232,21 +1203,20 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
                 Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
                 BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
-                MyChannels.push_back(new CChannel(sbuf, Freq, Channel, Format, Active));
+                MyChannels.AddChannel(new CChannel(sbuf, Freq, Channel, (eVideoFormat)Format, Active));
                 CurrentProgram = ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
                 ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
                 MyInUpdate = FALSE;
             }
             break;
         case IDC_REMOVE:
-            if(CurrentProgram >= 0 && CurrentProgram < MyChannels.size())
+            if(CurrentProgram >= 0 && CurrentProgram < MyChannels.GetSize())
             {
                 int TopIndex = 0;
-                delete MyChannels[CurrentProgram];
-                MyChannels.erase(&MyChannels[CurrentProgram]);
-                if(CurrentProgram >= MyChannels.size())
+                MyChannels.RemoveChannel(CurrentProgram);               
+                if(CurrentProgram >= MyChannels.GetSize())
                 {
-                    CurrentProgram = MyChannels.size() - 1;
+                    CurrentProgram = MyChannels.GetSize() - 1;
                 }
                 Channel_Change(CurrentProgram);
                 TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
@@ -1256,12 +1226,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
         case IDC_UP:
-            if(CurrentProgram > 0 && CurrentProgram < MyChannels.size())
+            if(CurrentProgram > 0 && CurrentProgram < MyChannels.GetSize())
             {
                 int TopIndex = 0;
-                CChannel* Temp = MyChannels[CurrentProgram];
-                MyChannels[CurrentProgram] = MyChannels[CurrentProgram - 1];
-                MyChannels[CurrentProgram - 1] = Temp;
+                MyChannels.SwapChannels(CurrentProgram, CurrentProgram - 1);                               
                 --CurrentProgram; 
                 TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
                 RefreshProgramList(hDlg, CurrentProgram);
@@ -1269,12 +1237,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
         case IDC_DOWN:
-            if(CurrentProgram >= 0 && CurrentProgram < MyChannels.size() - 1)
+            if(CurrentProgram >= 0 && CurrentProgram < MyChannels.GetSize() - 1)
             {
                 int TopIndex = 0;
-                CChannel* Temp = MyChannels[CurrentProgram];
-                MyChannels[CurrentProgram] = MyChannels[CurrentProgram + 1];
-                MyChannels[CurrentProgram + 1] = Temp;
+                MyChannels.SwapChannels(CurrentProgram, CurrentProgram + 1);
                 ++CurrentProgram; 
                 TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
                 RefreshProgramList(hDlg, CurrentProgram);
@@ -1315,7 +1281,14 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_CHANNEL_MUTE :    
             {
                 BOOL muteAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE)) == BST_CHECKED);
-                MuteAudio(muteAudio);            
+                if (FALSE == muteAudio)
+                {
+                    Audio_Unmute();
+                }
+                else 
+                {
+                    Audio_Mute();
+                }
             }
             break;
 
@@ -1326,8 +1299,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDCANCEL:
              //bCustomChannelOrder = OldCustom;
             MyScanMode = OldScanMode;
-            CountryCode = OldCountryCode;
-            MyIsAudioMuted = OldIsAudioMuted;
+            CountryCode = OldCountryCode;            
             CloseDialog(hDlg, TRUE);
             break;
 
@@ -1349,79 +1321,15 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         }
         
         break;
-    }
-
-
-    if(message == WM_DRAGLISTMESSAGE)
-    {
-        int Item = 0;
-        LPDRAGLISTINFO pDragInfo = (LPDRAGLISTINFO) lParam; 
-        switch(pDragInfo->uNotification)
-        {
-        case DL_BEGINDRAG:
-            DragItemIndex = ListBox_GetCurSel(pDragInfo->hWnd);
-            SetWindowLong(hDlg, DWL_MSGRESULT, TRUE);
-            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
-            DrawInsert(hDlg, pDragInfo->hWnd, Item);
-            break;
-        case DL_DROPPED:
-            DrawInsert(hDlg, pDragInfo->hWnd, -1);               
-            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
-            if((Item >= 0) && (Item != DragItemIndex)) 
-            {
-                CChannel* Temp = MyChannels[DragItemIndex];
-                CurrentProgram = DragItemIndex;
-                if(Item < DragItemIndex)
-                {
-                    while(CurrentProgram > Item)
-                    {
-                        MyChannels[CurrentProgram] = MyChannels[CurrentProgram - 1];
-                        --CurrentProgram;
-                    }
-                }
-                else
-                {
-                    while(CurrentProgram < Item)
-                    {
-                        MyChannels[CurrentProgram] = MyChannels[CurrentProgram + 1];
-                        ++CurrentProgram;
-                    }
-                }
-                MyChannels[Item] = Temp;
-                CurrentProgram = Item; 
-
-                int TopIndex = 0;
-                TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
-                RefreshProgramList(hDlg, CurrentProgram);
-                ListBox_SetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST), TopIndex);
-            }
-            break;
-        case DL_CANCELDRAG:
-            DrawInsert(hDlg, pDragInfo->hWnd, -1);
-            break;
-        case DL_DRAGGING:
-            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, TRUE);
-            DrawInsert(hDlg, pDragInfo->hWnd, Item);
-            SetWindowLong(hDlg, DWL_MSGRESULT, DL_MOVECURSOR);
-            break;
-        }
-        return (TRUE);
-    }
+    }   
 
     return (FALSE);
 }
 
 
 void Channels_Exit()
-{
-    CHANNELLIST::iterator it;
-
-    // Zero out the program list
-    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
-    {
-        delete (*it);
-    }
-    MyChannels.clear();
+{    
+    MyChannels.Clear();
 }
 
 
@@ -1452,16 +1360,16 @@ static VOID CALLBACK PostSwitchMuteDelayTimerProc(
 void Channel_Change(int NewChannel, int DontStorePrevious)
 {
     eVideoFormat VideoFormat;
-    BOOL audioWasMuted = MyIsAudioMuted;
+    BOOL audioWasMuted = Audio_IsMuted();
 
     if (Providers_GetCurrentSource()->HasTuner() == TRUE)
     {
-        if(NewChannel >= 0 && NewChannel < MyChannels.size())
+        if(NewChannel >= 0 && NewChannel < MyChannels.GetSize())
         {
-            if (MyChannels[NewChannel]->GetFrequency() != 0)
+            if (MyChannels.GetChannelFrequency(NewChannel) != 0)
             {
 				int OldChannel = CurrentProgram;                
-                MuteAudio(TRUE);             
+                Audio_Mute();             
                 if (EventCollector != NULL)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
@@ -1471,9 +1379,9 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                     PreviousProgram = CurrentProgram;
                 }
                 CurrentProgram = NewChannel;
-                if(MyChannels[CurrentProgram]->GetFormat() != -1)
+                if(MyChannels.GetChannel(CurrentProgram)->GetFormat() != -1)
                 {
-                    VideoFormat = (eVideoFormat)MyChannels[CurrentProgram]->GetFormat();
+                    VideoFormat = MyChannels.GetChannelFormat(CurrentProgram);
                 }
                 else
                 {
@@ -1495,7 +1403,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 for(int i = 0; i < 3; i++)
                 {
                     if(Providers_GetCurrentSource()->SetTunerFrequency(
-                                                     MyChannels[CurrentProgram]->GetFrequency(), 
+                                                     MyChannels.GetChannelFrequency(CurrentProgram), 
                                                      VideoFormat))
                     {
                         break;
@@ -1512,7 +1420,10 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 }
                 else
                 {
-                    MuteAudio(audioWasMuted);//not FALSE because it'll overwrite user settings
+                    if (FALSE == audioWasMuted)
+                    {
+                        Audio_Unmute();
+                    }
                 }
 
                 if (EventCollector != NULL)
@@ -1522,8 +1433,8 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 //Sleep(PostSwitchMuteDelay); //now timer controlled
                 VT_ChannelChange();                                
 
-                StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
-                OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
+                StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
+                OSD_ShowText(hWnd,MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
 				
             }
         }
@@ -1539,30 +1450,30 @@ void Channel_Increment()
 {
     int CurrentProg;
 
-    if(MyChannels.size() > 0)
+    if(MyChannels.GetSize() > 0)
     {
         CurrentProg = CurrentProgram;
         PreviousProgram = CurrentProg;
         // look for next active channel
         ++CurrentProg;
-        while(CurrentProg < MyChannels.size() && 
-            !MyChannels[CurrentProg]->IsActive())
+        while(CurrentProg < MyChannels.GetSize() && 
+            !MyChannels.GetChannelActive(CurrentProg))
         {
             ++CurrentProg;
         }
 
         // see if we looped around
-        if(CurrentProg == MyChannels.size())
+        if(CurrentProg == MyChannels.GetSize())
         {
             CurrentProg = 0;
-            while(CurrentProg < MyChannels.size() && 
-                !MyChannels[CurrentProg]->IsActive())
+            while(CurrentProg < MyChannels.GetSize() && 
+                !MyChannels.GetChannelActive(CurrentProg))
             {
                 ++CurrentProg;
             }
 
             // see if we looped around again
-            if(CurrentProg == MyChannels.size())
+            if(CurrentProg == MyChannels.GetSize())
             {
                 CurrentProg = 0;
             }
@@ -1570,8 +1481,8 @@ void Channel_Increment()
     
         Channel_Change(CurrentProg);
 
-        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
-        OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
+        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannelName(CurrentProgram));
+        OSD_ShowText(hWnd,MyChannels.GetChannelName(CurrentProgram), 0);
     }
     else
     {
@@ -1584,14 +1495,14 @@ void Channel_Decrement()
 {
     int CurrentProg;
 
-    if(MyChannels.size() > 0)
+    if(MyChannels.GetSize() > 0)
     {
         CurrentProg = CurrentProgram;
         PreviousProgram = CurrentProg;
         // look for next active channel
         --CurrentProg;
         while(CurrentProg > -1 && 
-            !MyChannels[CurrentProg]->IsActive())
+            !MyChannels.GetChannelActive(CurrentProg))
         {
             --CurrentProg;
         }
@@ -1599,9 +1510,9 @@ void Channel_Decrement()
         // see if we looped around
         if(CurrentProg == -1)
         {
-            CurrentProg = MyChannels.size() - 1;
+            CurrentProg = MyChannels.GetSize() - 1;
             while(CurrentProg > -1  && 
-                !MyChannels[CurrentProg]->IsActive())
+                !MyChannels.GetChannelActive(CurrentProg))
             {
                 --CurrentProg;
             }
@@ -1615,8 +1526,8 @@ void Channel_Decrement()
     
         Channel_Change(CurrentProg);
 
-        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
-        OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
+        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
+        OSD_ShowText(hWnd,MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
     }
     else
     {
@@ -1627,13 +1538,13 @@ void Channel_Decrement()
 
 void Channel_Previous()
 {
-    if(MyChannels.size() > 0)
+    if(MyChannels.GetSize() > 0)
     {
-        if (MyChannels[PreviousProgram]->GetFrequency() != 0)
+        if (MyChannels.GetChannelFrequency(PreviousProgram) != 0)
             Channel_Change(PreviousProgram);
 
-        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
-        OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
+        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
+        OSD_ShowText(hWnd,MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
     }
     else
     {
@@ -1650,9 +1561,9 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
     if (SCAN_MODE_CUSTOM_ORDER == MyScanMode)
     {
         // Find the channel the user typed.
-        for (int j = 0; j < MyChannels.size(); ++j)
+        for (int j = 0; j < MyChannels.GetSize(); ++j)
         {
-            if (MyChannels[j]->GetFrequency() != 0 && int(MyChannels[j]->GetChannelNumber()) == ChannelNumber)
+            if (MyChannels.GetChannelFrequency(j) != 0 && int(MyChannels.GetChannelNumber(j)) == ChannelNumber)
             {
                 found = TRUE;
                 ChannelNumber = j;
@@ -1674,8 +1585,8 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
 
     if (found)
     {
-        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
-        OSD_ShowText(hWnd, MyChannels[CurrentProgram]->GetName(), 0);
+        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
+        OSD_ShowText(hWnd, MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
     }
     else
     {
@@ -1689,7 +1600,6 @@ void Channels_UpdateMenu(HMENU hMenu)
 {
     HMENU           hMenuChannels;
     int             j;
-    CHANNELLIST::iterator it;
     hMenuChannels = GetChannelsSubmenu();
     if(hMenuChannels == NULL) return;
 
@@ -1706,20 +1616,20 @@ void Channels_UpdateMenu(HMENU hMenu)
     }
     
     j = 0;
-    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAX_CHANNELS); ++it)
+    for (int i = 0; (i < MyChannels.GetSize()) && (j < MAX_CHANNELS); i++)
     {
-        if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
+        if ((MyChannels.GetChannelFrequency(i) != 0) && MyChannels.GetChannelActive(i))
         {
             // Cut every 28 channels which is ok even when in 640x480
             // For the first column, take into account the first items (InitialNbMenuItems)
             // but reduce by 1 because of the two line separators
             if ((j+InitialNbMenuItems-1) % 28)
             {
-                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, MyChannels.GetChannelName(i));
             }
             else
             {
-                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED | MF_MENUBARBREAK, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED | MF_MENUBARBREAK, IDM_CHANNEL_SELECT + j, MyChannels.GetChannelName(i));
             }
             j++;
         }
@@ -1728,10 +1638,9 @@ void Channels_UpdateMenu(HMENU hMenu)
 
 void Channels_SetMenu(HMENU hMenu)
 {
-    int NDisabledChannels = 0;
-    CHANNELLIST::iterator it;
+    int NDisabledChannels = 0;    
     HMENU hMenuChannels(GetChannelsSubmenu());
-    int i, j;
+    int j = 0;
     if(hMenuChannels == NULL) return;
 
     if (InitialNbMenuItems == -1)
@@ -1746,17 +1655,15 @@ void Channels_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenuChannels, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenuChannels, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenuChannels, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
-
-    i = j = 0;
-    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAX_CHANNELS); ++it)
+   
+    for (int channelIndex = 0; channelIndex < MyChannels.GetSize() && (j < MAX_CHANNELS); channelIndex++)
     {
-        if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
+        if ((MyChannels.GetChannelFrequency(channelIndex) != 0) && MyChannels.GetChannelActive(channelIndex))
         {
             EnableMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, bHasTuner ? MF_ENABLED : MF_GRAYED);
-            CheckMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, (CurrentProgram == i) ? MF_CHECKED : MF_UNCHECKED);
+            CheckMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, (CurrentProgram == channelIndex) ? MF_CHECKED : MF_UNCHECKED);
             j++;
         }
-        i++;
     }
 
     // Hide the menu "Channels" from the menu bar
@@ -1781,27 +1688,23 @@ void Channels_SetMenu(HMENU hMenu)
 
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
 {
-    int i, j;
-    CHANNELLIST::iterator it;
-
+    int j = 0;
     if ( (wMenuID >= IDM_CHANNEL_SELECT) && (wMenuID < (IDM_CHANNEL_SELECT+MAX_CHANNELS)) )
     {
         if (Providers_GetCurrentSource()->IsInTunerMode())
-        {
-            i = j = 0;
-            for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAX_CHANNELS); ++it)
+        {            
+            for (int channelIndex = 0; channelIndex < MyChannels.GetSize() && (j < MAX_CHANNELS); channelIndex++)
             {
-                if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
+                if ((MyChannels.GetChannelFrequency(channelIndex) != 0) && MyChannels.GetChannelActive(channelIndex))
                 {
                     if ((wMenuID - IDM_CHANNEL_SELECT) == j)
                     {
-                        Channel_Change(i);
+                        Channel_Change(channelIndex);
                         break;
                     }
                     j++;
-                }
-                i++;
-            }
+                }                
+            }//for each channel
         }
         else
         {

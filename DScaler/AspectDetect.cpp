@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.27 2002-02-23 00:37:15 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.28 2002-02-23 12:02:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/02/23 00:37:15  laurentg
+// AR statistics included in user's action to reset statistics
+// AR statistics reseted at the startup of the decoding thread
+//
 // Revision 1.26  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -148,17 +152,23 @@ static int ratio_time[RATIO_HISTORY_CHANGES];
 // Data structure for storing statistics
 TRatioStatistics RatioStatistics[MAX_RATIO_STATISTICS];
 int nNbRatioSwitch = 0;
+int nARInitialTicks = -1;
+int nARLastTicks = 0;
 
 
 
 void ResetARStats()
 {
+    int now = GetTickCount();
     for (int i=0 ; i<MAX_RATIO_STATISTICS ; i++)
     {
         RatioStatistics[i].mode = -1;
         RatioStatistics[i].ratio = -1;
         RatioStatistics[i].switch_count = 0;
+        RatioStatistics[i].ticks = 0;
     }
+    nARInitialTicks = now;
+    nARLastTicks = now;
     RatioStatistics[0].mode = AspectSettings.AspectMode;
     RatioStatistics[0].ratio = AspectSettings.SourceAspect;
     RatioStatistics[0].switch_count = 1;
@@ -171,7 +181,46 @@ void ResetARStats()
 void SwitchToRatio(int nMode, int nRatio)
 {
     int now = GetTickCount();
-    int i;
+    int i, j, k;
+
+    // Search position of the old and new ratios in the table of AR statistics
+    j = -1; // j is the position of the old ratio
+    k = -1; // k is the position of the new ratio
+    for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
+    {
+        if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
+        {
+            j = i;
+            if (k != -1)
+            {
+                break;
+            }
+        }
+        else if ((RatioStatistics[i].mode == nMode) && (RatioStatistics[i].ratio == nRatio))
+        {
+            k = i;
+            if (j != -1)
+            {
+                break;
+            }
+        }
+        else if (RatioStatistics[i].switch_count == 0)
+        {
+            if (k == -1)
+            {
+                k = i;
+                RatioStatistics[i].mode = nMode;
+                RatioStatistics[i].ratio = nRatio;
+            }
+            break;
+        }
+    }
+
+    // Update the ticks for the old ratio
+    if (j != -1)
+    {
+        RatioStatistics[j].ticks += now - nARLastTicks;
+    }
 
     // Update anamorphic/nonanamorphic status
     AspectSettings.AspectMode = nMode;
@@ -194,22 +243,12 @@ void SwitchToRatio(int nMode, int nRatio)
         AspectSettings.SourceAspect = nRatio;
     }
 
-    // Update the statistics upon ratio switch
-    for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
+    // Update the statistics for the new ratio
+    if (k != -1)
     {
-        if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
-        {
-            RatioStatistics[i].switch_count++;
-            break;
-        }
-        else if (RatioStatistics[i].switch_count == 0)
-        {
-            RatioStatistics[i].mode = AspectSettings.AspectMode;
-            RatioStatistics[i].ratio = AspectSettings.SourceAspect;
-            RatioStatistics[i].switch_count = 1;
-            break;
-        }
+        RatioStatistics[k].switch_count++;
     }
+    nARLastTicks = now;
     nNbRatioSwitch++;
 
     WorkoutOverlaySize(FALSE);

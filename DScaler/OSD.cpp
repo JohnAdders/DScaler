@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.52 2002-02-18 20:51:51 laurentg Exp $
+// $Id: OSD.cpp,v 1.53 2002-02-23 12:02:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/02/18 20:51:51  laurentg
+// Statistics regarding deinterlace modes now takes into account the progressive mode
+// Reset of the deinterlace statistics at each start of the decoding thread
+// Reset action now resets the deinterlace statistics too
+//
 // Revision 1.51  2002/02/17 22:34:19  laurentg
 // Bug in statistics OSD screen corrected
 //
@@ -1078,7 +1083,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     Color = -1;
                     ticks = DeintMethod->ModeTicks;
                 }
-                sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
                 OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
                 nLine++;
             }
@@ -1101,7 +1106,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                         Color = -1;
                         ticks = DeintMethod->ModeTicks;
                     }
-                    sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                    sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
                     OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
                     nLine++;
                 }
@@ -1126,7 +1131,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                         Color = -1;
                         ticks = DeintMethod->ModeTicks;
                     }
-                    sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                    sprintf (szInfo, "%03d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
                     OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
                     nLine++;
                 }
@@ -1142,14 +1147,16 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Title
         OSD_AddText("Aspect Ratio Autodetection", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-        nLine = 3;
-        sprintf (szInfo, "Number of switch : %d", nNbRatioSwitch);
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine, dfMargin, Size));
+        sprintf (szInfo, "Number of changes : %d", nNbRatioSwitch);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+        OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
 
         if (nNbRatioSwitch > 0)
         {
-            nLine = 4;
+            nLine = 5;
             nCol = 1;
+
+            CurrentTicks = GetTickCount();
 
             for (i = 0 ; i < MAX_RATIO_STATISTICS ; i++)
             {
@@ -1159,9 +1166,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     if (pos == 0)
                     {
                         nCol++;
-                        nLine = 4;
+                        nLine = 5;
                         if (nCol <= 2)
                         {
+                            OSD_AddText("changes - % of time - Ratio", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
                             pos = OSD_GetLineYpos (nLine, dfMargin, Size);
                         }
                     }
@@ -1170,12 +1178,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                         if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
                         {
                             Color = OSD_COLOR_CURRENT;
+                            ticks = RatioStatistics[i].ticks + CurrentTicks - nARLastTicks;
                         }
                         else
                         {
                             Color = -1;
+                            ticks = RatioStatistics[i].ticks;
                         }
-                        sprintf (szInfo, "%04d - %.3f:1 %s", RatioStatistics[i].switch_count, RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "Anamorphic" : "Letterbox");
+                        sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "L");
                         OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
                         nLine++;
                     }

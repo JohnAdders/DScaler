@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.27 2002-02-23 00:37:15 laurentg Exp $
+// $Id: AspectRatio.h,v 1.28 2002-02-23 12:02:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -228,10 +228,13 @@ typedef struct
     int  mode;
     int  ratio;
     int  switch_count;
+    int  ticks;
 } TRatioStatistics;
 
 extern TRatioStatistics RatioStatistics[MAX_RATIO_STATISTICS];
 extern int nNbRatioSwitch;
+extern int nARInitialTicks;
+extern int nARLastTicks;
 
 
 #endif

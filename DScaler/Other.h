@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.21 2003-04-15 13:06:27 adcockj Exp $
+// $Id: Other.h,v 1.22 2003-05-31 11:38:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,7 @@ CTreeSettingsGeneric* Other_GetTreeSettingsPage();
 #define DSCALER_MAX_WIDTH 768
 #define DSCALER_MAX_HEIGHT 576
 
+void LoadDynamicFunctions();
 void SetCurrentMonitor(HWND hWnd);
 void CheckChangeMonitor(HWND hWnd);
 void GetMonitorRect(HWND hWnd, RECT* rect);

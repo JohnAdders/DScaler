@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.64 2003-04-15 13:06:27 adcockj Exp $
+// $Id: Other.cpp,v 1.65 2003-05-31 11:38:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2003/04/15 13:06:27  adcockj
+// Corrections for NT 4 compatable Multi-Monitor code
+//
 // Revision 1.63  2003/04/08 14:17:23  adcockj
 // Used dynamic calling of new multi-monitor functions to allow running on NT4
 //
@@ -396,8 +399,7 @@ static BOOL ListMonitors(HWND hWnd)
     return RetVal;
 }
 
-//-----------------------------------------------------------------------------
-static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
+void LoadDynamicFunctions()
 {
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
@@ -410,7 +412,11 @@ static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
     // Since we will already have an outstanding reference to user32.dll
     // it's OK to Free it here before we've even called the functions
     FreeLibrary(h);
+}
 
+//-----------------------------------------------------------------------------
+static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
+{
     // if we can't see these new functions or we fail to list the moitors just use a normal DD create
     if(lpMonitorFromWindow == NULL || lpGetMonitorInfoA == NULL || ListMonitors(hWnd) == FALSE)
     {

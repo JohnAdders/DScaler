@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.324 2003-04-28 12:41:19 laurentg Exp $
+// $Id: DScaler.cpp,v 1.325 2003-05-31 11:38:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.324  2003/04/28 12:41:19  laurentg
+// PowerStrip settings access added
+//
 // Revision 1.323  2003/04/26 19:02:38  laurentg
 // Character string settings and memory management
 //
@@ -1492,6 +1495,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // 2000-10-31 Added by Mark: Changed to WS_POPUP for more cosmetic direct-to-full-screen startup,
     // let UpdateWindowState() handle initialization of windowed dTV instead.
 
+	LoadDynamicFunctions();
 
     hWnd = CreateWindow(DSCALER_APPNAME, DSCALER_APPNAME, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
     if (!hWnd) return FALSE;

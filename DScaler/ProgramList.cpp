@@ -55,6 +55,7 @@
 #include "Audio.h"
 #include "VBI_VideoText.h"
 #include "TVCards.h"
+#include "MixerDev.h"
 
 int CurSel;
 unsigned short SelectButton;
@@ -652,14 +653,21 @@ void ChangeChannel(int NewChannel)
 		{
 			if (Programm[NewChannel].freq != 0)
 			{
-				Audio_SetSource(AUDIOMUX_MUTE);
+				if(!bSystemInMute)
+				{
+					Audio_SetSource(AUDIOMUX_MUTE);
+					Mixer_Mute();
+				}
 				PreviousProgramm = CurrentProgramm;
 				CurrentProgramm = NewChannel;
 				Tuner_SetFrequency(MulDiv(Programm[CurrentProgramm].freq * 1000, 16, 1000000));
 				Sleep(20);
-				Audio_SetSource(AudioSource);
-
 				VT_ChannelChange();
+				if(!bSystemInMute)
+				{
+					Audio_SetSource(AudioSource);
+					Mixer_UnMute();
+				}
 			}
 		}
 	}

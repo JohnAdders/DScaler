@@ -1517,6 +1517,7 @@ BOOL VideoSource_OnChange(long NewValue)
 	Stop_Capture();
     if(!bSystemInMute)
     {
+		Audio_SetSource(AUDIOMUX_MUTE);
         Mixer_Mute();
     }
 	VideoSettings_SaveTVFormat();

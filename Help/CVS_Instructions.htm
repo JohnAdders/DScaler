@@ -1,12 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+ 
 <html>
-<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" --> 
 <head>
-<!-- #BeginEditable "doctitle" -->
-<title>DScaler -- CVS Instructions</title>
-<!-- #EndEditable -->
-<meta http-equiv="Content-Type" content=
-"text/html; charset=iso-8859-1">
+<!-- #BeginEditable "doctitle" --> 
+<title>DScaler - CVS Instructions</title>
+<!-- #EndEditable --> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <style type="text/css">
 <!--
 p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
@@ -24,23 +23,15 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 </head>
 <body bgcolor="#FFFFFF">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
-<tr>
-<td height="1" width="160"><img src="images/spacer.gif" width="1"
-height="1"></td>
-<td height="1" width="342"><img src="images/spacer.gif" width="1"
-height="1"></td>
-<td height="1" width="501"><img src="images/spacer.gif" width="1"
-height="1"></td>
-</tr>
-
-<tr>
-<td width="160"><img src="images/dscalerlogo.jpg" alt=
-"DScaler Logo"></td>
-<td colspan="2" align="right" valign="bottom"><font face=
-"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
-<!-- #BeginEditable "Page%20Title" -->
-CVS Instructions
-<!-- #EndEditable --></b></font></td>
+  <tr> 
+    <td height="3" width="160"><img src="images/spacer.gif" width="1" height="1"></td>
+    <td height="3" width="342"><img src="images/spacer.gif" width="1" height="1"></td>
+    <td height="3" width="501"><img src="images/spacer.gif" width="1" height="1"></td>
+  </tr>
+  <tr> 
+    <td width="160" height="142"><img src="images/dscalerlogo.jpg" alt="DScaler logo"></td>
+    <td colspan="2" align="right" valign="bottom" height="142"> <font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b><!-- #BeginEditable "Page%20Title" -->CVS 
+      Instructions<!-- #EndEditable --></b></font></td>
 </tr>
 
 <tr bgcolor="#FFCC00" align="right">
@@ -53,79 +44,94 @@ height="2"></td>
 </tr>
 
 <tr>
-<td colspan="3"><!-- #BeginEditable "Text" -->
-	    <ol> 
-      <li>Download WinCVS from <a target="_blank" href="http://www.cvsgui.org/">http://www.cvsgui.org</a>. 
-        Install it.</li>
-      <li>Download the windows setup program from <a href="http://download.sourceforge.net/sfsetup/sfsetup-v1.2.zip">http://download.sourceforge.net/sfsetup/sfsetup-v1.2.zip</a>. 
-        Unzip into a directory such as C:\SSH. Then run sfsetup.exe... It may 
-        give you a WinCVS error. That`s OK. Have it set up ssh. Make sure you 
-        specify your sourceforge username<br>
-				NOTICE TO WINDOWS 2000 USERS - Before running make sure your C:\AUTOEXEC.BAT 
-        exists and is writable (and not hidden, not system). It cannot be blank 
-        - it must have at least one line of text in it. If it is 0 bytes, add 
-        an "@echo off" line to it, followed by an Enter. WINDOWS 95/98/ME Reboot 
-        the computer, to load the new AUTOEXEC.BAT settings WINDOWS 2000 Quit 
-        all running applications first. You should go to Control Panel->System->Advanced->Environment 
-        Variables Add a NEW "HOME" variable with the value equalling the directory 
-        you specified in sfsetup.exe. Next, to the existing "PATH" variable, append 
-        the path where ssh.exe is located, to the end of the environment variable. 
-        (Keep semicolons between directories in the "PATH" variable)</li>
-      <li>Run WinCVS.</li>
-      <li>Choose Create-Checkout Module. If "Checkout Module" is grayed out, 
-        then click the Modules tab, and then click the topmost folder in the left 
-        pane. This should fix things.</li>
-      <li>You will be prompted for a directory to check out to. Select the 
-        desired folder. Click OK.</li>
-      <li>You will now be prompted for Checkout Settings. For the module name 
-        and path on server, it is "dTV", case sensitive. If you are going to be 
-        modifying the web site, the module name is &quot;htdocs&quot;, case sensitive.</li>
-      <li>Next, click the General tab, in the "Enter the CVSROOT", type in: 
-        ":ext:[your-sourceforge-username]@cvs.deinterlace.sourceforge.net:/cvsroot/deinterlace". 
-        Replace [your-sourceforge-username] with your username. For example: ":ext:dschmelzer@cvs.deinterlace.sourceforge.net:/cvsroot/deinterlace" 
-        But don`t use dschmelzer`s SourceForge account. :) Select authentication 
-        as "SSH Server". RSA Identity can be left unchecked.</li>
-      <li>Next, click Globals tab. Make sure the only checkboxes that are checked 
-        are the following: Checkbox enabled: "Supply Control When Adding Files". 
-        Checkbox enabled: "Dirty Files Support". Checkbox enabled: "Prune (Remove) 
-        Empty Directories".</li>
-      <li>Click OK. After a couple of seconds a minimized ssh DOS window will 
-        appear. Maximize the window. It MAY be blank, it MAY say "Password:"; 
-        Enter your password even if the DOS window is completely blank without 
-        the "Password:" prompt. There will be no echo. Just type your password 
-        and then hit Enter.</li>
-      <li>WinCVS should now be checking out the code.</li>
-      <li>For those who will be making edits to the code, you can do so with
-      impunity. Make your edits and submit them to the CVS by first selecting 
-        the file. Choose Modify-Update Selection from the menu. This merges your 
-        local changes with the CVS code. Next, choose Modify-Commit Selection. 
-        This will make the changes in the CVS.</li>
-			</ol>
-<!-- #EndEditable -->
-</td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr>
-<td colspan="3"></td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr bgcolor="#FFCC00">
-<td colspan="3">
-<div align="center"><img src="images/yellowspacer.gif" width=
-"100%" height="2"></div>
-</td>
-</tr>
+    <td colspan="3"><!-- #BeginEditable "Text" --> 
+      <ol>
+        <li>Download the latest version of WinCVS from <a target="_blank" href="http://www.cvsgui.org/">http://www.cvsgui.org</a>. 
+          Install it. (Instructions confirmed with version 1.3 beta 6.)<br>
+          &nbsp; </li>
+        <li> Download the latest windows setup program from <a href="sfsetup.sourceforge.net">http://sfsetup.sourceforge.net</a> 
+          and unpack it. (Instructions confirmed with version 1.3.)<br>
+          &nbsp; </li>
+        <li> Run sfsetup.exe... It may give you a WinCVS error. That`s OK. Have 
+          it set up ssh and the DScaler project. Make sure you specify your sourceforge 
+          username, the project as &quot;deinterlace&quot;, the home directory 
+          as the directory in which you installed ssh, and the checkout directory 
+          as the directory where you want to save the DScaler code on your local 
+          machine.<br>
+          &nbsp; <br>
+          NOTICE TO WINDOWS 2000 USERS -- Before running make sure your C:\AUTOEXEC.BAT 
+          exists and is writable (and not hidden, not system). It cannot be blank 
+          - it must have at least one line of text in it. If it is 0 bytes, add 
+          an "@echo off" line to it, followed by an Enter.<br>
+          &nbsp; <br>
+          NOTICE TO WINDOWS 95/98/ME USERS -- After running sfsetup, reboot the 
+          computer to load the new AUTOEXEC.BAT settings.<br>
+          &nbsp; </li>
+        <li> Run WinCVS.<br>
+          &nbsp; </li>
+        <li>Choose Create-Checkout Module. The modules available in the Deinterlace 
+          project include:<br>
+          &nbsp;<br>
+          a) DScaler -- the main DScaler application, including hardware drivers, 
+          help files, and skins;<br>
+          b) DSRend -- the DScaler renderer filter necessary for native DirectShow 
+          support in the DScaler application;<br>
+          c) deinterlace -- the experimental DirectShow wrapper; and<br>
+          d) htdocs -- the web site.<br>
+          &nbsp;<br>
+          NB: the htdocs module includes copies of many help files in the DScaler 
+          module. If you make corrections on any of these files, please check 
+          in the changes in both places.<br>
+          &nbsp; </li>
+        <li>Click OK. After a couple of seconds a minimized ssh DOS window will 
+          appear. Maximize the window. It MAY be blank, it MAY say "Password:"; 
+          Enter your password even if the DOS window is completely blank without 
+          the "Password:" prompt. There will be no echo. Just type your password 
+          and then hit Enter.<br>
+          &nbsp;<br>
+          NB: Upon running for the first time, the DOS window will mention that 
+          a random seed is being generated for the Sourceforge site. Again, you 
+          may not be prompted for your password, but you will need to enter it 
+          anyway.<br>
+          &nbsp; </li>
+        <li>WinCVS should now be checking out the code.<br>
+          &nbsp; </li>
+        <li>For those who will be making edits to the code, you can do so with 
+          impunity. Make your edits and submit them to the CVS by first selecting 
+          the file. Choose Modify-Update Selection from the menu. This merges 
+          your local changes with the CVS code. Next, choose Modify-Commit Selection. 
+          This will make the changes in the CVS. After each step, you will be 
+          presented with the DOS window discussed in #6, above.</li>
+      </ol>
+      <!-- #EndEditable --></td>
+  </tr>
+  <tr> 
+    <td colspan="3" height="21">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#FFCC00"> 
+    <td colspan="3" height="6"> 
+      <div align="center"><img src="images/yellowspacer.gif" width="100%" height="2"></div>
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="3" height="21">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td colspan="3" height="40"> 
+      <div align="center"><a class="bottommenu" href="index.php">home</a> | <a href="about.htm" class="bottommenu">about</a>
+        | <a href="/reviews/index.htm" class="bottommenu">reviews</a> |&nbsp;<a href="screenshots/index.htm" class="bottommenu">screenshots</a>
+        | <a href="downloads.htm" class="bottommenu">download</a> | <a href="Authors.htm" class="bottommenu">authors</a>
+        | <a href="Thanks.htm" class="bottommenu">thanks</a> <br>
+        <a href="setup/index.htm" class="bottommenu">setup</a> | <a href="keyboard.htm" class="bottommenu">keyboard
+        shortcuts </a>| <a href="http://sourceforge.net/mail/?group_id=7420" class="bottommenu">mailing
+        list</a> | <a href="FAQ.htm" class="bottommenu">faq</a> | <a href="developers.htm" class="bottommenu">developers</a>
+        | <a href="Links.htm" class="bottommenu">links</a></div>
+    </td>
+  </tr>
 </table>
-
-<!-- #EndTemplate -->
+<p><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=7420&type=1" width="88" height="31" border="0"
+alt="SourceForge.net" align="right"></a></p>
+<p>&nbsp; </p>
 </body>
+<!-- #EndTemplate -->
 </html>
-

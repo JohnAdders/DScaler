@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.24 2001-09-09 17:46:29 laurentg Exp $
+// $Id: TVCards.cpp,v 1.25 2001-09-18 08:10:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/09/09 17:46:29  laurentg
+// no message
+//
 // Revision 1.23  2001/09/07 20:56:57  laurentg
 // no message
 //
@@ -867,6 +870,19 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         2, 1, -1, 2, 0x03000F,
         { 0, 3, 1, 1, 0, 0, 0, 0},
         { 0, 0, 0, 0, 1, 0},
+        0,
+        PLL_28,
+        TUNER_USER_SETUP,
+        NULL,
+    },
+    // 17 Sep 2001 Dax Sieger
+    // AIMS Labs VideoHighway Extreme Card (older - original version)
+    // TODO:  ADD FM Radio Support
+	{
+        "Aimslab VideoHighway Extreme (not 98)",
+        3, 1, 0, 2, 7,
+        { 2, 3, 1, 1, 0, 0, 0, 0},
+        { 0, 2, 1, 3, 4, 0},
         0,
         PLL_28,
         TUNER_USER_SETUP,

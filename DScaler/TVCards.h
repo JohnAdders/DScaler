@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.15 2001-09-07 20:39:43 laurentg Exp $
+// $Id: TVCards.h,v 1.16 2001-09-18 08:10:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -124,6 +124,7 @@ enum eTVCardId
     // TODO:  Add composite jumpered card settings
     TVCARD_SASEM4CHNLSVID,
     TVCARD_PINNACLESAT,
+    TVCARD_VHXOLD,           
     TVCARD_LASTONE,
 };
 

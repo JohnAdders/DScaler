@@ -94,7 +94,7 @@
 		movq    mm0, qword ptr[ebx+4]		// value k
 		movq    mm1, qword ptr[ebx+ecx-4]	// value m
 		movq	mm2, mm0					
-		pavgb	mm2, mm1					// avg(k,m)
+		V_PAVGB (mm2, mm1, mm3, ShiftMask)	// avg(k,m)
         movq	mm3, mm0
 		psubusb	mm0, mm1
 		psubusb mm1, mm3
@@ -138,7 +138,7 @@
 		movq    mm0, qword ptr[ebx+2]		// value c
 		movq    mm1, qword ptr[ebx+ecx-2]	// value d
 		movq	mm2, mm0					
-		pavgb	mm2, mm1					// avg(c,d)
+		V_PAVGB (mm2, mm1, mm3, ShiftMask)	// avg(c,d)
         movq	mm3, mm0
 		psubusb	mm0, mm1
 		psubusb mm1, mm3
@@ -181,7 +181,7 @@
 		movq    mm0, qword ptr[ebx-2]		// value a
 		movq    mm1, qword ptr[ebx+ecx+2]	// value f
 		movq	mm2, mm0					
-		pavgb	mm2, mm1					// avg(a,f)
+		V_PAVGB (mm2, mm1, mm3, ShiftMask)	// avg(a,f)
         movq	mm3, mm0
 		psubusb	mm0, mm1
 		psubusb mm1, mm3
@@ -215,7 +215,7 @@
 		movq    mm0, qword ptr[ebx]		// value b from top 		
 		movq    mm1, qword ptr[ebx+ecx]	// value e from bottom 
 		movq	mm2, mm0					
-		pavgb	mm2, mm1					// avg(b,e)
+		V_PAVGB (mm2, mm1, mm3, ShiftMask)	// avg(b,e)
         movq	mm3, mm0
 		psubusb	mm0, mm1
 		psubusb mm1, mm3

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TomsMoComp.c,v 1.4 2002-11-26 21:32:14 adcockj Exp $
+// $Id: DI_TomsMoComp.c,v 1.5 2002-12-10 16:32:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/11/26 21:32:14  adcockj
+// Made new strange bob method optional
+//
 // Revision 1.3  2002/07/08 18:16:43  adcockj
 // final fixes fro alpha 3
 //
@@ -137,6 +140,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     {
         TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_MMX;
     }
+    TomsMoCompMethod.pfnAlgorithm = DeinterlaceTomsMoComp_MMX;
 
     return &TomsMoCompMethod;
 }

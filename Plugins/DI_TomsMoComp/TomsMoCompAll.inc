@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TomsMoCompAll.inc,v 1.2 2002-11-26 21:32:14 adcockj Exp $
+// $Id: TomsMoCompAll.inc,v 1.3 2002-12-10 16:32:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/26 21:32:14  adcockj
+// Made new strange bob method optional
+//
 // Revision 1.1  2002/07/07 20:07:24  trbarry
 // First cut at TomsMoComp, motion compensated deinterlace
 //
@@ -120,10 +123,8 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 	// then go fill in the hard part, being variously lazy depending upon
 	// SearchEffort
 
-#ifndef IS_MMX
-	if(UseStrangeBob == FALSE)
-	{
-#endif
+    if(UseStrangeBob == FALSE)
+    {
 		if (SearchEffort == 0)
 		{
 			Search_Effort_0();
@@ -181,7 +182,6 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 		{
 			Search_Effort_Max();
 		}
-#ifndef IS_MMX
 	}
 	else
 	{
@@ -243,7 +243,6 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 			Search_Effort_Max_SB();
 		}
 	}
-#endif
 	__asm emms;
 
     return TRUE;

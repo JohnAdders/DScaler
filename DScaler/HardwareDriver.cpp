@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.14 2002-07-02 19:59:02 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.15 2002-07-20 11:43:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/07/02 19:59:02  adcockj
+// Made a bit less strict with driver versions - should be happy with newer drivers
+//
 // Revision 1.13  2002/06/14 12:18:07  adcockj
 // Fix to allow multiple programs access to the driver
 //
@@ -691,7 +694,15 @@ DWORD CHardwareDriver::SendCommand(
     }
     else
     {
-        LOG(1, "DeviceIoControl returned an error = 0x%X For Command 0x%X", GetLastError(), dwIOCommand);
+        // Suppress the error when DoesThisPCICardExist() probes for a non-existing card
+        if(dwIOCommand == ioctlGetPCIInfo)
+        {
+            LOG(2, "DeviceIoControl returned an error = 0x%X For Command ioctlGetPCIInfo. This is probably by design, do not worry.", GetLastError());
+        }
+        else
+        {
+            LOG(1, "DeviceIoControl returned an error = 0x%X For Command 0x%X", GetLastError(), dwIOCommand);
+        }
         return GetLastError();
     }
 }

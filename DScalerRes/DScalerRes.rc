@@ -182,6 +182,7 @@ BEGIN
     VK_RIGHT,       IDM_RIGHT_CROP_CURRENT, VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_SPACE,       IDM_SPACEBAR,           VIRTKEY, NOINVERT
+    VK_SPACE,       IDM_AUTODETECT,         VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       IDM_SHIFT_SPACEBAR,     VIRTKEY, SHIFT, NOINVERT
     VK_SUBTRACT,    IDM_VOLUMEMINUS,        VIRTKEY, NOINVERT
     VK_TAB,         IDM_TOGGLE_MENU,        VIRTKEY, NOINVERT
@@ -872,7 +873,8 @@ BEGIN
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
         POPUP "&Deinterlace Mode"
         BEGIN
-            MENUITEM "&Automatic Pulldown Detect",  IDM_AUTODETECT
+            MENUITEM "&Automatic Pulldown Detect\tCtrl+Spacebar", 
+                                                    IDM_AUTODETECT
             MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
             MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
             MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
@@ -995,6 +997,8 @@ BEGIN
             MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
             MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
+            MENUITEM "Calibration",                 IDM_CALIBR_SETTINGS
+            MENUITEM "OSD",                         IDM_OSD_SETTINGS
         END
         POPUP "Video &Overlay"
         BEGIN

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.252 2002-10-22 18:51:37 adcockj Exp $
+// $Id: DScaler.cpp,v 1.253 2002-10-24 12:10:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.252  2002/10/22 18:51:37  adcockj
+// Added logging of windows messages at level 3
+//
 // Revision 1.251  2002/10/22 01:54:04  atnak
 // fixed the places where I didn't call ReleaseDC after GetDC
 //
@@ -5506,5 +5509,14 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 {
-    return new CTreeSettingsGeneric("Other Settings", &DScalerSettings[DISPLAYSPLASHSCREEN], AUTOCODEPAGE - DISPLAYSPLASHSCREEN);
+    // Other Settings
+    SETTING* OtherSettings[5] =
+    {
+        &DScalerSettings[DISPLAYSPLASHSCREEN    ],
+        &DScalerSettings[AUTOHIDECURSOR         ],
+        &DScalerSettings[LOCKKEYBOARD           ],
+        &DScalerSettings[SCREENSAVEROFF         ],
+        &DScalerSettings[REVERSECHANNELSCROLLING]
+    };
+    return new CTreeSettingsGeneric("Other Settings", OtherSettings, 5);
 }

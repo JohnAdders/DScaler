@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.21 2001-07-27 10:54:23 adcockj Exp $
+// $Id: TVCards.cpp,v 1.22 2001-09-07 20:39:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/07/27 10:54:23  adcockj
+// Fix for s-video on ATI TV wonder
+//
 // Revision 1.20  2001/07/25 02:24:03  dschmelzer
 // Add support for Sasem 4 Channel developer card with s-video jumper chosen
 //
@@ -853,6 +856,16 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_ABSENT,
         NULL,
     },
+    {
+        "Pinnacle PCTV Sat",
+        2, 1, -1, 2, 0x03000F,
+        { 2, 3, 1, 1, 0, 0, 0, 0},
+        { 0, 0, 0, 0, 1, 0},
+        0,
+        PLL_28,
+        TUNER_USER_SETUP,
+        NULL,
+    },
 };
 
 const TAutoDectect878 AutoDectect878[] =
@@ -865,6 +878,7 @@ const TAutoDectect878 AutoDectect878[] =
     { 0x00031461, TVCARD_AVPHONE98,     "AVerMedia TVPhone98" },
     { 0x00041461, TVCARD_AVERMEDIA98,   "AVerMedia TVCapture 98" },
     { 0x001211bd, TVCARD_PINNACLERAVE,  "Pinnacle PCTV" },
+    { 0x001c11bd, TVCARD_PINNACLESAT,   "Pinnacle PCTV Sat" },
     { 0x10b42636, TVCARD_HAUPPAUGE878,  "STB ???" },
     { 0x1118153b, TVCARD_TERRATVALUE,   "Terratec TV Value" },
     { 0x1123153b, TVCARD_TERRATVRADIO,  "Terratec TV/Radio+" },
@@ -1679,11 +1693,6 @@ void TVCard_SetMenu(HMENU hMenu)
 {
     int NumExtraInputs;
 
-    EnableMenuItem(hMenu, IDM_CHANNELPLUS, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_CHANNELMINUS, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_ANALOGSCAN, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_SOURCE_TUNER, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
-
     // need to keep track of how many other inputs there are
     // there is always one composite input
     NumExtraInputs = TVCards[CardType].nVideoInputs  - 1;
@@ -1703,17 +1712,30 @@ void TVCard_SetMenu(HMENU hMenu)
 
     if(TVCards[CardType].TunerInput == -1 || TunerType == TUNER_ABSENT)
     {
+        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR1, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR2, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_SOURCE_TUNER, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_AUDIO_0, MF_GRAYED);
     }
     else
     {
+        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR1, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR2, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_SOURCE_TUNER, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_AUDIO_0, MF_ENABLED);
+    }
+    if(TVCards[CardType].SVideoInput != -1)
+    {
         // we've used up one more input
         --NumExtraInputs;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.3 2002-09-14 17:03:11 tobbej Exp $
+// $Id: DSFileSource.h,v 1.4 2002-09-29 09:16:25 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.2  2002/08/27 22:09:39  kooiman
 // Add get/set input for DS capture source.
 //
@@ -98,6 +101,8 @@ public:
 private:
 	///the file this source uses
 	std::string m_filename;
+	///used as a temporary storage of status text
+	std::string m_status;
 };
 
 #endif // !defined(AFX_DSFILESOURCE_H__C14F892B_5440_4F47_9EEE_EA140CA9534A__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.3 2002-09-14 17:03:11 tobbej Exp $
+// $Id: DSFileSource.cpp,v 1.4 2002-09-29 09:16:25 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.2  2002/08/20 16:22:42  tobbej
 // fixed commit log entry (accidentaly used wrong log message)
 //
@@ -139,7 +142,13 @@ LPCSTR CDSFileSource::GetStatus()
 {
 	if(m_filename.size()>0)
 	{
-		return m_filename.c_str();
+		m_status=m_filename;
+		std::string::size_type pos=m_status.rfind('\\');
+		if(pos!=std::string::npos)
+		{
+			m_status=m_status.substr(pos+1);
+		}
+		return m_status.c_str();
 	}
 	return "No file loaded";
 }

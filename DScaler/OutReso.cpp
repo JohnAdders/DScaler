@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.10 2003-04-12 15:23:23 laurentg Exp $
+// $Id: OutReso.cpp,v 1.11 2003-04-15 13:07:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/04/12 15:23:23  laurentg
+// Interface with PowerStrip when changing resolution (code from Olivier Borca)
+//
 // Revision 1.9  2003/02/14 22:06:14  laurentg
 // New resolutions added : 854x480, 1024x576, 1280x720
 //
@@ -180,12 +183,26 @@ LPSTR PStrip480i = NULL;
 
 void PStripTiming_ReadSettingsFromIni()
 {    
+    PStripTiming_CleanUp();
 	PStrip576i = new char[PSTRIP_TIMING_STRING_SIZE];
 	PStrip480i = new char[PSTRIP_TIMING_STRING_SIZE];
     GetPrivateProfileString("PStripOutResolution", "576i", NULL, PStrip576i, PSTRIP_TIMING_STRING_SIZE, GetIniFileForSettings());
     GetPrivateProfileString("PStripOutResolution", "480i", NULL, PStrip480i, PSTRIP_TIMING_STRING_SIZE, GetIniFileForSettings());
 }
 
+void PStripTiming_CleanUp()
+{
+    if(PStrip576i != NULL)
+    {
+        delete PStrip576i; 
+        PStrip576i = NULL;
+    }
+    if(PStrip480i != NULL)
+    {
+        delete PStrip480i; 
+        PStrip480i = NULL;
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Start of Menus related code

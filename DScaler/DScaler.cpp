@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.319 2003-04-12 15:23:22 laurentg Exp $
+// $Id: DScaler.cpp,v 1.320 2003-04-15 13:07:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.319  2003/04/12 15:23:22  laurentg
+// Interface with PowerStrip when changing resolution (code from Olivier Borca)
+//
 // Revision 1.318  2003/03/29 13:39:33  laurentg
 // Allow the display of DScaler to monitors other than the primary
 //
@@ -4695,7 +4698,6 @@ void MainWndOnInitBT(HWND hWnd)
         {
             Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
         }
-		ListMonitors(hWnd);
         if(InitDD(hWnd) == TRUE)
         {
             if(Overlay_Create() == TRUE)
@@ -5609,6 +5611,7 @@ void CleanUpMemory()
     pCalibration = NULL;
     delete pPerf;
     pPerf = NULL;
+    PStripTiming_CleanUp();
 }
 
 //---------------------------------------------------------------------------

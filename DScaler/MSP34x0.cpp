@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.13 2002-01-23 22:57:28 robmuller Exp $
+// $Id: MSP34x0.cpp,v 1.14 2002-01-27 23:54:32 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/01/23 22:57:28  robmuller
+// Revision D/G improvements. The code is following the documentation much closer now.
+//
 // Revision 1.12  2002/01/21 12:06:33  robmuller
 // RevA improvements.
 //
@@ -66,8 +69,6 @@
 #include "DebugLog.h"
 #include "DScaler.h"
 
-static BOOL bAutoDetectionInProgress = FALSE;
-
 CMSP34x0::CMSP34x0()
 {
 }
@@ -101,18 +102,6 @@ void CMSP34x0::SetRegister(BYTE subAddress, WORD reg, WORD value)
         write[2],
         write[3]);
 
-    // no writes until Auto Standard Detection is finished
-    if(bAutoDetectionInProgress)
-    {
-        while(1)
-        {
-            if(GetDEMRegister(DEM_RD_STANDARD_RESULT) < 0x07FF)
-            {
-                break;
-            }
-            Sleep(50);
-        }
-    }
     WriteToSubAddress(subAddress, write, sizeof(write));
 }
 
@@ -557,6 +546,12 @@ void CMSP34x0Decoder::Initialize()
     {
         SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
     }
+    
+    // 3. reset volume to 0dB
+    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_SCART2_VOLUME, 0x7300);
 
     m_IsInitialized = true;
 }
@@ -565,179 +560,45 @@ void CMSP34x0Decoder::Initialize()
 All models:
     The demodulator only needs to be programmed if m_AudioInput is AUDIOINPUT_RADIO or 
     AUDIOINPUT_TUNER.
-Model G: 
+Revision G: 
     Features:
     - Automatic Standard Detection. TV sound standard is detected automatically.
     - Automatic Sound Select. Automatic setup of FM matrix. If NICAM or FM/stereo is available it is
         automatically enabled. No action needed when changing tuner channels.
 
-    This code uses both Automatic Standard Detection and Automatic Sound Select.
-    Once a valid audio standard and carrier has been found everything is finished.
-    If no valid standard/carrier is detected a timer is set that will restart the detection
-    process until a standard/carrier has been found.
+    This code uses Automatic Sound Select.
     There is no action needed on channel changes. The Automatic Sound Select will take care
     of switching to NICAM or analog stereo and back to mono.
 
-    When video format or audio input is changed (to tuner or radio) the detection process is restarted.
-
-Model D:
+Revision D:
     Automatic Standard Detection (TV sound standard is detected automatically)
     FM matrix must be programmed manually.
 
-    Uses currently Model A code.
+    Uses currently Revision A code.
 
-Model A:
+Revision A:
     Everything is set up manually.
 */
 
-// call this when changing SoundChannel or VideoFormat
-void CMSP34x0Decoder::RevG_SetModus()
-{
-    WORD modus = 0;
-
-    if(!m_IsInitialized)
-    {
-        Initialize();
-    }
-
-    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
-    if(m_SoundChannel == SOUNDCHANNEL_MONO)
-    {
-        modus = 0;
-    }
-    else
-    {
-        modus = 1;
-    }
-
-    switch(m_VideoFormat)
-    {
-    case VIDEOFORMAT_PAL_D:
-        // make the autodetection prefer the NICAM or DK2 modes
-        modus |= 0x1000;
-        break;
-    case VIDEOFORMAT_NTSC_M:
-        modus |= 0x2000;
-        break;
-    case VIDEOFORMAT_NTSC_M_Japan:
-        modus |= 0x4000;
-        break;
-    default:
-        break;
-    }
-
-    // choose sound IF2 input pin if needed.
-    // todo: Maybe some cards are using IF1?
-    switch(m_AudioInput)
-    {
-    case AUDIOINPUT_RADIO:
-    case AUDIOINPUT_TUNER:
-        modus |= 0x100;
-        break;
-    default:
-        break;
-    }
-
-    SetDEMRegister(DEM_WR_MODUS, modus);
-}
-
-
 void CMSP34x0Decoder::HandleTimerMessages(int TimerId)
 {
-    if(TimerId == TIMER_MSP_INTERNAL)
+    //not used at the moment
+/*    if(TimerId == TIMER_MSP_INTERNAL)
     {
         switch(TimerAction)
         {
-        case TimerAction_CheckAutoStandardDetect:
-            KillTimer(hWnd, TIMER_MSP_INTERNAL);
-            RevD_CheckAutoStandardDetect();
-            break;
-        case TimerAction_NoStandardDetected:
-            KillTimer(hWnd, TIMER_MSP_INTERNAL);
-            StartAutoDetect();
-            break;
         default:
             break;
         }
-    }
-}
-
-void CMSP34x0Decoder::RevD_CheckAutoStandardDetect()
-{
-    if(!m_IsInitialized)
-    {
-        return;
-    }
-    
-    WORD standard = 0;
-
-    standard = GetDEMRegister(DEM_RD_STANDARD_RESULT);
-    if(!(standard < MSP34x0_STANDARD_AUDODETECTION_IN_PROGRESS))
-    {
-        TimerAction = TimerAction_CheckAutoStandardDetect;
-        SetTimer(hWnd, TIMER_MSP_INTERNAL, 150, NULL);
-        return;
-    }
-
-    bAutoDetectionInProgress = FALSE;
-
-    LOG(1, "MSP: std:0x%04X", standard);
-
-    // if no standard is detected do another auto detect in x seconds
-    if(standard == 0)
-    {
-        TimerAction = TimerAction_NoStandardDetected;
-        SetTimer(hWnd, TIMER_MSP_INTERNAL, 1000, NULL);
-    }
-    else
-    {        
-        WORD Status = GetDEMRegister(DEM_RD_STATUS);
-
-        // if no carrier found
-        if((Status & 0x2) > 0 || (Status & 0x4) > 0)
-        {
-            TimerAction = TimerAction_NoStandardDetected;
-            SetTimer(hWnd, TIMER_MSP_INTERNAL, 1000, NULL);
-            return;
-        }
-
-        // 3. reset volume to 0dB
-        // todo this must be restored to the old values
-        SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
-        SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
-        SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
-        SetDSPRegister(DSP_WR_SCART2_VOLUME, 0x7300);
-    }
-}
-
-void CMSP34x0Decoder::StartAutoDetect()
-{
-    if(!m_IsInitialized)
-    {
-        Initialize();
-    }
-
-    bAutoDetectionInProgress = TRUE;
-
-    // mute the output during Auto Standard Detect
-    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0xff00);
-    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0xff00);
-    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0xff00);
-    SetDSPRegister(DSP_WR_SCART2_VOLUME, 0xff00);
-
-    SetDEMRegister(DEM_WR_STANDARD_SELECT, MSP34x0_STANDARD_AUTO);
-
-    TimerAction = TimerAction_CheckAutoStandardDetect;
-    SetTimer(hWnd, TIMER_MSP_INTERNAL, 150, NULL);
+    }*/
 }
 
 void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
 {
     CAudioDecoder::SetVideoFormat(videoFormat);
 
-    if(m_MSPVersion != MSPVersionG)
+    if(m_AudioInput != AUDIOINPUT_RADIO && m_AudioInput != AUDIOINPUT_TUNER)
     {
-        ReconfigureRevA();
         return;
     }
 
@@ -746,9 +607,92 @@ void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
         Initialize();
     }
 
-    RevG_SetModus();
+    WORD standard = GetSoundStandard();
 
-    StartAutoDetect();
+    switch(m_MSPVersion)
+    {
+    case MSPVersionA:
+    case MSPVersionD:
+        ReconfigureRevA();
+        break;
+    case MSPVersionG:
+        RevD_SetStandard(standard);
+        break;
+    default:
+        break;
+    }
+}
+
+void CMSP34x0Decoder::RevD_SetStandard(WORD Standard)
+{
+    WORD StandardCode;
+    switch(Standard)
+    {
+        case MSP34x0_STANDARD_M_DUAL_FM:
+            StandardCode = 2;
+            break;
+        case MSP34x0_STANDARD_BG_DUAL_FM:
+            StandardCode = 3;
+            break;
+        case MSP34x0_STANDARD_DK1_DUAL_FM:
+            StandardCode = 4;
+            break;
+        case MSP34x0_STANDARD_DK2_DUAL_FM:
+            StandardCode = 5;
+            break;
+        case MSP34x0_STANDARD_DK_FM_MONO:
+            StandardCode = 6;
+            break;
+//      this one is not in my datasheet
+//        case MSP34x0_STANDARD_DK3_DUAL_FM:
+//            break;
+        case MSP34x0_STANDARD_BG_NICAM_FM:
+            StandardCode = 8;
+            break;
+        case MSP34x0_STANDARD_L_NICAM_AM:
+            StandardCode = 9;
+            break;
+        case MSP34x0_STANDARD_I_NICAM_FM:
+            StandardCode = 0xA;
+            break;
+        case MSP34x0_STANDARD_DK_NICAM_FM:
+            StandardCode = 0xB;
+            break;
+        case MSP34x0_STANDARD_DK_NICAM_FM_HDEV2:
+            StandardCode = 0xC;
+            break;
+//      this one is not in my datasheet
+//        case MSP34x0_STANDARD_DK_NICAM_FM_HDEV3:
+//            break;
+        case MSP34x0_STANDARD_M_BTSC:
+            StandardCode = 0x20;
+            break;
+        case MSP34x0_STANDARD_M_BTSC_MONO:
+            StandardCode = 0x21;
+            break;
+        case MSP34x0_STANDARD_M_EIA_J:
+            StandardCode = 0x30;
+            break;
+        case MSP34x0_STANDARD_FM_RADIO:
+            StandardCode = 0x40;
+            break;
+        case MSP34x0_STANDARD_SAT_MONO:
+            StandardCode = 0x50;
+            break;
+        case MSP34x0_STANDARD_SAT:
+            StandardCode = 0x51;
+            break;
+        case MSP34x0_STANDARD_SAT_ADR:
+            StandardCode = 0x60;
+            break;
+        case MSP34x0_STANDARD_NONE:
+        case MSP34x0_STANDARD_AUTO:
+        default:
+            StandardCode = 1;// autodetect
+            break;
+    }
+    SetDEMRegister(DEM_WR_STANDARD_SELECT, StandardCode);
+    // todo: Many standards do not work with revD chips so an error message should be shown.
 }
 
 void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
@@ -766,8 +710,32 @@ void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
         Initialize();
     }
 
-    // Disable/enable Automatic Sound Select
-    RevG_SetModus();
+    // the following is only valid for RevG since it uses Automatic Sound Select
+    WORD modus = 0;
+
+    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
+    if(m_SoundChannel == SOUNDCHANNEL_MONO)
+    {
+        modus = 0;
+    }
+    else
+    {
+        modus = 1;
+    }
+
+    // choose sound IF2 input pin if needed.
+    // todo: Maybe some cards are using IF1?
+    switch(m_AudioInput)
+    {
+    case AUDIOINPUT_RADIO:
+    case AUDIOINPUT_TUNER:
+        modus |= 0x100;
+        break;
+    default:
+        break;
+    }
+
+    SetDEMRegister(DEM_WR_MODUS, modus);
 
     WORD source = 0;
 
@@ -806,11 +774,6 @@ void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
 void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
 {
     CAudioDecoder::SetAudioInput(audioInput);
-    if(m_MSPVersion != MSPVersionG)
-    {
-        ReconfigureRevA();
-        return;
-    }
 
     if(!m_IsInitialized)
     {
@@ -842,9 +805,13 @@ void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
     {
     case AUDIOINPUT_RADIO:
     case AUDIOINPUT_TUNER:
-        StartAutoDetect();
+        if(m_MSPVersion != MSPVersionG)
+        {
+            ReconfigureRevA();
+        }
         break;
     default:
+        // todo: make sure the sound from the tuner/radio is muted.
         break;
     }
 // todo:
@@ -884,7 +851,14 @@ LPCSTR CMSP34x0Decoder::GetAudioName()
     }
     if((Status & 0x20) > 0)
     {
-        return "NICAM";
+        if((Status & 0x40) > 0)
+        {
+            return "NICAM Stereo";
+        }
+        else
+        {
+            return "NICAM Mono";
+        }
     }
     if((Status & 0x40) > 0)
     {
@@ -898,30 +872,202 @@ eSoundChannel CMSP34x0Decoder::IsAudioChannelDetected(eSoundChannel desiredAudio
     return desiredAudioChannel;
 }
 
-
 void CMSP34x0Decoder::ReconfigureRevA()
 {
     int i;
+    TStandardDefinition StandardDefinition;
 
     if(!m_IsInitialized)
     {
         Initialize();
     }
 
-    /// SCART Signal Path
-    switch (m_AudioInput)
+    WORD standard;
+
+    standard = GetSoundStandard();
+    
+    // Find the correct Standard in list
+    int MSPStandards(0);
+    while(m_MSPStandards[MSPStandards].Standard != standard && 
+            m_MSPStandards[MSPStandards].Name != NULL)
     {
-    case AUDIOINPUT_RADIO:
-		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_2);
+        ++MSPStandards;
+    }
+
+    StandardDefinition = m_MSPStandards[MSPStandards];
+    /// LOAD_SEQ_1/2: General Initialization followed by LOAD_REG_12
+
+    /// Step 0: AD_CV
+    if(StandardDefinition.StereoType == STEREO_SAT)
+    {
+        // set up for AGC bit 7
+        // and bits 6..1  100011 for SAT
+        SetDEMRegister(DEM_WR_AD_CV, 0xC6);
+    }
+    else if(StandardDefinition.StereoType == STEREO_NICAM && 
+                StandardDefinition.MonoType == MONO_AM)
+    {
+        // set up for AGC bit 7
+        // and bits 6..1  100011 AM and NICAM
+        SetDEMRegister(DEM_WR_AD_CV, 0xC6);
+    }
+    else
+    {
+        // set up for AGC bit 7
+        // and bits 6..1  101000 FM and NICAM
+        // or Dual FM
+        SetDEMRegister(DEM_WR_AD_CV, 0xD0);
+    }
+
+    // I have no idea what this is supposed to do.
+    /// Step 1: AUDIO_PLL
+    // FIXME what should this be may need to be 0 for NICAM
+    // SetDEMRegister(DEM_WR_AUDIO_PLL, 1);
+
+    /// Step 2: FAWCT_SOLL
+    if(StandardDefinition.StereoType == STEREO_NICAM)
+    {
+        SetDEMRegister(DEM_WR_FAWCT_SOLL, 12);
+    }
+    
+    /// Step 3: FAW_ER_TOL
+    if(StandardDefinition.StereoType == STEREO_NICAM)
+    {
+        SetDEMRegister(DEM_WR_FAW_ER_TOL, 2);
+    }
+
+    /// Step 4: FIR_REG_1
+    int FIRType = StandardDefinition.FIRType;
+    for (i = 5; i >= 0; i--)
+    {
+        SetDEMRegister(DEM_WR_FIR1, m_FIRTypes[FIRType].FIR1[i]);
+    }
+    
+    /// Step 5: FIR_REG_2
+    SetDEMRegister(DEM_WR_FIR2, 0x0004);
+    SetDEMRegister(DEM_WR_FIR2, 0x0040);
+    SetDEMRegister(DEM_WR_FIR2, 0x0000);
+    
+    for (i = 5; i >= 0; i--)
+    {
+        SetDEMRegister(DEM_WR_FIR2, m_FIRTypes[FIRType].FIR2[i]);
+    }
+
+    /// Step 6: MODE_REG
+    WORD ModeReg = 1 << 10;// bit 10 must be set according to documentation
+    if(StandardDefinition.StereoType == STEREO_NICAM)
+    {
+        // set NICAM mode
+        ModeReg |= 1 << 6;
+        if(StandardDefinition.MonoType == MONO_AM)
+        {
+            // set MSP 1/2 to AM
+            ModeReg |= 1 << 8;
+        }
+    }
+    else
+    {
+        if(StandardDefinition.StereoType != STEREO_NONE)
+        {
+            // set Two carrier FM mode
+            ModeReg |= 1 << 7;
+        }
+        if(StandardDefinition.MonoType == MONO_FM)
+        {
+            // set MSP channel1 to FM
+            ModeReg |= 1 << 7;
+        }
+        else
+        {
+            // set MSP 1/2 to AM
+            ModeReg |= 1 << 8;
+        }
+
+    }
+    switch(standard)
+    {
+    case MSP34x0_STANDARD_BG_DUAL_FM:
+    case MSP34x0_STANDARD_DK1_DUAL_FM:
+        ModeReg |= 1 << 13;
         break;
-    case AUDIOINPUT_EXTERNAL:
-		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_1);
-        break;
-    case AUDIOINPUT_MUTE:
-        SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MUTE);
+    default:
         break;
     }
 
+    SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
+
+    /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI
+    SetDEMRegister(DEM_WR_DCO1_LO, StandardDefinition.MinorCarrier & 0xfff);
+    SetDEMRegister(DEM_WR_DCO1_HI, StandardDefinition.MinorCarrier >> 12);
+    SetDEMRegister(DEM_WR_DCO2_LO, StandardDefinition.MajorCarrier & 0xfff);
+    SetDEMRegister(DEM_WR_DCO2_HI, StandardDefinition.MajorCarrier >> 12);
+
+    // I have no idea what this is supposed to do.
+    /// Step 11: start LOAD_REG_12 process
+    //SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
+
+    /// Step 12 NICAM_START
+    if(StandardDefinition.StereoType == STEREO_NICAM)
+    {
+        SetDEMRegister(DEM_WR_SEARCH_NICAM, 0);
+    }
+    
+    WORD source = 0;
+    switch (m_SoundChannel)
+    {
+    case SOUNDCHANNEL_MONO:
+        source = 0x30;
+        break;
+    case SOUNDCHANNEL_STEREO:
+        source = 0x20;
+        break;
+    case SOUNDCHANNEL_LANGUAGE1:
+        source = 0x10;
+        break;
+    case SOUNDCHANNEL_LANGUAGE2:
+        source = 0;
+        break;
+    default:
+        break;
+    }
+    if(StandardDefinition.StereoType == STEREO_NICAM)
+    {
+        source |= 0x0100;
+    }
+
+    SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
+    SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
+    SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
+
+    // 2. FM and NICAM prescale
+    WORD fmprescale = 0x3000;
+    switch(standard)
+    {
+    case MSP34x0_STANDARD_BG_DUAL_FM:
+        fmprescale |= 1;
+        break;
+    case MSP34x0_STANDARD_M_DUAL_FM:
+        fmprescale |= 2;
+        break;
+    default:
+        break;
+    }
+    
+    SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmprescale);
+    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
+
+    // reset the ident filter
+    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);
+
+    // 3. reset volume to 0dB
+    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
+
+}
+
+WORD CMSP34x0Decoder::GetSoundStandard()
+{
     /// Guess the correct format
     WORD standard;
     switch(m_VideoFormat)
@@ -990,183 +1136,6 @@ void CMSP34x0Decoder::ReconfigureRevA()
         standard = MSP34x0_STANDARD_NONE;
         break;
     }
-
-    // Find the correct Standard in list
-    int MSPStandards(0);
-    while(m_MSPStandards[MSPStandards].Standard != standard && 
-            m_MSPStandards[MSPStandards].Name != NULL)
-    {
-        ++MSPStandards;
-    }
-
-    /// LOAD_SEQ_1/2: General Initialization followed by LOAD_REG_12
-
-    /// Step 0: AD_CV
-    if(m_MSPStandards[MSPStandards].StereoType == STEREO_SAT)
-    {
-        // set up for AGC bit 7
-        // and bits 6..1  100011 for SAT
-        SetDEMRegister(DEM_WR_AD_CV, 0xC6);
-    }
-    else if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM && 
-                m_MSPStandards[MSPStandards].MonoType == MONO_AM)
-    {
-        // set up for AGC bit 7
-        // and bits 6..1  100011 AM and NICAM
-        SetDEMRegister(DEM_WR_AD_CV, 0xC6);
-    }
-    else
-    {
-        // set up for AGC bit 7
-        // and bits 6..1  101000 FM and NICAM
-        // or Dual FM
-        SetDEMRegister(DEM_WR_AD_CV, 0xD0);
-    }
-
-    // I have no idea what this is supposed to do.
-    /// Step 1: AUDIO_PLL
-    // FIXME what should this be may need to be 0 for NICAM
-    // SetDEMRegister(DEM_WR_AUDIO_PLL, 1);
-
-    /// Step 2: FAWCT_SOLL
-    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
-    {
-        SetDEMRegister(DEM_WR_FAWCT_SOLL, 12);
-    }
-    
-    /// Step 3: FAW_ER_TOL
-    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
-    {
-        SetDEMRegister(DEM_WR_FAW_ER_TOL, 2);
-    }
-
-    /// Step 4: FIR_REG_1
-    int FIRType = m_MSPStandards[MSPStandards].FIRType;
-    for (i = 5; i >= 0; i--)
-    {
-        SetDEMRegister(DEM_WR_FIR1, m_FIRTypes[FIRType].FIR1[i]);
-    }
-    
-    /// Step 5: FIR_REG_2
-    SetDEMRegister(DEM_WR_FIR2, 0x0004);
-    SetDEMRegister(DEM_WR_FIR2, 0x0040);
-    SetDEMRegister(DEM_WR_FIR2, 0x0000);
-    
-    for (i = 5; i >= 0; i--)
-    {
-        SetDEMRegister(DEM_WR_FIR2, m_FIRTypes[FIRType].FIR2[i]);
-    }
-
-    /// Step 6: MODE_REG
-    WORD ModeReg = 1 << 10;// bit 10 must be set according to documentation
-    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
-    {
-        // set NICAM mode
-        ModeReg |= 1 << 6;
-        if(m_MSPStandards[MSPStandards].MonoType == MONO_AM)
-        {
-            // set MSP 1/2 to AM
-            ModeReg |= 1 << 8;
-        }
-    }
-    else
-    {
-        if(m_MSPStandards[MSPStandards].StereoType != STEREO_NONE)
-        {
-            // set Two carrier FM mode
-            ModeReg |= 1 << 7;
-        }
-        if(m_MSPStandards[MSPStandards].MonoType == MONO_FM)
-        {
-            // set MSP channel1 to FM
-            ModeReg |= 1 << 7;
-        }
-        else
-        {
-            // set MSP 1/2 to AM
-            ModeReg |= 1 << 8;
-        }
-
-    }
-    switch(standard)
-    {
-    case MSP34x0_STANDARD_BG_DUAL_FM:
-    case MSP34x0_STANDARD_DK1_DUAL_FM:
-        ModeReg |= 1 << 13;
-        break;
-    default:
-        break;
-    }
-
-    SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
-
-    /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI
-    SetDEMRegister(DEM_WR_DCO1_LO, m_MSPStandards[MSPStandards].MinorCarrier & 0xfff);
-    SetDEMRegister(DEM_WR_DCO1_HI, m_MSPStandards[MSPStandards].MinorCarrier >> 12);
-    SetDEMRegister(DEM_WR_DCO2_LO, m_MSPStandards[MSPStandards].MajorCarrier & 0xfff);
-    SetDEMRegister(DEM_WR_DCO2_HI, m_MSPStandards[MSPStandards].MajorCarrier >> 12);
-
-    // I have no idea what this is supposed to do.
-    /// Step 11: start LOAD_REG_12 process
-    //SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
-
-    /// Step 12 NICAM_START
-    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
-    {
-        SetDEMRegister(DEM_WR_SEARCH_NICAM, 0);
-    }
-    
-    WORD source = 0;
-    switch (m_SoundChannel)
-    {
-    case SOUNDCHANNEL_MONO:
-        source = 0x30;
-        break;
-    case SOUNDCHANNEL_STEREO:
-        source = 0x20;
-        break;
-    case SOUNDCHANNEL_LANGUAGE1:
-        source = 0x10;
-        break;
-    case SOUNDCHANNEL_LANGUAGE2:
-        source = 0;
-        break;
-    default:
-        break;
-    }
-    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
-    {
-        source |= 0x0100;
-    }
-
-    SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
-    SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
-    SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
-
-    // 2. FM and NICAM prescale
-    WORD fmprescale = 0x3000;
-    switch(standard)
-    {
-    case MSP34x0_STANDARD_BG_DUAL_FM:
-        fmprescale |= 1;
-        break;
-    case MSP34x0_STANDARD_M_DUAL_FM:
-        fmprescale |= 2;
-        break;
-    default:
-        break;
-    }
-    
-    SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmprescale);
-    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
-
-    // reset the ident filter
-    SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);
-
-    // 3. reset volume to 0dB
-    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
-    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
-    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
-
+    return standard;
 }
 

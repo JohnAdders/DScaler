@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.10 2002-01-23 22:57:28 robmuller Exp $
+// $Id: MSP34x0.h,v 1.11 2002-01-27 23:54:32 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/01/23 22:57:28  robmuller
+// Revision D/G improvements. The code is following the documentation much closer now.
+//
 // Revision 1.9  2001/12/21 11:07:31  adcockj
 // Even more RevA fixes
 //
@@ -395,13 +398,12 @@ private:
     void SetSCARTxbar(eScartOutput output, eScartInput input);
 
 private:
-    void StartAutoDetect();
     void ReconfigureRevA();
 
 private:
-	void RevD_CheckAutoStandardDetect();
+	void RevD_SetStandard(WORD Standard);
+	WORD GetSoundStandard();
 	eTimerAction TimerAction;
-	void RevG_SetModus();
 	void Initialize();
 	BOOL m_IsInitialized;
     eMSPVersion m_MSPVersion;

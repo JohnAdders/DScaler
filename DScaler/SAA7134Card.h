@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.34 2003-08-12 06:46:01 atnak Exp $
+// $Id: SAA7134Card.h,v 1.35 2003-08-14 08:25:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/08/12 06:46:01  atnak
+// Fix for initial muting of SAA7130 cards
+//
 // Revision 1.33  2003/06/27 08:05:41  atnak
 // Added AOPEN VA1000 Lite2
 //
@@ -338,6 +341,8 @@ public:
     void SetAudioStandard(eAudioStandard AudioStandard);
     void SetAudioChannel(eAudioChannel AudioChannel);
 
+    void _SetIOSelectOCS(eAudioInputSource InputSource, BOOL bStereoExternal);
+
     int GetInputAudioLine(int nInput);
     LPCSTR GetAudioStandardName(eAudioStandard AudioStandard);
     eAudioChannel GetAudioChannel();
@@ -472,9 +477,8 @@ private:
     eVideoStandard      m_VideoStandard;
 
     eAudioInputSource   m_AudioInputSource;
-    /// This is set to TRUE whenever the audio line used
-    /// for muting, on cards without proper mute - saa7130s
-    BOOL                m_bAudioLineMuteReserved;
+    BOOL                m_bAudioLineReservedForMute;
+    BOOL                m_bStereoExternalLines;
 };
 
 

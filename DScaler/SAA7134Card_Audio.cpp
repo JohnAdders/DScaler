@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.23 2003-08-12 15:34:38 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.24 2003-08-14 08:25:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/08/12 15:34:38  atnak
+// Minor fixes
+//
 // Revision 1.22  2003/08/12 09:38:31  atnak
 // Fixed new mute with SAA7130 problem
 //
@@ -561,24 +564,14 @@ void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
 
 void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 {
-    BYTE LineSelect;
-
     m_AudioInputSource = InputSource;
 
-    if (m_bAudioLineMuteReserved != FALSE)
+    if (m_bAudioLineReservedForMute != FALSE)
     {
         return;
     }
 
-    switch (InputSource)
-    {
-    case AUDIOINPUTSOURCE_DAC: LineSelect = 0x02; break;
-    case AUDIOINPUTSOURCE_LINE1: LineSelect = 0x00; break;
-    case AUDIOINPUTSOURCE_LINE2: LineSelect = 0x01; break;
-    }
-
-    MaskDataByte(SAA7134_ANALOG_IO_SELECT, LineSelect,
-        SAA7134_ANALOG_IO_SELECT_OCS);
+    _SetIOSelectOCS(m_AudioInputSource, m_bStereoExternalLines);
 
     if (InputSource == AUDIOINPUTSOURCE_DAC)
     {
@@ -592,6 +585,22 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
     {
         OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
     }
+}
+
+
+void CSAA7134Card::_SetIOSelectOCS(eAudioInputSource InputSource, BOOL bStereoExternal)
+{
+    BYTE LineSelect;
+
+    switch (InputSource)
+    {
+    case AUDIOINPUTSOURCE_DAC: LineSelect = 0x02; break;
+    case AUDIOINPUTSOURCE_LINE1: LineSelect = bStereoExternal ? 0x00 : 0x03; break;
+    case AUDIOINPUTSOURCE_LINE2: LineSelect = bStereoExternal ? 0x01 : 0x04; break;
+    }
+
+    MaskDataByte(SAA7134_ANALOG_IO_SELECT, LineSelect,
+        SAA7134_ANALOG_IO_SELECT_OCS);
 }
 
 
@@ -655,32 +664,14 @@ void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
 {
     if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
     {
-        BYTE AudioLine;
+        m_bStereoExternalLines = (AudioChannel == AUDIOCHANNEL_STEREO);
 
-        if (AudioChannel == AUDIOCHANNEL_MONO)
+        if (m_bAudioLineReservedForMute != FALSE)
         {
-            switch (m_AudioInputSource)
-            {
-            case AUDIOINPUTSOURCE_LINE1: AudioLine = 0x03; break;
-            case AUDIOINPUTSOURCE_LINE2: AudioLine = 0x04; break;
-            }
-        }
-        else if (AudioChannel == AUDIOCHANNEL_STEREO)
-        {
-            switch (m_AudioInputSource)
-            {
-            case AUDIOINPUTSOURCE_LINE1: AudioLine = 0x00; break;
-            case AUDIOINPUTSOURCE_LINE2: AudioLine = 0x01; break;
-            }
-        }
-        else
-        {
-            // not supported
             return;
         }
 
-        MaskDataByte(SAA7134_ANALOG_IO_SELECT, AudioLine,
-            SAA7134_ANALOG_IO_SELECT_OCS);
+        _SetIOSelectOCS(m_AudioInputSource, m_bStereoExternalLines);
         return;
     }
 
@@ -727,6 +718,22 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 {
     if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
     {
+        if (m_bAudioLineReservedForMute != FALSE)
+        {
+            if (m_bStereoExternalLines != FALSE)
+            {
+                // Although the card is configured to accept
+                // stereo, the actual format is dependant
+                // on the external source.  For this reason, we
+                // return ``AUDIOCHANNEL_EXTERNAL'', to mean
+                // "depends on the external source".
+
+                return AUDIOCHANNEL_EXTERNAL;
+            }
+
+            return AUDIOCHANNEL_MONO;
+        }
+
         BYTE AudioLine;
 
         AudioLine = ReadByte(SAA7134_ANALOG_IO_SELECT) &
@@ -907,20 +914,19 @@ void CSAA7134Card::SetAudioMute()
 {
     if (m_DeviceId == 0x7130)
     {
-        BYTE MuteLine = 0x00;
+        eAudioInputSource AudioLine = AUDIOINPUTSOURCE_LINE1;
 
-        // Mute by selecting the opposite audio line
+        // Mute by selecting the alternate audio line
         switch (GetCardSetup()->Inputs[0].AudioLineSelect)
         {
-        case AUDIOINPUTSOURCE_LINE1: MuteLine = 0x01; break;
-        case AUDIOINPUTSOURCE_LINE2: MuteLine = 0x00; break;
+        case AUDIOINPUTSOURCE_LINE1: AudioLine = AUDIOINPUTSOURCE_LINE2; break;
+        case AUDIOINPUTSOURCE_LINE2: AudioLine = AUDIOINPUTSOURCE_LINE1; break;
         }
 
-        MaskDataByte(SAA7134_ANALOG_IO_SELECT, MuteLine,
-            SAA7134_ANALOG_IO_SELECT_OCS);
+        _SetIOSelectOCS(AudioLine, m_bStereoExternalLines);
 
         // Set this so we know the audio line is reserved
-        m_bAudioLineMuteReserved = TRUE;
+        m_bAudioLineReservedForMute = TRUE;
     }
     else
     {
@@ -929,11 +935,12 @@ void CSAA7134Card::SetAudioMute()
     }
 }
 
+
 void CSAA7134Card::SetAudioUnMute()
 {
     if (m_DeviceId == 0x7130)
     {
-        m_bAudioLineMuteReserved = FALSE;
+        m_bAudioLineReservedForMute = FALSE;
         SetAudioSource(m_AudioInputSource);
     }
     else
@@ -942,6 +949,7 @@ void CSAA7134Card::SetAudioUnMute()
         MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
     }
 }
+
 
 // Unused
 void CSAA7134Card::SetAudioVolume(BYTE nGain)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingRepository.h,v 1.3 2004-08-14 13:45:23 adcockj Exp $
+// $Id: SettingRepository.h,v 1.4 2004-09-08 07:20:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.2  2004/08/13 08:53:50  atnak
 // Added usage documentation for setting repository.
 //
@@ -63,7 +66,7 @@ typedef class CSettingValue&			RSETTINGVALUE;
 typedef const class CSettingValue&		RCSETTINGVALUE;
 
 // Handle used by setting groups.
-typedef PVOID HSETTING;
+typedef class _HSETTING *HSETTING;
 // Dependency bits storage type used by groups ex.
 typedef BYTE DBIT;
 

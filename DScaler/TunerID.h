@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.4 2003-12-18 15:57:41 adcockj Exp $
+// $Id: TunerID.h,v 1.5 2004-08-27 13:11:27 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/12/18 15:57:41  adcockj
+// Added MT2050 tuner type support (untested)
+//
 // Revision 1.3  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -95,6 +98,7 @@ enum eTunerId
     TUNER_PHILIPS_FI1286_NTSC_M_J,
     TUNER_MT2050,
     TUNER_MT2050_PAL,
+	TUNER_PHILIPS_4IN1,
     TUNER_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.15 2004-06-30 17:39:00 to_see Exp $
+// $Id: GenericTuner.cpp,v 1.16 2004-08-27 13:11:27 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/06/30 17:39:00  to_see
+// Added some fixes for Philips MK3 tuner & TDA9887
+//
 // Revision 1.14  2004/01/29 15:19:49  adcockj
 // Generic tuner radio patch from Sven Grothklags
 //
@@ -399,6 +402,12 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
         //  { "Philips FI1286", Philips, NTSC, 16*160.00, 16*454.00, 0x01, 0x02, 0x04, 0x8e, 940},
           TUNERDEF(TUNER_PHILIPS_FI1286_NTSC_M_J, VIDEOFORMAT_NTSC_M,
               16*(160.00),16*(454.00),0x01,0x02,0x04,0x8e,940);
+          break;
+      }
+    case TUNER_PHILIPS_4IN1:
+      {
+          TUNERDEF(TUNER_PHILIPS_4IN1, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,732);
           break;
       }
     }

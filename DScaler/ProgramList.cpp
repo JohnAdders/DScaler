@@ -930,8 +930,7 @@ void Channel_Change(int NewChannel)
             {
                 if(!bSystemInMute)
                 {
-                    Audio_SetSource(AUDIOMUX_MUTE);
-                    Mixer_Mute();
+					Mute();
                 }
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
@@ -954,8 +953,7 @@ void Channel_Change(int NewChannel)
                 VT_ChannelChange();
                 if(!bSystemInMute)
                 {
-                    Audio_SetSource(AudioSource);
-                    Mixer_UnMute();
+                    Unmute();
                 }
                 StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);

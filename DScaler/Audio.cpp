@@ -35,6 +35,7 @@
 #include "audio.h"
 #include "tvcards.h"
 #include "Status.h"
+#include "MixerDev.h"
 #include "resource.h"
 
 BOOL Volume_OnChange(long nVolume);
@@ -58,14 +59,14 @@ BOOL Has_MSP = FALSE;
 char MSPStatus[40] = "";
 char MSPVersion[16] = "";
 
-int InitialVolume = 900;  // HC 26/Feb/2001 Changed to avoid digital clipping
-char InitialBalance = 0x00;
-char InitialLoudness = 0x00;
-char InitialBass = 0x00;
-char InitialTreble = 0x00;
+long InitialVolume = 900;  // HC 26/Feb/2001 Changed to avoid digital clipping
+long InitialBalance = 0x00;
+long InitialLoudness = 0x00;
+long InitialBass = 0x00;
+long InitialTreble = 0x00;
 BOOL InitialSuperBass = FALSE;
-char InitialEqualizer[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
-char InitialSpatial = 0x00;
+long InitialEqualizer[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
+long InitialSpatial = 0x00;
 
 AUDIOMUXTYPE AudioSource = AUDIOMUX_MUTE;
 
@@ -1215,31 +1216,31 @@ SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
 		"Equalizer 1", SLIDER, 0, (long*)&InitialEqualizer[0],
 		0, -69, 69, 1, 1,
 		NULL,
-		"MSP", "Equalizer 1", Equalizer1_OnChange,
+		"MSP", "Equalizer1", Equalizer1_OnChange,
 	},
 	{
 		"Equalizer 2", SLIDER, 0, (long*)&InitialEqualizer[1],
 		0, -69, 69, 1, 1,
 		NULL,
-		"MSP", "Equalizer 2", Equalizer2_OnChange,
+		"MSP", "Equalizer2", Equalizer2_OnChange,
 	},
 	{
 		"Equalizer 3", SLIDER, 0, (long*)&InitialEqualizer[2],
 		0, -69, 69, 1, 1,
 		NULL,
-		"MSP", "Equalizer 3", Equalizer3_OnChange,
+		"MSP", "Equalizer3", Equalizer3_OnChange,
 	},
 	{
 		"Equalizer 4", SLIDER, 0, (long*)&InitialEqualizer[3],
 		0, -69, 69, 1, 1,
 		NULL,
-		"MSP", "Equalizer 4", Equalizer4_OnChange,
+		"MSP", "Equalizer4", Equalizer4_OnChange,
 	},
 	{
 		"Equalizer 5", SLIDER, 0, (long*)&InitialEqualizer[4],
 		0, -69, 69, 1, 1,
 		NULL,
-		"MSP", "Equalizer 5", Equalizer5_OnChange,
+		"MSP", "Equalizer5", Equalizer5_OnChange,
 	},
 };
 
@@ -1308,4 +1309,40 @@ void Audio_SetMenu(HMENU hMenu)
 	CheckMenuItem(hMenu, IDM_MINOR_CARRIER_7, (MSPMinorMode == 7)?MF_CHECKED:MF_UNCHECKED);
 
 	CheckMenuItem(hMenu, IDM_AUTOSTEREO,        AutoStereoSelect?MF_CHECKED:MF_UNCHECKED);
+}
+
+void Mute()
+{
+	if (bUseMixer == FALSE)
+	{
+		Audio_SetSource(AUDIOMUX_MUTE);
+	}
+	
+	if(bUseMixer == TRUE)
+	{
+		Mixer_Mute();
+	}
+	
+	if (Audio_MSP_IsPresent())
+	{
+		Audio_Mute();
+	}
+}
+
+void Unmute()
+{
+	if (bUseMixer == FALSE)
+	{
+		Audio_SetSource(AudioSource);
+	}
+	
+	if(bUseMixer == TRUE)
+	{
+		Mixer_UnMute();
+	}
+	
+	if (Audio_MSP_IsPresent())
+	{
+		Audio_Unmute();
+	}
 }

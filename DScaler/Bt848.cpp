@@ -1552,8 +1552,7 @@ BOOL VideoSource_OnChange(long NewValue)
 	Stop_Capture();
     if(!bSystemInMute)
     {
-		Audio_SetSource(AUDIOMUX_MUTE);
-        Mixer_Mute();
+		Mute();
     }
 	VideoSettings_SaveTVFormat();
 	VideoSettings_Save();
@@ -1599,8 +1598,7 @@ BOOL VideoSource_OnChange(long NewValue)
 	Mixer_OnInputChange(VideoSource);
     if(!bSystemInMute)
 	{
-		Audio_SetSource(AudioSource);
-        Mixer_UnMute();
+        Unmute();
 	}
 	Start_Capture();
 	return FALSE;

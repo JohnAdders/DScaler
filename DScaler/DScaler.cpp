@@ -777,44 +777,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			if (bSystemInMute == FALSE)
 			{
 				bSystemInMute = TRUE;
-				if (bUseMixer == FALSE)
-				{
-					Audio_SetSource(AUDIOMUX_MUTE);
-				}
-				else
-				{
-					Mixer_Mute();
-				}
-				
-				// MAE 8 Dec 2000 Start of change
-				// JA 8 Jan 20001 Changed to use function
-				if (Audio_MSP_IsPresent())
-				{
-					// Mute the MSP decoder
-					Audio_Mute();
-				}
-				// MAE 8 Dec 2000 End of change
-
+				Mute();
 				ShowText(hWnd,"MUTE");
 			}
 			else
 			{
 				bSystemInMute = FALSE;
-				if (bUseMixer == FALSE)
-				{
-					Audio_SetSource(AudioSource);
-				}
-				else
-				{
-					Mixer_UnMute();
-				}
-				// MAE 8 Dec 2000 Start of change
-				// JA 8 Jan 20001 Changed to use function
-				if (Audio_MSP_IsPresent())
-				{
-					Audio_Unmute();
-				}
-				// MAE 8 Dec 2000 End of change
+				Unmute();
 				ShowText(hWnd,"UNMUTE");
 			}
 			break;
@@ -1893,7 +1862,7 @@ void MainWndOnInitBT(HWND hWnd)
 		if (Audio_MSP_Init(0x80, 0x81) == TRUE)
 		{
 			AddSplashTextLine("MSP Device OK");
-			Audio_Unmute();
+			Unmute();
 		}
 		else
 		{
@@ -1912,24 +1881,11 @@ void MainWndOnInitBT(HWND hWnd)
 		// resume mute status
 		if(bSystemInMute)
 		{
-			if (bUseMixer == FALSE)
-			{
-				Audio_SetSource(AUDIOMUX_MUTE);
-			}
-			
-			if(bUseMixer == TRUE)
-			{
-				Mixer_Mute();
-			}
-			
-			if (Audio_MSP_IsPresent())
-			{
-				Audio_Mute();
-			}
+			Mute();
 		}
         else
         {
-			Audio_SetSource(AudioSource);
+			Unmute();
         }
 
 		if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
@@ -2047,7 +2003,7 @@ void MainWndOnDestroy()
 	__try
 	{
 		LOG("Try Mute 1");
-		Audio_SetSource(AUDIOMUX_MUTE);
+		Mute();
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Mute 1");}
 	

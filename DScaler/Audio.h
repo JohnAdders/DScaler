@@ -64,6 +64,9 @@ int Audio_GetStereoMode(BOOL bHardwareMode);
 void Audio_Mute(void); // MAE 8 Dec 2000
 void Audio_Unmute(void);
 
+void Mute();
+void Unmute();
+
 BOOL Audio_MSP_Init(BYTE DRead, BYTE DWrite);
 BOOL Audio_MSP_IsPresent();
 const char* Audio_MSP_Status();

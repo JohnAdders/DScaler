@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: MT2032.cpp,v 1.5 2002-01-16 20:49:30 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.3  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -70,6 +73,22 @@ bool CMT2032::HasRadio() const
 
 bool CMT2032::SetRadioFrequency(long nFrequency)
 {
+    if (!m_Initialized)
+    {
+        Initialize();
+    }
+    int if2, from, to;
+
+    // from and to values are estimated. This should be no problem
+    // since these values are only used in the spur checking routine.
+    // According to the documentation spurs do not occur in the North
+    // American FM band. (87-108MHz)
+    // to - from = 0.2MHz, this is the bandwidth used for FM.
+    from = 10600 * 1000;
+    to = 10800 * 1000;
+    if2 = 10700 * 1000;
+
+    SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to);
     return true;
 }
 
@@ -101,13 +120,7 @@ WORD CMT2032::GetVendor()
 
 void CMT2032::Initialize()
 {
-    unsigned char   buf[21];
     int             xogc, xok = 0;
-
-    for (int i = 0; i < 21; i++)
-    {
-        buf[i] = GetRegister(i);
-    }
 
     /* Initialize Registers per spec. */
     SetRegister(2, 0xff);
@@ -210,7 +223,7 @@ int CMT2032::ComputeFreq(
         }
 
         lo1freq = lo1 * fref;
-        desired_lo2 = lo1freq - fref - if2;
+        desired_lo2 = lo1freq - rfin - if2;
     }
 
     /* per spec 2.3.3 */
@@ -293,7 +306,7 @@ int CMT2032::ComputeFreq(
     buf[3] = 0x0f;                  /* reserved */
     buf[4] = 0x1f;
     buf[5] = (lo2n - 1) | (lo2a << 5);
-    if (rfin > 400 * 1000 * 1000)
+    if (rfin < 400 * 1000 * 1000)
     {
         buf[6] = 0xe4;
     }
@@ -329,7 +342,7 @@ int CMT2032::CheckLOLock(void)
 
 int CMT2032::OptimizeVCO(int sel, int lock)
 {
-    int tad1;
+    int tad1, lo1a;
 
     tad1 = GetRegister(0x0f) & 0x07;
 
@@ -363,8 +376,8 @@ int CMT2032::OptimizeVCO(int sel, int lock)
             return lock;
         }
     }
-
-    SetRegister(0x0f, sel);
+    lo1a = GetRegister(0x01) & 0x07;
+    SetRegister(0x01, lo1a | (sel << 4));
     lock = CheckLOLock();
     return lock;
 }
@@ -373,11 +386,6 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to)
 {
     unsigned char   buf[21];
     int             lint_try, ret, sel, lock = 0;
-
-    for (int i = 0; i < 21; i++)
-    {
-        buf[i] = GetRegister(i);
-    }
 
     ret = ComputeFreq(rfin, if1, if2, from, to, &buf[0], &sel, m_XOGC);
     if (ret < 0)

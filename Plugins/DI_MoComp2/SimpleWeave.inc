@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SimpleWeave.inc,v 1.1 2003-02-11 15:41:04 adcockj Exp $
+// $Id: SimpleWeave.inc,v 1.2 2003-05-26 15:54:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/02/11 15:41:04  adcockj
+// New implementation of StrangeBob based off paper
+// Tidy up sources
+//
 // Revision 1.1  2003/01/02 13:15:01  adcockj
 // Added new plug-ins ready for developement by copying TomsMoComp and Gamma
 //
@@ -43,7 +47,7 @@ __asm
     movq mm1, qword ptr[edi+ecx]
     movq mm2, qword ptr[esi+ecx]
     movq mm3, mm1			/* another copy of our pixel1 value */ 
-    movq mm4, mm2			/* another copy of our pixel1 value */ 
+    movq mm4, mm2			/* another copy of our pixel2 value */ 
 
     PABS(mm3, mm4, mm5)
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MoComp2.h,v 1.2 2003-02-11 15:40:50 adcockj Exp $
+// $Id: MoComp2.h,v 1.3 2003-05-26 15:54:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/02/11 15:40:50  adcockj
+// New implementation of StrangeBob based off paper
+// Tidy up sources
+//
 // Revision 1.1  2003/01/02 13:15:01  adcockj
 // Added new plug-ins ready for developement by copying TomsMoComp and Gamma
 //
@@ -51,7 +55,7 @@ static void  DoMoComp2_SimpleWeave();
 static __int64 Save1; 
 static __int64 Save2; 
 
-static __int64 MOVE  = 0x0806080608060806; 
+static __int64 MOVE  = 0x0f0f0f0f0f0f0f0f; 
 
 static const __int64 YMask = 0x00ff00ff00ff00ff; // keeps only luma
 static const __int64 UVMask =  0xff00ff00ff00ff00; // keeps only chroma

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.15 2002-08-09 13:35:11 laurentg Exp $
+// $Id: DSSource.h,v 1.16 2002-08-10 16:54:25 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/08/09 13:35:11  laurentg
+// Processor speed and trade off settings moved from BT source settings to DScaler settings
+//
 // Revision 1.14  2002/08/05 14:07:56  kooiman
 // *** empty log message ***
 //
@@ -157,7 +160,7 @@ public:
 	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 
-    BOOL HasSquarePixels() {return FALSE;};
+    BOOL HasSquarePixels() {return TRUE;};
 
     void ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff) {;};
 

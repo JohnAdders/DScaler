@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.306 2003-02-06 12:22:56 laurentg Exp $
+// $Id: DScaler.cpp,v 1.307 2003-02-07 11:28:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.306  2003/02/06 12:22:56  laurentg
+// Take the refresh rate when changing resolution (choice between 60, 72, 75, 100 and 120 Hz)
+//
 // Revision 1.305  2003/02/06 09:59:40  laurentg
 // Change resolution in full screen
 //
@@ -6352,7 +6355,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
     },
     {
         "Display Resolution in Full Screen", SLIDER, 0, (long*)&OutputReso,
-        0, 0, 31, 1, 1,
+        0, 0, MAX_NUMBER_RESO, 1, 1,
         NULL,
         "MainWindow", "ResoFullScreen", NULL,
     },

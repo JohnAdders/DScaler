@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.4 2003-02-06 14:08:03 laurentg Exp $
+// $Id: OutReso.cpp,v 1.5 2003-02-07 11:28:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/02/06 14:08:03  laurentg
+// Only display supported resolutions
+// Do the switch only if the target display resolution is different from the current
+//
 // Revision 1.3  2003/02/06 12:22:57  laurentg
 // Take the refresh rate when changing resolution (choice between 60, 72, 75, 100 and 120 Hz)
 //
@@ -38,6 +42,7 @@
 #include "stdafx.h"
 #include "DScaler.h"
 #include "OutReso.h"
+#include "Setting.h"
 #include "DebugLog.h"
 
 
@@ -65,6 +70,26 @@ static sResolution resSettings[] = {
 	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75,		TRUE	},
 	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100,	TRUE	},
 	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120,	TRUE	},
+	{	TRUE,	"720x480 16bit 60 Hz",		720,	480,	16,	60,		TRUE	},
+	{	TRUE,	"720x480 16bit 72 Hz",		720,	480,	16,	72,		TRUE	},
+	{	TRUE,	"720x480 16bit 75 Hz",		720,	480,	16,	75,		TRUE	},
+	{	TRUE,	"720x480 16bit 100 Hz",		720,	480,	16,	100,	TRUE	},
+	{	TRUE,	"720x480 16bit 120 Hz",		720,	480,	16,	120,	TRUE	},
+	{	TRUE,	"720x480 32bit 60 Hz",		720,	480,	32,	60,		TRUE	},
+	{	TRUE,	"720x480 32bit 72 Hz",		720,	480,	32,	72,		TRUE	},
+	{	TRUE,	"720x480 32bit 75 Hz",		720,	480,	32,	75,		TRUE	},
+	{	TRUE,	"720x480 32bit 100 Hz",		720,	480,	32,	100,	TRUE	},
+	{	TRUE,	"720x480 32bit 120 Hz",		720,	480,	32,	120,	TRUE	},
+	{	TRUE,	"720x576 16bit 60 Hz",		720,	576,	16,	60,		TRUE	},
+	{	TRUE,	"720x576 16bit 72 Hz",		720,	576,	16,	72,		TRUE	},
+	{	TRUE,	"720x576 16bit 75 Hz",		720,	576,	16,	75,		TRUE	},
+	{	TRUE,	"720x576 16bit 100 Hz",		720,	576,	16,	100,	TRUE	},
+	{	TRUE,	"720x576 16bit 120 Hz",		720,	576,	16,	120,	TRUE	},
+	{	TRUE,	"720x576 32bit 60 Hz",		720,	576,	32,	60,		TRUE	},
+	{	TRUE,	"720x576 32bit 72 Hz",		720,	576,	32,	72,		TRUE	},
+	{	TRUE,	"720x576 32bit 75 Hz",		720,	576,	32,	75,		TRUE	},
+	{	TRUE,	"720x576 32bit 100 Hz",		720,	576,	32,	100,	TRUE	},
+	{	TRUE,	"720x576 32bit 120 Hz",		720,	576,	32,	120,	TRUE	},
 	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60,		TRUE	},
 	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72,		TRUE	},
 	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75,		TRUE	},
@@ -139,8 +164,25 @@ void OutReso_UpdateMenu(HMENU hMenu)
 			UINT Flags(MF_STRING);
 			AppendMenu(hMenuReso, Flags, IDM_OUTPUTRESO + j, resSettings[i].szMenuLabel);
 			j++;
+
+			// Stop as soon as MAX_NUMBER_RESO is reached
+			if (j >= MAX_NUMBER_RESO)
+			{
+				break;
+			}
 		}
     }
+
+	// Update the value for the RESOFULLSCREEN setting to "none"
+	// if the current value is greater than the number of items in menu
+	SETTING* pSetting = DScaler_GetSetting(RESOFULLSCREEN);
+	if (pSetting)
+	{
+		if (Setting_GetValue(pSetting) > (j-1))
+		{
+			Setting_SetValue(pSetting, 0);
+		}
+	}
 }
 
 
@@ -162,6 +204,11 @@ void OutReso_SetMenu(HMENU hMenu)
 		{
 	        CheckMenuItemBool(hMenuReso, IDM_OUTPUTRESO + j, j == OutputReso);
 			j++;
+			// Stop as soon as MAX_NUMBER_RESO is reached
+			if (j >= MAX_NUMBER_RESO)
+			{
+				break;
+			}
 		}
     }
 }
@@ -169,7 +216,7 @@ void OutReso_SetMenu(HMENU hMenu)
 
 BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID)
 {
-    if (wMenuID >= IDM_OUTPUTRESO && wMenuID < (IDM_OUTPUTRESO + 32))
+    if (wMenuID >= IDM_OUTPUTRESO && wMenuID < (IDM_OUTPUTRESO + MAX_NUMBER_RESO))
     {
 		OutputReso = wMenuID - IDM_OUTPUTRESO;
         return TRUE;

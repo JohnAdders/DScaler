@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.234 2002-09-29 17:52:04 adcockj Exp $
+// $Id: DScaler.cpp,v 1.235 2002-09-30 16:23:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.234  2002/09/29 17:52:04  adcockj
+// Try again with cursor fix
+//
 // Revision 1.233  2002/09/29 17:40:04  adcockj
 // Fix for cursor not disappearing at startup
 //
@@ -870,6 +873,7 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
 void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
+LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 void GlobalEventTimer_Start();
 void GlobalEventTimer_Stop();
 
@@ -3778,91 +3782,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_CHAR:
-        if (((char) wParam >= '0') && ((char) wParam <= '9'))
-        {
-            sprintf(Text, "%c", (char)wParam);
-            // if something gets broken in the future
-            if(strlen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
-            {
-#ifdef _DEBUG
-                // if this is a debug build show an error message
-                MessageBox(hWnd, "dscaler.cpp: ChannelString out of bounds.", "Error", MB_ICONERROR);
-#endif
-                ChannelString[0] = '\0';
-                return 0;
-            }
-            strcat(ChannelString, Text);
-
-            // if the user is only typing zero's we are going to switch inputs
-            if(VTState == VT_OFF && atoi(ChannelString) == 0 && (char) wParam == '0')
-            {
-                char string[128];
-                HMENU hSubMenu;
-                int MenuIndex = 0;
-
-                // first get the right name for the chosen input
-                hSubMenu = GetSubMenu(hMenu, 1);
-                hSubMenu = GetSubMenuWithName(hSubMenu, 0, "&Video Input");
-                if(hSubMenu != NULL)
-                {
-                    if(GetMenuString(hSubMenu, strlen(ChannelString) -1, string,
-                        sizeof(string), MF_BYPOSITION) != 0)
-                    {
-                        // get rid off the shortcut text
-                        char* ch = strchr(string, '\t');
-                        if(ch != NULL)
-                        {
-                            *ch = '\0';
-                        }
-                        // show the name of the source that is selected up to now
-                        OSD_ShowText(hWnd, string, 0);
-                    }
-                    else
-                    {
-                        OSD_ShowText(hWnd, ChannelString, 0);
-                    }
-                }
-                
-                if (strlen(ChannelString) >= 7)
-                {
-                    SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
-                }
-                else
-                {
-                    SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
-                }
-            }
-            // if in tuner mode or videotext mode
-            else if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
-            {
-                if(VTState == VT_OFF)
-                {
-                    OSD_ShowText(hWnd, ChannelString, 0);
-                }
-                if(strlen(ChannelString) >= 3)
-                {
-                    SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
-                }
-                else
-                {
-                    SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
-                }
-                if(VTState == VT_OFF)
-                {
-                    i = atoi(ChannelString);
-                    if(i != 0)
-                    {
-                        Channel_ChangeToNumber(i,(strlen(ChannelString)>1)?1:0);
-                    }
-                }
-            }
-            // we don't know what to do with this keypress so we reset ChannelString
-            else
-            {
-                ChannelString[0] = '\0';
-            }
-        }
-        return 0;
+        return OnChar(hWnd, message, wParam, lParam);
         break;
 
     case WM_PAINT:
@@ -4422,6 +4342,101 @@ void MainWndOnDestroy()
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SetKeyboardLock(FALSE)");}
 
 }
+
+LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
+{
+    char Text[128];
+    int i;
+
+    if (((char) wParam >= '0') && ((char) wParam <= '9'))
+    {
+        sprintf(Text, "%c", (char)wParam);
+        // if something gets broken in the future
+        if(strlen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
+        {
+#ifdef _DEBUG
+            // if this is a debug build show an error message
+            MessageBox(hWnd, "dscaler.cpp: ChannelString out of bounds.", "Error", MB_ICONERROR);
+#endif
+            ChannelString[0] = '\0';
+            return 0;
+        }
+        strcat(ChannelString, Text);
+
+        // if the user is only typing zero's we are going to switch inputs
+        if(VTState == VT_OFF && atoi(ChannelString) == 0 && (char) wParam == '0')
+        {
+            char string[128];
+            HMENU hSubMenu;
+            int MenuIndex = 0;
+
+            // first get the right name for the chosen input
+            hSubMenu = GetSubMenu(hMenu, 1);
+            hSubMenu = GetSubMenuWithName(hSubMenu, 0, "Video &Input");
+            if(hSubMenu != NULL)
+            {
+                if(GetMenuString(hSubMenu, strlen(ChannelString) -1, string,
+                    sizeof(string), MF_BYPOSITION) != 0)
+                {
+                    // get rid off the shortcut text
+                    char *ch = strchr(string, '\t');
+                    if(ch != NULL)
+                    {
+                        *ch = '\0';
+                    }
+                    // show the name of the source that is selected up to now
+                    OSD_ShowText(hWnd, string, 0);
+                }
+                else
+                {
+                    OSD_ShowText(hWnd, ChannelString, 0);
+                }
+            }
+            
+            if (strlen(ChannelString) >= 7)
+            {
+                SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
+            }
+            else
+            {
+                SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
+            }
+        }
+        // if in tuner mode or videotext mode
+        else if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
+        {
+            if(VTState == VT_OFF)
+            {
+                OSD_ShowText(hWnd, ChannelString, 0);
+            }
+            if(strlen(ChannelString) >= 3)
+            {
+                SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
+            }
+            else
+            {
+                SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
+            }
+            if(VTState == VT_OFF)
+            {
+                i = atoi(ChannelString);
+                if(i != 0)
+                {
+                    Channel_ChangeToNumber(i,(strlen(ChannelString)>1)?1:0);
+                }
+            }
+        }
+        // we don't know what to do with this keypress so we reset ChannelString
+        else
+        {
+            ChannelString[0] = '\0';
+        }
+    }
+    return 0;
+}
+
+
+
 
 //---------------------------------------------------------------------------
 void SetMenuAnalog()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.36 2003-03-23 00:20:52 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.37 2003-06-01 19:47:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/03/23 00:20:52  atnak
+// Removed state management for DMA and IRQ registers
+//
 // Revision 1.35  2003/03/02 17:03:48  atnak
 // Fixed broken manage state lines
 //
@@ -430,7 +433,7 @@ void CSAA7134Card::ResetHardware()
             SAA7134_MAIN_CTRL_EBADC |
             SAA7134_MAIN_CTRL_EBDAC);
 
-    WriteByte(SAA7134_SPECIAL_MODE, 0x00);
+    WriteByte(SAA7134_SPECIAL_MODE, 0x01);
 
     InitAudio();
 

@@ -211,6 +211,22 @@ CChannel* CChannelList::GetChannelByNumber(int iChannelNumber)
     return returned;        
 }
 
+CChannel* CChannelList::GetChannelByFrequency(DWORD dwFreq) 
+{
+    CChannel* returned = NULL;
+    
+    for(Channels::iterator it = m_Channels.begin();
+        it != m_Channels.end();
+        ++it)
+    {
+        if ((*it)->GetFrequency() == dwFreq)
+        {
+            returned = (*it);
+            break;
+        }
+    }
+    return returned;        
+}
 
 BOOL CChannelList::AddChannel(CChannel* pChannel)
 {

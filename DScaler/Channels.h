@@ -100,6 +100,8 @@ public :
 
     CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
 
+	CChannel* GetChannelByFrequency(DWORD dwFreq); //May return NULL 
+
     inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE) 
     {
         return AddChannel(szName, dwFreq, iChannelNumber, (eVideoFormat)eFormat, bActive);

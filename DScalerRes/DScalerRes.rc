@@ -7,10 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#define APSTUDIO_HIDDEN_SYMBOLS
-#include "windows.h"
-#undef APSTUDIO_HIDDEN_SYMBOLS
-#include "VersionRes.rc"
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -953,6 +950,47 @@ BEGIN
     LTEXT           "",IDC_CREDITS_STATIC,1,1,291,164
 END
 
+IDD_TOOLBAR_VOLUME DIALOG DISCARDABLE  0, 0, 134, 16
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Slider1",IDC_TOOLBAR_VOLUME_SLIDER,"msctls_trackbar32",
+                    WS_TABSTOP,17,0,86,13
+    CONTROL         "",IDC_TOOLBAR_VOLUME_MUTE,"Button",BS_OWNERDRAW | 
+                    BS_ICON,0,0,16,16
+    CONTROL         "",IDC_TOOLBAR_VOLUME_CHANNEL,"Button",BS_OWNERDRAW | 
+                    BS_ICON | WS_TABSTOP,104,0,30,16
+END
+
+IDD_TOOLBAR_LOGO DIALOG DISCARDABLE  0, 0, 62, 8
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 14, "MS Sans Serif"
+BEGIN
+    CONTROL         "DScaler version 4.0",IDC_TOOLBAR_LOGO_LOGO,"Static",
+                    SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,1,0,61,8
+END
+
+IDD_TOOLBAR_VIDEOINPUT DIALOG DISCARDABLE  0, 0, 84, 12
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_TOOLBAR_VIDEOINPUT_LIST,0,0,83,12,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_VTGOTO DIALOG DISCARDABLE  0, 0, 119, 162
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Goto Teletext Page"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Goto",IDOK,7,141,50,14
+    PUSHBUTTON      "Close",IDCANCEL,62,141,50,14
+    COMBOBOX        IDC_VTPAGESELECT,31,14,72,114,CBS_SIMPLE | CBS_SORT | 
+                    CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Tab1",IDC_VTPAGEGROUP,"SysTabControl32",TCS_VERTICAL,7,
+                    7,105,126
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -967,16 +1005,24 @@ END
 
 2 TEXTINCLUDE DISCARDABLE 
 BEGIN
-    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "#include ""windows.h""\r\n"
-    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "#include ""VersionRes.rc""\r\n"
+    "#include ""afxres.h""\r\n"
     "\0"
 END
 
 3 TEXTINCLUDE DISCARDABLE 
 BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
     "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""VersionRes.rc""\r\n"
+    "#endif\r\n"
     "\0"
 END
 
@@ -1752,6 +1798,38 @@ BEGIN
         RIGHTMARGIN, 186
         BOTTOMMARGIN, 95
     END
+
+    IDD_TOOLBAR_VOLUME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 126
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 5
+    END
+
+    IDD_TOOLBAR_LOGO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 55
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 1
+    END
+
+    IDD_TOOLBAR_VIDEOINPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 77
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 5
+    END
+
+    IDD_VTGOTO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 112
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 155
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1784,144 +1862,24 @@ SMALLLOGO               BITMAP  DISCARDABLE     "small_logo.bmp"
 /////////////////////////////////////////////////////////////////////////////
 
 
-/////////////////////////////////////////////////////////////////////////////
-// Dutch (Netherlands) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NLD)
-#ifdef _WIN32
-LANGUAGE LANG_DUTCH, SUBLANG_DUTCH
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_TOOLBAR_VOLUME DIALOG DISCARDABLE  0, 0, 134, 16
-STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
-FONT 8, "MS Sans Serif"
-BEGIN
-    CONTROL         "Slider1",IDC_TOOLBAR_VOLUME_SLIDER,"msctls_trackbar32",
-                    WS_TABSTOP,17,0,86,13
-    CONTROL         "",IDC_TOOLBAR_VOLUME_MUTE,"Button",BS_OWNERDRAW | 
-                    BS_ICON,0,0,16,16
-    CONTROL         "",IDC_TOOLBAR_VOLUME_CHANNEL,"Button",BS_OWNERDRAW | 
-                    BS_ICON | WS_TABSTOP,104,0,30,16
-END
-
-IDD_TOOLBAR_LOGO DIALOG DISCARDABLE  0, 0, 62, 8
-STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
-FONT 14, "MS Sans Serif"
-BEGIN
-    CONTROL         "DScaler version 4.0",IDC_TOOLBAR_LOGO_LOGO,"Static",
-                    SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,1,0,61,8
-END
-
-IDD_TOOLBAR_VIDEOINPUT DIALOG DISCARDABLE  0, 0, 84, 12
-STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
-FONT 8, "MS Sans Serif"
-BEGIN
-    COMBOBOX        IDC_TOOLBAR_VIDEOINPUT_LIST,0,0,83,12,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_TOOLBAR_VOLUME, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 126
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 5
-    END
-
-    IDD_TOOLBAR_LOGO, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 55
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 1
-    END
-
-    IDD_TOOLBAR_VIDEOINPUT, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 77
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 5
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Dutch (Netherlands) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (Australia) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_VTGOTO DIALOG DISCARDABLE  0, 0, 119, 162
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Goto Teletext Page"
-FONT 8, "MS Sans Serif"
-BEGIN
-    DEFPUSHBUTTON   "Goto",IDOK,7,141,50,14
-    PUSHBUTTON      "Close",IDCANCEL,62,141,50,14
-    COMBOBOX        IDC_VTPAGESELECT,31,14,72,114,CBS_SIMPLE | CBS_SORT | 
-                    CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Tab1",IDC_VTPAGEGROUP,"SysTabControl32",TCS_VERTICAL,7,
-                    7,105,126
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_VTGOTO, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 112
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 155
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // English (Australia) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
 
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "VersionRes.rc"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

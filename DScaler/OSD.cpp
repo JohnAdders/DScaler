@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.51 2002-02-17 22:34:19 laurentg Exp $
+// $Id: OSD.cpp,v 1.52 2002-02-18 20:51:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/02/17 22:34:19  laurentg
+// Bug in statistics OSD screen corrected
+//
 // Revision 1.50  2002/02/17 20:32:34  laurentg
 // Audio input display suppressed from the OSD main screen
 // GetStatus modified to display the video input name in OSD main screen even when there is no signal
@@ -1059,6 +1062,27 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         nLine++;
         OSD_AddText("changes - % of time - Mode", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        DeintMethod = GetProgressiveMethod();
+        if (DeintMethod->ModeChanges > 0)
+        {
+            pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+            if (pos > 0)
+            {
+                if (DeintMethod == GetCurrentDeintMethod())
+                {
+                    Color = OSD_COLOR_CURRENT;
+                    ticks = DeintMethod->ModeTicks + CurrentTicks - nLastTicks;
+                }
+                else
+                {
+                    Color = -1;
+                    ticks = DeintMethod->ModeTicks;
+                }
+                sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, ticks * 100 / (double)(CurrentTicks - nInitialTicks), DeintMethod->szName);
+                OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, pos);
+                nLine++;
+            }
+        }
         for (i = 0 ; i < FILMPULLDOWNMODES_LAST_ONE ; i++)
         {
             DeintMethod = GetFilmDeintMethod((eFilmPulldownMode)i);

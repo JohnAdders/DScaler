@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.57 2002-02-14 23:16:59 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.58 2002-02-18 20:51:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/02/14 23:16:59  laurentg
+// Stop / start capture never needed when switching between files of the playlist
+// CurrentX / CurrentY not updated in StillSource but in the main decoding loop
+//
 // Revision 1.56  2002/02/11 23:18:33  laurentg
 // Creation of a DEINTERLACE_METHOD data structure for the progressive mode
 //
@@ -508,6 +512,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         Info.pMemcpy = memcpyMMX;
     }
 
+    ResetDeinterlaceStats();
+
     // catch anything fatal in this loop so we don't crash the machine
     __try
     {
@@ -630,10 +636,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 if(!Info.bMissedFrame)
                 {
+                    pPerf->StartCount(PERF_PULLDOWN_DETECT);
+
                     // do film detect
                     if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
                     {
-                        pPerf->StartCount(PERF_PULLDOWN_DETECT);
+                        if (UnsetProgressiveMode())
+                        {
+                            CurrentMethod = GetCurrentDeintMethod();
+                        }
 
                         // we have an interlaced source
                         if(bAutoDetectMode == TRUE)
@@ -665,15 +676,17 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                                             CurrentMethod->bNeedCombFactor, 
                                                             CurrentMethod->bNeedFieldDiff);
                         }
-
-                        pPerf->StopCount(PERF_PULLDOWN_DETECT);
                     }
                     else
                     {
                         // we have an progressive source
-                        SetProgressiveMode();
-                        CurrentMethod = GetCurrentDeintMethod();
+                        if (SetProgressiveMode())
+                        {
+                            CurrentMethod = GetCurrentDeintMethod();
+                        }
                     }
+
+                    pPerf->StopCount(PERF_PULLDOWN_DETECT);
                 }
 
                 if (bCaptureVBI == TRUE)

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.130 2002-02-17 21:41:03 laurentg Exp $
+// $Id: DScaler.cpp,v 1.131 2002-02-18 20:51:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.130  2002/02/17 21:41:03  laurentg
+// Action "Find and Lock Film mode" added
+//
 // Revision 1.129  2002/02/17 20:32:34  laurentg
 // Audio input display suppressed from the OSD main screen
 // GetStatus modified to display the video input name in OSD main screen even when there is no signal
@@ -1670,6 +1673,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_RESET_STATS:
+            ResetDeinterlaceStats();
             pPerf->Reset();
             break;
 

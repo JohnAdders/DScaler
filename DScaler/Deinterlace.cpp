@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.33 2002-02-17 21:41:03 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.34 2002-02-18 20:51:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/02/17 21:41:03  laurentg
+// Action "Find and Lock Film mode" added
+//
 // Revision 1.32  2002/02/11 23:18:33  laurentg
 // Creation of a DEINTERLACE_METHOD data structure for the progressive mode
 //
@@ -213,6 +216,31 @@ void Deinterlace_SetStatus(LPCSTR StatusText)
     StatusBar_ShowText(STATUS_MODE, StatusText);
 }
 
+void ResetDeinterlaceStats()
+{
+    DWORD CurrentTickCount = GetTickCount();
+    int i;
+
+    ProgressiveMethod.ModeChanges = 0;
+    ProgressiveMethod.ModeTicks = 0;
+    for(i = 0; i < FILMPULLDOWNMODES_LAST_ONE; i++)
+    {
+        FilmDeintMethods[i].ModeChanges = 0;
+        FilmDeintMethods[i].ModeTicks = 0;
+    }
+    for(i = 0; i < NumVideoModes; i++)
+    {
+        VideoDeintMethods[i]->ModeChanges = 0;
+        VideoDeintMethods[i]->ModeTicks = 0;
+    }
+
+    nInitialTicks = CurrentTickCount;
+    nLastTicks = CurrentTickCount;
+
+    GetCurrentDeintMethod()->ModeChanges++;
+    nTotalDeintModeChanges = 1;
+}
+
 DEINTERLACE_METHOD* GetCurrentDeintMethod()
 {
     if(bIsProgressiveMode)
@@ -326,13 +354,81 @@ eFilmPulldownMode GetFilmMode()
     }
 }
 
-void SetProgressiveMode()
+BOOL SetProgressiveMode()
 {
     if (!bIsProgressiveMode)
     {
+        DWORD CurrentTickCount = GetTickCount();
+        BOOL WereInHalfHeight = InHalfHeightMode();
+
+        if (nInitialTicks == -1)
+        {
+            nInitialTicks = CurrentTickCount;
+            nLastTicks = CurrentTickCount;
+        }
+        else
+        {
+            if(bIsFilmMode == TRUE)
+            {
+                FilmDeintMethods[gFilmPulldownMode].ModeTicks += CurrentTickCount - nLastTicks;
+            }
+            else
+            {
+                VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
+            }
+        }
+
         bIsProgressiveMode = TRUE;
+        nLastTicks = CurrentTickCount;
         Deinterlace_SetStatus(GetDeinterlaceModeName());
+        nTotalDeintModeChanges++;
+        ProgressiveMethod.ModeChanges++;
+        if(WereInHalfHeight != InHalfHeightMode())
+        {
+            WorkoutOverlaySize(TRUE);
+        }
+
+        return TRUE;
     }
+    return FALSE;
+}
+
+BOOL UnsetProgressiveMode()
+{
+    if (bIsProgressiveMode)
+    {
+        DWORD CurrentTickCount = GetTickCount();
+
+        if (nInitialTicks == -1)
+        {
+            nInitialTicks = CurrentTickCount;
+            nLastTicks = CurrentTickCount;
+        }
+        else
+        {
+            ProgressiveMethod.ModeTicks += CurrentTickCount - nLastTicks;
+        }
+
+        bIsProgressiveMode = FALSE;
+        nLastTicks = CurrentTickCount;
+        Deinterlace_SetStatus(GetDeinterlaceModeName());
+        nTotalDeintModeChanges++;
+        if(bIsFilmMode == TRUE)
+        {
+            FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
+        }
+        else
+        {
+            VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
+        }
+        if(InHalfHeightMode())
+        {
+            WorkoutOverlaySize(TRUE);
+        }
+        
+        return TRUE;
+    }
+    return FALSE;
 }
 
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)

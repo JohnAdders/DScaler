@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.303 2003-02-05 19:57:50 laurentg Exp $
+// $Id: DScaler.cpp,v 1.304 2003-02-06 00:58:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.303  2003/02/05 19:57:50  laurentg
+// New option to minimize DScaler when there is no signal and to restore it when a signal is detected
+//
 // Revision 1.302  2003/02/05 17:50:51  robmuller
 // Add the systray icon again after the task bar has been restarted.
 //
@@ -972,6 +975,7 @@
 #include "Credits.h"
 #include "SizeSettings.h"
 #include "PaintingHDC.h"
+#include "OutReso.h"
 
 
 #ifdef _DEBUG
@@ -3892,6 +3896,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 bDone = ProcessVTCodepageSelection(hWnd, LOWORD(wParam));
             }
+            if(!bDone)
+            {
+                bDone = ProcessOutResoSelection(hWnd, LOWORD(wParam));
+            }
             if(!bDone && pCalibration != NULL)
             {
                 bDone = pCalibration->ProcessSelection(hWnd, LOWORD(wParam));
@@ -4661,6 +4669,7 @@ void MainWndOnInitBT(HWND hWnd)
         pCalibration->UpdateMenu(hMenu);
         Channels_UpdateMenu(hMenu);
         VT_UpdateMenu(hMenu);
+        OutReso_UpdateMenu(hMenu);
         SetMenuAnalog();
         if (ToolbarControl!=NULL)
         {
@@ -5139,6 +5148,7 @@ void SetMenuAnalog()
     MixerDev_SetMenu(hMenu);
     Audio_SetMenu(hMenu);
     VT_SetMenu(hMenu);
+    OutReso_SetMenu(hMenu);
     Providers_SetMenu(hMenu);
 
     CTimeShift::OnSetMenu(hMenu);
@@ -5328,6 +5338,20 @@ HMENU GetVTCodepageSubmenu()
     reduc = !strcmp(string, "Toggle &Mixed Mode\tShift-T") ? 0 : 1;
 
     hmenu = GetSubMenuWithName(hmenu, 9-reduc, "Teletext Code Page");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
+}
+
+HMENU GetOutResoSubmenu()
+{
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+
+    HMENU hmenu = GetOrCreateSubSubMenu(6-reduc, 13, "Switch Resolution in F&ull Screen");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -6008,6 +6032,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
     {
         if(bIsFullScreen == FALSE)
         {
+			OutReso_Change(hWnd, TRUE);
             SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
             if (bDisplayStatusBar == TRUE)
             {
@@ -6018,6 +6043,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
         {
             SaveWindowPos(hWnd);
             KillTimer(hWnd, TIMER_STATUS);
+			OutReso_Change(hWnd, FALSE);
         }
         if (WindowBorder!=NULL)
         {

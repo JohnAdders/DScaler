@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.45 2003-02-05 19:57:55 laurentg Exp $
+// $Id: DScaler.h,v 1.46 2003-02-06 00:58:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,6 +81,7 @@ HMENU GetChannelsSubmenu();
 HMENU GetOSDSubmenu();
 HMENU GetPatternsSubmenu();
 HMENU GetVTCodepageSubmenu();
+HMENU GetOutResoSubmenu();
 
 void SetMixedModeMenu(HMENU hMenu, BOOL bShow);
 

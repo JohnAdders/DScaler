@@ -1231,6 +1231,8 @@ BEGIN
             MENUITEM "3.5x",                        IDM_ZOOM_35
             MENUITEM "4x",                          IDM_ZOOM_40
         END
+        MENUITEM SEPARATOR
+        MENUITEM "Switch Resolution in F&ull Screen", 65535
     END
     POPUP "S&ettings"
     BEGIN

@@ -527,6 +527,10 @@ SOURCE=.\Other.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OutReso.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutThreads.cpp
 # End Source File
 # Begin Source File
@@ -1164,6 +1168,10 @@ SOURCE=.\OSD.h
 # Begin Source File
 
 SOURCE=.\Other.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OutReso.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_CommonFunctions.h,v 1.7 2001-11-22 13:32:03 adcockj Exp $
+// $Id: FD_CommonFunctions.h,v 1.8 2003-04-15 13:05:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@ extern "C"
     WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, long BytesToProcess);
     DWORD CalcDiffFactorLine(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
     DWORD CalcDiffFactorLineChroma(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
+    WORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31, 
+                            BYTE* YVal12, BYTE* YVal22, BYTE* YVal32,
+                            long BytesToProcess, long* CombFactor);
     void memcpyBOBMMX(void* Dest1, void* Dest2, void* Src, size_t nBytes);
     void memcpyBOBSSE(void* Dest1, void* Dest2, void* Src, size_t nBytes);
     void memcpyMMX(void* Dest, void* Src, size_t nBytes);

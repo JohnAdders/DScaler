@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.27 2002-10-29 11:05:28 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.28 2003-04-15 13:05:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.26  2002/09/11 18:19:41  adcockj
 // Prelimainary support for CX2388x based cards
 //
@@ -125,6 +128,7 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo);
 extern "C"
 {
     __int64 qwYMask = 0x00ff00ff00ff00ff;
+    __int64 qwMask = 0x7f7f7f7f7f7f7f7f;
     __int64 qwOnes = 0x0001000100010001;
     __int64 qwThreshold;
     __int64 qwBitShift;

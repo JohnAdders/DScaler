@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.14 2004-10-22 19:33:23 to_see Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.15 2004-10-22 20:01:26 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/10/22 19:33:23  to_see
+// BugFix: EditBox2 needs moving + resizing
+//
 // Revision 1.13  2003/04/28 13:21:46  laurentg
 // New field to enter character string in tree settings dialog box
 //
@@ -711,6 +714,10 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             pEditBox2->GetWindowRect(&rect);
             ScreenToClient(&rect);
             int Height= (rect.bottom-rect.top);
+            if (DefaultBtnLeft > 10)
+            {
+                rect.right = DefaultBtnLeft - 10;
+            }
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
             pEditBox2->MoveWindow(&rect);

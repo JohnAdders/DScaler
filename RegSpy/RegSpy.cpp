@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.15 2003-08-12 16:57:54 laurentg Exp $
+// $Id: RegSpy.cpp,v 1.16 2003-09-28 09:11:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/08/12 16:57:54  laurentg
+// Update the prototype of GetDisplayAreaRect
+//
 // Revision 1.14  2003/05/05 15:30:38  atnak
 // Fixes crash when custom name is too long
 //
@@ -267,6 +270,30 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(CX2388X_VIP_VSCALE);
     AddDWRegister(CX2388X_VBOS);
     AddDWRegister(CX2388X_PINMUX_IO);
+
+    AddDWRegister(CX2388X_AGC_BACK_VBI);
+    AddDWRegister(CX2388X_AGC_SYNC_SLICE);
+    AddDWRegister(CX2388X_AGC_SYNC_TIP1);
+    AddDWRegister(CX2388X_AGC_SYNC_TIP2);
+    AddDWRegister(CX2388X_AGC_SYNC_TIP3);
+
+    AddDWRegister(CX2388X_AGC_GAIN1);
+    AddDWRegister(CX2388X_AGC_GAIN2);
+    AddDWRegister(CX2388X_AGC_GAIN3);
+    AddDWRegister(CX2388X_AGC_GAIN4);
+
+    AddDWRegister(0x310700);
+    AddDWRegister(0x310704);
+    AddDWRegister(0x310708);
+    AddDWRegister(0x31070C);
+    AddDWRegister(0x310710);
+    AddDWRegister(0x310714);
+    AddDWRegister(0x310718);
+    AddDWRegister(0x31071C);
+    AddDWRegister(0x310720);
+    AddDWRegister(0x310724);
+    AddDWRegister(0x310728);
+    AddDWRegister(0x31072C);
 
     AddDWRegister(MO_GP0_IO);
     AddDWRegister(MO_GP1_IO);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.70 2004-04-24 08:36:28 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.71 2004-04-24 08:54:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2004/04/24 08:36:28  atnak
+// new: user customizable teletext page number input timeout
+//
 // Revision 1.69  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -332,8 +335,6 @@ char                VTPageInput[4] = "";
 
 // This variable controls the display duration for VT_ShowHeader();
 LONG                g_VTOSDTimeout = VT_OSD_DISPLAY_TIMEOUT;
-// This variable stores the user custmized input timeout (in seconds)
-LONG                g_VTOSDInputTimeoutSec = VT_OSD_DEFAULT_INPUT_TIMEOUT;
 
 WORD                VTPageHistoryHead;
 WORD                VTPageHistory[VT_MAXPAGEHISTORY];
@@ -994,6 +995,9 @@ WORD VT_HistoryPopLastPage(WORD wCurrentPageHex)
 }
 
 
+// Global defined in DScaler.cpp
+extern int ChannelEnterTime;
+
 BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
 {
     BYTE nLength = strlen(VTPageInput);
@@ -1010,7 +1014,7 @@ BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
         VTPageInput[++nLength] = '\0';
     }
 
-    g_VTOSDTimeout = g_VTOSDInputTimeoutSec * 1000;
+    g_VTOSDTimeout = ChannelEnterTime;
 
     if (nLength == 3)
     {
@@ -2038,13 +2042,6 @@ SETTING VTSettings[VT_SETTING_LASTONE] =
         NULL,
         "VT", "ForceDoubleHeightSubtitlesFilter", NULL,
     },
-    {
-        "Page Number Input Timeout (seconds)", SLIDER, 0,
-        (long*)&g_VTOSDInputTimeoutSec,
-        VT_OSD_DEFAULT_INPUT_TIMEOUT, 1, 60, 1, 1,
-        NULL,
-        "VT", "PageNumberInputTimeout", NULL,
-    },
 };
 
 
@@ -2100,7 +2097,6 @@ CTreeSettingsGeneric* VideoText_GetTreeSettingsPage()
         &VTSettings[VT_SUBSTITUTE_ERROR_SPACES      ],
         &VTSettings[VT_SUBTITLE_DUPLICATION_FILTER  ],
         &VTSettings[VT_DOUBLEHEIGHT_SUBTITLES_FILTER],
-        &VTSettings[VT_PAGE_NUMBER_INPUT_TIMEOUT    ],
     };
 
     WORD nCount = sizeof(VideoTextSettings)/sizeof(SETTING*);

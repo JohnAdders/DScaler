@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.156 2004-04-24 08:36:28 atnak Exp $
+// $Id: DS_Control.h,v 1.157 2004-04-24 08:54:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.156  2004/04/24 08:36:28  atnak
+// new: user customizable teletext page number input timeout
+//
 // Revision 1.155  2004/02/06 08:01:20  adcockj
 // Fixed a couple of minor issues with Torsten's changes
 //
@@ -1275,7 +1278,6 @@ typedef enum
     VT_SUBSTITUTE_ERROR_SPACES,
     VT_SUBTITLE_DUPLICATION_FILTER,
     VT_DOUBLEHEIGHT_SUBTITLES_FILTER,
-    VT_PAGE_NUMBER_INPUT_TIMEOUT,
     VT_SETTING_LASTONE,
 } VT_SETTING;
 

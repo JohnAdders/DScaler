@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.258 2002-10-27 12:18:51 laurentg Exp $
+// $Id: DScaler.cpp,v 1.259 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.258  2002/10/27 12:18:51  laurentg
+// New setting to define the number of consecutive stills
+//
 // Revision 1.257  2002/10/27 04:28:42  atnak
 // Fixed cursor toggled hidden not showing for menus and dialogs
 //
@@ -177,7 +180,7 @@
 // Fix for auto format change
 //
 // Revision 1.221  2002/09/11 18:19:38  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 // Revision 1.220  2002/08/13 21:19:18  kooiman
 // Moved settings per channel setup before first channel change.

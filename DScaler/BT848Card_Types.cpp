@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.29 2002-10-27 13:27:13 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.30 2002-10-29 11:05:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/10/27 13:27:13  adcockj
+// Fix osprey svideo
+//
 // Revision 1.28  2002/10/22 09:22:23  adcockj
 // Fixed PLL problem with Leadtek WinView 601 (fix from bugs list)
 //
@@ -35,7 +38,7 @@
 // Changes due to the new AudioDecoder handling
 //
 // Revision 1.23  2002/09/11 18:19:36  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 // Revision 1.22  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.

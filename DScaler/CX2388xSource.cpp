@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.22 2002-10-26 17:51:52 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,20 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// 
+// CVS Log while file was called CT2388xSource.cpp
+//
+// Revision 1.22  2002/10/26 17:51:52  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.21  2002/10/24 16:04:47  adcockj
 // Another attempt to get VBI working
 // Tidy up CMDS/Buffers code
@@ -81,14 +92,14 @@
 // Fixed timing problems for cx2388x chips
 //
 // Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "CT2388xSource.h"
+#include "CX2388xSource.h"
 #include "DScaler.h"
 #include "VBI.h"
 #include "VBI_VideoText.h"
@@ -99,7 +110,7 @@
 #include "Status.h"
 #include "FieldTiming.h"
 #include "ProgramList.h"
-#include "CT2388x_Defines.h"
+#include "CX2388x_Defines.h"
 #include "FD_60Hz.h"
 #include "FD_50Hz.h"
 #include "DebugLog.h"
@@ -109,17 +120,17 @@
 
 extern long EnableCancelButton;
 
-void CT2388x_OnSetup(void *pThis, int Start)
+void CX2388x_OnSetup(void *pThis, int Start)
 {
    if (pThis != NULL)
    {
-      ((CCT2388xSource*)pThis)->SavePerChannelSetup(Start);
+      ((CCX2388xSource*)pThis)->SavePerChannelSetup(Start);
    }
 }
 
 
-CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
-    CSource(WM_CT2388X_GETVALUE, IDC_CT2388X),
+CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
+    CSource(WM_CX2388X_GETVALUE, IDC_CX2388X),
     m_pCard(pCard),
     m_CurrentX(720),
     m_CurrentY(480),
@@ -134,7 +145,7 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
 {
     CreateSettings(IniSection);
 
-    SettingsPerChannel_RegisterOnSetup(this, CT2388x_OnSetup);
+    SettingsPerChannel_RegisterOnSetup(this, CX2388x_OnSetup);
     
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
@@ -169,7 +180,7 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     NotifyVideoFormatChange(0, VIDEOFORMAT_LASTONE, (eVideoFormat)m_VideoFormat->GetValue());
 }
 
-CCT2388xSource::~CCT2388xSource()
+CCX2388xSource::~CCX2388xSource()
 {
     // if the chip was not in D0 state we restore the original ACPI power state
     if(m_InitialACPIStatus != 0)
@@ -180,7 +191,7 @@ CCT2388xSource::~CCT2388xSource()
     delete m_pCard;
 }
 
-void CCT2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+void CCX2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
     if (pEventObject != (CEventObject*)this)
 	{
@@ -191,7 +202,7 @@ void CCT2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long 
     }
 }
 
-void CCT2388xSource::SetupPictureStructures()
+void CCX2388xSource::SetupPictureStructures()
 {
     if(m_IsVideoProgressive->GetValue())
     {
@@ -218,11 +229,11 @@ void CCT2388xSource::SetupPictureStructures()
     }
 }
 
-void CCT2388xSource::CreateSettings(LPCSTR IniSection)
+void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pCT2388xGroup = GetSettingsGroup("CT2388x","CT2388x","CT Card");
-    CSettingGroup *pVideoGroup = pCT2388xGroup->GetGroup("Video","Video");
-    CSettingGroup *pH3DGroup = pCT2388xGroup->GetGroup("H3D","H3D");
+    CSettingGroup *pCX2388xGroup = GetSettingsGroup("CX2388x","CX2388x","CT Card");
+    CSettingGroup *pVideoGroup = pCX2388xGroup->GetGroup("Video","Video");
+    CSettingGroup *pH3DGroup = pCX2388xGroup->GetGroup("H3D","H3D");
 
     eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
 
@@ -253,7 +264,7 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
-    m_CardType = new CSliderSetting("Card Type", CT2388xCARD_UNKNOWN, CT2388xCARD_UNKNOWN, CT2388xCARD_LASTONE - 1, IniSection, "CardType");
+    m_CardType = new CSliderSetting("Card Type", CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, CX2388xCARD_LASTONE - 1, IniSection, "CardType");
     m_Settings.push_back(m_CardType);
 
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
@@ -282,10 +293,10 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_VDelay);
 
 #ifdef _DEBUG    
-    if (CT2388X_SETTING_LASTONE != m_Settings.size())
+    if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
-        LOGD("Number of settings in CT2388X source is not equal to the number of settings in DS_Control.h");
-        LOGD("DS_Control.h or CT2388xSource.cpp are probably not in sync with eachother.");
+        LOGD("Number of settings in CX2388X source is not equal to the number of settings in DS_Control.h");
+        LOGD("DS_Control.h or CX2388xSource.cpp are probably not in sync with eachother.");
     }
 #endif
 
@@ -294,7 +305,7 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
 }
 
 
-void CCT2388xSource::Start()
+void CCX2388xSource::Start()
 {
     m_pCard->StopCapture();
 	// \todo fix VBI
@@ -306,7 +317,7 @@ void CCT2388xSource::Start()
     NotifySquarePixelsCheck();
 }
 
-void CCT2388xSource::Reset()
+void CCX2388xSource::Reset()
 {
     m_pCard->ResetHardware();
     m_pCard->SetVideoSource(m_VideoSource->GetValue());
@@ -329,14 +340,14 @@ void CCT2388xSource::Reset()
                             m_IsVideoProgressive->GetValue()
                         );
 
-	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
+	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
 	{
 	    m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
 	}
     NotifySizeChange();
 }
 
-void CCT2388xSource::CreateRiscCode(BOOL bCaptureVBI)
+void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
 {
     DWORD *pRiscCode;    // For host memory version
     int nField;
@@ -532,13 +543,13 @@ void CCT2388xSource::CreateRiscCode(BOOL bCaptureVBI)
 }
 
 
-void CCT2388xSource::Stop()
+void CCX2388xSource::Stop()
 {
     // stop capture
     m_pCard->StopCapture();
 }
 
-void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
+void CCX2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
     static long RepeatCount = 0;
 
@@ -604,63 +615,63 @@ void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 }
 
-int CCT2388xSource::GetWidth()
+int CCX2388xSource::GetWidth()
 {
     return m_CurrentX;
 }
 
-int CCT2388xSource::GetHeight()
+int CCX2388xSource::GetHeight()
 {
     return m_CurrentY;
 }
 
 
-CCT2388xCard* CCT2388xSource::GetCard()
+CCX2388xCard* CCX2388xSource::GetCard()
 {
     return m_pCard;
 }
 
-LPCSTR CCT2388xSource::GetStatus()
+LPCSTR CCX2388xSource::GetStatus()
 {
     static LPCSTR pRetVal = "";
     pRetVal = m_pCard->GetInputName(m_VideoSource->GetValue());
     return pRetVal;
 }
 
-eVideoFormat CCT2388xSource::GetFormat()
+eVideoFormat CCX2388xSource::GetFormat()
 {
     return (eVideoFormat)m_VideoFormat->GetValue();
 }
 
-void CCT2388xSource::SetFormat(eVideoFormat NewFormat)
+void CCX2388xSource::SetFormat(eVideoFormat NewFormat)
 {
-    PostMessage(hWnd, WM_CT2388X_SETVALUE, CT2388XTVFORMAT, NewFormat);
+    PostMessage(hWnd, WM_CX2388X_SETVALUE, CX2388XTVFORMAT, NewFormat);
 }
 
 
-ISetting* CCT2388xSource::GetBrightness()
+ISetting* CCX2388xSource::GetBrightness()
 {
     return m_Brightness;
 }
 
-ISetting* CCT2388xSource::GetContrast()
+ISetting* CCX2388xSource::GetContrast()
 {
     return m_Contrast;
 }
 
-ISetting* CCT2388xSource::GetHue()
+ISetting* CCX2388xSource::GetHue()
 {
     return m_Hue;
 }
 
-ISetting* CCT2388xSource::GetSaturation()
+ISetting* CCX2388xSource::GetSaturation()
 {
     return m_Saturation;
 }
 
-ISetting* CCT2388xSource::GetSaturationU()
+ISetting* CCX2388xSource::GetSaturationU()
 {
-    if(m_CardType->GetValue() != CT2388xCARD_HOLO3D)
+    if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
     {
         return m_SaturationU;
     }
@@ -670,9 +681,9 @@ ISetting* CCT2388xSource::GetSaturationU()
     }
 }
 
-ISetting* CCT2388xSource::GetSaturationV()
+ISetting* CCX2388xSource::GetSaturationV()
 {
-    if(m_CardType->GetValue() != CT2388xCARD_HOLO3D)
+    if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
     {
         return m_SaturationV;
     }
@@ -682,7 +693,7 @@ ISetting* CCT2388xSource::GetSaturationV()
     }
 }
 
-ISetting* CCT2388xSource::GetOverscan()
+ISetting* CCX2388xSource::GetOverscan()
 {
     return m_Overscan;
 }
@@ -710,7 +721,7 @@ ISetting* CCT2388xSource::GetOverscan()
 // slower or heavily loaded systems but use all available time for processing a good
 // picture when nothing else is running.  TRB 10/28/00
 //
-void CCT2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
+void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
     int NewPos;
@@ -783,7 +794,7 @@ void CCT2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 // slower or heavily loaded systems but use all available time for processing a good
 // picture when nothing else is running.  TRB 10/28/00
 //
-void CCT2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
+void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
     int NewPos;
@@ -821,7 +832,7 @@ void CCT2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
 }
 
-void CCT2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
+void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
     int NewPos;
@@ -887,7 +898,7 @@ void CCT2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 }
 
 
-void CCT2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
+void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
     int NewPos;
@@ -941,7 +952,7 @@ void CCT2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
 }
 
-void CCT2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
+void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 {
     NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
 
@@ -959,7 +970,7 @@ void CCT2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     Start_Capture();
 }
 
-void CCT2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
+void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 {
     NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
     Stop_Capture();
@@ -970,22 +981,22 @@ void CCT2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
     Start_Capture();
 }
 
-void CCT2388xSource::BrightnessOnChange(long Brightness, long OldValue)
+void CCX2388xSource::BrightnessOnChange(long Brightness, long OldValue)
 {
     m_pCard->SetBrightness(Brightness);
 }
 
-void CCT2388xSource::HueOnChange(long Hue, long OldValue)
+void CCX2388xSource::HueOnChange(long Hue, long OldValue)
 {
     m_pCard->SetHue(Hue);
 }
 
-void CCT2388xSource::ContrastOnChange(long Contrast, long OldValue)
+void CCX2388xSource::ContrastOnChange(long Contrast, long OldValue)
 {
     m_pCard->SetContrast(Contrast);
 }
 
-void CCT2388xSource::SaturationUOnChange(long SatU, long OldValue)
+void CCX2388xSource::SaturationUOnChange(long SatU, long OldValue)
 {
     m_pCard->SetSaturationU(SatU);
     if(m_InSaturationUpdate == FALSE)
@@ -998,7 +1009,7 @@ void CCT2388xSource::SaturationUOnChange(long SatU, long OldValue)
     }
 }
 
-void CCT2388xSource::SaturationVOnChange(long SatV, long OldValue)
+void CCX2388xSource::SaturationVOnChange(long SatV, long OldValue)
 {
     m_pCard->SetSaturationV(SatV);
     if(m_InSaturationUpdate == FALSE)
@@ -1012,7 +1023,7 @@ void CCT2388xSource::SaturationVOnChange(long SatV, long OldValue)
 }
 
 
-void CCT2388xSource::SaturationOnChange(long Sat, long OldValue)
+void CCX2388xSource::SaturationOnChange(long Sat, long OldValue)
 {
     if(m_InSaturationUpdate == FALSE)
     {
@@ -1027,30 +1038,30 @@ void CCT2388xSource::SaturationOnChange(long Sat, long OldValue)
     }
 }
 
-void CCT2388xSource::OverscanOnChange(long Overscan, long OldValue)
+void CCX2388xSource::OverscanOnChange(long Overscan, long OldValue)
 {
     AspectSettings.InitialOverscan = Overscan;
     WorkoutOverlaySize(TRUE);
 }
 
-void CCT2388xSource::TunerTypeOnChange(long TunerId, long OldValue)
+void CCX2388xSource::TunerTypeOnChange(long TunerId, long OldValue)
 {
     m_pCard->InitTuner((eTunerId)TunerId);
 }
 
-BOOL CCT2388xSource::IsInTunerMode()
+BOOL CCX2388xSource::IsInTunerMode()
 {
     return m_pCard->IsInputATuner(m_VideoSource->GetValue());
 }
 
 
-void CCT2388xSource::SetupCard()
+void CCX2388xSource::SetupCard()
 {
-    if(m_CardType->GetValue() == CT2388xCARD_UNKNOWN)
+    if(m_CardType->GetValue() == CX2388xCARD_UNKNOWN)
     {
         // try to detect the card
         m_CardType->SetValue(m_pCard->AutoDetectCardType());
-        m_TunerType->SetValue(m_pCard->AutoDetectTuner((eCT2388xCardId)m_CardType->GetValue()));
+        m_TunerType->SetValue(m_pCard->AutoDetectTuner((eCX2388xCardId)m_CardType->GetValue()));
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
@@ -1074,11 +1085,11 @@ void CCT2388xSource::SetupCard()
     Providers_UpdateMenu(m_hMenu);
 }
 
-void CCT2388xSource::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
+void CCX2388xSource::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 {
 }
 
-void CCT2388xSource::ChangeTVSettingsBasedOnTuner()
+void CCX2388xSource::ChangeTVSettingsBasedOnTuner()
 {
     // default the TVTYPE dependant on the Tuner selected
     // should be OK most of the time
@@ -1090,7 +1101,7 @@ void CCT2388xSource::ChangeTVSettingsBasedOnTuner()
 }
 
 
-BOOL CCT2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
+BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
     if(VideoFormat == VIDEOFORMAT_LASTONE)
     {
@@ -1103,13 +1114,13 @@ BOOL CCT2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     return m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
 
-BOOL CCT2388xSource::IsVideoPresent()
+BOOL CCX2388xSource::IsVideoPresent()
 {
     return m_pCard->IsVideoPresent();
 }
 
 
-void CCT2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
+void CCX2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
     int nLineTarget;
     BYTE* pVBI = (LPBYTE) m_pVBILines[(pInfo->CurrentFrame + 4) % 5];
@@ -1124,17 +1135,17 @@ void CCT2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
 }
 
 
-LPCSTR CCT2388xSource::GetMenuLabel()
+LPCSTR CCX2388xSource::GetMenuLabel()
 {
     return m_pCard->GetCardName(m_pCard->GetCardType());
 }
 
-void CCT2388xSource::SetOverscan()
+void CCX2388xSource::SetOverscan()
 {
     AspectSettings.InitialOverscan = m_Overscan->GetValue();
 }
 
-void CCT2388xSource::SavePerChannelSetup(int Start)
+void CCX2388xSource::SavePerChannelSetup(int Start)
 {
     if (Start)
     {
@@ -1151,27 +1162,27 @@ void CCT2388xSource::SavePerChannelSetup(int Start)
     }
 }
 
-void CCT2388xSource::HandleTimerMessages(int TimerId)
+void CCX2388xSource::HandleTimerMessages(int TimerId)
 {
 }
 
-void CCT2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
+void CCX2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     Reset();
     Start_Capture();
 }
 
-void CCT2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
+void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 {
-	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
+	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
 	{
 	    m_pCard->SetFLIFilmDetect(NewValue);
 	}
 }
 
 
-void CCT2388xSource::HDelayOnChange(long NewValue, long OldValue)
+void CCX2388xSource::HDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     m_pCard->SetGeoSize(
@@ -1187,7 +1198,7 @@ void CCT2388xSource::HDelayOnChange(long NewValue, long OldValue)
     Start_Capture();
 }
 
-void CCT2388xSource::VDelayOnChange(long NewValue, long OldValue)
+void CCX2388xSource::VDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     m_pCard->SetGeoSize(
@@ -1204,7 +1215,7 @@ void CCT2388xSource::VDelayOnChange(long NewValue, long OldValue)
 }
 
 
-int  CCT2388xSource::NumInputs(eSourceInputType InputType)
+int  CCX2388xSource::NumInputs(eSourceInputType InputType)
 {
   if (InputType == VIDEOINPUT)
   {
@@ -1213,7 +1224,7 @@ int  CCT2388xSource::NumInputs(eSourceInputType InputType)
   return 0;
 }
 
-BOOL CCT2388xSource::SetInput(eSourceInputType InputType, int Nr)
+BOOL CCX2388xSource::SetInput(eSourceInputType InputType, int Nr)
 {
   if (InputType == VIDEOINPUT)
   {
@@ -1223,7 +1234,7 @@ BOOL CCT2388xSource::SetInput(eSourceInputType InputType, int Nr)
   return FALSE;
 }
 
-int CCT2388xSource::GetInput(eSourceInputType InputType)
+int CCX2388xSource::GetInput(eSourceInputType InputType)
 {
   if (InputType == VIDEOINPUT)
   {
@@ -1232,7 +1243,7 @@ int CCT2388xSource::GetInput(eSourceInputType InputType)
   return -1;
 }
 
-const char* CCT2388xSource::GetInputName(eSourceInputType InputType, int Nr)
+const char* CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
 {
   if (InputType == VIDEOINPUT)
   {
@@ -1244,7 +1255,7 @@ const char* CCT2388xSource::GetInputName(eSourceInputType InputType, int Nr)
   return NULL;
 }
 
-BOOL CCT2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
+BOOL CCX2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
 {
   if (InputType == VIDEOINPUT)
   {
@@ -1260,7 +1271,7 @@ BOOL CCT2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
   return FALSE;
 }
 
-ITuner* CCT2388xSource::GetTuner()
+ITuner* CCX2388xSource::GetTuner()
 {
     return m_pCard->GetTuner();
 }

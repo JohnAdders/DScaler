@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.41 2002-09-11 18:19:40 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.42 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/09/11 18:19:40  adcockj
+// Prelimainary support for CX2388x based cards
+//
 // Revision 1.40  2002/08/09 09:40:25  laurentg
 // Cut the deinterlace menu only if there are a lot of deinterlace modes
 //

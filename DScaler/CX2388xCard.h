@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.11 2002-10-27 19:17:25 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,47 +15,18 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-// $Log: not supported by cvs2svn $
-// Revision 1.10  2002/10/26 15:37:57  adcockj
-// Made ITuner more abstract by removing inheritance from CI2CDevice
-// New class II2CTuner created for tuners that are controled by I2C
 //
-// Revision 1.9  2002/10/24 16:04:47  adcockj
-// Another attempt to get VBI working
-// Tidy up CMDS/Buffers code
-//
-// Revision 1.8  2002/10/23 15:18:07  adcockj
-// Added preliminary code for VBI
-//
-// Revision 1.7  2002/10/22 18:52:18  adcockj
-// Added ASPI support
-//
-// Revision 1.6  2002/10/18 16:12:31  adcockj
-// Tidy up and fixes for Cx2388x analogue support
-//
-// Revision 1.5  2002/10/17 13:31:37  adcockj
-// Give Holo3d different menu and updated settings
-//
-// Revision 1.4  2002/10/08 11:22:40  adcockj
-// Changed some defines for consistency
-//
-// Revision 1.3  2002/09/29 16:16:21  adcockj
-// Holo3d imrprovements
-//
-// Revision 1.2  2002/09/12 21:45:35  ittarnavsky
-// changed the IAudioControls to CAudioControls
-//
-// Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CT2388x based cards
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CT2388XCARD_H___
-#define __CT2388XCARD_H___
+#ifndef __CX2388XCARD_H___
+#define __CX2388XCARD_H___
 
 #include "PCICard.h"
 #include "TVFormats.h"
-#include "CT2388X_Defines.h"
+#include "CX2388x_Defines.h"
 
 #include "I2CLineInterface.h"
 #include "I2CBusForLineInterface.h"
@@ -66,7 +37,7 @@
 
 #define CT_INPUTS_PER_CARD 8
 
-class CCT2388xCard : public CPCICard, 
+class CCX2388xCard : public CPCICard, 
                      public II2CLineInterface
 {
 private:
@@ -104,24 +75,24 @@ private:
         TInputType Inputs[CT_INPUTS_PER_CARD];
 
         /// Any card specific initialization - may be NULL
-        void (CCT2388xCard::*pInitCardFunction)(void);
+        void (CCX2388xCard::*pInitCardFunction)(void);
         /** Function used to switch between sources
             Cannot be NULL
             Default is StandardBT848InputSelect
         */
-        void (CCT2388xCard::*pInputSwitchFunction)(int);
+        void (CCX2388xCard::*pInputSwitchFunction)(int);
         /// Function to set Brighness Default SetAnalogBrightness
-        void (CCT2388xCard::*pSetBrightness)(BYTE);
+        void (CCX2388xCard::*pSetBrightness)(BYTE);
         /// Function to set Contrast Default SetAnalogContrast
-        void (CCT2388xCard::*pSetContrast)(BYTE);
+        void (CCX2388xCard::*pSetContrast)(BYTE);
         /// Function to set Hue Default SetAnalogHue
-        void (CCT2388xCard::*pSetHue)(BYTE);
+        void (CCX2388xCard::*pSetHue)(BYTE);
         /// Function to set SaturationU Default SetAnalogSaturationU
-        void (CCT2388xCard::*pSetSaturationU)(BYTE);
+        void (CCX2388xCard::*pSetSaturationU)(BYTE);
         /// Function to set SaturationV Default SetAnalogSaturationV
-        void (CCT2388xCard::*pSetSaturationV)(BYTE);
+        void (CCX2388xCard::*pSetSaturationV)(BYTE);
         /// Function to set Format Default SetFormat
-        void (CCT2388xCard::*pSetFormat)(int, eVideoFormat, BOOL);
+        void (CCX2388xCard::*pSetFormat)(int, eVideoFormat, BOOL);
         eTunerId TunerId;
         int MenuId;
     } TCardType;
@@ -130,7 +101,7 @@ private:
     typedef struct
     {
         DWORD ID;
-        eCT2388xCardId CardId;
+        eCX2388xCardId CardId;
         char* szName;
     } TAutoDectect;
 
@@ -138,8 +109,8 @@ public:
     void SetACPIStatus(int ACPIStatus);
     int GetACPIStatus();
 	void HandleTimerMessages(int TimerId);
-    CCT2388xCard(CHardwareDriver* pDriver);
-	~CCT2388xCard();
+    CCX2388xCard(CHardwareDriver* pDriver);
+	~CCX2388xCard();
 
 	void CloseCard();
 
@@ -147,7 +118,7 @@ public:
     void StopCapture();
 
     void SetCardType(int CardType);
-    eCT2388xCardId GetCardType();
+    eCX2388xCardId GetCardType();
     
     void SetVideoSource(int nInput);
 
@@ -163,14 +134,14 @@ public:
     DWORD GetRISCPos();
     void ResetHardware();
 
-    eCT2388xCardId AutoDetectCardType();
+    eCX2388xCardId AutoDetectCardType();
 
     LPCSTR GetInputName(int nVideoSource);
-    LPCSTR GetCardName(eCT2388xCardId CardId);
+    LPCSTR GetCardName(eCX2388xCardId CardId);
     int GetNumInputs();
     BOOL IsInputATuner(int nInput);
     LPCSTR GetTunerType();
-    eTunerId AutoDetectTuner(eCT2388xCardId CardId);
+    eTunerId AutoDetectTuner(eCX2388xCardId CardId);
     BOOL InitTuner(eTunerId tunerId);
     void SetRISCStartAddress(DWORD RiscBasePhysical);
     void SetRISCStartAddressVBI(DWORD RiscBasePhysical);
@@ -230,7 +201,7 @@ private:
     void SetH3DSaturationV(BYTE SaturationV);
 
 private:
-    eCT2388xCardId m_CardType;
+    eCX2388xCardId m_CardType;
 
     CI2CBus*        m_I2CBus;
     II2CTuner*      m_Tuner;
@@ -243,7 +214,7 @@ private:
     int             m_CurrentInput;
 
 private:
-    static const TCardType m_TVCards[CT2388xCARD_LASTONE];
+    static const TCardType m_TVCards[CX2388xCARD_LASTONE];
     static const TAutoDectect m_AutoDectect[];
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.8 2002-10-26 17:51:52 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,20 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// 
+// CVS Log while file was called CT2388xSource_UI.cpp
+//
+// Revision 1.8  2002/10/26 17:51:52  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.7  2002/10/21 19:08:09  adcockj
 // Added support for keyboard h/v delay
 //
@@ -37,15 +48,15 @@
 // Fixes for holo3d
 //
 // Revision 1.1  2002/09/11 18:19:38  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "CT2388xSource.h"
-#include "CT2388x_Defines.h"
+#include "CX2388xSource.h"
+#include "CX2388x_Defines.h"
 #include "DScaler.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
@@ -55,26 +66,26 @@
 extern const char *TunerNames[TUNER_LASTONE];
 extern long EnableCancelButton;
 
-BOOL APIENTRY CCT2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
     int nIndex;
     char buf[128];
     static long OrigTuner;
-    static CCT2388xSource* pThis;
+    static CCX2388xSource* pThis;
 
     switch (message)
     {
     case WM_INITDIALOG:
-        pThis = (CCT2388xSource*)lParam;
+        pThis = (CCX2388xSource*)lParam;
         sprintf(buf, "Setup card %s", pThis->IDString());
         SetWindowText(hDlg, buf);
         Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < CT2388xCARD_LASTONE; i++)
+        for(i = 0; i < CX2388xCARD_LASTONE; i++)
         {
             int nIndex;
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCT2388xCardId)i));
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == pThis->m_CardType->GetValue())
             {
@@ -124,7 +135,7 @@ BOOL APIENTRY CCT2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         case IDC_CARDSSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);                        
-            i = pThis->m_pCard->AutoDetectTuner((eCT2388xCardId)i);
+            i = pThis->m_pCard->AutoDetectTuner((eCX2388xCardId)i);
             for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
             {   
               if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
@@ -143,7 +154,7 @@ BOOL APIENTRY CCT2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     return (FALSE);
 }
 
-void CCT2388xSource::SetMenu(HMENU hMenu)
+void CCX2388xSource::SetMenu(HMENU hMenu)
 {
     int i;
     MENUITEMINFO MenuItemInfo;
@@ -199,7 +210,7 @@ void CCT2388xSource::SetMenu(HMENU hMenu)
 
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
-	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
+	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
 	{
 		CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
 		CheckMenuItemBool(m_hMenu, IDM_FLI_FILMDETECT, m_FLIFilmDetect->GetValue());
@@ -213,7 +224,7 @@ void CCT2388xSource::SetMenu(HMENU hMenu)
 	}
 }
 
-BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     switch(LOWORD(wParam))
     {
@@ -334,7 +345,7 @@ BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     return TRUE;
 }
 
-void CCT2388xSource::ChangeSectionNamesForInput()
+void CCX2388xSource::ChangeSectionNamesForInput()
 {
     int Input = -1;
     int Format = -1;
@@ -381,9 +392,9 @@ void CCT2388xSource::ChangeSectionNamesForInput()
     ChangeDefaultsForInput();
 }
 
-void CCT2388xSource::ChangeDefaultsForCard()
+void CCX2388xSource::ChangeDefaultsForCard()
 {
-    if(m_CardType->GetValue() != CT2388xCARD_HOLO3D)
+    if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
     {
         m_Brightness->ChangeDefault(128);
         m_Contrast->ChangeDefault(0x39);
@@ -405,7 +416,7 @@ void CCT2388xSource::ChangeDefaultsForCard()
     }
 }
 
-void CCT2388xSource::ChangeDefaultsForInput()
+void CCX2388xSource::ChangeDefaultsForInput()
 {
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
@@ -418,7 +429,7 @@ void CCT2388xSource::ChangeDefaultsForInput()
     }
 }
 
-void CCT2388xSource::LoadInputSettings()
+void CCX2388xSource::LoadInputSettings()
 {
     ChangeDefaultsForInput();
     
@@ -437,7 +448,7 @@ void CCT2388xSource::LoadInputSettings()
     ChangeChannelSectionNames();
 }
 
-void CCT2388xSource::SaveInputSettings(BOOL bOptimizeFileAccess)
+void CCX2388xSource::SaveInputSettings(BOOL bOptimizeFileAccess)
 {
     if (!SettingsPerChannel())
     {        
@@ -452,7 +463,7 @@ void CCT2388xSource::SaveInputSettings(BOOL bOptimizeFileAccess)
 }
 
 
-void CCT2388xSource::ChangeChannelSectionNames()
+void CCX2388xSource::ChangeChannelSectionNames()
 {    
     if (!m_SettingsByChannelStarted)
     {

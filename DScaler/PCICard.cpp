@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.10 2002-10-22 16:01:42 adcockj Exp $
+// $Id: PCICard.cpp,v 1.11 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,8 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/22 16:01:42  adcockj
+// Changed definition of IOCTLs
+//
 // Revision 1.9  2002/09/11 18:19:43  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 // Revision 1.8  2002/09/10 12:13:37  atnak
 // Fixed MaskDataDword() and AndDataDword()
@@ -135,7 +138,7 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         hwParam.dwAddress = m_BusNumber;
         hwParam.dwValue = m_MemoryAddress;
 
-		// we need to map much more memory for the CT2388x
+		// we need to map much more memory for the CX2388x
 		// \todo should make this a parameter
 		if((VendorID == 0x14F1) && (DeviceID == 0x8800))
 		{

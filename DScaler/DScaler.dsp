@@ -62,7 +62,7 @@ LINK32=link.exe
 # ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\CVSRoot\xDScaler\Debug\DScaler.exe
+InputPath=\Source\deinterlace\DScaler\Debug\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -112,7 +112,7 @@ LINK32=link.exe
 # ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\CVSRoot\xDScaler\Release\DScaler.exe
+InputPath=\Source\deinterlace\DScaler\Release\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -200,15 +200,15 @@ SOURCE=.\BT848Provider.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BT848Souce_UI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\BT848Source.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\BT848Source_Audio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Source_UI.cpp
 # End Source File
 # Begin Source File
 
@@ -237,27 +237,27 @@ SOURCE=.\Crash.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xCard.cpp
+SOURCE=.\CX2388xCard.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xCard_H3D.cpp
+SOURCE=.\CX2388xCard_H3D.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xCard_Types.cpp
+SOURCE=.\CX2388xCard_Types.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xProvider.cpp
+SOURCE=.\CX2388xProvider.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xSource.cpp
+SOURCE=.\CX2388xSource.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xSource_UI.cpp
+SOURCE=.\CX2388xSource_UI.cpp
 # End Source File
 # Begin Source File
 
@@ -879,19 +879,19 @@ SOURCE=.\Crash.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388x_Defines.h
+SOURCE=.\CX2388x_Defines.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xCard.h
+SOURCE=.\CX2388xCard.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xProvider.h
+SOURCE=.\CX2388xProvider.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CT2388xSource.h
+SOURCE=.\CX2388xSource.h
 # End Source File
 # Begin Source File
 
@@ -1348,11 +1348,6 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
-# Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
-# 	2:5:Class:CPicture
-# 	2:10:HeaderFile:picture.h
-# 	2:8:ImplFile:picture.cpp
-# End Section
 # Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
 # 	2:21:DefaultSinkHeaderFile:slider.h
 # 	2:16:DefaultSinkClass:CSlider
@@ -1361,4 +1356,9 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
 # 	2:8:ImplFile:slider.cpp
+# End Section
+# Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
+# 	2:5:Class:CPicture
+# 	2:10:HeaderFile:picture.h
+# 	2:8:ImplFile:picture.cpp
 # End Section

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.58 2002-10-26 17:51:52 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.1 2002-10-29 11:05:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+//
+// CVS Log while file was called BT848Souce_UI.cpp
+//
+// Revision 1.58  2002/10/26 17:51:52  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.57  2002/10/11 21:42:29  ittarnavsky
 // fixed the UseInputPin1 menu item initialization
 //

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.13 2002-10-29 03:05:48 atnak Exp $
+// $Id: CX2388xSource.h,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,32 +15,37 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CT2388XSOURCE_H___
-#define __CT2388XSOURCE_H___
+#ifndef __CX2388XSOURCE_H___
+#define __CX2388XSOURCE_H___
 
 #include "Source.h"
-#include "CT2388xCard.h"
+#include "CX2388xCard.h"
 #include "HardwareMemory.h"
 #include "Setting.h"
-#include "CT2388x_Defines.h"
+#include "CX2388x_Defines.h"
 /// \todo get rid of dependencies below here
 #include "Other.h"
 
-/** The source controls a specific CCT2388xCard to provide interlaced video
+/** The source controls a specific CCX2388xCard to provide interlaced video
 */
-class CCT2388xSource : public CSource
+class CCX2388xSource : public CSource
 {
-    DECLARE_CLASS_SETTINGS(CCT2388xSource);
+    DECLARE_CLASS_SETTINGS(CCX2388xSource);
 public:
-    CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection);
-    ~CCT2388xSource();
+    CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection);
+    ~CCX2388xSource();
     void Start();
     void Stop();
     void Reset();
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-    CCT2388xCard* GetCard();
+    CCX2388xCard* GetCard();
     LPCSTR GetStatus();
     ISetting* GetVolume() {return NULL;};;
     ISetting* GetBalance() {return NULL;};;
@@ -113,7 +118,7 @@ private:
     ISetting* GetCurrentAudioSetting();
 
 private:
-    CCT2388xCard*  m_pCard;
+    CCX2388xCard*  m_pCard;
     BYTE*        m_pDisplay[5];
     CUserMemory* m_DisplayDMAMem[5];
     BYTE*        m_pVBILines[5];
@@ -142,20 +147,20 @@ private:
     CYesNoSetting* m_bSavePerFormat;
     CYesNoSetting* m_bSavePerChannel;
 
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, Brightness);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, Contrast);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, Hue);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, Saturation);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, SaturationU);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, SaturationV);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, Overscan);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, TunerType);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, VideoSource);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, VideoFormat);
-    DEFINE_YESNO_CALLBACK_SETTING(CCT2388xSource, IsVideoProgressive);
-	DEFINE_YESNO_CALLBACK_SETTING(CCT2388xSource, FLIFilmDetect);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, HDelay);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCT2388xSource, VDelay);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Hue);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Saturation);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, SaturationU);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, SaturationV);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Overscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, TunerType);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VideoSource);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VideoFormat);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, IsVideoProgressive);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FLIFilmDetect);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, HDelay);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VDelay);
 
 protected:
     int m_InitialACPIStatus;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.11 2002-10-27 19:17:25 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,20 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// 
+// CVS Log while file was called CT2388xCard_Types.cpp
+//
+// Revision 1.11  2002/10/27 19:17:25  adcockj
+// Fixes for cx2388x - PAL & NTSC tested
+//
 // Revision 1.10  2002/10/25 14:44:26  laurentg
 // filter setup updated to have something working even for SECAM
 //
@@ -46,19 +57,19 @@
 // a few tidy ups
 //
 // Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "CT2388xCard.h"
-#include "CT2388x_Defines.h"
+#include "CX2388xCard.h"
+#include "CX2388x_Defines.h"
 #include "DScaler.h"
 #include "DebugLog.h"
 
-const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] = 
+const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] = 
 {
     // Card Number 0 - Unknown
     {
@@ -95,7 +106,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_NTSC,
-        IDC_CT2388X,
+        IDC_CX2388X,
     },
     {
         "Conexant CX23880 TV/FM EVK",
@@ -131,7 +142,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_NTSC,
-        IDC_CT2388X,
+        IDC_CX2388X,
     },
     {
         "Conexant CX23880 TV/FM EVK (PAL)",
@@ -167,7 +178,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_PHILIPS_PAL,
-        IDC_CT2388X,
+        IDC_CX2388X,
     },
     {
         "Holo 3d Graph",
@@ -223,7 +234,7 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetH3DSaturationV,
         H3DSetFormat,
         TUNER_ABSENT,
-        IDC_CT2388X_H3D,
+        IDC_CX2388X_H3D,
     },
     {
         "PixelView XCapture",
@@ -249,29 +260,29 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_ABSENT,
-        IDC_CT2388X,
+        IDC_CX2388X,
     },
 };
 
-const CCT2388xCard::TAutoDectect CCT2388xCard::m_AutoDectect[] =
+const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
 {
-    { 0x006614F1, CT2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
+    { 0x006614F1, CX2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
     //Tee Added support for PAL EVK and also added support for SSVID
-    { 0x016614F1, CT2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
-    { 0, (eCT2388xCardId)-1, NULL }
+    { 0x016614F1, CX2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
+    { 0, (eCX2388xCardId)-1, NULL }
 };
 
-int CCT2388xCard::GetNumInputs()
+int CCX2388xCard::GetNumInputs()
 {
     return m_TVCards[m_CardType].NumInputs;
 }
 
-BOOL CCT2388xCard::IsInputATuner(int nInput)
+BOOL CCX2388xCard::IsInputATuner(int nInput)
 {
     return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
 }
 
-void CCT2388xCard::SetVideoSource(int nInput)
+void CCX2388xCard::SetVideoSource(int nInput)
 {
     // call correct function
     // this funny syntax is the only one that works
@@ -280,12 +291,12 @@ void CCT2388xCard::SetVideoSource(int nInput)
     (*this.*m_TVCards[m_CardType].pInputSwitchFunction)(nInput);
 }
 
-const CCT2388xCard::TCardType* CCT2388xCard::GetCardSetup()
+const CCX2388xCard::TCardType* CCX2388xCard::GetCardSetup()
 {
     return &(m_TVCards[m_CardType]);
 }
 
-eCT2388xCardId CCT2388xCard::AutoDetectCardType()
+eCX2388xCardId CCX2388xCard::AutoDetectCardType()
 {
     DWORD Id = m_SubSystemId;
     if (Id != 0 && Id != 0xffffffff)
@@ -299,10 +310,10 @@ eCT2388xCardId CCT2388xCard::AutoDetectCardType()
             }
         }
     }
-    return CT2388xCARD_UNKNOWN;
+    return CX2388xCARD_UNKNOWN;
 }
 
-void CCT2388xCard::StandardInputSelect(int nInput)
+void CCX2388xCard::StandardInputSelect(int nInput)
 {
     m_CurrentInput = nInput;
     if(nInput >= m_TVCards[m_CardType].NumInputs)
@@ -319,15 +330,15 @@ void CCT2388xCard::StandardInputSelect(int nInput)
     if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_COLOURBARS)
     {
         // Enable color bars
-        OrDataDword(CT2388X_VIDEO_COLOR_FORMAT, 0x00004000);
+        OrDataDword(CX2388X_VIDEO_COLOR_FORMAT, 0x00004000);
     }
     else
     {
         // disable color bars
-        AndDataDword(CT2388X_VIDEO_COLOR_FORMAT, 0xFFFFBFFF);
+        AndDataDword(CX2388X_VIDEO_COLOR_FORMAT, 0xFFFFBFFF);
     
         // Read and mask the video input register
-        DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+        DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
         // zero out mux and svideo bit
         // and force auto detect
         // also turn off CCIR input
@@ -338,21 +349,21 @@ void CCT2388xCard::StandardInputSelect(int nInput)
         DWORD FilterSetup(1 << 19);
 
         // set the Mux up from the card setup
-        VideoInput |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CT2388X_VIDEO_INPUT_MUX_SHIFT);
+        VideoInput |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CX2388X_VIDEO_INPUT_MUX_SHIFT);
 
         // set the comp bit for svideo
         switch (m_TVCards[m_CardType].Inputs[nInput].InputType)
         {
             case INPUTTYPE_SVIDEO: // SVideo
-                VideoInput |= CT2388X_VIDEO_INPUT_SVID_C_SEL; 
-                VideoInput |= CT2388X_VIDEO_INPUT_SVID;
+                VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL; 
+                VideoInput |= CX2388X_VIDEO_INPUT_SVID;
 
                 // Switch chroma DAC to chroma channel
                 OrDataDword(MO_AFECFG_IO, 0x00000001);
 
                 // switch off luma notch
                 // Luma notch is 1 = off
-                FilterSetup |= CT2388X_FILTER_LNOTCH;
+                FilterSetup |= CX2388X_FILTER_LNOTCH;
                 // turn off Comb Filter
                 FilterSetup |= 3 << 5;
                 // Disbale luma dec
@@ -360,8 +371,8 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 break;
             
             case INPUTTYPE_CCIR:
-                VideoInput |= CT2388X_VIDEO_INPUT_PE_SRCSEL;
-                VideoInput |= CT2388X_VIDEO_INPUT_SVID_C_SEL; 
+                VideoInput |= CX2388X_VIDEO_INPUT_PE_SRCSEL;
+                VideoInput |= CX2388X_VIDEO_INPUT_SVID_C_SEL; 
                 break;
         
             case INPUTTYPE_TUNER:
@@ -376,10 +387,10 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 {
                     // May have to switch off normal luma notch
                     // to see any effect
-                    //FilterSetup |= CT2388X_FILTER_LNOTCH;
+                    //FilterSetup |= CX2388X_FILTER_LNOTCH;
                     
                     // SECAM Luma notch is 1 = on
-                    //FilterSetup |= CT2388X_FILTER_SNOTCH;
+                    //FilterSetup |= CX2388X_FILTER_SNOTCH;
                 }
 
                 // Switch chroma DAC to audio
@@ -387,7 +398,7 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 break;
         }
         
-        WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
+        WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
 
         // test for Laurent
         // other stuff that may be required
@@ -411,12 +422,12 @@ void CCT2388xCard::StandardInputSelect(int nInput)
         }
 
         //FilterSetup = 0x8268;
-        WriteDword(CT2388X_FILTER_EVEN, FilterSetup);
-        WriteDword(CT2388X_FILTER_ODD, FilterSetup);
+        WriteDword(CX2388X_FILTER_EVEN, FilterSetup);
+        WriteDword(CX2388X_FILTER_ODD, FilterSetup);
     }
 }
 
-HMENU CCT2388xCard::GetCardSpecificMenu()
+HMENU CCX2388xCard::GetCardSpecificMenu()
 {
     return LoadMenu(hResourceInst, MAKEINTRESOURCE(m_TVCards[m_CardType].MenuId));
 }

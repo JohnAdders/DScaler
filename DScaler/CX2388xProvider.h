@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xProvider.h,v 1.2 2002-10-23 15:18:07 adcockj Exp $
+// $Id: CX2388xProvider.h,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,25 +15,30 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CT2388xPROVIDER_H___
-#define __CT2388xPROVIDER_H___
+#ifndef __CX2388xPROVIDER_H___
+#define __CX2388xPROVIDER_H___
 
 #include "SourceProvider.h"
 #include "HardwareDriver.h"
 #include "HardwareMemory.h"
-#include "CT2388xSource.h"
+#include "CX2388xSource.h"
 
-class CCT2388xProvider : public ISourceProvider
+class CCX2388xProvider : public ISourceProvider
 {
 public:
-    CCT2388xProvider(CHardwareDriver* pHardwareDriver);
-    virtual ~CCT2388xProvider();
+    CCX2388xProvider(CHardwareDriver* pHardwareDriver);
+    virtual ~CCX2388xProvider();
     int GetNumberOfSources();
     CSource* GetSource(int SourceIndex);
 private:
     ///  uses the subsystem id to determin the correct source to create
-    CCT2388xSource* CreateCorrectSource(
+    CCX2388xSource* CreateCorrectSource(
                                         CHardwareDriver* pHardwareDriver, 
                                         LPCSTR szSection, 
                                         WORD VendorID, 
@@ -43,7 +48,7 @@ private:
     /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();
-    vector<CCT2388xSource*> m_Sources;
+    vector<CCX2388xSource*> m_Sources;
     /// Memory used for the RISC code
     CContigMemory* m_RiscDMAMem;
     /// Memory used for captured frames

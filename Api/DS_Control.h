@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.102 2002-10-29 03:07:56 atnak Exp $
+// $Id: DS_Control.h,v 1.103 2002-10-29 11:05:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2002/10/29 03:07:56  atnak
+// Updated SAA7134_SETTING
+//
 // Revision 1.101  2002/10/28 17:50:01  adcockj
 // Fixes for channels combo
 // Reorganized scanning
@@ -112,7 +115,7 @@
 // Fix for auto format change
 //
 // Revision 1.88  2002/09/11 18:19:35  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388X based cards
 //
 // Revision 1.87  2002/09/06 15:08:10  kooiman
 // Mixer lines now source dependent.
@@ -494,7 +497,7 @@ typedef enum
 	DI_TOMSMOCOMP_SETTINGID,
 	SETTINGSPERCHANNEL_SETTINGID,
 	FLT_INVERSION_SETTINGID,
-	CT2388X_SETTINGID,
+	CX2388X_SETTINGID,
 	FDPROG_SETTINGID,
 	SAA7134_SETTINGID,
 	TOOLBARS_SETTINGID
@@ -1405,35 +1408,35 @@ typedef enum
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Control settings contained in CT2388xSource.c
+// Control settings contained in CX2388XSource.c
 /////////////////////////////////////////////////////////////////////////////
 
 typedef enum
 {
-    CT2388XBRIGHTNESS = 0,
-    CT2388XCONTRAST,
-    CT2388XHUE,
-    CT2388XSATURATION,
-    CT2388XSATURATIONU,
-    CT2388XSATURATIONV,
-    CT2388XOVERSCAN,
-    CT2388XVIDEOSOURCE,
-    CT2388XTVFORMAT,
-    CT2388XCARDTYPE,
-    CT2388XTUNERTYPE,
-    CT2388XSAVEPERINPUT,
-    CT2388XSAVEPERFORMAT,
-    CT2388XSAVETVFORMATPERINPUT,
-    CT2388XISINPUTPROGRESSIVE,
-    CT2388XFLIFILMDETECT,
-    CT2388XHDELAY,
-    CT2388XVDELAY,
-    CT2388X_SETTING_LASTONE,
-} CT2388X_SETTING;
+    CX2388XBRIGHTNESS = 0,
+    CX2388XCONTRAST,
+    CX2388XHUE,
+    CX2388XSATURATION,
+    CX2388XSATURATIONU,
+    CX2388XSATURATIONV,
+    CX2388XOVERSCAN,
+    CX2388XVIDEOSOURCE,
+    CX2388XTVFORMAT,
+    CX2388XCARDTYPE,
+    CX2388XTUNERTYPE,
+    CX2388XSAVEPERINPUT,
+    CX2388XSAVEPERFORMAT,
+    CX2388XSAVETVFORMATPERINPUT,
+    CX2388XISINPUTPROGRESSIVE,
+    CX2388XFLIFILMDETECT,
+    CX2388XHDELAY,
+    CX2388XVDELAY,
+    CX2388X_SETTING_LASTONE,
+} CX2388X_SETTING;
 
-#define WM_CT2388X_GETVALUE           (WM_APP + 47)
-#define WM_CT2388X_SETVALUE           (WM_APP + 147)
-#define WM_CT2388X_CHANGEVALUE        (WM_APP + 247)
+#define WM_CX2388X_GETVALUE           (WM_APP + 47)
+#define WM_CX2388X_SETVALUE           (WM_APP + 147)
+#define WM_CX2388X_CHANGEVALUE        (WM_APP + 247)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_Prog.c

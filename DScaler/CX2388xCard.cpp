@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.20 2002-10-27 19:17:25 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,20 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// 
+// CVS Log while file was called CT2388xCard.cpp
+//
+// Revision 1.20  2002/10/27 19:17:25  adcockj
+// Fixes for cx2388x - PAL & NTSC tested
+//
 // Revision 1.19  2002/10/25 14:46:24  laurentg
 // Notes for John about SECAM and the old mode
 //
@@ -74,15 +85,15 @@
 // a few tidy ups
 //
 // Revision 1.1  2002/09/11 18:19:36  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "CT2388xCard.h"
-#include "CT2388x_Defines.h"
+#include "CX2388xCard.h"
+#include "CX2388x_Defines.h"
 #include "DebugLog.h"
 #include "CPU.h"
 #include "TVFormats.h"
@@ -91,9 +102,9 @@
 #include "GenericTuner.h"
 
 
-CCT2388xCard::CCT2388xCard(CHardwareDriver* pDriver) :
+CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
 	CPCICard(pDriver),
-    m_CardType(CT2388xCARD_CONEXANT_EVK),
+    m_CardType(CX2388xCARD_CONEXANT_EVK),
     m_Tuner(NULL),
 	m_SAA7118(NULL),
     m_RISCIsRunning(FALSE),
@@ -107,7 +118,7 @@ CCT2388xCard::CCT2388xCard(CHardwareDriver* pDriver) :
     m_AudioDecoder = new CAudioDecoder();
 }
 
-CCT2388xCard::~CCT2388xCard()
+CCX2388xCard::~CCX2388xCard()
 {
 	delete m_I2CBus;
 	delete m_AudioDecoder;
@@ -120,7 +131,7 @@ CCT2388xCard::~CCT2388xCard()
 
 // this functions returns 0 if the BT878 is in ACPI state D0 or on error/BT848
 // returns 3 if in D3 state (full off)
-int CCT2388xCard::GetACPIStatus()
+int CCX2388xCard::GetACPIStatus()
 {
     PCI_COMMON_CONFIG PCI_Config;
 
@@ -136,7 +147,7 @@ int CCT2388xCard::GetACPIStatus()
 }
 
 // Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
-void CCT2388xCard::SetACPIStatus(int ACPIStatus)
+void CCX2388xCard::SetACPIStatus(int ACPIStatus)
 {
     PCI_COMMON_CONFIG PCI_Config;
 
@@ -161,21 +172,21 @@ void CCT2388xCard::SetACPIStatus(int ACPIStatus)
 }
 
 
-void CCT2388xCard::CloseCard()
+void CCX2388xCard::CloseCard()
 {
     ClosePCICard();
 }
 
-void CCT2388xCard::StartCapture(BOOL bCaptureVBI)
+void CCX2388xCard::StartCapture(BOOL bCaptureVBI)
 {
     DWORD value1;
     DWORD value2;
    
     // Clear Interrupt Status bits
-    WriteDword(CT2388X_VID_INTSTAT, 0x0000000);
+    WriteDword(CX2388X_VID_INTSTAT, 0x0000000);
     
-    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
-    value2 = (ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00);
+    value1 = ReadDword(CX2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
+    value2 = (ReadDword(CX2388X_CAPTURECONTROL) & 0xFFFFFF00);
     if(bCaptureVBI == TRUE)
     {
         value1 |= 0x99;
@@ -187,11 +198,11 @@ void CCT2388xCard::StartCapture(BOOL bCaptureVBI)
         value2 |= 0x06;
     }
 
-    WriteDword(CT2388X_VID_DMA_CNTRL, value1);
-    WriteDword(CT2388X_CAPTURECONTROL, value2);
+    WriteDword(CX2388X_VID_DMA_CNTRL, value1);
+    WriteDword(CX2388X_CAPTURECONTROL, value2);
 
     // Clear Interrupt Status bits
-    WriteDword(CT2388X_VID_INTSTAT, 0xFFFFFFFF );
+    WriteDword(CX2388X_VID_INTSTAT, 0xFFFFFFFF );
 
     m_RISCIsRunning = TRUE;
 }
@@ -201,28 +212,28 @@ void CCT2388xCard::StartCapture(BOOL bCaptureVBI)
     both_fields == true - Halt both fields.
                 == false - Halt odd field only.
 *******************************************************************************/
-void CCT2388xCard::StopCapture()
+void CCX2388xCard::StopCapture()
 {
     DWORD value1;
     DWORD value2;
     
-    value1 = ReadDword(CT2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
-    value2 = ReadDword(CT2388X_CAPTURECONTROL) & 0xFFFFFF00;
+    value1 = ReadDword(CX2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
+    value2 = ReadDword(CX2388X_CAPTURECONTROL) & 0xFFFFFF00;
    
     ::Sleep(100);
 
     // Original code before restart workaround
-    WriteDword(CT2388X_VID_DMA_CNTRL, value1);
-    WriteDword(CT2388X_CAPTURECONTROL, value2);
+    WriteDword(CX2388X_VID_DMA_CNTRL, value1);
+    WriteDword(CX2388X_CAPTURECONTROL, value2);
 
     m_RISCIsRunning = FALSE;
 }
 
-void CCT2388xCard::SetCardType(int CardType)
+void CCX2388xCard::SetCardType(int CardType)
 {
     if(m_CardType != CardType)
     {
-        m_CardType = (eCT2388xCardId)CardType;
+        m_CardType = (eCX2388xCardId)CardType;
 
         // perform card specific init
         if(m_TVCards[m_CardType].pInitCardFunction != NULL)
@@ -236,123 +247,123 @@ void CCT2388xCard::SetCardType(int CardType)
     }
 }
 
-eCT2388xCardId CCT2388xCard::GetCardType()
+eCX2388xCardId CCX2388xCard::GetCardType()
 {
     return m_CardType;
 }
 
-LPCSTR CCT2388xCard::GetCardName(eCT2388xCardId CardId)
+LPCSTR CCX2388xCard::GetCardName(eCX2388xCardId CardId)
 {
     return m_TVCards[CardId].szName;
 }
 
-void CCT2388xCard::SetBrightness(BYTE Brightness)
+void CCX2388xCard::SetBrightness(BYTE Brightness)
 {
     (*this.*m_TVCards[m_CardType].pSetBrightness)(Brightness);
 }
 
-void CCT2388xCard::SetHue(BYTE Hue)
+void CCX2388xCard::SetHue(BYTE Hue)
 {
     (*this.*m_TVCards[m_CardType].pSetHue)(Hue);
 }
 
-void CCT2388xCard::SetContrast(BYTE Contrast)
+void CCX2388xCard::SetContrast(BYTE Contrast)
 {
     (*this.*m_TVCards[m_CardType].pSetContrast)(Contrast);
 }
 
-void CCT2388xCard::SetSaturationU(BYTE SaturationU)
+void CCX2388xCard::SetSaturationU(BYTE SaturationU)
 {
     (*this.*m_TVCards[m_CardType].pSetSaturationU)(SaturationU);
 }
 
-void CCT2388xCard::SetSaturationV(BYTE SaturationV)
+void CCX2388xCard::SetSaturationV(BYTE SaturationV)
 {
     (*this.*m_TVCards[m_CardType].pSetSaturationV)(SaturationV);
 }
 
-void CCT2388xCard::StandardSetFormat(int nInput, eVideoFormat Format, BOOL IsProgressive)
+void CCX2388xCard::StandardSetFormat(int nInput, eVideoFormat Format, BOOL IsProgressive)
 {
     // do nothing
 }
 
-void CCT2388xCard::SetAnalogBrightness(BYTE Brightness)
+void CCX2388xCard::SetAnalogBrightness(BYTE Brightness)
 {
-    DWORD dwval = ReadDword(CT2388X_BRIGHT_CONTRAST);
+    DWORD dwval = ReadDword(CX2388X_BRIGHT_CONTRAST);
     dwval &= 0xffffff00;
     Brightness = (BYTE)(unsigned char)(Brightness - 0x80);
     dwval |= (Brightness & 0xff);
-    WriteDword(CT2388X_BRIGHT_CONTRAST,dwval);
+    WriteDword(CX2388X_BRIGHT_CONTRAST,dwval);
 }
 
-void CCT2388xCard::SetAnalogHue(BYTE Hue)
+void CCX2388xCard::SetAnalogHue(BYTE Hue)
 {
-    DWORD dwval = ReadDword(CT2388X_HUE);
+    DWORD dwval = ReadDword(CX2388X_HUE);
     dwval &= 0xffffff00;
     Hue = (BYTE)(unsigned char)(Hue - 0x80);
     dwval |= (Hue & 0xff);
-    WriteDword(CT2388X_HUE, dwval);
+    WriteDword(CX2388X_HUE, dwval);
 }
 
-void CCT2388xCard::SetAnalogContrast(BYTE Contrast)
+void CCX2388xCard::SetAnalogContrast(BYTE Contrast)
 {
-    DWORD dwval = ReadDword(CT2388X_BRIGHT_CONTRAST); // Brightness/contrast register
+    DWORD dwval = ReadDword(CX2388X_BRIGHT_CONTRAST); // Brightness/contrast register
     dwval &= 0xffff00ff;
     dwval |= ((Contrast & 0xFF) << 8 );
-    WriteDword(CT2388X_BRIGHT_CONTRAST,dwval);
+    WriteDword(CX2388X_BRIGHT_CONTRAST,dwval);
 }
 
-void CCT2388xCard::SetAnalogSaturationU(BYTE SaturationU)
+void CCX2388xCard::SetAnalogSaturationU(BYTE SaturationU)
 {
-    DWORD dwval = ReadDword(CT2388X_UVSATURATION);
+    DWORD dwval = ReadDword(CX2388X_UVSATURATION);
     dwval &= 0xffffff00;
     dwval |= (SaturationU & 0xff);
-    WriteDword(CT2388X_UVSATURATION,dwval);
+    WriteDword(CX2388X_UVSATURATION,dwval);
 }
 
-void CCT2388xCard::SetAnalogSaturationV(BYTE SaturationV)
+void CCX2388xCard::SetAnalogSaturationV(BYTE SaturationV)
 {
-    DWORD dwval = ReadDword(CT2388X_UVSATURATION);
+    DWORD dwval = ReadDword(CX2388X_UVSATURATION);
     dwval &= 0xffff00ff;
     dwval |= ((SaturationV & 0xFF) << 8 );
-    WriteDword(CT2388X_UVSATURATION,dwval);
+    WriteDword(CX2388X_UVSATURATION,dwval);
 }
 
 
-void CCT2388xCard::SetVIPBrightness(BYTE Brightness)
+void CCX2388xCard::SetVIPBrightness(BYTE Brightness)
 {
-    DWORD dwval = ReadDword(CT2388X_VIP_CONTBRGT);
+    DWORD dwval = ReadDword(CX2388X_VIP_CONTBRGT);
     dwval &= 0xffffff00;
     Brightness = (BYTE)(unsigned char)(Brightness - 0x80);
     dwval |= (Brightness & 0xFF);
-    WriteDword(CT2388X_VIP_CONTBRGT, dwval);
+    WriteDword(CX2388X_VIP_CONTBRGT, dwval);
 }
 
-void CCT2388xCard::SetVIPContrast(BYTE Contrast)
+void CCX2388xCard::SetVIPContrast(BYTE Contrast)
 {
-    DWORD dwval = ReadDword(CT2388X_VIP_CONTBRGT);
+    DWORD dwval = ReadDword(CX2388X_VIP_CONTBRGT);
     dwval &= 0xffff00ff;
     dwval |= ((Contrast & 0xFF) << 8 );
-    WriteDword(CT2388X_VIP_CONTBRGT, dwval);
+    WriteDword(CX2388X_VIP_CONTBRGT, dwval);
 }
 
-void CCT2388xCard::SetVIPSaturation(BYTE Saturation)
+void CCX2388xCard::SetVIPSaturation(BYTE Saturation)
 {
-    DWORD dwval = ReadDword(CT2388X_VIP_SATURATION);
+    DWORD dwval = ReadDword(CX2388X_VIP_SATURATION);
     dwval &= 0xffffff00;
     dwval |= (Saturation & 0xFF);
-    WriteDword(CT2388X_VIP_SATURATION, dwval);
+    WriteDword(CX2388X_VIP_SATURATION, dwval);
 }
 
 
-LPCSTR CCT2388xCard::GetTunerType()
+LPCSTR CCX2388xCard::GetTunerType()
 {
     return m_TunerType;
 }
 
 // Sets up card to support size and format requested
 // at the moment we insist on 720 pixel width.
-void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride, BOOL IsProgressive)
+void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride, BOOL IsProgressive)
 {
     int HorzDelay;
     int VertDelay;
@@ -365,11 +376,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentX = 720;
         CurrentVBILines = 0;
 
-		WriteByte(CT2388X_PINMUX_IO, 0x02);
+		WriteByte(CX2388X_PINMUX_IO, 0x02);
 
         // Since we are digital here we don't really care which
         // format we choose as long as it has the right number of lines
-		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+		DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
 		VideoInput &= 0xfffffff0;
 
         if (CurrentY == 576)
@@ -383,7 +394,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             VideoInput |= VideoFormatNTSC;
         }
 
-        WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
+        WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
 
         if(VDelayOverride != 0)
         {
@@ -394,12 +405,12 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             VertDelay = 0x0C;
         }
 
-        WriteDword(CT2388X_FORMAT_2HCOMB, 0x183f0008);
-        WriteDword(CT2388X_VIP_CONFIG, 1);
-        WriteDword(CT2388X_VDELAYCCIR_EVEN, VertDelay);
-        WriteDword(CT2388X_VDELAYCCIR_ODD, VertDelay);
-        WriteDword(CT2388X_VERT_DELAY_EVEN, VertDelay);
-        WriteDword(CT2388X_VERT_DELAY_ODD, VertDelay);
+        WriteDword(CX2388X_FORMAT_2HCOMB, 0x183f0008);
+        WriteDword(CX2388X_VIP_CONFIG, 1);
+        WriteDword(CX2388X_VDELAYCCIR_EVEN, VertDelay);
+        WriteDword(CX2388X_VDELAYCCIR_ODD, VertDelay);
+        WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
+        WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
 
         if(HDelayOverride != 0)
         {
@@ -436,24 +447,24 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
-        WriteDword(CT2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize) | (2 << 11));
+        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize) | (2 << 11));
 
         if (CurrentY == 576)
         {
 	        CurrentX = 702;
-			WriteDword(CT2388X_AGC_BURST_DELAY, 0x6D6b);
+			WriteDword(CX2388X_AGC_BURST_DELAY, 0x6D6b);
         }
         else
         {
 	        CurrentX = 714;
-			WriteDword(CT2388X_AGC_BURST_DELAY, 0x6D63);
+			WriteDword(CX2388X_AGC_BURST_DELAY, 0x6D63);
 		}
 
         double PLL = SetPLL(27.0);
         SetSampleRateConverter(PLL);
 
         // Setup correct format
-		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+		DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
 		VideoInput &= 0xfffbfff0;
 
 		if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
@@ -541,9 +552,9 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             break;
         }
 
-        WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
-        WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
-        WriteDword(CT2388X_FORMAT_2HCOMB, Format2HComb);
+        WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
+        WriteDword(CX2388X_PIXEL_CNT_NOTCH, HTotal);
+        WriteDword(CX2388X_FORMAT_2HCOMB, Format2HComb);
 
         // set up subcarrier frequency
         DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
@@ -555,11 +566,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 		{
 			RegValue = (DWORD)(((28.63636) / PLL) * (double)(1<<22) + 0.5);
 		}
-        WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+        WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
         // Subcarrier frequency Dr, for SECAM only but lets
         // set it anyway
         RegValue = (DWORD)((8.0 * 4.406250 / PLL) * (double)(1<<22));
-        WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
+        WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
         if(VDelayOverride != 0)
         {
@@ -577,8 +588,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
         }
 
-        WriteDword(CT2388X_VERT_DELAY_EVEN, VertDelay);
-        WriteDword(CT2388X_VERT_DELAY_ODD, VertDelay);
+        WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
+        WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
 
         if(HDelayOverride != 0)
         {
@@ -609,7 +620,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         // set up VBI information
         // need packet size and delay
         // hopefully this is the same info that the bt8x8 chips needed
-        WriteDword(CT2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | ((GetTVFormat(TVFormat)->VBIPacketSize >> 8) << 11));
+        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | ((GetTVFormat(TVFormat)->VBIPacketSize >> 8) << 11));
 
         CurrentX = 720;
 
@@ -629,16 +640,16 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 				RegValue = 0x003d5985;
 			else
 				RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PALFsc8) * (double)(1<<22));
-			WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+			WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
 			// Subcarrier frequency Dr, for SECAM only but lets
 			// set it anyway
 			if(TVFormat == VIDEOFORMAT_SECAM_L)
 				RegValue = 0x003f9aee;
 			else
 				RegValue = (DWORD)((8.0 * 4.406250 / PALFsc8) * (double)(1<<22));
-			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
+			WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
-            WriteDword( CT2388X_SAMPLERATECONV, 0x19D5F);
+            WriteDword( CX2388X_SAMPLERATECONV, 0x19D5F);
         }
         else
         {
@@ -647,19 +658,19 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
 			// set up subcarrier frequency
 			DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 28.636363) * (double)(1<<22));
-			WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+			WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
 			// Subcarrier frequency Dr, for SECAM only but lets
 			// set it anyway
 			RegValue = (DWORD)((8.0 * 4.406250 / 28.636363) * (double)(1<<22));
-			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
+			WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
-            WriteDword( CT2388X_SAMPLERATECONV, 0x20000);
+            WriteDword( CX2388X_SAMPLERATECONV, 0x20000);
         }
 
 
 
         // Setup correct format
-		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+		DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
 		VideoInput &= 0xfffffff0;
 
         switch(TVFormat)
@@ -731,9 +742,9 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             break;
         }
 
-        WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
-        WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
-        WriteDword(CT2388X_FORMAT_2HCOMB, Format2HComb);
+        WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
+        WriteDword(CX2388X_PIXEL_CNT_NOTCH, HTotal);
+        WriteDword(CX2388X_FORMAT_2HCOMB, Format2HComb);
 
         if(VDelayOverride != 0)
         {
@@ -751,8 +762,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
         }
 
-        WriteDword(CT2388X_VERT_DELAY_EVEN, VertDelay);
-        WriteDword(CT2388X_VERT_DELAY_ODD, VertDelay);
+        WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
+        WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
 
         if(HDelayOverride != 0)
         {
@@ -771,43 +782,43 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         }
     }
 
-    WriteDword(CT2388X_HACTIVE_EVEN, CurrentX);
-    WriteDword(CT2388X_HACTIVE_ODD, CurrentX);
+    WriteDword(CX2388X_HACTIVE_EVEN, CurrentX);
+    WriteDword(CX2388X_HACTIVE_ODD, CurrentX);
 
-    WriteDword(CT2388X_VACTIVE_EVEN, CurrentY);
-    WriteDword(CT2388X_VACTIVE_ODD, CurrentY);
+    WriteDword(CX2388X_VACTIVE_EVEN, CurrentY);
+    WriteDword(CX2388X_VACTIVE_ODD, CurrentY);
 
-    WriteDword(CT2388X_HORZ_DELAY_EVEN, HorzDelay);
-    WriteDword(CT2388X_HORZ_DELAY_ODD, HorzDelay);
+    WriteDword(CX2388X_HORZ_DELAY_EVEN, HorzDelay);
+    WriteDword(CX2388X_HORZ_DELAY_ODD, HorzDelay);
 
-    WriteDword(CT2388X_HSCALE_EVEN, HorzScale);
-    WriteDword(CT2388X_HSCALE_ODD, HorzScale);
+    WriteDword(CX2388X_HSCALE_EVEN, HorzScale);
+    WriteDword(CX2388X_HSCALE_ODD, HorzScale);
 
-    WriteDword(CT2388X_VSCALE_EVEN, 0);
-    WriteDword(CT2388X_VSCALE_ODD, 0);
+    WriteDword(CX2388X_VSCALE_EVEN, 0);
+    WriteDword(CX2388X_VSCALE_ODD, 0);
 
     // call any card specific format setup
     (*this.*m_TVCards[m_CardType].pSetFormat)(nInput, TVFormat, IsProgressive);
 }
 
 
-BOOL CCT2388xCard::IsCCIRSource(int nInput)
+BOOL CCX2388xCard::IsCCIRSource(int nInput)
 {
     return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
 }
 
-BOOL CCT2388xCard::IsVideoPresent()
+BOOL CCX2388xCard::IsVideoPresent()
 {
-    DWORD dwval = ReadDword(CT2388X_DEVICE_STATUS);
-    return ((dwval & CT2388X_DEVICE_STATUS_HLOCK) == CT2388X_DEVICE_STATUS_HLOCK);
+    DWORD dwval = ReadDword(CX2388X_DEVICE_STATUS);
+    return ((dwval & CX2388X_DEVICE_STATUS_HLOCK) == CX2388X_DEVICE_STATUS_HLOCK);
 }
 
-DWORD CCT2388xCard::GetRISCPos()
+DWORD CCX2388xCard::GetRISCPos()
 {
-    return ReadDword(CT2388X_VIDY_GP_CNT);
+    return ReadDword(CX2388X_VIDY_GP_CNT);
 }
 
-void CCT2388xCard::ResetHardware()
+void CCX2388xCard::ResetHardware()
 {
     PCI_COMMON_CONFIG PCI_Config;
 
@@ -845,7 +856,7 @@ void CCT2388xCard::ResetHardware()
     ::Sleep(500);
 
     /* RISC Controller Enable */
-    WriteDword(CT2338X_DEV_CNTRL2, 1<<5 );
+    WriteDword(CX2388X_DEV_CNTRL2, 1<<5 );
 
     ::Sleep(500);
 
@@ -937,14 +948,14 @@ void CCT2388xCard::ResetHardware()
     /////////////////////////////////////////////////////////////////
 
     // set format to YUY2
-    MaskDataDword(CT2388X_VIDEO_COLOR_FORMAT, 0x00000044, 0x000000FF);
+    MaskDataDword(CX2388X_VIDEO_COLOR_FORMAT, 0x00000044, 0x000000FF);
 
     // Test from Mike Asbury's regtool init code
     WriteDword( MO_PDMA_STHRSH, 0x0807 ); // Fifo source Threshhold
     WriteDword( MO_PDMA_DTHRSH, 0x0807 ); // Fifo Threshhold
 
-    WriteDword( CT2388X_VID_INTSTAT, 0xFFFFFFFF ); // Clear PIV int
-    WriteDword( CT2388X_PCI_INTSTAT, 0xFFFFFFFF ); // Clear PCI int
+    WriteDword( CX2388X_VID_INTSTAT, 0xFFFFFFFF ); // Clear PIV int
+    WriteDword( CX2388X_PCI_INTSTAT, 0xFFFFFFFF ); // Clear PCI int
     WriteDword( MO_INT1_STAT, 0xFFFFFFFF );   // Clear RISC int
 
     //
@@ -959,11 +970,11 @@ void CCT2388xCard::ResetHardware()
     WriteDword( 0x00310200, 0x00E00555 ); 
 
     // Disable all of the interrupts
-    WriteDword( CT2388X_VID_INTMSK, 0x00000000 );
+    WriteDword( CX2388X_VID_INTMSK, 0x00000000 );
 }    
 
 
-LPCSTR CCT2388xCard::GetInputName(int nInput)
+LPCSTR CCX2388xCard::GetInputName(int nInput)
 {
     if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
     {
@@ -972,7 +983,7 @@ LPCSTR CCT2388xCard::GetInputName(int nInput)
     return "Error";
 }
 
-ULONG CCT2388xCard::GetTickCount()
+ULONG CCX2388xCard::GetTickCount()
 {
     ULONGLONG ticks;
     ULONGLONG frequency;
@@ -984,10 +995,10 @@ ULONG CCT2388xCard::GetTickCount()
     return (ULONG)(ticks / 10000);
 }
 
-void CCT2388xCard::InitializeI2C()
+void CCX2388xCard::InitializeI2C()
 {
-    WriteDword(CT2338X_I2C, 1);
-    m_I2CRegister = ReadDword(CT2338X_I2C);
+    WriteDword(CX2388X_I2C, 1);
+    m_I2CRegister = ReadDword(CX2388X_I2C);
 
     m_I2CSleepCycle = 10000L;
     DWORD elapsed = 0L;
@@ -1005,12 +1016,12 @@ void CCT2388xCard::InitializeI2C()
     m_I2CInitialized = true;
 }
 
-void CCT2388xCard::Sleep()
+void CCX2388xCard::Sleep()
 {
     for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
 }
 
-void CCT2388xCard::SetSDA(bool value)
+void CCX2388xCard::SetSDA(bool value)
 {
     if (!m_I2CInitialized)
     {
@@ -1018,16 +1029,16 @@ void CCT2388xCard::SetSDA(bool value)
     }
     if (value)
     {
-        m_I2CRegister |= CT2338X_I2C_SDA;
+        m_I2CRegister |= CX2388X_I2C_SDA;
     }
     else
     {
-        m_I2CRegister &= ~CT2338X_I2C_SDA;
+        m_I2CRegister &= ~CX2388X_I2C_SDA;
     }
-    WriteDword(CT2338X_I2C, m_I2CRegister);
+    WriteDword(CX2388X_I2C, m_I2CRegister);
 }
 
-void CCT2388xCard::SetSCL(bool value)
+void CCX2388xCard::SetSCL(bool value)
 {
     if (!m_I2CInitialized)
     {
@@ -1035,32 +1046,32 @@ void CCT2388xCard::SetSCL(bool value)
     }
     if (value)
     {
-        m_I2CRegister |= CT2338X_I2C_SCL;
+        m_I2CRegister |= CX2388X_I2C_SCL;
     }
     else
     {
-        m_I2CRegister &= ~CT2338X_I2C_SCL;
+        m_I2CRegister &= ~CX2388X_I2C_SCL;
     }
-    WriteDword(CT2338X_I2C, m_I2CRegister);
+    WriteDword(CX2388X_I2C, m_I2CRegister);
 }
 
-bool CCT2388xCard::GetSDA()
+bool CCX2388xCard::GetSDA()
 {
     if (!m_I2CInitialized)
     {
         InitializeI2C();
     }
-    bool state = ReadDword(CT2338X_I2C) & CT2338X_I2C_SDA ? true : false;
+    bool state = ReadDword(CX2388X_I2C) & CX2388X_I2C_SDA ? true : false;
     return state;
 }
 
-bool CCT2388xCard::GetSCL()
+bool CCX2388xCard::GetSCL()
 {
     if (!m_I2CInitialized)
     {
         InitializeI2C();
     }
-    bool state = ReadDword(CT2338X_I2C) & CT2338X_I2C_SCL ? true : false;
+    bool state = ReadDword(CX2388X_I2C) & CX2388X_I2C_SCL ? true : false;
     return state;
 }
 
@@ -1070,7 +1081,7 @@ bool CCT2388xCard::GetSCL()
     Program the PLL to a specific output frequency.
     Assume that we have a PLL pre dividor of 2
 *******************************************************************************/
-double CCT2388xCard::SetPLL(double PLLFreq)
+double CCX2388xCard::SetPLL(double PLLFreq)
 {
     DWORD RegValue = 0;
     int Prescaler = 2;
@@ -1119,24 +1130,24 @@ double CCT2388xCard::SetPLL(double PLLFreq)
     RegValue |= PLLInt << 20;
     RegValue |= PLLFraction & 0xFFFFF;
     
-    WriteDword(CT2388X_PLL , RegValue );
+    WriteDword(CX2388X_PLL , RegValue );
 
 	return (28.63636 / (8.0 * (double)Prescaler)) * ((double)PLLInt + (double)PLLFraction / (double)(1 << 20));
 }
 
 
-void CCT2388xCard::SetSampleRateConverter(double PLLFreq)
+void CCX2388xCard::SetSampleRateConverter(double PLLFreq)
 {
     DWORD RegValue = (DWORD)((28.63636 / PLLFreq) * (double)(1<<17));
-    WriteDword( CT2388X_SAMPLERATECONV, RegValue & 0x7FFFF );
+    WriteDword( CX2388X_SAMPLERATECONV, RegValue & 0x7FFFF );
 }
 
-eTunerId CCT2388xCard::AutoDetectTuner(eCT2388xCardId CardId)
+eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 {
     return TUNER_ABSENT;
 }
 
-BOOL CCT2388xCard::InitTuner(eTunerId tunerId)
+BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 {
     // clean up if we get called twice
     if(m_Tuner != NULL)
@@ -1179,7 +1190,7 @@ BOOL CCT2388xCard::InitTuner(eTunerId tunerId)
     return TRUE;
 }
 
-void CCT2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)
+void CCX2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)
 {
     WriteDword( SRAM_CMDS_21, RiscBasePhysical); // RISC STARTING ADDRESS
 
@@ -1187,7 +1198,7 @@ void CCT2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)
     AndDataDword( SRAM_CMDS_21 + 0x10, 0x7fffffff); 
 }
 
-void CCT2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
+void CCX2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
 {
     WriteDword( SRAM_CMDS_24, RiscBasePhysical); // RISC STARTING ADDRESS
 
@@ -1195,14 +1206,14 @@ void CCT2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
     AndDataDword( SRAM_CMDS_24 + 0x10, 0x7fffffff); 
 }
 
-ITuner* CCT2388xCard::GetTuner() const
+ITuner* CCX2388xCard::GetTuner() const
 {
     return m_Tuner;
 }
 
 #define DumpRegister(Reg) fprintf(hFile, #Reg "\t%08x\n", ReadDword(Reg))
 
-void CCT2388xCard::DumpChipStatus(const char* CardName)
+void CCX2388xCard::DumpChipStatus(const char* CardName)
 {
     FILE* hFile;
 	char Filename[256];
@@ -1217,47 +1228,47 @@ void CCT2388xCard::DumpChipStatus(const char* CardName)
 
     fprintf(hFile, "SubSystemId\t%08x\n", m_SubSystemId);
 
-    DumpRegister(CT2388X_DEVICE_STATUS);
-    DumpRegister(CT2388X_VIDEO_INPUT);
-    DumpRegister(CT2388X_TEMPORAL_DEC);
-    DumpRegister(CT2388X_AGC_BURST_DELAY);
-    DumpRegister(CT2388X_BRIGHT_CONTRAST); 
-    DumpRegister(CT2388X_UVSATURATION);    
-    DumpRegister(CT2388X_HUE);             
-    DumpRegister(CT2388X_WHITE_CRUSH);
-    DumpRegister(CT2388X_PIXEL_CNT_NOTCH);
-    DumpRegister(CT2388X_HORZ_DELAY_EVEN);
-    DumpRegister(CT2388X_HORZ_DELAY_ODD);
-    DumpRegister(CT2388X_VERT_DELAY_EVEN);
-    DumpRegister(CT2388X_VERT_DELAY_ODD);
-    DumpRegister(CT2388X_VDELAYCCIR_EVEN);
-    DumpRegister(CT2388X_VDELAYCCIR_ODD);
-    DumpRegister(CT2388X_HACTIVE_EVEN);
-    DumpRegister(CT2388X_HACTIVE_ODD);
-    DumpRegister(CT2388X_VACTIVE_EVEN);    
-    DumpRegister(CT2388X_VACTIVE_ODD);     
-    DumpRegister(CT2388X_HSCALE_EVEN);     
-    DumpRegister(CT2388X_HSCALE_ODD);      
-    DumpRegister(CT2388X_VSCALE_EVEN);     
-    DumpRegister(CT2388X_VSCALE_ODD);      
-    DumpRegister(CT2388X_FILTER_EVEN);     
-    DumpRegister(CT2388X_FILTER_ODD);      
-    DumpRegister(CT2388X_FORMAT_2HCOMB);
-    DumpRegister(CT2388X_PLL);
-    DumpRegister(CT2388X_PLL_ADJUST);
-    DumpRegister(CT2388X_SAMPLERATECONV);  
-    DumpRegister(CT2388X_SAMPLERATEFIFO);  
-    DumpRegister(CT2388X_SUBCARRIERSTEP);  
-    DumpRegister(CT2388X_SUBCARRIERSTEPDR);
-    DumpRegister(CT2388X_CAPTURECONTROL);  
-    DumpRegister(CT2388X_VIDEO_COLOR_FORMAT);
-    DumpRegister(CT2388X_VBI_SIZE);
-    DumpRegister(CT2388X_FIELD_CAP_CNT);
-    DumpRegister(CT2388X_VIP_CONFIG);
-    DumpRegister(CT2388X_VIP_CONTBRGT);
-    DumpRegister(CT2388X_VIP_HSCALE);
-    DumpRegister(CT2388X_VIP_VSCALE);
-    DumpRegister(CT2388X_VBOS);
+    DumpRegister(CX2388X_DEVICE_STATUS);
+    DumpRegister(CX2388X_VIDEO_INPUT);
+    DumpRegister(CX2388X_TEMPORAL_DEC);
+    DumpRegister(CX2388X_AGC_BURST_DELAY);
+    DumpRegister(CX2388X_BRIGHT_CONTRAST); 
+    DumpRegister(CX2388X_UVSATURATION);    
+    DumpRegister(CX2388X_HUE);             
+    DumpRegister(CX2388X_WHITE_CRUSH);
+    DumpRegister(CX2388X_PIXEL_CNT_NOTCH);
+    DumpRegister(CX2388X_HORZ_DELAY_EVEN);
+    DumpRegister(CX2388X_HORZ_DELAY_ODD);
+    DumpRegister(CX2388X_VERT_DELAY_EVEN);
+    DumpRegister(CX2388X_VERT_DELAY_ODD);
+    DumpRegister(CX2388X_VDELAYCCIR_EVEN);
+    DumpRegister(CX2388X_VDELAYCCIR_ODD);
+    DumpRegister(CX2388X_HACTIVE_EVEN);
+    DumpRegister(CX2388X_HACTIVE_ODD);
+    DumpRegister(CX2388X_VACTIVE_EVEN);    
+    DumpRegister(CX2388X_VACTIVE_ODD);     
+    DumpRegister(CX2388X_HSCALE_EVEN);     
+    DumpRegister(CX2388X_HSCALE_ODD);      
+    DumpRegister(CX2388X_VSCALE_EVEN);     
+    DumpRegister(CX2388X_VSCALE_ODD);      
+    DumpRegister(CX2388X_FILTER_EVEN);     
+    DumpRegister(CX2388X_FILTER_ODD);      
+    DumpRegister(CX2388X_FORMAT_2HCOMB);
+    DumpRegister(CX2388X_PLL);
+    DumpRegister(CX2388X_PLL_ADJUST);
+    DumpRegister(CX2388X_SAMPLERATECONV);  
+    DumpRegister(CX2388X_SAMPLERATEFIFO);  
+    DumpRegister(CX2388X_SUBCARRIERSTEP);  
+    DumpRegister(CX2388X_SUBCARRIERSTEPDR);
+    DumpRegister(CX2388X_CAPTURECONTROL);  
+    DumpRegister(CX2388X_VIDEO_COLOR_FORMAT);
+    DumpRegister(CX2388X_VBI_SIZE);
+    DumpRegister(CX2388X_FIELD_CAP_CNT);
+    DumpRegister(CX2388X_VIP_CONFIG);
+    DumpRegister(CX2388X_VIP_CONTBRGT);
+    DumpRegister(CX2388X_VIP_HSCALE);
+    DumpRegister(CX2388X_VIP_VSCALE);
+    DumpRegister(CX2388X_VBOS);
 
     fclose(hFile);
 }

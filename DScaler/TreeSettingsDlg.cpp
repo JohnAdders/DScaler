@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.24 2002-10-29 03:05:47 atnak Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.25 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/10/29 03:05:47  atnak
+// Added a virtual GetTreeSettingsPage() to all CSources
+//
 // Revision 1.23  2002/10/26 17:51:53  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -37,7 +40,7 @@
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
 // Revision 1.17  2002/09/11 18:19:44  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 // Revision 1.16  2002/09/02 19:07:21  kooiman
 // Added BT848 advanced settings to advanced settings dialog

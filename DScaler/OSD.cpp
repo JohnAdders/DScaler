@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.72 2002-10-27 20:39:07 laurentg Exp $
+// $Id: OSD.cpp,v 1.73 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2002/10/27 20:39:07  laurentg
+// Performance statistics only computed in DEBUG buildd
+// Developer OSD screen only present in DEBUG build
+//
 // Revision 1.71  2002/10/27 13:08:17  robmuller
 // In addition to "\n" OSD now supports "\r\n" to start a new line.
 //
@@ -65,7 +69,7 @@
 // Preparations for skinned dscaler look.
 //
 // Revision 1.69  2002/09/11 18:19:42  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 // Revision 1.68  2002/08/02 20:16:43  laurentg
 // Suppress call to RemoveMenu

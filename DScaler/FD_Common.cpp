@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.26 2002-09-11 18:19:41 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.27 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/09/11 18:19:41  adcockj
+// Prelimainary support for CX2388x based cards
+//
 // Revision 1.25  2002/07/28 08:11:27  laurentg
 // "Include Chroma in Detection" removed from the menus
 //

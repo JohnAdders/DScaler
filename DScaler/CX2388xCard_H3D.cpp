@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_H3D.cpp,v 1.8 2002-10-21 07:19:33 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,20 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// 
+// CVS Log while file was called CT2388xCard_H3D.cpp
+//
+// Revision 1.8  2002/10/21 07:19:33  adcockj
+// Preliminary Support for PixelView XCapture
+//
 // Revision 1.7  2002/09/29 16:16:21  adcockj
 // Holo3d imrprovements
 //
@@ -37,15 +48,15 @@
 // a few tidy ups
 //
 // Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "CT2388xCard.h"
-#include "CT2388x_Defines.h"
+#include "CX2388xCard.h"
+#include "CX2388x_Defines.h"
 #include "DebugLog.h"
 
 enum eHolo3DInputs
@@ -60,7 +71,7 @@ enum eHolo3DInputs
     H3D_COMPOSITE4,
 };
 
-void CCT2388xCard::InitH3D()
+void CCX2388xCard::InitH3D()
 {
     m_SAA7118 = new CSAA7118();
 
@@ -127,7 +138,7 @@ void CCT2388xCard::InitH3D()
 
 }
 
-void CCT2388xCard::H3DInputSelect(int nInput)
+void CCX2388xCard::H3DInputSelect(int nInput)
 {
     StandardInputSelect(nInput);
 
@@ -167,7 +178,7 @@ void CCT2388xCard::H3DInputSelect(int nInput)
     }
 }
 
-void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive)
+void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive)
 {
     BYTE ChrominanceControl(0x81);
     BYTE ChrominanceControl2(0x00);
@@ -285,7 +296,7 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
 }
 
 
-void CCT2388xCard::SetH3DBrightness(BYTE Brightness)
+void CCX2388xCard::SetH3DBrightness(BYTE Brightness)
 {
     switch(m_CurrentInput)
     {
@@ -309,7 +320,7 @@ void CCT2388xCard::SetH3DBrightness(BYTE Brightness)
     }
 }
 
-void CCT2388xCard::SetH3DHue(BYTE Hue)
+void CCX2388xCard::SetH3DHue(BYTE Hue)
 {
     switch(m_CurrentInput)
     {
@@ -329,7 +340,7 @@ void CCT2388xCard::SetH3DHue(BYTE Hue)
     }
 }
 
-void CCT2388xCard::SetH3DContrast(BYTE Contrast)
+void CCX2388xCard::SetH3DContrast(BYTE Contrast)
 {
     switch(m_CurrentInput)
     {
@@ -353,7 +364,7 @@ void CCT2388xCard::SetH3DContrast(BYTE Contrast)
     }
 }
 
-void CCT2388xCard::SetH3DSaturationU(BYTE Saturation)
+void CCX2388xCard::SetH3DSaturationU(BYTE Saturation)
 {
     switch(m_CurrentInput)
     {
@@ -377,12 +388,12 @@ void CCT2388xCard::SetH3DSaturationU(BYTE Saturation)
     }
 }
 
-void CCT2388xCard::SetH3DSaturationV(BYTE NotUsed)
+void CCX2388xCard::SetH3DSaturationV(BYTE NotUsed)
 {
     // we'll do nothing with this but it needs to be here
 }
 
-void CCT2388xCard::SetFLIFilmDetect(BOOL FLIFilmDetect)
+void CCX2388xCard::SetFLIFilmDetect(BOOL FLIFilmDetect)
 {
 	BYTE Buffer[3] = {0xE2, 0x05, 0x0a};
 	if(FLIFilmDetect)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.95 2002-10-28 22:50:42 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.96 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2002/10/28 22:50:42  laurentg
+// Little updates regarding stills
+//
 // Revision 1.94  2002/10/27 20:39:08  laurentg
 // Performance statistics only computed in DEBUG buildd
 // Developer OSD screen only present in DEBUG build
@@ -103,7 +106,7 @@
 // updated crashloging to same version as in latest virtualdub
 //
 // Revision 1.83  2002/09/11 18:19:43  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 // Revision 1.82  2002/09/09 03:00:15  lindsey
 // Allowed filters to ask for more than 4 fields of history

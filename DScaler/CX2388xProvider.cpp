@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xProvider.cpp,v 1.3 2002-10-27 19:17:25 adcockj Exp $
+// $Id: CX2388xProvider.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,14 +15,25 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This code is based on a version of dTV modified by Michael Eskin and
+// others at Connexant.  Those parts are probably (c) Connexant 2002
+//
+/////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// 
+// CVS Log while file was called CT2388xProvider.cpp
+//
+// Revision 1.3  2002/10/27 19:17:25  adcockj
+// Fixes for cx2388x - PAL & NTSC tested
+//
 // Revision 1.2  2002/10/23 15:18:07  adcockj
 // Added preliminary code for VBI
 //
 // Revision 1.1  2002/09/11 18:19:37  adcockj
-// Prelimainary support for CT2388x based cards
+// Prelimainary support for CX2388x based cards
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -30,10 +41,10 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "CT2388xProvider.h"
-#include "CT2388xSource.h"
+#include "CX2388xProvider.h"
+#include "CX2388xSource.h"
 
-CCT2388xProvider::CCT2388xProvider(CHardwareDriver* pHardwareDriver)
+CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
 {
     char szSection[12];
     BOOL IsMemoryInitialized = FALSE;
@@ -69,8 +80,8 @@ CCT2388xProvider::CCT2388xProvider(CHardwareDriver* pHardwareDriver)
             IsMemoryInitialized = TRUE;
         }
 
-        sprintf(szSection, "%s%d", "CT23880", CardsFound + 1);
-        CCT2388xSource* pNewSource = CreateCorrectSource(
+        sprintf(szSection, "%s%d", "CX23880", CardsFound + 1);
+        CCX2388xSource* pNewSource = CreateCorrectSource(
                                                             pHardwareDriver,
                                                             szSection, 
                                                             0x14F1, 
@@ -86,10 +97,10 @@ CCT2388xProvider::CCT2388xProvider(CHardwareDriver* pHardwareDriver)
     }
 }
 
-CCT2388xProvider::~CCT2388xProvider()
+CCX2388xProvider::~CCX2388xProvider()
 {
     MemoryFree();
-    for(vector<CCT2388xSource*>::iterator it = m_Sources.begin();
+    for(vector<CCX2388xSource*>::iterator it = m_Sources.begin();
         it != m_Sources.end();
         ++it)
     {
@@ -98,15 +109,15 @@ CCT2388xProvider::~CCT2388xProvider()
 }
 
 
-CCT2388xSource* CCT2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
+CCX2388xSource* CCX2388xProvider::CreateCorrectSource(CHardwareDriver* pHardwareDriver, LPCSTR szSection, WORD VendorID, WORD DeviceID, int DeviceIndex, DWORD SubSystemId)
 {
     // \todo use the subsystem id to create the correct specilized version of the card
-    CCT2388xCard* pNewCard = new CCT2388xCard(pHardwareDriver);
+    CCX2388xCard* pNewCard = new CCX2388xCard(pHardwareDriver);
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
 		// \todo remove this as it's just for testing
 		pNewCard->DumpChipStatus(szSection);
-        CCT2388xSource* pNewSource = new CCT2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
+        CCX2388xSource* pNewSource = new CCX2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
         return pNewSource;
     }
     else
@@ -117,12 +128,12 @@ CCT2388xSource* CCT2388xProvider::CreateCorrectSource(CHardwareDriver* pHardware
 }
 
 
-int CCT2388xProvider::GetNumberOfSources()
+int CCX2388xProvider::GetNumberOfSources()
 {
     return m_Sources.size();
 }
 
-CSource* CCT2388xProvider::GetSource(int SourceIndex)
+CSource* CCX2388xProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_Sources.size())
     {
@@ -134,7 +145,7 @@ CSource* CCT2388xProvider::GetSource(int SourceIndex)
     }
 }
 
-BOOL CCT2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
+BOOL CCX2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
 {
     try
     {
@@ -178,7 +189,7 @@ BOOL CCT2388xProvider::MemoryInit(CHardwareDriver* pHardwareDriver)
     return TRUE;
 }
 
-void CCT2388xProvider::MemoryFree()
+void CCX2388xProvider::MemoryFree()
 {
     if(m_RiscDMAMem != NULL)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.40 2002-09-11 18:19:44 adcockj Exp $
+// $Id: Settings.cpp,v 1.41 2002-10-29 11:05:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/09/11 18:19:44  adcockj
+// Prelimainary support for CX2388x based cards
+//
 // Revision 1.39  2002/08/21 20:26:31  kooiman
 // Added option to ChangeDefault to only change the current value if you want it.
 //

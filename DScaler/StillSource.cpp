@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.57 2002-05-27 20:39:02 laurentg Exp $
+// $Id: StillSource.cpp,v 1.58 2002-06-07 14:57:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/05/27 20:39:02  laurentg
+// Reload current still when updating setting pattern height or width
+//
 // Revision 1.56  2002/05/06 15:48:53  laurentg
 // Informations saved in a DScaler still updated
 // Use of the comments field to show informations about a DScaler still
@@ -268,19 +271,19 @@ char* BuildDScalerContext()
     int i;
     CSource* pSource = Providers_GetCurrentSource();
 
-    sprintf(DScalerContext, "DScaler still\nTaken with %s", GetProductNameAndVersion());
+    sprintf(DScalerContext, "DScaler still\r\nTaken with %s", GetProductNameAndVersion());
     if (pSource != NULL)
     {
-        strcat(DScalerContext, "\nInput was ");
+        strcat(DScalerContext, "\r\nInput was ");
         strcat(DScalerContext, pSource->GetStatus());
     }
-    strcat(DScalerContext, "\nDeinterlace mode was ");
+    strcat(DScalerContext, "\r\nDeinterlace mode was ");
     strcat(DScalerContext, GetDeinterlaceModeName());
     for (i = 0 ; i < NumFilters ; i++)
     {
         if (Filters[i]->bActive)
         {
-            strcat(DScalerContext, "\n");
+            strcat(DScalerContext, "\r\n");
             strcat(DScalerContext, Filters[i]->szName);
             strcat(DScalerContext, " was on");
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.105 2002-10-29 22:00:30 adcockj Exp $
+// $Id: DS_Control.h,v 1.106 2002-10-30 13:41:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.105  2002/10/29 22:00:30  adcockj
+// Added EatlLinesAtTop setting for SDI on holo3d
+//
 // Revision 1.104  2002/10/29 15:24:22  robmuller
 // Remove smoothing setting from logo killer since it is not used anymore.
 //
@@ -677,6 +680,7 @@ typedef enum
     FULLCPU,
     VIDEOCARD,
 	REVERSECHANNELSCROLLING,
+    SINGLEKEYTELETEXTTOGGLE,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

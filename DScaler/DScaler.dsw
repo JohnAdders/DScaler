@@ -309,9 +309,6 @@ Package=<4>
     Project_Dep_Name FLT_Sharpness
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name DScalerRes
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name DI_GreedyH
     End Project Dependency
     Begin Project Dependency
@@ -361,6 +358,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name FLT_Colorimetry
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DScalerRes
     End Project Dependency
 }}}
 

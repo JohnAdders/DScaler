@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.17 2004-02-27 20:50:59 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.18 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/02/27 20:50:59  to_see
+// -more logging in CCX2388xCard::StartStopConexxantDriver
+// -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
+// -renamed eAudioStandard to eCX2388xAudioStandard,
+//  eStereoType to eCX2388xStereoType and moved from
+//  cx2388xcard.h to cx2388x_defines.h
+// -moved Audiodetecting from CX2388xCard_Audio.cpp
+//  to CX2388xSource_Audio.cpp
+// -CCX2388xCard::AutoDetectTuner read
+//  at first from Registers
+//
 // Revision 1.16  2004/02/21 14:11:30  to_see
 // more A2-code
 //
@@ -535,6 +546,81 @@ void CCX2388xCard::AudioInitEIAJ(eCX2388xStereoType StereoType)
 
 void CCX2388xCard::AudioInitNICAM(eCX2388xStereoType StereoType)
 {
+	// this works in Finland, thanks to zippo71@...
+	WriteDword(AUD_INIT,					0x00000010);
+    WriteDword(AUD_INIT_LD,				0x00000001);
+    WriteDword(AUD_SOFT_RESET,				0x00000001);
+	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
+	WriteDword(AUD_RATE_ADJ1,				0x00000010);
+	WriteDword(AUD_RATE_ADJ2,				0x00000040);
+	WriteDword(AUD_RATE_ADJ3,				0x00000100);
+	WriteDword(AUD_RATE_ADJ4,				0x00000400);
+	WriteDword(AUD_RATE_ADJ5,				0x00001000);
+
+		// Deemphasis 1:
+		WriteDword(AUD_DEEMPHGAIN_R,			0x000023c2);
+		WriteDword(AUD_DEEMPHNUMER1_R,			0x0002a7bc);
+		WriteDword(AUD_DEEMPHNUMER2_R,			0x0003023e);
+		WriteDword(AUD_DEEMPHDENOM1_R,			0x0000f3d0);
+		WriteDword(AUD_DEEMPHDENOM2_R,			0x00000000);
+
+		/*
+		// Deemphasis 2: please test this if in other country
+		WriteDword(AUD_DEEMPHGAIN_R,			0x0000c600);
+		WriteDword(AUD_DEEMPHNUMER1_R,			0x00066738);
+		WriteDword(AUD_DEEMPHNUMER2_R,			0x00066739);
+		WriteDword(AUD_DEEMPHDENOM1_R,			0x0001e88c);
+		WriteDword(AUD_DEEMPHDENOM2_R,			0x0001e88c);
+		*/
+	
+	WriteDword(AUD_DEEMPHDENOM2_R,			0x00000000);
+	WriteDword(AUD_ERRLOGPERIOD_R,			0x00000fff);
+	WriteDword(AUD_ERRINTRPTTHSHLD1_R,		0x000003ff);
+	WriteDword(AUD_ERRINTRPTTHSHLD2_R,		0x000000ff);
+	WriteDword(AUD_ERRINTRPTTHSHLD3_R,		0x0000003f);
+	WriteDword(AUD_POLYPH80SCALEFAC,		0x00000003);
+
+	WriteByte(AUD_PDF_DDS_CNST_BYTE2,		0x06);
+	WriteByte(AUD_PDF_DDS_CNST_BYTE1,		0x82);
+	WriteByte(AUD_QAM_MODE,					0x05);
+
+		// QAM 1: this works for Finland
+		WriteByte(AUD_PDF_DDS_CNST_BYTE0,		0x16);
+		WriteByte(AUD_PHACC_FREQ_8MSB,			0x34);
+		WriteByte(AUD_PHACC_FREQ_8LSB,			0x4c);
+
+		/*
+		// QAM 2: please test this if in other country
+		WriteByte(AUD_PDF_DDS_CNST_BYTE0,		0x12);
+		WriteByte(AUD_PHACC_FREQ_8MSB,			0x3a);
+		WriteByte(AUD_PHACC_FREQ_8LSB,			0x93);
+		*/
+
+	switch(StereoType)
+	{
+	case STEREOTYPE_MONO:
+	case STEREOTYPE_ALT1:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_FORCE_MONO1);
+		break;
+
+	case STEREOTYPE_ALT2:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_FORCE_MONO2);
+		break;
+
+	case STEREOTYPE_STEREO:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_FORCE_STEREO);
+		break;
+
+	case STEREOTYPE_AUTO:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_AUTO_STEREO);
+		break;
+	}
+    
+	WriteDword(AUD_SOFT_RESET,				0x00000000);  // Causes a pop every time/**/
+
+/*
+	// question to other developers:
+	// the following code is not realy working, we should delete them.
     //\todo handle StereoType
 
     // increase level of input by 12dB
@@ -571,6 +657,7 @@ void CCX2388xCard::AudioInitNICAM(eCX2388xStereoType StereoType)
 
     // de-assert Audio soft reset
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
+*/
 }   
 
 void CCX2388xCard::AudioInitA2(eCX2388xStereoType StereoType)
@@ -585,7 +672,7 @@ void CCX2388xCard::AudioInitA2(eCX2388xStereoType StereoType)
     WriteByte(AUD_PDF_DDS_CNST_BYTE0,		0x12);
     WriteByte(AUD_QAM_MODE,					0x05);
     WriteByte(AUD_PHACC_FREQ_8MSB,			0x34);
-    WriteByte(0x320d2b,						0x4c);
+    WriteByte(AUD_PHACC_FREQ_8LSB,			0x4c);
     WriteDword(AUD_RATE_ADJ1,				0x00001000);
     WriteDword(AUD_RATE_ADJ2,				0x00002000);
     WriteDword(AUD_RATE_ADJ3,				0x00003000);

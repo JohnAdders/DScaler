@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.22 2004-02-27 20:50:49 to_see Exp $
+// $Id: CX2388x_Defines.h,v 1.23 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -354,9 +354,9 @@
 #define AUD_PDF_DDS_CNST_BYTE2   0x320d01
 #define AUD_PDF_DDS_CNST_BYTE1   0x320d02
 #define AUD_PDF_DDS_CNST_BYTE0   0x320d03
-#define AUD_PHACC_FREQ_8MSB      0x320d2a
-#define AUD_PHACC_FREQ_8LSB      0x320d23
 #define AUD_QAM_MODE             0x320d04
+#define AUD_PHACC_FREQ_8MSB      0x320d2a
+#define AUD_PHACC_FREQ_8LSB      0x320d2b
 
 // ************************** Transport Stream **************************************
 #define MO_TS_DMA           0x330000 // {64}RWp Transport stream downstream
@@ -782,6 +782,8 @@ enum eCX2388xCardId
 	CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL,
 	CX2388xCARD_ATI_WONDER_PRO,
     CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND,
+	CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA,
+	CX2388xCARD_KWORLD_TV_STEREO,
     CX2388xCARD_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.5 2004-02-29 19:41:45 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.6 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/02/29 19:41:45  to_see
+// new Submenu's in CX Card for Audio Channel and Audio Standard
+// new AutoMute entry
+//
 // Revision 1.4  2004/02/27 20:51:00  to_see
 // -more logging in CCX2388xCard::StartStopConexxantDriver
 // -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
@@ -145,8 +149,7 @@ void CCX2388xSource::UpdateAudioStatus()
 				{
 				case STEREOTYPE_AUTO:
 					SoundChannel = AutoDetectA2Sound();
-					break
-						;
+					break;
 				case STEREOTYPE_MONO:
 					SoundChannel = SOUNDCHANNEL_MONO;
 					break;
@@ -166,11 +169,33 @@ void CCX2388xSource::UpdateAudioStatus()
 				
 				break;
 
+			case AUDIO_STANDARD_NICAM:
+				switch(m_pCard->GetCurrentStereoType())
+				{
+				case STEREOTYPE_AUTO:
+					SoundChannel = AutoDetectNicamSound();
+					break;
+				case STEREOTYPE_MONO:
+					SoundChannel = SOUNDCHANNEL_MONO;
+					break;
+
+				case STEREOTYPE_STEREO:
+					SoundChannel = SOUNDCHANNEL_STEREO;
+					break;
+
+				case STEREOTYPE_ALT1:
+					SoundChannel = SOUNDCHANNEL_LANGUAGE1;
+					break;
+
+				case STEREOTYPE_ALT2:
+					SoundChannel = SOUNDCHANNEL_LANGUAGE2;
+					break;
+				}
+
 			case AUDIO_STANDARD_AUTO:
 			case AUDIO_STANDARD_BTSC:
 			case AUDIO_STANDARD_EIAJ:
 			case AUDIO_STANDARD_BTSC_SAP:
-			case AUDIO_STANDARD_NICAM:
 			case AUDIO_STANDARD_FM:
 				break;	// \todo: add more support
 			}
@@ -192,7 +217,7 @@ void CCX2388xSource::UpdateAudioStatus()
 		}
 	}
 
-	// not in tuner mode, show always Stereo
+	// if not in tuner mode, show always Stereo
 	else
 	{
 		SoundChannel = SOUNDCHANNEL_STEREO;
@@ -230,35 +255,64 @@ eSoundChannel CCX2388xSource::AutoDetectA2Sound()
 
 	switch(dwVal & 0x03)
 	{
-	case 0: // Stereo detected
-		if(m_AutoDetectA2StereoCounter < 10)
+	case 0: // Stereo or Bilingual detected
+		if((dwVal & 0x08) == 0x08)
 		{
-			m_AutoDetectA2StereoCounter++;
+			// Test if C2 detected for bilingual
+			if(m_AutoDetectA2BilingualCounter < 10) m_AutoDetectA2BilingualCounter++;
 		}
+
+		else
+		{
+			if(m_AutoDetectA2StereoCounter    < 10) m_AutoDetectA2StereoCounter++;
+			if(m_AutoDetectA2BilingualCounter >  0) m_AutoDetectA2BilingualCounter--;
+		}
+
 		break;
 
 	case 2:  // Mono detected
-		if(m_AutoDetectA2StereoCounter > 0)
-		{
-			m_AutoDetectA2StereoCounter--;
-		}
+		if(m_AutoDetectA2StereoCounter    > 0) m_AutoDetectA2StereoCounter--;
+		if(m_AutoDetectA2BilingualCounter > 0) m_AutoDetectA2BilingualCounter--;
 		break;
 
-	// \todo bilingual support
+	case 1:	// \todo: detect Dual Mono
+	case 3:	// \todo: detect SAP
+		break;
 	}
 
-	if(m_AutoDetectA2StereoCounter > 5)
+	if(m_AutoDetectA2BilingualCounter > 5)
 	{
 		m_pCard->SetAutoA2StereoToStereo();
-		SoundChannelA2 = SOUNDCHANNEL_STEREO;
+		SoundChannelA2 = SOUNDCHANNEL_LANGUAGE1;
 	}
 
 	else
 	{
-		m_pCard->SetAutoA2StereoToMono();
-		SoundChannelA2 = SOUNDCHANNEL_MONO;
+		if(m_AutoDetectA2StereoCounter > 5)
+		{
+			m_pCard->SetAutoA2StereoToStereo();
+			SoundChannelA2 = SOUNDCHANNEL_STEREO;
+		}
+
+		else
+		{
+			m_pCard->SetAutoA2StereoToMono();
+			SoundChannelA2 = SOUNDCHANNEL_MONO;
+		}
 	}
 
 	return SoundChannelA2;
 }
 
+eSoundChannel CCX2388xSource::AutoDetectNicamSound()
+{
+	eSoundChannel SoundChannelNicam = SOUNDCHANNEL_MONO;
+
+	// \todo
+	// when Nicam detetected,
+	// AUD_NICAM_STATUS1 = 0xfff0 or 0xfff1
+	// AUD_NICAM_STATUS2 = 0x02
+	// at the moment not shure how it works
+	
+	return SoundChannelNicam;
+}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.63 2004-02-29 19:41:45 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.64 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2004/02/29 19:41:45  to_see
+// new Submenu's in CX Card for Audio Channel and Audio Standard
+// new AutoMute entry
+//
 // Revision 1.62  2004/02/27 20:50:59  to_see
 // -more logging in CCX2388xCard::StartStopConexxantDriver
 // -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
@@ -1827,9 +1831,13 @@ BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
 	BOOL bReturn = m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 	if(bReturn == TRUE)
 	{
-		// when switching from channel to channel the sound often hangs, 
-		// so let's make an reset
-		m_pCard->AudioSoftReset();
+		if(m_pCard->GetCurrentAudioStandard() == AUDIO_STANDARD_A2)
+		{
+			// when switching from channel to channel the sound often hangs, 
+			// so let's make an reset
+			m_pCard->AudioSoftReset();
+		}
+
 		StartUpdateAudioStatus();
 	}
 

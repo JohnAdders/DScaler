@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.19 2004-02-21 21:47:06 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.20 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2004/02/21 21:47:06  to_see
+// Added AutodetectTuner for Hauppauge
+//
 // Revision 1.18  2004/01/27 22:48:57  robmuller
 // Use correct GPIO settings for TV@nywhere Master.
 //
@@ -734,6 +737,82 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_AUTODETECT,
         IDC_CX2388X,
     },
+    
+	// Card info from Denis Love
+    {
+        "PixelView PlayTV Ultra",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+    			0x0000bf61,
+
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+    			0x0000bf63,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+    			0x0000bf63,
+            },
+            // FM radio input omitted
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_PHILIPS_FM1216ME_MK3,
+        IDC_CX2388X,
+    },
+	
+	// Card Info from trfillos@...
+    {
+        "K-World DV/AV Expert TV Stereo",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+    			0x000007f8,
+
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+    			0x000004ff,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+    			0x000004ff,
+            },
+            // FM radio input omitted
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_PHILIPS_FM1216ME_MK3,
+        IDC_CX2388X,
+    },
 };
 
 const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
@@ -747,6 +826,9 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
     { 0x34000070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
     { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" },
     { 0x86061462, CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL, "MSI TV@nywhere Master"},
+	{ 0x48111554, CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA, "PixelView PlayTV Ultra" },
+	{ 0x088317DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // NTSC
+	{ 0x088217DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // PAL
     { 0, (eCX2388xCardId)-1, NULL }
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.32 2004-02-29 19:41:45 to_see Exp $
+// $Id: CX2388xSource.h,v 1.33 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -140,6 +140,7 @@ private:
 	void StopUpdateAudioStatus();
 	void UpdateAudioStatus();
 	eSoundChannel AutoDetectA2Sound();
+	eSoundChannel AutoDetectNicamSound();
 
 private:
     CCX2388xCard*  m_pCard;

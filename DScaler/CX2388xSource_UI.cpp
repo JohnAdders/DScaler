@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.42 2004-02-29 19:41:45 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.43 2004-03-07 12:20:12 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2004/02/29 19:41:45  to_see
+// new Submenu's in CX Card for Audio Channel and Audio Standard
+// new AutoMute entry
+//
 // Revision 1.41  2004/02/27 20:51:00  to_see
 // -more logging in CCX2388xCard::StartStopConexxantDriver
 // -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
@@ -464,7 +468,7 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
 	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC_SAP,	(m_AudioStandard->GetValue() == AUDIO_STANDARD_BTSC_SAP		));
 	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_EIAJ,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_EIAJ			));
 	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_FM,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_FM			));
-	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,		(m_AudioStandard->GetValue() == IDM_CX2388X_AUDIO_STD_NICAM	));
+	CheckMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_NICAM,		(m_AudioStandard->GetValue() == AUDIO_STANDARD_NICAM		));
 	EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_AUTO,		IsInTunerMode());
     EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_A2,		IsInTunerMode());
     EnableMenuItemBool(m_hMenu, IDM_CX2388X_AUDIO_STD_BTSC,		IsInTunerMode());

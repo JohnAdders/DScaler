@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.26 2002-04-14 17:25:26 laurentg Exp $
+// $Id: StillSource.h,v 1.27 2002-04-15 22:50:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,9 +27,7 @@
 enum eStillFormat
 {
     STILL_TIFF_RGB = 0,
-    STILL_TIFF_RGB_LZW,
     STILL_TIFF_RGB_JPEG,
-    STILL_TIFF_RGB_PACKBITS,
     STILL_TIFF_YCbCr,
     STILL_FORMAT_LASTONE,
 };
@@ -122,6 +120,7 @@ public:
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
     void SetOverscan();
+    BOOL HasSquarePixels() {return m_SquarePixels;};
 
     friend class CTiffHelper;
     friend class CPatternHelper;
@@ -142,6 +141,7 @@ protected:
     vector<CPlayListItem*> m_PlayList;
     int         m_Position;
     BOOL        m_IsPictureRead;
+    BOOL        m_SquarePixels;
 
 private:
     DWORD       m_LastTickCount;

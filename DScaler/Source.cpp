@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.5 2002-02-22 23:22:23 laurentg Exp $
+// $Id: Source.cpp,v 1.6 2002-04-15 22:50:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/22 23:22:23  laurentg
+// Only notify size change if it concerns current source
+//
 // Revision 1.4  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -85,5 +88,15 @@ void CSource::NotifySizeChange()
     {
     	//tell dscaler that size has changed, the real work will be done in the main message loop
 	    PostMessage(hWnd,UWM_INPUTSIZE_CHANGE,0,0);
+    }
+}
+
+void CSource::NotifySquarePixelsCheck()
+{
+    if (Providers_GetCurrentSource() == this)
+    {
+    	// Tell dscaler to check whether "square pixels" AR mode must be on or off
+        // The real work will be done in the main message loop
+	    PostMessage(hWnd,UWM_SQUAREPIXELS_CHECK,0,0);
     }
 }

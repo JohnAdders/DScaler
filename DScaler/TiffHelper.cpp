@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.17 2002-04-14 17:25:26 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.18 2002-04-15 22:50:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/04/14 17:25:26  laurentg
+// New formats of TIFF files supported to take stills : Class R (RGB) with compression LZW or Packbits or JPEG
+//
 // Revision 1.16  2002/04/14 10:16:23  laurentg
 // Table of TIFF compatibility updated due to update to LibTiff 3.5.7 + LibJpeg
 //
@@ -82,6 +85,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
+#include <time.h>
 #include "stdafx.h"
 #include "TiffHelper.h"
 #include "Deinterlace.h"
@@ -158,6 +162,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     uint32* bc;
     uint32 StripSize;
     uint16 Compression;
+    char* Software;
+    char* Artist;
 
     // Open the file
     tif = TIFFOpen(FileName, "r");
@@ -170,6 +176,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
         !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
     {
+        LOG(1, "At least one of the tags IMAGEWIDTH, IMAGELENGTH, COMPRESSION or PHOTOMETRIC is missing in the file %s", FileName);
         TIFFClose(tif);
         return FALSE;
     }
@@ -332,6 +339,24 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         _TIFFfree(bufPackedRGB);
     }
 
+    if ( !TIFFGetField(tif, TIFFTAG_SOFTWARE, &Software)
+      || !strstr(Software, "DScaler") )
+    {
+        m_pParent->m_SquarePixels = TRUE;
+    }
+    else
+    {
+        if ( !TIFFGetField(tif, TIFFTAG_ARTIST, &Artist)
+          || strcmp(Artist, "***") )
+        {
+            m_pParent->m_SquarePixels = FALSE;
+        }
+        else
+        {
+            m_pParent->m_SquarePixels = TRUE;
+        }
+    }
+
     // Close the file
     TIFFClose(tif);
 
@@ -360,6 +385,8 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     float ycbcrCoeffs[3] = { 0.299f, 0.587f, 0.114f };
     float refBlackWhite[6] = { 15., 235., 128., 240., 128., 240. };
     uint16 Compression;
+    struct tm *tm_time;
+    time_t long_time;
 
     w = (Width % 2) ? Width-1 : Width;
     if (m_FormatSaving == TIFF_CLASS_Y)
@@ -438,6 +465,9 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     // Fields of the directory
     //
     sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    time(&long_time);
+    tm_time = localtime(&long_time);
+
     if (!TIFFSetField(tif, TIFFTAG_SUBFILETYPE, 0) ||
         !TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8) ||                 // 8 bits for each channel
         !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, description) ||
@@ -445,7 +475,10 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
         !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
         !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip
         !TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3) ||               // RGB = 3 channels/pixel
-        !TIFFSetField(tif, TIFFTAG_SOFTWARE, GetProductNameAndVersion()))
+        !TIFFSetField(tif, TIFFTAG_SOFTWARE, GetProductNameAndVersion()) ||
+        !TIFFSetField(tif, TIFFTAG_DATETIME, asctime(tm_time)) ||
+        // WARNING: tag "artist" is used to store information about whether pixels of the picture are square or not
+        !TIFFSetField(tif, TIFFTAG_ARTIST, m_pParent->m_SquarePixels ? "***" : ""))
     {
         _TIFFfree(buffer);
         TIFFClose(tif);
@@ -477,14 +510,8 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     }
     switch (m_FormatSaving)
     {
-    case TIFF_CLASS_R_LZW:
-        Compression = COMPRESSION_LZW;
-        break;
     case TIFF_CLASS_R_JPEG:
         Compression = COMPRESSION_JPEG;
-        break;
-    case TIFF_CLASS_R_PACKBITS:
-        Compression = COMPRESSION_PACKBITS;
         break;
     case TIFF_CLASS_R:
     case TIFF_CLASS_Y:

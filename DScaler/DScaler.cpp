@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.146 2002-04-13 18:56:22 laurentg Exp $
+// $Id: DScaler.cpp,v 1.147 2002-04-15 22:50:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.146  2002/04/13 18:56:22  laurentg
+// Checks added to manage case where the current source is not yet defined
+//
 // Revision 1.145  2002/04/06 11:46:46  laurentg
 // Check that the current source is not NULL to avoid DScaler exits
 //
@@ -2495,12 +2498,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     case UWM_INPUTSIZE_CHANGE:
         //the input source has changed its size, update overlay.
-
-        //for some reason when the input is a still source, WorkoutOverlaySize
-        //must be called twice to get the desired result
         WorkoutOverlaySize(FALSE);
         break;
     
+    case UWM_SQUAREPIXELS_CHECK:
+        if (Providers_GetCurrentSource() && (Providers_GetCurrentSource()->HasSquarePixels() != AspectSettings.SquarePixels))
+        {
+            AspectSettings.SquarePixels = !AspectSettings.SquarePixels;
+            WorkoutOverlaySize(TRUE);
+        }
+        break;
+
     //TJ 010506 make sure we dont erase the background
     //if we do, it will cause flickering when resizing the window
     //in future we migth need to adjust this to only erase parts not covered by overlay

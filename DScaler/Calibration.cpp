@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.55 2002-04-13 18:47:53 laurentg Exp $
+// $Id: Calibration.cpp,v 1.56 2002-04-15 22:50:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/04/13 18:47:53  laurentg
+// Management of still files improved
+//
 // Revision 1.54  2002/04/06 11:46:46  laurentg
 // Check that the current source is not NULL to avoid DScaler exits
 //
@@ -2365,6 +2368,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = pattern.GetHeight();
     m_pParent->m_Width = pattern.GetWidth();
+    m_pParent->m_SquarePixels = FALSE;
 
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.38 2002-04-10 07:14:50 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.39 2002-04-15 22:50:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/04/10 07:14:50  adcockj
+// Fixed crash on saving settings
+//
 // Revision 1.37  2002/04/07 10:37:53  adcockj
 // Made audio source work per input
 //
@@ -417,6 +420,7 @@ void CBT848Source::Start()
     {
         SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
     }
+    NotifySquarePixelsCheck();
 }
 
 void CBT848Source::Reset()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.18 2002-03-11 22:25:56 robmuller Exp $
+// $Id: DScaler.h,v 1.19 2002-04-15 22:50:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -102,6 +102,7 @@ HMENU GetPatternsSubmenu();
 
 #define WM_VIDEOTEXT        0x3001
 #define UWM_INPUTSIZE_CHANGE WM_APP+1
+#define UWM_SQUAREPIXELS_CHECK WM_APP+2
 #define VTM_REDRAWHEADER    0x0001
 
 extern HINSTANCE hDScalerInst;

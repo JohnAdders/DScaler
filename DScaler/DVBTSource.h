@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.8 2002-02-09 02:44:56 laurentg Exp $
+// $Id: DVBTSource.h,v 1.9 2002-04-15 22:50:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +61,7 @@ public:
     LPCSTR GetMenuLabel() {return NULL;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetOverscan();
+    BOOL HasSquarePixels() {return FALSE;};
 
 private:
     std::string  m_Section;

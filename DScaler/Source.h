@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.11 2002-02-19 16:03:36 tobbej Exp $
+// $Id: Source.h,v 1.12 2002-04-15 22:50:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -107,6 +107,7 @@ public:
     // Is access to this source allowed
     virtual BOOL IsAccessAllowed() = 0;
     virtual void SetOverscan() = 0;
+    virtual BOOL HasSquarePixels() = 0;
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
@@ -116,6 +117,8 @@ protected:
 	 * Call this function when the width and/or height has changed.
 	 */
 	void NotifySizeChange();
+
+    void NotifySquarePixelsCheck();
 
     double m_FieldFrequency;
     HMENU m_hMenu;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.48 2002-04-15 00:28:37 trbarry Exp $
+// $Id: StillSource.cpp,v 1.49 2002-04-15 22:50:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/04/15 00:28:37  trbarry
+// Remove size restrictions from StillSource. Also put run-time check in MemCpySSE to avoid crashing on P4.
+//
 // Revision 1.47  2002/04/14 17:25:26  laurentg
 // New formats of TIFF files supported to take stills : Class R (RGB) with compression LZW or Packbits or JPEG
 //
@@ -275,6 +278,7 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_Position = -1;
     m_SlideShowActive = FALSE;
     m_pMemcpy = NULL;
+    m_SquarePixels = TRUE;
 }
 
 CStillSource::~CStillSource()
@@ -425,6 +429,8 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
         {
             NotifySizeChange();
         }
+
+        NotifySquarePixelsCheck();
     }
 
     return FileRead;
@@ -521,6 +527,7 @@ BOOL CStillSource::ShowPreviousInPlayList()
 
 void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
+    m_SquarePixels = AspectSettings.SquarePixels;
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
     case STILL_TIFF_RGB:
@@ -530,23 +537,9 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
             OpenMediaFile(FilePath, FALSE);
             break;
         }
-    case STILL_TIFF_RGB_LZW:
-        {
-            CTiffHelper TiffHelper(this, TIFF_CLASS_R_LZW);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
-            OpenMediaFile(FilePath, FALSE);
-            break;
-        }
     case STILL_TIFF_RGB_JPEG:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_R_JPEG);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
-            OpenMediaFile(FilePath, FALSE);
-            break;
-        }
-    case STILL_TIFF_RGB_PACKBITS:
-        {
-            CTiffHelper TiffHelper(this, TIFF_CLASS_R_PACKBITS);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
             OpenMediaFile(FilePath, FALSE);
             break;
@@ -592,6 +585,9 @@ void CStillSource::Start()
         // current source when the file was loaded
         NotifySizeChange();
     }
+
+    NotifySquarePixelsCheck();
+
     m_LastTickCount = 0;
     m_NewFileRequested = STILL_REQ_NONE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.21 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Source.h,v 1.22 2002-04-15 22:50:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,7 @@ public:
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetOverscan();
+    BOOL HasSquarePixels() {return FALSE;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

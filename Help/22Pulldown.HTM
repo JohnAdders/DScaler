@@ -55,7 +55,10 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>Settings specific to 2:2 pulldown detection</p>
+<p>2:2 Pulldown detection uses the comb factor measurement to determine whether 
+the material was sourced from film or from video.  The default settings have been
+found to work with a wide range of inputs but there are problems with some highly
+detailed images.</p>
 
 <table border="1">
 <tr>
@@ -65,12 +68,55 @@ height="2"></td>
 </tr>
 
 <tr>
-<td>Sample</td>
-<td>0</td>
-<td>Put Description Here</td>
+<td>Pulldown Threshold Low</td>
+<td>40</td>
+<td>This is the percentage drop in comb factor that will be considered to be 
+a candidate film mode.</td>
 </tr>
-</table>
 
+<tr>
+<td>Pulldown Threshold High</td>
+<td>10</td>
+<td>This is the percentage increase in comb-factor that will be considered 
+evedence that we are no longer in film mode</td>
+</tr>
+
+<tr>
+<td>PAL Video Mode</td>
+<td>Greedy 2 Frame</td>
+<td>This is the mode that will be used when film mode has not been detected</td>
+</tr>
+
+<tr>
+<td>PAL Pulldown Repeat Count In</td>
+<td>3</td>
+<td>Number of times film mode must be spotted in a row before a switch to film mode</td>
+</tr>
+
+<tr>
+<td>PAL Pulldown Repeat Count Out</td>
+<td>1</td>
+<td>Each time bad pulldown is encountered the count is decremented starting at 
+"PAL Pulldown Repeat Count In", once the count reaches this 
+value then we go back to video mode.</td>
+</tr>
+
+<tr>
+<td>Max Calls to PAL Comb Method</td>
+<td>20</td>
+<td>If we have tuned off "Bad Pulldown Filter" then this is the number of calls
+allowed to the bad cadence method before switching back to video mode.
+</td>
+</tr>
+
+<tr>
+<td>PAL Bad Cadence Mode</td>
+<td>Greedy</td>
+<td>If we have tuned off "Bad Pulldown Filter" then this mode is activated when 
+ bad cadence is detected.</td>
+</tr>
+
+</table>
 <!-- #EndEditable -->
 </td>
 </tr>

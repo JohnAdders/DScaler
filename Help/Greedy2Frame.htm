@@ -3,7 +3,7 @@
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Overlay Settings</title>
+<title>DScaler -- Greedy 2 Frame Method</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -39,7 +39,7 @@ height="1"></td>
 <td colspan="2" align="right" valign="bottom"><font face=
 "Verdana, Arial, Helvetica, sans-serif" size="5"><b>
 <!-- #BeginEditable "Page%20Title" -->
-Overlay Settings
+Greedy 2 Frame Method
 <!-- #EndEditable --></b></font></td>
 </tr>
 
@@ -55,7 +55,16 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>Setting specific to the Overlay</p>
+<p>This method uses four fields and has a configuarable motion detect.  Motion is
+detected on a two pixel basis.</p>
+
+<p><b><font face="Arial" size="4">Who Should Use
+It?</font></b></p>
+
+<p>Everybody. This is the current default method for faster processors as it gives 
+the best all round performance.</p>
+
+<p><b><font face="Arial" size="4">Settings</font></b></p>
 
 <table border="1">
 <tr>
@@ -65,31 +74,19 @@ height="2"></td>
 </tr>
 
 <tr>
-<td>Back Buffers</td>
-<td>-1</td>
-<td>Number of back buffers to use. -1 means get maximun that card will support, 
-usually 2</td>
+<td>Greedy 2 Frame Luma Threshold</td>
+<td>4</td>
+<td>Luma differences above this will be interpreted as movement.</td>
 </tr>
 
 <tr>
-<td>Overlay Colorkey</td>
-<td>RGB(32,16,16)</td>
-<td>Color to use for the overlay colorkey.</td>
-</tr>
-
-<tr>
-<td>Use Overlay Controls</td>
-<td>OFF</td>
-<td>Should we control the Graphic card's overlay controls.</td>
-</tr>
-
-<tr>
-<td>Overlay ???</td>
-<td>n/a</td>
-<td>Allows setting of the graphic card's overlay controls.</td>
+<td>Greedy 2 Frame Chroma Threshold</td>
+<td>8</td>
+<td>Chroma differences above this will be interpreted as movement.</td>
 </tr>
 
 </table>
+
 
 <!-- #EndEditable -->
 </td>

@@ -55,7 +55,9 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>Shared settings for pulldown detection</p>
+<p>Shared settings for the pulldown detection routines.  THe setings here have been 
+tested over a wide variety of material and many of the other prameteres will change 
+if these are adjusted.  It is not recommended that any of these parameters are changed.</p>
 
 <table border="1">
 <tr>
@@ -65,12 +67,46 @@ height="2"></td>
 </tr>
 
 <tr>
-<td>Sample</td>
-<td>0</td>
-<td>Put Description Here</td>
+<td>Bit Shift</td>
+<td>12</td>
+<td>Used by the field difference method, the square of the differnce is right 
+shifted by this amount.</td>
 </tr>
-</table>
 
+<tr>
+<td>Comb Edge Detect</td>
+<td>625</td>
+<td>Not currently used</td>
+</tr>
+
+<tr>
+<td>Comb Jaggie Threshold</td>
+<td>73</td>
+<td>Used by the comb detection routine to spot weave artifacts.</td>
+</tr>
+
+<tr>
+<td>DiffThreshold</td>
+<td>224</td>
+<td>Not currently used</td>
+</tr>
+
+<tr>
+<td>Chroma Detect</td>
+<td>OFF</td>
+<td>Increase accuaracy of film detection by using chroma information as well as
+luma.  Switching this on uses more CPUO for film detection and may not improve 
+results on VCR material.</td>
+</tr>
+
+<tr>
+<td>Film Flip Delay</td>
+<td>0</td>
+<td>Number of field by which to delay flip, this can be used to align film modes 
+with greedy video modes so that judder does not occur on transitions.</td>
+</tr>
+
+</table>
 <!-- #EndEditable -->
 </td>
 </tr>

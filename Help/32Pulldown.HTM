@@ -53,7 +53,8 @@ height="2"></td>
 
 <tr>
 <td colspan="3"><!-- #BeginEditable "Text" -->
-<p>Settings specific to 3:2 pulldown detection</p>
+<p>The 3:2 pulldown detection method is based on <a href="32spec.htm">Mark Rejhon's 
+alogrithm</a>.  This uses field differences to detect field repeats.</p>
 
 <table border="1">
 <tr>
@@ -63,10 +64,84 @@ height="2"></td>
 </tr>
 
 <tr>
-<td>Sample</td>
-<td>0</td>
-<td>Put Description Here</td>
+<td>NTSC Video Mode</td>
+<td>ADaptive</td>
+<td>This is the mode that will be used when film mode has not been detected.</td>
 </tr>
+
+<tr>
+<td>NTSC Pulldown Repeat Count In</td>
+<td>3</td>
+<td>Number of times film mode must be spotted in a row before a switch to film mode</td>
+</tr>
+
+<tr>
+<td>NTSC Pulldown Repeat Count Out</td>
+<td>1</td>
+<td>Each time bad pulldown is encountered the count is decremented starting at 
+"PAL Pulldown Repeat Count In", once the count reaches this 
+value then we go back to video mode.</td>
+</tr>
+
+<tr>
+<td>Threshold 3:2 Pulldown</td>
+<td>15</td>
+<td>Field difference results below this value are considered to be matched for 
+the detection alogoritm</td>
+</tr>
+
+<tr>
+<td>Threshold 3:2 Pulldown Mismatch</td>
+<td>100</td>
+<td>Field difference results above this value are considered to indicate motion
+and will indicate bad cadence and are used in conjunction with the comb factor to switch 
+back to video.</td>
+</tr>
+
+<tr>
+<td>Threshold 3:2 Pulldown Comb</td>
+<td>300</td>
+<td>If there is motion as defined above and the absolute differnce between comb 
+factors exceeds this value then we switch to video.</td>
+</tr>
+
+<tr>
+<td>Bad Pulldown Filter</td>
+<td>ON</td>
+<td>If this flag is on then bad cadence switches straight back to video mode.  
+If off we go via an intermediate mode.  This corresponds to the "Fallback to Video on Bad Pulldown" 
+menu item.</td>
+</tr>
+
+<tr>
+<td>Pulldown Switch Interval</td>
+<td>3000</td>
+<td>If the time in ms between detecting different film modes is less than this 
+value then we don't switch to film.  This avoid problems with very poorly mastered
+material.</td>
+</tr>
+
+<tr>
+<td>Pulldown Switch Max</td>
+<td>4</td>
+<td>We track for fast switches once the number of switches is greater than this
+value</td>
+</tr>
+
+<tr>
+<td>Max Calls to Comb Method</td>
+<td>20</td>
+<td>If "Bad Pulldown Filter" is off then this is the number of times the interim 
+pulldown mode can be called.</td>
+</tr>
+
+<tr>
+<td>NTSC Bad Cadence Mode</td>
+<td>Greedy</td>
+<td>If "Bad Pulldown Filter" is off then this mode is used until either the above count 
+runs out or a new film mode is detected.</td>
+</tr>
+
 </table>
 
 <!-- #EndEditable -->

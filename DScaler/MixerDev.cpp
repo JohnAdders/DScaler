@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.24 2002-04-13 18:56:23 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.25 2002-08-18 13:30:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/04/13 18:56:23  laurentg
+// Checks added to manage case where the current source is not yet defined
+//
 // Revision 1.23  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -914,7 +917,7 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         "Input 5 Index", SLIDER, 0, (long*)&InputIndexes[4],
         -1, -1, 255, 1, 1,
         NULL,
-        "Mixer", "Input6Index", NULL,
+        "Mixer", "Input5Index", NULL,
     },
     {
         "Input 6 Index", SLIDER, 0, (long*)&InputIndexes[5],

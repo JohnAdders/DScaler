@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.8 2004-12-12 11:46:23 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.9 2004-12-16 04:53:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2004/12/12 11:46:23  atnak
+// Fixes bug with incorrect OutputPort active parsing.
+//
 // Revision 1.7  2004/12/08 21:25:21  atnak
 // Minor changes.
 //
@@ -62,6 +65,8 @@ static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes&, IN BYTE, IN bool);
 // referred to by its name in the card list ini files.
 const CParseConstant k_parseTunerConstants[] =
 {
+	PC( "AUTO",							TUNER_AUTODETECT				),
+	PC( "SETUP",						TUNER_USER_SETUP				),
 	PC( "ABSENT",						TUNER_ABSENT					),
 	PC( "PHILIPS_PAL_I",				TUNER_PHILIPS_PAL_I				),
 	PC( "PHILIPS_NTSC",					TUNER_PHILIPS_NTSC				),
@@ -190,7 +195,7 @@ BOOL ReadTunerProc(IN int report, IN const CParseTag* tag, IN unsigned char type
 	else if (report == REPORT_VALUE)
 	{
 		int n = value->GetNumber();
-		if (n < 0 || n >= TUNER_LASTONE)
+		if (n < TUNER_AUTODETECT || n >= TUNER_LASTONE)
 		{
 			throw string("Invalid tuner Id");
 		}

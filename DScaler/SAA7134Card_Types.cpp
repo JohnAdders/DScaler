@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.57 2004-12-12 12:01:42 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.58 2004-12-16 04:53:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2004/12/12 12:01:42  atnak
+// Audio crystal units were actually in MHz.
+//
 // Revision 1.56  2004/12/08 21:26:16  atnak
 // Fixed parsing audio crystal units "Hz" to "kHz" among other minor changes.
 //
@@ -458,6 +461,11 @@ void CSAA7134Card::ReadCardDefaultTunerProc(int report, const CParseTag* tag, un
     // Return TRUE means parseInfo->tunerInfo is ready.
     if (ReadTunerProc(report, tag, type, value, &parseInfo->tunerInfo))
     {
+        if (parseInfo->tunerInfo.tunerId == TUNER_AUTODETECT ||
+            parseInfo->tunerInfo.tunerId == TUNER_USER_SETUP)
+        {
+            throw string("Tuner id \"auto\" and \"setup\" are not supported.");
+        }
         parseInfo->pCurrentCard->TunerId = parseInfo->tunerInfo.tunerId;
     }
 }

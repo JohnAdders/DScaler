@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.27 2002-11-03 18:38:32 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.28 2002-11-06 20:02:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/11/03 18:38:32  adcockj
+// Fixes for cx2388x and PAL & NTSC
+//
 // Revision 1.26  2002/10/31 14:03:33  adcockj
 // Added Analogue blanking option to aspect code
 //
@@ -222,8 +225,8 @@ CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeig
     }
     else if(SourceHeight == 576)
     {
-        m_TopShift = 1;
-        m_BottomShift = 1;
+        m_TopShift = 0;
+        m_BottomShift = 2;
         m_LeftShift = SourceWidth * 8 / 720;
         m_RightShift = SourceWidth * 10 / 720;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.74 2002-10-27 12:18:51 laurentg Exp $
+// $Id: StillSource.cpp,v 1.75 2002-10-29 20:58:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/10/27 12:18:51  laurentg
+// New setting to define the number of consecutive stills
+//
 // Revision 1.73  2002/10/27 11:29:29  laurentg
 // New way to take stills - filling a memory buffer rather than the overlay
 //
@@ -271,7 +274,7 @@
 #include "Providers.h"
 #include "TiffHelper.h"
 #include "JpegHelper.h"
-#include "Calibration.h"
+#include "Pattern.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
 #include "Other.h"

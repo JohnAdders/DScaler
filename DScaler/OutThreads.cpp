@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.46 2001-11-26 13:02:27 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.47 2001-11-26 15:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.45  2001/11/24 18:05:23  laurentg
 // Managing of progressive source
 //
@@ -505,7 +508,25 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
             if(bIsPaused == FALSE)
             {
-				// Card calibration
+                // calculate History
+                if(Info.PictureHistory[1] == NULL)
+                {
+                    nHistory = 1;
+                }
+                else if(Info.PictureHistory[2] == NULL)
+                {
+                    nHistory = 2;
+                }
+                else if(Info.PictureHistory[3] == NULL)
+                {
+                    nHistory = 3;
+                }
+                else
+                {
+                    nHistory = 4;
+                }
+                
+                // Card calibration
 				if (pCalibration->IsRunning())
 				{
     				pCalibration->Make(&Info, GetTickCount());
@@ -516,7 +537,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 
                 // do any filters that operarate on the input
                 // only
-                SourceAspectAdjust = Filter_DoInput(&Info, (Info.bRunningLate || Info.bMissedFrame));
+                SourceAspectAdjust = Filter_DoInput(&Info, nHistory, (Info.bRunningLate || Info.bMissedFrame));
 
                 // NOTE: I might go ahead and make the TimeShift module an input
                 // filter at some point (i.e. FLT_TimeShift), but I'm not sure
@@ -526,37 +547,44 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 if(!Info.bMissedFrame)
                 {
-                    // WARNING : film detection calculations temporally
-                    // not executed for progressive source
+                    // do film detect
                     if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
-                    if(bAutoDetectMode == TRUE)
                     {
-                        if(bIsPAL)
+                        // we have an interlaced source
+                        if(bAutoDetectMode == TRUE)
                         {
-                            // we will need always need both comb and diff
-                            // for film detect to work properly
-                            PerformFilmDetectCalculations(&Info, TRUE, TRUE);
-                            UpdatePALPulldownMode(&Info);
+                            if(bIsPAL)
+                            {
+                                // we will need always need both comb and diff
+                                // for film detect to work properly
+                                PerformFilmDetectCalculations(&Info, TRUE, TRUE);
+                                UpdatePALPulldownMode(&Info);
+                            }
+                            else
+                            {
+                                // we will need always need diff
+                                // comb is needed in film Mode or when we ask for it
+                                PerformFilmDetectCalculations(&Info, 
+                                                            IsFilmMode() ||
+                                                                CurrentMethod->bNeedCombFactor,
+                                                            TRUE);
+                                UpdateNTSCPulldownMode(&Info);
+                            }
+                            // get the current method again
+                            // after the film Modes have been selected
+                            CurrentMethod = GetCurrentDeintMethod();
                         }
                         else
                         {
-                            // we will need always need diff
-                            // comb is needed in film Mode or when we ask for it
                             PerformFilmDetectCalculations(&Info, 
-                                                        IsFilmMode() ||
-                                                            CurrentMethod->bNeedCombFactor,
-                                                        TRUE);
-                            UpdateNTSCPulldownMode(&Info);
+                                                            CurrentMethod->bNeedCombFactor, 
+                                                            CurrentMethod->bNeedFieldDiff);
                         }
-                        // get the current method again
-                        // after the film Modes have been selected
-                        CurrentMethod = GetCurrentDeintMethod();
                     }
                     else
                     {
-                        PerformFilmDetectCalculations(&Info, 
-                                                        CurrentMethod->bNeedCombFactor, 
-                                                        CurrentMethod->bNeedFieldDiff);
+                        // we have an progressive source
+                        // don't know what to do with this yet
                     }
                 }
 
@@ -594,26 +622,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                         bOverlayLocked = TRUE;
 
-                        // calculate History
-                        if(Info.PictureHistory[1] == NULL)
-                        {
-                            nHistory = 1;
-                        }
-                        else if(Info.PictureHistory[2] == NULL)
-                        {
-                            nHistory = 2;
-                        }
-                        else if(Info.PictureHistory[3] == NULL)
-                        {
-                            nHistory = 3;
-                        }
-                        else
-                        {
-                            nHistory = 4;
-                        }
-
                         if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
                         {
+                            // if we are interlaced do the selected alogrithm
+
                             // if we have dropped a field then do BOB 
                             // or if we need to get more history
                             // if we are doing a half height Mode then just do that
@@ -630,6 +642,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                         else
                         {
+                            // if we have a progressive source just copy
+                            // input to output
                             if (Info.PictureHistory[0]->pData != NULL)
                             {
                                 BYTE *lpOverlay = Info.Overlay;
@@ -648,7 +662,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             // Do any filters that run on the output
                             // need to do this while the surface is locked
-                            Filter_DoOutput(&Info, Info.bMissedFrame);
+                            Filter_DoOutput(&Info, nHistory, Info.bMissedFrame);
                         }
 
                         // somewhere above we will have locked the buffer, unlock before flip

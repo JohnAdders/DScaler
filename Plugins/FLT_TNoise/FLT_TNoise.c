@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.3 2001-07-13 16:13:33 adcockj Exp $
+// $Id: FLT_TNoise.c,v 1.4 2001-11-26 15:27:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -77,6 +80,7 @@ FILTER_METHOD TemporalNoiseMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
+    DEINTERLACE_INFO_CURRENT_VERSION,
     "Temporal Noise Filter",
     "Noise Reduction (Temporal)\tN",
     FALSE,
@@ -91,6 +95,8 @@ FILTER_METHOD TemporalNoiseMethod =
     FLT_TNOISE_SETTING_LASTONE,
     FLT_TNoiseSettings,
     WM_FLT_TNOISE_GETVALUE - WM_USER,
+    TRUE,
+    3,
 };
 
 

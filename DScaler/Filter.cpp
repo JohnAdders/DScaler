@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.17 2001-11-23 10:49:17 adcockj Exp $
+// $Id: Filter.cpp,v 1.18 2001-11-26 15:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.16  2001/11/22 22:32:09  adcockj
 // Removed extra filer settings menu item
 //
@@ -77,7 +80,7 @@ long NumFilters = 0;
 
 FILTER_METHOD* Filters[100] = {NULL,};
 
-long Filter_DoInput(TDeinterlaceInfo* pInfo, BOOL HurryUp)
+long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
 {
     long SourceAspectAdjust = 1000;
     int i;
@@ -87,15 +90,22 @@ long Filter_DoInput(TDeinterlaceInfo* pInfo, BOOL HurryUp)
         {
             if(!HurryUp || Filters[i]->bAlwaysRun)
             {
-                SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
-                SourceAspectAdjust /= 1000;
+                if(History >= Filters[i]->HistoryRequired)
+                {
+                    if(!((pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_MASK) > 0) || 
+                        Filters[i]->CanDoInterlaced)
+                    {
+                        SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
+                        SourceAspectAdjust /= 1000;
+                    }
+                }
             }
         }
     }
     return SourceAspectAdjust;
 }
 
-void Filter_DoOutput(TDeinterlaceInfo* pInfo, BOOL HurryUp)
+void Filter_DoOutput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
 {
     int i;
     for(i = 0; i < NumFilters; i++)
@@ -104,7 +114,10 @@ void Filter_DoOutput(TDeinterlaceInfo* pInfo, BOOL HurryUp)
         {
             if(!HurryUp || Filters[i]->bAlwaysRun)
             {
-                Filters[i]->pfnAlgorithm(pInfo);
+                if(History >= Filters[i]->HistoryRequired)
+                {
+                    Filters[i]->pfnAlgorithm(pInfo);
+                }
             }
         }
     }
@@ -133,7 +146,8 @@ void LoadFilterPlugin(LPCSTR szFileName)
     if(pMethod != NULL)
     {
         if(pMethod->SizeOfStructure == sizeof(FILTER_METHOD) &&
-            pMethod->FilterStructureVersion >= FILTER_VERSION_1)
+            pMethod->FilterStructureVersion >= FILTER_VERSION_2 &&
+            pMethod->InfoStructureVersion == DEINTERLACE_INFO_CURRENT_VERSION)
         {
             Filters[NumFilters] = pMethod;
             pMethod->hModule = hPlugInMod;

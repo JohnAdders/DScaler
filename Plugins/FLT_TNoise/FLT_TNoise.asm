@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.asm,v 1.5 2001-11-22 22:27:00 adcockj Exp $
+// $Id: FLT_TNoise.asm,v 1.6 2001-11-26 15:27:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/22 22:27:00  adcockj
+// Bug Fixes
+//
 // Revision 1.4  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -60,13 +63,30 @@ long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
 #endif
 	
 	
-	if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[2] == NULL)
-	{
-		return 1000;
-	}
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
+    {
+        // if we have an interlaced source then we just want to
+        // compare the last two pictures with the same polarity
+	    if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[2] == NULL)
+	    {
+		    return 1000;
+	    }
 
-	NewLine = pInfo->PictureHistory[0]->pData;
-	OldLine = pInfo->PictureHistory[2]->pData;
+	    NewLine = pInfo->PictureHistory[0]->pData;
+	    OldLine = pInfo->PictureHistory[2]->pData;
+    }
+    else
+    {
+        // if we have a progresive source then we just want to
+        // compare the last two pictures
+	    if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
+	    {
+		    return 1000;
+	    }
+
+	    NewLine = pInfo->PictureHistory[0]->pData;
+	    OldLine = pInfo->PictureHistory[1]->pData;
+    }
 
     // Need to have the current and next-to-previous fields to do the filtering.
     if (NewLine == NULL || OldLine == NULL)

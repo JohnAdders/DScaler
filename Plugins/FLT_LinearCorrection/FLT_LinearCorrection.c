@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.14 2001-11-21 15:21:41 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.15 2001-11-26 15:27:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.13  2001/09/11 18:07:05  adcockj
 // Fix to prevent crashing with extream values
 //
@@ -603,6 +607,7 @@ FILTER_METHOD LinearCorrMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
+    DEINTERLACE_INFO_CURRENT_VERSION,
     "Linear Correction Filter",
     "&Linear Correction (experimental)",
     FALSE,
@@ -616,6 +621,8 @@ FILTER_METHOD LinearCorrMethod =
     FLT_LINEAR_CORR_SETTING_LASTONE,
     FLT_LinearCorrSettings,
     WM_FLT_LINEAR_CORR_GETVALUE - WM_USER,
+    TRUE,
+    1,
 };
 
 

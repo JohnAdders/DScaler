@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.4 2001-11-21 15:21:41 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.5 2001-11-26 15:27:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.3  2001/08/30 10:04:59  adcockj
 // Added a "trade speed for accuracy" mode which improves detection and
 //  correction of dot crawl by removing a feedback problem -- at the
@@ -204,6 +208,7 @@ static FILTER_METHOD TemporalCombMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
+    DEINTERLACE_INFO_CURRENT_VERSION,
     "Temporal Comb Filter",                 // Displayed name                          
     NULL,                                   // Use same name in menu
     FALSE,                                  // Not initially active
@@ -217,6 +222,8 @@ static FILTER_METHOD TemporalCombMethod =
     FLT_TCOMB_SETTING_LASTONE,              // Number of settings
     FLT_TemporalCombSettings,
     WM_FLT_TCOMB_GETVALUE - WM_USER,        // Settings offset
+    TRUE,
+    3,
 };
 
 

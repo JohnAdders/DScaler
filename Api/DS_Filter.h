@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Filter.h,v 1.5 2001-11-21 15:21:39 adcockj Exp $
+// $Id: DS_Filter.h,v 1.6 2001-11-26 15:27:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.4  2001/07/13 16:15:43  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -43,9 +47,10 @@ typedef void (__cdecl FILTERPLUGINEXIT)(void);
 
 // list of supported plugin versions
 #define FILTER_VERSION_1 1
+#define FILTER_VERSION_2 2
 
 // The current version
-#define FILTER_CURRENT_VERSION FILTER_VERSION_1
+#define FILTER_CURRENT_VERSION FILTER_VERSION_2
 
 
 typedef struct
@@ -58,6 +63,8 @@ typedef struct
     // be required
     // set to FILTER_CURRENT_VERSION
     long FilterStructureVersion;
+    // Set to DEINTERLACE_INFO_CURRENT_VERSION
+    long InfoStructureVersion;
     // What to display when selected
     char* szName;
     // What to put in the Menu (NULL to use szName)
@@ -84,6 +91,12 @@ typedef struct
     SETTING* pSettings;
     // the offset used by the external settings API
     long nSettingsOffset;
+    // can we cope with interlaced material
+    // is only checked for input filters
+    // outpuit filters are assumed not to care
+    BOOL CanDoInterlaced;
+    // How many pictures of history do we need to run
+    int HistoryRequired;
 } FILTER_METHOD;
 
 

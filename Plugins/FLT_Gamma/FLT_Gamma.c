@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.10 2001-11-21 15:21:41 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.11 2001-11-26 15:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.9  2001/10/17 11:45:17  adcockj
 // Corrected gamma settings and made gamma number similar to industry standard
 //
@@ -200,6 +204,7 @@ FILTER_METHOD GammaMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
+    DEINTERLACE_INFO_CURRENT_VERSION,
     "Gamma Filter",
     "&Gamma",
     FALSE,
@@ -213,6 +218,8 @@ FILTER_METHOD GammaMethod =
     FLT_GAMMA_SETTING_LASTONE,
     FLT_GammaSettings,
     WM_FLT_GAMMA_GETVALUE - WM_USER,
+    TRUE,
+    1,
 };
 
 

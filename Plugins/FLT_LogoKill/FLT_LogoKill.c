@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.7 2001-11-21 15:21:41 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.8 2001-11-26 15:27:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.6  2001/08/09 21:34:59  adcockj
 // Fixed bugs raise by Timo and Keld
 //
@@ -332,6 +336,7 @@ FILTER_METHOD LogoKillMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
+    DEINTERLACE_INFO_CURRENT_VERSION,
     "Logo Killer Filter",
     "&Logo Killer (experimental)",
     FALSE,
@@ -345,6 +350,8 @@ FILTER_METHOD LogoKillMethod =
     FLT_LOGOKILL_SETTING_LASTONE,
     FLT_LogoKillSettings,
     WM_FLT_LOGOKILL_GETVALUE - WM_USER,
+    TRUE,
+    1,
 };
 
 

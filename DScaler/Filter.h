@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.h,v 1.10 2001-11-21 15:21:39 adcockj Exp $
+// $Id: Filter.h,v 1.11 2001-11-26 15:27:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ void Filter_SetMenu(HMENU hMenu);
 void Filter_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 
 
-long Filter_DoInput(TDeinterlaceInfo* Info, BOOL HurryUp);
-void Filter_DoOutput(TDeinterlaceInfo* Info, BOOL HurryUp);
+long Filter_DoInput(TDeinterlaceInfo* Info, int History, BOOL HurryUp);
+void Filter_DoOutput(TDeinterlaceInfo* Info, int History, BOOL HurryUp);
 
 #endif

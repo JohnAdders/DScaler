@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Tuner.cpp,v 1.5 2005-03-09 09:35:16 atnak Exp $
+// $Id: CX2388xCard_Tuner.cpp,v 1.6 2005-03-09 09:49:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.4  2005/03/06 14:05:51  to_see
 // Hauppauge Autodetection updated
 //
@@ -154,10 +158,15 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
             m_Tuner->SetI2CBus(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
-            bFoundTuner = TRUE;
-            LOG(1,"Tuner: Found at I2C address 0x%02x",test);
-            break;
+
+            // Initialize the tuner.
+            if (m_Tuner->InitializeTuner())
+            {
+                sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
+                bFoundTuner = TRUE;
+                LOG(1,"Tuner: Found at I2C address 0x%02x",test);
+                break;
+            }
         }
     }
 

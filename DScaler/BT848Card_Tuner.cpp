@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.18 2005-03-09 09:35:16 atnak Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.19 2005-03-09 09:49:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.17  2004/04/19 20:38:37  adcockj
 // Fix for previous fix (must learn to program...)
 //
@@ -264,10 +268,15 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
             m_Tuner->SetI2CBus(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
-            bFoundTuner = TRUE;
-            LOG(1,"Tuner: Found at I2C address 0x%02x",test);
-            break;
+
+            // Initialize the tuner.
+            if (m_Tuner->InitializeTuner())
+            {
+                sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
+                bFoundTuner = TRUE;
+                LOG(1,"Tuner: Found at I2C address 0x%02x",test);
+                break;
+            }
         }
     }
 

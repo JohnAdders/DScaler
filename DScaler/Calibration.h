@@ -325,6 +325,8 @@ private:
     int current_val2;
     int best_val2;
     int min_dif;
+    int total_dif;
+    int nb_calcul;
 };
 
 

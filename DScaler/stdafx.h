@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.22 2005-03-11 14:54:41 adcockj Exp $
+// $Id: stdafx.h,v 1.23 2005-03-20 14:06:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2005/03/11 14:54:41  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.21  2005/03/07 21:44:13  adcockj
 // More prep for new release
 //
@@ -81,6 +84,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#define WINVER 0x0501
+#define _WIN32_WINNT 0x0501
 
 #define VC_EXTRALEAN
 #include <afxwin.h>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.49 2002-10-31 14:03:33 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.50 2003-01-03 00:54:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/10/31 14:03:33  adcockj
+// Added Analogue blanking option to aspect code
+//
 // Revision 1.48  2002/10/15 18:56:20  kooiman
 // Fixed zooming bug. Zooming out and in brings you back to 1.00 (Zoom off) again.
 //
@@ -191,27 +194,58 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItem(hMenu, IDM_SASPECT_200A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_235A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_UNCHECKED);
+    CheckMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_UNCHECKED);
 
-    if(AspectSettings.AutoDetectAspect)
+    if(AspectSettings.AutoDetectAspect == 1)
     {
-        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_GRAYED);
         ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Non Anamorphic");
         ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "Anamo&rphic");
+        EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_ENABLED);
+    }
+    else if(AspectSettings.AutoDetectAspect == 2)
+    {
+        ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Non Anamorphic");
+        ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "Anamo&rphic");
+        EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_GRAYED);
     }
     else
     {
-        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_ENABLED);
         ModifyMenu(hMenu, IDM_ASPECT_LETTERBOX, MF_STRING, IDM_ASPECT_LETTERBOX, "&Letterboxed");
         ModifyMenu(hMenu, IDM_ASPECT_ANAMORPHIC, MF_STRING, IDM_ASPECT_ANAMORPHIC, "&16:9 Anamorphic");
+        EnableMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_ENABLED);
     }
 
     if(AspectSettings.SquarePixels)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_SQUARE, MF_CHECKED);
     }
-    else if(AspectSettings.AutoDetectAspect)
+    else if(AspectSettings.AutoDetectAspect == 1)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_CHECKED);
+        if (AspectSettings.AspectMode == 1)
+        {
+            CheckMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_CHECKED);
+        }
+        else if (AspectSettings.AspectMode == 2)
+        {
+            CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_CHECKED); 
+        }
+    }
+    else if(AspectSettings.AutoDetectAspect == 2)
+    {
+        CheckMenuItem(hMenu, IDM_SASPECT_AUTO2_TOGGLE, MF_CHECKED);
         if (AspectSettings.AspectMode == 1)
         {
             CheckMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_CHECKED);
@@ -328,7 +362,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     // Easily Accessible Aspect Ratios
     case IDM_ASPECT_FULLSCREEN:
         AspectSettings.SquarePixels = FALSE;
-        if (AspectSettings.AutoDetectAspect)
+        if (AspectSettings.AutoDetectAspect == 1)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
@@ -336,15 +370,19 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd, "Nonanamorphic Signal");
             AspectSettings.DetectAspectNow = TRUE;
         }
-        else
+        else if (AspectSettings.AutoDetectAspect == 0)
         {
             SwitchToRatio(AR_NONANAMORPHIC, 1333);
             ShowText(hWnd, "4:3 Fullscreen Signal");
         }
+		else
+		{
+            ShowText(hWnd, "Command refused");
+		}
         break;
     case IDM_ASPECT_LETTERBOX:
         AspectSettings.SquarePixels = FALSE;
-        if (AspectSettings.AutoDetectAspect)
+        if (AspectSettings.AutoDetectAspect == 1)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
@@ -352,26 +390,34 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd, "Nonanamorphic Signal");
             AspectSettings.DetectAspectNow = TRUE;
         }
-        else
+        else if (AspectSettings.AutoDetectAspect == 0)
         {
             SwitchToRatio(AR_NONANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Letterbox Signal");
         }
+		else
+		{
+            ShowText(hWnd, "Command refused");
+		}
         break;
     case IDM_ASPECT_ANAMORPHIC:
         AspectSettings.SquarePixels = FALSE;
-        if (AspectSettings.AutoDetectAspect)
+        if (AspectSettings.AutoDetectAspect == 1)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             SwitchToRatio(AR_ANAMORPHIC, -1);
             ShowText(hWnd, "Anamorphic Signal");
             AspectSettings.DetectAspectNow = TRUE;
         }
-        else
+        else if (AspectSettings.AutoDetectAspect == 0)
         {
             SwitchToRatio(AR_ANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Anamorphic Signal");
         }
+		else
+		{
+            ShowText(hWnd, "Command refused");
+		}
         break;
 
     //------------------------------------------------------------------
@@ -424,44 +470,51 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     //-----------------------------------------------------------------
     // Autodetect aspect ratio toggles
     case IDM_SASPECT_AUTO_ON:
-        AspectSettings.AutoDetectAspect = TRUE;
-        ShowText(hWnd, "Auto Aspect Detect ON");
-        UpdateSquarePixelsMode(FALSE);
-        if (AspectSettings.bUseWSS)
-        {
-            if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
-            {
-                Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
-                WSSWasEnabled = TRUE;
-            }
-            if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
-            {
-                SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
-            }
-        }
+		if (AspectSettings.AutoDetectAspect == 0)
+		{
+			AspectSettings.AutoDetectAspect = 1;
+			ShowText(hWnd, "Auto Detect Black Bars ON");
+			UpdateSquarePixelsMode(FALSE);
+			if (AspectSettings.bUseWSS)
+			{
+				if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+				{
+					Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+					WSSWasEnabled = TRUE;
+				}
+				if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+				}
+			}
+		}
         break;
     case IDM_SASPECT_AUTO_OFF:
-        AspectSettings.AutoDetectAspect = FALSE;
-        ShowText(hWnd, "Auto Aspect Detect OFF");
-        if (AspectSettings.bUseWSS && WSSWasEnabled)
-        {
-            if (Setting_GetValue(VBI_GetSetting(DOWSS)))
-            {
-                Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
-            }
-            WSSWasEnabled = FALSE;
-        }
+		if (AspectSettings.AutoDetectAspect == 1)
+		{
+			AspectSettings.AutoDetectAspect = 0;
+			ShowText(hWnd, "Auto Detect Black Bars OFF");
+			if (AspectSettings.bUseWSS && WSSWasEnabled)
+			{
+				if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+				{
+					Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+				}
+				WSSWasEnabled = FALSE;
+			}
+		}
         break;
     case IDM_SASPECT_AUTO_TOGGLE:
-        AspectSettings.AutoDetectAspect = !AspectSettings.AutoDetectAspect;
-        if (AspectSettings.AutoDetectAspect)
-        {
-            ShowText(hWnd, "Auto Aspect Detect ON");
-        }
-        else
-        {
-            ShowText(hWnd, "Auto Aspect Detect OFF");
-        }
+		if (AspectSettings.AutoDetectAspect != 0)
+		{
+			AspectSettings.AutoDetectAspect = 0;
+            ShowText(hWnd, "Auto Detect Black Bars OFF");
+		}
+		else
+		{
+			AspectSettings.AutoDetectAspect = 1;
+            ShowText(hWnd, "Auto Detect Black Bars ON");
+		}
         UpdateSquarePixelsMode(FALSE);
         if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
         {
@@ -476,6 +529,39 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             }
         }
         else if (AspectSettings.bUseWSS && WSSWasEnabled)
+        {
+            if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+            {
+                Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+            }
+            WSSWasEnabled = FALSE;
+        }
+        break;
+    case IDM_SASPECT_AUTO2_TOGGLE:
+		if (AspectSettings.AutoDetectAspect != 0)
+		{
+			AspectSettings.AutoDetectAspect = 0;
+            ShowText(hWnd, "Auto Detect Aspect Data OFF");
+		}
+		else
+		{
+			AspectSettings.AutoDetectAspect = 2;
+            ShowText(hWnd, "Auto Detect Aspect Data ON");
+		}
+        UpdateSquarePixelsMode(FALSE);
+        if (AspectSettings.AutoDetectAspect)
+        {
+            if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+            {
+                Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                WSSWasEnabled = TRUE;
+            }
+            if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+            }
+        }
+        else if (WSSWasEnabled)
         {
             if (Setting_GetValue(VBI_GetSetting(DOWSS)))
             {
@@ -693,91 +779,91 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         switch (wMenuID) 
         {
         case IDM_SASPECT_0:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_STRETCH, 0);
             ShowText(hWnd, "Stretch Video");
             break;
         case IDM_SASPECT_133:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1333);
             ShowText(hWnd, "4:3 Fullscreen Signal");
             break;
         case IDM_SASPECT_144:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1444);
             ShowText(hWnd, "1.44:1 Letterbox Signal");
             break;
         case IDM_SASPECT_155:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1555);
             ShowText(hWnd, "1.55:1 Letterbox Signal");
             break;
         case IDM_SASPECT_166:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1667);
             ShowText(hWnd, "1.66:1 Letterbox Signal");
             break;
         case IDM_SASPECT_178:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Letterbox Signal");
             break;
         case IDM_SASPECT_185:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1850);
             ShowText(hWnd, "1.85:1 Letterbox Signal");
             break;
         case IDM_SASPECT_200:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 2000);
             ShowText(hWnd, "2.00:1 Letterbox Signal");
             break;
         case IDM_SASPECT_235:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 2350);
             ShowText(hWnd, "2.35:1 Letterbox Signal");
             break;
         case IDM_SASPECT_166A:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1667);
             ShowText(hWnd, "1.66:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_178A:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_185A:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1850);
             ShowText(hWnd, "1.85:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_200A:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 2000);
             ShowText(hWnd, "2.00:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_235A:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 2350);
             ShowText(hWnd, "2.35:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_CUSTOM:
-            AspectSettings.AutoDetectAspect = FALSE;
+            AspectSettings.AutoDetectAspect = 0;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, AspectSettings.CustomSourceAspect);
             ShowText(hWnd, "Custom Aspect Ratio Signal");
@@ -937,7 +1023,7 @@ BOOL CustomTargetAspect_OnChange(long NewValue)
 
 BOOL SourceAspect_OnChange(long NewValue)
 {
-    AspectSettings.AutoDetectAspect = FALSE;
+    AspectSettings.AutoDetectAspect = 0;
     AspectSettings.SourceAspect = NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
@@ -945,7 +1031,7 @@ BOOL SourceAspect_OnChange(long NewValue)
 
 BOOL CustomSourceAspect_OnChange(long NewValue)
 {
-    AspectSettings.AutoDetectAspect = FALSE;
+    AspectSettings.AutoDetectAspect = 0;
     AspectSettings.CustomSourceAspect = NewValue;
     AspectSettings.SourceAspect = NewValue;
     WorkoutOverlaySize(TRUE);
@@ -1100,8 +1186,8 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "ASPECT_DETECT", "IgnoreNonBlackPixels", NULL,
     },
     {
-        "Auto Detect Aspect", ONOFF, 0, (long*)&AspectSettings.AutoDetectAspect,
-        FALSE, 0, 1, 1, 1,
+        "Auto Detect Aspect", SLIDER, 0, (long*)&AspectSettings.AutoDetectAspect,
+        0, 0, 2, 1, 1,
         NULL,
         "ASPECT_DETECT", "AutoDetectAspect", NULL,
     },

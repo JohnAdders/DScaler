@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.34 2002-10-31 14:03:33 adcockj Exp $
+// $Id: AspectRatio.h,v 1.35 2003-01-03 00:54:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -136,8 +136,8 @@ typedef struct
     */
     long SkipPercent;
 
-    /// Nonzero to continuously scan for aspect ratio changes.
-    BOOL AutoDetectAspect;
+    /// 0 = no ratio detection, 1 = black bars detection, 2 = AR detection using only WSS
+    int AutoDetectAspect;
 
     /** For aspect autodetect, require the same aspect ratio for this number of
         frames before zooming in.

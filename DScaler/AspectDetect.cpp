@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.32 2002-06-24 21:49:28 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.33 2003-01-03 00:54:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/06/24 21:49:28  laurentg
+// New option to use or not WSS data when doing AR detection
+//
 // Revision 1.31  2002/06/23 20:06:53  laurentg
 // Patch regarding call to WorkoutOverlaySize to have something working in all cases
 //
@@ -522,26 +525,35 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
 			return;
 		}
 
-        if (AspectSettings.bUseWSS && AspectSettings.bUseOnlyWSS)
+        if (AspectSettings.AutoDetectAspect == 2)
         {
-            newRatio = AspectSettings.SourceAspect;
+			if (!WSS_GetRecommendedAR(&newMode, &newRatio))
+			{
+	            newRatio = 1333;
+				newMode = 1;
+				WssSourceRatio = -1;
+			}
+			else
+			{
+				WssSourceRatio = newRatio;
+			}
         }
         else
         {
 	    	newRatio = FindAspectRatio(pInfo);
-        }
 
-        // Get aspect ratio from WSS data
-        // (WssSourceRatio = -1 if ratio is not defined in WSS data)
-        if (!AspectSettings.bUseWSS || ! WSS_GetRecommendedAR(&newMode, &WssSourceRatio))
-        {
-            newMode = AspectSettings.AspectMode;
-            WssSourceRatio = -1;
-        }
-        // The ratio must be at least the ratio defined in WSS data
-        else if (AspectSettings.bUseOnlyWSS || newRatio < WssSourceRatio)
-        {
-            newRatio = WssSourceRatio;
+			// Get aspect ratio from WSS data
+			// (WssSourceRatio = -1 if ratio is not defined in WSS data)
+			if (!AspectSettings.bUseWSS || !WSS_GetRecommendedAR(&newMode, &WssSourceRatio))
+			{
+				newMode = AspectSettings.AspectMode;
+				WssSourceRatio = -1;
+			}
+			// The ratio must be at least the ratio defined in WSS data
+			else if (newRatio < WssSourceRatio)
+			{
+				newRatio = WssSourceRatio;
+			}
         }
 
         if (bIsFullScreen && AspectSettings.TargetAspect && !AspectSettings.bAllowGreaterThanScreen)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.19 2003-01-01 20:53:11 atnak Exp $
+// $Id: VBI.cpp,v 1.20 2003-01-03 00:54:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/01 20:53:11  atnak
+// Updates for various VideoText and VPS changes/reorganization
+//
 // Revision 1.18  2002/10/30 13:37:52  atnak
 // Added "Single key teletext toggle" option. (Enables mixed mode menu item)
 //
@@ -285,8 +288,8 @@ void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 void VBI_SetMenu(HMENU hMenu)
 {
-    int i;
-    BOOL LockWSS = Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)) && Setting_GetValue(Aspect_GetSetting(USEWSS));
+    int i = Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT));
+    BOOL LockWSS = (i == 2) || ( (i == 1) && Setting_GetValue(Aspect_GetSetting(USEWSS)) );
 
     EnableMenuItem(hMenu, IDM_PDC_OUT, MF_GRAYED);
     EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);

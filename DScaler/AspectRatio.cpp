@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.38 2002-10-31 14:03:33 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.39 2003-01-03 00:54:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/10/31 14:03:33  adcockj
+// Added Analogue blanking option to aspect code
+//
 // Revision 1.37  2002/09/18 11:38:05  kooiman
 // Preparations for skinned dscaler look.
 //
@@ -165,7 +168,7 @@
 
 TAspectSettings AspectSettings =
 {
-    1333,0,1,0,0,40,16,TRUE,3,17,FALSE,60,3,300,15,20,
+    1333,0,1,0,0,40,16,TRUE,3,17,0,60,3,300,15,20,
     2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
     {0,0,0,0},
     {0,0,0,0},
@@ -416,7 +419,7 @@ int UpdateSquarePixelsMode(BOOL set)
 {
     static int SavedSourceAspect = -1;
     static int SavedAspectMode = -1;
-    static BOOL SavedAutodetectAspect = FALSE;
+    static int SavedAutodetectAspect = 0;
     int result = 0;
 
     if (set)
@@ -428,7 +431,7 @@ int UpdateSquarePixelsMode(BOOL set)
             SavedAutodetectAspect = AspectSettings.AutoDetectAspect;
             result = 1;
         }
-        AspectSettings.AutoDetectAspect = FALSE;
+        AspectSettings.AutoDetectAspect = 0;
         if (Providers_GetCurrentSource() != NULL)
         {
             int width = Providers_GetCurrentSource()->GetWidth();

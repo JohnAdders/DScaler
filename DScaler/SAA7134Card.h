@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.29 2002-12-24 08:22:14 atnak Exp $
+// $Id: SAA7134Card.h,v 1.30 2003-02-12 22:09:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/12/24 08:22:14  atnak
+// Added Prime 7133 card
+//
 // Revision 1.28  2002/12/14 00:29:35  atnak
 // Added Manli M-TV001 card
 //
@@ -429,6 +432,7 @@ private:
     void MEDION5044CardInputSelect(int nInput);
     void KWTV713XRFCardInputSelect(int nInput);
     void ManliMTV001CardInputSelect(int nInput);
+    void ManliMTV002CardInputSelect(int nInput);
     void PrimeTV7133CardInputSelect(int nInput);
 
 

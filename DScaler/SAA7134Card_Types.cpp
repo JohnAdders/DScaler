@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.24 2003-02-06 21:30:44 ittarnavsky Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.25 2003-02-12 22:09:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/02/06 21:30:44  ittarnavsky
+// changes to support primetv 7133
+//
 // Revision 1.23  2003/02/03 07:00:52  atnak
 // Added Typhoon TV-Radio 90031
 //
@@ -673,6 +676,42 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
+    // SAA7134CARDID_MANLIMTV002 - Manli M-TV002 (saa7130)
+    // Thanks "Patrik Gloncak" <gloncak@ho...>
+    {
+        "Manli M-TV002",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_LG_B11D_PAL,  // Might need to be LG TPI8PSB12P PAL B/G
+        AUDIOCRYSTAL_NONE,
+        NULL,
+        ManliMTV002CardInputSelect,
+    },
 };
 
 
@@ -922,6 +961,20 @@ void CSAA7134Card::ManliMTV001CardInputSelect(int nInput)
     case 2:
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x6000);
+        break;
+    default:
+        break;
+    }
+}
+
+
+void CSAA7134Card::ManliMTV002CardInputSelect(int nInput)
+{
+    StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case -1: // Ending cleanup
+        SetAudioSource(AUDIOINPUTSOURCE_DAC);
         break;
     default:
         break;

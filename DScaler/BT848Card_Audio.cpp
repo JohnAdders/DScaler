@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.26 2002-10-26 17:47:54 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.27 2002-10-27 12:33:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/26 17:47:54  adcockj
+// Corrected UseInputPin1 code
+//
 // Revision 1.25  2002/10/15 19:16:29  kooiman
 // Fixed Spatial effect for Audio decoder & MSP
 //
@@ -121,7 +124,7 @@
 #include "Bt8x8GPIOAudioDecoderWinDVR.h"
 #include "Bt8x8GPIOAudioDecoderWinFast2000.h"
 
-void CBT848Card::InitAudio()
+void CBT848Card::InitAudio(bool UsePin1)
 {
     // Initialize  m_AudioDecoder and m_AudioControls
     if (m_AudioControls != NULL)
@@ -160,6 +163,7 @@ void CBT848Card::InitAudio()
     
         // need to create two so that we can delete all objects properly
         CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
+        MSPDecoder->SetUseInputPin1(UsePin1);
         MSPDecoder->Attach(m_I2CBus);
 
         m_AudioDecoder =  MSPDecoder;

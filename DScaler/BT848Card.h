@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.35 2002-10-26 15:37:55 adcockj Exp $
+// $Id: BT848Card.h,v 1.36 2002-10-27 12:33:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/10/26 15:37:55  adcockj
+// Made ITuner more abstract by removing inheritance from CI2CDevice
+// New class II2CTuner created for tuners that are controled by I2C
+//
 // Revision 1.34  2002/10/15 19:16:29  kooiman
 // Fixed Spatial effect for Audio decoder & MSP
 //
@@ -280,7 +284,7 @@ public:
     void StopCapture();
     void StartCapture(BOOL bCaptureVBI);
 
-    void InitAudio();
+    void InitAudio(bool UsePin1);
 
     // AudioControls facade
     void SetAudioMute();

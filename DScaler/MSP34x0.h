@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.21 2002-10-11 21:50:02 ittarnavsky Exp $
+// $Id: MSP34x0.h,v 1.22 2002-10-27 12:33:33 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/10/11 21:50:02  ittarnavsky
+// moved the CMSP34x0Decoder to a separate file and renamed to CMSP34x0AudioDecoder
+//
 // Revision 1.20  2002/09/27 14:14:22  kooiman
 // MSP34xx fixes.
 //
@@ -118,6 +121,7 @@ protected:
 
     enum eDEMReadRegister
     {
+        DEM_RD_MODUS = 0x0030,
         DEM_RD_STANDARD_RESULT = 0x007E,
         DEM_RD_STATUS = 0x0200,
         DEM_RD_C_AD_BITS = 0x0023,

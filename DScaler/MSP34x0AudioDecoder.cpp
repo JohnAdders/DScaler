@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.cpp,v 1.2 2002-10-16 21:59:47 kooiman Exp $
+// $Id: MSP34x0AudioDecoder.cpp,v 1.3 2002-10-27 12:33:33 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/16 21:59:47  kooiman
+// Suspend thread instead of creating/closing the thread for each stereo detection.
+//
 // Revision 1.1  2002/10/11 21:51:21  ittarnavsky
 // moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
 //
@@ -89,7 +92,10 @@ bool CMSP34x0AudioDecoder::GetUseInputPin1()
 void CMSP34x0AudioDecoder::SetUseInputPin1(bool AValue)
 {
     m_bUseInputPin1 = AValue;
-    // \todo: force setstandard & channel
+    if(m_IsInitialized)
+    {
+        SetAudioStandard(m_AudioStandard, m_VideoFormat);
+    }
 }
 
 ////

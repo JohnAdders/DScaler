@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.9 2002-11-04 01:09:12 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.10 2002-11-04 02:01:16 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/04 01:09:12  lindsey
+// Slightly changed the response curve to more closely resemble the
+// chi-squaredish optimum; Reduced the default parameter value
+//
 // Revision 1.8  2002/08/07 00:42:38  lindsey
 // Made prefetching into a user option.
 //
@@ -199,13 +203,13 @@ MAINLOOP_LABEL:
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
             psrlq   mm2, 16                 // mm2 (low word) = FFFF if ignoring old pixel value (else 0)
 
-            movq    mm4, qwHighTail         // mm4 = 1.2 (in 0x10000 fixed point) &&&&&
-            pcmpgtd mm4, mm3                // mm4 = low dword on if multiplier is less than the "tail" threshold &&&&
-            psrlq   mm4, 31                 // mm4 = 1 if multiplier is less than the "tail" threshold  &&&&
-            pand    mm4, mm2                // mm4 = 1 if multiplier is in the "tail" ( 0x14000 > multiplier > 0x0FFFF )  &&&&
+            movq    mm4, qwHighTail         // mm4 = 1.2 (in 0x10000 fixed point)
+            pcmpgtd mm4, mm3                // mm4 = low dword on if multiplier is less than the "tail" threshold
+            psrlq   mm4, 31                 // mm4 = 1 if multiplier is less than the "tail" threshold
+            pand    mm4, mm2                // mm4 = 1 if multiplier is in the "tail" ( 0x14000 > multiplier > 0x0FFFF )
 
             por     mm3, mm2                // mm3 = (low word) Adjusted multiplier to move toward new
-            psubusw mm3, mm4                // mm3 = (low word) Adjusted multiplier to move toward new, with tail correction &&&&
+            psubusw mm3, mm4                // mm3 = (low word) Adjusted multiplier to move toward new, with tail correction
 #if defined( IS_SSE )
             pshufw  mm2, mm3, 0x00          // * mm2 = (wordwise) adjusted multiplier to move toward new
 #else   // IS_MMX or IS_3DNOW

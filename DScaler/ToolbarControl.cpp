@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.6 2003-08-09 14:44:57 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.7 2003-08-09 20:18:37 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/08/09 14:44:57  laurentg
+// Bug fixed regarding switch between top and bottom position for the toolbar
+//
 // Revision 1.5  2003/04/28 17:32:00  laurentg
 // Fix to avoid crash when exiting
 //
@@ -512,6 +515,24 @@ BOOL CToolbarControl::PtInToolbar(POINT Pt)
 	return FALSE;
 }
 
+void CToolbarControl::AutomaticDisplay(POINT Pt)
+{
+	if ((Toolbar1 != NULL) && m_ShowToolbar1->GetValue())
+	{
+		RECT Rc;
+		GetWindowRect(Toolbar1->GethWnd(), &Rc);
+		BOOL IsInBar = PtInRect(&Rc, Pt);
+		if (IsInBar && !Toolbar1->Visible())
+		{
+			Set(hWnd, NULL, 0);
+		}
+		else if (!IsInBar && Toolbar1->Visible())
+		{
+			Set(hWnd, NULL, 1);
+		}
+	}
+}
+
 //Delete all toolbars & childs
 void CToolbarControl::Free()
 {
@@ -581,6 +602,7 @@ void CToolbarControl::UpdateMenu(HMENU hMenu)
 //Process menu commands
 BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 {
+	extern BOOL bIsFullScreen;
     switch (uItem)
     {
     case IDM_VIEW_TOOLBARS_MAINTOOLBAR: 
@@ -595,7 +617,7 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 			CToolbarControl::Set(hWnd, NULL);
 		}
 		WorkoutOverlaySize(TRUE);
-		CToolbarControl::Set(hWnd, NULL);
+		CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
         break;
     case IDM_VIEW_MAINTOOLBAR_TOP:
         if (m_Toolbar1Position->GetValue() == 1)
@@ -616,7 +638,7 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 		}
         CToolbarControl::Set(hWnd, NULL);
         WorkoutOverlaySize(TRUE);
-		CToolbarControl::Set(hWnd, NULL);
+		CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
         break;
     case IDM_VIEW_MAINTOOLBAR_CHANNELS:
 		{
@@ -625,14 +647,14 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 			m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );
 			CToolbarControl::Set(hWnd, NULL);        
 			WorkoutOverlaySize(TRUE);
-			CToolbarControl::Set(hWnd, NULL);
+			CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
 		}
         break;
     case IDM_VIEW_MAINTOOLBAR_VOLUME:
         m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), HIWORD(m_Toolbar1Volume->GetValue())?0:1) );
         CToolbarControl::Set(hWnd, NULL);
         WorkoutOverlaySize(TRUE);
-		CToolbarControl::Set(hWnd, NULL);
+		CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
         break;
     default:
         return FALSE;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.335 2003-08-09 15:53:39 laurentg Exp $
+// $Id: DScaler.cpp,v 1.336 2003-08-09 20:18:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.335  2003/08/09 15:53:39  laurentg
+// Bad refresh of the toolbar when in full screen mode corrected
+//
 // Revision 1.334  2003/08/09 13:03:09  laurentg
 // Display of the toolbar in full screen mode
 //
@@ -4040,7 +4043,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             SetWindowBorder(hWnd, szSkinName, FALSE);
             if (ToolbarControl!=NULL)
             {
-                ToolbarControl->Set(hWnd, szSkinName);
+                ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
             }
             UpdateWindowState();
 			WorkoutOverlaySize(FALSE);
@@ -4061,7 +4064,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 SetWindowBorder(hWnd, szSkinName, TRUE);  
                 if (ToolbarControl!=NULL)
                 {
-                    ToolbarControl->Set(hWnd, szSkinName);
+                    ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);
                 }
                 UpdateWindowState();            
 				WorkoutOverlaySize(FALSE);
@@ -4257,6 +4260,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     Cursor_VTUpdate(newx, newy);
                 }
+				if (bIsFullScreen && ToolbarControl != NULL)
+				{
+					POINT Point;
+					Point.x = x;
+					Point.y = y;
+					ToolbarControl->AutomaticDisplay(Point);
+				}
             }
         }
         return 0;
@@ -4858,7 +4868,6 @@ void MainWndOnInitBT(HWND hWnd)
         if (ToolbarControl == NULL)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
-//			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
 			ToolbarControl->Set(hWnd, NULL);
         }
 
@@ -4869,9 +4878,16 @@ void MainWndOnInitBT(HWND hWnd)
             SetWindowBorder(hWnd, szSkinName, (szSkinName[0]!=0));  
             if (ToolbarControl!=NULL)
             {
-//                ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);  
-                ToolbarControl->Set(hWnd, szSkinName);
+                ToolbarControl->Set(hWnd, szSkinName);  
             }
+        }
+
+		// We must do two calls, the first one displaying the toolbar
+		// in order to have the correct toolbar rectangle initialized,
+		// and the second to hide the toolbar if in full scrren mode
+        if (ToolbarControl == NULL)
+        {
+			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
         }
 
         AddSplashTextLine("Setup Mixer");
@@ -5630,7 +5646,7 @@ HMENU GetOutResoSubmenu()
     GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
-    HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 9, "Switch Resolution in F&ull Screen");
+    HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 10, "Switch Resolution in F&ull Screen");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -6351,7 +6367,6 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         if (ToolbarControl!=NULL)
         {            
-//			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
 			ToolbarControl->Set(hWnd, NULL);
         }
         
@@ -6359,6 +6374,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
         //InvalidateRect(hWnd, NULL, FALSE);
         UpdateWindowState();
 		WorkoutOverlaySize(FALSE);
+
+		// We must do two calls, the first one displaying the toolbar
+		// in order to have the correct toolbar rectangle initialized,
+		// and the second to hide the toolbar if in full scrren mode
+        if (ToolbarControl!=NULL)
+        {            
+			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+        }
     }
     bDoResize = TRUE;
     return FALSE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.22 2001-08-11 15:17:06 laurentg Exp $
+// $Id: OSD.cpp,v 1.23 2001-08-15 17:50:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/08/11 15:17:06  laurentg
+// Bug fixed
+//
 // Revision 1.21  2001/08/09 22:18:23  laurentg
 // Improvments in relation with calibration
 //
@@ -130,7 +133,6 @@ BOOL bAntiAlias = TRUE;
 BOOL bOutline = TRUE;
 eOSDBackground Background;
 BOOL bAutoHide = TRUE;
-BOOL bUseRGB = TRUE;
 
 //---------------------------------------------------------------------------
 // Global OSD Information structure
@@ -509,9 +511,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     double          pos;
     DEINTERLACE_METHOD* DeintMethod;
     unsigned char   val1, val2, val3;
-    int             dif_val1, dif_val2, dif_val3, dif_total;
+    int             dif_val1, dif_val2, dif_val3;
+    int             dif_total, dif_total1, dif_total2, total1, total2;
     CTestPattern *pTestPattern;
     CColorBar* pColorBar;
+    BOOL ShowStepCal;
 
     // Case : no OSD screen
     if (IdxCurrentScreen == -1)
@@ -917,37 +921,84 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
         // Video settings
-        nLine = 4;
-        OSD_AddText("Current Settings", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Full Luma Range %s", Setting_GetValue(BT848_GetSetting(BTFULLLUMARANGE)) ? "on" : "off");
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
         sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Hue : %03d", Setting_GetValue(BT848_GetSetting(HUE)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Color : %03u", Setting_GetValue(BT848_GetSetting(SATURATION)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
         sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
         sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
-        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
 
 		// Name of the test pattern
 		pTestPattern = pCalibration->GetCurrentTestPattern();
         if (pTestPattern != NULL)
 		{
-            OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
+            OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
 		}
 
         if (pCalibration->IsRunning() && (pTestPattern != NULL))
 		{
-            OSD_AddText((pCalibration->GetType() == AUTO_CALIBR) ? "AUTOMATIC" : "MANUALLY", Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+            switch (pCalibration->GetType())
+            {
+            case CAL_AUTO_BRIGHT_CONTRAST:
+                OSD_AddText("AUTOMATIC", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+                ShowStepCal = TRUE;
+                break;
+            case CAL_AUTO_COLOR:
+                OSD_AddText("AUTOMATIC", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+                ShowStepCal = TRUE;
+                break;
+            case CAL_AUTO_FULL:
+                OSD_AddText("AUTOMATIC", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+                ShowStepCal = TRUE;
+                break;
+            case CAL_MANUAL:
+            default:
+                OSD_AddText("MANUAL", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+                ShowStepCal = FALSE;
+                break;
+            }
+            if (ShowStepCal)
+            {
+                switch (pCalibration->GetCurrentStep())
+                {
+                case 0:
+                    OSD_AddText("Finished", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                case 1:
+                case 2:
+                    OSD_AddText("Brightness ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                case 3:
+                case 4:
+                    OSD_AddText("Contrast ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                case 5:
+                case 6:
+                    OSD_AddText("Fine adjust ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                case 7:
+                case 8:
+                    OSD_AddText("Saturation U ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                case 9:
+                case 10:
+                    OSD_AddText("Saturation V ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                case 11:
+                case 12:
+                    OSD_AddText("Fine adjust ...", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+                    break;
+                default:
+                    break;
+                }
+            }
 
             nLine = 5;
 
-            i = 0;
+            total1 = 0;
+            total2 = 0;
 			j = 0;
             pColorBar = pTestPattern->GetFirstColorBar();
             while (pColorBar != NULL)
@@ -961,11 +1012,22 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 				{
 				    Color = RGB(val1, val2, val3);
 				}
-                pColorBar->GetDeltaColor(!bUseRGB, &dif_val1, &dif_val2, &dif_val3, &dif_total);
-                sprintf (szInfo, "%s (%+d,%+d,%+d)", bUseRGB ? "RGB" : "YUV", dif_val1, dif_val2, dif_val3);
+                pColorBar->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
+                sprintf (szInfo, "RGB (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
                 OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                pColorBar->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
+                sprintf (szInfo, "YUV (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
+                OSD_AddText(szInfo, Size, Color, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
 
-				sprintf (szInfo, "(%d) ", dif_total);
+                sprintf (szInfo, "(%d) ", dif_total1);
+                if (dif_total1 < dif_total2)
+                {
+                    dif_total = dif_total1;
+                }
+                else
+                {
+                    dif_total = dif_total2;
+                }
 				if (dif_total <= 6)
 				{
 					strcat (szInfo, "very good");
@@ -986,30 +1048,41 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 				{
 					strcat (szInfo, "very bad");
 				}
+                sprintf (&szInfo[strlen(szInfo)], " (%d)", dif_total2);
 				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-                i += dif_total;
+                total1 += dif_total1;
+                total2 += dif_total2;
 				j++;
 
                 pColorBar = pTestPattern->GetNextColorBar();
 			}
 			if (j > 0)
 			{
-				i = (i + (j / 2)) / j;
-				sprintf (szInfo, "(%d) ", i);
-				if (i <= 6)
+				total1 = (total1 + (j / 2)) / j;
+				total2 = (total2 + (j / 2)) / j;
+                if (total1 < total2)
+                {
+                    dif_total = total1;
+                }
+                else
+                {
+                    dif_total = total2;
+                }
+				sprintf (szInfo, "(%d) ", total1);
+				if (dif_total <= 6)
 				{
 					strcat (szInfo, "very good");
 				}
-				else if (i <= 15)
+				else if (dif_total <= 15)
 				{
 					strcat (szInfo, "good");
 				}
-				else if (i <= 24)
+				else if (dif_total <= 24)
 				{
 					strcat (szInfo, "medium");
 				}
-				else if (i <= 40)
+				else if (dif_total <= 40)
 				{
 					strcat (szInfo, "bad");
 				}
@@ -1017,8 +1090,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 				{
 					strcat (szInfo, "very bad");
 				}
-                OSD_AddText("Total", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                sprintf (&szInfo[strlen(szInfo)], " (%d)", total2);
+				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (4, dfMargin, Size));
 			}
 		}
         break;
@@ -1259,12 +1332,6 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "AutoHide", OSD_AutoHide_OnChange,
-    },
-    {
-        "OSD use RGB for pixels", ONOFF, 0, (long*)&bUseRGB,
-         FALSE, 0, 1, 1, 1,
-         NULL,
-        "OSD", "UseRGB", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.59 2001-08-13 18:07:24 adcockj Exp $
+// $Id: DScaler.cpp,v 1.60 2001-08-15 17:50:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2001/08/13 18:07:24  adcockj
+// Added Czech code page for teletext
+//
 // Revision 1.58  2001/08/09 22:18:23  laurentg
 // Improvments in relation with calibration
 //
@@ -617,11 +620,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_START_AUTO_CALIBRATION:
-            pCalibration->Start(AUTO_CALIBR);
+            pCalibration->Start(CAL_AUTO_FULL);
             break;
 
         case IDM_START_MANUAL_CALIBRATION:
-            pCalibration->Start(MANUAL_CALIBR);
+            pCalibration->Start(CAL_MANUAL);
             break;
 
         case IDM_STOP_CALIBRATION:

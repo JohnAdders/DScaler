@@ -32,7 +32,7 @@
 
 
 // Minimum time in milliseconds between two consecutive evaluations
-#define	MIN_TIME_BETWEEN_CALC	200
+#define	MIN_TIME_BETWEEN_CALC	100
 
 // Macro to restrict range to [0,255]
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
@@ -41,13 +41,14 @@
 /////////////////////////////////////////////////////////////////////////////
 // Class CColorBar
 
-CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
+CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eColor color, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
 { 
     unsigned char Y, U, V, R, G, B;
     left_border = left; 
     right_border = right; 
     top_border = top; 
     bottom_border = bottom;
+    abstract_color = color;
     if (YUV)
     {
         ref_Y_val = R_Y;
@@ -84,6 +85,12 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
     LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
     RGB2YUV(R, G, B, &Y, &U, &V);
     LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+}
+
+// This method returns the abstract color
+eColor CColorBar::GetAbstractColor()
+{
+    return abstract_color;
 }
 
 // This methode returns the reference color
@@ -279,11 +286,11 @@ void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsig
 /////////////////////////////////////////////////////////////////////////////
 // Class CTestPattern
 
-CTestPattern::CTestPattern(char* name, eVideoFormat format, BOOL auto_calibr)
+CTestPattern::CTestPattern(char* name, eTypeTestPattern type, eVideoFormat format)
 {
     strcpy(pattern_name, name);
+    type_content = type;
     video_format = format;
-    auto_calibr_possible = auto_calibr;
     nb_color_bars = 0;
     for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
     {
@@ -309,21 +316,21 @@ char *CTestPattern::GetName()
     return pattern_name;
 }
 
+// This method returns the type of content for in the test pattern
+eTypeTestPattern CTestPattern::GetType()
+{
+    return type_content;
+}
+
 // This method returns the video format of the test pattern
 eVideoFormat CTestPattern::GetVideoFormat()
 {
     return video_format;
 }
 
-// This method tells if calibration is running
-BOOL CTestPattern::IsAutoCalibrPossible()
-{
-    return auto_calibr_possible;
-}
-
 // This method allows to add a new color bar to the test pattern
 // Returns 0 if color bar is correctly added
-int CTestPattern::AddColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
+int CTestPattern::AddColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eColor color, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
 {
     int i;
 
@@ -336,7 +343,7 @@ int CTestPattern::AddColorBar(unsigned short int left, unsigned short int right,
     }
     if (i < MAX_COLOR_BARS)
     {
-        color_bars[i] = new CColorBar(left, right, top, bottom, YUV, R_Y, G_U, B_V);
+        color_bars[i] = new CColorBar(left, right, top, bottom, color, YUV, R_Y, G_U, B_V);
         nb_color_bars++;
         return 0;
     }
@@ -378,8 +385,27 @@ CColorBar *CTestPattern::GetNextColorBar()
     return NULL;
 }
 
+// This method returns the (first) bar having the color searched
+// Returns NULL pointer if no bar in the test pattern has correct color
+CColorBar *CTestPattern::GetColorBar(eColor color)
+{
+    CColorBar *bar;
+
+    bar = GetFirstColorBar();
+    while (bar != NULL)
+    {
+        if (bar->GetAbstractColor() == color)
+        {
+            break;
+        }
+        bar = GetNextColorBar();
+    }
+    return bar;
+}
+
+
 // This method analyzes the current overlay buffer
-void CTestPattern::CalcCurrentPattern(short **Lines, int height, int width, int tick_count)
+void CTestPattern::CalcCurrentPattern(short **Lines, int height, int width)
 {
     // Do the job for each defined color bar
     for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
@@ -403,7 +429,7 @@ CCalibration::CCalibration()
         test_patterns[i] = NULL;
     }
     current_test_pattern = NULL;
-    type_calibration = AUTO_CALIBR;
+    type_calibration = CAL_MANUAL;
     running = FALSE;
     last_tick_count = -1;
     LoadTestPatterns();
@@ -419,94 +445,93 @@ void CCalibration::LoadTestPatterns()
 {
     // Create all the test patterns
 
-//    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode (NTSC) - Monitor Performance", FORMAT_NTSC, TRUE);
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode (NTSC) - Monitor Performance", FORMAT_NTSC, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 278, 1042, 2396, 4167, FALSE, 251, 252, 251);
-    test_patterns[nb_test_patterns]->AddColorBar(1458, 2222, 2396, 4167, FALSE, 188, 190,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
-    test_patterns[nb_test_patterns]->AddColorBar(3889, 4653, 2396, 4167, FALSE,   0, 188,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
-    test_patterns[nb_test_patterns]->AddColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(7569, 8333, 2396, 4167, FALSE,  0,    0, 187);
-    test_patterns[nb_test_patterns]->AddColorBar(8750, 9514, 2396, 4167, FALSE,  0,    0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar( 347,  764, 6875, 7500, FALSE,  0,    0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(1181, 1597, 6875, 7500, FALSE,  23,  24,  23);
-    test_patterns[nb_test_patterns]->AddColorBar(2014, 2431, 6875, 7500, FALSE,  49,  50,  49);
-    test_patterns[nb_test_patterns]->AddColorBar(7083, 7500, 6875, 7500, FALSE, 201, 203, 202);
-    test_patterns[nb_test_patterns]->AddColorBar(7917, 8333, 6875, 7500, FALSE, 227, 228, 227);
-    test_patterns[nb_test_patterns]->AddColorBar(8750, 9167, 6875, 7500, FALSE, 252, 253, 252);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", PAT_GRAY_AND_COLOR, FORMAT_NTSC);
+    test_patterns[nb_test_patterns]->AddColorBar( 278, 1042, 2396, 4167, COLOR_OTHER, FALSE, 251, 252, 251);
+    test_patterns[nb_test_patterns]->AddColorBar(1458, 2222, 2396, 4167, COLOR_OTHER, FALSE, 188, 190,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(2708, 3472, 2396, 4167, COLOR_OTHER, FALSE,   0, 188, 185);
+    test_patterns[nb_test_patterns]->AddColorBar(3889, 4653, 2396, 4167, COLOR_OTHER, FALSE,   0, 188,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(5139, 5903, 2396, 4167, COLOR_OTHER, FALSE, 187,   0, 187);
+    test_patterns[nb_test_patterns]->AddColorBar(6319, 7083, 2396, 4167, COLOR_RED,   FALSE, 186,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(7569, 8333, 2396, 4167, COLOR_BLUE,  FALSE,  0,    0, 187);
+    test_patterns[nb_test_patterns]->AddColorBar(8750, 9514, 2396, 4167, COLOR_OTHER, FALSE,  0,    0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar( 347,  764, 6875, 7500, COLOR_BLACK, FALSE,  0,    0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(1181, 1597, 6875, 7500, COLOR_OTHER, FALSE,  23,  24,  23);
+    test_patterns[nb_test_patterns]->AddColorBar(2014, 2431, 6875, 7500, COLOR_OTHER, FALSE,  49,  50,  49);
+    test_patterns[nb_test_patterns]->AddColorBar(7083, 7500, 6875, 7500, COLOR_OTHER, FALSE, 201, 203, 202);
+    test_patterns[nb_test_patterns]->AddColorBar(7917, 8333, 6875, 7500, COLOR_OTHER, FALSE, 227, 228, 227);
+    test_patterns[nb_test_patterns]->AddColorBar(8750, 9167, 6875, 7500, COLOR_WHITE, FALSE, 252, 253, 252);
     nb_test_patterns++;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", FORMAT_NTSC, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 417,  972, 521, 9375, FALSE,   0,   0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(1458, 2014, 521, 9375, FALSE,  30,  30,  30);
-    test_patterns[nb_test_patterns]->AddColorBar(2361, 2917, 521, 9375, FALSE,  60,  60,  60);
-    test_patterns[nb_test_patterns]->AddColorBar(3333, 3889, 521, 9375, FALSE,  90,  90,  90);
-    test_patterns[nb_test_patterns]->AddColorBar(4236, 4792, 521, 9375, FALSE, 116, 118, 118);
-    test_patterns[nb_test_patterns]->AddColorBar(5208, 5764, 521, 9375, FALSE, 150, 150, 150);
-    test_patterns[nb_test_patterns]->AddColorBar(6181, 6736, 521, 9375, FALSE, 177, 179, 179);
-    test_patterns[nb_test_patterns]->AddColorBar(7153, 7639, 521, 9375, FALSE, 206, 209, 205);
-    test_patterns[nb_test_patterns]->AddColorBar(8125, 8681, 521, 9375, FALSE, 236, 236, 236);
-    test_patterns[nb_test_patterns]->AddColorBar(9097, 9653, 521, 9375, FALSE, 254, 254, 254);
+    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", PAT_RANGE_OF_GRAY, FORMAT_NTSC);
+    test_patterns[nb_test_patterns]->AddColorBar( 417,  972, 521, 9375, COLOR_BLACK, FALSE,   0,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(1458, 2014, 521, 9375, COLOR_OTHER, FALSE,  30,  30,  30);
+    test_patterns[nb_test_patterns]->AddColorBar(2361, 2917, 521, 9375, COLOR_OTHER, FALSE,  60,  60,  60);
+    test_patterns[nb_test_patterns]->AddColorBar(3333, 3889, 521, 9375, COLOR_OTHER, FALSE,  90,  90,  90);
+    test_patterns[nb_test_patterns]->AddColorBar(4236, 4792, 521, 9375, COLOR_OTHER, FALSE, 116, 118, 118);
+    test_patterns[nb_test_patterns]->AddColorBar(5208, 5764, 521, 9375, COLOR_OTHER, FALSE, 150, 150, 150);
+    test_patterns[nb_test_patterns]->AddColorBar(6181, 6736, 521, 9375, COLOR_OTHER, FALSE, 177, 179, 179);
+    test_patterns[nb_test_patterns]->AddColorBar(7153, 7639, 521, 9375, COLOR_OTHER, FALSE, 206, 209, 205);
+    test_patterns[nb_test_patterns]->AddColorBar(8125, 8681, 521, 9375, COLOR_OTHER, FALSE, 236, 236, 236);
+    test_patterns[nb_test_patterns]->AddColorBar(9097, 9653, 521, 9375, COLOR_WHITE, FALSE, 254, 254, 254);
     nb_test_patterns++;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 10 - color bars", FORMAT_NTSC, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 5208, FALSE, 190, 190, 190);
-    test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 5208, FALSE, 198, 199,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 5208, FALSE,   0, 190, 189);
-    test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 5208, FALSE,   0, 190,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 5208, FALSE, 190,   0, 189);
-    test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 5208, FALSE, 188,   0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 5208, FALSE,   0,   0, 187);
+    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 10 - color bars", PAT_COLOR, FORMAT_NTSC);
+    test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 5208, COLOR_OTHER, FALSE, 190, 190, 190);
+    test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 5208, COLOR_OTHER, FALSE, 198, 199,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 5208, COLOR_OTHER, FALSE,   0, 190, 189);
+    test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 5208, COLOR_OTHER, FALSE,   0, 190,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 5208, COLOR_OTHER, FALSE, 190,   0, 189);
+    test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 5208, COLOR_RED,   FALSE, 188,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 5208, COLOR_BLUE,  FALSE,   0,   0, 187);
     nb_test_patterns++;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 1 C 7 - range of gray", FORMAT_NTSC, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 208,  764, 521, 9375, FALSE, 254, 251, 255);
-    test_patterns[nb_test_patterns]->AddColorBar(1111, 1667, 521, 9375, FALSE, 226, 223, 227);
-    test_patterns[nb_test_patterns]->AddColorBar(2014, 2569, 521, 9375, FALSE, 200, 197, 201);
-    test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 521, 9375, FALSE, 172, 169, 173);
-    test_patterns[nb_test_patterns]->AddColorBar(3819, 4375, 521, 9375, FALSE, 145, 142, 146);
-    test_patterns[nb_test_patterns]->AddColorBar(4722, 5278, 521, 9375, FALSE, 117, 114, 118);
-    test_patterns[nb_test_patterns]->AddColorBar(5625, 6181, 521, 9375, FALSE,  90,  87,  91);
-    test_patterns[nb_test_patterns]->AddColorBar(6528, 7083, 521, 9375, FALSE,  62,  59,  63);
-    test_patterns[nb_test_patterns]->AddColorBar(7431, 7986, 521, 9375, FALSE,  34,  31,  35);
-    test_patterns[nb_test_patterns]->AddColorBar(8333, 8819, 521, 9375, FALSE,   7,   4,   8);
-    test_patterns[nb_test_patterns]->AddColorBar(9236, 9722, 521, 9375, FALSE,   1,   0,   2);
+    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 1 C 7 - range of gray", PAT_RANGE_OF_GRAY, FORMAT_NTSC);
+    test_patterns[nb_test_patterns]->AddColorBar( 208,  764, 521, 9375, COLOR_WHITE, FALSE, 254, 251, 255);
+    test_patterns[nb_test_patterns]->AddColorBar(1111, 1667, 521, 9375, COLOR_OTHER, FALSE, 226, 223, 227);
+    test_patterns[nb_test_patterns]->AddColorBar(2014, 2569, 521, 9375, COLOR_OTHER, FALSE, 200, 197, 201);
+    test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 521, 9375, COLOR_OTHER, FALSE, 172, 169, 173);
+    test_patterns[nb_test_patterns]->AddColorBar(3819, 4375, 521, 9375, COLOR_OTHER, FALSE, 145, 142, 146);
+    test_patterns[nb_test_patterns]->AddColorBar(4722, 5278, 521, 9375, COLOR_OTHER, FALSE, 117, 114, 118);
+    test_patterns[nb_test_patterns]->AddColorBar(5625, 6181, 521, 9375, COLOR_OTHER, FALSE,  90,  87,  91);
+    test_patterns[nb_test_patterns]->AddColorBar(6528, 7083, 521, 9375, COLOR_OTHER, FALSE,  62,  59,  63);
+    test_patterns[nb_test_patterns]->AddColorBar(7431, 7986, 521, 9375, COLOR_OTHER, FALSE,  34,  31,  35);
+    test_patterns[nb_test_patterns]->AddColorBar(8333, 8819, 521, 9375, COLOR_OTHER, FALSE,   7,   4,   8);
+    test_patterns[nb_test_patterns]->AddColorBar(9236, 9722, 521, 9375, COLOR_BLACK, FALSE,   1,   0,   2);
     nb_test_patterns++;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 4 C 4 - color bars", FORMAT_NTSC, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 4167, FALSE, 190, 189, 190);
-    test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 4167, FALSE, 190, 189,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 4167, FALSE,   0, 189, 188);
-    test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 4167, FALSE,   0, 189,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 4167, FALSE, 190,   0, 191);
-    test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 4167, FALSE, 190,   0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 4167, FALSE,   0,   0, 190);
+    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 4 C 4 - color bars", PAT_COLOR, FORMAT_NTSC);
+    test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 4167, COLOR_OTHER, FALSE, 190, 189, 190);
+    test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 4167, COLOR_OTHER, FALSE, 190, 189,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 4167, COLOR_OTHER, FALSE,   0, 189, 188);
+    test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 4167, COLOR_OTHER, FALSE,   0, 189,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 4167, COLOR_OTHER, FALSE, 190,   0, 191);
+    test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 4167, COLOR_RED,   FALSE, 190,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 4167, COLOR_BLUE,  FALSE,   0,   0, 190);
     nb_test_patterns++;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("LAL - T 36 C 1 - range of gray", FORMAT_PAL_BDGHI, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 278,  833, 434, 9549, FALSE,   0,   0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(1181, 1736, 434, 9549, FALSE,  20,  23,  20);
-    test_patterns[nb_test_patterns]->AddColorBar(2014, 2569, 434, 9549, FALSE,  46,  49,  45);
-    test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 434, 9549, FALSE,  72,  75,  71);
-    test_patterns[nb_test_patterns]->AddColorBar(3819, 4375, 434, 9549, FALSE,  98, 101,  97);
-    test_patterns[nb_test_patterns]->AddColorBar(4722, 5278, 434, 9549, FALSE, 123, 125, 122);
-    test_patterns[nb_test_patterns]->AddColorBar(5556, 6111, 434, 9549, FALSE, 149, 151, 148);
-    test_patterns[nb_test_patterns]->AddColorBar(6458, 7014, 434, 9549, FALSE, 174, 177, 173);
-    test_patterns[nb_test_patterns]->AddColorBar(7361, 7917, 434, 9549, FALSE, 201, 203, 200);
-    test_patterns[nb_test_patterns]->AddColorBar(8264, 8819, 434, 9549, FALSE, 227, 229, 226);
-    test_patterns[nb_test_patterns]->AddColorBar(9167, 9722, 434, 9549, FALSE, 252, 252, 252);
+    test_patterns[nb_test_patterns] = new CTestPattern("LAL - T 36 C 1 - range of gray", PAT_RANGE_OF_GRAY, FORMAT_PAL_BDGHI);
+    test_patterns[nb_test_patterns]->AddColorBar( 278,  833, 434, 9549, COLOR_BLACK, FALSE,   0,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(1181, 1736, 434, 9549, COLOR_OTHER, FALSE,  20,  23,  20);
+    test_patterns[nb_test_patterns]->AddColorBar(2014, 2569, 434, 9549, COLOR_OTHER, FALSE,  46,  49,  45);
+    test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 434, 9549, COLOR_OTHER, FALSE,  72,  75,  71);
+    test_patterns[nb_test_patterns]->AddColorBar(3819, 4375, 434, 9549, COLOR_OTHER, FALSE,  98, 101,  97);
+    test_patterns[nb_test_patterns]->AddColorBar(4722, 5278, 434, 9549, COLOR_OTHER, FALSE, 123, 125, 122);
+    test_patterns[nb_test_patterns]->AddColorBar(5556, 6111, 434, 9549, COLOR_OTHER, FALSE, 149, 151, 148);
+    test_patterns[nb_test_patterns]->AddColorBar(6458, 7014, 434, 9549, COLOR_OTHER, FALSE, 174, 177, 173);
+    test_patterns[nb_test_patterns]->AddColorBar(7361, 7917, 434, 9549, COLOR_OTHER, FALSE, 201, 203, 200);
+    test_patterns[nb_test_patterns]->AddColorBar(8264, 8819, 434, 9549, COLOR_OTHER, FALSE, 227, 229, 226);
+    test_patterns[nb_test_patterns]->AddColorBar(9167, 9722, 434, 9549, COLOR_WHITE, FALSE, 252, 252, 252);
     nb_test_patterns++;
 
-    test_patterns[nb_test_patterns] = new CTestPattern("LAL - T 31 C 1 - color bars", FORMAT_PAL_BDGHI, FALSE);
-    test_patterns[nb_test_patterns]->AddColorBar( 556, 1111, 434, 9549, FALSE, 253, 253, 253);
-    test_patterns[nb_test_patterns]->AddColorBar(1736, 2292, 434, 9549, FALSE, 189, 191,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 434, 9549, FALSE,   0, 189, 188);
-    test_patterns[nb_test_patterns]->AddColorBar(4097, 4653, 434, 9549, FALSE,   0, 190,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(5278, 5833, 434, 9549, FALSE, 189,   0, 189);
-    test_patterns[nb_test_patterns]->AddColorBar(6458, 7014, 434, 9549, FALSE, 189,   0,   0);
-    test_patterns[nb_test_patterns]->AddColorBar(7708, 8264, 434, 9549, FALSE,   0,   0, 189);
-    test_patterns[nb_test_patterns]->AddColorBar(8889, 9444, 434, 9549, FALSE,   0,   0,   0);
+    test_patterns[nb_test_patterns] = new CTestPattern("LAL - T 31 C 1 - color bars", PAT_COLOR, FORMAT_PAL_BDGHI);
+    test_patterns[nb_test_patterns]->AddColorBar( 556, 1111, 434, 9549, COLOR_OTHER, FALSE, 253, 253, 253);
+    test_patterns[nb_test_patterns]->AddColorBar(1736, 2292, 434, 9549, COLOR_OTHER, FALSE, 189, 191,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 434, 9549, COLOR_OTHER, FALSE,   0, 189, 188);
+    test_patterns[nb_test_patterns]->AddColorBar(4097, 4653, 434, 9549, COLOR_OTHER, FALSE,   0, 190,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(5278, 5833, 434, 9549, COLOR_OTHER, FALSE, 189,   0, 189);
+    test_patterns[nb_test_patterns]->AddColorBar(6458, 7014, 434, 9549, COLOR_RED,   FALSE, 189,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(7708, 8264, 434, 9549, COLOR_BLUE,  FALSE,   0,   0, 189);
+    test_patterns[nb_test_patterns]->AddColorBar(8889, 9444, 434, 9549, COLOR_OTHER, FALSE,   0,   0,   0);
     nb_test_patterns++;
 }
 
@@ -595,7 +620,7 @@ void CCalibration::SetMenu(HMENU hMenu)
         }
     }
 	
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (running || (current_test_pattern == NULL) || !current_test_pattern->IsAutoCalibrPossible()) ? MF_GRAYED : MF_ENABLED);
+	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (running || (current_test_pattern == NULL)) ? MF_GRAYED : MF_ENABLED);
 	EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (running || (current_test_pattern == NULL)) ? MF_GRAYED : MF_ENABLED);
 	EnableMenuItem(hMenu, IDM_STOP_CALIBRATION, (!running || (current_test_pattern == NULL)) ? MF_GRAYED : MF_ENABLED);
 }
@@ -619,8 +644,55 @@ CTestPattern *CCalibration::GetCurrentTestPattern()
 
 void CCalibration::Start(eTypeCalibration type)
 {
-	type_calibration = type;
+    if (current_test_pattern == NULL)
+        return;
+
+    if (type == CAL_AUTO_FULL)
+    {
+        switch (current_test_pattern->GetType())
+        {
+        case PAT_RANGE_OF_GRAY:
+            type_calibration = CAL_AUTO_BRIGHT_CONTRAST;
+            break;
+        case PAT_COLOR:
+            type_calibration = CAL_AUTO_COLOR;
+            break;
+        case PAT_GRAY_AND_COLOR:
+            type_calibration = CAL_AUTO_FULL;
+            break;
+        case PAT_OTHER:
+        default:
+            type_calibration = CAL_MANUAL;
+            break;
+        }
+    }
+    else
+    {
+	    type_calibration = type;
+    }
 	running = TRUE;
+
+    switch (type_calibration)
+    {
+    case CAL_AUTO_BRIGHT_CONTRAST:
+        initial_step = 1;
+        nb_steps = 6;
+        break;
+    case CAL_AUTO_COLOR:
+        initial_step = 7;
+        nb_steps = 6;
+        break;
+    case CAL_AUTO_FULL:
+        initial_step = 1;
+        nb_steps = 12;
+        break;
+    case CAL_MANUAL:
+    default:
+        initial_step = 0;
+        nb_steps = 0;
+        break;
+    }
+    current_step = initial_step;
 
     // Display the specific OSD screen
     OSD_ShowInfosScreen(hWnd, 4, 0);
@@ -639,6 +711,11 @@ BOOL CCalibration::IsRunning()
 	return running;
 }
 
+BOOL CCalibration::GetCurrentStep()
+{
+	return current_step;
+}
+
 eTypeCalibration CCalibration::GetType()
 {
 	return type_calibration;
@@ -651,18 +728,221 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 	 || ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC)))
 		return;
 
-	current_test_pattern->CalcCurrentPattern(Lines, height, width, tick_count);
+    // Test to check if all steps are already executed
+    if ((current_step - initial_step) >= nb_steps)
+    {
+        current_step = 0;
+    }
 
-//Setting_Up(BT848_GetSetting(BRIGHTNESS));
-//Setting_Down(BT848_GetSetting(BRIGHTNESS));
-//Setting_Up(BT848_GetSetting(CONTRAST));
-//Setting_Down(BT848_GetSetting(CONTRAST));
-//Setting_Up(BT848_GetSetting(SATURATIONU));
-//Setting_Down(BT848_GetSetting(SATURATIONU));
-//Setting_Up(BT848_GetSetting(SATURATIONV));
-//Setting_Down(BT848_GetSetting(SATURATIONV));
+    switch (current_step)
+    {
+    case 0:     // Calibration finished
+        // Calculations with current setitngs
+        current_test_pattern->CalcCurrentPattern(Lines, height, width);
+        break;
+
+    case 1:     // Step to initialize next step
+        if (step_init(COLOR_BLACK, BRIGHTNESS, -128, 127))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        else
+        {
+            // We stop calibration
+            current_step = 0;
+        }
+        break;
+
+    case 2:     // Step to find a short range for brightness setting
+        if (step_process(Lines, height, width, BRIGHTNESS, 4))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        break;
+
+    case 3:     // Step to initialize next step
+        if (step_init(COLOR_WHITE, CONTRAST, 0, 511))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        else
+        {
+            // We stop calibration
+            current_step = 0;
+        }
+        break;
+
+    case 4:     // Step to find a short range for contrast setting
+        if (step_process(Lines, height, width, CONTRAST, 4))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        break;
+
+    case 5:     // Step to initialize next step
+        // We jump to next step
+        current_step++;
+        break;
+
+    case 6:     // Step to adjust fine brightness + contradt
+        // We jump to next step
+        current_step++;
+        break;
+
+    case 7:     // Step to initialize next step
+        if (step_init(COLOR_BLUE, SATURATIONU, 0, 511))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        else
+        {
+            // We stop calibration
+            current_step = 0;
+        }
+        break;
+
+    case 8:     // Step to find a short range for saturation U setting
+        if (step_process(Lines, height, width, SATURATIONU, 7))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        break;
+
+   case 9:     // Step to initialize next step
+        if (step_init(COLOR_RED, SATURATIONV, 0, 511))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        else
+        {
+            // We stop calibration
+            current_step = 0;
+        }
+        break;
+
+   case 10:    // Step to find a short range for saturation V setting
+        if (step_process(Lines, height, width, SATURATIONV, 5))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        break;
+
+    case 11:    // Step to initialize next step
+        // We jump to next step
+        current_step++;
+        break;
+
+    case 12:    // Step to adjust fine color saturation
+        // We jump to next step
+        current_step++;
+        break;
+
+    default:
+        break;
+    }
 
 	last_tick_count = tick_count;
+}
+
+BOOL CCalibration::step_init(eColor color, BT848_SETTING setting, int min, int max)
+{
+    // Get the bar to use for this step
+    bar_to_study = current_test_pattern->GetColorBar(color);
+    if (bar_to_study == NULL)
+    {
+        return FALSE;
+    }
+    else
+    {
+        // Initialize
+        min_val = min;
+        max_val = max;
+        current_val = min_val;
+        best_val_min = min_val;
+        best_val_max = max_val;
+        min_dif = 100000;
+
+        // Set the settign to its minimum
+        Setting_SetValue(BT848_GetSetting(setting), current_val);
+
+        return TRUE;
+    }
+}
+
+BOOL CCalibration::step_process(short **Lines, int height, int width, BT848_SETTING setting, unsigned int sig_component)
+{
+    int val[4];
+    BOOL YUV;
+    int idx;
+    int dif;
+    int best_val;
+
+    // Calculations with current settings
+    current_test_pattern->CalcCurrentPattern(Lines, height, width);
+
+    // See how good is the red result
+    if ((sig_component >= 1) && (sig_component <= 4))
+    {
+        YUV = TRUE;
+        idx = sig_component - 1;
+    }
+    else if ((sig_component >= 5) && (sig_component <= 8))
+    {
+        YUV = FALSE;
+        idx = sig_component - 5;
+    }
+    bar_to_study->GetDeltaColor(YUV, &val[0], &val[1], &val[2], &val[3]);
+    dif = val[idx];
+    if (dif < 0)
+    {
+        dif = -dif;
+    }
+    if (dif < min_dif)
+    {
+        min_dif = dif;
+        best_val_min = current_val;
+        best_val_max = current_val;
+    }
+    else if (dif == min_dif)
+    {
+        best_val_max = current_val;
+    }
+    LOG(3, "Automatic Calibration - setp %d - %d %d %d", current_step, current_val, dif, min_dif);
+
+    if ((current_val < max_val) && ((dif - min_dif) <= 5))
+    {
+        // Increase the setting
+        current_val++;
+        Setting_SetValue(BT848_GetSetting(setting), current_val);
+
+        return FALSE;
+    }
+    else
+    {
+        // Set the setitng to the best value found
+        // If several settings give same result, we choose the middle setting
+        if (best_val_min != best_val_max)
+        {
+            best_val = best_val_min + (best_val_max - best_val_min) / 2;
+        }
+        else
+        {
+            best_val = best_val_min;
+        }
+        Setting_SetValue(BT848_GetSetting(setting), best_val);
+
+        LOG(2, "Automatic Calibration - step %d finished - %d %d => %d", current_step, best_val_min, best_val_max, best_val);
+
+        return TRUE;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

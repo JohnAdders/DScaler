@@ -36,9 +36,31 @@
 
 
 // Define all types of calibration
+enum eTypeTestPattern {
+    PAT_RANGE_OF_GRAY = 0,
+    PAT_COLOR,
+    PAT_GRAY_AND_COLOR,
+    PAT_OTHER,
+};
+
+
+// Define all types of test pattern
 enum eTypeCalibration {
-    AUTO_CALIBR,
-    MANUAL_CALIBR,
+    CAL_MANUAL = 0,
+    CAL_AUTO_BRIGHT_CONTRAST,
+    CAL_AUTO_COLOR,
+    CAL_AUTO_FULL,
+};
+
+
+// Define possible colors for a bar in a test pattern
+enum eColor {
+    COLOR_BLACK = 0,
+    COLOR_WHITE,
+    COLOR_RED,
+    COLOR_BLUE,
+    COLOR_GREEN,
+    COLOR_OTHER,
 };
 
 
@@ -51,7 +73,10 @@ enum eTypeCalibration {
 class CColorBar
 {
 public:
-    CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
+    CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eColor color, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
+
+    // This method returns the abstract color
+    eColor GetAbstractColor();
 
     // This methode returns the reference color
     void GetRefColor(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
@@ -82,6 +107,9 @@ protected:
     // Bottom position of the rectangular zone in the full test pattern
     // Range between 0 and 10000
     unsigned short int bottom_border;
+
+    // Abstract color of the bar
+    eColor abstract_color;
 
     // Reference value for luminance
     unsigned char ref_Y_val;
@@ -134,39 +162,42 @@ private:
 class CTestPattern
 {
 public:
-    CTestPattern(char* name, eVideoFormat format, BOOL auto_calibr);
+    CTestPattern(char* name, eTypeTestPattern type, eVideoFormat format);
     ~CTestPattern();
 
     // This method returns the name of the test pattern
     char *GetName();
 
+    // This method returns the type of content in the test pattern
+    eTypeTestPattern GetType();
+
     // This method returns the video format of the test pattern
     eVideoFormat GetVideoFormat();
 
-    // This method tells if calibration is running
-    BOOL IsAutoCalibrPossible();
-
     // This method allows to add a new color bar to the test pattern
-    int AddColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
+    int AddColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eColor color, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
 
-    // This method returns the first color bar of the test pattern
+    // This method returns the (first) bar having the color searched
     CColorBar *GetFirstColorBar();
     
     // This method returns the next color bar of the test pattern
     CColorBar *GetNextColorBar();
 
+    // This method returns the (first) bar having a specified color
+    CColorBar *GetColorBar(eColor color);
+
     // This method analyzes the current overlay buffer
-    void CalcCurrentPattern(short **Lines, int height, int width, int tick_count);
+    void CalcCurrentPattern(short **Lines, int height, int width);
 
 protected:
     // Name of the test pattern
     char pattern_name[64];
 
+    // Type of content in the test pattenr
+    eTypeTestPattern type_content;
+
     // Video format of the test pattern
     eVideoFormat video_format;
-
-    // TRUE if an automatic calibration is possible for this test pattern
-    BOOL auto_calibr_possible;
 
     // Number of color bars in the test pattern
     unsigned char nb_color_bars;
@@ -202,6 +233,7 @@ public:
     void Start(eTypeCalibration type);
     void Stop();
     BOOL IsRunning();
+    int GetCurrentStep();
     eTypeCalibration GetType();
     void Make(short **Lines, int height, int width, int tick_count);
 
@@ -213,7 +245,19 @@ protected:
     BOOL running;
 
 private:
+    BOOL step_init(eColor color, BT848_SETTING setting, int min, int max);
+    BOOL step_process(short **Lines, int height, int width, BT848_SETTING setting, unsigned int sig_component);
     int last_tick_count;
+    unsigned int initial_step;
+    unsigned int nb_steps;
+    unsigned int current_step;
+    CColorBar *bar_to_study;
+    int min_val;
+    int max_val;
+    int current_val;
+    int best_val_min;
+    int best_val_max;
+    int min_dif;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.6 2001-07-16 18:07:50 adcockj Exp $
+// $Id: OSD.h,v 1.7 2001-08-15 17:50:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ void OSD_SetMenu(HMENU hMenu);
 #define OSD_TIMER_REFRESH_ID    41
 #define OSD_TIMER_REFRESH_DELAY 750
 
-#define OSD_MAX_TEXT            50
+#define OSD_MAX_TEXT            64
 
 // Values for "ShowType" parameter in functions OSD_Show and OSD_RefreshInfosScreen
 #define OSD_PERSISTENT      1

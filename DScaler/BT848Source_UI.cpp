@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.1 2002-10-29 11:05:27 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.2 2002-11-05 14:36:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:27  adcockj
+// Renamed CT2388x to CX2388x
+//
 //
 // CVS Log while file was called BT848Souce_UI.cpp
 //
@@ -1174,180 +1177,6 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
 }
 
-BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    static CBT848Source* pThis = NULL;
-
-    static BOOL OldAgcDisable;
-    static BOOL OldCrush;
-    static BOOL OldEvenChromaAGC;
-    static BOOL OldOddChromaAGC;
-    static BOOL OldEvenLumaPeak;
-    static BOOL OldOddLumaPeak;
-    static BOOL OldFullLumaRange;
-    static BOOL OldEvenLumaDec;
-    static BOOL OldOddLumaDec;
-    static BOOL OldEvenComb;
-    static BOOL OldOddComb;
-    static BOOL OldColorBars;
-    static BOOL OldGammaCorrection;
-    static BOOL OldVertFilter;
-    static BOOL OldHorFilter;
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        pThis = (CBT848Source*) lParam;
-
-        OldAgcDisable = pThis->m_BtAgcDisable->GetValue();
-        OldCrush = pThis->m_BtCrush->GetValue();
-        OldEvenChromaAGC = pThis->m_BtEvenChromaAGC->GetValue();
-        OldOddChromaAGC = pThis->m_BtOddChromaAGC->GetValue();
-        OldEvenLumaPeak = pThis->m_BtEvenLumaPeak->GetValue();
-        OldOddLumaPeak = pThis->m_BtOddLumaPeak->GetValue();
-        OldFullLumaRange = pThis->m_BtFullLumaRange->GetValue();
-        OldEvenLumaDec = pThis->m_BtEvenLumaDec->GetValue();
-        OldOddLumaDec = pThis->m_BtOddLumaDec->GetValue();
-        OldEvenComb = pThis->m_BtEvenComb->GetValue();
-        OldOddComb = pThis->m_BtOddComb->GetValue();
-        OldColorBars = pThis->m_BtColorBars->GetValue();
-        OldGammaCorrection = pThis->m_BtGammaCorrection->GetValue();
-        OldVertFilter = pThis->m_BtVertFilter->GetValue();
-        OldHorFilter = pThis->m_BtHorFilter->GetValue();
-
-        // Luma AGC, 0 says AGC enabled
-        CheckDlgButton(hDlg, IDC_AGC, !OldAgcDisable);
-        // Adaptive AGC, 0 says Crush disabled
-        CheckDlgButton(hDlg, IDC_CRUSH, OldCrush);
-        // Even CAGC, 0 says CAGC disable
-        CheckDlgButton(hDlg, IDC_E_CAGC, OldEvenChromaAGC); 
-        // Odd CAGC
-        CheckDlgButton(hDlg, IDC_O_CAGC, OldOddChromaAGC);
-        // Even Peak, 0 says normal, not Luma peak
-        CheckDlgButton(hDlg, IDC_E_LUMA_PEAK, OldEvenLumaPeak);
-        // Odd Peak
-        CheckDlgButton(hDlg, IDC_O_LUMA_PEAK, OldOddLumaPeak);
-        // Luma Output Range, 0 says Luma Normal, 1=Full    
-        CheckDlgButton(hDlg, IDC_LUMA_RANGE, OldFullLumaRange);
-        // Even Luma decimation,  0 says disable
-        CheckDlgButton(hDlg, IDC_E_LUMA_DEC, OldEvenLumaDec);
-        // Odd Luma decimation
-        CheckDlgButton(hDlg, IDC_O_LUMA_DEC, OldOddLumaDec);
-        // Even COMB, 0 = disable
-        CheckDlgButton(hDlg, IDC_E_COMB, OldEvenComb);
-        // Odd COMB
-        CheckDlgButton(hDlg, IDC_O_COMB, OldOddComb);
-        // Color Bars, 0 = disable
-        CheckDlgButton(hDlg, IDC_COLOR_BARS, OldColorBars);
-        // Gamma correction removal, 0=enabled
-        CheckDlgButton(hDlg, IDC_GAMMA_CORR, !OldGammaCorrection);
-        // More Vertical Filter, 0=no, 4=yes, other values no good at our res
-        // (Z filter)   TRB 12/19/00
-        CheckDlgButton(hDlg, IDC_VERT_FILTER, OldVertFilter);
-        // More Horizontal Filter, 0=no, else max full res filter TRB 12/19/00
-        CheckDlgButton(hDlg, IDC_HOR_FILTER, OldHorFilter);
-        break;
-
-    case WM_MOUSEMOVE:
-        return (FALSE);
-
-    case WM_COMMAND:
-
-        switch LOWORD(wParam)
-        {
-        case IDCANCEL:                      //  Restore settings
-            pThis->m_BtAgcDisable->SetValue(OldAgcDisable);
-            pThis->m_BtCrush->SetValue(OldCrush);
-            pThis->m_BtEvenChromaAGC->SetValue(OldEvenChromaAGC);
-            pThis->m_BtOddChromaAGC->SetValue(OldOddChromaAGC);
-            pThis->m_BtEvenLumaPeak->SetValue(OldEvenLumaPeak);
-            pThis->m_BtOddLumaPeak->SetValue(OldOddLumaPeak);
-            pThis->m_BtFullLumaRange->SetValue(OldFullLumaRange);
-            pThis->m_BtEvenLumaDec->SetValue(OldEvenLumaDec);
-            pThis->m_BtOddLumaDec->SetValue(OldOddLumaDec);
-            pThis->m_BtEvenComb->SetValue(OldEvenComb);
-            pThis->m_BtOddComb->SetValue(OldOddComb);
-            pThis->m_BtColorBars->SetValue(OldColorBars);
-            pThis->m_BtGammaCorrection->SetValue(OldGammaCorrection);
-            pThis->m_BtVertFilter->SetValue(OldVertFilter);
-            pThis->m_BtHorFilter->SetValue(OldHorFilter);
-
-            EndDialog(hDlg, TRUE);
-            break;
-
-        case IDOK:                          // Is Done
-			WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, TRUE);
-            break;
-
-        case IDC_AGC:                       // Changed AGC
-            pThis->m_BtAgcDisable->SetValue(BST_CHECKED != IsDlgButtonChecked(hDlg, IDC_AGC));
-            break;  
-
-        case IDC_CRUSH:                     // Changed Adaptive AGC
-            pThis->m_BtCrush->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_CRUSH));
-            break;  
-
-        case IDC_E_CAGC:                    // Changed Even CAGC
-            pThis->m_BtEvenChromaAGC->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_CAGC));
-            break;
-
-        case IDC_O_CAGC:                    // Changed Odd CAGC
-            pThis->m_BtOddChromaAGC->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_CAGC));
-            break;
-
-        case IDC_E_LUMA_PEAK:               // Changed Even Peak
-            pThis->m_BtEvenLumaPeak->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_LUMA_PEAK));
-            break;
-
-        case IDC_O_LUMA_PEAK:               // Changed Odd Peak
-            pThis->m_BtOddLumaPeak->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_LUMA_PEAK));
-            break;
-
-        case IDC_LUMA_RANGE:                // Luma Output Range
-            pThis->m_BtFullLumaRange->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_LUMA_RANGE));
-            break;
-
-        case IDC_E_LUMA_DEC:                // Changed Even L.decimation
-            pThis->m_BtEvenLumaDec->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_LUMA_DEC));
-            break;
-
-        case IDC_O_LUMA_DEC:                // Changed Odd L.decimation
-            pThis->m_BtOddLumaDec->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_LUMA_DEC));
-            break;
-
-        case IDC_E_COMB:                    // Changed Even COMB
-            pThis->m_BtEvenComb->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_COMB));
-            break;
-
-        case IDC_O_COMB:                    // Changed Odd COMB
-            pThis->m_BtOddComb->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_COMB));
-           break;
-
-        case IDC_COLOR_BARS:                // Color Bars
-            pThis->m_BtColorBars->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_COLOR_BARS));
-            break;
-
-        case IDC_GAMMA_CORR:                // Gamma correction removal
-            pThis->m_BtGammaCorrection->SetValue(BST_CHECKED != IsDlgButtonChecked(hDlg, IDC_GAMMA_CORR));
-            break;
-
-        case IDC_VERT_FILTER:               // Use vertical z-filter
-            pThis->m_BtVertFilter->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_VERT_FILTER));
-            break;
-
-        case IDC_HOR_FILTER:                // Use Hor peaking filter
-            pThis->m_BtHorFilter->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_HOR_FILTER));
-            break;
-
-        }
-        break;
-    }
-    return (FALSE);
-}
-
-
-
 BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     switch(LOWORD(wParam))
@@ -1491,10 +1320,6 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
             break;
         
-        case IDM_ADV_VIDEOSETTINGS:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
-            break;
-
         // Video format (NTSC, PAL, etc)
         case IDM_TYPEFORMAT_0:
             m_VideoFormat->SetValue(VIDEOFORMAT_PAL_B);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.46 2002-10-31 03:10:55 atnak Exp $
+// $Id: BT848Source.h,v 1.47 2002-11-05 14:36:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/10/31 03:10:55  atnak
+// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
+//
 // Revision 1.45  2002/10/29 03:05:48  atnak
 // Added a virtual GetTreeSettingsPage() to all CSources
 //
@@ -112,7 +115,6 @@ private:
 
     void CreateRiscCode(BOOL bCaptureVBI);
     
-    static BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);	

@@ -552,45 +552,6 @@ BEGIN
     LTEXT           "Tuner",IDC_STATIC,14,80,38,9
 END
 
-IDD_ADV_VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 208, 126
-STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Advanced Video Flags"
-FONT 8, "MS Sans Serif"
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,94,105,50,14
-    CONTROL         "Automatic Gain Control",IDC_AGC,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,13,84,10
-    CONTROL         "Adaptive AGC (CRUSH)",IDC_CRUSH,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,26,88,10
-    CONTROL         "Even Chroma AGC",IDC_E_CAGC,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,12,38,72,10
-    CONTROL         "Odd Chroma AGC",IDC_O_CAGC,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,12,52,70,10
-    CONTROL         "Even Luma Peaking",IDC_E_LUMA_PEAK,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,65,76,10
-    CONTROL         "Odd Luma Peaking",IDC_O_LUMA_PEAK,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,78,74,10
-    CONTROL         "Full Luma Range",IDC_LUMA_RANGE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,91,67,10
-    CONTROL         "Vertical Filter",IDC_VERT_FILTER,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,103,64,10
-    CONTROL         "Even Luma Decimation ",IDC_E_LUMA_DEC,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,106,13,87,10
-    CONTROL         "Odd Luma Decimation ",IDC_O_LUMA_DEC,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,106,26,84,10
-    CONTROL         "Even Chroma Comb",IDC_E_COMB,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,106,39,76,10
-    CONTROL         "Odd Chroma Comb",IDC_O_COMB,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,106,52,74,10
-    CONTROL         "Color Bars",IDC_COLOR_BARS,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,106,65,48,10
-    CONTROL         "Gamma Corr Removal",IDC_GAMMA_CORR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,106,78,83,10
-    CONTROL         "Horizontal Filter",IDC_HOR_FILTER,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,106,91,83,10
-    PUSHBUTTON      "Cancel",IDCANCEL,151,105,50,14
-END
-
 IDD_DISASM_CRASH DIALOG DISCARDABLE  0, 0, 399, 234
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "DScaler Program Failure"
@@ -1433,7 +1394,6 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "Advanced"
         BEGIN
-            MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
             MENUITEM "Reset Capture Card",          IDM_RESET
             MENUITEM "&Hardware Info ...",          IDM_HWINFO
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT

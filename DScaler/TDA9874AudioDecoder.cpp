@@ -11,7 +11,7 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) 2004 Mika Lane.  All rights reserved.
+//  Copyright (C) 2004 Mika Laine.  All rights reserved.
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
 //  Copyright (C) 2000 - 2002 by Eduardo José Tagle.
 /////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.34 2002-02-09 13:04:09 laurentg Exp $
+// $Id: Other.cpp,v 1.35 2002-03-21 10:26:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/02/09 13:04:09  laurentg
+// Propose in "Other settings" UI only the overlay settings which cannot be setup in another dialog box
+//
 // Revision 1.33  2002/01/26 18:04:29  laurentg
 // Locking and unlocking the overlay and not the overlay back buffer when taking stills
 //
@@ -192,6 +195,13 @@ long OverlayGamma = 1;
 long OverlaySharpness = 5;
 
 SETTING OtherSettings[];
+
+//-----------------------------------------------------------------------------
+// Tells whether or not video overlay color control is possible
+BOOL CanDoOverlayColorControl()
+{
+    return (pDDColorControl != NULL);
+}
 
 //-----------------------------------------------------------------------------
 // Tells whether or not video overlay is active

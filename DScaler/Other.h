@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.15 2002-01-26 18:04:28 laurentg Exp $
+// $Id: Other.h,v 1.16 2002-03-21 10:26:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,7 @@ void Other_ShowUI();
 
 void ExitDD(void);
 BOOL InitDD(HWND hWnd);
+BOOL CanDoOverlayColorControl();
 BOOL OverlayActive();
 BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags);
 BOOL Overlay_Create();

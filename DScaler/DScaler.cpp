@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.127 2002-02-10 21:38:04 laurentg Exp $
+// $Id: DScaler.cpp,v 1.128 2002-02-11 21:28:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.127  2002/02/10 21:38:04  laurentg
+// Default value for "Autohide Cursor" is now ON
+//
 // Revision 1.126  2002/02/09 15:30:19  laurentg
 // Card calibration menus revisited.
 //
@@ -730,13 +733,6 @@ HMENU CreateDScalerPopupMenu()
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,2, TRUE, &MenuItemInfo);
-        }
-
-        hSubMenu = GetVideoDeinterlaceSubmenu();
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,3, TRUE, &MenuItemInfo);
         }
 
@@ -747,18 +743,18 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetFiltersSubmenu();
+        hSubMenu = GetSubMenu(hMenu, 4);
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,5,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
         hSubMenu = GetSubMenu(hMenu, 7);
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,7,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
         }
 
         hSubMenu = GetSubMenu(hMenu, 2);
@@ -767,7 +763,7 @@ HMENU CreateDScalerPopupMenu()
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,7,TRUE,&MenuItemInfo);
         }
         CheckMenuItemBool(hMenuPopup, IDM_FULL_SCREEN, bIsFullScreen);
     }
@@ -2917,7 +2913,7 @@ HMENU GetVideoDeinterlaceSubmenu()
 
 HMENU GetChannelsSubmenu()
 {
-    return GetOrCreateSubSubMenu(1, 1, "&Channel Select");
+    return GetOrCreateSubSubMenu(1, 1, "Channel S&elect");
 }
 
 HMENU GetOSDSubmenu1()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.3 2003-03-20 23:27:28 laurentg Exp $
+// $Id: MultiFrames.h,v 1.4 2003-03-21 22:48:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/03/20 23:27:28  laurentg
+// Navigation through frames updated - bugs fixed - few comments added
+//
 // Revision 1.2  2003/03/17 22:34:29  laurentg
 // First step for the navigation through channels in preview mode
 //
@@ -32,15 +35,23 @@
 #define __MULTIFRAMES_H___
 
 
+// Different possible modes
+enum eMultiFramesMode {
+    PREVIEW_CHANNELS = 0,
+    PREVIEW_STILLS,
+};
+
+
 #include "DS_ApiCommon.h"
 
 
 class CMultiFrames
 {
 public:
-    CMultiFrames(int iFrames, int iDuration);
+    CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, int iDuration);
     ~CMultiFrames();
 
+	eMultiFramesMode GetMode();
 	int GetWidth();
 	int GetHeight();
 	BOOL IsActive();
@@ -83,9 +94,11 @@ private:
 	// Paint in black the content of a frame
 	void ResetFrameToBlack(int iFrame);
 
-	// The screen is cut in m_NbCols columns and m_NbRows rows
-	// In this grid, m_NbFrames frames are considered
-	// (it is possible to have m_NbCols * m_NbRows > m_NbFrames)
+	// Kind of mode : channels or stills
+	eMultiFramesMode m_Mode;
+
+	// The screen is cut in m_NbCols columns and m_NbRows rows,
+	// that is a total of m_NbFrames frames
 	int m_NbFrames;
 	int m_NbCols;
 	int m_NbRows;

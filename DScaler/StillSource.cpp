@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.91 2003-03-19 23:53:28 laurentg Exp $
+// $Id: StillSource.cpp,v 1.92 2003-03-21 22:48:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2003/03/19 23:53:28  laurentg
+// First step to add stills preview mode
+//
 // Revision 1.90  2003/03/15 21:29:48  laurentg
 // ResizeFrame becomes a global function
 //
@@ -1186,6 +1189,11 @@ void CStillSource::Start()
 
 void CStillSource::Stop()
 {
+	if (pMultiFrames)
+	{
+		delete pMultiFrames;
+		pMultiFrames = NULL;
+	}
     if (m_SlideShowActive)
     {
         m_SlideShowActive = FALSE;
@@ -1321,6 +1329,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
       || LOWORD(wParam) == IDM_CLOSE_FILE
       || LOWORD(wParam) == IDM_CLOSE_ALL
       || LOWORD(wParam) == IDM_PLAYLIST_SAVE
+      || LOWORD(wParam) == IDM_PLAYLIST_PREVIEW
       || LOWORD(wParam) == IDM_SAVE_IN_FILE
       || LOWORD(wParam) == IDM_SAVE_ALL_IN_FILE))
         return FALSE;
@@ -1525,7 +1534,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_PREVIEW:
         if (pMultiFrames == NULL)
 		{
-			pMultiFrames = new CMultiFrames(9, 0);
+			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, 3, 3, 0);
 		}
 		pMultiFrames->RequestSwitch();
         return TRUE;
@@ -1870,6 +1879,8 @@ void CStillSource::SetMenu(HMENU hMenu)
     HMENU           hMenuFiles;
 	BOOL			OneInMemory = FALSE;
 
+    CheckMenuItemBool(hMenu, IDM_PLAYLIST_PREVIEW, pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_STILLS) && pMultiFrames->IsActive());
+	EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIEW, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_PLAYLIST_SLIDESHOW, m_SlideShowActive);
     if(m_PlayList.size() > 1)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.4 2003-03-20 23:27:28 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.5 2003-03-21 22:48:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/03/20 23:27:28  laurentg
+// Navigation through frames updated - bugs fixed - few comments added
+//
 // Revision 1.3  2003/03/19 23:55:19  laurentg
 // First step to add stills preview mode
 // Second step for the navigation through channels in preview mode
@@ -49,27 +52,34 @@
 CMultiFrames* pMultiFrames = NULL;
 
 
-CMultiFrames::CMultiFrames(int iFrames, int iDuration)
+CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, int iDuration)
 {
+	m_Mode = eMode;
+	m_NbRows = iNbRows;
+	m_NbCols = iNbCols;
+	m_NbFrames = m_NbRows * m_NbCols;
+	m_Width = DSCALER_MAX_WIDTH;
+	m_Height = DSCALER_MAX_HEIGHT;
 	m_Active = FALSE;
 	bSwitchRequested = FALSE;
 	m_MemoryBuffer = NULL;
-	m_NbFrames = iFrames;
-	m_CurrentFrame = 0;
-	m_NbRows = (int)sqrt((double)m_NbFrames);
-	m_NbCols = m_NbFrames / m_NbRows;
-	if (m_NbFrames % m_NbRows)
-	{
-		m_NbCols++;
-	}
-	m_Width = DSCALER_MAX_WIDTH;
-	m_Height = DSCALER_MAX_HEIGHT;
+	bFrameFilled = NULL;
 	iDeltaTicksChange = iDuration;
+	bNavigAllowed = FALSE;
 }
 
 CMultiFrames::~CMultiFrames()
 {
 	FreeMemoryBuffer();
+	if (bFrameFilled)
+	{
+		free(bFrameFilled);
+	}
+}
+
+eMultiFramesMode CMultiFrames::GetMode()
+{
+	return m_Mode;
 }
 
 int CMultiFrames::GetWidth()
@@ -91,7 +101,7 @@ void CMultiFrames::Enable()
 {
 	AllocateMemoryBuffer();
 	bFrameFilled = (int*) malloc(m_NbFrames * sizeof(BOOL));
-	m_Active = (m_MemoryBuffer != NULL);
+	m_Active = m_MemoryBuffer && bFrameFilled;
 	if (m_Active)
 	{
 		Reset();
@@ -110,8 +120,13 @@ void CMultiFrames::Disable()
 	CSource* pSource = Providers_GetCurrentSource();
 
 	FreeMemoryBuffer();
-	free(bFrameFilled);
+	if (bFrameFilled)
+	{
+		free(bFrameFilled);
+		bFrameFilled = NULL;
+	}
 	m_Active = FALSE;
+	bNavigAllowed = FALSE;
     if (pSource)
     {
         UpdateSquarePixelsMode(pSource->HasSquarePixels());
@@ -157,16 +172,17 @@ void CMultiFrames::Reset()
 		ResetFrameToBlack(i);
 		bFrameFilled[i] = -1;
 	}
+	bNavigAllowed = FALSE;
 }
 
 void CMultiFrames::SelectFrame()
 {
-	CSource* pSource = Providers_GetCurrentSource();
 	int i;
+	int iUnused;
+	BOOL bBeforeCurrent;
 
-	if (!m_Active || !pSource)
+	if (!m_Active)
 	{
-		bNavigAllowed = FALSE;
 		return;
 	}
 
@@ -182,15 +198,31 @@ void CMultiFrames::SelectFrame()
 		return;
 	}
 
-	for (i=0; i < m_NbFrames ; i++)
+	iUnused = -1;
+	for (i=(m_CurrentFrame-1) ; i>=0 ; i--)
 	{
-		if (bFrameFilled[(m_CurrentFrame+i+1) % m_NbFrames] == -1)
+		if (bFrameFilled[i] == -1)
 		{
+			iUnused = i;
+			bBeforeCurrent = TRUE;
 			bNavigAllowed = FALSE;
 			break;
 		}
 	}
-	if (i == m_NbFrames)
+	if (iUnused == -1)
+	{
+		for (i=(m_CurrentFrame+1) ; i<m_NbFrames ; i++)
+		{
+			if (bFrameFilled[i] == -1)
+			{
+				iUnused = i;
+				bBeforeCurrent = FALSE;
+				bNavigAllowed = FALSE;
+				break;
+			}
+		}
+	}
+	if (iUnused == -1)
 	{
 		if (!bNavigAllowed)
 		{
@@ -206,14 +238,11 @@ void CMultiFrames::SelectFrame()
 			  && ((m_CurrentFrame + iDeltaNewFrame) < m_NbFrames) )
 			{
 				m_CurrentFrame += iDeltaNewFrame;
-				if (pSource->IsInTunerMode())
+				if (m_Mode == PREVIEW_CHANNELS)
 				{
 					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
-				else if ( (pSource == Providers_GetStillsSource())
-				       || (pSource == Providers_GetSnapshotsSource())
-				       || (pSource == Providers_GetPatternsSource())
-				       || (pSource == Providers_GetIntroSource()) )
+				else if (m_Mode == PREVIEW_STILLS)
 				{
 					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
@@ -223,14 +252,11 @@ void CMultiFrames::SelectFrame()
 			else
 			{
 				ShiftFrames(iDeltaNewFrame);
-				if (pSource->IsInTunerMode())
+				if (m_Mode == PREVIEW_CHANNELS)
 				{
 					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
-				else if ( (pSource == Providers_GetStillsSource())
-				       || (pSource == Providers_GetSnapshotsSource())
-				       || (pSource == Providers_GetPatternsSource())
-				       || (pSource == Providers_GetIntroSource()) )
+				else if (m_Mode == PREVIEW_STILLS)
 				{
 					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
@@ -242,18 +268,29 @@ void CMultiFrames::SelectFrame()
 	{
 		if ((CurrentTickCount - LastTickCount) >= iDeltaTicksChange)
 		{
-			m_CurrentFrame = (m_CurrentFrame+i+1) % m_NbFrames;
 			LastTickCount = CurrentTickCount;
-			if (pSource->IsInTunerMode())
+			m_CurrentFrame = iUnused;
+			if (bBeforeCurrent)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+				if (m_Mode == PREVIEW_CHANNELS)
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+				}
+				else if (m_Mode == PREVIEW_STILLS)
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
+				}
 			}
-			else if ( (pSource == Providers_GetStillsSource())
-				   || (pSource == Providers_GetSnapshotsSource())
-				   || (pSource == Providers_GetPatternsSource())
-				   || (pSource == Providers_GetIntroSource()) )
+			else
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
+				if (m_Mode == PREVIEW_CHANNELS)
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+				}
+				else if (m_Mode == PREVIEW_STILLS)
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
+				}
 			}
 		}
 	}
@@ -315,14 +352,11 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, pInfo->FrameHeight, lpFrameBuffer, iFramePitch, iFrameWidth, iFrameHeight);
     Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
-	if (pSource->IsInTunerMode())
+	if (m_Mode == PREVIEW_CHANNELS)
 	{
 		bFrameFilled[m_CurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
 	}
-	else if ( (pSource == Providers_GetStillsSource())
-		   || (pSource == Providers_GetSnapshotsSource())
-		   || (pSource == Providers_GetPatternsSource())
-		   || (pSource == Providers_GetIntroSource()) )
+	else if (m_Mode == PREVIEW_STILLS)
 	{
 		bFrameFilled[m_CurrentFrame] = ((CStillSource*)pSource)->GetPlaylistPosition();
 	}
@@ -492,8 +526,7 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 			ResetFrameToBlack(i);
 			bFrameFilled[i] = -1;
 		}
-		// TO BE DEFINED : what value to set for m_CurrentFrame
-		m_CurrentFrame -= iDeltaFrames;
+		m_CurrentFrame = m_NbFrames - 1 - iDeltaFrames;
 	}
 	else if ((iDeltaFrames < 0) && (-iDeltaFrames < m_NbFrames))
 	{
@@ -508,8 +541,7 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 			ResetFrameToBlack(i);
 			bFrameFilled[i] = -1;
 		}
-		// TO BE DEFINED : what value to set for m_CurrentFrame
-		m_CurrentFrame += iDeltaFrames;
+		m_CurrentFrame = iDeltaFrames;
 	}
 }
 

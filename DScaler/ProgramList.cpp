@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.100 2003-03-19 23:56:36 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.101 2003-03-21 22:48:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2003/03/19 23:56:36  laurentg
+// Second step for the navigation through channels in preview mode
+//
 // Revision 1.99  2003/02/05 15:11:44  laurentg
 // Channel name as tip for the DScaler icon in the systray (patch from Kristian Trenskow)
 //
@@ -337,6 +340,8 @@
 #include "OSD.h"
 #include "Providers.h"
 #include "SettingsMaster.h"
+#include "MultiFrames.h"
+
 
 #define MAX_CHANNELS 255
 
@@ -1954,6 +1959,8 @@ void Channels_SetMenu(HMENU hMenu)
     
     BOOL bHasTuner = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->HasTuner() : FALSE;
     BOOL bInTunerMode = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->IsInTunerMode() : FALSE;
+
+    CheckMenuItemBool(hMenuChannels, IDM_CHANNEL_PREVIEW, pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive());
 
     EnableMenuItem(hMenuChannels, IDM_CHANNELPLUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenuChannels, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.39 2001-09-12 14:32:45 tobbej Exp $
+// $Id: DS_Control.h,v 1.40 2001-09-25 22:24:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2001/09/12 14:32:45  tobbej
+// fix for invalid DEINTERLACE_METHOD.nSettings (nSettings was more that the real number of settings)
+//
 // Revision 1.38  2001/08/30 10:06:29  adcockj
 // Added support for extra settings in DI_OldGamne and FLT_TemporalComb
 //
@@ -937,6 +940,25 @@ typedef enum
 #define WM_FLT_TCOMB_GETVALUE     (WM_USER + 35)
 #define WM_FLT_TCOMB_SETVALUE     (WM_USER + 135)
 #define WM_FLT_TCOMB_CHANGEVALUE  (WM_USER + 235)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in Calibration.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    SOURCE_OVERSCAN = 0,
+    LEFT_SOURCE_CROPPING,
+    RIGHT_SOURCE_CROPPING,
+    SHOW_RGB_DELTA,
+    SHOW_YUV_DELTA,
+    CALIBR_SETTING_LASTONE,
+} CALIBR_SETTING;
+
+#define WM_CALIBR_GETVALUE     (WM_USER + 36)
+#define WM_CALIBR_SETVALUE     (WM_USER + 136)
+#define WM_CALIBR_CHANGEVALUE  (WM_USER + 236)
 
 
 #endif

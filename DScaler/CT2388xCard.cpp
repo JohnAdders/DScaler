@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.19 2002-10-25 14:46:24 laurentg Exp $
+// $Id: CT2388xCard.cpp,v 1.20 2002-10-27 19:17:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/10/25 14:46:24  laurentg
+// Notes for John about SECAM and the old mode
+//
 // Revision 1.18  2002/10/24 17:17:17  adcockj
 // Fixed silly bug in new buffer code
 //
@@ -430,6 +433,29 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         DWORD HTotal(0);
         DWORD Format2HComb;
 
+        CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
+
+        // set up VBI information
+        WriteDword(CT2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize) | (2 << 11));
+
+        if (CurrentY == 576)
+        {
+	        CurrentX = 702;
+			WriteDword(CT2388X_AGC_BURST_DELAY, 0x6D6b);
+        }
+        else
+        {
+	        CurrentX = 714;
+			WriteDword(CT2388X_AGC_BURST_DELAY, 0x6D63);
+		}
+
+        double PLL = SetPLL(27.0);
+        SetSampleRateConverter(PLL);
+
+        // Setup correct format
+		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+		VideoInput &= 0xfffbfff0;
+
 		if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
 		{
 			// set up with
@@ -451,28 +477,9 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 			// PAL Invert Phase - off
 			// Coring - off
 			Format2HComb = 0x181f0008;
+			VideoInput |= 0x4000;
 		}
 
-        CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
-
-        // set up VBI information
-        WriteDword(CT2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize) | (2 << 11));
-
-        if (CurrentY == 576)
-        {
-	        CurrentX = 702;
-        }
-        else
-        {
-	        CurrentX = 714;
-        }
-
-        SetPLL(27.0);
-        SetSampleRateConverter(27.0);
-
-        // Setup correct format
-		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
-		VideoInput &= 0xfffffff0;
 
         switch(TVFormat)
         {
@@ -482,27 +489,27 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_H:
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_M:
             VideoInput |= VideoFormatPALM;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = 858;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_60:
             VideoInput |= VideoFormatPAL60;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = 858;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             VideoInput |= VideoFormatPALNC;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_SECAM_B:
@@ -514,23 +521,23 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_SECAM_L:
         case VIDEOFORMAT_SECAM_L1:
             VideoInput |= VideoFormatSECAM;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = 864;
             break;
         case VIDEOFORMAT_NTSC_M:
             VideoInput |= VideoFormatNTSC;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = 858;
             break;
         case VIDEOFORMAT_NTSC_M_Japan:
             VideoInput |= VideoFormatNTSCJapan;
-            HTotal = HLNotchFilter135NTSC | 858;
+			HTotal = 858;
             break;
         case VIDEOFORMAT_NTSC_50:
             VideoInput |= VideoFormatNTSC443;
-            HTotal = HLNotchFilter135PAL | 864;
+            HTotal = 864;
             break;
         default:
             VideoInput |= VideoFormatAuto;
-            HTotal = HLNotchFilter135NTSC | 858;
+            HTotal = 858;
             break;
         }
 
@@ -539,11 +546,19 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         WriteDword(CT2388X_FORMAT_2HCOMB, Format2HComb);
 
         // set up subcarrier frequency
-        DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 27.0) * (double)(1<<22));
+        DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
+		if (CurrentY == 576)
+		{
+			//RegValue = (DWORD)(((35.46895) / 27.0) * (double)(1<<22) + 0.5);
+		}
+		else
+		{
+			RegValue = (DWORD)(((28.63636) / PLL) * (double)(1<<22) + 0.5);
+		}
         WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
         // Subcarrier frequency Dr, for SECAM only but lets
         // set it anyway
-        RegValue = (DWORD)((8.0 * 4.406250 / 27.0) * (double)(1<<22));
+        RegValue = (DWORD)((8.0 * 4.406250 / PLL) * (double)(1<<22));
         WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
 
         if(VDelayOverride != 0)
@@ -1055,7 +1070,7 @@ bool CCT2388xCard::GetSCL()
     Program the PLL to a specific output frequency.
     Assume that we have a PLL pre dividor of 2
 *******************************************************************************/
-void CCT2388xCard::SetPLL(double PLLFreq)
+double CCT2388xCard::SetPLL(double PLLFreq)
 {
     DWORD RegValue = 0;
     int Prescaler = 2;
@@ -1097,7 +1112,7 @@ void CCT2388xCard::SetPLL(double PLLFreq)
     if( PLLInt < 14 || PLLInt > 63)
     {
         LOG(0, "Invalid PLL value %f MHz", PLLFreq);
-        return;
+        return 0.0;
     }
     
     // Set register int and fraction values
@@ -1105,11 +1120,14 @@ void CCT2388xCard::SetPLL(double PLLFreq)
     RegValue |= PLLFraction & 0xFFFFF;
     
     WriteDword(CT2388X_PLL , RegValue );
+
+	return (28.63636 / (8.0 * (double)Prescaler)) * ((double)PLLInt + (double)PLLFraction / (double)(1 << 20));
 }
+
 
 void CCT2388xCard::SetSampleRateConverter(double PLLFreq)
 {
-    DWORD RegValue = (DWORD)((28.636363 / PLLFreq) * (double)(1<<17));
+    DWORD RegValue = (DWORD)((28.63636 / PLLFreq) * (double)(1<<17));
     WriteDword( CT2388X_SAMPLERATECONV, RegValue & 0x7FFFF );
 }
 
@@ -1184,11 +1202,14 @@ ITuner* CCT2388xCard::GetTuner() const
 
 #define DumpRegister(Reg) fprintf(hFile, #Reg "\t%08x\n", ReadDword(Reg))
 
-void CCT2388xCard::DumpChipStatus()
+void CCT2388xCard::DumpChipStatus(const char* CardName)
 {
     FILE* hFile;
+	char Filename[256];
 
-    hFile = fopen("CT2388x.txt", "w");
+	sprintf(Filename, "%s.txt", CardName);
+
+    hFile = fopen(Filename, "w");
     if(!hFile)
     {
         return;

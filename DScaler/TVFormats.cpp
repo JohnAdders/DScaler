@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.7 2002-10-18 11:41:47 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.8 2002-10-27 19:17:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/18 11:41:47  adcockj
+// Updated Fsc values
+//
 // Revision 1.6  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -177,7 +180,7 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
     {
         480,  910, 0x70, 0x5c, (BT848_IFORM_NTSC_JAP|BT848_IFORM_XT0),
         135, 754, 0x1a, 0, FALSE, 400, 13,
-        ((4.5 * 455.0) / (286 * 2)), FALSE, 57, 512, 11, 
+        ((4.5 * 455.0) / (286.0 * 2.0)), FALSE, 57, 512, 11, 
         10,
     },
     // NTSC-50

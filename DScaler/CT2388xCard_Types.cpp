@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.10 2002-10-25 14:44:26 laurentg Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.11 2002-10-27 19:17:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/25 14:44:26  laurentg
+// filter setup updated to have something working even for SECAM
+//
 // Revision 1.9  2002/10/24 16:03:00  adcockj
 // Minor tidy up
 //
@@ -406,7 +409,8 @@ void CCT2388xCard::StandardInputSelect(int nInput)
 //            FilterSetup |= (1<<3);
 //            FilterSetup |= (1<<16);
         }
-        
+
+        //FilterSetup = 0x8268;
         WriteDword(CT2388X_FILTER_EVEN, FilterSetup);
         WriteDword(CT2388X_FILTER_ODD, FilterSetup);
     }

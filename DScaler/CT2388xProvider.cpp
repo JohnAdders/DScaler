@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xProvider.cpp,v 1.2 2002-10-23 15:18:07 adcockj Exp $
+// $Id: CT2388xProvider.cpp,v 1.3 2002-10-27 19:17:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/23 15:18:07  adcockj
+// Added preliminary code for VBI
+//
 // Revision 1.1  2002/09/11 18:19:37  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -102,7 +105,7 @@ CCT2388xSource* CCT2388xProvider::CreateCorrectSource(CHardwareDriver* pHardware
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
 		// \todo remove this as it's just for testing
-		pNewCard->DumpChipStatus();
+		pNewCard->DumpChipStatus(szSection);
         CCT2388xSource* pNewSource = new CCT2388xSource(pNewCard, m_RiscDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection);
         return pNewSource;
     }

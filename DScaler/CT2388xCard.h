@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.10 2002-10-26 15:37:57 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.11 2002-10-27 19:17:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/26 15:37:57  adcockj
+// Made ITuner more abstract by removing inheritance from CI2CDevice
+// New class II2CTuner created for tuners that are controled by I2C
+//
 // Revision 1.9  2002/10/24 16:04:47  adcockj
 // Another attempt to get VBI working
 // Tidy up CMDS/Buffers code
@@ -182,7 +186,7 @@ public:
     void Sleep();
     ITuner* GetTuner() const;
 
-    void DumpChipStatus();
+    void DumpChipStatus(const char* CardName);
     HMENU GetCardSpecificMenu();
 
 private:
@@ -197,8 +201,10 @@ private:
     const TCardType* GetCardSetup();
     /// Sets up Sample rate converter (Freq in MHz)
     void SetSampleRateConverter(double PLLFreq);
-    /// Sets up PLL (Freq in MHz)
-    void SetPLL(double PLLFreq);
+    /** Sets up PLL (Freq in MHz)
+	    Returns actual value set for use in further calcs
+	*/
+    double SetPLL(double PLLFreq);
 
     void StandardInputSelect(int nInput);
 

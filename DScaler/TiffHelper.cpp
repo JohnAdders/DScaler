@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.5 2002-02-02 12:41:44 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.6 2002-02-02 21:19:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/02 12:41:44  laurentg
+// CurrentX and CurrentY set when changing source and when switching between still files
+//
 // Revision 1.4  2001/12/08 13:43:20  adcockj
 // Fixed logging and memory leak bugs
 //
@@ -156,7 +159,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         pDestBuf = m_pParent->m_OriginalFrame.pData;
         for (i = 0 ; i < m_pParent->m_Height ; i++)
         {
-            pSrcBuf = bufYCbCr + i * m_pParent->m_Width * 2;
+            pSrcBuf = bufYCbCr + i * w * 2;
             for (j = 0 ; j < (m_pParent->m_Width/2) ; j++)
             {
                 *pDestBuf = pSrcBuf[j * 4];
@@ -166,6 +169,13 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 *pDestBuf = pSrcBuf[j * 4 + 1];
                 ++pDestBuf;
                 *pDestBuf = pSrcBuf[j * 4 + 3];
+                ++pDestBuf;
+            }
+            if (m_pParent->m_Width % 2)
+            {
+                *pDestBuf = pSrcBuf[j * 4];
+                ++pDestBuf;
+                *pDestBuf = pSrcBuf[j * 4 - 2];
                 ++pDestBuf;
             }
         }
@@ -198,7 +208,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         {
             for (j = 0 ; j < (m_pParent->m_Width/2) ; j++)
             {
-                PackedABGRValue = bufPackedRGB[i * m_pParent->m_Width + j * 2];
+                PackedABGRValue = bufPackedRGB[i * w + j * 2];
                 r = TIFFGetR(PackedABGRValue);
                 g = TIFFGetG(PackedABGRValue);
                 b = TIFFGetB(PackedABGRValue);
@@ -206,7 +216,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 y1 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
                 cb = ( -9713*r - 19068*g + 28781*b + 8388608)>>16;
 
-                PackedABGRValue = bufPackedRGB[i * m_pParent->m_Width + j * 2 + 1];
+                PackedABGRValue = bufPackedRGB[i * w + j * 2 + 1];
                 r = TIFFGetR(PackedABGRValue);
                 g = TIFFGetG(PackedABGRValue);
                 b = TIFFGetB(PackedABGRValue);
@@ -221,6 +231,21 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 *pDestBuf = LIMIT(y2);
                 ++pDestBuf;
                 *pDestBuf = LIMIT(cr);
+                ++pDestBuf;
+            }
+            if (m_pParent->m_Width % 2)
+            {
+                PackedABGRValue = bufPackedRGB[i * w + j * 2];
+                r = TIFFGetR(PackedABGRValue);
+                g = TIFFGetG(PackedABGRValue);
+                b = TIFFGetB(PackedABGRValue);
+
+                y1 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
+                cb = ( -9713*r - 19068*g + 28781*b + 8388608)>>16;
+
+                *pDestBuf = LIMIT(y1);
+                ++pDestBuf;
+                *pDestBuf = LIMIT(cb);
                 ++pDestBuf;
             }
         }
@@ -246,12 +271,14 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     uint8* buffer;
     uint8* pBuf;
     tsize_t size;
+    int w;
     float ycbcrCoeffs[3] = { 0.299f, 0.587f, 0.114f };
     float refBlackWhite[6] = { 15., 235., 128., 240., 128., 240. };
 
+    w = (Width % 2) ? Width-1 : Width;
     if (m_FormatSaving == TIFF_CLASS_Y)
     {
-        size = Height * Width * 2;
+        size = Height * w * 2;
     }
     else
     {
@@ -267,7 +294,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     for (int i = 0; i < Height; i++)
     {
         pBufOverlay = pOverlay + i * OverlayPitch;
-        for (int j = 0; j < Width ; j+=2)
+        for (int j = 0; j < w ; j+=2)
         {
             if (m_FormatSaving == TIFF_CLASS_Y)
             {
@@ -299,6 +326,18 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
 
             pBufOverlay += 4;
         }
+        if ((w != Width) && (m_FormatSaving != TIFF_CLASS_Y))
+        {
+            cb = pBufOverlay[1] - 128;
+            cr = pBufOverlay[-1] - 128;
+            y = pBufOverlay[0] - 16;
+            r = ( 76284*y + 104595*cr             )>>16;
+            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+            b = ( 76284*y             + 132252*cb )>>16;
+            *pBuf++ = LIMIT(r);
+            *pBuf++ = LIMIT(g);
+            *pBuf++ = LIMIT(b);
+        }
     }
 
     // Open the file
@@ -318,7 +357,6 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
         !TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_NONE) ||    // No compression
         !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, description) ||
         !TIFFSetField(tif, TIFFTAG_IMAGELENGTH, Height) ||
-        !TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, Width) ||
         !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
         !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip
         !TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3) ||               // RGB = 3 channels/pixel
@@ -330,7 +368,8 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     }
     if (m_FormatSaving == TIFF_CLASS_Y)
     {
-        if (!TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR) ||
+        if (!TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, w) ||
+            !TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR) ||
             !TIFFSetField(tif, TIFFTAG_YCBCRCOEFFICIENTS, ycbcrCoeffs) ||
             !TIFFSetField(tif, TIFFTAG_YCBCRPOSITIONING, YCBCRPOSITION_COSITED) ||
             !TIFFSetField(tif, TIFFTAG_YCBCRSUBSAMPLING, 2, 1) ||
@@ -343,7 +382,8 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     }
     else
     {
-        if (!TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB))
+        if (!TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, Width) ||
+            !TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB))
         {
             _TIFFfree(buffer);
             TIFFClose(tif);

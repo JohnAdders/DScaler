@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.57 2003-02-17 11:39:00 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.58 2003-04-20 11:34:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/02/17 11:39:00  adcockj
+// Added group flags for setting per channel on more settings
+//
 // Revision 1.56  2003/02/02 20:24:24  tobbej
 // added \n to debug messages
 //
@@ -707,15 +710,22 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             AspectSettings.ZoomFactorY = 1000;
         }
-        if (AspectSettings.ZoomFactorX < 100)
+        if ((AspectSettings.ZoomFactorX == 100) && (AspectSettings.ZoomFactorY == 100))
         {
-            sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+            ShowText(hWnd,"Zoom Off");
         }
         else
-        {
-            sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
-        }
-        ShowText(hWnd, Text);
+		{
+			if (AspectSettings.ZoomFactorX < 100)
+			{
+				sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
+			}
+			else
+			{
+				sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
+			}
+			ShowText(hWnd, Text);
+		}
         break;
 
     case IDM_ZOOM_10:

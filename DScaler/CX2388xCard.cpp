@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.28 2002-12-15 13:54:13 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.29 2003-01-04 21:00:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/12/15 13:54:13  adcockj
+// Added code to reset card better
+//
 // Revision 1.27  2002/12/10 14:53:15  adcockj
 // Sound fixes for cx2388x
 //
@@ -719,7 +722,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
-        WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
+        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | ((GetTVFormat(TVFormat)->VBIPacketSize >> 8) << 11));
 
         double PLL = SetPLL(27.0);
         SetSampleRateConverter(PLL);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.287 2003-01-16 22:34:21 laurentg Exp $
+// $Id: DScaler.cpp,v 1.288 2003-01-17 14:40:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.287  2003/01/16 22:34:21  laurentg
+// First step to add a new dialog box to adjust image size
+//
 // Revision 1.286  2003/01/16 16:55:44  adcockj
 // Added new credits dialog
 //
@@ -4588,12 +4591,8 @@ void MainWndOnDestroy()
     
     __try
     {
-        // save settings
-        // must be done before providers are unloaded
         LOG(1, "WriteSettingsToIni");
-        SettingsMaster->SaveSettings();
-        LOG(1, "WriteSettingsToIni");
-        WriteSettingsToIni(TRUE);        
+        WriteSettingsToIni(FALSE);
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 

@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -446,7 +446,7 @@ BEGIN
                     ES_READONLY
 END
 
-IDD_MIXERSETUP DIALOG DISCARDABLE  22, 17, 265, 287
+IDD_MIXERSETUP DIALOG DISCARDABLE  22, 17, 301, 294
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "Mixer & Source Setup"
 FONT 8, "MS Sans Serif"
@@ -462,17 +462,17 @@ BEGIN
     CONTROL         "Use separate lines for different source inputs",
                     IDC_SEPARATE_INPUT,"Button",BS_AUTOCHECKBOX | 
                     WS_DISABLED | WS_TABSTOP,13,97,155,11
-    COMBOBOX        IDC_MIXER_INPUT0,72,114,178,158,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_MIXER_INPUT0,60,114,87,158,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_MIXER_INPUT1,72,134,178,159,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_MIXER_INPUT1,60,129,87,159,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_MIXER_INPUT2,72,154,178,160,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_MIXER_INPUT2,60,146,87,160,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_MIXER_INPUT3,72,173,178,142,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_MIXER_INPUT3,60,164,87,142,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_MIXER_INPUT4,72,192,178,173,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_MIXER_INPUT4,60,181,87,173,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_MIXER_INPUT5,72,212,178,121,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_MIXER_INPUT5,60,198,87,121,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Disable the use of the card's hardware mute (only affects those with mute)",
                     IDC_DISABLE_HW_MUTE,"Button",BS_AUTOCHECKBOX | 
@@ -480,28 +480,56 @@ BEGIN
     CONTROL         "Reset the above mixer lines to original states on exit",
                     IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
                     WS_TABSTOP,6,249,179,11
-    DEFPUSHBUTTON   "OK",IDOK,160,267,47,15
-    PUSHBUTTON      "Cancel",IDCANCEL,213,267,45,15
+    DEFPUSHBUTTON   "OK",IDOK,160,274,47,15
+    PUSHBUTTON      "Cancel",IDCANCEL,213,274,45,15
     LTEXT           "Mixer device:",IDC_STATIC,6,26,56,11
     LTEXT           "Destination:",IDC_STATIC,6,44,46,11
-    LTEXT           "input0",IDC_MIXER_INPUT0NAME,13,113,57,17,
+    LTEXT           "input0",IDC_MIXER_INPUT0NAME,13,113,47,17,
                     SS_CENTERIMAGE
-    LTEXT           "input1",IDC_MIXER_INPUT1NAME,13,130,57,17,
+    LTEXT           "input1",IDC_MIXER_INPUT1NAME,13,128,43,17,
                     SS_CENTERIMAGE
-    LTEXT           "input2",IDC_MIXER_INPUT2NAME,13,150,57,17,
+    LTEXT           "input2",IDC_MIXER_INPUT2NAME,13,144,46,17,
                     SS_CENTERIMAGE
-    LTEXT           "input3",IDC_MIXER_INPUT3NAME,13,170,57,17,
+    LTEXT           "input3",IDC_MIXER_INPUT3NAME,13,163,47,17,
                     SS_CENTERIMAGE
-    LTEXT           "input4",IDC_MIXER_INPUT4NAME,13,190,57,17,
+    LTEXT           "input4",IDC_MIXER_INPUT4NAME,13,179,46,17,
                     SS_CENTERIMAGE
-    LTEXT           "input5",IDC_MIXER_INPUT5NAME,13,209,57,17,
+    LTEXT           "input5",IDC_MIXER_INPUT5NAME,13,195,46,17,
                     SS_CENTERIMAGE
-    GROUPBOX        "Mixer Lines for Source Inputs",IDC_STATIC,6,64,253,168
+    GROUPBOX        "Mixer Lines for Source Inputs",IDC_STATIC,6,64,289,168
     LTEXT           "Mixer Line:",IDC_MIXER_INPUTNAME_ALL,13,79,37,11
     LTEXT           "Static destination",IDC_DEST_STATIC,72,44,182,13,NOT 
                     WS_VISIBLE
     LTEXT           "The current source has no inputs.",IDC_SOURCE_NO_INPUT,
                     66,89,132,20,NOT WS_VISIBLE
+    COMBOBOX        IDC_MIXER_INPUT7,208,114,87,158,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT8,208,129,87,159,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT9,208,146,87,160,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT10,208,164,87,142,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT11,208,181,87,173,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT12,208,198,87,121,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "input7",IDC_MIXER_INPUT7NAME,152,113,54,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input8",IDC_MIXER_INPUT8NAME,152,128,55,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input9",IDC_MIXER_INPUT9NAME,152,144,56,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input10",IDC_MIXER_INPUT10NAME,152,163,56,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input11",IDC_MIXER_INPUT11NAME,152,179,55,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input12",IDC_MIXER_INPUT12NAME,152,195,56,17,
+                    SS_CENTERIMAGE
+    COMBOBOX        IDC_MIXER_INPUT6,60,215,87,121,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "input6",IDC_MIXER_INPUT6NAME,13,212,47,17,
+                    SS_CENTERIMAGE
 END
 
 IDD_ABOUT DIALOG DISCARDABLE  22, 17, 277, 140
@@ -1953,9 +1981,9 @@ BEGIN
     IDD_MIXERSETUP, DIALOG
     BEGIN
         LEFTMARGIN, 6
-        RIGHTMARGIN, 259
+        RIGHTMARGIN, 295
         TOPMARGIN, 6
-        BOTTOMMARGIN, 282
+        BOTTOMMARGIN, 289
     END
 
     IDD_SELECTCARD, DIALOG
@@ -2087,12 +2115,12 @@ IDI_TRAYICON            ICON    DISCARDABLE     "DScalerSysTray.ico"
 
 IDB_TOOLBAR_BAR_BAR     BITMAP  DISCARDABLE     "toolbar_bar_bar.bmp"
 SMALLLOGO               BITMAP  DISCARDABLE     "small_logo.bmp"
-#endif    // Englisch (USA) resources
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Französisch (Frankreich) resources
+// French (France) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
 #ifdef _WIN32
@@ -2110,7 +2138,7 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
 IDI_TOOLBAR_MEDIAPLAYER_PLAY ICON    DISCARDABLE     "toolbar_mediaplayer_play.ico"
 IDI_TOOLBAR_MEDIAPLAYER_STOP ICON    DISCARDABLE     "toolbar_mediaplayer_stop.ico"
 IDI_TOOLBAR_MEDIAPLAYER_PAUSE ICON    DISCARDABLE     "toolbar_mediaplayer_pause.ico"
-#endif    // Französisch (Frankreich) resources
+#endif    // French (France) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

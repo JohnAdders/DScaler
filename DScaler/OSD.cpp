@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.16 2001-07-28 16:15:15 laurentg Exp $
+// $Id: OSD.cpp,v 1.17 2001-07-29 22:51:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/07/28 16:15:15  laurentg
+// New test patterns added
+//
 // Revision 1.15  2001/07/26 22:02:12  laurentg
 // New entry in OSD section of ini file
 // New OSD screen for card calibration
@@ -481,7 +484,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     double          dfMargin = 0.02;    // 2% of screen height/width
     char            szInfo[64];
     int             nLine;
-    int             i;
+    int             i, j, k;
     long            Color;
     double          pos;
     DEINTERLACE_METHOD* DeintMethod;
@@ -875,6 +878,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
             nLine = 4;
 
+            j = 0;
+			k = 0;
             pColorBar = pTestPattern->GetFirstColorBar();
             while (pColorBar != NULL)
 			{
@@ -890,39 +895,84 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                 pColorBar->GetDiffPixel(!bUseRGB, &dif_val1, &dif_val2, &dif_val3);
                 sprintf (szInfo, "%s (%+d,%+d,%+d)", bUseRGB ? "RGB" : "YUV", dif_val1, dif_val2, dif_val3);
                 OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                i = pColorBar->GetQuality(!bUseRGB);
-				switch (i)
+                i = 0;
+                if (dif_val1 < 0)
 				{
-				case 1:
-					strcpy (szInfo, "very good");
-					Color = RGB(0,255,0);
-					break;
-				case 2:
-					strcpy (szInfo, "good");
-					Color = RGB(64,255,64);
-					break;
-				case 3:
-					strcpy (szInfo, "medium");
-					Color = RGB(255,64,64);
-					break;
-				case 4:
-					strcpy (szInfo, "bad");
-					Color = RGB(128,128,0);
-					break;
-				case 5:
-					strcpy (szInfo, "very bad");
-					Color = RGB(255,0,0);
-					break;
-				default:
-					strcpy (szInfo, "???");
-					Color = 0;
-					break;
+                    i -= dif_val1;
 				}
-				strcpy (szInfo, "???");
-				Color = 0;
-                OSD_AddText(szInfo, Size, Color, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                else
+				{
+                    i += dif_val1;
+				}
+                if (dif_val2 < 0)
+				{
+                    i -= dif_val2;
+				}
+                else
+				{
+                    i += dif_val2;
+				}
+                if (dif_val3 < 0)
+				{
+                    i -= dif_val3;
+				}
+                else
+				{
+                    i += dif_val3;
+				}
+				sprintf (szInfo, "(%d) ", i);
+				if (i <= 6)
+				{
+					strcat (szInfo, "very good");
+				}
+				else if (i <= 15)
+				{
+					strcat (szInfo, "good");
+				}
+				else if (i <= 24)
+				{
+					strcat (szInfo, "medium");
+				}
+				else if (i <= 40)
+				{
+					strcat (szInfo, "bad");
+				}
+				else
+				{
+					strcat (szInfo, "very bad");
+				}
+				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+                j += i;
+				k++;
 
                 pColorBar = pTestPattern->GetNextColorBar();
+			}
+			if (k > 0)
+			{
+				j /= k;
+				sprintf (szInfo, "(%d) ", j);
+				if (j <= 6)
+				{
+					strcat (szInfo, "very good");
+				}
+				else if (j <= 15)
+				{
+					strcat (szInfo, "good");
+				}
+				else if (j <= 24)
+				{
+					strcat (szInfo, "medium");
+				}
+				else if (j <= 40)
+				{
+					strcat (szInfo, "bad");
+				}
+				else
+				{
+					strcat (szInfo, "very bad");
+				}
+				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
 			}
 		}
         break;

@@ -110,27 +110,6 @@ void CColorBar::GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V)
 	}
 }
 
-int CColorBar::GetQuality(BOOL YUV)
-{
-	int val1, val2, val3;
-
-	GetDiffPixel(YUV, &val1, &val2, &val3);
-	if (val1 < 0)
-	{
-		val1 = -val1;
-	}
-	if (val2 < 0)
-	{
-		val2 = -val2;
-	}
-	if (val3 < 0)
-	{
-		val3 = -val3;
-	}
-//	return val1 + val2 + val3;
-	return 3;
-}
-
 int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 { 
 	int left, right, top, bottom, i, j;
@@ -141,8 +120,6 @@ int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 	right = width * right_border / 10000;
 	top = height * top_border / 10000;
 	bottom = height * bottom_border / 10000;
-
-//	LOG("CalcCurrentPixel %d %d %d %d %d %d", height, width, left, right, top, bottom);
 
 	Y = 0; nb_Y = 0;
 	U = 0; nb_U = 0;
@@ -193,7 +170,8 @@ int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 		V_val = 0;
 	}
 
-//	LOG("CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
+	LOG("CalcCurrentPixel %d %d %d %d %d %d", height, width, left, right, top, bottom);
+	LOG("CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
 
 	YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
 
@@ -352,79 +330,93 @@ CCalibration::~CCalibration()
 
 void CCalibration::LoadTestPatterns()
 {
-	test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL - colors 4/3", FORMAT_PAL_BDGHI, FALSE);
-	test_patterns[nb_test_patterns]->AddColorBar( 391, 1304, 348, 9652, FALSE, 234, 233, 231);
-	test_patterns[nb_test_patterns]->AddColorBar(1565, 2477, 348, 9652, FALSE, 180, 182,  15);
-	test_patterns[nb_test_patterns]->AddColorBar(2738, 3651, 348, 9652, FALSE,  17, 180, 176);
-	test_patterns[nb_test_patterns]->AddColorBar(3911, 4824, 348, 9652, FALSE,  17, 181,  15);
-	test_patterns[nb_test_patterns]->AddColorBar(5150, 6063, 348, 9652, FALSE, 179,  15, 177);
-	test_patterns[nb_test_patterns]->AddColorBar(6323, 7236, 348, 9652, FALSE, 179,  16,  16);
-	test_patterns[nb_test_patterns]->AddColorBar(7562, 8475, 348, 9652, FALSE,  17,  18, 177);
-	test_patterns[nb_test_patterns]->AddColorBar(8735, 9648, 348, 9652, FALSE,  18,  18,  16);
+	test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode (NTSC) - Monitor Performance", FORMAT_NTSC, TRUE);
+	test_patterns[nb_test_patterns]->AddColorBar( 278, 1042, 2396, 4167, FALSE, 251, 252, 251);
+	test_patterns[nb_test_patterns]->AddColorBar(1458, 2222, 2396, 4167, FALSE, 188, 190,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
+	test_patterns[nb_test_patterns]->AddColorBar(3889, 4653, 2396, 4167, FALSE,   0, 188,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
+	test_patterns[nb_test_patterns]->AddColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(7569, 8333, 2396, 4167, FALSE,  0,    0, 187);
+	test_patterns[nb_test_patterns]->AddColorBar(8750, 9514, 2396, 4167, FALSE,  0,    0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar( 347,  764, 6875, 7500, FALSE,  0,    0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(1181, 1597, 6875, 7500, FALSE,  23,  24,  23);
+	test_patterns[nb_test_patterns]->AddColorBar(2014, 2431, 6875, 7500, FALSE,  49,  50,  49);
+	test_patterns[nb_test_patterns]->AddColorBar(7083, 7500, 6875, 7500, FALSE, 201, 203, 202);
+	test_patterns[nb_test_patterns]->AddColorBar(7917, 8333, 6875, 7500, FALSE, 227, 228, 227);
+	test_patterns[nb_test_patterns]->AddColorBar(8750, 9167, 6875, 7500, FALSE, 252, 253, 252);
 	nb_test_patterns++;
 
-	test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL - black to white 4/3", FORMAT_PAL_BDGHI, FALSE);
-	test_patterns[nb_test_patterns]->AddColorBar( 196,  847, 174, 9826, FALSE,  19,  18,  16);
-	test_patterns[nb_test_patterns]->AddColorBar(1108, 1760, 174, 9826, FALSE,  38,  39,  34);
-	test_patterns[nb_test_patterns]->AddColorBar(2021, 2673, 174, 9826, FALSE,  60,  61,  55);
-	test_patterns[nb_test_patterns]->AddColorBar(2868, 3520, 174, 9826, FALSE,  82,  83,  77);
-	test_patterns[nb_test_patterns]->AddColorBar(3781, 4433, 174, 9826, FALSE, 104, 105,  99);
-	test_patterns[nb_test_patterns]->AddColorBar(4628, 5280, 174, 9826, FALSE, 125, 126, 120);
-	test_patterns[nb_test_patterns]->AddColorBar(5541, 6193, 174, 9826, FALSE, 146, 147, 142);
-	test_patterns[nb_test_patterns]->AddColorBar(6454, 7106, 174, 9826, FALSE, 168, 169, 163);
-	test_patterns[nb_test_patterns]->AddColorBar(7301, 7953, 174, 9826, FALSE, 190, 191, 186);
-	test_patterns[nb_test_patterns]->AddColorBar(8214, 1304, 174, 9826, FALSE, 212, 213, 208);
-	test_patterns[nb_test_patterns]->AddColorBar(9126, 9778, 174, 9826, FALSE, 234, 233, 230);
+	test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 417,  972, 521, 9375, FALSE,   0,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(1458, 2014, 521, 9375, FALSE,  30,  30,  30);
+	test_patterns[nb_test_patterns]->AddColorBar(2361, 2917, 521, 9375, FALSE,  60,  60,  60);
+	test_patterns[nb_test_patterns]->AddColorBar(3333, 3889, 521, 9375, FALSE,  90,  90,  90);
+	test_patterns[nb_test_patterns]->AddColorBar(4236, 4792, 521, 9375, FALSE, 116, 118, 118);
+	test_patterns[nb_test_patterns]->AddColorBar(5208, 5764, 521, 9375, FALSE, 150, 150, 150);
+	test_patterns[nb_test_patterns]->AddColorBar(6181, 6736, 521, 9375, FALSE, 177, 179, 179);
+	test_patterns[nb_test_patterns]->AddColorBar(7153, 7639, 521, 9375, FALSE, 206, 209, 205);
+	test_patterns[nb_test_patterns]->AddColorBar(8125, 8681, 521, 9375, FALSE, 236, 236, 236);
+	test_patterns[nb_test_patterns]->AddColorBar(9097, 9653, 521, 9375, FALSE, 254, 254, 254);
 	nb_test_patterns++;
 
-	test_patterns[nb_test_patterns] = new CTestPattern("THX Monitor Performance - NTSC", FORMAT_NTSC, TRUE);
-	test_patterns[nb_test_patterns]->AddColorBar(  97, 2229, 1167, 4313, FALSE, 251, 252, 251);
-	test_patterns[nb_test_patterns]->AddColorBar(1347, 2229, 2375, 4313, FALSE, 188, 190,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(2611, 2229, 3556, 4313, FALSE,   0, 189, 185);
-	test_patterns[nb_test_patterns]->AddColorBar(3764, 2229, 4764, 4313, FALSE,   0, 188,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(5028, 2229, 6000, 4313, FALSE, 187,   0, 187);
-	test_patterns[nb_test_patterns]->AddColorBar(6222, 2229, 7222, 4313, FALSE, 186,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(7458, 2229, 8472, 4313, FALSE,   0,   0, 187);
-	test_patterns[nb_test_patterns]->AddColorBar(8639, 2229, 9903, 4313, FALSE,   0,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar( 111, 6708,  917, 7708, FALSE,   0,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(1083, 6708, 1750, 7708, FALSE,  23,  24,  23);
-	test_patterns[nb_test_patterns]->AddColorBar(1917, 6708, 2583, 7708, FALSE,  49,  50,  49);
-	test_patterns[nb_test_patterns]->AddColorBar(6944, 6708, 7611, 7708, FALSE, 201, 203, 202);
-	test_patterns[nb_test_patterns]->AddColorBar(7778, 6708, 8472, 7708, FALSE, 227, 228, 227);
-	test_patterns[nb_test_patterns]->AddColorBar(8611, 6708, 9861, 7708, FALSE, 252, 253, 252);
+	test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 10 - color bars", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 5208, FALSE, 190, 190, 190);
+	test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 5208, FALSE, 198, 199,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 5208, FALSE,   0, 190, 189);
+	test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 5208, FALSE,   0, 190,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 5208, FALSE, 190,   0, 189);
+	test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 5208, FALSE, 188,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 5208, FALSE,   0,   0, 187);
 	nb_test_patterns++;
 
-	test_patterns[nb_test_patterns] = new CTestPattern("VE Title 18 Chapter 10", FORMAT_NTSC, FALSE);
-	test_patterns[nb_test_patterns]->AddColorBar( 208, 104, 1319, 5938, FALSE, 190, 190, 190);
-	test_patterns[nb_test_patterns]->AddColorBar(1597, 104, 2708, 5938, FALSE, 197, 198,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(3028, 104, 4139, 5938, FALSE,   0, 190, 188);
-	test_patterns[nb_test_patterns]->AddColorBar(4417, 104, 5528, 5938, FALSE,   0, 190,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(5833, 104, 6944, 5938, FALSE, 189,   0, 188);
-	test_patterns[nb_test_patterns]->AddColorBar(7250, 104, 8361, 5938, FALSE, 188,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(8681, 104, 9792, 5938, FALSE,   0,   0, 186);
+	test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 1 C 7 - range of gray", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 208,  764, 521, 9375, FALSE, 254, 251, 255);
+	test_patterns[nb_test_patterns]->AddColorBar(1111, 1667, 521, 9375, FALSE, 226, 223, 227);
+	test_patterns[nb_test_patterns]->AddColorBar(2014, 2569, 521, 9375, FALSE, 200, 197, 201);
+	test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 521, 9375, FALSE, 172, 169, 173);
+	test_patterns[nb_test_patterns]->AddColorBar(3819, 4375, 521, 9375, FALSE, 145, 142, 146);
+	test_patterns[nb_test_patterns]->AddColorBar(4722, 5278, 521, 9375, FALSE, 117, 114, 118);
+	test_patterns[nb_test_patterns]->AddColorBar(5625, 6181, 521, 9375, FALSE,  90,  87,  91);
+	test_patterns[nb_test_patterns]->AddColorBar(6528, 7083, 521, 9375, FALSE,  62,  59,  63);
+	test_patterns[nb_test_patterns]->AddColorBar(7431, 7986, 521, 9375, FALSE,  34,  31,  35);
+	test_patterns[nb_test_patterns]->AddColorBar(8333, 8819, 521, 9375, FALSE,   7,   4,   8);
+	test_patterns[nb_test_patterns]->AddColorBar(9236, 9722, 521, 9375, FALSE,   1,   0,   2);
 	nb_test_patterns++;
 
-	test_patterns[nb_test_patterns] = new CTestPattern("VE Title 18 Chapter 2", FORMAT_NTSC, FALSE);
-	test_patterns[nb_test_patterns]->AddColorBar( 139, 208, 1042, 9583, FALSE,   0,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(1333, 208, 2028, 9583, FALSE,  29,  29,  29);
-	test_patterns[nb_test_patterns]->AddColorBar(2292, 208, 2986, 9583, FALSE,  60,  60,  60);
-	test_patterns[nb_test_patterns]->AddColorBar(3250, 208, 3944, 9583, FALSE,  90,  90,  90);
-	test_patterns[nb_test_patterns]->AddColorBar(4194, 208, 4889, 9583, FALSE, 116, 118, 118);
-	test_patterns[nb_test_patterns]->AddColorBar(5139, 208, 5833, 9583, FALSE, 150, 150, 150);
-	test_patterns[nb_test_patterns]->AddColorBar(6111, 208, 6806, 9583, FALSE, 177, 179, 179);
-	test_patterns[nb_test_patterns]->AddColorBar(7083, 208, 7778, 9583, FALSE, 206, 209, 205);
-	test_patterns[nb_test_patterns]->AddColorBar(8028, 208, 8722, 9583, FALSE, 236, 236, 236);
-	test_patterns[nb_test_patterns]->AddColorBar(8972, 208, 9806, 9583, FALSE, 254, 254, 254);
+	test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 4 C 4 - color bars", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 4167, FALSE, 190, 189, 190);
+	test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 4167, FALSE, 190, 189,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 4167, FALSE,   0, 189, 188);
+	test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 4167, FALSE,   0, 189,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 4167, FALSE, 190,   0, 191);
+	test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 4167, FALSE, 190,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 4167, FALSE,   0,   0, 190);
 	nb_test_patterns++;
 
-	test_patterns[nb_test_patterns] = new CTestPattern("AVIA Title 4 Chapter 4", FORMAT_NTSC, FALSE);
-	test_patterns[nb_test_patterns]->AddColorBar(  69, 104, 1319, 4896, FALSE, 190, 189, 190);
-	test_patterns[nb_test_patterns]->AddColorBar(1528, 104, 2708, 4896, FALSE, 189, 189,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(2986, 104, 4167, 4896, FALSE,   0, 189, 188);
-	test_patterns[nb_test_patterns]->AddColorBar(4375, 104, 5556, 4896, FALSE,   0, 189,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(5833, 104, 7014, 4896, FALSE, 190,   0, 191);
-	test_patterns[nb_test_patterns]->AddColorBar(7292, 104, 8472, 4896, FALSE, 190,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(8681, 104, 9861, 4896, FALSE,   0,   0, 190);
+	test_patterns[nb_test_patterns] = new CTestPattern("LAL - T 36 C 1 - range of gray", FORMAT_PAL_BDGHI, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 278,  833, 434, 9549, FALSE,   0,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(1181, 1736, 434, 9549, FALSE,  20,  23,  20);
+	test_patterns[nb_test_patterns]->AddColorBar(2014, 2569, 434, 9549, FALSE,  46,  49,  45);
+	test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 434, 9549, FALSE,  72,  75,  71);
+	test_patterns[nb_test_patterns]->AddColorBar(3819, 4375, 434, 9549, FALSE,  98, 101,  97);
+	test_patterns[nb_test_patterns]->AddColorBar(4722, 5278, 434, 9549, FALSE, 123, 125, 122);
+	test_patterns[nb_test_patterns]->AddColorBar(5556, 6111, 434, 9549, FALSE, 149, 151, 148);
+	test_patterns[nb_test_patterns]->AddColorBar(6458, 7014, 434, 9549, FALSE, 174, 177, 173);
+	test_patterns[nb_test_patterns]->AddColorBar(7361, 7917, 434, 9549, FALSE, 201, 203, 200);
+	test_patterns[nb_test_patterns]->AddColorBar(8264, 8819, 434, 9549, FALSE, 227, 229, 226);
+	test_patterns[nb_test_patterns]->AddColorBar(9167, 9722, 434, 9549, FALSE, 252, 252, 252);
+	nb_test_patterns++;
+
+	test_patterns[nb_test_patterns] = new CTestPattern("LAL - T 31 C 1 - color bars", FORMAT_PAL_BDGHI, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 556, 1111, 434, 9549, FALSE, 253, 253, 253);
+	test_patterns[nb_test_patterns]->AddColorBar(1736, 2292, 434, 9549, FALSE, 189, 191,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(2917, 3472, 434, 9549, FALSE,   0, 189, 188);
+	test_patterns[nb_test_patterns]->AddColorBar(4097, 4653, 434, 9549, FALSE,   0, 190,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(5278, 5833, 434, 9549, FALSE, 189,   0, 189);
+	test_patterns[nb_test_patterns]->AddColorBar(6458, 7014, 434, 9549, FALSE, 189,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(7708, 8264, 434, 9549, FALSE,   0,   0, 189);
+	test_patterns[nb_test_patterns]->AddColorBar(8889, 9444, 434, 9549, FALSE,   0,   0,   0);
 	nb_test_patterns++;
 }
 

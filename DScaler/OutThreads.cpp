@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.27 2001-07-27 16:11:32 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.28 2001-07-29 22:51:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/07/27 16:11:32  adcockj
+// Added support for new Crash dialog
+//
 // Revision 1.26  2001/07/26 22:38:04  laurentg
 // Call to card calibration function added
 //
@@ -519,9 +522,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     }
                 }
 
-				if (pCalibration->IsRunning() && (pCalibration->GetCurrentTestPattern() != NULL))
+				if (pCalibration->IsRunning() && (pCalibration->GetCurrentTestPattern() != NULL) && Info.IsOdd)
 				{
-					pCalibration->GetCurrentTestPattern()->CalcCurrentPattern(Info.IsOdd ? Info.OddLines[0] : Info.EvenLines[0], Info.FieldHeight, Info.FrameWidth);
+					pCalibration->GetCurrentTestPattern()->CalcCurrentPattern(Info.OddLines[0], Info.FieldHeight, Info.FrameWidth);
 				}
 
                 // update the source area

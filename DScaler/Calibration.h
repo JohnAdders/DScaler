@@ -45,7 +45,6 @@ public:
 	void GetRefPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
 	void GetCurrentPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
 	void GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V);
-	int GetQuality(BOOL YUV);
 	int CalcCurrentPixel(short **Lines, int height, int width);
 protected: 
     unsigned short int left_border;		// range between 0 and 10000

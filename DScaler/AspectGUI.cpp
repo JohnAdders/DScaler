@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.25 2001-10-18 16:20:40 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.26 2001-10-18 16:24:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/10/18 16:20:40  adcockj
+// Made Color of blanking adjustable
+//
 // Revision 1.24  2001/09/05 21:05:29  adcockj
 // Bug Fixes for new overlay code
 //
@@ -821,6 +824,13 @@ BOOL ChromaRange_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL MaskGreyShade_OnChange(long NewValue)
+{
+    AspectSettings.MaskGreyShade = NewValue;  
+    WorkoutOverlaySize();
+    return FALSE;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -1041,7 +1051,7 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "Mask Grey Shade", SLIDER, 0, (long*)&AspectSettings.MaskGreyShade,
         0, 0, 255, 1, 1,
         NULL,
-        "ASPECT_DETECT", "MaskGreyShade", NULL,
+        "ASPECT_DETECT", "MaskGreyShade", MaskGreyShade_OnChange,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.19 2002-02-11 08:23:09 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.20 2002-02-17 17:48:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/02/11 08:23:09  adcockj
+// Fixed pixel width menu problem
+//
 // Revision 1.18  2002/02/10 13:06:27  adcockj
 // Various sound bugs found by Laurent fixed
 //
@@ -224,7 +227,6 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         {
             SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
         }
-        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, pThis->m_TunerType->GetValue(), 0);
 
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 - 500 MHz");
@@ -237,6 +239,9 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         OrigTradeOff = pThis->m_TradeOff->GetValue();
         OrigTuner = pThis->m_TunerType->GetValue();
         SetFocus(hDlg);
+        // Update the tuner combobox after the SetFocus
+        // because SetFocus modifies this combobox
+        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, pThis->m_TunerType->GetValue(), 0);
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

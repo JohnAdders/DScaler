@@ -79,6 +79,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             If your S-VHS VCR or LaserDisc does not have a comb filter, then the Temporal Comb filter should
             be very worthwhile.
           </P>
+					<P>
+					  Note that the more recently supported cards&nbsp;&mdash; The SAA7134 and CT2388X&nbsp;&mdash;
+						both have a built-in 2D comb filter.  But since those filters work spatially, and
+						this one works temporally, there can be some benifit to using both.
+					</P>
           <P>
             The comb filter helps a great deal with composite (but not S-Video) connected games for
             recent consoles such as the
@@ -87,6 +92,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             consoles, turn off this filter and use the <A HREF="OldGame.htm">Old Game</A>
             deinterlacer, instead.
           </P>
+          <P>
+             SECAM handles color in a very different way than PAL or NTSC.  Except
+						 for people in  Saudi Arabia (which uses SECAM with PAL-style color
+             encoding), SECAM users should turn this filter off.
+          </P>
           <HR>
           <P>
             <B><FONT FACE="Arial" SIZE="4">The Settings</FONT></B>
@@ -94,12 +104,12 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           <P>
             I&rsquo;m going to describe how to configure this filter conservatively, so you can
             forget about it afterward. If you like to fiddle with sliders, you can instead use much more
-            aggressive settings (lower <FONT COLOR="#993300">recall</FONT> and <FONT COLOR=
-            "#993300">shimmering</FONT> values) and turn them up only when you have to.
+            aggressive settings (lower <FONT COLOR="#993300">Recall</FONT> and <FONT COLOR=
+            "#993300">Shimmering</FONT> values) and turn them up only when you have to.
           </P>
           <P>
-            <A NAME="Recall"><B><FONT FACE="Arial" COLOR="#993300">Recall of past
-            shimmering</FONT></B></A>
+            <A NAME="Recall"><B><FONT FACE="Arial" COLOR="#993300">Recall of Past
+            Shimmering</FONT></B></A>
           </P>
           <P>
             This is the really important setting. It decides just how far back into the past the filter
@@ -113,7 +123,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             <A NAME="Shimmering"><B><FONT FACE="Arial" COLOR="#993300">Shimmering to
-            activate</FONT></B></A>
+            Activate</FONT></B></A>
           </P>
           <P>
             This setting has a much subtler effect. If you set it high, the filter will only correct when
@@ -121,16 +131,17 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             interruptions&nbsp;&mdash; but will also be a little more susceptible to artifacts.
           </P>
           <P>
-            If you&rsquo;re running a noise filter, too, you can afford to set this low&nbsp;&mdash; 30%
+            If you&rsquo;re running the <A HREF="GradualNoise.htm">Gradual</A> or <A HREF="Noise.htm">Temporal</A>
+						noise filter, too, you can afford to set this low&nbsp;&mdash; 30%
             works well for me. That&rsquo;s a good idea, since it will allow the filter to correct more
-            subtle shimmering. Without a noise filter, you&rsquo;ll need to set it pretty high (about
+            subtle shimmering. Without one of those filters, you&rsquo;ll need to set it pretty high (about
             70%) to avoid transient spots where dot crawl has just disappeared. If you don&rsquo;t
             care about shimmering and just want to take care of dot crawl, you can safely set this near
             100%.
           </P>
           <P>
-            <A NAME="ColorDifferences"><B><FONT FACE="Arial" COLOR="#993300">Maximum color
-            variation</FONT></B></A>
+            <A NAME="ColorDifferences"><B><FONT FACE="Arial" COLOR="#993300">Maximum Color
+            Variation</FONT></B></A>
           </P>
           <P>
             This option lets you choose just how much the color can change before the filter decides the
@@ -139,89 +150,93 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             detection method. If you&rsquo;ve enabled Even Luma Peaking and Odd Luma Peaking (in the
             Advanced Video Flags dialog), you&rsquo;ll need to set this very high&nbsp;&mdash; to 45 or 50.
             With peaking disabled, you can drop this setting to around 35. You can lower it by about 10
-            points if you turn on <FONT COLOR="#993300">trade speed for accuracy</FONT>.
+            points if you turn on <FONT COLOR="#993300">High Quality</FONT>.
           </P>
           <P>
             The higher you set this, the more likely you are to see transient spots. So if you set this
-            really high, you&rsquo;ll want to increase <FONT COLOR="#993300">recall</FONT> and/or <FONT
-            COLOR="#993300">shimmering</FONT>.
+            really high, you&rsquo;ll want to increase <FONT COLOR="#993300">Recall</FONT> and/or <FONT
+            COLOR="#993300">Shimmering</FONT>.
           </P>
           <P>
-            There isn&rsquo;t an intuitive way to choose the <FONT COLOR="#993300">maximum color
-            variation</FONT>, so here&rsquo;s a guide to help you set it:
+            There isn&rsquo;t an intuitive way to choose the <FONT COLOR="#993300">Maximum Color
+            Variation</FONT>, so here&rsquo;s a guide to help you set it:
           </P>
           <UL>
             <LI>
-              First, tune in the worst dot crawl you can find. In the US, CNN Head&shy;lines is a
+              First, tune in the worst dot crawl or rainbows you can find. In the US, CNN Head&shy;lines is a
               depend&shy;able source, as are the &ldquo;T&rdquo; in the Coun&shy;try Music
               Sta&shy;tion&rsquo;s logo and the radar maps on the Weather Chan&shy;nel. If you&rsquo;ve got a
               video refer&shy;ence DVD, con&shy;nect it via compos&shy;ite and show a still with
               neigh&shy;boring green and magenta color bars.
             </LI>
             <LI>
-              Turn <FONT COLOR="#993300">recall</FONT> and <FONT COLOR="#993300">shim&shy;mering</FONT> all
-              the way down. Turn <FONT COLOR="#993300">max&shy;imum color varia&shy;tion</FONT> up really
-              high (to about 80). The dot crawl should dis&shy;appear. (Well, bad dot crawl does still leave
-              a resid&shy;ual shim&shy;mer unless you enable <FONT COLOR="#993300">trade speed for
-              accuracy</FONT>.)
+              Turn <FONT COLOR="#993300">Recall</FONT> and <FONT COLOR="#993300">Shim&shy;mering</FONT> all
+              the way down. Turn <FONT COLOR="#993300">Max&shy;imum Color Varia&shy;tion</FONT> up really
+              high (to about 80). The artifacts should dis&shy;appear. (Well, bad dot crawl does still leave
+              a resid&shy;ual shim&shy;mer unless you enable <FONT COLOR="#993300">High Quality</FONT>.)
             </LI>
             <LI>
-              Move <FONT COLOR="#993300">max&shy;imum color varia&shy;tion</FONT> down until the dot crawl
-              returns. Then raise it until the dot crawl dis&shy;appears, again. You&rsquo;ve now got
+              Move <FONT COLOR="#993300">Max&shy;imum Color Varia&shy;tion</FONT> down until the dot crawl
+							or shimmering
+              returns. Then raise it until the artifacts dis&shy;appear, again. You&rsquo;ve now got
               your&shy;self the best value for it.
             </LI>
             <LI>
-              Turn <FONT COLOR="#993300">recall</FONT> and <FONT COLOR="#993300">shim&shy;mering</FONT> back
+              Turn <FONT COLOR="#993300">Recall</FONT> and <FONT COLOR="#993300">Shim&shy;mering</FONT> back
               up to more reason&shy;able values.
             </LI>
           </UL>
           <P>
-            <A NAME="SpeedForAccuracy"><B><FONT FACE="Arial" COLOR="#993300">Trade speed for
-            accuracy</FONT></B></A>
+            <A NAME="SpeedForAccuracy"><B><FONT FACE="Arial" COLOR="#993300">High Quality</FONT></B></A>
           </P>
           <P>
-            This checkbox does pretty much what it says. It improves the accuracy and colors&nbsp;&mdash; but
-            slows things down, and uses an additional 2 MB of memory (on top of the ~400K it always
-            needs).
+            This option improves the accuracy and colors&nbsp;&mdash; but
+            slows things down, and uses an additional 2 MB (for NTSC) or 4 MB (for PAL) of memory
+            (that&rsquo;s on top of the ~400K it always needs).
           </P>
           <P>
-            As with <FONT COLOR="#993300">recall</FONT>, you&rsquo;ll need to wait a moment before this
+            As with <FONT COLOR="#993300">Recall</FONT>, you&rsquo;ll need to wait a moment before this
             setting takes effect.
           </P>
+					<P>
+					  If you are using a SAA7134 based input card, then you <EM>must</EM>
+						use the <FONT COLOR="#993300">High Quality</FONT> mode &mdash; otherwise
+						this filter won&rsquo;t work.
+					</P>
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-						  Video mode
-					  </FONT></B>
+              Video Mode
+            </FONT></B>
           </P>
           <P>
-						 Usually, people in North America and Japan should set this to NTSC,
-						 while everyone else should set this to PAL.  If this is set incorrectly,
-						 the comb filter won&rsquo;t work at all.
+             Usually, people in North America and Japan should set this to NTSC,
+             while everyone else should set this to PAL.  If this is set incorrectly,
+             the comb filter won&rsquo;t work at all.
           </P>
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-						  Fast memory access
-					  </FONT></B>
+              Fast Memory Access
+            </FONT></B>
           </P>
           <P>
-						 This is a <A HREF="Fast Memory Access.htm">compatability
-						 setting</A> which should normally be turned on.
+            This is a <A HREF="Fast Memory Access.htm">compatibility
+            setting</A> which should normally be turned on.
           </P>
           <P>
-            <B><FONT FACE="Arial">Looking for trouble</FONT></B>
+            <B><FONT FACE="Arial">Looking for Trouble</FONT></B>
           </P>
           <P>
             If you want to find artifacts to help you pick settings, there are a couple types of
             mater&shy;ial which are especially problematic. Strobe effects in music videos may cause
             fits. But the very worst case is the ticker tape on CNBC (on US Cable), which goes by at the
             right speed to fool the filter. Worse yet, it has bad (but moving) dot crawl. You&rsquo;ll need
-            to set the <FONT COLOR="#993300">recall</FONT> option pretty high (about 85%) to avoid
+            to set the <FONT COLOR="#993300">Recall</FONT> option pretty high (about 85%) to avoid
             problems with it.
           </P>
           <HR>
           <P>
-            <B><A NAME="Comb Explanation"><FONT FACE="Arial" SIZE="4">What the heck is a comb
-            filter?</FONT></A></B>
+            <B><A NAME="Comb Explanation"><FONT FACE="Arial" SIZE="4">What the Heck is a Comb
+            Filter?</FONT></A></B>
           </P>
           <P>
             In technical terms, it averages out chrominance/luminance crosstalk
@@ -281,7 +296,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
                     ...and here he is with the comb fil&shy;ter enabled. Note the smooth&shy;er bound&shy;ary
                     be&shy;tween his head/neck and the back&shy;ground. (Ig&shy;nore the stuff under his
                     lip&nbsp;&mdash; it comes from the im&shy;age com&shy;pres&shy;sion.) This pic&shy;ture
-                    was taken with <FONT COLOR="#993300">trade speed for ac&shy;cu&shy;ra&shy;cy</FONT>
+                    was taken with <FONT COLOR="#993300">High Qual&shy;ity</FONT>
                     turned on. &larr;
                     <BR>
                   </P>
@@ -304,8 +319,14 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             <B><A NAME="Version History"><FONT FACE="Arial" SIZE="4">Version History</FONT></A></B>
           </P>
           <P>
+            With DScaler 4.1, the comb filter now works for PAL as well as NTSC signals.  Also, the
+            Trade Speed for Accuracy option was renamed
+            <FONT COLOR="#993300">High Quality</FONT>, so I wouldn&rsquo;t have to type
+            as much.
+          </P>
+          <P>
             With DScaler 4.0, reduction of chroma shimmering is improved.  The settings are also more
-            finely scaled, especially when <FONT COLOR="#993300">recall</FONT> is set fairly low.
+            finely scaled, especially when <FONT COLOR="#993300">Recall</FONT> is set fairly low.
           </P>
           <!-- #EndEditable -->
         </TD>

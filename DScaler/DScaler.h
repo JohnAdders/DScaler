@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.42 2003-01-24 01:55:18 atnak Exp $
+// $Id: DScaler.h,v 1.43 2003-01-26 10:34:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -136,6 +136,7 @@ typedef struct
 #define UWM_SQUAREPIXELS_CHECK  WM_APP + 0x1002
 #define UWM_EVENTADDEDTOQUEUE   WM_APP + 0x1003
 #define UWM_OSD                 WM_APP + 0x1004
+#define UWM_DEINTERLACE_SETSTATUS WM_APP + 0x1005
 
 #define VTM_VTHEADERUPDATE      0x0001
 #define VTM_VTPAGEUPDATE        0x0002

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.h,v 1.7 2001-12-18 14:45:05 adcockj Exp $
+// $Id: Status.h,v 1.8 2003-01-26 10:34:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 //                                     Got rid of global.h structs.h defines.h
 //
 /////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __STATUS_H___
 #define __STATUS_H___
@@ -47,7 +51,7 @@ BOOL StatusBar_Init();
 BOOL StatusBar_IsVisible();
 BOOL StatusBar_Adjust(HWND hWnd);
 void StatusBar_Destroy();
-void StatusBar_ShowText(eStatusBarBox Field, LPCTSTR  szText);
+void StatusBar_ShowText(eStatusBarBox Field, LPCSTR  szText);
 void StatusBar_ShowWindow(BOOL bShow);
 void StatusBar_Repaint();
 int StatusBar_Height();

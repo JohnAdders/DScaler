@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.13 2002-03-17 10:00:25 robmuller Exp $
+// $Id: Status.cpp,v 1.14 2003-01-26 10:34:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/03/17 10:00:25  robmuller
+// Status bar text is updated when the status bar is hidden.
+//
 // Revision 1.12  2001/12/18 14:45:05  adcockj
 // Moved to Common Controls status bar
 //
@@ -75,6 +78,7 @@
 #include "resource.h"
 #include "Status.h"
 #include "DScaler.h"
+#include "OutThreads.h"
 
 HWND hwndStatusBar = NULL;
 
@@ -94,8 +98,10 @@ BOOL StatusBar_IsVisible()
     return IsWindowVisible(hwndStatusBar);
 }
 
-void StatusBar_ShowText(eStatusBarBox Box, LPCTSTR szText)
+void StatusBar_ShowText(eStatusBarBox Box, LPCSTR szText)
 {
+    //this function shoud not be called from the output thread, use Deinterlace_SetStatus instead
+    ASSERTONOUTTHREAD;
     SendMessage(hwndStatusBar, SB_SETTEXT, Box, (LPARAM) szText);
 }
 

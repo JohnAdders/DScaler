@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.293 2003-01-26 03:46:30 atnak Exp $
+// $Id: DScaler.cpp,v 1.294 2003-01-26 10:34:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.293  2003/01/26 03:46:30  atnak
+// Fixed no refresh after videotext setting change
+//
 // Revision 1.292  2003/01/25 12:03:45  atnak
 // Changed OSD RECT from GetDestRect() to GetDisplayAreaRect(),
 // re-implemented IDM_FAST_REPAINT
@@ -4315,7 +4318,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
         }
         return FALSE;
-        break;       
+        break;
+
+    case UWM_DEINTERLACE_SETSTATUS:
+        if(wParam!=NULL)
+        {
+            StatusBar_ShowText(STATUS_MODE,(LPCSTR)wParam);
+            free((void*)wParam);
+        }
+        return 0;
+        break;
 
     case UWM_EVENTADDEDTOQUEUE:
         if (EventCollector != NULL)

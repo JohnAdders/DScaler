@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.45 2003-01-24 01:55:18 atnak Exp $
+// $Id: Deinterlace.cpp,v 1.46 2003-01-26 10:34:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.44  2003/01/10 17:38:05  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -296,9 +300,16 @@ eProgressivePulldownMode gProgMode = NORMAL_PROGRESSIVE;
 
 BOOL bIsProgressiveMode = FALSE;
 
+///This function is called from the output thread.
 void Deinterlace_SetStatus(LPCSTR StatusText)
 {
-    StatusBar_ShowText(STATUS_MODE, StatusText);
+    size_t len=strlen(StatusText);
+    if(len>0)
+    {
+        LPSTR tmpstr=(LPSTR)malloc(len+1);
+        strncpy(tmpstr,StatusText,len+1);
+        PostMessage(hWnd,UWM_DEINTERLACE_SETSTATUS,(WPARAM)tmpstr,0);
+    }
 }
 
 void ResetDeinterlaceStats()

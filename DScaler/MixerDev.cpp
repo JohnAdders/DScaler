@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.43 2003-07-30 03:24:34 atnak Exp $
+// $Id: MixerDev.cpp,v 1.44 2003-08-15 09:29:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2003/07/30 03:24:34  atnak
+// Added NOHARDWAREMUTE to list of saved settings
+//
 // Revision 1.42  2003/07/29 13:40:02  atnak
 // Hide IDC_MIXER_INPUTNAME_ALL too fix
 //
@@ -336,7 +339,7 @@ long Mixer_GetVolume()
         return pLineSrc->GetVolume();
     }
 
-    return 0;
+    return -1;
 }
 
 

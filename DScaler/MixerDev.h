@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.18 2003-07-29 13:33:07 atnak Exp $
+// $Id: MixerDev.h,v 1.19 2003-08-15 09:29:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,6 @@ void    Mixer_Init();
 void    Mixer_Exit();
 
 BOOL    Mixer_IsEnabled();
-BOOL    Mixer_IsActive();
 BOOL    Mixer_IsNoHardwareMute();
 
 void    Mixer_SetMute(BOOL bEnabled);

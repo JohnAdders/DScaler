@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.65 2003-01-24 01:55:17 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.66 2003-01-26 12:34:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.64  2003/01/12 17:12:45  atnak
 // Added hex pages display and goto dialog
 //
@@ -2137,7 +2141,7 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
 {
     unsigned char data[45];
     unsigned char min, max;
-    int dt[256], hi[6], lo[6];
+    int dt[512], hi[6], lo[6];
     int i, n, sync, thr;
 
     // remove DC. edge-detector

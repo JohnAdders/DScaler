@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.44 2003-03-29 13:37:51 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.45 2003-04-30 17:30:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/03/29 13:37:51  laurentg
+// Allow the display of DScaler to monitors other than the primary
+//
 // Revision 1.43  2003/03/22 15:41:58  laurentg
 // Half height deinterlace modes correctly handled in previow mode
 // Center of the image in its frame with black borders
@@ -185,7 +188,7 @@
 
 TAspectSettings AspectSettings =
 {
-    1333,0,1,0,0,40,16,TRUE,3,17,0,60,3,300,15,20,
+    1333,0,1,1335,1335,40,16,TRUE,3,17,0,60,3,300,15,20,
     2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
     {0,0,0,0},
     {0,0,0,0},

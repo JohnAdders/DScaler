@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.10 2001-12-21 11:07:31 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.11 2002-01-16 19:07:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/21 11:07:31  adcockj
+// Even more RevA fixes
+//
 // Revision 1.9  2001/12/19 19:24:44  ittarnavsky
 // prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
 //
@@ -2733,14 +2736,14 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 				3,
 			},
 			{
-				"Composite 2",
-				INPUTTYPE_COMPOSITE,
+				"S-Video",
+				INPUTTYPE_SVIDEO,
 				0,
 			},
 			{
-				"Composite 3",
+				"Composite over S-video",
 				INPUTTYPE_COMPOSITE,
-				1,
+				0,
 			},
 		},
 		PLL_28,
@@ -2768,14 +2771,14 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 				3,
 			},
 			{
-				"Composite 2",
-				INPUTTYPE_COMPOSITE,
+				"S-Video",
+				INPUTTYPE_SVIDEO,
 				0,
 			},
 			{
-				"Composite 3",
+				"Composite over S-video",
 				INPUTTYPE_COMPOSITE,
-				1,
+				0,
 			},
 		},
 		PLL_28,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.18 2002-10-30 13:37:52 atnak Exp $
+// $Id: VBI.cpp,v 1.19 2003-01-01 20:53:11 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/30 13:37:52  atnak
+// Added "Single key teletext toggle" option. (Enables mixed mode menu item)
+//
 // Revision 1.17  2002/08/15 14:16:18  kooiman
 // Cleaner settings per channel implementation
 //
@@ -90,6 +93,7 @@
 #include "VBI_VideoText.h"
 #include "VBI_CCdecode.h"
 #include "VBI_WSSdecode.h"
+#include "VBI_VPSdecode.h"
 #include "Providers.h"
 #include "DebugLog.h"
 #include "AspectRatio.h"
@@ -111,18 +115,24 @@ BOOL bSearchHighlight = TRUE;
 
 eCCMode CCMode = CCMODE_OFF;
 
-HWND ShowVPSInfo=NULL;
-
 void VBI_SavePerChannelSetup(void *pThis, int Start);
 
 void VBI_Init()
 {
     VBI_VT_Init();
+    VBI_VPS_Init();
 }
 
 void VBI_Exit()
 {
+    VBI_VPS_Exit();
     VBI_VT_Exit();
+}
+
+void VBI_ChannelChange()
+{
+    VT_ChannelChange();
+    VPS_ChannelChange();
 }
 
 void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
@@ -137,7 +147,7 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // all kinds of data with videotext data format: videotext, intercast, ... 
     if (DoTeletext)
     {
-        VT_DecodeLine(VBI_Buffer, line, IsOdd);
+        VBI_DecodeLine_VT(VBI_Buffer);
     }
 
     // Closed caption information appears on line 21 (line == 11) for NTSC
@@ -146,19 +156,19 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // for more infomation
     if ((CCMode != CCMODE_OFF) && line == TVFormat->CC_Line) 
     {
-        CC_DecodeLine(VBI_Buffer, CCMode, IsOdd);
+        VBI_DecodeLine_CC(VBI_Buffer, CCMode, IsOdd);
     }
 
     // VPS information with channel name, time, VCR programming Info, etc. 
     if (DoVPS && (line == 9))
     {
-        VTS_DecodeLine(VBI_Buffer);
+        VBI_DecodeLine_VPS(VBI_Buffer);
     }
 
     // WSS information with source aspect ratio. 
     if (DoWSS && !IsOdd && (line == TVFormat->WSS_Line))
     {
-        WSS_DecodeLine(VBI_Buffer);
+        VBI_DecodeLine_WSS(VBI_Buffer);
     }
 }
 
@@ -235,9 +245,10 @@ SETTING VBISettings[VBI_SETTING_LASTONE] =
         "Search Highlight", ONOFF, 0, (long*)&bSearchHighlight,
         TRUE, 0, 1, 1, 1,
         NULL,
-        "VBI", "SearchHighLight", bSearchHighlight_OnChange,
+        "VBI", "SearchHighLight", VT_HilightSearchOnChange,
     },
 };
+
 
 SETTING* VBI_GetSetting(VBI_SETTING Setting)
 {
@@ -255,11 +266,12 @@ void VBI_ReadSettingsFromIni()
 {
     SettingsPerChannel_RegisterOnSetup(NULL, VBI_SavePerChannelSetup);
     
-    int i;
-    for(i = 0; i < VBI_SETTING_LASTONE; i++)
+    for(int i = 0; i < VBI_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(VBISettings[i]));
     }
+
+    VT_HilightSearchOnChange(bSearchHighlight);
 }
 
 void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess)
@@ -285,14 +297,14 @@ void VBI_SetMenu(HMENU hMenu)
     if (bCaptureVBI == TRUE)
     {
         // set vt dialog menu items up
-        EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_MIXEDMODE, (DoTeletext)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_RESET, (DoTeletext)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_OUT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_SEARCH, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS)?MF_ENABLED:MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, (DoTeletext) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_MIXEDMODE, (DoTeletext) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_RESET, (DoTeletext) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_OUT, (DoTeletext) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCH, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCHHIGHLIGHT, (DoTeletext && VT_GetState() != VT_OFF) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS) ? MF_ENABLED : MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_WSS, LockWSS ? MF_GRAYED : MF_ENABLED);

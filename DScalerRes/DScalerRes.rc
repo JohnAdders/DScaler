@@ -210,6 +210,7 @@ BEGIN
     "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     "X",            IDM_CLEAROSD,           VIRTKEY, NOINVERT
+    "Y",            IDM_VIEW_TOOLBARS_MAINTOOLBAR, VIRTKEY, NOINVERT
     "Z",            IDM_ZOOM_MINUS,         VIRTKEY, NOINVERT
     "Z",            IDM_ZOOM_PLUS,          VIRTKEY, SHIFT, NOINVERT
     "_",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
@@ -1145,6 +1146,8 @@ BEGIN
     POPUP "&View"
     BEGIN
         MENUITEM "Toggle &Menu\tTab",           IDM_TOGGLE_MENU
+        MENUITEM "Toggle Tool&bar\tY",          IDM_VIEW_TOOLBARS_MAINTOOLBAR
+
         MENUITEM "Toggle &Status Bar\tS",       IDM_STATUSBAR, CHECKED
         MENUITEM "Toggle Show &Cursor   \tCtrl+Enter", IDM_TOGGLECURSOR
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
@@ -1153,13 +1156,10 @@ BEGIN
         MENUITEM "A&uto-Size Window",           IDM_WINPOS_AUTOSIZE
         MENUITEM "Minimize to Tra&y",           IDM_MINTOTRAY
         MENUITEM SEPARATOR
-        MENUITEM "Switch Resolution in F&ull Screen", 1
+        MENUITEM "Switch &Resolution in Full Screen", 1
         MENUITEM SEPARATOR
         POPUP "Toolbars"
         BEGIN
-            MENUITEM "&Main toolbar",               IDM_VIEW_TOOLBARS_MAINTOOLBAR
-
-            MENUITEM SEPARATOR
             MENUITEM "T&op",                        IDM_VIEW_MAINTOOLBAR_TOP
             MENUITEM "&Channel change",             IDM_VIEW_MAINTOOLBAR_CHANNELS
 

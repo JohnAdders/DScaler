@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.30 2005-03-07 18:01:58 adcockj Exp $
+;// $Id: dscaler.iss,v 1.31 2005-03-08 13:48:04 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.30  2005/03/07 18:01:58  adcockj
+;// Prep for release
+;//
 ;// Revision 1.29  2004/09/23 18:48:25  adcockj
 ;// Added new files to both projects
 ;//
@@ -155,16 +158,14 @@ Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; Flags: ignoreversion; Compone
 Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DI_Greedy.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DI_GreedyH.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "..\Release\DI_MoComp2.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
+Source: "..\Release\DI_MoComp2.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DI_OldGame.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DI_ScalerBob.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DI_TomsMoComp.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DI_Weave.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\FLT_AdaptiveNoise.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
 Source: "..\Release\FLT_Gamma.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\FLT_GradualNoise.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
 Source: "..\Release\FLT_Sharpness.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\FLT_TemporalComb.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\FLT_TNoise.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
@@ -201,6 +202,8 @@ Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; Flags: ignoreversion; 
 Source: "..\Release\DI_Greedy2Frame.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
 Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
 Source: "..\Release\FLT_Colorimetry.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: extra
+Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: extra
 
 ; beta
 Source: "..\Release\FLT_LuminChromaShift.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.12 2001-08-03 09:44:06 koreth Exp $
+// $Id: AspectDetect.cpp,v 1.13 2001-08-05 09:54:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/08/03 09:44:06  koreth
+// Remove an SSE dependency in black bar detection.
+//
 // Revision 1.11  2001/08/02 17:43:19  koreth
 // Maybe fix WSS handling; the code was using an integer expression expecting it to behave like a floating-point one.
 //
@@ -377,11 +380,11 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
         }
 
         // If source is anamorphic
-        if (newMode == 2)
-        {
+//        if (newMode == 2)
+//        {
             // Convert ratio to a 16/9 ratio
-            newRatio = (newRatio * 4) / 3;
-        }
+//            newRatio = (newRatio * 4) / 3;
+//        }
 
         // The ratio must be at least the ratio defined in WSS data
         if (newRatio < WssSourceRatio)

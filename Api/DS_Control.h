@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.135 2003-02-05 14:40:07 laurentg Exp $
+// $Id: DS_Control.h,v 1.136 2003-02-05 16:39:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.135  2003/02/05 14:40:07  laurentg
+// DScaler in Windows system tray (patch from Kristian Trenskow)
+//
 // Revision 1.134  2003/01/24 08:08:43  atnak
 // Changes to OSDB
 //
@@ -724,6 +727,7 @@ typedef enum
 	REVERSECHANNELSCROLLING,
     SINGLEKEYTELETEXTTOGGLE,
 	MINTOTRAY,
+	MINIMIZEHANDLING,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

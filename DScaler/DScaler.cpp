@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.299 2003-02-05 15:11:39 laurentg Exp $
+// $Id: DScaler.cpp,v 1.300 2003-02-05 16:40:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.299  2003/02/05 15:11:39  laurentg
+// Channel name as tip for the DScaler icon in the systray (patch from Kristian Trenskow)
+//
 // Revision 1.298  2003/02/05 14:40:56  laurentg
 // DScaler in Windows system tray (patch from Kristian Trenskow)
 //
@@ -1025,6 +1028,7 @@ BOOL bReverseChannelScroll = FALSE;
 
 BOOL bMinToTray = FALSE;
 BOOL bIconOn = FALSE;
+int MinimizeHandling = 0;
 
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
@@ -1114,6 +1118,14 @@ static const char* DecodingPriorityNames[5] =
     "High",
     "Very High",
 };
+
+static const char* MinimizeHandlingLabels[3] = 
+{
+    "User control / Continue capture",
+    "User control / Stop capture",
+    "Automatic / Detect video signal",
+};
+
 
 static BOOL bTakingCyclicStills = FALSE;
 
@@ -5001,16 +5013,32 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
         switch(wParam)
         {
         case SIZE_MAXIMIZED:
+			LOG(1, "SIZE_MAXIMIZED");
             if(bIsFullScreen == FALSE || bMinimized == TRUE)
             {
+				if ((MinimizeHandling == 1) && bMinimized && !OverlayActive())
+				{
+					Overlay_Start(hWnd);
+				}
 				bMinimized = FALSE;
                 bIsFullScreen = TRUE;
                 IsFullScreen_OnChange(TRUE);
             }
             break;
         case SIZE_MINIMIZED:
-            Overlay_Update(NULL, NULL, DDOVER_HIDE);
+			LOG(1, "SIZE_MINIMIZED");
 			bMinimized = TRUE;
+			if (OverlayActive())
+			{
+	            if (MinimizeHandling == 1)
+				{
+	                Overlay_Stop(hWnd);
+				}
+				else
+				{
+		            Overlay_Update(NULL, NULL, DDOVER_HIDE);
+				}
+			}
             if (bMinToTray)
 			{
                 ShowWindow(hWnd, SW_HIDE);
@@ -5018,7 +5046,12 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
             break;
         case SIZE_RESTORED:
             bMinimized = FALSE;
+			LOG(1, "SIZE_RESTORED");
             InvalidateRect(hWnd, NULL, FALSE);
+            if ((MinimizeHandling == 1) && !OverlayActive())
+			{
+                Overlay_Start(hWnd);
+			}
             WorkoutOverlaySize(FALSE);
             SetMenuAnalog();
             break;
@@ -5051,6 +5084,8 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
     //EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
 
+    EnableMenuItem(hMenu, IDM_OVERLAY_START, bMinimized ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_OVERLAY_STOP, bMinimized ? MF_GRAYED : MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_TAKECYCLICSTILL, bTakingCyclicStills);
 
     SetMixedModeMenu(hMenu, !bVTSingleKeyToggle);
@@ -5358,6 +5393,7 @@ void CleanUpMemory()
 // This is also called during a Suspend operation
 void Overlay_Stop(HWND hWnd)
 {
+	LOG(1, "Overlay_Stop");
     RECT winRect;
     HDC hDC;
     GetClientRect(hWnd, &winRect);
@@ -5377,6 +5413,7 @@ void Overlay_Stop(HWND hWnd)
 // This is also called during a Resume operation
 void Overlay_Start(HWND hWnd)
 {
+	LOG(1, "Overlay_Start");
     InvalidateRect(hWnd, NULL, FALSE);
     Overlay_Create();
     Reset_Capture();
@@ -6217,10 +6254,16 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "SingleKeyTeletextToggle", NULL,
     },
     {
-        "Minimizes to the Windows system tray", ONOFF, 0, (long*)&bMinToTray,
+        "Minimize to the Windows system tray", ONOFF, 0, (long*)&bMinToTray,
         FALSE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "MinToTray", NULL,
+    },
+    {
+        "Minimize handling", ITEMFROMLIST, 0, (long*)&MinimizeHandling,
+        0, 0, 2, 1, 1,
+        MinimizeHandlingLabels,
+        "MainWindow", "MinimizeHandling", NULL,
     },
 };
 
@@ -6278,14 +6321,15 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 {
     // Other Settings
-    SETTING* OtherSettings[6] =
+    SETTING* OtherSettings[7] =
     {
         &DScalerSettings[DISPLAYSPLASHSCREEN    ],
         &DScalerSettings[AUTOHIDECURSOR         ],
         &DScalerSettings[LOCKKEYBOARD           ],
         &DScalerSettings[SCREENSAVEROFF         ],
         &DScalerSettings[REVERSECHANNELSCROLLING],
-        &DScalerSettings[SINGLEKEYTELETEXTTOGGLE]
+        &DScalerSettings[SINGLEKEYTELETEXTTOGGLE],
+        &DScalerSettings[MINIMIZEHANDLING       ],
     };
-    return new CTreeSettingsGeneric("Other Settings", OtherSettings, 6);
+    return new CTreeSettingsGeneric("Other Settings", OtherSettings, 7);
 }

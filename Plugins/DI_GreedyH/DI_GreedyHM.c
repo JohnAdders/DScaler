@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.7 2001-08-17 16:18:35 trbarry Exp $
+// $Id: DI_GreedyHM.c,v 1.8 2001-08-19 06:26:38 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/08/17 16:18:35  trbarry
+// Minor GreedyH performance Enh.
+// Only do pulldown calc when needed.
+// Will become more needed in future when calc more expensive.
+//
 // Revision 1.6  2001/08/01 00:37:41  trbarry
 // More chroma jitter fixes, tweak defaults
 //
@@ -66,7 +71,6 @@ BOOL GreedyUseInBetween = FALSE;
 BOOL GreedyUseMedianFilter = FALSE;
 BOOL GreedyUseVertFilter = FALSE;
 BOOL GreedyUseEdgeEnh = FALSE;
-BOOL GreedyUseLowMotionOnly = FALSE;    // may force for non-SSE
 BOOL GreedySSEBox = TRUE;           
 UINT GreedyFeatureFlags = 0;            // Save feature flags on setup
 

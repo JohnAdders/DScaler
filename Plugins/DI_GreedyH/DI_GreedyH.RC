@@ -58,9 +58,6 @@ BEGIN
                     75,11
     CONTROL         "Edge Enhance",IDC_USE_EDGE_ENH,"Button",BS_AUTOCHECKBOX | 
                     BS_LEFTTEXT | BS_TOP | WS_TABSTOP,94,30,75,11
-    CONTROL         "Low Motion Only",IDC_USE_LOW_MOTION_ONLY,"Button",
-                    BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | WS_TABSTOP,4,30,
-                    74,11
     CONTROL         "Slider1",IDC_MOTION_THRESHOLD,"msctls_trackbar32",
                     TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
                     WS_TABSTOP,4,123,83,10,WS_EX_TRANSPARENT

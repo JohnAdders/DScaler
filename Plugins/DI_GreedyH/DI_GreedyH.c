@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.9 2001-08-17 16:18:35 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.10 2001-08-19 06:26:38 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/08/17 16:18:35  trbarry
+// Minor GreedyH performance Enh.
+// Only do pulldown calc when needed.
+// Will become more needed in future when calc more expensive.
+//
 // Revision 1.8  2001/08/04 06:46:56  trbarry
 // Make Gui work with Large fonts,
 // Improve Pulldown
@@ -77,9 +82,6 @@ BOOL GetCheckDScalerInfo(DEINTERLACE_INFO *info);
 BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info);
 BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info);
 BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedyLM_SSE(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedyLM_3DNOW(DEINTERLACE_INFO *info);
-BOOL DeinterlaceGreedyLM_MMX(DEINTERLACE_INFO *info);
 
 HINSTANCE hInst = NULL;
 
@@ -181,14 +183,6 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyUseEdgeEnh", NULL,		// Ini name, pfnOnChange
 	},
-	{
-		"Low Motion Only", ONOFF, 0,	// szDisplayName, TYPE, orig val
-		&GreedyUseLowMotionOnly, FALSE, 0,	// *pValue,Default, Min
-		1, 1, 1,						// Max, Step, OSDDivider
-		NULL, "Deinterlace",			// **pszList, Ini Section
-		"GreedyUseLowMotionOnly", NULL,	// Ini name, pfnOnChange
-	},
-
 };
 
 HWND ghDlg = NULL;
@@ -245,7 +239,6 @@ void SetGreedyHDisplayControls(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_USE_MEDIAN_FILTER, GreedyUseMedianFilter);
 	CheckDlgButton(hDlg, IDC_USE_VERT_FILTER, GreedyUseVertFilter);
 	CheckDlgButton(hDlg, IDC_USE_EDGE_ENH, GreedyUseEdgeEnh);
-	CheckDlgButton(hDlg, IDC_USE_LOW_MOTION_ONLY, GreedyUseLowMotionOnly);
 
 }
 
@@ -267,7 +260,6 @@ static BOOL TGreedyUseInBetween;
 static BOOL TGreedyUseMedianFilter;
 static BOOL TGreedyUseVertFilter;
 static BOOL TGreedyUseEdgeEnh;
-static BOOL TGreedyUseLowMotionOnly;    // may force for non-SSE
 
 static BOOL ShowAdvanced = FALSE;
 static BOOL ShowDiag = FALSE;
@@ -300,7 +292,6 @@ static BOOL ShowDiag = FALSE;
 		TGreedyUseMedianFilter = GreedyUseMedianFilter;
 		TGreedyUseVertFilter = GreedyUseVertFilter;
 		TGreedyUseEdgeEnh = GreedyUseEdgeEnh;
-		TGreedyUseLowMotionOnly = GreedyUseLowMotionOnly;    // may force for non-SSE
 
         if (ShowAdvanced)                   // if already showing then make small
         {
@@ -404,7 +395,6 @@ static BOOL ShowDiag = FALSE;
 			GreedyUseMedianFilter = TGreedyUseMedianFilter;
 			GreedyUseVertFilter = TGreedyUseVertFilter;
 			GreedyUseEdgeEnh = TGreedyUseEdgeEnh;
-			GreedyUseLowMotionOnly = TGreedyUseLowMotionOnly;    // may force for non-SSE
 
 			DestroyWindow(hDlg);
 			return TRUE;
@@ -432,11 +422,6 @@ static BOOL ShowDiag = FALSE;
 
 		case IDC_USE_EDGE_ENH:				
 			GreedyUseEdgeEnh = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_EDGE_ENH));
-			return TRUE;
-			break;  
-
-		case IDC_USE_LOW_MOTION_ONLY:				
-			GreedyUseLowMotionOnly = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_LOW_MOTION_ONLY));
 			return TRUE;
 			break;  
 
@@ -498,7 +483,6 @@ static BOOL ShowDiag = FALSE;
 			GreedyUseMedianFilter = FALSE;
 			GreedyUseVertFilter = FALSE;
 			GreedyUseEdgeEnh = FALSE;
-			GreedyUseLowMotionOnly = FALSE;		// may force for non-SSE
 
 			SetGreedyHDisplayControls(hDlg);
 			return TRUE;
@@ -719,11 +703,6 @@ BOOL DeinterlaceGreedyH_SSE(DEINTERLACE_INFO *info)
         return FALSE;
     }
     
-    if (GreedyUseLowMotionOnly)
-    {
-        return DeinterlaceGreedyLM_SSE(info);
-    }
-
     else if (GreedyUseMedianFilter || GreedyUsePulldown 
 		|| GreedyUseVertFilter || GreedyUseEdgeEnh)
 	{
@@ -743,15 +722,7 @@ BOOL DeinterlaceGreedyH_3DNOW(DEINTERLACE_INFO *info)
         return FALSE;
     }
     
-    if (GreedyUseLowMotionOnly)
-    {
-        return DeinterlaceGreedyLM_3DNOW(info);
-    }
-
-    else
-    {
-		return DI_GreedyHF_3DNOW();         // faster more compatible way
-    }
+	return DI_GreedyHF_3DNOW();         // faster more compatible way
 }
 
 // Entered here on deinterlace call for MMX
@@ -762,15 +733,7 @@ BOOL DeinterlaceGreedyH_MMX(DEINTERLACE_INFO *info)
         return FALSE;
     }
     
-    if (GreedyUseLowMotionOnly)
-    {
-        return DeinterlaceGreedyLM_MMX(info);
-    }
-
-    else
-    {
-		return DI_GreedyHF_MMX();           // faster more compatible way
-    }
+	return DI_GreedyHF_MMX();           // faster more compatible way
 }
 
 

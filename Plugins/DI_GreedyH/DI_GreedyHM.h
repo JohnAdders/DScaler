@@ -1,4 +1,4 @@
-// $Id: DI_GreedyHM.h,v 1.4 2001-07-30 17:56:26 trbarry Exp $
+// $Id: DI_GreedyHM.h,v 1.5 2001-08-19 06:26:38 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,6 @@ extern BOOL GreedyUseInBetween;
 extern BOOL GreedyUseMedianFilter;
 extern BOOL GreedyUseVertFilter;
 extern BOOL GreedyUseEdgeEnh;
-extern BOOL GreedyUseLowMotionOnly;     // may force for non-SSE
 extern BOOL GreedySSEBox;           
 extern UINT GreedyFeatureFlags;         // Save feature flags on setup
 typedef struct 

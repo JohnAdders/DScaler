@@ -1129,6 +1129,9 @@ BEGIN
     BEGIN
         MENUITEM "Video input",                 ID_DSHOW_VIDEOINPUT
         MENUITEM "Audio input",                 ID_DSHOW_AUDIOINPUT
+        MENUITEM SEPARATOR
+        MENUITEM "Reset card",                  IDM_RESET
+        MENUITEM "Renderer properties...",      ID_DSHOW_RENDERERPROPERTIES
     END
 END
 

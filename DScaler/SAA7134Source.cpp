@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.73 2003-02-26 20:53:33 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.74 2003-03-08 20:01:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2003/02/26 20:53:33  laurentg
+// New timing setting MaxFieldShift
+//
 // Revision 1.72  2003/02/25 21:47:05  laurentg
 // Slightly update relative to preceeding updates
 //
@@ -989,7 +992,10 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         Timing_UpdateRunningAverage(pInfo, 2);
     }
 
-    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	if (bAlwaysSleep || bWaited)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 }
 
 

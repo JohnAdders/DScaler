@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.138 2003-02-26 20:52:03 laurentg Exp $
+// $Id: DS_Control.h,v 1.139 2003-03-08 19:57:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.138  2003/02/26 20:52:03  laurentg
+// New timing setting MaxFieldShift
+//
 // Revision 1.137  2003/02/06 10:00:14  laurentg
 // Change resolution in full screen
 //
@@ -1121,6 +1124,7 @@ typedef enum
     SLEEPSKIPFIELDS,
     SLEEPSKIPFIELDSLATE,
 	MAXFIELDSHIFT,
+	ALWAYSSLEEP,
     TIMING_SETTING_LASTONE,
 } TIMING_SETTING;
 

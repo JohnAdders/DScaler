@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.117 2003-02-26 20:53:25 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.118 2003-03-08 20:01:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.117  2003/02/26 20:53:25  laurentg
+// New timing setting MaxFieldShift
+//
 // Revision 1.116  2003/02/22 13:42:42  laurentg
 // New counter to count fields runnign late
 // Update input frequency on cleanish field changes only which means when the field is no running late
@@ -1298,6 +1301,10 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
+	if (bAlwaysSleep)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 
     FieldDistance = (10 + NewPos - OldPos) % 10;
     if(FieldDistance == 1)
@@ -1412,7 +1419,10 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         FieldCount = 0;
     }
 
-    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	if (bAlwaysSleep || !bLate)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 }
 
 void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)

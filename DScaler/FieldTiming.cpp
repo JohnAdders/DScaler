@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.33 2003-02-26 20:53:31 laurentg Exp $
+// $Id: FieldTiming.cpp,v 1.34 2003-03-08 20:01:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/02/26 20:53:31  laurentg
+// New timing setting MaxFieldShift
+//
 // Revision 1.32  2003/02/22 13:36:36  laurentg
 // New statistics to check fields runnign late and no flip at time
 //
@@ -127,6 +130,7 @@ long SleepInterval = 1;         // " , default=0, how long to wait for BT chip
 long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
 long SleepSkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 long MaxFieldShift = 1;		// Maximum shift beween the last received field and the field to process
+BOOL bAlwaysSleep = FALSE;	// Define if sleep must be called in all circonstances
 
 void Timing_Setup()
 {
@@ -457,6 +461,12 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
         1, 0, 2, 1, 1,
         NULL,
         "Threads", "MaxFieldShift", NULL,
+    },
+    {
+        "Always sleep even when late", ONOFF, 0, (long*)&bAlwaysSleep,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "Timing", "AlwaysSleep", NULL,
     },
 };
 

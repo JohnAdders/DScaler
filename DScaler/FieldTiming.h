@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.14 2003-02-26 20:53:32 laurentg Exp $
+// $Id: FieldTiming.h,v 1.15 2003-03-08 20:01:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,7 @@
 #include "DS_Deinterlace.h"
 
 extern long MaxFieldShift;
+extern BOOL bAlwaysSleep;
 
 // Get Hold of the FieldTiming.c file settings
 SETTING* Timing_GetSetting(TIMING_SETTING Setting);

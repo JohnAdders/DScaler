@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.46 2003-02-26 20:53:30 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.47 2003-03-08 20:01:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2003/02/26 20:53:30  laurentg
+// New timing setting MaxFieldShift
+//
 // Revision 1.45  2003/02/22 13:42:42  laurentg
 // New counter to count fields runnign late
 // Update input frequency on cleanish field changes only which means when the field is no running late
@@ -1115,6 +1118,10 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
+	if (bAlwaysSleep)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 
     FieldDistance = (10 + NewPos - OldPos) % 10;
     if(FieldDistance == 1)
@@ -1204,6 +1211,10 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
+	if (bAlwaysSleep)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 
     FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
     if(FieldDistance == 1)
@@ -1306,7 +1317,10 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         FieldCount = 0;
     }
 
-    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	if (bAlwaysSleep || !bLate)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 }
 
 
@@ -1363,7 +1377,10 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         FieldCount = 0;
     }
 
-    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	if (bAlwaysSleep || !bLate)
+	{
+	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+	}
 }
 
 void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.4 2002-02-24 16:41:40 temperton Exp $
+// $Id: VTDrawer.cpp,v 1.5 2002-05-23 22:16:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/24 16:41:40  temperton
+// Bug fixes
+//
 // Revision 1.3  2002/01/19 19:52:47  temperton
 // Transparent background in mix mode fix
 //
@@ -65,6 +68,8 @@ char VTDrawerFontName[32] = "Arial";
 CVTDrawer::CVTDrawer()
     :m_hFont(0),
     m_hDoubleFont(0),
+    m_hFontSmall(0),
+    m_hDoubleFontSmall(0),
     m_AvgWidth(0),
     m_AvgHeight(0),
     m_dAvgWidth(0),
@@ -238,11 +243,9 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     break;
                 case 0x0c:
                     bDouble = FALSE;
-                    SelectObject(hDC, m_hFont);
                     break;
                 case 0x0d:
                     bDouble = TRUE;
-                    SelectObject(hDC, m_hDoubleFont);
                     break;
                 case 0x10:
                 case 0x11:
@@ -330,6 +333,15 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 if(ch!=32)
                 {    
                     int offset;
+                    //Select correct wider font (same if fixed pitch)
+                    if(bDouble)
+                    {
+                        SelectObject(hDC, m_hDoubleFont);
+                    }
+                    else
+                    {
+                        SelectObject(hDC, m_hFont);
+                    }
                     if(m_bFixedPitch)
                     {
                         offset = 0;
@@ -338,6 +350,19 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     {
                         SIZE Size;
                         GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
+                        //Use smaller font if it doesn't fit
+                        if(m_AvgWidth < Size.cx)
+                        {
+                            if(bDouble)
+                            {
+                                SelectObject(hDC, m_hDoubleFontSmall);
+                            }
+                            else
+                            {
+                                SelectObject(hDC, m_hFontSmall);
+                            }
+                            GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
+                        }
                         offset = (m_AvgWidth - Size.cx) / 2;
                     }
             
@@ -374,8 +399,12 @@ void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)
     m_AvgWidth = AvgWidth;
     m_AvgHeight = AvgHeight;
 
-    m_hFont = MakeFont(hDC, nHeight, m_AvgWidth, (char*)&VTDrawerFontName);
-    m_hDoubleFont = MakeFont(hDC, nHeight * 2, m_AvgWidth, (char*)&VTDrawerFontName);
+    // Smaller font for wide characters like 'W' (double iso int for lessening rounding artifacts)
+    m_hFontSmall = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE);
+    m_hDoubleFontSmall = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE);
+    // Wider font for all other characters
+    m_hFont = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, TRUE);
+    m_hDoubleFont = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, TRUE);
 
     HGDIOBJ hSave = SelectObject(hDC, m_hFont);
     TEXTMETRIC TextMetric;
@@ -395,22 +424,31 @@ int CVTDrawer::GetAvgHeight()
     return m_AvgHeight;
 }
 
-HFONT CVTDrawer::MakeFont(HDC hDC, int iSize, int iWidth, char* szFaceName)
+HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bWidenFont)
 {
-    HFONT hFont = CreateFont(iSize, iWidth, 0, 0, 700, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+    // WidenFont = make X as wide as the average width of W and X
+    BOOL bWiden = bWidenFont & (iSize > 13);
+    HFONT hFont = CreateFont(96, 96, 0, 0, FW_BOLD, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
     HGDIOBJ hSave = SelectObject(hDC, hFont);
     
     SIZE Size;
-    GetTextExtentPoint(hDC, "W", 1, &Size);
-    iWidth = iWidth * iWidth / Size.cx;
+    GetTextExtentPoint32(hDC, "W", 1, &Size);
+    if(bWiden)
+    {
+        SIZE SizeSmall;
+        GetTextExtentPoint32(hDC, "X", 1, &SizeSmall);
+        Size.cx = ( Size.cx + 2 * SizeSmall.cx ) / 3;
+    }
+    iWidth = iWidth * 96 / Size.cx;
 
-    GetTextExtentPoint(hDC, "Wy", 1, &Size);
-    iSize = iSize * iSize / Size.cy;
-        
+    GetTextExtentPoint32(hDC, "Wy", 1, &Size);
+    iSize = iSize * 96 / Size.cy;
+
     SelectObject(hDC, hSave);
     DeleteObject(hFont);
 
-    hFont = CreateFont(iSize, iWidth, 0, 0, 700, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+    hFont = CreateFont(iSize, iWidth, 0, 0, FW_BOLD, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+
     return hFont;
 }
 
@@ -425,5 +463,15 @@ void CVTDrawer::DestroyFonts()
     {
         DeleteObject(m_hDoubleFont);
         m_hDoubleFont = NULL;
+    }
+    if(m_hFontSmall)
+    {
+        DeleteObject(m_hFontSmall);
+        m_hFontSmall = NULL;
+    }
+    if(m_hDoubleFontSmall)
+    {
+        DeleteObject(m_hDoubleFontSmall);
+        m_hDoubleFontSmall = NULL;
     }
 }

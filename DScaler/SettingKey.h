@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.h,v 1.4 2005-03-05 12:15:20 atnak Exp $
+// $Id: SettingKey.h,v 1.5 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/05 12:15:20  atnak
+// Syncing files.
+//
 // Revision 1.3  2004/09/08 07:14:08  atnak
 // Added type cast operators to simplify usage.
 //
@@ -112,6 +115,31 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////
+// CSettingKeyString
+//////////////////////////////////////////////////////////////////////////
+class CSettingKeyString : public CSettingKey
+{
+public:
+	CSettingKeyString();
+	virtual ~CSettingKeyString();
+
+	static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial);
+	static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial, ULONG maxLength);
+
+	virtual void SetValue(std::string value);
+	virtual std::string GetValue();
+
+	virtual void SetDefault(std::string value);
+	virtual std::string GetDefault();
+
+	virtual void SetMaxLength(ULONG maxLength);
+
+	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
+	virtual BOOL Notify(INT message, std::string newValue, std::string oldValue);
+};
+
+
+//////////////////////////////////////////////////////////////////////////
 // CSettingKeySlider
 //////////////////////////////////////////////////////////////////////////
 class CSettingKeySlider : public CSettingKeyLong
@@ -190,7 +218,7 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////
-// Macros for simplying declaration of settings with callbacks.
+// Macros for simplifying declaration of settings with callbacks.
 //////////////////////////////////////////////////////////////////////////
 
 // There are two version of the macro:
@@ -318,8 +346,12 @@ void SRUtil_Set(PSETTINGGROUP group);
 void SRUtil_Ex_Set(PSETTINGGROUPEX groupEx, DBIT dependentBits = 0, DBIT absoluteBits = 0);
 HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
 HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue, LONG minValue, LONG maxValue);
-HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);
+HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue);
+HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue, ULONG maxLength);
 HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
+HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);
+HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue);
+HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue, ULONG maxLength);
 HSETTING SRUtil_Ex_AddMaster_Long(PSETTINGKEY key, DBIT masterBits, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);
 
 

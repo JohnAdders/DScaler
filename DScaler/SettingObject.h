@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingObject.h,v 1.3 2004-08-14 13:45:23 adcockj Exp $
+// $Id: SettingObject.h,v 1.4 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.2  2004/08/13 08:52:02  atnak
 // Added a definable title to CSettingObject.
 //
@@ -194,6 +197,9 @@ public:
 	// Gets the setting's value limiter.  The limiter is stored in memory
 	// owned by CSettingObject.  It should not be deleted.
 	virtual PSETTINGLIMITER GetLimiter() const;
+
+	// The object can have its own notify function that is called by the group.
+	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
 
 protected:
 	// Set the value without limiter check

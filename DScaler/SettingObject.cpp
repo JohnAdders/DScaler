@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingObject.cpp,v 1.2 2004-08-13 08:52:02 atnak Exp $
+// $Id: SettingObject.cpp,v 1.3 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/13 08:52:02  atnak
+// Added a definable title to CSettingObject.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -170,6 +173,7 @@ BOOL CSettingObjectContained::Load(IN PSETTINGREPOSITORY repository, IN LPCSTR s
 {
 	CSettingValue newValue;
 
+	TRACE("+++ Loading Setting: %s\n", m_key);
 	// Load the setting's value from the section in the repository into newValue
 	if (CSettingObject::Load(repository, section, m_key, m_default.GetType(), newValue))
 	{
@@ -206,6 +210,7 @@ BOOL CSettingObjectContained::Load(IN PSETTINGREPOSITORY repository, IN LPCSTR s
 
 void CSettingObjectContained::Save(IN PSETTINGREPOSITORY repository, IN LPCSTR section)
 {
+	TRACE("+++ Saving Setting: %s\n", m_key);
 	// Save the value only if it has changed from what is in the repository
 	if (m_value.IsSet() && !m_value.IsEqual(m_savedValue))
 	{
@@ -225,7 +230,9 @@ BOOL CSettingObjectContained::SetValue(IN RCSETTINGVALUE value,
 									   IN PSETTINGOBJECT_CHECKPROC checkProc, IN PVOID context)
 {
 	ASSERT(value.GetType() == m_default.GetType());
-	
+
+	std::string str = value.ToString();
+	TRACE("+++ Value Set: %s (%s)\n", m_key, str.c_str());
 	CSettingValue newValue(value);
 
 	if (m_limiter != NULL)
@@ -254,12 +261,14 @@ BOOL CSettingObjectContained::_SetValue(IN RCSETTINGVALUE value,
 
 CSettingValue CSettingObjectContained::GetValue() const
 {
+	TRACE("+++ Value Get: %s\n", m_key);
 	return m_value;
 }
 
 
 BOOL CSettingObjectContained::UseDefault(IN PSETTINGOBJECT_CHECKPROC checkProc, IN PVOID context)
 {
+	TRACE("+++ Value UseDefault: %s\n", m_key);
 	return _SetValue(m_default, checkProc, context);
 }
 
@@ -268,6 +277,7 @@ BOOL CSettingObjectContained::SetDefault(IN RCSETTINGVALUE value, IN PSETTINGOBJ
 {
 	ASSERT(value.GetType() == m_default.GetType());
 
+	TRACE("+++ Misc SetDefault: %s\n", m_key);
 	if (!value.IsEqual(m_default))
 	{
 		// Save the new default
@@ -281,12 +291,14 @@ BOOL CSettingObjectContained::SetDefault(IN RCSETTINGVALUE value, IN PSETTINGOBJ
 
 CSettingValue CSettingObjectContained::GetDefault() const
 {
+	TRACE("+++ Query GetDefault: %s\n", m_key);
 	return m_default;
 }
 
 
 BOOL CSettingObjectContained::CheckLimiter(IN PSETTINGOBJECT_CHECKPROC checkProc, IN PVOID context)
 {
+	TRACE("+++ Value CheckLimiter: %s\n", m_key);
 	if (IsSet())
 	{
 		if (m_limiter->OutOfLimit(m_value))
@@ -305,6 +317,7 @@ BOOL CSettingObjectContained::CheckLimiter(IN PSETTINGOBJECT_CHECKPROC checkProc
 BOOL CSettingObjectContained::SetLimiter(IN PSETTINGLIMITER limiter,
 										 IN PSETTINGOBJECT_CHECKPROC checkProc, IN PVOID context)
 {
+	TRACE("+++ Misc SetLimiter: %s\n", m_key);
 	if (limiter != m_limiter)
 	{
 		if (m_limiter != NULL)
@@ -319,6 +332,26 @@ BOOL CSettingObjectContained::SetLimiter(IN PSETTINGLIMITER limiter,
 
 PSETTINGLIMITER CSettingObjectContained::GetLimiter() const
 {
+	TRACE("+++ Query GetLimiter: %s\n", m_key);
 	return m_limiter;
 }
+
+
+BOOL CSettingObjectContained::Notify(INT msg, RCSETTINGVALUE, RCSETTINGVALUE)
+{
+	if (msg == NOTIFY_VALUE_CHANGING || msg == NOTIFY_VALUE_SETTING)
+	{
+		TRACE("+++ Notify Pre: %s\n", m_key);
+	}
+	else if (msg == NOTIFY_VALUE_CHANGED || msg == NOTIFY_VALUE_SET)
+	{
+		TRACE("+++ Notify Post: %s\n", m_key);
+	}
+	else if (msg == NOTIFY_VALUE_RESETTING || NOTIFY_VALUE_RECHANGING)
+	{
+		TRACE("+++ Notify Repre: %s\n", m_key);
+	}
+	return TRUE;
+}
+
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingValue.cpp,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingValue.cpp,v 1.2 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -48,7 +51,9 @@ CSettingValue::CSettingValue(IN BYTE type) :
 }
 
 
-CSettingValue::CSettingValue(IN const CSettingValue& value)
+CSettingValue::CSettingValue(IN const CSettingValue& value) :
+	m_type(SETTING_VALUE_NULL),
+	m_value(NULL)
 {
 	this->Copy(value);
 }
@@ -308,6 +313,8 @@ BOOL CSettingValue::IsEqual(IN const CSettingValue& value) const
 	case SETTING_VALUE_UINT:
 	case SETTING_VALUE_INT:
 		return this->m_value == value.m_value;
+	case SETTING_VALUE_NULL:
+		return TRUE;
 	}
 	return FALSE;
 }

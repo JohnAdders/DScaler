@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.10 2005-03-05 12:15:20 atnak Exp $
+// $Id: SettingGroup.h,v 1.11 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/05 12:15:20  atnak
+// Syncing files.
+//
 // Revision 1.9  2004/09/11 13:00:45  adcockj
 // fix compile problems with vs6
 //
@@ -80,10 +83,12 @@ enum eSettingGroupNotifyMessage
 	NOTIFY_VALUE_RESETTING,
 	NOTIFY_VALUE_SET,
 
-	// This is sent after all CHANGED/SET notifications for a bulk setting
-	// change, or a CHANGED/SET notification for a single setting change
-	// (including revise) is sent.
-	NOTIFY_AFTER_BULK,
+	// This is sent after all other notifications (including those of
+	// deferred operations) of a single non-deferred operation are sent.
+	// For example, in a LoadSettings() call, all CHANGING notification
+	// of every setting is sent, followed by all CHANGED notification.
+	// Finally NOTIFY_AFTER_CHANGES is sent.
+	NOTIFY_AFTER_CHANGES,
 
 	NOTIFY_MARKER_QUEUE,
 	NOTIFY_MARKER_QUEUED,
@@ -93,11 +98,33 @@ enum eSettingGroupNotifyReply
 {
 	NOTIFY_REPLY_CONTINUE		= TRUE,
 	// Valid response only to CHANGING and SETTING.  Prevents the change
-	// from occuring.
+	// from occurring.
 	NOTIFY_REPLY_DONT_CHANGE	= FALSE,
 	// Valid response only in the global notification callback.  Prevents
 	// the notification from being reported to the key.
 	NOTIFY_REPLY_DONT_NOTIFY	= 2,
+};
+
+// Flags for the option parameter of functions.
+enum eSettingGroupOption
+{
+	// Notify values even when they do not change.
+	SGOF_REVISE					= 1 << 0,
+	// By default, loading functions will skip settings
+	// that are already loaded.  This forces the value
+	// to be reread from the file.
+	SGOF_RELOAD					= 1 << 1,
+	// No notifications will not be generated as a
+	// result of the operation.  This flag contradicts
+	// SGOF_REVISE.
+	SGOF_SILENT					= 1 << 2,
+
+	// Flags used by SettingGroupEx.
+
+	// This flag forces a full dependent consistency check
+	// on all settings.  This flag is used internally and
+	// setting it is not required by calling applications.
+	SGOF_FULLSYNC				= 1 << 3,
 };
 
 //
@@ -106,17 +133,17 @@ enum eSettingGroupNotifyReply
 // Notifications are sent when a setting's value is changing.  Out of the
 // six notifications, CHANGING, RECHANGING, CHANGED, SETTING, RESETTING,
 // SET, the later three have the same roles as the three before but are
-// used the very first the the setting's value is set (or loaded.  From
+// used the very first time the setting's value is set (or loaded).  From
 // here on, notifications will be referred to as CHANGING, RECHANGING and
-// CHANGED even where SETTING, RESETTING and SET are technically possible.
+// CHANGED even where SETTING, RESETTING and SET may apply.
 //
 // When a setting's value is to change, the CHANGING notification is sent.
 // If the return value of the CHANGING notification callback is TRUE, the
-// new value is applied and a CHANGED notification generated.  If it is
+// new value is applied and a CHANGED notification is generated.  If it is
 // FALSE, the new value is discarded.
 //
-// All notifications are sent in order to three notification callbacks.
-// First, it is sent to any global notification callback for the group to
+// All notifications are sent, in order, to three notification callbacks.
+// First, it is sent to any global notification callback for the group, to
 // which the changing setting belongs.  Next, it is sent to the setting
 // object's notification callback.  (This callback is internal and only
 // has an effect if the object supports it.)  Finally, it is sent to the
@@ -130,20 +157,20 @@ enum eSettingGroupNotifyReply
 // The order of three notification is broken if any of the callbacks
 // return FALSE to prevent the change.  In this case, the proceeding
 // callbacks are not called.  This applies even when the notification is
-// CHANGED even though returning FALSE will have no other effect.  In the
+// CHANGED, even though returning FALSE will have no other effect.  In the
 // global notification callback only, returning NOTIFY_REPLY_DONT_NOTIFY
-// will approve the change but will break the callback chain.
+// will acknowledge the change but will stop the callback chain.
 //
 // The RECHANGING notification is generated when a setting that was
 // notified with CHANGING needs to change again before CHANGED is called.
 // This will only happen as a result of outside intervention.  (i.e.
 // Performing another operation from inside a notification callback that
-// causes an already CHANGING notified setting to change.)  Returning TRUE
-// to RECHANGING approves the new value.  Returning FALSE will discard the
-// new value but a CHANGED notification will be generated nevertheless for
+// causes an already notified setting to change again.)  Returning TRUE
+// for RECHANGING acknowledges value.  Returning FALSE will discard the
+// new value, but a CHANGED notification will be generated nonetheless for
 // original CHANGING notification.
 //
-// All value changes are applied straight after the approval return value
+// All value changes are applied straight after the acknowledging return
 // of CHANGING, or RECHANGING.  (Although not before all three callbacks
 // in the notification order has been called.)  Thus, querying a
 // settings's value during the time between CHANGING (or RECHANGING) and
@@ -151,51 +178,52 @@ enum eSettingGroupNotifyReply
 //
 
 //
-// Notification queuing:
+// Notification queue:
 //
-// For an operation like LoadSettings() where many setting values can
-// change, the CHANGING notifications for all settings that change will be
+// For an operation like LoadSettings(), where many setting values can
+// change, the CHANGING notifications for all settings that changes will be
 // sent first, then all their respective CHANGED notifications are sent.
-// Like described one paragraph above, new values are applied to the setting
-// straight after the approval return of CHANGING notification.  Hence before
-// the CHANGING notifications of any other settings.
+// As stated in the paragraph above, new values are applied to the setting
+// straight after the acknowledging return of a CHANGING notification.
+// Hence, this is before the CHANGING notifications of any other settings.
 //
-// The CHANGED notifications for approved CHANGING notifications are queued,
-// and ultimately notified, in the same order to that which CHANGING
+// The CHANGED notifications for acknowledged CHANGING notifications are
+// queued, and are later notified in the same order as which CHANGING
 // notifications were generated.
 //
 
 //
 // Operation deferring:
 //
-// All notifying functions (and two others) will be deferred if called
-// from inside a notification callback and EnableDeferring() was
-// previously called with TRUE.  This means that the operation of the
-// function is performed only after the existing callback returns.
-// Moreover, any notifications generated from the deferred operation will
-// be queued on the same queue as that used by the operation that caused
-// the existing callback.
+// There are a few operations that will be deferred, if called from
+// inside a notification callback.  This means that the actual operation
+// is performed, not when the function is called, but after the existing
+// notification returns.  Moreover, any notifications generated from the
+// deferred operation will be queued on the same queue that is used by
+// the operation that owns the notification callback in which the
+// operation was deferred.
 //
-// By default, deferring is disabled.  It is also reset to off every
-// time a notification is generated.  Therefore, it is safe to call
-// EnableDeferring(TRUE) where deferring is required and not worry
-// about having to change the value back.
+// By default, deferring is enabled for CHANGING and RECHANGING.  It is
+// reset to this default every time a notification is generated.  Calling
+// EnableDeferring(FALSE) will turn off deferring for the remainder of
+// that single notification callback.
 //
 // Although it is possible to enable deferring inside any notification
 // callback, it is probably pointless to do so in those other than the
-// CHANGING/SETTING notification.  Note that if operations are deferred
-// inside a NOTIFY_AFTER_BULK notification, a NOTIFY_AFTER_BULK will not
-// be generated again after those deferred operations are performed.
+// CHANGING and RECHANGING notifications.  Note that if operations are
+// deferred inside a NOTIFY_AFTER_CHANGES notification, a
+// NOTIFY_AFTER_CHANGES will not be generated again after those deferred
+// operations are performed.
 //
 //
 // These non-notifying functions are deferrable:
 // Silence(), Suspend()
 //
-// These are notifying functions:
-// LoadSettings(), ReviseSettings(), LoadSetting(), SetValue(), UseDefault(),
+// These are notifying functions (all which are deferrable):
+// LoadSettings(), LoadSetting(), SetValue(), UseDefault(),
 // SetDefault(), CheckLimiter(), SetLimiter(), InsertMarker(),
 //
-// Additional notifying functions in CSettingGroupEx:
+// Additional notifying functions in CSettingGroupEx (all which are deferrable):
 // Activate(), LoadOptionalDependencies(), EnableOptionalDependencies(),
 // SetEnabledOptionalDependencies(), SetOptionalDependantBits(), JostleBit()
 //
@@ -210,13 +238,13 @@ enum eSettingGroupNotifyReply
 // work in the same way as the CHANGING/CHANGED combination.  Just like a
 // CHANGED notification, the NOTIFY_MARKER_QUEUED notification is queued at
 // the end of the existing notification queue (although InsertMarker() alone
-// would not create much of a queue since it touches no settings).  When used
-// with operation deferring, InsertMarker() can be used to perform tasks after
-// other operations have been processed.
+// will not create much of a queue since it touches no settings).  When used
+// with operation deferring, InsertMarker() can be used to perform tasks at
+// specific points after other operations.
 //
 
 //
-// Thread safety:
+// Threading safety:
 //
 // These functions can be accessed from multiple threads:
 // SaveSetting(), GetValue(), GetDefault(), GetLimiter()
@@ -264,12 +292,10 @@ public:
 	virtual void EnableDeferring(IN BOOL enable = TRUE);
 
 	// Load all settings owned by this group
-	virtual void LoadSettings();
+	virtual void LoadSettings(IN BYTE options = 0);
 	// Save all settings owned by this group
 	virtual void SaveSettings();
 
-	// The current value of every setting is notified with SETTING and SET.
-	virtual void ReviseSettings();
 	// Generates a NOTIFY_MARKER_QUEUE followed by a NOTIFY_MARKER_QUEUED.
 	virtual void InsertMarker(IN INT markerID);
 
@@ -292,18 +318,18 @@ public:
 	// Incoming link functions for CSettingKey.  Although these functions can
 	// be called directly with the value of HSETTING returned by AddSetting(),
 	// using a CSettingKey will simply the task.
-	virtual void LoadSetting(IN HSETTING setting);
+	virtual void LoadSetting(IN HSETTING setting, IN BYTE options = 0);
 	virtual void SaveSetting(IN HSETTING setting);
 
-	virtual void SetValue(IN HSETTING setting, IN RCSETTINGVALUE value);
+	virtual void SetValue(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options = 0);
 	virtual CSettingValue GetValue(IN HSETTING setting);
 
-	virtual void UseDefault(IN HSETTING setting);
-	virtual void SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value);
+	virtual void UseDefault(IN HSETTING setting, IN BYTE options = 0);
+	virtual void SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options = 0);
 	virtual CSettingValue GetDefault(IN HSETTING setting);
 
-	virtual void CheckLimiter(IN HSETTING setting);
-	virtual void SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter);
+	virtual void CheckLimiter(IN HSETTING setting, IN BYTE options = 0);
+	virtual void SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter, IN BYTE options = 0);
 	virtual PSETTINGLIMITER GetLimiter(IN HSETTING setting);
 
 protected:
@@ -314,6 +340,8 @@ protected:
 		FLAG_CHANGING			= 1 << 0,
 		// Sets if the change notifications are the initial version
 		FLAG_INITIAL			= 1 << 1,
+		// Keep track of how many flags there're.
+		FLAG_GROUP_LAST			= 2,
 	};
 
 	// Break up of the op value
@@ -329,7 +357,6 @@ protected:
 	{
 		OP_SILENCE				= 0,
 		OP_LOAD_SETTINGS,
-		OP_REVISE_SETTINGS,
 		OP_INSERT_MARKER,
 		OP_LOAD_SETTING,
 		OP_SET_VALUE,
@@ -378,8 +405,17 @@ protected:
 	typedef class CHANGEVALUES
 	{
 	public:
-		CHANGEVALUES() : set(FALSE) { };
-		BOOL			set;
+		CHANGEVALUES() : isSet(FALSE) { };
+
+		void Set(IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
+		{
+			this->newValue = newValue;
+			this->oldValue = oldValue;
+			this->isSet = TRUE;
+		}
+
+	public:
+		BOOL			isSet;
 		CSettingValue	newValue;
 		CSettingValue	oldValue;
 	} CHANGEVALUES, *PCHANGEVALUES;
@@ -394,9 +430,12 @@ protected:
 	} CHANGEDNOTIFY, *PCHANGEDNOTIFY;
 
 	// Stores information necessary about a single operation.
-	typedef struct
+	typedef struct OPERATIONINFO
 	{
+		OPERATIONINFO(PSETTINGGROUP group) : op(0), options(0),
+			info(NULL), group(group), lParam(NULL) { };
 		BYTE					op;
+		BYTE					options;
 		PSETTINGINFO			info;
 		PSETTINGGROUP			group;
 		union
@@ -415,6 +454,7 @@ protected:
 
 	typedef struct
 	{
+		PSETTINGINFO		identity;
 		BYTE				flags;
 		POPERATIONLIST		deferList;
 	} NOTIFICATIONSTATE, *PNOTIFICATIONSTATE;
@@ -445,16 +485,17 @@ protected:
 	virtual inline void SetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL set);
 	virtual inline BOOL GetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL strict = FALSE);
 
+	virtual BOOL IsSilent(IN BYTE options) const;
+
 	// This function should notify CHANGING and change the values of all
 	// settings then put the appropriate CHANGEDNOTIFY structure onto the
 	// changed notify list.
-	virtual void LoadAllSettings();
-	// This function should notify SETTING with the current value of all
-	// settings and put the appropriate CHANGEDNOTIFY structure onto the
-	// changed notify list.
-	virtual void ReviseAllSettings();
+	virtual void LoadSettings(IN POPERATIONINFO opinfo);
 	// This function performs the work of InsertMarker().
-	virtual void PerformInsertMarker(IN INT markerID);
+	virtual void InsertMarker(IN POPERATIONINFO opinfo);
+
+	// Load a single setting.
+	virtual void LoadSetting(IN POPERATIONINFO opinfo);
 
 	// Processes operations and defers if necessary.
 	virtual void ProcessOperation(IN POPERATIONINFO opinfo);
@@ -465,10 +506,9 @@ protected:
 	virtual void PerformContainedOperation(IN POPERATIONINFO opinfo);
 	virtual void PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values);
 
-	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values);
-
-	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
-									IN RCSETTINGVALUE oldValue, IN BOOL forRevise = FALSE);
+	// Performs the necessary notifications and changes when a setting value changes.
+	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
+									IN BYTE options);
 
 	// Get the changed notification stack and the active list.
 	virtual inline PCHANGEDNOTIFYSTACK GetChangedNotifyStack();
@@ -518,8 +558,8 @@ protected:
 	virtual inline BOOL NotifyMarkerQueue(IN RCSETTINGVALUE markerValue);
 	// Shortcut for sending NOTIFY_MARKER_QUEUED notifications
 	virtual inline BOOL NotifyMarkerQueued(IN RCSETTINGVALUE markerValue);
-	// Shortcut for sending AFTER_NOTIFY notifications.
-	virtual inline BOOL NotifyAfterBulk();
+	// Shortcut for sending NOTIFY_AFTER_CHANGES notifications.
+	virtual inline BOOL NotifyAfterChanges();
 
 protected:
 	CSettingRepository*			m_repository;
@@ -552,7 +592,7 @@ protected:
 // differ in value depending on the value of a dependee setting to which
 // it is associated to.  The different values of the single setting is
 // stored in different sections of the repository so that it can be
-// recalled as needed as the dependee setting's value changes.  A single
+// recalled as needed, as the dependee setting's value changes.  A single
 // setting can be associated to depend on the values of multiple dependee
 // settings.  (In which case a change in any of the dependee settings
 // will trigger an update.)
@@ -560,7 +600,7 @@ protected:
 // To create an association, first create an "dependency bit" (association
 // bit) using CreateDependency().  The created bit is then used to refer
 // to a single dependee-to-dependants association from there on.  The
-// dependency bit is a single binary bit set in an integer variable and can
+// dependency bit is a single binary bit in an integer variable.  It can
 // be unioned or masked with other dependency bits with standard bitwise
 // operators.  The maximum number of dependency bits that can be created
 // depends on the size of the DBIT type and is exactly the number of bits
@@ -570,16 +610,15 @@ protected:
 // setting added to the group or subgroup with AddMaster() can be set as
 // the dependee of the association by passing the dependency bit as the
 // dependeeBit value of the function.  Settings added to the group or
-// subgroup with AddSetting() or AddMaster() can be set as dependants of an
-// association by passing the dependency bit as the dependantOptionalBits
-// or dependantAbsoluteBits value of the function.
+// subgroup with AddSetting() or AddMaster() can be set as dependents of an
+// association by passing the dependency bit as the dependentOptionalBits
+// or dependentAbsoluteBits value of the function.
 //
 // A setting can be a dependee to at most one association but can be
-// dependant to multiple associations.  Although no checks are performed,
-// cyclic dependency is not allowed. (i.e. A setting cannot be dependant to
-// itself whether directly or indirectly.)  The dependee of an association
-// MUST be in the same or parent groups to that of its dependants.  The
-// result is undefined if any of these criteria are not met.
+// dependent to multiple associations.  Although no checks are performed,
+// cyclic dependencies are not allowed. (i.e. A setting cannot be dependent
+// to itself whether directly or indirectly.)  The result is undefined if
+// any of these criteria are not met.
 //
 // The AddMaster() and AddSetting() parameters dependantOptionalBits and
 // dependantAbsoluteBits differ in that dependency bits set in
@@ -591,18 +630,19 @@ protected:
 // Groups suspended with Suspend() will not process linked operations until
 // a later time when it is reactivated with Activate().  This means that
 // although it will perform SetValue() and change the value of the single
-// setting, any settings that depend on the changed setting that are in a
-// suspended group (or a subgroup of a suspended group and the changed
-// originated in, or further up, a suspended parent) will not get updated.
-// Furthermore, although LoadSettings(), like SetValue(), will perform its
-// task even when the group is suspended, any suspended subgroups are not
-// included in the load operation.  Upon calling Activate(), all
-// outstanding updates for the group's settings and that of any
-// non-suspended subgroups are performed on the spot.
+// setting, any settings that depend on the changed setting are not updated
+// if either the dependee or dependent setting is in a suspended group (or
+// a subgroup of a suspended group).  Upon calling Activate(), all
+// outstanding updates for the group's settings and of any non-suspended
+// subgroups are performed on the spot.
+//
+// LoadSettings() and LoadSetting() will have no effect if called on a
+// suspended group.
 //
 
 // Type for holding dependency bits.
 typedef BYTE DBIT;
+
 
 class CSettingGroupEx : public CSettingGroup_
 {
@@ -650,7 +690,7 @@ public:
 	// Loads the optional dependants mask (the value that is set with
 	// SetDependantMask()) and loads previously saved dependantOptionalBits
 	// values for every setting.
-	virtual void LoadOptionalDependencies(IN BOOL suspended = FALSE);
+	virtual void LoadOptionalDependencies(IN BYTE options = 0);
 	// Saves the optional dependants mask and saves any dependantOptionalBits
 	// values that that have changed since the adding or loading of the setting.
 	virtual void SaveOptionalDependencies();
@@ -667,23 +707,23 @@ public:
 	// value of every setting.  This function cannot be called from a subgroup.
 	// If suspended is TRUE, any related updates are not performed.
 	virtual inline void EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set,
-												   IN BOOL suspended = FALSE);
+												   IN BYTE options = 0);
 
 	// Sets the bit list of all optional dependee bits that are enabled.
 	virtual inline void SetEnabledOptionalDependencies(IN DBIT mask,
-													   IN BOOL suspended = FALSE);
+													   IN BYTE options = 0);
 
 	// Gets the bit list of all optional dependee bits that are enabled.
 	virtual inline DBIT GetEnabledOptionalDependencies();
 
 	// Stops settings in the group and its sub-groups from processing
-	// dependencies.  Group is non-suspended by default.
-	virtual inline void Suspend(IN BOOL suspend = TRUE);
+	// dependencies.  Groups are not suspended by default at creation.
+	virtual inline void Suspend();
 	// Gets whether or not the group is suspended
 	virtual inline BOOL IsSuspended();
-	// Synchronizes any changes that happened while suspended.  Reenables
-	// dependencies processing if unsuspend is TRUE.
-	virtual void Activate(IN BOOL unsuspend = TRUE);
+	// Re-enables dependencies processing and synchronizes any changes
+	// that happened while suspended.
+	virtual void Activate(IN BYTE options = 0);
 
 	// Forces the group to check and change all its settings as if the setting
 	// associated to dependeeBit changed its value to dependeeValue.  Any
@@ -691,7 +731,7 @@ public:
 	// the calling of this.  If suspended is TRUE, related updates are not
 	// performed.
 	virtual void JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeValue,
-						   IN BOOL suspended = FALSE);
+						   IN BYTE options = 0);
 
 	// Gets the dependee bits of a setting.
 	virtual DBIT GetDependeeBits(IN HSETTING setting);
@@ -703,7 +743,8 @@ public:
 	// Sets the optional dependant bits of a setting.  This function, like
 	// AddSetting() and AddMaster() does not check for cyclic dependencies.
 	virtual void SetOptionalDependantBits(IN HSETTING setting,
-										  IN DBIT dependantOptionalBits);
+										  IN DBIT dependantOptionalBits,
+										  IN BYTE options = 0);
 
 	// Creates a CSettingConfigAssociation object that is filled with all the
 	// settings in the group.  The returned object should be deleted with
@@ -718,15 +759,18 @@ protected:
 	// Flags used by CSettingInfoEx->flags.
 	enum
 	{
-		// Set when dependantOptionalBits of a setting is changed.
-		FLAG_OPTDEPCHANGED		= 1 << 2,
+		// Set when dependantOptionalBits of a setting is changed
+		// since last load.
+		FLAG_OPTDEPCHANGED		= 1 << (FLAG_GROUP_LAST),
+		FLAG_GROUPEX_LAST		= FLAG_GROUP_LAST + 1,
 	};
 
 	// Deferred operations
 	enum
 	{
 		OP_SUSPEND				= OP_GROUP_LAST,
-		OP_JOSTLE_SETTINGS,
+		OP_ACTIVATE,
+		OP_JOSTLE_BIT,
 		OP_GROUPEX_LAST
 
 	};
@@ -824,26 +868,18 @@ protected:
 	// This type is used to hold a list of all the subgroups.
 	typedef std::list<CSettingGroupEx*> SUBGROUPEXLIST;
 
-	// Values for jostleMode
-	enum
-	{
-		// Mode used for (re)loading every setting.
-		MODE_LOADING,
-		// Mode used for synchronization when either dependee values
-		// or the dependant bits of individual settings have changed.
-		MODE_DEPENDANT_CHANGE,
-		// Mode used to change dependant settings when values of
-		// other settings have changed.
-		MODE_DEPENDEE_CHECK,
-	};
-
 	// Structure for holding temporally values required during
 	// the jostling process.
-	typedef struct
+	typedef struct JOSTLESTRUCT
 	{
+		JOSTLESTRUCT(DBIT changedBits, DBIT checkedBits, BYTE options)
+			: saveSectionCacheBits(0), loadSectionCacheBits(0),
+			changedBits(0), checkedBits(0), options(0) { }
+
+	public:
 		DBIT			changedBits;
 		DBIT			checkedBits;
-		BYTE			jostleMode;
+		BYTE			options;
 		DBIT			saveSectionCacheBits;
 		std::string		saveSectionCacheString;
 		DBIT			loadSectionCacheBits;
@@ -864,31 +900,36 @@ protected:
 	virtual void _SaveOptionalDependencies(IN LPCSTR, IN LPSTR, IN DWORD);
 	virtual void _LoadOptionalDependencies(IN LPCSTR, IN DBIT, IN LPSTR, IN DWORD);
 
-	// Performs all necessary calls for a single setting value change.
-	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
-									IN RCSETTINGVALUE oldValue, IN BOOL forRevise);
+	virtual PSETTINGGROUPEX GetRootParent();
+
+	virtual void LoadSettings(IN POPERATIONINFO opinfo);
+	virtual void LoadSetting(IN POPERATIONINFO opinfo);
+	virtual void Activate(IN POPERATIONINFO opinfo);
+	virtual void JostleBit(IN POPERATIONINFO opinfo);
 
 	// Overrides for slight changes in operations for group ex.
 	virtual void PerformStateOperation(IN POPERATIONINFO opinfo);
 	virtual void PerformContainedOperation(IN POPERATIONINFO opinfo);
-	virtual void PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values);
 
-	virtual void ReviseAllSettings();
+	// Performs all necessary calls for a single setting value change.
+	virtual BOOL ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
+		IN BYTE options);
 
-	// Processes the group to synchronize itself with any outstanding depended
-	// value changes.  The bulklist vector is appended with all settings that change.
-	virtual void ProcessVectorChanges(IN BYTE mode, IN BOOL deferrable = FALSE);
-
-	// Checks and processes all setting in the group and subgroups for changes necessary
-	// because of another setting's change.
-	virtual void JostleAllSettings(IN BYTE jostleMode, IN DBIT changedBits,
-		IN DBIT checkedBits, IN BOOL deferrable);
-	virtual void JostleAllSettings(IN BYTE mode, IN DBIT changedBits = 0, IN DBIT checkedBits = 0);
+	// Checks and processes all setting in the group and subgroups for changes.
+	virtual void JostleAllSettings(IN DBIT changedBits,
+								   IN DBIT checkedBits, IN BYTE options);
 	// Checks and processes the setting for any change necessary because of another
 	// setting change.
 	virtual void JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jostleStruct);
 	// Finds masters for dependees set by dependeeBits and calls JostleSetting() on those
 	virtual void JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct);
+	// Finds masters calls JostleSetting() on those.  Without base group checking.
+	DBIT _JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct);
+
+	// Override to get the same changed notify stack for subgroups.
+	virtual inline PCHANGEDNOTIFYSTACK GetChangedNotifyStack();;
+	// Override to get the same notification stack for subgroups.
+	virtual inline PNOTIFICATIONSTACK GetNotificationStack();
 
 	// Gets the bits that a setting depends on.
 	virtual inline DBIT GetDependantBits(IN PSETTINGINFOEX info);

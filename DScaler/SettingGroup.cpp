@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.8 2005-03-05 12:15:20 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.9 2005-03-17 03:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/03/05 12:15:20  atnak
+// Syncing files.
+//
 // Revision 1.7  2004/09/08 07:19:01  atnak
 // Major changes in the way operations are handled.  For better handling of
 // operations called from inside callbacks.  Plus other changes.
@@ -52,7 +55,6 @@
 #include "SettingValue.h"
 #include "SettingKey.h"
 #include "SettingConfig.h"
-#include <stdio.h>
 #include <vector>
 #include <list>
 
@@ -170,6 +172,12 @@ BOOL CSettingGroup_::IsSilent() const
 }
 
 
+BOOL CSettingGroup_::IsSilent(IN BYTE options) const
+{
+	return (options & SGOF_SILENT) || IsSilent();
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // Saving functions
 //////////////////////////////////////////////////////////////////////////
@@ -205,11 +213,11 @@ void CSettingGroup_::SaveSetting(IN HSETTING setting)
 
 void CSettingGroup_::Silence(IN BOOL silence)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_SILENCE|OP_TYPE_STATE;
-	opinfo.group	= this;
 	opinfo.lParam	= (LPARAM)silence;
+	opinfo.options	= 0;
 
 	ProcessOperation(&opinfo);
 }
@@ -219,23 +227,12 @@ void CSettingGroup_::Silence(IN BOOL silence)
 // Value changing/notifying functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup_::LoadSettings()
+void CSettingGroup_::LoadSettings(IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_LOAD_SETTINGS|OP_TYPE_CONTAINED;
-	opinfo.group	= this;
-
-	ProcessOperation(&opinfo);
-}
-
-
-void CSettingGroup_::ReviseSettings()
-{
-	OPERATIONINFO opinfo;
-
-	opinfo.op		= OP_REVISE_SETTINGS|OP_TYPE_CONTAINED;
-	opinfo.group	= this;
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
@@ -243,87 +240,86 @@ void CSettingGroup_::ReviseSettings()
 
 void CSettingGroup_::InsertMarker(IN INT markerID)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_INSERT_MARKER|OP_TYPE_CONTAINED;
-	opinfo.group	= this;
 	opinfo.lParam	= (LPARAM)markerID;
+	opinfo.options	= 0;
 
 	ProcessOperation(&opinfo);
-
 }
 
 
-void CSettingGroup_::LoadSetting(IN HSETTING setting)
+void CSettingGroup_::LoadSetting(IN HSETTING setting, IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
-	opinfo.op		= OP_LOAD_SETTING|OP_TYPE_OBJECT;
-	opinfo.group	= this;
+	opinfo.op		= OP_LOAD_SETTING|OP_TYPE_CONTAINED;
 	opinfo.info		= reinterpret_cast<PSETTINGINFO>(setting);
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
 
 
-void CSettingGroup_::SetValue(IN HSETTING setting, IN RCSETTINGVALUE value)
+void CSettingGroup_::SetValue(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_SET_VALUE|OP_TYPE_OBJECT;
-	opinfo.group	= this;
 	opinfo.info		= reinterpret_cast<PSETTINGINFO>(setting);
 	opinfo.value	= new CSettingValue(value);
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
 
 
-void CSettingGroup_::UseDefault(IN HSETTING setting)
+void CSettingGroup_::UseDefault(IN HSETTING setting, IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_USE_DEFAULT|OP_TYPE_OBJECT;
-	opinfo.group	= this;
 	opinfo.info		= reinterpret_cast<PSETTINGINFO>(setting);
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
 
 
-void CSettingGroup_::SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value)
+void CSettingGroup_::SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value, IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_SET_DEFAULT|OP_TYPE_OBJECT;
-	opinfo.group	= this;
 	opinfo.info		= reinterpret_cast<PSETTINGINFO>(setting);
 	opinfo.value	= new CSettingValue(value);;
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
 
 
-void CSettingGroup_::CheckLimiter(IN HSETTING setting)
+void CSettingGroup_::CheckLimiter(IN HSETTING setting, IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_CHECK_LIMITER|OP_TYPE_OBJECT;
-	opinfo.group	= this;
 	opinfo.info		= reinterpret_cast<PSETTINGINFO>(setting);
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
 
 
-void CSettingGroup_::SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter)
+void CSettingGroup_::SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter, IN BYTE options)
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_SET_LIMITER|OP_TYPE_OBJECT;
-	opinfo.group	= this;
 	opinfo.info		= reinterpret_cast<PSETTINGINFO>(setting);
 	opinfo.limiter	= limiter;
+	opinfo.options	= options;
 
 	ProcessOperation(&opinfo);
 }
@@ -497,14 +493,14 @@ void CSettingGroup_::ProcessOperation(IN POPERATIONINFO opinfo)
 		SetActiveChangedNotifyList(&changedList);
 
 		// Perform the operation now.
-		PerformOperation(opinfo);
+		opinfo->group->PerformOperation(opinfo);
 		// Send all the queued CHANGED/SET notifications.
 		SendChangedNotifications(&changedList);
 
 		// Notify only if this isn't inside another notification.
 		if (notifyState == NULL)
 		{
-			NotifyAfterBulk();
+			NotifyAfterChanges();
 			ProcessDeferredOperations();
 		}
 
@@ -519,18 +515,23 @@ void CSettingGroup_::PerformOperation(IN POPERATIONINFO opinfo)
 	switch (opinfo->op & OP_TYPE_MASK)
 	{
 	case OP_TYPE_STATE:
-		opinfo->group->PerformStateOperation(opinfo);
+		PerformStateOperation(opinfo);
 		break;
 	case OP_TYPE_CONTAINED:
-		opinfo->group->PerformContainedOperation(opinfo);
+		PerformContainedOperation(opinfo);
 		break;
 	case OP_TYPE_OBJECT:
 		{
 			CHANGEVALUES values;
 			EnterObjectLock();
-			opinfo->group->PerformObjectOperation(opinfo, &values);
+			PerformObjectOperation(opinfo, &values);
 			LeaveObjectLock();
-			opinfo->group->ProcessValueChange(opinfo->info, &values);
+
+			// Process the changed value if it's set.
+			if (values.isSet)
+			{
+				ProcessValueChange(opinfo->info, &values, opinfo->options);
+			}
 		}
 		break;
 	}
@@ -561,14 +562,13 @@ void CSettingGroup_::PerformContainedOperation(IN POPERATIONINFO opinfo)
 	{
 	case OP_LOAD_SETTINGS:
 		// Let all settings in the group be CHANGING notified and loaded.
-		LoadAllSettings();
+		LoadSettings(opinfo);
 		break;
-	case OP_REVISE_SETTINGS:
-		// Notify the SET on all that was SETTING notified.
-		ReviseAllSettings();
+	case OP_LOAD_SETTING:
+		LoadSetting(opinfo);
 		break;
 	case OP_INSERT_MARKER:
-		PerformInsertMarker((INT)opinfo->lParam);
+		InsertMarker(opinfo);
 		break;
 	}
 }
@@ -578,9 +578,6 @@ void CSettingGroup_::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGE
 {
 	switch (opinfo->op & OP_MASK)
 	{
-	case OP_LOAD_SETTING:
-		opinfo->info->object->Load(m_repository, m_section.c_str(), GetValueChangeProc, values);
-		break;
 	case OP_SET_VALUE:
 		opinfo->info->object->SetValue(*opinfo->value, GetValueChangeProc, values);
 		delete opinfo->value;
@@ -602,140 +599,146 @@ void CSettingGroup_::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGE
 }
 
 
-BOOL CSettingGroup_::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values)
+BOOL CSettingGroup_::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values,
+										IN BYTE options)
 {
-	if (!values->set)
-	{
-		return FALSE;
-	}
-	return ProcessValueChange(info, values->newValue, values->oldValue);
-}
+	ASSERT(values->isSet);
 
+	BOOL isEqual = values->newValue.IsEqual(values->oldValue);
+	BOOL isRevise = (options & SGOF_REVISE) != 0;
 
-BOOL CSettingGroup_::ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
-									   IN RCSETTINGVALUE oldValue, IN BOOL forRevise)
-{
-	BOOL isEqual = newValue.IsEqual(oldValue);
-
-	// Don't do anything if values don't change
-	if (isEqual && !forRevise)
+	// Don't do anything if values don't change unless it's is revise mode.
+	if (isEqual && !isRevise)
 	{
 		return FALSE;
 	}
 
-	BOOL change;
+	BOOL changeable = TRUE;
 
-	if (GetInfoFlag(info, FLAG_CHANGING))
+	// There's no need to do any of this if notifications are disabled.
+	if (!IsSilent(options))
 	{
-		// Since CHANGING notification was already sent, send RECHANGING.
-		change = NotifyRechanging(info, newValue, oldValue);
-
-		if (change)
+		if (GetInfoFlag(info, FLAG_CHANGING))
 		{
-			// Moved the previous queuing of this change back to the end.
-			UpdateChangedNotification(info, FALSE);
+			// Since CHANGING notification was already sent, send RECHANGING.
+			changeable = NotifyRechanging(info, values->newValue, values->oldValue);
+
+			if (changeable)
+			{
+				// Move the previous queuing of this change back to the end.
+				UpdateChangedNotification(info, FALSE);
+			}
 		}
-	}
-	else
-	{
-		// Set whether this is the initial value.
-		SetInfoFlag(info, FLAG_INITIAL, forRevise ? TRUE : info->object->IsSet());
-
-		change = NotifyChanging(info, newValue, oldValue);
-
-		// Generate a CHANGING/SETTING notification.
-		if (change)
+		else
 		{
-			// Flag the setting info as changing
-			SetInfoFlag(info, FLAG_CHANGING, change);
+			// Set whether this is the initial value.
+			SetInfoFlag(info, FLAG_INITIAL, isRevise ? TRUE : info->object->IsSet());
 
-			CHANGEDNOTIFY notification;
-			// Save the information for the notification.
-			notification.group = this;
-			notification.info = info;
-			notification.oldValue = oldValue;
+			changeable = NotifyChanging(info, values->newValue, values->oldValue);
 
-			// Enqueue the pending notification
-			EnqueueChangedNotification(&notification);
+			// Generate a CHANGING/SETTING notification.
+			if (changeable)
+			{
+				// Flag the setting info as changing
+				SetInfoFlag(info, FLAG_CHANGING, changeable);
+
+				CHANGEDNOTIFY notification;
+				// Save the information for the notification.
+				notification.group = this;
+				notification.info = info;
+				notification.oldValue = values->oldValue;
+
+				// Enqueue the pending notification
+				EnqueueChangedNotification(&notification);
+			}
 		}
 	}
 
 	if (isEqual)
 	{
-		change = FALSE;
+		changeable = FALSE;
 	}
-	if (change)
+	if (changeable)
 	{
 		// Set the new value.
 		EnterObjectLock();
-		info->object->SetValue(newValue, NULL, NULL);
+		info->object->SetValue(values->newValue, NULL, NULL);
 		LeaveObjectLock();
 	}
 
 	// Process deferred operations queued during the calling of
 	// the notification above.
 	ProcessDeferredOperations();
-	return change;
+	// Return whether or not the values actually change.
+	return changeable;
 }
 
 
-void CSettingGroup_::LoadAllSettings()
+void CSettingGroup_::LoadSettings(POPERATIONINFO opinfo)
 {
 	CHANGEVALUES values;
 
-	// Load every setting.
+	// Load every setting not already loaded.
 	SETTINGINFOLIST::iterator it = m_settingList.begin();
 	SETTINGINFOLIST::iterator ti = m_settingList.end();
 	for ( ; it != ti; it++)
 	{
-		// Load a the setting from the repository
 		EnterObjectLock();
-		(*it)->object->Load(m_repository, m_section.c_str(), GetValueChangeProc, &values);
+		if ((opinfo->options & SGOF_RELOAD) || !(*it)->object->IsSet())
+		{
+			// Load a the setting from the repository
+			(*it)->object->Load(m_repository, m_section.c_str(), GetValueChangeProc, &values);
+		}
+		else if ((opinfo->options & SGOF_REVISE) && !IsSilent(opinfo->options))
+		{
+			// Revise will notify the current value as is.
+			values.Set((*it)->object->GetValue(), (*it)->object->GetValue());
+		}
 		LeaveObjectLock();
-		// Perform the necessary checks for the new value.
-		ProcessValueChange(*it, &values);
+
+		if (values.isSet)
+		{
+			// Perform the necessary checks for the new value.
+			ProcessValueChange(*it, &values, opinfo->options);
+		}
 	}
 }
 
 
-void CSettingGroup_::ReviseAllSettings()
+void CSettingGroup_::LoadSetting(POPERATIONINFO opinfo)
+{
+	CHANGEVALUES values;
+
+	EnterObjectLock();
+	if ((opinfo->options & SGOF_RELOAD) || !opinfo->info->object->IsSet())
+	{
+		// Load a the setting from the repository
+		opinfo->info->object->Load(m_repository, m_section.c_str(), GetValueChangeProc, &values);
+	}
+	else if ((opinfo->options & SGOF_REVISE) && !IsSilent(opinfo->options))
+	{
+		// Revise will notify the current value as is.
+		values.Set(opinfo->info->object->GetValue(), opinfo->info->object->GetValue());
+	}
+	LeaveObjectLock();
+
+	if (values.isSet)
+	{
+		ProcessValueChange(opinfo->info, &values, opinfo->options);
+	}
+}
+
+
+void CSettingGroup_::InsertMarker(POPERATIONINFO opinfo)
 {
 	if (IsSilent())
 	{
+		// There's no point in doing this if silent.
 		return;
 	}
 
 	CSettingValue value;
-
-	// Run through the settings list and notify each one
-	SETTINGINFOLIST::iterator it = m_settingList.begin();
-	SETTINGINFOLIST::iterator ti = m_settingList.end();
-	for ( ; it != ti; it++)
-	{
-		PSETTINGINFO info = *it;
-
-		EnterObjectLock();
-
-		if (!info->object->IsSet())
-		{
-			LeaveObjectLock();
-			continue;
-		}
-
-		// Get the current value.
-		value = info->object->GetValue();
-		LeaveObjectLock();
-
-		// Perform the necessary calls for the value.
-		ProcessValueChange(info, value, value, TRUE);
-	}
-}
-
-
-void CSettingGroup_::PerformInsertMarker(IN INT markerID)
-{
-	CSettingValue value;
-	value.SetInt(markerID);
+	value.SetInt((INT)opinfo->lParam);
 
 	if (NotifyMarkerQueue(value))
 	{
@@ -925,7 +928,7 @@ void CSettingGroup_::ProcessDeferredOperations()
 		OPERATIONLIST::iterator ti = operationlist->end();
 		for ( ; it != ti; it++)
 		{
-			PerformOperation(&*it);
+			(*it).group->PerformOperation(&*it);
 		}
 
 		delete operationlist;
@@ -939,11 +942,7 @@ BOOL CSettingGroup_::GetValueChangeProc(RCSETTINGVALUE newValue,
 									   PVOID context)
 {
 	PCHANGEVALUES values = (PCHANGEVALUES)context;
-
-	values->newValue = newValue;
-	values->oldValue = oldValue;
-	values->set = TRUE;
-
+	values->Set(values->newValue, values->oldValue);
 	return FALSE;
 }
 
@@ -988,9 +987,9 @@ BOOL CSettingGroup_::NotifyMarkerQueued(IN RCSETTINGVALUE markerValue)
 }
 
 
-BOOL CSettingGroup_::NotifyAfterBulk()
+BOOL CSettingGroup_::NotifyAfterChanges()
 {
-	return Notify(NULL, NOTIFY_AFTER_BULK, CSettingValue(), CSettingValue());
+	return Notify(NULL, NOTIFY_AFTER_CHANGES, CSettingValue(), CSettingValue());
 }
 
 
@@ -1004,10 +1003,29 @@ BOOL CSettingGroup_::Notify(IN PSETTINGINFO info, IN INT message,
 
 	BOOL response = -1;
 
-	NOTIFICATIONSTATE notifyState = { 0, NULL };
+	// Get the notification stack.
+	PNOTIFICATIONSTACK stack = GetNotificationStack();
+	// Check to make sure this info isn't already in a notification.
+	NOTIFICATIONSTACK::iterator it = stack->begin();
+	NOTIFICATIONSTACK::iterator ti = stack->end();
+	for ( ; it != ti; it++)
+	{
+		if (((PNOTIFICATIONSTATE)(*it))->identity == info)
+		{
+			TRACE("WARNING: Re-enter of notification for \"%s\" blocked!!\n", info->title.c_str());
+			return TRUE;
+		}
+	}
+
+	NOTIFICATIONSTATE notifyState = { info, 0, NULL };
+
+	if (message == NOTIFY_VALUE_CHANGING || message == NOTIFY_VALUE_RECHANGING ||
+		message == NOTIFY_VALUE_SETTING || message == NOTIFY_VALUE_RESETTING)
+	{
+		notifyState.flags |= FLAG_DEFER;
+	}
 
 	// Push our buffer onto the notification stack.
-	PNOTIFICATIONSTACK stack = GetNotificationStack();
 	stack->push_back(&notifyState);
 
 	// First call the global notification callback if one exists
@@ -1276,13 +1294,11 @@ void CSettingGroupEx::SaveSetting(IN HSETTING setting)
 // State changing functions.
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroupEx::Suspend(IN BOOL suspend)
+void CSettingGroupEx::Suspend()
 {
-	OPERATIONINFO opinfo;
+	OPERATIONINFO opinfo(this);
 
 	opinfo.op		= OP_SUSPEND|OP_TYPE_STATE;
-	opinfo.group	= this;
-	opinfo.lParam	= (LPARAM)suspend;
 
 	ProcessOperation(&opinfo);
 }
@@ -1290,7 +1306,15 @@ void CSettingGroupEx::Suspend(IN BOOL suspend)
 
 BOOL CSettingGroupEx::IsSuspended()
 {
-	return m_suspended > 0;
+	if (m_suspended > 0)
+	{
+		return TRUE;
+	}
+	if (m_parentGroup != NULL)
+	{
+		return m_parentGroup->IsSuspended();
+	}
+	return FALSE;
 }
 
 
@@ -1298,42 +1322,33 @@ BOOL CSettingGroupEx::IsSuspended()
 // Value changing/notifying functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroupEx::Activate(IN BOOL unsuspend)
+void CSettingGroupEx::Activate(IN BYTE options)
 {
-	if (unsuspend)
-	{
-		// This call can be deferred.
-		Suspend(FALSE);
-	}
+	OPERATIONINFO opinfo(this);
 
-	// Synchronize changes that have occurred.  This call can be deferred.
-	ProcessVectorChanges(MODE_DEPENDANT_CHANGE, TRUE);
+	opinfo.op		= OP_ACTIVATE|OP_TYPE_CONTAINED;
+	opinfo.options	= options;
+
+	ProcessOperation(&opinfo);
 }
 
 
 void CSettingGroupEx::JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeValue,
-								IN BOOL suspended)
+								IN BYTE options)
 {
-	if (!m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
-		dependeeBit, dependeeValue))
-	{
-		// Unless a master changes the dependee value vector, there
-		// is no need to check other settings.
-		return;
-	}
+	OPERATIONINFO opinfo(this);
 
-	if (suspended)
-	{
-		return;
-	}
+	opinfo.op		= OP_JOSTLE_BIT|OP_TYPE_CONTAINED;
+	opinfo.info		= reinterpret_cast<PSETTINGINFOEX>(dependeeBit);
+	opinfo.ptr		= reinterpret_cast<PVOID>(new CSettingValue(dependeeValue));
+	opinfo.options	= options;
 
-	// This call can be deferred.
-	JostleAllSettings(MODE_DEPENDEE_CHECK, dependeeBit, 0, TRUE);
+	ProcessOperation(&opinfo);
 }
 
 
 void CSettingGroupEx::SetOptionalDependantBits(IN HSETTING setting,
-											   IN DBIT dependantOptionalBits)
+											   IN DBIT dependantOptionalBits, IN BYTE options)
 {
 	PSETTINGINFOEX info = reinterpret_cast<PSETTINGINFOEX>(setting);
 
@@ -1350,19 +1365,13 @@ void CSettingGroupEx::SetOptionalDependantBits(IN HSETTING setting,
 		// dependency bits and the optional dependency mask.)
 		SaveSetting(setting);
 		// This call can be deferred.
-		LoadSetting(setting);
+		CSettingGroup_::LoadSetting(setting, options);
 	}
 }
 
 
-void CSettingGroupEx::EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set, IN BOOL noactivate)
+void CSettingGroupEx::EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set, IN BYTE options)
 {
-	if (m_parentGroup != NULL)
-	{
-		// Disallow the changing of the dependant mask from a subgroup.
-		return;
-	}
-
 	DBIT mask = m_dependencyGestalt->GetDependantMask();
 	if (set)
 	{
@@ -1373,30 +1382,19 @@ void CSettingGroupEx::EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL se
 		mask &= ~dependeeBit;
 	}
 
-	BOOL changed = m_dependencyGestalt->SetDependantMask(mask);
-	if (changed && !noactivate)
-	{
-		// Calling Activate() takes care of synchronizing all changes
-		// that occur as a result of the dependant mask change.
-		Activate(FALSE);
-	}
+	SetEnabledOptionalDependencies(mask, options);
 }
 
 
-void CSettingGroupEx::SetEnabledOptionalDependencies(IN DBIT mask, IN BOOL noactivate)
+void CSettingGroupEx::SetEnabledOptionalDependencies(IN DBIT mask, IN BYTE options)
 {
-	if (m_parentGroup != NULL)
+	BOOL maskChanges = m_dependencyGestalt->SetDependantMask(mask);
+	if (maskChanges)
 	{
-		// Disallow the changing of the dependant mask from a subgroup.
-		return;
-	}
-
-	BOOL changed = m_dependencyGestalt->SetDependantMask(mask);
-	if (changed && !noactivate)
-	{
-		// Calling Activate() takes care of synchronizing all changes
+		PSETTINGGROUPEX root = GetRootParent();
+		// Calling load takes care of synchronizing all changes
 		// that occur as a result of the dependant mask change.
-		Activate(FALSE);
+		root->CSettingGroup_::LoadSettings(options);
 	}
 }
 
@@ -1529,6 +1527,7 @@ void CSettingGroupEx::_SaveOptionalDependencies(IN LPCSTR section, IN LPSTR buff
 
 		sprintf(buffer, "%x", (INT)info->dependantOptionalBits);
 		m_repository->SaveSettingString(section, key, buffer);
+		// Set whether dependantOptionalBits have changed since load.
 		SetInfoFlag(info, FLAG_OPTDEPCHANGED, FALSE);
 	}
 
@@ -1542,7 +1541,7 @@ void CSettingGroupEx::_SaveOptionalDependencies(IN LPCSTR section, IN LPSTR buff
 }
 
 
-void CSettingGroupEx::LoadOptionalDependencies(IN BOOL noactivate)
+void CSettingGroupEx::LoadOptionalDependencies(IN BYTE options)
 {
 	// Create a section string that is m_section appended with DEPENDANTSECTIONPOSTFIX.
 	std::string section(m_section);
@@ -1562,11 +1561,9 @@ void CSettingGroupEx::LoadOptionalDependencies(IN BOOL noactivate)
 	// Load the optional dependant bits for every setting in the group and subgroups.
 	_LoadOptionalDependencies(section.c_str(), mask, buffer, kBufferSize);
 
-	if (!noactivate)
-	{
-		// This call can be deferred.
-		Activate(FALSE);
-	}
+	PSETTINGGROUPEX root = GetRootParent();
+	// This synchronizes all settings for the loaded dependencies.
+	root->CSettingGroup_::LoadSettings(options);
 }
 
 
@@ -1592,6 +1589,7 @@ void CSettingGroupEx::_LoadOptionalDependencies(IN LPCSTR section, IN DBIT valid
 		if (m_repository->LoadSettingString(section, key, buffer, bufferSize))
 		{
 			info->dependantOptionalBits = (DBIT)(strtoul(buffer, NULL, 16) & validMask);
+			// Set whether dependantOptionalBits have changed since load.
 			SetInfoFlag(info, FLAG_OPTDEPCHANGED, FALSE);
 		}
 	}
@@ -1610,22 +1608,25 @@ void CSettingGroupEx::_LoadOptionalDependencies(IN LPCSTR section, IN DBIT valid
 // Operation processing functions.
 //////////////////////////////////////////////////////////////////////////
 
-BOOL CSettingGroupEx::ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
-										 IN RCSETTINGVALUE oldValue, IN BOOL forRevise)
+BOOL CSettingGroupEx::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values, IN BYTE options)
 {
-	if (CSettingGroup_::ProcessValueChange(info, newValue, oldValue, forRevise))
+	BOOL changed = CSettingGroup_::ProcessValueChange(info, values, options);
+
+	if (changed || (options & SGOF_FULLSYNC))
 	{
 		PSETTINGINFOEX infoex = dynamic_cast<PSETTINGINFOEX>(info);
 
 		// If a master setting changes, check dependant settings for change.
-		if (infoex->dependeeBit != 0)
+		if (infoex->dependeeBit != 0 && !IsSuspended())
 		{
 			// Set the master's dependee bit as changed.
 			if (m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
-				infoex->dependeeBit, newValue) && !IsSuspended())
+				infoex->dependeeBit, values->newValue))
 			{
+				PSETTINGGROUPEX root = GetRootParent();
 				// Check and process all settings for changes.
-				JostleAllSettings(MODE_DEPENDEE_CHECK, infoex->dependeeBit, GetDependantBits(infoex));
+				root->JostleAllSettings(infoex->dependeeBit,
+					infoex->dependeeBit|GetDependantBits(infoex), options);
 			}
 		}
 		return TRUE;
@@ -1639,14 +1640,7 @@ void CSettingGroupEx::PerformStateOperation(IN POPERATIONINFO opinfo)
 	switch (opinfo->op & OP_MASK)
 	{
 	case OP_SUSPEND:
-		if ((BOOL)opinfo->lParam)
-		{
-			m_suspended++;
-		}
-		else
-		{
-			m_suspended--;
-		}
+		m_suspended++;
 		break;
 	default:
 		CSettingGroup_::PerformStateOperation(opinfo);
@@ -1659,16 +1653,11 @@ void CSettingGroupEx::PerformContainedOperation(IN POPERATIONINFO opinfo)
 {
 	switch (opinfo->op & OP_MASK)
 	{
-	case OP_LOAD_SETTINGS:
-		// The MODE_LOADING is for loading every setting.
-		JostleAllSettings(MODE_LOADING);
+	case OP_ACTIVATE:
+		Activate(opinfo);
 		break;
-	case OP_JOSTLE_SETTINGS:
-		{
-			PINT params = (PINT)opinfo->ptr;
-			JostleAllSettings((BYTE)params[0], (DBIT)params[1], (DBIT)params[2]);
-			delete params;
-		}
+	case OP_JOSTLE_BIT:
+		JostleBit(opinfo);
 		break;
 	default:
 		CSettingGroup_::PerformContainedOperation(opinfo);
@@ -1677,42 +1666,84 @@ void CSettingGroupEx::PerformContainedOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroupEx::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values)
+void CSettingGroupEx::LoadSettings(IN POPERATIONINFO opinfo)
 {
-	switch (opinfo->op & OP_MASK)
+	if (!IsSuspended())
 	{
-	case OP_LOAD_SETTING:
-		{
-			PSETTINGINFOEX infoex = dynamic_cast<PSETTINGINFOEX>(opinfo->info);
-
-			std::string cacheString;
-			DBIT cacheBits = 0;
-
-			infoex->object->Load(m_repository, GetSection(infoex->loadedDependantBits,
-				TRUE, &cacheString, &cacheBits), GetValueChangeProc, values);
-		}
-		break;
-	default:
-		CSettingGroup_::PerformObjectOperation(opinfo, values);
-		break;
+		JostleAllSettings(0, 0, opinfo->options);
 	}
 }
 
 
-void CSettingGroupEx::ReviseAllSettings()
+void CSettingGroupEx::LoadSetting(IN POPERATIONINFO opinfo)
 {
-	CSettingGroup_::ReviseAllSettings();
+	JOSTLESTRUCT jostleStruct(0, 0, opinfo->options);
 
-	// Run through all subgroups and have them save dependant bits too.
-	SUBGROUPEXLIST::iterator sgit = m_subgroupList.begin();
-	SUBGROUPEXLIST::iterator sgti = m_subgroupList.end();
-	for ( ; sgit != sgti; sgit++)
+	if (!IsSuspended())
 	{
-		if (!(*sgit)->IsSilent())
+		JostleSetting(dynamic_cast<PSETTINGINFOEX>(opinfo->info), &jostleStruct);
+	}
+}
+
+
+void CSettingGroupEx::Activate(IN POPERATIONINFO opinfo)
+{
+	if (m_suspended != 0)
+	{
+		m_suspended--;
+	}
+	if (!IsSuspended())
+	{
+		JostleAllSettings(0, 0, opinfo->options|SGOF_FULLSYNC);
+	}
+}
+
+
+void CSettingGroupEx::JostleBit(IN POPERATIONINFO opinfo)
+{
+	DBIT dependeeBit = reinterpret_cast<DBIT>(opinfo->info);
+	PSETTINGVALUE dependeeValue = reinterpret_cast<PSETTINGVALUE>(opinfo->ptr);
+
+	if (!IsSuspended())
+	{
+		if (m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
+			dependeeBit, *reinterpret_cast<PSETTINGVALUE>(opinfo->ptr)))
 		{
-			(*sgit)->ReviseAllSettings();
+			PSETTINGGROUPEX root = GetRootParent();
+			// If the dependee value vector changes, process settings.
+			root->JostleAllSettings(dependeeBit, dependeeBit, opinfo->options);
 		}
 	}
+
+	delete dependeeValue;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// Changed notify list functions
+//////////////////////////////////////////////////////////////////////////
+
+CSettingGroup_::PCHANGEDNOTIFYSTACK CSettingGroupEx::GetChangedNotifyStack()
+{
+	if (m_parentGroup != NULL)
+	{
+		return m_parentGroup->GetChangedNotifyStack();
+	}
+	return &m_changedNotifyStack;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// Active notification and deferring functions
+//////////////////////////////////////////////////////////////////////////
+
+CSettingGroup_::PNOTIFICATIONSTACK CSettingGroupEx::GetNotificationStack()
+{
+	if (m_parentGroup != NULL)
+	{
+		return m_parentGroup->GetNotificationStack();
+	}
+	return &m_notificationStack;
 }
 
 
@@ -1720,71 +1751,17 @@ void CSettingGroupEx::ReviseAllSettings()
 // Jostling functions.
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroupEx::ProcessVectorChanges(IN BYTE jostleMode, IN BOOL deferrable)
+void CSettingGroupEx::JostleAllSettings(IN DBIT changedBits, IN DBIT checkedBits, IN BYTE options)
 {
-	if (!deferrable && jostleMode != MODE_LOADING && IsSuspended())
+	if (options & SGOF_FULLSYNC)
 	{
-		return;
+		// Compare every bit for changes between our recorded dependee values.
+		DBIT bits = m_dependencyGestalt->CompareVectorChanges(&m_dependedValues);
+		changedBits |= bits;
+		checkedBits |= bits;
 	}
 
-	// Compare every bit for changes between the dependee values in
-	// m_dependencyGestalt and our recorded dependee values.
-	DBIT changedBits = m_dependencyGestalt->CompareVectorChanges(&m_dependedValues);
-
-	if (jostleMode == MODE_DEPENDEE_CHECK && !changedBits)
-	{
-		// There is nothing to do if no dependees change.
-		return;
-	}
-
-	// Process all settings and subgroup settings for changes.
-	JostleAllSettings(jostleMode, changedBits, 0, deferrable);
-}
-
-
-void CSettingGroupEx::JostleAllSettings(IN BYTE jostleMode, IN DBIT changedBits, IN DBIT checkedBits,
-										IN BOOL deferrable)
-{
-	if (!deferrable)
-	{
-		JostleAllSettings(jostleMode, changedBits, checkedBits);
-	}
-	else
-	{
-		OPERATIONINFO opinfo;
-
-		PINT params = new INT[3];
-		params[0] = (INT)jostleMode;
-		params[1] = (INT)changedBits;
-		params[2] = (INT)changedBits;
-
-		opinfo.op		= OP_JOSTLE_SETTINGS|OP_TYPE_CONTAINED;
-		opinfo.group	= this;
-		opinfo.ptr		= (PVOID)params;
-
-		ProcessOperation(&opinfo);
-	}
-}
-
-
-void CSettingGroupEx::JostleAllSettings(IN BYTE jostleMode, IN DBIT changedBits, IN DBIT checkedBits)
-{
-	if (jostleMode != MODE_LOADING && IsSuspended())
-	{
-		return;
-	}
-
-	JOSTLESTRUCT jostleStruct;
-
-	// Initialize section string caches
-	jostleStruct.saveSectionCacheBits = 0;
-	jostleStruct.loadSectionCacheBits = 0;
-
-	// Set the changes bits as changed and checked.
-	jostleStruct.changedBits = changedBits;
-	jostleStruct.checkedBits = changedBits;
-	// Set the jostle mode
-	jostleStruct.jostleMode = jostleMode;
+	JOSTLESTRUCT jostleStruct(changedBits, checkedBits, options);
 
 	// Process every setting in this group
 	SETTINGINFOLIST::iterator it = m_settingList.begin();
@@ -1806,11 +1783,10 @@ void CSettingGroupEx::JostleAllSettings(IN BYTE jostleMode, IN DBIT changedBits,
 	SUBGROUPEXLIST::iterator sgti = m_subgroupList.end();
 	for ( ; sgit != sgti; sgit++)
 	{
-		// Don't update the subgroup if sgit is suspended, even if it
-		// is loading mode.
+		// Don't update the subgroup if sgit is suspended.
 		if (!(*sgit)->IsSuspended())
 		{
-			(*sgit)->ProcessVectorChanges(jostleMode);
+			(*sgit)->JostleAllSettings(jostleStruct.changedBits, jostleStruct.checkedBits, options);
 		}
 	}
 }
@@ -1830,64 +1806,104 @@ void CSettingGroupEx::JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jos
 	// Get all the bits this setting depends on
 	DBIT dependantBits = GetDependantBits(info);
 
-	// Always reload the setting if in CHECK_LOADING is the mode.  The second
-	// expression checks to see if the setting is actually loaded.  The third
-	// checks if dependants have changed since the last time the setting was
-	// loaded.  The fourth checks if the setting's dependee's values have changed.
-	if (jostleStruct->jostleMode == MODE_LOADING || !info->object->IsSet() ||
-		dependantBits != info->loadedDependantBits || dependantBits & jostleStruct->changedBits)
+	// If there are unchecked dependant bits, check those first
+	if (dependantBits & ~jostleStruct->checkedBits)
 	{
-		// If there are uncheck dependant bits, check those first
-		if (dependantBits & ~jostleStruct->checkedBits)
-		{
-			JostleMasters(dependantBits & ~jostleStruct->checkedBits, jostleStruct);
-		}
+		JostleMasters(dependantBits & ~jostleStruct->checkedBits, jostleStruct);
+	}
 
-		// Save the setting to the old section if it is set.  If CHECK_LOADING is
-		// the mode, discard any old values and just reload the setting.
-		if (jostleStruct->jostleMode != MODE_LOADING && info->object->IsSet())
+	// Gather reasons for loading the setting:
+	// - if forced reload is set.
+	// - if sections are changing.
+	// - if the setting is not loaded.
+
+	// Check if forced reload is set.
+	BOOL isReload = (jostleStruct->options & SGOF_RELOAD) != 0;
+
+	// Check if sections are changing.
+	BOOL isSectionChange = FALSE;
+	if ((dependantBits != info->loadedDependantBits) ||
+		(dependantBits & jostleStruct->changedBits))
+	{
+		isSectionChange = TRUE;
+	}
+
+	EnterObjectLock();
+
+	// Check if the setting is not loaded.
+	BOOL isInitialLoad = !info->object->IsSet();
+
+	CHANGEVALUES values;
+
+	if (isReload || isSectionChange || isInitialLoad)
+	{
+		// Save the setting to the old section if it is set and sections are changing.
+		if (!isInitialLoad && isSectionChange)
 		{
 			// Get the appropriate section for saving the setting to.
 			LPCSTR saveSection = GetSection(info->loadedDependantBits, TRUE,
 				&jostleStruct->saveSectionCacheString, &jostleStruct->saveSectionCacheBits);
 
 			// Save the setting value to the old section
-			EnterObjectLock();
 			info->object->Save(m_repository, saveSection);
-			LeaveObjectLock();
 		}
 
 		// Get the appropriate section for loading the setting from.
 		LPCSTR loadSection = GetSection(dependantBits, FALSE,
 			&jostleStruct->loadSectionCacheString, &jostleStruct->loadSectionCacheBits);
 
-		CHANGEVALUES values;
 		// Load the setting value from the new section
-		EnterObjectLock();
 		info->object->Load(m_repository, loadSection, GetValueChangeProc, &values);
-		LeaveObjectLock();
 
-		if (CSettingGroup_::ProcessValueChange(info, &values))
+		// Update the loaded section record regardless of whether this value is used.
+		info->loadedDependantBits = dependantBits;
+	}
+	else if ((jostleStruct->options & SGOF_FULLSYNC) ||
+		((jostleStruct->options & SGOF_REVISE) && !IsSilent(jostleStruct->options)))
+	{
+		// Get the old and new values for revise.
+		values.Set(info->object->GetValue(), info->object->GetValue());
+	}
+
+	LeaveObjectLock();
+
+	if (values.isSet)
+	{
+		BOOL changed = CSettingGroup_::ProcessValueChange(info, &values, jostleStruct->options);
+
+		// If the setting changes or FULLSYNC is set and the setting is a master.
+		if ((changed || (jostleStruct->options & SGOF_FULLSYNC)) && (info->dependeeBit != 0))
 		{
-			// If this setting is a master
-			if (info->dependeeBit != 0)
+			// Register the master setting's value change.
+			if (m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
+				info->dependeeBit, values.newValue))
 			{
-				// Register the master setting's value change.
-				if (m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
-					info->dependeeBit, values.newValue))
-				{
-					jostleStruct->changedBits |= info->dependeeBit;
-				}
+				jostleStruct->changedBits |= info->dependeeBit;
 			}
 		}
-
-		// Update the loaded section record
-		info->loadedDependantBits = dependantBits;
 	}
 }
 
 
 void CSettingGroupEx::JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct)
+{
+	if (m_parentGroup != NULL)
+	{
+		// Jostle master needs to be started at the base group.
+		m_parentGroup->JostleMasters(dependeeBits, jostleStruct);
+		return;
+	}
+
+	// Find masters and get bits for masters that could not be found.
+	dependeeBits = _JostleMasters(dependeeBits, jostleStruct);
+
+	// Set any left over bits for whom masters could not be found as
+	// checked so they aren't searched for again in this jostle round.
+	jostleStruct->checkedBits |= dependeeBits;
+}
+
+
+DBIT CSettingGroupEx::_JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostleStruct)
 {
 	if (dependeeBits & m_haveDependeeBits)
 	{
@@ -1915,15 +1931,46 @@ void CSettingGroupEx::JostleMasters(IN DBIT dependeeBits, IN PJOSTLESTRUCT jostl
 		}
 	}
 
-	// Set any left over bits for whom masters could not be found as
-	// checked so they aren't searched for again.
-	jostleStruct->checkedBits |= dependeeBits;
+	// If there are any bits left.
+	if (dependeeBits != 0)
+	{
+		// Look for the remaining masters in subgroups.
+		SUBGROUPEXLIST::iterator sgit = m_subgroupList.begin();
+		SUBGROUPEXLIST::iterator sgti = m_subgroupList.end();
+		for ( ; sgit != sgti; sgit++)
+		{
+			// Don't look for masters in suspended groups.
+			if (!(*sgit)->IsSuspended())
+			{
+				// Find masters and get bits for masters that could not be found.
+				dependeeBits = (*sgit)->_JostleMasters(dependeeBits, jostleStruct);
+				// Stop if there are no masters left to check.
+				if (dependeeBits == 0)
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	// Return the bits that could not be found.
+	return dependeeBits;
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 // Jostling helper functions
 //////////////////////////////////////////////////////////////////////////
+
+PSETTINGGROUPEX CSettingGroupEx::GetRootParent()
+{
+	if (m_parentGroup == NULL)
+	{
+		return this;
+	}
+	return m_parentGroup->GetRootParent();
+}
+
 
 DBIT CSettingGroupEx::GetDependantBits(PSETTINGINFOEX info)
 {
@@ -2066,10 +2113,19 @@ DBIT CSettingGroupEx::CDependencyGestalt::CompareVectorChanges(IN PCDEPENDVALUEV
 
 	for (BYTE i = 0; i < m_dependeeList.size(); i++)
 	{
-		if (mask & (1 << i) && (i >= dependeeValueVector->size() ||
-			!(*dependeeValueVector)[i].IsEqual(m_dependeeValueVector[i])))
+		if (mask & (1 << i))
 		{
-			changes |= 1 << i;
+			if (i < dependeeValueVector->size())
+			{
+				if (!(*dependeeValueVector)[i].IsEqual(m_dependeeValueVector[i]))
+				{
+					changes |= 1 << i;
+				}
+			}
+			else if (m_dependeeValueVector.at(i).IsSet())
+			{
+				changes |= 1 << i;
+			}
 		}
 	}
 	return changes;

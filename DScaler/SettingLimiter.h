@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingLimiter.h,v 1.2 2004-08-14 13:45:23 adcockj Exp $
+// $Id: SettingLimiter.h,v 1.3 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -74,6 +77,26 @@ public:
 private:
 	INT		m_minimum;
 	INT		m_maximum;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSettingLimiterStringLength
+//////////////////////////////////////////////////////////////////////////
+class CSettingLimiterStringLength : public CSettingLimiter
+{
+public:
+	CSettingLimiterStringLength(IN ULONG maxLength);
+	virtual ~CSettingLimiterStringLength();
+
+	virtual void SetMaxLength(IN ULONG);
+	virtual ULONG SetMaxLength() const;
+
+	virtual BOOL OutOfLimit(IN const CSettingValue& value) const;
+	virtual BOOL ApplyLimit(IN OUT CSettingValue& value) const;
+
+private:
+	ULONG	m_maxLength;
 };
 
 #endif

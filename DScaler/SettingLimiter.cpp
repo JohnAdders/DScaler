@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingLimiter.cpp,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingLimiter.cpp,v 1.2 2005-03-17 03:55:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -102,6 +105,60 @@ BOOL CSettingLimiterClampInt::ApplyLimit(CSettingValue& value) const
 		value.SetInt(number);
 		return TRUE;
 	}
+	return FALSE;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSettingLimiterStringLength
+//////////////////////////////////////////////////////////////////////////
+
+CSettingLimiterStringLength::CSettingLimiterStringLength(IN ULONG maxLength) :
+	m_maxLength(maxLength)
+{
+}
+
+
+CSettingLimiterStringLength::~CSettingLimiterStringLength()
+{
+}
+
+
+void CSettingLimiterStringLength::SetMaxLength(IN ULONG maxLength)
+{
+	m_maxLength = maxLength;
+}
+
+
+ULONG CSettingLimiterStringLength::SetMaxLength() const
+{
+	return m_maxLength;
+}
+
+
+BOOL CSettingLimiterStringLength::OutOfLimit(IN const CSettingValue& value) const
+{
+	if (value.GetType() != SETTING_VALUE_STRING)
+		return FALSE;
+
+	return value.GetString().length() > m_maxLength;
+}
+
+
+BOOL CSettingLimiterStringLength::ApplyLimit(IN OUT CSettingValue& value) const
+{
+	if (value.GetType() != SETTING_VALUE_STRING)
+		return FALSE;
+
+	std::string s = value.GetString();
+
+	if (s.length() > m_maxLength)
+	{
+		s.resize(m_maxLength);
+		value.SetString(s);
+		return TRUE;
+	}
+
 	return FALSE;
 }
 

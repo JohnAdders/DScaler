@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.2 2003-01-28 09:15:35 adcockj Exp $
+// $Id: Credits.cpp,v 1.3 2003-02-07 09:33:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/28 09:15:35  adcockj
+// Updated Credits with new patches and made all sections alphabetical
+//
 // Revision 1.1  2003/01/16 16:55:44  adcockj
 // Added new credits dialog
 //
@@ -110,6 +113,7 @@ char *ArrCredits[] = { 	"DScaler\n",
                         "Torbjörn Jansson\f",
 						"Rob Muller\f",
 						"Atsushi Nakagawa\f",
+						"Ivan Tarnavsky\f",
 						"",
 						"",
 						"Other Developers\t",
@@ -123,7 +127,6 @@ char *ArrCredits[] = { 	"DScaler\n",
                         "Michael Samblanet\f",
 						"Eric Schmidt\f",
                         "Jochen Trenner\f",
-						"Ivan Tarnavsky\f",
 						"Mike Temperton\f",
                         "",
 						"",

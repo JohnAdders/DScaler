@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.6 2002-05-06 13:13:59 laurentg Exp $
+// $Id: Perf.cpp,v 1.7 2002-05-18 13:11:40 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/05/06 13:13:59  laurentg
+// Initialization of CPerf members
+//
 // Revision 1.5  2002/05/02 16:43:32  laurentg
 // ceil replaced by floor
 //
@@ -233,8 +236,21 @@ void CPerf::InitCycle()
     {
         m_TotalDroppedFields += Timing_GetDroppedFields();
         m_TotalUsedFields += Timing_GetUsedFields();
-        m_DroppedFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / (double)(CurrentTickCount - m_TickStartLastSec);
-        m_UsedFieldsLastSec = (double)Timing_GetUsedFields() * 1000.0 / (double)(CurrentTickCount - m_TickStartLastSec);
+        
+        double tickDiff=(double)(CurrentTickCount - m_TickStartLastSec);
+        
+        //prevent crashing if tickDiff is invalid
+        if(_finite(tickDiff) && !_isnan(tickDiff))
+        {
+            m_DroppedFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / tickDiff;
+            m_UsedFieldsLastSec = (double)Timing_GetUsedFields() * 1000.0 / tickDiff;
+        }
+        else
+        {
+            m_DroppedFieldsLastSec=-1;
+            m_UsedFieldsLastSec=-1;
+        }
+        
         Timing_ResetDroppedFields();
         Timing_ResetUsedFields();
         m_TickStartLastSec = CurrentTickCount;

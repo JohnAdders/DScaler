@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.2 2005-03-09 06:11:46 atnak Exp $
+// $Id: TDA8275.cpp,v 1.3 2005-03-09 06:33:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/09 06:11:46  atnak
+// Fixed errors and omissions.
+//
 // Revision 1.1  2005/03/08 18:14:03  atnak
 // Initial upload.
 //
@@ -127,7 +130,7 @@ bool CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
 		m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
 	}
 
-	SetFrequency(frequencyHz, CTDA8290::GetTDA8290Standard(videoFormat));
+	bool success = SetFrequency(frequencyHz, CTDA8290::GetTDA8290Standard(videoFormat));
 	m_Frequency = frequencyHz;
 
 	if (m_ExternalIFDemodulator != NULL)
@@ -135,7 +138,7 @@ bool CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
 		m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
 	}
 
-	return true;
+	return success;
 }
 
 bool CTDA8275::SetRadioFrequency(long frequencyHz)
@@ -229,7 +232,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 	// (sgRFMHz + sgIFMHz) is (freqRFIFHz / 1000000).
 
 	// 0.5 is added for rounding.
-	WORD n11ton0 = (WORD)((double)(1 << row->spd) * ((double)freqRFIFHz / 400000) + 0.5);
+	WORD n11ton0 = (WORD)((double)(1 << row->spd) * ((double)freqRFIFHz / 250000) + 0.5);
 
 	BYTE channelBytes[8];
 	channelBytes[0] = (n11ton0 >> 6) & 0x3F;

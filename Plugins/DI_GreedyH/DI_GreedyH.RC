@@ -28,24 +28,25 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-GREEDYH DIALOGEX 0, 0, 373, 175
+GREEDYH DIALOGEX 0, 0, 432, 215
 STYLE DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
     WS_SYSMENU
 CAPTION "Greedy High Motion Controls"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,131,49,38,14
-    PUSHBUTTON      "Cancel",IDCANCEL,89,49,38,14
-    PUSHBUTTON      "Default",IDC_DEFAULT,47,49,38,14
+    DEFPUSHBUTTON   "OK",IDOK,131,65,38,14
+    PUSHBUTTON      "Cancel",IDCANCEL,89,65,38,14
+    PUSHBUTTON      "Default",IDC_DEFAULT,47,65,38,14
     CONTROL         "Median Filter",IDC_USE_MEDIAN_FILTER,"Button",
                     BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | WS_TABSTOP,4,17,
                     74,11
     CONTROL         "Slider1",IDC_MAX_COMB,"msctls_trackbar32",TBS_TOP | 
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
-                    4,101,83,10,WS_EX_TRANSPARENT
-    RTEXT           "0",IDC_MAX_COMB_V,65,92,19,9,SS_NOPREFIX | NOT WS_GROUP
-    LTEXT           "Max Comb",IDC_STATIC,4,91,62,8
-    PUSHBUTTON      "Advanced",IDC_ADVANCED,5,49,38,14
+                    4,143,83,10,WS_EX_TRANSPARENT
+    RTEXT           "0",IDC_MAX_COMB_V,65,134,19,9,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Max Comb",IDC_STATIC,4,133,62,8
+    PUSHBUTTON      "Advanced",IDC_ADVANCED,5,65,38,14
     CONTROL         "Auto Pull-Down",IDC_USE_PULLDOWN,"Button",
                     BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_LEFT | BS_TOP | 
                     WS_TABSTOP,4,4,74,11
@@ -62,144 +63,144 @@ BEGIN
                     74,11
     CONTROL         "Slider1",IDC_MOTION_THRESHOLD,"msctls_trackbar32",
                     TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
-                    WS_TABSTOP,4,81,83,10,WS_EX_TRANSPARENT
-    LTEXT           "Motion Threshold",IDC_STATIC,4,70,64,9
-    RTEXT           "0",IDC_MOTION_THRESHOLD_V,65,71,19,9,SS_NOPREFIX | NOT 
+                    WS_TABSTOP,4,123,83,10,WS_EX_TRANSPARENT
+    LTEXT           "Motion Threshold",IDC_STATIC,4,112,64,9
+    RTEXT           "0",IDC_MOTION_THRESHOLD_V,65,113,19,9,SS_NOPREFIX | NOT 
                     WS_GROUP
-    LTEXT           "Motion Sensitivity",IDC_STATIC,89,70,60,8
+    LTEXT           "Motion Sensitivity",IDC_STATIC,89,112,60,8
     CONTROL         "Slider1",IDC_MOTION_SENSE,"msctls_trackbar32",TBS_TOP | 
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
-                    89,81,83,10,WS_EX_TRANSPARENT
-    LTEXT           "Good PullDown Lvl",IDC_STATIC,4,112,69,8
-    LTEXT           "Bad PullDown Lvl",IDC_STATIC,89,112,60,8
-    LTEXT           "Low Motion PD Lvl",IDC_STATIC,89,91,60,8
+                    89,123,83,10,WS_EX_TRANSPARENT
+    LTEXT           "Good PullDown Lvl",IDC_STATIC,4,154,69,8
+    LTEXT           "Bad PullDown Lvl",IDC_STATIC,89,154,60,8
+    LTEXT           "Low Motion PD Lvl",IDC_STATIC,89,133,60,8
     CONTROL         "Slider1",IDC_EDGE_ENH,"msctls_trackbar32",TBS_TOP | 
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
-                    4,142,83,10,WS_EX_TRANSPARENT
+                    4,184,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_LOW_MOTION_PD_LVL,"msctls_trackbar32",
                     TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
-                    WS_TABSTOP,89,101,83,10,WS_EX_TRANSPARENT
+                    WS_TABSTOP,89,143,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_GOOD_PULLDOWN_LVL,"msctls_trackbar32",
                     TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
-                    WS_TABSTOP,4,121,83,10,WS_EX_TRANSPARENT
+                    WS_TABSTOP,4,163,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_BAD_PULLDOWN_LVL,"msctls_trackbar32",
                     TBS_TOP | TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | 
-                    WS_TABSTOP,89,121,83,10,WS_EX_TRANSPARENT
+                    WS_TABSTOP,89,163,83,10,WS_EX_TRANSPARENT
     CONTROL         "Slider1",IDC_MEDIAN_FILTER,"msctls_trackbar32",TBS_TOP | 
                     TBS_NOTICKS | TBS_ENABLESELRANGE | WS_GROUP | WS_TABSTOP,
-                    89,142,83,10,WS_EX_TRANSPARENT
-    RTEXT           "0",IDC_EDGE_ENH_V,65,132,19,9,SS_NOPREFIX | NOT 
+                    89,184,83,10,WS_EX_TRANSPARENT
+    RTEXT           "0",IDC_EDGE_ENH_V,65,174,19,9,SS_NOPREFIX | NOT 
                     WS_GROUP
-    RTEXT           "0",IDC_MOTION_SENSE_V,149,70,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_MOTION_SENSE_V,149,112,19,9,SS_NOPREFIX | NOT 
                     WS_GROUP
-    RTEXT           "0",IDC_LOW_MOTION_PD_LVL_V,149,92,19,9,SS_NOPREFIX | 
+    RTEXT           "0",IDC_LOW_MOTION_PD_LVL_V,149,134,19,9,SS_NOPREFIX | 
                     NOT WS_GROUP
-    RTEXT           "0",IDC_GOOD_PULLDOWN_LVL_V,65,113,19,9,SS_NOPREFIX | 
+    RTEXT           "0",IDC_GOOD_PULLDOWN_LVL_V,65,155,19,9,SS_NOPREFIX | 
                     NOT WS_GROUP
-    RTEXT           "0",IDC_BAD_PULLDOWN_LVL_V,149,113,19,9,SS_NOPREFIX | 
+    RTEXT           "0",IDC_BAD_PULLDOWN_LVL_V,149,155,19,9,SS_NOPREFIX | 
                     NOT WS_GROUP
-    RTEXT           "0",IDC_MEDIAN_FILTER_V,149,132,19,9,SS_NOPREFIX | NOT 
+    RTEXT           "0",IDC_MEDIAN_FILTER_V,149,174,19,9,SS_NOPREFIX | NOT 
                     WS_GROUP
-    LTEXT           "Edge Enhance",IDC_STATIC,4,132,62,8
-    LTEXT           "Median Filter",IDC_STATIC,89,132,60,8
-    RTEXT           "Comb",IDC_STATIC,180,4,19,8
-    RTEXT           "0",IDC_COMB0,177,13,22,8
-    RTEXT           "0",IDC_COMB1,177,22,22,8
-    RTEXT           "0",IDC_COMB2,177,31,22,8
-    RTEXT           "0",IDC_COMB3,177,40,22,8
-    RTEXT           "0",IDC_COMB4,177,49,22,8
-    RTEXT           "0",IDC_COMB5,177,58,22,8
-    RTEXT           "0",IDC_COMB6,177,67,22,8
-    RTEXT           "0",IDC_COMB7,177,76,22,8
-    RTEXT           "0",IDC_COMB8,177,85,22,8
-    RTEXT           "0",IDC_COMB9,177,94,22,8
-    RTEXT           "Good R",IDC_RAT,268,4,26,8
-    RTEXT           "0",IDC_RAT0,270,13,22,8
-    RTEXT           "0",IDC_RAT1,270,22,22,8
-    RTEXT           "0",IDC_RAT2,270,31,22,8
-    RTEXT           "0",IDC_RAT3,270,40,22,8
-    RTEXT           "0",IDC_RAT4,270,49,22,8
-    RTEXT           "0",IDC_RAT5,270,58,22,8
-    RTEXT           "0",IDC_RAT6,270,67,22,8
-    RTEXT           "0",IDC_RAT7,270,76,22,8
-    RTEXT           "0",IDC_RAT8,270,85,22,8
-    RTEXT           "0",IDC_RAT9,270,94,22,8
-    LTEXT           "Flags",IDC_FLAGS,333,4,23,8
-    LTEXT           " 0",IDC_FLAG0,333,13,37,8
-    LTEXT           " 0",IDC_FLAG3,333,40,37,8
-    LTEXT           " 0",IDC_FLAG1,333,22,37,8
-    LTEXT           " 0",IDC_FLAG4,333,49,37,8
-    LTEXT           " 0",IDC_FLAG5,333,58,37,8
-    LTEXT           " 0",IDC_FLAG6,333,67,37,8
-    LTEXT           " 0",IDC_FLAG7,333,76,37,8
-    LTEXT           " 0",IDC_FLAG8,333,85,37,8
-    LTEXT           " 0",IDC_FLAG9,333,94,37,8
-    LTEXT           " 0",IDC_FLAG2,333,31,37,8
-    PUSHBUTTON      "Diagnostics",IDC_DIAG,65,155,47,14
-    RTEXT           "0",IDC_COMB10,177,103,22,8
-    RTEXT           "0",IDC_COMB11,177,112,22,8
-    RTEXT           "0",IDC_COMB12,177,121,22,8
-    RTEXT           "0",IDC_COMB13,177,130,22,8
-    RTEXT           "0",IDC_COMB14,177,139,22,8
-    RTEXT           "0",IDC_RAT10,270,103,22,8
-    RTEXT           "0",IDC_RAT11,270,112,22,8
-    RTEXT           "0",IDC_RAT12,270,121,22,8
-    RTEXT           "0",IDC_RAT13,270,130,22,8
-    RTEXT           "0",IDC_RAT14,270,139,22,8
-    LTEXT           " 0",IDC_FLAG10,333,103,37,8
-    LTEXT           " 0",IDC_FLAG11,333,112,37,8
-    LTEXT           " 0",IDC_FLAG12,333,121,37,8
-    LTEXT           " 0",IDC_FLAG13,333,130,37,8
-    LTEXT           " 0",IDC_FLAG14,333,139,37,8
-    RTEXT           "Motion",IDC_FLAGS2,236,4,22,8
-    RTEXT           " 0",IDC_MOTION0,239,13,22,8
-    RTEXT           " 0",IDC_MOTION1,239,22,22,8
-    RTEXT           " 0",IDC_MOTION2,239,31,22,8
-    RTEXT           " 0",IDC_MOTION3,239,40,22,8
-    RTEXT           " 0",IDC_MOTION4,239,49,22,8
-    RTEXT           " 0",IDC_MOTION5,239,58,22,8
-    RTEXT           " 0",IDC_MOTION6,239,67,22,8
-    RTEXT           " 0",IDC_MOTION7,239,76,22,8
-    RTEXT           " 0",IDC_MOTION8,239,85,22,8
-    RTEXT           " 0",IDC_MOTION9,239,94,22,8
-    RTEXT           " 0",IDC_MOTION10,239,103,22,8
-    RTEXT           " 0",IDC_MOTION11,239,112,22,8
-    RTEXT           " 0",IDC_MOTION12,239,121,22,8
-    RTEXT           " 0",IDC_MOTION13,239,130,22,8
-    RTEXT           " 0",IDC_MOTION14,239,139,22,8
-    PUSHBUTTON      "Refresh",IDC_REFRESH,242,155,38,14
-    RTEXT           "Kontrast",IDC_FLAGS3,204,4,27,8
-    RTEXT           "0",IDC_KONTRAST0,208,13,22,8
-    RTEXT           "0",IDC_KONTRAST1,208,22,22,8
-    RTEXT           "0",IDC_KONTRAST2,208,31,22,8
-    RTEXT           "0",IDC_KONTRAST3,208,40,22,8
-    RTEXT           "0",IDC_KONTRAST4,208,49,22,8
-    RTEXT           "0",IDC_KONTRAST5,208,58,22,8
-    RTEXT           "0",IDC_KONTRAST6,208,67,22,8
-    RTEXT           "0",IDC_KONTRAST7,208,76,22,8
-    RTEXT           "0",IDC_KONTRAST8,208,85,22,8
-    RTEXT           "0",IDC_KONTRAST9,208,94,22,8
-    RTEXT           "0",IDC_KONTRAST10,208,103,22,8
-    RTEXT           "0",IDC_KONTRAST11,208,112,22,8
-    RTEXT           "0",IDC_KONTRAST12,208,121,22,8
-    RTEXT           "0",IDC_KONTRAST13,208,130,22,8
-    RTEXT           "0",IDC_KONTRAST14,208,139,22,8
-    RTEXT           "Bad R",IDC_FLAGS5,302,4,21,8
-    RTEXT           "0",IDC_COMBK0,301,13,22,8
-    RTEXT           "0",IDC_COMBK1,301,22,22,8
-    RTEXT           "0",IDC_COMBK2,301,31,22,8
-    RTEXT           "0",IDC_COMBK3,301,40,22,8
-    RTEXT           "0",IDC_COMBK4,301,49,22,8
-    RTEXT           "0",IDC_COMBK5,301,58,22,8
-    RTEXT           "0",IDC_COMBK6,301,67,22,8
-    RTEXT           "0",IDC_COMBK7,301,76,22,8
-    RTEXT           "0",IDC_COMBK8,301,85,22,8
-    RTEXT           "0",IDC_COMBK9,301,94,22,8
-    RTEXT           "0",IDC_COMBK10,301,103,22,8
-    RTEXT           "0",IDC_COMBK11,301,112,22,8
-    RTEXT           "0",IDC_COMBK12,301,121,22,8
-    RTEXT           "0",IDC_COMBK13,301,130,22,8
-    RTEXT           "0",IDC_COMBK14,301,139,22,8
+    LTEXT           "Edge Enhance",IDC_STATIC,4,174,62,8
+    LTEXT           "Median Filter",IDC_STATIC,89,174,60,8
+    RTEXT           "Comb",IDC_STATIC,231,4,19,8
+    RTEXT           "0",IDC_COMB0,228,13,22,8
+    RTEXT           "0",IDC_COMB1,228,22,22,8
+    RTEXT           "0",IDC_COMB2,228,31,22,8
+    RTEXT           "0",IDC_COMB3,228,40,22,8
+    RTEXT           "0",IDC_COMB4,228,49,22,8
+    RTEXT           "0",IDC_COMB5,228,58,22,8
+    RTEXT           "0",IDC_COMB6,228,67,22,8
+    RTEXT           "0",IDC_COMB7,228,76,22,8
+    RTEXT           "0",IDC_COMB8,228,85,22,8
+    RTEXT           "0",IDC_COMB9,228,94,22,8
+    RTEXT           "Good R",IDC_RAT,319,4,26,8
+    RTEXT           "0",IDC_RAT0,321,13,22,8
+    RTEXT           "0",IDC_RAT1,321,22,22,8
+    RTEXT           "0",IDC_RAT2,321,31,22,8
+    RTEXT           "0",IDC_RAT3,321,40,22,8
+    RTEXT           "0",IDC_RAT4,321,49,22,8
+    RTEXT           "0",IDC_RAT5,321,58,22,8
+    RTEXT           "0",IDC_RAT6,321,67,22,8
+    RTEXT           "0",IDC_RAT7,321,76,22,8
+    RTEXT           "0",IDC_RAT8,321,85,22,8
+    RTEXT           "0",IDC_RAT9,321,94,22,8
+    LTEXT           "Flags",IDC_FLAGS,384,4,23,8
+    LTEXT           " 0",IDC_FLAG0,384,13,37,8
+    LTEXT           " 0",IDC_FLAG3,384,40,37,8
+    LTEXT           " 0",IDC_FLAG1,384,22,37,8
+    LTEXT           " 0",IDC_FLAG4,384,49,37,8
+    LTEXT           " 0",IDC_FLAG5,384,58,37,8
+    LTEXT           " 0",IDC_FLAG6,384,67,37,8
+    LTEXT           " 0",IDC_FLAG7,384,76,37,8
+    LTEXT           " 0",IDC_FLAG8,384,85,37,8
+    LTEXT           " 0",IDC_FLAG9,384,94,37,8
+    LTEXT           " 0",IDC_FLAG2,384,31,37,8
+    PUSHBUTTON      "Diagnostics",IDC_DIAG,65,197,47,14
+    RTEXT           "0",IDC_COMB10,228,103,22,8
+    RTEXT           "0",IDC_COMB11,228,112,22,8
+    RTEXT           "0",IDC_COMB12,228,121,22,8
+    RTEXT           "0",IDC_COMB13,228,130,22,8
+    RTEXT           "0",IDC_COMB14,228,139,22,8
+    RTEXT           "0",IDC_RAT10,321,103,22,8
+    RTEXT           "0",IDC_RAT11,321,112,22,8
+    RTEXT           "0",IDC_RAT12,321,121,22,8
+    RTEXT           "0",IDC_RAT13,321,130,22,8
+    RTEXT           "0",IDC_RAT14,321,139,22,8
+    LTEXT           " 0",IDC_FLAG10,384,103,37,8
+    LTEXT           " 0",IDC_FLAG11,384,112,37,8
+    LTEXT           " 0",IDC_FLAG12,384,121,37,8
+    LTEXT           " 0",IDC_FLAG13,384,130,37,8
+    LTEXT           " 0",IDC_FLAG14,384,139,37,8
+    RTEXT           "Motion",IDC_FLAGS2,287,4,22,8
+    RTEXT           " 0",IDC_MOTION0,290,13,22,8
+    RTEXT           " 0",IDC_MOTION1,290,22,22,8
+    RTEXT           " 0",IDC_MOTION2,290,31,22,8
+    RTEXT           " 0",IDC_MOTION3,290,40,22,8
+    RTEXT           " 0",IDC_MOTION4,290,49,22,8
+    RTEXT           " 0",IDC_MOTION5,290,58,22,8
+    RTEXT           " 0",IDC_MOTION6,290,67,22,8
+    RTEXT           " 0",IDC_MOTION7,290,76,22,8
+    RTEXT           " 0",IDC_MOTION8,290,85,22,8
+    RTEXT           " 0",IDC_MOTION9,290,94,22,8
+    RTEXT           " 0",IDC_MOTION10,290,103,22,8
+    RTEXT           " 0",IDC_MOTION11,290,112,22,8
+    RTEXT           " 0",IDC_MOTION12,290,121,22,8
+    RTEXT           " 0",IDC_MOTION13,290,130,22,8
+    RTEXT           " 0",IDC_MOTION14,290,139,22,8
+    PUSHBUTTON      "Refresh",IDC_REFRESH,293,197,38,14
+    RTEXT           "Kontrast",IDC_FLAGS3,255,4,27,8
+    RTEXT           "0",IDC_KONTRAST0,259,13,22,8
+    RTEXT           "0",IDC_KONTRAST1,259,22,22,8
+    RTEXT           "0",IDC_KONTRAST2,259,31,22,8
+    RTEXT           "0",IDC_KONTRAST3,259,40,22,8
+    RTEXT           "0",IDC_KONTRAST4,259,49,22,8
+    RTEXT           "0",IDC_KONTRAST5,259,58,22,8
+    RTEXT           "0",IDC_KONTRAST6,259,67,22,8
+    RTEXT           "0",IDC_KONTRAST7,259,76,22,8
+    RTEXT           "0",IDC_KONTRAST8,259,85,22,8
+    RTEXT           "0",IDC_KONTRAST9,259,94,22,8
+    RTEXT           "0",IDC_KONTRAST10,259,103,22,8
+    RTEXT           "0",IDC_KONTRAST11,259,112,22,8
+    RTEXT           "0",IDC_KONTRAST12,259,121,22,8
+    RTEXT           "0",IDC_KONTRAST13,259,130,22,8
+    RTEXT           "0",IDC_KONTRAST14,259,139,22,8
+    RTEXT           "Bad R",IDC_FLAGS5,353,4,21,8
+    RTEXT           "0",IDC_COMBK0,352,13,22,8
+    RTEXT           "0",IDC_COMBK1,352,22,22,8
+    RTEXT           "0",IDC_COMBK2,352,31,22,8
+    RTEXT           "0",IDC_COMBK3,352,40,22,8
+    RTEXT           "0",IDC_COMBK4,352,49,22,8
+    RTEXT           "0",IDC_COMBK5,352,58,22,8
+    RTEXT           "0",IDC_COMBK6,352,67,22,8
+    RTEXT           "0",IDC_COMBK7,352,76,22,8
+    RTEXT           "0",IDC_COMBK8,352,85,22,8
+    RTEXT           "0",IDC_COMBK9,352,94,22,8
+    RTEXT           "0",IDC_COMBK10,352,103,22,8
+    RTEXT           "0",IDC_COMBK11,352,112,22,8
+    RTEXT           "0",IDC_COMBK12,352,121,22,8
+    RTEXT           "0",IDC_COMBK13,352,130,22,8
+    RTEXT           "0",IDC_COMBK14,352,139,22,8
 END
 
 
@@ -242,10 +243,10 @@ BEGIN
     "GREEDYH", DIALOG
     BEGIN
         LEFTMARGIN, 1
-        RIGHTMARGIN, 370
+        RIGHTMARGIN, 429
         VERTGUIDE, 158
         TOPMARGIN, 4
-        BOTTOMMARGIN, 169
+        BOTTOMMARGIN, 209
         HORZGUIDE, 4
     END
 END

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GrUpdtFS.asm,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GrUpdtFS.asm,v 1.3 2001-08-04 06:46:57 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -31,10 +35,12 @@ BOOL FUNC_NAME()
 {
 #include "DI_GreedyHM2.h"
 	__int64* pFieldStore;		// ptr into FieldStore qwords
+    __int64 lastmm3 = 0;        // >>> for debug only
 	short **pLinesW = pLines;	// current input lines, local storage is faster
 	int LineCtr = FieldHeight;	// number of lines to do
-    int FirstLine = LineCtr - 2;  // don't use top 3 lines in totals, re-clear totals here
-    int LastLine = 4;           // don't use last 3 lines in totals, save totals here
+    int SkipCt = FieldHeight / 6;   // skip this many at top and bottom
+    int FirstLine = LineCtr - SkipCt+1;  // don't use top n lines in totals, re-clear totals here
+    int LastLine = SkipCt+1;    // don't use last n lines in totals, save totals here
 	int	LoopCtr;				// number of qwords in line - 1
 	int	LoopCtrW;				// number of qwords in line - 1
 	int FsPrev;					// FieldStore elem holding pixels from prev field line
@@ -60,7 +66,7 @@ BOOL FUNC_NAME()
 
 	LineCtr = FieldHeight;		// number lines to do
 
-	CombScale = (FieldHeight - 6) * LineLength / 100;  // Divide totals by this later
+	CombScale = (FieldHeight - 2 * SkipCt) * LineLength / 100;  // Divide totals by this later
 	pFieldStore = & FieldStore[0];		// starting ptr into FieldStore
 	
 	LoopCtr = LineLength / 8 - 1;		// do 8 bytes at a time, adjusted
@@ -206,6 +212,13 @@ QwordLoop:
 // Ok, done with one line
 
         mov     eax, LineCtr
+/*
+//>>>> for debug only
+        movq    mm4, mm3
+        psubd   mm4, lastmm3
+        movq    qword ptr[lastmm3], mm3
+//>>>
+*/
         cmp     eax, FirstLine          // ignore some lines, clear totals here?
         jnz     NotFirst                // no
         pxor    mm3, mm3                // clear Comb, Kontras

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.7 2001-08-01 00:37:41 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.8 2001-08-04 06:46:56 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/08/01 00:37:41  trbarry
+// More chroma jitter fixes, tweak defaults
+//
 // Revision 1.6  2001/07/30 21:50:32  trbarry
 // Use weave chroma for reduced chroma jitter. Fix DJR bug again.
 // Turn off Greedy Pulldown default.
@@ -299,17 +302,17 @@ static BOOL ShowDiag = FALSE;
         {
             if (ShowDiag)
             {
-			    MoveWindow(hDlg, 30, 30, 550, 306, TRUE);  // big window with trace
+			    MoveWindow(hDlg, 30, 30, 850, 470, TRUE);  // big window with trace
 			    GreedyDiag(hDlg);
             }    
             else
             {                              // middle siz window with sliders & trace
-                MoveWindow(hDlg, 30, 30, 270, 306, TRUE);  
+                MoveWindow(hDlg, 30, 30, 352, 470, TRUE);  
             }    
         }
         else
         {
-			MoveWindow(hDlg, 30, 30, 270, 134, TRUE);
+			MoveWindow(hDlg, 30, 30, 352, 205, TRUE);
         }
         
 
@@ -437,12 +440,12 @@ static BOOL ShowDiag = FALSE;
             if (ShowDiag)
             {
                 ShowDiag = FALSE;               
-                MoveWindow(ghDlg, 30, 30, 270, 306, TRUE);  // middle siz window with sliders
+                MoveWindow(ghDlg, 30, 30, 352, 470, TRUE);  // middle siz window with sliders
             }    
             else
             {
                 ShowDiag = TRUE;               
-			    MoveWindow(ghDlg, 30, 30, 550, 306, TRUE);  // big window with sliders & trace
+			    MoveWindow(ghDlg, 30, 30, 850, 470, TRUE);  // big window with sliders & trace
 			    GreedyDiag(hDlg);
             }    
 			GreedyDiag(hDlg);
@@ -456,7 +459,7 @@ static BOOL ShowDiag = FALSE;
             if (ShowAdvanced)                   // if already showing then make small
             {
                 ShowAdvanced = FALSE;
-			    MoveWindow(ghDlg, 30, 30, 270, 134, TRUE);
+			    MoveWindow(ghDlg, 30, 30, 352, 205, TRUE);
             }
             
             else
@@ -464,12 +467,12 @@ static BOOL ShowDiag = FALSE;
                 ShowAdvanced = TRUE;
                 if (ShowDiag)
                 {
-			        MoveWindow(ghDlg, 30, 30, 550, 306, TRUE);  // big window with trace
+			        MoveWindow(ghDlg, 30, 30, 800, 470, TRUE);  // big window with trace
 			        GreedyDiag(hDlg);
                 }    
                 else
                 {                              // middle siz window with sliders & trace
-                    MoveWindow(ghDlg, 30, 30, 270, 306, TRUE);  
+                    MoveWindow(ghDlg, 30, 30, 352, 470, TRUE);  
                 }    
             }
 

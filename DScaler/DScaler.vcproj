@@ -2313,6 +2313,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\PIC16C54.cpp">
+			</File>
+			<File
 				RelativePath="dshowsource\PinEnum.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3914,6 +3917,9 @@
 			</File>
 			<File
 				RelativePath="Perf.h">
+			</File>
+			<File
+				RelativePath=".\PIC16C54.h">
 			</File>
 			<File
 				RelativePath="dshowsource\PinEnum.h">

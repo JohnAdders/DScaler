@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.33 2001-11-26 13:02:27 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.34 2001-12-30 13:10:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.32  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -403,7 +406,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         AspectSettings.ZoomFactorY -= 50;
         if (AspectSettings.ZoomFactorY < 50)
         {
-            AspectSettings.ZoomFactorY = 50;
+            AspectSettings.ZoomFactorY = 25;
         }
         if ((AspectSettings.ZoomFactorX == 100) && (AspectSettings.ZoomFactorY == 100))
         {

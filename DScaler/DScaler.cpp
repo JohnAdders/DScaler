@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.284 2003-01-12 17:12:45 atnak Exp $
+// $Id: DScaler.cpp,v 1.285 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.284  2003/01/12 17:12:45  atnak
+// Added hex pages display and goto dialog
+//
 // Revision 1.283  2003/01/12 16:19:34  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -1406,6 +1409,10 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
         LOG(1, "Crash in MainWndProc");
+        // try as best we can to unload everything
+        // mostly we want to make sure that the driver is stopped
+        // cleanly so that the machine doesn't blue screen
+        MainWndOnDestroy();
         ExitProcess(1);
         return 0;
     }

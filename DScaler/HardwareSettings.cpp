@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.5 2002-08-12 19:54:27 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.6 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/08/12 19:54:27  laurentg
+// Selection of video card to adjust DScaler settings
+//
 // Revision 1.4  2002/08/11 22:59:52  laurentg
 // Call to WriteSettingsToIni with bOptimizeFileAccess set to TRUE
 //
@@ -144,7 +147,7 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         // TODO : Add different video cards and keep "Other card" at first place
         SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(VIDEOCARD)), 0);
         SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_SETCURSEL, 0, 0);
-        SetFocus(hDlg);
+        return TRUE;
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

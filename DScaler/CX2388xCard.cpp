@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.34 2003-01-13 17:46:44 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.35 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/13 17:46:44  adcockj
+// HDelay and VDelay turned from absolute to adjustments
+//
 // Revision 1.33  2003/01/06 10:33:37  adcockj
 // Set correct number of Dwords for VBI at 720 pixels
 //
@@ -2052,7 +2055,9 @@ BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wPara
         AddRegister(CX2388X_VIP_CONTBRGT);
         AddRegister(CX2388X_VIP_HSCALE);
         AddRegister(CX2388X_VIP_VSCALE);
+        return TRUE;
         break;
+
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {

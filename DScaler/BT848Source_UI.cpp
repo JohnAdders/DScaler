@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.9 2003-01-10 17:37:49 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.10 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/10 17:37:49  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.8  2003/01/07 23:27:01  laurentg
 // New overscan settings
 //
@@ -381,6 +388,7 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
 			
 			SetFocus(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST)); 
         }
+        return TRUE;
         break;
 	case WM_TIMER:
 		if (wParam == IDC_AUDIOSTANDARD_MANUAL_DETECTNOW)
@@ -642,6 +650,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 			CheckDlgButton(hDlg, IDC_USEEQUALIZER, TUseEqualizer);
 		}
 		SendMessage(hDlg, WM_COMMAND, IDC_USEEQUALIZER, 0);
+        return TRUE;
         break;
 
     case WM_VSCROLL:
@@ -891,12 +900,13 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         // because SetFocus modifies this combobox
         for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
         {
-          i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-          if (i == pThis->m_TunerType->GetValue() )
-          {          
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
-          }
+            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+            if (i == pThis->m_TunerType->GetValue() )
+            {          
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+            }
         }
+        return TRUE;
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

@@ -62,7 +62,7 @@ LINK32=link.exe
 # ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Development\CVSDumps\deinterlace.sf\DScaler\Debug\DScaler.exe
+InputPath=\Source\deinterlace\DScaler\Debug\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -112,7 +112,7 @@ LINK32=link.exe
 # ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Development\CVSDumps\deinterlace.sf\DScaler\Release\DScaler.exe
+InputPath=\Source\deinterlace\DScaler\Release\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -899,6 +899,10 @@ SOURCE=.\dshowsource\CaptureDevice.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Channels.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\cpu.h
 # End Source File
 # Begin Source File
@@ -1328,6 +1332,10 @@ SOURCE=.\VBI_CCdecode.h
 # Begin Source File
 
 SOURCE=.\VBI_VideoText.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VBI_VPSdecode.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.32 2003-01-13 17:46:41 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.33 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/13 17:46:41  adcockj
+// HDelay and VDelay turned from absolute to adjustments
+//
 // Revision 1.31  2002/11/28 14:56:19  adcockj
 // Fixed some register size issues
 //
@@ -1127,7 +1130,7 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
             SetDlgItemText(hDlg, IDC_CPU_TYPE, "MMX");
         }
 
-
+        return TRUE;
         break;
 
     case WM_COMMAND:

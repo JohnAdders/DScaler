@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.19 2003-01-01 20:56:00 atnak Exp $
+// $Id: Dialogs.cpp,v 1.20 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/01 20:56:00  atnak
+// Removed VPSInfoProc.  Now in VBI_VPSdecode.cpp
+//
 // Revision 1.18  2002/03/25 20:37:29  adcockj
 // Changed support page
 //
@@ -116,69 +119,70 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     switch (message)
     {
     case WM_INITDIALOG:
-            // Now lets dive in and pull out the version information:
-            GetModuleFileName (hDScalerInst, szFullPath, sizeof(szFullPath));
-            dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
-            if (dwVerInfoSize)
+        // Now lets dive in and pull out the version information:
+        GetModuleFileName (hDScalerInst, szFullPath, sizeof(szFullPath));
+        dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
+        if (dwVerInfoSize)
+        {
+            LPSTR lpstrVffInfo;
+            HGLOBAL hMem;
+            hMem = (LPSTR)GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
+            lpstrVffInfo = (LPSTR)GlobalLock(hMem);
+            GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpstrVffInfo);
+            // The below 'hex' Value looks a little confusing, but
+            // essentially what it is, is the hexidecimal representation
+            // of a couple different values that represent the language
+            // and character set that we are wanting string values for.
+            // 040904E4 is a very common one, because it means:
+            //   US English, Windows MultiLingual characterset
+            // Or to pull it all apart:
+            // 04------        = SUBLANG_ENGLISH_USA
+            // --09----        = LANG_ENGLISH
+            // ----04BO        = Codepage
+            lstrcpy(szGetName, "\\StringFileInfo\\040904B0\\");	 
+            wRootLen = lstrlen(szGetName); // Save this position
+            
+            // Set the title of the dialog:
+            lstrcat (szGetName, "ProductName");
+            if(VerQueryValue((LPVOID)lpstrVffInfo,
+                (LPSTR)szGetName,
+                (void**)&lpVersion,
+                (UINT*)&uVersionLen))
             {
-                LPSTR lpstrVffInfo;
-                HGLOBAL hMem;
-                hMem = (LPSTR)GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
-                lpstrVffInfo = (LPSTR)GlobalLock(hMem);
-                GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpstrVffInfo);
-                // The below 'hex' Value looks a little confusing, but
-                // essentially what it is, is the hexidecimal representation
-                // of a couple different values that represent the language
-                // and character set that we are wanting string values for.
-                // 040904E4 is a very common one, because it means:
-                //   US English, Windows MultiLingual characterset
-                // Or to pull it all apart:
-                // 04------        = SUBLANG_ENGLISH_USA
-                // --09----        = LANG_ENGLISH
-                // ----04BO        = Codepage
-                lstrcpy(szGetName, "\\StringFileInfo\\040904B0\\");	 
-                wRootLen = lstrlen(szGetName); // Save this position
-                
-                // Set the title of the dialog:
-                lstrcat (szGetName, "ProductName");
+                lstrcpy(szResult, "About ");
+                lstrcat(szResult, lpVersion);
+                SetWindowText (hDlg, szResult);
+
+                lstrcpy(szResult, lpVersion);
+                lstrcat(szResult, " Version ");
+
+                szGetName[wRootLen] = (char)0;
+                lstrcat (szGetName, "ProductVersion");
+
                 if(VerQueryValue((LPVOID)lpstrVffInfo,
                     (LPSTR)szGetName,
                     (void**)&lpVersion,
                     (UINT*)&uVersionLen))
                 {
-                    lstrcpy(szResult, "About ");
                     lstrcat(szResult, lpVersion);
-                    SetWindowText (hDlg, szResult);
+                    lstrcat(szResult, " Compiled ");
+                    lstrcat(szResult, __DATE__);
+                    lstrcat(szResult, " ");
+                    lstrcat(szResult, __TIME__);
 
-                    lstrcpy(szResult, lpVersion);
-                    lstrcat(szResult, " Version ");
+                    lstrcat(szResult, " Build (");
+                    sprintf(szGetName,"%d", gBuildNum);
+                    lstrcat(szResult, szGetName);
+                    lstrcat(szResult, ")");
 
-                    szGetName[wRootLen] = (char)0;
-                    lstrcat (szGetName, "ProductVersion");
-
-                    if(VerQueryValue((LPVOID)lpstrVffInfo,
-                        (LPSTR)szGetName,
-                        (void**)&lpVersion,
-                        (UINT*)&uVersionLen))
-                    {
-                        lstrcat(szResult, lpVersion);
-                        lstrcat(szResult, " Compiled ");
-                        lstrcat(szResult, __DATE__);
-                        lstrcat(szResult, " ");
-                        lstrcat(szResult, __TIME__);
-
-                        lstrcat(szResult, " Build (");
-                        sprintf(szGetName,"%d", gBuildNum);
-                        lstrcat(szResult, szGetName);
-                        lstrcat(szResult, ")");
-
-                        SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
-                    }
+                    SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
                 }
-            } // if (dwVerInfoSize)
+            }
+        } // if (dwVerInfoSize)
 
-            SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
-            SetClassLong(GetDlgItem(hDlg, IDC_LINK2), GCL_HCURSOR, (long) hCursorHand);
+        SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
+        SetClassLong(GetDlgItem(hDlg, IDC_LINK2), GCL_HCURSOR, (long) hCursorHand);
+        return TRUE;
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

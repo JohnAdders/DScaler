@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Splash.cpp,v 1.8 2001-11-23 10:49:17 adcockj Exp $
+// $Id: Splash.cpp,v 1.9 2003-01-15 15:54:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.7  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -77,7 +80,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 SWP_SHOWWINDOW);
             SetTimer(hDlg, 2, 5000, NULL);
             InvalidateRect(hDlg, NULL, TRUE);
-            return TRUE;
+            return FALSE;
         }
         break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.29 2002-12-09 00:32:13 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.30 2003-01-15 15:54:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/12/09 00:32:13  atnak
+// Added new muting stuff
+//
 // Revision 1.28  2002/11/08 06:15:34  atnak
 // Added state saving
 //
@@ -1035,6 +1038,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
             pCPUTypeString = "MMX";
         }
         SetDlgItemText(hDlg, IDC_CPU_TYPE, pCPUTypeString);
+        return TRUE;
         break;
 
     case WM_COMMAND:

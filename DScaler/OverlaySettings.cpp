@@ -68,6 +68,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
             EnableWindow(GetDlgItem(hDlg, IDC_SLIDER6), bEnable);
             EnableWindow(GetDlgItem(hDlg, IDC_DEFAULT), bEnable);
         }
+        return TRUE;
         break;
 
     case WM_COMMAND:

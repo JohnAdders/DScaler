@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.26 2003-01-10 17:37:55 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.27 2003-01-15 15:54:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/01/10 17:37:55  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.25  2003/01/07 23:27:02  laurentg
 // New overscan settings
 //
@@ -189,6 +196,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
           }
         }
+        return TRUE;
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

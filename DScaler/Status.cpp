@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.6 2001-07-13 16:14:56 adcockj Exp $
+// $Id: Status.cpp,v 1.7 2001-08-15 09:41:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.5  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -254,28 +257,15 @@ LONG APIENTRY StatusProc(HWND hWnd, UINT msg, UINT wParam, LONG lParam)
     int wAvailWidth, wFlexWidth, cntFlexWidth, wNeedWidth, cntNeedWidth;
     RECT rect, border;
     HBRUSH hBrush;
-    LOGFONT lfTmp;
 
     switch (msg)
     {
     case WM_CREATE:
-        hfontStatus = CreateFont(14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, VARIABLE_PITCH | FF_SWISS, "");
-
-        if (GetObject(hfontStatus, sizeof(LOGFONT), &lfTmp))
-        {
-            if ((lfTmp.lfPitchAndFamily & VARIABLE_PITCH) && (lfTmp.lfPitchAndFamily & FF_SWISS))
-            {
-            }
-            else
-            {
-                ErrorBox("Unable to get an unnamed variable pitch swiss font");
-                hfontStatus = CreateFont(14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, VARIABLE_PITCH | FF_SWISS, "Arial");
-            }
-        }
+        hfontStatus = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 
         if (!hfontStatus)
         {
-            ErrorBox("Failed To Create Font");
+            ErrorBox("Failed To Create Statusbar Font");
         }
         hdc = GetDC(hWnd);
         SelectObject(hdc, hfontStatus);

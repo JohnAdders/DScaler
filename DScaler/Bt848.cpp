@@ -1515,6 +1515,10 @@ BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
 BOOL VideoSource_OnChange(long NewValue)
 {
 	Stop_Capture();
+    if(!bSystemInMute)
+    {
+        Mixer_Mute();
+    }
 	VideoSettings_SaveTVFormat();
 	VideoSettings_Save();
 	VideoSource = (VIDEOSOURCETYPE)NewValue;
@@ -1556,9 +1560,11 @@ BOOL VideoSource_OnChange(long NewValue)
 		break;
 	}
 
-	if(!System_In_Mute)
+	Mixer_OnInputChange(VideoSource);
+    if(!bSystemInMute)
 	{
 		Audio_SetSource(AudioSource);
+        Mixer_UnMute();
 	}
 	Start_Capture();
 	return FALSE;

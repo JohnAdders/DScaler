@@ -680,4 +680,27 @@ typedef enum
 #define WM_FLT_LINEAR_CORR_SETVALUE		(WM_USER + 124)
 #define WM_FLT_LINEAR_CORR_CHANGEVALUE	(WM_USER + 224)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in MixerDev.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	USEMIXER = 0,
+	SYSTEMINMUTE,
+	MIXERINDEX,
+	DESTINDEX,
+	TUNERINDEX,
+	COMPINDEX,
+	SVIDEOINDEX,
+    OTHER1INDEX,
+    OTHER2INDEX,
+	MIXERDEV_SETTING_LASTONE,
+} MIXERDEV_SETTING;
+
+#define WM_MIXERDEV_GETVALUE		(WM_USER + 25)
+#define WM_MIXERDEV_SETVALUE		(WM_USER + 125)
+#define WM_MIXERDEV_CHANGEVALUE	    (WM_USER + 225)
+
+
 #endif

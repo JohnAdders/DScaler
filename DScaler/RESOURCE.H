@@ -710,6 +710,7 @@
 #define IDC_CHECK2                      1831
 #define IDC_DJ12                        1831
 #define S32                             1831
+#define IDC_USE_MIXER                   1831
 #define IDC_CHECK3                      1832
 #define IDC_CHECK4                      1833
 #define IDC_CHECK5                      1834
@@ -781,6 +782,13 @@
 #define IDC_ALLFORMATS                  1877
 #define IDC_ALLINPUTS                   1878
 #define IDC_AUTODECTECTID               1879
+#define IDC_MIXER                       1880
+#define IDC_DEST                        1881
+#define IDC_TUNER                       1882
+#define IDC_COMPOSITE                   1883
+#define IDC_SVIDEO                      1884
+#define IDC_OTHER1                      1885
+#define IDC_OTHER2                      1886
 #define IDM_TAKESTREAMSNAP              1899
 #define IDM_FIRST_DEINTMETHOD           1900
 #define IDM_LAST_DEINTMETHOD            1999
@@ -805,9 +813,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        159
+#define _APS_NEXT_RESOURCE_VALUE        160
 #define _APS_NEXT_COMMAND_VALUE         2016
-#define _APS_NEXT_CONTROL_VALUE         1880
+#define _APS_NEXT_CONTROL_VALUE         1883
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

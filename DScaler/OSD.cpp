@@ -548,7 +548,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
 			strcpy(szInfo, "Audio : Unknown");
 			break;
 		}
-		if (System_In_Mute == TRUE)
+		if (bSystemInMute == TRUE)
 		{
 			strcat (szInfo, " - MUTE");
 		}

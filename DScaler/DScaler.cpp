@@ -788,14 +788,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
         case IDM_MUTE:
-			if (System_In_Mute == FALSE)
+			if (bSystemInMute == FALSE)
 			{
-				System_In_Mute = TRUE;
-				if (USE_MIXER == FALSE)
+				bSystemInMute = TRUE;
+				if (bUseMixer == FALSE)
 				{
 					Audio_SetSource(AUDIOMUX_MUTE);
 				}
-				if (USE_MIXER == TRUE)
+				else
 				{
 					Mixer_Mute();
 				}
@@ -813,12 +813,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			}
 			else
 			{
-				System_In_Mute = FALSE;
-				if (USE_MIXER == FALSE)
+				bSystemInMute = FALSE;
+				if (bUseMixer == FALSE)
 				{
 					Audio_SetSource(AudioSource);
 				}
-				if (USE_MIXER == TRUE)
+				else
 				{
 					Mixer_UnMute();
 				}
@@ -834,88 +834,53 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_L_BALANCE:
-			if (USE_MIXER == FALSE)
+			if (bUseMixer == FALSE)
 			{
 				if (InitialBalance > -127)
 					InitialBalance--;
 				Audio_SetBalance(InitialBalance);	// -127 - +128
 				sprintf(Text, "BT-Balance %d", InitialBalance);
 			}
-			if (USE_MIXER == TRUE)
-			{
-				if (MIXER_LINKER_KANAL + MixerVolumeStep <= MixerVolumeMax)
-					MIXER_LINKER_KANAL += MixerVolumeStep;
-				if (MIXER_RECHTER_KANAL - MixerVolumeStep >= 0)
-					MIXER_RECHTER_KANAL -= MixerVolumeStep;
-				Mixer_Set_Volume(MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-				sprintf(Text, "Balance L %d R %d", MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-			}
 			ShowText(hWnd, Text);
 			break;
 
 		case IDM_R_BALANCE:
-			if (USE_MIXER == FALSE)
+			if (bUseMixer == FALSE)
 			{
 				if (InitialBalance < 128)
 					InitialBalance++;
 				Audio_SetBalance(InitialBalance);	// -127 - +128
 				sprintf(Text, "BT-Balance %d", InitialBalance);
 			}
-			if (USE_MIXER == TRUE)
-			{
-				if (MIXER_LINKER_KANAL - MixerVolumeStep >= 0)
-					MIXER_LINKER_KANAL -= MixerVolumeStep;
-				if (MIXER_RECHTER_KANAL + MixerVolumeStep <= MixerVolumeMax)
-					MIXER_RECHTER_KANAL += MixerVolumeStep;
-				Mixer_Set_Volume(MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-				sprintf(Text, "Balance L %d R %d", MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-			}
 			ShowText(hWnd, Text);
 			break;
 
 		case IDM_VOLUMEPLUS:
-			if (USE_MIXER == FALSE)
+			if (bUseMixer == FALSE)
 			{
 				if (InitialVolume < 1000)
 					InitialVolume += 20;
 				Audio_SetVolume(InitialVolume);
 				sprintf(Text, "BT-Volume %d", InitialVolume);
 			}
-			if (USE_MIXER == TRUE)
+			else
 			{
-				i = ((MixerVolumeMax / MixerVolumeStep) / 100) * MixerVolumeStep;
-				if ((i + MIXER_LINKER_KANAL > MixerVolumeMax) || (i + MIXER_RECHTER_KANAL > MixerVolumeMax))
-					i = MixerVolumeStep;
-				if (MIXER_LINKER_KANAL + i <= MixerVolumeMax)
-					MIXER_LINKER_KANAL += i;
-				if (MIXER_RECHTER_KANAL + i <= MixerVolumeMax)
-					MIXER_RECHTER_KANAL += i;
-				Mixer_Set_Volume(MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-				sprintf(Text, "Volume L %d R %d", MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
+				Mixer_Volume_Up();
 			}
 			ShowText(hWnd, Text);
 			break;
 
         case IDM_VOLUMEMINUS:
-			if (USE_MIXER == FALSE)
+			if (bUseMixer == FALSE)
 			{
 				if (InitialVolume > 20)
 					InitialVolume -= 20;
 				Audio_SetVolume(InitialVolume);
 				sprintf(Text, "BT-Volume %d", InitialVolume);
 			}
-			if (USE_MIXER == TRUE)
+			else
 			{
-				i = ((MixerVolumeMax / MixerVolumeStep) / 100) * MixerVolumeStep;
-				if ((MIXER_LINKER_KANAL - i < 0) || (MIXER_RECHTER_KANAL - i < 0))
-					i = MixerVolumeStep;
-				if (MIXER_LINKER_KANAL - i >= 0)
-					MIXER_LINKER_KANAL -= i;
-				if (MIXER_RECHTER_KANAL - i >= 0)
-					MIXER_RECHTER_KANAL -= i;
-				Mixer_Set_Volume(MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-				sprintf(Text, "Volume L %d R %d", MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-
+				Mixer_Volume_Down();
 			}
 			ShowText(hWnd, Text);
 			break;
@@ -1559,7 +1524,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
 				strcpy(Text1, Text);
 
-				if (System_In_Mute == TRUE)
+				if (bSystemInMute == TRUE)
 					sprintf(Text1, "Volume Mute");
 				StatusBar_ShowText(STATUS_TEXT, Text1);
 			}
@@ -1927,14 +1892,14 @@ void MainWndOnInitBT(HWND hWnd)
 		}
 
 		// resume mute status
-		if(System_In_Mute)
+		if(bSystemInMute)
 		{
-			if (USE_MIXER == FALSE)
+			if (bUseMixer == FALSE)
 			{
 				Audio_SetSource(AUDIOMUX_MUTE);
 			}
 			
-			if(USE_MIXER == TRUE)
+			if(bUseMixer == TRUE)
 			{
 				Mixer_Mute();
 			}
@@ -1997,52 +1962,6 @@ void MainWndOnCreate(HWND hWnd)
 	Load_Program_List_ASCII();
 	Load_Country_Settings();
 
-	if (USE_MIXER == TRUE)
-	{
-		AddSplashTextLine("Sound-System");
-
-		Enumerate_Sound_SubSystem();
-		if (SoundSystem.DeviceCount == 0)
-		{
-			AddSplashTextLine("No Soundsystem found");
-		}
-		else
-		{
-			if (SoundSystem.DeviceCount >= 1)
-				AddSplashTextLine(SoundSystem.MixerDev[0].szPname);
-			if (SoundSystem.DeviceCount >= 2)
-				AddSplashTextLine(SoundSystem.MixerDev[1].szPname);
-			if (SoundSystem.DeviceCount >= 3)
-				AddSplashTextLine(SoundSystem.MixerDev[2].szPname);
-
-			if (Volume.SoundSystem >= 0)
-				AddSplashTextLine(SoundSystem.MixerDev[Volume.SoundSystem].szPname);
-			else if (Mute.SoundSystem >= 0)
-				AddSplashTextLine(SoundSystem.MixerDev[Mute.SoundSystem].szPname);
-			else
-				AddSplashTextLine(SoundSystem.MixerDev[0].szPname);
-
-			if (Volume.SoundSystem >= 0)
-				sprintf(Text, "Volume -> %s", SoundSystem.To_Lines[Volume.SoundSystem].To_Connection[Volume.Destination].MixerConnections[Volume.Connection].szName);
-			else
-				sprintf(Text, "Volume Not Set");
-			AddSplashTextLine(Text);
-
-			if (Mute.SoundSystem >= 0)
-				sprintf(Text, "%s -> %s  %s", SoundSystem.To_Lines[Mute.SoundSystem].To_Connection[Mute.Destination].MixerConnections[Mute.Connection].szName,
-						SoundSystem.To_Lines[Mute.SoundSystem].MixerLine[Mute.Destination].szName,
-						SoundSystem.To_Lines[Mute.SoundSystem].To_Connection[Mute.Destination].To_Control[Mute.Connection].MixerControl[Mute.Control].szName);
-			else
-				sprintf(Text, "Mute Not Set");
-			AddSplashTextLine(Text);
-
-			if (MIXER_LINKER_KANAL == -1)
-				Mixer_Get_Volume(&MIXER_LINKER_KANAL, &MIXER_RECHTER_KANAL);
-			Mixer_Set_Defaults();
-			Get_Volume_Param();
-			Mixer_Set_Volume(MIXER_LINKER_KANAL, MIXER_RECHTER_KANAL);
-		}
-	}
 	AddSplashTextLine("System Analysis");
 
 	sprintf(Text, "Processor %d ", SysInfo.dwProcessorType);
@@ -2197,7 +2116,7 @@ void SetMenuAnalog()
 	CheckMenuItem(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1)?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2)?MF_CHECKED:MF_UNCHECKED);
 
-	CheckMenuItem(hMenu, IDM_MUTE,    System_In_Mute?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_MUTE,    bSystemInMute?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUDIO_0, (AudioSource == 0)?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUDIO_1, (AudioSource == 1)?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUDIO_2, (AudioSource == 2)?MF_CHECKED:MF_UNCHECKED);

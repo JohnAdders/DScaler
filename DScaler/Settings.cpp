@@ -120,6 +120,7 @@ void LoadSettingsFromIni()
 	FD_Common_ReadSettingsFromIni();
 	OSD_ReadSettingsFromIni();
 	VBI_ReadSettingsFromIni();
+	MixerDev_ReadSettingsFromIni();
 
 	GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, szIniFile);
 	DebugLogEnabled = GetPrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
@@ -129,7 +130,6 @@ void LoadSettingsFromIni()
 	bCustomChannelOrder = GetPrivateProfileInt("Show", "CustomChannelOrder", bCustomChannelOrder, szIniFile);
 
 	AudioSource = (AUDIOMUXTYPE)GetPrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
-	System_In_Mute = (GetPrivateProfileInt("Sound", "System_In_Mute", System_In_Mute, szIniFile) != 0);
 		
 	bSaveSettings = (GetPrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile) != 0);
 	CountryCode = GetPrivateProfileInt("Show", "CountryCode", CountryCode, szIniFile);
@@ -152,46 +152,6 @@ void LoadSettingsFromIni()
 	{
 		sprintf(szKey, "Equalizer%d", i + 1);
 		InitialEqualizer[i] = GetPrivateProfileInt("MSP", szKey, 0, szIniFile);
-	}
-
-	USE_MIXER = (GetPrivateProfileInt("Mixer", "UseMixer", USE_MIXER, szIniFile) != 0);	
-	MIXER_LINKER_KANAL = GetPrivateProfileInt("Mixer", "VolLeftChannel", MIXER_LINKER_KANAL, szIniFile);
-	MIXER_RECHTER_KANAL = GetPrivateProfileInt("Mixer", "VolRightChannel", MIXER_RECHTER_KANAL, szIniFile); 
-
-	Volume.SoundSystem = GetPrivateProfileInt("Mixer", "VolumeSoundSystem", Volume.SoundSystem, szIniFile);
-	Volume.Destination = GetPrivateProfileInt("Mixer", "VolumeDestination", Volume.Destination, szIniFile);
-	Volume.Connection = GetPrivateProfileInt("Mixer", "VolumeConnection", Volume.Connection, szIniFile);
-	Volume.Control = GetPrivateProfileInt("Mixer", "VolumeControl", Volume.Control, szIniFile);
-
-	Mute.SoundSystem = GetPrivateProfileInt("Mixer", "MuteSoundSystem", Mute.SoundSystem, szIniFile);
-	Mute.Destination = GetPrivateProfileInt("Mixer", "MuteDestination", Mute.Destination, szIniFile);
-	Mute.Connection = GetPrivateProfileInt("Mixer", "MuteConnection", Mute.Connection, szIniFile);
-	Mute.Control = GetPrivateProfileInt("Mixer", "MuteControl", Mute.Control, szIniFile);
-
-	for(i = 0; i < 64; i++)
-	{
-		sprintf(szKey, "MixerSettings%d", i + 1);
-		MixerLoad[i].MixerAccess.SoundSystem = GetPrivateProfileInt(szKey, "SoundSystem", -1, szIniFile);
-		if(MixerLoad[i].MixerAccess.SoundSystem == -1)
-		{
-			MixerLoad[i].MixerAccess.Destination = 0;
-			MixerLoad[i].MixerAccess.Connection = 0;
-			MixerLoad[i].MixerAccess.Control = 0;
-			MixerLoad[i].MixerValues.Kanal1 = 0;
-			MixerLoad[i].MixerValues.Kanal2 = 0;
-			MixerLoad[i].MixerValues.Kanal3 = 0;
-			MixerLoad[i].MixerValues.Kanal4 = 0;
-		}
-		else
-		{
-			MixerLoad[i].MixerAccess.Destination = GetPrivateProfileInt(szKey, "Destination", 0, szIniFile);
-			MixerLoad[i].MixerAccess.Connection = GetPrivateProfileInt(szKey, "Connection", 0, szIniFile);
-			MixerLoad[i].MixerAccess.Control = GetPrivateProfileInt(szKey, "Control", 0, szIniFile);
-			MixerLoad[i].MixerValues.Kanal1 = GetPrivateProfileInt(szKey, "Channel1", 0, szIniFile);
-			MixerLoad[i].MixerValues.Kanal2 = GetPrivateProfileInt(szKey, "Channel2", 0, szIniFile);
-			MixerLoad[i].MixerValues.Kanal3 = GetPrivateProfileInt(szKey, "Channel3", 0, szIniFile);
-			MixerLoad[i].MixerValues.Kanal4 = GetPrivateProfileInt(szKey, "Channel4", 0, szIniFile);
-		}
 	}
 }
 
@@ -244,6 +204,9 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_VBI_GETVALUE:		
 			RetVal = Setting_GetValue(VBI_GetSetting((VBI_SETTING)wParam));
 			break;
+		case WM_MIXERDEV_GETVALUE:		
+			RetVal = Setting_GetValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam));
+			break;
 
 		case WM_ASPECT_SETVALUE:
 			Setting_SetValue(Aspect_GetSetting((ASPECT_SETTING)wParam), lParam);
@@ -280,6 +243,9 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 			break;
 		case WM_VBI_SETVALUE:		
 			Setting_SetValue(VBI_GetSetting((VBI_SETTING)wParam), lParam);
+			break;
+		case WM_MIXERDEV_SETVALUE:		
+			Setting_SetValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam), lParam);
 			break;
 
 		case WM_ASPECT_CHANGEVALUE:
@@ -318,6 +284,9 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_VBI_CHANGEVALUE:		
 			Setting_ChangeValue(VBI_GetSetting((VBI_SETTING)wParam), (eCHANGEVALUE)lParam);
 			break;
+		case WM_MIXERDEV_CHANGEVALUE:		
+			Setting_ChangeValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam), (eCHANGEVALUE)lParam);
+			break;
 		
 		default:
 			*bDone = FALSE;
@@ -346,6 +315,7 @@ void WriteSettingsToIni()
 	OSD_WriteSettingsToIni();
 	Filter_WriteSettingsToIni();
 	VBI_WriteSettingsToIni();
+	MixerDev_WriteSettingsToIni();
 
 	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, szIniFile);
 	WritePrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
@@ -355,7 +325,6 @@ void WriteSettingsToIni()
 	WritePrivateProfileInt("Show", "CustomChannelOrder", bCustomChannelOrder, szIniFile);
 
 	WritePrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
-	WritePrivateProfileInt("Sound", "System_In_Mute", System_In_Mute, szIniFile);	
 
 	WritePrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile);
 	WritePrivateProfileInt("Show", "CountryCode", CountryCode, szIniFile);
@@ -378,37 +347,7 @@ void WriteSettingsToIni()
 		sprintf(szKey, "Equalizer%d", i + 1);
 		WritePrivateProfileInt("MSP", szKey, InitialEqualizer[i], szIniFile);
 	}
-
-	WritePrivateProfileInt("Mixer", "UseMixer", USE_MIXER, szIniFile);	
-	WritePrivateProfileInt("Mixer", "VolLeftChannel", MIXER_LINKER_KANAL, szIniFile);
-	WritePrivateProfileInt("Mixer", "VolRightChannel", MIXER_RECHTER_KANAL, szIniFile); 
-
-	WritePrivateProfileInt("Mixer", "VolumeSoundSystem", Volume.SoundSystem, szIniFile);
-	WritePrivateProfileInt("Mixer", "VolumeDestination", Volume.Destination, szIniFile);
-	WritePrivateProfileInt("Mixer", "VolumeConnection", Volume.Connection, szIniFile);
-	WritePrivateProfileInt("Mixer", "VolumeControl", Volume.Control, szIniFile);
-
-	WritePrivateProfileInt("Mixer", "MuteSoundSystem", Mute.SoundSystem, szIniFile);
-	WritePrivateProfileInt("Mixer", "MuteDestination", Mute.Destination, szIniFile);
-	WritePrivateProfileInt("Mixer", "MuteConnection", Mute.Connection, szIniFile);
-	WritePrivateProfileInt("Mixer", "MuteControl", Mute.Control, szIniFile);
-
-	for(i = 0; i < 64; i++)
-	{
-		sprintf(szKey, "MixerSettings%d", i + 1);
-		if(MixerLoad[i].MixerAccess.SoundSystem != -1)
-		{
-			WritePrivateProfileInt(szKey, "SoundSystem", MixerLoad[i].MixerAccess.SoundSystem, szIniFile);
-			WritePrivateProfileInt(szKey, "Destination", MixerLoad[i].MixerAccess.Destination, szIniFile);
-			WritePrivateProfileInt(szKey, "Connection", MixerLoad[i].MixerAccess.Connection, szIniFile);
-			WritePrivateProfileInt(szKey, "Control", MixerLoad[i].MixerAccess.Control, szIniFile);
-			WritePrivateProfileInt(szKey, "Channel1", MixerLoad[i].MixerValues.Kanal1, szIniFile);
-			WritePrivateProfileInt(szKey, "Channel2", MixerLoad[i].MixerValues.Kanal2, szIniFile);
-			WritePrivateProfileInt(szKey, "Channel3", MixerLoad[i].MixerValues.Kanal3, szIniFile);
-			WritePrivateProfileInt(szKey, "Channel4", MixerLoad[i].MixerValues.Kanal4, szIniFile);
-		}
-	}
-    
+   
 	// These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
     
@@ -555,7 +494,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 	{
 	case YESNO:
 	case ONOFF:
-		nValue = (Button_GetCheck(hControl) != 0);
+		nValue = (Button_GetCheck(hControl) == BST_CHECKED);
 		break;
 
 	case ITEMFROMLIST:

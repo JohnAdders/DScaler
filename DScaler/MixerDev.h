@@ -38,96 +38,86 @@
 #ifndef __MIXERDEV_H___
 #define __MIXERDEV_H___
 
-#define MAXKANAELE 4
+#include "settings.h"
+#include "bt848.h"
 
-struct TMixerAccess
+SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting);
+void MixerDev_ReadSettingsFromIni();
+void MixerDev_WriteSettingsToIni();
+
+class CMixerLineSource
 {
-    int SoundSystem;
-    int Destination;
-    int Connection;
-    int Control;
+public:
+    CMixerLineSource(HMIXER hMixer, int DestId, int SourceId);
+    ~CMixerLineSource();
+    char* GetName();
+    void SetMute(BOOL Mute);
+    BOOL GetMute();
+    void SetVolume(int PercentageVolume);
+    int GetVolume();
+private:
+	int m_ControlsCount;
+	MIXERLINE m_MixerLine;
+    int m_VolumeControl;
+    DWORD m_VolumeMin;
+    DWORD m_VolumeMax;
+    int m_MuteControl;
+    HMIXER m_hMixer;
 };
 
-struct TMixerValues
+class CMixerLineDest
 {
-    int Kanal1;
-    int Kanal2;
-    int Kanal3;
-    int Kanal4;
+public:
+    CMixerLineDest(HMIXER hMixer, int DestId);
+    ~CMixerLineDest();
+    int GetNumSourceLines();
+    CMixerLineSource* GetSourceLine(int LineIndex);
+    char* GetName();
+private:
+	int m_SourceCount;
+	MIXERLINE m_MixerLine;
+	CMixerLineSource** m_SourceLines;
 };
 
-
-struct TMixerLoad
+class CMixer
 {
-	struct TMixerAccess MixerAccess;
-	struct TMixerValues MixerValues;
+public:
+    CMixer(int MixerId);
+    ~CMixer();
+    int GetNumDestLines();
+    CMixerLineDest* GetDestLine(int LineIndex);
+private:
+    int m_LineCount;
+	MIXERCAPS m_MixerDev;
+	CMixerLineDest** m_DestLines;
+    HMIXER m_hMixer;
 };
 
-struct TMixerControls
+class CSoundSystem
 {
-	int ControlsCount;
-	MIXERCONTROL          *MixerControl;
-	MIXERCONTROLDETAILS   *MixerDetail;
+public:
+    CSoundSystem();
+    ~CSoundSystem();
+    int GetNumMixers();
+    char* GetMixerName(int MixerIndex);
+    void SetMixer(int MixerIndex);
+    CMixer* GetMixer();
+private:
+	int m_DeviceCount;
+    CMixer* m_Mixer;
 };
 
-struct TMixerConnections
-{
-	int ConnectionsCount;
-	MIXERLINE *MixerConnections;
-	struct TMixerControls *To_Control;
-};
+BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-struct TMixerLines
-{
-	int LinesCount;
-	MIXERLINE *MixerLine;
-	struct TMixerConnections *To_Connection;
-};
+extern BOOL bSystemInMute;
+extern BOOL bUseMixer;
+extern CSoundSystem  SoundSystem;
 
-struct TSoundSystem
-{
-	int DeviceCount;
-	MIXERCAPS *MixerDev;
-	struct TMixerLines *To_Lines;
-};
-
-
-
-
-MMRESULT Set_Control_Values(MIXERCONTROLDETAILS * Setting, int Device);
-MMRESULT Get_Control_Values(MIXERCONTROLDETAILS * Setting, int Device);
-BOOL APIENTRY MixerSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY MixerSetupProc(HWND hDlg,UINT message,UINT wParam,LONG lParam);
-int Get_Access_Slot(int C1, int C2, int C3, int C4);
-BOOL Mixer_Open(UINT uMxId);
-void Mixer_UnMute(void);
-void Mixer_Mute(void);
-void Mixer_Set_Defaults(void);
-void Mixer_Set_Volume(int Links, int Rechts);
-void Mixer_Get_Volume(int *Links, int *Rechts);
-void Mixer_Exit(void);
-void Get_Volume_Param(void);
-void Get_Mixer_SignedValue(MIXERCONTROLDETAILS * Setting, int Device, MIXERCONTROLDETAILS_SIGNED * Set);
-void Set_Mixer_SignedValue(MIXERCONTROLDETAILS * Setting, int Device, MIXERCONTROLDETAILS_SIGNED * Set);
-void Get_Mixer_UnsignedValue(MIXERCONTROLDETAILS * Setting, int Device, MIXERCONTROLDETAILS_UNSIGNED * Set);
-void Set_Mixer_UnsignedValue(MIXERCONTROLDETAILS * Setting, int Device, MIXERCONTROLDETAILS_UNSIGNED * Set);
-void Get_Mixer_BoolValue(MIXERCONTROLDETAILS * Setting, int Device, MIXERCONTROLDETAILS_BOOLEAN * Set);
-void Set_Mixer_BoolValue(MIXERCONTROLDETAILS * Setting, int Device, MIXERCONTROLDETAILS_BOOLEAN * Set);
-MMRESULT Get_Control_Values(MIXERCONTROLDETAILS * Setting, int Device);
-MMRESULT Set_Control_Values(MIXERCONTROLDETAILS * Setting, int Device);
-void Enumerate_Sound_SubSystem(void);
-
-extern struct TMixerAccess Volume;
-extern struct TMixerAccess Mute;
-extern struct TMixerLoad MixerLoad[64];
-extern BOOL System_In_Mute;
-extern BOOL USE_MIXER;
-
-extern int MIXER_LINKER_KANAL;
-extern int MIXER_RECHTER_KANAL;
-extern int MixerVolumeMax;
-extern int MixerVolumeStep;
-extern struct TSoundSystem SoundSystem;
-
+void Mixer_Mute();
+void Mixer_UnMute();
+void Mixer_Volume_Up();
+void Mixer_Volume_Down();
+void Mixer_OnInputChange(VIDEOSOURCETYPE NewType);
+void Mixer_Exit();
 
 #endif

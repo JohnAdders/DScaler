@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.3 2002-02-05 17:24:12 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.4 2002-02-07 22:05:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/05 17:24:12  tobbej
+// changed javadoc coments
+//
 // Revision 1.2  2002/02/03 11:04:01  tobbej
 // pal/ntsc selection support
 // picture controls support
@@ -56,7 +59,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName)
-:CDShowObject(pGraph),m_bIsConnected(false),m_pCrossbar(NULL)
+:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL)
 {
 	USES_CONVERSION;
 	

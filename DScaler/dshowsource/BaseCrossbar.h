@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BaseCrossbar.h,v 1.1 2001-12-17 19:22:33 tobbej Exp $
+// $Id: BaseCrossbar.h,v 1.2 2002-02-07 22:05:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:22:33  tobbej
+// new crossbar classes
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -63,8 +66,7 @@ public:
 	CDShowBaseCrossbar(IGraphBuilder *pGraph);
 	virtual ~CDShowBaseCrossbar();
 
-	//eDSObjectType getType(){return DS_TYPE_CROSSBAR;}
-	//char* getName(){return "Crossbar";}
+	eDSObjectType getObjectType() {return DSHOW_TYPE_CROSSBAR;}
 
 	/**
 	 * @return Number of inputs that can be selected

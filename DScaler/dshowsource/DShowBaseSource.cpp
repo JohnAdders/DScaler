@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSObject.h,v 1.2 2002-02-07 22:05:43 tobbej Exp $
+// $Id: DShowBaseSource.cpp,v 1.1 2002-02-07 22:05:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
+// Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -24,57 +24,35 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.1  2001/12/17 19:25:05  tobbej
-// baseclass for some of the other classes
-//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DSObject.h interface for the CDShowObject class.
+ * @file DShowBaseSource.cpp implementation of the CDShowBaseSource class.
  */
 
-#if !defined(AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_)
-#define AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_
+#include "stdafx.h"
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifdef WANT_DSHOW_SUPPORT
 
-//object types
-typedef enum
+#include "dscaler.h"
+#include "DShowBaseSource.h"
+
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+
+CDShowBaseSource::CDShowBaseSource(IGraphBuilder *pGraph)
+:CDShowObject(pGraph)
 {
-	DSHOW_TYPE_TUNER,
-	DSHOW_TYPE_CROSSBAR,
-	DSHOW_TYPE_SOURCE_CAPTURE,
-	DSHOW_TYPE_SOURCE_FILE,
-} eDSObjectType;
 
+}
 
-/**
- * Base class for directshow objects.
- */
-class CDShowObject
+CDShowBaseSource::~CDShowBaseSource()
 {
-public:
-	CDShowObject(IGraphBuilder *pGraph);
-	virtual ~CDShowObject();
-	
-	/**
-	 * This is used to tell the different object types apart, istead of using RTTI.
-	 * @return type of object
-	 */
-	virtual eDSObjectType getObjectType()=0;
-	
-	//name of object
-	//virtual char* getName()=0;
-	
-	//virtual void configure(HWND hWnd)=0;
-	//virtual bool canConfigure()=0;
 
-protected:
-	///graph that the object belongs to
-	CComPtr<IGraphBuilder> m_pGraph;
-};
+}
 
-#endif // !defined(AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_)
+#endif

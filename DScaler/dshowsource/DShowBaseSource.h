@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSObject.h,v 1.2 2002-02-07 22:05:43 tobbej Exp $
+// $Id: DShowBaseSource.h,v 1.1 2002-02-07 22:05:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
+// Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -24,57 +24,42 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.1  2001/12/17 19:25:05  tobbej
-// baseclass for some of the other classes
-//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DSObject.h interface for the CDShowObject class.
+ * @file DShowBaseSource.h interface for the CDShowBaseSource class.
  */
 
-#if !defined(AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_)
-#define AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_
+#if !defined(AFX_DSHOWBASESOURCE_H__AB8F10EC_CF36_4398_8F9F_68144D830D0D__INCLUDED_)
+#define AFX_DSHOWBASESOURCE_H__AB8F10EC_CF36_4398_8F9F_68144D830D0D__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
-//object types
-typedef enum
-{
-	DSHOW_TYPE_TUNER,
-	DSHOW_TYPE_CROSSBAR,
-	DSHOW_TYPE_SOURCE_CAPTURE,
-	DSHOW_TYPE_SOURCE_FILE,
-} eDSObjectType;
-
+#include "DSObject.h"
 
 /**
- * Base class for directshow objects.
+ * Baseclass for direct show sources.
  */
-class CDShowObject
+class CDShowBaseSource : public CDShowObject  
 {
 public:
-	CDShowObject(IGraphBuilder *pGraph);
-	virtual ~CDShowObject();
+	CDShowBaseSource(IGraphBuilder *pGraph);
+	virtual ~CDShowBaseSource();
 	
 	/**
-	 * This is used to tell the different object types apart, istead of using RTTI.
-	 * @return type of object
+	 * Used to connect this source to a downstream filter (renderer)
+	 * @param filter filter to connect to
 	 */
-	virtual eDSObjectType getObjectType()=0;
-	
-	//name of object
-	//virtual char* getName()=0;
-	
-	//virtual void configure(HWND hWnd)=0;
-	//virtual bool canConfigure()=0;
+	virtual void connect(CComPtr<IBaseFilter> filter)=0;
 
-protected:
-	///graph that the object belongs to
-	CComPtr<IGraphBuilder> m_pGraph;
+	/**
+	 * Checks if this source is connected
+	 * @return true if this source is connected
+	 */
+	virtual bool isConnected()=0;
 };
 
-#endif // !defined(AFX_DSOBJECT_H__F5D538DA_72E3_4F81_98D3_4D6673A5E07F__INCLUDED_)
+#endif // !defined(AFX_DSHOWBASESOURCE_H__AB8F10EC_CF36_4398_8F9F_68144D830D0D__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.3 2002-02-05 17:24:13 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.4 2002-02-07 22:05:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/05 17:24:13  tobbej
+// changed javadoc coments
+//
 // Revision 1.2  2002/02/03 11:04:01  tobbej
 // pal/ntsc selection support
 // picture controls support
@@ -45,7 +48,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "DSObject.h"
+#include "DShowBaseSource.h"
 #include "SingleCrossbar.h"
 
 /**
@@ -63,12 +66,14 @@ public:
 /**
  * fixme
  */
-class CDShowCaptureDevice : public CDShowObject  
+class CDShowCaptureDevice : public CDShowBaseSource  
 {
 public:
 	CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName);
 	virtual ~CDShowCaptureDevice();
 	
+	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
+
 	void connect(CComPtr<IBaseFilter> filter);
 	bool isConnected() {return m_bIsConnected;};
 

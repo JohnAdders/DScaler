@@ -860,6 +860,27 @@ BEGIN
     LTEXT           "Bottom",IDC_STATIC,90,105,25,8,WS_DISABLED
 END
 
+IDD_AUDIOSTANDARD_MANUAL DIALOG DISCARDABLE  0, 0, 313, 222
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,256,201,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,197,201,50,14
+    LTEXT           "Audio standards:",IDC_STATIC,5,5,54,8
+    LISTBOX         IDC_AUDIOSTANDARD_LIST,7,20,161,195,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Major carrier:",IDC_STATIC,184,23,42,8
+    COMBOBOX        IDC_AUDIOSTANDARD_MAJORCARRIER,232,20,54,16,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "MHz",IDC_STATIC,290,23,16,8
+    LTEXT           "Minor carrier:",IDC_STATIC,184,42,42,8
+    COMBOBOX        IDC_AUDIOSTANDARD_MINORCARRIER,232,40,54,16,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "MHz",IDC_STATIC,290,42,16,8
+    LTEXT           "",IDC_AUDIOSTANDARD_DESC,184,72,120,120
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1236,6 +1257,22 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO, GRAYED
         END
+        POPUP "Audio Stan&dard"
+        BEGIN
+            MENUITEM "&Video format default",       IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT
+
+            MENUITEM "&Detect per video format",    IDM_AUDIOSTANDARD_AUTODETECTPERVIDEOFORMAT
+
+            MENUITEM "Detect per &channel",         IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL
+
+            MENUITEM "&Manual...",                  IDM_AUDIOSTANDARD_MANUAL
+            MENUITEM SEPARATOR
+            MENUITEM "Detect &now",                 IDM_AUDIOSTANDARD_DETECTNOW
+
+            MENUITEM SEPARATOR
+            MENUITEM "No standard",                 IDM_AUDIOSTANDARD_STANDARD
+            , GRAYED
+        END
         MENUITEM "A&udio Controls ...",         IDM_AUDIOSETTINGS
         MENUITEM SEPARATOR
         MENUITEM "&Setup Card / Tuner ...",     IDM_SETUPCARD
@@ -1559,6 +1596,25 @@ END
 //
 
 IDC_CURSOR_HAND         CURSOR  DISCARDABLE     "hand_point.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_AUDIOSTANDARD_MANUAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 215
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

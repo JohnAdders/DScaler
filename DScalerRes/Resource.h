@@ -43,6 +43,7 @@
 #define ID_BTCARD_MSP34X0AUDIOSETTINGS211 211
 #define ID_BTCARD_MSP34X0AUIOSETTINGS   212
 #define IDC_CT2388X                     213
+#define IDD_AUDIOSTANDARD_MANUAL        214
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -307,6 +308,7 @@
 #define IDC_COMB_SKIP_V                 1448
 #define IDC_COMBO1                      1449
 #define IDC_COMBO2                      1450
+#define IDC_AUDIOSTANDARD_MINORCARRIER  1450
 #define IDC_COMBO3                      1451
 #define IDC_COMBO4                      1452
 #define IDC_COMBO5                      1453
@@ -999,6 +1001,9 @@
 #define IDC_BALANCE_VAL                 8050
 #define IDC_USEEQUALIZER                8051
 #define IDC_DSHOW_AUDIODEVICE_USEDEFAULT 8052
+#define IDC_AUDIOSTANDARD_DESC          8053
+#define IDC_AUDIOSTANDARD_LIST          8054
+#define IDC_AUDIOSTANDARD_MAJORCARRIER  8055
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1040,6 +1045,12 @@
 #define IDM_INTERNAL_OSS                32811
 #define IDM_PROGRESSIVE                 32812
 #define IDM_SAA7134CARD_NONSTANDARDSIGNAL 32813
+#define IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT 32815
+#define IDM_AUDIOSTANDARD_AUTODETECTPERVIDEOFORMAT 32816
+#define IDM_AUDIOSTANDARD_AUTODETECTPERCHANNEL 32817
+#define IDM_AUDIOSTANDARD_MANUAL        32818
+#define IDM_AUDIOSTANDARD_DETECTNOW     32820
+#define IDM_AUDIOSTANDARD_STANDARD      32821
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1060,9 +1071,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        214
-#define _APS_NEXT_COMMAND_VALUE         32814
-#define _APS_NEXT_CONTROL_VALUE         8053
+#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_COMMAND_VALUE         32822
+#define _APS_NEXT_CONTROL_VALUE         8056
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.14 2002-02-03 10:33:41 tobbej Exp $
+// $Id: stdafx.h,v 1.15 2002-03-26 19:48:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/02/03 10:33:41  tobbej
+// fixed spelling error
+//
 // Revision 1.13  2001/12/17 19:54:20  tobbej
 // added a comment about the dshow define
 //
@@ -60,7 +63,7 @@
 #include <atlbase.h>
 
 //uncomment the folowing line if you want to try the experimental direct show support
-//#define WANT_DSHOW_SUPPORT 1
+#define WANT_DSHOW_SUPPORT 1
 #ifdef WANT_DSHOW_SUPPORT
     #include <dshow.h>
 #endif

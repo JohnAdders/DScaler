@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.22 2003-01-30 07:19:47 ittarnavsky Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.23 2003-02-03 07:00:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/01/30 07:19:47  ittarnavsky
+// fixed the autodetect
+//
 // Revision 1.21  2003/01/28 03:41:21  atnak
 // Updated MEDION TV-TUNER 7134 MK2/3
 //
@@ -618,6 +621,42 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
                 AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_24576Hz,
+        NULL,
+        StandardSAA7134InputSelect,
+    },
+    // SAA7134CARDID_TYPHOON90031 - Typhoon TV+Radio (Art.Nr. 90031)
+    // Thanks "Tom Zoerner" <tomzo@ne...>
+    {
+        "Typhoon TV-Radio 90031",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,  // MUTE, card has no audio in
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,  // MUTE, card has no audio in
             },
             {
                 "Radio",

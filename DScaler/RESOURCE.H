@@ -48,6 +48,7 @@
 #define IDD_TSOPTIONS                   184
 #define IDD_DISASM_CRASH                185
 #define IDB_CZECH_VTCHARS               186
+#define IDD_OVERLAYSETTINGS             186
 #define IDB_GREEK_VTCHARS               187
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
@@ -908,13 +909,14 @@
 #define IDM_START_AUTO_CALIBRATION2     2066
 #define IDM_START_AUTO_CALIBRATION3     2067
 #define IDM_VT_GREEK                    2068
+#define IDM_OVERLAYSETTINGS             2070
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2070
+#define _APS_NEXT_COMMAND_VALUE         2071
 #define _APS_NEXT_CONTROL_VALUE         1904
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

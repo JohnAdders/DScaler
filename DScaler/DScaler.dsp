@@ -264,6 +264,10 @@ SOURCE=.\OutThreads.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OverlaySettings.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ProgramList.cpp
 # End Source File
 # Begin Source File
@@ -468,6 +472,10 @@ SOURCE=.\OutThreads.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\OverlaySettings.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ProgramList.h
 # End Source File
 # Begin Source File
@@ -569,6 +577,10 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -578,8 +590,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

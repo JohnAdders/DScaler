@@ -508,6 +508,49 @@ BEGIN
     PUSHBUTTON      "Help",IDC_TSMIXERHELP,202,26,30,14
 END
 
+IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 358, 162
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
+CAPTION "Overlay Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Brightness",-1,6,13,33,10
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,5,258,20
+    EDITTEXT        IDC_D1,315,10,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "Con&trast",-1,6,33,33,10
+    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,25,258,20
+    EDITTEXT        IDC_D2,315,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Hue",-1,6,52,33,10
+    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,45,258,20
+    EDITTEXT        IDC_D3,315,50,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Color",-1,6,73,33,10
+    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,65,258,20
+    EDITTEXT        IDC_D4,315,70,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Gamma",-1,6,93,33,10
+    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,85,258,20
+    EDITTEXT        IDC_D5,315,90,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Sharpness",-1,6,113,33,10
+    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,105,258,20
+    EDITTEXT        IDC_D6,315,110,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    DEFPUSHBUTTON   "&OK",IDOK,6,132,45,15
+    PUSHBUTTON      "Cancel",IDCANCEL,57,132,45,15,WS_GROUP
+    PUSHBUTTON      "&Default",IDDEFAULT,113,132,45,15
+    CONTROL         "&Use DScaler settings for overlay",IDC_CHECK1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,199,135,94,10
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -889,11 +932,17 @@ BEGIN
             MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
             MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
+            , GRAYED
         END
         MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
-        MENUITEM "Stop Video Overlay",          IDM_OVERLAY_STOP
-        MENUITEM "Start Video Overlay",         IDM_OVERLAY_START
+        POPUP "Video &Overlay"
+        BEGIN
+            MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS
+            MENUITEM "Settings &Select",            65535, GRAYED
+            MENUITEM "St&op",                       IDM_OVERLAY_STOP
+            MENUITEM "St&art",                      IDM_OVERLAY_START
+        END
     END
     POPUP "&Help"
     BEGIN
@@ -1051,6 +1100,14 @@ BEGIN
         RIGHTMARGIN, 232
         TOPMARGIN, 7
         BOTTOMMARGIN, 168
+    END
+
+    IDD_OVERLAYSETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 350
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 155
     END
 END
 #endif    // APSTUDIO_INVOKED

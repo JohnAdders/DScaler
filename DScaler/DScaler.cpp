@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.70 2001-09-05 15:08:43 adcockj Exp $
+// $Id: DScaler.cpp,v 1.71 2001-09-08 19:18:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.69  2001/09/05 06:59:12  adcockj
 // Teletext fixes
 //
@@ -198,6 +201,7 @@
 #include "TimeShift.h"
 #include "Crash.h"
 #include "Calibration.h"
+#include "OverlaySettings.h"
 
 HWND hWnd = NULL;
 HINSTANCE hInst = NULL;
@@ -1492,6 +1496,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_OVERLAY_START:
             Overlay_Start(hWnd);
+            break;
+
+        case IDM_OVERLAYSETTINGS:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
             break;
 
         case IDM_FAST_REPAINT:

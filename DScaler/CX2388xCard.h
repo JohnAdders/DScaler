@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.21 2004-01-07 10:08:12 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.22 2004-01-18 21:13:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -236,8 +236,8 @@ protected:
     void ManageMyState();
     /// Card does support ACPI
     BOOL SupportsACPI() {return TRUE;};
-    /// don't know how to reset
-    void ResetChip() {;};
+    /// Turn on the card and set state to off
+    void ResetChip();
 
 private:
     ULONG GetTickCount();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.47 2004-01-16 09:35:12 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.48 2004-01-18 21:13:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2004/01/16 09:35:12  adcockj
+// CX2388x sound fixes suggested by MidiMaker
+//
 // Revision 1.46  2004/01/07 10:27:18  adcockj
 // Patch from MidiMaker to fix issue with PAL comb filter
 //
@@ -1322,7 +1325,7 @@ void CCX2388xCard::ManageMyState()
     ManageDword(MO_GP_ISM);
 }
 
-void CCX2388xCard::ResetHardware()
+void CCX2388xCard::ResetChip()
 {
     PCI_COMMON_CONFIG PCI_Config;
 
@@ -1368,11 +1371,12 @@ void CCX2388xCard::ResetHardware()
     WriteDword( CX2388X_PCI_INTSTAT, 0xFFFFFFFF ); // Clear PCI int
     WriteDword( MO_INT1_STAT, 0xFFFFFFFF );        // Clear RISC int
 
-
-
     // wait a bit so that everything has cleared through
     ::Sleep(500);
+}
 
+void CCX2388xCard::ResetHardware()
+{
     // Clear out the SRAM Channel Management data structures
     // for all 12 devices
     for (int i(1); i<=12; ++i)

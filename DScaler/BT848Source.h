@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.14 2001-12-08 20:00:24 laurentg Exp $
+// $Id: BT848Source.h,v 1.15 2002-01-17 22:22:06 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "BT848Card.h"
 #include "HardwareMemory.h"
 #include "Setting.h"
+#include "Bt848_Defines.h"
 /// \todo get rid of dependencies below here
 #include "Other.h"
 
@@ -53,6 +54,7 @@ public:
     ISetting* GetSaturationV();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
+	eTunerId GetTunerId();
     eVideoFormat GetFormat();
     BOOL IsInTunerMode();
     int GetWidth();

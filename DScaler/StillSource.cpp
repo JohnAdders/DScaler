@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.22 2001-12-18 14:53:00 adcockj Exp $
+// $Id: StillSource.cpp,v 1.23 2002-01-17 22:22:06 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/12/18 14:53:00  adcockj
+// Fixed overlay problem when running on machine with no tv card
+//
 // Revision 1.21  2001/12/16 10:15:45  laurentg
 // Calculation of used fields restored
 // Close function added
@@ -485,6 +488,11 @@ LPCSTR CStillSource::GetStatus()
     {
         return "No File";
     }
+}
+
+eTunerId CStillSource::GetTunerId()
+{
+    return TUNER_ABSENT;
 }
 
 eVideoFormat CStillSource::GetFormat()

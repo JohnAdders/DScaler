@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.19 2002-01-13 12:47:58 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.20 2002-01-17 22:22:06 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/01/13 12:47:58  adcockj
+// Fix for pixel width and format change
+//
 // Revision 1.18  2001/12/22 13:18:04  adcockj
 // Tuner bugfixes
 //
@@ -1155,4 +1158,9 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     {
        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
     }
+}
+
+eTunerId CBT848Source::GetTunerId()
+{
+    return m_pBT848Card->GetTuner()->GetTunerId();
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.7 2001-12-08 20:00:24 laurentg Exp $
+// $Id: Source.h,v 1.8 2002-01-17 22:22:06 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,7 @@
 #include "DS_ApiCommon.h"
 #include "Setting.h"
 #include "TVFormats.h"
+#include "Bt848_Defines.h"
 
 /** Abstract interface for Source.
     This class abstracts a thing that produces images.
@@ -71,6 +72,8 @@ public:
     virtual ISetting* GetSaturationU() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetSaturationV() = 0;
+	/// Get the tuner Id
+    virtual eTunerId GetTunerId() = 0;
     /// Get the original video format e.g. PAL, NTSC
     virtual eVideoFormat GetFormat() = 0;
     /// Are we currently showing the output from the tuner

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.14 2001-12-08 20:00:24 laurentg Exp $
+// $Id: StillSource.h,v 1.15 2002-01-17 22:22:06 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@
 #define __STILLSOURCE_H___
 
 #include "Source.h"
+#include "Bt848_Defines.h"
 
 enum eStillFormat
 {
@@ -82,6 +83,7 @@ public:
     ISetting* GetSaturation() {return NULL;};
     ISetting* GetSaturationU() {return NULL;};
     ISetting* GetSaturationV() {return NULL;};
+	eTunerId GetTunerId();
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
     int GetWidth();

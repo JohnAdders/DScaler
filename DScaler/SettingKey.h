@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.h,v 1.5 2005-03-17 03:55:19 atnak Exp $
+// $Id: SettingKey.h,v 1.6 2005-03-18 16:19:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/17 03:55:19  atnak
+// Syncing wip.
+//
 // Revision 1.4  2005/03/05 12:15:20  atnak
 // Syncing files.
 //
@@ -60,18 +63,18 @@ public:
 
 	static PSETTINGOBJECT NewSetting(LPCSTR entry, BYTE type);
 
-	virtual void LoadSetting();
+	virtual void LoadSetting(BYTE options = 0);
 	virtual void SaveSetting();
 
-	virtual void SetValueSV(RCSETTINGVALUE value);
+	virtual void SetValueSV(RCSETTINGVALUE value, BYTE options = 0);
 	virtual CSettingValue GetValueSV();
 
-	virtual void UseDefault();
-	virtual void SetDefaultSV(RCSETTINGVALUE value);
+	virtual void UseDefault(BYTE options = 0);
+	virtual void SetDefaultSV(RCSETTINGVALUE value, BYTE options = 0);
 	virtual CSettingValue GetDefaultSV();
 
-	virtual void CheckLimiter();
-	virtual void SetLimiter(PSETTINGLIMITER limiter);
+	virtual void CheckLimiter(BYTE options = 0);
+	virtual void SetLimiter(PSETTINGLIMITER limiter, BYTE options = 0);
 	virtual PSETTINGLIMITER GetLimiter();
 
 	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
@@ -101,13 +104,13 @@ public:
 	static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial);
 	static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial, long minimum, long maximum);
 
-	virtual void SetValue(long value);
+	virtual void SetValue(long value, BYTE options = 0);
 	virtual long GetValue();
 
-	virtual void SetDefault(long value);
+	virtual void SetDefault(long value, BYTE options = 0);
 	virtual long GetDefault();
 
-	virtual void SetRange(long minimum, long maximum);
+	virtual void SetRange(long minimum, long maximum, BYTE options = 0);
 
 	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
 	virtual BOOL Notify(INT message, long newValue, long oldValue);
@@ -126,13 +129,13 @@ public:
 	static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial);
 	static PSETTINGOBJECT NewSetting(LPCSTR entry, std::string initial, ULONG maxLength);
 
-	virtual void SetValue(std::string value);
+	virtual void SetValue(std::string value, BYTE options = 0);
 	virtual std::string GetValue();
 
-	virtual void SetDefault(std::string value);
+	virtual void SetDefault(std::string value, BYTE options = 0);
 	virtual std::string GetDefault();
 
-	virtual void SetMaxLength(ULONG maxLength);
+	virtual void SetMaxLength(ULONG maxLength, BYTE options = 0);
 
 	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
 	virtual BOOL Notify(INT message, std::string newValue, std::string oldValue);
@@ -151,15 +154,15 @@ public:
 	virtual void Setup(long initial, long minimum, long maximum, long step = 1);
 
 	virtual PSETTINGOBJECT CreateSetting(LPCSTR entry);
-	virtual PSETTINGCONFIG CreateConfig();
+	virtual PSETTINGCONFIG CreateSliderConfig();
 
-	virtual void StepUp();
-	virtual void StepDown();
+	virtual void StepUp(BYTE options = 0);
+	virtual void StepDown(BYTE options = 0);
 
-	virtual void SetRange(long minimum, long maximum);
+	virtual void SetRange(long minimum, long maximum, BYTE options = 0);
 
-	virtual void SetMin(long minimum);
-	virtual void SetMax(long maximum);
+	virtual void SetMin(long minimum, BYTE options = 0);
+	virtual void SetMax(long maximum, BYTE options = 0);
 	virtual long GetMin();
 	virtual long GetMax();
 
@@ -342,14 +345,18 @@ public: \
 //////////////////////////////////////////////////////////////////////////
 // SRUtil_Ex_Add_Long, SRUtil_Ex_Add_Long
 //////////////////////////////////////////////////////////////////////////
-void SRUtil_Set(PSETTINGGROUP group);
-void SRUtil_Ex_Set(PSETTINGGROUPEX groupEx, DBIT dependentBits = 0, DBIT absoluteBits = 0);
+void SRUtil_Set_Add(PSETTINGGROUP group);
+void SRUtil_Ex_Set_Add(PSETTINGGROUPEX groupEx, DBIT dependentBits = 0, DBIT absoluteBits = 0);
 HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
 HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue, LONG minValue, LONG maxValue);
+HSETTING SRUtil_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
+HSETTING SRUtil_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue, LONG minValue, LONG maxValue, LONG stepValue = 1);
 HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue);
 HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue, ULONG maxLength);
 HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
 HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);
+HSETTING SRUtil_Ex_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
+HSETTING SRUtil_Ex_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue, LONG stepValue = 1);
 HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue);
 HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LPCSTR defaultValue, ULONG maxLength);
 HSETTING SRUtil_Ex_AddMaster_Long(PSETTINGKEY key, DBIT masterBits, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);

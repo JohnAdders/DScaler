@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.cpp,v 1.6 2005-03-17 03:55:19 atnak Exp $
+// $Id: SettingKey.cpp,v 1.7 2005-03-18 16:19:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/17 03:55:19  atnak
+// Syncing wip.
+//
 // Revision 1.5  2005/03/05 12:15:20  atnak
 // Syncing files.
 //
@@ -73,10 +76,10 @@ PSETTINGOBJECT CSettingKey::NewSetting(LPCSTR entry, BYTE type)
 }
 
 
-void CSettingKey::LoadSetting()
+void CSettingKey::LoadSetting(BYTE options)
 {
 	ASSERT(m_controller != NULL);
-	m_controller->LoadSetting(m_identifier);
+	m_controller->LoadSetting(m_identifier, options);
 }
 
 
@@ -87,10 +90,10 @@ void CSettingKey::SaveSetting()
 }
 
 
-void CSettingKey::SetValueSV(RCSETTINGVALUE value)
+void CSettingKey::SetValueSV(RCSETTINGVALUE value, BYTE options)
 {
 	ASSERT(m_controller != NULL);
-	m_controller->SetValue(m_identifier, value);
+	m_controller->SetValue(m_identifier, value, options);
 }
 
 
@@ -101,17 +104,17 @@ CSettingValue CSettingKey::GetValueSV()
 }
 
 
-void CSettingKey::UseDefault()
+void CSettingKey::UseDefault(BYTE options)
 {
 	ASSERT(m_controller != NULL);
-	m_controller->UseDefault(m_identifier);
+	m_controller->UseDefault(m_identifier, options);
 }
 
 
-void CSettingKey::SetDefaultSV(RCSETTINGVALUE value)
+void CSettingKey::SetDefaultSV(RCSETTINGVALUE value, BYTE options)
 {
 	ASSERT(m_controller != NULL);
-	m_controller->SetDefault(m_identifier, value);
+	m_controller->SetDefault(m_identifier, value, options);
 }
 
 
@@ -122,17 +125,17 @@ CSettingValue CSettingKey::GetDefaultSV()
 }
 
 
-void CSettingKey::CheckLimiter()
+void CSettingKey::CheckLimiter(BYTE options)
 {
 	ASSERT(m_controller != NULL);
-	m_controller->CheckLimiter(m_identifier);
+	m_controller->CheckLimiter(m_identifier, options);
 }
 
 
-void CSettingKey::SetLimiter(PSETTINGLIMITER limiter)
+void CSettingKey::SetLimiter(PSETTINGLIMITER limiter, BYTE options)
 {
 	ASSERT(m_controller != NULL);
-	m_controller->SetLimiter(m_identifier, limiter);
+	m_controller->SetLimiter(m_identifier, limiter, options);
 }
 
 
@@ -203,11 +206,11 @@ PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, long initial, long mini
 }
 
 
-void CSettingKeyLong::SetValue(long value)
+void CSettingKeyLong::SetValue(long value, BYTE options)
 {
 	CSettingValue newValue;
 	newValue.SetInt(value);
-	SetValueSV(newValue);
+	SetValueSV(newValue, options);
 }
 
 
@@ -219,11 +222,11 @@ long CSettingKeyLong::GetValue()
 }
 
 
-void CSettingKeyLong::SetDefault(long value)
+void CSettingKeyLong::SetDefault(long value, BYTE options)
 {
 	CSettingValue defaultValue;
 	defaultValue.SetInt(value);
-	SetDefaultSV(defaultValue);
+	SetDefaultSV(defaultValue, options);
 }
 
 
@@ -235,10 +238,10 @@ long CSettingKeyLong::GetDefault()
 }
 
 
-void CSettingKeyLong::SetRange(long minimum, long maximum)
+void CSettingKeyLong::SetRange(long minimum, long maximum, BYTE options)
 {
 	PSETTINGLIMITER limiter = (PSETTINGLIMITER)new CSettingLimiterClampInt(minimum, maximum);
-	CSettingKey::SetLimiter(limiter);
+	CSettingKey::SetLimiter(limiter, options);
 }
 
 
@@ -294,11 +297,11 @@ PSETTINGOBJECT CSettingKeyString::NewSetting(LPCSTR entry, std::string initial, 
 }
 
 
-void CSettingKeyString::SetValue(std::string value)
+void CSettingKeyString::SetValue(std::string value, BYTE options)
 {
 	CSettingValue newValue;
 	newValue.SetString(value);
-	SetValueSV(newValue);
+	SetValueSV(newValue, options);
 }
 
 
@@ -310,11 +313,11 @@ std::string CSettingKeyString::GetValue()
 }
 
 
-void CSettingKeyString::SetDefault(std::string value)
+void CSettingKeyString::SetDefault(std::string value, BYTE options)
 {
 	CSettingValue defaultValue;
 	defaultValue.SetString(value);
-	SetDefaultSV(defaultValue);
+	SetDefaultSV(defaultValue, options);
 }
 
 
@@ -326,10 +329,10 @@ std::string CSettingKeyString::GetDefault()
 }
 
 
-void CSettingKeyString::SetMaxLength(unsigned long maxLength)
+void CSettingKeyString::SetMaxLength(unsigned long maxLength, BYTE options)
 {
 	PSETTINGLIMITER limiter = (PSETTINGLIMITER)new CSettingLimiterStringLength(maxLength);
-	CSettingKey::SetLimiter(limiter);
+	CSettingKey::SetLimiter(limiter, options);
 }
 
 
@@ -380,44 +383,44 @@ PSETTINGOBJECT CSettingKeySlider::CreateSetting(LPCSTR entry)
 }
 
 
-PSETTINGCONFIG CSettingKeySlider::CreateConfig()
+PSETTINGCONFIG CSettingKeySlider::CreateSliderConfig()
 {
 	return (PSETTINGCONFIG)new CSettingConfigSlider(m_controller, m_identifier,
 		m_minimum, m_maximum, m_step);
 }
 
 
-void CSettingKeySlider::StepUp()
+void CSettingKeySlider::StepUp(BYTE options)
 {
-	SetValue(GetValue() + m_step);
+	SetValue(GetValue() + m_step, options);
 }
 
 
-void CSettingKeySlider::StepDown()
+void CSettingKeySlider::StepDown(BYTE options)
 {
-	SetValue(GetValue() - m_step);
+	SetValue(GetValue() - m_step, options);
 }
 
 
-void CSettingKeySlider::SetRange(long minimum, long maximum)
+void CSettingKeySlider::SetRange(long minimum, long maximum, BYTE options)
 {
 	m_minimum = minimum;
 	m_maximum = maximum;
-	CSettingKeyLong::SetRange(m_minimum, m_maximum);
+	CSettingKeyLong::SetRange(m_minimum, m_maximum, options);
 }
 
 
-void CSettingKeySlider::SetMin(long minimum)
+void CSettingKeySlider::SetMin(long minimum, BYTE options)
 {
 	m_minimum = minimum;
-	CSettingKeyLong::SetRange(m_minimum, m_maximum);
+	CSettingKeyLong::SetRange(m_minimum, m_maximum, options);
 }
 
 
-void CSettingKeySlider::SetMax(long maximum)
+void CSettingKeySlider::SetMax(long maximum, BYTE options)
 {
 	m_maximum = maximum;
-	CSettingKeyLong::SetRange(m_minimum, m_maximum);
+	CSettingKeyLong::SetRange(m_minimum, m_maximum, options);
 }
 
 
@@ -497,13 +500,13 @@ static DBIT g_ex_implicitDependentBits;
 static DBIT g_ex_implicitAbsoluteBits;
 
 
-void SRUtil_Set(PSETTINGGROUP group)
+void SRUtil_Set_Add(PSETTINGGROUP group)
 {
 	g_implicitGroup = group;
 }
 
 
-void SRUtil_Ex_Set(PSETTINGGROUPEX groupEx, DBIT dependentBits, DBIT absoluteBits)
+void SRUtil_Ex_Set_Add(PSETTINGGROUPEX groupEx, DBIT dependentBits, DBIT absoluteBits)
 {
 	g_ex_implicitGroup = groupEx;
 	g_ex_implicitDependentBits = dependentBits;
@@ -512,7 +515,7 @@ void SRUtil_Ex_Set(PSETTINGGROUPEX groupEx, DBIT dependentBits, DBIT absoluteBit
 
 
 HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
-						  LONG defaultValue)
+						 LONG defaultValue)
 {
 	ASSERT(g_implicitGroup != NULL);
 	return g_implicitGroup->AddSetting(displayName,
@@ -528,9 +531,26 @@ HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
 		CSettingKeyLong::NewSetting(entryName, defaultValue, minValue, maxValue), key);
 }
 
+HSETTING SRUtil_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName,
+						 LONG defaultValue)
+{
+	// CSettingKeySlider must have minimum and maximum values.
+	ASSERT(FALSE);
+	return NULL;
+}
+
+
+HSETTING SRUtil_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName,
+						 LONG defaultValue, LONG minValue, LONG maxValue, LONG stepValue)
+{
+	key.Setup(defaultValue, minValue, maxValue, stepValue);
+	ASSERT(g_implicitGroup != NULL);
+	return g_implicitGroup->AddSetting(displayName, key.CreateSetting(entryName), key);
+}
+
 
 HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
-						 LPCSTR defaultValue)
+						   LPCSTR defaultValue)
 {
 	ASSERT(g_implicitGroup != NULL);
 	return g_implicitGroup->AddSetting(displayName,
@@ -538,7 +558,7 @@ HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName
 }
 
 HSETTING SRUtil_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
-						 LPCSTR defaultValue, ULONG maxLength)
+						   LPCSTR defaultValue, ULONG maxLength)
 {
 	ASSERT(g_implicitGroup != NULL);
 	return g_implicitGroup->AddSetting(displayName,
@@ -557,7 +577,7 @@ HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryNam
 
 
 HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
-					 LONG defaultValue, LONG minValue, LONG maxValue)
+							LONG defaultValue, LONG minValue, LONG maxValue)
 {
 	ASSERT(g_ex_implicitGroup != NULL);
 	return g_ex_implicitGroup->AddSetting(displayName,
@@ -566,8 +586,27 @@ HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryNam
 }
 
 
+HSETTING SRUtil_Ex_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName,
+							LONG defaultValue)
+{
+	// CSettingKeySlider must have minimum and maximum values.
+	ASSERT(FALSE);
+	return NULL;
+}
+
+
+HSETTING SRUtil_Ex_Add_Long(CSettingKeySlider& key, LPCSTR displayName, LPCSTR entryName,
+							LONG defaultValue, LONG minValue, LONG maxValue, LONG stepValue)
+{
+	key.Setup(defaultValue, minValue, maxValue, stepValue);
+	ASSERT(g_ex_implicitGroup != NULL);
+	return g_ex_implicitGroup->AddSetting(displayName, key.CreateSetting(entryName),
+		key, g_ex_implicitDependentBits, g_ex_implicitAbsoluteBits);
+}
+
+
 HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
-						   LPCSTR defaultValue)
+							  LPCSTR defaultValue)
 {
 	ASSERT(g_ex_implicitGroup != NULL);
 	return g_ex_implicitGroup->AddSetting(displayName,
@@ -576,7 +615,7 @@ HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryN
 }
 
 HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
-						   LPCSTR defaultValue, ULONG maxLength)
+							  LPCSTR defaultValue, ULONG maxLength)
 {
 	ASSERT(g_ex_implicitGroup != NULL);
 	return g_ex_implicitGroup->AddSetting(displayName,
@@ -586,7 +625,7 @@ HSETTING SRUtil_Ex_Add_String(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryN
 
 
 HSETTING SRUtil_Ex_AddMaster_Long(PSETTINGKEY key, DBIT masterBits, LPCSTR displayName, LPCSTR entryName,
-						 LONG defaultValue, LONG minValue, LONG maxValue)
+								  LONG defaultValue, LONG minValue, LONG maxValue)
 {
 	ASSERT(g_ex_implicitGroup != NULL);
 	return g_ex_implicitGroup->AddMaster(displayName,

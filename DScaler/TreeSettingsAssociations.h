@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsAssociations.h,v 1.1 2004-08-12 14:08:55 atnak Exp $
+// $Id: TreeSettingsAssociations.h,v 1.2 2005-03-18 16:19:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/12 14:08:55  atnak
+// TreeSettingsPage for configuring setting repository's setting associations.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -83,7 +86,7 @@ protected:
 	BYTE						m_dependeeCount;
 	CStatic*					m_dependeeHeading;
 	CButton*					m_dependeeButtons;
-	CStatic*					m_dependantHeading;
+	CStatic*					m_dependentHeading;
 	CListCtrl*					m_pListCtrl;
 	CStatic*					m_informationText;
 

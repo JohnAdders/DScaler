@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsSettingConfig.cpp,v 1.3 2004-08-15 03:04:00 atnak Exp $
+// $Id: TreeSettingsSettingConfig.cpp,v 1.4 2005-03-18 16:19:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/15 03:04:00  atnak
+// MAX_CLASS_NAME is not defined on all systems.
+//
 // Revision 1.2  2004/08/12 14:02:27  atnak
 // minor changes
 //
@@ -38,6 +41,9 @@
 #include "SettingRepository.h"
 #include "..\DScalerRes\resource.h"
 
+// Set a random ID for the adjust button.
+#define IDC_TREESETTINGS_GENERIC_ADJUST (IDC_TREESETTINGS_GENERIC_LIST + 1000)
+
 
 //////////////////////////////////////////////////////////////////////////
 // CTreeSettingsSettingConfig
@@ -46,7 +52,11 @@
 CTreeSettingsSettingConfig::CTreeSettingsSettingConfig(CSettingConfigContainer* configs) :
 	CTreeSettingsPage(configs->GetTitle().c_str(), IDD_TREESETTINGS_GENERIC),
 	m_configs(configs),
-	m_currentSetting(NULL)
+	m_currentSetting(NULL),
+	m_updatingSettingControls(FALSE),
+	m_adjustButton(NULL),
+	m_adjustButtonImagelist(NULL),
+	m_adjustButtonMoveOnResize(FALSE)
 {
 	ASSERT(m_configs != NULL);
 }
@@ -93,12 +103,20 @@ BOOL CTreeSettingsSettingConfig::OnInitDialog()
 	ShowControl(IDC_TREESETTINGS_GENERIC_SETTINGINFO, FALSE);
 	ShowControl(IDC_TREESETTINGS_GENERIC_TOPBOX, FALSE);
 
+	CreateAdjustButton();
+
 	// Let the config know the interface is beginning so it can
 	// do any internal initialization.
 	m_configs->Begin();
 
 	// Get the list box for all the setting names.
 	CListBox* pList = (CListBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_LIST);
+
+	// For some reason, the selection is highlighted even when the list
+	// box isn't in focus.  The selection isn't meant to be visible when
+	// there's no focus, unless LVS_SHOWSELALWAYS is set, in which case
+	// it should appear grey.  Changing this style doesn't fix it.
+	//pList->ModifyStyle(LVS_SHOWSELALWAYS, 0);
 
 	// Fill the list box with all the settings names.
 	pList->ResetContent();
@@ -130,8 +148,16 @@ BOOL CTreeSettingsSettingConfig::OnInitDialog()
 }
 
 
+void CTreeSettingsSettingConfig::OnDestroy()
+{
+	DestroyAdjustButton();
+}
+
+
 void CTreeSettingsSettingConfig::InitCurrentSettingControls()
 {
+	ShowAdjustButton(FALSE);
+
 	BOOL updateLocked = LockWindowUpdate();
 
 	// First set all the visibility to the most common state.
@@ -161,33 +187,69 @@ void CTreeSettingsSettingConfig::InitCurrentSettingControls()
 	{
 	case SETTING_CONFIG_CHECKBOX:
 		ShowControl(IDC_TREESETTINGS_GENERIC_CHECK, TRUE);
+		{
+			CButton* pButton = (CButton*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHECK);
+			pButton->SetWindowText(m_currentSetting->GetTitle().c_str());
+			PositionAdjustButtonBeside(pButton, TRUE);
+		}
 		break;
 	case SETTING_CONFIG_EDITBOX:
 		ShowControl(IDC_TREESETTINGS_GENERIC_EDIT2, TRUE);
+		{
+			CEdit* pEdit = (CEdit*)GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT2);
+			PositionAdjustButtonBeside(pEdit, TRUE);
+		}
 		break;
 	case SETTING_CONFIG_LISTBOX:
 		ShowControl(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, TRUE);
 		{
-			CListBox* pListBox = (CListBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
+			CComboBox* pComboBox = (CComboBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
 			CSettingConfigListBox* config = (CSettingConfigListBox*)m_currentSetting;
 
+			// This doesn't seem to disable sorting.
+			//if (config->IsSorted())
+			//{
+			//	pComboBox->ModifyStyle(0, CBS_SORT);
+			//}
+			//else
+			//{
+			//	pComboBox->ModifyStyle(CBS_SORT, 0);
+			//}
+
 			// Fill the list box
-			pListBox->ResetContent();
+			pComboBox->ResetContent();
 			ULONG count = config->GetCount();
 			for (ULONG i = 0; i < count; i++)
 			{
-				int index = pListBox->AddString(config->GetElement(i));
+				int index = pComboBox->AddString(config->GetElement(i));
 				if (index != LB_ERR)
 				{
-					pListBox->SetItemData(index, i);
+					pComboBox->SetItemData(index, i);
+					if (i == config->GetListBoxSelected())
+					{
+						pComboBox->SetCurSel(index);
+					}
 				}
 			}
+			PositionAdjustButtonBeside(pComboBox, TRUE);
 		}
 		break;
 	case SETTING_CONFIG_SLIDER:
 		ShowControl(IDC_TREESETTINGS_GENERIC_EDIT, TRUE);
 		ShowControl(IDC_TREESETTINGS_GENERIC_SPIN, TRUE);
 		ShowControl(IDC_TREESETTINGS_GENERIC_SLIDER, TRUE);
+		{
+			CSettingConfigSlider* config = (CSettingConfigSlider*)m_currentSetting;
+			CSliderCtrl* pSlider = (CSliderCtrl*)GetDlgItem(IDC_TREESETTINGS_GENERIC_SLIDER);
+			pSlider->SetRange(config->GetMin(), config->GetMax(), TRUE);
+			pSlider->SetPageSize(config->GetStep());
+			pSlider->SetLineSize(config->GetStep());
+			pSlider->ClearTics();
+			pSlider->SetTic(config->GetSliderDefaultValue());
+			CSpinButtonCtrl* pSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_TREESETTINGS_GENERIC_SPIN);
+			pSpin->SetRange32(config->GetMin(), config->GetMax());
+			PositionAdjustButtonBeside(pSpin, FALSE);
+		}
 		break;
 	default:
 		ShowControl(IDC_TREESETTINGS_GENERIC_DEFAULT, FALSE);
@@ -195,7 +257,7 @@ void CTreeSettingsSettingConfig::InitCurrentSettingControls()
 	}
 
 	// Update the displayed values for each control.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(NULL);
 
 	if (updateLocked)
 	{
@@ -204,37 +266,57 @@ void CTreeSettingsSettingConfig::InitCurrentSettingControls()
 }
 
 
-void CTreeSettingsSettingConfig::UpdateCurrentSettingControls()
+void CTreeSettingsSettingConfig::UpdateCurrentSettingControls(CWnd* pSkipControl)
 {
-	if (m_currentSetting == NULL)
+	if (m_updatingSettingControls || m_currentSetting == NULL)
 	{
 		return;
 	}
+
+	// Set this to prevent re-enter.
+	m_updatingSettingControls = TRUE;
 
 	switch (m_currentSetting->GetType())
 	{
 	case SETTING_CONFIG_CHECKBOX:
 		{
-			CSettingConfigCheckbox* config = (CSettingConfigCheckbox*)m_currentSetting;
 			CButton* pButton = (CButton*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHECK);
-			pButton->SetCheck(config->GetCheckboxState());
+			if (pButton != pSkipControl)
+			{
+				CSettingConfigCheckbox* config = (CSettingConfigCheckbox*)m_currentSetting;
+				pButton->SetCheck(config->GetCheckboxState());
+				ShowAdjustButton(FALSE);
+			}
 		}
 		break;
 	case SETTING_CONFIG_EDITBOX:
 		{
-			CSettingConfigEditBox* config = (CSettingConfigEditBox*)m_currentSetting;
 			CEdit* pEdit = (CEdit*)GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT2);
-			pEdit->SetWindowText(config->GetEditBoxText().c_str());
+			if (pEdit != pSkipControl)
+			{
+				CSettingConfigEditBox* config = (CSettingConfigEditBox*)m_currentSetting;
+				pEdit->SetWindowText(config->GetEditBoxText().c_str());
+				ShowAdjustButton(FALSE);
+			}
 		}
 		break;
 	case SETTING_CONFIG_LISTBOX:
 		{
-			CSettingConfigListBox* config = (CSettingConfigListBox*)m_currentSetting;
-			CListBox* pListBox = (CListBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
-			int i = pListBox->FindStringExact(-1, config->GetElement(config->GetListBoxSelected()));
-			if (i != LB_ERR)
+			CComboBox* pComboBox = (CComboBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
+			if (pComboBox != pSkipControl)
 			{
-				pListBox->SetCurSel(i);
+				CSettingConfigListBox* config = (CSettingConfigListBox*)m_currentSetting;
+				int count = pComboBox->GetCount();
+				ULONG selected = config->GetListBoxSelected();
+				for (int index = 0; index < count; index++)
+				{
+					if (pComboBox->GetItemData(index) == selected)
+					{
+						pComboBox->SetCurSel(index);
+						ShowAdjustButton(FALSE);
+						break;
+					}
+				}
 			}
 		}
 		break;
@@ -242,12 +324,26 @@ void CTreeSettingsSettingConfig::UpdateCurrentSettingControls()
 		{
 			CSettingConfigSlider* config = (CSettingConfigSlider*)m_currentSetting;
 			CEdit* pEdit = (CEdit*)GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT);
+			if (pEdit != pSkipControl)
+			{
+				pEdit->SetWindowText(config->GetValue().ToString().c_str());
+				ShowAdjustButton(FALSE);
+			}
 			CSliderCtrl* pSlider = (CSliderCtrl*)GetDlgItem(IDC_TREESETTINGS_GENERIC_SLIDER);
-			pEdit->SetWindowText(config->GetValue().ToString().c_str());
-			pSlider->SetPos(config->GetSliderValue());
+			if (pSlider != pSkipControl)
+			{
+				pSlider->SetPos(config->GetSliderValue());
+			}
+			CSpinButtonCtrl* pSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_TREESETTINGS_GENERIC_SPIN);
+			if (pSpin != pSkipControl)
+			{
+				pSpin->SetPos32(config->GetSliderValue());
+			}
 		}
 		break;
 	}
+
+	m_updatingSettingControls = FALSE;
 }
 
 
@@ -270,13 +366,14 @@ BEGIN_MESSAGE_MAP(CTreeSettingsSettingConfig, CTreeSettingsPage)
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
 	ON_LBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_LIST, OnSelchangeSettingList)
-	ON_EN_KILLFOCUS(IDC_TREESETTINGS_GENERIC_EDIT, OnChangeEditValueNumber)
+	ON_EN_CHANGE(IDC_TREESETTINGS_GENERIC_EDIT, OnChangeEditValueNumber)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_TREESETTINGS_GENERIC_SPIN, OnDeltaposValueNumberSpin)
 	ON_WM_HSCROLL()
 	ON_EN_KILLFOCUS(IDC_TREESETTINGS_GENERIC_EDIT2, OnChangeEditValueString)
 	ON_CBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, OnSelchangeValueList)
 	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_CHECK, OnClickValueCheckbox)
 	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_DEFAULT, OnClickValueDefault)
+	ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_ADJUST, OnClickAdjust)
 END_MESSAGE_MAP()
 
 
@@ -317,22 +414,33 @@ void CTreeSettingsSettingConfig::OnSize(UINT nType, int cx, int cy)
 		return;
 	}
 
+	enum eResizeAdjust
+	{
+		ADJUST_NONE		= 0,
+		ADJUST_MOVE		= 1,
+		ADJUST_GROW		= 2,
+	};
+
+	// How the adjust button scales depends on which control it is placed beside.
+	eResizeAdjust adjustButton = m_adjustButtonMoveOnResize ? ADJUST_MOVE : ADJUST_NONE;
+
 	// Define the rest of the controls that need to rescale here.
 	struct
 	{
 		int nID;
-		int moveGrowDown;
-		int moveGrowRight;
+		eResizeAdjust rightAdjust;
+		eResizeAdjust downAdjust;
 	} scaleControls[] =
 	{
-		{ IDC_TREESETTINGS_GENERIC_LIST, 2, 2 },
-		{ IDC_TREESETTINGS_GENERIC_EDIT, 1, 2 },
-		{ IDC_TREESETTINGS_GENERIC_SPIN, 1, 0 },
-		{ IDC_TREESETTINGS_GENERIC_SLIDER, 1, 2 },
-		{ IDC_TREESETTINGS_GENERIC_EDIT2, 1, 2 },
-		{ IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST, 1, 2 },
-		{ IDC_TREESETTINGS_GENERIC_CHECK, 1, 0 },
-		{ IDC_TREESETTINGS_GENERIC_DEFAULT, 1, 1 },
+		{ IDC_TREESETTINGS_GENERIC_LIST,			ADJUST_GROW, ADJUST_GROW },
+		{ IDC_TREESETTINGS_GENERIC_EDIT,			ADJUST_NONE, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_SPIN,			ADJUST_NONE, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_SLIDER,			ADJUST_GROW, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_EDIT2,			ADJUST_GROW, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST,	ADJUST_GROW, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_CHECK,			ADJUST_NONE, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_DEFAULT,			ADJUST_MOVE, ADJUST_MOVE },
+		{ IDC_TREESETTINGS_GENERIC_ADJUST,			adjustButton, ADJUST_MOVE },
 	};
 
 	// Use a generic loop for adjusting the rest of the controls
@@ -349,22 +457,20 @@ void CTreeSettingsSettingConfig::OnSize(UINT nType, int cx, int cy)
 			ScreenToClient(&rect);
 
 			// Move or grow the rect down.
-			if (scaleControls[i].moveGrowDown)
+			if (scaleControls[i].downAdjust)
 			{
-				if (scaleControls[i].moveGrowDown == 1)
+				if (scaleControls[i].downAdjust == ADJUST_MOVE)
 				{
 					rect.top += iDeltaY;
-
 				}
 				rect.bottom += iDeltaY;
 			}
 			// Move or grow rect right.
-			if (scaleControls[i].moveGrowRight)
+			if (scaleControls[i].rightAdjust)
 			{
-				if (scaleControls[i].moveGrowRight == 1)
+				if (scaleControls[i].rightAdjust == ADJUST_MOVE)
 				{
 					rect.left += iDeltaX;
-
 				}
 				rect.right += iDeltaX;
 			}
@@ -469,7 +575,7 @@ void CTreeSettingsSettingConfig::OnSelchangeSettingList()
 
 void CTreeSettingsSettingConfig::OnChangeEditValueNumber()
 {
-	if (m_currentSetting == NULL ||
+	if (m_currentSetting == NULL || m_updatingSettingControls ||
 		m_currentSetting->GetType() != SETTING_CONFIG_SLIDER)
 	{
 		return;
@@ -483,17 +589,18 @@ void CTreeSettingsSettingConfig::OnChangeEditValueNumber()
 	CString text;
 	pEdit->GetWindowText(text);
 
-	// Set the new text
-	config->SetSliderValue(_ttoi(text));
+	// Set the new value.
+	INT value = _ttoi(text);
+	ShowAdjustButton(config->SetSliderValue(value) != value);
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(pEdit);
 }
 
 
 void CTreeSettingsSettingConfig::OnDeltaposValueNumberSpin(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	if (m_currentSetting == NULL ||
+	if (m_currentSetting == NULL || m_updatingSettingControls ||
 		m_currentSetting->GetType() != SETTING_CONFIG_SLIDER)
 	{
 		return;
@@ -511,13 +618,13 @@ void CTreeSettingsSettingConfig::OnDeltaposValueNumberSpin(NMHDR* pNMHDR, LRESUL
 	config->SetSliderValue(config->GetSliderValue() + step);
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(NULL);
 }
 
 
 void CTreeSettingsSettingConfig::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	if (m_currentSetting == NULL ||
+	if (m_currentSetting == NULL || m_updatingSettingControls ||
 		m_currentSetting->GetType() != SETTING_CONFIG_SLIDER)
 	{
 		return;
@@ -528,16 +635,21 @@ void CTreeSettingsSettingConfig::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* 
 	CSettingConfigSlider* config = (CSettingConfigSlider*)m_currentSetting;
 
 	// Set the new position
-	config->SetSliderValue(pSlider->GetPos());
+	int value = pSlider->GetPos();
+	if (config->GetStep() > 1)
+	{
+		value -= value % config->GetStep();
+	}
+	config->SetSliderValue(value);
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(pSlider);
 }
 
 
 void CTreeSettingsSettingConfig::OnChangeEditValueString()
 {
-	if (m_currentSetting == NULL ||
+	if (m_currentSetting == NULL || m_updatingSettingControls ||
 		m_currentSetting->GetType() != SETTING_CONFIG_EDITBOX)
 	{
 		return;
@@ -551,42 +663,44 @@ void CTreeSettingsSettingConfig::OnChangeEditValueString()
 	pEdit->GetWindowText(text);
 
 	// Set the new text
-	config->SetEditBoxText((LPCSTR)text);
+	std::string result(config->SetEditBoxText((LPCSTR)text));
+	ShowAdjustButton(text.Compare(result.c_str()) == 0);
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(pEdit);
 }
 
 
 void CTreeSettingsSettingConfig::OnSelchangeValueList()
 {
-	if (m_currentSetting == NULL ||
-		m_currentSetting->GetType() != SETTING_CONFIG_EDITBOX)
+	if (m_currentSetting == NULL || m_updatingSettingControls ||
+		m_currentSetting->GetType() != SETTING_CONFIG_LISTBOX)
 	{
 		return;
 	}
 
 	// Perform the necessary variable extraction.
-	CListBox* pListBox = (CListBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
+	CComboBox* pComboBox = (CComboBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
 	CSettingConfigListBox* config = (CSettingConfigListBox*)m_currentSetting;
 
-	int index = pListBox->GetCurSel();
+	int index = pComboBox->GetCurSel();
 	if (index == LB_ERR)
 	{
 		return;
 	}
 
 	// Set the new selection
-	config->SetListBoxSelected(pListBox->GetItemData(index));
+	ULONG value = pComboBox->GetItemData(index);
+	ShowAdjustButton(config->SetListBoxSelected(value) != value);
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(pComboBox);
 }
 
 
 void CTreeSettingsSettingConfig::OnClickValueCheckbox()
 {
-	if (m_currentSetting == NULL ||
+	if (m_currentSetting == NULL || m_updatingSettingControls ||
 		m_currentSetting->GetType() != SETTING_CONFIG_CHECKBOX)
 	{
 		return;
@@ -595,10 +709,11 @@ void CTreeSettingsSettingConfig::OnClickValueCheckbox()
 	CButton* pButton = (CButton*)GetDlgItem(IDC_TREESETTINGS_GENERIC_CHECK);
 	CSettingConfigCheckbox* config = (CSettingConfigCheckbox*)m_currentSetting;
 
-	config->SetCheckboxState(pButton->GetCheck());
+	BOOL value = pButton->GetCheck() != 0;
+	ShowAdjustButton(config->SetCheckboxState(value) != value);
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(pButton);
 }
 
 
@@ -625,6 +740,79 @@ void CTreeSettingsSettingConfig::OnClickValueDefault()
 	}
 
 	// Let any necessary updates be performed.
-	UpdateCurrentSettingControls();
+	UpdateCurrentSettingControls(NULL);
+}
+
+
+void CTreeSettingsSettingConfig::OnClickAdjust()
+{
+	UpdateCurrentSettingControls(NULL);
+	m_adjustButton->ShowWindow(SW_HIDE);
+}
+
+
+void CTreeSettingsSettingConfig::CreateAdjustButton()
+{
+	CRect rect(0, 0, GetSystemMetrics(SM_CXSMICON)+6, GetSystemMetrics(SM_CYSMICON)+6);
+
+	// Create the button.
+	m_adjustButton = new CButton();
+	m_adjustButton->Create("", BS_FLAT, rect, this, IDC_TREESETTINGS_GENERIC_ADJUST);
+
+	// Create the image list and icon picture.
+	m_adjustButtonImagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON),
+		GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
+	ImageList_AddIcon(m_adjustButtonImagelist, LoadIcon(NULL, IDI_EXCLAMATION));
+
+	// Set the image list.
+	BUTTON_IMAGELIST buttonImagelist;
+	buttonImagelist.himl = m_adjustButtonImagelist;
+	SetRect(&buttonImagelist.margin, 0, 0, 0, 0);
+	buttonImagelist.uAlign = BUTTON_IMAGELIST_ALIGN_CENTER;
+	m_adjustButton->SetImageList(&buttonImagelist);
+}
+
+
+void CTreeSettingsSettingConfig::DestroyAdjustButton()
+{
+	if (m_adjustButton != NULL)
+	{
+		m_adjustButton->DestroyWindow();
+		m_adjustButton = NULL;
+	}
+	if (m_adjustButtonImagelist != NULL)
+	{
+		ImageList_Destroy(m_adjustButtonImagelist);
+		m_adjustButtonImagelist = NULL;
+	}
+}
+
+
+void CTreeSettingsSettingConfig::ShowAdjustButton(BOOL show)
+{
+	if (GetFocus() == m_adjustButton)
+	{
+		CListBox* pList = (CListBox*)GetDlgItem(IDC_TREESETTINGS_GENERIC_LIST);
+		pList->SetFocus();
+	}
+	ShowControl(IDC_TREESETTINGS_GENERIC_ADJUST, show);
+}
+
+
+void CTreeSettingsSettingConfig::PositionAdjustButtonBeside(CWnd* pWnd, BOOL moveOnResize)
+{
+	CRect rectWnd;
+	CRect rectButton;
+
+	pWnd->GetWindowRect(rectWnd);
+	this->ScreenToClient(rectWnd);
+
+	m_adjustButton->GetWindowRect(rectButton);
+
+	rectButton.MoveToX(rectWnd.right + rectButton.Width() / 2);
+	rectButton.MoveToY(rectWnd.top + (rectWnd.Height() - rectButton.Height()) / 2);
+	m_adjustButton->MoveWindow(rectButton);
+
+	m_adjustButtonMoveOnResize = moveOnResize;
 }
 

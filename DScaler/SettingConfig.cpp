@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.cpp,v 1.6 2004-09-08 07:15:05 atnak Exp $
+// $Id: SettingConfig.cpp,v 1.7 2005-03-18 16:19:03 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/09/08 07:15:05  atnak
+// Added typecasts to get rid of warnings.
+//
 // Revision 1.5  2004/08/20 07:27:09  atnak
 // Removed the title value.
 //
@@ -28,7 +31,7 @@
 // Fixes to get new settings code working under VS6
 //
 // Revision 1.3  2004/08/12 14:04:39  atnak
-// Changed blocked dependants code plus other changes.
+// Changed blocked dependents code plus other changes.
 //
 // Revision 1.2  2004/08/08 17:03:38  atnak
 // Minor fixes and added Begin() and End() general methods.
@@ -330,8 +333,9 @@ CSettingConfigListBox::CSettingConfigListBox(PSETTINGGROUP group, HSETTING setti
 }
 
 
-CSettingConfigListBox::CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[], ULONG count) :
-	CSettingConfigSetting(key)
+CSettingConfigListBox::CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[],
+											 ULONG count, BOOL activeChange) :
+	CSettingConfigSetting(key, activeChange)
 {
 	m_elements.reserve(count);
 	for (ULONG i = 0; i < count; i++)
@@ -342,8 +346,9 @@ CSettingConfigListBox::CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[],
 
 
 CSettingConfigListBox::CSettingConfigListBox(std::string title, PSETTINGGROUP group,
-											 HSETTING setting, LPCSTR elements[], ULONG count) :
-	CSettingConfigSetting(group, setting)
+											 HSETTING setting, LPCSTR elements[],
+											 ULONG count, BOOL activeChange) :
+	CSettingConfigSetting(group, setting, activeChange)
 {
 	m_elements.reserve(count);
 	for (ULONG i = 0; i < count; i++)
@@ -393,8 +398,10 @@ ULONG CSettingConfigListBox::GetListBoxSelected()
 	{
 	case SETTING_VALUE_INT:
 		selected = (ULONG)value.GetInt();
+		break;
 	case SETTING_VALUE_UINT:
 		selected = value.GetUInt();
+		break;
 	default:
 		ASSERT(FALSE);
 	}
@@ -519,11 +526,29 @@ INT CSettingConfigSlider::SetSliderValue(INT slide)
 }
 
 
+INT CSettingConfigSlider::GetSliderDefaultValue()
+{
+	CSettingValue value = CSettingConfigSetting::GetDefault();
+
+	switch (value.GetType())
+	{
+	case SETTING_VALUE_INT:
+		return value.GetInt();
+	case SETTING_VALUE_UINT:
+		return value.GetUInt();
+	case SETTING_VALUE_STRING:
+		return strtoul(value.GetString().c_str(), NULL, 10);
+	}
+	ASSERT(FALSE);
+	return FALSE;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
-// CSettingConfigDependant
+// CSettingConfigDependent
 //////////////////////////////////////////////////////////////////////////
 
-CSettingConfigDependant::CSettingConfigDependant(PSETTINGKEY key) :
+CSettingConfigDependent::CSettingConfigDependent(PSETTINGKEY key) :
 	CSettingConfig(),
 	m_settingGroupEx(dynamic_cast<PSETTINGGROUPEX>(key->GetController())),
 	m_settingIdentifier(key->GetIdentifier())
@@ -532,12 +557,12 @@ CSettingConfigDependant::CSettingConfigDependant(PSETTINGKEY key) :
 
 	// Initialize the internal cache
 	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
-	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
-	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
+	m_dependentBits = m_settingGroupEx->GetOptionalDependentBits(m_settingIdentifier);
+	m_dependentLockedBits = m_settingGroupEx->GetAbsoluteDependentBits(m_settingIdentifier);
 }
 
 
-CSettingConfigDependant::CSettingConfigDependant(PSETTINGGROUPEX group, HSETTING setting) :
+CSettingConfigDependent::CSettingConfigDependent(PSETTINGGROUPEX group, HSETTING setting) :
 	CSettingConfig(),
 	m_settingGroupEx(group),
 	m_settingIdentifier(setting)
@@ -546,82 +571,82 @@ CSettingConfigDependant::CSettingConfigDependant(PSETTINGGROUPEX group, HSETTING
 
 	// Initialize the internal cache
 	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
-	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
-	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
+	m_dependentBits = m_settingGroupEx->GetOptionalDependentBits(m_settingIdentifier);
+	m_dependentLockedBits = m_settingGroupEx->GetAbsoluteDependentBits(m_settingIdentifier);
 }
 
 
-CSettingConfigDependant::~CSettingConfigDependant()
+CSettingConfigDependent::~CSettingConfigDependent()
 {
 }
 
 
-std::string CSettingConfigDependant::GetTitle()
+std::string CSettingConfigDependent::GetTitle()
 {
 	return m_settingGroupEx->GetSettingTitle(m_settingIdentifier);
 }
 
 
-BOOL CSettingConfigDependant::IsDependee()
+BOOL CSettingConfigDependent::IsDependee()
 {
 	return m_dependeeBits != 0;
 }
 
 
-BOOL CSettingConfigDependant::IsDependee(BYTE dependencyIndex)
+BOOL CSettingConfigDependent::IsDependee(BYTE dependencyIndex)
 {
 	return (m_dependeeBits & (1 << dependencyIndex)) != 0;
 }
 
 
-BOOL CSettingConfigDependant::IsDependant(BYTE dependencyIndex)
+BOOL CSettingConfigDependent::IsDependent(BYTE dependencyIndex)
 {
-	return (m_dependantBits & (1 << dependencyIndex)) != 0;
+	return (m_dependentBits & (1 << dependencyIndex)) != 0;
 }
 
 
-BOOL CSettingConfigDependant::IsDependantLocked(BYTE dependencyIndex)
+BOOL CSettingConfigDependent::IsDependentLocked(BYTE dependencyIndex)
 {
-	return (m_dependantLockedBits & (1 << dependencyIndex)) != 0;
+	return (m_dependentLockedBits & (1 << dependencyIndex)) != 0;
 }
 
 
-BOOL CSettingConfigDependant::SetDependant(BYTE dependencyIndex, BOOL set)
+BOOL CSettingConfigDependent::SetDependent(BYTE dependencyIndex, BOOL set)
 {
 	if (set)
 	{
-		m_dependantBits |= 1 << dependencyIndex;
+		m_dependentBits |= 1 << dependencyIndex;
 		return TRUE;
 	}
 
-	m_dependantBits &= ~(1 << dependencyIndex);
+	m_dependentBits &= ~(1 << dependencyIndex);
 	return FALSE;
 }
 
 
-void CSettingConfigDependant::ApplyValue()
+void CSettingConfigDependent::ApplyValue()
 {
-	if (m_dependantBits != m_originalDependantBits)
+	if (m_dependentBits != m_originalDependentBits)
 	{
-		m_settingGroupEx->SetOptionalDependantBits(m_settingIdentifier, m_dependantBits);
+		m_settingGroupEx->SetOptionalDependentBits(m_settingIdentifier, m_dependentBits);
 	}
 }
 
 
-void CSettingConfigDependant::ResetValue()
+void CSettingConfigDependent::ResetValue()
 {
-	m_dependantBits = m_originalDependantBits;
+	m_dependentBits = m_originalDependentBits;
 }
 
 
-void CSettingConfigDependant::Begin()
+void CSettingConfigDependent::Begin()
 {
 	CSettingConfig::Begin();
 
 	// Initialize the internal cache
 	m_dependeeBits = m_settingGroupEx->GetDependeeBits(m_settingIdentifier);
-	m_dependantBits = m_settingGroupEx->GetOptionalDependantBits(m_settingIdentifier);
-	m_dependantLockedBits = m_settingGroupEx->GetAbsoluteDependantBits(m_settingIdentifier);
+	m_dependentBits = m_settingGroupEx->GetOptionalDependentBits(m_settingIdentifier);
+	m_dependentLockedBits = m_settingGroupEx->GetAbsoluteDependentBits(m_settingIdentifier);
 }
 
 
@@ -748,13 +773,13 @@ CSettingConfigAssociation::~CSettingConfigAssociation()
 
 ULONG CSettingConfigAssociation::AddConfig(CSettingConfig* config, BOOL purgable)
 {
-	// This container can only accept dependant config objects
-	ASSERT(config->GetType() == SETTING_CONFIG_DEPENDANT);
+	// This container can only accept dependent config objects
+	ASSERT(config->GetType() == SETTING_CONFIG_DEPENDENT);
 
 	ULONG index = CSettingConfigContainer::AddConfig(config, purgable);
 
 	// If this setting is a dependee, save its pointer for quick reference.
-	CSettingConfigDependant* cfg = dynamic_cast<CSettingConfigDependant*>(config);
+	CSettingConfigDependent* cfg = dynamic_cast<CSettingConfigDependent*>(config);
 	if (cfg->IsDependee())
 	{
 		BYTE dependencyCount = GetDependencyCount();
@@ -809,9 +834,9 @@ BOOL CSettingConfigAssociation::IsDependencyEnabled(BYTE dependencyIndex)
 }
 
 
-BOOL CSettingConfigAssociation::IsDependantBlocked(ULONG index, BYTE dependencyIndex)
+BOOL CSettingConfigAssociation::IsDependentBlocked(ULONG index, BYTE dependencyIndex)
 {
-	CSettingConfigDependant* cfg = (CSettingConfigDependant*)GetConfig(index);
+	CSettingConfigDependent* cfg = (CSettingConfigDependent*)GetConfig(index);
 
 	if (!cfg->IsDependee())
 	{
@@ -854,7 +879,7 @@ void CSettingConfigAssociation::RecalculateBlocked()
 
 void CSettingConfigAssociation::RecalculateBlocked(BYTE dependencyIndex)
 {
-	CSettingConfigDependant* dependee = m_associationVector.at(dependencyIndex).dependee;
+	CSettingConfigDependent* dependee = m_associationVector.at(dependencyIndex).dependee;
 	DBIT dependeeBits = (dependee != NULL) ? dependee->m_dependeeBits : (1 << dependencyIndex);
 
 	BYTE dependencyCount = (BYTE)m_associationVector.size();
@@ -865,7 +890,7 @@ void CSettingConfigAssociation::RecalculateBlocked(BYTE dependencyIndex)
 			continue;
 		}
 
-		if (dependee->m_dependantBits & dependeeBits)
+		if (dependee->m_dependentBits & dependeeBits)
 		{
 			if (m_associationVector.at(i).blockedBits == 0)
 			{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.h,v 1.4 2004-08-20 07:27:09 atnak Exp $
+// $Id: SettingConfig.h,v 1.5 2005-03-18 16:19:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/08/20 07:27:09  atnak
+// Removed the title value.
+//
 // Revision 1.3  2004/08/12 14:04:39  atnak
-// Changed blocked dependants code plus other changes.
+// Changed blocked dependents code plus other changes.
 //
 // Revision 1.2  2004/08/08 17:03:38  atnak
 // Minor fixes and added Begin() and End() general methods.
@@ -50,7 +53,7 @@ enum eSettingConfigType
 	SETTING_CONFIG_EDITBOX,
 	SETTING_CONFIG_LISTBOX,
 	SETTING_CONFIG_SLIDER,
-	SETTING_CONFIG_DEPENDANT,
+	SETTING_CONFIG_DEPENDENT,
 
 	SETTING_CONFIG_CONTAINER,
 	SETTING_CONFIG_ASSOCIATION,
@@ -185,9 +188,11 @@ public:
 		ULONG count, BOOL sorted, BOOL activeChange = TRUE);
 
 	// Adds count elements pointed to by elements[] to the list.
-	CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[], ULONG count);
+	CSettingConfigListBox(PSETTINGKEY key, LPCSTR elements[],
+		ULONG count, BOOL activeChange = TRUE);
 	CSettingConfigListBox(std::string title,
-		PSETTINGGROUP group, HSETTING setting, LPCSTR elements[], ULONG count);
+		PSETTINGGROUP group, HSETTING setting, LPCSTR elements[],
+		ULONG count, BOOL activeChange = TRUE);
 	virtual ~CSettingConfigListBox();
 
 	virtual inline BYTE GetType() { return SETTING_CONFIG_LISTBOX; };
@@ -226,6 +231,7 @@ public:
 
 	virtual INT GetSliderValue();
 	virtual INT SetSliderValue(INT slide);
+	virtual INT GetSliderDefaultValue();
 
 protected:
 	INT m_minimum;
@@ -235,16 +241,16 @@ protected:
 
 
 //////////////////////////////////////////////////////////////////////////
-// CSettingConfigDependant
+// CSettingConfigDependent
 //////////////////////////////////////////////////////////////////////////
-class CSettingConfigDependant : public CSettingConfig
+class CSettingConfigDependent : public CSettingConfig
 {
 public:
-	CSettingConfigDependant(PSETTINGKEY key);
-	CSettingConfigDependant(PSETTINGGROUPEX group, HSETTING setting);
-	virtual ~CSettingConfigDependant();
+	CSettingConfigDependent(PSETTINGKEY key);
+	CSettingConfigDependent(PSETTINGGROUPEX group, HSETTING setting);
+	virtual ~CSettingConfigDependent();
 
-	virtual inline BYTE GetType() { return SETTING_CONFIG_DEPENDANT; };
+	virtual inline BYTE GetType() { return SETTING_CONFIG_DEPENDENT; };
 
 	// Gets the setting's title
 	virtual std::string GetTitle();
@@ -252,9 +258,9 @@ public:
 	virtual inline BOOL IsDependee();
 	virtual inline BOOL IsDependee(BYTE dependencyIndex);
 
-	virtual inline BOOL IsDependant(BYTE dependencyIndex);
-	virtual inline BOOL IsDependantLocked(BYTE dependencyIndex);
-	virtual inline BOOL SetDependant(BYTE dependencyIndex, BOOL set);
+	virtual inline BOOL IsDependent(BYTE dependencyIndex);
+	virtual inline BOOL IsDependentLocked(BYTE dependencyIndex);
+	virtual inline BOOL SetDependent(BYTE dependencyIndex, BOOL set);
 
 	// Called when the OK or Apply button is pressed.
 	virtual void ApplyValue();
@@ -269,9 +275,9 @@ private:
 	PSETTINGGROUPEX	m_settingGroupEx;
 	HSETTING		m_settingIdentifier;
 	DBIT			m_dependeeBits;
-	DBIT			m_dependantBits;
-	DBIT			m_dependantLockedBits;
-	DBIT			m_originalDependantBits;
+	DBIT			m_dependentBits;
+	DBIT			m_dependentLockedBits;
+	DBIT			m_originalDependentBits;
 };
 
 
@@ -343,13 +349,13 @@ public:
 	virtual inline BOOL EnableDependency(BYTE dependencyIndex, BOOL enable);
 	virtual inline BOOL IsDependencyEnabled(BYTE dependencyIndex);
 
-	// For the dependency setting at index given, IsDependantBlocked()
-	// returns if the dependencyIndex cannot be set as dependant a because
+	// For the dependency setting at index given, IsDependentBlocked()
+	// returns if the dependencyIndex cannot be set as dependent a because
 	// of cyclic dependencies.
-	virtual BOOL IsDependantBlocked(ULONG index, BYTE dependencyIndex);
-	// Since IsDependantBlocked() uses cached values for performance,
+	virtual BOOL IsDependentBlocked(ULONG index, BYTE dependencyIndex);
+	// Since IsDependentBlocked() uses cached values for performance,
 	// RecalculateBlocked() needs to be called to update blocked bits when
-	// a master setting has changed dependants.
+	// a master setting has changed dependents.
 	virtual void RecalculateBlocked();
 
 	// Called when the OK or Apply button is pressed.
@@ -364,7 +370,7 @@ protected:
 	public:
 		CAssociation(std::string title) : title(title), dependee(NULL), blockedBits(0) { };
 		std::string					title;
-		CSettingConfigDependant*	dependee;
+		CSettingConfigDependent*	dependee;
 		DBIT						blockedBits;
 	};
 	typedef std::vector<CAssociation> ASSOCIATIONVECTOR;

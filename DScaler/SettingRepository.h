@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingRepository.h,v 1.5 2005-03-05 12:15:20 atnak Exp $
+// $Id: SettingRepository.h,v 1.6 2005-03-18 16:19:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/05 12:15:20  atnak
+// Syncing files.
+//
 // Revision 1.4  2004/09/08 07:20:21  atnak
 // Sync with SettingGroup.h in HSETTING change to a more enforcable type.
 //
@@ -206,7 +209,7 @@ typedef BYTE DBIT;
 //
 //     CSettingConfigContainer* container = groupex.CreateAssociationConfig("Setting Collection Name");
 //
-//     container->AddSetting(new CSettingConfigDependant("Setting Name", &group, setting));
+//     container->AddSetting(new CSettingConfigDependent("Setting Name", &group, setting));
 //
 //   return new CTreeSettingsAssociations(container);
 //

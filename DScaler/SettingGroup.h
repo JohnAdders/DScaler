@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.11 2005-03-17 03:55:19 atnak Exp $
+// $Id: SettingGroup.h,v 1.12 2005-03-18 16:19:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2005/03/17 03:55:19  atnak
+// Syncing wip.
+//
 // Revision 1.10  2005/03/05 12:15:20  atnak
 // Syncing files.
 //
@@ -225,7 +228,7 @@ enum eSettingGroupOption
 //
 // Additional notifying functions in CSettingGroupEx (all which are deferrable):
 // Activate(), LoadOptionalDependencies(), EnableOptionalDependencies(),
-// SetEnabledOptionalDependencies(), SetOptionalDependantBits(), JostleBit()
+// SetEnabledOptionalDependencies(), SetOptionalDependentBits(), JostleBit()
 //
 
 //
@@ -490,12 +493,12 @@ protected:
 	// This function should notify CHANGING and change the values of all
 	// settings then put the appropriate CHANGEDNOTIFY structure onto the
 	// changed notify list.
-	virtual void LoadSettings(IN POPERATIONINFO opinfo);
+	virtual void _LoadSettings(IN POPERATIONINFO opinfo);
 	// This function performs the work of InsertMarker().
-	virtual void InsertMarker(IN POPERATIONINFO opinfo);
+	virtual void _InsertMarker(IN POPERATIONINFO opinfo);
 
 	// Load a single setting.
-	virtual void LoadSetting(IN POPERATIONINFO opinfo);
+	virtual void _LoadSetting(IN POPERATIONINFO opinfo);
 
 	// Processes operations and defers if necessary.
 	virtual void ProcessOperation(IN POPERATIONINFO opinfo);
@@ -599,7 +602,7 @@ protected:
 //
 // To create an association, first create an "dependency bit" (association
 // bit) using CreateDependency().  The created bit is then used to refer
-// to a single dependee-to-dependants association from there on.  The
+// to a single dependee-to-dependents association from there on.  The
 // dependency bit is a single binary bit in an integer variable.  It can
 // be unioned or masked with other dependency bits with standard bitwise
 // operators.  The maximum number of dependency bits that can be created
@@ -620,12 +623,12 @@ protected:
 // to itself whether directly or indirectly.)  The result is undefined if
 // any of these criteria are not met.
 //
-// The AddMaster() and AddSetting() parameters dependantOptionalBits and
-// dependantAbsoluteBits differ in that dependency bits set in
-// dependantOptionalBits will only act in an association if a mask given
-// to SetDependantMask() includes the same bit.  Dependency bits passed
-// to dependantAbsoluteBits will always form an association.  By default,
-// the mask is zero (no association) before SetDependantMask() is called.
+// The AddMaster() and AddSetting() parameters dependentOptionalBits and
+// dependentAbsoluteBits differ in that dependency bits set in
+// dependentOptionalBits will only act in an association if a mask given
+// to SetDependentMask() includes the same bit.  Dependency bits passed
+// to dependentAbsoluteBits will always form an association.  By default,
+// the mask is zero (no association) before SetDependentMask() is called.
 //
 // Groups suspended with Suspend() will not process linked operations until
 // a later time when it is reactivated with Activate().  This means that
@@ -652,7 +655,7 @@ public:
 	virtual ~CSettingGroupEx();
 
 	// Creates a new dependency bit.  The returned value can be passed
-	// as the dependantOptionalBits and dependantAbsoluteBits values of
+	// as the dependentOptionalBits and dependentAbsoluteBits values of
 	// AddSetting() and AddMaster() in this group and subgroups.  It can
 	// also be combined with other values returned by this same function
 	// by bitwise-ORing the values together.
@@ -660,38 +663,38 @@ public:
 
 	// Adds a setting to the group
 	virtual HSETTING AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL,
-								IN DBIT dependantOptionalBits = 0,
-								IN DBIT dependantAbsoluteBits = 0);
+								IN DBIT dependentOptionalBits = 0,
+								IN DBIT dependentAbsoluteBits = 0);
 
 	// Adds a master setting to the group
 	virtual HSETTING AddMaster(IN PSETTINGOBJECT object, IN PSETTINGKEY key,
 							   IN DBIT dependeeBits,
-							   IN DBIT dependantOptionalBits = 0,
-							   IN DBIT dependantAbsoluteBits = 0);
+							   IN DBIT dependentOptionalBits = 0,
+							   IN DBIT dependentAbsoluteBits = 0);
 
 	// Adds a setting with a title to the group
 	virtual HSETTING AddSetting(IN std::string title,
 								IN PSETTINGOBJECT object, IN PSETTINGKEY key = NULL,
-								IN DBIT dependantOptionalBits = 0,
-								IN DBIT dependantAbsoluteBits = 0);
+								IN DBIT dependentOptionalBits = 0,
+								IN DBIT dependentAbsoluteBits = 0);
 
 	// Adds a master with a title setting to the group
 	virtual HSETTING AddMaster(IN std::string title,
 							   IN PSETTINGOBJECT object, IN PSETTINGKEY key,
 							   IN DBIT dependeeBits,
-							   IN DBIT dependantOptionalBits = 0,
-							   IN DBIT dependantAbsoluteBits = 0);
+							   IN DBIT dependentOptionalBits = 0,
+							   IN DBIT dependentAbsoluteBits = 0);
 
 	// Save all settings owned by this group.
 	virtual void SaveSettings();
 	// Save a single setting owned by this group.
 	virtual void SaveSetting(IN HSETTING setting);
 
-	// Loads the optional dependants mask (the value that is set with
-	// SetDependantMask()) and loads previously saved dependantOptionalBits
+	// Loads the optional dependents mask (the value that is set with
+	// SetDependentMask()) and loads previously saved dependentOptionalBits
 	// values for every setting.
 	virtual void LoadOptionalDependencies(IN BYTE options = 0);
-	// Saves the optional dependants mask and saves any dependantOptionalBits
+	// Saves the optional dependents mask and saves any dependentOptionalBits
 	// values that that have changed since the adding or loading of the setting.
 	virtual void SaveOptionalDependencies();
 
@@ -703,7 +706,7 @@ public:
 	// subgroups.
 	virtual PSETTINGGROUPEX CreateSubgroup();
 
-	// Enables or disables dependeeBits that are set in the dependantOptionalBits
+	// Enables or disables dependeeBits that are set in the dependentOptionalBits
 	// value of every setting.  This function cannot be called from a subgroup.
 	// If suspended is TRUE, any related updates are not performed.
 	virtual inline void EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set,
@@ -736,14 +739,14 @@ public:
 	// Gets the dependee bits of a setting.
 	virtual DBIT GetDependeeBits(IN HSETTING setting);
 
-	// Gets optional and absolute dependant bits of a setting.
-	virtual DBIT GetOptionalDependantBits(IN HSETTING setting);
-	virtual DBIT GetAbsoluteDependantBits(IN HSETTING setting);
+	// Gets optional and absolute dependent bits of a setting.
+	virtual DBIT GetOptionalDependentBits(IN HSETTING setting);
+	virtual DBIT GetAbsoluteDependentBits(IN HSETTING setting);
 
-	// Sets the optional dependant bits of a setting.  This function, like
+	// Sets the optional dependent bits of a setting.  This function, like
 	// AddSetting() and AddMaster() does not check for cyclic dependencies.
-	virtual void SetOptionalDependantBits(IN HSETTING setting,
-										  IN DBIT dependantOptionalBits,
+	virtual void SetOptionalDependentBits(IN HSETTING setting,
+										  IN DBIT dependentOptionalBits,
 										  IN BYTE options = 0);
 
 	// Creates a CSettingConfigAssociation object that is filled with all the
@@ -759,7 +762,7 @@ protected:
 	// Flags used by CSettingInfoEx->flags.
 	enum
 	{
-		// Set when dependantOptionalBits of a setting is changed
+		// Set when dependentOptionalBits of a setting is changed
 		// since last load.
 		FLAG_OPTDEPCHANGED		= 1 << (FLAG_GROUP_LAST),
 		FLAG_GROUPEX_LAST		= FLAG_GROUP_LAST + 1,
@@ -782,13 +785,13 @@ protected:
 	public:
 		CSettingInfoEx(IN PSETTINGKEY key, IN PSETTINGOBJECT object,
 			std::string title = "", IN DBIT dependeeBit = 0,
-			IN DBIT dependantOptionalBits = 0, IN DBIT dependantAbsoluteBits = 0);
+			IN DBIT dependentOptionalBits = 0, IN DBIT dependentAbsoluteBits = 0);
 		virtual ~CSettingInfoEx();
 	public:
 		DBIT dependeeBit;
-		DBIT dependantOptionalBits;
-		DBIT dependantAbsoluteBits;
-		DBIT loadedDependantBits;
+		DBIT dependentOptionalBits;
+		DBIT dependentAbsoluteBits;
+		DBIT loadedDependentBits;
 	};
     typedef CSettingInfoEx* PSETTINGINFOEX;
 
@@ -817,8 +820,8 @@ protected:
 		// Gets the mask of all valid bits.
 		inline DBIT GetValidDependeeBits();
 
-		// Creates a string that describes the section for the dependantBits given.
-		std::string CreateSection(IN DBIT dependantBits, IN LPCSTR baseSection,
+		// Creates a string that describes the section for the dependentBits given.
+		std::string CreateSection(IN DBIT dependentBits, IN LPCSTR baseSection,
 								  IN LPCSTR sectionDelimiter,
 								  IN PCDEPENDVALUEVECTOR dependeeValueVector = NULL);
 
@@ -839,10 +842,10 @@ protected:
 		void ApplyVectorChanges(IN OUT PDEPENDVALUEVECTOR dependeeValueVector,
 								IN DBIT mask = ~(DBIT)0);
 
-		// Sets and gets the dependant mask value.  This value is just stored by
+		// Sets and gets the dependent mask value.  This value is just stored by
 		// this class.  It isn't used as part of any other process in the class.
-		inline BOOL SetDependantMask(IN DBIT dependantMask);
-		inline DBIT GetDependantMask();
+		inline BOOL SetDependentMask(IN DBIT dependentMask);
+		inline DBIT GetDependentMask();
 
 	protected:
 		inline BYTE DependeeBitToIndex(IN DBIT dependeeBit);
@@ -861,7 +864,7 @@ protected:
 		std::vector<CDependeeInfo>	m_dependeeList;
 		DBIT						m_validDependeeBits;
 		DEPENDVALUEVECTOR			m_dependeeValueVector;
-		DBIT						m_dependantMask;
+		DBIT						m_dependentMask;
 	} *PDEPENDENCYGESTALT;
 
 protected:
@@ -874,7 +877,7 @@ protected:
 	{
 		JOSTLESTRUCT(DBIT changedBits, DBIT checkedBits, BYTE options)
 			: saveSectionCacheBits(0), loadSectionCacheBits(0),
-			changedBits(0), checkedBits(0), options(0) { }
+			changedBits(changedBits), checkedBits(checkedBits), options(options) { }
 
 	public:
 		DBIT			changedBits;
@@ -892,20 +895,20 @@ protected:
 	// saved sections
 	static const LPCSTR SECTIONDELIM;
 	// This string is attached to the section string for the section
-	// used to store optional dependant bits for every setting.
-	static const LPCSTR DEPENDANTSECTIONPOSTFIX;
-	static const LPCSTR DEPENDANTMASKSAVEKEY;
+	// used to store optional dependent bits for every setting.
+	static const LPCSTR DEPENDENTSECTIONPOSTFIX;
+	static const LPCSTR DEPENDENTMASKSAVEKEY;
 
-	// Internal functions for saving and loading optional dependant bits.
+	// Internal functions for saving and loading optional dependent bits.
 	virtual void _SaveOptionalDependencies(IN LPCSTR, IN LPSTR, IN DWORD);
 	virtual void _LoadOptionalDependencies(IN LPCSTR, IN DBIT, IN LPSTR, IN DWORD);
 
 	virtual PSETTINGGROUPEX GetRootParent();
 
-	virtual void LoadSettings(IN POPERATIONINFO opinfo);
-	virtual void LoadSetting(IN POPERATIONINFO opinfo);
-	virtual void Activate(IN POPERATIONINFO opinfo);
-	virtual void JostleBit(IN POPERATIONINFO opinfo);
+	virtual void _LoadSettings(IN POPERATIONINFO opinfo);
+	virtual void _LoadSetting(IN POPERATIONINFO opinfo);
+	virtual void _Activate(IN POPERATIONINFO opinfo);
+	virtual void _JostleBit(IN POPERATIONINFO opinfo);
 
 	// Overrides for slight changes in operations for group ex.
 	virtual void PerformStateOperation(IN POPERATIONINFO opinfo);
@@ -932,9 +935,9 @@ protected:
 	virtual inline PNOTIFICATIONSTACK GetNotificationStack();
 
 	// Gets the bits that a setting depends on.
-	virtual inline DBIT GetDependantBits(IN PSETTINGINFOEX info);
+	virtual inline DBIT GetDependentBits(IN PSETTINGINFOEX info);
 	// Gets the string describing the section to which a setting belongs.
-	virtual LPCSTR GetSection(IN DBIT dependantBits, IN BOOL useOldValues,
+	virtual LPCSTR GetSection(IN DBIT dependentBits, IN BOOL useOldValues,
 		IN OUT std::string* cacheString, IN OUT DBIT* cacheBits);
 
 	// Internal functions for adding all settings to the a config container.

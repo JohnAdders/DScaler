@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.9 2005-03-17 03:55:18 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.10 2005-03-18 16:19:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/03/17 03:55:18  atnak
+// Syncing wip.
+//
 // Revision 1.8  2005/03/05 12:15:20  atnak
 // Syncing files.
 //
@@ -562,13 +565,13 @@ void CSettingGroup_::PerformContainedOperation(IN POPERATIONINFO opinfo)
 	{
 	case OP_LOAD_SETTINGS:
 		// Let all settings in the group be CHANGING notified and loaded.
-		LoadSettings(opinfo);
+		_LoadSettings(opinfo);
 		break;
 	case OP_LOAD_SETTING:
-		LoadSetting(opinfo);
+		_LoadSetting(opinfo);
 		break;
 	case OP_INSERT_MARKER:
-		InsertMarker(opinfo);
+		_InsertMarker(opinfo);
 		break;
 	}
 }
@@ -674,7 +677,7 @@ BOOL CSettingGroup_::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES v
 }
 
 
-void CSettingGroup_::LoadSettings(POPERATIONINFO opinfo)
+void CSettingGroup_::_LoadSettings(POPERATIONINFO opinfo)
 {
 	CHANGEVALUES values;
 
@@ -705,7 +708,7 @@ void CSettingGroup_::LoadSettings(POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup_::LoadSetting(POPERATIONINFO opinfo)
+void CSettingGroup_::_LoadSetting(POPERATIONINFO opinfo)
 {
 	CHANGEVALUES values;
 
@@ -729,7 +732,7 @@ void CSettingGroup_::LoadSetting(POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup_::InsertMarker(POPERATIONINFO opinfo)
+void CSettingGroup_::_InsertMarker(POPERATIONINFO opinfo)
 {
 	if (IsSilent())
 	{
@@ -942,7 +945,7 @@ BOOL CSettingGroup_::GetValueChangeProc(RCSETTINGVALUE newValue,
 									   PVOID context)
 {
 	PCHANGEVALUES values = (PCHANGEVALUES)context;
-	values->Set(values->newValue, values->oldValue);
+	values->Set(newValue, oldValue);
 	return FALSE;
 }
 
@@ -1098,9 +1101,9 @@ CSettingGroup_::CSettingInfo::~CSettingInfo()
 // saved sections
 const LPCSTR CSettingGroupEx::SECTIONDELIM = ",";
 // This string is attached to the section string for the section
-// used to store optional dependant bits for every setting.
-const LPCSTR CSettingGroupEx::DEPENDANTSECTIONPOSTFIX = "#dep";
-const LPCSTR CSettingGroupEx::DEPENDANTMASKSAVEKEY = "_depmask";
+// used to store optional dependent bits for every setting.
+const LPCSTR CSettingGroupEx::DEPENDENTSECTIONPOSTFIX = "#dep";
+const LPCSTR CSettingGroupEx::DEPENDENTMASKSAVEKEY = "_depmask";
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -1112,9 +1115,9 @@ CSettingGroupEx::CSettingInfoEx::CSettingInfoEx(IN PSETTINGKEY key, IN PSETTINGO
 												IN DBIT optionalBits, IN DBIT absoluteBits) :
 	CSettingInfo(key, object, title),
 	dependeeBit(dependeeBit),
-	dependantOptionalBits(optionalBits),
-	dependantAbsoluteBits(absoluteBits),
-	loadedDependantBits(0)
+	dependentOptionalBits(optionalBits),
+	dependentAbsoluteBits(absoluteBits),
+	loadedDependentBits(0)
 {
 }
 
@@ -1262,7 +1265,7 @@ void CSettingGroupEx::SaveSettings()
 	{
 		PSETTINGINFOEX info = dynamic_cast<PSETTINGINFOEX>(*it);
 		info->object->Save(m_repository,
-			GetSection(info->loadedDependantBits, TRUE, &cacheString, &cacheBits));
+			GetSection(info->loadedDependentBits, TRUE, &cacheString, &cacheBits));
 	}
 	LeaveObjectLock();
 
@@ -1285,7 +1288,7 @@ void CSettingGroupEx::SaveSetting(IN HSETTING setting)
 
 	EnterObjectLock();
 	info->object->Save(m_repository,
-		GetSection(info->loadedDependantBits, TRUE, &cacheString, &cacheBits));
+		GetSection(info->loadedDependentBits, TRUE, &cacheString, &cacheBits));
 	LeaveObjectLock();
 }
 
@@ -1347,15 +1350,15 @@ void CSettingGroupEx::JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeV
 }
 
 
-void CSettingGroupEx::SetOptionalDependantBits(IN HSETTING setting,
-											   IN DBIT dependantOptionalBits, IN BYTE options)
+void CSettingGroupEx::SetOptionalDependentBits(IN HSETTING setting,
+											   IN DBIT dependentOptionalBits, IN BYTE options)
 {
 	PSETTINGINFOEX info = reinterpret_cast<PSETTINGINFOEX>(setting);
 
-	if (info->dependantOptionalBits != dependantOptionalBits)
+	if (info->dependentOptionalBits != dependentOptionalBits)
 	{
 		SetInfoFlag(info, FLAG_OPTDEPCHANGED, TRUE);
-		info->dependantOptionalBits = dependantOptionalBits;
+		info->dependentOptionalBits = dependentOptionalBits;
 		// Save to the previous section and load from the new section.
 		// Any necessary dependency operations will be performed by
 		// LoadSettings(). Although it may not be necessary to save to the
@@ -1372,7 +1375,7 @@ void CSettingGroupEx::SetOptionalDependantBits(IN HSETTING setting,
 
 void CSettingGroupEx::EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL set, IN BYTE options)
 {
-	DBIT mask = m_dependencyGestalt->GetDependantMask();
+	DBIT mask = m_dependencyGestalt->GetDependentMask();
 	if (set)
 	{
 		mask |= dependeeBit;
@@ -1388,12 +1391,12 @@ void CSettingGroupEx::EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL se
 
 void CSettingGroupEx::SetEnabledOptionalDependencies(IN DBIT mask, IN BYTE options)
 {
-	BOOL maskChanges = m_dependencyGestalt->SetDependantMask(mask);
+	BOOL maskChanges = m_dependencyGestalt->SetDependentMask(mask);
 	if (maskChanges)
 	{
 		PSETTINGGROUPEX root = GetRootParent();
 		// Calling load takes care of synchronizing all changes
-		// that occur as a result of the dependant mask change.
+		// that occur as a result of the dependent mask change.
 		root->CSettingGroup_::LoadSettings(options);
 	}
 }
@@ -1409,23 +1412,23 @@ DBIT CSettingGroupEx::GetDependeeBits(IN HSETTING setting)
 	return info->dependeeBit;
 }
 
-DBIT CSettingGroupEx::GetOptionalDependantBits(IN HSETTING setting)
+DBIT CSettingGroupEx::GetOptionalDependentBits(IN HSETTING setting)
 {
 	PSETTINGINFOEX info = reinterpret_cast<PSETTINGINFOEX>(setting);
-	return info->dependantOptionalBits;
+	return info->dependentOptionalBits;
 }
 
 
-DBIT CSettingGroupEx::GetAbsoluteDependantBits(IN HSETTING setting)
+DBIT CSettingGroupEx::GetAbsoluteDependentBits(IN HSETTING setting)
 {
 	PSETTINGINFOEX info = reinterpret_cast<PSETTINGINFOEX>(setting);
-	return info->dependantAbsoluteBits;
+	return info->dependentAbsoluteBits;
 }
 
 
 DBIT CSettingGroupEx::GetEnabledOptionalDependencies()
 {
-	return m_dependencyGestalt->GetDependantMask();
+	return m_dependencyGestalt->GetDependentMask();
 }
 
 
@@ -1468,7 +1471,7 @@ void CSettingGroupEx::_CreateAssociationConfig(PSETTINGCONFIG association)
 		std::string title = GetSettingTitle(reinterpret_cast<HSETTING>(*it));
 		if (title != "")
 		{
-			config->AddConfig(new CSettingConfigDependant(this, reinterpret_cast<HSETTING>(*it)));
+			config->AddConfig(new CSettingConfigDependent(this, reinterpret_cast<HSETTING>(*it)));
 		}
 	}
 
@@ -1488,18 +1491,18 @@ void CSettingGroupEx::_CreateAssociationConfig(PSETTINGCONFIG association)
 
 void CSettingGroupEx::SaveOptionalDependencies()
 {
-	// Create a section string that is m_section appended with DEPENDANTSECTIONPOSTFIX.
+	// Create a section string that is m_section appended with DEPENDENTSECTIONPOSTFIX.
 	std::string section(m_section);
-	section += DEPENDANTSECTIONPOSTFIX;
+	section += DEPENDENTSECTIONPOSTFIX;
 
 	const DWORD kBufferSize = 128;
 	CHAR buffer[kBufferSize];
 
-	// First save the optional dependants mask.
-	sprintf(buffer, "%x", (INT)m_dependencyGestalt->GetDependantMask());
-	m_repository->SaveSettingString(section.c_str(), DEPENDANTMASKSAVEKEY, buffer);
+	// First save the optional dependents mask.
+	sprintf(buffer, "%x", (INT)m_dependencyGestalt->GetDependentMask());
+	m_repository->SaveSettingString(section.c_str(), DEPENDENTMASKSAVEKEY, buffer);
 
-	// Save the optional dependant bits for every setting in the group and subgroups.
+	// Save the optional dependent bits for every setting in the group and subgroups.
 	_SaveOptionalDependencies(section.c_str(), buffer, kBufferSize);
 }
 
@@ -1513,7 +1516,7 @@ void CSettingGroupEx::_SaveOptionalDependencies(IN LPCSTR section, IN LPSTR buff
 	// The buffer and bufferSize is passed into each call so that it does not
 	// need to be taken off the stack for each recursion.
 
-	// Run through the settings list and load the optional dependant bits.
+	// Run through the settings list and load the optional dependent bits.
 	SETTINGINFOLIST::iterator it = m_settingList.begin();
 	SETTINGINFOLIST::iterator ti = m_settingList.end();
 	for ( ; it != ti; it++)
@@ -1525,13 +1528,13 @@ void CSettingGroupEx::_SaveOptionalDependencies(IN LPCSTR section, IN LPSTR buff
 			continue;
 		}
 
-		sprintf(buffer, "%x", (INT)info->dependantOptionalBits);
+		sprintf(buffer, "%x", (INT)info->dependentOptionalBits);
 		m_repository->SaveSettingString(section, key, buffer);
-		// Set whether dependantOptionalBits have changed since load.
+		// Set whether dependentOptionalBits have changed since load.
 		SetInfoFlag(info, FLAG_OPTDEPCHANGED, FALSE);
 	}
 
-	// Run through all subgroups and have them save dependant bits too.
+	// Run through all subgroups and have them save dependent bits too.
 	SUBGROUPEXLIST::iterator sgit = m_subgroupList.begin();
 	SUBGROUPEXLIST::iterator sgti = m_subgroupList.end();
 	for ( ; sgit != sgti; sgit++)
@@ -1543,22 +1546,22 @@ void CSettingGroupEx::_SaveOptionalDependencies(IN LPCSTR section, IN LPSTR buff
 
 void CSettingGroupEx::LoadOptionalDependencies(IN BYTE options)
 {
-	// Create a section string that is m_section appended with DEPENDANTSECTIONPOSTFIX.
+	// Create a section string that is m_section appended with DEPENDENTSECTIONPOSTFIX.
 	std::string section(m_section);
-	section += DEPENDANTSECTIONPOSTFIX;
+	section += DEPENDENTSECTIONPOSTFIX;
 
 	const DWORD kBufferSize = 128;
 	CHAR buffer[kBufferSize];
 
 	DBIT mask = m_dependencyGestalt->GetValidDependeeBits();
 
-	// First load the optional dependants mask.
-	if (m_repository->LoadSettingString(section.c_str(), DEPENDANTMASKSAVEKEY, buffer, kBufferSize))
+	// First load the optional dependents mask.
+	if (m_repository->LoadSettingString(section.c_str(), DEPENDENTMASKSAVEKEY, buffer, kBufferSize))
 	{
-		m_dependencyGestalt->SetDependantMask((DBIT)(strtoul(buffer, NULL, 16) & mask));
+		m_dependencyGestalt->SetDependentMask((DBIT)(strtoul(buffer, NULL, 16) & mask));
 	}
 
-	// Load the optional dependant bits for every setting in the group and subgroups.
+	// Load the optional dependent bits for every setting in the group and subgroups.
 	_LoadOptionalDependencies(section.c_str(), mask, buffer, kBufferSize);
 
 	PSETTINGGROUPEX root = GetRootParent();
@@ -1575,7 +1578,7 @@ void CSettingGroupEx::_LoadOptionalDependencies(IN LPCSTR section, IN DBIT valid
 	// The buffer and bufferSize is passed into each call so that it does not
 	// need to be taken off the stack for each recursion.
 
-	// Run through the settings list and load the optional dependant bits.
+	// Run through the settings list and load the optional dependent bits.
 	SETTINGINFOLIST::iterator it = m_settingList.begin();
 	SETTINGINFOLIST::iterator ti = m_settingList.end();
 	for ( ; it != ti; it++)
@@ -1588,13 +1591,13 @@ void CSettingGroupEx::_LoadOptionalDependencies(IN LPCSTR section, IN DBIT valid
 		}
 		if (m_repository->LoadSettingString(section, key, buffer, bufferSize))
 		{
-			info->dependantOptionalBits = (DBIT)(strtoul(buffer, NULL, 16) & validMask);
-			// Set whether dependantOptionalBits have changed since load.
+			info->dependentOptionalBits = (DBIT)(strtoul(buffer, NULL, 16) & validMask);
+			// Set whether dependentOptionalBits have changed since load.
 			SetInfoFlag(info, FLAG_OPTDEPCHANGED, FALSE);
 		}
 	}
 
-	// Run through all subgroups and have them load dependant bits too.
+	// Run through all subgroups and have them load dependent bits too.
 	SUBGROUPEXLIST::iterator sgit = m_subgroupList.begin();
 	SUBGROUPEXLIST::iterator sgti = m_subgroupList.end();
 	for ( ; sgit != sgti; sgit++)
@@ -1616,7 +1619,7 @@ BOOL CSettingGroupEx::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES 
 	{
 		PSETTINGINFOEX infoex = dynamic_cast<PSETTINGINFOEX>(info);
 
-		// If a master setting changes, check dependant settings for change.
+		// If a master setting changes, check dependent settings for change.
 		if (infoex->dependeeBit != 0 && !IsSuspended())
 		{
 			// Set the master's dependee bit as changed.
@@ -1626,7 +1629,7 @@ BOOL CSettingGroupEx::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES 
 				PSETTINGGROUPEX root = GetRootParent();
 				// Check and process all settings for changes.
 				root->JostleAllSettings(infoex->dependeeBit,
-					infoex->dependeeBit|GetDependantBits(infoex), options);
+					infoex->dependeeBit|GetDependentBits(infoex), options);
 			}
 		}
 		return TRUE;
@@ -1654,10 +1657,10 @@ void CSettingGroupEx::PerformContainedOperation(IN POPERATIONINFO opinfo)
 	switch (opinfo->op & OP_MASK)
 	{
 	case OP_ACTIVATE:
-		Activate(opinfo);
+		_Activate(opinfo);
 		break;
 	case OP_JOSTLE_BIT:
-		JostleBit(opinfo);
+		_JostleBit(opinfo);
 		break;
 	default:
 		CSettingGroup_::PerformContainedOperation(opinfo);
@@ -1666,7 +1669,7 @@ void CSettingGroupEx::PerformContainedOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroupEx::LoadSettings(IN POPERATIONINFO opinfo)
+void CSettingGroupEx::_LoadSettings(IN POPERATIONINFO opinfo)
 {
 	if (!IsSuspended())
 	{
@@ -1675,7 +1678,7 @@ void CSettingGroupEx::LoadSettings(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroupEx::LoadSetting(IN POPERATIONINFO opinfo)
+void CSettingGroupEx::_LoadSetting(IN POPERATIONINFO opinfo)
 {
 	JOSTLESTRUCT jostleStruct(0, 0, opinfo->options);
 
@@ -1686,7 +1689,7 @@ void CSettingGroupEx::LoadSetting(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroupEx::Activate(IN POPERATIONINFO opinfo)
+void CSettingGroupEx::_Activate(IN POPERATIONINFO opinfo)
 {
 	if (m_suspended != 0)
 	{
@@ -1699,7 +1702,7 @@ void CSettingGroupEx::Activate(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroupEx::JostleBit(IN POPERATIONINFO opinfo)
+void CSettingGroupEx::_JostleBit(IN POPERATIONINFO opinfo)
 {
 	DBIT dependeeBit = reinterpret_cast<DBIT>(opinfo->info);
 	PSETTINGVALUE dependeeValue = reinterpret_cast<PSETTINGVALUE>(opinfo->ptr);
@@ -1804,12 +1807,12 @@ void CSettingGroupEx::JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jos
 	jostleStruct->checkedBits |= info->dependeeBit;
 
 	// Get all the bits this setting depends on
-	DBIT dependantBits = GetDependantBits(info);
+	DBIT dependentBits = GetDependentBits(info);
 
-	// If there are unchecked dependant bits, check those first
-	if (dependantBits & ~jostleStruct->checkedBits)
+	// If there are unchecked dependent bits, check those first
+	if (dependentBits & ~jostleStruct->checkedBits)
 	{
-		JostleMasters(dependantBits & ~jostleStruct->checkedBits, jostleStruct);
+		JostleMasters(dependentBits & ~jostleStruct->checkedBits, jostleStruct);
 	}
 
 	// Gather reasons for loading the setting:
@@ -1822,8 +1825,8 @@ void CSettingGroupEx::JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jos
 
 	// Check if sections are changing.
 	BOOL isSectionChange = FALSE;
-	if ((dependantBits != info->loadedDependantBits) ||
-		(dependantBits & jostleStruct->changedBits))
+	if ((dependentBits != info->loadedDependentBits) ||
+		(dependentBits & jostleStruct->changedBits))
 	{
 		isSectionChange = TRUE;
 	}
@@ -1841,7 +1844,7 @@ void CSettingGroupEx::JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jos
 		if (!isInitialLoad && isSectionChange)
 		{
 			// Get the appropriate section for saving the setting to.
-			LPCSTR saveSection = GetSection(info->loadedDependantBits, TRUE,
+			LPCSTR saveSection = GetSection(info->loadedDependentBits, TRUE,
 				&jostleStruct->saveSectionCacheString, &jostleStruct->saveSectionCacheBits);
 
 			// Save the setting value to the old section
@@ -1849,14 +1852,14 @@ void CSettingGroupEx::JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jos
 		}
 
 		// Get the appropriate section for loading the setting from.
-		LPCSTR loadSection = GetSection(dependantBits, FALSE,
+		LPCSTR loadSection = GetSection(dependentBits, FALSE,
 			&jostleStruct->loadSectionCacheString, &jostleStruct->loadSectionCacheBits);
 
 		// Load the setting value from the new section
 		info->object->Load(m_repository, loadSection, GetValueChangeProc, &values);
 
 		// Update the loaded section record regardless of whether this value is used.
-		info->loadedDependantBits = dependantBits;
+		info->loadedDependentBits = dependentBits;
 	}
 	else if ((jostleStruct->options & SGOF_FULLSYNC) ||
 		((jostleStruct->options & SGOF_REVISE) && !IsSilent(jostleStruct->options)))
@@ -1972,28 +1975,28 @@ PSETTINGGROUPEX CSettingGroupEx::GetRootParent()
 }
 
 
-DBIT CSettingGroupEx::GetDependantBits(PSETTINGINFOEX info)
+DBIT CSettingGroupEx::GetDependentBits(PSETTINGINFOEX info)
 {
-	return (info->dependantOptionalBits &
-		m_dependencyGestalt->GetDependantMask()) | info->dependantAbsoluteBits;
+	return (info->dependentOptionalBits &
+		m_dependencyGestalt->GetDependentMask()) | info->dependentAbsoluteBits;
 }
 
 
-LPCSTR CSettingGroupEx::GetSection(IN DBIT dependantBits, IN BOOL useOldValues,
+LPCSTR CSettingGroupEx::GetSection(IN DBIT dependentBits, IN BOOL useOldValues,
 								   IN OUT std::string* cacheString, IN OUT DBIT* cacheBits)
 {
 	// If there is no dependency, just use the base section string.
-	if (dependantBits == 0)
+	if (dependentBits == 0)
 	{
 		return m_section.c_str();
 	}
 
 	// If the dependency is different from cached, recreate the string
-	if (dependantBits != *cacheBits)
+	if (dependentBits != *cacheBits)
 	{
-		*cacheString = m_dependencyGestalt->CreateSection(dependantBits,
+		*cacheString = m_dependencyGestalt->CreateSection(dependentBits,
 			m_section.c_str(), SECTIONDELIM, useOldValues ? &m_dependedValues : NULL);
-		*cacheBits = dependantBits;
+		*cacheBits = dependentBits;
 	}
 	return cacheString->c_str();
 }
@@ -2005,7 +2008,7 @@ LPCSTR CSettingGroupEx::GetSection(IN DBIT dependantBits, IN BOOL useOldValues,
 
 CSettingGroupEx::CDependencyGestalt::CDependencyGestalt() :
 	m_validDependeeBits(0),
-	m_dependantMask(0)
+	m_dependentMask(0)
 {
 }
 
@@ -2053,7 +2056,7 @@ DBIT CSettingGroupEx::CDependencyGestalt::GetValidDependeeBits()
 }
 
 
-std::string CSettingGroupEx::CDependencyGestalt::CreateSection(IN DBIT dependantBits, IN LPCSTR baseSection,
+std::string CSettingGroupEx::CDependencyGestalt::CreateSection(IN DBIT dependentBits, IN LPCSTR baseSection,
 															   IN LPCSTR sectionDelimiter,
 															   IN PCDEPENDVALUEVECTOR dependeeValueVector)
 {
@@ -2061,7 +2064,7 @@ std::string CSettingGroupEx::CDependencyGestalt::CreateSection(IN DBIT dependant
 
 	for (BYTE i = 0; i < m_dependeeList.size(); i++)
 	{
-		if (dependantBits & (1 << i))
+		if (dependentBits & (1 << i))
 		{
 			// Stick on the delimiter string
 			section += sectionDelimiter;
@@ -2149,18 +2152,18 @@ void CSettingGroupEx::CDependencyGestalt::ApplyVectorChanges(IN OUT PDEPENDVALUE
 }
 
 
-BOOL CSettingGroupEx::CDependencyGestalt::SetDependantMask(IN DBIT dependantMask)
+BOOL CSettingGroupEx::CDependencyGestalt::SetDependentMask(IN DBIT dependentMask)
 {
-	dependantMask &= m_validDependeeBits;
-	BOOL changed = dependantMask != m_dependantMask;
-	m_dependantMask = dependantMask;
+	dependentMask &= m_validDependeeBits;
+	BOOL changed = dependentMask != m_dependentMask;
+	m_dependentMask = dependentMask;
 	return changed;
 }
 
 
-DBIT CSettingGroupEx::CDependencyGestalt::GetDependantMask()
+DBIT CSettingGroupEx::CDependencyGestalt::GetDependentMask()
 {
-	return m_dependantMask;
+	return m_dependentMask;
 }
 
 

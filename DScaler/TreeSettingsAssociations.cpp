@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsAssociations.cpp,v 1.6 2004-08-15 03:04:51 atnak Exp $
+// $Id: TreeSettingsAssociations.cpp,v 1.7 2005-03-18 16:19:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/08/15 03:04:51  atnak
+// The header strsafe.h is not used and is not available on all platforms.
+//
 // Revision 1.5  2004/08/14 14:37:32  atnak
 // Fixed a slight different that I introduced in the last changed.
 //
@@ -71,7 +74,7 @@ CTreeSettingsAssociations::CTreeSettingsAssociations(PSETTINGCONFIG configs) :
 	m_dependeeCount(0),
 	m_dependeeHeading(NULL),
 	m_dependeeButtons(NULL),
-	m_dependantHeading(NULL),
+	m_dependentHeading(NULL),
 	m_pListCtrl(NULL),
 	m_informationIndex(-1)
 {
@@ -79,7 +82,7 @@ CTreeSettingsAssociations::CTreeSettingsAssociations(PSETTINGCONFIG configs) :
 	m_configs = reinterpret_cast<CSettingConfigAssociation*>(configs);
 
 	m_dependeeHeading = new CStatic();
-	m_dependantHeading = new CStatic();
+	m_dependentHeading = new CStatic();
 	m_informationText = new CStatic();
 	m_pListCtrl = new CSubItemCheckboxListCtrl(SCBQueryProc, this);
 }
@@ -101,9 +104,9 @@ CTreeSettingsAssociations::~CTreeSettingsAssociations()
 	{
 		delete [] m_dependeeButtons;
 	}
-	if (m_dependantHeading != NULL)
+	if (m_dependentHeading != NULL)
 	{
-		delete m_dependantHeading;
+		delete m_dependentHeading;
 	}
 	if (m_informationText != NULL)
 	{
@@ -142,7 +145,7 @@ BOOL CTreeSettingsAssociations::OnInitDialog()
 
 	// Set all sub-control fonts to same as this.
 	m_dependeeHeading->SetFont(GetFont());
-	m_dependantHeading->SetFont(GetFont());
+	m_dependentHeading->SetFont(GetFont());
 	m_informationText->SetFont(GetFont());
 	m_pListCtrl->SetFont(GetFont());
 
@@ -159,7 +162,7 @@ BOOL CTreeSettingsAssociations::OnInitDialog()
 
 void CTreeSettingsAssociations::UpdateInformationText(ULONG index)
 {
-	CSettingConfigDependant* config = (CSettingConfigDependant*)m_configs->GetConfig(index);
+	CSettingConfigDependent* config = (CSettingConfigDependent*)m_configs->GetConfig(index);
 
 	std::ostringstream oss;
 	std::string last;
@@ -168,8 +171,8 @@ void CTreeSettingsAssociations::UpdateInformationText(ULONG index)
 	BOOL count = 0;
 	for (int i = 0; i < m_dependeeCount; i++)
 	{
-		if (config->IsDependantLocked(i) ||
-			config->IsDependant(i) && m_configs->IsDependencyEnabled(i))
+		if (config->IsDependentLocked(i) ||
+			config->IsDependent(i) && m_configs->IsDependencyEnabled(i))
 		{
 			if (count > 0)
 			{
@@ -241,36 +244,44 @@ UINT CTreeSettingsAssociations::SCBQueryProc(UINT query, int iItem, int iSubItem
 	ULONG index = (ULONG)pList->GetItemData(iItem);
 
 	CSettingConfig* scfg = pWnd->m_configs->GetConfig(index);
-	if (scfg->GetType() != SETTING_CONFIG_DEPENDANT)
+	if (scfg->GetType() != SETTING_CONFIG_DEPENDENT)
 	{
 		return FALSE;
 	}
 
-	CSettingConfigDependant* config = (CSettingConfigDependant*)scfg;
-	UINT checkbox = SCBR_CHECK_SHOW|SCBR_CHECK_FLAT;
+	CSettingConfigDependent* config = (CSettingConfigDependent*)scfg;
+	UINT checkbox = SCBR_CHECK_SHOW;
 
 	switch (query)
 	{
 	case SCBQ_GET_CHECKBOX:
 		if (config->IsDependee(iSubItem))
 		{
-			return checkbox|SCBR_CHECK_INACTIVE;
+			return checkbox|SCBR_CHECK_INACTIVE|SCBR_CHECK_FLAT;
 		}
-		if (config->IsDependantLocked(iSubItem))
+		if (config->IsDependentLocked(iSubItem))
 		{
-			return checkbox|SCBR_CHECK_CHECKED|SCBR_CHECK_INACTIVE;
+			return checkbox|SCBR_CHECK_CHECKED|SCBR_CHECK_INACTIVE|SCBR_CHECK_FLAT;
 		}
-		if (config->IsDependant(iSubItem))
+		if (config->IsDependent(iSubItem))
 		{
-			return checkbox|SCBR_CHECK_CHECKED;
+			if (pWnd->m_configs->IsDependencyEnabled(iSubItem))
+			{
+				return checkbox|SCBR_CHECK_CHECKED|SCBR_CHECK_FLAT;
+			}
+			return checkbox|SCBR_CHECK_INTERMEDIATE;
 		}
-		if (pWnd->m_configs->IsDependantBlocked(index, iSubItem))
+		if (pWnd->m_configs->IsDependentBlocked(index, iSubItem))
 		{
-			return checkbox|SCBR_CHECK_INACTIVE;
+			return checkbox|SCBR_CHECK_INACTIVE|SCBR_CHECK_FLAT;
+		}
+		if (pWnd->m_configs->IsDependencyEnabled(iSubItem))
+		{
+			return checkbox|SCBR_CHECK_FLAT;
 		}
 		return checkbox;
 	case SCBQ_TOGGLE_CHECKBOX:
-		config->SetDependant(iSubItem, !config->IsDependant(iSubItem));
+		config->SetDependent(iSubItem, !config->IsDependent(iSubItem));
 		if (config->IsDependee())
 		{
 			pWnd->m_configs->RecalculateBlocked();
@@ -342,7 +353,7 @@ int CTreeSettingsAssociations::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// Create the individual settings list heading text.
-	m_dependantHeading->Create(kCustomizeHeading,
+	m_dependentHeading->Create(kCustomizeHeading,
 		WS_CHILD|WS_VISIBLE|SS_LEFT, rect, this);
 
 	// Create the individual settings list.
@@ -441,7 +452,7 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 
 	// Move the settings list heading text into position.
 	rect.right = clientRect.Width();
-	m_dependantHeading->MoveWindow(rect);
+	m_dependentHeading->MoveWindow(rect);
 	// Adjust for the next control.
 	rect.OffsetRect(0, buttonHeight + 1);
 
@@ -475,7 +486,9 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 void CTreeSettingsAssociations::OnClickRange(UINT nId)
 {
 	CButton* pButton = (CButton*)GetDlgItem(nId);
-	m_configs->EnableDependency(nId - IDD_DEPENDEE_BUTTONS_FIRST, pButton->GetCheck());
+	BYTE index = (nId - IDD_DEPENDEE_BUTTONS_FIRST);
+	m_configs->EnableDependency(index, pButton->GetCheck());
+	m_pListCtrl->RedrawWindow(NULL, NULL, RDW_INVALIDATE|RDW_UPDATENOW|RDW_NOERASE);
 	if (m_informationIndex != -1)
 	{
 		UpdateInformationText(m_informationIndex);

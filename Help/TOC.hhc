@@ -60,7 +60,7 @@
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Features">
-		<param name="Local" value="Features.htm">
+		<param name="Local" value="Features.HTM">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
@@ -96,32 +96,32 @@
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Deinterlace Methods">
-		<param name="Local" value="Deinterlace.htm">
+		<param name="Local" value="Deinterlace.HTM">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Adaptive">
-			<param name="Local" value="Adaptive.htm">
+			<param name="Local" value="Adaptive.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Blended Clip">
-			<param name="Local" value="BlendedClip.htm">
+			<param name="Local" value="BlendedClip.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Bob">
-			<param name="Local" value="Bob.htm">
+			<param name="Local" value="Bob.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Even Only">
-			<param name="Local" value="EvenOnly.htm">
+			<param name="Local" value="EvenOnly.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Greedy (Low Motion)">
-			<param name="Local" value="Greedy.htm">
+			<param name="Local" value="Greedy.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
@@ -131,12 +131,12 @@
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Greedy (High Motion)">
-			<param name="Local" value="GreedyH.htm">
+			<param name="Local" value="GreedyH.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Odd Only">
-			<param name="Local" value="OddOnly.htm">
+			<param name="Local" value="OddOnly.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
@@ -146,33 +146,33 @@
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Scaler Bob">
-			<param name="Local" value="ScalerBob.htm">
+			<param name="Local" value="ScalerBob.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Video Deinterlace (2-Frame)">
-			<param name="Local" value="TwoFrame.htm">
+			<param name="Local" value="TwoFrame.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Video Deinterlace (Bob)">
-			<param name="Local" value="VideoBob.htm">
+			<param name="Local" value="VideoBob.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Video Deinterlace (Weave)">
-			<param name="Local" value="VideoWeave.htm">
+			<param name="Local" value="VideoWeave.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Weave">
-			<param name="Local" value="Weave.htm">
+			<param name="Local" value="Weave.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Filters">
-		<param name="Local" value="Filters.htm">
+		<param name="Local" value="Filters.HTM">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
@@ -208,7 +208,7 @@
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Advanced">
-		<param name="Local" value="Advanced.htm">
+		<param name="Local" value="Advanced.HTM">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
@@ -254,7 +254,7 @@
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Developer Information">
-		<param name="Local" value="Developer.htm">
+		<param name="Local" value="Developer.HTM">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.15 2002-10-09 22:16:35 robmuller Exp $
+// $Id: FLT_LogoKill.c,v 1.16 2002-10-14 20:43:42 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/09 22:16:35  robmuller
+// Implemented 3dnow and MMX versions.
+//
 // Revision 1.14  2002/09/08 10:56:02  robmuller
 // Fixed error in smoothing.
 //
@@ -58,10 +61,10 @@
 #include "DS_Filter.h"
 #include "..\help\helpids.h"
 
-long Top = 5;
-long Left = 5;
-long Width = 30;
-long Height = 30;
+long Top_UI = 5;
+long Left_UI = 5;
+long Width_UI = 30;
+long Height_UI = 30;
 long Max = 128;
 long gUseSmoothing = TRUE;
 
@@ -75,6 +78,7 @@ typedef enum
     MODE_DYNAMIC_MAX,
     MODE_WEIGHTED_C,
     MODE_WEIGHTED_ASM,
+    MODE_WEIGHTED_HV,
     MODE_LASTONE,
 } eMODE;
 
@@ -87,8 +91,18 @@ LPCSTR ModeList[] =
     "Dynamic Max",
     "Weighted Average (c)",
     "Weighted Average (asm)",
-    "Dynamic Max",
+    "Weighted Average HV",
 };
+
+#pragma pack(push, 1)   // save state and set packing alignment to 1 byte
+typedef struct
+{
+	BYTE Lumi1;
+    BYTE Chroma1;
+	BYTE Lumi2;
+    BYTE Chroma2;
+} TwoPixel;
+#pragma pack(pop)
 
 long DispatchLogoKiller( TDeinterlaceInfo *pInfo );
 
@@ -106,32 +120,26 @@ long DispatchLogoKiller( TDeinterlaceInfo *pInfo );
 
 BOOL Top_OnChange(long NewValue)
 {
-    Top = NewValue;
+    Top_UI = NewValue;
     return TRUE;   
 }
 
 BOOL Left_OnChange(long NewValue)
 {
-    Left = NewValue;
+    Left_UI = NewValue;
     return TRUE;   
 }
 
 BOOL Width_OnChange(long NewValue)
 {
-    Width = NewValue;
+    Width_UI = NewValue;
     return TRUE;   
 }
 
 BOOL Height_OnChange(long NewValue)
 {
-    Height = NewValue;
+    Height_UI = NewValue;
     return TRUE;   
-}
-
-void LinearCorrStart(void)
-{
-    Top_OnChange(Top);
-    Left_OnChange(Left);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -143,26 +151,26 @@ FILTER_METHOD LogoKillMethod;
 SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
 {
     {
-        "Top", SLIDER, 0, &Top,
-        20, 0, 575, 1, 1,
+        "Top", SLIDER, 0, &Top_UI,
+        35, 0, 998, 1, 1,
         NULL,
         "LogoKillFilter", "Top", Top_OnChange,
     },
     {
-        "Left", SLIDER, 0, &Left,
-        20, 0, 191, 1, 1,
+        "Left", SLIDER, 0, &Left_UI,
+        50, 0, 996, 1, 1,
         NULL,
         "LogoKillFilter", "Left", Left_OnChange,
     },
     {
-        "Width", SLIDER, 0, &Width,
-        20, 1, 191, 1, 1,
+        "Width", SLIDER, 0, &Width_UI,
+        50, 4, 1000, 1, 1,
         NULL,
         "LogoKillFilter", "Width", Width_OnChange,
     },
     {
-        "Height", SLIDER, 0, &Height,
-        50, 2, 575, 1, 1,
+        "Height", SLIDER, 0, &Height_UI,
+        85, 2, 1000, 1, 1,
         NULL,
         "LogoKillFilter", "Height", Height_OnChange,
     },
@@ -200,7 +208,7 @@ FILTER_METHOD LogoKillMethod =
     "Logo Killer Filter",
     "&Logo Killer (experimental)",
     FALSE,
-    FALSE,
+    TRUE,
     DispatchLogoKiller, 
     0,
     TRUE,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.asm,v 1.1 2002-10-09 22:16:35 robmuller Exp $
+// $Id: FLT_LogoKill.asm,v 1.2 2002-10-14 20:43:42 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/09 22:16:35  robmuller
+// Implemented 3dnow and MMX versions.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -79,16 +82,17 @@
 #undef LimitToMaximum
 
 #if defined(IS_SSE)
-void LimitToMaximum_SSE(LONG Maximum, BYTE* lpOverlay, long Pitch)
+void LimitToMaximum_SSE(LONG Maximum, BYTE* lpLogoRect, long Pitch, long Height, long Width)
 #define LimitToMaximum LimitToMaximum_SSE
 #elif defined(IS_3DNOW)
-void LimitToMaximum_3DNOW(LONG Maximum, BYTE* lpOverlay, long Pitch)
+void LimitToMaximum_3DNOW(LONG Maximum, BYTE* lpLogoRect, long Pitch, long Height, long Width)
 #define LimitToMaximum LimitToMaximum_3DNOW
 #else
-void LimitToMaximum_MMX(LONG Maximum, BYTE* lpOverlay, long Pitch)
+void LimitToMaximum_MMX(LONG Maximum, BYTE* lpLogoRect, long Pitch, long Height, long Width)
 #define LimitToMaximum LimitToMaximum_MMX
 #endif
 {
+    // TODO: implement code to handle 4 byte alignment
     __int64 MaxValue = 0;
 
     Maximum &= 0xff;
@@ -100,17 +104,15 @@ void LimitToMaximum_MMX(LONG Maximum, BYTE* lpOverlay, long Pitch)
             movq mm1, [MaxValue]
             
             // set edi to top left
-            mov edi, lpOverlay
+            mov edi, lpLogoRect
             mov ebx, Pitch
-            mov eax, Top
-            imul eax, ebx
-            add edi, eax
             // for each row
             mov eax, Height
 LOOP_MAX_OUTER:
         // for each 4 pixel chunk
             mov edx, edi
             mov ecx, Width
+            shr ecx, 2
 LOOP_MAX_INNER:
             movq mm0, qword ptr[edx]
             V_PMINUB( mm0, mm1, mm2)
@@ -137,55 +139,125 @@ long FilterLogoKiller_3DNOW(TDeinterlaceInfo* pInfo)
 long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
-    BYTE* lpOverlay = pInfo->Overlay + Left * 8;
-    const __int64 qwGrey = 0x7f7f7f7f7f7f7f7f;
-    long Pitch = pInfo->OverlayPitch;
-    
-    // check bounds
-    if((Top + Height) >= pInfo->FrameHeight ||
-        (Left + Width) >= pInfo->FrameWidth / 4)
+    BYTE* lpLogoRect = NULL; 
+    long Pitch = pInfo->InputPitch;
+
+    long Top    = Top_UI;
+    long Height = Height_UI;
+    long Left   = Left_UI;
+    long Width  = Width_UI;
+
+    // 8 byte aligned variables for use by MMX routines
+    BYTE* lpLogoRect8 = NULL; 
+    long Left8, Width8;
+
+    // Limit the logo rectangle to the boundaries of the screen
+    if(Top + Height > 1000)
+    {
+        Height = 1000 - Top;
+    }
+    if(Left + Width > 1000)
+    {
+        Width = 1000 - Left;
+    }
+
+    // transform to lines/pixels
+    Top    = pInfo->FieldHeight*Top/1000;
+    Height = pInfo->FieldHeight*Height/1000;
+    Left   = pInfo->FrameWidth*Left/1000;
+    Width  = pInfo->FrameWidth*Width/1000;
+
+    // align Left and Width to 2 pixels to make calculations with chroma easier
+    Left = Left & ~1;                           // align towards left
+    Width += Width % 2;                         // align towards right
+
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[0]->pData == NULL)
     {
         return 1000;
     }
 
+    lpLogoRect = pInfo->PictureHistory[0]->pData + Left*2 + Top*Pitch;
+
+    Left8 = Left & ~7;                          //align the left boundary to 8 bytes; round down
+    Width8 = (Width + 7) & ~7;                  //align the right boundary to 8 bytes; round up
+    lpLogoRect8 = pInfo->PictureHistory[0]->pData + Left8*2 + Top*Pitch;
+    
     switch(Mode)
     {
     case MODE_DYNAMIC_MAX:
         {
             BYTE MaxByte = 0;
-            BYTE* pByte = NULL;
+            BYTE* pByte = lpLogoRect;
             int i = 0;
 
             // first find the highest luma value of the top and bottom row
             MaxByte = 0;
-            pByte = lpOverlay + Top*Pitch;
-            for(i = 0; i < (Width*4); i++)
+            for(i = 0; i < Width; i++)
             {
                 if(*pByte > MaxByte)
                 {
                     MaxByte = *pByte;
                 }
+                *pByte = 0x7f;
                 pByte++;
                 pByte++;
             }
-            pByte =  lpOverlay + Pitch*(Top + Height);
-            for(i = 0; i < (Width*4); i++)
+            pByte =  lpLogoRect + Pitch*Height;
+            for(i = 0; i < Width; i++)
             {
                 if(*pByte > MaxByte)
                 {
                     MaxByte = *pByte;
                 }
+                *pByte = 0x7f;
                 pByte++;
                 pByte++;
             }
-            LimitToMaximum(MaxByte, lpOverlay, Pitch);
+            LimitToMaximum(MaxByte, lpLogoRect8, Pitch, Height, Width8);
         }
         break;
 
     case MODE_MAX:
-        LimitToMaximum(Max, lpOverlay, Pitch);
+        LimitToMaximum(Max, lpLogoRect8, Pitch, Height, Width8);
         break;
 
+    case MODE_WEIGHTED_HV:
+		{
+
+            int i, j;
+            BYTE* pByte;
+            TwoPixel* pTwoPixel;
+            TwoPixel* pFirstLine;
+            TwoPixel* pLastLine;
+            TwoPixel Hor, Vert;
+
+            pFirstLine = (TwoPixel*)lpLogoRect;
+            pLastLine = (TwoPixel*)(lpLogoRect + Height*Pitch);
+
+            for(j = 1; j < Height - 1; j++)
+            {
+                pByte = lpLogoRect + j*Pitch;
+                pTwoPixel = (TwoPixel*)(lpLogoRect + j*Pitch);
+                for(i = 1; i < Width/2 - 1; i++)
+                {
+                    Hor.Lumi1    = (BYTE)((pTwoPixel[0].Lumi1*(Width-i*2) + pTwoPixel[Width/2].Lumi2*(i*2))/(Width));
+                    Hor.Lumi2    = (BYTE)((pTwoPixel[0].Lumi1*(Width-i*2-1) + pTwoPixel[Width/2].Lumi2*(i*2+1))/(Width));
+                    Hor.Chroma1  = (BYTE)((pTwoPixel[0].Chroma1*(Width-i*2) + pTwoPixel[Width/2].Chroma1*(i*2))/(Width));
+                    Hor.Chroma2  = (BYTE)((pTwoPixel[0].Chroma2*(Width-i*2) + pTwoPixel[Width/2].Chroma2*(i*2))/(Width));
+
+                    Vert.Lumi1   = (BYTE)((pFirstLine[i].Lumi1*(Height-j) + pLastLine[i].Lumi2*j)/(Height));
+                    Vert.Lumi2   = (BYTE)((pFirstLine[i].Lumi2*(Height-j) + pLastLine[i].Lumi2*j)/(Height));
+                    Vert.Chroma1 = (BYTE)((pFirstLine[i].Chroma1*(Height-j) + pLastLine[i].Chroma1*j)/(Height));
+                    Vert.Chroma2 = (BYTE)((pFirstLine[i].Chroma2*(Height-j) + pLastLine[i].Chroma2*j)/(Height));
+
+                    pTwoPixel[i].Lumi1 = (Hor.Lumi1 + Vert.Lumi1)/2;
+                    pTwoPixel[i].Lumi2 = (Hor.Lumi2 + Vert.Lumi2)/2;
+                    pTwoPixel[i].Chroma1 = (Hor.Chroma1 + Vert.Chroma1)/2;
+                    pTwoPixel[i].Chroma2 = (Hor.Chroma2 + Vert.Chroma2)/2;
+                }
+            }
+            break;
+        }
     // weighted average mode supplied by
     // Jochen Trenner
     case MODE_WEIGHTED_C:
@@ -199,44 +271,42 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 				left1, left2, left3, left4,
 				right1, right2, right3, right4;
 			long	ipo1, ipo2, ipo3, ipo4;
-			BYTE* lpOverlay_Pointer;
 			BYTE* lpCurrent_Pointer;
 			int top_pitch;
 
-			Width2=Width*2;
+			Width2=Width/2;
 			top_pitch=Pitch*Top;
-			lpOverlay_Pointer=lpOverlay+top_pitch;
 
 			for (i=0;i<Height;i++)
 			{
-				left1=*(lpOverlay_Pointer+i*Pitch);
-				left2=*(lpOverlay_Pointer+i*Pitch+1);
-				left3=*(lpOverlay_Pointer+i*Pitch+2);
-				left4=*(lpOverlay_Pointer+i*Pitch+3);
-				right1=*(lpOverlay_Pointer+i*Pitch+Width2*4);
-				right2=*(lpOverlay_Pointer+i*Pitch+Width2*4+1);
-				right3=*(lpOverlay_Pointer+i*Pitch+Width2*4+2);
-				right4=*(lpOverlay_Pointer+i*Pitch+Width2*4+3);
+				left1=*(lpLogoRect+i*Pitch);
+				left2=*(lpLogoRect+i*Pitch+1);
+				left3=*(lpLogoRect+i*Pitch+2);
+				left4=*(lpLogoRect+i*Pitch+3);
+				right1=*(lpLogoRect+i*Pitch+Width2*4);
+				right2=*(lpLogoRect+i*Pitch+Width2*4+1);
+				right3=*(lpLogoRect+i*Pitch+Width2*4+2);
+				right4=*(lpLogoRect+i*Pitch+Width2*4+3);
 				Mul1=abs(Height-1-i);
 				Mul2=i;
 				Weight1=abs(((Height-1)/2)-i);
 				++Weight1;
 				for(j=0;j<Width2;j++)
 				{
-					Weight2=abs(Width-1-j);
+					Weight2=abs(Width/4-1-j);
 					++Weight2;
 					Mul3=abs(Width2-1-j);
 					Mul4=j;
-					up1=*(lpOverlay_Pointer+j*4);
-					up2=*(lpOverlay_Pointer+j*4+1);
-					up3=*(lpOverlay_Pointer+j*4+2);
-					up4=*(lpOverlay_Pointer+j*4+3);
+					up1=*(lpLogoRect+j*4);
+					up2=*(lpLogoRect+j*4+1);
+					up3=*(lpLogoRect+j*4+2);
+					up4=*(lpLogoRect+j*4+3);
 
-					down1=*(lpOverlay_Pointer+Pitch*Height+j*4);
-					down2=*(lpOverlay_Pointer+Pitch*Height+j*4+1);
-					down3=*(lpOverlay_Pointer+Pitch*Height+j*4+2);
-					down4=*(lpOverlay_Pointer+Pitch*Height+j*4+3);
-					lpCurrent_Pointer=lpOverlay_Pointer+i*Pitch+j*4;
+					down1=*(lpLogoRect+Pitch*Height+j*4);
+					down2=*(lpLogoRect+Pitch*Height+j*4+1);
+					down3=*(lpLogoRect+Pitch*Height+j*4+2);
+					down4=*(lpLogoRect+Pitch*Height+j*4+3);
+					lpCurrent_Pointer=lpLogoRect+i*Pitch+j*4;
 
 					ipo1=(((((Mul1*up1)+(Mul2*down1))*Weight1/(Mul1+Mul2))+(((Mul3*left1)+Mul4*right1)*Weight2/(Mul3+Mul4)))/(Weight1+Weight2));
 					ipo2=(((((Mul1*up2)+(Mul2*down2))*Weight1/(Mul1+Mul2))+(((Mul3*left2)+Mul4*right2)*Weight2/(Mul3+Mul4)))/(Weight1+Weight2));
@@ -266,17 +336,15 @@ if(gUseSmoothing)
 	_asm
         {
             // set edi to top left
-            mov edi, lpOverlay
+            mov edi, lpLogoRect8
             mov ebx, Pitch
-            mov eax, Top
-            imul eax, ebx
-            add edi, eax
             // loop over height
             mov eax, Height
             LOOP_SMOOTH_OUTER:
             // loop over width
             mov edx, edi
-            mov ecx, Width
+            mov ecx, Width8
+            shr ecx, 2
             LOOP_SMOOTH_INNER:
 			add edx, ebx //2 samples one line below
 			movq mm4, qword ptr[edx-8]
@@ -306,16 +374,13 @@ if(gUseSmoothing)
     // Jochen Trenner
     case MODE_WEIGHTED_ASM:
 		{
-			int Width_third=Width/3;
+			int Width_third=Width/3/4;
 			int Height_third=Height/3;
 			int Height_2third=Height/3*2;
         _asm
         {
-            mov edi, lpOverlay
+            mov edi, lpLogoRect8
             mov ebx, Pitch
-            mov eax, Top
-            imul eax, ebx
-            add edi, eax
             mov eax, Height
             LOOP_JT1_OUTER:
             mov edx, edi
@@ -455,17 +520,15 @@ if(gUseSmoothing)
 	_asm
         {
             // set edi to top left
-            mov edi, lpOverlay
+            mov edi, lpLogoRect8
             mov ebx, Pitch
-            mov eax, Top
-            imul eax, ebx
-            add edi, eax
             // loop over height
             mov eax, Height
             LOOP_SMOOTH_OUTER_ASM:
             // loop over width
             mov edx, edi
-            mov ecx, Width
+            mov ecx, Width8
+            shr ecx, 2
             LOOP_SMOOTH_INNER_ASM:
 			add edx, ebx //2 samples one line below
 			movq mm4, qword ptr[edx-8]
@@ -493,34 +556,16 @@ if(gUseSmoothing)
 		}
     case MODE_GREY:
     default:
-        _asm
         {
-            // set up mm0 as mid grey
-            movq mm0, qwGrey
-            
-            // set edi to top left
-            mov edi, lpOverlay
-            mov ebx, Pitch
-            mov eax, Top
-            imul eax, ebx
-            add edi, eax
-            // loop over height
-            mov eax, Height
-            LOOP_GREY_OUTER:
-            // loop over width
-            mov edx, edi
-            mov ecx, Width
-            LOOP_GREY_INNER:
-            // set area to grey
-            movq qword ptr[edx], mm0
-            add edx, 8
-            dec ecx
-            jnz LOOP_GREY_INNER
-            add edi, ebx
-            dec eax
-            jnz LOOP_GREY_OUTER
+            int i;
+
+            for(i = 0; i < Height; i++)
+            {
+                memset(lpLogoRect + i*Pitch, 0x7f, Width*2);
+            }
+
+            break;
         }
-        break;
     }
     _asm
     {

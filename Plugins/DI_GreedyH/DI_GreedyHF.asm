@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHF.asm,v 1.1 2001-07-30 21:50:32 trbarry Exp $
+// $Id: DI_GreedyHF.asm,v 1.2 2001-07-31 13:34:46 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/07/30 21:50:32  trbarry
+// Use weave chroma for reduced chroma jitter. Fix DJR bug again.
+// Turn off Greedy Pulldown default.
+//
 // Revision 1.5  2001/07/30 18:18:59  trbarry
 // Fix new DJR bug
 //
@@ -68,8 +72,8 @@ BOOL FUNCT_NAME()
 		pMemcpy(lpCurOverlay + OverlayPitch, pOddLines[0], LineLength);  // DL1
 	for (Line = 0; Line < (FieldHeight - 1); ++Line)
 	{
-		LoopCtr = LineLength / 8;				// there are LineLength / 8 qwords per line
-
+		LoopCtr = LineLength / 8 - 1;				// there are LineLength / 8 qwords per line
+                                                    // but do 1 less, adj at end of loop
 		if (InfoIsOdd)
 		{
 			L1 = pEvenLines[Line];		
@@ -234,7 +238,13 @@ DoNext8Bytes:
 			lea		edi,[edi+8]			
 			lea		esi,[esi+8]
 			dec		LoopCtr
-			jnz		DoNext8Bytes
+			jg		DoNext8Bytes            // loop if not to last line
+                                            // note P-III default assumes backward branches taken
+            jl      LoopDone                // done
+            mov     ebx, eax                // sharpness lookahead 1 byte only, be wrong on 1
+            jmp     DoNext8Bytes
+
+ LoopDone:
 		}
 	}
 

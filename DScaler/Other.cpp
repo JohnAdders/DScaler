@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.68 2004-05-02 14:09:32 atnak Exp $
+// $Id: Other.cpp,v 1.69 2004-05-06 15:00:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2004/05/02 14:09:32  atnak
+// Fixed possible problem of overlay colour getting dithered with < 32bit colour
+//
 // Revision 1.67  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -757,7 +760,9 @@ void Overlay_ResetColorControls()
     if(OriginalColorControls.dwFlags != 0)
     {
         HRESULT ddrval = pDDColorControl->SetColorControls(&OriginalColorControls);
-        if (FAILED(ddrval))
+		// if we have lost the surface e.g Ctrl-alt-del
+		// just carry on
+        if(ddrval != DDERR_SURFACELOST && FAILED(ddrval))
         {
             char szErrorMsg[200];
             sprintf(szErrorMsg, "Error %x in SetColorControls()", ddrval);
@@ -864,6 +869,15 @@ BOOL Overlay_Create()
     SurfaceDesc.dwFlags = DDSD_CAPS;
     SurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
     ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
+
+	// handle the case where we are in a funny in between state
+	// by looping, this happens sometimes with Ctrl-alt-delete on
+	// some graphics cards.
+	while(ddrval == DDERR_UNSUPPORTEDMODE)
+	{
+		Sleep(100);
+	    ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
+	}
     if (FAILED(ddrval))
     {
         sprintf(msg, "Error creating primary surface: %x", ddrval);

@@ -25,7 +25,7 @@ CFG=DScaler - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=xicl6.exe
+CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -56,7 +56,7 @@ BSC32=bscmake.exe
 # SUBTRACT BASE BSC32 /Iu
 # ADD BSC32 /nologo
 # SUBTRACT BSC32 /Iu
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
 # ADD LINK32 ..\Driver\DSDrv\Debug\DSDrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /out:"..\Debug\DScaler.exe"
@@ -91,7 +91,7 @@ BSC32=bscmake.exe
 # SUBTRACT BASE BSC32 /Iu
 # ADD BSC32 /nologo
 # SUBTRACT BSC32 /Iu
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
 # ADD LINK32 ..\Driver\DSDrv\Release\DSdrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /incremental:yes /map /machine:I386 /out:"..\Release\DScaler.exe"
@@ -109,6 +109,10 @@ LINK32=xilink6.exe
 # Begin Source File
 
 SOURCE=.\AspectDetect.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AspectFilters.cpp
 # End Source File
 # Begin Source File
 
@@ -470,6 +474,10 @@ SOURCE=.\res\Vtx15x18.bmp
 # Begin Source File
 
 SOURCE=.\READ_ME_FIRST_NOW.txt
+# End Source File
+# Begin Source File
+
+SOURCE=.\RES\STARTUP.rle
 # End Source File
 # End Target
 # End Project

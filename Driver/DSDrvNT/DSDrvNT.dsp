@@ -72,7 +72,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /Gz /W3 /WX /Oy /Gy /I "c:\ddk" /I "..\dll" /I "..\include" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DEVL=1 /D FPO=1 /D "_IDWBUILD" /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /Oxs /Zel -cbstring /QIfdiv- /QIf /GF /c
-# ADD CPP /nologo /Gz /W3 /WX /Ox /Ot /Ow /Og /Oi /Oy /Ob2 /Gy /I "..\..\api" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DEVL=1 /D FPO=1 /D "_IDWBUILD" /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /Oxs /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
+# ADD CPP /nologo /Gz /W3 /WX /Ox /Ow /Og /Oi /Os /Ob2 /Gy /I "..\..\api" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DEVL=1 /D FPO=1 /D "_IDWBUILD" /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /Oxs /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
+# SUBTRACT CPP /Ot
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /i "..\inc" /d "NDEBUG"
@@ -97,58 +98,22 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\DEBUGOUT.CPP
-DEP_CPP_DEBUG=\
-	"..\..\api\dsdrv.h"\
-	".\DEBUGOUT.H"\
-	".\Ioclass.h"\
-	".\precomp.h"\
-	{$(INCLUDE)}"devioctl.h"\
-	
 # End Source File
 # Begin Source File
 
 SOURCE=.\DRVALLOC.CPP
-DEP_CPP_DRVAL=\
-	"..\..\api\dsdrv.h"\
-	".\DEBUGOUT.H"\
-	".\Ioclass.h"\
-	".\precomp.h"\
-	{$(INCLUDE)}"devioctl.h"\
-	
 # End Source File
 # Begin Source File
 
 SOURCE=.\DSDrvNT.cpp
-DEP_CPP_DSDRV=\
-	"..\..\api\dsdrv.h"\
-	".\DEBUGOUT.H"\
-	".\DSDrvNT.h"\
-	".\Ioclass.h"\
-	".\precomp.h"\
-	{$(INCLUDE)}"devioctl.h"\
-	
 # End Source File
 # Begin Source File
 
 SOURCE=.\Ioclass.cpp
-DEP_CPP_IOCLA=\
-	"..\..\api\dsdrv.h"\
-	".\DEBUGOUT.H"\
-	".\Ioclass.h"\
-	".\precomp.h"\
-	{$(INCLUDE)}"devioctl.h"\
-	
 # End Source File
 # Begin Source File
 
 SOURCE=.\PCIENUM.CPP
-DEP_CPP_PCIEN=\
-	"..\..\api\dsdrv.h"\
-	".\DEBUGOUT.H"\
-	".\Ioclass.h"\
-	".\precomp.h"\
-	{$(INCLUDE)}"devioctl.h"\
-	
 # End Source File
 # End Group
 # Begin Group "Resource Files"

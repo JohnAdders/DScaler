@@ -862,13 +862,15 @@
 #define IDM_ALWAYONTOPFULLSCREEN        2025
 #define IDM_VT_UK                       2026
 #define IDM_VT_FRENCH                   2027
+#define IDM_LOGOKILL_SETTINGS           2028
+#define IDM_LINCORR_SETTINGS            2029
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        184
-#define _APS_NEXT_COMMAND_VALUE         2028
+#define _APS_NEXT_COMMAND_VALUE         2030
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

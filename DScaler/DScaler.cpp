@@ -1347,6 +1347,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			Filter_ShowUI("Noise");
 			break;
 
+		case IDM_LOGOKILL_SETTINGS:
+			Filter_ShowUI("Logo Killer");
+			break;
+
+		case IDM_LINCORR_SETTINGS:
+			Filter_ShowUI("Linear Correction");
+			break;
+
         case IDM_ASPECT_SETTINGS:
 			Aspect_ShowUI();
 			break;

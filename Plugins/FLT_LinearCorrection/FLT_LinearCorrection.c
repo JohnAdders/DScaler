@@ -553,4 +553,3 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
 	return &LinearCorrMethod;
 }
-

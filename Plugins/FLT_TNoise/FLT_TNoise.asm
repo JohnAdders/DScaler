@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.asm,v 1.6 2001-11-26 15:27:19 adcockj Exp $
+// $Id: FLT_TNoise.asm,v 1.7 2002-02-01 19:51:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/26 15:27:19  adcockj
+// Changed filter structure
+//
 // Revision 1.5  2001/11/22 22:27:00  adcockj
 // Bug Fixes
 //
@@ -113,7 +116,31 @@ MAINLOOP_LABEL:
             movq mm1, qword ptr[ebx]        // mm1 = OldPixel
             movq mm2, mm0                   // mm2 = NewPixel
 
+            // RM: The original code replaced a noisy pixel with avg(NewPixel, 3*OldPixel)
+            // This causes speckles and bad posterization. If the pixel is replaced with
+            // avg(3*NewPixel, OldPixel) the image looks much better.
+            // To make it easy to revert back to the old code you can find it commented out below.
             // Now determine the weighted averages of the old and new pixel values.
+#if defined(IS_SSE)
+            pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel)
+            pavgb mm2, mm0                 // mm2 = avg(3*NewPixel, OldPixel)
+#elif defined(IS_3DNOW)
+            pavgusb mm2, mm1                // mm2 = avg(NewPixel, OldPixel)
+            pavgusb mm2, mm0                // mm2 = avg(3*NewPixel, OldPixel)
+#else
+            movq mm3, mm1                   // mm3 = OldPixel
+            movq mm4, qwAvgMask             // mm4 = mask to remove lower bits of bytes
+            pand mm3, mm4                   // mm3 = OldPixel with LSBs removed
+            pand mm2, mm4                   // mm4 = OldPixel with LSBs removed
+            psrlw mm3, 1                    // mm3 = OldPixel / 2
+            psrlw mm2, 1                    // mm2 = NewPixel / 2
+            paddusb mm3, mm2                // mm3 = avg(NewPixel, OldPixel)
+            pand mm3, mm4                   // mm3 = avg(NewPixel, OldPixel) with LSBs removed
+            psrlw mm3, 1                    // mm3 = avg(NewPixel, OldPixel) / 2
+            paddusb mm2, mm3                // mm2 = avg(3*NewPixel, OldPixel)
+#endif
+
+/*            // Now determine the weighted averages of the old and new pixel values.
 #if defined(IS_SSE)
             pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel)
             pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel, OldPixel, OldPixel)
@@ -132,7 +159,7 @@ MAINLOOP_LABEL:
             psrlw mm2, 1                    // mm2 = avg(NewPixel, OldPixel) / 2
             paddusb mm2, mm3                // mm2 = avg(NewPixel, OldPixel, OldPixel, OldPixel)
 #endif
-
+*/
             // Figure out which pixels are sufficiently different from their predecessors
             // to be considered new.  There is, unfortunately, no absolute-difference
             // MMX instruction, so we OR together two unsigned saturated differences

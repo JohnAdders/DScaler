@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.4 2001-11-26 15:27:19 adcockj Exp $
+// $Id: FLT_TNoise.c,v 1.5 2002-02-01 19:51:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/26 15:27:19  adcockj
+// Changed filter structure
+//
 // Revision 1.3  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -26,8 +29,9 @@
 #include "windows.h"
 #include "DS_Filter.h"
 
-long TemporalLuminanceThreshold = 6;    // Pixel luminance differences below this are considered noise.
-long TemporalChromaThreshold = 7;       // Pixel chroma differences below this are considered noise.
+long TemporalLuminanceThreshold = 15;    // Pixel luminance differences below this are considered noise.
+long TemporalChromaThreshold = 15;       // Pixel chroma differences below this are considered noise.
+BOOL LockThresholdsTogether = TRUE;
 FILTER_METHOD TemporalNoiseMethod;
 
 
@@ -54,19 +58,46 @@ FILTER_METHOD TemporalNoiseMethod;
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
+
+BOOL LuminanceThreshold_OnChange(long NewValue)
+{
+    TemporalLuminanceThreshold = NewValue;
+    if(LockThresholdsTogether)
+    {
+        TemporalChromaThreshold = NewValue;
+    }
+    return TRUE;   
+}
+
+BOOL ChromaThreshold_OnChange(long NewValue)
+{
+    TemporalChromaThreshold = NewValue;
+    if(LockThresholdsTogether)
+    {
+        TemporalLuminanceThreshold = NewValue;
+    }
+    return TRUE;   
+}
+
 SETTING FLT_TNoiseSettings[FLT_TNOISE_SETTING_LASTONE] =
 {
     {
         "Temporal Luminance Threshold", SLIDER, 0, &TemporalLuminanceThreshold,
-        6, 0, 255, 1, 1,
+        15, 0, 255, 1, 1,
         NULL,
-        "NoiseFilter", "TemporalLuminanceThreshold", NULL,
+        "NoiseFilter", "TemporalLuminanceThreshold", LuminanceThreshold_OnChange,
     },
     {
         "Temporal Chroma Threshold", SLIDER, 0, &TemporalChromaThreshold,
-        7, 0, 255, 1, 1,
+        15, 0, 255, 1, 1,
         NULL,
-        "NoiseFilter", "TemporalChromaThreshold", NULL,
+        "NoiseFilter", "TemporalChromaThreshold", ChromaThreshold_OnChange,
+    },
+    {
+        "Lock Thresholds", ONOFF, 0, &LockThresholdsTogether,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "NoiseFilter", "LockThresholdsTogether", NULL,
     },
     {
         "Noise Filter", ONOFF, 0, &TemporalNoiseMethod.bActive,

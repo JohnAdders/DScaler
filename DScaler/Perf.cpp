@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.7 2002-05-18 13:11:40 tobbej Exp $
+// $Id: Perf.cpp,v 1.8 2002-05-20 12:05:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/05/18 13:11:40  tobbej
+// fixed floating point crash
+//
 // Revision 1.6  2002/05/06 13:13:59  laurentg
 // Initialization of CPerf members
 //
@@ -40,6 +43,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include <float.h>
 #include "Perf.h"
 #include "FieldTiming.h"
 

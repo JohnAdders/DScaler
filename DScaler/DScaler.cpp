@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.308 2003-02-07 12:46:17 laurentg Exp $
+// $Id: DScaler.cpp,v 1.309 2003-02-08 13:16:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.308  2003/02/07 12:46:17  laurentg
+// Change resolution correctly handled when DScaler is minimized and restored
+//
 // Revision 1.307  2003/02/07 11:28:23  laurentg
 // Keep more ids for the output reso menus (100)
 // New resolutions added (720x480 and 720x576)
@@ -1055,6 +1058,7 @@ BOOL bReverseChannelScroll = FALSE;
 BOOL bMinToTray = FALSE;
 BOOL bIconOn = FALSE;
 int MinimizeHandling = 0;
+BOOL BypassChgResoInRestore = FALSE;
 
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
@@ -4690,6 +4694,12 @@ void MainWndOnInitBT(HWND hWnd)
         }
         Skin_SetMenu(hMenu, FALSE);
 
+		if (bIsFullScreen)
+		{
+			OutReso_Change(hWnd, FALSE, FALSE);
+			BypassChgResoInRestore = TRUE;
+		}
+
         bDoResize = TRUE;
 
         if (Providers_GetCurrentSource())
@@ -4960,17 +4970,17 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error ExitDD");}
 
-//    __try
-//    {
-//        if(bIsFullScreen == TRUE)
-//        {
+    __try
+    {
+        if(bIsFullScreen == TRUE)
+        {
 			// Do this here after the ExitDD to be sure that the overlay is destroyed
-//            LOG(1, "Try restore display resolution");
-//			bIsFullScreen = FALSE;
-//			OutReso_Change(hWnd, TRUE);
-//        }
-//    }
-//    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error restore display resolution");}
+            LOG(1, "Try restore display resolution");
+			BypassChgResoInRestore = TRUE;
+			OutReso_Change(hWnd, TRUE, FALSE);
+        }
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error restore display resolution");}
  
     __try
     {
@@ -5082,15 +5092,14 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
         case SIZE_MAXIMIZED:
             if(bIsFullScreen == FALSE || bMinimized == TRUE)
             {
+				bCheckSignalPresent = FALSE;
+				bCheckSignalMissing = (MinimizeHandling == 2);
+                IsFullScreen_OnChange(TRUE);
 				if ((MinimizeHandling == 1) && bMinimized && !OverlayActive())
 				{
 					Overlay_Start(hWnd);
 				}
 				bMinimized = FALSE;
-				bCheckSignalPresent = FALSE;
-				bCheckSignalMissing = (MinimizeHandling == 2);
-                bIsFullScreen = TRUE;
-                IsFullScreen_OnChange(TRUE);
             }
             break;
         case SIZE_MINIMIZED:
@@ -5101,7 +5110,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 			}
             if(bIsFullScreen)
 			{
-				OutReso_Change(hWnd, TRUE);
+				OutReso_Change(hWnd, TRUE, TRUE);
 			}
 			if (OverlayActive())
 			{
@@ -5119,15 +5128,25 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 			bCheckSignalPresent = FALSE;
 			bCheckSignalMissing = (MinimizeHandling == 2);
             InvalidateRect(hWnd, NULL, FALSE);
-            if(bIsFullScreen)
+			if(bIsFullScreen)
 			{
-				OutReso_Change(hWnd, FALSE);
+				if (BypassChgResoInRestore)
+				{
+					BypassChgResoInRestore = FALSE;
+				}
+				else
+				{
+					OutReso_Change(hWnd, FALSE, TRUE);
+				}
 			}
             if ((MinimizeHandling == 1) && !OverlayActive())
 			{
                 Overlay_Start(hWnd);
 			}
-            WorkoutOverlaySize(FALSE);
+			if (OverlayActive())
+			{
+	            WorkoutOverlaySize(FALSE);
+			}
             SetMenuAnalog();
             break;
         default:
@@ -6062,7 +6081,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
     {
         if(bIsFullScreen == FALSE)
         {
-			OutReso_Change(hWnd, TRUE);
+			OutReso_Change(hWnd, TRUE, TRUE);
             SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
             if (bDisplayStatusBar == TRUE)
             {
@@ -6073,7 +6092,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
         {
             SaveWindowPos(hWnd);
             KillTimer(hWnd, TIMER_STATUS);
-			OutReso_Change(hWnd, FALSE);
+			OutReso_Change(hWnd, FALSE, TRUE);
         }
         if (WindowBorder!=NULL)
         {

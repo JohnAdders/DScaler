@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.6 2003-02-07 12:46:17 laurentg Exp $
+// $Id: OutReso.cpp,v 1.7 2003-02-08 13:16:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/02/07 12:46:17  laurentg
+// Change resolution correctly handled when DScaler is minimized and restored
+//
 // Revision 1.5  2003/02/07 11:28:25  laurentg
 // Keep more ids for the output reso menus (100)
 // New resolutions added (720x480 and 720x576)
@@ -65,56 +68,56 @@ typedef struct
 
 static sResolution resSettings[] = {
 	{	FALSE,	"None",						0,		0,		0,	0,		TRUE	},
-	{	TRUE,	"640x480 16bit 60 Hz",		640,	480,	16,	60,		TRUE	},
-	{	TRUE,	"640x480 16bit 72 Hz",		640,	480,	16,	72,		TRUE	},
-	{	TRUE,	"640x480 16bit 75 Hz",		640,	480,	16,	75,		TRUE	},
-	{	TRUE,	"640x480 16bit 100 Hz",		640,	480,	16,	100,	TRUE	},
-	{	TRUE,	"640x480 16bit 120 Hz",		640,	480,	16,	120,	TRUE	},
-	{	TRUE,	"640x480 32bit 60 Hz",		640,	480,	32,	60,		TRUE	},
-	{	TRUE,	"640x480 32bit 72 Hz",		640,	480,	32,	72,		TRUE	},
-	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75,		TRUE	},
-	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100,	TRUE	},
-	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120,	TRUE	},
-	{	TRUE,	"720x480 16bit 60 Hz",		720,	480,	16,	60,		TRUE	},
-	{	TRUE,	"720x480 16bit 72 Hz",		720,	480,	16,	72,		TRUE	},
-	{	TRUE,	"720x480 16bit 75 Hz",		720,	480,	16,	75,		TRUE	},
-	{	TRUE,	"720x480 16bit 100 Hz",		720,	480,	16,	100,	TRUE	},
-	{	TRUE,	"720x480 16bit 120 Hz",		720,	480,	16,	120,	TRUE	},
-	{	TRUE,	"720x480 32bit 60 Hz",		720,	480,	32,	60,		TRUE	},
-	{	TRUE,	"720x480 32bit 72 Hz",		720,	480,	32,	72,		TRUE	},
-	{	TRUE,	"720x480 32bit 75 Hz",		720,	480,	32,	75,		TRUE	},
-	{	TRUE,	"720x480 32bit 100 Hz",		720,	480,	32,	100,	TRUE	},
-	{	TRUE,	"720x480 32bit 120 Hz",		720,	480,	32,	120,	TRUE	},
-	{	TRUE,	"720x576 16bit 60 Hz",		720,	576,	16,	60,		TRUE	},
-	{	TRUE,	"720x576 16bit 72 Hz",		720,	576,	16,	72,		TRUE	},
-	{	TRUE,	"720x576 16bit 75 Hz",		720,	576,	16,	75,		TRUE	},
-	{	TRUE,	"720x576 16bit 100 Hz",		720,	576,	16,	100,	TRUE	},
-	{	TRUE,	"720x576 16bit 120 Hz",		720,	576,	16,	120,	TRUE	},
-	{	TRUE,	"720x576 32bit 60 Hz",		720,	576,	32,	60,		TRUE	},
-	{	TRUE,	"720x576 32bit 72 Hz",		720,	576,	32,	72,		TRUE	},
-	{	TRUE,	"720x576 32bit 75 Hz",		720,	576,	32,	75,		TRUE	},
-	{	TRUE,	"720x576 32bit 100 Hz",		720,	576,	32,	100,	TRUE	},
-	{	TRUE,	"720x576 32bit 120 Hz",		720,	576,	32,	120,	TRUE	},
-	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60,		TRUE	},
-	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72,		TRUE	},
-	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75,		TRUE	},
-	{	TRUE,	"800x600 16bit 100 Hz",		800,	600,	16,	100,	TRUE	},
-	{	TRUE,	"800x600 16bit 120 Hz",		800,	600,	16,	120,	TRUE	},
-	{	TRUE,	"800x600 32bit 60 Hz",		800,	600,	32,	60,		TRUE	},
-	{	TRUE,	"800x600 32bit 72 Hz",		800,	600,	32,	72,		TRUE	},
-	{	TRUE,	"800x600 32bit 75 Hz",		800,	600,	32,	75,		TRUE	},
-	{	TRUE,	"800x600 32bit 100 Hz",		800,	600,	32,	100,	TRUE	},
-	{	TRUE,	"800x600 32bit 120 Hz",		800,	600,	32,	120,	TRUE	},
-	{	TRUE,	"1024x768 16bit 60 Hz",		1024,	768,	16,	60,		TRUE	},
-	{	TRUE,	"1024x768 16bit 72 Hz",		1024,	768,	16,	72,		TRUE	},
-	{	TRUE,	"1024x768 16bit 75 Hz",		1024,	768,	16,	75,		TRUE	},
-	{	TRUE,	"1024x768 16bit 100 Hz",	1024,	768,	16,	100,	TRUE	},
-	{	TRUE,	"1024x768 16bit 120 Hz",	1024,	768,	16,	120,	TRUE	},
-	{	TRUE,	"1024x768 32bit 60 Hz",		1024,	768,	32,	60,		TRUE	},
-	{	TRUE,	"1024x768 32bit 72 Hz",		1024,	768,	32,	72,		TRUE	},
-	{	TRUE,	"1024x768 32bit 75 Hz",		1024,	768,	32,	75,		TRUE	},
-	{	TRUE,	"1024x768 32bit 100 Hz",	1024,	768,	32,	100,	TRUE	},
-	{	TRUE,	"1024x768 32bit 120 Hz",	1024,	768,	32,	120,	TRUE	},
+	{	TRUE,	"640x480 16bit 60 Hz",		640,	480,	16,	60,		FALSE	},
+	{	TRUE,	"640x480 16bit 72 Hz",		640,	480,	16,	72,		FALSE	},
+	{	TRUE,	"640x480 16bit 75 Hz",		640,	480,	16,	75,		FALSE	},
+	{	TRUE,	"640x480 16bit 100 Hz",		640,	480,	16,	100,	FALSE	},
+	{	TRUE,	"640x480 16bit 120 Hz",		640,	480,	16,	120,	FALSE	},
+	{	TRUE,	"640x480 32bit 60 Hz",		640,	480,	32,	60,		FALSE	},
+	{	TRUE,	"640x480 32bit 72 Hz",		640,	480,	32,	72,		FALSE	},
+	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75,		FALSE	},
+	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100,	FALSE	},
+	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120,	FALSE	},
+	{	TRUE,	"720x480 16bit 60 Hz",		720,	480,	16,	60,		FALSE	},
+	{	TRUE,	"720x480 16bit 72 Hz",		720,	480,	16,	72,		FALSE	},
+	{	TRUE,	"720x480 16bit 75 Hz",		720,	480,	16,	75,		FALSE	},
+	{	TRUE,	"720x480 16bit 100 Hz",		720,	480,	16,	100,	FALSE	},
+	{	TRUE,	"720x480 16bit 120 Hz",		720,	480,	16,	120,	FALSE	},
+	{	TRUE,	"720x480 32bit 60 Hz",		720,	480,	32,	60,		FALSE	},
+	{	TRUE,	"720x480 32bit 72 Hz",		720,	480,	32,	72,		FALSE	},
+	{	TRUE,	"720x480 32bit 75 Hz",		720,	480,	32,	75,		FALSE	},
+	{	TRUE,	"720x480 32bit 100 Hz",		720,	480,	32,	100,	FALSE	},
+	{	TRUE,	"720x480 32bit 120 Hz",		720,	480,	32,	120,	FALSE	},
+	{	TRUE,	"720x576 16bit 60 Hz",		720,	576,	16,	60,		FALSE	},
+	{	TRUE,	"720x576 16bit 72 Hz",		720,	576,	16,	72,		FALSE	},
+	{	TRUE,	"720x576 16bit 75 Hz",		720,	576,	16,	75,		FALSE	},
+	{	TRUE,	"720x576 16bit 100 Hz",		720,	576,	16,	100,	FALSE	},
+	{	TRUE,	"720x576 16bit 120 Hz",		720,	576,	16,	120,	FALSE	},
+	{	TRUE,	"720x576 32bit 60 Hz",		720,	576,	32,	60,		FALSE	},
+	{	TRUE,	"720x576 32bit 72 Hz",		720,	576,	32,	72,		FALSE	},
+	{	TRUE,	"720x576 32bit 75 Hz",		720,	576,	32,	75,		FALSE	},
+	{	TRUE,	"720x576 32bit 100 Hz",		720,	576,	32,	100,	FALSE	},
+	{	TRUE,	"720x576 32bit 120 Hz",		720,	576,	32,	120,	FALSE	},
+	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60,		FALSE	},
+	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72,		FALSE	},
+	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75,		FALSE	},
+	{	TRUE,	"800x600 16bit 100 Hz",		800,	600,	16,	100,	FALSE	},
+	{	TRUE,	"800x600 16bit 120 Hz",		800,	600,	16,	120,	FALSE	},
+	{	TRUE,	"800x600 32bit 60 Hz",		800,	600,	32,	60,		FALSE	},
+	{	TRUE,	"800x600 32bit 72 Hz",		800,	600,	32,	72,		FALSE	},
+	{	TRUE,	"800x600 32bit 75 Hz",		800,	600,	32,	75,		FALSE	},
+	{	TRUE,	"800x600 32bit 100 Hz",		800,	600,	32,	100,	FALSE	},
+	{	TRUE,	"800x600 32bit 120 Hz",		800,	600,	32,	120,	FALSE	},
+	{	TRUE,	"1024x768 16bit 60 Hz",		1024,	768,	16,	60,		FALSE	},
+	{	TRUE,	"1024x768 16bit 72 Hz",		1024,	768,	16,	72,		FALSE	},
+	{	TRUE,	"1024x768 16bit 75 Hz",		1024,	768,	16,	75,		FALSE	},
+	{	TRUE,	"1024x768 16bit 100 Hz",	1024,	768,	16,	100,	FALSE	},
+	{	TRUE,	"1024x768 16bit 120 Hz",	1024,	768,	16,	120,	FALSE	},
+	{	TRUE,	"1024x768 32bit 60 Hz",		1024,	768,	32,	60,		FALSE	},
+	{	TRUE,	"1024x768 32bit 72 Hz",		1024,	768,	32,	72,		FALSE	},
+	{	TRUE,	"1024x768 32bit 75 Hz",		1024,	768,	32,	75,		FALSE	},
+	{	TRUE,	"1024x768 32bit 100 Hz",	1024,	768,	32,	100,	FALSE	},
+	{	TRUE,	"1024x768 32bit 120 Hz",	1024,	768,	32,	120,	FALSE	},
 };
 
 
@@ -229,7 +232,7 @@ BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID)
     return FALSE;
 }
 
-void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
+void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning)
 {
     DEVMODE dm;
     DEVMODE dm_cur;
@@ -280,7 +283,14 @@ void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 			// Stop the overlay (and the capture)
 			if (bOverlay)
 			{
-				Overlay_Stop(hWnd);
+				if (bCaptureRunning)
+				{
+					Overlay_Stop(hWnd);
+				}
+				else
+				{
+					Overlay_Destroy();
+				}
 			}
 
 //	        ShowWindow(hWnd, SW_HIDE);
@@ -290,7 +300,14 @@ void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 			// Restart the overlay (and the capture)
 			if (bOverlay)
 			{
-				Overlay_Start(hWnd);
+				if (bCaptureRunning)
+				{
+					Overlay_Start(hWnd);
+				}
+				else
+				{
+					Overlay_Create();
+				}
 			}
 		}
 	}

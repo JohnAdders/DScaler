@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.9 2002-10-16 11:37:59 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.10 2002-10-16 21:59:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/16 11:37:59  atnak
+// added saa7130 support
+//
 // Revision 1.8  2002/10/08 12:24:46  atnak
 // added various functions to configure carriers
 //
@@ -77,16 +80,17 @@ void CSAA7134Card::InitAudio()
     m_AudioSampleRate = AUDIOSAMPLERATE_48000Hz;
     
     // mute all
-    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
-
-    WriteByte(SAA7134_MONITOR_SELECT,           0x00);
-    WriteByte(SAA7134_NICAM_ERROR_LOW,          0x00);
-    WriteByte(SAA7134_NICAM_ERROR_HIGH,         0x00);
+    WriteByte(SAA7134_AUDIO_MUTE_CTRL,          0xFF);
 
     // auto gain control enabled
     WriteByte(SAA7134_AGC_GAIN_SELECT,          0x00);
     
+    WriteByte(SAA7134_MONITOR_SELECT,           0x00);
     WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x00);
+
+    WriteByte(SAA7134_NICAM_ERROR_LOW,          0x14);
+    WriteByte(SAA7134_NICAM_ERROR_HIGH,         0x50);
+    WriteByte(SAA7134_NICAM_CONFIG,             0x00);
 
     WriteByte(SAA7134_DEMODULATOR,              0x00);
     WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);

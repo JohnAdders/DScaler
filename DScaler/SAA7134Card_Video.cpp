@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.4 2002-10-08 20:35:39 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.5 2002-10-15 04:34:26 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/08 20:35:39  atnak
+// whitepeak, colorpeak, comb filter UI options
+//
 // Revision 1.3  2002/10/08 19:35:45  atnak
 // various fixes, tweaks, cleanups
 //
@@ -249,8 +252,7 @@ void CSAA7134Card::SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
 {
     BYTE TaskMask = TaskID2TaskMask(TaskID);
 
-    // It should come out less than this amount
-    WORD SampleBytes = 1024;
+    WORD SampleBytes = (double) 0x400 / 0x1A0 * 720;
 
     WriteWord(SAA7134_VBI_H_START(TaskMask), HStart);
     WriteWord(SAA7134_VBI_H_STOP(TaskMask), HStop);
@@ -262,11 +264,11 @@ void CSAA7134Card::SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
 
     // (This may be specific to PAL-BG)
     // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
-    // can't handle this scaling.  Instead, we scale 0x30C (half of
-    // 0x0186) and double the bytes in SAA7134Source.cpp
+    // can't handle this scaling.  Instead, we scale 0x1A0 (close
+    // enough) and manually scale a little more in SAA7134Source.cpp
     // WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x0186);
     //
-    WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x030C);
+    WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x1A0);
 
     WORD Lines = VStop - VStart + 1;
 
@@ -528,5 +530,5 @@ void CSAA7134Card::ResetHPrescale(eTaskID TaskID)
 
     /* 0x07 mask = XDCG, 0x08 mask = 0xXC2_1 whatever that means */
     WriteByte(SAA7134_LEVEL_CTRL(TaskMask), 0x00);
-    MaskDataByte(SAA7134_FIR_PREFILTER_CTRL(TaskMask), 0x00, 0x0F); /* VPFY ?? */
+    MaskDataByte(SAA7134_FIR_PREFILTER_CTRL(TaskMask), 0x08, 0x0F); /* VPFY ?? */
 }

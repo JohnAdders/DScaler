@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.24 2002-10-12 20:03:12 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.25 2002-10-15 04:34:26 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/10/12 20:03:12  atnak
+// added half second wait for DecodeVBI() after channel change
+//
 // Revision 1.23  2002/10/12 01:37:28  atnak
 // fixes negative dropped frames bug
 //
@@ -1268,15 +1271,6 @@ BOOL CSAA7134Source::IsVideoPresent()
     return m_pSAA7134Card->IsVideoPresent();
 }
 
-int round(double i)
-{
-    if ((int) (i * 10) % 10 >= 5)
-    {
-        return (int) i + 1;
-    }
-
-    return (int) i;
-}
 
 void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
@@ -1304,151 +1298,171 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     }
 
     // Convert SAA7134's VBI buffer to the way DScaler wants it
-    // 1. Shift the data 100 bytes to to the left
-    // 2. Horizontal scale 262.54%  Half of this is already done.
-    //    We get the card to do 131.28% scaling for us in SAA7134Card
-    //    so we only need to double the bytes. ala. SAA7134Card::SetupVBI()
+    // 1. Shift the data 40 bytes to to the left
+    // 2. Horizontal scale 262.54% (0x400/0x186) Some of this is already
+    //    done.  We get the card to do 246.15% (0x400/0x1A0) scaling for
+    //    us in SAA7134Card, so we need to trim this up a bit.
+    //      - ala. SAA7134Card::SetupVBI()
     //
-    for (int i(0); i < 100; i++)
+    for (int i(0); i < 40; i++)
     {
         ConvertBuffer[i] = 0x00;
     }
 
-    for (nLineTarget = 0; nLineTarget < m_CurrentVBILines ; nLineTarget++)
+    for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
-        for (int i(100), j(0); i < 2044; i++, j++)
+        for (int i(40), j(0); i < 2048; i++, j++)
         {
-            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int) (j / 2)];
+            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)((double) j * 0x186 / 0x1A0)];
         }
         VBI_DecodeLine(ConvertBuffer, nLineTarget, m_IsFieldOdd);
     }
 }
 
 
-/*  This doesn't work too well
+/*
+// This tries to decode VideoText by first calculating the clock
+// sync.. but doesn't work all the time.
 void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
 {
-    int i;
-    BYTE luma;
-    BYTE min, max;
-    BYTE thr;
-    BOOL bWasHigh;
-    int HighLows = 0;
-    BYTE data[45];
+    static double StepLength = 0;
+    USHORT  FallingEdge[8], Trench[8];
+    USHORT  Peak, Threshold;
+    BOOL    bRaising;
+    USHORT  EdgeStop0, EdgeStop7;
+    double  m1, m2;
+    double  BitIndex;
+    BYTE    RawData[45];
+    int     n, i, j;
 
-    // Sample the darkest and lightest values
-    min = max = ((VBILine[0] & 0xF0) + (VBILine[1] & 0xF0)) / 2;
-    for (i = 2; i < 40; i += 2)
+    // Find the 8 falling edges in the Clock Run-In (10101010
+    // 10101010) and work out high/low the threshold.
+    bRaising = TRUE;
+    Peak = 0;
+    Threshold = 0;
+
+    for (i = 1, n = 0; i < 120; i++)
     {
-        luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
-
-        if (luma < min)
+        if (bRaising)
         {
-            min = luma;
-        }
-        else if (luma > max)
-        {
-            max = luma;
-        }
-    }
-
-    // there's not enough separation
-    if (max - min < min)
-    {
-        return;
-    }
-
-    // Determine the high/low threshold
-    thr = ((min + max) / 2);
-
-    // Find the Teletext pattern (10101010 10101010 11100100)
-    bWasHigh = (((VBILine[0] & 0xF0) + (VBILine[1] & 0xF0)) / 2) > thr;
-    for (i = 2; i < 80; i += 2)
-    {
-        luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
-        if (luma > thr)
-        {
-            if (bWasHigh)
+            if (VBILine[i] > VBILine[Peak])
             {
-                if (HighLows >= 8)
-                {
-                    break;
-                }
-                HighLows = 0;
+                Peak = i;
             }
-            bWasHigh = TRUE;
+            else if (VBILine[i] < VBILine[Peak] - 32)
+            {
+                Threshold += VBILine[Peak];
+
+                bRaising = FALSE;
+                FallingEdge[n] = i;
+                Trench[n] = i;
+            }
         }
         else
         {
-            if (bWasHigh)
+            if (VBILine[i] < VBILine[Trench[n]])
             {
-                HighLows++;
+                Trench[n] = i;
             }
-            else
+            else if (VBILine[i] > VBILine[Trench[n]] + 32)
             {
-                HighLows = 0;
+                Threshold += VBILine[Trench[n]];
+
+                if (++n == 8)
+                {
+                    break;
+                }
+                bRaising = TRUE;
+                Peak = i;
             }
-            bWasHigh = FALSE;
         }
     }
-
-    // Stop if we didn't find the pattern
-    if (i == 80)
+    
+    // Make sure we have 8 trenches
+    if (n != 8)
     {
         return;
     }
 
-    // We found 8 high-lows followed by two highs, make
-    // sure it ends with 100100
-    char* t = "100100";
+    // Find the end of first falling edge
+    for (i = Trench[0] - 1; (VBILine[i] - VBILine[Trench[0]]) <= 32; i++) {}
+    EdgeStop0 = i;
 
-    for (i += 2; *t != '\0'; i += 2, t++)
+    // Find the end of the last falling edge
+    for (i = Trench[7] - 1; (VBILine[i] - VBILine[Trench[7]]) <= 32; i++) {}
+    EdgeStop7 = i;
+
+    // Work out the slopes of the two falling edges
+    m1 = (double) (VBILine[EdgeStop0] - VBILine[FallingEdge[0]]) / (EdgeStop0 - FallingEdge[0]);
+    m2 = (double) (VBILine[EdgeStop7] - VBILine[FallingEdge[7]]) / (EdgeStop7 - FallingEdge[7]);
+
+    //LOG(0, "%f, %f", m1, m2);
+
+    // We can only use the edges if the slopes are similar
+    if ((m1 < 0 == m2 < 0) && ((double) fabs(m1 - m2) < 2.0))
     {
-        luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
-        if ((luma > thr) != (*t == '1'))
+        // Space between the mean of the two falling edges
+        // divided by the number of bits in between (14)
+        // Add 0.5 to for rounding
+        StepLength = (double) ((FallingEdge[7] + EdgeStop7) -
+                               (FallingEdge[0] + EdgeStop0)) / 2 / 14 + 0.5;
+    }
+
+    // We can't proceed until we have a valid StepLength
+    if ((USHORT) StepLength == 0)
+    {
+        return;
+    }
+
+    // Calculate the high/low threshold
+    Threshold = Threshold / 16;
+
+    LOG(0, "StepLength: %f", StepLength);
+
+
+    // (VBI_decode_vt wants bits in reverse)
+    RawData[0] = 0x55;
+    RawData[1] = 0x55;
+    RawData[2] = 0x00;
+
+    // this should bring us to the start of 11100100
+    BitIndex = (double) Trench[7] + StepLength;
+
+    #define ROUND(f)  ((int)(((double)f) + 0.5))
+
+    for (j = 0; j < 8; j++, BitIndex += StepLength)
+    {
+        if (VBILine[ROUND(BitIndex)] > Threshold)
         {
-            return;
+            RawData[2] |= 1 << j;
         }
     }
 
-//    data[0] = 0xAA;
-//    data[1] = 0xAA;
-//    data[2] = 0xE4;
-    data[0] = 0x55;
-    data[1] = 0x55;
-    data[2] = 0x27;
-
-    // Checked.  Get the rest of the data
-    for (int n = 3; n < 45; n++)
+    // make sure there is a Framing Code
+    if (RawData[2] != 0x27)
     {
-        data[n] = 0x00;
-        for (int j = 0; j < 8; j ++, i += 2)
+        return;
+    }
+
+    // get the rest of the data
+    for (i = 3; i < 45; i++)
+    {
+        RawData[i] = 0x00;
+        for (j = 0; j < 8; j++, BitIndex += StepLength)
         {
-            luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
-            if (luma > thr)
+            if (VBILine[ROUND(BitIndex)] > Threshold)
             {
-                //data[n] |= 1 << (7 - j);
-                data[n] |= 1 << j;
+                RawData[i] |= 1 << j;
             }
         }
     }
+  
+    #undef ROUND
 
-    VBI_decode_vt(data);
-    LOG(0, "VBI %d: %x %x %x %x %x %x %x %x %x %x %x %x", Line,
-        data[0],
-        data[1],
-        data[2],
-        data[3],
-        data[4],
-        data[5],
-        data[6],
-        data[7],
-        data[8],
-        data[9],
-        data[10],
-        data[11]);
+    VBI_decode_vt(RawData);
 }
 */
+
 
 eTunerId CSAA7134Source::GetTunerId()
 {

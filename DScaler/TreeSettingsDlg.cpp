@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.19 2002-09-29 13:56:30 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.20 2002-10-02 10:52:55 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/29 13:56:30  adcockj
+// Fixed some cursor hide problems
+//
 // Revision 1.18  2002/09/28 13:34:36  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -410,7 +413,7 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 }
 
 
-void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsGeneric*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList)
+void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsPage*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList)
 {
 	CTreeSettingsPage *pRootPage;
 	CTreeSettingsGeneric *pPage;	
@@ -449,7 +452,7 @@ void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTr
 				{
 					pRootPage = new CTreeSettingsPage(CString(szName), IDD_TREESETTINGS_EMPTY);
 					//pPage->SetHelpID();				
-					//pages->push_back(pRootPage);					
+					pages->push_back(pRootPage);					
 					if (Nr<0)
 					{
 						SubNr = dlg->AddPage(pRootPage);
@@ -482,7 +485,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK;
     }
 
-	vector<CTreeSettingsGeneric*> pages;
+	vector<CTreeSettingsPage*> pages;
 	CTreeSettingsDlg dlg(CString("DScaler settings"));
 
     long Num;
@@ -654,7 +657,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
     dlg.DoModal();
 
-	for(vector<CTreeSettingsGeneric*>::iterator it=pages.begin();it!=pages.end();it++)
+	for(vector<CTreeSettingsPage*>::iterator it=pages.begin();it!=pages.end();it++)
 	{
 		delete *it;
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.5 2002-09-28 13:34:36 kooiman Exp $
+// $Id: TreeSettingsDlg.h,v 1.6 2002-10-02 10:52:55 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/28 13:34:36  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.4  2002/07/27 13:48:53  laurentg
 // Distinguish menu entries for filter settings, video modes settings and advanced settings
 //
@@ -83,7 +86,7 @@ public:
 	void SetStartPage(int iStartPage) {m_iStartPage=iStartPage;};
     static void ShowTreeSettingsDlg(int iSettingsMask);
 
-	static void AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsGeneric*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList);
+	static void AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsPage*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList);
 
 // Dialog Data
 	//{{AFX_DATA(CTreeSettingsDlg)

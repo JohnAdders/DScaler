@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.44 2002-04-13 18:47:53 laurentg Exp $
+// $Id: StillSource.cpp,v 1.45 2002-04-13 21:52:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/04/13 18:47:53  laurentg
+// Management of still files improved
+//
 // Revision 1.43  2002/04/11 20:46:07  laurentg
 // Use memcpy instead of the optimized memcpy
 //
@@ -769,7 +772,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 m_Position = -1;
             }
             UpdateMenu();
-            PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
+            PostMessage(hWnd, WM_COMMAND, IDM_SWITCH_SOURCE, 0);
         }
         else
         {
@@ -784,7 +787,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         ClearPlayList();
         m_Position = -1;
         UpdateMenu();
-        PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
+        PostMessage(hWnd, WM_COMMAND, IDM_SWITCH_SOURCE, 0);
         return TRUE;
         break;
     case IDM_PLAYLIST_SAVE:

@@ -932,6 +932,7 @@
 #define IDM_DSHOW_RES_18                2382
 #define IDM_DSHOW_RES_19                2383
 #define IDM_DSHOW_RES_MAX               2383
+#define IDM_SWITCH_SOURCE               2384
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -953,7 +954,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        195
-#define _APS_NEXT_COMMAND_VALUE         2384
+#define _APS_NEXT_COMMAND_VALUE         2385
 #define _APS_NEXT_CONTROL_VALUE         1896
 #define _APS_NEXT_SYMED_VALUE           2358
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.31 2002-04-13 18:56:23 laurentg Exp $
+// $Id: Providers.cpp,v 1.32 2002-04-13 21:52:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/04/13 18:56:23  laurentg
+// Checks added to manage case where the current source is not yet defined
+//
 // Revision 1.30  2002/04/07 14:55:04  tobbej
 // added asf and wmv filetypes to file-open dialog
 //
@@ -229,11 +232,7 @@ int Providers_Load(HMENU hMenu)
 #endif
 
     // Switch to the first source which access is "allowed"
-    CurrentSource = 0;
-    while ((CurrentSource < Sources.size()) && !Sources[CurrentSource]->IsAccessAllowed())
-    {
-        CurrentSource++;
-    }
+    Providers_FindSource();
 
     Providers_UpdateMenu(hMenu);
 
@@ -295,6 +294,23 @@ CSource* Providers_GetPatternsSource()
     return StillProvider->GetSource(1);
 }
 
+BOOL Providers_FindSource()
+{
+    CurrentSource = 0;
+    while ((CurrentSource < Sources.size()) && !Sources[CurrentSource]->IsAccessAllowed())
+    {
+        CurrentSource++;
+    }
+    if(CurrentSource >= 0 && CurrentSource < Sources.size())
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
 void Providers_SetMenu(HMENU hMenu)
 {
     for(int i(0); i < Sources.size(); ++i)
@@ -311,12 +327,12 @@ void Providers_SetMenu(HMENU hMenu)
 
 void Providers_UpdateMenu(HMENU hMenu)
 {
+    // first we need to detach the old menu if there is one
+    // if we don't do this our menu gets deleted
+    RemoveMenu(hMenu, 6, MF_BYPOSITION);
+
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
-        // first we need to detach the old menu if there is one
-        // if we don't do this our menu gets deleted
-        RemoveMenu(hMenu, 6, MF_BYPOSITION);
-
         // get The name of our menu
         char Text[256];
         HMENU hSubMenu = Sources[CurrentSource]->GetSourceMenu();
@@ -329,7 +345,8 @@ void Providers_UpdateMenu(HMENU hMenu)
     }
     else
     {
-        return;
+        // Add an empty new menu
+        InsertMenu(hMenu, 6, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "No source");
     }
 }
 
@@ -397,6 +414,14 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             MessageBox(hWnd, "Unsupported File Type", "DScaler Warning", MB_OK);
             return TRUE;
         }
+    }
+    else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
+    {
+        Stop_Capture();
+        Providers_FindSource();
+        Providers_UpdateMenu(hMenu);
+        Start_Capture();
+        return TRUE;
     }
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {

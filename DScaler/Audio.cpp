@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.22 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: Audio.cpp,v 1.23 2002-04-13 21:52:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.21  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -100,7 +103,7 @@ BOOL bSystemInMute = FALSE;
 
 void Audio_Mute()
 {
-	if (bUseMixer == FALSE)
+	if (bUseMixer == FALSE && Providers_GetCurrentSource())
 	{
         Providers_GetCurrentSource()->Mute();
 	}
@@ -115,7 +118,7 @@ void Audio_Unmute()
 {
 	if(!bSystemInMute)
 	{
-		if (bUseMixer == FALSE)
+		if (bUseMixer == FALSE && Providers_GetCurrentSource())
 		{
             Providers_GetCurrentSource()->UnMute();
 		}

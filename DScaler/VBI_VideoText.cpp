@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.42 2002-05-30 10:13:43 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.43 2002-05-30 19:09:06 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/05/30 10:13:43  robmuller
+// Don't search the header line.
+//
 // Revision 1.41  2002/05/29 18:44:52  robmuller
 // Added option to disable font anti-aliasing in Teletext.
 //
@@ -939,6 +942,7 @@ void VT_ChannelChange()
     }
     memset(VPSLastName , 0x00, 9);
     memset(VPSChannelName , 0x00, 9);
+    memset(&VisiblePage, 0, sizeof(TVTPage));
     memset(VTPages, 0, 800 * sizeof(TVTPage));
     memset(MagazineStates, 0, sizeof(TMagState) * NUM_MAGAZINES);
     for(int i(0); i < NUM_MAGAZINES; ++i)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.13 2001-07-29 12:39:28 tobbej Exp $
+// $Id: SettingsDlg.cpp,v 1.14 2001-08-03 19:03:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/07/29 12:39:28  tobbej
+// fix for saving settings when dialog is closed
+// modified spinbox check to use predefined constants
+//
 // Revision 1.12  2001/07/28 13:24:40  adcockj
 // Added UI for Overlay Controls and fixed issues with SettingsDlg
 //
@@ -206,31 +210,31 @@ void CSettingsDlg::UpdateControls()
     bInUpdate = true;
 
 
-    if(m_Spin.IsWindowVisible())
+    if(m_Spin.GetStyle() & WS_VISIBLE)
     {
         m_Spin.SetRange32(m_Settings[m_CurrentSetting].MinValue,m_Settings[m_CurrentSetting].MaxValue);
         m_Spin.SetPos(*m_Settings[m_CurrentSetting].pValue);
     }
 
-    if(m_Edit.IsWindowVisible())
+    if(m_Edit.GetStyle() & WS_VISIBLE)
     {
         CString newValue;
         newValue.Format("%d", *m_Settings[m_CurrentSetting].pValue);
         m_Edit.SetWindowText(newValue);
     }
     
-    if(m_CheckBox.IsWindowVisible())
+    if(m_CheckBox.GetStyle() & WS_VISIBLE)
     {
         m_CheckBox.SetCheck(*m_Settings[m_CurrentSetting].pValue);
         m_CheckBox.SetWindowText(m_Settings[m_CurrentSetting].szDisplayName);
     }
 
-    if(m_Slider.IsWindowVisible())
+    if(m_Slider.GetStyle() & WS_VISIBLE)
     {
         Setting_SetupSlider(&m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
     }
     
-    if(m_Combo.IsWindowVisible())
+    if(m_Combo.GetStyle() & WS_VISIBLE)
     {
         m_Combo.ResetContent();
         if(m_Settings[m_CurrentSetting].pszList != NULL)

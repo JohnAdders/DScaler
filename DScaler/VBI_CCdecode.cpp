@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.6 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.7 2001-08-02 18:08:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.5  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -207,7 +210,7 @@ int XDSdecode(int data)
         InfoCheckSum = b1 + b2 + 15;
         if (Mode > 8 || Type > 20)
         {
-//          LOGD("%% Unsupported Mode %s(%d) [%d]\n",Modes[(Mode-1)>>1],Mode,Type);
+//          LOG(5, "%% Unsupported Mode %s(%d) [%d]\n",Modes[(Mode-1)>>1],Mode,Type);
             Mode=0; Type=0;
         }
         pInfo = NewInfo[Mode][Type];
@@ -219,10 +222,10 @@ int XDSdecode(int data)
         {
             length=pInfo - NewInfo[0][0];
             pInfo[1]=0;
-            LOGD("LEN: %d\n",length);
+            LOG(5, "LEN: %d\n",length);
             for (y=0;y<length;y++)
-                LOGD(" %03d",NewInfo[0][0][y]);
-            LOGD(" --- %s\n",NewInfo[0][0]);
+                LOG(5, " %03d",NewInfo[0][0][y]);
+            LOG(5, " --- %s\n",NewInfo[0][0]);
         }
 #endif
         if (Mode == 0) return 0;
@@ -236,44 +239,44 @@ int XDSdecode(int data)
         {
             pInfo = Info[Mode][Type];
             memcpy(Info[Mode][Type],NewInfo[Mode][Type],length+1);
-            LOGD("\33[33m%%");
+            LOG(5, "\33[33m%%");
             switch ((Mode<<8) + Type)
             {
                 case 0x0101:
-                    LOGD(" TIMECODE: %d/%02d %d:%02d",
+                    LOG(5, " TIMECODE: %d/%02d %d:%02d",
                     pInfo[3]&0x0f,pInfo[2]&0x1f,pInfo[1]&0x1f,pInfo[0]&0x3f);
                 case 0x0102:
                     if ((pInfo[1]&0x3f)>5)
                         break;
-                    LOGD("   LENGTH: %d:%02d:%02d of %d:%02d:00",
+                    LOG(5, "   LENGTH: %d:%02d:%02d of %d:%02d:00",
                     pInfo[3]&0x3f,pInfo[2]&0x3f,pInfo[4]&0x3f,pInfo[1]&0x3f,pInfo[0]&0x3f);
                     break;
                 case 0x0103:
                     pInfo[length] = 0;
-                    LOGD("    TITLE: %s",pInfo);
+                    LOG(5, "    TITLE: %s",pInfo);
                     break;
                 case 0x0105:
-                    LOGD("   RATING: %s (%d)",Ratings[pInfo[0]&0x07],pInfo[0]);
+                    LOG(5, "   RATING: %s (%d)",Ratings[pInfo[0]&0x07],pInfo[0]);
                     if ((pInfo[0]&0x07)>0)
                     {
-                        if (pInfo[0]&0x20) LOGD(" VIOLENCE");
-                        if (pInfo[0]&0x10) LOGD(" SEXUAL");
-                        if (pInfo[0]&0x08) LOGD(" LANGUAGE");
+                        if (pInfo[0]&0x20) LOG(5, " VIOLENCE");
+                        if (pInfo[0]&0x10) LOG(5, " SEXUAL");
+                        if (pInfo[0]&0x08) LOG(5, " LANGUAGE");
                     }
                     break;
                 case 0x0501:
                     pInfo[length] = 0;
-                    LOGD("  NETWORK: %s",pInfo);
+                    LOG(5, "  NETWORK: %s",pInfo);
                     break;
                 case 0x0502:
                     pInfo[length] = 0;
-                    LOGD("     CALL: %s",pInfo);
+                    LOG(5, "     CALL: %s",pInfo);
                     break;
                 case 0x0701:
-                    LOGD(" CUR.TIME: %d:%02d %d/%02d/%04d UTC",pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
+                    LOG(5, " CUR.TIME: %d:%02d %d/%02d/%04d UTC",pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
                     break;
                 case 0x0704: //timezone
-                    LOGD(" TIMEZONE: UTC-%d",pInfo[0]&0x1f);
+                    LOG(5, " TIMEZONE: UTC-%d",pInfo[0]&0x1f);
                     break;
                 case 0x0104: //program genere
                     break;
@@ -286,10 +289,10 @@ int XDSdecode(int data)
                 case 0x0116:
                 case 0x0117:
                     pInfo[length+1] = 0;
-                    LOGD("     DESC: %s",pInfo);
+                    LOG(5, "     DESC: %s",pInfo);
                     break;
             }
-            LOGD("\33[0m\n");
+            LOG(5, "\33[0m\n");
         }
         Mode = 0; Type = 0;
     }
@@ -350,7 +353,7 @@ void webtv_check(char* buf,int len)
     if(!strncmp(buf,temp,4))
     {
         buf[5]=0;
-        LOGD("\33[35mWEBTV: %s\33[0m\n",buf-nbytes-1);
+        LOG(5, "\33[35mWEBTV: %s\33[0m\n",buf-nbytes-1);
     }
 }
 

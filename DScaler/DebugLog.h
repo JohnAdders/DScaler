@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.h,v 1.9 2001-08-02 16:43:05 adcockj Exp $
+// $Id: DebugLog.h,v 1.10 2001-08-02 18:08:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ void LOG(int DebugLevel, LPCSTR format, ...);
 #define LOG 
 #endif
 
+// LOGD outputs a string to the debug screen while debugging
 #if defined(_DEBUG)
 void LOGD(LPCSTR format, ...);
 #else

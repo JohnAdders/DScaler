@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.14 2001-08-02 07:45:10 adcockj Exp $
+// $Id: Audio.cpp,v 1.15 2001-08-02 18:08:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/08/02 07:45:10  adcockj
+// Fixed problem with stereo settings
+//
 // Revision 1.13  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -89,11 +92,19 @@ long InitialEqualizer[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
 long InitialSpatial = 0x00;
 
 eAudioMuxType AudioSource = AUDIOMUX_MUTE;
+#define FAKE_MSP_CHIP
 
+#ifdef FAKE_MSP_CHIP
+#define WriteDem(wAddr,wData) {;}
+#define WriteDSP(wAddr,wData) {;}
+#define ReadDem(wAddr) (0)
+#define ReadDSP(wAddr) (0)
+#else
 #define WriteDem(wAddr,wData) Audio_WriteMSP(MSP_WR_DEM,wAddr,wData) // I2C_MSP3400C_DEM
 #define WriteDSP(wAddr,wData) Audio_WriteMSP(MSP_WR_DSP,wAddr,wData) // I2C_MSP3400C_DEM
 #define ReadDem(wAddr) Audio_ReadMSP(MSP_RD_DEM,wAddr)  // I2C_MSP3400C_DFP
 #define ReadDSP(wAddr) Audio_ReadMSP(MSP_RD_DSP,wAddr)  // I2C_MSP3400C_DFP
+#endif
 
 BOOL bSystemInMute = FALSE;
 
@@ -520,6 +531,7 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
     AudioDeviceWrite = DWrite;
     AudioDeviceRead = DRead;
 
+#ifndef FAKE_MSP_CHIP
     bHasMSP = FALSE;
 
     if (!I2CBus_AddDevice(DRead))
@@ -531,6 +543,7 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
     {
         return (FALSE);
     }
+#endif
 
     bHasMSP = TRUE;
 

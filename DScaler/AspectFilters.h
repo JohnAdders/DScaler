@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.h,v 1.11 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectFilters.h,v 1.12 2001-08-02 18:08:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ class CAspectRectangles
     // ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 
 public:
-    void DebugDump(FILE* f);
+    void DebugDump();
 
     RECT m_PrevDestRect;
     RECT m_PrevSrcRect;
@@ -99,7 +99,7 @@ public:
     //    1 level of re-calculate requests.
     virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
 
-    virtual void DebugDump(FILE* f);
+    virtual void DebugDump();
     void SetChild(CAspectFilter* Child);
 protected:
     CAspectFilter* m_Child;
@@ -113,7 +113,7 @@ public:
     COverscanAspectFilter(int overscanSize);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE* f);
+    virtual void DebugDump();
 
 protected:
     int m_Overscan;
@@ -129,7 +129,7 @@ public:
     ~COrbitAspectFilter();
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE* f);
+    virtual void DebugDump();
 
 protected:
     CPeriodBouncer* m_pXOrbitBouncer;
@@ -145,7 +145,7 @@ public:
     ~CBounceDestinationAspectFilter();
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE* f);
+    virtual void DebugDump();
 
 protected:
     CPeriodBouncer* m_pBouncer;
@@ -159,7 +159,7 @@ public:
     CPositionDestinationAspectFilter(double x, double y);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE* f);
+    virtual void DebugDump();
 
 protected:
     double m_XPos;
@@ -195,7 +195,7 @@ public:
     CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE* f);
+    virtual void DebugDump();
 
 protected:
     double m_XPos;

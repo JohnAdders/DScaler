@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRect.h,v 1.9 2001-07-18 18:38:12 adcockj Exp $
+// $Id: AspectRect.h,v 1.10 2001-08-02 18:08:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,8 @@
 
 #ifndef __ASPECTRECT_H__
 #define __ASPECTRECT_H__
+
+#include "DebugLog.h"
 
 // Aspect aware smart-rectangle
 // All function in-line for efficency when compiled...
@@ -411,9 +413,9 @@ public:
         }
     }
 
-    void DebugDump(FILE* f)
+    void DebugDump(LPCSTR Desc)
     {
-        fprintf(f,"L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",left,right,top,bottom,sourceAspect(),targetAspect(),m_OutputAdjustment);
+        LOG(2, "%s: L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",Desc, left,right,top,bottom,sourceAspect(),targetAspect(),m_OutputAdjustment);
     }
 
 protected:

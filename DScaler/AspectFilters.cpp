@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.10 2001-07-29 10:06:42 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.11 2001-08-02 18:08:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/29 10:06:42  adcockj
+// Took out debug log for aspect ratio
+//
 // Revision 1.9  2001/07/18 18:45:32  adcockj
 // Corrected file comment
 //
@@ -48,17 +51,14 @@
 #include "Status.h"
 #include "BT848.h"
 
-// From dtv.c .... We really need to reduce reliance on globals by going C++!
+// From DScaler.cpp .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
 extern BOOL bIsFullScreen;
 extern BOOL bShowMenu;
 
 
-//uncomment line below to get debug log 
-//#define __ASPECTFILTER_DEBUG__ "CAspectFilterDebug.log"
-#ifdef __ASPECTFILTER_DEBUG__
-    static FILE* debugLog = NULL;
-#endif
+//uncomment line below to get debug log for aspect ratio
+//#define __ASPECTFILTER_DEBUG__
 
 // Used to calculate positions for a given period and timing.
 // Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
@@ -102,10 +102,10 @@ double CPeriodBouncer::position()
 // 
 // ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 
-void CAspectRectangles::DebugDump(FILE* f)
+void CAspectRectangles::DebugDump()
 {
-    fprintf(f,"SRC : "); m_CurrentOverlaySrcRect.DebugDump(f);
-    fprintf(f,"DEST: "); m_CurrentOverlayDestRect.DebugDump(f);
+    m_CurrentOverlaySrcRect.DebugDump("SRC ");
+    m_CurrentOverlayDestRect.DebugDump("DEST");
 }
 
 CAspectFilter::CAspectFilter()
@@ -127,7 +127,7 @@ CAspectFilter::~CAspectFilter()
 //    as this adjustment affects all calculations.  Current implementation only allows 
 //    1 level of re-calculate requests.
 
-void CAspectFilter::DebugDump(FILE* f)
+void CAspectFilter::DebugDump()
 {
     ; // empty if not implemented
 }
@@ -152,9 +152,9 @@ LPCSTR COverscanAspectFilter::getFilterName()
 {
     return "COverscanAspectFilter";
 }
-void COverscanAspectFilter::DebugDump(FILE* f)
+void COverscanAspectFilter::DebugDump()
 { 
-    fprintf(f,"Overscan = %i\n",m_Overscan);
+    LOG(2,"Overscan = %i",m_Overscan);
 }
 
 // This filter orbits the source image using independent X and Y timers.
@@ -188,9 +188,9 @@ LPCSTR COrbitAspectFilter::getFilterName()
     return "COrbitAspectFilter";
 }
 
-void COrbitAspectFilter::DebugDump(FILE* f)
+void COrbitAspectFilter::DebugDump()
 {
-    fprintf(f,"m_pXOrbitBouncer = %lf, m_pYOrbitBouncer = %lf\n",m_pXOrbitBouncer->position(), m_pYOrbitBouncer->position());
+    LOG(2,"m_pXOrbitBouncer = %lf, m_pYOrbitBouncer = %lf",m_pXOrbitBouncer->position(), m_pYOrbitBouncer->position());
 }
 
 CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
@@ -229,9 +229,9 @@ LPCSTR CBounceDestinationAspectFilter::getFilterName()
     return "CBounceDestinationAspectFilter"; 
 }
 
-void CBounceDestinationAspectFilter::DebugDump(FILE* f)
+void CBounceDestinationAspectFilter::DebugDump()
 {
-    fprintf(f,"position = %lf\n",m_pBouncer->position());
+    LOG(2,"position = %lf",m_pBouncer->position());
 }
 
 // Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
@@ -258,9 +258,9 @@ LPCSTR CPositionDestinationAspectFilter::getFilterName()
     return "CPositionDestinationAspectFilter"; 
 }
 
-void CPositionDestinationAspectFilter::DebugDump(FILE* f)
+void CPositionDestinationAspectFilter::DebugDump()
 {
-    fprintf(f,"m_XPos = %lf, m_YPos = %lf\n",m_XPos,m_YPos); 
+    LOG(2,"m_XPos = %lf, m_YPos = %lf",m_XPos,m_YPos); 
 }
 
 BOOL CCropAspectFilter::adjustAspect(CAspectRectangles &ar)
@@ -471,9 +471,9 @@ LPCSTR CPanAndZoomAspectFilter::getFilterName()
 {
     return "CPanAndZoomAspectFilter";
 }
-void CPanAndZoomAspectFilter::DebugDump(FILE* f)
+void CPanAndZoomAspectFilter::DebugDump()
 { 
-    fprintf(f,"m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf\n",m_XPos,m_YPos,m_XZoom,m_YZoom);
+    LOG(2,"m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf",m_XPos,m_YPos,m_XZoom,m_YZoom);
 }
 
 // Performs important sanity checks on the destination rectangle
@@ -531,8 +531,8 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
         }
 
         #ifdef __ASPECTFILTER_DEBUG__
-            fprintf(debugLog, "Current Client Rect:"); currentClientRect.DebugDump(debugLog);
-            fprintf(debugLog, "Target Client Rect :"); newRect.DebugDump(debugLog);
+            currentClientRect.DebugDump("Current Client Rect");
+            newRect.DebugDump("Target Client Rect");
         #endif
 
         // Do we match????
@@ -544,7 +544,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
             
             #ifdef __ASPECTFILTER_DEBUG__
-                fprintf(debugLog, "New Client Rect    :"); currentClientRect.DebugDump(debugLog);
+                currentClientRect.DebugDump("New Client Rect");
             #endif
                         
             // Add the status bar back in...
@@ -558,8 +558,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             AdjustWindowRectEx(&currentClientRect,GetWindowLong(hWnd,GWL_STYLE),bShowMenu,0);
             
             #ifdef __ASPECTFILTER_DEBUG__
-                fprintf(debugLog, "New Window Pos     :"); 
-                currentClientRect.DebugDump(debugLog);
+                currentClientRect.DebugDump("New Window Pos");
             #endif
 
             // Set the window...
@@ -572,7 +571,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
                 {
                     currentClientRect.bottom -= StatusBar_Height();
                 }
-                fprintf(debugLog, "Actual New Client  :"); currentClientRect.DebugDump(debugLog);
+                currentClientRect.DebugDump("Actual New Client  ");
             #endif
 
             // Recalculate the overlay
@@ -693,36 +692,28 @@ CFilterChain::~CFilterChain()
 // to avoid infinite recursion.
 BOOL CFilterChain::ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust)
 {
-    #ifdef __ASPECTFILTER_DEBUG__
-        if (debugLog == NULL) 
-        {
-            debugLog = fopen(__ASPECTFILTER_DEBUG__,"wt");
-            setvbuf(debugLog,NULL,_IONBF,0);
-        }
-    #endif
-
     for(vector<CAspectFilter*>::iterator it = m_FilterChain.begin();
         it != m_FilterChain.end();
         ++it)
     {
         #ifdef __ASPECTFILTER_DEBUG__
-            fprintf(debugLog,"PRE FILTER VALUES: %s\n",(*it)->getFilterName());
-            (*it)->DebugDump(debugLog);
-            ar.DebugDump(debugLog);
+            LOG(2,"PRE FILTER VALUES: %s",(*it)->getFilterName());
+            (*it)->DebugDump();
+            ar.DebugDump();
         #endif
         BOOL readjust = (*it)->adjustAspect(ar);
         #ifdef __ASPECTFILTER_DEBUG__
-            fprintf(debugLog,"POST FILTER VALUES: %s\n",(*it)->getFilterName());
-            ar.DebugDump(debugLog);
+            LOG(2,"POST FILTER VALUES: %s",(*it)->getFilterName());
+            ar.DebugDump();
             if (readjust)
             {
                 if (allowReadjust)
                 {
-                    fprintf(debugLog,"READJUST REQUESTED\n");
+                    LOG(2,"READJUST REQUESTED\n");
                 }
                 else
                 {
-                    fprintf(debugLog,"READJUST REQUESTED BUT NOT ALLOWED\n");
+                    LOG(2,"READJUST REQUESTED BUT NOT ALLOWED\n");
                 }
             }
         #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.12 2005-03-06 13:15:06 to_see Exp $
+// $Id: ParsingCommon.cpp,v 1.13 2005-03-09 07:53:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2005/03/06 13:15:06  to_see
+// Added some tuner
+//
 // Revision 1.11  2004/12/29 20:17:19  to_see
 // Added TCL 2002N tuner (from v4l2)
 //
@@ -135,6 +138,7 @@ const CParseConstant k_parseTunerConstants[] =
 	PC( "LG_PAL_TAPE",			        TUNER_LG_PAL_TAPE  				),
 	PC( "PHILIPS_FM1216ME",		        TUNER_PHILIPS_FM1216ME  		),
 	PC( "PHILIPS_FQ1236A_MK4",	        TUNER_PHILIPS_FQ1236A_MK4  		),
+	PC( "PHILIPS_TDA8275",				TUNER_TDA8275			  		),
 	PC( NULL )
 };
 

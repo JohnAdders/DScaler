@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.h,v 1.1 2005-03-08 18:14:03 atnak Exp $
+// $Id: TDA8275.h,v 1.2 2005-03-09 07:53:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/03/08 18:14:03  atnak
+// Initial upload.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -75,7 +78,7 @@ public:
 	// from ITuner
 
 	// Gets this tuner's tuner ID.
-	virtual eTunerId		GetTunerId() { return TUNER_ABSENT; }//   <------------------------- TODO FIX
+	virtual eTunerId		GetTunerId() { return TUNER_TDA8275; }
 	// Gets the video format that was specified as default on construction.
 	virtual eVideoFormat	GetDefaultVideoFormat();
 	// Gets whether or not this tuner supports radio tuning.

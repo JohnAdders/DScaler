@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.51 2001-12-16 18:40:28 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.52 2001-12-17 19:31:17 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2001/12/16 18:40:28  laurentg
+// Reset statistics
+//
 // Revision 1.50  2001/12/16 13:13:34  laurentg
 // New statistics
 //
@@ -465,6 +468,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     DEINTERLACE_METHOD* CurrentMethod = NULL;
     int nHistory = 0;
     long SourceAspectAdjust = 1000;
+
+#ifdef WANT_DSHOW_SUPPORT
+	//com init for this thread
+	CoInitializeEx(NULL,COINIT_MULTITHREADED);
+#endif
+
     CSource* pSource = Providers_GetCurrentSource();
     BOOL bIsPAL = GetTVFormat(pSource->GetFormat())->Is25fps;
 
@@ -852,6 +861,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         ExitThread(1);
         return 0;
     }
+
+#ifdef WANT_DSHOW_SUPPORT
+	//com deinit
+	CoUninitialize();
+#endif
+
     ExitThread(0);
     return 0;
 }

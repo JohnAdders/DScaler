@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.5 2002-12-05 08:38:39 atnak Exp $
+// $Id: RegSpy.cpp,v 1.6 2002-12-05 17:10:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/12/05 08:38:39  atnak
+// Fixed no redraw bug in last update
+//
 // Revision 1.4  2002/12/05 08:06:11  atnak
 // Various changes
 //
@@ -236,6 +239,7 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(CX2388X_VIP_HSCALE);
     AddDWRegister(CX2388X_VIP_VSCALE);
     AddDWRegister(CX2388X_VBOS);
+    AddDWRegister(CX2388X_PINMUX_IO);
 
     AddDWRegister(MO_GP0_IO);
     AddDWRegister(MO_GP1_IO);   
@@ -243,15 +247,26 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(MO_GP3_IO);
     AddDWRegister(MO_GPIO);
     AddDWRegister(MO_GPOE);
+    
+    AddDWRegister(MO_AUD_DMACNTRL);
+    AddDWRegister(MO_AUD_XFR_STAT);
+    AddDWRegister(MO_AUDD_LNGTH);  
+    AddDWRegister(MO_AUDR_LNGTH);  
 
-    AddDWRegister(0x02320d01);
-    AddDWRegister(0x02320d02);
-    AddDWRegister(0x02320d03);
-    AddDWRegister(0x02320d04);
-    AddDWRegister(0x02320d2a);
-    AddDWRegister(0x02320d2b);
+    AddDWRegister(MO_DMA25_PTR2);
+    AddDWRegister(MO_DMA25_CNT1);  
+    AddDWRegister(MO_DMA25_CNT2);   
+    AddDWRegister(MO_DMA26_PTR2);   
+    AddDWRegister(MO_DMA26_CNT1);   
+    AddDWRegister(MO_DMA26_CNT2);   
 
-    AddDWRegister(AUD_DN0_FREQ);
+    AddDWRegister(0x0320d01);
+    AddDWRegister(0x0320d02);
+    AddDWRegister(0x0320d03);
+    AddDWRegister(0x0320d04);
+    AddDWRegister(0x0320d2a);
+    AddDWRegister(0x0320d2b);
+
     AddDWRegister(AUD_POLY0_DDS_CONSTANT);
     AddDWRegister(AUD_IIR1_0_SEL);
     AddDWRegister(AUD_IIR1_1_SEL);
@@ -296,18 +311,24 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(AUD_IIR4_2_CA2);
     AddDWRegister(AUD_IIR4_2_CB0);
     AddDWRegister(AUD_IIR4_2_CB1);
+    
     AddDWRegister(AUD_HP_MD_IIR4_1);
     AddDWRegister(AUD_HP_PROG_IIR4_1);
+    
+    AddDWRegister(AUD_DN0_FREQ);
+
     AddDWRegister(AUD_DN1_FREQ);
     AddDWRegister(AUD_DN1_SRC_SEL);
     AddDWRegister(AUD_DN1_SHFT);
     AddDWRegister(AUD_DN1_AFC);
     AddDWRegister(AUD_DN1_FREQ_SHIFT);
+
+    AddDWRegister(AUD_DN2_FREQ);
     AddDWRegister(AUD_DN2_SRC_SEL);
     AddDWRegister(AUD_DN2_SHFT);
     AddDWRegister(AUD_DN2_AFC);
-    AddDWRegister(AUD_DN2_FREQ);
     AddDWRegister(AUD_DN2_FREQ_SHIFT);
+
     AddDWRegister(AUD_PDET_SRC);
     AddDWRegister(AUD_PDET_SHIFT);
     AddDWRegister(AUD_DEEMPH0_SRC_SEL);
@@ -324,7 +345,7 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(AUD_DEEMPH1_B0);
     AddDWRegister(AUD_DEEMPH1_A1);
     AddDWRegister(AUD_DEEMPH1_B1);
-    AddDWRegister(AUD_PLL_EN);
+
     AddDWRegister(AUD_DMD_RA_DDS);
     AddDWRegister(AUD_RATE_ADJ1);
     AddDWRegister(AUD_RATE_ADJ2);
@@ -336,25 +357,35 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(AUD_C1_UP_THR);
     AddDWRegister(AUD_C1_LO_THR);
     AddDWRegister(AUD_CTL);
+    
     AddDWRegister(AUD_DCOC_0_SRC);
     AddDWRegister(AUD_DCOC_1_SRC);
     AddDWRegister(AUD_DCOC1_SHIFT);
     AddDWRegister(AUD_DCOC_1_SHIFT_IN0);
     AddDWRegister(AUD_DCOC_1_SHIFT_IN1);
     AddDWRegister(AUD_DCOC_PASS_IN);
-    AddDWRegister(AUD_IIR4_0_SEL);
-    AddDWRegister(AUD_DN1_AFC);
     AddDWRegister(AUD_DCOC_2_SRC);
-    AddDWRegister(AUD_IIR4_1_SEL);
-    AddDWRegister(AUD_CTL);
-    AddDWRegister(AUD_DN2_SRC_SEL);
-    AddDWRegister(AUD_DN2_FREQ);
+
+    AddDWRegister(AUD_IIR4_0_SEL);
     AddDWRegister(AUD_POLY0_DDS_CONSTANT);
     AddDWRegister(AUD_PHASE_FIX_CTL);
     AddDWRegister(AUD_CORDIC_SHIFT_1);
+    
+    AddDWRegister(AUD_PLL_EN);
     AddDWRegister(AUD_PLL_PRESCALE);
     AddDWRegister(AUD_PLL_INT);
+    
     AddDWRegister(AUD_AFE_12DB_EN);
+    
+    AddDWRegister(AUD_DBX_IN_GAIN);
+    AddDWRegister(AUD_DBX_WBE_GAIN);
+    AddDWRegister(AUD_DBX_SE_GAIN);
+    AddDWRegister(AUD_OUT1_SHIFT);
+
+    AddDWRegister(AUD_INIT);
+    AddDWRegister(AUD_STATUS);
+    AddDWRegister(AUD_VOL_CTL);
+    AddDWRegister(AUD_BAL_CTL);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.5 2005-03-26 18:53:22 laurentg Exp $
+// $Id: EPG.cpp,v 1.6 2005-03-26 19:55:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/26 18:53:22  laurentg
+// EPG code improved
+// => possibility to set the EPG channel name in the channel setup dialog box
+// => automatic loading of new data when needed
+// => OSD scrrens updated
+// => first step for programs "browser"
+//
 // Revision 1.4  2005/03/21 22:39:15  laurentg
 // EPG: changes regarding OSD
 //
@@ -885,9 +892,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		datetime_tm->tm_sec = 0;
 		datetime_tm->tm_min = 0;
 		TimeMin = mktime(datetime_tm);
-		datetime_tm->tm_sec = 59;
-		datetime_tm->tm_min = 59;
-		TimeMax = mktime(datetime_tm);
+		TimeMax = TimeMin + ONE_HOUR - 1;
 		// Check if new EPG data have to be loaded
 		if (TimeMin < m_LoadedTimeMin)
 		{
@@ -905,13 +910,8 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	case IDM_DISPLAY_EPG_EARLIER:
 		if (m_SearchTimeMin != 0)
 		{
-			// TODO Manage change of day
-			datetime_tm = localtime(&m_SearchTimeMin);
-			datetime_tm->tm_hour--;
-			TimeMin = mktime(datetime_tm);
-			datetime_tm = localtime(&m_SearchTimeMax);
-			datetime_tm->tm_hour--;
-			TimeMax = mktime(datetime_tm);
+			TimeMin = m_SearchTimeMin - ONE_HOUR;
+			TimeMax = m_SearchTimeMax - ONE_HOUR;
 			// Check if new EPG data have to be loaded
 			if (TimeMin < m_LoadedTimeMin)
 			{
@@ -930,13 +930,8 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	case IDM_DISPLAY_EPG_LATER:
 		if (m_SearchTimeMin != 0)
 		{
-			// TODO Manage change of day
-			datetime_tm = localtime(&m_SearchTimeMin);
-			datetime_tm->tm_hour++;
-			TimeMin = mktime(datetime_tm);
-			datetime_tm = localtime(&m_SearchTimeMax);
-			datetime_tm->tm_hour++;
-			TimeMax = mktime(datetime_tm);
+			TimeMin = m_SearchTimeMin + ONE_HOUR;
+			TimeMax = m_SearchTimeMax + ONE_HOUR;
 			// Check if new EPG data have to be loaded
 			if (TimeMin < m_LoadedTimeMin)
 			{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.17 2004-04-18 12:01:04 adcockj Exp $
+// $Id: PCICard.cpp,v 1.18 2004-12-06 09:01:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/04/18 12:01:04  adcockj
+// Fixes for eeprom corruption
+//
 // Revision 1.16  2004/04/14 10:02:00  adcockj
 // Added new offset functions for manipulating PCI config space
 //
@@ -357,6 +360,65 @@ DWORD CPCICard::ReadDword(DWORD Offset)
     return dwValue;
 }
 
+void CPCICard::WriteData(DWORD Offset, DWORD Mask, CBitVector Data)
+{
+    unsigned long mask = Data.mask() & Mask;
+    unsigned long value = Data.value();
+
+    if (Mask & 0xFFFF0000)
+    {
+        if (mask == 0xFFFFFFFF)
+        {
+            WriteDword(Offset, static_cast<BYTE>(value));
+        }
+        else
+        {
+            MaskDataDword(Offset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
+        }
+    }
+    else if (Mask & 0xFF00)
+    {
+        if (mask == 0xFFFF)
+        {
+            WriteWord(Offset, static_cast<BYTE>(value));
+        }
+        else
+        {
+            MaskDataWord(Offset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
+        }
+    }
+    else if (Mask & 0xFF)
+    {
+        if (mask == 0xFF)
+        {
+            WriteByte(Offset, static_cast<BYTE>(value));
+        }
+        else
+        {
+            MaskDataByte(Offset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
+        }
+    }
+}
+
+CBitVector CPCICard::ReadData(DWORD Offset, DWORD Mask)
+{
+    unsigned long value = 0;
+
+    if (Mask & 0xFFFF0000)
+    {
+        value = static_cast<unsigned long>(ReadDword(Offset));
+    }
+    else if (Mask & 0xFF00)
+    {
+        value = static_cast<unsigned long>(ReadWord(Offset));
+    }
+    else if (Mask & 0xFF)
+    {
+        value = static_cast<unsigned long>(ReadByte(Offset));
+    }
+    return CBitVector(Mask, value);
+}
+
 
 void CPCICard::MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask)
 {
@@ -382,14 +444,14 @@ void CPCICard::MaskDataDword(DWORD Offset, DWORD Data, DWORD Mask)
 void CPCICard::AndOrDataByte(DWORD Offset, DWORD Data, BYTE Mask)
 {
     BYTE Result(ReadByte(Offset));
-    Result = (Result & Mask) | Data;
+    Result = static_cast<BYTE>((Result & Mask) | Data);
     WriteByte(Offset, Result);
 }
 
 void CPCICard::AndOrDataWord(DWORD Offset, DWORD Data, WORD Mask)
 {
     WORD Result(ReadWord(Offset));
-    Result = (Result & Mask) | Data;
+    Result = static_cast<BYTE>((Result & Mask) | Data);
     WriteWord(Offset, Result);
 }
 

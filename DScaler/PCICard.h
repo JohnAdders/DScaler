@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.17 2004-04-18 12:01:04 adcockj Exp $
+// $Id: PCICard.h,v 1.18 2004-12-06 09:01:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@
 #define __PCICARD_H___
 
 #include "HardwareDriver.h"
+#include "BitVector.h"
 
 /** This class is used to provide access to the low level function provided
     by the drivers.  To use these function derive your card specific class 
@@ -87,6 +88,11 @@ public:
     WORD ReadWord(DWORD Offset);
     /// Read a DWORD from shared memory
     DWORD ReadDword(DWORD Offset);
+
+    /// Write masked data of size defined by Mask to shared memory
+    void WriteData(DWORD Offset, DWORD Mask, CBitVector Data);
+    /// Read masked data of size defined by Mask from shared memory
+    CBitVector ReadData(DWORD Offset, DWORD Mask);
 
     void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
     void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);

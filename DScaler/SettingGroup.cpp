@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.2 2004-08-12 14:03:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -920,6 +923,36 @@ void CSettingGroupEx::EnableOptionalDependencies(IN DBIT dependeeBit, IN BOOL se
 		Activate(FALSE);
 	}
 	LeaveLock();
+}
+
+
+void CSettingGroupEx::SetEnabledOptionalDependencies(IN DBIT mask, IN BOOL suspended)
+{
+	EnterLock();
+	if (m_parentGroup != NULL)
+	{
+		LeaveLock();
+		// Disallow the changing of the dependant mask from a subgroup.
+		return;
+	}
+
+	BOOL changed = m_dependencyGestalt->SetDependantMask(mask);
+	if (changed && !m_suspended && !suspended)
+	{
+		// Calling Activate() takes care of synchronizing all changes
+		// that occur as a result of the dependant mask change.
+		Activate(FALSE);
+	}
+	LeaveLock();
+}
+
+
+DBIT CSettingGroupEx::GetEnabledOptionalDependencies()
+{
+	EnterLock();
+	DBIT mask = m_dependencyGestalt->GetDependantMask();
+	LeaveLock();
+	return mask;
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.16 2002-02-09 02:44:56 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.17 2002-02-09 18:39:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.15  2002/02/08 08:13:17  adcockj
 // Put input type text on menu
 //
@@ -377,7 +380,7 @@ BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wP
     case WM_INITDIALOG:
         pThis = (CBT848Source*) lParam;
         // Luma AGC, 0 says AGC enabled
-        CheckDlgButton(hDlg, IDC_AGC, !(pThis->m_BtAgcDisable));
+        CheckDlgButton(hDlg, IDC_AGC, !(pThis->m_BtAgcDisable->GetValue()));
         // Adaptive AGC, 0 says Crush disabled
         CheckDlgButton(hDlg, IDC_CRUSH, pThis->m_BtCrush->GetValue());
         // Even CAGC, 0 says CAGC disable

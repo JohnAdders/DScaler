@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.h,v 1.1 2002-02-07 22:05:43 tobbej Exp $
+// $Id: DShowFileSource.h,v 1.2 2002-02-13 16:58:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +44,10 @@
 
 #include "DShowBaseSource.h"
 
-class CDShowFileSource : public CDShowBaseSource  
+/**
+ * Direct Show file input source.
+ */
+class CDShowFileSource : public CDShowBaseSource
 {
 public:
 	CDShowFileSource(IGraphBuilder *pGraph,string filename);

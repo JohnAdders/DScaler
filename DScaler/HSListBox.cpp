@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HSListBox.cpp,v 1.6 2001-11-23 10:49:17 adcockj Exp $
+// $Id: HSListBox.cpp,v 1.7 2002-02-13 16:58:40 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.5  2001/07/14 16:06:57  tobbej
 // modified copyright notice to match coding standards
 //
@@ -36,6 +39,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file HSListBox.cpp implementation of the CHSListBox class.
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

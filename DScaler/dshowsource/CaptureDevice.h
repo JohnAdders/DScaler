@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.4 2002-02-07 22:05:43 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.5 2002-02-13 16:58:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 // Revision 1.3  2002/02/05 17:24:13  tobbej
 // changed javadoc coments
 //
@@ -64,7 +68,7 @@ public:
 
  
 /**
- * fixme
+ * Class for managing a Direct Show capture device.
  */
 class CDShowCaptureDevice : public CDShowBaseSource  
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.58 2003-04-20 11:34:37 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.59 2003-04-28 17:31:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/04/20 11:34:37  laurentg
+// "Zoom Off" instead of "Zoom 1x" in OSD
+//
 // Revision 1.57  2003/02/17 11:39:00  adcockj
 // Added group flags for setting per channel on more settings
 //
@@ -359,7 +362,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_WINPOS_ORBIT, (AspectSettings.OrbitEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_AUTOSIZE, (AspectSettings.AutoResizeWindow));
 	CheckMenuItemBool(hMenu, IDM_ANALOGUE_BLANKING, (AspectSettings.bAnalogueBlanking));
-    EnableMenuItem(hMenu, IDM_ANALOGUE_BLANKING, Providers_GetCurrentSource()->GetAnalogueBlanking() ? MF_ENABLED : MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_ANALOGUE_BLANKING, Providers_GetCurrentSource() && Providers_GetCurrentSource()->GetAnalogueBlanking() ? MF_ENABLED : MF_GRAYED);
 
     // Zoom
     CheckMenuItemBool(hMenu, IDM_ZOOM_10, (AspectSettings.ZoomFactorX == 100 && AspectSettings.ZoomFactorY == 100));
@@ -380,6 +383,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 {
     char Text[32];
     static BOOL WSSWasEnabled = FALSE;
+	CSource* pSource;
 
     switch (wMenuID)
     {
@@ -462,10 +466,11 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_ANALOGUE_BLANKING:
-		if (Providers_GetCurrentSource()->GetAnalogueBlanking() != NULL)
+		pSource = Providers_GetCurrentSource();
+		if (pSource && pSource->GetAnalogueBlanking() != NULL)
 		{
-			Providers_GetCurrentSource()->GetAnalogueBlanking()->SetValue(!Providers_GetCurrentSource()->GetAnalogueBlanking()->GetValue());
-			AspectSettings.bAnalogueBlanking = Providers_GetCurrentSource()->GetAnalogueBlanking()->GetValue();
+			pSource->GetAnalogueBlanking()->SetValue(!pSource->GetAnalogueBlanking()->GetValue());
+			AspectSettings.bAnalogueBlanking = pSource->GetAnalogueBlanking()->GetValue();
 			ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
 		}
         break;

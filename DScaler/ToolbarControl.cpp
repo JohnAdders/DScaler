@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.4 2002-10-08 08:23:59 kooiman Exp $
+// $Id: ToolbarControl.cpp,v 1.5 2003-04-28 17:32:00 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/08 08:23:59  kooiman
+// Fixed window auto-resize problem.
+//
 // Revision 1.3  2002/10/07 20:33:51  kooiman
 // Fixed lots of toolbar bugs & added grip/separator bars.
 //
@@ -577,7 +580,7 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
         m_ShowToolbar1->SetValue(!m_ShowToolbar1->GetValue());		
 		if ((Toolbar1 == NULL) && (m_ShowToolbar1->GetValue()))
 		{
-			extern char szSkinName[MAX_PATH+1];
+			extern char* szSkinName;
 			CToolbarControl::Set(hWnd, szSkinName);	
 		}
 		else

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.43 2002-08-08 12:49:33 kooiman Exp $
+// $Id: Other.cpp,v 1.44 2002-08-09 08:31:15 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/08/08 12:49:33  kooiman
+// Added Overlay settings to settings per channel.
+//
 // Revision 1.42  2002/08/07 21:53:04  adcockj
 // Removed todo item
 //
@@ -1395,11 +1398,11 @@ void Other_SavePerChannelSetup(void *pThis, int Start)
   {
      // Register for per channel settings
     SettingsPerChannel_RegisterSetSection("Overlay");
-    SettingsPerChannel_RegisterSetting("OverlayBrightness","Overlay - Brightness", TRUE, &OtherSettings[OVERLAYBRIGHTNESS]);
-    SettingsPerChannel_RegisterSetting("OverlayContrast","Overlay - Contrast", TRUE, &OtherSettings[OVERLAYCONTRAST]);
-    SettingsPerChannel_RegisterSetting("OverlayHue","Overlay - Hue", TRUE, &OtherSettings[OVERLAYHUE]);
-    SettingsPerChannel_RegisterSetting("OverlaySaturation","Overlay - Saturation", TRUE, &OtherSettings[OVERLAYSATURATION]);
-    SettingsPerChannel_RegisterSetting("OverlayGamma","Overlay - Gamma", TRUE, &OtherSettings[OVERLAYGAMMA]);
-    SettingsPerChannel_RegisterSetting("OverlaySharpness","Overlay - Sharpness", TRUE, &OtherSettings[OVERLAYSHARPNESS]);
+    SettingsPerChannel_RegisterSetting("OverlayBrightness","Overlay - Brightness", FALSE, &OtherSettings[OVERLAYBRIGHTNESS]);
+    SettingsPerChannel_RegisterSetting("OverlayContrast","Overlay - Contrast", FALSE, &OtherSettings[OVERLAYCONTRAST]);
+    SettingsPerChannel_RegisterSetting("OverlayHue","Overlay - Hue", FALSE, &OtherSettings[OVERLAYHUE]);
+    SettingsPerChannel_RegisterSetting("OverlaySaturation","Overlay - Saturation", FALSE, &OtherSettings[OVERLAYSATURATION]);
+    SettingsPerChannel_RegisterSetting("OverlayGamma","Overlay - Gamma", FALSE, &OtherSettings[OVERLAYGAMMA]);
+    SettingsPerChannel_RegisterSetting("OverlaySharpness","Overlay - Sharpness", FALSE, &OtherSettings[OVERLAYSHARPNESS]);
   }   
 }

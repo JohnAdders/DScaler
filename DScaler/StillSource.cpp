@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.18 2001-12-08 14:23:33 laurentg Exp $
+// $Id: StillSource.cpp,v 1.19 2001-12-08 17:39:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/12/08 14:23:33  laurentg
+// Debug traces deleted
+//
 // Revision 1.17  2001/12/08 13:48:40  laurentg
 // New StillSource for snapshots done during the DScaler session
 //
@@ -99,6 +102,10 @@
 #include "TiffHelper.h"
 #include "OutThreads.h"
 
+
+#define TIMER_SLIDESHOW 50
+
+
 CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
 {
     m_pParent = pParent;
@@ -138,6 +145,7 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_FrameDuration = 1000.0 / m_FieldFrequency;
     m_IsPictureRead = FALSE;
     m_Position = -1;
+    m_SlideShowActive = FALSE;
 }
 
 CStillSource::~CStillSource()
@@ -151,6 +159,7 @@ CStillSource::~CStillSource()
         free(m_OriginalFrame.pData);
     }
     ClearPlayList();
+    KillTimer(hWnd, TIMER_SLIDESHOW);
 }
 
 BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
@@ -270,6 +279,9 @@ void CStillSource::CreateSettings(LPCSTR IniSection)
     m_StillFormat = new CSliderSetting("Format of Still Pictures", STILL_TIFF_RGB, STILL_TIFF_RGB, STILL_FORMAT_LASTONE - 1, IniSection, "StillFormat");
     m_Settings.push_back(m_StillFormat);
 
+    m_SlideShowDelay = new CSliderSetting("Slide Show Delay", 5, 1, 60, IniSection, "SlideShowDelay");
+    m_Settings.push_back(m_SlideShowDelay);
+
     ReadFromIni();
 }
 
@@ -284,6 +296,11 @@ void CStillSource::Stop()
     {
         free(m_StillFrame.pData);
         m_StillFrame.pData = NULL;
+    }
+    if (m_SlideShowActive)
+    {
+        m_SlideShowActive = FALSE;
+        KillTimer(hWnd, TIMER_SLIDESHOW);
     }
 }
 
@@ -370,6 +387,39 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         }
         return TRUE;
         break;
+    case IDM_PLAYLIST_FIRST:
+        if(m_Position != 0)
+        {
+            m_Position = 0;
+            Stop_Capture();
+            ShowNextInPlayList();
+            Start_Capture();
+        }
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_LAST:
+        if(m_Position != m_PlayList.size() - 1)
+        {
+            m_Position = m_PlayList.size() - 1;
+            Stop_Capture();
+            ShowPreviousInPlayList();
+            Start_Capture();
+        }
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_SLIDESHOW:
+        m_SlideShowActive = !m_SlideShowActive;
+        if (m_SlideShowActive)
+        {
+            SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
+        }
+        else
+        {
+            KillTimer(hWnd, TIMER_SLIDESHOW);
+        }
+        break;
+    default:
+        break;
     }
     return FALSE;
 }
@@ -449,38 +499,62 @@ void CStillSource::ClearPlayList()
 
 void CStillSource::SetMenu(HMENU hMenu)
 {
+    CheckMenuItemBool(hMenu, IDM_PLAYLIST_SLIDESHOW, m_SlideShowActive);
     if(m_PlayList.size() > 1)
     {
         if(m_Position > 0)
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_ENABLED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_ENABLED);
         }
         else
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_GRAYED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_GRAYED);
         }
         if(m_Position < m_PlayList.size() - 1)
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_ENABLED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_ENABLED);
         }
         else
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_GRAYED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_GRAYED);
         }
+        EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, MF_ENABLED);
     }
     else
     {
         EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, (m_PlayList.size() > 1) ? MF_ENABLED : MF_GRAYED);
     }
 }
 
 void CStillSource::HandleTimerMessages(int TimerId)
 {
+    if (TimerId == TIMER_SLIDESHOW)
+    {
+        if (m_SlideShowActive)
+        {
+            Stop_Capture();
+            ++m_Position;
+            if (!ShowNextInPlayList())
+            {
+                m_Position = 0;
+                ShowNextInPlayList();
+            }
+            Start_Capture();
+            m_SlideShowActive = TRUE;
+            SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
+        }
+    }
 }
 
 LPCSTR CStillSource::GetMenuLabel()
 {
     return m_Section.c_str();
 }
-

@@ -800,6 +800,9 @@
 #define IDM_SOUNDCHANNEL_STEREO         2208
 #define IDM_SOUNDCHANNEL_LANGUAGE1      2209
 #define IDM_SOUNDCHANNEL_LANGUAGE2      2210
+#define IDM_PLAYLIST_FIRST              2212
+#define IDM_PLAYLIST_LAST               2213
+#define IDM_PLAYLIST_SLIDESHOW          2214
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -808,7 +811,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        187
-#define _APS_NEXT_COMMAND_VALUE         2212
+#define _APS_NEXT_COMMAND_VALUE         2215
 #define _APS_NEXT_CONTROL_VALUE         1893
 #define _APS_NEXT_SYMED_VALUE           2192
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.12 2001-12-08 13:48:39 laurentg Exp $
+// $Id: StillSource.h,v 1.13 2001-12-08 17:39:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -117,10 +117,12 @@ protected:
 private:
     DWORD       m_LastTickCount;
     double      m_FrameDuration;
+    BOOL        m_SlideShowActive;
 
     std::string m_Section;
 
     CSliderSetting* m_StillFormat;
+    CSliderSetting* m_SlideShowDelay;
 };
 
 #endif

@@ -1117,6 +1117,9 @@ BEGIN
     BEGIN
         MENUITEM "&Previous",                   IDM_PLAYLIST_PREVIOUS
         MENUITEM "&Next",                       IDM_PLAYLIST_NEXT
+        MENUITEM "&First",                      IDM_PLAYLIST_FIRST
+        MENUITEM "&Last",                       IDM_PLAYLIST_LAST
+        MENUITEM "&Slideshow",                  IDM_PLAYLIST_SLIDESHOW
     END
 END
 

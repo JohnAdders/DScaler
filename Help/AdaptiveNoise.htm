@@ -257,13 +257,28 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             <B><FONT FACE="Arial">
-              How much noise reduction should I use?
+              How should I set <FONT COLOR="#993300">Noise Reduction</FONT> and <FONT COLOR="#993300">Stability</FONT>?
             </FONT></B>
           </P>
           <P>
             Let your eyes be the judge. I like to keep the
             settings pretty low&nbsp;&mdash; Blurred
             faces look worse than a little static.
+          </P>
+					<P>
+					  If you see too much blurring in lightly textured areas, like faces and
+						sports fields, then the best thing to do is lower the <FONT COLOR="#993300">Stability</FONT>
+						setting.  That will make the filter less aggressive in areas where it is unsure
+						of the amount of motion.
+					</P>
+					<P>
+					  If you see too much blurring overall, then it is better to reduce the
+						<FONT COLOR="#993300">Noise Reduction</FONT> setting.
+					</P>
+          <P>
+            <B><FONT FACE="Arial">
+              No matter how high I set things, the picture always seems to have a little noise.  How come?
+            </FONT></B>
           </P>
           <P>
             Surprisingly, small amounts of color variation can
@@ -275,9 +290,9 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             ignore the errors.
           </P>
           <P>
-            With that in mind, the Adaptive and Gradual Noise
-            filters and the Greedy (High Motion) median filter all
-            try to preserve a small amount of color variation.
+            With that in mind, this filter 
+            tries to preserve a small amount of color variation.  Gradual Noise and the
+						Greedy High Motion median filter do this, too.
             As a result, they will never give you a completely
             stable picture.
           </P>
@@ -292,7 +307,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 						moving or very dark scenes, it won&rsquo;t be able to get that estimate.
 					</P>
 					<P>
-					  You can see this effect with the <FONT COLOR="#993300">Lock Dot</FONT>
+					  You can check for this with the <FONT COLOR="#993300">Lock Dot</FONT>
 						option.  The dot will show up during still scenes only if the filter has
 						a good estimate of the noise.
 					</P>

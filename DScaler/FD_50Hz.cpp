@@ -35,6 +35,7 @@
 #include "stdafx.h"
 #include "OutThreads.h"
 #include "FD_50Hz.h"
+#include "FD_60Hz.h"
 #include "FD_Common.h"
 #include "DebugLog.h"
 
@@ -68,6 +69,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	static long FieldsSinceLastChange = 0;
 	static long PrivateRepeatCount = PALPulldownRepeatCount;
 	static long NotSureCount = 0;
+	static BOOL NeedToCheckComb = FALSE;
 
 	// call with pInfo as NULL to reset static variables when we start the thread
 	// each time
@@ -82,6 +84,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 		FieldsSinceLastChange = 0;
 		PrivateRepeatCount = PALPulldownRepeatCount;
 		NotSureCount = 0;
+		NeedToCheckComb = FALSE;
 		return;
 	}
     
@@ -93,6 +96,19 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	if(FieldsSinceLastChange < 0x7FFF)
 	{
 		++FieldsSinceLastChange;
+	}
+
+	if(NeedToCheckComb == TRUE)
+	{
+		if(!IsFilmMode())
+		{
+			RepeatCount = 0;
+			NeedToCheckComb = FALSE;
+		}
+		else if(GetFilmMode() != FILM_32_PULLDOWN_COMB)
+		{
+			NeedToCheckComb = FALSE;
+		}
 	}
 
     PercentDecrease = ((double)pInfo->CombFactor * 100.0) / ((double)LastCombFactor + 100.0);
@@ -129,13 +145,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 				}
 				else
 				{
-					if(FieldsSinceLastChange < 100)
-					{
-	        			SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
-						FieldsSinceLastChange = 0;
-						PrivateRepeatCount = PALPulldownRepeatCount * 3;
-					}
-					else
+					if(FieldsSinceLastChange > 100 || (GetFilmMode() == FILM_32_PULLDOWN_COMB))
 					{
 						if(pInfo->IsOdd == TRUE)
 						{
@@ -147,7 +157,9 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 							SetFilmDeinterlaceMode(FILM_22_PULLDOWN_EVEN);
 							LOG(" Gone to Even");
 						}
+						PrivateRepeatCount = PALPulldownRepeatCount;
 						NotSureCount = 0;
+						FieldsSinceLastChange = 0;
 					}
 				}
 			}
@@ -177,12 +189,27 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
             {
         		SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
 				LOG(" Gone back to video");
+				RepeatCount = 0;
             }
             else
             {
-				SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
-				LOG(" Gone to Comb Mode");
-				RepeatCount = PrivateRepeatCount;
+				if(FieldsSinceLastChange < 100)
+				{
+	        		SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+					FieldsSinceLastChange = 0;
+					PrivateRepeatCount = PALPulldownRepeatCount * 4;
+					LOG(" Changes too fast go back to video and make it harder");
+					RepeatCount = 0;
+				}
+				else
+				{
+					// Reset the paramters of the Comb method
+					FilmModeNTSCComb(NULL);
+					SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+					LOG(" Gone to Comb Mode");
+					RepeatCount = PrivateRepeatCount;
+					NeedToCheckComb = TRUE;
+				}
             }
 		}
 		if(LastPolarity == pInfo->IsOdd)
@@ -191,7 +218,22 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 			{
 				if(pInfo->CombFactor < LastCombFactor)
 				{
-					NotSureCount = 0;
+					if(pInfo->CombFactor + ThresholdPulldownComb < LastCombFactor)
+					{
+						if(NotSureCount > 0)
+						{
+							LOG(" Reset not sure count");
+							NotSureCount = 0;
+						}
+					}
+					else
+					{
+						if(NotSureCount > 0)
+						{
+							--NotSureCount;
+							LOG(" Decreased not sure count %d", NotSureCount);
+						}
+					}
 				}
 				else
 				{
@@ -202,13 +244,32 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 						{
         					SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
 							LOG(" Gone back to because we're not sure");
+							RepeatCount = 0;
 						}
 						else
 						{
-							SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
-							LOG(" Gone to Comb Mode because we're not sure");
-							RepeatCount = PrivateRepeatCount;
+							if(FieldsSinceLastChange < 100)
+							{
+	        					SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+								FieldsSinceLastChange = 0;
+								PrivateRepeatCount = PALPulldownRepeatCount * 4;
+								LOG(" Changes too fast go back to video and make it harder because we're not sure");
+								RepeatCount = 0;
+							}
+							else
+							{
+								// Reset the paramters of the Comb method
+								FilmModeNTSCComb(NULL);
+								SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+								LOG(" Gone to Comb Mode because we're not sure");
+								RepeatCount = PrivateRepeatCount;
+								NeedToCheckComb = TRUE;
+							}
 						}
+					}
+					else
+					{
+						LOG(" Increased not sure count %d", NotSureCount);
 					}
 				}
 			}

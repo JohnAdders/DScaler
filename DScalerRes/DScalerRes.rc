@@ -344,62 +344,58 @@ END
 IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 352, 202
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
-CAPTION "Audio-Settings (Analog)"
+CAPTION "Audio Controls"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,7,45,164
-    CTEXT           "(+/-)",IDC_STATIC,11,36,33,10
-    EDITTEXT        IDC_VOLUME_VAL,12,48,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_VOLUME_VAL,14,154,20,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_BAND1_VAL,72,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND1_VAL,69,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_BAND2_VAL,102,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND2_VAL,99,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
     CONTROL         "",IDC_VOLUME_SLIDER,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,15,70,29,97
+                    TBS_BOTH | WS_TABSTOP,11,62,29,93
     CONTROL         "",IDC_BAND1_SLIDER,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,66,72,24,97
+                    TBS_BOTH | WS_TABSTOP,64,71,24,97
     CONTROL         "",IDC_BAND2_SLIDER,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,96,72,24,97
-    GROUPBOX        "",IDC_STATIC,227,114,118,57
-    CTEXT           "Balance",IDC_STATIC,242,129,33,10
-    EDITTEXT        IDC_BALANCE_VAL,281,129,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    TBS_BOTH | WS_TABSTOP,94,71,24,97
+    LTEXT           "Balance:",IDC_STATIC,11,2,40,9
+    EDITTEXT        IDC_BALANCE_VAL,15,32,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
     CONTROL         "",IDC_BALANCE_SLIDER,"msctls_trackbar32",TBS_TOP | 
-                    WS_TABSTOP,235,145,102,23
-    CONTROL         "Activate Superbass",IDC_SUPERBASS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,231,12,97,12
-    PUSHBUTTON      "Cancel",IDCANCEL,227,180,45,15
+                    WS_TABSTOP,5,10,40,23
+    CONTROL         "Bass Boost",IDC_SUPERBASS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,156,9,55,12
+    PUSHBUTTON      "Cancel",IDCANCEL,173,179,45,15
     PUSHBUTTON      "Default",IDC_DEFAULT,7,180,45,15
-    DEFPUSHBUTTON   "OK",IDOK,300,180,45,15
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,59,7,160,165
-    LTEXT           "Spatial effect",IDC_STATIC,242,65,65,8
-    LTEXT           "Loudness",IDC_STATIC,243,29,32,8
-    CONTROL         "",IDC_LOUDNESS_SLIDER,"msctls_trackbar32",TBS_TOP | 
-                    WS_TABSTOP,243,41,94,23
-    CONTROL         "",IDC_SPATIALEFFECT_SLIDER,"msctls_trackbar32",TBS_TOP | 
-                    WS_TABSTOP,242,76,93,20
+    DEFPUSHBUTTON   "OK",IDOK,123,179,45,15
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,57,6,160,165
+    LTEXT           "Spatial effect",IDC_STATIC,265,57,48,8
+    LTEXT           "Loudness",IDC_STATIC,227,57,32,8
+    CONTROL         "",IDC_LOUDNESS_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,229,71,24,97
+    CONTROL         "",IDC_SPATIALEFFECT_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,265,70,24,97
     CONTROL         "Use equalizer",IDC_USEEQUALIZER,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,64,12,59,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,12,59,10
     CONTROL         "",IDC_BAND5_SLIDER,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,186,72,24,97
+                    TBS_BOTH | WS_TABSTOP,184,71,24,97
     CONTROL         "",IDC_BAND4_SLIDER,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,156,72,24,97
+                    TBS_BOTH | WS_TABSTOP,154,71,24,97
     CONTROL         "",IDC_BAND3_SLIDER,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,126,72,24,97
-    EDITTEXT        IDC_BAND3_VAL,132,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    TBS_BOTH | WS_TABSTOP,124,71,24,97
+    EDITTEXT        IDC_BAND3_VAL,129,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_BAND4_VAL,162,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND4_VAL,159,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_BAND5_VAL,192,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND5_VAL,189,52,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CTEXT           "120 Hz",IDC_BAND1_TEXT,72,30,18,18
-    CTEXT           "500 Hz",IDC_BAND2_TEXT,102,30,20,18
-    CTEXT           "1500 Hz",IDC_BAND3_TEXT,132,30,18,18
-    CTEXT           "5000 Hz",IDC_BAND4_TEXT,159,30,23,18
-    CTEXT           "10000 Hz",IDC_BAND5_TEXT,187,30,23,18
-    CTEXT           "Volume",IDC_STATIC,10,26,36,12
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,227,7,118,104
+    CTEXT           "120 Hz",IDC_BAND1_TEXT,70,30,18,18
+    CTEXT           "500 Hz",IDC_BAND2_TEXT,100,30,20,18
+    CTEXT           "1500 Hz",IDC_BAND3_TEXT,130,30,18,18
+    CTEXT           "5000 Hz",IDC_BAND4_TEXT,157,30,23,18
+    CTEXT           "10000 Hz",IDC_BAND5_TEXT,185,30,23,18
+    LTEXT           "Volume:",IDC_STATIC,11,53,40,8
 END
 
 IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 98
@@ -1175,7 +1171,7 @@ IDC_BT848 MENU DISCARDABLE
 BEGIN
     POPUP "&Bt Card"
     BEGIN
-        POPUP "Video &Input"
+        POPUP "&Video Input"
         BEGIN
             MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
             MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2
@@ -1239,7 +1235,7 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO, GRAYED
         END
-        MENUITEM "MSP 34x0 Audio Settings...",  IDM_AUDIOSETTINGS
+        MENUITEM "A&udio Controls ...",         IDM_AUDIOSETTINGS
         MENUITEM SEPARATOR
         MENUITEM "&Setup Card / Tuner ...",     IDM_SETUPCARD
         MENUITEM SEPARATOR

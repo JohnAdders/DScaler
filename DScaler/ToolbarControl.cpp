@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.7 2003-08-09 20:18:37 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.8 2003-08-09 21:12:18 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/08/09 20:18:37  laurentg
+// Automatic show/hide the toolbar when in full screen mode
+//
 // Revision 1.6  2003/08/09 14:44:57  laurentg
 // Bug fixed regarding switch between top and bottom position for the toolbar
 //
@@ -87,18 +90,23 @@ Toolbar1Logo(NULL)
 
 	
 	BOOL bShowChannels = FALSE;
+	BOOL bShowVolume = FALSE;
 
 	//Is there a tuner?
 	if (Providers_GetCurrentSource() != NULL)
 	{
 		int VideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
 		bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
+		bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
 	}
 	
 	//Set proper bit
 	int Visible = HIWORD(m_Toolbar1Channels->GetValue());
 	Visible = (Visible&1) | (bShowChannels?2:0);
 	m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );				
+	Visible = HIWORD(m_Toolbar1Volume->GetValue());
+	Visible = (Visible&1) | (bShowVolume?2:0);
+	m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );				
 
 	MarginsDefault.l = 5;
 	MarginsDefault.t = 5;
@@ -379,7 +387,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
         if (Toolbar1Volume!=NULL)
         {
             Toolbar1->SetChildPosition(Toolbar1Volume, LOWORD(m_Toolbar1Volume->GetValue()), 0);
-			if (HIWORD(m_Toolbar1Volume->GetValue()))
+			if ((HIWORD(m_Toolbar1Volume->GetValue())&3)==3)
             {
                 Toolbar1->ShowChild(Toolbar1Volume);
             }
@@ -485,11 +493,15 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 		{
 			int VideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
 			BOOL bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
+			BOOL bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
 			
 			//Set proper bit
 			int Visible = HIWORD(m_Toolbar1Channels->GetValue());
 			Visible = (Visible&1) | (bShowChannels?2:0);
 			m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), Visible) );				
+			Visible = HIWORD(m_Toolbar1Volume->GetValue());
+			Visible = (Visible&1) | (bShowVolume?2:0);
+			m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );				
 
 			if ((Toolbar1 != NULL) && Toolbar1->Visible())
 			{
@@ -651,10 +663,14 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 		}
         break;
     case IDM_VIEW_MAINTOOLBAR_VOLUME:
-        m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), HIWORD(m_Toolbar1Volume->GetValue())?0:1) );
-        CToolbarControl::Set(hWnd, NULL);
-        WorkoutOverlaySize(TRUE);
-		CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+		{
+			int Visible = HIWORD(m_Toolbar1Volume->GetValue());
+			Visible = (Visible&2) | ((Visible&1)?0:1);
+			m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), HIWORD(m_Toolbar1Volume->GetValue())?0:1) );
+			CToolbarControl::Set(hWnd, NULL);
+			WorkoutOverlaySize(TRUE);
+			CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+		}
         break;
     default:
         return FALSE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.44 2004-12-01 17:57:08 atnak Exp $
+// $Id: SAA7134Card.h,v 1.45 2004-12-01 22:01:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/12/01 17:57:08  atnak
+// Updates to HierarchicalConfigParser.
+//
 // Revision 1.43  2004/11/28 20:46:35  atnak
 // Made changes to satisfy VC++ 6.
 //
@@ -492,13 +495,13 @@ public:
 
     /** Card list parsing
      */
-    static void ReadCardInputInfoProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static void ReadCardInputProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static void ReadCardUseTDA9887Proc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static void ReadCardDefaultTunerProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static void ReadCardInfoProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static void ReadCardAutoDetectIDProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
-    static void ReadCardProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardInputInfoProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardInputProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardUseTDA9887Proc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardDefaultTunerProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardInfoProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardAutoDetectIDProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardProc(int, const HCParser::CParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static BOOL APIENTRY ParseErrorProc(HWND hDlg, UINT message, UINT wParam, LPARAM lParam);
 
 
@@ -552,16 +555,16 @@ private:
     static const TCardType          m_SAA7134UnknownCard;
     static std::vector<CCardTypeEx> m_SAA713xCards;
 
-    static const HCParser::ParseConstant k_parseSAA713xInputAudioPinConstants[];
-    static const HCParser::ParseConstant k_parseSAA713xInputTypeConstants[];
-    static const HCParser::ParseConstant k_parseSAA713xAudioCrystalConstants[];
-    static const HCParser::ParseConstant k_parseSAA713xDefaultTunerConstants[];
+    static const HCParser::CParseConstant k_parseSAA713xInputAudioPinConstants[];
+    static const HCParser::CParseConstant k_parseSAA713xInputTypeConstants[];
+    static const HCParser::CParseConstant k_parseSAA713xAudioCrystalConstants[];
+    static const HCParser::CParseConstant k_parseSAA713xDefaultTunerConstants[];
 
-    static const HCParser::ParseTag k_parseSAA713xCardInputGPIOSet[];
-    static const HCParser::ParseTag k_parseSAA713xCardInput[];
-    static const HCParser::ParseTag k_parseSAA713xCardAutoDetectID[];
-    static const HCParser::ParseTag k_parseSAA713xCard[];
-    static const HCParser::ParseTag k_parseSAA713xCardList[];
+    static const HCParser::CParseTag k_parseSAA713xCardInputGPIOSet[];
+    static const HCParser::CParseTag k_parseSAA713xCardInput[];
+    static const HCParser::CParseTag k_parseSAA713xCardAutoDetectID[];
+    static const HCParser::CParseTag k_parseSAA713xCard[];
+    static const HCParser::CParseTag k_parseSAA713xCardList[];
 
     eSAA7134CardId      m_CardType;
     char                m_TunerType[32];

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.h,v 1.2 2004-12-01 17:57:08 atnak Exp $
+// $Id: ParsingCommon.h,v 1.3 2004-12-01 22:01:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/12/01 17:57:08  atnak
+// Updates to HierarchicalConfigParser.
+//
 // Revision 1.1  2004/11/27 01:00:54  atnak
 // New file for storing common parsing procedures for ini file card lists.
 //
@@ -56,8 +59,8 @@
 // Constants
 //////////////////////////////////////////////////////////////////////////
 
-extern const HCParser::ParseConstant k_parseTunerConstants[];
-extern const HCParser::ParseTag k_parseUseTDA9887[];
+extern const HCParser::CParseConstant k_parseTunerConstants[];
+extern const HCParser::CParseTag k_parseUseTDA9887[];
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,10 +88,10 @@ struct _ParseUseTDA9887Info
 // Interpreters
 //////////////////////////////////////////////////////////////////////////
 
-BOOL ReadTunerProc(IN int report, IN const HCParser::ParseTag* tag, IN unsigned char type,
+BOOL ReadTunerProc(IN int report, IN const HCParser::CParseTag* tag, IN unsigned char type,
 				   IN const HCParser::CParseValue* value, IN OUT TParseTunerInfo* tunerInfo);
 
-BOOL ReadUseTDA9887Proc(IN int report, IN const HCParser::ParseTag* tag, IN unsigned char type,
+BOOL ReadUseTDA9887Proc(IN int report, IN const HCParser::CParseTag* tag, IN unsigned char type,
 						IN const HCParser::CParseValue* value, IN OUT TParseUseTDA9887Info* useTDA9887Info);
 
 

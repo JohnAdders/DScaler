@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.9 2004-12-01 17:57:07 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.10 2004-12-01 22:01:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2004/12/01 17:57:07  atnak
+// Updates to HierarchicalConfigParser.
+//
 // Revision 1.8  2004/11/27 00:31:55  atnak
 // More bug fixes.
 //
@@ -62,11 +65,11 @@ using namespace std;
 using namespace HCParser;
 
 
-void HCParser::PASS_TO_PARENT(int, const ParseTag*, unsigned char, const CParseValue*, void*)
+void HCParser::PASS_TO_PARENT(int, const CParseTag*, unsigned char, const CParseValue*, void*)
 {
 };
 
-CHCParser::CHCParser(const ParseTag* tagList)
+CHCParser::CHCParser(const CParseTag* tagList)
 {
 	m_debugOutLevel	= DEBUG_OUT_NONE;
 	m_reportContext	= NULL;
@@ -634,7 +637,7 @@ bool CHCParser::ProcessLine()
 	return true;
 }
 
-bool CHCParser::TagTakesValues(const ParseTag* parseTag)
+bool CHCParser::TagTakesValues(const CParseTag* parseTag)
 {
 	if (parseTag->tagName == NULL)
 	{
@@ -658,7 +661,7 @@ bool CHCParser::TagTakesValues(const ParseTag* parseTag)
 long CHCParser::GetNextIterateValuesIndex()
 {
 	long paramIndex = m_parseStates.front().paramIndex;
-	const ParseTag* parseTags = m_parseStates.front().parseTags;
+	const CParseTag* parseTags = m_parseStates.front().parseTags;
 
 	while (parseTags[++paramIndex].tagName != NULL)
 	{
@@ -815,7 +818,7 @@ bool CHCParser::ProcessTag()
 		}
 	}
 
-	const ParseTag* parseTag;
+	const CParseTag* parseTag;
 
 	while (1)
 	{
@@ -1026,7 +1029,7 @@ bool CHCParser::ProcessValue()
 	return false;
 }
 
-bool CHCParser::AcceptValue(const ParseTag* parseTag, unsigned char types,
+bool CHCParser::AcceptValue(const CParseTag* parseTag, unsigned char types,
 								   char* value, unsigned long length)
 {
 	_ASSERT(types & (PARSE_STRING|PARSE_CONSTANT|PARSE_NUMERIC));
@@ -1040,7 +1043,7 @@ bool CHCParser::AcceptValue(const ParseTag* parseTag, unsigned char types,
 
 	if (types & PARSE_CONSTANT && parseTag->attributes.constants != NULL)
 	{
-		const ParseConstant* pc = parseTag->attributes.constants;
+		const CParseConstant* pc = parseTag->attributes.constants;
 		for ( ; pc->constant != NULL; pc++)
 		{
 			if (stricmp(pc->constant, value) == 0)
@@ -1135,7 +1138,7 @@ bool CHCParser::OpenTag(long tagIndex)
 		m_parseStates.front().expect |= EXPECT_OPEN_L|(iterateValues ? 0 : EXPECT_TAG);
 
 		// Count the number of sub tags
-		const ParseTag* parseTag = m_parseStates.front().parseTags[tagIndex].attributes.subTags;
+		const CParseTag* parseTag = m_parseStates.front().parseTags[tagIndex].attributes.subTags;
 		_ASSERT(parseTag != NULL);
 		unsigned long paramCount;
 		for (paramCount = 0; parseTag->tagName != NULL; parseTag++, paramCount++) ;
@@ -1170,7 +1173,7 @@ bool CHCParser::CloseTag(bool openNext)
 
 		_ASSERT(m_parseStates.front().paramIndex != -1);
 		long paramIndex = m_parseStates.front().paramIndex;
-		const ParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
+		const CParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
 
 		if (parseTag->parseTypes & PARSE_CHILDREN)
 		{
@@ -1214,7 +1217,7 @@ bool CHCParser::OpenValue(bool withBracket)
 {
 	_ASSERT(m_parseStates.front().paramIndex != -1);
 	long paramIndex = m_parseStates.front().paramIndex;
-	const ParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
+	const CParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
 
 	// Make sure another value can be accepted
 	unsigned long maxValuesCount = 1;
@@ -1293,7 +1296,7 @@ bool CHCParser::OpenTagList(bool withBracket)
 {
 	_ASSERT(m_parseStates.front().paramIndex != -1);
 	long paramIndex = m_parseStates.front().paramIndex;
-	const ParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
+	const CParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
 	_ASSERT(parseTag->parseTypes & PARSE_CHILDREN);
 
 	if (m_parseStates.front().expect & EXPECT_OPEN_V)
@@ -1356,7 +1359,7 @@ bool CHCParser::CloseValue()
 	if (!m_parseStates.front().iterateValues)
 	{
 		long paramIndex = m_parseStates.front().paramIndex;
-		const ParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
+		const CParseTag* parseTag = &m_parseStates.front().parseTags[paramIndex];
 
 		m_parseStates.front().expect |= EXPECT_CLOSE_COMMA;
 
@@ -1377,12 +1380,12 @@ bool CHCParser::CloseValue()
 	return true;
 }
 
-bool CHCParser::ReportTag(const ParseTag* parseTag)
+bool CHCParser::ReportTag(const CParseTag* parseTag)
 {
 	return ReportValue(parseTag, 0, NULL, REPORT_TAG);
 }
 
-bool CHCParser::ReportOpen(const ParseTag* parseTag)
+bool CHCParser::ReportOpen(const CParseTag* parseTag)
 {
 	if (*parseTag->tagName != '\0')
 	{
@@ -1393,7 +1396,7 @@ bool CHCParser::ReportOpen(const ParseTag* parseTag)
 	return ReportValue(parseTag, 0, NULL, REPORT_OPEN);
 }
 
-bool CHCParser::ReportClose(const ParseTag* parseTag)
+bool CHCParser::ReportClose(const CParseTag* parseTag)
 {
 	if (*parseTag->tagName != '\0')
 	{
@@ -1402,7 +1405,7 @@ bool CHCParser::ReportClose(const ParseTag* parseTag)
 	return ReportValue(parseTag, 0, NULL, REPORT_CLOSE);
 }
 
-bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type,
+bool CHCParser::ReportValue(const CParseTag* parseTag, unsigned char type,
 							const CParseValue* value, int report)
 {
 #ifdef _DEBUG
@@ -1504,6 +1507,34 @@ int CParseValue::GetNumber() const
 		return CHCParser::Str2Int(m_string);
 	}
 	return m_number;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CParseConstant
+//////////////////////////////////////////////////////////////////////////
+
+CParseConstant::CParseConstant(const char* constant, CParseValue value)
+{
+	this->constant	= constant;
+	this->value		= value;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CParseTag
+//////////////////////////////////////////////////////////////////////////
+
+CParseTag::CParseTag(const char* tagName, unsigned char parseTypes,
+					 unsigned char minimumNumber,unsigned long maxLength,
+					 CAttributes attributes, ParseReadProc readProc)
+{
+	this->tagName			= tagName;
+	this->parseTypes		= parseTypes;
+	this->minimumNumber		= minimumNumber;
+	this->maxParseLength	= maxLength;
+	this->attributes		= attributes;
+	this->readProc			= readProc;
 }
 
 

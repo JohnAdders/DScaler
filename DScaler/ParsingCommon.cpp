@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.5 2004-12-01 17:57:08 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.6 2004-12-01 22:01:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/12/01 17:57:08  atnak
+// Updates to HierarchicalConfigParser.
+//
 // Revision 1.4  2004/11/27 19:26:33  atnak
 // Minor changes.
 //
@@ -51,118 +54,118 @@ static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes&, IN BYTE, IN bool);
 // It's not imperative that this list be updated when a new tuner
 // is added but not updating it will mean the new tuner cannot be
 // referred to by its name in the card list ini files.
-const ParseConstant k_parseTunerConstants[] =
+const CParseConstant k_parseTunerConstants[] =
 {
-	{ "ABSENT",						TUNER_ABSENT					},
-	{ "PHILIPS_PAL_I",				TUNER_PHILIPS_PAL_I				},
-	{ "PHILIPS_NTSC",				TUNER_PHILIPS_NTSC				},
-	{ "PHILIPS_SECAM",				TUNER_PHILIPS_SECAM				},
-	{ "PHILIPS_PAL",				TUNER_PHILIPS_PAL				},
-	{ "TEMIC_4002FH5_PAL",			TUNER_TEMIC_4002FH5_PAL			},
-	{ "TEMIC_4032FY5_NTSC",			TUNER_TEMIC_4032FY5_NTSC		},
-	{ "TEMIC_4062FY5_PAL_I",		TUNER_TEMIC_4062FY5_PAL_I		},
-	{ "TEMIC_4036FY5_NTSC",			TUNER_TEMIC_4036FY5_NTSC		},
-	{ "ALPS_TSBH1_NTSC",			TUNER_ALPS_TSBH1_NTSC			},
-	{ "ALPS_TSBE1_PAL",				TUNER_ALPS_TSBE1_PAL			},
-	{ "ALPS_TSBB5_PAL_I",			TUNER_ALPS_TSBB5_PAL_I			},
-	{ "ALPS_TSBE5_PAL",				TUNER_ALPS_TSBE5_PAL			},
-	{ "ALPS_TSBC5_PAL",				TUNER_ALPS_TSBC5_PAL			},
-	{ "TEMIC_4006FH5_PAL",			TUNER_TEMIC_4006FH5_PAL			},
-	{ "PHILIPS_1236D_NTSC_INPUT1",	TUNER_PHILIPS_1236D_NTSC_INPUT1	},
-	{ "PHILIPS_1236D_NTSC_INPUT2",	TUNER_PHILIPS_1236D_NTSC_INPUT2	},
-	{ "ALPS_TSCH6_NTSC",			TUNER_ALPS_TSCH6_NTSC			},
-	{ "TEMIC_4016FY5_PAL",			TUNER_TEMIC_4016FY5_PAL			},
-	{ "PHILIPS_MK2_NTSC",			TUNER_PHILIPS_MK2_NTSC			},
-	{ "TEMIC_4066FY5_PAL_I",		TUNER_TEMIC_4066FY5_PAL_I		},
-	{ "TEMIC_4006FN5_PAL",			TUNER_TEMIC_4006FN5_PAL			},
-	{ "TEMIC_4009FR5_PAL",			TUNER_TEMIC_4009FR5_PAL			},
-	{ "TEMIC_4039FR5_NTSC",			TUNER_TEMIC_4039FR5_NTSC		},
-	{ "TEMIC_4046FM5_MULTI",		TUNER_TEMIC_4046FM5_MULTI		},
-	{ "PHILIPS_PAL_DK",				TUNER_PHILIPS_PAL_DK			},
-	{ "PHILIPS_MULTI",				TUNER_PHILIPS_MULTI				},
-	{ "LG_I001D_PAL_I",				TUNER_LG_I001D_PAL_I			},
-	{ "LG_I701D_PAL_I",				TUNER_LG_I701D_PAL_I			},
-	{ "LG_R01F_NTSC",				TUNER_LG_R01F_NTSC				},
-	{ "LG_B01D_PAL",				TUNER_LG_B01D_PAL				},
-	{ "LG_B11D_PAL",				TUNER_LG_B11D_PAL				},
-	{ "TEMIC_4009FN5_PAL",			TUNER_TEMIC_4009FN5_PAL			},
-	{ "MT2032",						TUNER_MT2032					},
-	{ "SHARP_2U5JF5540_NTSC",		TUNER_SHARP_2U5JF5540_NTSC		},
-	{ "LG_TAPCH701P_NTSC",			TUNER_LG_TAPCH701P_NTSC			},
-	{ "SAMSUNG_PAL_TCPM9091PD27",	TUNER_SAMSUNG_PAL_TCPM9091PD27	},
-	{ "TEMIC_4106FH5",				TUNER_TEMIC_4106FH5				},
-	{ "TEMIC_4012FY5",				TUNER_TEMIC_4012FY5				},
-	{ "TEMIC_4136FY5",				TUNER_TEMIC_4136FY5				},
-	{ "LG_TAPCNEW_PAL",				TUNER_LG_TAPCNEW_PAL			},
-	{ "PHILIPS_FM1216ME_MK3",		TUNER_PHILIPS_FM1216ME_MK3		},
-	{ "LG_TAPCNEW_NTSC",			TUNER_LG_TAPCNEW_NTSC			},
-	{ "MT2032_PAL",					TUNER_MT2032_PAL				},
-	{ "PHILIPS_FI1286_NTSC_M_J",	TUNER_PHILIPS_FI1286_NTSC_M_J	},
-	{ "MT2050",						TUNER_MT2050					},
-	{ "MT2050_PAL",					TUNER_MT2050_PAL				},
-	{ "PHILIPS_4IN1",				TUNER_PHILIPS_4IN1				},
-	{ NULL }
+	PC( "ABSENT",						TUNER_ABSENT					),
+	PC( "PHILIPS_PAL_I",				TUNER_PHILIPS_PAL_I				),
+	PC( "PHILIPS_NTSC",					TUNER_PHILIPS_NTSC				),
+	PC( "PHILIPS_SECAM",				TUNER_PHILIPS_SECAM				),
+	PC( "PHILIPS_PAL",					TUNER_PHILIPS_PAL				),
+	PC( "TEMIC_4002FH5_PAL",			TUNER_TEMIC_4002FH5_PAL			),
+	PC( "TEMIC_4032FY5_NTSC",			TUNER_TEMIC_4032FY5_NTSC		),
+	PC( "TEMIC_4062FY5_PAL_I",			TUNER_TEMIC_4062FY5_PAL_I		),
+	PC( "TEMIC_4036FY5_NTSC",			TUNER_TEMIC_4036FY5_NTSC		),
+	PC( "ALPS_TSBH1_NTSC",				TUNER_ALPS_TSBH1_NTSC			),
+	PC( "ALPS_TSBE1_PAL",				TUNER_ALPS_TSBE1_PAL			),
+	PC( "ALPS_TSBB5_PAL_I",				TUNER_ALPS_TSBB5_PAL_I			),
+	PC( "ALPS_TSBE5_PAL",				TUNER_ALPS_TSBE5_PAL			),
+	PC( "ALPS_TSBC5_PAL",				TUNER_ALPS_TSBC5_PAL			),
+	PC( "TEMIC_4006FH5_PAL",			TUNER_TEMIC_4006FH5_PAL			),
+	PC( "PHILIPS_1236D_NTSC_INPUT1",	TUNER_PHILIPS_1236D_NTSC_INPUT1	),
+	PC( "PHILIPS_1236D_NTSC_INPUT2",	TUNER_PHILIPS_1236D_NTSC_INPUT2	),
+	PC( "ALPS_TSCH6_NTSC",				TUNER_ALPS_TSCH6_NTSC			),
+	PC( "TEMIC_4016FY5_PAL",			TUNER_TEMIC_4016FY5_PAL			),
+	PC( "PHILIPS_MK2_NTSC",				TUNER_PHILIPS_MK2_NTSC			),
+	PC( "TEMIC_4066FY5_PAL_I",			TUNER_TEMIC_4066FY5_PAL_I		),
+	PC( "TEMIC_4006FN5_PAL",			TUNER_TEMIC_4006FN5_PAL			),
+	PC( "TEMIC_4009FR5_PAL",			TUNER_TEMIC_4009FR5_PAL			),
+	PC( "TEMIC_4039FR5_NTSC",			TUNER_TEMIC_4039FR5_NTSC		),
+	PC( "TEMIC_4046FM5_MULTI",			TUNER_TEMIC_4046FM5_MULTI		),
+	PC( "PHILIPS_PAL_DK",				TUNER_PHILIPS_PAL_DK			),
+	PC( "PHILIPS_MULTI",				TUNER_PHILIPS_MULTI				),
+	PC( "LG_I001D_PAL_I",				TUNER_LG_I001D_PAL_I			),
+	PC( "LG_I701D_PAL_I",				TUNER_LG_I701D_PAL_I			),
+	PC( "LG_R01F_NTSC",					TUNER_LG_R01F_NTSC				),
+	PC( "LG_B01D_PAL",					TUNER_LG_B01D_PAL				),
+	PC( "LG_B11D_PAL",					TUNER_LG_B11D_PAL				),
+	PC( "TEMIC_4009FN5_PAL",			TUNER_TEMIC_4009FN5_PAL			),
+	PC( "MT2032",						TUNER_MT2032					),
+	PC( "SHARP_2U5JF5540_NTSC",			TUNER_SHARP_2U5JF5540_NTSC		),
+	PC( "LG_TAPCH701P_NTSC",			TUNER_LG_TAPCH701P_NTSC			),
+	PC( "SAMSUNG_PAL_TCPM9091PD27",		TUNER_SAMSUNG_PAL_TCPM9091PD27	),
+	PC( "TEMIC_4106FH5",				TUNER_TEMIC_4106FH5				),
+	PC( "TEMIC_4012FY5",				TUNER_TEMIC_4012FY5				),
+	PC( "TEMIC_4136FY5",				TUNER_TEMIC_4136FY5				),
+	PC( "LG_TAPCNEW_PAL",				TUNER_LG_TAPCNEW_PAL			),
+	PC( "PHILIPS_FM1216ME_MK3",			TUNER_PHILIPS_FM1216ME_MK3		),
+	PC( "LG_TAPCNEW_NTSC",				TUNER_LG_TAPCNEW_NTSC			),
+	PC( "MT2032_PAL",					TUNER_MT2032_PAL				),
+	PC( "PHILIPS_FI1286_NTSC_M_J",		TUNER_PHILIPS_FI1286_NTSC_M_J	),
+	PC( "MT2050",						TUNER_MT2050					),
+	PC( "MT2050_PAL",					TUNER_MT2050_PAL				),
+	PC( "PHILIPS_4IN1",					TUNER_PHILIPS_4IN1				),
+	PC( NULL )
 };
 
-const ParseConstant k_parseTDAFormatConstants[] =
+const CParseConstant k_parseTDAFormatConstants[] =
 {
-	{ "PAL-BG",						TDA9887_FORMAT_PAL_BG		},
-	{ "PAL-I",						TDA9887_FORMAT_PAL_I		},
-	{ "PAL-DK",						TDA9887_FORMAT_PAL_DK		},
-	{ "PAL-MN",						TDA9887_FORMAT_PAL_MN		},
-	{ "SECAM-L",					TDA9887_FORMAT_SECAM_L		},
-	{ "SECAM-DK",					TDA9887_FORMAT_SECAM_DK		},
-	{ "NTSC-M",						TDA9887_FORMAT_NTSC_M		},
-	{ "NTSC-JP",					TDA9887_FORMAT_NTSC_JP		},
-	{ "Radio",						TDA9887_FORMAT_RADIO		},
-	{ NULL }
+	PC( "PAL-BG",						TDA9887_FORMAT_PAL_BG		),
+	PC( "PAL-I",						TDA9887_FORMAT_PAL_I		),
+	PC( "PAL-DK",						TDA9887_FORMAT_PAL_DK		),
+	PC( "PAL-MN",						TDA9887_FORMAT_PAL_MN		),
+	PC( "SECAM-L",						TDA9887_FORMAT_SECAM_L		),
+	PC( "SECAM-DK",						TDA9887_FORMAT_SECAM_DK		),
+	PC( "NTSC-M",						TDA9887_FORMAT_NTSC_M		),
+	PC( "NTSC-JP",						TDA9887_FORMAT_NTSC_JP		),
+	PC( "Radio",						TDA9887_FORMAT_RADIO		),
+	PC( NULL )
 };
 
-const ParseConstant k_parseCarrierConstants[] =
+const CParseConstant k_parseCarrierConstants[] =
 {
-	{ "intercarrier",				0 },
-	{ "qss",						1 },
-	{ NULL }
+	PC( "intercarrier",				0 ),
+	PC( "qss",						1 ),
+	PC( NULL )
 };
 
-const ParseConstant k_parseYesNoConstants[] =
+const CParseConstant k_parseYesNoConstants[] =
 {
-	{ "yes",						1 },
-	{ "no",							0 },
-	{ "true",						1 },
-	{ "false",						0 },
-	{ "active",						1 },
-	{ "inactive",					0 },
-	{ "1",							1 },
-	{ "0",							0 },
-	{ NULL }
+	PC( "yes",						1 ),
+	PC( "no",						0 ),
+	PC( "true",						1 ),
+	PC( "false",					0 ),
+	PC( "active",					1 ),
+	PC( "inactive",					0 ),
+	PC( "1",						1 ),
+	PC( "0",						0 ),
+	PC( NULL )
 };
 
-const ParseConstant k_parseTakeoverPointConstants[] =
+const CParseConstant k_parseTakeoverPointConstants[] =
 {
-	{ "min",						TDA9887_SM_TAKEOVERPOINT_MIN		},
-	{ "max",						TDA9887_SM_TAKEOVERPOINT_MAX		},
-	{ "default",					TDA9887_SM_TAKEOVERPOINT_DEFAULT	},
-	{ NULL }
+	PC( "min",						TDA9887_SM_TAKEOVERPOINT_MIN		),
+	PC( "max",						TDA9887_SM_TAKEOVERPOINT_MAX		),
+	PC( "default",					TDA9887_SM_TAKEOVERPOINT_DEFAULT	),
+	PC( NULL )
 };
 
-const ParseTag k_parseUseTDA9887SetOverride[] =
+const CParseTag k_parseUseTDA9887SetOverride[] =
 {
-	{ "Format",			PARSE_CONSTANT,					1,	8,	k_parseTDAFormatConstants,		PASS_TO_PARENT },
-	{ "Intercarrier",	0,								0,	0,	NULL,							PASS_TO_PARENT },
-	{ "QSS",			0,								0,	0,	NULL,							PASS_TO_PARENT },
-	{ "Carrier",		PARSE_CONSTANT,					0,	16,	k_parseCarrierConstants,		PASS_TO_PARENT },
-	{ "OutputPort1",	PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT },
-	{ "OutputPort2",	PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT },
-	{ "TakeOverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0,	8,	k_parseTakeoverPointConstants,	PASS_TO_PARENT },
-	{ NULL }
+	PT( "Format",			PARSE_CONSTANT,					1,	8,	k_parseTDAFormatConstants,		PASS_TO_PARENT	),
+	PT( "Intercarrier",		0,								0,	0,	NULL,							PASS_TO_PARENT	),
+	PT( "QSS",				0,								0,	0,	NULL,							PASS_TO_PARENT	),
+	PT( "Carrier",			PARSE_CONSTANT,					0,	16,	k_parseCarrierConstants,		PASS_TO_PARENT	),
+	PT( "OutputPort1",		PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
+	PT( "OutputPort2",		PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
+	PT( "TakeOverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0,	8,	k_parseTakeoverPointConstants,	PASS_TO_PARENT	),
+	PT( NULL )
 };
 
-const ParseTag k_parseUseTDA9887[] =
+const CParseTag k_parseUseTDA9887[] =
 {
-	{ "Use",			PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT },
-	{ "SetModes",		PARSE_CHILDREN,					0,	9,	k_parseUseTDA9887SetOverride,	PASS_TO_PARENT },
-	{ NULL }
+	PT( "Use",			PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
+	PT( "SetModes",		PARSE_CHILDREN,					0,	9,	k_parseUseTDA9887SetOverride,	PASS_TO_PARENT	),
+	PT( NULL )
 };
 
 
@@ -170,7 +173,7 @@ const ParseTag k_parseUseTDA9887[] =
 // Interpreters
 //////////////////////////////////////////////////////////////////////////
 
-BOOL ReadTunerProc(IN int report, IN const ParseTag* tag, IN unsigned char type,
+BOOL ReadTunerProc(IN int report, IN const CParseTag* tag, IN unsigned char type,
 				   IN const CParseValue* value, IN OUT TParseTunerInfo* tunerInfo)
 {
 	if (report == REPORT_OPEN)
@@ -197,7 +200,7 @@ BOOL ReadTunerProc(IN int report, IN const ParseTag* tag, IN unsigned char type,
 }
 
 
-BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char type,
+BOOL ReadUseTDA9887Proc(IN int report, IN const CParseTag* tag, IN unsigned char type,
 						IN const CParseValue* value, IN OUT TParseUseTDA9887Info* useTDA9887Info)
 {
 	// Use

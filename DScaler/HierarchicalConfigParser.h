@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.9 2004-12-01 17:57:08 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.10 2004-12-01 22:01:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2004/12/01 17:57:08  atnak
+// Updates to HierarchicalConfigParser.
+//
 // Revision 1.8  2004/11/27 00:31:55  atnak
 // More bug fixes.
 //
@@ -202,7 +205,7 @@ namespace HCParser
 //
 
 
-// parseTypes for ParseTag
+// parseTypes for CParseTag
 enum
 {
 	PARSE_STRING		= 1 << 0,
@@ -237,26 +240,52 @@ protected:
 	int			m_number;
 };
 
-typedef struct _ParseConstant ParseConstant;
-typedef struct _ParseTag ParseTag;
+// Short typedefs for initializer lists.
+typedef class CParseConstant PC;
+typedef class CParseTag PT;
 
-// Callback function type for ParseTag
-typedef void (ParseReadProc)(int report, const ParseTag* tag, unsigned char type,
+// Callback function type for CParseTag
+typedef void (ParseReadProc)(int report, const CParseTag* tag, unsigned char type,
 							 const CParseValue* value, void* context);
 
 // This PASS_TO_PARENT value can be specified as the 'readProc' value of
-// ParseTag to have to parent tag's callback function called.
+// CParseTag to have to parent tag's callback function called.
 ParseReadProc PASS_TO_PARENT; 
 
-// Constants definition for ParseTag
-struct _ParseConstant
+// Constants definition for CParseTag
+class CParseConstant
 {
+public:
+	CParseConstant(const char* constant = NULL,
+		CParseValue value = CParseValue());
+
 	const char*		constant;
 	CParseValue		value;
 };
 
-struct _ParseTag
+class CParseTag
 {
+public:
+	// This class allows the single attributes value to be
+	// initialized for either PARSE_CHILDREN or PARSE_CONSTANTS.
+	class CAttributes
+	{
+	public:
+		CAttributes(int = NULL) :
+		  subTags(NULL), constants(NULL) { }
+		  CAttributes(const CParseTag* subTags) :
+		  subTags(subTags), constants(NULL) { };
+		  CAttributes(const CParseConstant* constants) :
+		  subTags(NULL), constants(constants) { };
+
+		  const CParseTag*		subTags;
+		  const CParseConstant*	constants;
+	};
+
+	CParseTag(const char* tagName = NULL, unsigned char parseTypes = 0,
+		unsigned char minimumNumber = 0, unsigned long maxParseLength = 0,
+		CAttributes attributes = CAttributes(), ParseReadProc readProc = NULL);
+
 	// Name of the tag to be parsed.
 	const char*				tagName;
 	// Parsing mode for the tag.
@@ -266,23 +295,6 @@ struct _ParseTag
 	// Maximum length in characters the value of the tag can be or
 	// maximum tags of the same kind for PARSE_CHILDREN.
 	unsigned long			maxParseLength;
-
-	// This class allows the single attributes value to be
-	// initialized for either PARSE_CHILDREN or PARSE_CONSTANTS.
-	class CAttributes
-	{
-	public:
-		CAttributes(int = NULL) :
-			subTags(NULL), constants(NULL) { }
-		CAttributes(const ParseTag* subTags) :
-			subTags(subTags), constants(NULL) { };
-		CAttributes(const ParseConstant* constants) :
-			subTags(NULL), constants(constants) { };
-
-		const ParseTag*			subTags;
-		const ParseConstant*	constants;
-	};
-
 	// Either a list of child tags or a list of constants.
 	CAttributes				attributes;
 	// The callback to be called when the tag is parsed.
@@ -297,7 +309,7 @@ struct _ParseTag
 class CHCParser
 {
 public:
-	CHCParser(const ParseTag* tagList);
+	CHCParser(const CParseTag* tagList);
 	virtual ~CHCParser();
 
 	bool ParseLocalFile(const char* filename, void* reportContext = NULL);
@@ -350,7 +362,7 @@ private:
 
 	typedef struct _ParseState
 	{
-		const ParseTag*				parseTags;
+		const CParseTag*			parseTags;
 		long						paramIndex;
 		unsigned short				expect;
 		bool						bracketOpened;
@@ -424,7 +436,7 @@ private:
 	bool ProcessEqual();
 	bool ProcessValue();
 
-	bool AcceptValue(const ParseTag* parseTag, unsigned char types,
+	bool AcceptValue(const CParseTag* parseTag, unsigned char types,
 		char* value, unsigned long length);
 
 	bool OpenTag(long tagIndex);
@@ -436,14 +448,14 @@ private:
 	void SetParseError(ParseError& error);
 	void AddExpectLine(ParseError& error, bool debugging = false);
 
-	bool ReportTag(const ParseTag* parseTag);
-	bool ReportOpen(const ParseTag* parseTag);
-	bool ReportClose(const ParseTag* parseTag);
-	bool ReportValue(const ParseTag* parseTag, unsigned char type,
+	bool ReportTag(const CParseTag* parseTag);
+	bool ReportOpen(const CParseTag* parseTag);
+	bool ReportClose(const CParseTag* parseTag);
+	bool ReportValue(const CParseTag* parseTag, unsigned char type,
 					 const CParseValue* value, int report = REPORT_VALUE);
 
 	void TrimLeft();
-	bool TagTakesValues(const ParseTag* parseTag);
+	bool TagTakesValues(const CParseTag* parseTag);
 	long GetNextIterateValuesIndex();
 
 	bool IsSpace(int c);
@@ -479,8 +491,8 @@ private:
 	int							m_debugOutLevel;
 	void*						m_reportContext;
 
-	const ParseTag*				m_tagListEntry;
-	ParseTag					m_rootParent[2];
+	const CParseTag*			m_tagListEntry;
+	CParseTag					m_rootParent[2];
 	std::list<ParseState>		m_parseStates;
 };
 

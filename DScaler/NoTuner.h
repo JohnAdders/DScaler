@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.5 2002-10-08 20:43:16 kooiman Exp $
+// $Id: NoTuner.h,v 1.6 2002-10-26 15:37:57 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/08 20:43:16  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.4  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -48,7 +51,7 @@
 
 /**  Used when tuner is not present to stub out functions and avoid crashes
 */
-class CNoTuner : public ITuner  
+class CNoTuner : public II2CTuner  
 {
 public:
     CNoTuner()

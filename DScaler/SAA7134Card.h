@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.17 2002-10-26 04:41:44 atnak Exp $
+// $Id: SAA7134Card.h,v 1.18 2002-10-26 15:37:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/26 04:41:44  atnak
+// Clean up + added auto card detection
+//
 // Revision 1.16  2002/10/23 17:05:20  atnak
 // Added variable VBI sample rate scaling
 //
@@ -397,7 +400,7 @@ private:
     char                m_TunerType[32];
 
     CI2CBus*            m_I2CBus;
-    ITuner*             m_Tuner;
+    II2CTuner*          m_Tuner;
 
     /// Stores amount of memory assigned to DMA
     DWORD               m_DMAChannelMemorySize[7];

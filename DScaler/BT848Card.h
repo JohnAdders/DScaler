@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.34 2002-10-15 19:16:29 kooiman Exp $
+// $Id: BT848Card.h,v 1.35 2002-10-26 15:37:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/10/15 19:16:29  kooiman
+// Fixed Spatial effect for Audio decoder & MSP
+//
 // Revision 1.33  2002/10/11 21:35:11  ittarnavsky
 // moved eAudioDecoderType to AudioDecoder.h
 // removed GetAudioDecoderType()
@@ -388,7 +391,7 @@ private:
     eTVCardId m_CardType;
 
     CI2CBus*        m_I2CBus;
-    ITuner*         m_Tuner;
+    II2CTuner*         m_Tuner;
     CAudioDecoder*  m_AudioDecoder;
     CAudioControls* m_AudioControls;
 

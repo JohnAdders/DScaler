@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.9 2002-10-24 16:04:47 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.10 2002-10-26 15:37:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/24 16:04:47  adcockj
+// Another attempt to get VBI working
+// Tidy up CMDS/Buffers code
+//
 // Revision 1.8  2002/10/23 15:18:07  adcockj
 // Added preliminary code for VBI
 //
@@ -223,7 +227,7 @@ private:
     eCT2388xCardId m_CardType;
 
     CI2CBus*        m_I2CBus;
-    ITuner*         m_Tuner;
+    II2CTuner*      m_Tuner;
 	CSAA7118*       m_SAA7118;
 
     BOOL            m_RISCIsRunning;

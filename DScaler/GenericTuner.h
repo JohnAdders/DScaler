@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.h,v 1.5 2002-10-08 20:43:15 kooiman Exp $
+// $Id: GenericTuner.h,v 1.6 2002-10-26 15:37:57 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/08 20:43:15  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.4  2002/08/17 11:27:23  kooiman
 // Fixed tuning for Temic 4046FM5 and Philips FQ1216ME.
 //
@@ -48,7 +51,7 @@
 
 /** Implemenation of a simple tuner connected via I2C
 */
-class CGenericTuner : public ITuner  
+class CGenericTuner : public II2CTuner
 {
 public:
     CGenericTuner(eTunerId tunerId);

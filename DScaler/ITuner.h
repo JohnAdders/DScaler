@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.h,v 1.4 2002-10-16 21:42:36 kooiman Exp $
+// $Id: ITuner.h,v 1.5 2002-10-26 15:37:57 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/16 21:42:36  kooiman
+// Created seperate class for External IF Demodulator chips like TDA9887
+//
 // Revision 1.3  2002/10/08 20:43:16  kooiman
 // Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -67,11 +70,11 @@ class IExternalIFDemodulator;
 
 /** Interface for control of analogue tuners
 */
-class ITuner: public CI2CDevice
+class ITuner
 {
 public:
     ITuner();
-    ~ITuner();
+    virtual ~ITuner();
     virtual eTunerId GetTunerId() = 0;
     virtual eVideoFormat GetDefaultVideoFormat() = 0;
     virtual bool HasRadio() const = 0;
@@ -87,6 +90,14 @@ public:
 protected:
     IExternalIFDemodulator* m_ExternalIFDemodulator;
     bool m_bFreeIFDemodulatorOnDestruction;
+};
+
+class II2CTuner : public ITuner,
+                  public CI2CDevice
+{
+public:
+    II2CTuner() ;
+    virtual ~II2CTuner();
 };
 
 class IExternalIFDemodulator : public CI2CDevice

@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.5 2002-10-16 21:42:36 kooiman Exp $
+// $Id: ITuner.cpp,v 1.6 2002-10-26 15:37:57 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/16 21:42:36  kooiman
+// Created seperate class for External IF Demodulator chips like TDA9887
+//
 // Revision 1.4  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
 //
@@ -112,4 +115,12 @@ void ITuner::AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, bool bF
 {
     m_ExternalIFDemodulator = pExternalIFDemodulator;
     m_bFreeIFDemodulatorOnDestruction = bFreeOnDestruction;
+}
+
+II2CTuner::II2CTuner()
+{
+}
+
+II2CTuner::~II2CTuner()
+{
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.26 2002-12-23 17:22:10 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.27 2002-12-31 13:21:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/12/23 17:22:10  adcockj
+// Settings fixes
+//
 // Revision 1.25  2002/12/09 00:32:47  atnak
 // Code layout tweaks
 //
@@ -1733,31 +1736,31 @@ void CSAA7134Source::ChangeDefaultsForVideoFormat()
 
     if (IsPALVideoFormat(VideoFormat))
     {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION, TRUE);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
     }
     else if (IsNTSCVideoFormat(VideoFormat))
     {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION, TRUE);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
     }
     else
     {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION, TRUE);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
     }
 
     if (IsSECAMVideoFormat(VideoFormat))
     {
-        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_CHROMA_ONLY);
+        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_CHROMA_ONLY, TRUE);
     }
     else
     {
-        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_FULL);
+        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_FULL, TRUE);
     }
 
     eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
-    m_AudioStandard->ChangeDefault(AudioStandard);
+    m_AudioStandard->ChangeDefault(AudioStandard, TRUE);
 }
 
 

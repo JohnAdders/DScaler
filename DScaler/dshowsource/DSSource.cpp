@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.56 2002-12-14 22:29:22 tobbej Exp $
+// $Id: DSSource.cpp,v 1.57 2002-12-31 13:21:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/12/14 22:29:22  tobbej
+// put back the code i removed
+//
 // Revision 1.55  2002/12/13 20:21:42  tobbej
 // fixed muting problem, but now the first channel is not set properly
 //
@@ -352,7 +355,7 @@ ISetting* CDSCaptureSource::GetBrightness()
 				m_Brightness->SetMax(max);
 				m_Brightness->SetMin(min);
 
-				m_Brightness->ChangeDefault(def,ONCHANGE_NONE);
+				m_Brightness->ChangeDefault(def, TRUE);
 				return m_Brightness;
 			}
 			catch(CDShowException e)
@@ -416,7 +419,7 @@ ISetting* CDSCaptureSource::GetContrast()
 				m_Contrast->SetMax(max);
 				m_Contrast->SetMin(min);
 
-				m_Contrast->ChangeDefault(def,ONCHANGE_NONE);
+				m_Contrast->ChangeDefault(def, TRUE);
 				return m_Contrast;
 			}
 			catch(CDShowException e)
@@ -479,7 +482,7 @@ ISetting* CDSCaptureSource::GetHue()
 				m_Hue->SetMax(max);
 				m_Hue->SetMin(min);
 
-				m_Hue->ChangeDefault(def, ONCHANGE_NONE);
+				m_Hue->ChangeDefault(def, TRUE);
 				return m_Hue;
 			}
 			catch(CDShowException e)
@@ -542,7 +545,7 @@ ISetting* CDSCaptureSource::GetSaturation()
 				m_Saturation->SetMax(max);
 				m_Saturation->SetMin(min);
 
-				m_Saturation->ChangeDefault(def,ONCHANGE_NONE);
+				m_Saturation->ChangeDefault(def, TRUE);
 				return m_Saturation;
 			}
 			catch(CDShowException e)

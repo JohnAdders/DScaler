@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.22 2002-12-23 17:22:10 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.23 2002-12-31 13:21:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/12/23 17:22:10  adcockj
+// Settings fixes
+//
 // Revision 1.21  2002/12/10 14:53:17  adcockj
 // Sound fixes for cx2388x
 //
@@ -505,23 +508,23 @@ void CCX2388xSource::ChangeDefaultsForVideoInput()
 {
     if(m_CardType->GetValue() != CX2388xCARD_HOLO3D)
     {
-        m_Brightness->ChangeDefault(128);
-        m_Contrast->ChangeDefault(0x39);
-        m_Hue->ChangeDefault(128);
-        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2);
-        m_SaturationU->ChangeDefault(0x7f);
-        m_SaturationV->ChangeDefault(0x5A);
-        m_IsVideoProgressive->ChangeDefault(FALSE);
+        m_Brightness->ChangeDefault(128, TRUE);
+        m_Contrast->ChangeDefault(0x39, TRUE);
+        m_Hue->ChangeDefault(128, TRUE);
+        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, TRUE);
+        m_SaturationU->ChangeDefault(0x7f, TRUE);
+        m_SaturationV->ChangeDefault(0x5A, TRUE);
+        m_IsVideoProgressive->ChangeDefault(FALSE, TRUE);
     }
     else
     {
-        m_Brightness->ChangeDefault(128);
-        m_Contrast->ChangeDefault(128);
-        m_Hue->ChangeDefault(128);
-        m_Saturation->ChangeDefault(128);
-        m_SaturationU->ChangeDefault(128);
-        m_SaturationV->ChangeDefault(128);
-        m_IsVideoProgressive->ChangeDefault(TRUE);
+        m_Brightness->ChangeDefault(128, TRUE);
+        m_Contrast->ChangeDefault(128, TRUE);
+        m_Hue->ChangeDefault(128, TRUE);
+        m_Saturation->ChangeDefault(128, TRUE);
+        m_SaturationU->ChangeDefault(128, TRUE);
+        m_SaturationV->ChangeDefault(128, TRUE);
+        m_IsVideoProgressive->ChangeDefault(TRUE, TRUE);
     }
 }
 
@@ -530,11 +533,11 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat()
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
     }
     else
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
     }
 }
 

@@ -960,60 +960,60 @@ void CCalibration::LoadTestPatterns()
 
     ///////////////
 
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", FORMAT_PAL_BDGHI);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Screen Performance", FORMAT_PAL_BDGHI);
 
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,   0,   0,   0);
+    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,   0,   0,   1);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1597, 3472, 4167, FALSE,  16,  19,  16);
+    color_bar = new CColorBar(1181, 1597, 3472, 4167, FALSE,  23,  24,  24);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2431, 3472, 4167, FALSE,  42,  45,  42);
+    color_bar = new CColorBar(2014, 2431, 3472, 4167, FALSE,  49,  50,  50);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7083, 7500, 3472, 4167, FALSE, 194, 198, 194);
+    color_bar = new CColorBar(7083, 7500, 3472, 4167, FALSE, 202, 203, 203);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7917, 8333, 3472, 4167, FALSE, 220, 223, 221);
+    color_bar = new CColorBar(7917, 8333, 3472, 4167, FALSE, 228, 228, 229);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9167, 3472, 4167, FALSE, 246, 249, 246);
+    color_bar = new CColorBar(8750, 9167, 3472, 4167, FALSE, 253, 253, 253);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,  0,    0,   0);
+    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,  0,    0,   1);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8750, 9167, 3472, 4167, FALSE, 246, 249, 246);
+    color_bar = new CColorBar(8750, 9167, 3472, 4167, FALSE, 253, 253, 253);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_COLOR);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278, 1042, 2344, 3038, FALSE, 244, 248, 243);
+    color_bar = new CColorBar( 278, 1042, 2344, 3038, FALSE, 251, 253, 251);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1458, 2222, 2344, 3038, FALSE, 181, 185,   0);
+    color_bar = new CColorBar(1458, 2222, 2344, 3038, FALSE, 189, 190,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2708, 3472, 2344, 3038, FALSE,   0, 186, 181);
+    color_bar = new CColorBar(2708, 3472, 2344, 3038, FALSE,   0, 190, 187);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3889, 4653, 2344, 3038, FALSE,   0, 184,   0);
+    color_bar = new CColorBar(3889, 4653, 2344, 3038, FALSE,   0, 189,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5139, 5903, 2344, 3038, FALSE, 182,   0, 182);
+    color_bar = new CColorBar(5139, 5903, 2344, 3038, FALSE, 189,   0, 190);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 181,   0,   0);
+    color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7569, 8333, 2344, 3038, FALSE,  0,    0, 181);
+    color_bar = new CColorBar(7569, 8333, 2344, 3038, FALSE,  0,    0, 188);
     sub_pattern->AddColorBar(color_bar);
     color_bar = new CColorBar(8750, 9514, 2344, 3038, FALSE,  0,    0,   0);
     sub_pattern->AddColorBar(color_bar);
     
     sub_pattern = new CSubPattern(ADJ_SATURATION_U);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7569, 8333, 2344, 3038, FALSE,  0,    0, 181);
+    color_bar = new CColorBar(7569, 8333, 2344, 3038, FALSE,  0,    0, 188);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 181,   0,   0);
+    color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();

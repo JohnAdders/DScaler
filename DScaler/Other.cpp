@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.31 2002-01-12 16:57:02 adcockj Exp $
+// $Id: Other.cpp,v 1.32 2002-01-19 11:56:26 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/01/12 16:57:02  adcockj
+// POssible fix for 80070057 error on create
+//
 // Revision 1.30  2001/12/16 17:04:37  adcockj
 // Debug Log improvements
 //
@@ -280,7 +283,10 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
-        if (FAILED(ddrval) && ddrval != DDERR_CURRENTLYNOTAVAIL)
+        // 3dfx cards fail with DDERR_UNSUPPORTED if an overlay is hidden before it is shown.
+        // we just ignore that error.
+        if (FAILED(ddrval) && ddrval != DDERR_CURRENTLYNOTAVAIL &&
+            !(ddrval == DDERR_UNSUPPORTED && dwFlags == DDOVER_HIDE))
         {
             // 2001-01-06 John Adcock
             // Now show return code

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.22 2002-01-24 00:00:13 robmuller Exp $
+// $Id: BT848Source.cpp,v 1.23 2002-01-26 17:54:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/01/24 00:00:13  robmuller
+// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
+//
 // Revision 1.21  2002/01/21 14:33:17  robmuller
 // Fixed: setting wrong audio input in tuner mode in VideoSourceOnChange().
 //
@@ -890,6 +893,7 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
         m_CustomPixelWidth->SetValue(NewValue);
     }
     Stop_Capture();
+    m_CurrentX = NewValue;
     m_pBT848Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 

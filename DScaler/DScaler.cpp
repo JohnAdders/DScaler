@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.256 2002-10-26 21:42:04 laurentg Exp $
+// $Id: DScaler.cpp,v 1.257 2002-10-27 04:28:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.256  2002/10/26 21:42:04  laurentg
+// Take consecutive stills
+//
 // Revision 1.255  2002/10/26 17:51:52  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -890,6 +893,7 @@ int InitialTextPage = -1;
 BOOL bInMenu = FALSE;
 BOOL bShowCrashDialog = FALSE;
 BOOL bIsRightButtonDown = FALSE;
+BOOL bMainWindowHasFocus = TRUE;
 BOOL bIgnoreNextRightButtonUpMsg = FALSE;
 
 UINT MsgWheel;
@@ -3583,14 +3587,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_ENTERMENULOOP:
-        Cursor_UpdateVisibility();
         bInMenu = TRUE;
+        Cursor_UpdateVisibility();
         return 0;
         break;
 
     case WM_EXITMENULOOP:
-        Cursor_UpdateVisibility();
         bInMenu = FALSE;
+        Cursor_UpdateVisibility();
         return 0;
         break;
 
@@ -3610,11 +3614,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_KILLFOCUS:
+        bMainWindowHasFocus = FALSE;
 	    Cursor_UpdateVisibility();
         return 0;
         break;
 
     case WM_SETFOCUS:
+        bMainWindowHasFocus = TRUE;
+	    Cursor_UpdateVisibility();
         return 0;
         break;
 
@@ -3735,7 +3742,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
         case TIMER_HIDECURSOR:
-            if (GetForegroundWindow() == hWnd && bInMenu == FALSE)
+            if (bMainWindowHasFocus && bInMenu == FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
 				if (ToolbarControl != NULL) 
@@ -5019,7 +5026,11 @@ void Cursor_UpdateVisibility()
 {
     KillTimer(hWnd, TIMER_HIDECURSOR);	
 
-    if (!bAutoHideCursor)
+    if (bInMenu || bMainWindowHasFocus == FALSE)
+    {
+        Cursor_SetVisibility(TRUE);
+    }
+    else if (!bAutoHideCursor)
     {
         if (bIsFullScreen)
         {

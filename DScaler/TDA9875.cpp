@@ -1,5 +1,5 @@
 //
-// $Id: TDA9875.cpp,v 1.3 2004-08-30 16:19:35 adcockj Exp $
+// $Id: TDA9875.cpp,v 1.4 2005-03-09 10:02:10 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/30 16:19:35  adcockj
+// Fix uninitialised variable issue
+//
 // Revision 1.2  2004/08/30 16:17:02  adcockj
 // Fixed issue with TDA9875 detection
 //
@@ -48,20 +51,14 @@ BYTE CTDA9875::GetDefaultAddress()const
     return I2C_TDA9875 >> 1;
 }
 
-void CTDA9875::WriteToSubAddress(BYTE subAddress, BYTE value)
-{
-    BYTE write[] = { value };
-	CI2CDevice::WriteToSubAddress(subAddress, write, sizeof(write));
-}
-
 void CTDA9875::Reset()
 {
 
-	CTDA9875::WriteToSubAddress(TDA9875_CFG, 0xd0); /* reg de config 0 (reset)*/
-	CTDA9875::WriteToSubAddress(TDA9875_CH1V, 22 );  /* Channel volume 1 -10db */
-	CTDA9875::WriteToSubAddress(TDA9875_CH2V, 22 );  /* Channel volume 2 -10db */ 
-	CTDA9875::WriteToSubAddress(TDA9875_NCHV, 22 );  /* NICAM volume -10db */ 
-	CTDA9875::WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_ON);   /* General mute  */
+	WriteToSubAddress(TDA9875_CFG, 0xd0); /* reg de config 0 (reset)*/
+	WriteToSubAddress(TDA9875_CH1V, 22 );  /* Channel volume 1 -10db */
+	WriteToSubAddress(TDA9875_CH2V, 22 );  /* Channel volume 2 -10db */ 
+	WriteToSubAddress(TDA9875_NCHV, 22 );  /* NICAM volume -10db */ 
+	WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_ON);   /* General mute  */
         
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9874.h,v 1.4 2004-09-26 16:43:39 to_see Exp $
+// $Id: TDA9874.h,v 1.5 2005-03-09 10:02:10 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -15,10 +15,13 @@
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2004 Mika Laine.  All rights reserved.
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
-//  Copyright (C) 2000 - 2002 by Eduardo JosÈ Tagle.
+//  Copyright (C) 2000 - 2002 by Eduardo JosÅETagle.
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/09/26 16:43:39  to_see
+// Renamed id, log to Id, Log
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__TDA9874_H__)
@@ -93,8 +96,6 @@ protected:
 	int m_iNCONR;		/* default NICAM config.: AMSEL=0,AMUTE=1 */
 	int m_iESP ;		/* standard: */
 	int m_iDic;			/* device id. code */
-
-	void WriteToSubAddress(BYTE subAddress, BYTE value);
 
     virtual BYTE GetDefaultAddress() const;
 };

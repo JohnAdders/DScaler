@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9875.h,v 1.1 2004-01-05 13:25:25 adcockj Exp $
+// $Id: TDA9875.h,v 1.2 2005-03-09 10:02:10 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -91,8 +91,6 @@ public:
 	bool IsDevicePresent(int& dic, int& rev);
 
 protected:
-
-	void WriteToSubAddress(BYTE subAddress, BYTE value);
 
     virtual BYTE GetDefaultAddress() const;
 };

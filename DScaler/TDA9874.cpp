@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9874.cpp,v 1.4 2004-09-26 16:43:39 to_see Exp $
+// $Id: TDA9874.cpp,v 1.5 2005-03-09 10:02:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -15,10 +15,13 @@
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2004 Mika Laine.  All rights reserved.
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
-//  Copyright (C) 2000 - 2002 by Eduardo José Tagle.
+//  Copyright (C) 2000 - 2002 by Eduardo JosETagle.
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/09/26 16:43:39  to_see
+// Renamed id, log to Id, Log
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -41,12 +44,6 @@ BYTE CTDA9874::GetDefaultAddress()const
     //TODO
 	LOG(1,"CTDA9874::GetDefaultAddress()");
 	return I2C_TDA9874 >> 1;
-}
-
-void CTDA9874::WriteToSubAddress(BYTE subAddress, BYTE value)
-{
-    BYTE write[] = { value };
-	CI2CDevice::WriteToSubAddress(subAddress, write, sizeof(write));
 }
 
 void CTDA9874::Reset()

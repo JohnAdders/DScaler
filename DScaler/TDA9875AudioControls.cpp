@@ -1,5 +1,5 @@
 //
-// $Id: TDA9875AudioControls.cpp,v 1.1 2004-01-05 13:25:25 adcockj Exp $
+// $Id: TDA9875AudioControls.cpp,v 1.2 2005-03-09 10:02:10 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -80,9 +83,9 @@ void CTDA9875AudioControls::SetMute(bool mute)
 	}
     m_bMuted = mute;
     if (m_bMuted)
-		CTDA9875::WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_ON);
+		WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_ON);
     else
-		CTDA9875::WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_OFF);
+		WriteToSubAddress(TDA9875_MUT, TDA9875_MUTE_OFF);
 }
 
 bool CTDA9875AudioControls::IsMuted()
@@ -126,12 +129,12 @@ void CTDA9875AudioControls::SetVolume(WORD nVolume)
 			(BYTE)floor(33.21928*log10(1.66416*nVolRight - 0.66416) - 82.5) : -84;
 
 	// main
-	CTDA9875::WriteToSubAddress(TDA9875_MVL, bVolumeTDA9875Left);
-	CTDA9875::WriteToSubAddress(TDA9875_MVR, bVolumeTDA9875Right);
+	WriteToSubAddress(TDA9875_MVL, bVolumeTDA9875Left);
+	WriteToSubAddress(TDA9875_MVR, bVolumeTDA9875Right);
 
 	// aux
-	CTDA9875::WriteToSubAddress(TDA9875_AVL, bVolumeTDA9875Left);
-	CTDA9875::WriteToSubAddress(TDA9875_AVR, bVolumeTDA9875Right);
+	WriteToSubAddress(TDA9875_AVL, bVolumeTDA9875Left);
+	WriteToSubAddress(TDA9875_AVR, bVolumeTDA9875Right);
 }
 
 WORD CTDA9875AudioControls::GetVolume()
@@ -181,9 +184,9 @@ void CTDA9875AudioControls::SetBass(WORD nBass)
 	BYTE bBassTDA9875 = (BYTE)floor(0.12108*m_nBass + 0.12332);
 
 	// main
-	CTDA9875::WriteToSubAddress(TDA9875_MBA, bBassTDA9875);
+	WriteToSubAddress(TDA9875_MBA, bBassTDA9875);
 	// aux
-	CTDA9875::WriteToSubAddress(TDA9875_ABA, bBassTDA9875);
+	WriteToSubAddress(TDA9875_ABA, bBassTDA9875);
 }
 
 WORD CTDA9875AudioControls::GetBass()
@@ -209,10 +212,10 @@ void CTDA9875AudioControls::SetTreble(WORD nTreble)
 	BYTE bTrebleTDA9875 = (BYTE)floor(0.10762*m_nTreble - 1.16816);
 
 	// main
-	CTDA9875::WriteToSubAddress(TDA9875_MTR, bTrebleTDA9875);
+	WriteToSubAddress(TDA9875_MTR, bTrebleTDA9875);
 	
 	// aux
-	CTDA9875::WriteToSubAddress(TDA9875_ATR, bTrebleTDA9875);
+	WriteToSubAddress(TDA9875_ATR, bTrebleTDA9875);
 }
 
 WORD CTDA9875AudioControls::GetTreble()
@@ -234,9 +237,9 @@ void CTDA9875AudioControls::SetBassBoost(bool bBoost)
 {	
 	m_bBassBoost = bBoost;
 	if (bBoost)
-		CTDA9875::WriteToSubAddress(TDA9875_BBO, 85);
+		WriteToSubAddress(TDA9875_BBO, 85);
 	else
-		CTDA9875::WriteToSubAddress(TDA9875_BBO, 0);
+		WriteToSubAddress(TDA9875_BBO, 0);
 }
 
 bool CTDA9875AudioControls::IsBassBoosted()
@@ -262,7 +265,7 @@ void CTDA9875AudioControls::SetLoudness(WORD nLevel)
 
 	BYTE bLoudnessTDA9875 = (BYTE)floor(0.07059*m_nLoudness + 0.5);
 
-	CTDA9875::WriteToSubAddress(TDA9875_LOU, bLoudnessTDA9875);
+	WriteToSubAddress(TDA9875_LOU, bLoudnessTDA9875);
 
 }
  
@@ -303,7 +306,7 @@ void CTDA9875AudioControls::SetAutoVolumeCorrection(long milliSeconds)
 		m_nAVLDecay = 8000;
 	}
 
-	CTDA9875::WriteToSubAddress(TDA9875_AER, m_bSpatialEffectReg | m_bAVLReg);
+	WriteToSubAddress(TDA9875_AER, m_bSpatialEffectReg | m_bAVLReg);
 }
 
 
@@ -332,7 +335,7 @@ void CTDA9875AudioControls::SetSpatialEffect(int nLevel)
 	else
 		m_bSpatialEffectReg = (m_bSpatialEffectReg << 2);
 
-	CTDA9875::WriteToSubAddress(TDA9875_AER, m_bSpatialEffectReg | m_bAVLReg);
+	WriteToSubAddress(TDA9875_AER, m_bSpatialEffectReg | m_bAVLReg);
 }
 
 int CTDA9875AudioControls::GetSpatialEffect()

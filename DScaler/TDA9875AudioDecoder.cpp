@@ -1,5 +1,5 @@
 //
-// $Id: TDA9875AudioDecoder.cpp,v 1.1 2004-01-05 13:25:25 adcockj Exp $
+// $Id: TDA9875AudioDecoder.cpp,v 1.2 2005-03-09 10:02:10 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/01/05 13:25:25  adcockj
+// Added patch for Diamond DTV2000 from Robert Milharcic
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -338,7 +341,7 @@ void CTDA9875AudioDecoder::SetSoundChannel(eSoundChannel soundChannel)
 
 	}
 
-	CTDA9875::WriteToSubAddress(TDA9875_FMAT, bMatrix);
+	WriteToSubAddress(TDA9875_FMAT, bMatrix);
 }
 
 eSoundChannel CTDA9875AudioDecoder::GetSoundChannel()
@@ -451,7 +454,7 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
     }
 
 	//De_emphasis
-	CTDA9875::WriteToSubAddress(TDA9875_DEEM, (BYTE)StandardDefinition.De_emphasis);
+	WriteToSubAddress(TDA9875_DEEM, (BYTE)StandardDefinition.De_emphasis);
 
 	BYTE DCR = 0;
 
@@ -460,11 +463,11 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
 		DCR |= 1;
 	else if (StandardDefinition.MonoType == MONO_FM_SAT)
 	{
-		CTDA9875::WriteToSubAddress(TDA9875_CFG, 1); //SIF2
+		WriteToSubAddress(TDA9875_CFG, 1); //SIF2
 		DCR |= 2;
 	}
 	else
-		CTDA9875::WriteToSubAddress(TDA9875_CFG, 0); //SIF1
+		WriteToSubAddress(TDA9875_CFG, 0); //SIF1
 
 	//Channel 2 mode AM, FM, NICAM
 	if (StandardDefinition.StereoType == STEREO_AM)
@@ -479,21 +482,21 @@ void CTDA9875AudioDecoder::SetAudioStandard(long Standard, eVideoFormat videofor
 	if (StandardDefinition.Standard == TDA9875_STANDARD_M_ANALOG_FM_FM)
         DCR |= 32;    //M stereo (Korean)
 
-	CTDA9875::WriteToSubAddress(TDA9875_DCR, DCR);
+	WriteToSubAddress(TDA9875_DCR, DCR);
 
 	//Main channel select / digital matrix
 	if (StandardDefinition.StereoType == STEREO_NICAM)
 	{
-		CTDA9875::WriteToSubAddress(TDA9875_MCS, 1);	//MAIN NICAM, L + R
-		CTDA9875::WriteToSubAddress(TDA9875_ACS, 1);	//AUX NICAM, L + R
-		CTDA9875::WriteToSubAddress(TDA9875_DACOS, 1);	//DAC NICAM L + R 
+		WriteToSubAddress(TDA9875_MCS, 1);		//MAIN NICAM, L + R
+		WriteToSubAddress(TDA9875_ACS, 1);		//AUX NICAM, L + R
+		WriteToSubAddress(TDA9875_DACOS, 1);	//DAC NICAM L + R 
 
 	}
 	else
 	{
-		CTDA9875::WriteToSubAddress(TDA9875_MCS, 0);	//MAIN FM, L + R
-		CTDA9875::WriteToSubAddress(TDA9875_ACS, 0);	//AUX FM, L + R
-		CTDA9875::WriteToSubAddress(TDA9875_DACOS, 0);	//DAC FM L + R 
+		WriteToSubAddress(TDA9875_MCS, 0);		//MAIN FM, L + R
+		WriteToSubAddress(TDA9875_ACS, 0);		//AUX FM, L + R
+		WriteToSubAddress(TDA9875_DACOS, 0);	//DAC FM L + R 
 	}
 
 	SetAudioStandardCarriers(StandardDefinition.MajorCarrier, StandardDefinition.MinorCarrier);
@@ -602,13 +605,13 @@ void CTDA9875AudioDecoder::SetAudioStandardCarriersTDA9875(long MajorCarrier, lo
 	DWORD dwC2 = TDA9875_CARRIER(MinorCarrier);
 	DWORD dwC1 = TDA9875_CARRIER(MajorCarrier);
 
-	CTDA9875::WriteToSubAddress(TDA9875_C1MSB, (dwC1 & 0xff0000) >> 16);
-	CTDA9875::WriteToSubAddress(TDA9875_C1MIB, (dwC1 & 0x00ff00) >> 8);
-	CTDA9875::WriteToSubAddress(TDA9875_C1LSB,  dwC1 & 0x0000ff);
+	WriteToSubAddress(TDA9875_C1MSB, (dwC1 & 0xff0000) >> 16);
+	WriteToSubAddress(TDA9875_C1MIB, (dwC1 & 0x00ff00) >> 8);
+	WriteToSubAddress(TDA9875_C1LSB,  dwC1 & 0x0000ff);
 
-	CTDA9875::WriteToSubAddress(TDA9875_C2MSB, (dwC2 & 0xff0000) >> 16);
-	CTDA9875::WriteToSubAddress(TDA9875_C2MIB, (dwC2 & 0x00ff00) >> 8);
-	CTDA9875::WriteToSubAddress(TDA9875_C2LSB,  dwC2 & 0x0000ff);
+	WriteToSubAddress(TDA9875_C2MSB, (dwC2 & 0xff0000) >> 16);
+	WriteToSubAddress(TDA9875_C2MIB, (dwC2 & 0x00ff00) >> 8);
+	WriteToSubAddress(TDA9875_C2LSB,  dwC2 & 0x0000ff);
 
 }
 void CTDA9875AudioDecoder::SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier)
@@ -805,7 +808,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 		if (m_ForceAMSound && IsSECAMVideoFormat(m_VideoFormat))
 			return TDA9875_STANDARD_L_DIGITAL_AM_NICAM;
 
-		CTDA9875::WriteToSubAddress(TDA9875_MSR, 8); //channel 1
+		WriteToSubAddress(TDA9875_MSR, 8); //channel 1
 		m_CarrierDetect_Phase = 1;
 	}
 	//Major carrier
@@ -940,7 +943,7 @@ CTDA9875AudioDecoder::eStandard CTDA9875AudioDecoder::DetectStandardTDA9875()
 			m_CarrierDetect_Phase = 8; // Detect minor carrier
 			
 			//Minor Carrier
-			CTDA9875::WriteToSubAddress(TDA9875_MSR, 16); // channel 2
+			WriteToSubAddress(TDA9875_MSR, 16); // channel 2
 		}
 		else
 		{

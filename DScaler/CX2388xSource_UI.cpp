@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.36 2003-03-23 10:42:21 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.37 2003-06-01 14:48:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/03/23 10:42:21  laurentg
+// Avoid to switch to an unknown video input when using 000...
+//
 // Revision 1.35  2003/03/23 10:25:23  laurentg
 // Use video input name as icon tips when not in tuner mode
 //
@@ -579,7 +582,7 @@ void CCX2388xSource::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
     {
         m_Brightness->ChangeDefault(128, bDontSetValue);
         m_Contrast->ChangeDefault(0x39, bDontSetValue);
-        m_Hue->ChangeDefault(128, TRUE);
+        m_Hue->ChangeDefault(128, bDontSetValue);
         m_Saturation->ChangeDefault((0x7f + 0x5A) / 2, bDontSetValue);
         m_SaturationU->ChangeDefault(0x7f, bDontSetValue);
         m_SaturationV->ChangeDefault(0x5A, bDontSetValue);

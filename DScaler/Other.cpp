@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.55 2003-01-24 01:55:18 atnak Exp $
+// $Id: Other.cpp,v 1.56 2003-01-25 17:50:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.54  2003/01/11 15:22:26  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -648,7 +652,7 @@ BOOL Overlay_Create()
 		// or if we are told there is not enough memory
 		// maybe E_INVALIDARG means that the card doesn't support that many
 		// buffers so loop if we get that too
-        if (SUCCEEDED(ddrval) || ddrval != DDERR_OUTOFVIDEOMEMORY || ddrval != E_INVALIDARG)
+        if (SUCCEEDED(ddrval) || (ddrval != DDERR_OUTOFVIDEOMEMORY && ddrval != E_INVALIDARG))
             break;
     }
 

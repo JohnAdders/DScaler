@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.25 2002-09-28 13:31:41 kooiman Exp $
+// $Id: Audio.cpp,v 1.26 2002-10-17 05:09:27 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/09/28 13:31:41  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.24  2002/09/26 16:35:20  kooiman
 // Volume event support.
 //
@@ -136,6 +139,11 @@ void Audio_Unmute()
 		}
 	}
 	EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
+}
+
+BOOL Audio_IsMuted()
+{
+    return bSystemInMute;
 }
 
 BOOL SystemInMute_OnChange(long NewValue)

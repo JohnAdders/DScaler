@@ -361,6 +361,10 @@ SOURCE=.\StillSource.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TiffSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TimeShift.cpp
 # End Source File
 # Begin Source File
@@ -625,6 +629,10 @@ SOURCE=.\StillProvider.h
 # Begin Source File
 
 SOURCE=.\StillSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TiffSource.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.13 2002-10-20 09:29:59 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.14 2002-10-23 02:52:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/20 09:29:59  atnak
+// minor fixes
+//
 // Revision 1.12  2002/10/15 11:53:38  atnak
 // Added UI feedback for some videotext stuff
 //
@@ -291,8 +294,12 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
 
                 switch(Char)
                 {
-                case 0x00:  // NUL reserved
-                    break;
+                case 0x00:  // NUL (reserved) (2.5+: Alpha Black)
+                    // Workaround to 1.x vs 2.5+ conflict
+                    if (Background == 0)
+                    {
+                        break;
+                    }
                 case 0x01:  // Alpha Red
                 case 0x02:  // Alpha Green
                 case 0x03:  // Alpha Yellow
@@ -345,8 +352,12 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 case 0x0e:  // Shift Out (reserved)
                 case 0x0f:  // Shift In (reserved
                     break;
-                case 0x10:  // DLE (reserved)
-                    break;
+                case 0x10:  // DLE (reserved) (2.5+: Graphics Black)
+                    // Workaround to 1.x vs 2.5+ conflict
+                    if (Background == 0)
+                    {
+                        break;
+                    }
                 case 0x11:  // Graphics Red
                 case 0x12:  // Graphics Green
                 case 0x13:  // Graphics Yellow

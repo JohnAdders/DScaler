@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.121 2003-01-01 21:07:10 atnak Exp $
+// $Id: DS_Control.h,v 1.122 2003-01-02 13:14:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.121  2003/01/01 21:07:10  atnak
+// Updated VT_SETTING
+//
 // Revision 1.120  2002/12/10 14:53:14  adcockj
 // Sound fixes for cx2388x
 //
@@ -474,6 +477,7 @@ enum eVideoFormat
 #define INDEX_VIDEO_GREEDYH               19
 #define INDEX_OLD_GAME                    20
 #define INDEX_VIDEO_TOMSMOCOMP            21
+#define INDEX_VIDEO_MOCOMP2               22
 
 /////////////////////////////////////////////////////////////////////////////
 // Allow callers to convert a WM code to do other operations
@@ -555,7 +559,9 @@ typedef enum
 	CX2388X_SETTINGID,
 	FDPROG_SETTINGID,
 	SAA7134_SETTINGID,
-	TOOLBARS_SETTINGID
+	TOOLBARS_SETTINGID,
+	DI_MOCOMP2_SETTINGID,
+	FLT_CHROMA_SETTINGID,
 } SETTINGHOLDERID;	
 
 
@@ -1625,6 +1631,38 @@ typedef enum
 #define WM_TOOLBARS_GETVALUE            (WM_APP + 50)
 #define WM_TOOLBARS_SETVALUE            (WM_APP + 150)
 #define WM_TOOLBARS_CHANGEVALUE         (WM_APP + 250)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in DI_MOCOMP2.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    MOCOMP2SEARCHEFFORT = 0,
+    MOCOMP2USESTRANGEBOB,
+    DI_MOCOMP2_SETTING_LASTONE,
+} DI_MOCOMP2_SETTING;
+
+#define WM_DI_MOCOMP2_GETVALUE     (WM_APP + 51)
+#define WM_DI_MOCOMP2_SETVALUE     (WM_APP + 151)
+#define WM_DI_MOCOMP2_CHANGEVALUE  (WM_APP + 251)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_Chroma.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    CHROMAHORZSHIFT = 0,
+    CHROMAVERTSHIFT,
+    LOWPASSCHROMAFILTER,
+    USECHROMAFILTER,
+    FLT_CHROMA_SETTING_LASTONE,
+} FLT_CHROMA_SETTING;
+
+#define WM_FLT_CHROMA_GETVALUE       (WM_APP + 52)
+#define WM_FLT_CHROMA_SETVALUE       (WM_APP + 152)
+#define WM_FLT_CHROMA_CHANGEVALUE    (WM_APP + 252)
 
 
 #endif

@@ -87,6 +87,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "DI_MoComp2"=..\Plugins\DI_MoComp2\DI_MoComp2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "DI_OddOnly"=..\Plugins\DI_OddOnly\DI_OddOnly.dsp - Package Owner=<4>
 
 Package=<5>
@@ -332,6 +344,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name DSRend
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_MoComp2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Chroma
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -361,6 +379,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_AdaptiveNoise"=..\Plugins\FLT_AdaptiveNoise\FLT_AdaptiveNoise.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_Chroma"=..\Plugins\FLT_Chroma\FLT_Chroma.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -458,10 +458,10 @@ class CPanAndZoomAspectFilter : public CAspectFilter
 public:
 	CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom)
 	{
-		xPos = _xPos / 100; 
-		yPos = _yPos / 100;
-		xZoom = _xZoom / 100; 
-		yZoom = _yZoom / 100;
+		xPos = (double)_xPos / 100.0; 
+		yPos = (double)_yPos / 100.0;
+		xZoom = (double)_xZoom / 100.0; 
+		yZoom = (double)_yZoom / 100.0;
 	}
 	
 	virtual BOOL adjustAspect(CAspectRectangles &ar)

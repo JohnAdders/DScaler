@@ -16,4 +16,5 @@ xcopy ..\release\skins\*.* ..\debug\skins\ /E /Y /D
 xcopy ..\release\patterns\*.* ..\debug\patterns\ /E /Y /D
 if exist ..\release\DScaler.chm xcopy ..\release\DScaler.chm ..\debug\ /Y /D
 xcopy ..\release\SAA713xCards.ini ..\debug\ /Y /D
+xcopy ..\release\CX2388xCards.ini ..\debug\ /Y /D
 :endbatch

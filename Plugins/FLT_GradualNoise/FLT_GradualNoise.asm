@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.3 2001-12-31 00:02:59 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.4 2002-02-01 23:16:29 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
+// Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/31 00:02:59  lindsey
+// Fixed crashing bug when pixel width not evenly divisible by 8
+// Added prefetching for a substantial speed up
+//
 // Revision 1.2  2001/12/28 02:51:44  lindsey
 // Improved assembly formatting
 // Improved assembly multiplication
@@ -28,31 +32,75 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+// Processor specific macros:
+
+// Processor specific sum of absolute differences of unsigned bytes
+
+#undef SUM_ABS_DIFF_BYTES
+#if defined( IS_SSE )
+#define SUM_ABS_DIFF_BYTES(DestMM, SourceMM, TempMM)    psadbw DestMM, SourceMM
+#else
+#define SUM_ABS_DIFF_BYTES(DestMM, SourceMM, TempMM)    __asm \
+    { \
+    __asm movq      TempMM, SourceMM \
+    __asm psubusb   TempMM, DestMM \
+    __asm psubusb   DestMM, SourceMM \
+    __asm por       DestMM, TempMM \
+    __asm movq      TempMM, DestMM \
+    __asm psrlw     DestMM, 8 \
+    __asm paddusb   TempMM, DestMM \
+    __asm movq      DestMM, TempMM \
+    __asm psrld     TempMM, 16 \
+    __asm paddusb   DestMM, TempMM \
+    __asm movq      TempMM, DestMM \
+    __asm psrlq     DestMM, 32 \
+    __asm paddusb   DestMM, TempMM \
+    __asm pand      DestMM, qwLowByte \
+    }
+#endif
+
+// Processor specific bytewise unsigned maximum
+
+#undef MAX_BYTES
+#if defined( IS_SSE )
+#define MAX_BYTES(DestMM, SourceMM)    pmaxub DestMM, SourceMM
+#else
+#define MAX_BYTES(DestMM, SourceMM)    __asm \
+    { \
+    __asm psubusb   DestMM, SourceMM \
+    __asm paddusb   DestMM, SourceMM \
+    }
+#endif
+
+
 // This is the implementation of the noise filter described in FLT_GradualNoise.c
 
 #if defined( IS_SSE )
 #define MAINLOOP_LABEL DoNext8Bytes_SSE
-#else // IS_MMXEXT
-#define MAINLOOP_LABEL DoNext8Bytes_MMXEXT
+#else // IS_MMX
+#define MAINLOOP_LABEL DoNext8Bytes_MMX
 #endif
 
 #if defined( IS_SSE )
 long FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo )
-#else // IS_MMXEXT
-long FilterGradualNoise_MMXEXT( TDeinterlaceInfo *pInfo )
+#else // IS_MMX
+long FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo )
 #endif
 {
     BYTE*           pSource = NULL;
-    DWORD           ThisLine = pInfo->SourceRect.top/2;
     const LONG      Cycles = (pInfo->LineLength/8)*8;
     // Noise multiplier is (1/gNoiseReduction), in 0x10000 fixed point.
     // This times the measured noise gives the weight given to the new pixel color
-    const DWORD     NoiseMultiplier = (0x10000+(gNoiseReduction/2))/(gNoiseReduction);
+    const __int64   qwNoiseMultiplier = (0x10000+(gNoiseReduction/2))/(gNoiseReduction);
     const __int64   qwChromaMask = 0xFF00FF00FF00FF00;
     const __int64   qwOnes = 0x0101010101010101;
+    const __int64   qwWordOnes = 0x0001000100010001;
+    const __int64   qwLowByte = 0x00000000000000FF;
+    const __int64   qwLowWord = 0x000000000000FFFF;
 
     BYTE*           pLast = NULL;
-    const DWORD     BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture
+    DWORD           ThisLine = 0;
+    const DWORD     BottomLine = pInfo->FieldHeight;
 
     // Need to have the current and next-to-previous fields to do the filtering.
     if( (pInfo->PictureHistory[0] == NULL) || (pInfo->PictureHistory[2] == NULL) )
@@ -86,17 +134,29 @@ MAINLOOP_LABEL:
             // Get the noise adjustment multiplier
 
             movq    mm2, mm0                // mm2 = NewPixel
-            psadbw  mm2, mm1                // mm2 = Sum(|byte differences Old,New|)
+            SUM_ABS_DIFF_BYTES(mm2, mm1, mm3) // mm2 = Sum(|byte differences Old,New|)
 
             // The NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
-            pmaddwd mm2, NoiseMultiplier    // mm2 (low Dword) = Multiplier to move toward new pixel value
+            pmaddwd mm2, qwNoiseMultiplier    // mm2 (low Dword) = Multiplier to move toward new pixel value
+#if defined( IS_SSE )
             prefetchnta[edi + PREFETCH_STRIDE]
+#endif
             movq    mm3, mm2                // mm3 = same
             pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
             psrlq   mm2, 16                 // mm2 (low word) = FFFF if ignoring old pixel value (else 0)
             por     mm3, mm2                // mm3 = (low word) Adjusted multiplier to move toward new
+#if defined( IS_SSE )
             pshufw  mm2, mm3, 0x00          // * mm2 = (wordwise) adjusted multiplier to move toward new
+#else   // IS_MMX
+            pand    mm3, qwLowWord          // mm3 = same limited to low word 
+            movq    mm2, mm3                // mm2 = same
+            psllq   mm3, 16                 // mm3 = moved to second word
+            por     mm2, mm3                // mm2 = copied to first and second words
+            movq    mm3, mm2                // mm3 = same
+            psllq   mm3, 32                 // mm3 = moved to thrid and fourth words
+            por     mm2, mm3                // mm2 = low word copied to all four words
+#endif
 
             movq    mm4, mm1                // mm4 = OldPixel
             psubusb mm4, mm0                // mm4 = bytewise max(old - new, 0)
@@ -110,20 +170,39 @@ MAINLOOP_LABEL:
             pcmpeqw mm6, mm6                // mm6 = all on
             pcmpeqw mm6, mm2                // mm6 = all on iff multiplier = 0xFFFF (~= 1)
             pand    mm6, mm4                // mm6 = bytewise |new - old| iff multiplier = 0xFFFF
-            pmaxub  mm6, mm5                // mm6 = same, corrected to a minimum of 1 where there is change
+            MAX_BYTES(mm6, mm5)             // mm6 = same, corrected to a minimum of 1 where there is change
 
             // Multiply the change by the determined compensation factor
             movq    mm7, mm4                // mm7 = bytewise |new - old|
             movq    mm3, qwChromaMask
             pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
+#if defined( IS_SSE )
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
+#else // IS_MMX
+            psrlq   mm7, 8                  // mm7 = bytewise |new - old| chroma in low byte of words
+            movq    mm5, mm2                // mm5 = multiplier to move toward new
+            psraw   mm5, 15                 // mm5 = words filled with high bit of multiplier words
+            pand    mm5, mm7                // mm5 = wordwise chroma to add/subtract iff high bit of mulitplier is on
+            pmulhw  mm7, mm2                // mm7 = signed product of chroma and multiplier
+            // A twos compliment trick:
+            paddw   mm7, mm5                // mm7 = unsigned product of chroma and multiplier
+            psllq   mm7, 8                  // mm7 = amount of chroma to add/subtract from old, with remainders
+#endif
             prefetchnta[ebx + PREFETCH_STRIDE]
 
             pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
+#if defined( IS_SSE )
             pmulhuw mm3, mm2                // mm3 = amount of luma to add/subtract from old
+#else // IS_MMX
+            movq    mm5, mm2                // mm5 = multiplier to move toward new
+            psraw   mm5, 15                 // mm5 = words filled with high bit of multiplier words
+            pand    mm5, mm3                // mm5 = wordwise chroma to add/subtract iff high bit of mulitplier is on
+            pmulhw  mm3, mm2                // mm3 = signed product of chroma and multiplier
+            paddw   mm3, mm5                // mm3 = unsigned product of chroma and multiplier
+#endif
             por     mm7, mm3                // mm7 = amount to add/subtract from old
-            pmaxub  mm7, mm6                // mm7 = corrected to to deal with the motion and round up to 1
+            MAX_BYTES(mm7, mm6)             // mm7 = corrected to to deal with the motion and round up to 1
             
             // Apply the calculated change
             movq    mm3, mm7                // mm3 = same

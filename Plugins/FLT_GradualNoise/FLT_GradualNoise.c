@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
+// Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/31 00:02:59  lindsey
+// Fixed crashing bug when pixel width not evenly divisible by 8
+// Added prefetching for a substantial speed up
+//
 // Revision 1.2  2001/12/28 02:52:14  lindsey
 // Corrected a settings typo
 // Prevented a crash with very low Noise Reduction settings
@@ -133,7 +137,7 @@ Model -- Assume the image is a combination of "stationary" and "moving" pixels. 
 noise is distributed ~ N(0, n_sigma^2) around the "true" image value, and motion is
 distributed ~ N(0, m_sigma^2) around the previous "true" image value.  Noise
 occurs for all pixels regardless of whether they are moving. Assume the perceived
-image error at a pixel Q = ("true image" - displayed image)^2 . For the purpose of this
+image error at a pixel Q = ("true" image - displayed image)^2 . For the purpose of this
 plugin, make the questionable assumption that pixels never switch between {stationary,
 moving}, ignore edge effects, and ignore correlation between neighboring pixels.
 
@@ -148,7 +152,8 @@ a chi^2 df=8?
 
 You can try to estimate n_sigma^2, m_sigma^2, and use temporal and spatial correlation to
 come up with a much better estimator of motion.  But that's a job for a different -- and
-slower -- plugin.
+slower -- plugin.  (Specifically, the Adaptive Noise plugin -- but it doesn't include
+an m_sigma^2 estimate, though it would be nice if it did.)
 
 
 Yowza! Look at all that text!
@@ -184,14 +189,14 @@ you the "comical posterization" filter.
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
 BOOL WINAPI     _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved );
 long            FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo );
-long            FilterGradualNoise_MMXEXT( TDeinterlaceInfo *pInfo );
+long            FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo );
 
 
 /////////////////////////////////////////////////////////////////////////////
 // Begin plugin globals
 /////////////////////////////////////////////////////////////////////////////
 
-// Just one global: The maximum sum of absolute differences in a four pixel
+// The maximum sum of absolute differences in a four pixel
 // block.  Above this, the old pixel values will be ignored.
 
 long gNoiseReduction = 40;
@@ -224,7 +229,7 @@ FILTER_METHOD GradualNoiseMethod =
     "Noise Reduction (Gradual)",            // For consistency with the Temporal Noise filter
     FALSE,                                  // Not initially active
     TRUE,                                   // Call on input so pulldown/deinterlacing can benefit
-    FilterGradualNoise_MMXEXT,              // Algorithm to use (really decided by GetFilterPluginInfo)
+    FilterGradualNoise_MMX,                 // Algorithm to use (really decided by GetFilterPluginInfo)
     0,                                      // Menu: assign automatically
     FALSE,                                  // Does not run if we've run out of time
     NULL,                                   // No initialization procedure
@@ -246,9 +251,9 @@ FILTER_METHOD GradualNoiseMethod =
 #include "FLT_GradualNoise.asm"
 #undef IS_SSE
 
-#define IS_MMXEXT
+#define IS_MMX
 #include "FLT_GradualNoise.asm"
-#undef IS_MMXEXT
+#undef IS_MMX
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -257,18 +262,15 @@ FILTER_METHOD GradualNoiseMethod =
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 {
-    if( CpuFeatureFlags & FEATURE_SSE )
+    if( (CpuFeatureFlags & FEATURE_SSE) || (CpuFeatureFlags & FEATURE_MMXEXT) )
     {
         GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_SSE;
     }
-    else if( CpuFeatureFlags & FEATURE_MMXEXT )
-    {
-        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_MMXEXT;
-    }
     else
     {
-        GradualNoiseMethod.pfnAlgorithm = NULL;
+        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_MMX;
     }
+        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_MMX;
     return &GradualNoiseMethod;
 }
 

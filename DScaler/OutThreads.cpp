@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.134 2004-12-14 21:30:14 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.135 2004-12-14 23:23:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.134  2004/12/14 21:30:14  laurentg
+// DShow ChangeRes run by the output thread
+//
 // Revision 1.133  2004/12/13 23:24:44  laurentg
 // Request in GUI thread regarding output thread - extended code
 //
@@ -659,13 +662,13 @@ void PutRequest(TGUIRequest *req)
 			}
 			break;
 		case REQ_SNAPSHOT:
+		case REQ_DSHOW_STOP:
 			Request.type = req->type;
 			break;
 		case REQ_DSHOW_CHANGERES:
 			Request.type = req->type;
 			Request.param1 = req->param1;
 			break;
-		case REQ_DSHOW_STOP:
 		default:
 			break;
 		}
@@ -1570,6 +1573,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             if(Request.type == REQ_DSHOW_CHANGERES)
             {
 				((CDSCaptureSource*)Providers_GetCurrentSource())->ChangeRes(Request.param1);
+                Request.type = REQ_NONE;
+            }
+
+            // if request for stopping the graph
+            if(Request.type == REQ_DSHOW_STOP)
+            {
+				((CDSSourceBase*)Providers_GetCurrentSource())->StopAndSeekToBeginning();
                 Request.type = REQ_NONE;
             }
 

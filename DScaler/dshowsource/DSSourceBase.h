@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.22 2003-10-10 11:13:37 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.23 2004-12-14 23:22:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/10/10 11:13:37  laurentg
+// Bug fixed : access to the audio mixer
+//
 // Revision 1.21  2003/08/16 18:36:59  laurentg
 // New method to know if it was the first setup of the card
 // New method to know if the source is a movie file
@@ -129,6 +132,7 @@ public:
 	void Start();
 	void Stop();
 	void Reset();
+	void StopAndSeekToBeginning();
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 

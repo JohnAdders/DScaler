@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.25 2003-08-16 18:36:58 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.26 2004-12-14 23:22:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/08/16 18:36:58  laurentg
+// New method to know if it was the first setup of the card
+// New method to know if the source is a movie file
+//
 // Revision 1.24  2003/08/15 14:28:16  laurentg
 // Management of volume
 //
@@ -120,6 +124,7 @@
 #include "TreeSettingsDlg.h"
 #include "TreeSettingsOleProperties.h"
 #include "OSD.h"
+#include "OutThreads.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -222,6 +227,52 @@ void CDSSourceBase::Reset()
 {
 	Stop();
 	Start();
+}
+
+void CDSSourceBase::StopAndSeekToBeginning()
+{
+	CAutoCriticalSection lock(m_hOutThreadSync);
+	if(m_pDSGraph!=NULL)
+	{
+		try
+		{
+			//we must ensure that the output thread don't try to get any
+			//more fields. if it does a deadlock can occure.
+			//the deadlock will only occure if the output thread is 
+			//blocked when it accesses the main threads gui, 
+			//since this prevents IDSRendFilter::FreeFields from being called
+			m_pDSGraph->stop();
+
+			//i don't know if this is the right place to put this
+			//but it looks like its working
+			CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+			if(pSeeking!=NULL)
+			{
+				//here is a sample on how to get the positions
+				//sometimes AM_SEEKING_CanGetCurrentPos is not set but 
+				//IMediaSeeking::GetCurrentPosition still works.
+				if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+				{
+					LONGLONG pos=pSeeking->GetCurrentPos();
+					LONGLONG duration=pSeeking->GetDuration();
+					double pos1=pos/(double)10000000;
+					double duration1=duration/(double)10000000;
+					LOGD("Current media position in seconds: %f / %f\n",pos1,duration1);
+				}
+
+				//atleast one of those flags must be set to be able to seek to the begining
+				if(pSeeking->GetCaps()&(AM_SEEKING_CanSeekBackwards|AM_SEEKING_CanSeekAbsolute))
+				{
+					//seek to the begining
+					pSeeking->SeekTo(0);
+				}
+			}
+		}
+		catch(CDShowException &e)
+		{
+			ErrorBox(CString("Stop failed\n\n")+e.getErrorText());
+		}
+	}
 }
 
 void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
@@ -377,50 +428,17 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 	case IDM_DSHOW_STOP:
 		OldState = m_pDSGraph->getState();
-		try
-		{
-			//we must ensure that the output thread don't try to get any
-			//more fields. if it does a deadlock can occure.
-			//the deadlock will only occure if the output thread is 
-			//blocked when it accesses the main threads gui, 
-			//since this prevents IDSRendFilter::FreeFields from being called
-			CAutoCriticalSection lock(m_hOutThreadSync);
-			m_pDSGraph->stop();
-
-			//i don't know if this is the right place to put this
-			//but it looks like its working
-			CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
-			if(pSeeking!=NULL)
-			{
-				//here is a sample on how to get the positions
-				//sometimes AM_SEEKING_CanGetCurrentPos is not set but 
-				//IMediaSeeking::GetCurrentPosition still works.
-				if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
-				{
-					LONGLONG pos=pSeeking->GetCurrentPos();
-					LONGLONG duration=pSeeking->GetDuration();
-					double pos1=pos/(double)10000000;
-					double duration1=duration/(double)10000000;
-					LOGD("Current media position in seconds: %f / %f\n",pos1,duration1);
-				}
-
-				//atleast one of those flags must be set to be able to seek to the begining
-				if(pSeeking->GetCaps()&(AM_SEEKING_CanSeekBackwards|AM_SEEKING_CanSeekAbsolute))
-				{
-					//seek to the begining
-					pSeeking->SeekTo(0);
-				}
-			}
-		}
-		catch(CDShowException &e)
-		{
-			ErrorBox(CString("Stop failed\n\n")+e.getErrorText());
-		}
+		TGUIRequest req;
+		req.type = REQ_DSHOW_STOP;
+		PutRequest(&req);
+		OSD_ShowText("Stop", 0);
+		// Wait a little to be sure that the request for stopping the graph is taken into account
+		// by the output thread
+		Sleep(100);
 		if (OldState == State_Paused)
 		{
 			SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
 		}
-		OSD_ShowText("Stop", 0);
 		return TRUE;
 		break;
 	case IDM_DSHOW_BACKWARD_5S:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.6 2004-12-01 22:01:17 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.7 2004-12-08 21:25:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/12/01 22:01:17  atnak
+// Fix the VC++ 6 incompatibility introduced by last change.
+//
 // Revision 1.5  2004/12/01 17:57:08  atnak
 // Updates to HierarchicalConfigParser.
 //
@@ -151,20 +154,20 @@ const CParseConstant k_parseTakeoverPointConstants[] =
 
 const CParseTag k_parseUseTDA9887SetOverride[] =
 {
-	PT( "Format",			PARSE_CONSTANT,					1,	8,	k_parseTDAFormatConstants,		PASS_TO_PARENT	),
-	PT( "Intercarrier",		0,								0,	0,	NULL,							PASS_TO_PARENT	),
-	PT( "QSS",				0,								0,	0,	NULL,							PASS_TO_PARENT	),
-	PT( "Carrier",			PARSE_CONSTANT,					0,	16,	k_parseCarrierConstants,		PASS_TO_PARENT	),
-	PT( "OutputPort1",		PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
-	PT( "OutputPort2",		PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
-	PT( "TakeOverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0,	8,	k_parseTakeoverPointConstants,	PASS_TO_PARENT	),
+	PT( "Format",			PARSE_CONSTANT,		1, 8,	k_parseTDAFormatConstants,		PASS_TO_PARENT	),
+	PT( "Intercarrier",		0,					0, 0,	NULL,							PASS_TO_PARENT	),
+	PT( "QSS",				0,					0, 0,	NULL,							PASS_TO_PARENT	),
+	PT( "Carrier",			PARSE_CONSTANT,		0, 16,	k_parseCarrierConstants,		PASS_TO_PARENT	),
+	PT( "OutputPort1",		PARSE_CONSTANT,		0, 8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
+	PT( "OutputPort2",		PARSE_CONSTANT,		0, 8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
+	PT( "TakeOverPoint",	PARSE_NUM_OR_CONST,	0, 8,	k_parseTakeoverPointConstants,	PASS_TO_PARENT	),
 	PT( NULL )
 };
 
 const CParseTag k_parseUseTDA9887[] =
 {
-	PT( "Use",			PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
-	PT( "SetModes",		PARSE_CHILDREN,					0,	9,	k_parseUseTDA9887SetOverride,	PASS_TO_PARENT	),
+	PT( "Use",				PARSE_CONSTANT,		0, 8,	k_parseYesNoConstants,			PASS_TO_PARENT	),
+	PT( "SetModes",			PARSE_CHILDREN,		0, 9,	k_parseUseTDA9887SetOverride,	PASS_TO_PARENT	),
 	PT( NULL )
 };
 

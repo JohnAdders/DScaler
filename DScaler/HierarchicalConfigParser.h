@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.12 2004-12-06 00:07:33 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.13 2004-12-08 21:25:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/12/06 00:07:33  atnak
+// Fix to VC6 working differenting for wostringstream::operator <<(const char*)
+//
 // Revision 1.11  2004/12/02 18:16:00  atnak
 // Minor fix.
 //
@@ -218,6 +221,8 @@ enum
 	PARSE_NUMERIC		= 1 << 1,
 	PARSE_CONSTANT		= 1 << 2,
 	PARSE_CHILDREN		= 1 << 3,
+
+	PARSE_NUM_OR_CONST	= PARSE_NUMERIC|PARSE_CONSTANT,
 };
 
 // ParseReadProc reports

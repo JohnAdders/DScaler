@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.6 2001-11-29 17:30:52 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.7 2002-02-03 22:47:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.5  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -48,12 +52,18 @@
 #include "resource.h"
 #include "HardwareDriver.h"
 #include "DebugLog.h"
+#include "aclapi.h"
+
+// define this to force uninstallation of the NT driver on every destruction of the class.
+//#define ALWAYS_UNINSTALL_NTDRIVER
 
 static const LPSTR NTDriverName = "DSDrv4";
 
+// the access rights that are needed to just use DScaler (no (un)installation).
+#define DRIVER_ACCESS_RIGHTS (SERVICE_START | SERVICE_STOP)
+
 CHardwareDriver::CHardwareDriver()
 {
-    m_hSCManager = NULL;
     m_hFile = INVALID_HANDLE_VALUE;
     m_hService = NULL;
 
@@ -68,98 +78,94 @@ CHardwareDriver::~CHardwareDriver()
 {
     // just in case the driver hasn't been closed properly
     UnloadDriver();
+
+#if defined ALWAYS_UNINSTALL_NTDRIVER
+    LOG(1,"(NT driver) ALWAYS_UNINSTALL_NTDRIVER");
+    UnInstallNTDriver();
+#endif
 }
 
 BOOL CHardwareDriver::LoadDriver()
 {
+    SC_HANDLE hSCManager = NULL;
+    BOOL      bError = FALSE;
+
     // make sure we start with nothing open
     UnloadDriver();
 
     if (!m_bWindows95)
     {
         // get handle of the Service Control Manager
-        m_hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-        if(m_hSCManager == NULL)
+        hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
+        if(hSCManager == NULL)
         {
-            LOG(1, "OpenSCManager returned an error = 0x%x", GetLastError());
-            return FALSE;
+            LOG(1, "OpenSCManager returned an error = 0x%X", GetLastError());
+            bError = TRUE;
         }
 
-        m_hService = OpenService(m_hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
-        if(m_hService == NULL)
+        if(!bError)
         {
-            LPSTR  pszName;
-            char   szDriverPath[MAX_PATH];
+            m_hService = OpenService(hSCManager, NTDriverName, DRIVER_ACCESS_RIGHTS);
 
-            if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
+            if(m_hService == NULL)
             {
-                LOG(1, "cannot get module file name");
-                szDriverPath[0] = '\0';
-            }
-
-            pszName = szDriverPath + strlen(szDriverPath);
-            while (pszName >= szDriverPath && *pszName != '\\')
-            {
-                *pszName-- = 0;
-            }
-
-            strcat(szDriverPath, NTDriverName);
-            strcat(szDriverPath, ".sys");
-
-            m_hService = CreateService(
-                                        m_hSCManager,          // SCManager database
-                                        NTDriverName,             // name of service
-                                        NTDriverName,             // name to display
-                                        SERVICE_ALL_ACCESS,    // desired access
-                                        SERVICE_KERNEL_DRIVER, // service type
-                                        SERVICE_DEMAND_START,  // start type
-                                        SERVICE_ERROR_NORMAL,  // error control type
-                                        szDriverPath,          // service's binary
-                                        NULL,                  // no load ordering group
-                                        NULL,                  // no tag identifier
-                                        NULL,                  // no dependencies
-                                        NULL,                  // LocalSystem account
-                                        NULL                   // no password
-                                      );
-
-            if (m_hService == NULL)
-            {
-                LOG(1, "CreateService() failed %X", GetLastError());
-                UnloadDriver();
-                return FALSE;
+                if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)
+                {
+                    LOG(1,"(NT driver) Service does not exist");
+                    if(!InstallNTDriver())
+                    {
+                        LOG(1,"Failed to install NT driver.");
+                        bError = TRUE;
+                    }
+                }
+                else
+                {
+                    LOG(1,"(NT driver) Unable to open service. 0x%X",GetLastError());
+                    bError = TRUE;
+                }
             }
         }
-        else
+
+        if(hSCManager != NULL)
         {
-            LOG(1, "Service already exists");
+            if(!CloseServiceHandle(hSCManager))
+            {
+                LOG(1,"(NT driver) Failed to close handle to service control manager.");
+                bError = TRUE;
+            }
+            hSCManager = NULL;
         }
-        
+
         // try to start service
-        if(StartService(m_hService, 0, NULL) == FALSE)
+        if(!bError)
         {
-            DWORD Err = GetLastError();
-            if(Err != ERROR_SERVICE_ALREADY_RUNNING)
+            if(StartService(m_hService, 0, NULL) == FALSE)
             {
-                LOG(1, "StartService() failed %X", Err);
-                UnloadDriver();
-                return FALSE;
+                DWORD Err = GetLastError();
+                if(Err != ERROR_SERVICE_ALREADY_RUNNING)
+                {
+                    LOG(1, "StartService() failed 0x%X", Err);
+                    bError = TRUE;
+                }
+                else
+                {
+                    LOG(1, "Service already started");
+                }
             }
             else
             {
-                LOG(1, "Service already started");
+                m_hFile = CreateFile(
+                                     "\\\\.\\DSDrv4",
+                                     GENERIC_READ | GENERIC_WRITE,
+                                     FILE_SHARE_READ,
+                                     NULL,
+                                     OPEN_EXISTING,
+                                     0,
+                                     INVALID_HANDLE_VALUE
+                                    );
             }
         }
 
-        m_hFile = CreateFile(
-                                "\\\\.\\DSDrv4",
-                                GENERIC_READ | GENERIC_WRITE,
-                                FILE_SHARE_READ,
-                                NULL,
-                                OPEN_EXISTING,
-                                0,
-                                INVALID_HANDLE_VALUE
-                            );
-    
     }
     else
     {
@@ -175,41 +181,55 @@ BOOL CHardwareDriver::LoadDriver()
                             );
     }
 
-    if(m_hFile != INVALID_HANDLE_VALUE)
+    if(!bError)
     {
-        // OK so we've loaded the driver 
-        // we had better check that it's the same version as we are
-        // otherwise all sorts of nasty things could happen
-        // n.b. note that if someone else has already loaded our driver this may
-        // happen.
-
-        DWORD dwReturnedLength;
-        DWORD dwVersion(0);
-
-        SendCommand(
-                    ioctlGetVersion,
-                    NULL,
-                    0,
-                    &dwVersion,
-                    sizeof(dwVersion),
-                    &dwReturnedLength
-                   );
-
-
-        if(dwVersion != DSDRV_VERSION)
+        if(m_hFile != INVALID_HANDLE_VALUE)
         {
-            LOG(1, "We've loaded up the wrong version of the driver");
-            UnloadDriver();
-            return FALSE;
+            // OK so we've loaded the driver 
+            // we had better check that it's the same version as we are
+            // otherwise all sorts of nasty things could happen
+            // n.b. note that if someone else has already loaded our driver this may
+            // happen.
+
+            DWORD dwReturnedLength;
+            DWORD dwVersion(0);
+
+            SendCommand(
+                        ioctlGetVersion,
+                        NULL,
+                        0,
+                        &dwVersion,
+                        sizeof(dwVersion),
+                        &dwReturnedLength
+                       );
+
+            if(dwVersion != DSDRV_VERSION)
+            {
+                LOG(1, "We've loaded up the wrong version of the driver");
+                bError = TRUE;
+
+                // Maybe another driver from an old DScaler version is still installed. 
+                // Try to uninstall it.
+                UnInstallNTDriver();
+            }
+        }
+        else
+        {
+            LOG(1, "CreateFile on Driver failed 0x%X", GetLastError());
+            bError = TRUE;
         }
     }
-    else
+
+    if(bError)
     {
-        LOG(1, "CreateFile on Driver failed %X", GetLastError());
         UnloadDriver();
         return FALSE;
     }
-    return TRUE;
+    else
+    {
+        LOG(1, "Hardware driver loaded successfully.");
+        return TRUE;
+    }
 }
 
 // must make sure that this function copes with multiple calls
@@ -228,27 +248,366 @@ void CHardwareDriver::UnloadDriver()
             SERVICE_STATUS ServiceStatus;
             if(ControlService(m_hService, SERVICE_CONTROL_STOP, &ServiceStatus ) == FALSE)
             {
-                LOG(1,"SERVICE_CONTROL_STOP failed, error 0x%x", GetLastError());
+                LOG(1,"SERVICE_CONTROL_STOP failed, error 0x%X", GetLastError());
             }
 
+            if(m_hService != NULL)
+            {
+                if(CloseServiceHandle(m_hService) == FALSE)
+                {
+                    LOG(1,"CloseServiceHandle failed, error 0x%X", GetLastError());
+                }
+                m_hService = NULL;
+            }
+        }
+    }
+}
+
+// On success m_hService will contain the handle to the service.
+BOOL CHardwareDriver::InstallNTDriver()
+{
+    LPSTR       pszName;
+    char        szDriverPath[MAX_PATH];
+    SC_HANDLE   hSCManager = NULL;
+    BOOL        bError = FALSE;
+
+    LOG(1, "Attempting to install NT driver.");
+
+    UnloadDriver();
+
+    if (m_bWindows95)
+    {
+        LOG(1, "No need to install NT driver with win9x/ME.");
+        return TRUE;
+    }
+
+    if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
+    {
+        LOG(1, "cannot get module file name. 0x%X",GetLastError());
+        szDriverPath[0] = '\0';
+        bError = TRUE;
+    }
+    
+    if(!bError)
+    {
+        pszName = szDriverPath + strlen(szDriverPath);
+        while (pszName >= szDriverPath && *pszName != '\\')
+        {
+            *pszName-- = 0;
+        }
+        
+        strcat(szDriverPath, NTDriverName);
+        strcat(szDriverPath, ".sys");       
+        
+        hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+        if(hSCManager == NULL)
+        {
+            LOG(1, "OpenSCManager returned an error = 0x%X", GetLastError());
+            bError = TRUE;
+        }   
+    }
+    
+    if(!bError)
+    {
+        m_hService = CreateService(
+            hSCManager,            // SCManager database
+            NTDriverName,          // name of service
+            NTDriverName,          // name to display
+            SERVICE_ALL_ACCESS,    // desired access
+            SERVICE_KERNEL_DRIVER, // service type
+            SERVICE_DEMAND_START,  // start type
+            SERVICE_ERROR_NORMAL,  // error control type
+            szDriverPath,          // service's binary
+            NULL,                  // no load ordering group
+            NULL,                  // no tag identifier
+            NULL,                  // no dependencies
+            NULL,                  // LocalSystem account
+            NULL                   // no password
+            );
+        
+        if(m_hService == NULL)
+        {
+            // if the service already exists delete it and create it again.
+            // this might prevent problems when the existing service points to another driver.
+            if(GetLastError() == ERROR_SERVICE_EXISTS)
+            {              
+                m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
+                if(DeleteService(m_hService) == FALSE)
+                {
+                    LOG(1,"DeleteService failed, error 0x%X", GetLastError());
+                    bError = TRUE;
+                }
+                if(m_hService != NULL)
+                {
+                    CloseServiceHandle(m_hService);
+                    m_hService = NULL;
+                }
+                if(!bError)
+                {
+                    m_hService = CreateService(
+                        hSCManager,            // SCManager database
+                        NTDriverName,          // name of service
+                        NTDriverName,          // name to display
+                        SERVICE_ALL_ACCESS,    // desired access
+                        SERVICE_KERNEL_DRIVER, // service type
+                        SERVICE_DEMAND_START,  // start type
+                        SERVICE_ERROR_NORMAL,  // error control type
+                        szDriverPath,          // service's binary
+                        NULL,                  // no load ordering group
+                        NULL,                  // no tag identifier
+                        NULL,                  // no dependencies
+                        NULL,                  // LocalSystem account
+                        NULL                   // no password
+                        );
+                    if(m_hService == NULL)
+                    {
+                        LOG(1,"(NT driver) CreateService #2 failed. 0x%X", GetLastError());
+                        bError = TRUE;
+                    }
+                }
+            }
+            else
+            {
+                LOG(1,"(NT driver) CreateService #1 failed. 0x%X", GetLastError());
+                bError = TRUE;
+            }
+        }
+    }
+    
+    if(!bError)
+    {
+        if(!AdjustAccessRights())
+        {
+            bError = TRUE;
+        }
+    }
+    
+    if(hSCManager != NULL)
+    {
+        if(!CloseServiceHandle(hSCManager))
+        {
+            LOG(1, "(NT driver) Failed to close handle to service control manager.");
+            bError = TRUE;
+        }
+        hSCManager = NULL;
+    }
+    
+    if(bError)
+    {
+        LOG(1, "(NT driver) Failed to install driver.");
+        UnloadDriver();
+        return FALSE;
+    }
+    else
+    {
+        LOG(1, "(NT driver) Install complete.");
+        return TRUE;
+    }
+}
+
+
+BOOL CHardwareDriver::AdjustAccessRights()
+{
+    PSECURITY_DESCRIPTOR    psd = NULL;
+    SECURITY_DESCRIPTOR     sd;
+    DWORD                   dwSize = 0;
+    DWORD                   dwError = 0;
+    BOOL                    bError = FALSE;
+    BOOL                    bDaclPresent = FALSE;
+    BOOL                    bDaclDefaulted = FALSE;
+    PACL                    pNewAcl = NULL;
+    PACL                    pacl = NULL;
+    EXPLICIT_ACCESS         ea;
+
+    if(m_bWindows95)
+    {
+        return TRUE;
+    }
+    if(m_hService == NULL)
+    {
+        return FALSE;
+    }
+
+    // Find out how much memory to allocate for psd.
+    // psd can't be NULL so we let it point to itself.
+    
+    psd = (PSECURITY_DESCRIPTOR)&psd;
+    
+    if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd, 0, &dwSize))
+    {
+        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+        {
+            psd = (PSECURITY_DESCRIPTOR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, dwSize);
+            if(psd == NULL)
+            {
+                LOG(1, "HeapAlloc failed.");
+                // note: HeapAlloc does not support GetLastError()
+                bError = TRUE;
+            }
+        }
+        else
+        {
+            LOG(1,"QueryServiceObjectSecurity #1 failed. 0x%X", GetLastError());
+            bError = TRUE;
+        }                
+    }
+    
+    // Get the current security descriptor.
+    if(!bError)
+    {
+        if(!QueryServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, psd,dwSize, &dwSize))
+        {
+            LOG(1,"QueryServiceObjectSecurity #2 failed. 0x%X",GetLastError());
+            bError = TRUE;                       
+        }
+    }
+    
+    // Get the DACL.
+    if(!bError)
+    {
+        if(!GetSecurityDescriptorDacl(psd, &bDaclPresent, &pacl, &bDaclDefaulted))
+        {
+            LOG(1,"GetSecurityDescriptorDacl failed. 0x%X",GetLastError());
+            bError = TRUE;
+        }
+    }
+    
+    // Build the ACE.
+    if(!bError)
+    {
+        BuildExplicitAccessWithName(&ea, "EVERYONE", DRIVER_ACCESS_RIGHTS, SET_ACCESS, 
+            NO_INHERITANCE);
+        
+        dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
+        if(dwError != ERROR_SUCCESS)
+        {
+            LOG(1,"SetEntriesInAcl failed. 0x%X", GetLastError());
+            bError = TRUE;
+        }
+    }
+    
+    // Initialize a new Security Descriptor.
+    if(!bError)
+    {
+        if(!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION))
+        {
+            LOG(1,"InitializeSecurityDescriptor failed. 0x%X",GetLastError());
+            bError = TRUE;
+        }
+    }
+    
+    // Set the new DACL in the Security Descriptor.
+    if(!bError)
+    {
+        if(!SetSecurityDescriptorDacl(&sd, TRUE, pNewAcl, FALSE))
+        {
+            LOG(1, "SetSecurityDescriptorDacl", GetLastError());
+            bError = TRUE;
+        }
+    }
+    
+    // Set the new DACL for the service object.
+    if(!bError)
+    {
+        if (!SetServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, &sd))
+        {
+            LOG(1, "SetServiceObjectSecurity", GetLastError());
+            bError = TRUE;
+        }
+    }
+    
+    // Free buffers.
+    LocalFree((HLOCAL)pNewAcl);
+    HeapFree(GetProcessHeap(), 0, (LPVOID)psd);
+    
+    return !bError;
+}
+
+BOOL CHardwareDriver::UnInstallNTDriver()
+{
+    SC_HANDLE hSCManager = NULL;
+    BOOL      bError = FALSE;
+
+    LOG(1, "Attempting to uninstall NT driver.");
+
+    if (m_bWindows95)
+    {
+        LOG(1,"(NT driver) Uninstall not needed with win9x/ME.");
+    }
+    else
+    {
+        // get handle of the Service Control Manager
+        hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+        if(hSCManager == NULL)
+        {
+            LOG(1, "OpenSCManager returned an error = 0x%X", GetLastError());
+            bError = TRUE;
+        }
+
+        if(!bError)
+        {
+            m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
+            if(m_hService == NULL)
+            {
+                if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)
+                {
+                    LOG(1,"(NT driver) Service does not exist, no need to uninstall.");
+                    CloseServiceHandle(m_hService);
+                    m_hService = NULL;
+                    return TRUE;
+                }
+                else
+                {
+                    LOG(1,"(NT driver) Unable to open service. 0x%X",GetLastError());
+                    bError = TRUE;
+                }
+            }
+        }
+
+        if(!bError)
+        {
+            SERVICE_STATUS ServiceStatus;
+            ControlService(m_hService, SERVICE_CONTROL_STOP, &ServiceStatus );
+        }
+
+        if(hSCManager != NULL)
+        {
+            if(!CloseServiceHandle(hSCManager))
+            {
+                LOG(1,"(NT driver) Failed to close handle to service control manager.");
+                bError = TRUE;
+            }
+            hSCManager = NULL;
+        }
+
+        if(!bError)
+        {
             if (DeleteService(m_hService) == FALSE)
             {
-                LOG(1,"DeleteService failed, error 0x%x", GetLastError());
+                LOG(1,"DeleteService failed, error 0x%X", GetLastError());
+                bError = TRUE;
             }
+        }
 
+        if(m_hService != NULL)
+        {
             if(CloseServiceHandle(m_hService) == FALSE)
             {
-                LOG(1,"CloseServiceHandle failed, error 0x%x", GetLastError());
+                LOG(1,"CloseServiceHandle failed, error 0x%X", GetLastError());
+                bError = TRUE;
             }
             m_hService = NULL;
         }
 
-        if (m_hSCManager)
+        if(bError)
         {
-            CloseServiceHandle(m_hSCManager);
-            m_hSCManager = NULL;
+            UnloadDriver();
+            LOG(1, "Failed to uninstall driver.");
+            return FALSE;
         }
+        LOG(1, "Uninstall NT driver complete.");
     }
+    return TRUE;
 }
 
 DWORD CHardwareDriver::SendCommand(
@@ -275,7 +634,7 @@ DWORD CHardwareDriver::SendCommand(
     }
     else
     {
-        LOG(1, "DeviceIoControl returned an error = 0x%x For Command 0x%x", GetLastError(), dwIOCommand);
+        LOG(1, "DeviceIoControl returned an error = 0x%X For Command 0x%X", GetLastError(), dwIOCommand);
         return GetLastError();
     }
 }
@@ -303,7 +662,7 @@ DWORD CHardwareDriver::SendCommand(
     }
     else
     {
-        LOG(1, "DeviceIoControl returned an error = 0x%x For Command 0x%x", GetLastError(), dwIOCommand);
+        LOG(1, "DeviceIoControl returned an error = 0x%X For Command 0x%X", GetLastError(), dwIOCommand);
         return GetLastError();
     }
 }

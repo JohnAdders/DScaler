@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.h,v 1.6 2001-11-29 17:30:52 adcockj Exp $
+// $Id: HardwareDriver.h,v 1.7 2002-02-03 22:47:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,8 @@
 class CHardwareDriver
 {
 public:
+	BOOL UnInstallNTDriver();
+	BOOL InstallNTDriver();
     CHardwareDriver();
     ~CHardwareDriver();
 
@@ -56,7 +58,7 @@ public:
                               );
 
 private:
-    SC_HANDLE   m_hSCManager;
+	BOOL AdjustAccessRights();
     SC_HANDLE   m_hService;
     HANDLE      m_hFile;
     BOOL        m_bWindows95;

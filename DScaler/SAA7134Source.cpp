@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.49 2002-12-10 12:17:31 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.50 2002-12-10 12:58:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/12/10 12:17:31  atnak
+// NotifyInputChange() + VIDEOFORMAT to NotifyVideoFormatChange()
+//
 // Revision 1.48  2002/12/10 11:05:45  atnak
 // Fixed FlyVideo 3000 audio for external inputs
 //
@@ -275,8 +278,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
 
     Reset();
 
-    NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
-    NotifyVideoFormatChange(0, (eVideoFormat)-1, (eVideoFormat)m_VideoFormat->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
 }
 
 
@@ -1411,7 +1414,7 @@ ISetting* CSAA7134Source::GetOverscan()
 
 void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
-    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
     Stop_Capture();
     Audio_Mute(PreSwitchMuteDelay);
@@ -1420,7 +1423,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     LoadSettings(SETUP_CHANGE_VIDEOINPUT);
     SetupVideoSource();
 
-    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     if (m_pSAA7134Card->IsInputATuner(NewValue))
     {
@@ -1434,14 +1437,14 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    NotifyVideoFormatChange(1, (eVideoFormat)OldValue, (eVideoFormat)NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
     Stop_Capture();
 
     SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
     LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
     SetupVideoStandard();
 
-    NotifyVideoFormatChange(0, (eVideoFormat)OldValue, (eVideoFormat)NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
 
     Start_Capture();
 }

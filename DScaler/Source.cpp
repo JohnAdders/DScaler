@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.12 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: Source.cpp,v 1.13 2002-12-10 12:58:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/22 04:08:50  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.11  2002/10/17 13:31:37  adcockj
 // Give Holo3d different menu and updated settings
 //
@@ -122,33 +126,6 @@ void CSource::NotifySquarePixelsCheck()
     	// Tell dscaler to check whether "square pixels" AR mode must be on or off
         // The real work will be done in the main message loop
 	    PostMessage(hWnd,UWM_SQUAREPIXELS_CHECK,0,0);
-    }
-}
-
-
-void CSource::NotifyInputChange(int PreChange, eSourceInputType InputType, int OldInput, int NewInput)
-{
-    if (EventCollector != NULL)
-    {
-        eEventType Event;
-        if (InputType==AUDIOINPUT)
-        {
-            Event = (PreChange?EVENT_AUDIOINPUT_PRECHANGE:EVENT_AUDIOINPUT_CHANGE);
-        }
-        else
-        {
-            Event = (PreChange?EVENT_VIDEOINPUT_PRECHANGE:EVENT_VIDEOINPUT_CHANGE);
-        }
-        EventCollector->RaiseEvent(this, Event, (long)OldInput, (long)NewInput, NULL);        
-    }
-}
-
-
-void CSource::NotifyVideoFormatChange(int PreChange, eVideoFormat OldFormat, eVideoFormat NewFormat)
-{
-    if (EventCollector != NULL)
-    {
-        EventCollector->RaiseEvent(this, (PreChange?EVENT_VIDEOFORMAT_PRECHANGE:EVENT_VIDEOFORMAT_CHANGE), (long)OldFormat, (long)NewFormat, NULL);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.17 2002-12-04 17:43:49 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.18 2002-12-10 12:58:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/12/04 17:43:49  adcockj
+// Contrast and Brightness adjustments so that h3d card behaves in expected way
+//
 // Revision 1.16  2002/12/03 07:56:31  adcockj
 // Fixed some problems with settings not saving
 //
@@ -242,8 +245,8 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     SetupCard();
     Reset();
 
-    NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
-    NotifyVideoFormatChange(0, VIDEOFORMAT_LASTONE, (eVideoFormat)m_VideoFormat->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
 }
 
 CCX2388xSource::~CCX2388xSource()
@@ -1098,14 +1101,15 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
 
 void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 {
-    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
 
-    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
+
     // set up sound
     if(m_pCard->IsInputATuner(NewValue))
     {
@@ -1116,11 +1120,11 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
-    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     Reset();
     Start_Capture();
 }

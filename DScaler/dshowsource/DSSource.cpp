@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.53 2002-12-05 21:02:53 tobbej Exp $
+// $Id: DSSource.cpp,v 1.54 2002-12-10 12:58:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/12/05 21:02:53  tobbej
+// fixed initial channel change so it tunes properly to the last used channel.
+// renamed video format to resolution in settings dialog.
+// changed so the default list of resolutions is always used if resolution menu is empty.
+// removed some unused channel change notification code.
+//
 // Revision 1.52  2002/11/10 20:57:13  tobbej
 // changed IsVideoPresent, i hope this makes channel scanning work better
 //
@@ -1240,7 +1246,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 			if(pCrossbar!=NULL)
 			{
 				PhysicalConnectorType OldInputType = pCrossbar->GetInputType(OldValue);
-				NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
+                EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
 				LOG(2,"DSCaptureSource: Set video input to %d", NewValue);
 
@@ -1254,7 +1260,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 
 				PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
 
-				NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
+                EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
 				if(NewInputType == PhysConn_Video_Tuner)
 				{

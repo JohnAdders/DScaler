@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.26 2002-10-31 03:10:55 atnak Exp $
+// $Id: Source.h,v 1.27 2002-12-10 12:58:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,6 @@ enum eSourceInputType
 {
     VIDEOINPUT = 0,
     AUDIOINPUT,
-    VIDEOFORMAT
 };
 
 
@@ -161,12 +160,9 @@ protected:
 	 * Notify dscaler that the input size has changed.
 	 * Call this function when the width and/or height has changed.
 	 */
-	  void NotifySizeChange();
+    void NotifySizeChange();
 
     void NotifySquarePixelsCheck();
-
-    void NotifyInputChange(int Prechange, eSourceInputType InputType, int OldValue, int NewValue);
-    void NotifyVideoFormatChange(int Prechange, eVideoFormat OldValue, eVideoFormat NewValue);
 
     double m_FieldFrequency;
     HMENU m_hMenu;

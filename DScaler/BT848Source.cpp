@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.94 2002-12-09 00:32:14 atnak Exp $
+// $Id: BT848Source.cpp,v 1.95 2002-12-10 12:58:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2002/12/09 00:32:14  atnak
+// Added new muting stuff
+//
 // Revision 1.93  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -421,8 +424,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     SetupCard();
     Reset();    
 
-    NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
-    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
 }
 
@@ -735,9 +738,6 @@ void CBT848Source::Start()
         SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
     }
     NotifySquarePixelsCheck();
-    //NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
-    //NotifyInputChange(0, AUDIOINPUT, -1, m_VideoSource->GetValue());
-    //NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());    
 
     //Channel_Reset();
     //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);    
@@ -1260,8 +1260,8 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
 void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
-    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
-
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
+    
     Stop_Capture();
     Audio_Mute(PreSwitchMuteDelay);
 
@@ -1269,7 +1269,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     LoadInputSettings();
     Reset();
 
-    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
@@ -1283,12 +1283,12 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
-    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     Start_Capture();
 }
 

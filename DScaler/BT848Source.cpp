@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.28 2002-02-17 17:46:59 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.29 2002-02-17 18:45:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/02/17 17:46:59  laurentg
+// Mute the audio when switching to another card
+//
 // Revision 1.27  2002/02/10 21:34:31  laurentg
 // Default value for "Save Settings By Format" is now ON
 //
@@ -1090,6 +1093,15 @@ void CBT848Source::SetupCard()
     m_pBT848Card->SetCardType(m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
     m_pBT848Card->InitAudio();
+
+    if(m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()))
+    {
+        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
+    }
+    else
+    {
+        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
+    }
 }
 
 void CBT848Source::ChangeDefaultsBasedOnHardware()

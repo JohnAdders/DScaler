@@ -1,119 +1,122 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.31 2004-12-16 23:51:30 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.32 2005-01-20 03:18:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2002 Atsushi Nakagawa.	 All rights	reserved.
-/////////////////////////////////////////////////////////////////////////////
-//
-//	This file is subject to	the	terms of the GNU General Public	License	as
-//	published by the Free Software Foundation.	A copy of this license is
-//	included with this software	distribution in	the	file COPYING.  If you
-//	do not have	a copy,	you	may	obtain a copy by writing to	the	Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139,	USA.
-//
-//	This software is distributed in	the	hope that it will be useful,
-//	but	WITHOUT	ANY	WARRANTY; without even the implied warranty	of
-//	MERCHANTABILITY	or FITNESS FOR A PARTICULAR	PURPOSE.  See the
-//	GNU	General	Public License for more	details
+// Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-// This	software was based on v4l2 device driver for philips
-// saa7134 based TV	cards.	Those portions are
-// Copyright (c) 2001,02 Gerd Knorr	<kraxel@bytesex.org> [SuSE Labs]
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-// This	software was based on BT848Card_Audio.cpp.	Those portions are
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+//
+// This software was based on v4l2 device driver for philips
+// saa7134 based TV cards.  Those portions are
+// Copyright (c) 2001,02 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
+//
+// This software was based on BT848Card_Audio.cpp.  Those portions are
 // Copyright (c) 2001 John Adcock.
 //
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
-// Date			 Developer			   Changes
+// Date          Developer             Changes
 //
-// 09 Sep 2002	 Atsushi Nakagawa	   Initial Release
+// 09 Sep 2002   Atsushi Nakagawa      Initial Release
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2004/12/16 23:51:30  atnak
+// Fixed problem in Read/WriteDSPData7133 when compiling release.
+//
 // Revision 1.30  2004/12/16 01:52:10  atnak
 // Added SAA7133 audio support.
 //
-// Revision	1.28  2004/12/06 09:03:23  atnak
-// Added some SAA7133 audio	related	functions.
+// Revision 1.28  2004/12/06 09:03:23  atnak
+// Added some SAA7133 audio related functions.
 //
-// Revision	1.27  2004/11/20 14:20:09  atnak
-// Changed the card	list to	an ini file.
+// Revision 1.27  2004/11/20 14:20:09  atnak
+// Changed the card list to an ini file.
 //
-// Revision	1.26  2004/03/26 14:19:21  atnak
-// I2S mode	init change, probably won't	make any difference
+// Revision 1.26  2004/03/26 14:19:21  atnak
+// I2S mode init change, probably won't make any difference
 //
-// Revision	1.25  2003/10/27 10:39:53  adcockj
-// Updated files for better	doxygen	compatability
+// Revision 1.25  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
 //
-// Revision	1.24  2003/08/14 08:25:17  atnak
-// Fix to mute lining and audio	channel	clush
+// Revision 1.24  2003/08/14 08:25:17  atnak
+// Fix to mute lining and audio channel clush
 //
-// Revision	1.23  2003/08/12 15:34:38  atnak
+// Revision 1.23  2003/08/12 15:34:38  atnak
 // Minor fixes
 //
-// Revision	1.22  2003/08/12 09:38:31  atnak
+// Revision 1.22  2003/08/12 09:38:31  atnak
 // Fixed new mute with SAA7130 problem
 //
-// Revision	1.21  2003/08/12 06:46:01  atnak
+// Revision 1.21  2003/08/12 06:46:01  atnak
 // Fix for initial muting of SAA7130 cards
 //
-// Revision	1.20  2003/06/01 19:42:32  atnak
-// Adds	"external" sound type for either stereo	or mono
+// Revision 1.20  2003/06/01 19:42:32  atnak
+// Adds "external" sound type for either stereo or mono
 //
-// Revision	1.19  2002/12/09 00:32:13  atnak
-// Added new muting	stuff
+// Revision 1.19  2002/12/09 00:32:13  atnak
+// Added new muting stuff
 //
-// Revision	1.18  2002/11/10 05:11:24  atnak
-// Added adjustable	audio input	level
+// Revision 1.18  2002/11/10 05:11:24  atnak
+// Added adjustable audio input level
 //
-// Revision	1.17  2002/10/31 05:02:55  atnak
-// Settings	cleanup	and	audio tweaks
+// Revision 1.17  2002/10/31 05:02:55  atnak
+// Settings cleanup and audio tweaks
 //
-// Revision	1.16  2002/10/29 13:38:21  atnak
-// More	saa7130	unsupported	checks
+// Revision 1.16  2002/10/29 13:38:21  atnak
+// More saa7130 unsupported checks
 //
-// Revision	1.15  2002/10/28 11:10:13  atnak
+// Revision 1.15  2002/10/28 11:10:13  atnak
 // Various changes and revamp to settings
 //
-// Revision	1.14  2002/10/26 05:24:23  atnak
+// Revision 1.14  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
-// Revision	1.13  2002/10/26 04:42:50  atnak
-// Added AGC config	and	automatic volume leveling control
+// Revision 1.13  2002/10/26 04:42:50  atnak
+// Added AGC config and automatic volume leveling control
 //
-// Revision	1.12  2002/10/20 07:41:30  atnak
-// custom audio	standard setup + etc
+// Revision 1.12  2002/10/20 07:41:30  atnak
+// custom audio standard setup + etc
 //
-// Revision	1.11  2002/10/18 01:14:43  atnak
+// Revision 1.11  2002/10/18 01:14:43  atnak
 // NICAM tweaks
 //
-// Revision	1.10  2002/10/16 21:59:05  atnak
+// Revision 1.10  2002/10/16 21:59:05  atnak
 // Nicam tweaks
 //
-// Revision	1.9	 2002/10/16	11:37:59  atnak
+// Revision 1.9  2002/10/16 11:37:59  atnak
 // added saa7130 support
 //
-// Revision	1.8	 2002/10/08	12:24:46  atnak
-// added various functions to configure	carriers
+// Revision 1.8  2002/10/08 12:24:46  atnak
+// added various functions to configure carriers
 //
-// Revision	1.7	 2002/10/04	23:40:46  atnak
-// proper support for audio	channels mono,stereo,lang1,lang2 added
+// Revision 1.7  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
 //
-// Revision	1.6	 2002/10/03	23:36:23  atnak
-// Various changes (major):	VideoStandard, AudioStandard, CSAA7134Common, cleanups,	tweaks etc,
+// Revision 1.6  2002/10/03 23:36:23  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
-// Revision	1.5	 2002/09/16	17:51:58  atnak
-// Added controls for L/R/Nicam	audio volume
+// Revision 1.5  2002/09/16 17:51:58  atnak
+// Added controls for L/R/Nicam audio volume
 //
-// Revision	1.4	 2002/09/14	19:40:48  atnak
+// Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
-// Revision	1.3	 2002/09/10	12:14:35  atnak
-// Some	changes	to eAudioStandard stuff
+// Revision 1.3  2002/09/10 12:14:35  atnak
+// Some changes to eAudioStandard stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -133,13 +136,13 @@
 
 void CSAA7134Card::InitAudio()
 {
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		// SAA7133 and SAA7135 takes a different path.
 		InitAudio7133();
 		return;
 	}
-	
+
 	SetAudioSource(AUDIOINPUTSOURCE_LINE1);
 
 	// Initially mute everything
@@ -147,122 +150,122 @@ void CSAA7134Card::InitAudio()
 
 	if (m_DeviceId == 0x7130)
 	{
-		// saa7130 doesn't support most	audio stuff
+		// saa7130 doesn't support most audio stuff
 		return;
 	}
 
-	// auto	gain control enabled
-	WriteByte(SAA7134_AGC_GAIN_SELECT,			0x00);
+	// auto gain control enabled
+	WriteByte(SAA7134_AGC_GAIN_SELECT,          0x00);
 
-	WriteByte(SAA7134_SIF_SAMPLE_FREQ,			0x40);
+	WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x40);
 
-	WriteByte(SAA7134_MONITOR_SELECT,			0xA0);
-	WriteByte(SAA7134_NICAM_ERROR_LOW,			0x14);
-	WriteByte(SAA7134_NICAM_ERROR_HIGH,			0x50);
-	WriteByte(SAA7134_NICAM_CONFIG,				0x00);
+	WriteByte(SAA7134_MONITOR_SELECT,           0xA0);
+	WriteByte(SAA7134_NICAM_ERROR_LOW,          0x14);
+	WriteByte(SAA7134_NICAM_ERROR_HIGH,         0x50);
+	WriteByte(SAA7134_NICAM_CONFIG,             0x00);
 
-	WriteByte(SAA7134_DEMODULATOR,				0x00);
-	WriteByte(SAA7134_DCXO_IDENT_CTRL,			0x00);
-	WriteByte(SAA7134_FM_DEEMPHASIS,			0x22);
-	WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT,	0x21);
+	WriteByte(SAA7134_DEMODULATOR,              0x00);
+	WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
+	WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
+	WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x21);
 
 	SetAudioFMDematrix(AUDIOFMDEMATRIX_AUTOSWITCHING);
 
-	WriteByte(SAA7134_DSP_OUTPUT_SELECT,		0x80);
+	WriteByte(SAA7134_DSP_OUTPUT_SELECT,        0x80);
 
-	// input signal	is less	or equal 2.0Vrms
-	OrDataByte(SAA7134_ANALOG_IO_SELECT,		SAA7134_ANALOG_IO_SELECT_VSEL1);
-	OrDataByte(SAA7134_ANALOG_IO_SELECT,		SAA7134_ANALOG_IO_SELECT_VSEL2);
+	// input signal is less or equal 2.0Vrms
+	OrDataByte(SAA7134_ANALOG_IO_SELECT,        SAA7134_ANALOG_IO_SELECT_VSEL1);
+	OrDataByte(SAA7134_ANALOG_IO_SELECT,        SAA7134_ANALOG_IO_SELECT_VSEL2);
 
-	// no audio	capture	through	DMA
-	MaskDataDword(SAA7134_NUM_SAMPLES,			0x00, SAA7134_NUM_SAMPLES_MASK);
-	WriteByte(SAA7134_AUDIO_FORMAT_CTRL,		0xDD);
+	// no audio capture through DMA
+	MaskDataDword(SAA7134_NUM_SAMPLES,          0x00, SAA7134_NUM_SAMPLES_MASK);
+	WriteByte(SAA7134_AUDIO_FORMAT_CTRL,        0xDD);
 
 	// normal output gain
-	MaskDataByte(SAA7134_CHANNEL1_LEVEL,		0x00, 0x1F);
-	MaskDataByte(SAA7134_CHANNEL2_LEVEL,		0x00, 0x1F);
+	MaskDataByte(SAA7134_CHANNEL1_LEVEL,        0x00, 0x1F);
+	MaskDataByte(SAA7134_CHANNEL2_LEVEL,        0x00, 0x1F);
 
 	// no I2S output
-	WriteByte(SAA7134_I2S_OUTPUT_FORMAT,		0x00);
-	WriteByte(SAA7134_I2S_OUTPUT_SELECT,		0x00);
-	WriteByte(SAA7134_I2S_OUTPUT_LEVEL,			0x00);
-	WriteByte(SAA7134_I2S_AUDIO_OUTPUT,			0x01);
+	WriteByte(SAA7134_I2S_OUTPUT_FORMAT,        0x00);
+	WriteByte(SAA7134_I2S_OUTPUT_SELECT,        0x00);
+	WriteByte(SAA7134_I2S_OUTPUT_LEVEL,         0x00);
+	WriteByte(SAA7134_I2S_AUDIO_OUTPUT,         0x01);
 
-	// Zero	is for no plus or minus	gain
+	// Zero is for no plus or minus gain
 	SetAudioVolume(0);
 
-	// Setting this	FALSE for NICAM	doesn't	work
+	// Setting this FALSE for NICAM doesn't work
 	SetAudioLockToVideo(TRUE);
 }
 
 
 void CSAA7134Card::InitAudio7133()
 {
-	// Out = Line1,	In = line2,	VSEL = 2.0Vrms for line	1/2.
+	// Out = Line1, In = line2, VSEL = 2.0Vrms for line 1/2.
 	// Doing this should effectively mute audio.
-	WriteData(SAA7133_ANALOG_IO_SELECT,	0x34);
+	WriteData(SAA7133_ANALOG_IO_SELECT, 0x34);
 
-	// Some	of these settings are audio	DMA	related	and	are
-	// probably	not	necessary since	we don't use DMA.
+	// Some of these settings are audio DMA related and are
+	// probably not necessary since we don't use DMA.
 
-	// Number of samples = 0x0fff +	1 =	4096. (p125)
+	// Number of samples = 0x0fff + 1 = 4096. (p125)
 	WriteData(SAA7133_NUM_SAMPLES, 0x000fff);
-	// Audio-DSP (EPICS) is	input source.
-	WriteData(SAA7133_AUDIO_SELECT,	0x00);
-	// Number for assigned DSP channels	0 to 5.
+	// Audio-DSP (EPICS) is input source.
+	WriteData(SAA7133_AUDIO_SELECT, 0x00);
+	// Number for assigned DSP channels 0 to 5.
 	WriteData(SAA7133_AUDIO_CHANNEL, 0x543210);
-	// 2-channels, 2s comp 32bit, 32bit	data for PCI-word. (p126)
-	WriteData(SAA7133_AUDIO_FORMAT,	0x23);
+	// 2-channels, 2s comp 32bit, 32bit data for PCI-word. (p126)
+	WriteData(SAA7133_AUDIO_FORMAT, 0x23);
 
-	// Auto	standard detect	allowing B/G/D/K/M,
-	// default for bunch of	other settings.	(p112)
+	// Auto standard detect allowing B/G/D/K/M,
+	// default for bunch of other settings. (p112)
 	WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING, 0x00004c);
-	// Main	matrix = AB[stereo], source	= DECODER, same	for	Dolby (p120)
-	WriteDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR1,	0x0000);
-	// Same	for	AUX1 and AUX2
-	WriteDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR2,	0x0000);
-	// DMA1	= MAIN L, DMA2 = MAIN R, silence for others. (p124)
-	WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL1,	0x00bbbb10);
-	// DAC L/R = MAIN L/R, I2S'1 L/R = MAIN	L/R, I2S'2 = MAIN L/R
-	WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL2,	0x00101010);
+	// Main matrix = AB[stereo], source = DECODER, same for Dolby (p120)
+	WriteDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR1, 0x0000);
+	// Same for AUX1 and AUX2
+	WriteDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR2, 0x0000);
+	// DMA1 = MAIN L, DMA2 = MAIN R, silence for others. (p124)
+	WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL1, 0x00bbbb10);
+	// DAC L/R = MAIN L/R, I2S'1 L/R = MAIN L/R, I2S'2 = MAIN L/R
+	WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL2, 0x00101010);
 
-	// Set all sound feature stuff such	as auto	volume,	incredible
+	// Set all sound feature stuff such as auto volume, incredible
 	// stereo, dolby prologic, virtual dolby surround to default.
 	WriteDSPData7133(SAA7133_A_SND_FEATURE_CTRL, 0x0000);
 	// Default for all dolby prologic options.
-	WriteDSPData7133(SAA7133_A_DOLBY_PROLOGIC_CTRL,	0x0000);
+	WriteDSPData7133(SAA7133_A_DOLBY_PROLOGIC_CTRL, 0x0000);
 
-	// Main	line volume	0 db gain (scale of	+24	db to -83 db)
+	// Main line volume 0 db gain (scale of +24 db to -83 db)
 	WriteDSPData7133(SAA7133_A_VOLUME_CTRL1, 0x0000);
-	// Aux1/2 line volume 0	db gain	(scale of +24 db to	-83	db)
+	// Aux1/2 line volume 0 db gain (scale of +24 db to -83 db)
 	WriteDSPData7133(SAA7133_A_VOLUME_CTRL2, 0x0000);
-	// Main	line bass and treble 0 db (scale of	+15	db to -16 db)
+	// Main line bass and treble 0 db (scale of +15 db to -16 db)
 	WriteDSPData7133(SAA7133_A_MAIN_TONE_CTRL, 0x0000);
 
-	// Leave out I2S stuff because I don't know	what to	do with	it.
+	// Leave out I2S stuff because I don't know what to do with it.
 
-	// Make	all	audio video	frame locked.
+	// Make all audio video frame locked.
 	SetAudioLockToVideo7133(TRUE);
 }
 
 
 BOOL CSAA7134Card::StartDSPAccess7133()
 {
-	// It shouldn't	take more than one sleep for the wait but
-	// failure is costly so	give extra chances.
-	for	(int timeout = 2; timeout >	0; timeout--)
+	// It shouldn't take more than one sleep for the wait but
+	// failure is costly so give extra chances.
+	for (int timeout = 2; timeout > 0; timeout--)
 	{
-		CBitVector ctrl	= ReadData(SAA7133_EPICS_ACCESS_STATUS);
+		CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);
 
-		// Reset if	the	error state	is flagged.
+		// Reset if the error state is flagged.
 		if (ctrl.value(SAA7133_EPICS_ACCESS_STATUS_ERR))
 		{
-			WriteData(SAA7133_STATUS_RESET,	_B(SAA7133_STATUS_RESET_RERR, 1));
+			WriteData(SAA7133_STATUS_RESET, _B(SAA7133_STATUS_RESET_RERR, 1));
 		}
-		// Reset if	the	read ready state is	flagged.
+		// Reset if the read ready state is flagged.
 		if (ctrl.value(SAA7133_EPICS_ACCESS_STATUS_RDR))
 		{
-			WriteData(SAA7133_STATUS_RESET,	_B(SAA7133_STATUS_RESET_RRDR, 1));
+			WriteData(SAA7133_STATUS_RESET, _B(SAA7133_STATUS_RESET_RRDR, 1));
 		}
 
 		// WRR flagged means there're no current DSP reads or writes.
@@ -271,83 +274,83 @@ BOOL CSAA7134Card::StartDSPAccess7133()
 			return TRUE;
 		}
 
-		// The DSP performs	read and write accesses	at 32kHz so	the
-		// period is 31.25 us.	This is	the	longest	time any read or
-		// write should	take to	perform.  However, Windows only	provides
-		// a 1 ms sleep	function so	sleep for one millisecond here.
+		// The DSP performs read and write accesses at 32kHz so the
+		// period is 31.25 us.  This is the longest time any read or
+		// write should take to perform.  However, Windows only provides
+		// a 1 ms sleep function so sleep for one millisecond here.
 		Sleep(1);
 	}
 
-	LOG(0, "SAA7133: Unexpected	Error: DSP access WRR flag wait	timed out.");
+	LOG(0, "SAA7133: Unexpected Error: DSP access WRR flag wait timed out.");
 	return FALSE;
 }
 
 
 BOOL CSAA7134Card::WaitDSPAccessState7133(BOOL bRead)
 {
-	// It shouldn't	take more than one sleep for the wait but
-	// failure is costly so	give extra chances.
-	for	(int timeout = 2; timeout >	0; timeout--)
+	// It shouldn't take more than one sleep for the wait but
+	// failure is costly so give extra chances.
+	for (int timeout = 2; timeout > 0; timeout--)
 	{
-		CBitVector ctrl	= ReadData(SAA7133_EPICS_ACCESS_STATUS);
+		CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);
 
 		if ((bRead && ctrl.value(SAA7133_EPICS_ACCESS_STATUS_RDR)) ||
-			(!bRead	&& ctrl.value(SAA7133_EPICS_ACCESS_STATUS_WRR)))
+			(!bRead && ctrl.value(SAA7133_EPICS_ACCESS_STATUS_WRR)))
 		{
-			// Read	is ready or	write is complete.
+			// Read is ready or write is complete.
 			return TRUE;
 		}
 
-		// The DSP performs	read and write accesses	at 32kHz so	the
-		// period is 31.25 us.	This is	the	longest	time any read or
-		// write should	take to	perform.  However, Windows only	provides
-		// a 1 ms sleep	function so	sleep for one millisecond here.
+		// The DSP performs read and write accesses at 32kHz so the
+		// period is 31.25 us.  This is the longest time any read or
+		// write should take to perform.  However, Windows only provides
+		// a 1 ms sleep function so sleep for one millisecond here.
 		Sleep(1);
 	}
 
-	LOG(0, "SAA7133: Unexpected	Error: DSP %s flag wait	timed out.",
-		(bRead ? "read RDR"	: "write WRR"));
+	LOG(0, "SAA7133: Unexpected Error: DSP %s flag wait timed out.",
+		(bRead ? "read RDR" : "write WRR"));
 	return FALSE;
 }
 
 
-BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD	registerSize, CBitVector value)
+BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD registerMask, CBitVector value)
 {
 #ifdef _DEBUG
-	if (registerOffset < 0x400 || registerOffset >=	0x580)
+	if (registerOffset < 0x400 || registerOffset >= 0x580)
 	{
-		TRACE("WriteDSPData7133	used for low latency register %lu!", registerOffset);
-		WriteData(registerOffset, registerSize,	value);
+		TRACE("WriteDSPData7133 used for low latency register %lu!", registerOffset);
+		WriteData(registerOffset, registerMask, value);
 		return TRUE;
 	}
 #endif
 
-	// Write DSP data according	to the high	latency	write protocol.
+	// Write DSP data according to the high latency write protocol.
 	if (!StartDSPAccess7133())
 	{
 		return FALSE;
 	}
 
-	// Write to	the	DSP.
-	WriteData(registerOffset, registerSize,	value);
+	// Write to the DSP.
+	WriteData(registerOffset, registerMask, value);
 
-	// Wait	for	the	write to complete.
+	// Wait for the write to complete.
 	return WaitDSPAccessState7133(FALSE);
 }
 
 
-BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerSize, CBitVector& value)
+BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerMask, CBitVector& value)
 {
 #ifdef _DEBUG
-	if (registerOffset < 0x400 || registerOffset >=	0x580)
+	if (registerOffset < 0x400 || registerOffset >= 0x500)
 	{
-		TRACE("ReadDSPData7133 used	for	low	latency	register %lu!",	registerOffset);
-		value =	ReadData(registerOffset, registerSize);
+		TRACE("ReadDSPData7133 used for low latency register %lu!", registerOffset);
+		value = ReadData(registerOffset, registerMask);
 		return TRUE;
 	}
 #endif
 
-	// Read	DSP	data according to the high latency read	protocol.
+	// Read DSP data according to the high latency read protocol.
 	if (!StartDSPAccess7133())
 	{
 		return FALSE;
@@ -356,20 +359,20 @@ BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerSize, CBi
 	// First, read to tell the DSP the address we want.
 	ReadDword(registerOffset);
 
-	// Wait	for	the	data to	be prepped.
+	// Wait for the data to be prepped.
 	if (!WaitDSPAccessState7133(TRUE))
 	{
 		return FALSE;
 	}
 
-	// Read	the	actual data.
-	value =	ReadData(registerOffset, registerSize);
+	// Read the actual data.
+	value = ReadData(registerOffset, registerMask);
 
-	// Check the IDA flag to make sure the read	data is	valid.
-	CBitVector ctrl	= ReadData(SAA7133_EPICS_ACCESS_STATUS);
+	// Check the IDA flag to make sure the read data is valid.
+	CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);
 	if (!ctrl.value(SAA7133_EPICS_ACCESS_STATUS_IDA))
 	{
-		LOG(0, "SAA7133: Unexpected	Error: IDA was not set after second	DSP	read.");
+		LOG(0, "SAA7133: Unexpected Error: IDA was not set after second DSP read.");
 		return FALSE;
 	}
 	return TRUE;
@@ -383,7 +386,7 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioStandard7133(AudioStandard);
 		return;
@@ -402,19 +405,19 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
 
 void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 {
-	// SAA7133 supports	three modes	of setting audio standards.
-	// 1. Automatic	standard detection.
+	// SAA7133 supports three modes of setting audio standards.
+	// 1. Automatic standard detection.
 	// 2. Static standard selection.
-	// 3. Manual setting of	standard related attributes. (expert mode)
+	// 3. Manual setting of standard related attributes. (expert mode)
 	//
 	// Expert mode is required to handle the "Custom Standard..."
-	// dialog in CSAA7134Source	which allows for the setting of	user
-	// chosen frequency, deemphasis	mode, etc.
+	// dialog in CSAA7134Source which allows for the setting of user
+	// chosen frequency, deemphasis mode, etc.
 	//
-	// Automatic standard detection	mode requires the detection
-	// process to be restarted every time the SIF input	audio standard
-	// changes.	 (i.e. Change change, video	format change, input change)
-	// This	is too much	effort at this point.
+	// Automatic standard detection mode requires the detection
+	// process to be restarted every time the SIF input audio standard
+	// changes.  (i.e. Change change, video format change, input change)
+	// This is too much effort at this point.
 
 	enum
 	{
@@ -423,16 +426,16 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 		SAA7133_DDEP_EXPERT
 	};
 
-	// Use static standard select mode for now.	 (Maybe	change to expert
-	// mode	in future.)
-	BYTE mode =	SAA7133_DDEP_STATIC;
+	// Use static standard select mode for now.  (Maybe change to expert
+	// mode in future.)
+	BYTE mode = SAA7133_DDEP_STATIC;
 
-	if (mode ==	SAA7133_DDEP_STATIC)
+	if (mode == SAA7133_DDEP_STATIC)
 	{
-		BYTE stdsel	= 0x00;
+		BYTE stdsel = 0x00;
 
-		// The ones	with no	match are probably not even	used for me	to worry
-		// about.  Expert mode could be	used but expert	mode setting functions
+		// The ones with no match are probably not even used for me to worry
+		// about.  Expert mode could be used but expert mode setting functions
 		// are untested.
 		switch (audioStandard)
 		{
@@ -449,8 +452,8 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 		case AUDIOSTANDARD_DK3_DUAL_FM:
 			stdsel = 0x08;
 			break;
-		case AUDIOSTANDARD_M_DUAL_FM: // no	match
-			stdsel = 0x0c; // M	Korea
+		case AUDIOSTANDARD_M_DUAL_FM: // no match
+			stdsel = 0x0c; // M Korea
 			break;
 		case AUDIOSTANDARD_BG_NICAM_FM:
 			stdsel = 0x05;
@@ -461,23 +464,23 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 			stdsel = 0x0b;
 			break;
 		case AUDIOSTANDARD_DK_NICAM_FM:
-		case AUDIOSTANDARD_DK_NICAM_FM_HDEV2: // no	match
-		case AUDIOSTANDARD_DK_NICAM_FM_HDEV3: // no	match
+		case AUDIOSTANDARD_DK_NICAM_FM_HDEV2: // no match
+		case AUDIOSTANDARD_DK_NICAM_FM_HDEV3: // no match
 			stdsel = 0x09;
 			break;
 		case AUDIOSTANDARD_M_BTSC:
-		case AUDIOSTANDARD_M_BTSC_MONO:	// no match
+		case AUDIOSTANDARD_M_BTSC_MONO: // no match
 			stdsel = 0x0d;
 			break;
 		case AUDIOSTANDARD_M_EIAJ:
 			stdsel = 0x0e;
 			break;
 		case AUDIOSTANDARD_FM_RADIO:
-			stdsel = 0x0f; // 10.7 MHz,	50 us
+			stdsel = 0x0f; // 10.7 MHz, 50 us
 			break;
-		case AUDIOSTANDARD_SAT:	// no match
-		case AUDIOSTANDARD_SAT_MONO: //	no match
-		case AUDIOSTANDARD_SAT_ADR:	// no match
+		case AUDIOSTANDARD_SAT: // no match
+		case AUDIOSTANDARD_SAT_MONO: // no match
+		case AUDIOSTANDARD_SAT_ADR: // no match
 			break;
 		}
 
@@ -486,7 +489,7 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 			_B(SAA7133_A_EASY_PROGRAMMING_EPMODE, 0x1)|
 			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel));
 	}
-	else if	(mode == SAA7133_DDEP_EXPERT)
+	else if (mode == SAA7133_DDEP_EXPERT)
 	{
 		// DEMDEC expert mode (fully manual).
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
@@ -500,15 +503,15 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 
 		SetFMDeemphasis7133(m_AudioStandards[audioStandard].Ch1FMDeemphasis);
 	}
-	else if	(mode == SAA7133_DDEP_AUTO)
+	else if (mode == SAA7133_DDEP_AUTO)
 	{
-		// Auto	standard detect	allowing B/G/D/K/M.
+		// Auto standard detect allowing B/G/D/K/M.
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING, 0x00004c);
 
-		// Set REST	to high	(for high edge after the previously	set	LOW) to
+		// Set REST to high (for high edge after the previously set LOW) to
 		// restart automatic standard detection.
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
-			_B(SAA7133_A_EASY_PROGRAMMING_REST,	1));
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}
 }
 
@@ -520,7 +523,7 @@ void CSAA7134Card::SetAudioCarrier1Freq(DWORD Carrier)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioCarrier1Freq7133(Carrier);
 		return;
@@ -532,8 +535,8 @@ void CSAA7134Card::SetAudioCarrier1Freq(DWORD Carrier)
 
 void CSAA7134Card::SetAudioCarrier1Freq7133(DWORD Carrier)
 {
-	// Only	in DDEP	mode in	expert mode
-	WriteDSPData7133(SAA7133_A_DEMDEC_CARRIER1,	Carrier);
+	// Only in DDEP mode in expert mode
+	WriteDSPData7133(SAA7133_A_DEMDEC_CARRIER1, Carrier);
 }
 
 
@@ -544,7 +547,7 @@ void CSAA7134Card::SetAudioCarrier2Freq(DWORD Carrier)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioCarrier2Freq7133(Carrier);
 		return;
@@ -556,8 +559,8 @@ void CSAA7134Card::SetAudioCarrier2Freq(DWORD Carrier)
 
 void CSAA7134Card::SetAudioCarrier2Freq7133(DWORD Carrier)
 {
-	// Only	in DDEP	mode in	expert mode
-	WriteDSPData7133(SAA7133_A_DEMDEC_CARRIER2,	Carrier);
+	// Only in DDEP mode in expert mode
+	WriteDSPData7133(SAA7133_A_DEMDEC_CARRIER2, Carrier);
 }
 
 
@@ -568,15 +571,15 @@ void CSAA7134Card::SetAudioCarrier1Mode(eAudioCarrierMode mode)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioCarrier1Mode7133(mode);
 		return;
 	}
 
-	if (mode ==	AUDIOCHANNELMODE_AM)
+	if (mode == AUDIOCHANNELMODE_AM)
 	{
-		OrDataByte(SAA7134_DEMODULATOR,	SAA7134_DEMODULATOR_CH1MODE);
+		OrDataByte(SAA7134_DEMODULATOR, SAA7134_DEMODULATOR_CH1MODE);
 	}
 	else
 	{
@@ -587,9 +590,9 @@ void CSAA7134Card::SetAudioCarrier1Mode(eAudioCarrierMode mode)
 
 void CSAA7134Card::SetAudioCarrier1Mode7133(eAudioCarrierMode mode)
 {
-	// Only	in DDEP	mode in	expert mode
+	// Only in DDEP mode in expert mode
 	WriteDSPData7133(SAA7133_A_DEMDEC_CFG,
-		_B(SAA7133_A_DEMDEC_CFG_CH1MOD,	mode ==	AUDIOCHANNELMODE_AM	? 1	: 0));
+		_B(SAA7133_A_DEMDEC_CFG_CH1MOD, mode == AUDIOCHANNELMODE_AM ? 1 : 0));
 }
 
 
@@ -600,44 +603,44 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode mode)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioCarrier2Mode7133(mode);
 		return;
 	}
 
-	BYTE IdentCtrl		= 0x00;
-	BYTE Demodulator	= 0x00;
-	BYTE AudioPLLCtrl	= 0x00;
+	BYTE IdentCtrl      = 0x00;
+	BYTE Demodulator    = 0x00;
+	BYTE AudioPLLCtrl   = 0x00;
 
 	switch (mode)
 	{
 	case AUDIOCHANNELMODE_FM:
-		Demodulator	= 0x00;
+		Demodulator = 0x00;
 		break;
 
 	case AUDIOCHANNELMODE_FM_KOREA:
 		IdentCtrl |= SAA7134_DCXO_IDENT_CTRL_IDAREA;
-		Demodulator	= 0x00;
+		Demodulator = 0x00;
 		break;
 
 	case AUDIOCHANNELMODE_AM:
-		Demodulator	= 0x01;
+		Demodulator = 0x01;
 		break;
 
 	case AUDIOCHANNELMODE_NICAM:
-		AudioPLLCtrl |=	SAA7134_AUDIO_PLL_CTRL_SWLOOP;
-		Demodulator	= 0x10;
+		AudioPLLCtrl |= SAA7134_AUDIO_PLL_CTRL_SWLOOP;
+		Demodulator = 0x10;
 		break;
 
 	case AUDIOCHANNELMODE_BTSC:
 	case AUDIOCHANNELMODE_EIAJ:
-		// not supported by	saa7134
+		// not supported by saa7134
 		break;
 	}
 
 	MaskDataByte(SAA7134_DEMODULATOR, Demodulator,
-		SAA7134_DEMODULATOR_CH2MOD0	|
+		SAA7134_DEMODULATOR_CH2MOD0 |
 		SAA7134_DEMODULATOR_CH2MOD1);
 
 	MaskDataByte(SAA7134_DCXO_IDENT_CTRL, IdentCtrl,
@@ -652,10 +655,10 @@ void CSAA7134Card::SetAudioCarrier2Mode7133(eAudioCarrierMode mode)
 {
 	CBitVector demdecCfg;
 
-	// Only	in DDEP	mode in	expert mode
+	// Only in DDEP mode in expert mode
 
-	// FM A2, FM-ident region =	Europe (there's	also a "Japan" in 7133/5)
-	demdecCfg =	_B(SAA7133_A_DEMDEC_CFG_DECPATH, 0)|_B(SAA7133_A_DEMDEC_CFG_IDAREA,	0);
+	// FM A2, FM-ident region = Europe (there's also a "Japan" in 7133/5)
+	demdecCfg = _B(SAA7133_A_DEMDEC_CFG_DECPATH, 0)|_B(SAA7133_A_DEMDEC_CFG_IDAREA, 0);
 
 	switch (mode)
 	{
@@ -663,29 +666,29 @@ void CSAA7134Card::SetAudioCarrier2Mode7133(eAudioCarrierMode mode)
 		break;
 
 	case AUDIOCHANNELMODE_FM_KOREA:
-		// 1 = FM-ident	region = Korea
+		// 1 = FM-ident region = Korea
 		demdecCfg += _B(SAA7133_A_DEMDEC_CFG_IDAREA, 1);
 		break;
 
 	case AUDIOCHANNELMODE_AM:
-		// Explanation for this	value is omitted in	doc	but	7130_4 doc
-		// says	0 =	FM,	1 =	AM,	2 =	NICAM.
+		// Explanation for this value is omitted in doc but 7130_4 doc
+		// says 0 = FM, 1 = AM, 2 = NICAM.
 		demdecCfg += _B(SAA7133_A_DEMDEC_CFG_CH2MOD, 1);
 		break;
 
 	case AUDIOCHANNELMODE_NICAM:
 		// 2 = Unverfied: NICAM
 		demdecCfg += _B(SAA7133_A_DEMDEC_CFG_CH2MOD, 2);
-		// 3 = NICAM + analog mono (not	sure if	above is necessary)
+		// 3 = NICAM + analog mono (not sure if above is necessary)
 		demdecCfg += _B(SAA7133_A_DEMDEC_CFG_DECPATH, 3);
 		break;
 
 	case AUDIOCHANNELMODE_BTSC:
-		// 4 = BTSC	stereo + SAP with 150 ms deemphasis
+		// 4 = BTSC stereo + SAP with 150 ms deemphasis
 		demdecCfg += _B(SAA7133_A_DEMDEC_CFG_DECPATH, 4);
 		break;
 	case AUDIOCHANNELMODE_EIAJ:
-		// 6 = EIAJ	stereo
+		// 6 = EIAJ stereo
 		demdecCfg += _B(SAA7133_A_DEMDEC_CFG_DECPATH, 6);
 		break;
 	}
@@ -694,22 +697,22 @@ void CSAA7134Card::SetAudioCarrier2Mode7133(eAudioCarrierMode mode)
 }
 
 
-void CSAA7134Card::SetAudioLockToVideo(BOOL	bLockAudio)
+void CSAA7134Card::SetAudioLockToVideo(BOOL bLockAudio)
 {
 	if (m_DeviceId == 0x7130)
 	{
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioLockToVideo7133(bLockAudio);
 		return;
 	}
-	
+
 	if (bLockAudio)
 	{
-		AndDataByte(SAA7134_AUDIO_PLL_CTRL,	~SAA7134_AUDIO_PLL_CTRL_APLL);
+		AndDataByte(SAA7134_AUDIO_PLL_CTRL, ~SAA7134_AUDIO_PLL_CTRL_APLL);
 	}
 	else
 	{
@@ -718,30 +721,30 @@ void CSAA7134Card::SetAudioLockToVideo(BOOL	bLockAudio)
 }
 
 
-void CSAA7134Card::SetAudioLockToVideo7133(BOOL	bLockAudio)
+void CSAA7134Card::SetAudioLockToVideo7133(BOOL bLockAudio)
 {
-	// This	doesn't	affect NICAM (for 7133/5 at	least) as NICAM
+	// This doesn't affect NICAM (for 7133/5 at least) as NICAM
 	// is always video frame locked.
-	WriteData(SAA7133_PLL_CONTROL, _B(SAA7133_PLL_CONTROL_APLL,	bLockAudio ? 0 : 1));
+	WriteData(SAA7133_PLL_CONTROL, _B(SAA7133_PLL_CONTROL_APLL, bLockAudio ? 0 : 1));
 }
 
 
-void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard	VideoStandard)
+void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
 {
 	if (m_DeviceId == 0x7130)
 	{
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		UpdateAudioClocksPerField7133(VideoStandard);
 		return;
 	}
 
-	DWORD	AudioClock = 0x000000;
-	DWORD	AudioClocksPerField	= 0x00000;
-	BYTE	SampleFreq;
+	DWORD   AudioClock = 0x000000;
+	DWORD   AudioClocksPerField = 0x00000;
+	BYTE    SampleFreq;
 
 	SampleFreq = ReadByte(SAA7134_SIF_SAMPLE_FREQ) & SAA7134_SIF_SAMPLE_FREQ_SFS;
 
@@ -763,11 +766,11 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard	VideoStandard)
 			m_VideoStandards[VideoStandard].Is25fps) ||
 			Is25fpsSignalDetected())
 		{
-			AudioClocksPerField	= 0x1E000;
+			AudioClocksPerField = 0x1E000;
 		}
 		else
 		{
-			AudioClocksPerField	= 0x19066;
+			AudioClocksPerField = 0x19066;
 		}
 	}
 	else
@@ -785,11 +788,11 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard	VideoStandard)
 
 		if (m_VideoStandards[VideoStandard].Is25fps)
 		{
-			AudioClocksPerField	= 0x22740;
+			AudioClocksPerField = 0x22740;
 		}
 		else
 		{
-			AudioClocksPerField	= 0x1CBD5;
+			AudioClocksPerField = 0x1CBD5;
 		}
 	}
 
@@ -804,62 +807,62 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard	VideoStandard)
 }
 
 
-void CSAA7134Card::UpdateAudioClocksPerField7133(eVideoStandard	videoStandard)
+void CSAA7134Card::UpdateAudioClocksPerField7133(eVideoStandard videoStandard)
 {
 	BYTE acs = static_cast<BYTE>(ReadData(SAA7133_PLL_CONTROL).value(SAA7133_PLL_CONTROL_ACS));
 
-	// Six master clocks by	ACNI 24/32 MHz,	ACPF 50/59.94 Hz
+	// Six master clocks by ACNI 24/32 MHz, ACPF 50/59.94 Hz
 	static const DWORD s_acnipf[6][4] =
 	{
-		// 24 MHz	32 MHz	  50 Hz	   59.94 Hz
-		{ 0x000000,	0x000000, 0x16800, 0x12C4D },	// 147.456 MHz
-		{ 0x200000,	0x187DE7, 0x1E000, 0x19066 },	// 196.608 MHz
-		{ 0x211333,	0x195088, 0x1F020, 0x19DD9 },	// 203.213 MHz
-		{ 0x240000,	0x1B8DA4, 0x21C00, 0x1C273 },	// 221.184 MHz
-		{ 0x2C1995,	0x21C0B2, 0x29580, 0x227CD },	// 270.950 MHz
-		{ 0x300000,	0x24BCDA, 0x2D000, 0x2589A }	// 294.912 MHz
+		// 24 MHz   32 MHz    50 Hz    59.94 Hz
+		{ 0x000000, 0x000000, 0x16800, 0x12C4D },   // 147.456 MHz
+		{ 0x200000, 0x187DE7, 0x1E000, 0x19066 },   // 196.608 MHz
+		{ 0x211333, 0x195088, 0x1F020, 0x19DD9 },   // 203.213 MHz
+		{ 0x240000, 0x1B8DA4, 0x21C00, 0x1C273 },   // 221.184 MHz
+		{ 0x2C1995, 0x21C0B2, 0x29580, 0x227CD },   // 270.950 MHz
+		{ 0x300000, 0x24BCDA, 0x2D000, 0x2589A }    // 294.912 MHz
 	};
 
-	int	row	= -1;
+	int row = -1;
 
 	// 196.608 MHz (master clock)
-	if ((acs & 0x9)	== 0x0)
+	if ((acs & 0x9) == 0x0)
 	{
-		row	= 1;
+		row = 1;
 	}
 	// 147.456 MHz
-	else if	((acs &	0x9) ==	0x1)
+	else if ((acs & 0x9) == 0x1)
 	{
-		row	= 0;
+		row = 0;
 	}
 	// 270.950 MHz
-	else if	((acs &	0xD) ==	0x8)
+	else if ((acs & 0xD) == 0x8)
 	{
-		row	= 4;
+		row = 4;
 	}
 	// 203.213 MHz
-	else if	((acs &	0xD) ==	0x9)
+	else if ((acs & 0xD) == 0x9)
 	{
-		row	= 2;
+		row = 2;
 	}
 	// 294.912 MHz
-	else if	((acs &	0xD) ==	0xC)
+	else if ((acs & 0xD) == 0xC)
 	{
-		row	= 5;
+		row = 5;
 	}
 	// 221.184 MHz
-	else if	((acs &	0xD) ==	0xD)
+	else if ((acs & 0xD) == 0xD)
 	{
-		row	= 3;
+		row = 3;
 	}
 
-	DWORD	acni = 0x000000;	// Audio Clock
-	DWORD	acpf = 0x00000;		// Audio Clocks	Per	Field
+	DWORD   acni = 0x000000;    // Audio Clock
+	DWORD   acpf = 0x00000;     // Audio Clocks Per Field
 
 	switch (GetCardSetup()->AudioCrystal)
 	{
-	case AUDIOCRYSTAL_24576kHz:	acni = s_acnipf[row][0]; break;
-	case AUDIOCRYSTAL_32110kHz:	acni = s_acnipf[row][1]; break;
+	case AUDIOCRYSTAL_24576kHz: acni = s_acnipf[row][0]; break;
+	case AUDIOCRYSTAL_32110kHz: acni = s_acnipf[row][1]; break;
 	}
 
 	if ((videoStandard == VIDEOSTANDARD_AUTODETECT && Is25fpsSignalDetected()) ||
@@ -872,10 +875,10 @@ void CSAA7134Card::UpdateAudioClocksPerField7133(eVideoStandard	videoStandard)
 		acpf = s_acnipf[row][3];
 	}
 
-	// Ensure the correct transfer of the ACNI register	value to PLL.
+	// Ensure the correct transfer of the ACNI register value to PLL.
 	WriteData(SAA7133_PLL_CONTROL, _B(SAA7133_PLL_CONTROL_SWLOOP, 1));
 
-	if (acni !=	0x000000)
+	if (acni != 0x000000)
 	{
 		// Write the audio clock.
 		WriteData(SAA7133_AUDIO_CLOCK_NOMINAL, acni);
@@ -893,9 +896,9 @@ void CSAA7134Card::SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
-		// SAA7133 doesn't support separate	per	channel.
+		// SAA7133 doesn't support separate per channel.
 		SetFMDeemphasis7133(FMDeemphasis);
 		return;
 	}
@@ -905,39 +908,39 @@ void CSAA7134Card::SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 	switch (FMDeemphasis)
 	{
 	case AUDIOFMDEEMPHASIS_OFF:
-		Ch1FMDeemphasis	= 0x04;
+		Ch1FMDeemphasis = 0x04;
 		break;
 
 	case AUDIOFMDEEMPHASIS_50_MICROS:
-		Ch1FMDeemphasis	= 0x00;
+		Ch1FMDeemphasis = 0x00;
 		break;
 
 	case AUDIOFMDEEMPHASIS_60_MICROS:
-		Ch1FMDeemphasis	= 0x01;
+		Ch1FMDeemphasis = 0x01;
 		break;
 
 	case AUDIOFMDEEMPHASIS_75_MICROS:
-		Ch1FMDeemphasis	= 0x02;
+		Ch1FMDeemphasis = 0x02;
 		break;
 
 	case AUDIOFMDEEMPHASIS_J17:
-		Ch1FMDeemphasis	= 0x03;
+		Ch1FMDeemphasis = 0x03;
 		break;
 
 	case AUDIOFMDEEMPHASIS_ADAPTIVE:
-		Ch1FMDeemphasis	= 0x0C;
+		Ch1FMDeemphasis = 0x0C;
 		break;
 	}
 
-	MaskDataByte(SAA7134_FM_DEEMPHASIS,	Ch1FMDeemphasis, 0x0F);
+	MaskDataByte(SAA7134_FM_DEEMPHASIS, Ch1FMDeemphasis, 0x0F);
 }
 
 
 void CSAA7134Card::SetFMDeemphasis7133(eAudioFMDeemphasis fmDeemphasis)
 {
-	BYTE fmdeem	= 0x0;
+	BYTE fmdeem = 0x0;
 
-	// Only	in DDEP	mode in	expert mode
+	// Only in DDEP mode in expert mode
 
 	switch (fmDeemphasis)
 	{
@@ -978,7 +981,7 @@ void CSAA7134Card::SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		return;
 	}
@@ -988,44 +991,44 @@ void CSAA7134Card::SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 	switch (FMDeemphasis)
 	{
 	case AUDIOFMDEEMPHASIS_OFF:
-		Ch2FMDeemphasis	= 0x40;
+		Ch2FMDeemphasis = 0x40;
 		break;
 
 	case AUDIOFMDEEMPHASIS_50_MICROS:
-		Ch2FMDeemphasis	= 0x00;
+		Ch2FMDeemphasis = 0x00;
 		break;
 
 	case AUDIOFMDEEMPHASIS_60_MICROS:
-		Ch2FMDeemphasis	= 0x10;
+		Ch2FMDeemphasis = 0x10;
 		break;
 
 	case AUDIOFMDEEMPHASIS_75_MICROS:
-		Ch2FMDeemphasis	= 0x20;
+		Ch2FMDeemphasis = 0x20;
 		break;
 
 	case AUDIOFMDEEMPHASIS_J17:
-		Ch2FMDeemphasis	= 0x30;
+		Ch2FMDeemphasis = 0x30;
 		break;
 
 	case AUDIOFMDEEMPHASIS_ADAPTIVE:
-		Ch2FMDeemphasis	= 0xC0;
+		Ch2FMDeemphasis = 0xC0;
 		break;
 	}
 
-	MaskDataByte(SAA7134_FM_DEEMPHASIS,	Ch2FMDeemphasis, 0xF0);
+	MaskDataByte(SAA7134_FM_DEEMPHASIS, Ch2FMDeemphasis, 0xF0);
 }
 
 
 void CSAA7134Card::SetAudioFMDematrix(eAudioFMDematrix FMDematrix)
 {
-	BYTE FMDematrixSelect =	0x00;
+	BYTE FMDematrixSelect = 0x00;
 
 	if (m_DeviceId == 0x7130)
 	{
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioFMDematrix7133(FMDematrix);
 		return;
@@ -1075,31 +1078,31 @@ void CSAA7134Card::SetAudioFMDematrix7133(eAudioFMDematrix fmDematrix)
 {
 	BYTE fmdemat = 0x0;
 
-	// Only	in DDEP	mode in	expert mode
+	// Only in DDEP mode in expert mode
 
 	switch (fmDematrix)
 	{
 	case AUDIOFMDEMATRIX_AUTOSWITCHING:
-		// SAA7133 doesn't seem	to have	auto switching.
+		// SAA7133 doesn't seem to have auto switching.
 		break;
 	case AUDIOFMDEMATRIX_MONO1:
-		fmdemat	= 0x0;
+		fmdemat = 0x0;
 		break;
 	case AUDIOFMDEMATRIX_MONO2:
-		fmdemat	= 0x1;
+		fmdemat = 0x1;
 		break;
 	case AUDIOFMDEMATRIX_DUAL:
-		fmdemat	= 0x2;
+		fmdemat = 0x2;
 		break;
 	case AUDIOFMDEMATRIX_DUAL_SWAPPED:
-		fmdemat	= 0x3;
+		fmdemat = 0x3;
 		break;
 	case AUDIOFMDEMATRIX_STEREO_EUROPE:
-		fmdemat	= 0x4;
+		fmdemat = 0x4;
 		break;
 	case AUDIOFMDEMATRIX_STEREO_KOREA__6DB:
 	case AUDIOFMDEMATRIX_STEREO_KOREA:
-		fmdemat	= 0x05;
+		fmdemat = 0x05;
 		break;
 	}
 
@@ -1108,19 +1111,19 @@ void CSAA7134Card::SetAudioFMDematrix7133(eAudioFMDematrix fmDematrix)
 }
 
 
-void CSAA7134Card::SetFilterBandwidth(eAudioFilterBandwidth	FilterBandwidth)
+void CSAA7134Card::SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth)
 {
-	// Sound carrier filter	bandwidth
+	// Sound carrier filter bandwidth
 
 	if (m_DeviceId == 0x7130)
 	{
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
-		// Only	in DDEP	mode in	expert mode
-		// saa7133 supports	similar	but	this function isn't	used anyhow.
+		// Only in DDEP mode in expert mode
+		// saa7133 supports similar but this function isn't used anyhow.
 		return;
 	}
 
@@ -1151,7 +1154,7 @@ void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioSampleRate7133(SampleRate);
 		return;
@@ -1161,16 +1164,16 @@ void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
 
 	if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC)
 	{
-		// SampleRate is always	AUDIOSAMPLERATE_32000Hz;
-		SampleFrequency	= 0x40;
+		// SampleRate is always AUDIOSAMPLERATE_32000Hz;
+		SampleFrequency = 0x40;
 	}
 	else
 	{
 		switch (SampleRate)
 		{
-		case AUDIOSAMPLERATE_32000Hz: SampleFrequency =	0x01; break;
-		case AUDIOSAMPLERATE_44100Hz: SampleFrequency =	0x02; break;
-		case AUDIOSAMPLERATE_48000Hz: SampleFrequency =	0x03; break;
+		case AUDIOSAMPLERATE_32000Hz: SampleFrequency = 0x01; break;
+		case AUDIOSAMPLERATE_44100Hz: SampleFrequency = 0x02; break;
+		case AUDIOSAMPLERATE_48000Hz: SampleFrequency = 0x03; break;
 		}
 	}
 
@@ -1187,103 +1190,103 @@ void CSAA7134Card::SetAudioSampleRate7133(eAudioSampleRate sampleRate)
 
 	if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC)
 	{
-		// 0000: 32	kHz	w/ DEMDEC, 196.608 MHz,	/3 = DSP
-		acs	= 0x0;
+		// 0000: 32 kHz w/ DEMDEC, 196.608 MHz, /3 = DSP
+		acs = 0x0;
 	}
 	else
 	{
 		switch (sampleRate)
 		{
-		// 0100: 32	kHz	baseband, 196.608 MHz, /3 =	DSP
-		case AUDIOSAMPLERATE_32000Hz: acs =	0x4; break;
-		// 1000: 44.1 kHz baseband,	270.950	MHz, /3	= DSP
-		case AUDIOSAMPLERATE_44100Hz: acs =	0x8; break;
-		// 1100: 48	kHz	baseband, 294.912 MHz, /3 =	DSP
-		case AUDIOSAMPLERATE_48000Hz: acs =	0xC; break;
+			// 0100: 32 kHz baseband, 196.608 MHz, /3 = DSP
+		case AUDIOSAMPLERATE_32000Hz: acs = 0x4; break;
+			// 1000: 44.1 kHz baseband, 270.950 MHz, /3 = DSP
+		case AUDIOSAMPLERATE_44100Hz: acs = 0x8; break;
+			// 1100: 48 kHz baseband, 294.912 MHz, /3 = DSP
+		case AUDIOSAMPLERATE_48000Hz: acs = 0xC; break;
 		}
 	}
 
 	WriteData(SAA7133_PLL_CONTROL, _B(SAA7133_PLL_CONTROL_ACS, acs));
 
-	// Update the audio	clock and audio	clocks per field.
+	// Update the audio clock and audio clocks per field.
 	UpdateAudioClocksPerField7133(m_VideoStandard);
 }
 
 
-void CSAA7134Card::SetAudioSource(eAudioInputSource	InputSource)
+void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 {
 	m_AudioInputSource = InputSource;
 
 	if (m_bAudioLineReservedForMute)
 	{
-		// This	means that the card's line selection is	tied up	to a specific
-		// line	in order perform mute.	(SAA7130 for instance, cannot mute
-		// any other way.)	The	line recorded above	is set at unmute.
+		// This means that the card's line selection is tied up to a specific
+		// line in order perform mute.  (SAA7130 for instance, cannot mute
+		// any other way.)  The line recorded above is set at unmute.
 		return;
 	}
 
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAudioSource7133(InputSource);
 		return;
 	}
 
-	_SetIOSelectOCS(m_AudioInputSource,	m_bStereoExternalLines);
+	_SetIOSelectOCS(m_AudioInputSource, m_bStereoExternalLines);
 
-	if (InputSource	== AUDIOINPUTSOURCE_DAC)
+	if (InputSource == AUDIOINPUTSOURCE_DAC)
 	{
 		SetAudioSampleRate(AUDIOSAMPLERATE_32000Hz);
 	}
-	else if	(InputSource ==	AUDIOINPUTSOURCE_LINE1)
+	else if (InputSource == AUDIOINPUTSOURCE_LINE1)
 	{
 		AndDataByte(SAA7134_ANALOG_IO_SELECT, ~SAA7134_ANALOG_IO_SELECT_ICS);
 	}
-	else if	(InputSource ==	AUDIOINPUTSOURCE_LINE2)
+	else if (InputSource == AUDIOINPUTSOURCE_LINE2)
 	{
 		OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
 	}
 }
 
 
-void CSAA7134Card::SetAudioSource7133(eAudioInputSource	inputSource)
+void CSAA7134Card::SetAudioSource7133(eAudioInputSource inputSource)
 {
-	_SetIOSelectOCS7133(m_AudioInputSource,	m_bStereoExternalLines);
+	_SetIOSelectOCS7133(m_AudioInputSource, m_bStereoExternalLines);
 
-	if (inputSource	== AUDIOINPUTSOURCE_DAC)
+	if (inputSource == AUDIOINPUTSOURCE_DAC)
 	{
 		SetAudioSampleRate7133(AUDIOSAMPLERATE_32000Hz);
 	}
-	else if	(inputSource ==	AUDIOINPUTSOURCE_LINE1)
+	else if (inputSource == AUDIOINPUTSOURCE_LINE1)
 	{
-		// Input crossbar select line 1.  Sample rate and audio	clock adjustments
-		// for the external	two	lines should be	made by	CSAA7134Source calling
-		// SetAudioSampleRate()	straight after.	 CSAA7134Card doesn't record the
-		// sample rate state to	be able	to make	the	adjustment itself.
-		WriteData(SAA7133_ANALOG_IO_SELECT,	_B(SAA7133_ANALOG_IO_SELECT_ICS, 0));
+		// Input crossbar select line 1.  Sample rate and audio clock adjustments
+		// for the external two lines should be made by CSAA7134Source calling
+		// SetAudioSampleRate() straight after.  CSAA7134Card doesn't record the
+		// sample rate state to be able to make the adjustment itself.
+		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_ICS, 0));
 	}
-	else if	(inputSource ==	AUDIOINPUTSOURCE_LINE2)
+	else if (inputSource == AUDIOINPUTSOURCE_LINE2)
 	{
 		// Input crossbar select line 2.
-		WriteData(SAA7133_ANALOG_IO_SELECT,	_B(SAA7133_ANALOG_IO_SELECT_ICS, 1));
+		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_ICS, 1));
 	}
 }
 
 
 void CSAA7134Card::_SetIOSelectOCS(eAudioInputSource InputSource, BOOL bStereoExternal)
 {
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		_SetIOSelectOCS7133(InputSource, bStereoExternal);
 		return;
 	}
-	
+
 	BYTE LineSelect;
 
 	switch (InputSource)
 	{
-	case AUDIOINPUTSOURCE_DAC: LineSelect =	0x02; break;
-	case AUDIOINPUTSOURCE_LINE1: LineSelect	= bStereoExternal ?	0x00 : 0x03; break;
-	case AUDIOINPUTSOURCE_LINE2: LineSelect	= bStereoExternal ?	0x01 : 0x05; break;
+	case AUDIOINPUTSOURCE_DAC: LineSelect = 0x02; break;
+	case AUDIOINPUTSOURCE_LINE1: LineSelect = bStereoExternal ? 0x00 : 0x03; break;
+	case AUDIOINPUTSOURCE_LINE2: LineSelect = bStereoExternal ? 0x01 : 0x05; break;
 	}
 
 	MaskDataByte(SAA7134_ANALOG_IO_SELECT, LineSelect,
@@ -1293,52 +1296,52 @@ void CSAA7134Card::_SetIOSelectOCS(eAudioInputSource InputSource, BOOL bStereoEx
 
 void CSAA7134Card::_SetIOSelectOCS7133(eAudioInputSource inputSource, BOOL bStereoExternal)
 {
-	// In SAA7133, 0111	is "no output enabled".
+	// In SAA7133, 0111 is "no output enabled".
 	BYTE ocs = 0x7;
 
 	switch (inputSource)
 	{
-	// DAC L/DAC R
+		// DAC L/DAC R
 	case AUDIOINPUTSOURCE_DAC: ocs = 0x2; break;
-	// EXTIL1/EXTIR1 or	EXTIL1/EXTIL1
-	case AUDIOINPUTSOURCE_LINE1: ocs = (bStereoExternal	? 0x0 :	0x3); break;
-	// EXTIL2/EXTIR2 or	EXTIL2/EXTIL2
-	case AUDIOINPUTSOURCE_LINE2: ocs = (bStereoExternal	? 0x1 :	0x5); break;
+		// EXTIL1/EXTIR1 or EXTIL1/EXTIL1
+	case AUDIOINPUTSOURCE_LINE1: ocs = (bStereoExternal ? 0x0 : 0x3); break;
+		// EXTIL2/EXTIR2 or EXTIL2/EXTIL2
+	case AUDIOINPUTSOURCE_LINE2: ocs = (bStereoExternal ? 0x1 : 0x5); break;
 	}
 
-	WriteData(SAA7133_ANALOG_IO_SELECT,	_B(SAA7133_ANALOG_IO_SELECT_OCS, ocs));
+	WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_OCS, ocs));
 }
 
 
-BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel	AudioChannel)
+BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel AudioChannel)
 {
 	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
 	{
-		// external	lines are only stereo
-		if (AudioChannel ==	AUDIOCHANNEL_MONO ||
-			AudioChannel ==	AUDIOCHANNEL_STEREO)
+		// external lines are only stereo
+		if (AudioChannel == AUDIOCHANNEL_MONO ||
+			AudioChannel == AUDIOCHANNEL_STEREO)
 		{
 			return TRUE;
 		}
 		return FALSE;
 	}
 
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		return _IsAudioChannelDetected7133(AudioChannel);
 	}
 
 	BYTE Status;
 
-	// Read	carrier	2 mode to see if it's NICAM
-	if (ReadByte(SAA7134_DEMODULATOR) &	SAA7134_DEMODULATOR_CH2MOD1)
+	// Read carrier 2 mode to see if it's NICAM
+	if (ReadByte(SAA7134_DEMODULATOR) & SAA7134_DEMODULATOR_CH2MOD1)
 	{
 		Status = (ReadByte(SAA7134_NICAM_STATUS) & SAA7134_NICAM_STATUS_SIN);
 
 		switch (AudioChannel)
 		{
 		case AUDIOCHANNEL_MONO:
-			return Status == 0x00 || Status	== 0x02;
+			return Status == 0x00 || Status == 0x02;
 		case AUDIOCHANNEL_STEREO:
 			return Status == 0x02;
 		case AUDIOCHANNEL_LANGUAGE1:
@@ -1348,17 +1351,17 @@ BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel	AudioChannel)
 	}
 	else
 	{
-		Status = (ReadByte(SAA7134_IDENT_SIF) &	SAA7134_IDENT_SIF_IDP) >> 5;
+		Status = (ReadByte(SAA7134_IDENT_SIF) & SAA7134_IDENT_SIF_IDP) >> 5;
 
 		switch (AudioChannel)
 		{
 		case AUDIOCHANNEL_MONO:
-			return (Status & (1	<< 1)) == 0;
+			return (Status & (1 << 1)) == 0;
 		case AUDIOCHANNEL_STEREO:
-			return (Status & (1	<< 2)) != 0;
+			return (Status & (1 << 2)) != 0;
 		case AUDIOCHANNEL_LANGUAGE1:
 		case AUDIOCHANNEL_LANGUAGE2:
-			return (Status & (1	<< 1)) != 0;
+			return (Status & (1 << 1)) != 0;
 		}
 	}
 
@@ -1372,17 +1375,17 @@ BOOL CSAA7134Card::_IsAudioChannelDetected7133(eAudioChannel audioChannel)
 	CBitVector b;
 	ReadDSPData7133(SAA7133_A_MAIN_STATUS, b);
 
-	// Checking	general	stereo (GST) and general dual (GDU)	is unverified.
+	// Checking general stereo (GST) and general dual (GDU) is unverified.
 	if (b.value(SAA7133_A_MAIN_STATUS_GST))
 	{
-		return audioChannel	== AUDIOCHANNEL_STEREO;
+		return audioChannel == AUDIOCHANNEL_STEREO;
 	}
 	if (b.value(SAA7133_A_MAIN_STATUS_GDU))
 	{
-		return audioChannel	== AUDIOCHANNEL_LANGUAGE1 ||
-			audioChannel ==	AUDIOCHANNEL_LANGUAGE2;
+		return audioChannel == AUDIOCHANNEL_LANGUAGE1 ||
+			audioChannel == AUDIOCHANNEL_LANGUAGE2;
 	}
-	return audioChannel	== AUDIOCHANNEL_MONO;
+	return audioChannel == AUDIOCHANNEL_MONO;
 }
 
 
@@ -1392,54 +1395,54 @@ void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
 	{
 		m_bStereoExternalLines = (AudioChannel == AUDIOCHANNEL_STEREO);
 
-		if (m_bAudioLineReservedForMute	!= FALSE)
+		if (m_bAudioLineReservedForMute != FALSE)
 		{
 			return;
 		}
 
-		_SetIOSelectOCS(m_AudioInputSource,	m_bStereoExternalLines);
+		_SetIOSelectOCS(m_AudioInputSource, m_bStereoExternalLines);
 		return;
 	}
 
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		_SetAudioChannel7133(AudioChannel);
 		return;
 	}
 
-	if (AudioChannel ==	AUDIOCHANNEL_MONO)
+	if (AudioChannel == AUDIOCHANNEL_MONO)
 	{
 		// Select Left/Left
-		MaskDataByte(SAA7134_DSP_OUTPUT_SELECT,	0x10,
+		MaskDataByte(SAA7134_DSP_OUTPUT_SELECT, 0x10,
 			SAA7134_DSP_OUTPUT_SELECT_CSM);
 
-		// Disable automatic stereo	adjustment
+		// Disable automatic stereo adjustment
 		AndDataByte(SAA7134_DSP_OUTPUT_SELECT, ~SAA7134_DSP_OUTPUT_SELECT_AASDMA);
 
-		// Selecting 00	will force FM/AM.  This	means selecting	mono
-		// when	on NICAM will revert to	ch1	FM
+		// Selecting 00 will force FM/AM.  This means selecting mono
+		// when on NICAM will revert to ch1 FM
 		MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x00,
 			SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);
 	}
 	else
 	{
-		// When	AASDMA is on, SDOS 01 will select NICAM	over
-		// FM only if it is	available
+		// When AASDMA is on, SDOS 01 will select NICAM over
+		// FM only if it is available
 		MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x01,
 			SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);
 
-		// Enable automatic	stereo adjustment and the card
-		// will	sort itself	out
+		// Enable automatic stereo adjustment and the card
+		// will sort itself out
 		OrDataByte(SAA7134_DSP_OUTPUT_SELECT, SAA7134_DSP_OUTPUT_SELECT_AASDMA);
 
-		if (AudioChannel ==	AUDIOCHANNEL_LANGUAGE1)
+		if (AudioChannel == AUDIOCHANNEL_LANGUAGE1)
 		{
-			MaskDataByte(SAA7134_DSP_OUTPUT_SELECT,	0x10,
+			MaskDataByte(SAA7134_DSP_OUTPUT_SELECT, 0x10,
 				SAA7134_DSP_OUTPUT_SELECT_CSM);
 		}
-		else if	(AudioChannel == AUDIOCHANNEL_LANGUAGE2)
+		else if (AudioChannel == AUDIOCHANNEL_LANGUAGE2)
 		{
-			MaskDataByte(SAA7134_DSP_OUTPUT_SELECT,	0x20,
+			MaskDataByte(SAA7134_DSP_OUTPUT_SELECT, 0x20,
 				SAA7134_DSP_OUTPUT_SELECT_CSM);
 		}
 	}
@@ -1448,18 +1451,18 @@ void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
 
 void CSAA7134Card::_SetAudioChannel7133(eAudioChannel audioChannel)
 {
-	BYTE maindm	= 0;
+	BYTE maindm = 0;
 
-	// Only	the	DAC	line should	see	this path.	SetAudioChannel()
-	// exits early for external	lines.
+	// Only the DAC line should see this path.  SetAudioChannel()
+	// exits early for external lines.
 
-	// Unlike what was done	for	SAA7134, audio channels	here are set
-	// up at the digital input crossbar.  "Mono" in	this case is
-	// (Left + Right)/2	rather than	the	Left/Left that was done	for
-	// SAA7134.	 SAA7133 also offers channel selections	for	aux1,
-	// aux2	(external lines) and dolby pro but they're ignored.
-	// There doesn't seem to be	automatic stereo detect	in SAA7133
-	// so that's one less thing	this function needs	to worry about.
+	// Unlike what was done for SAA7134, audio channels here are set
+	// up at the digital input crossbar.  "Mono" in this case is
+	// (Left + Right)/2 rather than the Left/Left that was done for
+	// SAA7134.  SAA7133 also offers channel selections for aux1,
+	// aux2 (external lines) and dolby pro but they're ignored.
+	// There doesn't seem to be automatic stereo detect in SAA7133
+	// so that's one less thing this function needs to worry about.
 	switch (audioChannel)
 	{
 	case AUDIOCHANNEL_MONO:
@@ -1481,7 +1484,7 @@ void CSAA7134Card::_SetAudioChannel7133(eAudioChannel audioChannel)
 }
 
 
-CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel()
+CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 {
 	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
 	{
@@ -1489,11 +1492,11 @@ CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel()
 		{
 			if (m_bStereoExternalLines)
 			{
-				// Although	the	card is	configured to accept
-				// stereo, the actual format is	dependant
-				// on the external source.	For	this reason, we
-				// return ``AUDIOCHANNEL_EXTERNAL'', to	mean
-				// "depends	on the external	source".
+				// Although the card is configured to accept
+				// stereo, the actual format is dependant
+				// on the external source.  For this reason, we
+				// return ``AUDIOCHANNEL_EXTERNAL'', to mean
+				// "depends on the external source".
 
 				return AUDIOCHANNEL_EXTERNAL;
 			}
@@ -1503,7 +1506,7 @@ CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel()
 
 		BYTE AudioLine;
 
-		AudioLine =	ReadByte(SAA7134_ANALOG_IO_SELECT) &
+		AudioLine = ReadByte(SAA7134_ANALOG_IO_SELECT) &
 			SAA7134_ANALOG_IO_SELECT_OCS;
 
 		switch (AudioLine)
@@ -1523,16 +1526,16 @@ CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel()
 		return AUDIOCHANNEL_MONO;
 	}
 
-	// If automatic	select is enabled, things work a bit different
-	if (ReadByte(SAA7134_DSP_OUTPUT_SELECT)	& SAA7134_DSP_OUTPUT_SELECT_AASDMA)
+	// If automatic select is enabled, things work a bit different
+	if (ReadByte(SAA7134_DSP_OUTPUT_SELECT) & SAA7134_DSP_OUTPUT_SELECT_AASDMA)
 	{
 		if (IsAudioChannelDetected(AUDIOCHANNEL_STEREO))
 		{
 			return AUDIOCHANNEL_STEREO;
 		}
-		else if	(IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2))
+		else if (IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2))
 		{
-			if (ReadByte(SAA7134_DSP_OUTPUT_SELECT)	& 0x20)
+			if (ReadByte(SAA7134_DSP_OUTPUT_SELECT) & 0x20)
 			{
 				return AUDIOCHANNEL_LANGUAGE2;
 			}
@@ -1541,12 +1544,12 @@ CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel()
 		return AUDIOCHANNEL_MONO;
 	}
 
-	switch (ReadByte(SAA7134_DSP_OUTPUT_SELECT)	&
+	switch (ReadByte(SAA7134_DSP_OUTPUT_SELECT) &
 		SAA7134_DSP_OUTPUT_SELECT_CSM)
 	{
-	case 0x00:	// L / R
-	case 0x30:	// R / L
-	case 0x40:	// (L+R)/2 / (L+R)/2
+	case 0x00:  // L / R
+	case 0x30:  // R / L
+	case 0x40:  // (L+R)/2 / (L+R)/2
 		if (IsAudioChannelDetected(AUDIOCHANNEL_STEREO))
 		{
 			return AUDIOCHANNEL_STEREO;
@@ -1575,7 +1578,7 @@ CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel()
 }
 
 
-CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel7133()
+CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel7133()
 {
 	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
 	{
@@ -1604,43 +1607,43 @@ CSAA7134Card::eAudioChannel	CSAA7134Card::GetAudioChannel7133()
 		return AUDIOCHANNEL_MONO;
 	}
 
-	// Auto	stereo isn't used for SAA7133 so that's	one	less thing this
-	// needs to	worry about.
+	// Auto stereo isn't used for SAA7133 so that's one less thing this
+	// needs to worry about.
 
 	CBitVector b;
 
 	ReadDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR1, b);
 	switch (b.value(SAA7133_A_DIGITAL_INPUT_XBAR1_MAINDM))
 	{
-	case 0:	// LR
-	case 4:	// RL
+	case 0: // LR
+	case 4: // RL
 		if (IsAudioChannelDetected(AUDIOCHANNEL_STEREO))
 		{
 			return AUDIOCHANNEL_STEREO;
 		}
 		break;
-	case 2:	// LL (automatrix off)
-	case 6:	// language	A (automatrix on)
+	case 2: // LL (automatrix off)
+	case 6: // language A (automatrix on)
 		if (IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE1))
 		{
 			return AUDIOCHANNEL_LANGUAGE1;
 		}
 		break;
-	case 3:	// RR (automatrix off)
-	case 7:	// language	B (automatrix on)
+	case 3: // RR (automatrix off)
+	case 7: // language B (automatrix on)
 		if (IsAudioChannelDetected(AUDIOCHANNEL_LANGUAGE2))
 		{
 			return AUDIOCHANNEL_LANGUAGE2;
 		}
 		break;
-	case 1:	// (L +	R)/2
+	case 1: // (L + R)/2
 		break;
 	}
 	return AUDIOCHANNEL_MONO;
 }
 
 
-void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer,	WORD nBufferSize)
+void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
 {
 	*pBuffer = '\0';
 
@@ -1652,7 +1655,7 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer,	WORD nBufferSize)
 
 	DWORD avStatus = ReadDword(SAA7134_AV_STATUS);
 	char buffer[256];
-	
+
 	if (avStatus & SAA7134_AV_STATUS_PILOT)
 	{
 		strcat(buffer, "FM ");
@@ -1663,7 +1666,7 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer,	WORD nBufferSize)
 	}
 	if (avStatus & SAA7134_AV_STATUS_DUAL)
 	{
-		strcat(buffer, "FM_DUAL	");
+		strcat(buffer, "FM_DUAL ");
 	}
 	if (avStatus & SAA7134_AV_STATUS_STEREO)
 	{
@@ -1679,43 +1682,43 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer,	WORD nBufferSize)
 	}
 
 	// SAA7133 has extra status.
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		CBitVector b;
 
 		ReadDSPData7133(SAA7133_A_MAIN_STATUS, b);
 		if (b.value(SAA7133_A_MAIN_STATUS_SAPDET))
 		{
-			strcat(pBuffer,	"SAP ");
+			strcat(pBuffer, "SAP ");
 		}
 		if (b.value(SAA7133_A_MAIN_STATUS_BPILOT))
 		{
-			strcat(pBuffer,	"BTSC/FM ");
+			strcat(pBuffer, "BTSC/FM ");
 		}
 		if (b.value(SAA7133_A_MAIN_STATUS_APILOT))
 		{
-			strcat(pBuffer,	"A2/EIAJ ");
+			strcat(pBuffer, "A2/EIAJ ");
 		}
 		if (b.value(SAA7133_A_MAIN_STATUS_AST))
 		{
-			strcat(pBuffer,	"A2/EIAJ_STEREO	");
+			strcat(pBuffer, "A2/EIAJ_STEREO ");
 		}
 		if (b.value(SAA7133_A_MAIN_STATUS_ADU))
 		{
-			strcat(pBuffer,	"A2/EIAJ_DUAL ");
+			strcat(pBuffer, "A2/EIAJ_DUAL ");
 		}
 		if (b.value(SAA7133_A_MAIN_STATUS_GDU))
 		{
-			strcat(pBuffer,	"DUAL ");
+			strcat(pBuffer, "DUAL ");
 		}
 		if (b.value(SAA7133_A_MAIN_STATUS_GST))
 		{
-			strcat(pBuffer,	"STEREO	");
+			strcat(pBuffer, "STEREO ");
 		}
 	}
 
-	buffer[nBufferSize-1] =	'\0';
-	strcpy(pBuffer,	buffer);
+	buffer[nBufferSize-1] = '\0';
+	strcpy(pBuffer, buffer);
 }
 
 
@@ -1726,7 +1729,7 @@ void CSAA7134Card::SetAutomaticVolume(eAutomaticVolume AVL)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		SetAutomaticVolume7133(AVL);
 		return;
@@ -1737,15 +1740,15 @@ void CSAA7134Card::SetAutomaticVolume(eAutomaticVolume AVL)
 	switch (AVL)
 	{
 	case AUTOMATICVOLUME_SHORTDECAY:
-		DACOutputSelect	= 0x10;
+		DACOutputSelect = 0x10;
 		break;
 
 	case AUTOMATICVOLUME_MEDIUMDECAY:
-		DACOutputSelect	= 0x20;
+		DACOutputSelect = 0x20;
 		break;
 
 	case AUTOMATICVOLUME_LONGDECAY:
-		DACOutputSelect	= 0x30;
+		DACOutputSelect = 0x30;
 		break;
 
 	default:
@@ -1761,9 +1764,9 @@ void CSAA7134Card::SetAutomaticVolume7133(eAutomaticVolume avl)
 {
 	BYTE avlmod;
 
-	// SAA7133 offers "very	short decay", "very	long decay"	and	other
-	// sound processing	features but the existing SAA7134 framework
-	// only	expects	these.
+	// SAA7133 offers "very short decay", "very long decay" and other
+	// sound processing features but the existing SAA7134 framework
+	// only expects these.
 
 	switch (avl)
 	{
@@ -1782,13 +1785,13 @@ void CSAA7134Card::SetAutomaticVolume7133(eAutomaticVolume avl)
 		break;
 	}
 
-	WriteData(SAA7133_A_SND_FEATURE_CTRL, _B(SAA7133_A_SND_FEATURE_CTRL_AVLMOD,	avlmod));
+	WriteData(SAA7133_A_SND_FEATURE_CTRL, _B(SAA7133_A_SND_FEATURE_CTRL_AVLMOD, avlmod));
 }
 
 
 void CSAA7134Card::SetAudioLine1Voltage(eAudioLineVoltage lineVoltage)
 {
-	if (m_DeviceId == 0x7130 ||	m_DeviceId == 0x7134)
+	if (m_DeviceId == 0x7130 || m_DeviceId == 0x7134)
 	{
 		switch (lineVoltage)
 		{
@@ -1801,17 +1804,17 @@ void CSAA7134Card::SetAudioLine1Voltage(eAudioLineVoltage lineVoltage)
 			break;
 		}
 	}
-	else if	(m_DeviceId	== 0x7133 || m_DeviceId	== 0x7135)
+	else if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
-		WriteData(SAA7133_ANALOG_IO_SELECT,	_B(SAA7133_ANALOG_IO_SELECT_VSEL1,
-			(lineVoltage ==	AUDIOLINEVOLTAGE_1VRMS)	? 0	: 1));
+		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_VSEL1,
+			(lineVoltage == AUDIOLINEVOLTAGE_1VRMS) ? 0 : 1));
 	}
 }
 
 
 void CSAA7134Card::SetAudioLine2Voltage(eAudioLineVoltage lineVoltage)
 {
-	if (m_DeviceId == 0x7130 ||	m_DeviceId == 0x7134)
+	if (m_DeviceId == 0x7130 || m_DeviceId == 0x7134)
 	{
 		switch (lineVoltage)
 		{
@@ -1824,10 +1827,10 @@ void CSAA7134Card::SetAudioLine2Voltage(eAudioLineVoltage lineVoltage)
 			break;
 		}
 	}
-	else if	(m_DeviceId	== 0x7133 || m_DeviceId	== 0x7135)
+	else if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
-		WriteData(SAA7133_ANALOG_IO_SELECT,	_B(SAA7133_ANALOG_IO_SELECT_VSEL2,
-			(lineVoltage ==	AUDIOLINEVOLTAGE_1VRMS)	? 0	: 1));
+		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_VSEL2,
+			(lineVoltage == AUDIOLINEVOLTAGE_1VRMS) ? 0 : 1));
 	}
 }
 
@@ -1836,28 +1839,28 @@ void CSAA7134Card::SetAudioMute()
 {
 	if (m_DeviceId == 0x7130)
 	{
-		// Mute	by setting a different input and output	crossbar.
+		// Mute by setting a different input and output crossbar.
 		// Input crossbar line 2.
 		OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
-		// Output crossbar line	1.
-		_SetIOSelectOCS(AUDIOINPUTSOURCE_LINE1,	m_bStereoExternalLines);
+		// Output crossbar line 1.
+		_SetIOSelectOCS(AUDIOINPUTSOURCE_LINE1, m_bStereoExternalLines);
 
-		// Set this	so we know the audio line is reserved
-		m_bAudioLineReservedForMute	= TRUE;
+		// Set this so we know the audio line is reserved
+		m_bAudioLineReservedForMute = TRUE;
 	}
-	else if	(m_DeviceId	== 0x7134)
+	else if (m_DeviceId == 0x7134)
 	{
 		WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
 	}
-	else if	(m_DeviceId	== 0x7133 || m_DeviceId	== 0x7135)
+	else if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
 		// Select "no output enabled" for the output crossbar select.  There're
-		// other ways to mute the SAA7133 but this seems to	be the most	straight
-		// forward.	 (Other	ways offer selective muting	of different lines.)
-		WriteData(SAA7133_ANALOG_IO_SELECT,	_B(SAA7133_ANALOG_IO_SELECT_OCS, 0x7));
+		// other ways to mute the SAA7133 but this seems to be the most straight
+		// forward.  (Other ways offer selective muting of different lines.)
+		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_OCS, 0x7));
 
-		// Set this	so we know the audio line is reserved
-		m_bAudioLineReservedForMute	= TRUE;
+		// Set this so we know the audio line is reserved
+		m_bAudioLineReservedForMute = TRUE;
 	}
 }
 
@@ -1866,19 +1869,19 @@ void CSAA7134Card::SetAudioUnMute()
 {
 	if (m_DeviceId == 0x7130)
 	{
-		m_bAudioLineReservedForMute	= FALSE;
+		m_bAudioLineReservedForMute = FALSE;
 		SetAudioSource(m_AudioInputSource);
 	}
-	else if	(m_DeviceId	== 0x7134)
+	else if (m_DeviceId == 0x7134)
 	{
-		MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00,	SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
+		MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
 	}
-	else if	(m_DeviceId	== 0x7133 || m_DeviceId	== 0x7135)
+	else if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
-		// Restore the selected	audio line to ummute.
-		m_bAudioLineReservedForMute	= FALSE;
+		// Restore the selected audio line to ummute.
+		m_bAudioLineReservedForMute = FALSE;
 		SetAudioSource(m_AudioInputSource);
-		// Unmute soft-mute	control	so it doesn't interfere.
+		// Unmute soft-mute control so it doesn't interfere.
 		WriteDSPData7133(SAA7133_A_SOFTMUTE_CTRL, 0x00);
 	}
 }
@@ -1892,22 +1895,22 @@ void CSAA7134Card::SetAudioVolume(BYTE nGain)
 		// saa7130 doesn't support this
 		return;
 	}
-	if (m_DeviceId == 0x7133 ||	m_DeviceId == 0x7135)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
 	{
-		// SAA7133 has similar but this	function isn't used	anyhow.
+		// SAA7133 has similar but this function isn't used anyhow.
 		return;
 	}
 
 	// nGain = -15..0..15, 0 = normal
 
-	// Dual	FM Level adjust
-	WriteByte(SAA7134_CHANNEL1_LEVEL, nGain	& 0x1F);
-	WriteByte(SAA7134_CHANNEL2_LEVEL, nGain	& 0x1F);
+	// Dual FM Level adjust
+	WriteByte(SAA7134_CHANNEL1_LEVEL, nGain & 0x1F);
+	WriteByte(SAA7134_CHANNEL2_LEVEL, nGain & 0x1F);
 	// NICAM Level adjust
-	WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain	& 0x1F);
+	WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
 }
 
-void CSAA7134Card::SetAudioBalance(WORD	nBalance)
+void CSAA7134Card::SetAudioBalance(WORD nBalance)
 {
 	// Unsupported
 }
@@ -1922,9 +1925,9 @@ void CSAA7134Card::SetAudioTreble(WORD nTreble)
 	// Unsupported
 }
 
-int	CSAA7134Card::GetInputAudioLine(int	nInput)
+int CSAA7134Card::GetInputAudioLine(int nInput)
 {
-	if (nInput < m_SAA713xCards[m_CardType].NumInputs && nInput	>= 0)
+	if (nInput < m_SAA713xCards[m_CardType].NumInputs && nInput >= 0)
 	{
 		return m_SAA713xCards[m_CardType].Inputs[nInput].AudioLineSelect;
 	}

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.13 2003-10-27 10:39:51 adcockj Exp $
+// $Id: GenericTuner.cpp,v 1.14 2004-01-29 15:19:49 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.12  2003/02/06 21:28:33  ittarnavsky
 // added the Philips M-J tuner for primetv 7133
 //
@@ -522,12 +525,40 @@ eVideoFormat CGenericTuner::GetDefaultVideoFormat()
 
 bool CGenericTuner::HasRadio() const
 {
-    return false;
+    return true;
 }
 
-bool CGenericTuner::SetRadioFrequency(long nFrequency)
+
+bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
 {
-    return true;
+    // patch from bttv thanks to Sven Grothklags
+    if(nFrequencyHz < 87500000 || nFrequencyHz > 108100000)
+        return false;
+
+#if 1
+    long nFrequency = MulDiv(nFrequencyHz, 20, 1000000);
+    WORD div = nFrequency + (WORD)(10.7*20);
+    BYTE config = 0x88;
+#else
+    long nFrequency = MulDiv(nFrequencyHz, 16, 1000000);
+    WORD div = nFrequency + (WORD)(10.7*16);
+    BYTE config = m_Config;
+#endif
+
+    BYTE buffer[] = {(BYTE) m_DeviceAddress << 1, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), config, 0xa4};
+
+    m_Frequency = nFrequencyHz;
+
+    if (m_I2CBus != NULL)
+    {
+        bool result = m_I2CBus->Write(buffer, sizeof(buffer));
+        return result;
+    }
+    else
+    {
+        LOG(1,"GenericTuner: Error setting frequency. No I2C bus.");
+        return false;
+    }
 }
 
 BYTE CGenericTuner::GetDefaultAddress()const

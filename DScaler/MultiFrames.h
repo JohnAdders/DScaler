@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.1 2003-03-16 18:27:46 laurentg Exp $
+// $Id: MultiFrames.h,v 1.2 2003-03-17 22:34:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/03/16 18:27:46  laurentg
+// New multiple frames feature
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +49,7 @@ public:
 	void Reset();
 	void SelectFrame();
 	void UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, BYTE** lpBuffer, int* Pitch);
+	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
 protected:
 
@@ -54,6 +58,7 @@ private:
 	void FreeMemoryBuffer();
 	void SelectFrameBuffer(int iFrame);
 	void DrawBorders();
+	void ShiftFrames(int iDeltaFrames);
 	int iWidth;
 	int iHeight;
 	BOOL bActive;
@@ -67,9 +72,11 @@ private:
 	int iFrameWidth;
 	int iFrameHeight;
 	int iFramePitch;
-	BOOL *bFrameFilled;
+	int *bFrameFilled;
 	DWORD LastTickCount;
 	int iDeltaTicksChange;
+	BOOL bNavigAllowed;
+	int iDeltaNewFrame;
 };
 
 

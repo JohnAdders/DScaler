@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.1 2003-03-16 18:27:46 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.2 2003-03-17 22:34:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/03/16 18:27:46  laurentg
+// New multiple frames feature
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +37,7 @@
 #include "AspectRatio.h"
 #include "ProgramList.h"
 #include "DScaler.h"
+//#include "OSD.h"
 
 
 CMultiFrames* pMultiFrames = NULL;
@@ -80,7 +84,7 @@ BOOL CMultiFrames::IsActive()
 void CMultiFrames::Enable()
 {
 	AllocateMemoryBuffer();
-	bFrameFilled = (BOOL*) malloc(iNbFrames * sizeof(BOOL));
+	bFrameFilled = (int*) malloc(iNbFrames * sizeof(BOOL));
 	bActive = (lpMemoryBuffer != NULL);
 	if (bActive)
 	{
@@ -144,7 +148,7 @@ void CMultiFrames::Reset()
 	LastTickCount = 0;
 	for (int i=0 ; i < iNbFrames ; i++)
 	{
-		bFrameFilled[i] = FALSE;
+		bFrameFilled[i] = -1;
 	}
 
 	// Reset the memory buffer to a black picture
@@ -164,9 +168,11 @@ void CMultiFrames::Reset()
 void CMultiFrames::SelectFrame()
 {
 	CSource* pSource = Providers_GetCurrentSource();
+	int i;
 
 	if (!bActive || !pSource)
 	{
+		bNavigAllowed = FALSE;
 		return;
 	}
 
@@ -176,25 +182,61 @@ void CMultiFrames::SelectFrame()
 		LastTickCount = CurrentTickCount;
 	}
 
-	if (!bFrameFilled[iCurrentFrame])
+	if (bFrameFilled[iCurrentFrame] == -1)
 	{
+		bNavigAllowed = FALSE;
 		return;
 	}
 
-	if ((CurrentTickCount - LastTickCount) >= iDeltaTicksChange)
+	for (i=0; i < iNbFrames ; i++)
 	{
-		int i;
-		LastTickCount = CurrentTickCount;
-		for (i=0; i < iNbFrames ; i++)
+		if (bFrameFilled[(iCurrentFrame+i+1) % iNbFrames] == -1)
 		{
-			if (!bFrameFilled[(iCurrentFrame+i+1) % iNbFrames])
+			bNavigAllowed = FALSE;
+			break;
+		}
+	}
+	if (i == iNbFrames)
+	{
+		if (!bNavigAllowed)
+		{
+			iDeltaNewFrame = 0;
+		}
+		bNavigAllowed = TRUE;
+	}
+	if (bNavigAllowed)
+	{
+		if (iDeltaNewFrame != 0)
+		{
+			if ( ((iCurrentFrame + iDeltaNewFrame) >= 0)
+			  && ((iCurrentFrame + iDeltaNewFrame) < iNbFrames) )
 			{
-				break;
+				iCurrentFrame += iDeltaNewFrame;
+				if (pSource->IsInTunerMode())
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]+1);
+				}
+				bFrameFilled[iCurrentFrame] = -1;
+				bNavigAllowed = FALSE;
+			}
+			else
+			{
+				ShiftFrames(iCurrentFrame + iDeltaNewFrame);
+				if (pSource->IsInTunerMode())
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]+1);
+				}
+				bFrameFilled[iCurrentFrame] = -1;
+				bNavigAllowed = FALSE;
 			}
 		}
-		if (i < iNbFrames)
+	}
+	else
+	{
+		if ((CurrentTickCount - LastTickCount) >= iDeltaTicksChange)
 		{
 			iCurrentFrame = (iCurrentFrame+i+1) % iNbFrames;
+			LastTickCount = CurrentTickCount;
 			if (pSource->IsInTunerMode())
 			{
 				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
@@ -232,7 +274,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, pInfo->FrameHeight, lpFrameBuffer, iFramePitch, iFrameWidth, iFrameHeight);
     Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
-	bFrameFilled[iCurrentFrame] = TRUE;
+	bFrameFilled[iCurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
 
 	DrawBorders();
 
@@ -244,6 +286,53 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	pInfo->FrameHeight = iHeight;
 	pInfo->FrameWidth = iWidth;
 	pInfo->LineLength = iWidth * 2;
+}
+
+BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+{
+    switch(LOWORD(wParam))
+    {
+    case IDM_VT_PAGE_UP:
+		// Up key
+		if (bNavigAllowed)
+		{
+			iDeltaNewFrame -= iNbCols;
+			return TRUE;
+		}
+		break;
+    case IDM_VT_PAGE_DOWN:
+		// Down key
+		if (bNavigAllowed)
+		{
+			iDeltaNewFrame += iNbCols;
+			return TRUE;
+		}
+		break;
+    case IDM_VT_PAGE_MINUS:
+		// Left key
+		if (bNavigAllowed)
+		{
+			iDeltaNewFrame--;
+			return TRUE;
+		}
+		break;
+    case IDM_VT_PAGE_PLUS:
+		// Right key
+		if (bNavigAllowed)
+		{
+			iDeltaNewFrame++;
+			return TRUE;
+		}
+		break;
+    case IDM_SHOW_OSD:
+		// Return key
+		RequestSwitch();
+		return TRUE;
+		break;
+    default:
+        break;
+    }
+    return FALSE;
 }
 
 void CMultiFrames::AllocateMemoryBuffer()
@@ -322,3 +411,6 @@ void CMultiFrames::DrawBorders()
 	}
 }
 
+void CMultiFrames::ShiftFrames(int iDeltaFrames)
+{
+}

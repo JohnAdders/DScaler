@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.312 2003-03-16 18:31:25 laurentg Exp $
+// $Id: DScaler.cpp,v 1.313 2003-03-17 22:36:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.312  2003/03/16 18:31:25  laurentg
+// New multiple frames feature
+//
 // Revision 1.311  2003/03/08 20:50:58  laurentg
 // Updated combobox to select the usage of DScaler
 //
@@ -2743,31 +2746,59 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VT_PAGE_MINUS:
-            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
-            {
-                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-            }
+			if (pMultiFrames)
+			{
+				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+			}
+			else
+			{
+				if (!ProcessVTMessage(hWnd, message, wParam, lParam))
+				{
+					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+				}
+			}
             break;
 
         case IDM_VT_PAGE_PLUS:
-            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
-            {
-                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-            }
+			if (pMultiFrames)
+			{
+				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+			}
+			else
+			{
+				if (!ProcessVTMessage(hWnd, message, wParam, lParam))
+				{
+					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+				}
+			}
             break;
 
         case IDM_VT_PAGE_UP:
-            if(!ProcessVTMessage(hWnd, message, wParam, lParam))
-            {
-                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-            }
+			if (pMultiFrames)
+			{
+				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+			}
+			else
+			{
+				if(!ProcessVTMessage(hWnd, message, wParam, lParam))
+				{
+					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+				}
+			}
             break;
 
         case IDM_VT_PAGE_DOWN:
-            if(!ProcessVTMessage(hWnd, message, wParam, lParam))
-            {
-                ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-            }
+			if (pMultiFrames)
+			{
+				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+			}
+			else
+			{
+				if(!ProcessVTMessage(hWnd, message, wParam, lParam))
+				{
+					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+				}
+			}
             break;
 
         case IDM_CHANNEL_LIST:
@@ -2837,6 +2868,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				}
 				pMultiFrames->RequestSwitch();
 //            }
+			break;
+
+		case IDM_CHANNEL_INDEX:
+			if (pMultiFrames && pMultiFrames->IsActive())
+			{
+				Channel_Change(lParam-1, 1);
+			}
 			break;
 
         case IDC_TOOLBAR_CHANNELS_LIST:
@@ -3909,6 +3947,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 bDone = TRUE;
             }
 
+			if (pMultiFrames)
+			{
+				bDone = pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
+			}
             // Check whether menu ID is an aspect ratio related item
             if (!bDone)
             {

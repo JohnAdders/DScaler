@@ -66,7 +66,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-              Display mode
+              Display Mode
             </FONT></B>
           </P>
           <P>
@@ -80,14 +80,18 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
                 The  color (red &ldquo;U&rdquo;,  blue &ldquo;V&rdquo;, or both)
               </LI>
               <LI>
-                Or all three pixel componenents at once
+                Or all three pixel components at once
               </LI>
             </UL>
             <P>
               The brightness is displayed in white, &ldquo;U&rdquo; color in pink, and &ldquo;V&rdquo; color
-              in light blue.  Regardless of the <FONT COLOR="#993300">display mode</FONT>, a dotted yellow
+              in light blue.  Regardless of the <FONT COLOR="#993300">Display Mode</FONT>, a dotted yellow
               line will appear below the graph, showing the graph&rsquo;s full 256 value range.
             </P>
+						<P>
+						  Colors outside of the (CCIR-601) standard range will appear darker on the graph.  That is meant
+							to make calibration a little easier.
+						</P>
             <P>
               The left end of the line represents a color component value of 0; the right end a value
               of 255.  At each position in the graph, the height of the histogram shows the logarithm of the
@@ -101,7 +105,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             </P>
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-              Vertical averaging
+              Color Correction
             </FONT></B>
           </P>
           <P>
@@ -109,18 +113,23 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           histogram.
           </P>
           <P>
-          In general, this is a good idea. It gets rid of color crosstalk, which would otherwise
-          artifactually extend the range of the graph. On the other hand, it does cause inaccuracy at
-          vertical edges in the picture.
-           </P>
+          If you are using a composite NTSC or PAL connector or an internal tuner,
+					this is a good idea. 
+					It gets rid of color crosstalk
+          which would otherwise artifactually extend the range of the graph.
+          </P>
+					<P>
+					  If you are using a PAL composite source, choose &ldquo;Composite PAL.&rdquo;
+						For an NTSC composite source, pick &ldquo;Composite NTSC.&rdquo;  Otherwise,
+						choose &ldquo;Disable.&rdquo;
           <P>
             <B><FONT FACE="Arial" COLOR="#993300">
-						  Fast Memory Access
-					  </FONT></B>
+              Fast Memory Access
+            </FONT></B>
           </P>
           <P>
-						 This is a <A HREF="Fast Memory Access.htm">compatability
-						 setting</A> which should normally be turned on.
+             This is a <A HREF="Fast Memory Access.htm">compatibility
+             setting</A> which should normally be turned on.
           </P>
           <HR>
           <P>
@@ -135,24 +144,53 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             You can use this filter to manually calibrate signals for which you don&rsquo;t have a calibration
-            pattern. First make sure that you have Full Luma Range
+            pattern.
+					</P>
+					<P>
+					  Before you begin, you should make a decision about how you want to run DScaler &mdash;
+						Using the standard color range, or using the full color range.  The standard
+						color range is easier to deal with, while the full color range gives slightly
+						better color resolution.
+					</P>
+					<P>
+					  If you are unfamiliar with calibration, it is strongly recommended that
+						you use the standard range.  That will let you use the same overlay
+						settings in DScaler as you do in the rest of your applications.
+					</P>
+					<P>
+						First make sure that you have Full Luma Range
             (in the &ldquo;Advanced Video Flags...&rdquo; dialog)
-            turned on.  Set the Histogram filter&rsquo;s <FONT COLOR="#993300">display mode</FONT> to
+            turned on &mdash; regardless of the color range you have decided on.
+						Set the Histogram filter&rsquo;s <FONT COLOR="#993300">Display Mode</FONT> to
             &ldquo;brightness,&rdquo; then open up the &ldquo;Video Settings...&rdquo; dialog.
           </P>
           <P>
-            Move the Brightness slider until the lowest
-            peak in the brightness distribution &mdash; which corresponds with black &mdash; is at the very
+					  If you&rsquo;re going to use the standard color range, you should next
+            move the Brightness slider until the lowest
+            peak in the brightness distribution &mdash; which corresponds with black &mdash; is at the 
+						point where the brightness dots become dim.  That is brightness = 16, which
+						is what your overlay should expect for black.
+					</P>
+					<P>
+					  If you have instead decided to use the full color range, then move the
+						Brightness slider until the lowest peak is at the very
             left end of the graph.
           </P>
           <P>
-            Then wait until something really, really bright is on screen.  Move the Contrast slider until the
-            whole brightness distribution is shown in the histogram.  It&rsquo;s important that something
+            Now wait until something really, really bright is on screen.  If you are
+						using the standard color range, move the Contrast slider until the
+            whole brightness distribution is shown in the bright part of the histogram.
+						To use the whole color range, set Contrast so the brightness distribution is
+						entirely on the graph.
+					</P>
+					<P>
+					  It&rsquo;s important that something
             very bright be on the screen when you do this &mdash; Otherwise, you&rsquo;ll be cutting off
             meaningful brightness information.
           </P>
           <P>
-            You may need to change your overlay brightness and contrast settings after you do this.
+            You may need to change your overlay brightness and contrast settings after you do this.  This
+						is especially important if you have chosen to use the full color range.
           </P>
           <P>
             Though this procedure is better than not calibrating at all, it isn&rsquo;t as nice as calibration
@@ -173,6 +211,16 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             Note that steps which occur after DScaler processes the picture &mdash; in particular, any overlay
             or output device settings &mdash; will not show up in the histogram.
           </P>
+					<HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+              Filter Changes
+            </FONT></B>
+          </P>
+					<P>
+					DScaler version 4.1 &mdash; Values outside the standard color range are now dimmed
+					in the histogram.  The Vertical Averaging option has been renamed to Color Correction.
+					(But it still averages vertically.)
           <!-- #EndEditable -->
         </TD>
       </TR>

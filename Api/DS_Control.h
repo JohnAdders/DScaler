@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.95 2002-10-21 19:47:43 adcockj Exp $
+// $Id: DS_Control.h,v 1.96 2002-10-26 15:48:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2002/10/21 19:47:43  adcockj
+// Corrected settings list for cx2388x
+//
 // Revision 1.94  2002/10/21 16:07:26  adcockj
 // Added H & V delay options for CX2388x cards
 //
@@ -347,31 +350,34 @@
 /////////////////////////////////////////////////////////////////////////////
 // For setting of certain values
 //
-typedef enum
-{
-    SOURCE_TUNER = 0,
-    SOURCE_COMPOSITE,
-    SOURCE_SVIDEO,
-    SOURCE_OTHER1,
-    SOURCE_OTHER2,
-    SOURCE_COMPVIASVIDEO,
-    SOURCE_CCIR656_1,
-    SOURCE_CCIR656_2,
-    SOURCE_CCIR656_3,
-    SOURCE_CCIR656_4,
-} VIDEOSOURCETYPE;
 
-typedef enum
+enum eVideoFormat
 {
-    FORMAT_PAL_BDGHI = 0,
-    FORMAT_NTSC,
-    FORMAT_SECAM,
-    FORMAT_PAL_M,
-    FORMAT_PAL_N,
-    FORMAT_NTSC_J,
-    FORMAT_PAL60,
-    FORMAT_LASTONE,
-} VIDEOFORMAT;
+    VIDEOFORMAT_PAL_B = 0,
+    VIDEOFORMAT_PAL_D,
+    VIDEOFORMAT_PAL_G,
+    VIDEOFORMAT_PAL_H,
+    VIDEOFORMAT_PAL_I,
+    VIDEOFORMAT_PAL_M,
+    VIDEOFORMAT_PAL_N,
+    VIDEOFORMAT_PAL_60,
+    VIDEOFORMAT_PAL_N_COMBO,
+
+    VIDEOFORMAT_SECAM_B,
+    VIDEOFORMAT_SECAM_D,
+    VIDEOFORMAT_SECAM_G,
+    VIDEOFORMAT_SECAM_H,
+    VIDEOFORMAT_SECAM_K,
+    VIDEOFORMAT_SECAM_K1,
+    VIDEOFORMAT_SECAM_L,
+    VIDEOFORMAT_SECAM_L1,
+
+    VIDEOFORMAT_NTSC_M,
+    VIDEOFORMAT_NTSC_M_Japan,
+    VIDEOFORMAT_NTSC_50,
+
+    VIDEOFORMAT_LASTONE
+};
 
 #endif
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.338 2003-08-12 19:11:33 laurentg Exp $
+// $Id: DScaler.cpp,v 1.339 2003-08-14 19:38:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.338  2003/08/12 19:11:33  laurentg
+// Move some methods from CDSFileSource to CDSSourceBase
+//
 // Revision 1.337  2003/08/11 23:03:44  laurentg
 // Time slider in the media player toolbar
 //
@@ -1218,6 +1221,7 @@ bool bPoweroffDisabled = false;
 bool bLowpowerDisabled = false;
 HMENU CreateDScalerPopupMenu();
 BOOL IsStatusBarVisible();
+BOOL IsToolBarVisible();
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
 void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
@@ -4120,6 +4124,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone && ToolbarControl != NULL)
             {
                 bDone = ToolbarControl->ProcessToolbar1Selection(hWnd, LOWORD(wParam));
+				if (bDone)
+				{
+					if (IsToolBarVisible())
+					{
+						SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+					}
+					else
+					{
+						KillTimer(hWnd, TIMER_TOOLBAR);
+					}
+				}
             }
             if(!bDone)
             {
@@ -4273,7 +4288,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					POINT Point;
 					Point.x = x;
 					Point.y = y;
-					ToolbarControl->AutomaticDisplay(Point);
+					if (ToolbarControl->AutomaticDisplay(Point))
+					{
+						if (IsToolBarVisible())
+						{
+							SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+						}
+						else
+						{
+							KillTimer(hWnd, TIMER_TOOLBAR);
+						}
+					}
 				}
             }
         }
@@ -4359,7 +4384,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
 		case TIMER_TOOLBAR:
-            if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
+            if (IsToolBarVisible() && (Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
             {
 				EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
 				EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
@@ -4915,8 +4940,10 @@ void MainWndOnInitBT(HWND hWnd)
             SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
         }
 
-		// todo : enable the timer only when the media player toolbar is visible
-        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+		if (IsToolBarVisible())
+		{
+	        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+		}
 
         // do final setup routines for any files
         // basically where we need the hWnd to be set
@@ -5913,6 +5940,11 @@ BOOL IsStatusBarVisible()
     return (bDisplayStatusBar == TRUE && bIsFullScreen == FALSE);
 }
 
+BOOL IsToolBarVisible()
+{
+    return (ToolbarControl != NULL && ToolbarControl->Visible());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void SetThreadProcessorAndPriority()
 {
@@ -6402,6 +6434,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
         {            
 			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
         }
+		if (IsToolBarVisible())
+		{
+	        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+		}
+		else
+		{
+	        KillTimer(hWnd, TIMER_TOOLBAR);
+		}
     }
     bDoResize = TRUE;
     return FALSE;

@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.16 2003-08-13 13:31:41 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.17 2003-08-14 19:35:37 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/08/13 13:31:41  laurentg
+// Display elapsed time and duration in the toolbar
+//
 // Revision 1.15  2003/08/12 19:11:35  laurentg
 // Move some methods from CDSFileSource to CDSSourceBase
 //
@@ -825,11 +828,9 @@ void CToolbarMediaPlayer::UpdateControls(HWND hWnd, bool bInitDialog)
 
 	if (bInitDialog)
 	{
-		LOG(1, "CToolbarMediaPlayer::UpdateControls Limit %ld", m_Duration);
 		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETRANGE, TRUE, (LPARAM)MAKELONG(0, m_Duration));
 	}
    
-	LOG(1, "CToolbarMediaPlayer::UpdateControls Pos %ld", m_Elapsed);
     SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETPOS, TRUE, m_Elapsed);
 
 	char text[16];
@@ -1123,10 +1124,11 @@ LRESULT CToolbarLogo::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, L
 CToolbar1Bar::CToolbar1Bar(CToolbarWindow* pToolbar) : CToolbarChild(pToolbar)
 {    
 	OriginalWidth = 0;
-	OriginalHeight =0;
+	OriginalHeight = 0;
 	LeftMargin = 0;
 	RightMargin = 0;
 	hWndPicture = NULL;
+	hBmp = NULL;
 }
 
 CToolbar1Bar::~CToolbar1Bar()

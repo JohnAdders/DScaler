@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.11 2003-08-11 20:49:54 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.12 2003-08-14 19:35:37 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/08/11 20:49:54  laurentg
+// Hide the media player toolbar when it cannot be used with the current source
+//
 // Revision 1.10  2003/08/10 09:41:59  laurentg
 // New toolbar for media file player
 //
@@ -609,7 +612,7 @@ BOOL CToolbarControl::PtInToolbar(POINT Pt)
 	return FALSE;
 }
 
-void CToolbarControl::AutomaticDisplay(POINT Pt)
+BOOL CToolbarControl::AutomaticDisplay(POINT Pt)
 {
 	if ((Toolbar1 != NULL) && m_ShowToolbar1->GetValue())
 	{
@@ -618,13 +621,18 @@ void CToolbarControl::AutomaticDisplay(POINT Pt)
 		BOOL IsInBar = PtInRect(&Rc, Pt);
 		if (IsInBar && !Toolbar1->Visible())
 		{
+			// Show the toolbar
 			Set(hWnd, NULL, 0);
+			return TRUE;
 		}
 		else if (!IsInBar && Toolbar1->Visible())
 		{
+			// Hide the toolbar
 			Set(hWnd, NULL, 1);
+			return TRUE;
 		}
 	}
+	return FALSE;
 }
 
 //Delete all toolbars & childs

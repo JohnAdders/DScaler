@@ -42,10 +42,12 @@ public:
     void Free();
     void AdjustArea(LPRECT lpRect, int Crop);
 	BOOL PtInToolbar(POINT Pt);
-	void AutomaticDisplay(POINT Pt);
+	BOOL AutomaticDisplay(POINT Pt);
 	int  CreateToolbar1Bar();
 
 	BOOL ProcessToolbar1Selection(HWND hWnd, UINT uItem);
+
+    BOOL Visible() { return ((Toolbar1 != NULL) && Toolbar1->Visible()); }
 
 private:
     void CreateSettings(LPCSTR IniSection);

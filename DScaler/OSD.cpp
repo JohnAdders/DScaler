@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.30 2001-09-15 21:02:45 laurentg Exp $
+// $Id: OSD.cpp,v 1.31 2001-09-21 20:39:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/09/15 21:02:45  laurentg
+// no message
+//
 // Revision 1.29  2001/09/09 17:46:30  laurentg
 // no message
 //
@@ -677,6 +680,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         else if (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 2)
         {
             strcat(szInfo, " Anamorphic");
+        }
+        if (Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)))
+        {
+            strcat(szInfo, " auto");
         }
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 

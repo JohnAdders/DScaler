@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.11 2003-10-27 10:39:51 adcockj Exp $
+// $Id: HardwareSettings.cpp,v 1.12 2005-03-06 01:05:48 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.10  2003/03/15 13:15:51  laurentg
 // DScaler usage choice
 //
@@ -112,7 +115,7 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int Usage,
     {
         // User has selected 500 MHz - 1 GHz
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), TRUE);
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
         Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
         Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
@@ -121,7 +124,7 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int Usage,
     {
         // user has fast processor use best defaults
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), TRUE);
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
         Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);
         Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);

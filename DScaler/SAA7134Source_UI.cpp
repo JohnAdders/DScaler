@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.40 2003-03-23 10:42:21 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.41 2003-05-29 15:55:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/03/23 10:42:21  laurentg
+// Avoid to switch to an unknown video input when using 000...
+//
 // Revision 1.39  2003/03/23 10:25:23  laurentg
 // Use video input name as icon tips when not in tuner mode
 //
@@ -1679,7 +1682,7 @@ void CSAA7134Source::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
     int nInput = m_VideoSource->GetValue();
 
     m_AudioSource->ChangeDefault(m_pSAA7134Card->GetInputAudioLine(nInput), bDontSetValue);
-    m_VideoFormat->ChangeDefault(m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat());
+    m_VideoFormat->ChangeDefault(m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat(), bDontSetValue);
 }
 
 

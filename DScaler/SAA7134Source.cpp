@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.78 2003-05-26 20:49:04 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.79 2003-05-29 15:55:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2003/05/26 20:49:04  laurentg
+// Corrections for datacasting
+// Enable the Cancel button in the setup card dialog box
+//
 // Revision 1.77  2003/04/17 09:48:36  atnak
 // Changed the default for White Peak to be off.
 //
@@ -383,6 +387,8 @@ CSAA7134Source::~CSAA7134Source()
 
 void CSAA7134Source::SetSourceAsCurrent()
 {
+//LOG(1, "CSAA7134Source::SetSourceAsCurrent m_VideoSource %d", m_VideoSource->GetValue());
+//LOG(1, "CSAA7134Source::SetSourceAsCurrent m_VideoFormat %d", m_VideoFormat->GetValue());
     // need to call up to parent to run register settings functions
     CSource::SetSourceAsCurrent();
 
@@ -456,7 +462,8 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
+//    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
     m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity");
@@ -597,6 +604,7 @@ void CSAA7134Source::HandleTimerMessages(int TimerId)
 
 void CSAA7134Source::Reset()
 {
+//LOG(1, "CSAA7134Source::Reset 1 m_VideoSource %d m_VideoFormat %d", m_VideoSource->GetValue(), m_VideoFormat->GetValue());
     m_pSAA7134Card->ResetHardware();
 
     SetupDMAMemory();
@@ -608,6 +616,7 @@ void CSAA7134Source::Reset()
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
     m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)m_AudioLine1Voltage->GetValue());
     m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)m_AudioLine2Voltage->GetValue());
+//LOG(1, "CSAA7134Source::Reset 2 m_VideoSource %d m_VideoFormat %d", m_VideoSource->GetValue(), m_VideoFormat->GetValue());
 }
 
 
@@ -1524,6 +1533,7 @@ ISetting* CSAA7134Source::GetVDelay()
 
 void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
+//LOG(1, "CSAA7134Source::VideoSourceOnChange Old %d New %d", OldValue, NewValue);
     Audio_Mute(PreSwitchMuteDelay);
 
     Stop_Capture();
@@ -1563,7 +1573,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
-    SetupVideoSource();
+    Reset();
     
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
@@ -1572,6 +1582,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
+//LOG(1, "CSAA7134Source::VideoFormatOnChange Old %d New %d", OldValue, NewValue);
     Stop_Capture();
 
     SettingsMaster->SaveSettings();
@@ -1582,8 +1593,6 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
 
-    SetupVideoSource();
-   
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
     // make sure the defaults are correct
@@ -1591,6 +1600,8 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     SettingsMaster->LoadSettings();
+
+    Reset();
 
     Start_Capture();
 }

@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/01/26 01:03:11  lindsey
+// Fixed some comments
+// Effect of coefficient of varience on reliability scaled to the sample size
+//
 // Revision 1.4  2002/01/26 00:47:00  lindsey
 // Fixed big bug in noise threshold / motion correlation interaction
 // Fixed bug in parameterization
@@ -106,6 +110,7 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     DOUBLE          MeanNoise = 0.0;
     DWORD           DWordDifferencePeak = 0;
 
+    DWORD           LastIndex = 0;                              // Index to previous frame
     static BOOLEAN  sDoShowDot = FALSE;
 
 #if defined( IS_DEBUG_FLAG )
@@ -115,8 +120,17 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     static LONG     sTestingCounter = 0;
 #endif
 
-    // Need to have the current and next-to-previous fields to do the filtering.
-    if( (pInfo->PictureHistory[0] == NULL) || (pInfo->PictureHistory[2] == NULL) )
+    if( (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) == 0 )
+    {
+        LastIndex = 1;
+    }
+    else    // Interlaced
+    {
+        LastIndex = 2;
+    }
+
+    // Need to have the current field and same field from previous frame to do the filtering.
+    if( (pInfo->PictureHistory[0] == NULL) || (pInfo->PictureHistory[LastIndex] == NULL) )
     {
         return 1000;
     }
@@ -149,7 +163,7 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 
     if (gpChangeMap == NULL)
     {
-        gpChangeMap = malloc(pInfo->InputPitch * pInfo->FieldHeight);
+        gpChangeMap = DumbAlignedMalloc(pInfo->InputPitch * pInfo->FieldHeight);
         if (gpChangeMap == NULL)
         {
             return 1000;    // !! Should notify user !!
@@ -162,7 +176,7 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 
     if (gpHistogram == NULL)
     {
-        gpHistogram = malloc((HISTOGRAM_LENGTH) * sizeof(DWORD));
+        gpHistogram = DumbAlignedMalloc((HISTOGRAM_LENGTH) * sizeof(DWORD));
         if (gpHistogram == NULL)
         {
             return 1000;
@@ -276,7 +290,7 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     // Prepare pointers for image processing
 
     pSource = pInfo->PictureHistory[0]->pData + (ThisLine * pInfo->InputPitch);
-    pLast = pInfo->PictureHistory[2]->pData + (ThisLine * pInfo->InputPitch);
+    pLast = pInfo->PictureHistory[LastIndex]->pData + (ThisLine * pInfo->InputPitch);
     pMap = gpChangeMap + (ThisLine * pInfo->InputPitch);
     pLocalHistogram = gpHistogram;
 

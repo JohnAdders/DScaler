@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/02/23 03:22:16  lindsey
+// Exposed the "Use this filter" settings
+//
 // Revision 1.8  2002/02/01 23:50:39  lindsey
 // Disbled the debug flag again
 //
@@ -159,6 +162,9 @@ void            AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBL
 void __cdecl    ExitAdaptiveNoise( void );
 void            CleanupAdaptiveNoise( void );
 
+BYTE*           DumbAlignedMalloc(int siz);
+BYTE*           DumbAlignedFree(BYTE* x);
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Begin plugin globals
@@ -176,7 +182,7 @@ static BYTE*    gpHistogram = NULL;
 // evidence
 
 // This setting is currently hidden, since it doesn't have much useful play.
-// 88 looks like the best compromise between keeping old information (which improves
+// 83 looks like the best compromise between keeping old information (which improves
 // detection of motion) and stability of the motion estimate. (If the decay is any
 // higher, the peak becomes bimodal as ~half of it is displaced downward.)
 
@@ -339,7 +345,7 @@ FILTER_METHOD AdaptiveNoiseMethod =
     FLT_AdaptiveNoiseSettings,
     WM_FLT_ANOISE_GETVALUE - WM_USER,       // Settings offset
     TRUE,                                   // Can handle interlaced material
-    2,                                      // Requires field before last
+    2,                                      // Requires field before last (for interlaced material)
 };
 
 
@@ -396,15 +402,36 @@ void CleanupAdaptiveNoise( void )
 {
     if( gpChangeMap != NULL )
     {
-        free( gpChangeMap );
+        DumbAlignedFree( gpChangeMap );
         gpChangeMap = NULL;
     }
     if( gpHistogram != NULL )
     {
-        free( gpHistogram );
+        DumbAlignedFree( gpHistogram );
         gpHistogram = NULL;
     }
     return;
+}
+
+
+// Aligned memory allocation wrapper
+// Copied from Tom Barry's aligned malloc/free in StillSource.cpp
+
+BYTE* DumbAlignedMalloc(int siz)
+{
+	BYTE* x = (BYTE*)malloc(siz+16);
+	BYTE** y = (BYTE**) (x+16);
+	y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
+	*y = x;
+	return (BYTE*) y+4;
+}
+
+
+BYTE* DumbAlignedFree(BYTE* x)
+{
+	BYTE* y =  *(BYTE**)(x-4);
+	free(y);
+	return 0;
 }
 
 

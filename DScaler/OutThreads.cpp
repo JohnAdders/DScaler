@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.44 2001-11-23 10:49:17 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.45 2001-11-24 18:05:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.43  2001/11/22 17:20:23  adcockj
 // Added version to info structure
 //
@@ -520,6 +523,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 if(!Info.bMissedFrame)
                 {
+                    // WARNING : film detection calculations temporally
+                    // not executed for progressive source
+                    if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
                     if(bAutoDetectMode == TRUE)
                     {
                         if(bIsPAL)
@@ -568,7 +574,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // do the aspect ratio only every other frame
                         // also do this outside of the internal lock
                         // to avoid conflicts
-                        if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+                        if ( (Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ||
+                             (Info.PictureHistory[0]->Flags == PICTURE_PROGRESSIVE) )
                         {
                             AdjustAspectRatio(SourceAspectAdjust, &Info);
                         }
@@ -602,20 +609,36 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             nHistory = 4;
                         }
 
-                        // if we have dropped a field then do BOB 
-                        // or if we need to get more history
-                        // if we are doing a half height Mode then just do that
-                        // anyway as it will be just as fast
                         if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
-
-                        if(CurrentMethod->bIsHalfHeight == FALSE && 
-                            ((Info.bMissedFrame == TRUE) || (nHistory < CurrentMethod->nFieldsRequired)))
                         {
-                            bFlipNow = Bob(&Info);
+                            // if we have dropped a field then do BOB 
+                            // or if we need to get more history
+                            // if we are doing a half height Mode then just do that
+                            // anyway as it will be just as fast
+                            if(CurrentMethod->bIsHalfHeight == FALSE && 
+                                ((Info.bMissedFrame == TRUE) || (nHistory < CurrentMethod->nFieldsRequired)))
+                            {
+                                bFlipNow = Bob(&Info);
+                            }
+                            else
+                            {
+                                bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
+                            }
                         }
                         else
                         {
-                            bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
+                            if (Info.PictureHistory[0]->pData != NULL)
+                            {
+                                BYTE *lpOverlay = Info.Overlay;
+                                BYTE* CurrentLine = Info.PictureHistory[0]->pData;
+                                for (int i = 0; i < Info.FrameHeight; i++)
+                                {
+                                    Info.pMemcpy(lpOverlay, CurrentLine, Info.LineLength);
+                                    lpOverlay += Info.OverlayPitch;
+                                    CurrentLine += Info.InputPitch;
+                                }
+                                bFlipNow = TRUE;
+                            }
                         }
                     
                         if (bFlipNow)

@@ -8,6 +8,9 @@
 #define IDH_HISTOGRAM                   131080
 #define IDH_LINEAR_CORRECTION           131081
 #define IDH_TEMPORAL_COMB               131082
+#define IDH_MIRROR                      131083
+#define IDH_INVERSION                   131084
+
 
 #define IDH_DEINTERLACE                 131090
 #define IDH_ADAPTIVE                    131091

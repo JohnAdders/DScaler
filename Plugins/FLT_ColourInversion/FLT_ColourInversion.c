@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_ColourInversion.c,v 1.1 2002-08-07 19:13:24 adcockj Exp $
+// $Id: FLT_ColourInversion.c,v 1.2 2002-08-07 21:52:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 TM. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -85,8 +85,7 @@ FILTER_METHOD InversionMethod =
     WM_FLT_INVERSION_GETVALUE - WM_APP,
     TRUE,
     1,
-    // todo write help file
-    IDH_FILTERS,
+    IDH_INVERSION,
 };
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)

@@ -230,6 +230,16 @@
 			<param name="Local" value="TemporalComb.htm">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Mirror">
+			<param name="Local" value="Mirror.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Colour Inversion">
+			<param name="Local" value="ColourInversion.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Advanced">

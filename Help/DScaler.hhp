@@ -70,6 +70,8 @@ CVS_Instructions.htm
 32spec.htm
 SoundIssues.htm
 Still.htm
+Mirror.htm
+ColourInversion.htm
 
 [ALIAS]
 IDH_22_PULLDOWN=22Pulldown.htm
@@ -107,6 +109,8 @@ IDH_TIMING=Timing.htm
 IDH_VIDEOBOB=VideoBob.htm
 IDH_VIDEOWEAVE=VideoWeave.htm
 IDH_WEAVE=Weave.htm
+IDH_MIRROR=Mirror.htm
+IDH_INVERSION=ColourInversion.htm
 
 [MAP]
 #include helpids.h

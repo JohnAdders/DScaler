@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.35 2003-01-29 18:24:12 adcockj Exp $
+// $Id: Audio.cpp,v 1.36 2003-02-06 00:37:28 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/29 18:24:12  adcockj
+// Added logging for mute calls
+//
 // Revision 1.34  2002/12/14 01:46:15  atnak
 // Added thread id check so that SetTimer isn't called on YUVOutThread
 //
@@ -200,7 +203,7 @@ void Audio_Mute(DWORD PostMuteDelay)
 
     LeaveCriticalSection(&AudioMuteCriticalSection);
 
-    LOG(1, " Mute Called Status on Exit %d", AudioMuteStatus);
+    LOG(2, " Mute Called Status on Exit %d", AudioMuteStatus);
 }
 
 
@@ -243,7 +246,7 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
     }
 
     LeaveCriticalSection(&AudioMuteCriticalSection);
-    LOG(1, " UnMute Called Status on Exit %d", AudioMuteStatus);
+    LOG(2, " UnMute Called Status on Exit %d", AudioMuteStatus);
 }
 
 

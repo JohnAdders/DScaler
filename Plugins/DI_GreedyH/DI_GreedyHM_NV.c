@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM_NV.c,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyHM_NV.c,v 1.3 2001-08-17 19:29:48 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,17 +26,19 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // This version handles Greedy High Motion without vertical filtering
+// It's actually now almost a copy of the Greedy_V because that ran faster with the unrolled loop.
 
 #include "windows.h"
 #include "DS_Deinterlace.h"
 #include "DI_GreedyHM.h"
-
-// Greedy Options
-#undef USE_VERTICAL_FILTER
-//#define USE_VERTICAL_FILTER
+   
 
 // debugging options
 #undef USE_JAGGIE_REDUCTION
@@ -51,6 +53,7 @@
 
 
 #define FUNCT_NAME DI_GreedyHM_NV
+BOOL DI_GreedyHM_NVx();
 
 BOOL FUNCT_NAME()
 {
@@ -64,7 +67,7 @@ BOOL FUNCT_NAME()
 	int L2;						// offset to FieldStore elem holding newest weave pixels
 	int L2P;					// offset to FieldStore elem holding prev weave pixels
 	__int64* pFieldStore;		// ptr into FieldStore qwords
-	__int64* pFieldStoreEnd;	// ptr at end of valid FieldStore qwords
+	__int64* pFieldStoreEnd;	// ptr to Last FieldStore qword
 	__int64* pL2;				// ptr into FieldStore[L2] 
 	BYTE* WeaveDest;					// dest for weave pixel
 	BYTE* CopyDest;				// other dest, copy or vertical filter
@@ -72,27 +75,33 @@ BOOL FUNCT_NAME()
 
 	int DestIncr = 2 * OverlayPitch;  // we go throug overlay buffer 2 lines per
 	__int64 LastAvg=0;					//interp value from left qword
-
-
+	__int64 SaveQword1=0;				// Temp Save pixels
+	__int64 SaveQword2=0;				// Temp Save pixels
+	__int64 SaveQword3=0;				// Temp Save pixels
 
 	// set up pointers, offsets
 	SetFsPtrs(&L1, &L2, &L2P, &L3, &CopySrc, &CopyDest, &WeaveDest);
 	L2 = __min(L2, L2P);				// Subscript to 1st of 2 possible weave pixels, our base addr
 	L1 = (L1 - L2) * 8;					// now is signed offset from L2  
 	L3 = (L3 - L2) * 8;					// now is signed offset from L2  
-	pFieldStoreEnd = & FieldStore[FieldHeight * FSMAXCOLS * 4];		// ending ptr into FieldStore[L2]
 	pFieldStore = & FieldStore[0];		// starting ptr into FieldStore[L2]
+	pFieldStoreEnd = & FieldStore[FieldHeight * FSCOLCT];		// ending ptr into FieldStore[L2]
 	pL2 = & FieldStore[L2];				// starting ptr into FieldStore[L2]
-	LoopCtrW = LineLength / 8 - 1;		// do 8 bytes at a time, adjusted
+	LoopCtrW = LineLength / 32;		    // do 8 bytes at a time, adjusted
 
 	for (line = 0; line < (FieldHeight); ++line)
 	{
 		LoopCtr = LoopCtrW;				// actually qword counter
-		FieldStoreCopy(CopyDest, &FieldStore[CopySrc], LineLength);
-		CopyDest += 2 * OverlayPitch;
-		CopySrc += FSMAXCOLS;
+		if (WeaveDest == lpCurOverlay)    // on first line may just copy first and last
+		{
+			FieldStoreCopy(lpCurOverlay, &FieldStore[CopySrc], LineLength);
+			WeaveDest += DestIncr;		// bump for next, CopyDest already OK
+			pL2 = & FieldStore[L2 + FSCOLCT];
+		}
+		else
+		{			
 
-		_asm
+		_asm		// should indent here but I can't read it
 		{
 		mov		edi, WeaveDest				// get ptr to line ptrs	
 		mov		esi, dword ptr [pL2]		// addr of our 1st qword in FieldStore
@@ -100,7 +109,7 @@ BOOL FUNCT_NAME()
 		mov		ebx, L3						// offset to top comb 	
 		mov		ecx, OverlayPitch			// overlay pitch
 		mov		word ptr [LastAvg+6], 0     // init left avg lazy way
-
+		
 		lea     edx, [esi+eax]				// where L1 would point
 		cmp		edx, pFieldStore			// before begin of fieldstore?
 		jnb		L1OK						// n, ok
@@ -108,23 +117,66 @@ BOOL FUNCT_NAME()
 L1OK:
 		lea     edx, [esi+ebx]				// where L2 would point
 		cmp		edx, pFieldStoreEnd			// after end of fieldstore?
-		jb		QwordLoop					// n, ok
+		jb		L3OK						// n, ok
 		mov		ebx, eax					// else use this bottom pixel vals
-		
+
+L3OK:		
+		mov		edx, CopyDest
+
 		align 8
 QwordLoop:
 		}
 
+// 1st 4 qwords
 #define FSOFFS 0 * FSCOLSIZE				// following include needs an offset
 #include "DI_GreedyDeLoop.asm"
-
 		_asm
 		{
-		movntq	qword ptr[edi], mm4		     // just move in our clipped best
+		movntq	qword ptr[edx], mm1         // Top
+		movq	SaveQword1, mm4	            // Bottom
+        }
 
-		// bump ptrs and loop for next qword
-		lea		edi,[edi+8]			
-		lea		esi,[esi+FSCOLSIZE]			
+// 2nd 4 qwords
+#undef  FSOFFS
+#define FSOFFS 1 * FSCOLSIZE				// following include needs an offset
+#include "DI_GreedyDeLoop.asm"
+		_asm
+		{
+		movntq	qword ptr[edx+8], mm1       // Top
+		movq	SaveQword2, mm4	            // Bottom
+        }
+// 3rd 4 qwords
+#undef  FSOFFS
+#define FSOFFS 2 * FSCOLSIZE				// following include needs an offset
+#include "DI_GreedyDeLoop.asm"
+		_asm
+		{
+		movntq	qword ptr[edx+16], mm1      // avg clipped best with above line
+		movq	SaveQword3, mm4	            // avg clipped best with below line, save for later
+        }
+
+// 4'th 4 qwords
+#undef  FSOFFS
+#define FSOFFS 3 * FSCOLSIZE				// following include needs an offset
+#include "DI_GreedyDeLoop.asm"
+		_asm
+		{
+        movq    mm5, SaveQword1             // get saved pixels
+        movq    mm6, SaveQword2             // get saved pixels
+        movq    mm7, SaveQword3             // get saved pixels
+		movntq	qword ptr[edx+24], mm1      // Top
+		movntq	qword ptr[edi], mm5	        // store saved pixels
+		movntq	qword ptr[edi+8], mm6	    // store saved pixels
+		movntq	qword ptr[edi+16], mm7	    // store saved pixels
+		movntq	qword ptr[edi+24], mm4	    // bottom
+        }
+
+        _asm
+        {
+		// bump ptrs and loop for next 4 qword
+		lea		edx,[edx+32]				// bump CopyDest
+		lea		edi,[edi+32]				// bump WeaveDest
+		lea		esi,[esi+4*FSCOLSIZE]			
 		dec		LoopCtr
 		jg		QwordLoop			
 
@@ -132,14 +184,19 @@ QwordLoop:
 		mov		esi, pL2				// addr of our 1st qword in FieldStore
 		lea     esi, [esi+FSROWSIZE]    // bump to next row
 		mov		pL2, esi				// addr of our 1st qword in FieldStore for line
-		mov     edi, WeaveDest				// ptr to curr overlay buff line start
+		mov     edi, WeaveDest			// ptr to curr overlay buff line start
 		add     edi, DestIncr			// but we want to skip 1
-		mov		WeaveDest, edi				// update for next loop
+		mov		WeaveDest, edi			// update for next loop
+		mov     edx, CopyDest			// ptr to curr overlay buff line start
+		add     edx, DestIncr			// but we want to skip 1
+		mov		CopyDest, edx			// update for next loop
 		sfence
 		emms
 		}
+		}		// should undent here but I can't read it
 	}
 
   return TRUE;
 }	
+		
 		

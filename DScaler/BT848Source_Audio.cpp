@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.28 2002-10-07 22:31:27 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.29 2002-10-11 21:48:33 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/10/07 22:31:27  kooiman
+// Fixed audio initialization.
+//
 // Revision 1.27  2002/10/07 20:31:02  kooiman
 // Fixed autodetect bugs.
 //
@@ -198,7 +201,7 @@ void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue); // FIXME, (m_UseInputPin1->GetValue() != 0));    
+   m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue); // FIXME, (m_UseInputPin1->GetValue() != 0));    
 	EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, OldValue, NewValue);
 }
 
@@ -213,7 +216,7 @@ void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 
 void CBT848Source::UseInputPin1OnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (NewValue != 0));    
+    m_pBT848Card->SetUseInputPin1(m_UseInputPin1->GetValue() != 0);
 }
 
 void CBT848Source::UseEqualizerOnChange(long NewValue, long OldValue)
@@ -471,62 +474,59 @@ void CBT848Source::AudioStandardInStatusBarOnChange(long NewValue, long OldValue
 
 void CBT848Source::MSP34xxFlagsOnChange(long NewValue, long OldValue)
 {   
-    char *szID = (char*)m_pBT848Card->GetAudioDecoderID();
-    if ((szID!=NULL) && (!strncmp(szID,"MSP34",5)))
-    {
-       m_pBT848Card->SetAudioDecoderValue(0, NewValue); 
-    }
+    // \todo: change this
+    m_pBT848Card->SetAudioDecoderValue(0, NewValue); 
 }
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
     char Text[256];
-	char szAudioStandard[128];
-
+    char szAudioStandard[128];
+    
     szAudioStandard[0]=0;
-
-	if (m_AudioStandardInStatusBar->GetValue())
+    
+    if (m_AudioStandardInStatusBar->GetValue())
     {
         if (m_DetectingAudioStandard)
-	    {
-    		strcpy(szAudioStandard," [Detecting...]");
-    	}
-    	else 
-	    {
-		    char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
-		    if (s != NULL)
-            {		    
-			    sprintf(szAudioStandard," [%s]",s);
-		    }
-	    }
+        {
+            strcpy(szAudioStandard," [Detecting...]");
+        }
+        else 
+        {
+            char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
+            if (s != NULL)
+            {           
+                sprintf(szAudioStandard," [%s]",s);
+            }
+        }
     }
-
-	switch(m_AudioChannel->GetValue())
-	{
-	case SOUNDCHANNEL_MONO:
-		{
-			sprintf(Text,"Mono%s",szAudioStandard);
-			break;
-		}
-	case SOUNDCHANNEL_STEREO:
-		{
-			sprintf(Text,"Stereo%s",szAudioStandard);
-			break;
-		}
-	case SOUNDCHANNEL_LANGUAGE1:
-		{
-			sprintf(Text,"Language 1%s",szAudioStandard);
-			break;
-		}
-	case SOUNDCHANNEL_LANGUAGE2:
-		{
-			sprintf(Text,"Language 2%s",szAudioStandard);
-			break;
-		}
-	}
-	
-	StatusBar_ShowText(STATUS_AUDIO, Text);
-
+    
+    switch(m_AudioChannel->GetValue())
+    {
+    case SOUNDCHANNEL_MONO:
+        {
+            sprintf(Text,"Mono%s",szAudioStandard);
+            break;
+        }
+    case SOUNDCHANNEL_STEREO:
+        {
+            sprintf(Text,"Stereo%s",szAudioStandard);
+            break;
+        }
+    case SOUNDCHANNEL_LANGUAGE1:
+        {
+            sprintf(Text,"Language 1%s",szAudioStandard);
+            break;
+        }
+    case SOUNDCHANNEL_LANGUAGE2:
+        {
+            sprintf(Text,"Language 2%s",szAudioStandard);
+            break;
+        }
+    }
+    
+    StatusBar_ShowText(STATUS_AUDIO, Text);
+    
 }
 
 ISetting* CBT848Source::GetCurrentAudioSetting()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.30 2002-04-28 16:43:37 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.31 2002-06-23 20:06:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/04/28 16:43:37  laurentg
+// New setting for aspect ratio detect
+//
 // Revision 1.29  2002/02/23 13:52:39  laurentg
 // Don't create new entry in statistics table when not necessary
 //
@@ -231,8 +234,6 @@ void SwitchToRatio(int nMode, int nRatio)
     // Update aspect ratio only if a positive one is specified
     if (nRatio > 0)
     {
-        LOG(1, "Switching to ratio %d", nRatio);
-
         // If the most recent ratio switch just happened, don't remember it since it
         // was probably a transient ratio due to improperly locking onto a dark scene.
         if (now - ratio_time[0] > AspectSettings.ShortRatioIgnoreMs)
@@ -246,6 +247,8 @@ void SwitchToRatio(int nMode, int nRatio)
         AspectSettings.SourceAspect = nRatio;
     }
 
+    LOG(1, "Switching to ratio %d (%d)", AspectSettings.SourceAspect, AspectSettings.AspectMode);
+
     // Update the statistics for the new ratio
     if (k != -1)
     {
@@ -254,7 +257,14 @@ void SwitchToRatio(int nMode, int nRatio)
     nARLastTicks = now;
     nNbRatioSwitch++;
 
-    WorkoutOverlaySize(FALSE);
+    // Laurent 23/06/2002
+    // Don't know really why, but these 4 lines are needed
+    // to have something working well in all cases
+    WorkoutOverlaySize(TRUE);
+    if (!bIsFullScreen && AspectSettings.AutoResizeWindow)
+    {
+        WorkoutOverlaySize(FALSE);
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.32 2003-01-21 14:42:14 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.33 2003-01-25 23:43:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/21 14:42:14  adcockj
+// Changed PAL defaults and added place for SECAM defaults
+//
 // Revision 1.31  2003/01/19 10:39:56  laurentg
 // Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
 //
@@ -568,7 +571,11 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     }
     else if(IsSECAMVideoFormat(format))
     {
-        // \todo add in correct default video values for SECAM
+        // Suggested colour values (PixelView XCapture)
+        m_Saturation->ChangeDefault(57, bDontSetValue);
+        m_SaturationU->ChangeDefault(64, bDontSetValue);
+        m_SaturationV->ChangeDefault(51, bDontSetValue);
+
         m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);

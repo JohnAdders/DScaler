@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.14 2003-01-24 01:55:18 atnak Exp $
+// $Id: BT848Source_UI.cpp,v 1.15 2003-01-25 23:44:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.13  2003/01/19 10:39:56  laurentg
 // Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
 //
@@ -1498,6 +1502,19 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
         m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
+    }
+    else if(IsSECAMVideoFormat(format))
+    {
+        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_SECAM, bDontSetValue);
+        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_SECAM, bDontSetValue);
+        m_Hue->ChangeDefault(DEFAULT_HUE_SECAM, bDontSetValue);
+        m_Saturation->ChangeDefault((DEFAULT_SAT_U_SECAM + DEFAULT_SAT_V_SECAM) / 2, bDontSetValue);
+        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_SECAM, bDontSetValue);
+        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_SECAM, bDontSetValue);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
     }
     else
     {

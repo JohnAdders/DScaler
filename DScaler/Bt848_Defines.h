@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.19 2002-09-12 21:56:26 ittarnavsky Exp $
+// $Id: Bt848_Defines.h,v 1.20 2003-01-25 23:44:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -542,6 +542,13 @@ enum eSoundChannel
 #define DEFAULT_CONTRAST_PAL 219
 #define DEFAULT_SAT_U_PAL 254
 #define DEFAULT_SAT_V_PAL 219
+
+// SECAM defaults these work for OTA SECAM signals
+#define DEFAULT_HUE_SECAM 0
+#define DEFAULT_BRIGHTNESS_SECAM 0
+#define DEFAULT_CONTRAST_SECAM 219
+#define DEFAULT_SAT_U_SECAM 197
+#define DEFAULT_SAT_V_SECAM 162
 
 
 #endif

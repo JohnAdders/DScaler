@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.374 2005-03-20 09:50:04 laurentg Exp $
+// $Id: DScaler.cpp,v 1.375 2005-03-20 22:56:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.374  2005/03/20 09:50:04  laurentg
+// XMLTV file import
+//
 // Revision 1.373  2005/03/11 17:16:37  adcockj
 // ifdefed out stuff that required newer sdk
 //
@@ -4277,22 +4280,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_DISPLAY_EPG:
-			{
-				string Title;
-				string Start;
-				string End;
-				char Text[256];
-				if (!MyEPG.GetEPGData(Start, End, Title))
-				{
-					sprintf(Text, "%s\n%s - %s\n%s", Channel_GetName(), Start.c_str(), End.c_str(), Title.c_str());
-					OSD_ShowText(Text, 8);
-				}
-				else
-				{
-					sprintf(Text, "%s\nNo EPG data", Channel_GetName());
-					OSD_ShowText(Text, 8);
-				}
-			}
+            PostMessage(hWnd, WM_COMMAND, IDM_OSDSCREEN_SHOW + 2, 0);
 			break;
 
 		default:

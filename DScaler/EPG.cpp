@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.2 2005-03-20 16:56:26 laurentg Exp $
+// $Id: EPG.cpp,v 1.3 2005-03-20 22:56:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/20 16:56:26  laurentg
+// Bug fixed regarding channel name containing special PERL REGEXP characters
+// Files now generated in the DScaler main directory
+//
 // Revision 1.1  2005/03/20 09:48:58  laurentg
 // XMLTV file import
 //
@@ -39,6 +43,7 @@
 #include "EPG.h"
 #include "ProgramList.h"
 #include "DScaler.h"
+#include "OSD.h"
 
 
 #define	ONE_DAY			86400
@@ -51,8 +56,6 @@
 
 CEPG MyEPG;
 
-
-// TODO Enhancement: display of EPG information in the OSD
 
 // TODO Enhancement: allow linking a DScaler channel name to one or several EPG channel names
 // That could be done with a new field added in the program.txt file + a new field in the
@@ -80,13 +83,14 @@ CProgram::~CProgram()
 
 
 //
-// Check whether the program matchs time and channel
+// Check whether the program matchs the channel (if provided)
+// and overlaps the period of time defined by DateMin and DateMax
 //
-BOOL CProgram::IsProgramMatching(time_t DateTime, LPCSTR Channel)
+BOOL CProgram::IsProgramMatching(time_t DateMin, time_t DateMax, LPCSTR Channel)
 {
-	if (   (DateTime >= m_StartTime)
-		&& (DateTime < m_EndTime)
-		&& !_stricmp(Channel, m_Channel.c_str())
+	if (   (DateMax >= m_StartTime)
+		&& (DateMin < m_EndTime)
+		&& ( (Channel == NULL) || !_stricmp(Channel, m_Channel.c_str()) )
 	   )
 	   return TRUE;
 
@@ -97,7 +101,7 @@ BOOL CProgram::IsProgramMatching(time_t DateTime, LPCSTR Channel)
 //
 // Get the program main data : start and end time + title
 //
-void CProgram::GetProgramMainData(string &Start, string &End, string &Title)
+void CProgram::GetProgramMainData(string &Start, string &End, string &Channel, string &Title)
 {
 	char date[6];
 	struct tm *date_tm;
@@ -107,6 +111,7 @@ void CProgram::GetProgramMainData(string &Start, string &End, string &Title)
 	date_tm = localtime(&m_EndTime);
 	sprintf(date, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 	End = date;
+	Channel = m_Channel;
 	Title = m_Title;
 }
 
@@ -669,17 +674,10 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 
 
 //
-// Get the EPG data of the program matching time and channel
+// Get the EPG data of the first program matching time and channel
 //
 int CEPG::GetEPGData(string &StartTime, string &EndTime, string &Title, LPCSTR Channel, time_t Date)
 {
-	// If date not provided, use the current day
-	time_t DateTime;
-	if (Date == 0)
-		time(&DateTime);
-	else
-		DateTime = Date;
-
 	// If channel not provided, use the current one
 	string Ch;
 	if (Channel == NULL)
@@ -687,20 +685,56 @@ int CEPG::GetEPGData(string &StartTime, string &EndTime, string &Title, LPCSTR C
 	else
 		Ch = Channel;
 
-	// Search the program overlapping the date/time set in DateTime
+	int nb = SearchForPrograms(Ch.c_str(), Date, Date);
+	if (nb == 0)
+		return -1;
+
+	GetProgramData(0, StartTime, EndTime, Ch, Title);
+
+	return 0;
+}
+
+
+int CEPG::SearchForPrograms(LPCSTR Channel, time_t DateMin, time_t DateMax)
+{
+	// If DateMin not provided, use the current day
+	time_t DateTimeMin;
+	if (DateMin == 0)
+		time(&DateTimeMin);
+	else
+		DateTimeMin = DateMin;
+
+	// If DateMax not provided, use the current day
+	time_t DateTimeMax;
+	if (DateMax == 0)
+		time(&DateTimeMax);
+	else
+		DateTimeMax = DateMax;
+
+	// Search the programs overlapping the date/time set in DateTime
 	// for the channel set in Ch
+    m_ProgramsSelection.clear();
     for(CPrograms::iterator it = m_Programs.begin();
         it != m_Programs.end();
         ++it)
     {
-		if ((*it)->IsProgramMatching(DateTime, Ch.c_str()) == TRUE)
+		if ((*it)->IsProgramMatching(DateTimeMax, DateTimeMax, Channel) == TRUE)
 		{
-			string test;
-			(*it)->GetProgramMainData(StartTime, EndTime, Title);
-			return 0;
+			m_ProgramsSelection.push_back(*it);
 		}
     }
-	return -1;
+	return m_ProgramsSelection.size();
+}
+
+
+int CEPG::GetProgramData(int Index, string &StartTime, string &EndTime, string &Channel, string &Title)
+{
+	if ( (Index < 0) || (Index >= m_ProgramsSelection.size()) )
+		return -1;
+
+	m_ProgramsSelection[Index]->GetProgramMainData(StartTime, EndTime, Channel, Title);
+
+	return 0;
 }
 
 
@@ -720,6 +754,7 @@ void CEPG::DumpEPGData()
 
 void CEPG::ClearPrograms()
 {
+    m_ProgramsSelection.clear();
     for(CPrograms::iterator it = m_Programs.begin();
         it != m_Programs.end();
         ++it)

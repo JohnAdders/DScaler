@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.90 2004-07-25 11:25:31 adcockj Exp $
+// $Id: OSD.cpp,v 1.91 2005-03-20 22:56:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2004/07/25 11:25:31  adcockj
+// Patch for international lanugauges in OSD from Alexander Choporov
+//
 // Revision 1.89  2004/05/02 14:09:32  atnak
 // Fixed possible problem of overlay colour getting dithered with < 32bit colour
 //
@@ -361,6 +364,8 @@
 #include "Providers.h"
 #include "Perf.h"
 #include "DebugLog.h"
+#include "epg.h"
+#include "ProgramList.h"
 
 
 #define OSD_COLOR_TITLE     RGB(255,150,150)
@@ -469,6 +474,8 @@ static void OSD_RefreshWSSScreen(double Size);
 static void OSD_RefreshARScreen(double Size);
 static void OSD_RefreshCalibrationScreen(double Size);
 static void OSD_RefreshDeveloperScreen(double Size);
+static void OSD_RefreshCurrentProgramScreen(double Size);
+static void OSD_RefreshCurrentProgramsScreen(double Size);
 
 
 // Screens definition
@@ -476,6 +483,8 @@ static TActiveScreen ActiveScreens[] =
 {
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
+    { "Current program screen",  FALSE, FALSE, 10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
+    { "Current programs screen", FALSE, FALSE, 10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramsScreen },
     { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
@@ -2269,6 +2278,71 @@ static void OSD_RefreshDeveloperScreen(double Size)
 }
 
 
+static void OSD_RefreshProgramsScreen(double Size, LPCSTR  Title, LPCSTR Channel, time_t DateMin, time_t DateMax)
+{
+    double      dfMargin = 0.02;    // 2% of screen height/width
+    char        szInfo[64];
+    int         nLine;
+	long		Color;
+    double      pos1, pos2;
+	DWORD		Total = 0;
+
+    if (Size == 0)
+    {
+        Size = OSD_DefaultSmallSizePerc;
+    }
+
+    // Title
+    OSD_AddText(Title, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+	int nb = MyEPG.SearchForPrograms(Channel, DateMin, DateMax);
+	if (nb == 0)
+		return;
+
+    nLine = 3;
+
+	for (int i=0; i<nb; i++)
+	{
+		string StartTime;
+		string EndTime;
+		string ChannelName;
+		string ProgramTitle;
+
+		MyEPG.GetProgramData(i, StartTime, EndTime, ChannelName, ProgramTitle);
+
+		if (!Channel && !_stricmp(ChannelName.c_str(), Channel_GetName()))
+			Color = OSD_COLOR_CURRENT;
+		else
+			Color = -1;
+        pos1 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+        pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
+		if (pos1 == 0.0 || pos2 == 0.0)
+			break;
+        sprintf(szInfo, "%s-%s", StartTime.c_str(), EndTime.c_str());
+        OSD_AddText(StartTime.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+        OSD_AddText(EndTime.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
+        OSD_AddText(ChannelName.c_str(), Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
+        OSD_AddText(ProgramTitle.c_str(), Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+	}
+}
+
+
+static void OSD_RefreshCurrentProgramScreen(double Size)
+{
+	time_t Now;
+	time(&Now);
+	OSD_RefreshProgramsScreen(Size, "Current Program", Channel_GetName(), Now, Now);
+}
+
+
+static void OSD_RefreshCurrentProgramsScreen(double Size)
+{
+	time_t Now;
+	time(&Now);
+	OSD_RefreshProgramsScreen(Size, "Current Programs", NULL, Now, Now);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // Start of OSD data cache manipulators (Internal)
 /////////////////////////////////////////////////////////////////////////////
@@ -2547,19 +2621,19 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "UseGeneralScreen", NULL,
     },
     {
-        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
+        "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[4].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseStatisticsScreen", NULL,
     },
     {
-        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[3].active),
+        "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[5].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseWSSDecodingScreen", NULL,
     },
     {
-        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[4].active),
+        "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[6].active),
          FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseDeveloperScreen", NULL,

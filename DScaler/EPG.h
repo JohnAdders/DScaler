@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.1 2005-03-20 09:48:58 laurentg Exp $
+// $Id: EPG.h,v 1.2 2005-03-20 22:56:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/03/20 09:48:58  laurentg
+// XMLTV file import
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
@@ -42,11 +45,12 @@ public:
 	CProgram(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel);
 	~CProgram();
 
-	// Check whether the program matchs time and channel
-	BOOL IsProgramMatching(time_t DateTime, LPCSTR Channel);
+	// Check whether the program matchs the channel (if provided)
+	// and overlaps the period of time defined by DateMin and DateMax
+	BOOL IsProgramMatching(time_t DateMin, time_t DateMax, LPCSTR Channel=NULL);
 
 	// Get the program main data : start and end time + title
-	void GetProgramMainData(string &Start, string &End, string &Title);
+	void GetProgramMainData(string &Start, string &End, string &Channel, string &Title);
 
 	// Dump the program main data : start and end time + channel + title
 	void DumpProgramMainData();
@@ -80,11 +84,14 @@ public:
 	// TODO Rewrite LoadEPGData as soon as XML API will be used
 	int LoadEPGData(time_t DateMin=0, time_t DateMax=0);
 
-	// Get the EPG data of the program matching time and channel
+	// Get the EPG data of the first program matching time and channel
 	int GetEPGData(string &StartTime, string &EndTime, string &Title, LPCSTR Channel=NULL, time_t Date=0);
 
+	int SearchForPrograms(LPCSTR Channel=NULL, time_t DateMin=0, time_t DateMax=0);
+	int GetProgramData(int Index, string &StartTime, string &EndTime, string &Channel, string &Title);
+
 	// Dump the EPG data
-	void CEPG::DumpEPGData();
+	void DumpEPGData();
 
 	void ClearPrograms();
 	void AddProgram(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel);
@@ -107,6 +114,8 @@ private:
     typedef vector<CProgram*> CPrograms;
 
     CPrograms	m_Programs;
+    CPrograms	m_ProgramsSelection;
+
 	string		m_CMDExe;
 	string		m_FilesDir;
 	string		m_XMLTVExe;

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.29 2004-09-23 18:48:25 adcockj Exp $
+;// $Id: dscaler.iss,v 1.30 2005-03-07 18:01:58 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.29  2004/09/23 18:48:25  adcockj
+;// Added new files to both projects
+;//
 ;// Revision 1.28  2004/08/12 17:03:08  adcockj
 ;// getting ready for 4.1.10
 ;//
@@ -112,26 +115,25 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.11
-AppVerName=DScaler 4.1.11
+AppName=DScaler 4.1.12
+AppVerName=DScaler 4.1.12
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
 DefaultDirName={pf}\DScaler
 DefaultGroupName=DScaler
 AllowNoIcons=yes
-AlwaysCreateUninstallIcon=yes
 InfoBeforeFile=Warning.rtf
 LicenseFile=gpl.rtf
 AppMutex=DScaler
 ;required for installing the driver on NT platforms
-AdminPrivilegesRequired=yes
+PrivilegesRequired=Admin
 DisableStartupPrompt=yes
 
 [Messages]
 BeveledLabel=DScaler
 WizardLicense=GPL License Agreement
-LicenseLabel2=Do you want to continue to install [name]? If you choose No, Setup will close.
+LicenseLabel3=Do you want to continue to install [name]? If you choose No, Setup will close.
 WizardInfoBefore=Warning
 InfoBeforeLabel=Please read the following important warning before continuing.
 InfoBeforeClickLabel=When you are ready and happy to continue with Setup, click Next.
@@ -147,61 +149,63 @@ Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescri
 
 [Files]
 ; main
-Source: "..\Release\DScaler.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\SendMsg.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_Greedy.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_GreedyH.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_MoComp2.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\DI_OldGame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_ScalerBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_TomsMoComp.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DI_Weave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_AdaptiveNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\FLT_Gamma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_GradualNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\FLT_Sharpness.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_TemporalComb.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_TNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_LogoKill.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_Histogram.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\FLT_Mirror.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: regserver; Components: main
-Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DScaler.vdi"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\channel.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\dscaler.chm"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\Skins\default\*.bmp"; DestDir: "{app}\Skins\default"; CopyMode: alwaysoverwrite; Flags: recursesubdirs; Components: main
-Source: "..\Release\Skins\default\*.ini"; DestDir: "{app}\Skins\default"; CopyMode: alwaysoverwrite; Flags: recursesubdirs; Components: main
-Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
+Source: "..\Release\DScaler.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\SendMsg.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_Greedy.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_GreedyH.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_MoComp2.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
+Source: "..\Release\DI_OldGame.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_ScalerBob.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_TomsMoComp.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DI_Weave.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_AdaptiveNoise.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
+Source: "..\Release\FLT_Gamma.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_GradualNoise.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
+Source: "..\Release\FLT_Sharpness.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_TemporalComb.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_TNoise.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_LogoKill.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_Histogram.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\FLT_Mirror.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DSRend.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Components: main
+Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DScaler.vdi"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\channel.txt"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\channel.txt"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\cx2388xCards.ini"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\SAA713xCards.ini"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; Flags: ignoreversion; Components: main
+Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; Flags: ignoreversion; Components: main
+Source: "..\Release\Skins\default\*.bmp"; DestDir: "{app}\Skins\default"; Flags: ignoreversion recursesubdirs; Components: main
+Source: "..\Release\Skins\default\*.ini"; DestDir: "{app}\Skins\default"; Flags: ignoreversion recursesubdirs; Components: main
+Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 
 ; extra
-Source: "..\Release\DI_BlendedClip.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_Bob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_EvenOnly.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_OddOnly.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_TwoFrame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_VideoBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\DI_Greedy2Frame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
-Source: "..\Release\FLT_Colorimetry.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_BlendedClip.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_Bob.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_EvenOnly.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_OddOnly.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_TwoFrame.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_VideoBob.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\DI_Greedy2Frame.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
+Source: "..\Release\FLT_Colorimetry.dll"; DestDir: "{app}"; Flags: ignoreversion;  Components: extra
 
 ; beta
-Source: "..\Release\FLT_LuminChromaShift.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\FLT_DScopeVIDEO.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\FLT_BlackWhite.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_LuminChromaShift.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
+Source: "..\Release\FLT_DScopeVIDEO.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
+Source: "..\Release\FLT_BlackWhite.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: beta
 
 [INI]
 Filename: "{app}\DScaler.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dscaler.org"

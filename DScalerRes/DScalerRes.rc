@@ -807,7 +807,7 @@ BEGIN
             MENUITEM "Autodetect (experimental)\tA", IDM_SASPECT_AUTO_TOGGLE
             MENUITEM "Detect from Current Image\t`", IDM_SASPECT_COMPUTE
             MENUITEM "Stretch to Window\tCtrl+0",   IDM_SASPECT_0
-            MENUITEM "Square Pixels (experimental)", IDM_SASPECT_SQUARE
+            MENUITEM "Square Pixels",               IDM_SASPECT_SQUARE
             MENUITEM "1.33\tCtrl+1",                IDM_SASPECT_133
             MENUITEM "1.44   Letterboxed\tCtrl+7",  IDM_SASPECT_144
             MENUITEM "1.55   Letterboxed\tCtrl+8",  IDM_SASPECT_155

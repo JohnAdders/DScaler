@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.23 2002-10-02 10:52:36 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.24 2002-10-11 21:40:32 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/10/02 10:52:36  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.22  2002/09/27 14:13:28  kooiman
 // Improved stereo detection & manual audio standard dialog box.
 //
@@ -98,6 +101,7 @@
 
 #include "MSP34x0.h"
 #include "MSP34x0AudioControls.h"
+#include "MSP34x0AudioDecoder.h"
 
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneNew.h"
 #include "Bt8x8GPIOAudioDecoderAverTVPhoneOld.h"
@@ -121,8 +125,8 @@ void CBT848Card::InitAudio()
     }
 
 
-    if (GetCardSetup()->AudioDecoderType == AUDIODECODERTYPE_DETECT
-        || GetCardSetup()->AudioDecoderType == AUDIODECODERTYPE_MSP34x0)
+    if (GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_DETECT
+        || GetCardSetup()->AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
     {
         CMSP34x0AudioControls* MSPControls = new CMSP34x0AudioControls();
 
@@ -139,13 +143,14 @@ void CBT848Card::InitAudio()
             delete MSPControls;
             m_AudioDecoder = new CAudioDecoder();
             m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "None");
             return;
         }
 
         m_AudioControls = MSPControls;
     
         // need to create two so that we can delete all objects properly
-        CMSP34x0Decoder* MSPDecoder = new CMSP34x0Decoder();
+        CMSP34x0AudioDecoder* MSPDecoder = new CMSP34x0AudioDecoder();
         MSPDecoder->Attach(m_I2CBus);
 
         m_AudioDecoder =  MSPDecoder;
@@ -156,42 +161,42 @@ void CBT848Card::InitAudio()
     {
         switch (GetCardSetup()->AudioDecoderType)
         {
-        case AUDIODECODERTYPE_NONE:
+        case CAudioDecoder::AUDIODECODERTYPE_NONE:
             m_AudioDecoder = new CAudioDecoder();
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "None");
             break;
-        case AUDIODECODERTYPE_TERRATV:
+        case CAudioDecoder::AUDIODECODERTYPE_TERRATV:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderTerraTV(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "TerraTV");
             break;
-        case AUDIODECODERTYPE_WINFAST2000:
+        case CAudioDecoder::AUDIODECODERTYPE_WINFAST2000:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderWinFast2000(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "WinFast2000");
             break;
-        case AUDIODECODERTYPE_GVBCTV3:
+        case CAudioDecoder::AUDIODECODERTYPE_GVBCTV3:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderGVBCTV3(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "GVBCTV3");
             break;
-        case AUDIODECODERTYPE_LT9415:
+        case CAudioDecoder::AUDIODECODERTYPE_LT9415:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderLT9415(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "LT9415");
             break;
-        case AUDIODECODERTYPE_WINDVR:
+        case CAudioDecoder::AUDIODECODERTYPE_WINDVR:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderWinDVR(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "WinDVR");
             break;
-        case AUDIODECODERTYPE_AVER_TVPHONE_NEW:
+        case CAudioDecoder::AUDIODECODERTYPE_AVER_TVPHONE_NEW:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderAverTVPhoneNew(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "AverTVPhoneNew");
             break;
-        case AUDIODECODERTYPE_AVER_TVPHONE_OLD:
+        case CAudioDecoder::AUDIODECODERTYPE_AVER_TVPHONE_OLD:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderAverTVPhoneOld(this);
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "AverTVPhoneOld");
@@ -272,9 +277,9 @@ void CBT848Card::DetectAudioStandard(long Interval, int SupportedSoundChannels, 
 }
 
 
-LPCSTR CBT848Card::GetAudioDecoderID()
+CAudioDecoder::eAudioDecoderType CBT848Card::GetAudioDecoderType()
 {
-    return m_AudioDecoder->GetAudioDecoderID();
+    return m_AudioDecoder->GetAudioDecoderType();
 }
 
 int CBT848Card::SetAudioDecoderValue(int What, long Val)
@@ -286,7 +291,6 @@ long CBT848Card::GetAudioDecoderValue(int What)
 {
     return m_AudioDecoder->GetAudioDecoderValue(What);
 }
-
 
 // Do not call this function before changing the video source, it is checking to see if a video
 // signal is present. Audio is muted if no video signal is detected. 
@@ -335,13 +339,6 @@ LPCSTR CBT848Card::GetAudioInputName(eAudioInput nInput)
 {
     return m_AudioDecoder->GetAudioInputName(nInput);
 }
-
-
-int CBT848Card::GetNumAudioInputs()
-{
-    return m_AudioDecoder->GetNumAudioInputs();
-}
-
 
 void CBT848Card::SetAudioLoudness(WORD nLevel)
 {
@@ -482,6 +479,26 @@ bool CBT848Card::HasAudioBalance()
 bool CBT848Card::HasAudioAutoVolumeCorrection()
 {
     return m_AudioControls->HasAutoVolumeCorrection();
+}
+
+bool CBT848Card::GetHasUseInputPin1()
+{
+    if (m_AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+        return true;
+    return false;
+}
+
+bool CBT848Card::GetUseInputPin1()
+{
+    if (m_AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+        return ((CMSP34x0AudioDecoder*)m_AudioDecoder)->GetUseInputPin1();
+    return false;
+}
+
+void CBT848Card::SetUseInputPin1(bool AValue)
+{
+    if (m_AudioDecoderType == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+        ((CMSP34x0AudioDecoder*)m_AudioDecoder)->SetUseInputPin1(AValue);
 }
 
 BOOL CBT848Card::IsMyAudioDecoder(CAudioDecoder* pAudioDecoder)

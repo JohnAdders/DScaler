@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.9 2004-06-19 20:13:48 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.10 2004-06-29 17:24:01 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2004/06/19 20:13:48  to_see
+// Faster and better A2 Stereo Detection
+//
 // Revision 1.8  2004/06/02 18:44:07  to_see
 // New TAudioRegList structure to hold audio register
 // settings for better handling
@@ -160,38 +163,27 @@ void CCX2388xSource::UpdateAudioStatus()
 			switch(m_pCard->GetCurrentAudioStandard())
 			{
 			case AUDIO_STANDARD_A2:
+				switch(m_pCard->GetCurrentStereoType())
+				{
+				case STEREOTYPE_AUTO:
+					SoundChannel = AutoDetectA2Stereo();
+					break;
 				
-				// only Pal(BG) uses A2 Stereo
-				if((TVFormat == VIDEOFORMAT_PAL_B) || (TVFormat == VIDEOFORMAT_PAL_G))
-				{
-					switch(m_pCard->GetCurrentStereoType())
-					{
-					case STEREOTYPE_AUTO:
-						SoundChannel = AutoDetectA2Stereo();
-						break;
-					
-					case STEREOTYPE_MONO:
-						SoundChannel = SOUNDCHANNEL_MONO;
-						break;
-
-					case STEREOTYPE_STEREO:
-						SoundChannel = SOUNDCHANNEL_STEREO;
-						break;
-
-					case STEREOTYPE_ALT1:
-						SoundChannel = SOUNDCHANNEL_LANGUAGE1;
-						break;
-
-					case STEREOTYPE_ALT2:
-						SoundChannel = SOUNDCHANNEL_LANGUAGE2;
-						break;
-					}
-				}
-
-				else
-				{
+				case STEREOTYPE_MONO:
 					SoundChannel = SOUNDCHANNEL_MONO;
-					// \ Todo: Detect Nicam
+					break;
+
+				case STEREOTYPE_STEREO:
+					SoundChannel = SOUNDCHANNEL_STEREO;
+					break;
+
+				case STEREOTYPE_ALT1:
+					SoundChannel = SOUNDCHANNEL_LANGUAGE1;
+					break;
+
+				case STEREOTYPE_ALT2:
+					SoundChannel = SOUNDCHANNEL_LANGUAGE2;
+					break;
 				}
 				
 				break;
@@ -349,13 +341,8 @@ eSoundChannel CCX2388xSource::AutoDetectA2Stereo()
 
 eSoundChannel CCX2388xSource::AutoDetectNicamSound()
 {
-	eSoundChannel SoundChannelNicam = SOUNDCHANNEL_MONO;
-
-	// \todo
-	// when Nicam detetected,
-	// AUD_NICAM_STATUS1 = 0xfff0 or 0xfff1
-	// AUD_NICAM_STATUS2 = 0x02
-	// at the moment not shure how it works
-	
+	// \ todo: not shure if this needed
+	eSoundChannel SoundChannelNicam = SOUNDCHANNEL_STEREO;
+		
 	return SoundChannelNicam;
 }

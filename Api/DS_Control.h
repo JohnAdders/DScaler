@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.163 2005-03-28 13:10:14 laurentg Exp $
+// $Id: DS_Control.h,v 1.164 2005-04-01 22:17:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.163  2005/03/28 13:10:14  laurentg
+// New EPG setting to shift times during import
+//
 // Revision 1.162  2005/03/28 12:54:11  laurentg
 // EPG settings
 //
@@ -1867,6 +1870,7 @@ typedef enum
     EPG_XMLTVPATH = 0,
     EPG_PERCENTAGESIZE,
     EPG_SHIFTTIMES,
+	EPG_TIMEFRAMEDURATION,
     EPG_SETTING_LASTONE,
 } EPG_SETTING;
 

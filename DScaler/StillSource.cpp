@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.29 2002-02-09 21:12:28 laurentg Exp $
+// $Id: StillSource.cpp,v 1.30 2002-02-10 09:23:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/02/09 21:12:28  laurentg
+// Old test patterns restored
+// Loading of d3u files improved (absolute or relative path)
+//
 // Revision 1.28  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -758,11 +762,20 @@ void CStillSource::UpdateMenu()
         it != m_PlayList.end(); 
         ++it, ++j)
     {
+        LPCSTR FileName = strrchr((*it)->GetFileName(), '\\');
+        if (FileName == NULL)
+        {
+            FileName = (*it)->GetFileName();
+        }
+        else
+        {
+            ++FileName;
+        }
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
         MenuItemInfo.fType = MFT_STRING;
-        MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetFileName();
-        MenuItemInfo.cch = strlen ((*it)->GetFileName());
+        MenuItemInfo.dwTypeData = (LPSTR) FileName;
+        MenuItemInfo.cch = strlen (FileName);
         MenuItemInfo.fState = (m_Position == j) ? MFS_CHECKED : MFS_UNCHECKED;
         MenuItemInfo.wID = IDM_PLAYLIST_FILES + j;
         InsertMenuItem(hMenuFiles, j, TRUE, &MenuItemInfo);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.30 2004-01-29 15:14:41 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.31 2004-08-09 14:01:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2004/01/29 15:14:41  adcockj
+// Added TDA9873 patch from Sven Grothklags
+//
 // Revision 1.29  2004/01/05 13:25:25  adcockj
 // Added patch for Diamond DTV2000 from Robert Milharcic
 //
@@ -247,6 +250,7 @@ void CBT848Card::InitAudio(bool UsePin1)
             m_AudioDecoder = new CAudioDecoder();
             m_AudioControls = new CAudioControls();
             sprintf(m_AudioDecoderType, "None");
+            break;
         case CAudioDecoder::AUDIODECODERTYPE_TERRATV:
             m_AudioDecoder = new CBt8x8GPIOAudioDecoderTerraTV(this);
             m_AudioControls = new CAudioControls();

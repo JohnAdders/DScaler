@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.190 2002-07-05 20:52:54 laurentg Exp $
+// $Id: DScaler.cpp,v 1.191 2002-07-19 12:04:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.190  2002/07/05 20:52:54  laurentg
+// Thread priority settings
+//
 // Revision 1.189  2002/07/03 00:45:41  laurentg
 // Add a new section in the Change Settings dialog box to set the thread priorities
 //
@@ -3567,7 +3570,6 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, VTAntiAlias);
     CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
-    CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
     CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
 
     CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));

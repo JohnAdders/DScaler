@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.47 2003-02-06 19:48:32 ittarnavsky Exp $
+// $Id: DScaler.h,v 1.48 2003-04-12 15:23:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 void MainWndOnCreate(HWND hWnd);
 void MainWndOnInitBT(HWND hWnd);
 void SaveWindowPos(HWND hWnd);
+void SaveActualPStripTiming(HWND hPSWnd);
 void UpdateWindowState();
 void SetMenuAnalog();
 void CleanUpMemory();
@@ -155,6 +156,7 @@ typedef struct
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;
 extern HWND hWnd;
+extern HWND hPSWnd;
 extern HCURSOR hCursorHand;
 
 extern BOOL bShowCrashDialog;
@@ -165,4 +167,5 @@ extern BOOL bVTSingleKeyToggle;
 extern BOOL bVTAutoCodePage;
 
 extern BOOL bMinimized;
+
 #endif

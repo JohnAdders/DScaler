@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.9 2003-02-14 22:06:14 laurentg Exp $
+// $Id: OutReso.cpp,v 1.10 2003-04-12 15:23:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/02/14 22:06:14  laurentg
+// New resolutions added : 854x480, 1024x576, 1280x720
+//
 // Revision 1.8  2003/02/10 21:35:37  laurentg
 // Menu updated (patch from Kristian Trenskow)
 //
@@ -58,6 +61,7 @@
 #include "Setting.h"
 #include "Other.h"
 #include "DebugLog.h"
+#include "Providers.h"
 
 
 typedef struct
@@ -171,6 +175,16 @@ static sResolution resSettings[] = {
 
 
 int OutputReso = 0;
+LPSTR PStrip576i = NULL;
+LPSTR PStrip480i = NULL;
+
+void PStripTiming_ReadSettingsFromIni()
+{    
+	PStrip576i = new char[PSTRIP_TIMING_STRING_SIZE];
+	PStrip480i = new char[PSTRIP_TIMING_STRING_SIZE];
+    GetPrivateProfileString("PStripOutResolution", "576i", NULL, PStrip576i, PSTRIP_TIMING_STRING_SIZE, GetIniFileForSettings());
+    GetPrivateProfileString("PStripOutResolution", "480i", NULL, PStrip480i, PSTRIP_TIMING_STRING_SIZE, GetIniFileForSettings());
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -333,81 +347,126 @@ BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID)
     return FALSE;
 }
 
-void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning)
+void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning, LPSTR lTimingString, BOOL bApplyPStripTimingString)
 {
-    DEVMODE dm;
-    DEVMODE dm_cur;
-    int     i, idx, n;
-
-    n = sizeof (resSettings) / sizeof (resSettings[0]);
-    for (idx=0,i=0; idx < n ; idx++)
-    {
-		if (resSettings[idx].bSupported)
-		{
-			if (i == OutputReso)
-			{
-				break;
-			}
-			i++;
-		}
-    }
-
-	if (resSettings[idx].bSwitchScreen)
+	// If PowerStrip has been found, use it
+	if(hPSWnd)
 	{
-        dm.dmSize = sizeof(DEVMODE);
-        dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
-		if (bUseRegistrySettings)
+		ATOM aPStripTimingATOM;
+		
+		if((lTimingString != NULL) && (bApplyPStripTimingString))
 		{
-			// Get the display settings from registry
-	        EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dm);
-		}
-		else
-		{
-			// Use the display settings defined by the user
-			dm.dmPelsWidth = resSettings[idx].intResWidth;
-			dm.dmPelsHeight = resSettings[idx].intResHeight;
-			dm.dmBitsPerPel = resSettings[idx].intResDepth;
-			dm.dmDisplayFrequency = resSettings[idx].intResFreq;
-		}
+			aPStripTimingATOM = GlobalAddAtom(lTimingString);		
 
-		// Change display settings only if different from current
-        dm_cur.dmSize = sizeof(DEVMODE);
-        dm_cur.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
-        EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm_cur);
-		if ( (dm.dmPelsWidth != dm_cur.dmPelsWidth)
-		  || (dm.dmPelsHeight != dm_cur.dmPelsHeight)
-		  || (dm.dmBitsPerPel != dm_cur.dmBitsPerPel)
-		  || (dm.dmDisplayFrequency != dm_cur.dmDisplayFrequency))
-		{
-			BOOL bOverlay = OverlayActive();
-
-			// Stop the overlay (and the capture)
-			if (bOverlay)
+			// Apply the PowerStrip timing string
+			// If the PostMessage is successfull, the Atom is automatically deleted
+			if(!PostMessage(hPSWnd, UM_SETPSTRIPTIMING, 0, aPStripTimingATOM))
 			{
-				if (bCaptureRunning)
+				GlobalDeleteAtom(aPStripTimingATOM);
+			}
+		}
+		else if (Providers_GetCurrentSource())
+		{
+			// Get the video format
+			eVideoFormat videoFormat = Providers_GetCurrentSource()->GetFormat();
+
+			// 576i_50Hz and 576i_60Hz
+			if((videoFormat == VIDEOFORMAT_PAL_B) || (videoFormat == VIDEOFORMAT_PAL_D) || (videoFormat == VIDEOFORMAT_PAL_G) || (videoFormat == VIDEOFORMAT_PAL_H)
+				|| (videoFormat == VIDEOFORMAT_PAL_I) || (videoFormat == VIDEOFORMAT_PAL_M) || (videoFormat == VIDEOFORMAT_PAL_N)
+				|| (videoFormat == VIDEOFORMAT_PAL_60) || (videoFormat == VIDEOFORMAT_PAL_N_COMBO))
+			{				
+				aPStripTimingATOM = GlobalAddAtom(PStrip576i);
+			}
+			// 480i_50Hz and 480i_60Hz
+			else if((videoFormat == VIDEOFORMAT_NTSC_M) || (videoFormat == VIDEOFORMAT_NTSC_M_Japan) || (videoFormat == VIDEOFORMAT_NTSC_50))
+			{				
+				aPStripTimingATOM = GlobalAddAtom(PStrip480i);
+			}	
+			
+			// Apply the PowerStrip timing string
+			// If the PostMessage is successfull, the Atom is automatically deleted
+			if(!PostMessage(hPSWnd, UM_SETPSTRIPTIMING, 0, aPStripTimingATOM))
+			{
+				GlobalDeleteAtom(aPStripTimingATOM);
+			}
+		}
+	}
+	else
+	{
+		DEVMODE dm;
+		DEVMODE dm_cur;
+		int     i, idx, n;
+
+		n = sizeof (resSettings) / sizeof (resSettings[0]);
+		for (idx=0,i=0; idx < n ; idx++)
+		{
+			if (resSettings[idx].bSupported)
+			{
+				if (i == OutputReso)
 				{
-					Overlay_Stop(hWnd);
+					break;
 				}
-				else
-				{
-					Overlay_Destroy();
-				}
+				i++;
+			}
+		}
+
+		if (resSettings[idx].bSwitchScreen)
+		{
+			dm.dmSize = sizeof(DEVMODE);
+			dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+			if (bUseRegistrySettings)
+			{
+				// Get the display settings from registry
+				EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dm);
+			}
+			else
+			{
+				// Use the display settings defined by the user
+				dm.dmPelsWidth = resSettings[idx].intResWidth;
+				dm.dmPelsHeight = resSettings[idx].intResHeight;
+				dm.dmBitsPerPel = resSettings[idx].intResDepth;
+				dm.dmDisplayFrequency = resSettings[idx].intResFreq;
 			}
 
-//	        ShowWindow(hWnd, SW_HIDE);
-			ChangeDisplaySettings(&dm, 0);
-//	        ShowWindow(hWnd, SW_SHOW);
-
-			// Restart the overlay (and the capture)
-			if (bOverlay)
+			// Change display settings only if different from current
+			dm_cur.dmSize = sizeof(DEVMODE);
+			dm_cur.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
+			EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm_cur);
+			if ( (dm.dmPelsWidth != dm_cur.dmPelsWidth)
+			  || (dm.dmPelsHeight != dm_cur.dmPelsHeight)
+			  || (dm.dmBitsPerPel != dm_cur.dmBitsPerPel)
+			  || (dm.dmDisplayFrequency != dm_cur.dmDisplayFrequency))
 			{
-				if (bCaptureRunning)
+				BOOL bOverlay = OverlayActive();
+
+				// Stop the overlay (and the capture)
+				if (bOverlay)
 				{
-					Overlay_Start(hWnd);
+					if (bCaptureRunning)
+					{
+						Overlay_Stop(hWnd);
+					}
+					else
+					{
+						Overlay_Destroy();
+					}
 				}
-				else
+
+	//	        ShowWindow(hWnd, SW_HIDE);
+				ChangeDisplaySettings(&dm, 0);
+	//	        ShowWindow(hWnd, SW_SHOW);
+
+				// Restart the overlay (and the capture)
+				if (bOverlay)
 				{
-					Overlay_Create();
+					if (bCaptureRunning)
+					{
+						Overlay_Start(hWnd);
+					}
+					else
+					{
+						Overlay_Create();
+					}
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.318 2003-03-29 13:39:33 laurentg Exp $
+// $Id: DScaler.cpp,v 1.319 2003-04-12 15:23:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.318  2003/03/29 13:39:33  laurentg
+// Allow the display of DScaler to monitors other than the primary
+//
 // Revision 1.317  2003/03/23 09:24:27  laurentg
 // Automatic leave preview mode when necessary
 //
@@ -1033,6 +1036,9 @@ static char THIS_FILE[]=__FILE__;
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
 HINSTANCE hDScalerInst = NULL;
+LPSTR lPStripTimingString = NULL;
+
+HWND hPSWnd = NULL;
 
 // Used to call MainWndOnInitBT
 #define INIT_BT 1800
@@ -4656,10 +4662,25 @@ void SaveWindowPos(HWND hWnd)
 
 
 //---------------------------------------------------------------------------
+void SaveActualPStripTiming(HWND hPSWnd)
+{
+	ATOM pStripTimingAtom = SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
+	if(lPStripTimingString == NULL)
+	{
+		lPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];	
+	}
+	GlobalGetAtomName(pStripTimingAtom, lPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
+	GlobalDeleteAtom(pStripTimingAtom);
+}
+
+//---------------------------------------------------------------------------
 void MainWndOnInitBT(HWND hWnd)
 {
     int i;
     BOOL bInitOK = FALSE;
+
+	// Initialise the PowerStrip window handler
+	hPSWnd = FindWindow("TPShidden", NULL);
 
     AddSplashTextLine("Hardware Init");
 
@@ -4781,7 +4802,12 @@ void MainWndOnInitBT(HWND hWnd)
 
 		if (bIsFullScreen)
 		{
-			OutReso_Change(hWnd, FALSE, FALSE);
+			if(hPSWnd)
+			{
+				// Save the actual PowerStrip timing string in lPStripTimingString
+				SaveActualPStripTiming(hPSWnd);
+			}
+			OutReso_Change(hWnd, hPSWnd, FALSE, FALSE, NULL, FALSE);
 			BypassChgResoInRestore = TRUE;
 		}
 
@@ -4957,7 +4983,12 @@ void MainWndOnDestroy()
         if(bIsFullScreen == FALSE)
         {
             LOG(1, "Try SaveWindowPos");
-            SaveWindowPos(hWnd);
+			if(hPSWnd)
+			{			
+				// Save the actual PowerStrip timing string in lPStripTimingString
+				SaveActualPStripTiming(hPSWnd);
+			}
+			SaveWindowPos(hWnd);
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SaveWindowPos");}
@@ -5063,7 +5094,7 @@ void MainWndOnDestroy()
 			// Do this here after the ExitDD to be sure that the overlay is destroyed
             LOG(1, "Try restore display resolution");
 			BypassChgResoInRestore = TRUE;
-			OutReso_Change(hWnd, TRUE, FALSE);
+			OutReso_Change(hWnd, hPSWnd, TRUE, FALSE, lPStripTimingString, TRUE);
         }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error restore display resolution");}
@@ -5196,7 +5227,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 			}
             if(bIsFullScreen)
 			{
-				OutReso_Change(hWnd, TRUE, TRUE);
+				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
 			}
 			if (OverlayActive())
 			{
@@ -5222,7 +5253,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 				}
 				else
 				{
-					OutReso_Change(hWnd, FALSE, TRUE);
+					OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
 				}
 			}
             if ((MinimizeHandling == 1) && !OverlayActive())
@@ -6169,7 +6200,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
     {
         if(bIsFullScreen == FALSE)
         {
-			OutReso_Change(hWnd, TRUE, TRUE);
+			if(lPStripTimingString != NULL)
+			{
+				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
+			}
+			else
+			{
+				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, FALSE);
+			}
             SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
             if (bDisplayStatusBar == TRUE)
             {
@@ -6178,9 +6216,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         else
         {
-            SaveWindowPos(hWnd);
+			if(hPSWnd)
+			{
+				// Save the actual PowerStrip timing string in lPStripTimingString
+				SaveActualPStripTiming(hPSWnd);
+			}
+			SaveWindowPos(hWnd);				
             KillTimer(hWnd, TIMER_STATUS);
-			OutReso_Change(hWnd, FALSE, TRUE);
+			OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
         }
         if (WindowBorder!=NULL)
         {
@@ -6510,7 +6553,10 @@ void DScaler_ReadSettingsFromIni()
     }
     
     GetPrivateProfileString("MainWindow", "SkinName", "", (char*) &szSkinName, sizeof(szSkinName), GetIniFileForSettings());
-    
+
+	// load the Powerstrip Timing Stringss
+	PStripTiming_ReadSettingsFromIni();
+
     if(bForceFullScreen)
     {
         bIsFullScreen = TRUE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.2 2002-09-09 14:27:58 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.3 2002-09-10 12:14:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/09 14:27:58  atnak
+// fixed cvs tags, id -> Id, log -> Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +59,8 @@ CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
     m_Tuner(NULL),
-    m_PreparedRegions(0x00)
+    m_PreparedRegions(0x00),
+    m_AudioStandard(AUDIOSTANDARD_BG_DUAL_FM)
 {
     m_I2CInitialized = false;
     m_I2CBus = new CSAA7134I2CBusInterface(this);
@@ -144,7 +148,7 @@ void CSAA7134Card::SetDMA(eRegionID RegionID, BOOL bState)
     }
     else {
         m_PreparedRegions &= ~Region;
-        MaskDataByte(SAA7134_REGION_ENABLE, 0x00, Region);
+        AndDataByte(SAA7134_REGION_ENABLE, ~Region);
         MaskDataDword(SAA7134_IRQ1, 0x00, IRQs);
         MaskDataDword(SAA7134_MAIN_CTRL, 0x00, Control);
     }
@@ -358,7 +362,7 @@ BOOL CSAA7134Card::IsCCIRSource(int nInput)
 BOOL CSAA7134Card::IsVideoPresent()
 {
     // Guessed these from register dump
-    WORD CheckMask = SAA7134_STATUS_VIDEO_WIPA | SAA7134_STATUS_VIDEO_RDCAP;
+    WORD CheckMask = SAA7134_STATUS_VIDEO_DCSCT1 | SAA7134_STATUS_VIDEO_RDCAP;
 
     if ((ReadWord(SAA7134_STATUS_VIDEO) & CheckMask) == CheckMask)
     {
@@ -560,24 +564,55 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
 // returns 3 if in D3 state (full off)
 int CSAA7134Card::GetACPIStatus()
 {
-    // \todo Need to implement
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // all new chips should be new enough to have power management
+    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
+
+        LOG(1, "SAA7134 ACPI status: D%d", ACPIStatus);
+        return ACPIStatus;
+    }
+
     return 0;
 }
 
 // Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
 void CSAA7134Card::SetACPIStatus(int ACPIStatus)
 {
-    // \todo Need to implement
+    PCI_COMMON_CONFIG PCI_Config;
+
+    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        return;
+    }
+    PCI_Config.DeviceSpecific[0x10] &= ~3;
+    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
+
+    LOG(1, "Attempting to set SAA7134 ACPI status to D%d", ACPIStatus);
+
+    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+
+    if(ACPIStatus == 0)
+    {
+        // wait half a second to start the hardware
+        ::Sleep(500);
+        // reset the chip
+        // \todo don't know how to reset
+    }
+    LOG(1, "Set SAA7134 ACPI status complete");
 }
+
 
 void CSAA7134Card::DumpRegisters()
 {
+    // WARNING! this dumps registers in Big Endian WORDs!!
+    // This causes addresses to be: 0x01, 0x00, 0x03, 0x02...
+    LOG(0, "WARNING! registers are dumped in Big Endian WORDs!!");
+    LOG(0, "This causes addresses to be: 0x01, 0x00, 0x03, 0x02...");
     for (int i = 0x000; i < 0x400; i += 16)
     {
-        // WARNING! this dumps registers in Big Endian WORDs!!
-        // This causes addresses to be: 0x01, 0x00, 0x03, 0x02...
-        LOG(0, "WARNING! registers are dumped in Big Endian WORDs!!");
-        LOG(0, "This causes addresses to be: 0x01, 0x00, 0x03, 0x02...");
         LOG(0, "%03lX: %04lx %04lx %04lx %04lx|%04lx %04lx %04lx %04lx", i,
             ReadWord(i), ReadWord(i+2), ReadWord(i+4), ReadWord(i+6),
             ReadWord(i+8), ReadWord(i+10), ReadWord(i+12), ReadWord(i+14));
@@ -590,8 +625,8 @@ void CSAA7134Card::StatGPIO()
     MaskDataByte(SAA7134_GPIO_GPMODE3, 0, SAA7134_GPIO_GPRESCAN);
     MaskDataByte(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN, SAA7134_GPIO_GPRESCAN);
 
-    DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE0) & 0xfffffff;
-    DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS0) & 0xfffffff;
+    DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE0) & 0x0fffffff;
+    DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS0) & 0x0fffffff;
     LOG(0, "debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n", Mode,
             (~Mode) & Status, Mode & Status);
 }
@@ -628,7 +663,7 @@ void CSAA7134Card::EnableCCIR656VideoOut()
 
 
 /*
-	v4l2 puts audio line to LINE1 on finish
+    v4l2 puts audio line to LINE1 on finish
 
   saa7134_tvaudio_fini:
 
@@ -677,16 +712,16 @@ void CSAA7134Card::SetHPrescale(eTaskID TaskID, WORD wSourceSize, WORD wScaleSiz
 //       (don't shift VStart to overlap VBI when VBI is enabled!)
 //       (shift HStart by 2 pixels so it follows in YUV bounds)
 void CSAA7134Card::SetGeoSize(
-								  int nInput,
-								  eVideoFormat TVFormat,
-								  long& CurrentX,
-								  long& CurrentY,
-								  long& CurrentVBILines,
-								  int VDelayOverride,
-								  int HDelayOverride
-							  )
+                                  int nInput,
+                                  eVideoFormat TVFormat,
+                                  long& CurrentX,
+                                  long& CurrentY,
+                                  long& CurrentVBILines,
+                                  int VDelayOverride,
+                                  int HDelayOverride
+                              )
 {
-	// These are settings for "Auto detect" (according to v4l2'saa7134)
+    // These are settings for "Auto detect" (according to v4l2'saa7134)
     BYTE SyncControl = 0x98;
     BYTE LumaControl = 0x40;
     BYTE ChromaCtrl1 = 0x8b;
@@ -704,7 +739,7 @@ void CSAA7134Card::SetGeoSize(
 
     if (IsPALVideoFormat(TVFormat))
     {
-        SyncControl = 0x18;
+        SyncControl = 0x90;
         LumaControl = 0x40;
         ChromaCtrl1 = 0x81;
         ChromaCtrl2 = 0x06;
@@ -751,11 +786,11 @@ void CSAA7134Card::SetGeoSize(
     WriteByte(SAA7134_CHROMA_CTRL2, ChromaCtrl2);
     WriteByte(SAA7134_CHROMA_GAIN, ChromaGain);
 
-	// Set up VBI for both tasks
+    // Set up VBI for both tasks
     SetupVBI(TASKID_A, 0, 719, VBIStartLine, VBIStopLine);
     SetupVBI(TASKID_B, 0, 719, VBIStartLine, VBIStopLine);
 
-	// Set up geometry for both tasks
+    // Set up geometry for both tasks
     SetGeoSizeTask(TASKID_A, SourceWidth, SourceLines,
         CurrentX, CurrentY, SourceFirstPixel, SourceFirstLine);
     SetGeoSizeTask(TASKID_B, SourceWidth, SourceLines,
@@ -775,14 +810,14 @@ void CSAA7134Card::SetupVBI(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart
     WriteWord(SAA7134_VBI_V_START(TaskMask), VStart);
     WriteWord(SAA7134_VBI_V_STOP(TaskMask), VStop);
 
-	// SAA7134_VBI_H_SCALE_INC:
+    // SAA7134_VBI_H_SCALE_INC:
     //   0x400 for 100%, 0x200 for 200%
 
-	// DScaler wants exactly 0x0186 horizontal scaling but SAA7134
-	// can't handle this scaling.  Instead, we scale 0x30C (half of
-	// 0x0186) and double the bytes in SAA7134Source.cpp
+    // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
+    // can't handle this scaling.  Instead, we scale 0x30C (half of
+    // 0x0186) and double the bytes in SAA7134Source.cpp
     // WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x0186);
-	//
+    //
     WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x030C);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(TaskMask), 0x00);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(TaskMask), 0x00);
@@ -791,7 +826,6 @@ void CSAA7134Card::SetupVBI(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart
     WriteWord(SAA7134_VBI_V_LEN(TaskMask), Lines);
 
     MaskDataByte(SAA7134_DATA_PATH(TaskMask), 0x00, 0xC0);
-
 }
 
 
@@ -852,9 +886,9 @@ void CSAA7134Card::SetGeoSizeTask(
     // deinterlace y offsets ?? no idea what these are
     // Odds: 0x00 default
     // Evens: 0x00 default + yscale(1024) / 0x20;
-	// ---
-	// We can tweak these to change the top line to even (by giving
-	// even an offset of 0x20) but it doesn't change VBI
+    // ---
+    // We can tweak these to change the top line to even (by giving
+    // even an offset of 0x20) but it doesn't change VBI
     WriteByte(SAA7134_V_PHASE_OFFSET0(TaskMask), 0x00); // Odd
     WriteByte(SAA7134_V_PHASE_OFFSET1(TaskMask), 0x00); // Even
     WriteByte(SAA7134_V_PHASE_OFFSET2(TaskMask), 0x00); // Odd
@@ -950,15 +984,15 @@ void CSAA7134Card::SetBaseOffsets(eRegionID RegionID, DWORD dwEvenOffset, DWORD 
 {
     int Channel = RegionID2Channel(RegionID);
 
-	// WARNING!!  SAA7134 thinks the top line is odd but DScaler expects
-	//            it to be even.  Do the conversion in here in SAA7134Card.cpp
-	//            so we don't confuse ourselves... (I hope)  Make sure everything
-	//            we give back to SAA7134Source.cpp has already been converted.
-	//            GetProcessingRegion() and GetIRQEventRegion() and should have
-	//            the conversion back.
+    // WARNING!!  SAA7134 thinks the top line is odd but DScaler expects
+    //            it to be even.  Do the conversion in here in SAA7134Card.cpp
+    //            so we don't confuse ourselves... (I hope)  Make sure everything
+    //            we give back to SAA7134Source.cpp has already been converted.
+    //            GetProcessingRegion() and GetIRQEventRegion() and should have
+    //            the conversion back.
 
     // Number bytes to offset into every page
-	// Give the even offset as odd and odd offset as even
+    // Give the even offset as odd and odd offset as even
     WriteDword(SAA7134_RS_E_BA(Channel), dwOddOffset);
     WriteDword(SAA7134_RS_O_BA(Channel), dwEvenOffset);
 
@@ -1066,6 +1100,7 @@ void CSAA7134Card::ResetTask(eTaskID TaskID)
     // 0x00 for YUV
     if (TaskID == TASKID_A)
     {
+        // 0x00 = YUV2, 0x06 = raw VBI
         WriteByte(SAA7134_OFMT_VIDEO_A, 0x00);
         WriteByte(SAA7134_OFMT_DATA_A, 0x06);
     }
@@ -1076,8 +1111,8 @@ void CSAA7134Card::ResetTask(eTaskID TaskID)
     }
 
     // 0x03 mask, 1 = odd first, 2 = even first
-	// This just changes which field is grabbed first. It
-	// doesn't change fact that odd is the top line.
+    // This just changes which field is grabbed first. It
+    // doesn't change fact that odd is the top line.
     WriteByte(SAA7134_TASK_CONDITIONS(TaskMask), 0x0d);
 
     // 0x02: handle 2 fields and repeat ?
@@ -1135,11 +1170,11 @@ BOOL CSAA7134Card::GetIRQEventRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 
     bIsFieldOdd = (Status & 0x10);
 
-	// Everything above is SAA7134 style, here we convert evens
-	// to odd and odds to even so SAA7137Source can take even
-	// has to top line --instead of odd which SAA7137 uses.
-	//   ala. CSAACard::SetBaseOffsets()
-	bIsFieldOdd = !bIsFieldOdd;
+    // Everything above is SAA7134 style, here we convert evens
+    // to odd and odds to even so SAA7137Source can take even
+    // has to top line --instead of odd which SAA7137 uses.
+    //   ala. CSAACard::SetBaseOffsets()
+    bIsFieldOdd = !bIsFieldOdd;
 
     return TRUE;
 }
@@ -1151,17 +1186,20 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 
     Status  = ReadWord(SAA7134_SCALER_STATUS);
 
+    // This shouldn't usually happen
     if (Status & (SAA7134_SCALER_STATUS_TRERR |
         SAA7134_SCALER_STATUS_CFERR |
         SAA7134_SCALER_STATUS_LDERR |
         SAA7134_SCALER_STATUS_WASRST))
     {
-        LOG(0, "Scaler Status, Error: %d", Status);
         return FALSE;
     }
 
+    // This is normal, but don't know what it is
     if (Status & SAA7134_SCALER_STATUS_D6_D5)
+    {
         return FALSE;
+    }
 
     if (Status & SAA7134_SCALER_STATUS_VID_A)
     {
@@ -1186,11 +1224,11 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
         bIsFieldOdd = FALSE;
     }
 
-	// Everything above is SAA7134 style, here we convert evens
-	// to odd and odds to even so SAA7137Source can take even
-	// has to top line --instead of odd which SAA7137 uses.
-	//   ala. CSAACard::SetBaseOffsets()
-	bIsFieldOdd = !bIsFieldOdd;
+    // Everything above is SAA7134 style, here we convert evens
+    // to odd and odds to even so SAA7137Source can take even
+    // has to top line --instead of odd which SAA7137 uses.
+    //   ala. CSAACard::SetBaseOffsets()
+    bIsFieldOdd = !bIsFieldOdd;
 
     return TRUE;
 }

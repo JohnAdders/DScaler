@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.2 2002-09-09 14:20:33 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.3 2002-09-10 12:14:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/09 14:20:33  atnak
+// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Card_Audio.cpp,v 1.3 2002-09-10 12:14:35 atnak Exp $
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -237,6 +240,8 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard audioStandard)
     case FIR_SAT_DUAL_FM:
         break;
     }
+
+    m_AudioStandard = audioStandard;
     CheckStereo();
 }
 
@@ -261,6 +266,61 @@ void CSAA7134Card::CheckStereo()
         Status & (1 << 2) ? "BIT2 ": ""
         );
 }
+
+BOOL CSAA7134Card::IsAudioChannelAvailable(eSoundChannel soundChannel)
+{
+    BYTE Status;
+    BYTE MonoMask;
+    BYTE StereoMask;
+    BYTE Lang2Mask;
+
+    if (IsDualFMAudioStandard(m_AudioStandard))
+    {
+        Status = ReadByte(SAA7134_IDENT_SIF);
+
+        MonoMask    = SAA7134_IDENT_SIF_MONO;
+        StereoMask  = SAA7134_IDENT_SIF_STEREO;
+        Lang2Mask   = SAA7134_IDENT_SIF_LANG2;
+    }
+    else if (IsNICAMAudioStandard(m_AudioStandard))
+    {
+        Status = ReadByte(SAA7134_NICAM_STATUS);
+
+        MonoMask    = SAA7134_NICAM_STATUS_MONO;
+        StereoMask  = SAA7134_NICAM_STATUS_STEREO;
+        Lang2Mask   = SAA7134_NICAM_STATUS_LANG2;
+    }
+    else
+    {
+        // other standards go here
+        return FALSE;
+    }
+
+    switch (soundChannel)
+    {
+    case SOUNDCHANNEL_MONO:
+        return (Status & MonoMask) > 0 && (Status & Lang2Mask) == 0;
+        break;
+
+    case SOUNDCHANNEL_STEREO:
+        return (Status & StereoMask) > 0;
+        break;
+
+    case SOUNDCHANNEL_LANGUAGE1:
+        return (Status & Lang2Mask) > 0 && (Status & MonoMask) > 0;
+        break;
+
+    case SOUNDCHANNEL_LANGUAGE2:
+        return (Status & Lang2Mask) > 0;
+        break;
+
+    default:
+        // NEVER_GET_HERE;
+        break;
+    }
+    return FALSE;
+}
+
 
 void CSAA7134Card::SetAudioMute()
 {
@@ -320,7 +380,79 @@ void CSAA7134Card::SetAudioChannel(eSoundChannel soundChannel)
 
 void CSAA7134Card::SetAudioStandard(eVideoFormat videoFormat)
 {
-    // TODO: Need to implement - check usability
+    /*
+    // Guess the correct format
+    eAudioStandard Standard;
+
+    switch(videoFormat)
+    {
+    case VIDEOFORMAT_PAL_B:
+        Standard = AUDIOSTANDARD_BG_DUAL_FM;
+        break;
+    case VIDEOFORMAT_PAL_D:
+        Standard = AUDIOSTANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_PAL_G:
+        Standard = AUDIOSTANDARD_BG_NICAM_FM;
+        break;
+    case VIDEOFORMAT_PAL_H:
+        // \todo FIXME
+        Standard = AUDIOSTANDARD_BG_DUAL_FM;
+        break;
+    case VIDEOFORMAT_PAL_I:
+        Standard = AUDIOSTANDARD_I_NICAM_FM;
+        break;
+    case VIDEOFORMAT_PAL_M:
+        // \todo FIXME
+        Standard = AUDIOSTANDARD_M_DUAL_FM;
+        break;
+    case VIDEOFORMAT_PAL_N:
+        // \todo FIXME
+        Standard = AUDIOSTANDARD_M_DUAL_FM;
+        break;
+    case VIDEOFORMAT_PAL_N_COMBO:
+        // \todo FIXME
+        Standard = AUDIOSTANDARD_M_DUAL_FM;
+        break;
+    case VIDEOFORMAT_SECAM_B:
+        Standard = AUDIOSTANDARD_BG_DUAL_FM;
+        break;
+    case VIDEOFORMAT_SECAM_D:
+        Standard = AUDIOSTANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_G:
+        Standard = AUDIOSTANDARD_BG_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_H:
+        Standard = AUDIOSTANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_K:
+        Standard = AUDIOSTANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_K1:
+        Standard = AUDIOSTANDARD_DK1_DUAL_FM;
+        break;
+    case VIDEOFORMAT_SECAM_L:
+        Standard = AUDIOSTANDARD_L_NICAM_AM;
+        break;
+    case VIDEOFORMAT_SECAM_L1:
+        Standard = AUDIOSTANDARD_L_NICAM_AM;
+        break;
+    case VIDEOFORMAT_NTSC_M:
+        Standard = AUDIOSTANDARD_M_DUAL_FM;
+        break;
+    case VIDEOFORMAT_NTSC_M_Japan:
+        Standard = AUDIOSTANDARD_M_DUAL_FM;
+        break;
+    default:
+    case VIDEOFORMAT_PAL_60:
+    case VIDEOFORMAT_NTSC_50:
+        Standard = AUDIOSTANDARD_BG_DUAL_FM;
+        break;
+    }
+
+    SetAudioStandard(Standard);
+    */
 }
 
 // TODO: make like the comments
@@ -367,4 +499,40 @@ int CSAA7134Card::GetInputAudioLine(int nInput)
 LPCSTR CSAA7134Card::GetAudioStandardName(eAudioStandard audioStandard)
 {
     return m_AudioStandards[audioStandard].Name;
+}
+
+
+BOOL CSAA7134Card::IsDualFMAudioStandard(eAudioStandard audioStandard)
+{
+    switch (m_AudioStandards[audioStandard].FIRType)
+    {
+    case FIR_BG_DK_DUAL_FM:
+    case FIR_M_N_DUAL_FM:
+        return TRUE;
+
+    default:
+        // do nothing
+        break;
+    }
+
+    return FALSE;
+}
+
+
+BOOL CSAA7134Card::IsNICAMAudioStandard(eAudioStandard audioStandard)
+{
+    switch (m_AudioStandards[audioStandard].FIRType)
+    {
+    case FIR_I_NICAM:
+    case FIR_BG_DK_NICAM:
+    case FIR_L_NICAM:
+        return TRUE;
+        break;
+
+    default:
+        // do nothing
+        break;
+    }
+
+    return FALSE;
 }

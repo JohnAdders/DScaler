@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.2 2002-09-09 14:23:29 atnak Exp $
+// $Id: SAA7134Card.h,v 1.3 2002-09-10 12:14:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/09 14:23:29  atnak
+// Fixed "log" -> "Log", "id" -> "Id"
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +143,7 @@ private:
         DWORD GPIOMask;
     } TCardType;
 
-	/// Used to store audio standard settings
+    /// Used to store audio standard settings
     typedef struct
     {
         char*               Name;
@@ -274,6 +277,7 @@ public:
     int GetInputAudioLine(int nInput);
 
     LPCSTR GetAudioStandardName(eAudioStandard AudioStandard);
+    BOOL IsAudioChannelAvailable(eSoundChannel soundChannel);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -288,7 +292,6 @@ public:
     void SetBSwapAndWSwap(eRegionID RegionID, BOOL bBSwap, BOOL bWSwap);
 
 
-    void VerifyMemorySize(eRegionID RegionID);
 
     BOOL GetIRQEventRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
     BOOL GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
@@ -311,17 +314,24 @@ public:
     BYTE GetI2CData();
     void I2CSleep();
 
-private:
-    ULONG GetTickCount();
-    DWORD m_I2CSleepCycle;
-    DWORD m_I2CRegister;
-    bool m_I2CInitialized;
-    void InitializeI2C();
+protected:
+    BOOL IsDualFMAudioStandard(eAudioStandard audioStandard);
+    BOOL IsNICAMAudioStandard(eAudioStandard audioStandard);
 
+    void VerifyMemorySize(eRegionID RegionID);
     WORD CalculateLinesAvailable(eRegionID RegionID, WORD wBytePerLine);
 
     int RegionID2Channel(eRegionID RegionID);
     BYTE TaskID2TaskMask(eTaskID TaskID);
+
+private:
+    ULONG GetTickCount();
+    void InitializeI2C();
+
+    DWORD m_I2CSleepCycle;
+    DWORD m_I2CRegister;
+    bool m_I2CInitialized;
+
 
 private:
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
@@ -342,7 +352,6 @@ private:
 private:
     static const TCardType m_TVCards[];
 
-
     // Keeps track of the number of pages assigned to DMA
     DWORD           m_nDMAChannelPageCount[7];
     // If this is FALSE, m_nDMAChannelPageCount stores memory size
@@ -350,6 +359,7 @@ private:
 
     // Keep track of the regions for which DMA is prepared
     BYTE            m_PreparedRegions;
+    eAudioStandard  m_AudioStandard;
 
     // Audio standards table
     static TAudioStandardDefinition m_AudioStandards[];

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.178 2002-06-13 12:10:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.179 2002-06-14 21:20:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.178  2002/06/13 12:10:21  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.177  2002/06/13 11:24:32  robmuller
 // Channel enter time is now configurable.
 //
@@ -2654,12 +2657,47 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         //-------------------------------
         case TIMER_KEYNUMBER:
             KillTimer(hWnd, TIMER_KEYNUMBER);
+    		i = atoi(ChannelString);
             if(VTState != VT_OFF)
             {
-				i = atoi(ChannelString);
                 if(i >= 100 && i < 900) //This checking not needed now...
                 {
                     SetVTPage(i, 0, false, false);
+                }
+            }
+            else
+            {
+                // if only zero's are entered video input is switched.
+                if(i == 0)
+                {
+                    if(strcmp(ChannelString, "0") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+                    }
+                    else if(strcmp(ChannelString, "00") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT2, 0);
+                    }
+                    else if(strcmp(ChannelString, "000") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT3, 0);
+                    }
+                    else if(strcmp(ChannelString, "0000") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT4, 0);
+                    }
+                    else if(strcmp(ChannelString, "00000") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT5, 0);
+                    }
+                    else if(strcmp(ChannelString, "000000") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT6, 0);
+                    }
+                    else if(strcmp(ChannelString, "0000000") == 0)
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT7, 0);
+                    }
                 }
             }
             ChannelString[0] = '\0';
@@ -2838,26 +2876,69 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_CHAR:
-        if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
+        if (((char) wParam >= '0') && ((char) wParam <= '9'))
         {
-            if (((char) wParam >= '0') && ((char) wParam <= '9'))
+            sprintf(Text, "%c", (char)wParam);
+            strcat(ChannelString, Text);
+
+            // if the user is only typing zero's we are going to switch inputs
+            if(VTState == VT_OFF && atoi(ChannelString) == 0 && (char) wParam == '0')
             {
-                sprintf(Text, "%c", (char)wParam);
-                strcat(ChannelString, Text);
-                if(VTState == VT_OFF)
+                char string[128];
+                HMENU hSubMenu;
+                int MenuIndex = 0;
+
+                // first get the right name for the chosen input
+                hSubMenu = GetSubMenu(hMenu, 6);
+                hSubMenu = GetSubMenuWithName(hSubMenu, 0, "Video &Input");
+                if(hSubMenu != NULL)
                 {
-                    OSD_ShowText(hWnd, ChannelString, 0);
+                    if(GetMenuString(hSubMenu, strlen(ChannelString) -1, string,
+                        sizeof(string), MF_BYPOSITION) != 0)
+                    {
+                        // get rid off the shortcut text
+                        char *ch = strchr(string, '\t');
+                        if(ch != NULL)
+                        {
+                            *ch = '\0';
+                        }
+                        // show the name of the source that is selected up to now
+                        OSD_ShowText(hWnd, string, 0);
+                    }
+                    else
+                    {
+                        OSD_ShowText(hWnd, ChannelString, 0);
+                    }
                 }
-                if (strlen(ChannelString) >= 3)
+                
+                if (strlen(ChannelString) >= 7)
                 {
                     SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
                 }
                 else
                 {
                     SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
-                    if(VTState == VT_OFF)
+                }
+            }
+            else if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
+            {
+                if(VTState == VT_OFF)
+                {
+                    OSD_ShowText(hWnd, ChannelString, 0);
+                }
+                if(strlen(ChannelString) >= 3)
+                {
+                    SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
+                }
+                else
+                {
+                    SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
+                }
+                if(VTState == VT_OFF)
+                {
+                    i = atoi(ChannelString);
+                    if(i != 0)
                     {
-                        i = atoi(ChannelString);
                         Channel_ChangeToNumber(i);
                     }
                 }

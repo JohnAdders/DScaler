@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.25 2002-08-11 18:47:51 laurentg Exp $
+// $Id: Filter.cpp,v 1.26 2002-08-12 09:09:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/08/11 18:47:51  laurentg
+// Put first input filters and then output filters in the filter menu
+//
 // Revision 1.24  2002/08/09 08:33:35  kooiman
 // Fixed potential ignoring of some filter's settings for per channel settings.
 //
@@ -119,7 +122,7 @@ long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
             {
                 if(History >= Filters[i]->HistoryRequired)
                 {
-                    if(!((pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_MASK) > 0) || 
+                    if(!(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) || 
                         Filters[i]->CanDoInterlaced)
                     {
                         SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);

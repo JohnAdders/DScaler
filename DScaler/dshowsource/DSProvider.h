@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.h,v 1.4 2002-12-03 22:02:23 tobbej Exp $
+// $Id: DSProvider.h,v 1.5 2003-02-05 19:39:48 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/12/03 22:02:23  tobbej
+// added some checks before enabling dshow support,
+// currently it checks that dsrend is properly installed
+//
 // Revision 1.3  2002/08/20 16:22:59  tobbej
 // split CDSSource into 3 different classes
 //
@@ -69,7 +73,7 @@ public:
     virtual int GetNumberOfSources();
     virtual CSource* GetSource(int SourceIndex);
 	
-	string getSourceName(int SourceIndex);
+	string GetSourceName(int SourceIndex);
 
 private:
 	///checks if dshow support can be enabled

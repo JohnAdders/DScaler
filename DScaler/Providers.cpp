@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.57 2003-01-11 12:53:58 adcockj Exp $
+// $Id: Providers.cpp,v 1.58 2003-02-05 19:39:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/01/11 12:53:58  adcockj
+// Interim Check in of settings changes
+//  - bug fixes for overlay settings changes
+//  - Bug fixes for new settings changes
+//  - disables settings per channel completely
+//
 // Revision 1.56  2003/01/10 17:38:13  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -238,7 +244,8 @@ static CDSProvider* DSProvider = NULL;
 #endif
 
 
-typedef struct {
+typedef struct
+{
     std::string Name;
     CSource*    Object;
     BOOL        DisplayInMenu;
@@ -369,7 +376,7 @@ int Providers_Load(HMENU hMenu)
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
         Source = new TSource;
-        Source->Name = DSProvider->getSourceName(i);
+        Source->Name = DSProvider->GetSourceName(i);
         Source->Object = DSProvider->GetSource(i);
         Source->DisplayInMenu = TRUE;
         Sources.push_back(Source);

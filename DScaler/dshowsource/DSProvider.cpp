@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.9 2002-12-03 22:02:18 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.10 2003-02-05 19:39:46 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/12/03 22:02:18  tobbej
+// added some checks before enabling dshow support,
+// currently it checks that dsrend is properly installed
+//
 // Revision 1.8  2002/08/20 16:22:59  tobbej
 // split CDSSource into 3 different classes
 //
@@ -132,7 +136,7 @@ CDSProvider::~CDSProvider()
 	}
 }
 
-string CDSProvider::getSourceName(int SourceIndex)
+string CDSProvider::GetSourceName(int SourceIndex)
 {
 	ASSERT(SourceIndex>=0 && SourceIndex<m_DSSources.size());
 	return m_SourceNames[SourceIndex];

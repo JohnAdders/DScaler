@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.91 2002-10-26 21:42:05 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.92 2002-10-27 11:29:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2002/10/26 21:42:05  laurentg
+// Take consecutive stills
+//
 // Revision 1.90  2002/10/26 15:22:04  adcockj
 // Fixed issue with vertical flipping
 //
@@ -635,6 +638,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     DEINTERLACE_METHOD* CurrentMethod = NULL;
     int nHistory = 0;
     long SourceAspectAdjust = 1000;
+	BYTE* pAllocBuf;
+	BOOL TakeStill;
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -920,20 +925,52 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             pPerf->StopCount(PERF_RATIO);
                         }
 
-                        pPerf->StartCount(PERF_LOCK_OVERLAY);
+						if(RequestStillType == STILL_TIFF)
+						{
+							TakeStill = TRUE;
+							if (RequestStillInMemory)
+							{
+								// If we are taking a still, we need to allocate
+								// a memory buffer and use this buffer as output
+								// That means too that the overlay will not be updated
+								Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+								pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
+								if (pAllocBuf == NULL)
+								{
+									RequestStillType = STILL_NONE;
+									TakeStill = FALSE;
+								}
+								LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
+							}
+							else
+							{
+								pAllocBuf = NULL;
+							}
+						}
+						else
+						{
+							TakeStill = FALSE;
+						}
 
-                        if(!Overlay_Lock_Back_Buffer(&Info))
-                        {
-                            Providers_GetCurrentSource()->Stop();
-                            LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
-                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                            ExitThread(1);
-                            return 1;
-                        }
-                        bOverlayLocked = TRUE;
+						if(!TakeStill)
+						{
+	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 
-                        pPerf->StopCount(PERF_LOCK_OVERLAY);
+							// The overlay is used as output
+							// So we have to lock it
+							if(!Overlay_Lock_Back_Buffer(&Info))
+							{
+								Providers_GetCurrentSource()->Stop();
+								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
+								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
+								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+								ExitThread(1);
+								return 1;
+							}
+							bOverlayLocked = TRUE;
+
+	                        pPerf->StopCount(PERF_LOCK_OVERLAY);
+						}
 
                         pPerf->StartCount(PERF_DEINTERLACE);
 
@@ -971,39 +1008,21 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 
-						// Take the still now rather than later, because the overlay is already
-						// locked and filled with the next frame to display
-						// This avoids to lock the overlay again later.only to take the still
-						if(RequestStillType == STILL_TIFF)
+						if(bOverlayLocked)
 						{
-							StillProvider_SaveSnapshot(&Info, RequestStillInMemory);
-							RequestStillNb--;
-							if (RequestStillNb <= 0)
+							// somewhere above we will have locked the buffer, unlock before flip
+							if(!Overlay_Unlock_Back_Buffer())
 							{
-								if (RequestStillInMemory)
-								{
-									OSD_ShowText(hWnd, "Still(s) stored in memory", 0);
-								}
-								else
-								{
-									OSD_ShowText(hWnd, "Still saved in file", 0);
-								}
-								RequestStillType = STILL_NONE;
+								Providers_GetCurrentSource()->Stop();
+								LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
+								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
+								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+								DScalerDeinitializeThread();
+								ExitThread(1);
+								return 0;
 							}
+							bOverlayLocked = FALSE;
 						}
-
-                        // somewhere above we will have locked the buffer, unlock before flip
-                        if(!Overlay_Unlock_Back_Buffer())
-                        {
-                            Providers_GetCurrentSource()->Stop();
-                            LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
-                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-                            PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                            DScalerDeinitializeThread();
-                            ExitThread(1);
-                            return 0;
-                        }
-                        bOverlayLocked = FALSE;
 
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
 
@@ -1040,7 +1059,24 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
                             }
 
-                            if(!Overlay_Flip(FlipFlag))
+							if(TakeStill)
+							{
+								StillProvider_SaveSnapshot(&Info, pAllocBuf, RequestStillInMemory);
+								RequestStillNb--;
+								if (RequestStillNb <= 0)
+								{
+									if (RequestStillInMemory)
+									{
+										OSD_ShowText(hWnd, "Still(s) stored in memory", 0);
+									}
+									else
+									{
+										OSD_ShowText(hWnd, "Still saved in file", 0);
+									}
+									RequestStillType = STILL_NONE;
+								}
+							}
+							else if(!Overlay_Flip(FlipFlag))
                             {
                                 Providers_GetCurrentSource()->Stop();
                                 LOG(1, "Falling out after Overlay_Flip");

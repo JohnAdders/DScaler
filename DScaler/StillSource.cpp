@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.72 2002-10-26 21:37:13 laurentg Exp $
+// $Id: StillSource.cpp,v 1.73 2002-10-27 11:29:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2002/10/26 21:37:13  laurentg
+// Take consecutive stills
+//
 // Revision 1.71  2002/10/26 17:56:19  laurentg
 // Possibility to take stills in memory added
 //
@@ -427,6 +430,7 @@ void CPlayListItem::FreeBuffer()
 {
 	if (m_FrameBuffer != NULL)
 	{
+		LOG(2, "FreeBuffer - start buf %d, start frame %d", m_FrameBuffer, m_StartFrame);
 		free(m_FrameBuffer);
 		m_FrameBuffer = NULL;
 		m_StartFrame = NULL;
@@ -623,6 +627,7 @@ BOOL CStillSource::OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int Fr
     int h = m_Height;
     int w = m_Width;
 
+	LOG(2, "OpenPictureMemory - start buf %d, start frame %d", FrameBuffer, StartFrame);
     FreeOriginalFrameBuffer();
     m_OriginalFrameBuffer = FrameBuffer;
     m_OriginalFrame.pData = StartFrame;
@@ -782,43 +787,59 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
 		break;
 	}
 
-	if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
+	while (n < 100)
 	{
-		sprintf(FileName,"%s\\TV.%s", SavingPath, extension);
-	}
-	else
-	{
-		while (n < 100)
-		{
-			sprintf(FileName,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
-					SavingPath,
-					ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
-					// name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
-					// TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
-					extension);
+		sprintf(FileName,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
+				SavingPath,
+				ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
+				// name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+				// TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
+				extension);
 
-			if (stat(FileName, &st))
-			{
-				break;
-			}
-		}
-		if(n == 100) // never reached in 1 second, so could be scrapped
+		if (stat(FileName, &st))
 		{
-			ErrorBox("Could not create a file. You may have too many captures already.");
-			return FALSE;
+			break;
 		}
 	}
+	if(n == 100) // never reached in 1 second, so could be scrapped
+	{
+		ErrorBox("Could not create a file. You may have too many captures already.");
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
-void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
+void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch)
 {
     BOOL NewToAdd;
 	char FilePath[MAX_PATH];
 
-	if (!FindFileName(time(0), FilePath))
+	if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
 	{
-		return;
+		char extension[4];
+		switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+		{
+		case STILL_TIFF_RGB:
+		case STILL_TIFF_YCbCr:
+			strcpy(extension, "tif");
+			break;
+		case STILL_JPEG:
+			strcpy(extension, "jpg");
+			break;
+		default:
+			ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
+			return;
+			break;
+		}
+		sprintf(FilePath,"%s\\TV.%s", SavingPath, extension);
+	}
+	else
+	{
+		if (!FindFileName(time(0), FilePath))
+		{
+			return;
+		}
 	}
 
     m_SquarePixels = AspectSettings.SquarePixels;
@@ -827,21 +848,21 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pOv
     case STILL_TIFF_RGB:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pFrameBuffer, LinePitch);
             NewToAdd = TRUE;
             break;
         }
     case STILL_TIFF_YCbCr:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pFrameBuffer, LinePitch);
             NewToAdd = TRUE;
             break;
         }
     case STILL_JPEG:
         {
             CJpegHelper JpegHelper(this);
-            JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pFrameBuffer, LinePitch);
             NewToAdd = TRUE;
             break;
         }
@@ -861,46 +882,19 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pOv
     }
 }
 
-void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
+void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch, BYTE* pAllocBuffer)
 {
-    int LinePitch;
-    BYTE* pFrameBuf = NULL;
-    BYTE* pStartFrame;
-    BYTE* pOrigLine;
-    BYTE* pDestLine;
-
-    // Allocate memory buffer to store the data
-    LinePitch = (FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    pFrameBuf = MallocStillBuf(LinePitch * FrameHeight, &pStartFrame);
-    if (pFrameBuf == NULL)
-    {
-		return;
-    }
-
-	// Copy the data
-    pOrigLine = pOverlay;
-    pDestLine = pStartFrame;
-    for (int i = 0; i < FrameHeight; i++)
-    {
-		if (m_pMemcpy == NULL)
+	if (pAllocBuffer != NULL)
+	{
+		LOG(2, "SaveSnapshotInMemory - start buf %d, start frame %d", pAllocBuffer, pFrameBuffer);
+		CPlayListItem* Item = new CPlayListItem(pAllocBuffer, pFrameBuffer, FrameHeight, FrameWidth, LinePitch, AspectSettings.SquarePixels);
+		m_PlayList.push_back(Item);
+		if (m_PlayList.size() == 1)
 		{
-	        memcpy(pDestLine, pOrigLine, FrameWidth * 2);
+			m_Position = 0;
 		}
-		else
-		{
-	        m_pMemcpy(pDestLine, pOrigLine, FrameWidth * 2);
-		}
-        pDestLine += LinePitch;
-        pOrigLine += OverlayPitch;
-    }
-
-    CPlayListItem* Item = new CPlayListItem(pFrameBuf, pStartFrame, FrameHeight, FrameWidth, LinePitch, AspectSettings.SquarePixels);
-    m_PlayList.push_back(Item);
-    if (m_PlayList.size() == 1)
-    {
-        m_Position = 0;
-    }
-    UpdateMenu();
+		UpdateMenu();
+	}
 }
 
 void CStillSource::SaveInFile()
@@ -1474,6 +1468,7 @@ void CStillSource::FreeOriginalFrameBuffer()
 
 	if (OkToFree)
 	{
+		LOG(2, "FreeOriginalFrameBuffer - m_OriginalFrameBuffer %d", m_OriginalFrameBuffer);
 		free(m_OriginalFrameBuffer);
 	}
 

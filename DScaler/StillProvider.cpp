@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.22 2002-10-26 21:37:13 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.23 2002-10-27 11:29:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/26 21:37:13  laurentg
+// Take consecutive stills
+//
 // Revision 1.21  2002/10/26 17:56:19  laurentg
 // Possibility to take stills in memory added
 //
@@ -151,7 +154,7 @@ CSource* CStillProvider::GetSource(int SourceIndex)
     }
 }
 
-void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo, BOOL InMemory)
+void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo, BYTE* pAllocBuffer, BOOL InMemory)
 {
 	// The overlay (back buffer) is already locked
 	// and pInfo->Overlay is a pointer to this overlay
@@ -162,11 +165,18 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo, BOOL InMemory)
     {
 		if (InMemory)
 		{
-			pStillSource->SaveSnapshotInMemory(pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
+			pStillSource->SaveSnapshotInMemory(pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch, pAllocBuffer);
 		}
 		else
 		{
 			pStillSource->SaveSnapshotInFile(pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
 		}
     }
+	else
+	{
+		if (pAllocBuffer != NULL)
+		{
+			free(pAllocBuffer);
+		}
+	}
 }

@@ -16,6 +16,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/11/02 01:30:19  lindsey
+// Added spatial averaging
+// Changed response curve to amount of change to more closely approximate the modelled ideal
+// Accounted for reduction of variance due to averaging when evaluating motion vs. noise
+// Added a readout of the noise level
+//
 // Revision 1.13  2002/08/06 21:26:03  lindsey
 // Made prefetching a user option
 //
@@ -336,7 +342,7 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 #else
         "Motion Memory (Percent)", NOT_PRESENT, 0, &gDecayCoeff,
 #endif // Show motion memory slider when testing
-        80, 0, 99, 1, 1,
+        83, 0, 99, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "MotionSharing", NULL,
     },

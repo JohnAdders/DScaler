@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.56 2004-12-08 21:26:16 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.57 2004-12-12 12:01:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2004/12/08 21:26:16  atnak
+// Fixed parsing audio crystal units "Hz" to "kHz" among other minor changes.
+//
 // Revision 1.55  2004/12/01 22:01:18  atnak
 // Fix the VC++ 6 incompatibility introduced by last change.
 //
@@ -169,7 +172,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134UnknownCard =
         },
     },
     TUNER_ABSENT,
-    AUDIOCRYSTAL_32110Hz,
+    AUDIOCRYSTAL_32110kHz,
     0,
 };
 
@@ -205,8 +208,8 @@ const CParseConstant CSAA7134Card::k_parseInputTypeConstants[] =
 const CParseConstant CSAA7134Card::k_parseAudioCrystalConstants[] =
 {
 	PC(	"NONE",			AUDIOCRYSTAL_NONE		),
-	PC(	"32kHz",		AUDIOCRYSTAL_32110Hz	),
-	PC(	"24kHz",		AUDIOCRYSTAL_24576Hz	),
+	PC(	"32MHz",		AUDIOCRYSTAL_32110kHz	),
+	PC(	"24MHz",		AUDIOCRYSTAL_24576kHz	),
 	PC(	NULL )
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.47 2004-12-08 21:26:16 atnak Exp $
+// $Id: SAA7134Card.h,v 1.48 2004-12-12 12:01:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2004/12/08 21:26:16  atnak
+// Fixed parsing audio crystal units "Hz" to "kHz" among other minor changes.
+//
 // Revision 1.46  2004/12/06 09:03:23  atnak
 // Added some SAA7133 audio related functions.
 //
@@ -251,8 +254,8 @@ private:
     enum eAudioCrystal
     {
         AUDIOCRYSTAL_NONE = 0,          // only on saa7130
-        AUDIOCRYSTAL_32110Hz,           // 0x187DE7
-        AUDIOCRYSTAL_24576Hz,           // 0x200000
+        AUDIOCRYSTAL_32110kHz,          // 0x187DE7
+        AUDIOCRYSTAL_24576kHz,          // 0x200000
     };
 
     /// Defines each input on a card

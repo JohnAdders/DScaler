@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.28 2004-12-06 09:03:23 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.29 2004-12-12 12:01:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2004/12/06 09:03:23  atnak
+// Added some SAA7133 audio related functions.
+//
 // Revision 1.27  2004/11/20 14:20:09  atnak
 // Changed the card list to an ini file.
 //
@@ -478,11 +481,11 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
     {
         switch (GetCardSetup()->AudioCrystal)
         {
-        case AUDIOCRYSTAL_32110Hz:
+        case AUDIOCRYSTAL_32110kHz:
             AudioClock = 0x187DE7;
             break;
 
-        case AUDIOCRYSTAL_24576Hz:
+        case AUDIOCRYSTAL_24576kHz:
             AudioClock = 0x200000;
             break;
 
@@ -506,11 +509,11 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
     {
         switch (GetCardSetup()->AudioCrystal)
         {
-        case AUDIOCRYSTAL_32110Hz:
+        case AUDIOCRYSTAL_32110kHz:
             AudioClock = 0x1C2097;
             break;
 
-        case AUDIOCRYSTAL_24576Hz:
+        case AUDIOCRYSTAL_24576kHz:
             AudioClock = 0x24C000;
             break;
         }

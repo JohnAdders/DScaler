@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.16 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.17 2002-10-06 09:49:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.15  2002/10/03 23:36:22  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -517,11 +520,11 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     Timimg_AutoFormatDetect(pInfo, 10);
 }
 
+
 void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
     eRegionID RegionID;
     BOOL bIsFieldOdd;
-    BOOL bSlept = FALSE;
     int FieldIndex;
     int SkippedFields;
 
@@ -558,6 +561,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 
     m_IsFieldOdd = bIsFieldOdd;
 }
+
 
 void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 {
@@ -662,11 +666,67 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
 BOOL CSAA7134Source::WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd,
                                           TDeinterlaceInfo* pInfo)
 {
-    BOOL    bUsingInterrupts = FALSE;
+    BOOL        bUsingInterrupts = FALSE;
+    ULONGLONG   Frequency;
 
     if (bUsingInterrupts)
     {
         // Need to implement interrupts
+
+        return FALSE;
+    }
+
+    if (QueryPerformanceFrequency((PLARGE_INTEGER)&Frequency))
+    {
+        ULONGLONG       PerformanceCount;
+        ULONGLONG       WaitTimeSpent;
+        ULONG           SleepTime;
+        BOOL            bWaited = FALSE;
+
+        if (m_ProcessingRegionID == REGIONID_INVALID)
+        {
+            m_pSAA7134Card->GetProcessingRegion(
+                                m_ProcessingRegionID,
+                                m_IsProcessingFieldOdd
+                            );
+
+            QueryPerformanceCounter((PLARGE_INTEGER)&m_LastPerformanceCount);
+            m_MinimumFieldDelay = 0;
+        }
+
+        while (!GetFinishedField(RegionID, bIsFieldOdd))
+        {
+            bWaited = TRUE;
+
+            QueryPerformanceCounter((PLARGE_INTEGER)&PerformanceCount);
+            WaitTimeSpent = PerformanceCount - m_LastPerformanceCount;
+
+            if (WaitTimeSpent > m_MinimumFieldDelay)
+            {
+                // Wait blindly with 1ms delays
+                SleepTime = (Frequency * 0.001);
+            }
+            else
+            {
+                SleepTime = (m_MinimumFieldDelay - WaitTimeSpent) * 3 / 4;
+            }
+
+            // Sleep is only accurate to 10ms.  We should have 1ms accuracy.
+            Sleep(SleepTime * 1000 / Frequency);
+        }
+
+        QueryPerformanceCounter((PLARGE_INTEGER)&m_LastPerformanceCount);
+
+        if (bWaited)
+        {
+            // If we waited longer than 30ms, something probably went wrong
+            if (WaitTimeSpent * 1000 / Frequency < 30)
+            {
+                ULONGLONG Delta = m_LastPerformanceCount - PerformanceCount;
+                m_MinimumFieldDelay = WaitTimeSpent + Delta / 2;
+            }
+            pInfo->bRunningLate = FALSE;
+        }
     }
     else
     {

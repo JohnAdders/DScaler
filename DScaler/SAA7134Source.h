@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.9 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Source.h,v 1.10 2002-10-06 09:49:19 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.8  2002/10/03 23:36:22  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -192,6 +195,11 @@ private:
     int             m_CurrentFrame;
     BOOL            m_IsFieldOdd;
     int             m_LastFieldIndex;
+
+    // Used to time field to field tick delay
+    ULONGLONG       m_LastPerformanceCount;
+    // Used to store current field to field microsecond delay
+    ULONGLONG       m_MinimumFieldDelay;
 
     // The field the card is currently processing
     eRegionID       m_ProcessingRegionID;

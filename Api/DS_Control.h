@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.79 2002-08-07 09:42:12 kooiman Exp $
+// $Id: DS_Control.h,v 1.80 2002-08-07 19:13:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2002/08/07 09:42:12  kooiman
+// Add settings for 'save per channel'
+//
 // Revision 1.78  2002/08/07 00:47:30  lindsey
 // Added a switch for the use of prefetching in the temporal noise filter.
 //
@@ -1246,5 +1249,18 @@ typedef enum
 #define WM_SETTINGSPERCHANNEL_SETVALUE     (WM_APP + 145)
 #define WM_SETTINGSPERCHANNEL_CHANGEVALUE  (WM_APP + 245)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_Mirror.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    USEINVERSION,
+    FLT_INVERSION_SETTING_LASTONE,
+} FLT_INVERSION_SETTING;
+
+#define WM_FLT_INVERSION_GETVALUE     (WM_APP + 46)
+#define WM_FLT_INVERSION_SETVALUE     (WM_APP + 147)
+#define WM_FLT_INVERSION_CHANGEVALUE  (WM_APP + 248)
 
 #endif

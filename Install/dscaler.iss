@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.9 2002-07-27 17:01:52 adcockj Exp $
+;// $Id: dscaler.iss,v 1.10 2002-08-07 19:15:02 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.9  2002/07/27 17:01:52  adcockj
+;// Updated install for new alpha version
+;//
 ;// Revision 1.8  2002/07/08 18:16:42  adcockj
 ;// final fixes fro alpha 3
 ;//
@@ -95,6 +98,7 @@ Source: "..\Release\DI_VideoBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrit
 Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_Weave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\FLT_AdaptiveNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\FLT_Gamma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\FLT_GradualNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\FLT_Histogram.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta

@@ -308,6 +308,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name DI_TomsMoComp
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_ColourInversion
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -325,6 +328,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_AdaptiveNoise"=..\Plugins\FLT_AdaptiveNoise\FLT_AdaptiveNoise.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_ColourInversion"=..\Plugins\FLT_ColourInversion\FLT_ColourInversion.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -538,6 +553,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name FLT_Mirror
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_ColourInversion
     End Project Dependency
 }}}
 

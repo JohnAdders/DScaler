@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.62 2003-03-05 22:08:48 laurentg Exp $
+// $Id: StillSource.h,v 1.63 2003-03-15 21:29:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,6 @@ private:
     BOOL OpenPictureFile(LPCSTR FileName);
 	BOOL OpenPictureMemory(BYTE* FrameBuffer, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
     BOOL SavePlayList(LPCSTR FileName);
-	BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight);
     BOOL IsItemInList(LPCSTR FileName);
 	BOOL FindFileName(time_t TimeStamp, char* FileName);
 
@@ -214,6 +213,8 @@ private:
 //    	BYTE** y = (BYTE**) (x+16);
 //    	y = (BYTE**) ((unsigned int) y & 0xfffffff0);
 #define	START_ALIGNED16(buf)	((buf) + 16 - ((DWORD)(buf) % 16))
+
+BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight);
 
 void BuildDScalerContext(char* buf);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.89 2003-03-09 19:48:28 laurentg Exp $
+// $Id: StillSource.cpp,v 1.90 2003-03-15 21:29:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2003/03/09 19:48:28  laurentg
+// Updated field statistics
+//
 // Revision 1.88  2003/03/05 22:08:46  laurentg
 // Updated management of 16 bytes aligned buffer for stills
 //
@@ -2099,7 +2102,7 @@ CTreeSettingsGeneric* Still_GetTreeSettingsPage()
 }
 
 
-BOOL CStillSource::ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight)
+BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight)
 {
 	unsigned int* hControl;		// weighting masks, alternating dwords for Y & UV
 								// 1 qword for mask, 1 dword for src offset, 1 unused dword

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.77 2002-08-06 21:35:08 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.78 2002-08-07 21:53:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2002/08/06 21:35:08  robmuller
+// Don't pause the image when VideoText contains transparency.
+//
 // Revision 1.76  2002/08/06 21:03:53  robmuller
 // Duplicate #include statement removed.
 //
@@ -338,9 +341,6 @@ BOOL                bIsOddField = FALSE;
 BOOL                bWaitForVsync = FALSE;
 BOOL                bReversePolarity = FALSE;
 BOOL                bJudderTerminatorOnVideo = TRUE;
-
-/// \todo should be able to get of this variable
-long                OverlayPitch = 0;
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -695,7 +695,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             Info.bDoAccurateFlips = DoAccurateFlips;
             Info.bRunningLate = bHurryWhenLate;
             Info.bMissedFrame = FALSE;
-            Info.OverlayPitch = OverlayPitch;
+            //Info.OverlayPitch = OverlayPitch;
             Info.CombFactor = -1;
             Info.FieldDiff = -1;
             bFlipNow = FALSE;

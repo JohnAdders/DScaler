@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.22 2002-06-16 18:54:59 robmuller Exp $
+// $Id: BT848Card.cpp,v 1.23 2002-08-07 21:53:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/06/16 18:54:59  robmuller
+// ACPI powersafe support.
+//
 // Revision 1.21  2002/06/13 15:22:53  adcockj
 // Honour luma range and peaking on CCIR inputs
 //
@@ -810,16 +813,6 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
             // Enable NTSC Mode (or PAL60)
             MaskDataByte(BT848_IFORM, (BT848_IFORM_NTSC | BT848_IFORM_XTBOTH), (BT848_IFORM_NORM | BT848_IFORM_XTBOTH));
         }
-
-        // \todo remove if this ends up being OK
-        // JA we should respect what the settings are stored as
-        // for the SDI cards
-        // Disable full range luma
-        //WriteByte(BT848_OFORM, 0);
-
-        // Enable the SC loop luma peaking filters
-        //WriteByte(BT848_E_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
-        //WriteByte(BT848_O_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
 
         // Standard line Count
         WriteByte(BT848_VTOTAL_LO, 0x00);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.41 2002-07-19 10:04:26 laurentg Exp $
+// $Id: Other.cpp,v 1.42 2002-08-07 21:53:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/07/19 10:04:26  laurentg
+// LOG in double suppressed
+//
 // Revision 1.40  2002/07/03 00:41:14  laurentg
 // Add the setting "Use Overlay Controls" in the Change Settings dialog box
 //
@@ -569,28 +572,6 @@ BOOL Overlay_Create()
         LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
-
-    // \todo remove if not required
-    // this code seems superfluous and can cause errors with 
-    // some drivers, try without it
-    /*
-    ddrval = lpDDSurface->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
-    if (FAILED(ddrval))
-    {
-        sprintf(msg, "Error locking primary surface: %x", ddrval);
-        RealErrorBox(msg);
-        LeaveCriticalSection(&hDDCritSect);
-        return (FALSE);
-    }
-    ddrval = lpDDSurface->Unlock(SurfaceDesc.lpSurface);
-    if (FAILED(ddrval))
-    {
-        sprintf(msg, "Error unlocking primary surface: %x", ddrval);
-        RealErrorBox(msg);
-        LeaveCriticalSection(&hDDCritSect);
-        return (FALSE);
-    }
-    */
 
     memset(&PixelFormat, 0x00, sizeof(PixelFormat));
     PixelFormat.dwSize = sizeof(DDPIXELFORMAT);

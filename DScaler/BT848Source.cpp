@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.45 2002-08-05 13:25:17 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.46 2002-08-07 21:53:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/08/05 13:25:17  kooiman
+// Added BT volume to save by channel settings.
+//
 // Revision 1.44  2002/08/05 12:05:28  kooiman
 // Added support for per channel settings.
 //
@@ -508,7 +511,6 @@ void CBT848Source::Reset()
     
     NotifySizeChange();
 
-    /// \todo FIXME anything else to initialize here?
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (m_UseInputPin1->GetValue() != 0));

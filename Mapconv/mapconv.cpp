@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: mapconv.cpp,v 1.3 2002-09-17 17:29:55 tobbej Exp $
+// $Id: mapconv.cpp,v 1.4 2002-09-17 19:29:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2002 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/17 17:29:55  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 // Revision 1.2  2001/12/09 20:46:17  tobbej
 // fixed crashing of mapconv when symbol names is very large
 // (for example when using a stl map)
@@ -248,7 +251,6 @@ int main(int argc, char **argv)
 {
     int ver=0;
     int i;
-    long load_addr;
 
     if (argc<4)
     {
@@ -352,7 +354,6 @@ int main(int argc, char **argv)
         {
             long grp, start, rva;
             char symname[2048];
-            int i;
 
             if (4!=sscanf(line, "%lx:%lx %s %lx", &grp, &start, symname, &rva))
             {

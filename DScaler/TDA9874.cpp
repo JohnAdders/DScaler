@@ -1,3 +1,6 @@
+//
+// $id$
+//
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -15,6 +18,8 @@
 //  Copyright (C) 2000-2005 Quenotte  All rights reserved.
 //  Copyright (C) 2000 - 2002 by Eduardo José Tagle.
 /////////////////////////////////////////////////////////////////////////////
+//
+// $log$
 
 #include "stdafx.h"
 #include "TDA9874.h"

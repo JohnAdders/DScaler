@@ -210,7 +210,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = sizeof(LONG);
 	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(hInstance, "DTVICON");
+	wc.hIcon = LoadIcon(hInstance, "DSCALERICON");
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = CreateSolidBrush(0);
 	wc.lpszMenuName = NULL;

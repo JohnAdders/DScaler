@@ -545,25 +545,45 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
 	}
 
 	if (!strcmp(DeintPlugin, "odd1"))
+    {
 		OddField = 0;
+    }
 	else if (!strcmp(DeintPlugin, "odd2"))
+    {
 		OddField = 1;
+    }
 	else if (!strcmp(DeintPlugin, "odd3"))
+    {
 		OddField = 2;
+    }
 	else if (!strcmp(DeintPlugin, "odd4"))
+    {
 		OddField = 3;
+    }
 	else if (!strcmp(DeintPlugin, "odd5"))
+    {
 		OddField = 4;
+    }
 	else if (!strcmp(DeintPlugin, "even1"))
+    {
 		EvenField = 0;
+    }
 	else if (!strcmp(DeintPlugin, "even2"))
+    {
 		EvenField = 1;
+    }
 	else if (!strcmp(DeintPlugin, "even3"))
+    {
 		EvenField = 2;
+    }
 	else if (!strcmp(DeintPlugin, "even4"))
+    {
 		EvenField = 3;
+    }
 	else if (!strcmp(DeintPlugin, "even5"))
+    {
 		EvenField = 4;
+    }
 	else if (!strcmp(DeintPlugin, "oddeven1"))
 	{
 		OddField = 0;
@@ -591,30 +611,28 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
 	}
 	else
 	{
+	    if(!LoadDeintPlugin(DeintPlugin, &DeintMethod))
+	    {
+		    return 1;
+	    }
 
-	if(!LoadDeintPlugin(DeintPlugin, &DeintMethod))
-	{
-		return 1;
-	}
+	    QueryPerformanceCounter(&StartTime);
+	    DeintMethod->pfnAlgorithm(&info);
+	    QueryPerformanceCounter(&EndTime);
+	    double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
+	    printf("Deint %f microsecs\n", Ticks * 1000000 / TimerFreq);
 
-	QueryPerformanceCounter(&StartTime);
-	DeintMethod->pfnAlgorithm(&info);
-	QueryPerformanceCounter(&EndTime);
-	double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
-	printf("Deint %f microsecs\n", Ticks * 1000000 / TimerFreq);
-
-	if(FilterMethod != NULL)
-	{
-		if(FilterMethod->bOnInput == FALSE)
-		{
-			QueryPerformanceCounter(&StartTime);
-			FilterMethod->pfnAlgorithm(&info);
-			QueryPerformanceCounter(&EndTime);
-			double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
-			printf("Output Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
-		}
-	}
-
+	    if(FilterMethod != NULL)
+	    {
+		    if(FilterMethod->bOnInput == FALSE)
+		    {
+			    QueryPerformanceCounter(&StartTime);
+			    FilterMethod->pfnAlgorithm(&info);
+			    QueryPerformanceCounter(&EndTime);
+			    double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
+			    printf("Output Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+		    }
+	    }
 	}
 
 	if(!MakeTifFile(&info, TifFile, DeintMethod, OddField, EvenField))

@@ -127,7 +127,7 @@ void LoadSettingsFromIni()
 	AudioSource = (AUDIOMUXTYPE)GetPrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
 	System_In_Mute = (GetPrivateProfileInt("Sound", "System_In_Mute", System_In_Mute, szIniFile) != 0);
 		
-	bSaveSettings = (GetPrivateProfileInt("Show", "SaveSettings", CountryCode, szIniFile) != 0);
+	bSaveSettings = (GetPrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile) != 0);
 	CountryCode = GetPrivateProfileInt("Show", "CountryCode", CountryCode, szIniFile);
 
 

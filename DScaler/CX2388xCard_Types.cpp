@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.25 2004-06-28 20:17:22 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.26 2004-08-19 20:17:46 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2004/06/28 20:17:22  to_see
+// Added Patch for INPUTTYPE_COMPOSITE in card "Prolink PlayTV HD" from jstwo@...
+//
 // Revision 1.24  2004/06/19 20:11:59  to_see
 // Fix to reset GPIO Mode to Normal Mode
 //
@@ -1085,26 +1088,26 @@ void CCX2388xCard::LeadtekInputSelect(int nInput)
     StandardInputSelect(nInput);
     if(nInput == 0)
     {
+        WriteDword(MO_GP3_IO, 0x02000000); 
         WriteDword(MO_GP0_IO, 0x00F5e700);
         WriteDword(MO_GP1_IO, 0x00003004);
         WriteDword(MO_GP2_IO, 0x00F5e700); 
-        WriteDword(MO_GP3_IO, 0x02000000); 
     }
     
 	else
     {
+        WriteDword(MO_GP3_IO, 0x02000000); 
         WriteDword(MO_GP0_IO, 0x00F5c700);
         WriteDword(MO_GP1_IO, 0x00003004);
         WriteDword(MO_GP2_IO, 0x00F5c700); 
-        WriteDword(MO_GP3_IO, 0x02000000); 
     }
 
 	// FM-Radio:
 	/*
+        WriteDword(MO_GP3_IO, 0x02000000); 
         WriteDword(MO_GP0_IO, 0x00F5d700);
         WriteDword(MO_GP1_IO, 0x00003004);
         WriteDword(MO_GP2_IO, 0x00F5d700); 
-        WriteDword(MO_GP3_IO, 0x02000000); 
 	*/
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.43 2002-08-05 22:33:38 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.44 2002-08-08 12:47:22 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/08/05 22:33:38  laurentg
+// WSS decoding and VBI decoding locked when AR autodetection mode is ON and this mode used is set to use WSS
+//
 // Revision 1.42  2002/08/05 21:01:55  laurentg
 // Square pixels mode updated
 //
@@ -132,6 +135,8 @@
 #include "DScaler.h"
 #include "VBI.h"
 #include "OutThreads.h"
+#include "SettingsPerChannel.h"
+
 
 // From DScaler.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
@@ -141,6 +146,11 @@
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...
 BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
+
+// Local function
+void Aspect_SavePerChannelSetup(void *pThis, int Start);
+
+
 
 //----------------------------------------------------------------------------
 // MENU INITIALIZATION:
@@ -1219,6 +1229,9 @@ SETTING* Aspect_GetSetting(ASPECT_SETTING Setting)
 void Aspect_ReadSettingsFromIni()
 {
     int i;
+
+    SettingsPerChannel_RegisterOnSetup(NULL, Aspect_SavePerChannelSetup);
+
     for(i = 0; i < ASPECT_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(AspectGUISettings[i]));
@@ -1247,4 +1260,66 @@ CTreeSettingsGeneric* Aspect_GetTreeSettingsPage()
                                     AspectGUISettings,
                                     ASPECT_SETTING_LASTONE
                                    );
+}
+
+
+
+void Aspect_SavePerChannelSetup(void *pThis, int Start)
+{     
+  if (Start)
+  {
+     // Register for per channel settings
+    SettingsPerChannel_RegisterSetSection("Aspect");
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[SOURCE_ASPECT]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[CUSTOM_SOURCE_ASPECT]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[TARGET_ASPECT]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[CUSTOM_TARGET_ASPECT]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[ASPECT_MODE]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[SOURCE_ASPECT]);
+    
+    SettingsPerChannel_RegisterSetting("ImagePosition","View - Image position",FALSE);
+    SettingsPerChannel_RegisterSetting("ImagePosition","View - Image position",FALSE, &AspectGUISettings[VERTICALPOS]);
+    SettingsPerChannel_RegisterSetting("ImagePosition","View - Image position",FALSE, &AspectGUISettings[HORIZONTALPOS]);    
+
+    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCE]); 
+    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCEPERIOD]);    
+    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCETIMERPERIOD]);
+    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCEAMPLITUDE]);
+
+    SettingsPerChannel_RegisterSetting("AutoSize","View - AutoSize",FALSE, &AspectGUISettings[AUTOSIZEWINDOW]);
+    
+    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBIT]); 
+    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITPERIODX]);
+    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITPERIODY]);    
+    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITSIZE]);
+    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITTIMERPERIOD]);
+
+    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE);
+    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[XZOOMFACTOR]);
+    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[YZOOMFACTOR]);
+    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[XZOOMCENTER]);
+    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[YZOOMCENTER]);    
+
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE, &AspectGUISettings[CLIPPING]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE, &AspectGUISettings[DEFERSETOVERLAY]);
+    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE, &AspectGUISettings[WAITFORVERTBLANKINDRAW]);    
+
+    SettingsPerChannel_RegisterSetSection("AspectDetect");
+    SettingsPerChannel_RegisterSetting("AspectRatioDetect","View - Aspect Ratio Detect",FALSE, &AspectGUISettings[AUTODETECTASPECT]); 
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[LUMINANCETHRESHOLD]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[IGNORENONBLACKPIXELS]);    
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ZOOMINFRAMECOUNT]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ASPECTHISTORYTIME]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ASPECTCONSISTENCYTIME]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[SKIPPERCENT]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[CHROMARANGE]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ZOOMOUTFRAMECOUNT]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ALLOWGREATERTHANSCREEN]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[MASKGREYSHADE]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[USEONLYWSS]);
+    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[USEWSS]);        
+  }   
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.104 2002-10-29 15:24:22 robmuller Exp $
+// $Id: DS_Control.h,v 1.105 2002-10-29 22:00:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2002/10/29 15:24:22  robmuller
+// Remove smoothing setting from logo killer since it is not used anymore.
+//
 // Revision 1.103  2002/10/29 11:05:27  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -1433,6 +1436,7 @@ typedef enum
     CX2388XFLIFILMDETECT,
     CX2388XHDELAY,
     CX2388XVDELAY,
+    CX2388XEATLINESATTOP,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

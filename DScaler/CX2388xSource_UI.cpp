@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.2 2002-10-29 22:00:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // 
 // CVS Log while file was called CT2388xSource_UI.cpp
 //
@@ -517,4 +520,18 @@ void CCX2388xSource::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Overscan","BT8x8 - Overscan",TRUE, m_Overscan);
         
     }
+}
+
+CTreeSettingsGeneric* CCX2388xSource::GetTreeSettingsPage()
+{
+    vector <CSimpleSetting*>vSettingsList;
+
+    vSettingsList.push_back(m_HDelay);
+    vSettingsList.push_back(m_VDelay);
+    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    {
+        vSettingsList.push_back(m_EatLinesAtTop);
+    }
+
+    return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);
 }

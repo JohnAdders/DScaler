@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.2 2002-10-29 22:00:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // 
 // CVS Log while file was called CT2388xSource.cpp
 //
@@ -182,22 +185,24 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
 
 CCX2388xSource::~CCX2388xSource()
 {
+    EventCollector->Unregister(this);
+    CX2388x_OnSetup(this, 0);
+
     // if the chip was not in D0 state we restore the original ACPI power state
     if(m_InitialACPIStatus != 0)
     {
         m_pCard->SetACPIStatus(m_InitialACPIStatus);
     }
-    EventCollector->Unregister(this);
     delete m_pCard;
 }
 
 void CCX2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
     if (pEventObject != (CEventObject*)this)
-	{
-		return;
-	}
-	if (Event == EVENT_CHANNEL_CHANGE)
+    {
+        return;
+    }
+    if (Event == EVENT_CHANNEL_CHANGE)
     {
     }
 }
@@ -292,6 +297,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VDelay->SetStepValue(2);
     m_Settings.push_back(m_VDelay);
 
+    m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 25, 0, 100, IniSection, pH3DGroup, FlagsAll);
+    m_Settings.push_back(m_EatLinesAtTop);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -308,7 +316,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 void CCX2388xSource::Start()
 {
     m_pCard->StopCapture();
-	// \todo fix VBI
+    // \todo fix VBI
     CreateRiscCode(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
     // only capture VBI if we are expecting them
     m_pCard->StartCapture(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
@@ -340,10 +348,10 @@ void CCX2388xSource::Reset()
                             m_IsVideoProgressive->GetValue()
                         );
 
-	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
-	{
-	    m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
-	}
+    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    {
+        m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
+    }
     NotifySizeChange();
 }
 
@@ -452,6 +460,21 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
             }
         }
         BytesPerLine = m_CurrentX * 2;
+
+        // if it's the holo3d and we're on the sdi input
+        // in non progressive mode then we need to adjust 
+        // for the image shift that seems to happen
+        if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+        {
+            if(m_VideoSource->GetValue() == 3 &&
+                m_IsVideoProgressive->GetValue() == FALSE)
+            {
+                for (nLine = 0; nLine < m_EatLinesAtTop->GetValue(); nLine++)
+                {
+                    *(pRiscCode++) = RISC_SKIP | RISC_SOL | RISC_EOL | BytesPerLine;
+                }
+            }
+        }
 
         //
         // For 480p, we will do the full frame in sequential order. For 480i, we
@@ -904,7 +927,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     int NewPos;
     int Diff;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
-	static int FieldCount(0);
+    static int FieldCount(0);
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
@@ -939,7 +962,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         FieldCount = 0;
     }
 
-	pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
+    pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
     
     FieldCount += Diff;
     // do input frequency on cleanish field changes only
@@ -1068,13 +1091,13 @@ void CCX2388xSource::SetupCard()
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
         EnableCancelButton = 1;
 
-		ChangeDefaultsForCard();
-		m_Brightness->SetDefault();
-		m_Contrast->SetDefault();
-		m_Hue->SetDefault();
-		m_SaturationU->SetDefault();
-		m_SaturationV->SetDefault();
-		//m_IsVideoProgressive->SetDefault();
+        ChangeDefaultsForCard();
+        m_Brightness->SetDefault();
+        m_Contrast->SetDefault();
+        m_Hue->SetDefault();
+        m_SaturationU->SetDefault();
+        m_SaturationV->SetDefault();
+        //m_IsVideoProgressive->SetDefault();
     }
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
@@ -1175,10 +1198,10 @@ void CCX2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 {
-	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
-	{
-	    m_pCard->SetFLIFilmDetect(NewValue);
-	}
+    if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+    {
+        m_pCard->SetFLIFilmDetect(NewValue);
+    }
 }
 
 
@@ -1214,6 +1237,12 @@ void CCX2388xSource::VDelayOnChange(long NewValue, long OldValue)
     Start_Capture();
 }
 
+void CCX2388xSource::EatLinesAtTopOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    Start_Capture();
+}
+
 
 int  CCX2388xSource::NumInputs(eSourceInputType InputType)
 {
@@ -1226,49 +1255,49 @@ int  CCX2388xSource::NumInputs(eSourceInputType InputType)
 
 BOOL CCX2388xSource::SetInput(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      m_VideoSource->SetValue(Nr);
-      return TRUE;
-  }
-  return FALSE;
+    if (InputType == VIDEOINPUT)
+    {
+        m_VideoSource->SetValue(Nr);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 int CCX2388xSource::GetInput(eSourceInputType InputType)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      return m_VideoSource->GetValue();
-  }
-  return -1;
+    if (InputType == VIDEOINPUT)
+    {
+        return m_VideoSource->GetValue();
+    }
+    return -1;
 }
 
 const char* CCX2388xSource::GetInputName(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      if ((Nr>=0) && (Nr < m_pCard->GetNumInputs()) )
-      {
-          return m_pCard->GetInputName(Nr);
-      }
-  } 
-  return NULL;
+    if (InputType == VIDEOINPUT)
+    {
+        if ((Nr>=0) && (Nr < m_pCard->GetNumInputs()) )
+        {
+            return m_pCard->GetInputName(Nr);
+        }
+    } 
+    return NULL;
 }
 
 BOOL CCX2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-    if(m_TunerType->GetValue() != TUNER_ABSENT)
+    if (InputType == VIDEOINPUT)
     {
-        return m_pCard->IsInputATuner(Nr);
+        if(m_TunerType->GetValue() != TUNER_ABSENT)
+        {
+            return m_pCard->IsInputATuner(Nr);
+        }
+        else
+        {
+            return FALSE;
+        }
     }
-    else
-    {
-        return FALSE;
-    }
-  }
-  return FALSE;
+    return FALSE;
 }
 
 ITuner* CCX2388xSource::GetTuner()

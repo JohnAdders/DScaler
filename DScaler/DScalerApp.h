@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.h,v 1.5 2001-11-29 14:04:07 adcockj Exp $
+// $Id: DScalerApp.h,v 1.6 2002-05-24 15:13:40 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@
     to a more object based approach.  For this reason you will see that this documentation 
     tends to cover the newer functions.
 
-    New users should fitsly try and understand what is going on at the heart of DScaler by
+    New users should firstly try and understand what is going on at the heart of DScaler by
     examining the OutThreads.cpp code in particular the YUVOutThread function.
 
 */

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.62 2004-06-02 18:43:54 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.63 2004-06-23 20:15:22 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2004/06/02 18:43:54  to_see
+// New TAudioRegList structure to hold audio register
+// settings for better handling
+//
 // Revision 1.61  2004/05/21 18:35:58  to_see
 // Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
 //
@@ -1925,20 +1929,28 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         case CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL:
             //Detect TDA 9887 for MSI Master
 			{
-				CTDA9887MsiMaster *pTDA9887MsiMaster = new (CTDA9887MsiMaster);
-				pExternalIFDemodulator = pTDA9887MsiMaster;
-				IFDemDeviceAddress[0] = I2C_TDA9887_0;
-				IFDemDeviceAddress[1] = I2C_TDA9887_1;
+                CTDA9887 *pTDA9887 = new CTDA9887(TDA9887_MSI_TV_ANYWHERE_MASTER);
+                pExternalIFDemodulator = pTDA9887;
+                IFDemDeviceAddress[0] = I2C_TDA9887_0;
+                IFDemDeviceAddress[1] = I2C_TDA9887_1;
 			}
             break;
 
+        case CX2388xCARD_LEADTEK_WINFAST_EXPERT:
+            //Detect TDA 9887 for Leadtek Winfast XP Expert
+			{
+                CTDA9887 *pTDA9887 = new CTDA9887(TDA9887_LEADTEK_WINFAST_EXPERT);
+                pExternalIFDemodulator = pTDA9887;
+                IFDemDeviceAddress[0] = I2C_TDA9887_0;
+                IFDemDeviceAddress[1] = I2C_TDA9887_1;
+			}
+            break;
 		/*
 		// here is an good place for other Card Types to detect IF Demodulators
-		case:
 		*/
 
         default:
-            //Detect TDA 9887
+            //default: detect TDA 9887
             {
                 CTDA9887 *pTDA9887 = new CTDA9887();
                 pExternalIFDemodulator = pTDA9887;

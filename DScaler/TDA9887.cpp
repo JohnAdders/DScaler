@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.5 2004-06-02 18:41:34 to_see Exp $
+// $Id: TDA9887.cpp,v 1.6 2004-06-23 20:15:22 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/06/02 18:41:34  to_see
+// Added settings in CTDA9887MsiMaster for Pal(I) from John
+//
 // Revision 1.4  2004/05/16 19:45:08  to_see
 // Added an new class for Msi Master Card
 //
@@ -39,14 +42,74 @@
 #include "tda9887.h"
 #include "DebugLog.h"
 
+const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] = 
+{
+    {
+        TDA9887_DEFAULT,
+		// B ,   C,    E
+		{0x96, 0x70, 0x49}, // PAL_BG
+		{0x96, 0x70, 0x4a}, // PAL_I
+		{0x96, 0x70, 0x4b}, // PAL_DK
+		{0x86, 0x50, 0x4b}, // PAL_L
+		{0x96, 0x70, 0x44}, // NTSC
+		{0x96, 0x70, 0x40}, // NTSC_JP
+		{0x8e, 0x0d, 0x77}, // FM_RADIO
+    },
+    {
+        TDA9887_MSI_TV_ANYWHERE_MASTER,
+        {0x56, 0x70, 0x49}, // PAL_BG		Working
+        {0x56, 0x6e, 0x4a}, // PAL_I		Working
+        {0x56, 0x70, 0x4b}, // PAL_DK		Working
+        {0x86, 0x50, 0x4b}, // PAL_L		?
+        {0x92, 0x30, 0x04}, // NTSC			Working
+        {0x92, 0x30, 0x40}, // NTSC_JP		?
+        {0x8e, 0x0d, 0x77}, // FM_RADIO		?
+    },
+	{
+        TDA9887_LEADTEK_WINFAST_EXPERT,
+        {0x16, 0x70, 0x49}, // PAL_BG		Working
+        {0x16, 0x6e, 0x4a}, // PAL_I		?
+        {0x16, 0x70, 0x4b}, // PAL_DK		Working
+        {0x86, 0x50, 0x4b}, // PAL_L		?
+        {0x92, 0x30, 0x04}, // NTSC			?
+        {0x92, 0x30, 0x40}, // NTSC_JP		?
+        {0x8e, 0x0d, 0x77}, // FM_RADIO		?
+    },
+
+	/*
+	Add here new settings. But be careful:
+	We can't use CardID's, there are more than one tables,
+	BT8x8, SAA71xx and CX2388x. Please add an new entry in eTDA9887Card.
+	For example:
+  	{
+        TDA9887_NEW_CARD_SETTINGS,
+        {0x00, 0x00, 0x00}, // PAL_BG		?
+        {0x00, 0x00, 0x00}, // PAL_I		?
+        {0x00, 0x00, 0x00}, // PAL_DK		?
+        {0x00, 0x00, 0x00}, // PAL_L		?
+        {0x00, 0x00, 0x00}, // NTSC			?
+        {0x00, 0x00, 0x00}, // NTSC_JP		?
+        {0x00, 0x00, 0x00}, // FM_RADIO		?
+    },
+	*/
+
+};
 
 
 /// TDA9885 (PAL, NTSC)
 /// TDA9886 (PAL, SECAM, NTSC)
 /// TDA9887 (PAL, SECAM, NTSC, FM Radio)
 
+// 1.st constructor, default settings.
 CTDA9887::CTDA9887()
 {
+	m_eCardID = TDA9887_DEFAULT;
+}
+
+// 2.nd constructor, use it with your own settings.
+CTDA9887::CTDA9887(eTDA9887Card TDA9887Card)
+{
+	m_eCardID = TDA9887Card;
 }
 
 CTDA9887::~CTDA9887()
@@ -70,21 +133,13 @@ void CTDA9887::Init(bool bPreInit, eVideoFormat videoFormat)
 
 void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 {
-   static BYTE tda9887set_pal_bg[] =   {m_DeviceAddress, 0x00, 0x96, 0x70, 0x49};
-   static BYTE tda9887set_pal_i[] =    {m_DeviceAddress, 0x00, 0x96, 0x70, 0x4a};
-   static BYTE tda9887set_pal_dk[] =   {m_DeviceAddress, 0x00, 0x96, 0x70, 0x4b};
-   static BYTE tda9887set_pal_l[] =    {m_DeviceAddress, 0x00, 0x86, 0x50, 0x4b};
-   static BYTE tda9887set_ntsc[] =     {m_DeviceAddress, 0x00, 0x96, 0x70, 0x44};
-   static BYTE tda9887set_ntsc_jp[] =  {m_DeviceAddress, 0x00, 0x96, 0x70, 0x40};
-   static BYTE tda9887set_fm_radio[] = {m_DeviceAddress, 0x00, 0x8e, 0x0d, 0x77};
+   static BYTE tda9887set[5] = {m_DeviceAddress};
    
    if (!bPreSet)
    {
        // only setup before tuning
        return;
    }
-   
-   BYTE *tda9887set = tda9887set_pal_bg;
 
    switch (VideoFormat)
    {
@@ -95,23 +150,23 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 	case VIDEOFORMAT_SECAM_B:
     case VIDEOFORMAT_SECAM_G:
     case VIDEOFORMAT_SECAM_H:
-		tda9887set = tda9887set_pal_bg;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Pal_BG, 3);
 		break;
 
 	case VIDEOFORMAT_PAL_I:
-		tda9887set = tda9887set_pal_i;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Pal_I, 3);
 		break;
 
 	case VIDEOFORMAT_PAL_D:
 	case VIDEOFORMAT_SECAM_D:	
     case VIDEOFORMAT_SECAM_K:
     case VIDEOFORMAT_SECAM_K1:
-		tda9887set = tda9887set_pal_dk;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Pal_DK, 3);
 		break;
 	
 	case VIDEOFORMAT_SECAM_L:
     case VIDEOFORMAT_SECAM_L1:
-		tda9887set = tda9887set_pal_l;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Pal_L, 3);
 		break;
 
     case VIDEOFORMAT_PAL_60:    
@@ -121,17 +176,17 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 	case VIDEOFORMAT_PAL_M:
 	case VIDEOFORMAT_PAL_N_COMBO:
 	case VIDEOFORMAT_NTSC_M:        
-		tda9887set = tda9887set_ntsc;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Ntsc, 3);
 		break;
 
     case VIDEOFORMAT_NTSC_50:
     case VIDEOFORMAT_NTSC_M_Japan:
-        tda9887set = tda9887set_ntsc_jp;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Ntsc_Jp, 3);
 		break;
 
 	case (VIDEOFORMAT_LASTONE+1):
 		//radio
-		tda9887set = tda9887set_fm_radio;
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Fm_Radio, 3);
 		break;
    }
       
@@ -468,86 +523,4 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
 	LOG(2,"TDA9885/6/7 Pinnacle: 0x%02x 0x%02x 0x%02x", bData[2],bData[3],bData[4]);
     
 	m_I2CBus->Write(bData, 5);    	
-}
-
-CTDA9887MsiMaster::CTDA9887MsiMaster()
-{
-}
-
-CTDA9887MsiMaster::~CTDA9887MsiMaster()
-{
-}
-
-void CTDA9887MsiMaster::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
-{
-   static BYTE tda9887set_pal_bg[] =   {m_DeviceAddress, 0x00, 0x56, 0x70, 0x49}; // working
-   static BYTE tda9887set_pal_i[] =    {m_DeviceAddress, 0x00, 0x56, 0x6e, 0x4a}; // working
-   static BYTE tda9887set_pal_dk[] =   {m_DeviceAddress, 0x00, 0x56, 0x70, 0x4b}; // working
-   static BYTE tda9887set_pal_l[] =    {m_DeviceAddress, 0x00, 0x86, 0x50, 0x4b}; // ?
-   static BYTE tda9887set_ntsc[] =     {m_DeviceAddress, 0x00, 0x92, 0x30, 0x04}; // working
-   static BYTE tda9887set_ntsc_jp[] =  {m_DeviceAddress, 0x00, 0x96, 0x70, 0x40}; // ?
-   static BYTE tda9887set_fm_radio[] = {m_DeviceAddress, 0x00, 0x8e, 0x0d, 0x77}; // ?
-   
-   if (!bPreSet)
-   {
-       // only setup before tuning
-       return;
-   }
-   
-   BYTE *tda9887set = tda9887set_pal_bg;
-
-   switch (VideoFormat)
-   {
-	case VIDEOFORMAT_PAL_B:    
-    case VIDEOFORMAT_PAL_G:
-    case VIDEOFORMAT_PAL_H:        
-    case VIDEOFORMAT_PAL_N:
-	case VIDEOFORMAT_SECAM_B:
-    case VIDEOFORMAT_SECAM_G:
-    case VIDEOFORMAT_SECAM_H:
-		tda9887set = tda9887set_pal_bg;
-		break;
-
-	case VIDEOFORMAT_PAL_I:
-		tda9887set = tda9887set_pal_i;
-		break;
-
-	case VIDEOFORMAT_PAL_D:
-	case VIDEOFORMAT_SECAM_D:	
-    case VIDEOFORMAT_SECAM_K:
-    case VIDEOFORMAT_SECAM_K1:
-		tda9887set = tda9887set_pal_dk;
-		break;
-	
-	case VIDEOFORMAT_SECAM_L:
-    case VIDEOFORMAT_SECAM_L1:
-		tda9887set = tda9887set_pal_l;
-		break;
-
-    case VIDEOFORMAT_PAL_60:    
-		///\todo Video bandwidth of PAL-60?
-		break;
-
-	case VIDEOFORMAT_PAL_M:
-	case VIDEOFORMAT_PAL_N_COMBO:
-	case VIDEOFORMAT_NTSC_M:        
-		tda9887set = tda9887set_ntsc;
-		break;
-
-    case VIDEOFORMAT_NTSC_50:
-    case VIDEOFORMAT_NTSC_M_Japan:
-        tda9887set = tda9887set_ntsc_jp;
-		break;
-
-	case (VIDEOFORMAT_LASTONE+1):
-		//radio
-		tda9887set = tda9887set_fm_radio;
-		break;
-   }
-      
-   if (tda9887set != NULL)
-   {   
-      LOG(2,"TDA9885/6/7 Msi Master: 0x%02x 0x%02x 0x%02x", tda9887set[2],tda9887set[3],tda9887set[4]);
-      m_I2CBus->Write(tda9887set, 5);   
-   }
 }

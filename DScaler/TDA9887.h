@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.4 2004-05-16 19:45:08 to_see Exp $
+// $Id: TDA9887.h,v 1.5 2004-06-23 20:15:22 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/05/16 19:45:08  to_see
+// Added an new class for Msi Master Card
+//
 // Revision 1.3  2004/02/11 20:34:00  adcockj
 // Support multiple locations of TDA9887 (thanks to Pityu)
 //
@@ -43,10 +46,20 @@
 #define I2C_TDA9887_0				0x86
 #define I2C_TDA9887_1				0x96
 
+enum eTDA9887Card
+{
+	TDA9887_DEFAULT = 0,
+	TDA9887_MSI_TV_ANYWHERE_MASTER,
+	TDA9887_LEADTEK_WINFAST_EXPERT,
+	// Add here new tda9887 settings.
+	TDA9887_LASTONE,
+};
+
 class CTDA9887 : public IExternalIFDemodulator
 {
 public:
     CTDA9887();
+	CTDA9887(eTDA9887Card TDA9887Card);
     ~CTDA9887();
 
     bool Detect();
@@ -58,6 +71,23 @@ public:
 protected:
     // from CI2CDevice
     virtual BYTE GetDefaultAddress() const { return I2C_TDA9887_0; }
+
+private:
+	typedef struct
+	{
+		DWORD eTDA9887Card;
+		BYTE Pal_BG[3];
+		BYTE Pal_I[3];
+		BYTE Pal_DK[3];
+		BYTE Pal_L[3];
+		BYTE Ntsc[3];
+		BYTE Ntsc_Jp[3];
+		BYTE Fm_Radio[3];
+
+	} TControlSettings;
+
+    static const TControlSettings m_ControlSettings[TDA9887_LASTONE];
+	eTDA9887Card m_eCardID;
 };
 
 class CTDA9887Pinnacle : public CTDA9887
@@ -71,15 +101,6 @@ public:
 private:
     int m_CardId;
     eVideoFormat m_LastVideoFormat;
-};
-
-class CTDA9887MsiMaster : public CTDA9887
-{
-public:
-    CTDA9887MsiMaster();
-    ~CTDA9887MsiMaster();
-
-    void TunerSet(bool bPreSet, eVideoFormat videoFormat);    
 };
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.27 2002-12-10 14:53:15 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.28 2002-12-15 13:54:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/12/10 14:53:15  adcockj
+// Sound fixes for cx2388x
+//
 // Revision 1.26  2002/12/04 17:43:49  adcockj
 // Contrast and Brightness adjustments so that h3d card behaves in expected way
 //
@@ -217,9 +220,12 @@ void CCX2388xCard::StartCapture(BOOL bCaptureVBI)
     DWORD value1;
     DWORD value2;
    
+    // RISC Controller Enable
+    WriteDword(CX2388X_DEV_CNTRL2, 1<<5 );
+
     // Clear Interrupt Status bits
     WriteDword(CX2388X_VID_INTSTAT, 0x0000000);
-    
+   
     value1 = ReadDword(CX2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
     value2 = (ReadDword(CX2388X_CAPTURECONTROL) & 0xFFFFFF00);
     if(bCaptureVBI == TRUE)
@@ -1257,6 +1263,36 @@ void CCX2388xCard::ResetHardware()
 
     // \todo log what's there already for key settings
 
+    // Firstly stop the card from doing anything
+    // so stop the risc controller
+    WriteDword(CX2388X_DEV_CNTRL2, 0x00000000);
+    // then stop any DMA transfers
+    WriteDword(MO_VID_DMACNTRL, 0x00000000);
+    WriteDword(MO_AUD_DMACNTRL, 0x00000000);
+    WriteDword(MO_TS_DMACNTRL, 0x00000000);
+    WriteDword(MO_VIP_DMACNTRL, 0x00000000);
+    WriteDword(MO_GPHST_DMACNTRL, 0x00000000);
+
+    // secondly stop any interupts from happening
+    // if we change something and let an 
+    // interupt happen than the driver might try and
+    // do something bad
+    WriteDword( CX2388X_PCI_INTMSK, 0x00000000 );
+    WriteDword( CX2388X_VID_INTMSK, 0x00000000 );
+    WriteDword( CX2388X_AUD_INTMSK, 0x00000000 );
+    WriteDword( CX2388X_TS_INTMSK, 0x00000000 );
+    WriteDword( CX2388X_VIP_INTMSK, 0x00000000 );
+    WriteDword( CX2388X_GPHST_INTMSK, 0x00000000 );
+
+    WriteDword( CX2388X_VID_INTSTAT, 0xFFFFFFFF ); // Clear PIV int
+    WriteDword( CX2388X_PCI_INTSTAT, 0xFFFFFFFF ); // Clear PCI int
+    WriteDword( MO_INT1_STAT, 0xFFFFFFFF );        // Clear RISC int
+
+
+
+    // wait a bit so that everything has cleared through
+    ::Sleep(500);
+
     // Clear out the SRAM Channel Management data structures
     // for all 12 devices
     for (int i(1); i<=12; ++i)
@@ -1268,15 +1304,9 @@ void CCX2388xCard::ResetHardware()
         }
     }
 
-    // Reset the chip
-    WriteDword( 0x310304, 0x1 );
-
-    ::Sleep(500);
-
-    /* RISC Controller Enable */
-    WriteDword(CX2388X_DEV_CNTRL2, 1<<5 );
-
-    ::Sleep(500);
+    // Reset the chip (note sure about this)
+    //WriteDword( 0x310304, 0x1 );
+    //::Sleep(500);
 
     /////////////////////////////////////////////////////////////////
     // Setup SRAM tables
@@ -1446,9 +1476,6 @@ void CCX2388xCard::ResetHardware()
     //2.  Set bits 27:26 of register 0xE4310200 to 0x0.  The default value is
     //    0x0CE00555, which becomes 0x00E00555 with this change.
     WriteDword( CX2388X_AGC_BACK_VBI, 0x00E00555 ); 
-
-    // Disable all of the interrupts
-    WriteDword( CX2388X_VID_INTMSK, 0x00000000 );
 }    
 
 

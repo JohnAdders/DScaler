@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.9 2002-12-11 01:01:08 atnak Exp $
+// $Id: RegSpy.cpp,v 1.10 2002-12-15 13:54:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/12/11 01:01:08  atnak
+// Added SAA7130 and more registers for SAA7134 to aid new card adding.
+//
 // Revision 1.8  2002/12/10 10:15:33  atnak
 // Fixed binary display order, changed some ini stuff
 //
@@ -257,10 +260,24 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(MO_GPIO);
     AddDWRegister(MO_GPOE);
     
-    AddDWRegister(MO_AUD_DMACNTRL);
     AddDWRegister(MO_AUD_XFR_STAT);
     AddDWRegister(MO_AUDD_LNGTH);  
     AddDWRegister(MO_AUDR_LNGTH);  
+
+    AddDWRegister(CX2388X_DEV_CNTRL2);
+    
+    AddDWRegister(MO_VID_DMACNTRL);
+    AddDWRegister(MO_AUD_DMACNTRL);
+    AddDWRegister(MO_TS_DMACNTRL);
+    AddDWRegister(MO_VIP_DMACNTRL);
+    AddDWRegister(MO_GPHST_DMACNTRL);
+    AddDWRegister(CX2388X_PCI_INTMSK);
+    AddDWRegister(CX2388X_VID_INTMSK);
+    AddDWRegister(CX2388X_AUD_INTMSK);
+    AddDWRegister(CX2388X_TS_INTMSK);
+    AddDWRegister(CX2388X_VIP_INTMSK);
+    AddDWRegister(CX2388X_GPHST_INTMSK);
+
 
     AddDWRegister(MO_DMA25_PTR2);
     AddDWRegister(MO_DMA25_CNT1);  

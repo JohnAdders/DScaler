@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.9 2002-12-05 17:11:11 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.10 2002-12-15 13:54:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -608,6 +608,14 @@
 #define CX2388X_VID_INTSTAT     0x00200054
 #define CX2388X_PCI_INTMSK      0x00200040
 #define CX2388X_PCI_INTSTAT     0x00200044
+#define CX2388X_AUD_INTMSK      0x00200060 
+#define CX2388X_AUD_INTSTAT     0x00200064 
+#define CX2388X_TS_INTMSK       0x00200070 
+#define CX2388X_TS_INTSTAT      0x00200074 
+#define CX2388X_VIP_INTMSK      0x00200080 
+#define CX2388X_VIP_INTSTAT     0x00200084 
+#define CX2388X_GPHST_INTMSK    0x00200090 
+#define CX2388X_GPHST_INTSTAT   0x00200094 
 
 
 #define VideoInputTuner		 0x0 

@@ -175,7 +175,7 @@ Next8Bytes:
 			movd ecx, mm0
 			add ecx, eax
             mov ax, cx
-            shl ecx, 16
+            shr ecx, 16
             add ax, cx
 			mov LineFactor, ax
 		}
@@ -283,6 +283,186 @@ Next8Bytes:
 	LOG(" Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 	return DiffFactor;
 }
+
+void DoBothCombAndDiff(DEINTERLACE_INFO *info)
+{
+	int Line;
+	int LoopCtr;
+	short* L1;     // ptr to Line1, of 3
+	short* L2;     // ptr to Line2, the weave line
+	short* L3;     // ptr to Line3
+	short* LP2;     // ptr to prev Line2
+	short **pOddLines = info->OddLines[0];
+	short **pEvenLines = info->EvenLines[0];
+	short **pPrevLines = info->IsOdd ? info->OddLines[1] : info->EvenLines[1];
+	const __int64 qwShiftMask = 0xfefffefffefffeff; // to avoid shifting chroma	to luma
+	const __int64 qwOnes = 0x0001000100010001;
+	__int64 qwThresholdWeave;
+	__int64 qwThresholdDiff;
+	__int64 i;
+	unsigned long DiffFactor = 0;
+	unsigned long WeaveFactor = 0;
+
+	i = 20; // what is different
+	qwThresholdWeave = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
+	i = 12; // what is different
+	qwThresholdDiff = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
+
+
+	if (pOddLines == NULL || pEvenLines == NULL || pPrevLines == NULL)
+		return;
+
+	for (Line = 16; Line < (info->FieldHeight - 16); ++Line)
+	{
+		LoopCtr = info->LineLength / 8;    // there are LineLength / 8 qwords per line
+
+		if (info->IsOdd)
+		{
+			L1 = pEvenLines[Line];
+			L2 = pOddLines[Line];
+			L3 = pEvenLines[Line + 1];
+			LP2 = pPrevLines[Line];   // prev Odd lines
+		}
+		else
+		{
+			L1 = pOddLines[Line] ;
+			L2 = pEvenLines[Line + 1];
+			L3 = pOddLines[Line + 1];
+			LP2 = pPrevLines[Line + 1];   // prev even lines
+		}
+
+		_asm
+		{
+			mov eax, dword ptr [L1]
+			mov ebx, dword ptr [L2]
+			mov edx, dword ptr [L3]
+			mov esi, dword ptr [LP2]
+			mov ecx, LoopCtr
+			pxor mm7,mm7
+			pxor mm6,mm6
+			pxor mm5,mm5
+
+			align 8
+			MAINLOOP_LABEL:
+			movq mm0, qword ptr[eax]  // L1
+			movq mm1, qword ptr[edx]  // L3
+
+			// average L1 and L3 leave result in mm0
+			pand mm0, qwShiftMask   // L1
+			psrlw mm0, 1
+			pand mm1, qwShiftMask   // L3
+			psrlw   mm1, 1
+			paddb   mm0, mm1    // the average, for computing comb
+
+			movq mm1, qword ptr[ebx]  // L2
+			// get abs value of possible L2 comb answer in mm0
+			// mm2 will have L2 in it
+			movq mm2, mm1    // L2
+			psubusb mm1, mm0    // L2 - avg
+			psubusb mm0, mm2    // avg - L2
+			por  mm0, mm1    // abs(avg-L2)
+
+			pand mm0, qwShiftMask
+			psrlw mm0, 1           // abs(avg-L2)/2
+			pcmpgtb mm0, qwThresholdWeave
+			pand mm0, qwOnes       // 1 if abs(avg-L2)/2 > Threshold
+			paddusb mm7, mm0                // count of all times the comb threshold
+									// has been exceeded
+
+			movq mm1, qword ptr[esi]     // LP2
+			movq mm0, mm1    // L2
+			psubusb mm1, mm2    // L2 - LP2
+			psubusb mm2, mm0    // LP2 - L2
+			por  mm1, mm2    // abs(LP2-L2)
+
+			pand mm1, qwShiftMask
+			psrlw mm1, 1           // abs(avg-L2)/2
+			pcmpgtb mm1, qwThresholdDiff
+			pand mm1, qwOnes       // 1 if abs(avg-L2)/2 > Threshold
+			paddusb mm6, mm1                // count of all times the diff threshold
+
+			// bump ptrs and loop
+			lea  eax,[eax+8]
+			lea  ebx,[ebx+8]
+			lea  edx,[edx+8]
+			lea  esi,[esi+8]
+			loop  MAINLOOP_LABEL
+
+			// OK so now we have mm6 and mm7 as out totals
+			xor edx, edx
+			xor ebx, ebx
+			movd eax, mm6
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			psrlq mm6,32
+			movd eax, mm6
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			add DiffFactor, ebx
+
+			xor edx, edx
+			xor ebx, ebx
+			movd eax, mm7
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			psrlq mm7,32
+			movd eax, mm7
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			shr eax, 8
+			mov dl, al
+			add ebx, edx
+			add WeaveFactor, ebx
+		}
+	}
+
+	info->CombFactor = WeaveFactor;
+	info->FieldDiff = DiffFactor;
+
+	LOG(" Frame %d %c FD = %d CF = %d", info->CurrentFrame, info->IsOdd ? 'O' : 'E', info->FieldDiff, info->CombFactor);
+
+    // clear out the MMX registers ready for doing floating point
+    // again
+    _asm
+    {
+        emms
+    }
+	return;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Simple Weave.  Copies alternating scanlines from the most recent fields.

@@ -479,6 +479,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 				if(!info.bMissedFrame)
 				{
+					// experimental
+					// does both comb and diff
+					// but in slightly different way
+					// uncomment to play
+					//DoBothCombAndDiff(&info);
+
 					if(bAutoDetectMode == TRUE && bIsPAL)
 					{
 						UpdatePALPulldownMode(&info);

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.7 2002-08-03 17:57:52 kooiman Exp $
+// $Id: GenericTuner.cpp,v 1.8 2002-08-17 11:27:23 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/08/03 17:57:52  kooiman
+// Added new cards & tuners. Changed the tuner combobox into a sorted list.
+//
 // Revision 1.6  2002/01/16 19:16:20  adcockj
 // added support for LG NTSC (TAPCH701P)
 //
@@ -47,6 +50,46 @@
 #include "stdafx.h"
 #include "GenericTuner.h"
 
+/* tv standard selection for Temic 4046 FM5
+   this value takes the low bits of control byte 2
+   from datasheet Rev.01, Feb.00 
+     standard     BG      I       L       L2      D
+     picture IF   38.9    38.9    38.9    33.95   38.9
+     sound 1      33.4    32.9    32.4    40.45   32.4
+     sound 2      33.16   
+     NICAM        33.05   32.348  33.05           33.05
+ */
+
+#define TEMIC_SET_PAL_I         0x05
+#define TEMIC_SET_PAL_DK        0x09
+#define TEMIC_SET_PAL_L         0x0a // SECAM ?
+#define TEMIC_SET_PAL_L2        0x0b // change IF !
+#define TEMIC_SET_PAL_BG        0x0c
+
+/* tv tuner system standard selection for Philips FQ1216ME
+   this value takes the low bits of control byte 2
+   from datasheet "1999 Nov 16" (supersedes "1999 Mar 23")
+     standard 		BG	DK	I	L	L`
+     picture carrier	38.90	38.90	38.90	38.90	33.95
+     colour		34.47	34.47	34.47	34.47	38.38
+     sound 1		33.40	32.40	32.90	32.40	40.45
+     sound 2		33.16	-	-	-	-
+     NICAM		33.05	33.05	32.35	33.05	39.80
+ */
+#define PHILIPS_SET_PAL_I		0x01 /* Bit 2 always zero !*/
+#define PHILIPS_SET_PAL_BGDK	0x09
+#define PHILIPS_SET_PAL_L2		0x0a
+#define PHILIPS_SET_PAL_L		0x0b	
+
+/* system switching for Philips FI1216MF MK2
+   from datasheet "1996 Jul 09",
+ */
+#define PHILIPS_MF_SET_BG		0x01 /* Bit 2 must be zero, Bit 3 is system output */
+#define PHILIPS_MF_SET_PAL_L	0x03
+#define PHILIPS_MF_SET_PAL_L2	0x02
+
+
+
 /// \todo not at all OO
 #define TUNERDEF(TID,VFMT,T1,T2,VHFL,VHFH,UHF,CFG,IFPC) \
         m_TunerId = (TID); \
@@ -59,7 +102,8 @@
         m_Config = (CFG); \
         m_IFPCoff = (IFPC)
 
-CGenericTuner::CGenericTuner(eTunerId tunerId)
+CGenericTuner::CGenericTuner(eTunerId tunerId) :
+  m_Frequency(0)
 {
     switch (tunerId)
     {
@@ -310,6 +354,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
 {
     BYTE config;
     WORD div;
+    static long m_LastFrequency = 0;
 
     if (nFrequency < m_Thresh1)
     {
@@ -339,10 +384,69 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
             config &= ~0x02;
         }
     }
+    else if (m_TunerId == TUNER_TEMIC_4046FM5_MULTI)
+    {
+        config &= ~0x0f;
+        switch (videoFormat)
+        {
+            case VIDEOFORMAT_PAL_I:
+                config |= TEMIC_SET_PAL_I;
+                break;
+            case VIDEOFORMAT_PAL_D:
+                config |= TEMIC_SET_PAL_DK;
+                break;
+            case VIDEOFORMAT_SECAM_L:
+                config |= TEMIC_SET_PAL_L;
+                break;
+            case VIDEOFORMAT_PAL_B:
+            case VIDEOFORMAT_PAL_G:
+                config |= TEMIC_SET_PAL_BG;
+                break;
+        }
+    }
+    else if (m_TunerId == TUNER_PHILIPS_MULTI) //FQ1216ME
+    {
+        config &= ~0x0f;
+        switch (videoFormat)
+        {
+            case VIDEOFORMAT_PAL_I:
+                config |= PHILIPS_SET_PAL_I;
+                break;
+            case VIDEOFORMAT_SECAM_L:
+                config |= PHILIPS_SET_PAL_L;
+                break;
+            case VIDEOFORMAT_PAL_B:
+            case VIDEOFORMAT_PAL_G:
+            case VIDEOFORMAT_PAL_D:
+            case VIDEOFORMAT_SECAM_K:
+                config |= PHILIPS_SET_PAL_BGDK;
+                break;
+        }
+    }
+
+    //if (FastTune) {
+		//    config |= 0x40;
+	  //}
     
     div &= 0x7fff;
 
+    
+
     BYTE buffer[] = {(BYTE) m_DeviceAddress << 1, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), m_Config, config};
+
+    if ((m_TunerId == TUNER_PHILIPS_SECAM) && (nFrequency < m_Frequency))
+    {
+        //specification says to send config data before frequency in case (wanted frequency < current frequency).
+
+        //swap order
+        BYTE temp1 = buffer[0];
+        BYTE temp2 = buffer[1];
+        buffer[0] = buffer[2];
+        buffer[1] = buffer[3];
+        buffer[2] = temp1;
+        buffer[3] = temp2;
+    }
+    m_Frequency = nFrequency;
 
     bool result = m_I2CBus->Write(buffer, sizeof(buffer));
     return result;

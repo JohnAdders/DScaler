@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
+// $Id: GenericTuner.h,v 1.4 2002-08-17 11:27:23 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -68,6 +71,7 @@ private:
     BYTE m_UHF;
     BYTE m_Config; 
     WORD m_IFPCoff;
+    long m_Frequency;
 };
 
 

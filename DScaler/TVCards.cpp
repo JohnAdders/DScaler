@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.30 2001-10-26 16:18:47 adcockj Exp $
+// $Id: TVCards.cpp,v 1.31 2001-10-28 16:40:01 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -26,13 +26,16 @@
 //
 // 15 Aug 2000   John Adcock             Added structures from bttv
 // 20 Nov 2000   Michael Eskin, Conexant Added support for Conexant and Rockwell Bt878XEVKs
-//  5 Dec 2000   Michael Eskin, Conexant Added support for Conexant Foghorn ATSC reference designs 
+//  5 Dec 2000   Michael Eskin, Conexant Added support for Conexant Foghorn ATSC reference designs
 //                                       and PHILIPS 1236D tuner
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/10/26 16:18:47  adcockj
+// Added Start bt878 card with no MSP init as workaround for US cards
+//
 // Revision 1.29  2001/10/25 16:20:23  ittarnavsky
 // added support for the VoodooTV FM (Europa)
 //
@@ -182,7 +185,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    // 0x08 
+    // 0x08
     {
         "Fly Video II",
         3, 1, 0, 2, 0xc00,
@@ -263,7 +266,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    // 0x10 
+    // 0x10
     {
         "Pixelview PlayTV (bt878)",
         3, 1, 0, 2, 0x01fe00,
@@ -345,7 +348,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    // 0x18 
+    // 0x18
     {
         "Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)",
         3, 1, 0, 2, 0xe00,
@@ -426,7 +429,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    // 0x20 
+    // 0x20
     {
         "Intel Create and Share PCI",
         4, 1, 0, 2, 7,
@@ -507,7 +510,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    // 0x28 
+    // 0x28
     {
         "STB2",
         3, 1, 0, 2, 7,
@@ -529,7 +532,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         NULL,
     },
     {
-        "ProVideo PV951", // pic16c54 
+        "ProVideo PV951", // pic16c54
         3, 1, 0, 2, 0,
         { 2, 3, 1, 1, 0, 0, 0, 0},
         { 0, 0, 0, 0, 0, 0},
@@ -579,7 +582,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         NULL,
     },
     {
-        "Terratec TV/Radio+", // Radio ?? 
+        "Terratec TV/Radio+", // Radio ??
         3, 1, 0, 2, 0x1f0000,
         { 2, 3, 1, 1, 0, 0, 0, 0},
         { 0xe2ffff, 0, 0, 0, 0xe0ffff, 0xe2ffff },
@@ -588,7 +591,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_PHILIPS_PAL_I,
         NULL,
     },
-    // 0x30 
+    // 0x30
     {
         "Dynalink Magic TView",
         3, 1, 0, 2, 15,
@@ -656,7 +659,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
     {
         "RS BT Card",
         3, 4, 0, 2, 0x1f800,
-        { 0x010002, 0x010003, 0x010001, 0x00000000, 0x00000000, 0x00000000, 
+        { 0x010002, 0x010003, 0x010001, 0x00000000, 0x00000000, 0x00000000,
             0x010000, 0x090000, 0x110000, 0x190000},
         { 13, 14, 11, 7, 0, 0 },
         0x1f800,
@@ -765,7 +768,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         //   in de.comp.os.unix.linux.hardware:
         //  options bttv card=0 pll=1 radio=1 gpiomask=0x18e0
         //  audiomux=0x44c71f,0x44d71f,0,0x44d71f,0x44dfff
-        //  options tuner Type=5 
+        //  options tuner Type=5
         "Lifetec LT 9415 TV",
         4,1,0,2,0x18e0,
         { 2, 3, 1, 1},
@@ -777,7 +780,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
     },
     {
         // Miguel Angel Alvarez <maacruz@navegalia.com>
-        //   old Easy TV BT848 version (model CPH031) 
+        //   old Easy TV BT848 version (model CPH031)
         "BESTBUY Easy TV",
         4,1,0,2,0xF,
         { 2, 3, 1, 0},
@@ -854,8 +857,8 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
     },
     {
         // Miguel Angel Alvarez <maacruz@navegalia.com>
-        // new Easy TV BT878 version (model CPH061) 
-        // special thanks to Informatica Mieres for providing the card 
+        // new Easy TV BT878 version (model CPH061)
+        // special thanks to Informatica Mieres for providing the card
         "BESTBUY Easy TV (bt878)",
         3, 2, 0, 2, 0xFF,
         { 2, 3, 1, 0},
@@ -945,6 +948,109 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
+    {
+        "Terratec TValueRadio",                 // szName
+        3,                                      // nVideoInputs
+        1,                                      // nAudioInputs
+        0,                                      // TunerInput
+        2,                                      // SVideoInput
+        0xffff00,                               // GPIOMask
+        { 2, 3, 1, 1},                          // MuxSelect
+        { 0x500, 0x500, 0x300, 0x900, 0x900},   // AudioMuxSelect
+        0,                                      // GPIOMuxMask
+        PLL_28,                                 // ePPLFreq
+        TUNER_PHILIPS_PAL,                      // eTunerID
+        NULL,
+    },
+    {
+        "Flyvideo 98EZ (capture only)", // szName
+        4,                              // nVideoInputs
+        0,                              // nAudioInputs
+        -1,                             // TunerInput
+        2,                              // SVideoInput
+        0,                              // GPIOMask
+        { 2, 3, 1, 1},                  // MuxSelect: AV1, AV2, SVHS, CVid adapter on SVHS
+        { 0 },                          // AudioMuxSelect
+        0,                              // GPIOMuxMask
+        PLL_28,                         // ePPLFreq
+        TUNER_ABSENT,                   // eTunerID
+        NULL,
+    },
+    {
+        /* Philip Blundell <pb@nexus.co.uk> */
+        "Active Imaging AIMMS", // szName
+        1,                      // nVideoInputs
+        0,                      // nAudioInputs
+        -1,                     // TunerInput
+        0,                      // SVideoInput
+        0,                      // GPIOMask
+        { 2},                   // MuxSelect
+        { 0},                   // AudioMuxSelect
+        0,                      // GPIOMuxMask
+        PLL_28,                 // ePPLFreq
+        TUNER_ABSENT,           // eTunerID
+        NULL,
+    },
+    {
+        /* DeeJay <deejay@westel900.net (2000S) */
+        "FlyVideo 2000S",                               // szName
+        3,                                              // nVideoInputs
+        3,                                              // nAudioInputs
+        0,                                              // TunerInput
+        2,                                              // SVideoInput
+        0x18e0,                                         // GPIOMask
+        { 2, 3, 0, 1},                                  // MuxSelect
+        { 0, 0x18e0, 0x1000, 0x1000, 0x1080, 0x1080},   // AudioMuxSelect
+        0,                                              // GPIOMuxMask
+        PLL_28,                                         // ePPLFreq
+        TUNER_PHILIPS_PAL,                              // eTunerID
+        NULL,
+    },
+    {
+        /* TANAKA Kei <peg00625@nifty.com> */
+        "GV-BCTV4/PCI",                     // szName
+        3,                                  // nVideoInputs
+        1,                                  // nAudioInputs
+        0,                                  // TunerInput
+        2,                                  // SVideoInput
+        0x010f00,                           // GPIOMask
+        { 2, 3, 0, 0},                      // MuxSelect
+        { 0x10000, 0, 0x10000, 0, 0, 0},    // AudioMuxSelect
+        0,                                  // GPIOMuxMask
+        PLL_28,                             // ePPLFreq
+        TUNER_SHARP_2U5JF5540_NTSC,         // eTunerID
+        GVBCTV3PCI_SetAudio,
+    },
+    {
+        "Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP", // szName
+        4,                                                                  // nVideoInputs
+        1,                                                                  // nAudioInputs
+        0,                                                                  // TunerInput
+        2,                                                                  // SVideoInput
+        0xAA0000,                                                           // GPIOMask
+        { 2, 3, 1, 1},                                                      // MuxSelect
+        { 0x20000, 0, 0x80000, 0x80000, 0xa8000, 0x46000},                  // AudioMuxSelect
+        0,                                                                  // GPIOMuxMask
+        PLL_28,                                                             // ePPLFreq
+        TUNER_PHILIPS_PAL_I,                                                // eTunerID
+        NULL,
+    },
+    {
+        /* Claas Langbehn <claas@bigfoot.com>,
+           Sven Grothklags <sven@upb.de> */
+        "Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS",  // szName
+        3,                                                      // nVideoInputs
+        3,                                                      // nAudioInputs
+        0,                                                      // TunerInput
+        2,                                                      // SVideoInput
+        0x1c,                                                   // GPIOMask
+        { 2, 3, 1, 1},                                          // MuxSelect
+        { 0, 0, 0x10, 8, 4},                                    // AudioMuxSelect
+        0,                                                      // GPIOMuxMask
+        PLL_28,                                                 // ePPLFreq
+        TUNER_PHILIPS_PAL_I,                                    // eTunerID
+        NULL,
+    },
 };
 
 const TAutoDectect878 AutoDectect878[] =
@@ -976,9 +1082,8 @@ const TAutoDectect878 AutoDectect878[] =
     { 0x400d15b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
     { 0x401015b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
     { 0x402010fc, TVCARD_GVBCTV3PCI,    "I-O Data Co. GV-BCV3/PCI" },
-    { 0x405010fc, TVCARD_GVBCTV3PCI,    "I-O Data Co. GV-BCV4/PCI" },
+    { 0x405010fc, TVCARD_GVBCTV4PCI,    "I-O Data Co. GV-BCV4/PCI" },
     { 0x45000070, TVCARD_HAUPPAUGE878,  "Hauppauge WinTV/PVR" },
-    { 0x217d6606, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
     { 0xff000070, TVCARD_VIEWCAST,      "Osprey-100" },
     { 0xff010070, TVCARD_VIEWCAST,      "Osprey-200" },
     { 0x010115cb, TVCARD_GMV1,          "AG GMV1" },
@@ -997,94 +1102,105 @@ const TAutoDectect878 AutoDectect878[] =
     { 0x3000121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa)"},
     { 0x3100121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)"},
     // { 0x3060121A, TVCARD_VOODOOTV_100, "3dfx VoodooTV 100"},
+    { 0x010114c7, TVCARD_MODTEC_205,    "Modular Technology PCTV" },
+    { 0x1117153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x1119153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x111a153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x1127153b, TVCARD_TERRATV,       "Terratec TV+"    },
+    { 0x1134153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x1135153b, TVCARD_TERRATVALUER,  "Terratec TValue Radio" },
+    { 0x18511851, TVCARD_FLYVIDEO98EZ,  "Flyvideo 98EZ (LR51)/ CyberMail AV" },
+    { 0x3005144f, TVCARD_MAGICTVIEW061, "(Askey Magic/others) TView99 CPH061/06L (T1/LC)" },
+    { 0x401615b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
+    { 0x6606107d, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
     { 0, (eTVCardId)-1, NULL }
 };
 
 const TTunerSetup Tuners[TUNER_LASTONE] =
 {
     // TUNER_ABSENT
-    { 
-        "NoTuner", NOMFTR, NOTTYPE,     
-        0, 0, 0x00, 0x00, 0x00, 0x00, 0x00 
+    {
+        "NoTuner", NOMFTR, NOTTYPE,
+        0, 0, 0x00, 0x00, 0x00, 0x00, 0x00
     },
     // TUNER_PHILIPS_PAL_I
-    { 
-        "PHILIPS PAL_I", PHILIPS, PAL_I, 
+    {
+        "PHILIPS PAL_I", PHILIPS, PAL_I,
          16*140.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 623
     },
     // TUNER_PHILIPS_NTSC
-    { 
-        "PHILIPS NTSC", PHILIPS, NTSC, 
+    {
+        "PHILIPS NTSC", PHILIPS, NTSC,
         16*157.25, 16*451.25, 0xA0, 0x90, 0x30, 0x8e, 732
     },
     // TUNER_PHILIPS_SECAM
-    { 
-        "PHILIPS SECAM", PHILIPS, SECAM, 
+    {
+        "PHILIPS SECAM", PHILIPS, SECAM,
         16*168.25, 16*447.25, 0xA7, 0x97, 0x37, 0x8e, 623
     },
-    // TUNER_PHILIPSFY5_PAL     
-    { 
-        "PHILIPS PAL", PHILIPS, PAL, 
+    // TUNER_PHILIPSFY5_PAL
+    {
+        "PHILIPS PAL", PHILIPS, PAL,
         16*168.25, 16*447.25, 0xA0, 0x90, 0x30, 0x8e, 623
     },
     // TUNER_TEMIC_4002FH5_PAL
-    { 
-        "Temic 4002 FH5 PAL", TEMIC, PAL, 
+    {
+        "Temic 4002 FH5 PAL", TEMIC, PAL,
         16*140.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 623
     },
     // TUNER_TEMIC_4032FY5_NTSC
     {
-        "Temic 4036 FY5 NTSC", TEMIC, NTSC, 
+        "Temic 4036 FY5 NTSC", TEMIC, NTSC,
         16*157.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 732
     },
     // TUNER_TEMIC_4062FY5_PAL_I
     {
-        "Temic PAL_I (4062 FY5)", TEMIC, PAL_I, 
+        "Temic PAL_I (4062 FY5)", TEMIC, PAL_I,
         16*170.00, 16*450.00, 0x02, 0x04, 0x01, 0x8e, 623
     },
     // TUNER_TEMIC_4036FY5_NTSC
     {
-        "Temic 4036 FY5 NTSC", TEMIC, NTSC, 
+        "Temic 4036 FY5 NTSC", TEMIC, NTSC,
         16*157.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 732
     },
-    // TUNER_ALPS_TSBH1_NTSC    
+    // TUNER_ALPS_TSBH1_NTSC
     {
-        "ALPS HSBH1", TEMIC, NTSC, 
+        "ALPS HSBH1", TEMIC, NTSC,
         16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732
     },
-    // TUNER_ALPS_TSBE1_PAL     
+    // TUNER_ALPS_TSBE1_PAL
     {
-        "ALPS TSBE1", TEMIC, PAL, 
+        "ALPS TSBE1", TEMIC, PAL,
         16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732
     },
     // TUNER_ALPS_TSBB5_PAL_I
     {
-        "ALPS TSBB5", ALPS, PAL_I, 
+        "ALPS TSBB5", ALPS, PAL_I,
         16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 632
     },
-    // TUNER_ALPS_TSBE5_PAL 
+    // TUNER_ALPS_TSBE5_PAL
     {
-        "ALPS TSBE5", ALPS, PAL, 
+        "ALPS TSBE5", ALPS, PAL,
         16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 622
     },
     // TUNER_ALPS_TSBC5_PAL
     {
-        "ALPS TSBC5", ALPS, PAL, 
+        "ALPS TSBC5", ALPS, PAL,
         16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 608
     },
     // TUNER_TEMIC_4006FH5_PAL
     {
-        "Temic 4006FH5", TEMIC, PAL_I, 
+        "Temic 4006FH5", TEMIC, PAL_I,
         16*170.00,16*450.00, 0xa0, 0x90, 0x30, 0x8e, 623
     },
     // TUNER_PHILIPS_1236D_NTSC_INPUT1
     {
-        "PHILIPS 1236D ATSC/NTSC Input 1", PHILIPS, NTSC, 
+        "PHILIPS 1236D ATSC/NTSC Input 1", PHILIPS, NTSC,
         2516, 7220, 0xA3, 0x93, 0x33, 0xCE, 732
     },
     // TUNER_PHILIPS_1236D_NTSC_INPUT2
     {
-        "PHILIPS 1236D ATSC/NTSC Input 2", PHILIPS, NTSC, 
+        "PHILIPS 1236D ATSC/NTSC Input 2", PHILIPS, NTSC,
         2516, 7220, 0xA2, 0x92, 0x32, 0xCE, 732
     },
     // TUNER_ALPS_TSCH6_NTSC
@@ -1113,7 +1229,7 @@ const TTunerSetup Tuners[TUNER_LASTONE] =
         16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_TEMIC_4009FR5_PAL
-    { 
+    {
         "Temic PAL (4009 FR5)", TEMIC, PAL,
         16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
     },
@@ -1123,60 +1239,65 @@ const TTunerSetup Tuners[TUNER_LASTONE] =
         16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732
     },
     // TUNER_TEMIC_4046FM5_MULTI
-    { 
+    {
         "Temic PAL/SECAM multi (4046 FM5)", TEMIC, PAL,
         16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_PHILIPS_PAL_DK
-    { 
+    {
         "PHILIPS PAL_DK", PHILIPS, PAL,
         16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_PHILIPS_MULTI
-    { 
+    {
         "PHILIPS PAL/SECAM multi (FQ1216ME)", PHILIPS, PAL,
         16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_LG_I001D_PAL_I
-    { 
+    {
         "LG PAL_I+FM (TAPC-I001D)", LGINNOTEK, PAL_I,
         16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_LG_I701D_PAL_I
-    { 
+    {
         "LG PAL_I (TAPC-I701D)", LGINNOTEK, PAL_I,
         16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_LG_R01F_NTSC
-    { 
+    {
         "LG NTSC+FM (TPI8NSR01F)", LGINNOTEK, NTSC,
         16*210.00,16*497.00,0xa0,0x90,0x30,0x8e,732
     },
     // TUNER_LG_B01D_PAL
-    { 
+    {
         "LG PAL_BG+FM (TPI8PSB01D)", LGINNOTEK, PAL,
         16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_LG_B11D_PAL
-    { 
+    {
         "LG PAL_BG (TPI8PSB11D)", LGINNOTEK, PAL,
         16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_TEMIC_4009FN5_PAL
-    { 
+    {
         "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
         16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
     },
     // TUNER_MT2032
-    { 
+    {
         "MT2032 universal", MICROTUNE, NOTTYPE,
         0, 0, 0, 0, 0, 0, 0
+    },
+    // TUNER_SHARP_2U5JF5540_NTSC
+    {
+        "SHARP NTSC_JP (2U5JF5540)", SHARP, NTSC,
+        16*137.25, 16*317.25, 0x01, 0x02, 0x08, 0x8e, 940 // 940=16*58.75 NTSC@Japan
     },
 };
 
 
-// reset/enable the MSP on some Hauppauge cards 
-// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
+// reset/enable the MSP on some Hauppauge cards
+// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)!
 static void initialize_msp34xx(int pin)
 {
     int mask = 1 << pin;
@@ -1205,7 +1326,7 @@ void Card_Init()
     case TVCARD_SASEM4CHNLSVID:
         // Initialize and set the Philips TDA8540 4x4 switch matrix for s-video
         // 0xD2 SW1 choose OUT3=IN3; OUT2=IN1; OUT1=IN0; OUT0=IN2
-        // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux    
+        // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux
         // 0x03 OEN choose OUT0 and OUT1 high (i.e., s-video)
         ctrl_TDA8540(0x90, 0x00, 0xD2, 0x07, 0x03);
         break;
@@ -1215,11 +1336,11 @@ void Card_Init()
 }
 
 
-// ----------------------------------------------------------------------- 
-//  Imagenation L-Model PXC200 Framegrabber 
+// -----------------------------------------------------------------------
+//  Imagenation L-Model PXC200 Framegrabber
 //  This is basically the same procedure as
 //  used by Alessandro Rubini in his pxc200
-//  driver, but using BTTV functions 
+//  driver, but using BTTV functions
 
 void init_PXC200()
 {
@@ -1231,13 +1352,13 @@ void init_PXC200()
     };
     int i;
 
-    // Initialise GPIO-connevted stuff 
-    BT848_WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only 
+    // Initialise GPIO-connevted stuff
+    BT848_WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only
     BT848_WriteWord(BT848_GPIO_DATA, 0);
     Sleep(30);
     BT848_WriteWord(BT848_GPIO_DATA, 1<<13);
     // GPIO inputs are pulled up, so no need to drive
-    // reset pin any longer 
+    // reset pin any longer
     BT848_WriteWord(BT848_GPIO_OUT_EN, 0);
 
     //  we could/should try and reset/control the AD pots? but
@@ -1246,17 +1367,17 @@ void init_PXC200()
     //  remember the EN is reverse logic -->
     //  setting BT848_ADC_AGC_EN disable the AGC
     //  tboult@eecs.lehigh.edu
-    
+
     BT848_WriteByte(BT848_ADC, BT848_ADC_RESERVED|BT848_ADC_AGC_EN);
 
-    //  Initialise MAX517 DAC 
+    //  Initialise MAX517 DAC
     I2CBus_Lock();
     I2CBus_Write(0x5E, 0, 0x80, 1);
 
-    //  Initialise 12C508 PIC 
+    //  Initialise 12C508 PIC
     //  The I2CWrite and I2CRead commmands are actually to the
     //  same chips - but the R/W bit is included in the address
-    //  argument so the numbers are different 
+    //  argument so the numbers are different
     for (i = 0; i < sizeof(vals)/sizeof(int); i++)
     {
         I2CBus_Write(0x1E, vals[i], 0, 1);
@@ -1265,7 +1386,7 @@ void init_PXC200()
     I2CBus_Unlock();
 }
 
-// ----------------------------------------------------------------------- 
+// -----------------------------------------------------------------------
 // TDA8540 Control Code
 // Philips composite/s-video 4x4 switch IC
 // 19 Jul 2001 Dan Schmelzer
@@ -1308,11 +1429,11 @@ void ctrl_TDA8540(int SLV, int SUB, int SW1, int GCO, int OEN)
 {
     I2CBus_Lock();
     I2CBus_Start();
-    I2CBus_SendByte(SLV, 5); 
-    I2CBus_SendByte(SUB, 0); 
-    I2CBus_SendByte(SW1, 0); 
-    I2CBus_SendByte(GCO, 0); 
-    I2CBus_SendByte(OEN, 0); 
+    I2CBus_SendByte(SLV, 5);
+    I2CBus_SendByte(SUB, 0);
+    I2CBus_SendByte(SW1, 0);
+    I2CBus_SendByte(GCO, 0);
+    I2CBus_SendByte(OEN, 0);
     I2CBus_Stop();
     I2CBus_Unlock();
 }
@@ -1547,7 +1668,7 @@ long GetTunersTVFormat()
     return FORMAT_NTSC;
 }
 
-    
+
 void ChangeDefaultsBasedOnHardware()
 {
     // default the TVTYPE dependant on the Tuner selected
@@ -1677,7 +1798,7 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             CardType = (eTVCardId)SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETITEMDATA, i, 0);
             ProcessorSpeed = SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_GETCURSEL, 0, 0);
             TradeOff = SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_GETCURSEL, 0, 0);
-            if(OrigProcessorSpeed != ProcessorSpeed || 
+            if(OrigProcessorSpeed != ProcessorSpeed ||
                 OrigTradeOff != TradeOff)
             {
                 ChangeDefaultsBasedOnHardware();

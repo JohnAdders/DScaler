@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.20 2001-10-26 16:18:48 adcockj Exp $
+// $Id: TVCards.h,v 1.21 2001-10-28 16:40:01 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -128,6 +128,13 @@ enum eTVCardId
     TVCARD_VOODOOTV_200,
     TVCARD_VOODOOTV_FM,
     TVCARD_STANDARD_BT878_NO_INIT_MSP,
+    TVCARD_TERRATVALUER,
+    TVCARD_FLYVIDEO98EZ,
+    TVCARD_AIMSS,
+    TVCARD_FLYVIDEO2000,
+    TVCARD_GVBCTV4PCI,
+    TVCARD_PXELVWPLTVPAK,
+    TVCARD_TVIEW_RDS_FM,
     TVCARD_LASTONE,
 };
 
@@ -169,6 +176,7 @@ enum eTunerId
     TUNER_LG_B11D_PAL,
     TUNER_TEMIC_4009FN5_PAL,
     TUNER_MT2032,
+    TUNER_SHARP_2U5JF5540_NTSC,
     TUNER_LASTONE,
 };
 
@@ -188,6 +196,7 @@ enum eTunerMaker
     ALPS,
     LGINNOTEK,
     MICROTUNE,
+    SHARP,
 };
 
 enum eTunerType

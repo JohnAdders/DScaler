@@ -314,11 +314,26 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name SendMsg
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Disasm
+    End Project Dependency
 }}}
 
 ###############################################################################
 
 Project: "DScalerRes"=..\DScalerRes\DScalerRes.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Disasm"=..\Disasm\Disasm.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

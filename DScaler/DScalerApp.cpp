@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.15 2002-07-09 07:20:31 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.16 2002-09-17 17:28:25 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/07/09 07:20:31  adcockj
+// Help fix
+//
 // Revision 1.14  2002/06/13 12:10:21  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -72,6 +75,7 @@
 #include "DScalerApp.h"
 #include "DScaler.h"
 #include <afxpriv.h>
+#include "crash.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -117,6 +121,8 @@ BOOL CDScalerApp::InitInstance()
 	// By default you get a single check at the end.
     // afxMemDF=allocMemDF|checkAlwaysMemDF|delayFreeMemDF;
 #endif
+	
+	DScalerInitializeThread("Main thread");
 
 #ifdef WANT_DSHOW_SUPPORT
 	//COM init
@@ -159,6 +165,8 @@ BOOL CDScalerApp::InitInstance()
 
     AfxSetResourceHandle(m_hInstance);
     FreeLibrary(hResourceInst);
+
+	DScalerDeinitializeThread();
 
     // return false so message loop doesn't start
     return FALSE;

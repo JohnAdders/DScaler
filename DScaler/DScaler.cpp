@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.222 2002-09-16 19:34:19 adcockj Exp $
+// $Id: DScaler.cpp,v 1.223 2002-09-17 17:28:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.222  2002/09/16 19:34:19  adcockj
+// Fix for auto format change
+//
 // Revision 1.221  2002/09/11 18:19:38  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -851,7 +854,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     hDScalerInst = hInstance;
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
-    SetUnhandledExceptionFilter(UnexpectedCrashHandler);
+    SetUnhandledExceptionFilter(CrashHandler);
+    VDCHECKPOINT;
 
     SetDirectoryToExe();
 
@@ -1123,6 +1127,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 #ifdef _DEBUG
     CreateDScalerPopupMenu();
 #endif
+	
+	VDCHECKPOINT;
 
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))

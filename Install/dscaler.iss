@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.12 2002-08-19 19:00:57 adcockj Exp $
+;// $Id: dscaler.iss,v 1.13 2002-09-17 17:32:36 tobbej Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.12  2002/08/19 19:00:57  adcockj
+;// Updated Version
+;//
 ;// Revision 1.11  2002/08/08 12:24:18  robmuller
 ;// Added SendMsg.
 ;//
@@ -119,7 +122,7 @@ Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 ;Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: regserver
 Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\DScaler.dbg"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DScaler.vdi"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\channel.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite

@@ -1,68 +1,105 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.h,v 1.2 2001-07-27 16:11:32 adcockj Exp $
+// $Id: Disasm.h,v 1.3 2002-09-17 17:28:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 /////////////////////////////////////////////////////////////////////////////
 // This file was taken from VirtualDub
 // VirtualDub - Video processing and capture application
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DISASM_H__
 #define __DISASM_H__
 
-class CCodeDisassemblyWindow 
+struct VDDisassemblyContext
 {
-public:
-	CCodeDisassemblyWindow(void* code, long, void*, void*);
-	~CCodeDisassemblyWindow();
+    const unsigned char **pRuleSystem;
+    long (*pSymLookup)(VDDisassemblyContext *pctx, unsigned long virtAddr, char *buf, int buf_len);
 
-	void DoInitListbox(HWND hwndList);
-	BOOL DoMeasureItem(LPARAM lParam);
-	BOOL DoDrawItem(LPARAM lParam);
-	long getInstruction(char* buf, long val);
-	void setFaultAddress(void* _pFault);
+    bool bSizeOverride;         // 66
+    bool bAddressOverride;      // 67
+    bool bRepnePrefix;          // F2
+    bool bRepePrefix;           // F3
+    const char *pszSegmentOverride;
 
+    long    physToVirtOffset;
+
+    void    *pRawBlock;
+    char    *heap;
+    char    *heap_limit;
+    int     *stack;
+
+    void    *pExtraData;
+    int     cbExtraData;
+};
+
+
+bool VDDisasmInit(VDDisassemblyContext *, const char *, const char *);
+void VDDisasmDeinit(VDDisassemblyContext *);
+char *VDDisassemble(VDDisassemblyContext *pvdc, const unsigned char *source, int bytes, int& count);
+
+
+
+class CCodeDisassemblyWindow
+{
 private:
-	void parse();
-	char* penalty_string(long f);
-	static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
-
-
-	class lbent 
-    {
-	public:
-		unsigned char *ip_u;
-		unsigned char *ip_v;
-		long flags;
-	}* lbents;
-	int num_ents;
+    static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
     void* code;
     void* rbase;
     void* abase;
-	long length;
-	void* pFault;
+    long length;
+    void* pFault;
 
-	HFONT hFontMono;
+    class lbent
+    {
+    public:
+        unsigned char *ip;
+        int len;
+    } *lbents;
+    int num_ents;
 
-	char buf[256];
+    HFONT hFontMono;
+
+    char buf[256];
+
+public:
+    VDDisassemblyContext vdc;
+
+    CCodeDisassemblyWindow(void *code, long, void *, void *);
+    ~CCodeDisassemblyWindow();
+
+    void DoInitListbox(HWND hwndList);
+    BOOL DoMeasureItem(LPARAM lParam);
+    BOOL DoDrawItem(LPARAM lParam);
+    void parse();
+    BOOL post(HWND);
+    long getInstruction(char *buf, long val);
+
+    void setFaultAddress(void *_pFault)
+    {
+        pFault = _pFault;
+    }
 };
 
 #endif

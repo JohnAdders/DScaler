@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.83 2002-09-11 18:19:43 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.84 2002-09-17 17:28:25 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2002/09/11 18:19:43  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.82  2002/09/09 03:00:15  lindsey
 // Allowed filters to ask for more than 4 fields of history
 //
@@ -365,7 +368,6 @@ BOOL                bNoScreenUpdateDuringTuning = FALSE; //Don't update if set. 
     #define DDFLIP_DONOTWAIT 0
 #endif
 
-
 struct TPictureHistory {
     TPicture    picture;
     BOOL        available;
@@ -658,9 +660,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     int nHistory = 0;
     long SourceAspectAdjust = 1000;
 
+    DScalerInitializeThread("YUV Out Thread");
+
 #ifdef WANT_DSHOW_SUPPORT
-	//com init for this thread
-	CoInitializeEx(NULL,COINIT_MULTITHREADED);
+    //com init for this thread
+    CoInitializeEx(NULL,COINIT_MULTITHREADED);
 #endif
 
     CSource* pSource = Providers_GetCurrentSource();
@@ -690,6 +694,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // catch anything fatal in this loop so we don't crash the machine
     __try
     {
+        VDCHECKPOINT;
         pSource->SetOverscan();
         pSource->Start();
 
@@ -714,7 +719,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             UpdateNTSCPulldownMode(NULL);
             UpdateProgPulldownModeNTSC(NULL);
         }
-
+        VDCHECKPOINT;
         while(!bStopThread)
         {
             pPerf->StartCount(PERF_WAIT_FIELD);
@@ -954,6 +959,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
                         }
+                        CHECK_FPU_STACK
                     
                         pPerf->StopCount(PERF_DEINTERLACE);
 
@@ -1084,18 +1090,19 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     }
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
-    { 
+    {
         LOG(1, "Crash in in OutThreads Providers_GetCurrentSource()->Stop()");
         ExitThread(1);
         return 0;
     }
+    DScalerDeinitializeThread();
 
 #ifdef WANT_DSHOW_SUPPORT
-	//com deinit
-	CoUninitialize();
+    //com deinit
+    CoUninitialize();
 #endif
 
-    ExitThread(0);
+    //ExitThread(0);
     return 0;
 }
 

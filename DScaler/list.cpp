@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.h,v 1.3 2002-09-17 17:28:23 tobbej Exp $
+// $Id: list.cpp,v 1.1 2002-09-17 17:31:47 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,55 +20,72 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 // This file was taken from VirtualDub
-// VirtualDub - Video processing and capture application
-// Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
+// VirtualDub 2.x (Nina) - Video processing and capture application
+// Copyright (C) 1998-2001 Avery Lee, All Rights Reserved.
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __CRASH_H__
-#define __CRASH_H__
+///////////////////////////////////////////////////////////////////////////
+//
+//	For those of you who say this looks familiar... it should.  This is
+//	the same linked-list style that the Amiga Exec uses, with dummy head
+//	and tail nodes.  It's really a very convienent way to implement
+//	doubly-linked lists.
+//
 
-#ifdef _DEBUG
-    #define CHECK_FPU_STACK checkfpustack(__FILE__, __LINE__);
-    void checkfpustack(const char *, const int) throw();
-#else
-    #define CHECK_FPU_STACK
-#endif
+#include "stdafx.h"
+#include "list.h"
 
-struct VirtualDubCheckpoint
+List::List()
 {
-    const char *file;
-    int line;
+	Init();
+}
 
-    inline void set(const char *f, int l)
-    {
-        file=f; line=l;
-    }
-};
-
-#define CHECKPOINT_COUNT        (16)
-
-struct VirtualDubThreadState
+void List::Init()
 {
-    const char              *pszThreadName;
-    unsigned long           dwThreadId;
-    void *                  hThread;
+	head.next = tail.prev = 0;
+	head.prev = &tail;
+	tail.next = &head;
+}
 
-    VirtualDubCheckpoint    cp[CHECKPOINT_COUNT];
-    int                     nNextCP;
-};
+ListNode *List::RemoveHead()
+{
+	if (head.prev->prev)
+	{
+		ListNode *t = head.prev;
 
-extern __declspec(thread) VirtualDubThreadState g_PerThreadState;
+		head.prev->Remove();
+		return t;
+	}
 
-#define VDCHECKPOINT (g_PerThreadState.cp[g_PerThreadState.nNextCP++&(CHECKPOINT_COUNT-1)].set(__FILE__, __LINE__))
+	return 0;
+}
 
-void DScalerInitializeThread(const char *pszName);
-void DScalerDeinitializeThread();
+ListNode *List::RemoveTail()
+{
+	if (tail.next->next)
+	{
+		ListNode *t = tail.next;
 
-LONG WINAPI CrashHandler(EXCEPTION_POINTERS *pExc);
-extern "C" unsigned long gBuildNum;
+		tail.next->Remove();
+		return t;
+	}
 
-#endif
+	return 0;
+}
+
+void List::Take(List &from)
+{
+	if (from.IsEmpty())
+		return;
+
+	head.prev = from.head.prev;
+	tail.next = from.tail.next;
+	head.prev->next = &head;
+	tail.next->prev = &tail;
+
+	from.Init();
+}

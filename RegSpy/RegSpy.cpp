@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.19 2004-08-14 13:45:23 adcockj Exp $
+// $Id: RegSpy.cpp,v 1.20 2004-12-16 02:32:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.18  2004/06/01 19:26:31  to_see
 // corrected CX2388x byte wide registers
 //
@@ -512,8 +515,30 @@ void __cdecl SAA7133RegSpy(TRegister** hRegisterListTail)
     AddDWRegister(SAA7134_GPIO_GPMODE);
     AddDWRegister(SAA7134_GPIO_GPSTATUS);
     AddBRegister(SAA7134_ANALOG_IN_CTRL1);      // Video input pin
-    AddBRegister(SAA7134_ANALOG_IO_SELECT);     // Audio input pin
-    AddDWRegister(SAA7134_AUDIO_CLOCK);         // Audio clock crystal
+
+    // The comma operator means SAA7133's 'offset, mask' format
+    // register defines work!  Here's the substitution:
+    //
+    // x->Offset = offset, mask;
+    //
+    // Which in effect becomes 'x->Offset = offset'.  If however
+    // the macro was defined 'x->Offset = (Reg)' with the brackets,
+    // the substitution becomes:
+    //
+    // x->Offset = (offset, mask);
+    //
+    // Which in effect is 'x->Offset = mask'. (Bad)  To be safe, a
+    // function static DWORD _OFFSET(DWORD offset, DWORD)
+    // { return offset; } really should be used instead but is
+    // currently not.
+
+    // SAA7133 specific audio.
+    AddBRegister(SAA7133_ANALOG_IO_SELECT);     // Audio input pin
+    AddDWRegister(SAA7133_AUDIO_CLOCK_NOMINAL); // Audio clock crystal
+
+    // Registers for curiosity.
+    AddBRegister(SAA7133_PLL_CONTROL);          // PLL control
+    AddDWRegister(SAA7133_AUDIO_CLOCKS_PER_FIELD);  // Audio clocks per field
 
     // != 0 means card may have CCIR656
     AddDWRegister(SAA7134_VIDEO_PORT_CTRL0);    // CCIR656 video out
@@ -536,18 +561,6 @@ void __cdecl SAA7133RegSpy(TRegister** hRegisterListTail)
     AddBRegister(SAA7134_TS_DMA2);              // Transport stream
 
     AddBRegister(SAA7134_SPECIAL_MODE);         // Propagated reset
-
-    // Audio control registers.  For figuring out BTSC
-    AddDWRegister(0x140);                       // NICAM data & status
-    AddDWRegister(0x144);                       // Sound decoder status
-    AddDWRegister(0x148);                       // Demodulator configuration
-    AddDWRegister(0x14C);                       // SIF gain control
-    AddDWRegister(0x150);                       // Carrier 1 frequency
-    AddDWRegister(0x154);                       // Carrier 2 frequency
-    AddDWRegister(0x158);                       // PCI capture format
-    AddDWRegister(0x164);                       // FM decoder control
-    AddDWRegister(0x16C);                       // NICAM decoder control
-    AddDWRegister(0x174);                       // Analog I/O
 }
 
 

@@ -483,16 +483,22 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				{
                     if(bAutoDetectMode == TRUE)
                     {
-                        // we will need always need both comb and diff
-                        // for film detect to work properly
-                        PerformFilmDetectCalculations(&info, TRUE, TRUE);
 
 					    if(bIsPAL)
 					    {
+							// we will need always need both comb and diff
+							// for film detect to work properly
+							PerformFilmDetectCalculations(&info, TRUE, TRUE);
 						    UpdatePALPulldownMode(&info);
 					    }
                         else
                         {
+							// we will need always need comb
+							// diff is needed in film mode orwhen we ask for it
+							PerformFilmDetectCalculations(&info, 
+												TRUE, 
+												IsFilmMode() ||
+													CurrentMethod->bNeedFieldDiff);
 						    UpdateNTSCPulldownMode(&info);
 					    }
 						// get the current method again

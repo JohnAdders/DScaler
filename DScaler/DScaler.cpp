@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.232 2002-09-29 13:56:30 adcockj Exp $
+// $Id: DScaler.cpp,v 1.233 2002-09-29 17:40:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.232  2002/09/29 13:56:30  adcockj
+// Fixed some cursor hide problems
+//
 // Revision 1.231  2002/09/28 18:20:28  robmuller
 // Fixed a problem caused by the renaming of a menu entry.
 // Added a check to detect this error earlier next time.
@@ -3464,7 +3467,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_KILLFOCUS:
-        PreShowDialogOrMenu();
+		Cursor_SetVisibility(TRUE);
         return 0;
         break;
 

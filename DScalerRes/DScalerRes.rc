@@ -989,23 +989,6 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Vertical &Mirror",            IDM_VERTICAL_FLIP
         MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
-        POPUP "Thread &Priorities"
-        BEGIN
-            POPUP "Program"
-            BEGIN
-                MENUITEM "Normal",                      IDM_PRIORCLASS_0
-                MENUITEM "High",                        IDM_PRIORCLASS_1
-                MENUITEM "Very High",                   IDM_PRIORCLASS_2
-            END
-            POPUP "Decoding and Output"
-            BEGIN
-                MENUITEM "Low",                         IDM_TREADPRIOR_0
-                MENUITEM "Normal",                      IDM_TREADPRIOR_1
-                MENUITEM "Above Normal",                IDM_TREADPRIOR_2
-                MENUITEM "High",                        IDM_TREADPRIOR_3
-                MENUITEM "Very High",                   IDM_TREADPRIOR_4
-            END
-        END
     END
     POPUP "&Sources"
     BEGIN

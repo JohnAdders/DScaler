@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegLog.cpp,v 1.3 2002-11-28 14:47:21 adcockj Exp $
+// $Id: RegLog.cpp,v 1.4 2002-11-28 14:50:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/28 14:47:21  adcockj
+// Added bt848 logging
+//
 // Revision 1.2  2002/11/27 17:39:30  adcockj
 // Added headers
 //
@@ -28,6 +31,27 @@
 #include "GenericCard.h"
 #include "../DScaler/CX2388X_Defines.h"
 #include "../DScaler/BT848_Defines.h"
+
+void SetDirectoryToExe()
+{
+    char szDriverPath[MAX_PATH];
+    char* pszName;
+
+    if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
+    {
+        ErrorBox("Cannot get module file name");
+        return;
+    }
+
+    pszName = szDriverPath + strlen(szDriverPath);
+    while (pszName >= szDriverPath && *pszName != '\\')
+    {
+        *pszName-- = 0;
+    }
+
+    SetCurrentDirectory(szDriverPath);
+}
+
 
 #define DumpBRegister(Reg) fprintf(hFile, #Reg "\t%02x\n", pCard->ReadByte(Reg))
 #define DumpWRegister(Reg) fprintf(hFile, #Reg "\t%04x\n", pCard->ReadWord(Reg))
@@ -328,6 +352,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
+    // make sure the files go to whereever the exe is
+    SetDirectoryToExe();
+
     CHardwareDriver* pHardwareDriver = new CHardwareDriver();
     if(pHardwareDriver->LoadDriver() == TRUE)
     {

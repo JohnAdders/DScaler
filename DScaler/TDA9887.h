@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.13 2004-11-27 19:07:44 atnak Exp $
+// $Id: TDA9887.h,v 1.14 2004-11-27 22:01:40 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/11/27 19:07:44  atnak
+// Changed constant to more correct name.
+//
 // Revision 1.12  2004/11/27 14:15:57  atnak
 // Changed variable name to fix conflict.
 //
@@ -72,8 +75,11 @@
 // TDA defines
 //
 
-#define I2C_TDA9887_0					0x86
-#define I2C_TDA9887_1					0x96
+#define I2C_TDA9887_0					0x86	// MAD1
+#define I2C_TDA9887_1					0x96	// MAD3
+#define I2C_TDA9887_2					0x84	// MAD2
+#define I2C_TDA9887_3					0x94	// MAD4
+
 
 //// first reg
 #define TDA9887_VideoTrapBypassOFF		0x00	// bit b0

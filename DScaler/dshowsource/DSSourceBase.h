@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.13 2003-01-19 11:07:40 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.14 2003-01-19 19:36:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/01/19 11:07:40  laurentg
+// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
+//
 // Revision 1.12  2003/01/15 20:57:00  tobbej
 // changed some comments
 //
@@ -93,7 +96,7 @@ public:
 	virtual ~CDSSourceBase();
 	
     int GetInitialWidth() {return GetWidth();};
-    int GetInitialHeight() {return GetHeight();};
+    int GetInitialHeight() {return GetHeight() / 2;};
 	int GetWidth();
 	int GetHeight();
 	void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);

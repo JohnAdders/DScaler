@@ -151,6 +151,7 @@ BEGIN
                                                     NOINVERT
     VK_F3,          IDM_VT_SEARCHNEXT,      VIRTKEY, NOINVERT
     VK_F3,          IDM_SOURCE_INPUT3,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F3,          IDM_VT_SEARCHPREV,      VIRTKEY, SHIFT, NOINVERT
     VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F4,          IDM_END,                VIRTKEY, ALT, NOINVERT
@@ -416,23 +417,23 @@ BEGIN
     LTEXT           "Volume:",IDC_STATIC,11,53,40,8
 END
 
-IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 98
+IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 90
 STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
     WS_SYSMENU
 CAPTION "DScaler Videotext Info"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,49,80,50,15
-    LTEXT           "SubCode",IDC_STATIC,9,55,30,10
-    EDITTEXT        IDC_TEXT3,105,54,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    DEFPUSHBUTTON   "OK",IDOK,55,71,50,15
+    LTEXT           "Current Page Subcode",IDC_STATIC,9,49,89,10
+    EDITTEXT        IDC_TEXT3,105,48,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Pages Cached",IDC_STATIC,10,25,55,10
-    EDITTEXT        IDC_TEXT1,105,25,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    LTEXT           "Pages Cached",IDC_STATIC,10,19,55,10
+    EDITTEXT        IDC_TEXT1,105,19,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
                     ES_READONLY
-    LTEXT           "Current Page",IDC_STATIC,10,40,55,10
-    EDITTEXT        IDC_TEXT2,105,40,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+    LTEXT           "Current Page",IDC_STATIC,10,34,55,10
+    EDITTEXT        IDC_TEXT2,105,34,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
                     ES_READONLY
-    GROUPBOX        "Supervisor state",IDC_STATIC,5,15,150,60
+    GROUPBOX        "VideoText Cache State",IDC_STATIC,5,4,150,62
 END
 
 IDD_VPSSTATUS DIALOG DISCARDABLE  22, 17, 187, 66
@@ -1240,18 +1241,6 @@ BEGIN
         BEGIN
             MENUITEM "&Automatic",                  IDM_VT_AUTOCODEPAGE
             MENUITEM SEPARATOR
-            MENUITEM "&English",                    IDM_VT_UK
-            MENUITEM "&French",                     IDM_VT_FRENCH
-            MENUITEM "&Czech",                      IDM_VT_CZECH
-            MENUITEM "&Greek",                      IDM_VT_GREEK
-            MENUITEM "&Russian",                    IDM_VT_RUSSIAN
-            MENUITEM "G&erman",                     IDM_VT_GERMAN
-            MENUITEM "&Hungarian",                  IDM_VT_HUNGARIAN
-            MENUITEM "He&brew",                     IDM_VT_HEBREW
-            MENUITEM "&Swedish",                    IDM_VT_SWEDISH
-            MENUITEM "&Italian",                    IDM_VT_ITALIAN
-            MENUITEM "Sp&anish",                    IDM_VT_SPANISH
-            MENUITEM "&Polish",                     IDM_VT_POLISH
         END
         POPUP "Teletext Remote Button"
         BEGIN

@@ -837,12 +837,9 @@
 #define IDM_NOISE_SETTINGS              2019
 #define IDM_PULLDOWNCOMMON_SETTINGS     2020
 #define IDM_DEBUG_SETTINGS              2021
-#define IDM_VT_HEBREW                   2022
 #define IDM_ASPECT_SETTINGS             2023
 #define IDM_TIMING_SETTNGS              2024
 #define IDM_ALWAYONTOPFULLSCREEN        2025
-#define IDM_VT_UK                       2026
-#define IDM_VT_FRENCH                   2027
 #define IDM_LOGOKILL_SETTINGS           2028
 #define IDM_LINCORR_SETTINGS            2029
 #define IDM_TSOPTIONS                   2030
@@ -860,13 +857,9 @@
 #define IDM_PATTERN_SELECT              2042
 #define IDM_OVERLAY_SETTINGS            2063
 #define IDM_SHARPNESS_SETTINGS          2064
-#define IDM_VT_CZECH                    2065
 #define IDM_START_AUTO_CALIBRATION2     2066
 #define IDM_START_AUTO_CALIBRATION3     2067
-#define IDM_VT_GREEK                    2068
 #define IDM_OVERLAYSETTINGS             2070
-#define IDM_VT_RUSSIAN                  2071
-#define IDM_VT_GERMAN                   2072
 #define IDM_TELETEXT_KEY1               2073
 #define IDM_TELETEXT_KEY2               2074
 #define IDM_TELETEXT_KEY3               2075
@@ -885,7 +878,6 @@
 #define IDM_SAVE_BY_FORMAT              2187
 #define IDM_SAVE_BY_INPUT               2188
 #define IDM_SAVE_BY_CHANNEL             2189
-#define IDM_VT_HUNGARIAN                2190
 #define IDM_CLOSE_FILE                  2191
 #define IDM_OPEN_FILE                   2192
 #define IDM_PLAYLIST_PREVIOUS           2193
@@ -920,8 +912,6 @@
 #define IDM_CROSSBAR_INPUT_MAX          2240
 #define IDM_RESET_STATS                 2241
 #define IDM_SETTINGS_PIXELWIDTH_480     2243
-#define IDM_VT_ITALIAN                  2245
-#define IDM_VT_SWEDISH                  2246
 #define IDM_CHARSET_TEST                2247
 #define IDM_KEYBOARDLOCK                2248
 #define IDM_CLOSE_ALL                   2249
@@ -929,8 +919,6 @@
 #define IDM_PLAYLIST_DOWN               2251
 #define IDM_PLAYLIST_SAVE               2252
 #define IDM_PLAYLIST_FILES              2253
-#define IDM_VT_SPANISH                  2303
-#define IDM_VT_POLISH                   2304
 #define IDM_DSHOW_PLAY                  2305
 #define IDM_DSHOW_PAUSE                 2306
 #define IDM_DSHOW_STOP                  2307
@@ -999,6 +987,29 @@
 #define IDC_HELPBTN                     2390
 #define IDM_SKIN_FIRST                  2391
 #define IDM_SKIN_LAST                   2490
+#define IDM_VT_CODEPAGE_FIRST           2491
+// ___ These are provided for external reference.
+#define IDM_VT_CODEPAGE_ENGLISH         2491
+#define IDM_VT_CODEPAGE_FRENCH          2492
+#define IDM_VT_CODEPAGE_SWEDISH         2493
+#define IDM_VT_CODEPAGE_CZECH           2494
+#define IDM_VT_CODEPAGE_GERMAN          2495
+#define IDM_VT_CODEPAGE_PORTUGUESE      2496
+#define IDM_VT_CODEPAGE_ITALIAN         2497
+#define IDM_VT_CODEPAGE_POLISH          2498
+#define IDM_VT_CODEPAGE_TURKISH         2499
+#define IDM_VT_CODEPAGE_SLOVENIAN       2500
+#define IDM_VT_CODEPAGE_RUMANIAN        2501
+#define IDM_VT_CODEPAGE_SERBIAN         2502
+#define IDM_VT_CODEPAGE_RUSSIAN         2503
+#define IDM_VT_CODEPAGE_ESTONIAN        2504
+#define IDM_VT_CODEPAGE_UKRAINIAN       2505
+#define IDM_VT_CODEPAGE_LETTISH         2506
+#define IDM_VT_CODEPAGE_GREEK           2507
+#define IDM_VT_CODEPAGE_ARABIC          2510
+#define IDM_VT_CODEPAGE_HEBREW          2511
+// ^^^ These are provided for external reference.
+#define IDM_VT_CODEPAGE_LAST            2525
 #define IDC_MIXER_INPUT0NAME            8000
 #define IDC_MIXER_INPUT1NAME            8001
 #define IDC_MIXER_INPUT2NAME            8002
@@ -1136,6 +1147,7 @@
 #define IDM_TAKECONSECUTIVESTILL        32840
 #define IDM_ANALOGUE_BLANKING           32841
 #define IDM_LUMA_AGC                    32842
+#define IDM_VT_SEARCHPREV               32845
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1157,8 +1169,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        254
-#define _APS_NEXT_COMMAND_VALUE         32845
+#define _APS_NEXT_COMMAND_VALUE         32846
 #define _APS_NEXT_CONTROL_VALUE         8069
-#define _APS_NEXT_SYMED_VALUE           2491
+#define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

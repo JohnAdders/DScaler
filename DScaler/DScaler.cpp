@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.144 2002-03-24 18:56:45 adcockj Exp $
+// $Id: DScaler.cpp,v 1.145 2002-04-06 11:46:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.144  2002/03/24 18:56:45  adcockj
+// Fix for comamnd line ini file
+//
 // Revision 1.143  2002/03/21 10:26:57  robmuller
 // Don't show overlay adjustments dialog if the system does not support it.
 //
@@ -2249,7 +2252,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
         //-------------------------------
         case TIMER_STATUS:
-            if (IsStatusBarVisible())
+            if (IsStatusBarVisible() && (Providers_GetCurrentSource() != NULL))
             {
                 if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
 	    		{

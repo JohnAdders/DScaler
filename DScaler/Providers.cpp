@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.28 2002-03-02 18:33:56 laurentg Exp $
+// $Id: Providers.cpp,v 1.29 2002-04-06 11:46:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/03/02 18:33:56  laurentg
+// At startup, mute the audio of all unused cards
+//
 // Revision 1.27  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -327,8 +330,6 @@ void Providers_UpdateMenu(HMENU hMenu)
 
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
-    CSource*    pCurrentSource = Providers_GetCurrentSource();
-
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {
         int NewSource(LOWORD(wParam) - IDM_SOURCE_FIRST);

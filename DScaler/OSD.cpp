@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.55 2002-02-23 15:43:08 laurentg Exp $
+// $Id: OSD.cpp,v 1.56 2002-04-06 11:46:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/02/23 15:43:08  laurentg
+// General screen (OSD) updated
+//
 // Revision 1.54  2002/02/23 13:56:12  laurentg
 // Big switch in OSD_RefreshInfosScreen replaced by a call to one function for each screen
 // AR statistics moved in the the statistics screen and AR screen disabled
@@ -813,7 +816,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     OSD_AddText("Source", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Video input
-    OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    OSD_AddText(pSource != NULL ? pSource->GetStatus() : "", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Audio mute
     if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
@@ -822,7 +825,14 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
 
     // Source size
-    sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+    if (pSource != NULL)
+    {
+        sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
+    }
+    else
+    {
+        strcpy (szInfo, "Size ???x???");
+    }
     OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Source ratio
@@ -859,7 +869,7 @@ static void OSD_RefreshGeneralScreen(double Size)
     nLine = 4;
     DisplayTitle = FALSE;
     UseOverlayCtrl = Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS));
-    pSetting = pSource->GetBrightness();
+    pSetting = pSource != NULL ? pSource->GetBrightness() : NULL;
     OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYBRIGHTNESS));
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -880,7 +890,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    pSetting = pSource->GetContrast();
+    pSetting = pSource != NULL ? pSource->GetContrast() : NULL;
     OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYCONTRAST));
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -901,7 +911,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    pSetting = pSource->GetHue();
+    pSetting = pSource != NULL ? pSource->GetHue() : NULL;
     OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYHUE));
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -922,7 +932,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    pSetting = pSource->GetSaturation();
+    pSetting = pSource != NULL ? pSource->GetSaturation() : NULL;
     OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYSATURATION));
     if(pSetting != NULL || UseOverlayCtrl)
     {
@@ -943,7 +953,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    pSetting = pSource->GetSaturationU();
+    pSetting = pSource != NULL ? pSource->GetSaturationU() : NULL;
     if(pSetting != NULL)
     {
         OSD_AddText("Color U", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -952,7 +962,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    pSetting = pSource->GetSaturationV();
+    pSetting = pSource != NULL ? pSource->GetSaturationV() : NULL;
     if(pSetting != NULL)
     {
         OSD_AddText("Color V", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1393,174 +1403,176 @@ static void OSD_RefreshCalibrationScreen(double Size)
     OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     // Video settings
-    if (pCalibration->GetType() == CAL_MANUAL)
+    if (pSource != NULL)
     {
-        pSetting = pSource->GetBrightness();
-        if(pSetting != NULL)
+        if (pCalibration->GetType() == CAL_MANUAL)
         {
-            sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-        }
-        pSetting = pSource->GetContrast();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-        }
-        pSetting = pSource->GetSaturationU();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-        }
-        pSetting = pSource->GetSaturationV();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-        }
-        pSetting = pSource->GetHue();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Hue : %03u", pSetting->GetValue());
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
-        }
-    }
-    else
-    {
-        // do brightness
-        pSetting = pSource->GetBrightness();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 1)
-                || (pCalibration->GetCurrentStep() == 2)
-                || (pCalibration->GetCurrentStep() == 3)
-                || (pCalibration->GetCurrentStep() == 4)
-                || (pCalibration->GetCurrentStep() == 9)
-                || (pCalibration->GetCurrentStep() == 10)
-                || (pCalibration->GetCurrentStep() == 11) ) )
+            pSetting = pSource->GetBrightness();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
             }
-            else
+            pSetting = pSource->GetContrast();
+            if(pSetting != NULL)
             {
-                Color = -1;
+                sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+            }
+            pSetting = pSource->GetSaturationU();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            }
+            pSetting = pSource->GetSaturationV();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+            }
+            pSetting = pSource->GetHue();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Hue : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
             }
         }
         else
         {
-            strcpy(szInfo, "Not Supported on this Source");
-        }
-
-        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
-
-        // do Contrast
-        pSetting = pSource->GetContrast();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Contrast : %03d", pSetting->GetValue());
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 5)
-                || (pCalibration->GetCurrentStep() == 6)
-                || (pCalibration->GetCurrentStep() == 7)
-                || (pCalibration->GetCurrentStep() == 8)
-                || (pCalibration->GetCurrentStep() == 9)
-                || (pCalibration->GetCurrentStep() == 10)
-                || (pCalibration->GetCurrentStep() == 11) ) )
+            // do brightness
+            pSetting = pSource->GetBrightness();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 1)
+                    || (pCalibration->GetCurrentStep() == 2)
+                    || (pCalibration->GetCurrentStep() == 3)
+                    || (pCalibration->GetCurrentStep() == 4)
+                    || (pCalibration->GetCurrentStep() == 9)
+                    || (pCalibration->GetCurrentStep() == 10)
+                    || (pCalibration->GetCurrentStep() == 11) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
-        }
-        else
-        {
-            strcpy(szInfo, "Not Supported on this Source");
-        }
-        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
 
+            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
 
-
-        // do Color U
-        pSetting = pSource->GetSaturationU();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 12)
-                || (pCalibration->GetCurrentStep() == 13)
-                || (pCalibration->GetCurrentStep() == 14)
-                || (pCalibration->GetCurrentStep() == 15)
-                || (pCalibration->GetCurrentStep() == 22)
-                || (pCalibration->GetCurrentStep() == 23) ) )
+            // do Contrast
+            pSetting = pSource->GetContrast();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Contrast : %03d", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 5)
+                    || (pCalibration->GetCurrentStep() == 6)
+                    || (pCalibration->GetCurrentStep() == 7)
+                    || (pCalibration->GetCurrentStep() == 8)
+                    || (pCalibration->GetCurrentStep() == 9)
+                    || (pCalibration->GetCurrentStep() == 10)
+                    || (pCalibration->GetCurrentStep() == 11) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
-        }
-        else
-        {
-            strcpy(szInfo, "Not Supported on this Source");
-        }
-        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
+            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
 
 
-        // do Color V
-        pSetting = pSource->GetSaturationV();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 16)
-                || (pCalibration->GetCurrentStep() == 17)
-                || (pCalibration->GetCurrentStep() == 18)
-                || (pCalibration->GetCurrentStep() == 19)
-                || (pCalibration->GetCurrentStep() == 22)
-                || (pCalibration->GetCurrentStep() == 23) ) )
+            // do Color U
+            pSetting = pSource->GetSaturationU();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 12)
+                    || (pCalibration->GetCurrentStep() == 13)
+                    || (pCalibration->GetCurrentStep() == 14)
+                    || (pCalibration->GetCurrentStep() == 15)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
-        }
-        else
-        {
-            strcpy(szInfo, "Not Supported on this Source");
-        }
-        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
+            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
 
-        // do Hue
-        pSetting = pSource->GetHue();
-        if(pSetting != NULL)
-        {
-            sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 20)
-                || (pCalibration->GetCurrentStep() == 21)
-                || (pCalibration->GetCurrentStep() == 22)
-                || (pCalibration->GetCurrentStep() == 23) ) )
+
+            // do Color V
+            pSetting = pSource->GetSaturationV();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 16)
+                    || (pCalibration->GetCurrentStep() == 17)
+                    || (pCalibration->GetCurrentStep() == 18)
+                    || (pCalibration->GetCurrentStep() == 19)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
+            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
+
+            // do Hue
+            pSetting = pSource->GetHue();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 20)
+                    || (pCalibration->GetCurrentStep() == 21)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
+            }
+            else
+            {
+                strcpy(szInfo, "Not Supported on this Source");
+            }
+            OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
         }
-        else
-        {
-            strcpy(szInfo, "Not Supported on this Source");
-        }
-        OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
     }
 
 	// Name of the test pattern

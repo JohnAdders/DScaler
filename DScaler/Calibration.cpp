@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.53 2002-02-26 21:24:24 laurentg Exp $
+// $Id: Calibration.cpp,v 1.54 2002-04-06 11:46:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/02/26 21:24:24  laurentg
+// Move the test on the still file size in order to have a global treatment later
+//
 // Revision 1.52  2002/02/24 19:04:16  laurentg
 // Draw borders with specific size in pixels
 //
@@ -1539,8 +1542,19 @@ void CCalibration::SetMenu(HMENU hMenu)
     int     i;
 	char	*name;
     eTypeContentPattern type_content;
+    int     SourceHeight;
+    CSource* pSource = Providers_GetCurrentSource();
 
-    if ((m_CurTestPat != NULL) && (m_CurTestPat->GetHeight() != Providers_GetCurrentSource()->GetHeight()))
+    if (pSource != NULL)
+    {
+        SourceHeight = pSource->GetHeight();
+    }
+    else
+    {
+        SourceHeight = -1;
+    }
+
+    if ((m_CurTestPat != NULL) && (m_CurTestPat->GetHeight() != SourceHeight))
     {
         m_CurTestPat = NULL;
     }
@@ -1564,14 +1578,12 @@ void CCalibration::SetMenu(HMENU hMenu)
     {
 		name = (*it)->GetName();
 		EnableMenuItem(hMenuPatterns, i, m_IsRunning ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-		EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != Providers_GetCurrentSource()->GetHeight())) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+		EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != SourceHeight)) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
 		CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }
 	
-    CSource* pSource = Providers_GetCurrentSource();
-
     EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
-    if (pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
+    if (pSource != NULL && pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
     }
@@ -1579,7 +1591,7 @@ void CCalibration::SetMenu(HMENU hMenu)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, MF_GRAYED);
     }
-    if (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
+    if (pSource != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
     }
@@ -1587,7 +1599,7 @@ void CCalibration::SetMenu(HMENU hMenu)
     {
     	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, MF_GRAYED);
     }
-    if (pSource->GetBrightness() != NULL && pSource->GetContrast())
+    if (pSource != NULL && pSource->GetBrightness() != NULL && pSource->GetContrast())
     {
 	    EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
     }
@@ -1651,6 +1663,8 @@ void CCalibration::Start(eTypeCalibration type)
     m_Hue = NULL;
 
     CSource* pSource = Providers_GetCurrentSource();
+    if (pSource == NULL)
+        return;
 
     /// \todo this is bad coding sort this out
     if (pSource->GetBrightness() != NULL)

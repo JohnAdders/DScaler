@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.4 2002-08-27 22:09:39 kooiman Exp $
+// $Id: DSSourceBase.h,v 1.5 2002-09-04 17:07:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/27 22:09:39  kooiman
+// Add get/set input for DS capture source.
+//
 // Revision 1.3  2002/08/26 18:25:10  adcockj
 // Fixed problem with PAL/NTSC detection
 //
@@ -58,7 +61,7 @@ public:
 	int GetWidth();
 	int GetHeight();
 	void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
-	void Start(int Run = 1);
+	void Start();
 	void Stop();
 	void Reset();
 
@@ -75,14 +78,14 @@ public:
 	
 protected:
 	CDShowGraph *m_pDSGraph;
-	long m_currentX;
-	long m_currentY;
+	long m_CurrentX;
+	long m_CurrentY;
 	
 	///Array for picture history.
 	TPicture m_PictureHistory[MAX_PICTURE_HISTORY];
 
 	///number of frames dropped at last call of updateDroppedFields()
-	int m_lastNumDroppedFrames;
+	int m_LastNumDroppedFrames;
 
 	CRITICAL_SECTION m_hOutThreadSync;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.2 2002-08-21 20:29:20 kooiman Exp $
+// $Id: DSSourceBase.cpp,v 1.3 2002-09-04 17:07:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/08/21 20:29:20  kooiman
+// Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
+//
 // Revision 1.1  2002/08/20 16:21:28  tobbej
 // split CDSSource into 3 different classes
 //
@@ -55,9 +58,9 @@ static char THIS_FILE[]=__FILE__;
 CDSSourceBase::CDSSourceBase(long SetMessage, long MenuId) :
 	CSource(SetMessage,MenuId),
 	m_pDSGraph(NULL),
-	m_currentX(0),
-	m_currentY(0),
-	m_lastNumDroppedFrames(-1),
+	m_CurrentX(0),
+	m_CurrentY(0),
+	m_LastNumDroppedFrames(-1),
 	m_dwRendStartTime(0)
 {
 	InitializeCriticalSection(&m_hOutThreadSync);
@@ -73,28 +76,27 @@ CDSSourceBase::~CDSSourceBase()
 	DeleteCriticalSection(&m_hOutThreadSync);
 }
 
-
 int CDSSourceBase::GetWidth()
 {
-	return m_currentX;
+	return m_CurrentX;
 }
 
 int CDSSourceBase::GetHeight()
 {
-	return m_currentY;
+	return m_CurrentY;
 }
 
-void CDSSourceBase::Start(int Run)
+void CDSSourceBase::Start()
 {
-	m_lastNumDroppedFrames=-1;
-	m_currentX=0;
-	m_currentY=0;
+	m_LastNumDroppedFrames=-1;
+	m_CurrentX=0;
+	m_CurrentY=0;
 	try
 	{
 		//derived class must create the graph first
 		ASSERT(m_pDSGraph!=NULL);
 
-		m_pDSGraph->start(Run);
+		m_pDSGraph->start();
 	}
 	catch(CDShowException &e)
 	{
@@ -170,10 +172,10 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	ASSERT((binfo.Width&0xf)==0);
 
 	//check if size has changed
-	if(m_currentX!=binfo.Width || m_currentY!=binfo.Height*2)
+	if(m_CurrentX!=binfo.Width || m_CurrentY!=binfo.Height*2)
 	{
-		m_currentX=binfo.Width;
-		m_currentY=binfo.Height*2;
+		m_CurrentX=binfo.Width;
+		m_CurrentY=binfo.Height*2;
 		NotifySizeChange();
 	}
 	
@@ -223,19 +225,19 @@ void CDSSourceBase::UpdateDroppedFields()
 	}
 	catch(CDShowException e)
 	{
-        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+		LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return;
 	}
 	
 	//is the m_lastNumDroppedFrames count valid?
-	if(m_lastNumDroppedFrames!=-1)
+	if(m_LastNumDroppedFrames!=-1)
 	{
-		if(dropped-m_lastNumDroppedFrames >0)
+		if(dropped-m_LastNumDroppedFrames >0)
 		{
-			Timing_AddDroppedFields((dropped-m_lastNumDroppedFrames)*2);
+			Timing_AddDroppedFields((dropped-m_LastNumDroppedFrames)*2);
 		}
 	}
-	m_lastNumDroppedFrames=dropped;
+	m_LastNumDroppedFrames=dropped;
 }
 
 BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.14 2002-12-14 00:29:35 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.15 2002-12-22 03:52:11 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/12/14 00:29:35  atnak
+// Added Manli M-TV001 card
+//
 // Revision 1.13  2002/12/10 11:05:46  atnak
 // Fixed FlyVideo 3000 audio for external inputs
 //
@@ -154,18 +157,18 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                VIDEOINPUTSOURCE_PIN0,
-                AUDIOINPUTSOURCE_LINE2,
-            },
-            {
-                "Composite 2",
-                INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
             },
@@ -184,7 +187,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // SAA7134CARDID_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
     {
         "LifeView FlyVIDEO2000",
-        4,
+        5,
         {
             {
                 "Tuner",
@@ -195,12 +198,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
-                VIDEOINPUTSOURCE_PIN0,
-                AUDIOINPUTSOURCE_LINE2,
-            },
-            {
-                "Composite 2",
-                INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
             },
@@ -208,6 +205,18 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
@@ -609,8 +618,8 @@ void CSAA7134Card::FLYVIDEO3000CardInputSelect(int nInput)
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
         break;
     case 1: // Composite
-    case 2: // Composite 2
-    case 3: // S-Video
+    case 2: // S-Video
+    case 3: // Composite over S-Video
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x04000, 0xE000);
         break;
@@ -634,14 +643,22 @@ void CSAA7134Card::FLYVIDEO2000CardInputSelect(int nInput)
     switch(nInput)
     {
     case 0: // Tuner
-        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x6000);
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0xE000);
         break;
     case 1: // Composite
-    case 2: // Composite 2
-    case 3: // S-Video
-        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0x6000);
+    case 2: // S-Video
+    case 3: // Composite over S-Video
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0xE000);
+        break;
+    case 4: // Radio
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0xE000);
+        break;
+    case -1: // Ending cleanup
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
         break;
     default:
         break;

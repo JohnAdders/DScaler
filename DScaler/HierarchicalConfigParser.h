@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.7 2004-11-26 23:12:22 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.8 2004-11-27 00:31:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/11/26 23:12:22  atnak
+// Fixed problem with line number being wrong introduced few changes back.
+//
 // Revision 1.6  2004/11/22 20:38:18  atnak
 // Bug fix and new features.
 //
@@ -297,17 +300,16 @@ private:
 	{
 		EXPECT_SECTION		= 1 << 0,
 		EXPECT_TAG			= 1 << 1,
-		EXPECT_COMMENT		= 1 << 2,
-		EXPECT_VALUE		= 1 << 3,
-		EXPECT_EQUAL		= 1 << 4,
-		EXPECT_NEXT_COMMA	= 1 << 5,
-		EXPECT_OPEN_V		= 1 << 6,
-		EXPECT_CLOSE_V		= 1 << 7,
-		EXPECT_OPEN_L		= 1 << 8,
-		EXPECT_CLOSE_L		= 1 << 9,
-		EXPECT_CLOSE_EOL	= 1 << 10,
-		EXPECT_CLOSE_COMMA	= 1 << 11,
-		EXPECT_MAX			= 12,
+		EXPECT_VALUE		= 1 << 2,
+		EXPECT_EQUAL		= 1 << 3,
+		EXPECT_NEXT_COMMA	= 1 << 4,
+		EXPECT_OPEN_V		= 1 << 5,
+		EXPECT_CLOSE_V		= 1 << 6,
+		EXPECT_OPEN_L		= 1 << 7,
+		EXPECT_CLOSE_L		= 1 << 8,
+		EXPECT_CLOSE_EOL	= 1 << 9,
+		EXPECT_CLOSE_COMMA	= 1 << 10,
+		EXPECT_MAX			= 11,
 	};
 
 	typedef struct _ParseState

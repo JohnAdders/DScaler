@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.7 2004-11-26 23:12:20 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.8 2004-11-27 00:31:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/11/26 23:12:20  atnak
+// Fixed problem with line number being wrong introduced few changes back.
+//
 // Revision 1.6  2004/11/22 20:38:17  atnak
 // Bug fix and new features.
 //
@@ -672,9 +675,9 @@ long CHCParser::GetNextIterateValuesIndex()
 
 void CHCParser::AddExpectLine(ParseError& pe, bool debugging)
 {
-	const char* namesReadable[EXPECT_MAX] = { "", "tag-name", "",
+	const char* namesReadable[EXPECT_MAX] = { "", "tag-name",
 		"value", "'='", "','", "'('", "')'", "'{'", "'}'", "EOL", "','" };
-	const char* namesDebug[EXPECT_MAX] = { "se", "ta", "", "va", "eq",
+	const char* namesDebug[EXPECT_MAX] = { "se", "ta", "va", "eq",
 		"co", "ov", "cv", "ol", "cl", "ec", "ce" };
 
 	const char** names = debugging ? namesDebug : namesReadable;
@@ -736,8 +739,6 @@ bool CHCParser::ProcessSection()
 		return false;
 	}
 
-	m_parseStates.front().expect = EXPECT_TAG|EXPECT_SECTION;
-
 	char* parseStart = ++m_linePoint;
 	for ( ; *m_linePoint != '\0' && *m_linePoint != ']'; m_linePoint++) ;
 
@@ -786,6 +787,7 @@ bool CHCParser::ProcessSection()
 		}
 	}
 
+	m_parseStates.front().expect = EXPECT_TAG|EXPECT_SECTION;
 	return true;
 }
 
@@ -1148,6 +1150,10 @@ bool CHCParser::OpenTag(long tagIndex)
 			m_parseStates.front().expect |= EXPECT_NEXT_COMMA;
 		}
 	}
+	else
+	{
+		m_parseStates.front().expect |= EXPECT_NEXT_COMMA;
+	}
 
 	DebugOut(DEBUG_OUT_EXPECT, ":OT", true);
 	return true;
@@ -1418,10 +1424,19 @@ bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const 
 	{
 		list<ParseState>::iterator it = m_parseStates.begin();
 
-		// There's a sentinel value at the end (m_rootParent) so there's
+		// The top level state's paramIndex can be -1 but there'll always
+		// be a lower level state where paramIndex is not -1.  (If need be
+		// the sentinel value.)
+		if (it->paramIndex == -1)
+		{
+			it++;
+		}
+
+		// Look at older states until a NULL or a good callback is found.
+		// There is a sentinel value at the root (m_rootParent) so there's
 		// no need to check 'it' against m_parseStates.end().
-		for ( ; it->parseTags->readProc != PASS_TO_PARENT; it++) ;
-		readProc = it->parseTags->readProc;
+		for ( ; it->parseTags[it->paramIndex].readProc == PASS_TO_PARENT; it++) ;
+		readProc = it->parseTags[it->paramIndex].readProc;
 	}
 
 	if (readProc != NULL)

@@ -131,18 +131,17 @@ BEGIN
     VK_DOWN,        IDM_VT_PAGE_DOWN,       VIRTKEY, NOINVERT
     VK_ESCAPE,      IDM_RETURN_TO_WINDOW,   VIRTKEY, NOINVERT
     VK_F1,          IDM_HELP_README,        VIRTKEY, NOINVERT
-    VK_F1,          IDM_SOURCE_INPUT1,       VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F1,          IDM_SOURCE_INPUT1,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F2,          IDM_SOURCE_INPUT2,   VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F2,          IDM_SOURCE_INPUT2,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F3,          IDM_SOURCE_INPUT3,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F4,          IDM_END,                VIRTKEY, ALT, NOINVERT
-    VK_F4,          IDM_SOURCE_INPUT4, VIRTKEY, CONTROL, ALT, 
-                                                    NOINVERT
+    VK_F4,          IDM_SOURCE_INPUT4,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F5,          IDM_TELETEXT_KEY1,      VIRTKEY, NOINVERT

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.10 2001-12-18 13:12:11 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.11 2001-12-18 17:56:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.9  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -257,17 +260,15 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 void CBT848Source::SetMenu(HMENU hMenu)
 {
     int i;
-
+	
     for(i = 0;i < m_pBT848Card->GetNumInputs(); ++i)
     {
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
-        ModifyMenu(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_BYCOMMAND | MF_STRING, 0, m_pBT848Card->GetInputName(i));
-    }
+	}
     
     while(i < INPUTS_PER_CARD)
     {
-        ModifyMenu(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_BYCOMMAND | MF_STRING, 0, "No Input");
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
         ++i;
     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.197 2002-07-26 22:40:55 laurentg Exp $
+// $Id: DScaler.cpp,v 1.198 2002-07-27 13:52:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.197  2002/07/26 22:40:55  laurentg
+// Menus updates
+//
 // Revision 1.196  2002/07/24 21:43:15  laurentg
 // Take cyclic stills
 //
@@ -2501,10 +2504,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 		
-		case IDM_SETTINGS_FILTERSETTINGS:
+		case IDM_SETTINGS_CHANGESETTINGS:
             bInMenuOrDialogBox = TRUE;
             Cursor_UpdateVisibility();
-            CTreeSettingsDlg::ShowTreeSettingsDlg();
+            CTreeSettingsDlg::ShowTreeSettingsDlg(ADVANCED_SETTINGS_MASK);
+            bInMenuOrDialogBox = FALSE;
+            Cursor_UpdateVisibility();
+            break;
+
+        case IDM_SETTINGS_FILTERSETTINGS:
+            bInMenuOrDialogBox = TRUE;
+            Cursor_UpdateVisibility();
+            CTreeSettingsDlg::ShowTreeSettingsDlg(FILTER_SETTINGS_MASK);
+            bInMenuOrDialogBox = FALSE;
+            Cursor_UpdateVisibility();
+            break;
+
+        case IDM_SETTINGS_DEINTERLACESETTINGS:
+            bInMenuOrDialogBox = TRUE;
+            Cursor_UpdateVisibility();
+            CTreeSettingsDlg::ShowTreeSettingsDlg(DEINTERLACE_SETTINGS_MASK);
             bInMenuOrDialogBox = FALSE;
             Cursor_UpdateVisibility();
             break;
@@ -3776,7 +3795,7 @@ HMENU GetOSDSubmenu()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubSubMenu(5, 1, 0, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubSubMenu(7, 1, 0, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.4 2002-11-03 18:38:32 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.5 2002-11-15 17:10:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/11/03 18:38:32  adcockj
+// Fixes for cx2388x and PAL & NTSC
+//
 // Revision 1.3  2002/11/03 15:54:10  adcockj
 // Added cx2388x register tweaker support
 //
@@ -297,7 +300,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
-        StandardInputSelect,
+        MSINTSCInputSelect,
         SetAnalogBrightness,
         SetAnalogContrast,
         SetAnalogHue,
@@ -333,7 +336,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
-        StandardInputSelect,
+        MSIPALInputSelect,
         SetAnalogBrightness,
         SetAnalogContrast,
         SetAnalogHue,
@@ -469,3 +472,57 @@ HMENU CCX2388xCard::GetCardSpecificMenu()
 {
     return LoadMenu(hResourceInst, MAKEINTRESOURCE(m_TVCards[m_CardType].MenuId));
 }
+
+
+void CCX2388xCard::MSIPALInputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+    if(nInput == 0)
+    {
+        // GPIO pins will probably be different for PAL but we'll
+        // these in as a placeholder
+        WriteDword(MO_GP0_IO, 0x000000ff);
+        WriteDword(MO_GP1_IO, 0x000000c0);
+        WriteDword(MO_GP2_IO, 0x0000ff80); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GPIO, 0x00000000); 
+        WriteDword(MO_GPOE, 0x00000000); 
+    }
+    else
+    {
+        // Turn off anything audio if we're not the tuner
+        WriteDword(MO_GP0_IO, 0x00000000);
+        WriteDword(MO_GP1_IO, 0x00000000);
+        WriteDword(MO_GP2_IO, 0x00000000); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GPIO, 0x00000000); 
+        WriteDword(MO_GPOE, 0x00000000); 
+    }
+}
+
+void CCX2388xCard::MSINTSCInputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+    if(nInput == 0)
+    {
+        // GPIO pins set according to values supplied by
+        // musicthebee on AVS
+        WriteDword(MO_GP0_IO, 0x000000ff);
+        WriteDword(MO_GP1_IO, 0x000000c0);
+        WriteDword(MO_GP2_IO, 0x0000ff80); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GPIO, 0x00000000); 
+        WriteDword(MO_GPOE, 0x00000000); 
+    }
+    else
+    {
+        // Turn off anything audio if we're not the tuner
+        WriteDword(MO_GP0_IO, 0x00000000);
+        WriteDword(MO_GP1_IO, 0x00000000);
+        WriteDword(MO_GP2_IO, 0x00000000); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GPIO, 0x00000000); 
+        WriteDword(MO_GPOE, 0x00000000); 
+    }
+}
+

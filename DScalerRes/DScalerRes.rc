@@ -1199,6 +1199,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
                                                 IDM_AUTODETECT
+        MENUITEM "Auto&matic Format Detect",    IDM_AUTO_FORMAT
         MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
         MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
         MENUITEM SEPARATOR

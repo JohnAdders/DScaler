@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.350 2003-09-27 12:08:58 adcockj Exp $
+// $Id: DScaler.cpp,v 1.351 2003-09-27 13:38:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.350  2003/09/27 12:08:58  adcockj
+// Suppress splash when first run
+//
 // Revision 1.349  2003/09/26 21:06:31  laurentg
 // Media player toolbar hidden when one skin is selected
 //
@@ -2890,8 +2893,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 	
         case IDM_AUTO_FORMAT:
-            Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
-                !Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
+            if(Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)))
+            {
+                ShowText(hWnd, "Auto Format Detection OFF");
+                Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), FALSE);
+            }
+            else
+            {
+                ShowText(hWnd, "Auto Format Detection ON");
+                Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), TRUE);
+            }
             break;
 
         case IDM_VT_SEARCH:
@@ -3112,12 +3123,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_FINDPULL);
             if(Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
             {
-                ShowText(hWnd, "Auto Pulldown Detect OFF");
+                ShowText(hWnd, "Auto Pulldown Detection OFF");
                 Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
             }
             else
             {
-                ShowText(hWnd, "Auto Pulldown Detect ON");
+                ShowText(hWnd, "Auto Pulldown Detection ON");
                 Setting_SetValue(OutThreads_GetSetting(AUTODETECT), TRUE);
             }
             // Set Deinterlace Mode to film fallback in

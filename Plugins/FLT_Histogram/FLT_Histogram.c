@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/04 01:43:42  lindsey
+// Minor modification to color correction list item name
+//
 // Revision 1.8  2002/11/03 00:26:28  lindsey
 // Changed the names of the comb mode option list items
 //
@@ -97,10 +100,10 @@ artifactually increase the range of the distribution.
 #define Y_CCIR_601_MIN                          16
 #define Y_CCIR_601_MAX                          235
 
-#define U_DOT_COLOR                             0xFFFF7FFF
-#define U_DOT_DIMMED                            0xFF7F7F7F
-#define V_DOT_COLOR                             0x7FFFFFFF
-#define V_DOT_DIMMED                            0x7F7FFF7F
+#define U_DOT_COLOR                             0x7FFFFFFF
+#define U_DOT_DIMMED                            0x7F7FFF7F
+#define V_DOT_COLOR                             0xFFFF7FFF
+#define V_DOT_DIMMED                            0xFF7F7F7F
 #define UV_CCIR_601_MIN                         16
 #define UV_CCIR_601_MAX                         240
 
@@ -192,8 +195,8 @@ LONG        gCpuFeatureFlags = 0;
 LPCSTR ModeList[] =
 {
     "Brightness (Y)",
-    "U (Red) Color",
-    "V (Blue) Color",
+    "U (Blue) Color",
+    "V (Red) Color",
     "Colors",
     "All pixel components"
 };

@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/02 01:33:34  lindsey
+// Corrected comb filter to work with PAL video
+// Changed color of histogram outside the CCIR-601 range
+//
 // Revision 1.2  2002/02/16 00:24:57  lindsey
 // Added CVS tags
 //
@@ -86,8 +90,8 @@ LONG GatherHistogram_MMX( TDeinterlaceInfo* pInfo )
     const __int64   qwNoLowBits = 0xFEFEFEFEFEFEFEFE;
     const DWORD     YByte = 0x000000FF;
     const DWORD     HighYByte = 0x00FF0000;
-    const DWORD     UByte = 0xFF000000;
-    const DWORD     VByte = 0x0000FF00;
+    const DWORD     UByte = 0x0000FF00;
+    const DWORD     VByte = 0xFF000000;
     DWORD*          pLocalYHistogram = NULL;
     DWORD*          pLocalUHistogram = NULL;
     DWORD*          pLocalVHistogram = NULL;
@@ -153,18 +157,18 @@ LONG GatherHistogram_MMX( TDeinterlaceInfo* pInfo )
                 inc     dword ptr[ebx]                      // increment Y histogram
 
                 mov     eax, edx                            // eax = pixels
-                mov     ebx, dword ptr[pLocalUHistogram]    // ebx points to U histogram
-                and     eax, UByte                          // eax = U value of two pixels
-                shr     eax, 22                             // eax = sizeof(DWORD)*(U value)
-                add     ebx, eax                            // ebx = pointer to corresponding U histogram value
-                inc     dword ptr[ebx]                      // increment U histogram
-
-                mov     eax, edx                            // eax = pixels
                 mov     ebx, dword ptr[pLocalVHistogram]    // ebx points to V histogram
                 and     eax, VByte                          // eax = V value of two pixels
-                shr     eax, 6                              // eax = sizeof(DWORD)*(V value)
+                shr     eax, 22                             // eax = sizeof(DWORD)*(V value)
                 add     ebx, eax                            // ebx = pointer to corresponding V histogram value
                 inc     dword ptr[ebx]                      // increment V histogram
+
+                mov     eax, edx                            // eax = pixels
+                mov     ebx, dword ptr[pLocalUHistogram]    // ebx points to U histogram
+                and     eax, UByte                          // eax = U value of two pixels
+                shr     eax, 6                              // eax = sizeof(DWORD)*(U value)
+                add     ebx, eax                            // ebx = pointer to corresponding U histogram value
+                inc     dword ptr[ebx]                      // increment U histogram
 
                 psrlq   mm0, 32                             // mm0 = high two pixels in low dword
 #if defined( IS_SSE )
@@ -189,18 +193,18 @@ LONG GatherHistogram_MMX( TDeinterlaceInfo* pInfo )
                 inc     dword ptr[ebx]                      // increment Y histogram
 
                 mov     eax, edx                            // eax = pixels
-                mov     ebx, dword ptr[pLocalUHistogram]    // ebx points to U histogram
-                and     eax, UByte                          // eax = U value of two pixels
-                shr     eax, 22                             // eax = sizeof(DWORD)*(U value)
-                add     ebx, eax                            // ebx = pointer to corresponding U histogram value
-                inc     dword ptr[ebx]                      // increment U histogram
-
-                mov     eax, edx                            // eax = pixels
                 mov     ebx, dword ptr[pLocalVHistogram]    // ebx points to V histogram
                 and     eax, VByte                          // eax = V value of two pixels
-                shr     eax, 6                              // eax = sizeof(DWORD)*(V value)
+                shr     eax, 22                             // eax = sizeof(DWORD)*(V value)
                 add     ebx, eax                            // ebx = pointer to corresponding V histogram value
                 inc     dword ptr[ebx]                      // increment V histogram
+
+                mov     eax, edx                            // eax = pixels
+                mov     ebx, dword ptr[pLocalUHistogram]    // ebx points to U histogram
+                and     eax, UByte                          // eax = U value of two pixels
+                shr     eax, 6                              // eax = sizeof(DWORD)*(U value)
+                add     ebx, eax                            // ebx = pointer to corresponding U histogram value
+                inc     dword ptr[ebx]                      // increment U histogram
 
                 add     edi, 8
                 add     esi, 8

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.13 2002-10-29 19:32:22 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.14 2003-01-06 21:34:30 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/29 19:32:22  tobbej
+// new tuner class for direct tuning to a frequency
+// implemented IsVideoPresent, channel scaning shoud work now
+//
 // Revision 1.12  2002/10/27 12:18:49  tobbej
 // renamed GetTVTuner
 // changed FindInterface
@@ -121,9 +125,9 @@ public:
 	
 	// IAMAnalogVideoDecoder
 	bool hasVideoDec() {return m_pAVideoDec!=NULL;}
-	long getSupportedTVFormats();
-	long getTVFormat();
-	void putTVFormat(long format);
+	long GetSupportedTVFormats();
+	AnalogVideoStandard GetTVFormat();
+	void PutTVFormat(AnalogVideoStandard format);
 	bool IsHorizontalLocked();
 
 	// IAMVideoProcAmp

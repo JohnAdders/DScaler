@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.15 2002-10-29 19:32:21 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.16 2003-01-06 21:34:29 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/29 19:32:21  tobbej
+// new tuner class for direct tuning to a frequency
+// implemented IsVideoPresent, channel scaning shoud work now
+//
 // Revision 1.14  2002/10/27 12:18:49  tobbej
 // renamed GetTVTuner
 // changed FindInterface
@@ -361,7 +365,7 @@ CDShowDirectTuner* CDShowCaptureDevice::GetTuner()
 	return m_pTVTuner;
 }
 
-long CDShowCaptureDevice::getSupportedTVFormats()
+long CDShowCaptureDevice::GetSupportedTVFormats()
 {
 	if(m_pAVideoDec==NULL)
 	{
@@ -376,7 +380,7 @@ long CDShowCaptureDevice::getSupportedTVFormats()
 	return formats;
 }
 
-long CDShowCaptureDevice::getTVFormat()
+AnalogVideoStandard CDShowCaptureDevice::GetTVFormat()
 {
 	if(m_pAVideoDec==NULL)
 	{
@@ -388,10 +392,10 @@ long CDShowCaptureDevice::getTVFormat()
 	{
 		throw CDShowException("Failed to get tvformat",hr);
 	}
-	return format;
+	return (AnalogVideoStandard)format;
 }
 
-void CDShowCaptureDevice::putTVFormat(long format)
+void CDShowCaptureDevice::PutTVFormat(AnalogVideoStandard format)
 {
 	if(m_pAVideoDec==NULL)
 	{

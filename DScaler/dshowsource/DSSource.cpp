@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.57 2002-12-31 13:21:22 adcockj Exp $
+// $Id: DSSource.cpp,v 1.58 2003-01-06 21:34:31 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/12/31 13:21:22  adcockj
+// Fixes for SetDefault Problems (needs testing)
+//
 // Revision 1.56  2002/12/14 22:29:22  tobbej
 // put back the code i removed
 //
@@ -248,7 +251,7 @@ static char THIS_FILE[]=__FILE__;
 
 struct videoStandardsType
 {
-	long format;
+	AnalogVideoStandard format;
 	LPSTR name;
 };
 
@@ -275,7 +278,7 @@ videoStandardsType videoStandards[] =
 		AnalogVideo_SECAM_L,"SECAM_L",
 		AnalogVideo_SECAM_L1,"SECAM_L1",
 		AnalogVideo_PAL_N_COMBO,"PAL_N_COMBO",
-		0,NULL
+		(AnalogVideoStandard)0,NULL
 	};
 
 CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
@@ -712,7 +715,7 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		{
 			if(pCap!=NULL)
 			{
-				pCap->putTVFormat(videoStandards[LOWORD(wParam)-IDM_DSVIDEO_STANDARD_0].format);
+				pCap->PutTVFormat(videoStandards[LOWORD(wParam)-IDM_DSVIDEO_STANDARD_0].format);
 			}
 		}
 		catch(CDShowException &e)
@@ -765,11 +768,36 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 
 eVideoFormat CDSCaptureSource::GetFormat()
 {
-	/**
-	 * @todo this probably needs to be implemented, looks like dscaler uses
-	 * this to determine pal/ntsc signal.
-	 */
-	return VIDEOFORMAT_PAL_B;
+	if(m_pDSGraph==NULL)
+	{
+		LOG(1,"CDSCaptureSource::GetFormat called when there is no filter graph");
+		return VIDEOFORMAT_PAL_B;
+	}
+
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+	{
+		return VIDEOFORMAT_PAL_B;
+	}
+
+	CDShowCaptureDevice *pCap=NULL;
+	if(pSrc->getObjectType()!=DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		return VIDEOFORMAT_PAL_B;
+	}
+	pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+
+	AnalogVideoStandard VideoStd=AnalogVideo_None;
+	try
+	{
+		VideoStd=pCap->GetTVFormat();
+	}
+	catch(CDShowException &e)
+	{
+		LOG(1,"Exception in CDSCaptureSource::GetFormat - %s",(LPCTSTR)e.getErrorText());
+	}
+
+	return ConvertVideoStd(VideoStd);
 }
 
 BOOL CDSCaptureSource::IsInTunerMode()
@@ -820,7 +848,7 @@ ITuner* CDSCaptureSource::GetTuner()
 	return &m_Tuner;
 }
 
-AnalogVideoStandard CDSCaptureSource::ConvertVideoFmt(eVideoFormat fmt)
+AnalogVideoStandard CDSCaptureSource::ConvertVideoStd(eVideoFormat fmt)
 {
 	switch(fmt)
 	{
@@ -870,6 +898,56 @@ AnalogVideoStandard CDSCaptureSource::ConvertVideoFmt(eVideoFormat fmt)
 	}
 }
 
+eVideoFormat CDSCaptureSource::ConvertVideoStd(AnalogVideoStandard fmt)
+{
+	switch(fmt)
+	{
+	case AnalogVideo_PAL_B:
+		return VIDEOFORMAT_PAL_B;
+    case AnalogVideo_PAL_D:
+		return VIDEOFORMAT_PAL_D;
+    case AnalogVideo_PAL_G:
+		return VIDEOFORMAT_PAL_G;
+    case AnalogVideo_PAL_H:
+		return VIDEOFORMAT_PAL_H;
+    case AnalogVideo_PAL_I:
+		return VIDEOFORMAT_PAL_I;
+    case AnalogVideo_PAL_M:
+		return VIDEOFORMAT_PAL_M;
+    case AnalogVideo_PAL_N:
+		return VIDEOFORMAT_PAL_N;
+    case AnalogVideo_PAL_60:
+		return VIDEOFORMAT_PAL_60;
+    case AnalogVideo_PAL_N_COMBO:
+		return VIDEOFORMAT_PAL_N_COMBO;
+    case AnalogVideo_SECAM_B:
+		return VIDEOFORMAT_SECAM_B;
+    case AnalogVideo_SECAM_D:
+		return VIDEOFORMAT_SECAM_D;
+    case AnalogVideo_SECAM_G:
+		return VIDEOFORMAT_SECAM_G;
+    case AnalogVideo_SECAM_H:
+		return VIDEOFORMAT_SECAM_H;
+    case AnalogVideo_SECAM_K:
+		return VIDEOFORMAT_SECAM_K;
+    case AnalogVideo_SECAM_K1:
+		return VIDEOFORMAT_SECAM_K1;
+    case AnalogVideo_SECAM_L:
+		return VIDEOFORMAT_SECAM_L;
+    case AnalogVideo_SECAM_L1:
+		return VIDEOFORMAT_SECAM_L1;
+    case AnalogVideo_NTSC_M:
+		return VIDEOFORMAT_NTSC_M;
+    case AnalogVideo_NTSC_M_J:
+		return VIDEOFORMAT_NTSC_M_Japan;
+    case AnalogVideo_NTSC_433:
+		return VIDEOFORMAT_NTSC_50;
+	default:
+		LOG(1,"CDSCaptureSource::ConvertVideoFmt: Unknown videoformat!");
+		return VIDEOFORMAT_PAL_B;
+	}	
+}
+
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
 	if(m_pDSGraph==NULL)
@@ -897,25 +975,42 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 	}
 	try
 	{
-		if(pTuner->GetAvailableModes()&AMTUNER_MODE_TV)
+		//fm radio
+		if(VideoFormat==VIDEOFORMAT_LASTONE+1)
 		{
-			AnalogVideoStandard format=ConvertVideoFmt(VideoFormat);
-			if(format&pCap->getSupportedTVFormats())
+			if(pTuner->GetAvailableModes()&AMTUNER_MODE_FM_RADIO)
 			{
-				pCap->putTVFormat(format);
+				pTuner->SetFrequency(FrequencyId,AMTUNER_MODE_FM_RADIO,AnalogVideo_None);
+				return TRUE;
 			}
 			else
 			{
-				LOG(1,"CDSCaptureSource::SetTunerFrequency: Specified video format is not supported!!!");
+				LOG(1,"CDSCaptureSource::SetTunerFrequency: Tuner does not support fm radio");
+				return FALSE;
 			}
-			pTuner->SetFrequency(FrequencyId,AMTUNER_MODE_TV,format);
-
-			return TRUE;
 		}
 		else
 		{
-			LOG(1,"CDSCaptureSource::SetTunerFrequency: Tuner is not a tvtuner");
-			return FALSE;
+			if(pTuner->GetAvailableModes()&AMTUNER_MODE_TV)
+			{
+				AnalogVideoStandard format=ConvertVideoStd(VideoFormat);
+				if(format&pCap->GetSupportedTVFormats())
+				{
+					pCap->PutTVFormat(format);
+				}
+				else
+				{
+					LOG(1,"CDSCaptureSource::SetTunerFrequency: Specified video format is not supported!!!");
+				}
+				pTuner->SetFrequency(FrequencyId,AMTUNER_MODE_TV,format);
+
+				return TRUE;
+			}
+			else
+			{
+				LOG(1,"CDSCaptureSource::SetTunerFrequency: Tuner is not a tvtuner");
+				return FALSE;
+			}
 		}
 	}
 	catch(CDShowException e)
@@ -923,7 +1018,6 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 		LOG(1, "CDSCaptureSource::SetTunerFrequency: DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return FALSE;
 	}
-
 }
 
 BOOL CDSCaptureSource::IsVideoPresent()
@@ -1101,8 +1195,8 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 		long selectedFormat=0;
 		try
 		{
-			formats=pCap->getSupportedTVFormats();
-			selectedFormat=pCap->getTVFormat();
+			formats=pCap->GetSupportedTVFormats();
+			selectedFormat=pCap->GetTVFormat();
 		}
 		catch(CDShowException e)
 		{

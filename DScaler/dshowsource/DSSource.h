@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.32 2002-12-05 21:02:55 tobbej Exp $
+// $Id: DSSource.h,v 1.33 2003-01-06 21:34:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/12/05 21:02:55  tobbej
+// fixed initial channel change so it tunes properly to the last used channel.
+// renamed video format to resolution in settings dialog.
+// changed so the default list of resolutions is always used if resolution menu is empty.
+// removed some unused channel change notification code.
+//
 // Revision 1.31  2002/10/29 19:32:22  tobbej
 // new tuner class for direct tuning to a frequency
 // implemented IsVideoPresent, channel scaning shoud work now
@@ -239,7 +245,10 @@ private:
 	};
 
 	///coverts from dscaler eVideoFormat to directshow AnalogVideoStandard
-	AnalogVideoStandard ConvertVideoFmt(eVideoFormat fmt);
+	AnalogVideoStandard ConvertVideoStd(eVideoFormat fmt);
+	
+	///coverts from directshow AnalogVideoStandard to dscaler eVideoFormat
+	eVideoFormat ConvertVideoStd(AnalogVideoStandard fmt);
 
 	///resets m_VideoFmt to default
 	void CreateDefaultVideoFmt();

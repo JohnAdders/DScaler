@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ErrorBox.h,v 1.4 2001-07-13 16:14:56 adcockj Exp $
+// $Id: ErrorBox.h,v 1.5 2002-09-04 17:56:57 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,9 @@
 #define __ERRORBOX_H___
 
 void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage);
-void RealErrorBox(LPCSTR szMessage);
+void _RealErrorBox(LPCSTR szFile, int Line, LPCSTR szMessage);
+
+#define RealErrorBox(Message) _RealErrorBox(__FILE__, __LINE__, Message);
 
 #define ErrorBox(Message) _ErrorBox(NULL, __FILE__, __LINE__, Message);
 #define ErrorBoxDlg(hWnd,Message) _ErrorBox(hWnd, __FILE__, __LINE__, Message);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ErrorBox.cpp,v 1.6 2001-12-30 16:50:32 adcockj Exp $
+// $Id: ErrorBox.cpp,v 1.7 2002-09-04 17:56:57 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/12/30 16:50:32  adcockj
+// Prevent recusion in ErrorBox
+//
 // Revision 1.5  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -106,9 +109,10 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
 #endif
 }
 
-void RealErrorBox(LPCSTR msg)
+void _RealErrorBox(LPCSTR szFile, int Line, LPCSTR szMessage)
 {
+    LOG(1, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
     HideSplashScreen();
-    MessageBox(hWnd, msg, "DScaler Error", MB_ICONSTOP | MB_OK);
+    MessageBox(hWnd, szMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
 }
 

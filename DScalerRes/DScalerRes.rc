@@ -89,6 +89,7 @@ BEGIN
     "H",            IDM_HUE_PLUS,           VIRTKEY, SHIFT, NOINVERT
     "H",            IDM_HUE_CURRENT,        VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
+    "I",            IDM_SHOW_INFOS,         VIRTKEY, NOINVERT
     "K",            IDM_KONTRAST_MINUS,     VIRTKEY, NOINVERT
     "K",            IDM_KONTRAST_PLUS,      VIRTKEY, SHIFT, NOINVERT
     "K",            IDM_KONTRAST_CURRENT,   VIRTKEY, SHIFT, CONTROL, 

@@ -752,7 +752,7 @@ END
 IDD_TREESETTINGS_GENERIC DIALOGEX 0, 0, 241, 166
 STYLE DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_APPWINDOW
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_TREESETTINGS_GENERIC_LIST,7,1,100,159,LBS_SORT | 
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
@@ -871,7 +871,7 @@ BEGIN
             MENUITEM "Autodetect (experimental)\tA", IDM_SASPECT_AUTO_TOGGLE
             MENUITEM "Detect from Current Image\t`", IDM_SASPECT_COMPUTE
             MENUITEM "Stretch to Window\tCtrl+0",   IDM_SASPECT_0
-            MENUITEM "Square Pixels",               IDM_SASPECT_SQUARE
+            MENUITEM "Square Pixels (experimental)", IDM_SASPECT_SQUARE
             MENUITEM "1.33\tCtrl+1",                IDM_SASPECT_133
             MENUITEM "1.44   Letterboxed\tCtrl+7",  IDM_SASPECT_144
             MENUITEM "1.55   Letterboxed\tCtrl+8",  IDM_SASPECT_155

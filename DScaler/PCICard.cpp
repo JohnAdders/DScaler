@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.19 2005-02-03 03:39:21 atnak Exp $
+// $Id: PCICard.cpp,v 1.20 2005-02-03 04:09:31 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/02/03 03:39:21  atnak
+// Added function ManageData(...)
+//
 // Revision 1.18  2004/12/06 09:01:40  atnak
 // Added arbitrary data size PCI read and write functions.
 //
@@ -365,40 +368,40 @@ DWORD CPCICard::ReadDword(DWORD Offset)
 
 void CPCICard::WriteData(DWORD RegisterOffset, DWORD RegisterMask, CBitVector Data)
 {
-    unsigned long mask = Data.mask() & Mask;
+    unsigned long mask = Data.mask() & RegisterMask;
     unsigned long value = Data.value();
 
-    if (Mask & 0xFFFF0000)
+    if (RegisterMask & 0xFFFF0000)
     {
         if (mask == 0xFFFFFFFF)
         {
-            WriteDword(Offset, static_cast<BYTE>(value));
+            WriteDword(RegisterOffset, static_cast<BYTE>(value));
         }
         else
         {
-            MaskDataDword(Offset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
+            MaskDataDword(RegisterOffset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
         }
     }
-    else if (Mask & 0xFF00)
+    else if (RegisterMask & 0xFF00)
     {
         if (mask == 0xFFFF)
         {
-            WriteWord(Offset, static_cast<BYTE>(value));
+            WriteWord(RegisterOffset, static_cast<BYTE>(value));
         }
         else
         {
-            MaskDataWord(Offset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
+            MaskDataWord(RegisterOffset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
         }
     }
-    else if (Mask & 0xFF)
+    else if (RegisterMask & 0xFF)
     {
         if (mask == 0xFF)
         {
-            WriteByte(Offset, static_cast<BYTE>(value));
+            WriteByte(RegisterOffset, static_cast<BYTE>(value));
         }
         else
         {
-            MaskDataByte(Offset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
+            MaskDataByte(RegisterOffset, static_cast<BYTE>(value), static_cast<BYTE>(mask));
         }
     }
 }
@@ -407,26 +410,26 @@ CBitVector CPCICard::ReadData(DWORD RegisterOffset, DWORD RegisterMask)
 {
     unsigned long value = 0;
 
-    if (Mask & 0xFFFF0000)
+    if (RegisterMask & 0xFFFF0000)
     {
-        value = static_cast<unsigned long>(ReadDword(Offset));
+        value = static_cast<unsigned long>(ReadDword(RegisterOffset));
     }
-    else if (Mask & 0xFF00)
+    else if (RegisterMask & 0xFF00)
     {
-        value = static_cast<unsigned long>(ReadWord(Offset));
+        value = static_cast<unsigned long>(ReadWord(RegisterOffset));
     }
-    else if (Mask & 0xFF)
+    else if (RegisterMask & 0xFF)
     {
-        value = static_cast<unsigned long>(ReadByte(Offset));
+        value = static_cast<unsigned long>(ReadByte(RegisterOffset));
     }
-    return CBitVector(Mask, value);
+    return CBitVector(RegisterMask, value);
 }
 
 void CPCICard::ManageData(DWORD RegisterOffset, DWORD RegisterMask, CBitMask DataMask)
 {
     if (m_hStateFile != INVALID_HANDLE_VALUE)
     {
-        DWORD minimalMask = Mask & DataMask.mask();
+        DWORD minimalMask = RegisterMask & DataMask.mask();
         DWORD minimalSize;
 
         if (minimalMask & 0xFFFF0000)
@@ -454,13 +457,13 @@ void CPCICard::ManageData(DWORD RegisterOffset, DWORD RegisterMask, CBitMask Dat
             {
                 if (bytesRead == minimalSize)
                 {
-                    WriteData(Offset, Mask, CBitVector(DataMask.mask(), readData));
+                    WriteData(RegisterOffset, RegisterMask, CBitVector(DataMask.mask(), readData));
                 }
             }
         }
         else
         {
-            CBitVector data = ReadData(Offset, Mask);
+            CBitVector data = ReadData(RegisterOffset, RegisterMask);
             DWORD writeData = data.value();
             DWORD bytesWritten = 0;
             WriteFile(m_hStateFile, &writeData, minimalSize, &bytesWritten, NULL);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.106 2001-12-18 13:12:11 adcockj Exp $
+// $Id: DScaler.cpp,v 1.107 2001-12-22 13:18:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.105  2001/12/16 18:40:28  laurentg
 // Reset statistics
 //
@@ -898,7 +901,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_CHANNEL_LIST:
             SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
-            Channels_UpdateMenu(::GetMenu(hWnd));
+            Channels_UpdateMenu(hMenu);
             break;
 
         case IDM_CHANNELPLUS:
@@ -906,7 +909,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 Channel_Increment();
             }
-
             break;
 
         case IDM_CHANNELMINUS:
@@ -2274,7 +2276,9 @@ void MainWndOnInitBT(HWND hWnd)
         AddSplashTextLine("Update Menu");
         OSD_UpdateMenu(hMenu);
         pCalibration->UpdateMenu(hMenu);
+        Channels_UpdateMenu(hMenu);
         SetMenuAnalog();
+
 
         bDoResize = TRUE;
 

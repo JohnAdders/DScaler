@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.17 2001-12-19 19:24:45 ittarnavsky Exp $
+// $Id: BT848Source.cpp,v 1.18 2001-12-22 13:18:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/12/19 19:24:45  ittarnavsky
+// prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
+//
 // Revision 1.16  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -1114,13 +1117,13 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
     if(VideoFormat == VIDEOFORMAT_LASTONE)
     {
-        VideoFormat = (eVideoFormat)m_VideoFormat->GetDefault();
+        VideoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
     }
     if(VideoFormat != m_VideoFormat->GetValue())
     {
         m_VideoFormat->SetValue(VideoFormat);
+	    m_pBT848Card->SetAudioStandard(VideoFormat);
     }
-    m_pBT848Card->SetAudioStandard(VideoFormat);
     return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
 

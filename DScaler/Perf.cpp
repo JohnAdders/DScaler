@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.8 2002-05-20 12:05:21 laurentg Exp $
+// $Id: Perf.cpp,v 1.9 2002-10-16 16:10:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/05/20 12:05:21  laurentg
+// Include (float.h) added to avoid compile errors
+//
 // Revision 1.7  2002/05/18 13:11:40  tobbej
 // fixed floating point crash
 //
@@ -59,7 +62,7 @@ ULONG GetAccurateTickCount()
     return ((ULONG)(ticks / 10000));
 }
 
-static const char* PerfNames[PERF_TYPE_LASTONE] = 
+static const char* PerfNames[PERF_TYPE_LASTONE] =
 {
     "Wait for next field",
     "Input filters",
@@ -240,10 +243,13 @@ void CPerf::InitCycle()
     {
         m_TotalDroppedFields += Timing_GetDroppedFields();
         m_TotalUsedFields += Timing_GetUsedFields();
-        
+
         double tickDiff=(double)(CurrentTickCount - m_TickStartLastSec);
-        
-        //prevent crashing if tickDiff is invalid
+
+        //prevent crashing if tickDiff is invalid.
+        //this fix shoud not be nessesary any more, the problems was most
+        //likely caused by a missing emms instruction in memcpyMMX and this
+        //is now fixed
         if(_finite(tickDiff) && !_isnan(tickDiff))
         {
             m_DroppedFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / tickDiff;
@@ -254,7 +260,7 @@ void CPerf::InitCycle()
             m_DroppedFieldsLastSec=-1;
             m_UsedFieldsLastSec=-1;
         }
-        
+
         Timing_ResetDroppedFields();
         Timing_ResetUsedFields();
         m_TickStartLastSec = CurrentTickCount;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.h,v 1.4 2002-09-28 14:47:41 tobbej Exp $
+// $Id: Crash.h,v 1.5 2002-10-16 16:07:33 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/28 14:47:41  tobbej
+// some comments
+//
 // Revision 1.3  2002/09/17 17:28:23  tobbej
 // updated crashloging to same version as in latest virtualdub
 //
@@ -66,6 +69,14 @@ struct VirtualDubThreadState
 
 extern __declspec(thread) VirtualDubThreadState g_PerThreadState;
 
+/**
+ * Create a thread checkpoint.
+ * This adds an entry to the crashlog containing file and line number.
+ * Note that there is a limit of max CHECKPOINT_COUNT number of checkpoints 
+ * for each thread.
+ * The crashlog will contain a list of all the checkpoints that each thread 
+ * has passed.
+ */
 #define VDCHECKPOINT (g_PerThreadState.cp[g_PerThreadState.nNextCP++&(CHECKPOINT_COUNT-1)].set(__FILE__, __LINE__))
 
 /**

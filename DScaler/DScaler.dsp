@@ -260,6 +260,10 @@ SOURCE=.\dshowsource\DSSource.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DSTVTuner.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ErrorBox.cpp
 # End Source File
 # Begin Source File
@@ -680,6 +684,10 @@ SOURCE=.\dshowsource\DSProvider.h
 # Begin Source File
 
 SOURCE=.\dshowsource\DSSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSTVTuner.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.68 2002-09-16 20:08:21 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.69 2002-09-20 19:19:07 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/09/16 20:08:21  adcockj
+// fixed format detect for cx2388x
+//
 // Revision 1.67  2002/09/16 19:34:18  adcockj
 // Fix for auto format change
 //
@@ -636,7 +639,8 @@ void CBT848Source::Reset()
     NotifySizeChange();
     
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-    m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+    //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+    AudioStandardDetectOnChange(m_AudioStandardDetect->GetValue(),m_AudioStandardDetect->GetValue());
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
 }
 
@@ -1368,6 +1372,10 @@ BOOL CBT848Source::HasTuner()
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
+    if(VideoFormat == VIDEOFORMAT_IS_FM_RADIO)
+    {
+        return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
+    }
     if(VideoFormat == VIDEOFORMAT_LASTONE)
     {
         VideoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
@@ -1376,7 +1384,8 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     {
         m_VideoFormat->SetValue(VideoFormat);
         
-        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+        //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+        AudioStandardDetectOnChange(m_AudioStandardDetect->GetValue(),m_AudioStandardDetect->GetValue());
     }
     return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
@@ -1428,7 +1437,8 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
 {
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
-        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+        //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+        AudioStandardDetectOnChange(m_AudioStandardDetect->GetValue(),m_AudioStandardDetect->GetValue());
     } 
     else if ((!PreChange) && m_AutoStereoSelect->GetValue())
     {      

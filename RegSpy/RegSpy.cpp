@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.17 2004-02-15 02:06:59 atnak Exp $
+// $Id: RegSpy.cpp,v 1.18 2004-06-01 19:26:31 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/02/15 02:06:59  atnak
+// Increased the number of log states
+//
 // Revision 1.16  2003/09/28 09:11:33  adcockj
 // Added extra values
 //
@@ -331,12 +334,12 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(MO_DMA26_CNT1);   
     AddDWRegister(MO_DMA26_CNT2);   
 
-    AddDWRegister(0x0320d01);
-    AddDWRegister(0x0320d02);
-    AddDWRegister(0x0320d03);
-    AddDWRegister(0x0320d04);
-    AddDWRegister(0x0320d2a);
-    AddDWRegister(0x0320d2b);
+    AddBRegister(AUD_PDF_DDS_CNST_BYTE2);
+    AddBRegister(AUD_PDF_DDS_CNST_BYTE1);
+    AddBRegister(AUD_PDF_DDS_CNST_BYTE0);
+    AddBRegister(AUD_QAM_MODE);
+    AddBRegister(AUD_PHACC_FREQ_8MSB);
+    AddBRegister(AUD_PHACC_FREQ_8LSB);
 
     AddDWRegister(AUD_POLY0_DDS_CONSTANT);
     AddDWRegister(AUD_IIR1_0_SEL);

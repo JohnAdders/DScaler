@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.38 2003-01-15 15:54:22 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.39 2003-04-26 19:39:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.37  2002/12/10 12:15:59  atnak
 // Tweaked Mixer_OnInputChange() to what I thought was better.
 //
@@ -149,7 +152,7 @@ CSoundSystem* pSoundSystem = NULL;
 BOOL bUseMixer = FALSE;
 BOOL bResetOnExit = TRUE;
 long MixerIndex = 0;
-char MixerName[MAXPNAMELEN] = {0};
+static char* MixerName = NULL;
 long DestIndex = 0;
 long InputIndexes[6] = {-1, -1, -1, -1, -1, -1,};
 std::string MixerDev_Section;
@@ -1220,6 +1223,12 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         NULL,
         "Mixer", "Input6Index", NULL,
     },
+    {
+        "Mixer Name", CHARSTRING, 0, (long*)&MixerName,
+        (long)"", 0, 0, 0, 0,
+        NULL,
+        "Mixer", "MixerName", NULL,
+    },
 };
 
 
@@ -1247,8 +1256,6 @@ void MixerDev_ReadSettingsFromIni()
         Setting_ReadFromIni(&(MixerDevSettings[i]));
     }
     
-    extern char szIniFile[MAX_PATH];
-    GetPrivateProfileString("Mixer", "MixerName", "", (char*) &MixerName, sizeof(MixerName), szIniFile);
     MixerIndex = CSoundSystem::FindMixer((char*) MixerName);
     if(MixerIndex < 0)
     {
@@ -1263,9 +1270,6 @@ void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(MixerDevSettings[i]), bOptimizeFileAccess);
     }
-
-    extern char szIniFile[MAX_PATH];
-    WritePrivateProfileString("Mixer", "MixerName", (char*) &MixerName, szIniFile);
 }
 
 

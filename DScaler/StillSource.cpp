@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.96 2003-04-26 16:05:36 laurentg Exp $
+// $Id: StillSource.cpp,v 1.97 2003-04-26 19:39:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2003/04/26 16:05:36  laurentg
+// Character string settings
+//
 // Revision 1.95  2003/03/25 13:10:29  laurentg
 // New settings for stills : one to disable OSD when taking stills, one to limit the memory usage when storing stills in memory and two to define the number of frames in preview mode
 //
@@ -2247,7 +2250,7 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 CTreeSettingsGeneric* Still_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE-1);
+    return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE);
 }
 
 

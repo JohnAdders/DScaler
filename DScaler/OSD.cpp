@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.82 2003-03-09 19:46:26 laurentg Exp $
+// $Id: OSD.cpp,v 1.83 2003-04-26 19:39:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2003/03/09 19:46:26  laurentg
+// Updated field statistics
+//
 // Revision 1.81  2003/02/22 13:37:49  laurentg
 // New statistics to check fields runnign late and no flip at time
 //
@@ -339,7 +342,7 @@
 #define OSD_COLOR_SECTION   RGB(150,150,255)
 #define OSD_COLOR_CURRENT   RGB(200,150,0)
 
-static char OSD_szFontName[32] = "Arial";
+static char* OSD_szFontName = NULL;
 
 
 // OSD placement values
@@ -2507,6 +2510,12 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "UseDeveloperScreen", NULL,
     },
 #endif
+    {
+        "Font Name", CHARSTRING, 0, (long*)&OSD_szFontName,
+         (long)"Arial", 0, 0, 0, 0,
+         NULL,
+        "OSD", "FontName", NULL,
+    },
 };
 
 
@@ -2529,7 +2538,6 @@ void OSD_ReadSettingsFromIni()
         Setting_ReadFromIni(&(OSDSettings[i]));
     }
     OSD_AutoHide_OnChange(OSD_bAutoHide);
-    GetPrivateProfileString("OSD", "FontName", "Arial", OSD_szFontName, sizeof(OSD_szFontName) , GetIniFileForSettings());
 }
 
 void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
@@ -2538,7 +2546,6 @@ void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(OSDSettings[i]), bOptimizeFileAccess);
     }
-    WritePrivateProfileString("OSD", "FontName", OSD_szFontName, GetIniFileForSettings());
 }
 
 CTreeSettingsGeneric* OSD_GetTreeSettingsPage()

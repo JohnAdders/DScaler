@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.145 2003-04-26 16:04:13 laurentg Exp $
+// $Id: DS_Control.h,v 1.146 2003-04-26 19:37:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.145  2003/04/26 16:04:13  laurentg
+// Character string settings
+//
 // Revision 1.144  2003/04/14 12:14:44  adcockj
 // Added new Colorimetry Filter
 //
@@ -1015,6 +1018,7 @@ typedef enum
 #ifdef _DEBUG
     OSD_USE_DEVELOPER_SCREEN,
 #endif
+	OSD_FONT,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
 #define WM_OSD_GETVALUE     (WM_APP + 18)
@@ -1124,6 +1128,7 @@ typedef enum
     MIXERRESETONEXIT,
     INPUT5INDEX,
     INPUT6INDEX,    
+	MIXERNAME,
     MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
 
@@ -1193,6 +1198,7 @@ typedef enum
     DEBUGLOG = 0,
     DEBUGLEVEL,
     DEBUGFLUSHAFTERWRITE,
+	DEBUGLOGFILE,
     DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 

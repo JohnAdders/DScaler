@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.23 2003-03-02 16:21:29 tobbej Exp $
+// $Id: DebugLog.cpp,v 1.24 2003-04-26 19:39:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/03/02 16:21:29  tobbej
+// fixed crashing in LOGD if string is too long
+//
 // Revision 1.22  2003/01/10 17:38:04  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -84,11 +87,10 @@
 #define DEBUGLOGFILENAME "DScaler.log"
 
 static FILE* debugLog = NULL;
-char DebugLogFilename[MAX_PATH];
+char* DebugLogFilename = NULL;
 BOOL DebugLogEnabled = FALSE;
 long gDebugLogLevel = 1;
 BOOL FlushAfterEachWrite = FALSE;
-BOOL IsDebugLogFilenameInIni = FALSE;
 
 #if !defined(NOLOGGING)
 
@@ -190,6 +192,12 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
         NULL,
         "Files", "FlushAfterEachWrite", FlushAfterEachWrite_OnChange,
     },
+    {
+        "Debug Log File", CHARSTRING, 0, (long*)&DebugLogFilename,
+        (long)DEBUGLOGFILENAME, 0, 0, 0, 0,
+        NULL,
+        "Files", "DebugLogFilename", NULL,
+    },
 };
 
 SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
@@ -204,21 +212,12 @@ SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
     }
 }
 
-#define InvalidFileName ":*:"
-
 void Debug_ReadSettingsFromIni()
 {
     int i;
     for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(DebugSettings[i]));
-    }
-    
-    GetPrivateProfileString("Files", "DebugLogFilename", InvalidFileName, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
-    IsDebugLogFilenameInIni = strcmp(DebugLogFilename, InvalidFileName) != 0;
-    if(!IsDebugLogFilenameInIni)
-    {
-        strcpy(DebugLogFilename, DEBUGLOGFILENAME);
     }
 }
 
@@ -229,11 +228,6 @@ void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(DebugSettings[i]), bOptimizeFileAccess);
     }
-	if(bOptimizeFileAccess == FALSE || !IsDebugLogFilenameInIni)
-	{
-	    WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
-        IsDebugLogFilenameInIni = TRUE;
-	}
 }
 
 CTreeSettingsGeneric* Debug_GetTreeSettingsPage()

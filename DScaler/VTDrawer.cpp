@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.15 2002-10-23 16:57:12 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.16 2002-10-30 03:31:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/23 16:57:12  atnak
+// Added TOP-Text support
+//
 // Revision 1.14  2002/10/23 02:52:33  atnak
 // Added Alpha Black and Mosaic Black for level 2.5
 //
@@ -510,6 +513,19 @@ void CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
         return;
     }
 
+    HFONT hFont             = m_hFont;
+    HFONT hDoubleFont       = m_hDoubleFont;
+    HFONT hFontSmall        = m_hFontSmall;
+    HFONT hDoubleFontSmall  = m_hDoubleFontSmall;
+
+    if (BackgroundColour == 8)
+    {
+        hFont               = m_hMixedFont;
+        hDoubleFont         = m_hDoubleMixedFont;
+        hFontSmall          = m_hMixedFontSmall;
+        hDoubleFontSmall    = m_hDoubleMixedFontSmall;
+    }
+
     if((DisplayModes & VTMODE_GRAPHICS) && (DisplayChar & 0x20))
     {
         DisplayChar = (DisplayChar & 0x1f) | ((DisplayChar & 0x40) >> 1);
@@ -535,16 +551,16 @@ void CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
             // Select correct wider font (same if fixed pitch)
             if(DisplayModes & VTMODE_DOUBLE)
             {
-                if( hCurrentFont != m_hDoubleFont ) 
+                if( hCurrentFont != hDoubleFont )
                 {
-                    SelectObject(hDC, hCurrentFont = m_hDoubleFont);
+                    SelectObject(hDC, hCurrentFont = hDoubleFont);
                 }
             }
             else
             {
-                if( hCurrentFont != m_hFont ) 
+                if( hCurrentFont != hFont )
                 {
-                    SelectObject(hDC, hCurrentFont = m_hFont);
+                    SelectObject(hDC, hCurrentFont = hFont);
                 }
             }
 
@@ -561,11 +577,11 @@ void CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
                 {
                     if(DisplayModes & VTMODE_DOUBLE)
                     {
-                        SelectObject(hDC, hCurrentFont = m_hDoubleFontSmall);
+                        SelectObject(hDC, hCurrentFont = hDoubleFontSmall);
                     }
                     else
                     {
-                        SelectObject(hDC, hCurrentFont = m_hFontSmall);
+                        SelectObject(hDC, hCurrentFont = hFontSmall);
                     }
                     GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
                 }
@@ -605,12 +621,31 @@ void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)
     m_AvgWidth = AvgWidth;
     m_AvgHeight = AvgHeight;
 
+    BOOL bAntiAlias = VTAntiAlias;
+
     // Smaller font for wide characters like 'W' (double iso int for lessening rounding artifacts)
-    m_hFontSmall = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE);
-    m_hDoubleFontSmall = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE);
+    m_hFontSmall = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, bAntiAlias, FALSE);
+    m_hDoubleFontSmall = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, bAntiAlias, FALSE);
     // Wider font for all other characters
-    m_hFont = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, TRUE);
-    m_hDoubleFont = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, TRUE);
+    m_hFont = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, bAntiAlias, TRUE);
+    m_hDoubleFont = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, bAntiAlias, TRUE);
+
+    if (bAntiAlias && (VTState == VT_MIX))
+    {
+        // Non antialiased fonts look better when the
+        // background is transparent.
+        m_hMixedFontSmall = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE, FALSE);
+        m_hDoubleMixedFontSmall = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE, FALSE);
+        m_hMixedFont = MakeFont(hDC, m_dAvgHeight, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE, TRUE);
+        m_hDoubleMixedFont = MakeFont(hDC, m_dAvgHeight * 2, m_dAvgWidth, (char*)&VTDrawerFontName, FALSE, TRUE);
+    }
+    else
+    {
+        m_hMixedFontSmall = m_hFontSmall;
+        m_hDoubleMixedFontSmall = m_hDoubleFontSmall;
+        m_hMixedFont = m_hFont;
+        m_hDoubleMixedFont = m_hDoubleFont;
+    }
 
     HGDIOBJ hSave = SelectObject(hDC, m_hFont);
     TEXTMETRIC TextMetric;
@@ -630,18 +665,12 @@ int CVTDrawer::GetAvgHeight()
     return m_AvgHeight;
 }
 
-HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bWidenFont)
+HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bAntiAliased, BOOL bWidenFont)
 {
     // WidenFont = make X as wide as the average width of W and X
     BOOL bWiden = bWidenFont & (iWidth > 10);
 
-    BYTE bQuality = VTAntiAlias ? ANTIALIASED_QUALITY : NONANTIALIASED_QUALITY;
-
-    // Non-antialiased looks better in mixed mode
-    if(VTState == VT_MIX)
-    {
-        bQuality = NONANTIALIASED_QUALITY;
-    }
+    BYTE bQuality = bAntiAliased ? ANTIALIASED_QUALITY : NONANTIALIASED_QUALITY;
 
     // Small fonts blur when too heavy
     LONG bWeight = (iWidth > 10) ? FW_SEMIBOLD : FW_NORMAL; //bWiden ? FW_BOLD : FW_SEMIBOLD;
@@ -674,25 +703,69 @@ HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName
 
 void CVTDrawer::DestroyFonts()
 {
-    if(m_hFont)
+    if (m_hFont)
     {
+        if (m_hMixedFont == m_hFont)
+        {
+            m_hMixedFont = NULL;
+        }
+
         DeleteObject(m_hFont);
         m_hFont = NULL;
     }
-    if(m_hDoubleFont)
+
+    if (m_hDoubleFont)
     {
+        if (m_hDoubleMixedFont == m_hDoubleFont)
+        {
+            m_hDoubleMixedFont = NULL;
+        }
+
         DeleteObject(m_hDoubleFont);
         m_hDoubleFont = NULL;
     }
-    if(m_hFontSmall)
+
+    if (m_hFontSmall)
     {
+        if (m_hMixedFontSmall == m_hFontSmall)
+        {
+            m_hMixedFontSmall = NULL;
+        }
+
         DeleteObject(m_hFontSmall);
         m_hFontSmall = NULL;
     }
-    if(m_hDoubleFontSmall)
+
+    if (m_hDoubleFontSmall)
     {
+        if (m_hDoubleMixedFontSmall == m_hDoubleFontSmall)
+        {
+            m_hDoubleMixedFontSmall = NULL;
+        }
+
         DeleteObject(m_hDoubleFontSmall);
         m_hDoubleFontSmall = NULL;
+    }
+
+    if (m_hMixedFont)
+    {
+        DeleteObject(m_hMixedFont);
+        m_hMixedFont = NULL;
+    }
+    if (m_hDoubleMixedFont)
+    {
+        DeleteObject(m_hDoubleMixedFont);
+        m_hDoubleMixedFont = NULL;
+    }
+    if (m_hMixedFontSmall)
+    {
+        DeleteObject(m_hMixedFontSmall);
+        m_hMixedFontSmall = NULL;
+    }
+    if (m_hDoubleMixedFontSmall)
+    {
+        DeleteObject(m_hDoubleMixedFontSmall);
+        m_hDoubleMixedFontSmall = NULL;
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.8 2002-10-15 11:53:38 atnak Exp $
+// $Id: VTDrawer.h,v 1.9 2002-10-30 03:31:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/15 11:53:38  atnak
+// Added UI feedback for some videotext stuff
+//
 // Revision 1.7  2002/10/12 18:43:32  atnak
 // some changes for tranparency and boxed background
 //
@@ -89,14 +92,18 @@ private:
                             unsigned long ulFlags);
 private:
     void DestroyFonts();  
-    HFONT MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bWidenFont = FALSE);
+    HFONT MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bAntiAlias, BOOL bWidenFont = FALSE);
 	BOOL IsHiliteText(int col, const char* VTRow);
     HBRUSH m_hBrushes[9];
     RECT m_Rect;
     HFONT m_hFont;
     HFONT m_hDoubleFont;
-	HFONT m_hFontSmall; // smaller to accomodate wide characters
-    HFONT m_hDoubleFontSmall; // idem
+	HFONT m_hFontSmall;             // smaller to accomodate wide characters
+    HFONT m_hDoubleFontSmall;       // idem
+    HFONT m_hMixedFont;             // font used when there is no background
+    HFONT m_hDoubleMixedFont;
+    HFONT m_hMixedFontSmall;
+    HFONT m_hDoubleMixedFontSmall;
     BOOL m_bFixedPitch;
     int m_AvgWidth, m_AvgHeight;
     double m_dAvgWidth, m_dAvgHeight;

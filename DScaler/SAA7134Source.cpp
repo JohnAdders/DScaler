@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.20 2002-10-08 20:42:05 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.21 2002-10-09 13:20:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/10/08 20:42:05  atnak
+// forgot to comment out debug line
+//
 // Revision 1.19  2002/10/08 20:35:39  atnak
 // whitepeak, colorpeak, comb filter UI options
 //
@@ -864,11 +867,11 @@ int CSAA7134Source::EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd)
 {
     if (RegionID == REGIONID_VIDEO_A)
     {
-        return bIsFieldOdd ? 1 : 0;
+        return bIsFieldOdd ? 0 : 1;
     }
     else if (RegionID == REGIONID_VIDEO_B)
     {
-        return bIsFieldOdd ? 3 : 2;
+        return bIsFieldOdd ? 2 : 3;
     }
 
     return -1;
@@ -879,10 +882,10 @@ void CSAA7134Source::DenumulateField(int Index, eRegionID* RegionID, BOOL* bIsFi
 {
     switch (Index)
     {
-    case 0: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = FALSE; break;
-    case 1: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = TRUE; break;
-    case 2: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = FALSE; break;
-    case 3: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = TRUE; break;
+    case 0: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = TRUE; break;
+    case 1: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = FALSE; break;
+    case 2: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = TRUE; break;
+    case 3: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = FALSE; break;
     }
 }
 

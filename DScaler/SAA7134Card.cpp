@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.11 2002-10-08 19:35:45 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.12 2002-10-09 13:20:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/08 19:35:45  atnak
+// various fixes, tweaks, cleanups
+//
 // Revision 1.10  2002/10/08 12:22:47  atnak
 // added software card reset in ResetHardware(), etc
 //
@@ -151,8 +154,7 @@ void CSAA7134Card::ResetHardware()
     // LOG(0, "Initial registery dump");
     // DumpRegisters();
 
-    WriteByte(SAA7134_SOURCE_TIMING, 0x04);
-    WriteByte(SAA7134_SOURCE_TIMING_HIBYTE, 0x20);
+    WriteByte(SAA7134_SOURCE_TIMING, SAA7134_SOURCE_TIMING_DVED);
 
     WriteByte(SAA7134_START_GREEN, 0x00);
     WriteByte(SAA7134_START_BLUE, 0x00);
@@ -240,8 +242,8 @@ void CSAA7134Card::SetupTasks()
     // Let Task A get Odd then Even field, follow by Task B
     // getting Odd then Even field. (Odd is DScaler's Even)
 
-    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0E);
-    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0E);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
 
     // handle two fields per task
     WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_A_MASK), 0x02);
@@ -341,11 +343,14 @@ void CSAA7134Card::SetBaseOffsets(eRegionID RegionID,
     //            we give back to SAA7134Source.cpp has already been converted.
     //            GetProcessingRegion() and GetIRQEventRegion() and should have
     //            the conversion back.
-
+    //
+    // SAA7134 writes the upper field to BA1 the lower field to B2, but
+    // for some reason, B2 (lower) gets written to processed before B1.
+    //
     // Number bytes to offset into every page
     // Give the even offset as odd and odd offset as even
-    WriteDword(SAA7134_RS_BA1(Channel), dwEvenOffset);
     WriteDword(SAA7134_RS_BA2(Channel), dwOddOffset);
+    WriteDword(SAA7134_RS_BA1(Channel), dwEvenOffset);
 
     // Number of bytes to spend per line
     WriteDword(SAA7134_RS_PITCH(Channel), dwPitch);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.4 2002-10-12 01:38:54 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.5 2002-10-16 11:38:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/12 01:38:54  atnak
+// VBI_DecodeLine() doesn't work properly with only 16 VBI lines
+//
 // Revision 1.3  2002/10/09 13:20:16  atnak
 // fixed up field start lines
 //
@@ -96,128 +99,197 @@ CSAA7134Common::TVideoStandardDefinition CSAA7134Common::m_VideoStandards[] =
 CSAA7134Common::TAudioStandardDefinition CSAA7134Common::m_AudioStandards[] =
 {
     // AUDIOSTANDARD_BG_DUAL_FM
-    { 
-        "[PAL] B/G-Dual FM-Stereo",
-        AUDIO_CARRIER_5_5,  
+    {
+        "B/G-Dual FM-Stereo",
+        AUDIO_CARRIER_5_5,
         AUDIO_CARRIER_5_7421875,
         AUDIOCHANNELMODE_FM,
         AUDIOCHANNELMODE_FM,
         AUDIOFMDEEMPHASIS_50_MICROS,
         AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_BG_DK_DUAL_FM,
     },
-    // AUDIOSTANDARD_DK1_DUAL_FM,         
+    // AUDIOSTANDARD_DK1_DUAL_FM
     {
-        "[PAL] D/K1-Dual FM-Stereo",
-        AUDIO_CARRIER_6_5,  
+        "D/K1-Dual FM-Stereo",
+        AUDIO_CARRIER_6_5,
         AUDIO_CARRIER_6_2578125,
         AUDIOCHANNELMODE_FM,
         AUDIOCHANNELMODE_FM,
         AUDIOFMDEEMPHASIS_50_MICROS,
         AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_BG_DK_DUAL_FM,
     },
-    // AUDIOSTANDARD_DK2_DUAL_FM,         
+    // AUDIOSTANDARD_DK2_DUAL_FM
     {
-        "[PAL] D/K2-Dual FM-Stereo",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_6_7421875,  
+        "D/K2-Dual FM-Stereo",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_6_7421875,
         AUDIOCHANNELMODE_FM,
         AUDIOCHANNELMODE_FM,
         AUDIOFMDEEMPHASIS_50_MICROS,
         AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_BG_DK_DUAL_FM,
     },
-    // AUDIOSTANDARD_DK3_DUAL_FM,         
-    { 
-        "[PAL]D/K3-Dual FM-Stereo",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_5_7421875,  
-        AUDIOCHANNELMODE_FM,
-        AUDIOCHANNELMODE_FM,
-        AUDIOFMDEEMPHASIS_50_MICROS,
-        AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_BG_DK_DUAL_FM
-    },
-    // AUDIOSTANDARD_BG_NICAM_FM,         
-    { 
-        "[PAL] B/G-NICAM-FM",
-        AUDIO_CARRIER_5_5,  
-        AUDIO_CARRIER_5_85,       
-        AUDIOCHANNELMODE_FM,
-        AUDIOCHANNELMODE_NICAM,
-        AUDIOFMDEEMPHASIS_OFF,
-        AUDIOFMDEEMPHASIS_OFF,
-        FIR_BG_DK_NICAM,
-    },
-    // AUDIOSTANDARD_I_NICAM_FM,          
-    { 
-        "[PAL] I-NICAM-FM",
-        AUDIO_CARRIER_6_0,  
-        AUDIO_CARRIER_6_552,      
-        AUDIOCHANNELMODE_FM,
-        AUDIOCHANNELMODE_NICAM,
-        AUDIOFMDEEMPHASIS_OFF,
-        AUDIOFMDEEMPHASIS_OFF,
-        FIR_I_NICAM,
-    },
-    // AUDIOSTANDARD_DK_NICAM_FM,
-    { 
-        "[PAL] D/K-NICAM-FM",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_5_85,       
-        AUDIOCHANNELMODE_FM,
-        AUDIOCHANNELMODE_NICAM,
-        AUDIOFMDEEMPHASIS_OFF,
-        AUDIOFMDEEMPHASIS_OFF,
-        FIR_BG_DK_NICAM,
-    },
-    // AUDIOSTANDARD_L_NICAM_AM,
-    { 
-        "[SECAM] L-NICAM-AM",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_5_85,       
-        AUDIOCHANNELMODE_FM,
-        AUDIOCHANNELMODE_NICAM,
-        AUDIOFMDEEMPHASIS_OFF,
-        AUDIOFMDEEMPHASIS_OFF,
-        FIR_L_NICAM,
-    },
-    // AUDIOSTANDARD_NTCS_MONO,
+    // AUDIOSTANDARD_DK_FM_MONO
     {
-        "[NTSC] M",
-        AUDIO_CARRIER_4_5,  
-        AUDIO_CARRIER_4_5,       
+        "D/K-FM-Mono with HDEV3",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_6_5,
         AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_NONE,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_DK3_DUAL_FM
+    {
+        "D/K3-Dual FM-Stereo",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_5_7421875,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_FM,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_M_DUAL_FM
+    {
+        "M-Dual FM-Stereo",
+        AUDIO_CARRIER_4_5,
+        AUDIO_CARRIER_4_724212,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_FM_KOREA,
+        AUDIOFMDEEMPHASIS_75_MICROS,
+        AUDIOFMDEEMPHASIS_75_MICROS,
+    },
+    // AUDIOSTANDARD_BG_NICAM_FM
+    {
+        "B/G-NICAM-FM",
+        AUDIO_CARRIER_5_5,
+        AUDIO_CARRIER_5_85,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOFMDEEMPHASIS_OFF,
+        AUDIOFMDEEMPHASIS_OFF,
+    },
+    // AUDIOSTANDARD_L_NICAM_AM
+    {
+        "L-NICAM-AM",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_5_85,
         AUDIOCHANNELMODE_AM,
-        AUDIOFMDEEMPHASIS_50_MICROS,
-        AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_M_DUAL_FM,
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOFMDEEMPHASIS_OFF,
+        AUDIOFMDEEMPHASIS_OFF,
     },
-    // AUDIOSTANDARD_M_DUAL_FM,
+    // AUDIOSTANDARD_I_NICAM_FM
     {
-        "[NTSC] M/A2 FM-Stereo",
-        AUDIO_CARRIER_4_5,  
-        AUDIO_CARRIER_4_724212,       
+        "I-NICAM-FM",
+        AUDIO_CARRIER_6_0,
+        AUDIO_CARRIER_6_552,
         AUDIOCHANNELMODE_FM,
-        AUDIOCHANNELMODE_AM,
-        AUDIOFMDEEMPHASIS_50_MICROS,
-        AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_M_DUAL_FM,
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOFMDEEMPHASIS_OFF,
+        AUDIOFMDEEMPHASIS_OFF,
     },
-    // AUDIOSTANDARD_SATELLITE_DUAL_FM,
+    // AUDIOSTANDARD_DK_NICAM_FM
     {
-        "Satellite FM-Stereo",
-        AUDIO_CARRIER_7_02,  
-        AUDIO_CARRIER_7_20,       
+        "D/K-NICAM-FM",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_5_85,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOFMDEEMPHASIS_OFF,
+        AUDIOFMDEEMPHASIS_OFF,
+    },
+    // AUDIOSTANDARD_DK_NICAM_FM_HDEV2
+    {
+        "D/K-NICAM-FM with HDEV2",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_5_85,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOFMDEEMPHASIS_OFF,
+        AUDIOFMDEEMPHASIS_OFF,
+    },
+    // AUDIOSTANDARD_DK_NICAM_FM_HDEV3
+    {
+        "D/K-NICAM-FM with HDEV3",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_5_85,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOFMDEEMPHASIS_OFF,
+        AUDIOFMDEEMPHASIS_OFF,
+    },
+    // AUDIOSTANDARD_M_BTSC
+    {
+        "M-BTSC-Stereo",
+        AUDIO_CARRIER_4_5,
+        AUDIO_CARRIER_4_5,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_BTSC,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_M_BTSC_MONO
+    {
+        "M-BTSC-Mono + SAP",
+        AUDIO_CARRIER_4_5,
+        AUDIO_CARRIER_4_5,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_BTSC,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_M_EIAJ
+    {
+        "M-EIA-J Japan Stereo",
+        AUDIO_CARRIER_4_5,
+        AUDIO_CARRIER_4_5,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_EIAJ,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_FM_RADIO
+    {
+        "FM-Stereo Radio",
+        AUDIO_CARRIER_10_7,
+        AUDIO_CARRIER_10_7,
         AUDIOCHANNELMODE_FM,
         AUDIOCHANNELMODE_FM,
         AUDIOFMDEEMPHASIS_50_MICROS,
         AUDIOFMDEEMPHASIS_50_MICROS,
-        FIR_SAT_DUAL_FM,
-    }
-    // A lot of standards snipped
+    },
+    // AUDIOSTANDARD_SAT
+    {
+        "SAT-Stereo",
+        AUDIO_CARRIER_7_02,
+        AUDIO_CARRIER_7_20,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_FM,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_SAT_MONO
+    {
+        "SAT-Mono",
+        AUDIO_CARRIER_6_5,
+        AUDIO_CARRIER_6_5,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_NONE,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
+    // AUDIOSTANDARD_SAT_ADR
+    {
+        "SAT ASTRA Digital Radio",
+        AUDIO_CARRIER_6_12,
+        AUDIO_CARRIER_6_12,
+        AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_FM,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+        AUDIOFMDEEMPHASIS_50_MICROS,
+    },
 };
+
 
 BOOL CSAA7134Common::IsRegionIDVideo(eRegionID RegionID)
 {
@@ -433,12 +505,13 @@ CSAA7134Common::eAudioStandard CSAA7134Common::TVFormat2AudioStandard(eVideoForm
 
 BOOL CSAA7134Common::IsDualFMAudioStandard(eAudioStandard AudioStandard)
 {
-    switch (AudioStandard)
+    eAudioCarrierMode Carrier2Mode;
+
+    Carrier2Mode = m_AudioStandards[AudioStandard].Carrier2Mode;
+
+    if (Carrier2Mode == AUDIOCHANNELMODE_FM ||
+        Carrier2Mode == AUDIOCHANNELMODE_FM_KOREA)
     {
-    case AUDIOSTANDARD_BG_DUAL_FM:
-    case AUDIOSTANDARD_DK1_DUAL_FM:
-    case AUDIOSTANDARD_DK2_DUAL_FM:
-    case AUDIOSTANDARD_DK3_DUAL_FM:
         return TRUE;
     }
     return FALSE;
@@ -446,12 +519,8 @@ BOOL CSAA7134Common::IsDualFMAudioStandard(eAudioStandard AudioStandard)
 
 BOOL CSAA7134Common::IsNICAMAudioStandard(eAudioStandard AudioStandard)
 {
-    switch (AudioStandard)
+    if (m_AudioStandards[AudioStandard].Carrier2Mode == AUDIOCHANNELMODE_NICAM)
     {
-    case AUDIOSTANDARD_BG_NICAM_FM:
-    case AUDIOSTANDARD_I_NICAM_FM:
-    case AUDIOSTANDARD_DK_NICAM_FM:
-    case AUDIOSTANDARD_L_NICAM_AM:
         return TRUE;
     }
     return FALSE;

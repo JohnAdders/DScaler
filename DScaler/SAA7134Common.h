@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.2 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Common.h,v 1.3 2002-10-16 11:38:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.1  2002/10/03 23:42:06  atnak
 // SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
 //
@@ -126,18 +129,25 @@ protected:
 
     enum eAudioStandard
     {
-//      AUDIOSTANDARD_AUTODETECT = -1,  need to fix menu
         AUDIOSTANDARD_BG_DUAL_FM = 0,
-        AUDIOSTANDARD_DK1_DUAL_FM,         
-        AUDIOSTANDARD_DK2_DUAL_FM,         
-        AUDIOSTANDARD_DK3_DUAL_FM,         
-        AUDIOSTANDARD_BG_NICAM_FM,         
-        AUDIOSTANDARD_I_NICAM_FM,          
-        AUDIOSTANDARD_DK_NICAM_FM,
-        AUDIOSTANDARD_L_NICAM_AM,
-        AUDIOSTANDARD_NTCS_MONO,
+        AUDIOSTANDARD_DK1_DUAL_FM,
+        AUDIOSTANDARD_DK2_DUAL_FM,
+        AUDIOSTANDARD_DK_FM_MONO,
+        AUDIOSTANDARD_DK3_DUAL_FM,
         AUDIOSTANDARD_M_DUAL_FM,
-        AUDIOSTANDARD_SATELLITE_DUAL_FM,
+        AUDIOSTANDARD_BG_NICAM_FM,
+        AUDIOSTANDARD_L_NICAM_AM,
+        AUDIOSTANDARD_I_NICAM_FM,
+        AUDIOSTANDARD_DK_NICAM_FM,
+        AUDIOSTANDARD_DK_NICAM_FM_HDEV2,
+        AUDIOSTANDARD_DK_NICAM_FM_HDEV3,
+        AUDIOSTANDARD_M_BTSC,
+        AUDIOSTANDARD_M_BTSC_MONO,
+        AUDIOSTANDARD_M_EIAJ,
+        AUDIOSTANDARD_FM_RADIO,
+        AUDIOSTANDARD_SAT,
+        AUDIOSTANDARD_SAT_MONO,
+        AUDIOSTANDARD_SAT_ADR,
         AUDIOSTANDARD_LASTONE
     };
 
@@ -149,22 +159,15 @@ protected:
         AUDIOCHANNEL_LANGUAGE2,
     };
 
-    enum eFIRType
-    {
-        FIR_BG_DK_NICAM,
-        FIR_I_NICAM,
-        FIR_L_NICAM,
-        FIR_BG_DK_DUAL_FM,
-        FIR_M_DUAL_FM,
-        FIR_SAT_DUAL_FM,
-    };
-
     enum eAudioCarrierMode
     {
         AUDIOCHANNELMODE_NONE = 0,
         AUDIOCHANNELMODE_FM,
+        AUDIOCHANNELMODE_FM_KOREA,          // Korean stereo standard
         AUDIOCHANNELMODE_AM,
-        AUDIOCHANNELMODE_NICAM
+        AUDIOCHANNELMODE_NICAM,
+        AUDIOCHANNELMODE_BTSC,              // mono only on SAA7134
+        AUDIOCHANNELMODE_EIAJ,              // mono only on SAA7134
     };
 
     enum eAudioFMDeemphasis
@@ -221,6 +224,7 @@ protected:
             AUDIO_CARRIER_7_02        = AUDIO_CARRIER(7.02),
             AUDIO_CARRIER_7_20        = AUDIO_CARRIER(7.20),
             AUDIO_CARRIER_10_7        = AUDIO_CARRIER(10.7),
+            AUDIO_CARRIER_10_20        = AUDIO_CARRIER(10.20),
         };
     #undef AUDIO_CARRIER
 
@@ -249,7 +253,6 @@ protected:
         eAudioCarrierMode   Carrier2Mode;
         eAudioFMDeemphasis  Ch1FMDeemphasis;
         eAudioFMDeemphasis  Ch2FMDeemphasis;
-        eFIRType            FIRType;
     } TAudioStandardDefinition;
 
 

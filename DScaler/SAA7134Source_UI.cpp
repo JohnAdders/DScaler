@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.10 2002-10-08 20:35:39 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.11 2002-10-16 11:38:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/08 20:35:39  atnak
+// whitepeak, colorpeak, comb filter UI options
+//
 // Revision 1.9  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -67,6 +70,16 @@
 #include "SettingsPerChannel.h"
 #include "Slider.h"
 
+// This identifies the position of the audio standard
+// sub menu in the saa7134 menu
+#define SAA7134MENU_AUDIOSTANDARD_POS       4
+
+// The ID used here has to be one not already used by
+// the saa7134 menu and has to have sufficient IDs following
+// for AUDIOSTANDARD_LASTONE IDs
+#define SAA7134MENU_AUDIOSTANDARD_START     IDM_DSVIDEO_STANDARD_0
+
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -81,7 +94,28 @@ extern const char *TunerNames[TUNER_LASTONE];
 
 void CSAA7134Source::InitializeUI()
 {
+    MENUITEMINFO    MenuItemInfo;
+    HMENU           hSubMenu;
+    LPSTR           pMenuName;
+
     m_hSAA7134ResourceInst = LoadLibrary("SAA7134Res.dll");
+
+    hSubMenu = GetSubMenu(m_hMenu, 0);
+    hSubMenu = GetSubMenu(hSubMenu, SAA7134MENU_AUDIOSTANDARD_POS);
+
+    for (int i(0); i < AUDIOSTANDARD_LASTONE; i++)
+    {
+        pMenuName = (LPSTR) m_pSAA7134Card->GetAudioStandardName((eAudioStandard)i);
+
+        MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
+        MenuItemInfo.fType = MFT_STRING;
+        MenuItemInfo.dwTypeData = pMenuName;
+        MenuItemInfo.cch = strlen(pMenuName);
+        MenuItemInfo.wID = SAA7134MENU_AUDIOSTANDARD_START + i;
+
+        InsertMenuItem(hSubMenu, i, TRUE, &MenuItemInfo);
+    }
 }
 
 
@@ -624,23 +658,19 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (videoFormat == VIDEOFORMAT_NTSC_50));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
 
+    EnableMenuItemBool(m_hMenu, IDM_AUDIO_0, m_pSAA7134Card->GetDeviceId() != 0x7130);
+
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (GetCurrentAudioSetting()->GetValue() == 0));
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (GetCurrentAudioSetting()->GetValue() == 1));
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (GetCurrentAudioSetting()->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_3, (GetCurrentAudioSetting()->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_4, (GetCurrentAudioSetting()->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_5, (GetCurrentAudioSetting()->GetValue() == 5));
 
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_1, (m_AudioStandard->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_2, (m_AudioStandard->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_3, (m_AudioStandard->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_4, (m_AudioStandard->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_5, (m_AudioStandard->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_6, (m_AudioStandard->GetValue() == 5));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_7, (m_AudioStandard->GetValue() == 6));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_8, (m_AudioStandard->GetValue() == 7));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_9, (m_AudioStandard->GetValue() == 8));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIOSTANDARD_10, (m_AudioStandard->GetValue() == 9));
+    BOOL bDACActive = GetCurrentAudioSetting()->GetValue() == AUDIOINPUTSOURCE_DAC;
+
+    for (i = 0; i < AUDIOSTANDARD_LASTONE; i++)
+    {
+        EnableMenuItemBool(m_hMenu, SAA7134MENU_AUDIOSTANDARD_START+i, bDACActive);
+        CheckMenuItemBool(m_hMenu, SAA7134MENU_AUDIOSTANDARD_START+i, bDACActive && (m_AudioStandard->GetValue() == i));
+    }
 
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_MONO));
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, m_pSAA7134Card->IsAudioChannelDetected(AUDIOCHANNEL_STEREO));
@@ -652,8 +682,17 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_LANGUAGE1);
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->GetAudioChannel() == AUDIOCHANNEL_LANGUAGE2);
 
-    CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
-
+    if (bDACActive)
+    {
+        EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO, TRUE);
+        CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
+    }
+    else
+    {
+        EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO, FALSE);
+        CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, FALSE);
+    }
+    
     CheckMenuItemBool(m_hMenu, IDM_SAA7134_HPLLMODE0, m_HPLLMode->GetValue() == 0);
     CheckMenuItemBool(m_hMenu, IDM_SAA7134_HPLLMODE1, m_HPLLMode->GetValue() == 1);
     CheckMenuItemBool(m_hMenu, IDM_SAA7134_HPLLMODE2, m_HPLLMode->GetValue() == 2);
@@ -669,6 +708,16 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
 BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
+    if (LOWORD(wParam) >= SAA7134MENU_AUDIOSTANDARD_START &&
+        LOWORD(wParam) < SAA7134MENU_AUDIOSTANDARD_START + AUDIOSTANDARD_LASTONE)
+    {
+        // dynamic audio standards menu
+        int nValue = LOWORD(wParam) - SAA7134MENU_AUDIOSTANDARD_START;
+        ShowText(hWnd, m_pSAA7134Card->GetAudioStandardName((eAudioStandard)nValue));
+        m_AudioStandard->SetValue(nValue);
+        return TRUE;
+    }
+
     switch(LOWORD(wParam))
     {
         case IDM_SETUPCARD:
@@ -806,23 +855,6 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             case AUDIOINPUTSOURCE_LINE2:  
                 ShowText(hWnd, "Audio Input - Line 2");
                 break;
-            }
-            break;
-
-        case IDM_AUDIOSTANDARD_1:
-        case IDM_AUDIOSTANDARD_2:
-        case IDM_AUDIOSTANDARD_3:
-        case IDM_AUDIOSTANDARD_4:
-        case IDM_AUDIOSTANDARD_5:
-        case IDM_AUDIOSTANDARD_6:
-        case IDM_AUDIOSTANDARD_7:
-        case IDM_AUDIOSTANDARD_8:
-        case IDM_AUDIOSTANDARD_9:
-        case IDM_AUDIOSTANDARD_10:
-            {
-                int nValue = LOWORD(wParam) - IDM_AUDIOSTANDARD_1;
-                ShowText(hWnd, m_pSAA7134Card->GetAudioStandardName((eAudioStandard)nValue));
-                m_AudioStandard->SetValue(nValue);
             }
             break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.18 2002-02-10 13:06:27 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.19 2002-02-11 08:23:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/02/10 13:06:27  adcockj
+// Various sound bugs found by Laurent fixed
+//
 // Revision 1.17  2002/02/09 18:39:01  adcockj
 // Fixed AGC bug in advanced video settings
 //
@@ -315,7 +318,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, m_pBT848Card->HasMSP());
     EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->HasMSP());
 
-    EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 < 768);
+    EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
 
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
     DoneWidth |= (m_PixelWidth->GetValue() == 768);
@@ -631,7 +634,8 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIOSETTINGS1:
             if (m_pBT848Card->HasMSP() == TRUE)
             {
-                DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1, (LPARAM)this);
+                // do'nt do anything until we get this working
+                //DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1, (LPARAM)this);
             }
             break;
 

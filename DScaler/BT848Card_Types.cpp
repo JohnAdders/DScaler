@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.14 2002-02-26 18:31:44 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.15 2002-03-01 06:37:47 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/02/26 18:31:44  adcockj
+// Added extra composite mux to standard card
+//
 // Revision 1.13  2002/02/26 18:28:49  adcockj
 // Fix s-video in on voodoo cards
 //
@@ -3156,8 +3159,8 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		InitSasem,
 		Sasem4ChannelInputSelect,
 		NULL,
-		0x0,
-		{0, 0, 0, 0, 0, 0, }
+		0x1F800,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
 	},
 	// Card Number 88 - SDI Silk 100 (C-Video Jumper)
 	{
@@ -3196,8 +3199,8 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		InitSasem,
 		Sasem4ChannelInputSelect,
 		NULL,
-		0x0,
-		{0, 0, 0, 0, 0, 0, }
+		0x1F800,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
 	},
 };
 

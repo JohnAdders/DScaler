@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.12 2002-02-19 16:03:37 tobbej Exp $
+// $Id: DSSource.cpp,v 1.13 2002-02-22 09:07:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/02/19 16:03:37  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.11  2002/02/13 17:02:08  tobbej
 // new filter properties menu
 // fixed some problems in GetNextFiled
@@ -861,8 +865,8 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		//info to return if we fail
 		pInfo->bRunningLate=TRUE;
 		pInfo->bMissedFrame=TRUE;
-		pInfo->FrameWidth=m_currentY==0 ? 10 : m_currentY;
-		pInfo->FrameHeight=m_currentX==0 ? 10 : m_currentX;
+		pInfo->FrameWidth=0;
+		pInfo->FrameHeight=0;
 
 		//clear the picture history
 		memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
@@ -935,7 +939,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		{
 			m_pictureHistory[0].IsFirstInSeries=FALSE;
 		}
-		ASSERT(m_cbFieldSize>=size/2);
+		//ASSERT(m_cbFieldSize>=size/2);
 		
 		
 		//split the media sample into even and odd field
@@ -953,11 +957,11 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		//check if size has changed
 		if(m_currentX!=bmi->biWidth || m_currentY!=bmi->biHeight)
 		{
+			m_currentX=bmi->biWidth;
+			m_currentY=bmi->biHeight;
 			NotifySizeChange();
 		}
-
-		m_currentX=bmi->biWidth;
-		m_currentY=bmi->biHeight;
+		
 		m_bytePerPixel=bmi->biBitCount/8;
 		pInfo->FrameWidth=bmi->biWidth;
 		pInfo->FrameHeight=bmi->biHeight;

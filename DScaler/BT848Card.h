@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.23 2002-07-25 05:21:35 dschmelzer Exp $
+// $Id: BT848Card.h,v 1.24 2002-08-03 17:57:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/07/25 05:21:35  dschmelzer
+// Added SDI Silk 200 Support
+//
 // Revision 1.22  2002/07/23 18:11:48  adcockj
 // Tuner autodetect patch from Jeroen Kooiman
 //
@@ -307,6 +310,7 @@ private:
     void SetAudioTERRATV(eSoundChannel soundChannel);
     void SetAudioAVER_TVPHONE(eSoundChannel soundChannel);
     void SetAudioWINFAST2000(eSoundChannel soundChannel);
+    void SetAudioWINDVR(eSoundChannel soundChannel);
 
     void BootMSP34xx(int pin);
     void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);

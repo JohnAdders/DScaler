@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.29 2002-07-02 20:00:07 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.30 2002-08-03 17:57:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/07/02 20:00:07  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.28  2002/06/30 20:02:50  laurentg
 // Menus entries grayed because not yet implemented
 //
@@ -228,6 +231,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
+    int nIndex;
     static long OrigProcessorSpeed;
     static long OrigTradeOff;
     static long OrigTuner;
@@ -252,7 +256,8 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < TUNER_LASTONE; i++)
         {
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
         }
 
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 500 MHz");
@@ -268,13 +273,22 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         SetFocus(hDlg);
         // Update the tuner combobox after the SetFocus
         // because SetFocus modifies this combobox
-        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, pThis->m_TunerType->GetValue(), 0);
+        for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+        {
+          i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+          if (i == pThis->m_TunerType->GetValue() )
+          {          
+            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+          }
+        }
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {
         case IDOK:
-            pThis->m_TunerType->SetValue(SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_GETCURSEL, 0, 0));
+            i = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_GETCURSEL, 0, 0);
+            pThis->m_TunerType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), i));
+
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
             pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
             pThis->m_ProcessorSpeed->SetValue(ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED)));
@@ -288,7 +302,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             {
                 pThis->ChangeTVSettingsBasedOnTuner();
             }
-			WriteSettingsToIni(FALSE);
+			      WriteSettingsToIni(FALSE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -296,8 +310,15 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             break;
         case IDC_CARDSSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
-            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
-            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), pThis->m_pBT848Card->AutoDetectTuner((eTVCardId)i));
+            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);                        
+            i = pThis->m_pBT848Card->AutoDetectTuner((eTVCardId)i);
+            for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+            {   
+              if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
+              {          
+                 ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+              }
+            }
             break;
         default:
             break;

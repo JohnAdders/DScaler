@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.6 2002-01-16 19:16:20 adcockj Exp $
+// $Id: GenericTuner.cpp,v 1.7 2002-08-03 17:57:52 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/01/16 19:16:20  adcockj
+// added support for LG NTSC (TAPCH701P)
+//
 // Revision 1.5  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -270,7 +273,36 @@ CGenericTuner::CGenericTuner(eTunerId tunerId)
                 16*165.00, 16*450.00, 0x01, 0x02, 0x08, 0x8e, 732);
             break;
         }
-
+    case TUNER_SAMSUNG_PAL_TCPM9091PD27:
+      {
+          TUNERDEF(TUNER_SAMSUNG_PAL_TCPM9091PD27, VIDEOFORMAT_PAL_I,
+              16*(169),16*(464),0xA0,0x90,0x30,0x8e,623);
+          break;
+      }
+    case TUNER_TEMIC_4106FH5:
+      {
+          TUNERDEF(TUNER_TEMIC_4106FH5, VIDEOFORMAT_PAL_B,
+              16*(141.00),16*(464.00),0xa0,0x90,0x30,0x8e,623);
+          break;
+      }
+    case TUNER_TEMIC_4012FY5:
+      {
+          TUNERDEF(TUNER_TEMIC_4012FY5, VIDEOFORMAT_SECAM_D,
+              16*(140.25),16*(460.00),0x02,0x04,0x01,0x8e,608);
+          break;
+      }
+    case TUNER_TEMIC_4136FY5:
+      {
+          TUNERDEF(TUNER_TEMIC_4136FY5, VIDEOFORMAT_NTSC_M,
+              16*(158.00),16*(453.00),0xa0,0x90,0x30,0x8e,732);
+          break;
+      }
+    case TUNER_LG_TAPCNEW_PAL:
+      {
+          TUNERDEF(TUNER_LG_TAPCNEW_PAL, VIDEOFORMAT_NTSC_M,
+              16*(170.00),16*(450.00),0x01,0x02,0x08,0x8e,623);
+          break;
+      }
     }
 }
 

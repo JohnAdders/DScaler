@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.15 2002-07-25 05:20:36 dschmelzer Exp $
+// $Id: Bt848_Defines.h,v 1.16 2002-08-03 17:57:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -460,6 +460,8 @@ enum eTVCardId
     TVCARD_SKYWELL_MAGIC,
     TVCARD_SDISILK200_S,
     TVCARD_SDISILK200_C,
+    TVCARD_SENSORAY311,
+    TVCARD_WINDVR,
     TVCARD_LASTONE,
 };
 
@@ -503,6 +505,11 @@ enum eTunerId
     TUNER_MT2032,
     TUNER_SHARP_2U5JF5540_NTSC,
     TUNER_LG_TAPCH701P_NTSC,
+    TUNER_SAMSUNG_PAL_TCPM9091PD27,
+    TUNER_TEMIC_4106FH5,
+    TUNER_TEMIC_4012FY5,
+    TUNER_TEMIC_4136FY5,
+    TUNER_LG_TAPCNEW_PAL,
     TUNER_LASTONE,
 };
 

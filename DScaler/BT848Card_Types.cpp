@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.20 2002-07-29 13:10:20 dschmelzer Exp $
+// $Id: BT848Card_Types.cpp,v 1.21 2002-08-03 17:57:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/07/29 13:10:20  dschmelzer
+// Thanks to Laurent for spotting the typo on c-video jumper
+//
 // Revision 1.19  2002/07/25 05:22:18  dschmelzer
 // Added SDI Silk 200 Support
 //
@@ -89,7 +92,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 {
 	// Card Number 0 - Unknown Card
 	{
-		"Unknown Card",
+		"*Unknown Card*",
 		4,
 		{
 			{
@@ -449,7 +452,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 	},
 	// Card Number 10 - Standard BT878
 	{
-		"Standard BT878",
+		"Standard BT878 / Hauppauge BT878",
 		5,
 		{
 			{
@@ -3368,6 +3371,81 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		0x1F800,
 		{0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
+    // Card Number 92 - Sensoray 311                                                                   
+  	{                                                                                                  
+ 		"Sensoray 311",                                                                                  
+    5,                                                                                               
+ 		{                                                                                                
+ 			{                                                                                              
+ 				"Composite 1",                                                                               
+ 				INPUTTYPE_COMPOSITE,                                                                         
+ 				2,                                                                                           
+ 			},                                                                                             
+ 			{                                                                                              
+ 				"Composite 2",                                                                               
+ 				INPUTTYPE_COMPOSITE,                                                                         
+ 				3,                                                                                           
+ 			},                                                                                             
+ 			{                                                                                              
+ 				"Composite 3",                                                                               
+ 				INPUTTYPE_COMPOSITE,                                                                         
+ 				1,                                                                                           
+ 			},                                                                                             
+ 			{                                                                                              
+ 				"S-Video",                                                                                   
+ 				INPUTTYPE_SVIDEO,                                                                            
+ 				0,                                                                                           
+ 			},                                                                                             
+       {                                                                                              
+ 				"Composite over S-Video",                                                                    
+ 				INPUTTYPE_COMPOSITE,                                                                         
+ 				0,                                                                                           
+ 			},                                                                                             
+ 		},                                                                                               
+ 		PLL_NONE,                                                                                        
+ 		TUNER_ABSENT,                                                                                    
+ 		SOUNDCHIP_NONE,                                                                                  
+ 		NULL,                                                                                            
+ 		StandardBT848InputSelect,                                                                        
+ 		NULL,                                                                                            
+ 		0,                                                                                               
+ 		{ 0, 0, 0, 0, 0, 0}                                                                              
+ 	},                                                                                                 
+  // Card Number 91 - Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)
+ 	{                                                                                                  
+ 		"Canopus WinDVR PCI (COMPAQ Presario 3524JP, 5112JP)",                                           
+     4,                                                                                               
+ 		{                                                                                                
+ 			{                                                                                              
+ 				"Tuner",                                                                                     
+ 				INPUTTYPE_TUNER,                                                                             
+ 				2,                                                                                           
+ 			},                                                                                             
+ 			{                                                                                              
+ 				"Composite",                                                                                 
+ 				INPUTTYPE_COMPOSITE,                                                                         
+ 				3,                                                                                           
+ 			},			                                                                                       
+ 			{                                                                                              
+ 				"S-Video",                                                                                   
+ 				INPUTTYPE_SVIDEO,                                                                            
+ 				1,                                                                                           
+ 			},                                                                                             
+       {                                                                                              
+ 				"Composite over S-Video",                                                                    
+ 				INPUTTYPE_COMPOSITE,                                                                         
+ 				1,                                                                                           
+ 			},                                                                                             
+ 		},                                                                                               
+ 		PLL_NONE,                                                                                        
+ 		TUNER_PHILIPS_NTSC,                                                                              
+ 		SOUNDCHIP_NONE,                                                                                  
+ 		NULL,                                                                                            
+ 		StandardBT848InputSelect,                                                                        
+ 		SetAudioWINDVR,                                                                                  
+ 		0x140007,                                                                                        
+ 		{ 0, 1, 2, 3, 4, 0 }                                                                             
+ 	},
 };
 
 const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
@@ -3430,6 +3508,12 @@ const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
     { 0x3005144f, TVCARD_MAGICTVIEW061, "(Askey Magic/others) TView99 CPH061/06L (T1/LC)" },
     { 0x401615b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
     { 0x6606107d, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
+    // JK 23 July 2002 Add more cards ids. (bttv 7.94)
+    { 0x5018153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x03116000, TVCARD_SENSORAY311,   "Sensoray 311" },
+    { 0x00790e11, TVCARD_WINDVR,        "Canopus WinDVR PCI" },
+    { 0xa0fca1a0, TVCARD_ZOLTRIX,       "Face to Face Tvmax" },    
+    { 0x31323334, TVCARD_GRANDTEC,      "GrandTec XCapture" },
     { 0, (eTVCardId)-1, NULL }
 };
 
@@ -3587,9 +3671,9 @@ const eTunerId CBT848Card::m_Tuners_avermedia_1[] =
 	TUNER_TEMIC_4002FH5_PAL,
 	TUNER_TEMIC_4002FH5_PAL,   
 	TUNER_TEMIC_4002FH5_PAL,
-	TUNER_ABSENT,        //TUNER_TEMIC_4012FY5, 
-	TUNER_ABSENT,        //TUNER_TEMIC_4012FY5, //TUNER_TEMIC_SECAM
-	TUNER_ABSENT,        //TUNER_TEMIC_4012FY5, 
+	TUNER_TEMIC_4012FY5, 
+	TUNER_TEMIC_4012FY5, //TUNER_TEMIC_SECAM
+	TUNER_TEMIC_4012FY5, 
 	TUNER_TEMIC_4002FH5_PAL
 };
 
@@ -3723,9 +3807,9 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
             {
                 // Read EEPROM
                 BYTE Eeprom[256];
-                BYTE Out[] = { 0xA0 };
+                BYTE Out[] = { 0xA0 , 0 };
                 Eeprom[0] = 0;
-                m_I2CBus->Read(Out,1,Eeprom,256);
+                m_I2CBus->Read(Out,2,Eeprom,256);
 
                 if (Eeprom[0] != 0x84 || Eeprom[2] != 0) 
                 {
@@ -3764,8 +3848,8 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
           case TVCARD_AVERMEDIA:
             {
                 BYTE Eeprom[256];
-                BYTE Out[] = { 0xA0 };                
-                m_I2CBus->Read(Out,1,Eeprom,256);
+                BYTE Out[] = { 0xA0 , 0 };                
+                m_I2CBus->Read(Out,2,Eeprom,256);
 
                 BYTE tuner_make;
                 BYTE tuner_tv_fm;
@@ -3805,8 +3889,8 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
           case TVCARD_MAGICTVIEW061:
             {
                 BYTE Eeprom[256];
-                BYTE Out[] = { 0xA0 };
-                m_I2CBus->Read(Out,1,Eeprom,256);
+                BYTE Out[] = { 0xA0 , 0 };
+                m_I2CBus->Read(Out,2,Eeprom,256);
 
                 UINT Id = (UINT(Eeprom[252]) << 24) |
 			                    (UINT(Eeprom[253]) << 16) |
@@ -3875,8 +3959,8 @@ eTVCardId CBT848Card::AutoDetectCardType()
         Maybe for future use.
   
         BYTE Eeprom[256];
-        BYTE Out[] = { 0xA0 };
-        if (m_I2CBus->Read(Out,1,Eeprom,256)) 
+        BYTE Out[] = { 0xA0 , 0 };
+        if (m_I2CBus->Read(Out,2,Eeprom,256)) 
         {
   	        DWORD Id = (DWORD(Eeprom[252]) << 24) |
       			           (DWORD(Eeprom[253]) << 16) |
@@ -3907,9 +3991,9 @@ eTVCardId CBT848Card::AutoDetectCardType()
     //}
 
     // STB cards have a eeprom @ 0xae (old bt848) 
-    BYTE Out[] = { 0xAE };
+    BYTE Out[] = { 0xAE , 0 };
     BYTE Val = 0;
-		if (m_I2CBus->Read(Out,1,&Val,1)) 
+		if (m_I2CBus->Read(Out,2,&Val,1)) 
 		{
 			return TVCARD_STB;
 		}
@@ -4128,6 +4212,23 @@ void CBT848Card::SetAudioWINFAST2000(eSoundChannel soundChannel)
         break;
     default:
         AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
+        break;
+    }
+}
+
+void CBT848Card::SetAudioWINDVR(eSoundChannel soundChannel)
+{
+    OrDataDword(BT848_GPIO_DATA, 0x180000);
+    switch(soundChannel)                                                                   
+    {
+    case SOUNDCHANNEL_MONO:
+        AndOrDataDword(BT848_GPIO_DATA, 0x040000, ~0x140000);
+        break;
+    case SOUNDCHANNEL_LANGUAGE2:
+        AndOrDataDword(BT848_GPIO_DATA, 0x100000, ~0x140000);
+        break;
+    default:
+        //
         break;
     }
 }

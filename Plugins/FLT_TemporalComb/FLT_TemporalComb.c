@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.5 2001-11-26 15:27:19 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.6 2001-12-16 01:32:53 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/26 15:27:19  adcockj
+// Changed filter structure
+//
 // Revision 1.4  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -66,14 +69,16 @@ are used:
   sufficiently different.  In that case, shimmering is rejected.
 - A time weighted average of shimmering at each pixel is kept.  This is useful
   both as a confirmation of real shimmering (versus noise), and as confirmation
-  that there isn't motion.  The shimmering threshold value is restricted to a
-  range such that motion artifacts are kept to a minimum.
+  that there isn't motion.  The threshold on the weighted average is restricted
+  to a range such that motion artifacts are kept to a minimum.
 
 Definition of "in phase": If two pixels would normally have the same chroma
 carrier frequency phase, they are referred to as "in phase." Pixels in the
 same location an even number of frames apart should be in phase, and pixels
-an odd number of frames apart should be out of phase.  (Well, at least that's
-how NTSC seems to work.  I need to hear from people using PAL or SECAM.)
+an odd number of frames apart should be out of phase.  Note that half
+resolution progressive images (which are used by older game consoles)
+have a different phase pattern, so they would need an entirely different
+filter.
 
 Ways this filter could be improved:
 - Make use of the spatial characteristics to identify dot crawl patterns.  This
@@ -89,7 +94,12 @@ Ways this filter could be improved:
   not sure the cost (delayed picture and early sound) would be worth it.
 - Give up on the ad hoc gpShimmerMap stuff, and run a hidden Markov model,  (It
   could probably be done in real time, but there are higher priorities for
-  processing time.  So this would have to wait for faster processors.)
+  processing time.  Then again, this would have to wait for faster processors.)
+  Really this is a silly idea -- the current algorithm already works pretty well,
+  and is already computationally expensive, so this would be a waste.  But there
+  might be some easy improvement if the algorithm took some account for the
+  noisiness of the data -- i.e., the shimmering evidence could be taken as a more
+  complicated function of the differences between fields 0, 2, and 4.
 - Make better use of phase information.  The program doesn't track the past phase
   of shimmering -- it just remembers how much shimmering there was in general.
 - Average between fields instead of frames when it's beneficial.
@@ -107,11 +117,11 @@ void RescaleParameters_MMXEXT(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_SSE(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_3DNOW(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_MMX(LONG* pDecayNumerator, LONG* pAveragingThreshold);
-long FilterTemporalComb_MMXEXT(TDeinterlaceInfo *info);
-long FilterTemporalComb_SSE(TDeinterlaceInfo *info);
-long FilterTemporalComb_3DNOW(TDeinterlaceInfo *info);
-long FilterTemporalComb_MMX(TDeinterlaceInfo *info);
-LONG UpdateBuffers(TDeinterlaceInfo *info, WORD*** pppTheseFields, WORD*** pppThoseFields);
+long FilterTemporalComb_MMXEXT(TDeinterlaceInfo *pInfo);
+long FilterTemporalComb_SSE(TDeinterlaceInfo *pInfo);
+long FilterTemporalComb_3DNOW(TDeinterlaceInfo *pInfo);
+long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo);
+LONG UpdateBuffers(TDeinterlaceInfo *pInfo);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -120,7 +130,7 @@ LONG UpdateBuffers(TDeinterlaceInfo *info, WORD*** pppTheseFields, WORD*** pppTh
 
 // Array of time decayed average of shimmering at each pixel (well, sort of at each pixel)
 
-static WORD*   gpShimmerMap = NULL;
+static BYTE*   gpShimmerMap = NULL;
 
 // _Relative_ amount of shimmering (from gpShimmerMap) to trigger the shimmer compensation
 // (See the RescaleParameter...() comments for an explanation of "relative")
@@ -142,7 +152,7 @@ static LONG    gDecayCoefficient = 85;
 // Still, don't set them too high or you will see artifacts.  And don't set them too low
 // or you will miss some of the worst dot crawl.  Note that you'll have to increase their
 // values if you have Odd/Even Luma Peaking enabled, and can decrease them if Trade Speed
-// for Accuracy in enabled.
+// for Accuracy is enabled.
 // You can afford to set these a bit lower if you run a noise filter, first.  That cuts
 // down on spurious identification of shimmering.
 
@@ -150,15 +160,13 @@ static LONG    gInPhaseLuminanceThreshold = 35;
 static LONG    gInPhaseChromaThreshold = 35;
 
 
-// Store the most recent four fields (and the current field) to prevent feedback effects
-// gppFieldBuffer[0] = current field
-// gppFieldBuffer[1], gppFieldBuffer[3] are previous two odd fields
-// gppFieldBuffer[2], [4] are previous two even fields
+// For "Trade Speed for Accuracy," store the most recent four fields (and the current
+// field) to prevent feedback effects
 
 #define NUM_BUFFERS     5
 
 static LONG    gDoFieldBuffering;
-static WORD*   gppFieldBuffer[NUM_BUFFERS] = {NULL, NULL, NULL, NULL, NULL};
+static BYTE*   gppFieldBuffer[NUM_BUFFERS] = {NULL, NULL, NULL, NULL, NULL};
 
 
 static FILTER_METHOD TemporalCombMethod;
@@ -223,7 +231,7 @@ static FILTER_METHOD TemporalCombMethod =
     FLT_TemporalCombSettings,
     WM_FLT_TCOMB_GETVALUE - WM_USER,        // Settings offset
     TRUE,
-    3,
+    4,
 };
 
 
@@ -255,6 +263,7 @@ static FILTER_METHOD TemporalCombMethod =
 void __cdecl ExitTemporalComb(void)
 {
     CleanupTemporalComb();
+    return;
 }
 
 
@@ -274,6 +283,7 @@ void CleanupTemporalComb(void)
             gppFieldBuffer[Index] = NULL;
         }
     }
+    return;
 }
 
 
@@ -285,7 +295,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     {
         TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_MMXEXT;
     }
-    if (CpuFeatureFlags & FEATURE_SSE)
+    else if (CpuFeatureFlags & FEATURE_SSE)
     {
         TemporalCombMethod.pfnAlgorithm = FilterTemporalComb_SSE;
     }
@@ -311,69 +321,69 @@ BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lp
 */
 
 
-// Update the (paired circular) field buffer array
+// Update (roll) the field buffer array
 // Returns 1000 if the filter needs to abort (due either to memory allocation problems
 // or a partially full buffer), 0 otherwise
+// Initialization here could be improved, but I won't bother since this routine is
+// likely to become obsolete.
 
-LONG UpdateBuffers(TDeinterlaceInfo *info, WORD*** pppTheseFields, WORD*** pppThoseFields)
+LONG UpdateBuffers(TDeinterlaceInfo *pInfo)
 {
     DWORD           Index = 0;
     static LONG     HistoryWait = NUM_BUFFERS + 1;
-    WORD*           pTempBuffer = NULL;
+    BYTE*           pTempBuffer = NULL;
 
     --HistoryWait;
 
-    // We need the last four fields to be available. We've already checked the
-    // 2nd and 4th, so...
-
-    if ((pppThoseFields[0] == NULL) || (pppThoseFields[2] == NULL))
-    {
-        return 1000;
-    }
     for ( ; Index < NUM_BUFFERS; ++Index)
     {
         if (gppFieldBuffer[Index] == NULL)
         {
-            HistoryWait = Index;
-            gppFieldBuffer[Index] = malloc(info->OverlayPitch * sizeof(short) * info->FieldHeight);
+            HistoryWait = Index;    // ~ number of fields until buffer is filled with data
+            gppFieldBuffer[Index] = malloc(pInfo->InputPitch * pInfo->FieldHeight);
             if (gppFieldBuffer[Index] == NULL)
             {
-                return 1000;    // !! Should notify user !!
+                return 1000;        // !! Should notify user !!
             }
         }
 
     }
 
-    // Slide the field history along
+    // Roll the field history along
 
-    if (info->IsOdd)
+    pTempBuffer = gppFieldBuffer[NUM_BUFFERS - 1];
+    for (Index = NUM_BUFFERS - 1; Index != 0; --Index)
     {
-        pTempBuffer = gppFieldBuffer[4];
-        gppFieldBuffer[4] = gppFieldBuffer[2];
-        gppFieldBuffer[2] = gppFieldBuffer[0];
-        gppFieldBuffer[0] = pTempBuffer;
+        gppFieldBuffer[Index] = gppFieldBuffer[Index - 1];
+    }
+    gppFieldBuffer[0] = pTempBuffer;
+
+    // Copy current field to gppFieldBuffer[0] so we can compare against it without feedback
+    for (Index = 0; Index < (DWORD)pInfo->FieldHeight; ++Index)
+    {
+        pInfo->pMemcpy(
+            gppFieldBuffer[0] + (Index*pInfo->InputPitch),
+            pInfo->PictureHistory[0]->pData + (Index*pInfo->InputPitch),
+            pInfo->LineLength
+        );
+    }
+/*
+    pInfo->pMemcpy(
+        gppFieldBuffer[0],
+        pInfo->PictureHistory[0]->pData,
+        (pInfo->FieldHeight)*(pInfo->InputPitch)
+    );
+*/
+
+    if (HistoryWait > 0)
+    {
+        return 1000;            // Don't use buffers until they've been initialized with useful data
     }
     else
     {
-        pTempBuffer = gppFieldBuffer[3];
-        gppFieldBuffer[3] = gppFieldBuffer[1];
-        gppFieldBuffer[1] = gppFieldBuffer[0];
-        gppFieldBuffer[0] = pTempBuffer;
+        HistoryWait = 0;
+        return 0;
     }
-
-    // Copy current field to gppFieldBuffer[0] so we can compare against it without feedback
-
-    for (Index = 0 ; Index < (DWORD)info->FieldHeight; ++Index)
-    {
-        info->pMemcpy(gppFieldBuffer[0] + Index*(info->OverlayPitch/sizeof(short)),
-            pppTheseFields[0][Index], info->LineLength);
-    }
-    if (HistoryWait > 0)
-    {
-        return 1000;            // Need to have filled the buffers with useful data
-    }
-    HistoryWait = 0;
-    return 0;
 }
 
 

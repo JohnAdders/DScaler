@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.65 2002-05-01 20:35:26 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.66 2002-05-26 06:32:25 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/05/01 20:35:26  tobbej
+// fixed log message
+//
 // Revision 1.64  2002/04/28 16:47:44  laurentg
 // Don't call AR autodetection for progressive source as the code works only for interlaced source
 //
@@ -651,7 +654,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 pPerf->StopCount(PERF_TIMESHIFT);
 
-                if(!Info.bMissedFrame)
+                if(!Info.bMissedFrame && VTState != VT_BLACK)
                 {
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
 
@@ -720,7 +723,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 __try
                 {
-                    if (!Info.bRunningLate)
+                    if (!Info.bRunningLate  && VTState != VT_BLACK)
                     {
                         BOOL bFlipNow = FALSE;
 

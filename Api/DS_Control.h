@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.75 2002-07-25 20:41:46 laurentg Exp $
+// $Id: DS_Control.h,v 1.76 2002-08-03 00:16:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2002/07/25 20:41:46  laurentg
+// Setting added to take still always in the same file
+//
 // Revision 1.74  2002/07/24 21:37:00  laurentg
 // Take cyclic stills
 //
@@ -1209,9 +1212,9 @@ typedef enum
     DI_TOMSMOCOMP_SETTING_LASTONE,
 } DI_TOMSMOCOMP_SETTING;
 
-#define WM_DI_TOMSMOCOMP_GETVALUE     (WM_APP + 42)
-#define WM_DI_TOMSMOCOMP_SETVALUE     (WM_APP + 141)
-#define WM_DI_TOMSMOCOMP_CHANGEVALUE  (WM_APP + 241)
+#define WM_DI_TOMSMOCOMP_GETVALUE     (WM_APP + 44)
+#define WM_DI_TOMSMOCOMP_SETVALUE     (WM_APP + 144)
+#define WM_DI_TOMSMOCOMP_CHANGEVALUE  (WM_APP + 244)
 
 
 

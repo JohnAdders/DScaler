@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.129 2003-01-10 17:37:40 adcockj Exp $
+// $Id: DS_Control.h,v 1.130 2003-01-12 20:10:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.129  2003/01/10 17:37:40  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.128  2003/01/08 19:57:40  laurentg
 // Analogue Blanking setting by source
 //
@@ -1507,6 +1514,7 @@ typedef enum
     CX2388XBOTTOMOVERSCAN,
     CX2388XLEFTOVERSCAN,
     CX2388XRIGHTOVERSCAN,
+    CX2388XANALOGUEBLANKING,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.32 2003-01-12 16:19:33 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.33 2003-01-12 20:10:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/12 16:19:33  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.31  2003/01/11 15:22:25  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -399,9 +403,6 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup);
     m_Settings.push_back(m_SaturationV);
 
-    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
-    m_Settings.push_back(m_AnalogueBlanking);
-
     m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
 
@@ -528,6 +529,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 
     m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
+
+    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
+    m_Settings.push_back(m_AnalogueBlanking);
 
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())

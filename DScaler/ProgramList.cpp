@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.104 2005-03-06 00:23:04 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.105 2005-03-08 03:32:23 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2005/03/06 00:23:04  robmuller
+// Increased post switch mute delay.
+//
 // Revision 1.103  2004/01/05 13:12:24  adcockj
 // Added patch from Lavrenov Dmitrij (midimaker)
 //
@@ -854,44 +857,49 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 
     CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
     UpdateDetails(hDlg, channel);
-    DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
 
-    // add channel if frequency found
-    if (ReturnedFreq != 0)
-    {
-        char sbuf[256] = "";
+	// don't attempt to scan duplicate frequencies
+	if(!MyChannels.GetChannelByFrequency(channel->GetFrequency()))
+	{
+		DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
 
-        // if teletext is active then get channel names
-        if(bCaptureVBI && Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
-        {
-            VT_ChannelChange();
-            int i = 0; 
-            Sleep(50);
-            VT_GetStation(sbuf, 255);
-            while(i < 10 && (sbuf[0] == '\0' || sbuf[0] == ' '))
-            {
-                Sleep(200);
-                VT_GetStation(sbuf, 255);
-                ++i;
-            }
-            if(i == 10)
-            {
-                sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
-            }
-        }
-        else
-        {
-            sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
-        }
-        CChannel* NewChannel = new CChannel(
-                                    sbuf,
-                                    ReturnedFreq,
-                                    channel->GetChannelNumber(),
-                                    channel->GetFormat(),
-                                    TRUE
-                                 );
-        AddScannedChannel(hDlg, NewChannel);
-    }   
+		// add channel if frequency found
+		if (ReturnedFreq != 0)
+		{
+			char sbuf[256] = "";
+
+			// if teletext is active then get channel names
+			if(bCaptureVBI && Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+			{
+				VT_ChannelChange();
+				int i = 0; 
+				Sleep(50);
+				VT_GetStation(sbuf, 255);
+				while(i < 10 && (sbuf[0] == '\0' || sbuf[0] == ' '))
+				{
+					Sleep(200);
+					VT_GetStation(sbuf, 255);
+					++i;
+				}
+				if(i == 10)
+				{
+					sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+				}
+			}
+			else
+			{
+				sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+			}
+			CChannel* NewChannel = new CChannel(
+										sbuf,
+										ReturnedFreq,
+										channel->GetChannelNumber(),
+										channel->GetFormat(),
+										TRUE
+									 );
+			AddScannedChannel(hDlg, NewChannel);
+		}   
+	}
 
     MyInUpdate = FALSE;
 }

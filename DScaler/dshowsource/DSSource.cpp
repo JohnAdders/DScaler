@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.23 2002-05-24 15:18:32 tobbej Exp $
+// $Id: DSSource.cpp,v 1.24 2002-06-22 15:03:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/05/24 15:18:32  tobbej
+// changed filter properties dialog to include progpertypages from the pins
+// fixed input source status
+// fixed dot infront of start/pause/stop menu entries
+// changed overscan settings a bit
+// experimented a bit with measuring time for dscaler to process one field
+//
 // Revision 1.22  2002/05/02 19:50:39  tobbej
 // changed dshow source filter submenu to use new tree based dialog
 //
@@ -1059,7 +1066,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		pInfo->FrameHeight=0;
 
 		//clear the picture history
-		memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+        Free_Picture_History(pInfo);
 		
 		//is the graph running? there is no point in continuing if it isnt
 		/*if(m_pDSGraph->getState()!=State_Running)
@@ -1218,7 +1225,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		}
 
 		ASSERT(pos>=0 && pos<MAX_PICTURE_HISTORY);
-		pInfo->PictureHistory[i]=&m_pictureHistory[pos];
+        Replace_Picture_In_History(pInfo, i, &m_pictureHistory[pos]);
 	}
 	Timing_IncrementUsedFields();
 	m_dwRendStartTime=timeGetTime();

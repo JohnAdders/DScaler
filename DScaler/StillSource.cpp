@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.60 2002-06-21 23:14:19 laurentg Exp $
+// $Id: StillSource.cpp,v 1.61 2002-06-22 15:00:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/06/21 23:14:19  laurentg
+// New way to store address of allocated memory buffer for still source
+//
 // Revision 1.59  2002/06/13 12:10:23  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -713,7 +716,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         pInfo->bMissedFrame = TRUE;
         pInfo->FrameWidth = 720;
         pInfo->FrameHeight = 480;
-        pInfo->PictureHistory[0] = NULL;
+        Replace_Picture_In_History(pInfo, 0, NULL);
         return;
     }
 
@@ -734,7 +737,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     if(Diff > 1)
     {
         // delete all history
-        memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+        Free_Picture_History(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -754,7 +757,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FrameHeight = m_Height;
     pInfo->FieldHeight = m_Height;
     pInfo->InputPitch = m_LinePitch;
-    pInfo->PictureHistory[0] = &m_StillFrame;
+    Replace_Picture_In_History(pInfo, 0, &m_StillFrame);
 
     Timing_IncrementUsedFields();
 }

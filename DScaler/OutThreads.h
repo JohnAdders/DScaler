@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.12 2002-02-19 16:03:36 tobbej Exp $
+// $Id: OutThreads.h,v 1.13 2002-06-22 14:57:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -49,6 +49,10 @@ void OutThreads_ReadSettingsFromIni();
 void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void OutThreads_SetMenu(HMENU hMenu);
 
+void Free_Picture_History(TDeinterlaceInfo* pInfo);
+void Shift_Picture_History(TDeinterlaceInfo* pInfo);
+void Replace_Picture_In_History(TDeinterlaceInfo* pInfo, int i, TPicture* picture);
+
 void Start_Capture();
 void Stop_Capture();
 void Reset_Capture();
@@ -57,6 +61,7 @@ void UnPause_Capture();
 void Pause_Toggle_Capture();
 void RequestStreamSnap();
 void RequestStill();
+void Toggle_Vertical_Flip();
 
 void Start_Thread();
 void Stop_Thread();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.41 2002-06-16 18:54:59 robmuller Exp $
+// $Id: BT848Source.cpp,v 1.42 2002-06-22 15:00:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/06/16 18:54:59  robmuller
+// ACPI powersafe support.
+//
 // Revision 1.40  2002/06/05 20:53:49  adcockj
 // Default changes and settings fixes
 //
@@ -613,27 +616,27 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
     }
 
-    memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory) - sizeof(pInfo->PictureHistory[0]));
+    Shift_Picture_History(pInfo);
     if(m_IsFieldOdd)
     {
         if(m_ReversePolarity->GetValue() == FALSE)
         {
-            pInfo->PictureHistory[0] = &m_OddFields[pInfo->CurrentFrame];
+            Replace_Picture_In_History(pInfo, 0, &m_OddFields[pInfo->CurrentFrame]);
         }
         else
         {
-            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
+            Replace_Picture_In_History(pInfo, 0, &m_EvenFields[pInfo->CurrentFrame]);
         }
     }
     else
     {
         if(m_ReversePolarity->GetValue() == FALSE)
         {
-            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
+            Replace_Picture_In_History(pInfo, 0, &m_EvenFields[pInfo->CurrentFrame]);
         }
         else
         {
-            pInfo->PictureHistory[0] = &m_OddFields[(pInfo->CurrentFrame + 4) % 5];
+            Replace_Picture_In_History(pInfo, 0, &m_OddFields[(pInfo->CurrentFrame + 4) % 5]);
         }
     }
 
@@ -860,7 +863,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     if(Diff > 1)
     {
         // delete all history
-        memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+        Free_Picture_History(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -921,7 +924,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     else
     {
         // delete all history
-        memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+        Free_Picture_History(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");

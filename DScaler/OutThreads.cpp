@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.68 2002-06-06 21:40:00 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.69 2002-06-22 14:57:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/06/06 21:40:00  robmuller
+// Fixed: timeshifting and VBI data decoding was not done when minimized.
+//
 // Revision 1.67  2002/06/05 20:53:49  adcockj
 // Default changes and settings fixes
 //
@@ -296,6 +299,8 @@ typedef enum
 BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
 eStreamStillType    RequestStillType = STILL_NONE;
+BOOL                RequestToggleFlip = FALSE;
+BOOL                bDoVerticalFlip = FALSE;
 HANDLE              OutThread;
 
 // Dynamically updated variables
@@ -318,6 +323,89 @@ long                OverlayPitch = 0;
 #if !defined(DDFLIP_DONOTWAIT)
     #define DDFLIP_DONOTWAIT 0
 #endif
+
+
+struct TPictureHistory {
+    TPicture    picture;
+    BOOL        available;
+} PictureHistory[MAX_PICTURE_HISTORY];
+
+
+///////////////////////////////////////////////////////////////////////////////
+static void Init_Picture_History()
+{
+    for (int i=0 ; i<MAX_PICTURE_HISTORY ; i++)
+    {
+        PictureHistory[i].available = TRUE;
+    }
+}
+
+static void Delete_Picture_From_History(TPicture* picture)
+{
+    if (picture)
+    {
+        for (int i=0 ; i<MAX_PICTURE_HISTORY ; i++)
+        {
+            if (&(PictureHistory[i].picture) == picture)
+            {
+                PictureHistory[i].available = TRUE;
+                break;
+            }
+        }
+    }
+}
+
+void Free_Picture_History(TDeinterlaceInfo* pInfo)
+{
+    for (int i=0 ; i<MAX_PICTURE_HISTORY ; i++)
+    {
+        Delete_Picture_From_History(pInfo->PictureHistory[i]);
+    }
+    memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+}
+
+void Shift_Picture_History(TDeinterlaceInfo* pInfo)
+{
+    Delete_Picture_From_History(pInfo->PictureHistory[MAX_PICTURE_HISTORY-1]);
+    memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory) - sizeof(pInfo->PictureHistory[0]));
+    pInfo->PictureHistory[0] = NULL;
+}
+
+void Replace_Picture_In_History(TDeinterlaceInfo* pInfo, int i, TPicture* picture)
+{
+    if (pInfo->PictureHistory[i] == NULL)
+    {
+        if (picture)
+        {
+            for (int j=0 ; j<MAX_PICTURE_HISTORY ; j++)
+            {
+                if (PictureHistory[j].available)
+                {
+                    PictureHistory[j].available = FALSE;
+                    memcpy(&(PictureHistory[j].picture), picture, sizeof(TPicture));
+                    pInfo->PictureHistory[i] = &(PictureHistory[j].picture);
+                    break;
+                }
+            }
+        }
+    }
+    else if (picture == NULL)
+    {
+        Delete_Picture_From_History(pInfo->PictureHistory[i]);
+        pInfo->PictureHistory[i] = NULL;
+    }
+    else
+    {
+        for (int j=0 ; j<MAX_PICTURE_HISTORY ; j++)
+        {
+            if (&(PictureHistory[j].picture) == pInfo->PictureHistory[i])
+            {
+                memcpy(&(PictureHistory[j].picture), picture, sizeof(TPicture));
+                break;
+            }
+        }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 void Start_Thread()
@@ -396,6 +484,11 @@ void RequestStreamSnap()
 void RequestStill()
 {
    RequestStillType = STILL_TIFF;
+}
+
+void Toggle_Vertical_Flip()
+{
+    RequestToggleFlip = TRUE;
 }
 
 // save the Info structure to a snapshot file
@@ -533,6 +626,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
     Timing_Setup();
 
+    Init_Picture_History();
+
     // set up Deinterlace Info struct
     memset(&Info, 0, sizeof(Info));
     Info.Version = DEINTERLACE_INFO_CURRENT_VERSION;
@@ -627,7 +722,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 {
                     nHistory = 4;
                 }
-                
+
+                // Vertical flipping
+                if (bDoVerticalFlip)
+                {
+                    // Use of a negative pitch + a pointer to the last line of the field
+                    Info.PictureHistory[0]->pData += (Info.FieldHeight-1) * Info.InputPitch;
+                    Info.InputPitch *= -1;
+                }
+
                 // Card calibration
 				if (pCalibration->IsRunning())
 				{
@@ -881,6 +984,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 RequestStillType = STILL_NONE;
             }
 
+            if (RequestToggleFlip)
+            {
+                bDoVerticalFlip = !bDoVerticalFlip;
+                Free_Picture_History(&Info);
+                RequestToggleFlip = FALSE;
+            }
+
             // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;
         }
@@ -994,4 +1104,5 @@ void OutThreads_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_CAPTURE_PAUSE, bIsPaused);
     CheckMenuItemBool(hMenu, IDM_AUTODETECT, bAutoDetectMode);
     CheckMenuItemBool(hMenu, IDM_JUDDERTERMINATOR, DoAccurateFlips);
+    CheckMenuItemBool(hMenu, IDM_VERTICAL_FLIP, bDoVerticalFlip);
 }

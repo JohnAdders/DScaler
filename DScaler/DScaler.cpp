@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.182 2002-06-20 20:00:37 robmuller Exp $
+// $Id: DScaler.cpp,v 1.183 2002-06-22 15:06:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.182  2002/06/20 20:00:37  robmuller
+// Implemented videotext search highlighting.
+//
 // Revision 1.181  2002/06/18 23:12:41  robmuller
 // Fixed: context menu not working.
 //
@@ -1926,6 +1929,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_CAPTURE_PAUSE:
             Pause_Toggle_Capture();
+            break;
+
+        case IDM_VERTICAL_FLIP:
+            Toggle_Vertical_Flip();
             break;
 
         case IDM_AUDIO_MIXER:

@@ -962,6 +962,7 @@ BEGIN
         END
         MENUITEM "Select &Filters",             IDM_SHOW_SCREEN
         MENUITEM SEPARATOR
+        MENUITEM "Vertical F&lip (experimental)", IDM_VERTICAL_FLIP
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "&Use DScaler Overlay Settings", IDM_USE_DSCALER_OVERLAY
         MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS

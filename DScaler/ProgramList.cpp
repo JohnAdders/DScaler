@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.30 2001-08-06 03:00:17 ericschmidt Exp $
+// $Id: ProgramList.cpp,v 1.31 2001-08-08 08:47:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/08/06 03:00:17  ericschmidt
+// solidified auto-pixel-width detection
+// preliminary pausing-of-live-tv work
+//
 // Revision 1.29  2001/08/05 16:31:34  adcockj
 // Fixed crashing with PgUp
 //
@@ -610,7 +614,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_COUNTRY:
-            ResetProgramList(hDlg);
+            if(bCustomChannelOrder)
+            {
+                ResetProgramList(hDlg);
+            }
             CountryCode = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY));
             RefreshChannelList(hDlg);
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.14 2003-01-08 19:59:37 laurentg Exp $
+// $Id: DVBTSource.h,v 1.15 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ public:
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
     LPCSTR GetMenuLabel() {return NULL;};
     BOOL IsAccessAllowed() {return TRUE;};
-    void SetOverscan();
+    void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.38 2003-01-16 14:21:17 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.39 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/01/16 14:21:17  adcockj
+// Added mute call for non-tuner inputs
+//
 // Revision 1.37  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -1594,7 +1597,7 @@ LPCSTR CCX2388xSource::GetMenuLabel()
     return m_pCard->GetCardName(m_pCard->GetCardType());
 }
 
-void CCX2388xSource::SetOverscan()
+void CCX2388xSource::SetAspectRatioData()
 {
     AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
     AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();

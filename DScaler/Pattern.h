@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.h,v 1.2 2002-11-01 13:09:19 laurentg Exp $
+// $Id: Pattern.h,v 1.3 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/01 13:09:19  laurentg
+// Management of the still capture context slightly updated - works now even with stills in memory
+//
 // Revision 1.1  2002/10/29 20:58:11  laurentg
 // Calibration source cut in Calibration + Pattern
 //
@@ -322,7 +325,6 @@ public:
 };
 
 
-extern long SourceOverscan;
 extern long LeftCropping;
 extern long RightCropping;
 

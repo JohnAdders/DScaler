@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.52 2003-01-16 13:30:49 adcockj Exp $
+// $Id: BT848Source.h,v 1.53 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.51  2003/01/10 17:37:45  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -114,7 +117,7 @@ public:
     LPCSTR GetMenuLabel();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
-    void SetOverscan();
+    void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
     void ChannelChange(int PreChange,int OldChannel,int NewChannel);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.80 2003-01-08 19:59:38 laurentg Exp $
+// $Id: StillSource.cpp,v 1.81 2003-01-18 10:52:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2003/01/08 19:59:38  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.79  2003/01/07 23:27:04  laurentg
 // New overscan settings
 //
@@ -1861,7 +1864,7 @@ BOOL CStillSource::IsNavigOnly()
     return m_NavigOnly;
 }
 
-void CStillSource::SetOverscan()
+void CStillSource::SetAspectRatioData()
 {
     AspectSettings.InitialTopOverscan = 0;
     AspectSettings.InitialBottomOverscan = 0;

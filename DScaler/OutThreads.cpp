@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.106 2003-01-02 19:03:09 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.107 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2003/01/02 19:03:09  adcockj
+// Removed extra Surface and replaced with memory buffer due to lack of blt support
+//  and alignment problems
+//
 // Revision 1.105  2003/01/02 17:27:05  adcockj
 // Improvements to extra surface code
 //
@@ -758,7 +762,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     __try
     {
         VDCHECKPOINT;
-        pSource->SetOverscan();
+        pSource->SetAspectRatioData();
         pSource->Start();
 
         // Anti-plop and update screen delay timers may have been cancelled.

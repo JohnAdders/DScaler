@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.76 2003-01-08 19:59:36 laurentg Exp $
+// $Id: Calibration.cpp,v 1.77 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2003/01/08 19:59:36  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.75  2003/01/07 23:27:02  laurentg
 // New overscan settings
 //
@@ -1078,14 +1081,6 @@ void CCalibration::Start(eTypeCalibration type)
         // Display the specific OSD screen
         OSD_ShowInfosScreen(hWnd, 0, 0);
 
-        // Set the overscan to a value specific to calibration
-        AspectSettings.InitialTopOverscan = SourceOverscan;
-        AspectSettings.InitialBottomOverscan = SourceOverscan;
-        AspectSettings.InitialLeftOverscan = SourceOverscan;
-        AspectSettings.InitialRightOverscan = SourceOverscan;
-		AspectSettings.bAnalogueBlanking = FALSE;
-        WorkoutOverlaySize(TRUE);
-
         m_IsRunning = TRUE;
     }
 }
@@ -1111,10 +1106,6 @@ void CCalibration::Stop()
                 m_Hue->Restore();
         }
     }
-
-    // Restore the usual overscan
-    Providers_GetCurrentSource()->SetOverscan();
-    WorkoutOverlaySize(TRUE);
 
     // Erase the OSD screen
     OSD_Clear(hWnd);
@@ -1678,25 +1669,8 @@ CCalibration* pCalibration = NULL;
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
 
-BOOL Calibr_Overscan_OnChange(long Overscan)
-{
-    SourceOverscan = Overscan;
-    AspectSettings.InitialTopOverscan = SourceOverscan;
-    AspectSettings.InitialBottomOverscan = SourceOverscan;
-    AspectSettings.InitialLeftOverscan = SourceOverscan;
-    AspectSettings.InitialRightOverscan = SourceOverscan;
-    WorkoutOverlaySize(TRUE);
-    return FALSE;
-}
-
 SETTING CalibrSettings[CALIBR_SETTING_LASTONE] =
 {
-    {
-        "Overscan for calibration", SLIDER, 0, (long*)&SourceOverscan,
-         0, 0, 150, 1, 1,
-         NULL,
-        "Calibration", "SourceOverscan", Calibr_Overscan_OnChange,
-    },
     {
         "Left player cropping", SLIDER, 0, (long*)&LeftCropping,
          8, 0, 50, 1, 1,

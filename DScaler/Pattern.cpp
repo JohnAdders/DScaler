@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.cpp,v 1.2 2002-11-01 13:09:19 laurentg Exp $
+// $Id: Pattern.cpp,v 1.3 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/01 13:09:19  laurentg
+// Management of the still capture context slightly updated - works now even with stills in memory
+//
 // Revision 1.1  2002/10/29 20:58:11  laurentg
 // Calibration source cut in Calibration + Pattern
 //
@@ -45,7 +48,6 @@
 #define AVERAGE_VALUE(sum,nb)   ((sum) + ((nb) / 2)) / (nb)
 
 
-long SourceOverscan = 0;
 long LeftCropping = 8;
 long RightCropping = 16;
 
@@ -292,7 +294,8 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     int height = pInfo->FieldHeight;
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = SourceOverscan * width / (height * 2);
+//    overscan = SourceOverscan * width / (height * 2);
+	overscan = 0;
     left_crop = ((LeftCropping * width) + 500) / 1000;
     total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
     left = (width + total_crop - 2 * overscan) * m_LeftBorder / 10000 - left_crop + overscan;
@@ -313,7 +316,8 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     {
         right = width - 1;
     }
-    overscan = SourceOverscan;
+//    overscan = SourceOverscan;
+    overscan = 0;
     top = (height - overscan) * m_TopBorder / 10000 + overscan / 2;
     if (top < 0)
     {
@@ -770,7 +774,7 @@ void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
         it != m_ColorBars.end(); 
         ++it)
     {
-        (*it)->Draw(pInfo->PictureHistory[0]->pData, pInfo->InputPitch, pInfo->FieldHeight, pInfo->FrameWidth, SourceOverscan, LeftCropping, RightCropping);
+        (*it)->Draw(pInfo->PictureHistory[0]->pData, pInfo->InputPitch, pInfo->FieldHeight, pInfo->FrameWidth, 0, LeftCropping, RightCropping);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.19 2003-01-16 13:30:49 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.20 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ public:
     LPCSTR GetMenuLabel();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
-    void SetOverscan();
+    void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
     LPCSTR IDString() { return m_IDString.c_str(); }

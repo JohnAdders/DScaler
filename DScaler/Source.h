@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.31 2003-01-16 13:30:49 adcockj Exp $
+// $Id: Source.h,v 1.32 2003-01-18 10:52:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -143,7 +143,7 @@ public:
     HMENU GetSourceMenu();
     // Is access to this source allowed
     virtual BOOL IsAccessAllowed() = 0;
-    virtual void SetOverscan() = 0;
+    virtual void SetAspectRatioData() = 0;
     virtual BOOL HasSquarePixels() = 0;
     virtual void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) = 0;
     virtual LPCSTR IDString() = 0;

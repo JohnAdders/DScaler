@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.63 2003-01-16 13:30:49 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.64 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.62  2003/01/13 13:56:28  adcockj
 // First attemp at SAA7134 setting groups
 //
@@ -595,7 +598,6 @@ void CSAA7134Source::SetupVideoStandard()
     m_pSAA7134Card->SetHue(m_Hue->GetValue());
     m_pSAA7134Card->SetCombFilter((eCombFilter)m_AdaptiveCombFilter->GetValue());
 
-    SetOverscan();
     NotifySizeChange();
 
     SetupAudioStandard();
@@ -1274,7 +1276,7 @@ int CSAA7134Source::GetHeight()
 }
 
 
-void CSAA7134Source::SetOverscan()
+void CSAA7134Source::SetAspectRatioData()
 {
     AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
     AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();

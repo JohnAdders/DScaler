@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.110 2003-01-16 13:30:49 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.111 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.110  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.109  2003/01/13 21:13:43  adcockj
 // Allow h&V delays to be done in sort of real time
 //
@@ -1738,7 +1741,7 @@ LPCSTR CBT848Source::GetMenuLabel()
     return m_pBT848Card->GetCardName(m_pBT848Card->GetCardType());
 }
 
-void CBT848Source::SetOverscan()
+void CBT848Source::SetAspectRatioData()
 {
     AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
     AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();

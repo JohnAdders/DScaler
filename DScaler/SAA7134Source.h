@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.33 2003-01-16 13:30:49 adcockj Exp $
+// $Id: SAA7134Source.h,v 1.34 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.32  2003/01/10 17:38:17  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -171,7 +174,7 @@ public:
     void SetFormat(eVideoFormat NewFormat);
     eVideoFormat GetFormat();
 
-    void SetOverscan();
+    void SetAspectRatioData();
 
     int GetWidth();
     int GetHeight();

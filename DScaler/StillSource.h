@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.56 2003-01-16 13:30:49 adcockj Exp $
+// $Id: StillSource.h,v 1.57 2003-01-18 10:52:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ public:
     void SaveInFile();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
-    void SetOverscan();
+    void SetAspectRatioData();
     BOOL HasSquarePixels() {return m_SquarePixels;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
     LPCSTR IDString() { return m_IDString.c_str(); }

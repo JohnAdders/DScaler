@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.cpp,v 1.9 2003-01-08 19:59:37 laurentg Exp $
+// $Id: DVBTSource.cpp,v 1.10 2003-01-18 10:52:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/08 19:59:37  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.8  2003/01/07 23:27:03  laurentg
 // New overscan settings
 //
@@ -158,7 +161,7 @@ BOOL CDVBTSource::IsVideoPresent()
     return m_pDVBTCard->IsVideoPresent();
 }
 
-void CDVBTSource::SetOverscan()
+void CDVBTSource::SetAspectRatioData()
 {
     AspectSettings.InitialTopOverscan = 0;
     AspectSettings.InitialBottomOverscan = 0;

@@ -356,7 +356,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		}
 		else
 		{
-			sprintf(Text,"Zoom %.1fx", aspectSettings.xZoomFactor / 100);
+			sprintf(Text,"Zoom %.1fx", (double)aspectSettings.xZoomFactor / 100.0);
 			ShowText(hWnd, Text);
 		}
 		break;
@@ -368,7 +368,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		aspectSettings.yZoomFactor += 50;
 		if (aspectSettings.yZoomFactor > 400)
 			aspectSettings.yZoomFactor = 400;
-		sprintf(Text,"Zoom %.1fx", aspectSettings.xZoomFactor / 100);
+		sprintf(Text,"Zoom %.1fx", (double)aspectSettings.xZoomFactor / 100.0);
 		ShowText(hWnd, Text);
 		break;
 

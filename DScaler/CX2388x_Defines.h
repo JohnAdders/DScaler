@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.3 2002-10-31 15:55:50 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.4 2002-11-02 09:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -776,7 +776,7 @@ enum eCX2388xCardId
 // we need to hold a complete line in each buffer
 #define SRAM_FIFO_VIDEO_BUFFER_SIZE      0x5a0  // 720 WORDS (0x5A0)
 #define SRAM_FIFO_VBI_BUFFER_SIZE        0x800
-#define SRAM_FIFO_AUDIO_BUFFER_SIZE      0x1000
+#define SRAM_FIFO_AUDIO_BUFFER_SIZE      0x500
 
 
 // Instruction Queue for video

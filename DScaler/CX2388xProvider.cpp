@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xProvider.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xProvider.cpp,v 1.2 2002-11-02 09:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // 
 // CVS Log while file was called CT2388xProvider.cpp
 //
@@ -61,6 +64,16 @@ CCX2388xProvider::CCX2388xProvider(CHardwareDriver* pHardwareDriver)
         m_DisplayDMAMem[i] = NULL;
         m_VBIDMAMem[i] = NULL;
     }
+
+    // first check that everything we want to fit in SRAM
+    // actually does fit, I'd hope this gets picked up in debug
+    DWORD Test = SRAM_NEXT;
+    if(Test > SRAM_MAX)
+    {
+        ErrorBox("Too much to fit in SRAM")
+    }
+
+
 
 
     while(pHardwareDriver->DoesThisPCICardExist( 

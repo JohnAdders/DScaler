@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.38 2003-01-27 22:04:07 laurentg Exp $
+// $Id: CX2388xCard.cpp,v 1.39 2003-01-29 18:24:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/01/27 22:04:07  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.37  2003/01/26 12:33:26  adcockj
 // Fixed problem with PAL60
 //
@@ -285,17 +290,18 @@ void CCX2388xCard::StartCapture(BOOL bCaptureVBI)
 *******************************************************************************/
 void CCX2388xCard::StopCapture()
 {
-    DWORD value1;
-    DWORD value2;
-    
-    value1 = ReadDword(CX2388X_VID_DMA_CNTRL) & 0xFFFFFF00;
-    value2 = ReadDword(CX2388X_CAPTURECONTROL) & 0xFFFFFF00;
-   
-    ::Sleep(100);
+    // Firstly stop the card from doing anything
+    // so stop the risc controller
+    WriteDword(CX2388X_DEV_CNTRL2, 0x00000000);
 
-    // Original code before restart workaround
-    WriteDword(CX2388X_VID_DMA_CNTRL, value1);
-    WriteDword(CX2388X_CAPTURECONTROL, value2);
+    // then stop capturing video and VBI
+    MaskDataDword(CX2388X_VID_DMA_CNTRL, 0x00, 0xFF);
+    MaskDataDword(CX2388X_CAPTURECONTROL, 0x00,0xFF);
+
+    // set the RISC addresses to be NULL
+    // so that nobody tries to run our RISC code later
+    SetRISCStartAddress(0x00000000);
+    SetRISCStartAddressVBI(0x00000000);
 
     m_RISCIsRunning = FALSE;
 }
@@ -1180,11 +1186,6 @@ DWORD CCX2388xCard::GetRISCPos()
 
 void CCX2388xCard::ManageMyState()
 {
-    // just reurn for the time being as this code 
-    // seens to be associated with crashing
-    // \todo find where the crashing comes in and fix
-    return;
-
     // save and restore everything that might be used
     // by the real drivers
 
@@ -1212,6 +1213,12 @@ void CCX2388xCard::ManageMyState()
     ManageDword(MO_DMA26_PTR2);
     ManageDword(MO_DMA26_CNT1);
     ManageDword(MO_DMA26_CNT2);
+
+    // Drivers seem to reset most things when they run
+    // so just return here especially now that we leave the chip
+    // in a more shut down state
+    return;
+
 
     // do these last just in case the chip was
     // left in a running mode

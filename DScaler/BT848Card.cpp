@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.35 2003-01-28 09:14:54 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.36 2003-01-29 18:24:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/28 09:14:54  adcockj
+// Added patch by Billy Chang
+//
 // Revision 1.34  2003/01/27 22:04:04  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -258,8 +261,11 @@ void CBT848Card::SetDMA(BOOL bState)
 
 void CBT848Card::ManageMyState()
 {
-    // disabled bt848 temporarily due to crashing
+    // Drivers seem to reset most things when they run
+    // so just return here especially now that we leave the chip
+    // in a more shut down state
     return;
+
     // save and restore everything that might be used
     // by the real drivers
     ManageByte(BT848_IFORM);
@@ -1060,7 +1066,15 @@ DWORD CBT848Card::GetRISCPos()
 
 void CBT848Card::StopCapture()
 {
+    // stop the chip running DMA
+    SetDMA(FALSE);
+
+    // Turn off capture
     MaskDataByte(BT848_CAP_CTL, 0, 0x0f);
+
+    // set the RISC addresses to be NULL
+    // so that nobody tries to run our RISC code later
+    SetRISCStartAddress(0x00000000);
 }
 
 void CBT848Card::StartCapture(BOOL bCaptureVBI)

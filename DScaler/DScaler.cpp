@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.345 2003-08-16 18:40:43 laurentg Exp $
+// $Id: DScaler.cpp,v 1.346 2003-08-24 11:22:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.345  2003/08/16 18:40:43  laurentg
+// Disable access to the audio mixer dialog box for the movie file source
+// Display the audio mixer dialog box at first setup of a DShow capture source
+//
 // Revision 1.344  2003/08/16 09:25:10  laurentg
 // Disable access to audio mixer dialog box when the current source is a still
 //
@@ -1249,6 +1253,8 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
 void SetTray(BOOL Way);
 int On_IconHandler(WPARAM wParam, LPARAM lParam);
+
+static BOOL g_bOverlayStopped = FALSE;
 
 static const char* UIPriorityNames[3] = 
 {
@@ -5834,13 +5840,18 @@ void Overlay_Stop(HWND hWnd)
 {
     RECT winRect;
     HDC hDC;
-    GetClientRect(hWnd, &winRect);
-    hDC = GetDC(hWnd);
-    PaintColorkey(hWnd, FALSE, hDC, &winRect);
-    ReleaseDC(hWnd,hDC);
-    Stop_Capture();
-    Overlay_Destroy();
-    InvalidateRect(hWnd, NULL, FALSE);
+
+    if (g_bOverlayStopped == FALSE)
+    {
+        GetClientRect(hWnd, &winRect);
+        hDC = GetDC(hWnd);
+        PaintColorkey(hWnd, FALSE, hDC, &winRect);
+        ReleaseDC(hWnd,hDC);
+        Stop_Capture();
+        Overlay_Destroy();
+        InvalidateRect(hWnd, NULL, FALSE);
+        g_bOverlayStopped = TRUE;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -5851,9 +5862,13 @@ void Overlay_Stop(HWND hWnd)
 // This is also called during a Resume operation
 void Overlay_Start(HWND hWnd)
 {
-    InvalidateRect(hWnd, NULL, FALSE);
-    Overlay_Create();
-    Reset_Capture();
+    if (g_bOverlayStopped != FALSE)
+    {
+        InvalidateRect(hWnd, NULL, FALSE);
+        Overlay_Create();
+        Start_Capture();
+        g_bOverlayStopped = FALSE;
+    }
 }
 
 //---------------------------------------------------------------------------

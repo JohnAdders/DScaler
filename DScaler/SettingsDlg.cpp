@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.1 2001-06-22 19:24:53 tobbej Exp $
+// $Id: SettingsDlg.cpp,v 1.2 2001-06-23 15:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,6 @@ CSettingsDlg::CSettingsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CSettingsDlg::IDD, pParent),m_currentSetting(0)
 {
 	//{{AFX_DATA_INIT(CSettingsDlg)
-		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 }
 
@@ -47,6 +46,7 @@ void CSettingsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSettingsDlg)
+	DDX_Control(pDX, IDC_CHOOSEFROMLIST, m_combo);
 	DDX_Control(pDX, IDC_SETTINGS_CHECK, m_chk);
 	DDX_Control(pDX, IDC_SETTINGS_SPIN, m_spin);
 	DDX_Control(pDX, IDC_SETTINGS_SLIDER, m_slider);
@@ -63,6 +63,7 @@ BEGIN_MESSAGE_MAP(CSettingsDlg, CDialog)
 	ON_WM_VSCROLL()
 	ON_BN_CLICKED(IDC_SETTINGS_DEFAULT, OnSettingsDefault)
 	ON_BN_CLICKED(IDC_SETTINGS_CHECK, OnCheckClick)
+	ON_CBN_SELCHANGE(IDC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -120,35 +121,46 @@ void CSettingsDlg::OnSelchangeList()
 	case ONOFF:
 		m_btnDefault.ShowWindow(SW_SHOWNA);
 		m_chk.ShowWindow(SW_SHOWNA);
-		
 		m_edit.ShowWindow(SW_HIDE);
 		m_slider.ShowWindow(SW_HIDE);
 		m_spin.ShowWindow(SW_HIDE);		
-		
+		m_combo.ShowWindow(SW_HIDE);
 		break;
+
 	case SLIDER:
 		m_btnDefault.ShowWindow(SW_SHOWNA);
 		m_edit.ShowWindow(SW_SHOWNA);
 		m_spin.ShowWindow(SW_SHOWNA);
 		m_slider.ShowWindow(SW_SHOWNA);
-		
 		m_chk.ShowWindow(SW_HIDE);
+		m_combo.ShowWindow(SW_HIDE);
 		break;
+
 	case NUMBER:
 		m_btnDefault.ShowWindow(SW_SHOWNA);
-		m_edit.ShowWindow(SW_SHOWNA);
-		m_spin.ShowWindow(SW_SHOWNA);
-
+		m_edit.ShowWindow(SW_HIDE);
+		m_spin.ShowWindow(SW_HIDE);
 		m_chk.ShowWindow(SW_HIDE);
 		m_slider.ShowWindow(SW_HIDE);
+		m_combo.ShowWindow(SW_SHOWNA);
 		break;
+
 	case ITEMFROMLIST:
+		m_chk.ShowWindow(SW_HIDE);
+		m_btnDefault.ShowWindow(SW_SHOWNA);
+		m_edit.ShowWindow(SW_HIDE);
+		m_slider.ShowWindow(SW_HIDE);
+		m_spin.ShowWindow(SW_HIDE);
+		m_combo.ShowWindow(SW_SHOWNA);
+		break;
+
 	default:
 		m_chk.ShowWindow(SW_HIDE);
 		m_btnDefault.ShowWindow(SW_HIDE);
 		m_edit.ShowWindow(SW_HIDE);
 		m_slider.ShowWindow(SW_HIDE);
 		m_spin.ShowWindow(SW_HIDE);
+		m_combo.ShowWindow(SW_HIDE);
 	}
 	
 	UpdateControls();
@@ -179,7 +191,15 @@ void CSettingsDlg::UpdateControls()
 	m_slider.SetPos(*m_settings[m_currentSetting].pValue);
 	m_slider.SetPageSize(m_settings[m_currentSetting].StepValue);
 	
-	
+	m_combo.ResetContent();
+	if(m_settings[m_currentSetting].pszList != NULL)
+	{
+		for(int i(m_settings[m_currentSetting].MinValue); i <= m_settings[m_currentSetting].MaxValue; ++i)
+		{
+			m_combo.AddString(m_settings[m_currentSetting].pszList[i]);
+		}
+		m_combo.SetCurSel(*m_settings[m_currentSetting].pValue);
+	}
 }
 
 void CSettingsDlg::OnChangeEdit() 
@@ -211,5 +231,11 @@ void CSettingsDlg::OnSettingsDefault()
 void CSettingsDlg::OnCheckClick() 
 {
 	*m_settings[m_currentSetting].pValue=m_chk.GetCheck();
+	UpdateControls();	
+}
+
+void CSettingsDlg::OnSelchangeChoosefromlist() 
+{
+	*m_settings[m_currentSetting].pValue = m_combo.GetCurSel();
 	UpdateControls();	
 }

@@ -40,6 +40,9 @@ DEINTERLACE_METHOD** DeintMethods = NULL;
 DEINTERLACE_METHOD* CurrentMethod = NULL;
 HWND ghwndStatus = NULL;
 
+LPSTR ModeList[100];
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // UpdateAdaptiveMode
 //
@@ -181,15 +184,27 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 	}
 }
 
-void __cdecl AdaptiveShowUI(HWND hwndMain)
-{
-}
-
 void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus)
 {
+	int i;
+	int j;
+	
 	DeintMethods = OtherPlugins;
 	NumVideoModes = NumPlugIns;
 	ghwndStatus = hwndStatus;
+
+	for(i = 0; i < 100; i++)
+	{
+		ModeList[i] = "(empty)";
+		for(j = 0; j < NumPlugIns; j++)
+		{
+			if(DeintMethods[j]->nMethodIndex == i)
+			{
+				ModeList[i] = DeintMethods[j]->szName;
+				break;
+			}
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -212,19 +227,19 @@ SETTING DI_AdaptiveSettings[DI_ADAPTIVE_SETTING_LASTONE] =
 	{
 		"Static Image Mode", ITEMFROMLIST, 0, &StaticImageMode,
 		INDEX_WEAVE, 0, 99, 1, 1,
-		NULL,
+		ModeList,
 		"Pulldown", "StaticImageMode", NULL,
 	},
 	{
 		"Low Motion Mode", ITEMFROMLIST, 0, &LowMotionMode,
 		INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
-		NULL,
+		ModeList,
 		"Pulldown", "LowMotionMode", NULL,
 	},
 	{
 		"High Motion Mode", ITEMFROMLIST, 0, &HighMotionMode,
 		INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
-		NULL,
+		ModeList,
 		"Pulldown", "HighMotionMode", NULL,
 	},
 	{
@@ -257,7 +272,7 @@ DEINTERLACE_METHOD AdaptiveMethod =
 	INDEX_ADAPTIVE,
 	NULL,
 	AdaptiveStart,
-	AdaptiveShowUI,
+	NULL,
 	NULL,
 	4,
 	0,

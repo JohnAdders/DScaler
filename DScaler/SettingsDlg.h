@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.h,v 1.1 2001-06-22 19:24:53 tobbej Exp $
+// $Id: SettingsDlg.h,v 1.2 2001-06-23 15:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CSettingsDlg)
 	enum { IDD = IDD_SETTINGS };
+	CComboBox	m_combo;
 	CButton	m_chk;
 	CSpinButtonCtrl	m_spin;
 	CSliderCtrl	m_slider;
@@ -73,6 +74,7 @@ protected:
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnSettingsDefault();
 	afx_msg void OnCheckClick();
+	afx_msg void OnSelchangeChoosefromlist();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:

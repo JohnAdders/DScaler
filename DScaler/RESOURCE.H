@@ -367,6 +367,7 @@
 #define IDC_COMBO1                      1563
 #define IDC_EDIT42                      1563
 #define IDC_TEXT30                      1563
+#define IDC_CHOOSEFROMLIST              1563
 #define IDC_COMBO2                      1564
 #define IDC_EDIT43                      1564
 #define IDC_RADIO22                     1564

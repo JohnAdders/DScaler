@@ -861,8 +861,9 @@ BEGIN
         MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
         POPUP "Teletext Code Page"
         BEGIN
-            MENUITEM "&UK code page",               IDM_VT_UK
-            MENUITEM "&French code page",           IDM_VT_FRENCH
+            MENUITEM "&English",                    IDM_VT_UK
+            MENUITEM "&French",                     IDM_VT_FRENCH
+            MENUITEM "&Czech",                      IDM_VT_CZECH
         END
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
@@ -953,6 +954,7 @@ END
 IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.bmp"
 IDB_VTCHARS             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
 IDB_FRENCH_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTFRENCHX15X18.BMP"
+IDB_CZECH_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTCZECHX15X18.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

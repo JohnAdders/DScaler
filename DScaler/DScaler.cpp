@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.58 2001-08-09 22:18:23 laurentg Exp $
+// $Id: DScaler.cpp,v 1.59 2001-08-13 18:07:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2001/08/09 22:18:23  laurentg
+// Improvments in relation with calibration
+//
 // Revision 1.57  2001/08/09 21:34:59  adcockj
 // Fixed bugs raise by Timo and Keld
 //
@@ -1235,6 +1238,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Start_Capture();
             break;
 
+        case IDM_VT_CZECH:
+            Stop_Capture();
+            VT_SetCodePage(VT_CZECH_CODE_PAGE);
+            Start_Capture();
+            break;
 
         case IDM_USECHROMA:
             Stop_Capture();

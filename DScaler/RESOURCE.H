@@ -47,6 +47,7 @@
 #define IDB_FRENCH_VTCHARS              183
 #define IDD_TSOPTIONS                   184
 #define IDD_DISASM_CRASH                185
+#define IDB_CZECH_VTCHARS               186
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -900,13 +901,14 @@
 #define IDM_PATTERN_SELECT              2042
 #define IDM_OVERLAY_SETTINGS            2063
 #define IDM_SHARPNESS_SETTINGS          2064
+#define IDM_VT_CZECH                    2065
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        186
-#define _APS_NEXT_COMMAND_VALUE         2065
+#define _APS_NEXT_RESOURCE_VALUE        187
+#define _APS_NEXT_COMMAND_VALUE         2066
 #define _APS_NEXT_CONTROL_VALUE         1902
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.14 2004-11-23 19:25:13 to_see Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.15 2004-11-27 19:31:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/11/23 19:25:13  to_see
+// Added comments for Atsushi.
+//
 // Revision 1.13  2004/11/20 14:20:09  atnak
 // Changed the card list to an ini file.
 //
@@ -86,50 +89,29 @@
 
 BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 {
-    BOOL LookForIFDemod = FALSE;
-
     // clean up if we get called twice
     if(m_Tuner != NULL)
     {
-        delete m_Tuner; 
+        delete m_Tuner;
         m_Tuner = NULL;
     }
-
-	/* comment from Torsten:
-
-	@Atsushi
-	We could delete this long switch if we are parsing from card ini file.
-	That's pseudo code what I mean:
-
-	if(ParserFromIni.GetCard().UseTDA9887() == yes)
-	{
-		LookForIFDemod = TRUE;
-	}
-
-	Are there other IFDemodulator's than TDA9887 on SAA713x cards?
-
-	*/
 
     switch (tunerId)
     {
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
-        LookForIFDemod = TRUE;
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2032_PAL:
         m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
-        LookForIFDemod = TRUE;
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2050:
         m_Tuner = new CMT2050(VIDEOFORMAT_NTSC_M);
-        LookForIFDemod = TRUE;
         strcpy(m_TunerType, "MT2050 ");
         break;
     case TUNER_MT2050_PAL:
         m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
-        LookForIFDemod = TRUE;
         strcpy(m_TunerType, "MT2050 ");
         break;
     case TUNER_AUTODETECT:
@@ -139,15 +121,13 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         strcpy(m_TunerType, "None ");
         break;
     case TUNER_PHILIPS_FM1216ME_MK3:
-        LookForIFDemod = TRUE;
         // deliberate drop down
     default:
         m_Tuner = new CGenericTuner(tunerId);
         strcpy(m_TunerType, "Generic ");
         break;
     }
-      
-        
+
     // Finished if tuner type is CNoTuner
     switch (tunerId)
     {
@@ -160,71 +140,32 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
     // Look for possible external IF demodulator
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
-    BYTE IFDemDeviceAddress[2] = {0,0};
+    BYTE IFDemDeviceAddress[2] = { 0, 0 };
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
     int NumAddressesToSearch = 2;
 
-	/* comment from Torsten:
+	// bUseTDA9887 is the setting in SAA713xCards.ini.
+    if (m_SAA713xCards[m_CardType].bUseTDA9887)
+    {
+        CTDA9887Ex *pTDA9887 = new CTDA9887Ex();
 
-	@Atsushi
-	I need your help.
-	Below we could replace CTDA9887 to CTDA9887FromIni.
-	I see two ways how to do it:
-
-	1)You are parsing card ini file for tda9887 options.
-	  That's pseudo code:
-		
-		if(LookForIFDemod)
-		{        
-			CTDA9887FromIni *pTDA9887FromIni = new CTDA9887FromIni();
-			pExternalIFDemodulator = pTDA9887FromIni;
-			IFDemDeviceAddress[0] = I2C_TDA9887_0;
-			IFDemDeviceAddress[1] = I2C_TDA9887_1;
-
-			ParserFromIni.StartParseTDA9887Options();
-
-			while(TDA9887Options)
-			{
-				BYTE b = 0x00;
-				
-				if(ParserFromIni.GetOutputPort1() == Inactive) // default = Active
-				{
-					b |= TDA9887_OutputPort1Inactive;
-				}
-				
-				if(ParserFromIni.OutputPort2() == Inactive) // default = Active
-				{
-					b |= TDA9887_OutputPort2Inactive;
-				}
-
-				BYTE c = ParserFromIni.GetTakeOverPoint() // default = 0x10 = TDA9887_TakeOverPointDefault
-				eVideoFormat videoformat = ParserFromIni.GetThisVideoFormat();
-				pTDA9887FromIni->SetCardSpecific(videoformat, b, c);
-
-				ParserFromIni.GetNext();
-			}
+		// Set card specific modes that were parsed from SAA713xCards.ini.
+		size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
+		for (size_t i = 0; i < count; i++)
+		{
+			pTDA9887->SetModes(&m_SAA713xCards[m_CardType].tda9887Modes[i]);
 		}
 
-	2)I'm parsing card ini file in CTDA9887FromIni.
-
-	  I think I need file path for card ini file in CTDA9887FromIni constructor,
-	  actual selected card (ID or name) and a lot of help...
-
-	*/
-
-    if(LookForIFDemod)
-    {        
-        CTDA9887 *pTDA9887 = new CTDA9887();
         pExternalIFDemodulator = pTDA9887;
         IFDemDeviceAddress[0] = I2C_TDA9887_0;
         IFDemDeviceAddress[1] = I2C_TDA9887_1;
     }
-        
+
     // Detect and attach IF demodulator to the tuner
     //  or delete the demodulator if the chip doesn't exist.
     if (pExternalIFDemodulator != NULL)
     {
-        for(int i(0); i < NumAddressesToSearch; ++i)
+        for (int i(0); i < NumAddressesToSearch; ++i)
         {
             if (IFDemDeviceAddress[i] != 0)
             {
@@ -240,16 +181,16 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         }
         // if didn't find anything then
         // need to delete the instance
-        if(i == NumAddressesToSearch)
-        {            
+        if (i == NumAddressesToSearch)
+        {
             delete pExternalIFDemodulator;
             pExternalIFDemodulator = NULL;
         }
     }
- 
+
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
-    
+
     int kk = strlen(m_TunerType);
     for (BYTE test = 0xC0; test < 0xCF; test +=2)
     {
@@ -271,11 +212,11 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
     if (!bFoundTuner)
     {
-        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
-        
-        delete m_Tuner; 
+        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
+
+        delete m_Tuner;
         m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");           
+        strcpy(m_TunerType, "None ");
     }
     return bFoundTuner;
 }

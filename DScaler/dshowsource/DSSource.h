@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.2 2001-12-17 19:39:38 tobbej Exp $
+// $Id: DSSource.h,v 1.3 2002-02-02 01:35:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/17 19:39:38  tobbej
+// implemented the picture history and field management
+// crossbar support.
+//
 // Revision 1.1  2001/12/09 22:01:48  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -91,6 +95,7 @@ public:
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsVideoPresent();
 
+    void UpdateMenu() {return;};
 	void SetMenu(HMENU hMenu);
 	BOOL IsAccessAllowed() {return TRUE;};
 	LPCSTR GetMenuLabel();

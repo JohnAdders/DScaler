@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerCalls.c,v 1.2 2001-11-13 17:24:49 trbarry Exp $
+// $Id: DScalerCalls.c,v 1.3 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 //      trbarry@trbarry.com
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/13 17:24:49  trbarry
+// Misc GreedyHMA Avisynth related changes. Also fix bug in Vertical filter causing right hand garbage on screen.
+//
 // Revision 0.1  2001/10/01 06:26:38  trbarry
 // Add GreedyHMA (Avisynth filter wrapper) to DScaler files
 //
@@ -107,10 +110,10 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
     
     if (EdgeEnhance)
     {
-        GreedyUseEdgeEnh = TRUE;
+        GreedyUseHSharpness = TRUE;
         if (EdgeEnhance > 1 && EdgeEnhance < 101)
         {
-            GreedyEdgeEnhAmt = EdgeEnhance;
+            GreedyHSharpnessAmt = EdgeEnhance;
         }
     }
     
@@ -135,8 +138,8 @@ extern void InitDScaler(int AutoPulldown, int MedianFilter, int VerticalFilter,
 	i=GreedyMedianFilterAmt;
 	MedianFilterAmt =  i << 48 | i << 32 | i << 16 | i;    
 
-	i=GreedyEdgeEnhAmt* 257/100;
-	EdgeEnhAmt =  i << 48 | i << 32 | i << 16 | i;    
+	i=GreedyHSharpnessAmt* 257/100;
+	HSharpnessAmt =  i << 48 | i << 32 | i << 16 | i;    
 
     pLines = &pScanLines[0];                // table of ptrs to scan lines filled in later
     }    

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.13 2001-11-21 15:21:40 adcockj Exp $
+// $Id: DI_GreedyH.c,v 1.14 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/11/21 15:21:40  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.12  2001/11/02 10:46:09  adcockj
 // Merge in code from Multiple card branch
 //
@@ -136,26 +140,34 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 	},
 	{
 		"Good PullDown Lvl", SLIDER, 0,		// szDisplayName, TYPE, orig val
-		&GreedyGoodPullDownLvl, 90, 0,		// *pValue,Default, Min
+		&GreedyGoodPullDownLvl, 83, 0,		// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyGoodPullDownLvl", NULL,		// Ini name, pfnOnChange
 	},
 	{
 		"Bad PullDown Lvl", SLIDER, 0,	// szDisplayName, TYPE, orig val
-		&GreedyBadPullDownLvl, 85, 0,	// *pValue,Default, Min
+		&GreedyBadPullDownLvl, 88, 0,	// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyBadPullDownLvl", NULL,	// Ini name, pfnOnChange
 	},
 	{
-		"Edge Enhance", SLIDER, 0,		// szDisplayName, TYPE, orig val
-		&GreedyEdgeEnhAmt, 50, 0,		// *pValue,Default, Min
+		"H. Sharpness", SLIDER, 0,		// szDisplayName, TYPE, orig val
+		&GreedyHSharpnessAmt, 50, -100,		// *pValue,Default, Min
 		100, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
-		"GreedyEdgeEnhAmt", NULL,		// Ini name, pfnOnChange
+		"GreedyHSharpnessAmt", NULL,		// Ini name, pfnOnChange
 	},
 	{
+		"V. Sharpness", SLIDER, 0,		// szDisplayName, TYPE, orig val
+		&GreedyVSharpnessAmt, 23, -100,		// *pValue,Default, Min
+		100, 1, 1,						// Max, Step, OSDDivider
+		NULL, "Deinterlace",			// **pszList, Ini Section
+		"GreedyVHSharpnessAmt", NULL,		// Ini name, pfnOnChange
+	},
+
+    {
 		"Median Filter", SLIDER, 0,		// szDisplayName, TYPE, orig val
 		&GreedyMedianFilterAmt, 5, 0,	// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
@@ -191,18 +203,18 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 		"GreedyUseMedianFilter", NULL,	// Ini name, pfnOnChange
 	},
 	{
-		"Vertical Filter", ONOFF, 0,	// szDisplayName, TYPE, orig val
-		&GreedyUseVertFilter, FALSE, 0,	// *pValue,Default, Min
+		"V. Sharpness", ONOFF, 0,	// szDisplayName, TYPE, orig val
+		&GreedyUseVSharpness, FALSE, 0,	// *pValue,Default, Min
 		1, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
-		"GreedyUseVertFilter", NULL,		// Ini name, pfnOnChange
+		"GreedyUseVSharpness", NULL,		// Ini name, pfnOnChange
 	},
 	{
-		"Edge Enhance", ONOFF, 0,		// szDisplayName, TYPE, orig val
-		&GreedyUseEdgeEnh, FALSE, 0,	// *pValue,Default, Min
+		"H. Sharpness", ONOFF, 0,		// szDisplayName, TYPE, orig val
+		&GreedyUseHSharpness, FALSE, 0,	// *pValue,Default, Min
 		1, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
-		"GreedyUseEdgeEnh", NULL,		// Ini name, pfnOnChange
+		"GreedyUseHSharpness", NULL,		// Ini name, pfnOnChange
 	},
 };
 
@@ -242,9 +254,13 @@ void SetGreedyHDisplayControls(HWND hDlg)
 		GetDlgItem(hDlg, IDC_BAD_PULLDOWN_LVL));
 	SetDlgItemInt(hDlg, IDC_BAD_PULLDOWN_LVL_V, GreedyBadPullDownLvl, TRUE);
 
-	SetupSlider(& DI_GreedyHSettings[GR_EDGE_ENH],
-		GetDlgItem(hDlg, IDC_EDGE_ENH));
-	SetDlgItemInt(hDlg, IDC_EDGE_ENH_V, GreedyEdgeEnhAmt, TRUE);
+	SetupSlider(& DI_GreedyHSettings[GR_H_SHARPNESS],
+		GetDlgItem(hDlg, IDC_H_SHARPNESS));
+	SetDlgItemInt(hDlg, IDC_H_SHARPNESS_V, GreedyHSharpnessAmt, TRUE);
+
+	SetupSlider(& DI_GreedyHSettings[GR_V_SHARPNESS],
+		GetDlgItem(hDlg, IDC_V_SHARPNESS));
+	SetDlgItemInt(hDlg, IDC_V_SHARPNESS_V, GreedyVSharpnessAmt, TRUE);
 
 	SetupSlider(& DI_GreedyHSettings[GR_MEDIAN_FILTER],
 		GetDlgItem(hDlg, IDC_MEDIAN_FILTER));
@@ -258,8 +274,8 @@ void SetGreedyHDisplayControls(HWND hDlg)
 	CheckDlgButton(hDlg, IDC_USE_PULLDOWN, GreedyUsePulldown);
 	CheckDlgButton(hDlg, IDC_USE_IN_BETWEEN, GreedyUseInBetween);
 	CheckDlgButton(hDlg, IDC_USE_MEDIAN_FILTER, GreedyUseMedianFilter);
-	CheckDlgButton(hDlg, IDC_USE_VERT_FILTER, GreedyUseVertFilter);
-	CheckDlgButton(hDlg, IDC_USE_EDGE_ENH, GreedyUseEdgeEnh);
+	CheckDlgButton(hDlg, IDC_USE_V_SHARPNESS, GreedyUseVSharpness);
+	CheckDlgButton(hDlg, IDC_USE_H_SHARPNESS, GreedyUseHSharpness);
 
 }
 
@@ -272,15 +288,16 @@ static int TGreedyMotionThreshold;			// ignore changes < this
 static int TGreedyMotionSense;		// how rapidly to bob when > Threshold
 static int TGreedyGoodPullDownLvl;		
 static int TGreedyBadPullDownLvl;		
-static int TGreedyEdgeEnhAmt;				// % sharpness to add				
+static int TGreedyHSharpnessAmt;				// % sharpness to add				
+static int TGreedyVSharpnessAmt;				// % sharpness to add				
 static int TGreedyMedianFilterAmt;			// Don't filter if > this
 static int TGreedyLowMotionPdLvl;		// Skip if comb too large (inverse)
 
 static BOOL TGreedyUsePulldown;			
 static BOOL TGreedyUseInBetween;
 static BOOL TGreedyUseMedianFilter;
-static BOOL TGreedyUseVertFilter;
-static BOOL TGreedyUseEdgeEnh;
+static BOOL TGreedyUseVSharpness;
+static BOOL TGreedyUseHSharpness;
 
 static BOOL ShowAdvanced = FALSE;
 static BOOL ShowDiag = FALSE;
@@ -295,8 +312,8 @@ static BOOL ShowDiag = FALSE;
             GreedyUsePulldown = FALSE;			
             GreedyUseInBetween = FALSE;
             GreedyUseMedianFilter = FALSE;
-            GreedyUseVertFilter = FALSE;
-            GreedyUseEdgeEnh = FALSE;
+            GreedyUseVSharpness = FALSE;
+            GreedyUseHSharpness = FALSE;
         }
         
         TGreedyMaxComb = GreedyMaxComb;
@@ -304,15 +321,16 @@ static BOOL ShowDiag = FALSE;
 		TGreedyMotionSense = GreedyMotionSense;	
 		TGreedyGoodPullDownLvl= GreedyGoodPullDownLvl;	
 		TGreedyBadPullDownLvl = GreedyBadPullDownLvl;
-		TGreedyEdgeEnhAmt = GreedyEdgeEnhAmt;	
+		TGreedyHSharpnessAmt = GreedyHSharpnessAmt;	
+		TGreedyVSharpnessAmt = GreedyVSharpnessAmt;	
 		TGreedyMedianFilterAmt = GreedyMedianFilterAmt;	
 		TGreedyLowMotionPdLvl = GreedyLowMotionPdLvl;		
 
 		TGreedyUsePulldown = GreedyUsePulldown;			
 		TGreedyUseInBetween = GreedyUseInBetween;
 		TGreedyUseMedianFilter = GreedyUseMedianFilter;
-		TGreedyUseVertFilter = GreedyUseVertFilter;
-		TGreedyUseEdgeEnh = GreedyUseEdgeEnh;
+		TGreedyUseVSharpness = GreedyUseVSharpness;
+		TGreedyUseHSharpness = GreedyUseHSharpness;
 
         if (ShowAdvanced)                   // if already showing then make small
         {
@@ -369,10 +387,15 @@ static BOOL ShowDiag = FALSE;
 			GreedyBadPullDownLvl = Slider_GetPos(GetDlgItem(hDlg, IDC_BAD_PULLDOWN_LVL));
 			SetDlgItemInt(hDlg, IDC_BAD_PULLDOWN_LVL_V, GreedyBadPullDownLvl, TRUE);
 		} 
-		else if((HWND)lParam == GetDlgItem(hDlg, IDC_EDGE_ENH))
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_H_SHARPNESS))
 		{
-			GreedyEdgeEnhAmt = Slider_GetPos(GetDlgItem(hDlg, IDC_EDGE_ENH));
-			SetDlgItemInt(hDlg, IDC_EDGE_ENH_V, GreedyEdgeEnhAmt, TRUE);
+			GreedyHSharpnessAmt = Slider_GetPos(GetDlgItem(hDlg, IDC_H_SHARPNESS));
+			SetDlgItemInt(hDlg, IDC_H_SHARPNESS_V, GreedyHSharpnessAmt, TRUE);
+		} 
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_V_SHARPNESS))
+		{
+			GreedyVSharpnessAmt = Slider_GetPos(GetDlgItem(hDlg, IDC_V_SHARPNESS));
+			SetDlgItemInt(hDlg, IDC_V_SHARPNESS_V, GreedyVSharpnessAmt, TRUE);
 		} 
 		else if((HWND)lParam == GetDlgItem(hDlg, IDC_MEDIAN_FILTER))
 		{
@@ -407,15 +430,16 @@ static BOOL ShowDiag = FALSE;
 			GreedyMotionSense = TGreedyMotionSense;	
 			GreedyGoodPullDownLvl = TGreedyGoodPullDownLvl;	
 			GreedyBadPullDownLvl = TGreedyBadPullDownLvl;
-			GreedyEdgeEnhAmt = TGreedyEdgeEnhAmt;	
+			GreedyHSharpnessAmt = TGreedyHSharpnessAmt;	
+			GreedyVSharpnessAmt = TGreedyVSharpnessAmt;	
 			GreedyMedianFilterAmt = TGreedyMedianFilterAmt;	
 			GreedyLowMotionPdLvl = TGreedyLowMotionPdLvl;		
 
 			GreedyUsePulldown = TGreedyUsePulldown;			
 			GreedyUseInBetween = TGreedyUseInBetween;
 			GreedyUseMedianFilter = TGreedyUseMedianFilter;
-			GreedyUseVertFilter = TGreedyUseVertFilter;
-			GreedyUseEdgeEnh = TGreedyUseEdgeEnh;
+			GreedyUseVSharpness = TGreedyUseVSharpness;
+			GreedyUseHSharpness = TGreedyUseHSharpness;
 
 			DestroyWindow(hDlg);
 			return TRUE;
@@ -436,13 +460,13 @@ static BOOL ShowDiag = FALSE;
 			return TRUE;
 			break;  
 
-		case IDC_USE_VERT_FILTER:				
-			GreedyUseVertFilter = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_VERT_FILTER));
+		case IDC_USE_V_SHARPNESS:				
+			GreedyUseVSharpness = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_V_SHARPNESS));
 			return TRUE;
 			break;  
 
-		case IDC_USE_EDGE_ENH:				
-			GreedyUseEdgeEnh = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_EDGE_ENH));
+		case IDC_USE_H_SHARPNESS:				
+			GreedyUseHSharpness = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_USE_H_SHARPNESS));
 			return TRUE;
 			break;  
 
@@ -493,17 +517,18 @@ static BOOL ShowDiag = FALSE;
 			GreedyMaxComb = 5;					// max comb we allow past clip
 			GreedyMotionThreshold = 25;			// ignore changes < this
 			GreedyMotionSense = 30;				// how rapidly to bob when > Threshold
-			GreedyGoodPullDownLvl= 90;			
-			GreedyBadPullDownLvl = 85;			
-			GreedyEdgeEnhAmt = 50;				// % sharpness to add				
+			GreedyGoodPullDownLvl= 83;			
+			GreedyBadPullDownLvl = 88;			
+			GreedyHSharpnessAmt = 50;				// % sharpness to add				
+			GreedyVSharpnessAmt = 23;			// % sharpness (more needs more cpu)				
 			GreedyMedianFilterAmt = 3;			// Don't filter if > this
 			GreedyLowMotionPdLvl = 9;			// Do PullDown on if motion < this
 
 			GreedyUsePulldown = FALSE;			
 			GreedyUseInBetween = FALSE;
 			GreedyUseMedianFilter = FALSE;
-			GreedyUseVertFilter = FALSE;
-			GreedyUseEdgeEnh = FALSE;
+			GreedyUseVSharpness = FALSE;
+			GreedyUseHSharpness = FALSE;
 
 			SetGreedyHDisplayControls(hDlg);
 			return TRUE;
@@ -725,13 +750,13 @@ BOOL DeinterlaceGreedyH_SSE(TDeinterlaceInfo *info)
     }
     
     else if (GreedyUseMedianFilter || GreedyUsePulldown 
-		|| GreedyUseVertFilter || GreedyUseEdgeEnh)
+		|| GreedyUseVSharpness || GreedyUseHSharpness)
 	{
         return DI_GreedyHM();           // only SSE version for this one
 	} 
     else
     {
-		return DI_GreedyHF_SSE();       // faster more compatible way
+		return DI_GreedyHF_SSE(info);  // faster more compatible way
     }
 }
 
@@ -743,7 +768,7 @@ BOOL DeinterlaceGreedyH_3DNOW(TDeinterlaceInfo *info)
         return FALSE;
     }
     
-	return DI_GreedyHF_3DNOW();         // faster more compatible way
+	return DI_GreedyHF_3DNOW(info);    // faster more compatible way
 }
 
 // Entered here on deinterlace call for MMX
@@ -754,7 +779,7 @@ BOOL DeinterlaceGreedyH_MMX(TDeinterlaceInfo *info)
         return FALSE;
     }
     
-	return DI_GreedyHF_MMX();           // faster more compatible way
+	return DI_GreedyHF_MMX(info);  // faster more compatible way
 }
 
 
@@ -764,11 +789,17 @@ BOOL GetCheckDScalerInfo(TDeinterlaceInfo *info)
     #include "DI_GreedyHM2.h"
 
     __int64 i;
-	InfoIsOdd = info->IsOdd;
+//>>>	InfoIsOdd = info->IsOdd;
+//>>>    InfoIsOdd = (info->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ? 1 : 0;
+    InfoIsOdd = (info->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ? 1 : 0;
+
 	OverlayPitch =info->OverlayPitch;
+	InpPitch =  info->InputPitch;
 	lpCurOverlay = info->Overlay;
-	pLines = info->OddLines[0];					// where our new data comes from
-	pOddLines = info->OddLines[0];
+    pLines = info->PictureHistory[0]->pData;  
+
+ /*
+    pOddLines = info->OddLines[0];
 	pEvenLines = info->EvenLines[0];
     
     pPrevLines = info->IsOdd 
@@ -778,7 +809,7 @@ BOOL GetCheckDScalerInfo(TDeinterlaceInfo *info)
 	pLines = InfoIsOdd 
 		? pOddLines
 		: pEvenLines;
-	
+*/	
     FieldHeight = info->FieldHeight;
     FrameHeight = info->FrameHeight;
 	LineLength = info->LineLength;
@@ -803,8 +834,8 @@ BOOL GetCheckDScalerInfo(TDeinterlaceInfo *info)
 	i=GreedyMedianFilterAmt;
 	MedianFilterAmt =  i << 48 | i << 32 | i << 16 | i;    
 
-	i=GreedyEdgeEnhAmt* 257/100;
-	EdgeEnhAmt =  i << 48 | i << 32 | i << 16 | i;    
+	i=GreedyHSharpnessAmt* 257/100;
+	HSharpnessAmt =  i << 48 | i << 32 | i << 16 | i;    
     return TRUE;
 //>>>>    return (FieldHeight < FSMAXROWS);
 }

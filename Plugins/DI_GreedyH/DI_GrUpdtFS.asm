@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GrUpdtFS.asm,v 1.4 2001-08-17 16:18:35 trbarry Exp $
+// $Id: DI_GrUpdtFS.asm,v 1.5 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/08/17 16:18:35  trbarry
+// Minor GreedyH performance Enh.
+// Only do pulldown calc when needed.
+// Will become more needed in future when calc more expensive.
+//
 // Revision 1.3  2001/08/04 06:46:57  trbarry
 // Make Gui work with Large fonts,
 // Improve Pulldown
@@ -40,7 +45,8 @@ BOOL FUNC_NAME()
 #include "DI_GreedyHM2.h"
 	__int64* pFieldStore;		// ptr into FieldStore qwords
     __int64 lastmm3 = 0;        // >>> for debug only
-	short **pLinesW = pLines;	// current input lines, local storage is faster
+//>>>	short **pLinesW = pLines;	// current input lines, local storage is faster
+	BYTE *pLinesW = pLines;	// current input lines, local storage is faster
 	int LineCtr = FieldHeight;	// number of lines to do
     int SkipCt = FieldHeight / 4;   // skip this many at top and bottom
     int FirstLine = LineCtr - SkipCt+1;  // don't use top n lines in totals, re-clear totals here
@@ -54,6 +60,33 @@ BOOL FUNC_NAME()
 	int CombSum = 0;			// our scaled comb total
 	int ContrSum = 0;			// our scaled contrast total
 	int CombScale;				// multiplier to keep comb as 100 * avg/pixel	
+
+#ifdef USE_SHARPNESS
+// For the math, see the comments on the PullDown_VSharp() function in the Pulldown code
+    int w = (GreedyHSharpnessAmt > 0)                 // note-adj down for overflow
+            ? 1000 - (GreedyHSharpnessAmt * 38 / 10)  // overflow, use 38%, 0<w<1000                                             
+            : 1000 - (GreedyHSharpnessAmt * 150 / 10); // bias towards workable range 
+    int Q = 500 * (1000 - w) / w;                      // Q as 0 - 1K, max 16k        
+    int Q2 = (Q*Q) / 1000;                             // Q^2 as 0 - 1k
+    int denom = (w * (1000 - 2 * Q2)) / 1000;          // [w (1-2q^2)] as 0 - 1k    
+    int A = 64000 / denom;                             // A as 0 - 64
+    int B = 128 * Q / denom;                           // B as 0 - 64
+    int C = 64 - A + B;                                // so A-B+C=64, unbiased weight
+    __int64 i;
+    i = A;                          
+    QHA = i << 48 | i << 32 | i << 16 | i;
+
+#ifdef REALLY_USE_SOFTNESS
+    i = -B;
+    QHB = i << 48 | i << 32 | i << 16 | i;
+#else
+    i = B;
+    QHB = i << 48 | i << 32 | i << 16 | i;
+#endif
+
+    i = C;
+    QHC = i << 48 | i << 32 | i << 16 | i;
+#endif
 
 	if (pLines == NULL)
 		return FALSE;
@@ -88,13 +121,11 @@ BOOL FUNC_NAME()
 		align 8
 LineLoop:
 		mov		eax, dword ptr [FsPrev]		// offset to pixels from prev line 	
-		mov		esi, dword ptr[esi]			// actual get line addr
 
 #ifdef USE_SHARPNESS
 // If we are using edge enhancement then the asm loop will expect to be entered
 // with mm0,mm1,mm2 holding the left, middle, and right pixel qwords
 // On the last pass we will enter the loop at QwordLoop2 to avoid pixels off the end of the line.
-
 		movq	mm1, qword ptr[esi]		// curr qword
 		movq	mm0, mm1				// also pretend is left pixels
 
@@ -102,6 +133,58 @@ LineLoop:
 QwordLoop:
 		movq	mm2, qword ptr[esi+8]	// pixels to the right, for edge enh.
 QwordLoop2:
+// get avg of -2 & +2 pixels
+        movq    mm5, mm0                // save copy before trashing 
+		movq	mm7, mm1				// work copy of curr pixel val
+		psrlq   mm0, 48					// right justify 1 pixel from qword to left
+		psllq   mm7, 16                 // left justify 3 pixels
+		por     mm0, mm7				// and combine
+		
+		movq	mm6, mm2				// copy of right qword pixel val
+		psllq	mm6, 48					// left just 1 pixel from qword to right
+		movq	mm7, mm1                // another copy of L2N current
+		psrlq   mm7, 16					// right just 3 pixels
+		por		mm6, mm7				// combine
+		pavgb	mm0, mm6				// avg of forward and prev by 1 pixel
+        pand    mm0, YMask
+        pmullw  mm0, QHB                // proper ratio to use
+                    
+// get avg of -2 & +2 pixels and subtract
+		movq	mm7, mm1				// work copy of curr pixel val
+		psrlq   mm5, 32					// right justify 2 pixels from qword to left
+		psllq   mm7, 32                 // left justify 2 pixels
+		por     mm5, mm7				// and combine
+		
+		movq	mm6, mm2				// copy of right qword pixel val
+		psllq	mm6, 32					// left just 2 pixels from qword to right
+		movq	mm7, mm1                // another copy of L2N current
+		psrlq   mm7, 32					// right just 2 pixels
+		por		mm6, mm7				// combine
+		pavgb	mm5, mm6				// avg of forward and prev by 1 pixel
+        pand    mm5, YMask
+        pmullw  mm5, QHC                // proper ratio to use
+
+// get ratio of center pixel and combine
+        movq    mm7, mm1
+        pand    mm7, YMask              // only luma
+        pmullw  mm7, QHA                // weight it
+#ifdef REALLY_USE_SOFTNESS
+        paddusw mm7, mm5                // add in weighted average of Zj,Zl               
+        paddusw mm7, mm0                // adjust
+#else
+        psubusw mm0, mm5                // add in weighted average of Zj,Zl               
+        psubusw mm7, mm0                // adjust
+#endif                               
+        psrlw   mm7, 6				    // should be our luma answers
+        pminsw  mm7, YMask              // avoid overflow
+		movq    mm0, mm1				// migrate for next pass through loop
+        pand    mm1, UVMask             // get chroma from here
+        por     mm7, mm1                // combine luma and chroma
+
+		movq	mm4, qword ptr[edi+eax]	// prefetch FsPrev, need later
+		movq    mm1, mm2				// migrate for next pass through loop
+                    
+/* >>> save old way
 // do edge enhancement. 
 		movq	mm7, mm1				// work copy of curr pixel val
 		psrlq   mm0, 48					// right justify 1 pixel from qword to left
@@ -119,20 +202,20 @@ QwordLoop2:
 		movq    mm7, mm1				// another copy of L2N
 		psubusb mm7, mm0				// curr - surround
 		pand	mm7, YMask
-		pmullw  mm7, EdgeEnhAmt          // mult by sharpness factor
-		psrlw   mm7, 8					// now have diff*EdgeEnhAmt/256 ratio			
+		pmullw  mm7, HSharpnessAmt          // mult by sharpness factor
+		psrlw   mm7, 8					// now have diff*HSharpnessAmt/256 ratio			
 
 		psubusb mm0, mm1                // surround - curr
 		pand	mm0, YMask
-		pmullw  mm0, EdgeEnhAmt          // mult by sharpness factor
-		psrlw   mm0, 8					// now have diff*EdgeEnhAmt/256 ratio			
+		pmullw  mm0, HSharpnessAmt          // mult by sharpness factor
+		psrlw   mm0, 8					// now have diff*HSharpnessAmt/256 ratio			
 
 		paddusb mm7, mm1				// edge enhancement up
 		psubusb mm7, mm0                // edge enhancement down, mm7 now our sharpened value
 		movq	mm4, qword ptr[edi+eax]	// prefetch FsPrev, need later
 		movq    mm0, mm1				// migrate for next pass through loop
 		movq    mm1, mm2				// migrate for next pass through loop
-  
+>>>> old way */  
 #else
 
 // If we are not using edge enhancement we just need the current value in mm1
@@ -243,8 +326,10 @@ NotLast:
 		lea     edi, [edi+FSROWSIZE]    // bump to next row
 		mov		pFieldStore, edi		// addr of our 1st qword in FieldStore for line
 
-		mov     esi, pLinesW			// ptr to curr ptr
-		lea     esi, [esi+4]			// but we want the next one
+
+		mov     esi, pLinesW			// ptr to curr line beging
+//>>		lea     esi, [esi+4]			// but we want the next one
+        add     esi, InpPitch           // but we want the next one
 		mov		pLinesW, esi			// update for next loop
 
 		dec		LineCtr

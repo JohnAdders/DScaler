@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHF.asm,v 1.2 2001-07-31 13:34:46 trbarry Exp $
+// $Id: DI_GreedyHF.asm,v 1.3 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/31 13:34:46  trbarry
+// Add missing end of line range check
+//
 // Revision 1.1  2001/07/30 21:50:32  trbarry
 // Use weave chroma for reduced chroma jitter. Fix DJR bug again.
 // Turn off Greedy Pulldown default.
@@ -45,16 +48,25 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // FUNCT_NAME must be defined before include
-BOOL FUNCT_NAME()
+BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 {
 	#include "DI_GreedyHM2.h"
     int Line;
 	int	LoopCtr;
-	short* L1;					// ptr to Line1, of 3
+    DWORD Pitch = pInfo->InputPitch;
+
+/*>>>>	short* L1;					// ptr to Line1, of 3
 	short* L2;					// ptr to Line2, the weave line
 	short* L3;					// ptr to Line3
 	short* L2P;					// ptr to prev Line2
-	BYTE* Dest;
+>>>>*/
+	BYTE* L1;					// ptr to Line1, of 3
+	BYTE* L2;					// ptr to Line2, the weave line
+	BYTE* L3;					// ptr to Line3
+
+	BYTE* L2P;					// ptr to prev Line2
+    BYTE* Dest = pInfo->Overlay;
+
 	__int64 QW256B;
 	__int64 LastAvg=0;			//interp value from left qword
 	__int64 i;
@@ -62,12 +74,13 @@ BOOL FUNCT_NAME()
     i = 0xffffffff - 256;
     QW256B =  i << 48 |  i << 32 | i << 16 | i;  // save a couple instr on PMINSW instruct.
 
-	if (pOddLines == NULL || pEvenLines == NULL || pPrevLines == NULL)
-		return FALSE;
+//>>>	if (pOddLines == NULL || pEvenLines == NULL || pPrevLines == NULL)
+//>>>		return FALSE;
 
 	// copy first even line no matter what, and the first odd line if we're
 	// processing an EVEN field. (note diff from other deint rtns.)
-	pMemcpy(lpCurOverlay, pEvenLines[0], LineLength);	// DL0
+	
+/* >>>    pMemcpy(lpCurOverlay, pEvenLines[0], LineLength);	// DL0
 	if (!InfoIsOdd)
 		pMemcpy(lpCurOverlay + OverlayPitch, pOddLines[0], LineLength);  // DL1
 	for (Line = 0; Line < (FieldHeight - 1); ++Line)
@@ -91,6 +104,41 @@ BOOL FUNCT_NAME()
 			Dest = lpCurOverlay + (Line * 2 + 2) * OverlayPitch;	// DL2
 		}
 		pMemcpy(Dest + OverlayPitch, L3, LineLength);
+>>>*/
+//>>> new way
+//>>>    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(InfoIsOdd)
+    {
+        L1 = pInfo->PictureHistory[1]->pData;
+        L2 = pInfo->PictureHistory[0]->pData;  
+        L3 = L1 + Pitch;   
+        L2P = pInfo->PictureHistory[2]->pData;
+
+        // copy first even line
+        pInfo->pMemcpy(Dest, L1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+    else
+    {
+        L1 = pInfo->PictureHistory[1]->pData;
+        L2 = pInfo->PictureHistory[0]->pData + Pitch;  
+        L3 = L1 + Pitch;   
+        L2P = pInfo->PictureHistory[2]->pData + Pitch;
+
+        // copy first even line
+        pInfo->pMemcpy(Dest, pInfo->PictureHistory[0]->pData, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+        // then first odd line
+        pInfo->pMemcpy(Dest, L1, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+    }
+
+    for (Line = 0; Line < (pInfo->FieldHeight - 1); ++Line)
+    {
+		LoopCtr = LineLength / 8 - 1;				// there are LineLength / 8 qwords per line
+                                                    // but do 1 less, adj at end of loop
+
+//>>> end new way
 
 // For ease of reading, the comments below assume that we're operating on an odd
 // field (i.e., that InfoIsOdd is true).  Assume the obvious for even lines..
@@ -246,8 +294,18 @@ DoNext8Bytes:
 
  LoopDone:
 		}
+        Dest += pInfo->OverlayPitch;
+        pInfo->pMemcpy(Dest, L3, pInfo->LineLength);
+        Dest += pInfo->OverlayPitch;
+
+        L1 += Pitch;
+        L2 += Pitch;  
+        L3 += Pitch;   
+        L2P += Pitch;
+
 	}
 
+/* >>>>>>>>>>>>>
 	// Copy last odd line if we're processing an Odd field.
 	if (InfoIsOdd)
 	{
@@ -255,6 +313,15 @@ DoNext8Bytes:
 				  pOddLines[FieldHeight - 1],
 				  LineLength);
 	}
+*/
+    // Copy last odd line if we're processing an Odd field.
+//>>>    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if (InfoIsOdd)
+    {
+        pInfo->pMemcpy(Dest,
+                  L2,
+                  pInfo->LineLength);
+    }
 
     // clear out the MMX registers ready for doing floating point
     // again

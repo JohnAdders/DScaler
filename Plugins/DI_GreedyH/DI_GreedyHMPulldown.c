@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHMPulldown.c,v 1.4 2001-11-13 17:24:49 trbarry Exp $
+// $Id: DI_GreedyHMPulldown.c,v 1.5 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/13 17:24:49  trbarry
+// Misc GreedyHMA Avisynth related changes. Also fix bug in Vertical filter causing right hand garbage on screen.
+//
 // Revision 1.2  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -35,6 +38,9 @@
 //>>>>>>>>#include "DS_Deinterlace.h"
 #include "DI_GreedyHM.h"
 BOOL PullDown_V(BOOL SelectL2);
+BOOL PullDown_VSharp(BOOL SelectL2);
+BOOL PullDown_VSharp2(BYTE* dest, __int64* Source1, __int64* Dest, int LinLength);
+BOOL PullDown_VSoft2(BYTE* dest, __int64* Source1, __int64* Dest, int LinLength);
 BOOL PullDown_InBetween();
 BOOL FieldStoreMerge(BYTE * dest, __int64 * src, int clen);
 BOOL FieldStoreCopy_V(BYTE * dest, __int64 * src, __int64 * src2, int clen);
@@ -173,6 +179,20 @@ BOOL CanDoPulldown()					// check if we should do pulldown, doit
 	// We can do some sort of pulldown
 	Hist[hPtr].Flags2 |= PD_PULLDOWN;
 
+    // trb 11/15/01 add new Inverse Filtering
+    if (GreedyUseVSharpness && GreedyVSharpnessAmt)
+	{
+	    // Heck with it. Do old cheaper way for -100, gimmick
+	    if (GreedyVSharpnessAmt == -100)
+	    {
+		    return PullDown_V(Hist[hPtr].Flags & 1);
+	    }
+        else
+        {
+            return PullDown_VSharp(Hist[hPtr].Flags & 1);
+        }
+	}
+
 	if (GreedyUseInBetween) 
     {
         if (FsDelay == 2)   // for FsDelay == 2 do inbetween for (delay 1) flags 01x0101x01 pattern only
@@ -194,11 +214,6 @@ BOOL CanDoPulldown()					// check if we should do pulldown, doit
         }
     }
 
-	// Do pulldown, but separate procedure if we need Vertical Filter
-	if (GreedyUseVertFilter)
-	{
-		return PullDown_V(Hist[hPtr].Flags & 1);
-	}
 
 	// OK, do simple pulldown
 	
@@ -242,7 +257,7 @@ BOOL PullDown_InBetween()
 	    EvenL = __min(FsPtr, FsPtrP2);	// first copy ptr
 	    OddL = __min(FsPtrP, FsPtrP3);		// first weave ptr
 	}
-    if (GreedyUseVertFilter)
+    if (GreedyUseVSharpness)
     {
         for (line = 0; line < (FieldHeight - 1); ++line)
 	    {
@@ -528,3 +543,391 @@ QwordLoop:
   return TRUE;
 }	
 		
+// Add new Vertical Edge Enhancement optimized to reverse previous vertical filtering
+/*
+Assume that someone vertically filtered the video for interlace using a simple
+center weighted moving average, creating new pixels Z[k] from old pixels X[k]
+using a weighting factor w (0 < w < 1, w close to 1). Then we might be seeing:
+
+1)	Z[k] = w X[k] + .5 (1-w) (X[k-1] + X[k+1])
+
+useful abbrevs to avoid typing: 
+
+Z[k-2] == Zi, X[k-2] == Xi
+Z[k-1] == Zj, etc
+Z[k] == Zk, X[k] == Xk
+Z[k+1] == Zl, etc
+Z[k+2] == Zm, etc
+
+Q == .5 (1-w) / w, will need later         # Q = .5 w=.5
+
+
+so:
+
+2) Zk = w Xk + .5 (1-w) (Xj + Xl)           # Zk = .5 3 + .5 .5 (2 +2) = 2.5
+
+But, if we wanted to solve for Xk
+
+3) Xk =  [ Zk - .5 (1-w) (Xj + Xl) ] / w     # (2.5 - .25 (2+2))) / .5 = 3
+	  
+4) Xk =   Zk / w - Q (Xj + Xl)               # 2.5 / .5 - .5 (2+2) = 3
+
+5) Xj =   Zj / w - Q (Xi + Xk)               # 2 / .5 - .5 (1+3) = 2 
+
+6) Xl =   Zl / w - Q (Xk + Xm)               # 2 / .5 - .5 (3+1) = 2
+
+and substituting for Xj and Xl in 4) from 5) and 6)
+
+7) Xk =   Zk / w - Q [ Zj / w - Q (Xi + Xk) + Zl / w - Q (Xk + Xm) ]
+
+								# 2.5/.5 - .5 [2/.5 - .5(1+3) + 2/.5 - .5(3+1)]
+								# 5 - .5[4 - 2 + 4 - 2] = 5 - .5[4] = 3
+
+rearranging a bit
+
+8) Xk =  Zk / w - Q [ (Zj + Zl) / w  - Q (Xi + Xm + 2 Xk) ]
+								
+								# 2.5/.5 - .5 [(2+2)/.5 - .5 (1 + 1 + 2 3)]
+								# 5 - .5 [8 - .5 (8)] = 5 - .5 [4] = 3
+								
+9) Xk =  Zk / w - Q (Zj + Zl) / w + Q^2 (Xi + Xm) + 2 Q^2 Xk
+
+								# 2.5/.5 - .5 (2+2)/.5 + .25 (1+1) + 2 .25 3
+								# 5 - 4 + .5 + 1.5 = 3
+
+moving all Xk terms to the left
+
+10) (1 - 2 Q^2) Xk = Zk / w - Q (Zj + Zl) / w + Q^2 (Xi + Xm)
+
+								# (1 - 2 .25)3 = 2.5/.5 - .5(2+2)/.5 + .25(1+1)
+								# (.5)3 = 5 - 4 + .5
+
+11) Xk = [ Zk / w - Q (Zj + Zl) / w + Q^2 (Xi + Xm) ] / (1 - 2 Q^2)
+
+								# [2.5/.5 - .5(2+2)/.5 + .25(1+1)] / (1 - 2 .25)
+								# [5 - 4 + .5] / .5 = 1.5/.5 = 3
+
+12) Xk = Zk - Q (Zj + Zl) + w Q^2 (Xi + Xm)    
+		 ---------------------------------
+		    	w (1 - 2 Q^2)  
+				
+								# [2.5 - .5(2+2) + .5 .25 (1+1)] / [.5 (1 - 2 .25)}
+								# [2.5 - 2 + .25] / .5 (.5)
+								# .75 / .25 = 3
+
+but we'd like it in this form
+
+13) Xk = A Zk - B avg(Zj,Zl) + C avg(Xi,Xm)
+
+where:
+
+14) A = 1 / [w (1 - 2 Q^2)]		# 1 / [.5 (1 - 2 .25)] = 1 / (.5 .5) = 4
+
+15) B = 2 Q / [w (1 - 2 Q^2)]   # 2 .5 / [.5 (1 - 2 .25)] = 1 / .25 = 4
+
+16( C = 2 Q^2 / [1 - 2 Q^2]		# 2 .25 / [1 - 2 .25] = .5 / .5 = 1
+
+		# from 13)  3 =  4 2.5 - 4 2 + 1 1 = 10 - 8 + 1 = 3
+
+Note we still don't know the orig values of Xi but we are out of patience, CPU,
+and math ability so we just assume Xi=Zi for the remaining terms. Hopefully 
+it will be close.
+
+*/
+    __int64 QA;
+    __int64 QB;
+    __int64 QC; 
+    
+BOOL PullDown_VSharp(BOOL SelectL2)
+{
+    int w = (GreedyVSharpnessAmt > 0)                 // note-adj down for overflow
+            ? 1000 - (GreedyVSharpnessAmt * 38 / 10)  // overflow, use 38%, 0<w<1000 
+                                                      
+            : 1000 - (GreedyVSharpnessAmt * 150 / 10); // bias towards workable range 
+    int Q = 500 * (1000 - w) / w;                      // Q as 0 - 1K, max 16k        
+    int Q2 = (Q*Q) / 1000;                             // Q^2 as 0 - 1k
+    int denom = (w * (1000 - 2 * Q2)) / 1000;          // [w (1-2q^2)] as 0 - 1k    
+    int A = 64000 / denom;                             // A as 0 - 64
+    int B = 128 * Q / denom;                           // B as 0 - 64
+    int C =  ((w * Q2) / (denom*500)) ;                // C as 0 - 64
+    __int64 i;
+    
+//
+	int line;				// number of lines
+
+	int L1;						// offset to FieldStore elem holding top known pixels
+	int L3;						// offset to FieldStore elem holding bottom known pxl
+	int L2;						// offset to FieldStore elem holding newest weave pixels
+	int L2P;					// offset to FieldStore elem holding prev weave pixels
+	BYTE* WeaveDest;					// dest for weave pixel
+	BYTE* CopyDest;				// other dest, copy or vertical filter
+	int CopySrc;
+    int Src1 = 0;
+    int Src2 = 0;
+
+	int DestIncr = 2 * OverlayPitch;  // we go throug overlay buffer 2 lines per
+ //   C =  C = 64 - A + B + 0 *(C =  ((w * Q2) / denom) >> 8);                          // works better, unbiased avg
+
+    
+    if ((A-B+C-64 > 1) || (A-B+C-64 < -1))
+    {
+        C = 64 - A + B;
+    }
+    C = 64 - A + B;
+    // for too large plus minus Sharpness
+    if (A < 32 || A > 64 || B > 0 || B < -64 || C < 0 || C > 64 || w < 0 )
+    {
+        A = A;
+    }
+    if (C !=0)
+    {
+        C=C;
+    }
+    // for too large plus Sharpness
+    if (A > 127 || B > 127 || C > 127 || A < 64 || B < 0 || C < 0)
+    {
+        C = C;  // for setting stops
+    }
+    
+
+    // set up pointers, offsets
+	SetFsPtrs(&L1, &L2, &L2P, &L3, &CopySrc, &CopyDest, &WeaveDest);
+	// chk forward/backward Greedy Choice Flag for this field
+	if (!SelectL2) 
+	{
+   		L2 = L2P;
+	}
+
+    // Pick up first 2 and last 2 lines
+	FieldStoreCopy(CopyDest, &FieldStore[CopySrc], LineLength);
+    FieldStoreCopy(WeaveDest, &FieldStore[L2], LineLength);
+	FieldStoreCopy(CopyDest+2*(FieldHeight-1)*OverlayPitch, 
+        &FieldStore[CopySrc+FSMAXCOLS*(FieldHeight-1)], LineLength);
+    FieldStoreCopy(WeaveDest+2*(FieldHeight-1)*OverlayPitch,
+        &FieldStore[L2+FSMAXCOLS*(FieldHeight-1)], LineLength);
+	CopyDest += 2 * OverlayPitch;
+	WeaveDest += 2 * OverlayPitch;
+
+
+    if (CopyDest < WeaveDest)
+    {
+        Src2 = CopySrc + FSMAXCOLS;
+        Src1 = L2; // + FSMAXCOLS;
+    }
+    else
+    {
+        Src2 = L2 + FSMAXCOLS;
+        Src1 = CopySrc; // + FSMAXCOLS;
+        CopyDest = WeaveDest;
+    }
+
+    i = A;                          
+    QA = i << 48 | i << 32 | i << 16 | i;
+    i = C;
+    QC = i << 48 | i << 32 | i << 16 | i;
+    if (B < 0)
+    {
+        i = -B;
+        QB = i << 48 | i << 32 | i << 16 | i;
+
+        for (line = 1; line < FieldHeight-1; ++line)
+	    {
+            PullDown_VSoft2(CopyDest, &FieldStore[Src1],
+                &FieldStore[Src2], LineLength);
+		    Src1 += FSMAXCOLS;
+		    CopyDest += OverlayPitch;
+    
+            PullDown_VSoft2(CopyDest, &FieldStore[Src2],
+                &FieldStore[Src1], LineLength);
+		    Src2 += FSMAXCOLS;
+		    CopyDest += OverlayPitch;
+	    }
+    }
+    else
+    {    
+        i = B;
+        QB = i << 48 | i << 32 | i << 16 | i;
+
+        for (line = 1; line < FieldHeight-1; ++line)
+	    {
+            PullDown_VSharp2(CopyDest, &FieldStore[Src1],
+                &FieldStore[Src2], LineLength);
+		    Src1 += FSMAXCOLS;
+		    CopyDest += OverlayPitch;
+    
+            PullDown_VSharp2(CopyDest, &FieldStore[Src2],
+                &FieldStore[Src1], LineLength);
+		    Src2 += FSMAXCOLS;
+		    CopyDest += OverlayPitch;
+	    }
+    }
+    return TRUE;
+
+  return TRUE;
+}
+
+// see comments in PullDown_VSharp() above	
+BOOL PullDown_VSharp2(BYTE* Dest, __int64* Source1, __int64* Source2, int LinLength)
+{
+    const __int64 YMask		= 0x00ff00ff00ff00ff;	// to keep only luma
+    const __int64 UVMask    = 0xff00ff00ff00ff00;	// to keep only chroma
+
+	int ct = LinLength / 8;
+	_asm
+	{
+		mov		esi, Source2                // the source line
+        mov     eax, Source1                // the preceeding source line
+        sub     eax, esi
+		mov		edi, Dest					// new output line dest
+		mov		ecx, ct
+        movq    mm7, YMask                  // useful constant
+        cmp     word ptr[QC],0              // was 3rd parm 0?
+        je      cloopEasy                   // yes, do faster way
+
+cloop:	
+        movq    mm2, qword ptr[esi-FSROWSIZE]   // Zi
+        movq    mm1, qword ptr[esi+eax]         // Zj
+		movq	mm0, qword ptr[esi]             // Zk 
+        pavgb   mm1, qword ptr[esi+eax+FSROWSIZE]   // avg(Zj,Zl)
+        pavgb   mm2, qword ptr[esi+FSROWSIZE]   // avg(Zi,Zm)
+
+        movq    mm3, mm0                    // save copy of center line, Zk with chroma
+//        pand    mm3, UVMask                 // keep only chroma 
+
+        pand    mm0, mm7                  // only luma
+		pmullw  mm0, QA                     // mult by weighting factor, A * Zk  
+
+        pand    mm1, mm7
+		pmullw  mm1, QB                     // mult by weighting factor, B * avg(Zj, Zl)
+        
+        pand    mm2, mm7
+		pmullw  mm2, QC                     // mult by weighting factor
+
+        psubusw mm1, mm2                    // add in weighted average of Zj,Zl 
+        psubusw mm0, mm1                    // sub weighted average of Zj,Zl 
+        psrlw   mm0, 6					    // should be our luma answers
+        pminsw  mm0, mm7                  // avoid overflow
+        pand    mm3, UVMask                 // get chroma from here
+        por     mm0, mm3                    // put chroma back, add 1*luma
+
+        movntq	qword ptr[edi], mm0
+		lea		esi, [esi+FSCOLSIZE]
+		lea		edi, [edi+8]
+		loop	cloop						// go do next 4 qwords
+		sfence
+        jmp     done
+
+cloopEasy:                                  // easy way only 2 vals	
+        movq    mm1, qword ptr[esi+eax]         // Zj
+		movq	mm0, qword ptr[esi]             // Zk 
+        pavgb   mm1, qword ptr[esi+eax+FSROWSIZE]   // avg(Zj,Zl)
+
+        movq    mm3, mm0                    // save copy of center line, Zk with chroma
+
+        pand    mm0, mm7                  // only luma
+		pmullw  mm0, QA                     // mult by weighting factor, A * Zk  
+
+        pand    mm1, mm7
+		pmullw  mm1, QB                     // mult by weighting factor, B * avg(Zj, Zl)
+     
+        psubusw mm0, mm1                    // sub weighted average of Zj,Zl 
+        psrlw   mm0, 6					    // should be our luma answers
+        pminsw  mm0, mm7                  // avoid overflow
+        pand    mm3, UVMask                 // get chroma from here
+        por     mm0, mm3                    // put chroma back, add 1*luma
+
+        movntq	qword ptr[edi], mm0
+		lea		esi, [esi+FSCOLSIZE]
+		lea		edi, [edi+8]
+		loop	cloopEasy					// go do next 4 qwords
+
+done:
+        sfence
+
+        emms
+	}
+	return TRUE;
+}
+
+// see comments in PullDown_VSharp() above	
+BOOL PullDown_VSoft2(BYTE* Dest, __int64* Source1, __int64* Source2, int LinLength)
+{
+    const __int64 YMask		= 0x00ff00ff00ff00ff;	// to keep only luma
+    const __int64 UVMask    = 0xff00ff00ff00ff00;	// to keep only chroma
+
+	int ct = LinLength / 8;
+	_asm
+	{
+		mov		esi, Source2                // the source line
+        mov     eax, Source1                // the preceeding source line
+        sub     eax, esi
+		mov		edi, Dest					// new output line dest
+		mov		ecx, ct
+        movq    mm7, YMask                  // useful constant
+        cmp     word ptr[QC],0              // was 3rd parm 0?
+        je      cloopEasy                   // yes, do faster way
+
+cloop:	
+        movq    mm2, qword ptr[esi-FSROWSIZE]   // Zi
+        movq    mm1, qword ptr[esi+eax]         // Zj
+		movq	mm0, qword ptr[esi]             // Zk 
+        pavgb   mm1, qword ptr[esi+eax+FSROWSIZE]   // avg(Zj,Zl)
+        pavgb   mm2, qword ptr[esi+FSROWSIZE]   // avg(Zi,Zm)
+
+        movq    mm3, mm0                    // save copy of center line, Zk with chroma
+//        pand    mm3, UVMask                 // keep only chroma 
+
+        pand    mm0, mm7                  // only luma
+		pmullw  mm0, QA                     // mult by weighting factor, A * Zk  
+
+        pand    mm1, mm7
+		pmullw  mm1, QB                     // mult by weighting factor, B * avg(Zj, Zl)
+        
+        pand    mm2, mm7
+		pmullw  mm2, QC                     // mult by weighting factor
+
+        paddusw mm0, mm2                    // add in weighted average of Zj,Zl 
+        paddusw mm0, mm1                    // sub weighted average of Zj,Zl 
+        psrlw   mm0, 6					    // should be our luma answers
+        pminsw  mm0, mm7                  // avoid overflow
+        pand    mm3, UVMask                 // get chroma from here
+        por     mm0, mm3                    // put chroma back, add 1*luma
+
+        movntq	qword ptr[edi], mm0
+		lea		esi, [esi+FSCOLSIZE]
+		lea		edi, [edi+8]
+		loop	cloop						// go do next 4 qwords
+		sfence
+        jmp     done
+
+cloopEasy:                                  // easy way only 2 vals	
+        movq    mm1, qword ptr[esi+eax]         // Zj
+		movq	mm0, qword ptr[esi]             // Zk 
+        pavgb   mm1, qword ptr[esi+eax+FSROWSIZE]   // avg(Zj,Zl)
+
+        movq    mm3, mm0                    // save copy of center line, Zk with chroma
+
+        pand    mm0, mm7                  // only luma
+		pmullw  mm0, QA                     // mult by weighting factor, A * Zk  
+
+        pand    mm1, mm7
+		pmullw  mm1, QB                     // mult by weighting factor, B * avg(Zj, Zl)
+     
+        paddusw mm0, mm1                    // sub weighted average of Zj,Zl 
+        psrlw   mm0, 6					    // should be our luma answers
+        pminsw  mm0, mm7                  // avoid overflow
+        pand    mm3, UVMask                 // get chroma from here
+        por     mm0, mm3                    // put chroma back, add 1*luma
+
+        movntq	qword ptr[edi], mm0
+		lea		esi, [esi+FSCOLSIZE]
+		lea		edi, [edi+8]
+		loop	cloopEasy					// go do next 4 qwords
+
+done:
+        sfence
+
+        emms
+	}
+	return TRUE;
+}

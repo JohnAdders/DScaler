@@ -14,9 +14,11 @@
 #define IDC_MOTION_THRESHOLD_V          1795
 #define IDC_AVG_MOV                     1796
 #define IDC_EDGE_ENH_V                  1796
+#define IDC_H_SHARPNESS_V               1796
 #define IDC_AVG_MOV_V                   1797
 #define IDC_MOTION_SENSE_V              1797
 #define IDC_MOV_PERIOD                  1798
+#define IDC_V_SHARPNESS_V               1798
 #define IDC_MOV_PERIOD_V                1799
 #define IDC_GOOD_PULLDOWN_LVL_V         1799
 #define IDC_PIXEL_COMB                  1800
@@ -40,13 +42,16 @@
 #define IDC_BLEND_CHROMA                1811
 #define IDC_USE_PULLDOWN                1811
 #define IDC_USE_VERT_FILTER             1812
+#define IDC_USE_V_SHARPNESS             1812
 #define IDC_USE_IN_BETWEEN              1814
 #define IDC_USE_EDGE_ENH                1815
+#define IDC_USE_H_SHARPNESS             1815
 #define IDC_USE_LOW_MOTION_ONLY         1816
 #define IDC_MAX_COMB                    1879
 #define IDC_MOTION_THRESHOLD            1880
 #define IDC_MOTION_SENSE                1881
 #define IDC_EDGE_ENH                    1882
+#define IDC_H_SHARPNESS                 1882
 #define IDC_COMB0                       1883
 #define IDC_GOOD_PULLDOWN_LVL           1884
 #define IDC_BAD_PULLDOWN_LVL            1885
@@ -129,6 +134,7 @@
 #define IDC_KONTRAST12                  1962
 #define IDC_KONTRAST13                  1963
 #define IDC_KONTRAST14                  1964
+#define IDC_V_SHARPNESS                 1965
 #define IDC_FLAGS5                      1971
 #define IDC_COMBK0                      1972
 #define IDC_COMBK1                      1973

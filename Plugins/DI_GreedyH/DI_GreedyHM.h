@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.h,v 1.8 2001-11-13 17:24:49 trbarry Exp $
+// $Id: DI_GreedyHM.h,v 1.9 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,15 +66,16 @@ extern long GreedyMotionThreshold;		// ignore changes < this
 extern long GreedyMotionSense;			// how rapidly to bob when > threshold
 extern long GreedyGoodPullDownLvl;		// Best comb avg / comb avg must be < this for PD
 extern long GreedyBadPullDownLvl;		// don't pulldown this field if comb / best avg comb > this 
-extern long GreedyEdgeEnhAmt;			// % sharpness to add				
+extern long GreedyHSharpnessAmt;		// % Horizontal sharpness to add or filter				
+extern long GreedyVSharpnessAmt;		// % Vertical sharpness to add or filter				
 extern long GreedyMedianFilterAmt;		// Don't filter if > this
 extern long GreedyLowMotionPdLvl;		// Do pulldown for low motion frames < this
 
 extern BOOL GreedyUsePulldown;			
 extern BOOL GreedyUseInBetween;
 extern BOOL GreedyUseMedianFilter;
-extern BOOL GreedyUseVertFilter;
-extern BOOL GreedyUseEdgeEnh;
+extern BOOL GreedyUseVSharpness;
+extern BOOL GreedyUseHSharpness;
 extern BOOL GreedySSEBox;           
 extern UINT GreedyFeatureFlags;         // Save feature flags on setup
 
@@ -108,14 +109,20 @@ typedef struct
 #define FSSIZE FSFIELDS * FSMAXCOLS * FSMAXROWS / 4   // number qwords in FieldStore array
 
 // Parm data captured from DSCALER info on call
+extern BYTE *pLines;					// current input lines data, now in contig field
+/*>>>
 extern short **pLines;					// current input lines, either even or odd
 extern short **pOddLines;
 extern short **pEvenLines;
 extern short **pPrevLines;
+>>>*/
+
 extern int	FieldHeight;
 extern int	FrameHeight;
 extern int LineLength;
 extern int OverlayPitch;	
+extern int InpPitch;	
+
 extern BOOL InfoIsOdd;
 extern BYTE *lpCurOverlay;
 
@@ -123,7 +130,7 @@ extern __int64 MaxComb;
 extern __int64 EdgeThreshold;
 extern __int64 EdgeSense;
 extern __int64 MedianFilterAmt;
-extern __int64 EdgeEnhAmt;
+extern __int64 HSharpnessAmt;
 extern __int64 MotionThreshold;
 extern __int64 MotionSense;
 extern int FsPtr;			// current subscript in FieldStore
@@ -139,9 +146,9 @@ BOOL FieldStoreCopy(BYTE * dest, __int64 * src, int clen);
 
 // return FS subscripts depending on FsDelay - Note args by reference
 BOOL SetFsPtrs(int* L1, int* L2, int* L2P, int* L3, int* CopySrc, BYTE** CopyDest, BYTE** WeaveDest);
-BOOL DI_GreedyHF_SSE();   								// fast single pass deint with no options
-BOOL DI_GreedyHF_3DNOW();   							// same for 3DNOW
-BOOL DI_GreedyHF_MMX();   								// same for MMX
+BOOL DI_GreedyHF_SSE(TDeinterlaceInfo* pInfo);   	// fast single pass deint with no options
+BOOL DI_GreedyHF_3DNOW(TDeinterlaceInfo* pInfo);	// same for 3DNOW
+BOOL DI_GreedyHF_MMX(TDeinterlaceInfo* pInfo); 		// same for MMX
 BOOL DI_GreedyHM_NV();									// full deint with no Vertical Filter
 BOOL DI_GreedyHM_V();									// full deint with Vertical Filter
 

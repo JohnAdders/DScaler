@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.9 2001-10-02 17:44:41 trbarry Exp $
+// $Id: DI_GreedyHM.c,v 1.10 2001-11-25 04:33:37 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/10/02 17:44:41  trbarry
+// Changes to be compatible with the Avisynth filter version
+//
 // Revision 1.8  2001/08/19 06:26:38  trbarry
 // Remove Greedy HM Low Motion Only option and files
 //
@@ -64,17 +67,18 @@
 long GreedyMaxComb = 5;					// max comb we allow past clip
 long GreedyMotionThreshold = 25;		// ignore changes < this
 long GreedyMotionSense = 30;	        // how rapidly to bob when > Threshold
-long GreedyGoodPullDownLvl = 90;		// Best Comb avg / Comb Avg must be < thes
-long GreedyBadPullDownLvl = 85;		    // No Pulldown if field comb / Best avg comb > this
-long GreedyEdgeEnhAmt = 50;				// % sharpness to add				
+long GreedyGoodPullDownLvl = 83;		// Best Comb avg / Comb Avg must be < thes
+long GreedyBadPullDownLvl = 88;		    // No Pulldown if field comb / Best avg comb > this
+long GreedyHSharpnessAmt = 50;			// % H. sharpness to add or filter				
+long GreedyVSharpnessAmt = 23;			// % V. sharpness to add or filter				
 long GreedyMedianFilterAmt = 3;			// Don't filter if > this
 long GreedyLowMotionPdLvl = 9;		    // Do PullDown on if motion < this
 
 BOOL GreedyUsePulldown = FALSE;			
 BOOL GreedyUseInBetween = FALSE;
 BOOL GreedyUseMedianFilter = FALSE;
-BOOL GreedyUseVertFilter = FALSE;
-BOOL GreedyUseEdgeEnh = FALSE;
+BOOL GreedyUseVSharpness = FALSE;
+BOOL GreedyUseHSharpness = FALSE;
 BOOL GreedySSEBox = TRUE;           
 UINT GreedyFeatureFlags = 0;            // Save feature flags on setup
 
@@ -83,11 +87,15 @@ BOOL UpdateFieldStore();
 BOOL DI_GrUpdtFS_NM_NE_P();				// Update Fieldstore, no Median Filter, No Edge Enh, Pulldown
 BOOL DI_GrUpdtFS_M_NE_P();				// Update Fieldstore, Median Filter, No Edge Enh, Pulldown
 BOOL DI_GrUpdtFS_NM_E_P();				// Update Fieldstore, no Median Filter, Edge Enh, Pulldown
+BOOL DI_GrUpdtFS_NM_E_P_Soft(); 		// Update Fieldstore, no Median Filter, Edge Enh, Pulldown
 BOOL DI_GrUpdtFS_M_E_P();				// Update Fieldstore, Median Filter, Edge Enh, Pulldown
+BOOL DI_GrUpdtFS_M_E_P_Soft();			// Update Fieldstore, Median Filter, Edge Enh, Pulldown
 BOOL DI_GrUpdtFS_NM_NE_NP();			// Update Fieldstore, no Median Filter, No Edge Enh, No Pulldown
 BOOL DI_GrUpdtFS_M_NE_NP();				// Update Fieldstore, Median Filter, No Edge Enh, No Pulldown
 BOOL DI_GrUpdtFS_NM_E_NP();				// Update Fieldstore, no Median Filter, Edge Enh, No Pulldown
+BOOL DI_GrUpdtFS_NM_E_NP_Soft();		// Update Fieldstore, no Median Filter, Edge Enh, No Pulldown
 BOOL DI_GrUpdtFS_M_E_NP();				// Update Fieldstore, Median Filter, Edge Enh, No Pulldown
+BOOL DI_GrUpdtFS_M_E_NP_Soft();			// Update Fieldstore, Median Filter, Edge Enh, No Pulldown
 
 //	Input video data is first copied to the FieldStore array, possibly doing
 //  edge enhancement and median filtering. Field store is layed out to improve 
@@ -109,14 +117,18 @@ int FsPtr = 0;
 int FsDelay = 1;		// display delayed by n fields (1,2,3)
 
 // Parm data captured from DSCALER info on call
+BYTE *pLines = 0;					// current input lines, either even or odd
+/*>>>
 short **pLines = 0;					// current input lines, either even or odd
 short **pOddLines = 0;
 short **pEvenLines = 0;
 short **pPrevLines;
+>>>>> */
 int	FieldHeight = 0;
 int	FrameHeight = 0;
 int LineLength = 0;
 int OverlayPitch = 0;	
+int InpPitch = 0;	
 BOOL InfoIsOdd = 0;
 BYTE *lpCurOverlay = 0;
 
@@ -127,7 +139,7 @@ __int64 MaxComb=0;
 __int64 EdgeThreshold=0;
 __int64 EdgeSense=0;
 __int64 MedianFilterAmt=0;
-__int64 EdgeEnhAmt=0;
+__int64 HSharpnessAmt=0;
 __int64 MotionThreshold=0;
 __int64 MotionSense=0;
 
@@ -148,7 +160,7 @@ BOOL DI_GreedyHM()
 	{
 		return TRUE;
 	}
-	if (GreedyUseVertFilter)
+	if (GreedyUseHSharpness && GreedyHSharpnessAmt > 0)
 	{
 		return DI_GreedyHM_V();
 	}
@@ -167,10 +179,17 @@ BOOL UpdateFieldStore()
 	    if (GreedyUseMedianFilter && MedianFilterAmt > 0)
 	    {
 		    FsDelay = 2;
-		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    if (GreedyUseHSharpness && GreedyHSharpnessAmt)
 		    {
-			    return DI_GrUpdtFS_M_E_P();
-		    }
+                if (GreedyHSharpnessAmt > 0)
+                {
+			        return DI_GrUpdtFS_M_E_P();
+                }
+                else
+                {
+			        return DI_GrUpdtFS_M_E_P_Soft();
+                }
+            }
 		    else
 		    {
 			    return DI_GrUpdtFS_M_NE_P();
@@ -179,10 +198,18 @@ BOOL UpdateFieldStore()
 	    else 
 	    {
 		    FsDelay = 1;
-		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    if (GreedyUseHSharpness && GreedyHSharpnessAmt)
 		    {
-			    return DI_GrUpdtFS_NM_E_P();
-		    }
+                if (GreedyHSharpnessAmt > 0)
+                {
+			        return DI_GrUpdtFS_NM_E_P();
+                }
+                else
+                {
+			        return DI_GrUpdtFS_NM_E_P_Soft();
+                }
+            }
+
 		    else
 		    {
 			    return DI_GrUpdtFS_NM_NE_P();
@@ -194,10 +221,17 @@ BOOL UpdateFieldStore()
 	    if (GreedyUseMedianFilter && MedianFilterAmt > 0)
 	    {
 		    FsDelay = 2;
-		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    if (GreedyUseHSharpness && GreedyHSharpnessAmt > 0)
 		    {
-			    return DI_GrUpdtFS_M_E_NP();
-		    }
+                if (GreedyHSharpnessAmt > 0)
+                {
+			        return DI_GrUpdtFS_M_E_NP();
+                }
+                else
+                {
+			        return DI_GrUpdtFS_M_E_NP_Soft();
+                }
+            }
 		    else
 		    {
 			    return DI_GrUpdtFS_M_NE_NP();
@@ -206,10 +240,17 @@ BOOL UpdateFieldStore()
 	    else 
 	    {
 		    FsDelay = 1;
-		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    if (GreedyUseHSharpness && GreedyHSharpnessAmt > 0)
 		    {
-			    return DI_GrUpdtFS_NM_E_NP();
-		    }
+                if (GreedyHSharpnessAmt > 0)
+                {
+			        return DI_GrUpdtFS_NM_E_NP();
+                }
+                else
+                {
+			        return DI_GrUpdtFS_NM_E_NP_Soft();
+                }
+            }
 		    else
 		    {
 			    return DI_GrUpdtFS_NM_NE_NP();
@@ -218,6 +259,11 @@ BOOL UpdateFieldStore()
     }
 }
 
+__int64 QHA;        // used for sharpness calcs
+__int64 QHB;        // used for sharpness calcs
+__int64 QHC;        // used for sharpness calcs
+
+#undef REALLY_USE_SOFTNESS
 
 // A version of UpdateFieldStore with Median Filter and Edge Enhancement and Pulldown
 #define USE_PULLDOWN
@@ -251,8 +297,6 @@ BOOL UpdateFieldStore()
 #define FUNC_NAME DI_GrUpdtFS_NM_E_P
 #include "DI_GrUpdtFS.asm"
 
-
-
 // A version of UpdateFieldStore with Median Filter and Edge Enhancement and no Pulldown
 #undef USE_PULLDOWN
 #define USE_MEDIAN_FILTER
@@ -285,6 +329,40 @@ BOOL UpdateFieldStore()
 #define FUNC_NAME DI_GrUpdtFS_NM_E_NP
 #include "DI_GrUpdtFS.asm"
 
+// Add 4 more flavors where Sharpness (Edge Enhancement) is negative meaning Softness
+#define REALLY_USE_SOFTNESS
+
+// A version of UpdateFieldStore with Median Filter and SOFT Edge Enhancement and Pulldown
+#define USE_PULLDOWN
+#define USE_MEDIAN_FILTER
+#define USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_M_E_P_Soft
+#include "DI_GrUpdtFS.asm"
+
+// A version of UpdateFieldStore with no Median Filter but SOFT Edge Enhancement and Pulldown
+#define USE_PULLDOWN
+#undef USE_MEDIAN_FILTER
+#define USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_NM_E_P_Soft
+#include "DI_GrUpdtFS.asm"
+
+// A version of UpdateFieldStore with Median Filter and SOFT Edge Enhancement and no Pulldown
+#undef USE_PULLDOWN
+#define USE_MEDIAN_FILTER
+#define USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_M_E_NP_Soft
+#include "DI_GrUpdtFS.asm"
+
+// A version of UpdateFieldStore with no Median Filter but SOFT Edge Enhancement and no Pulldown
+#undef USE_PULLDOWN
+#undef USE_MEDIAN_FILTER
+#define USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_NM_E_NP_Soft
+#include "DI_GrUpdtFS.asm"
 
 
 // copy 1 line from Fieldstore to overlay buffer, mult of 32 bytes

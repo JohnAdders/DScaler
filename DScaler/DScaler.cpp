@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.135 2002-02-23 16:43:13 laurentg Exp $
+// $Id: DScaler.cpp,v 1.136 2002-02-24 08:18:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.135  2002/02/23 16:43:13  laurentg
+// Timer TIMER_STATUS killed when status bar is not displayed
+//
 // Revision 1.134  2002/02/23 00:37:15  laurentg
 // AR statistics included in user's action to reset statistics
 // AR statistics reseted at the startup of the decoding thread
@@ -706,8 +709,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         ErrorBox("Accelerators not Loaded");
     }
 
-    SetTimer(hWnd, TIMER_VTFLASHER, TIMER_VTFLASHER_MS, NULL);
-
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
     {
@@ -863,6 +864,7 @@ void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
 
     VT_PurgeRedrawCache();
     VT_DoUpdate_Page(VTPage - 100, VTSubPage);
+    VT_UpdateFlashTimerStatus();
     Cursor_VTUpdate(false, 0, 0);
     InvalidateRect(hWnd, NULL, FALSE);
 }
@@ -2304,6 +2306,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 HDC hDC = GetDC(hWnd);                    
                 VT_ProcessRedrawCache(hWnd, hDC);
                 ReleaseDC(hWnd, hDC);
+                VT_UpdateFlashTimerStatus();
             }
             break;
         //---------------------------------

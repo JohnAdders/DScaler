@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.34 2002-02-07 13:04:54 temperton Exp $
+// $Id: VBI_VideoText.cpp,v 1.35 2002-02-24 08:18:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/02/07 13:04:54  temperton
+// Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
+//
 // Revision 1.33  2002/01/19 17:50:41  robmuller
 // Clear more data on channel change.
 //
@@ -148,6 +151,7 @@ int VTSubPage = 0;
 bool VTSubPageLocked = false;
 bool VTShowHidden = false;
 bool VTShowFlashed = false;
+bool VTFlashTimerSet = false;
 
 CRITICAL_SECTION VTUpdateAccess;
 TVTRedrawCache VTRedrawCache;
@@ -680,6 +684,41 @@ void VT_DoUpdate_Page(int Page, int SubPage)
     TVTPage *pPage = VT_PageGet(Page, SubPage);
 
     memcpy(&VisiblePage, pPage, sizeof(TVTPage));
+}
+
+void VT_UpdateFlashTimerStatus()
+{
+    if(VTState!=VT_OFF)
+    {
+        bool bHasFlashingElements = false;
+        for(int row = 0; (row < 25) && (!bHasFlashingElements); ++row)
+        {
+            for(int col = 0; (col < 40) && (!bHasFlashingElements); ++col)
+            {
+                bHasFlashingElements |= ((VisiblePage.Frame[row][col] & 0x7f) == 0x08);
+            }
+        }
+
+        if(bHasFlashingElements)
+        {
+            if(!VTFlashTimerSet)
+            {
+                SetTimer(::hWnd, TIMER_VTFLASHER, TIMER_VTFLASHER_MS, NULL);
+                VTFlashTimerSet = true;
+            }
+        }
+        else
+        {
+            KillTimer(::hWnd, TIMER_VTFLASHER);
+            VTFlashTimerSet = false;
+        }
+    }
+    else
+    {
+        KillTimer(::hWnd, TIMER_VTFLASHER);
+        VTFlashTimerSet = false;
+    }
+
 }
 
 void VT_ChannelChange()

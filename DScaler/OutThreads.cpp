@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.25 2001-07-23 20:52:07 ericschmidt Exp $
+// $Id: OutThreads.cpp,v 1.26 2001-07-26 22:38:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/07/23 20:52:07  ericschmidt
+// Added TimeShift class.  Original Release.  Got record and playback code working.
+//
 // Revision 1.24  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -110,6 +113,7 @@
 #include "MixerDev.h"
 #include "Audio.h"
 #include "TimeShift.h"
+#include "Calibration.h"
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
@@ -510,6 +514,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         Info.EvenLines[0] = ppOddLines[(Info.CurrentFrame + 4) % 5];
                     }
                 }
+
+				if (pCalibration->IsRunning() && (pCalibration->GetCurrentTestPattern() != NULL))
+				{
+					pCalibration->GetCurrentTestPattern()->CalcCurrentPattern(Info.IsOdd ? Info.OddLines[0] : Info.EvenLines[0], Info.FieldHeight, Info.FrameWidth);
+				}
 
                 // update the source area
                 GetSourceRect(&Info.SourceRect);

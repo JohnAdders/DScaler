@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Teletext Settings</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+    <td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b> 
+<!-- #BeginEditable "Page%20Title" --> 
+Teletext Settings
+<!-- #EndEditable -->
+</b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+  <tr> 
+    <td colspan="3"> 
+<!-- #BeginEditable "Text" -->
+<p>Various settings for configuring various aspects of Teletext.</p>
+<br>
+<h2>Language Region</h2>
+<p>This setting sets the set of codepages used when Automatic codepage detection is used.</p>
+<table border=0 cellspacing=0 cellpadding=0>
+<tr><td width=50></td><td><b><u>Region</u></b></td><td width=40></td><td></td><td width=40></td><td><b><u>Languages</u></b></td></tr>
+<tr><td></td>	<td>0: Default			</td><td></td><td>(DEFAULT)</td><td></td><td>English, French, Swedish, Czech, German, Spanish, Italian</td></tr>
+<tr><td></td>	<td>1: Central Europe	</td><td></td><td>	</td>		<td></td><td>Polish, French, Swedish, Czech, German, Spanish, Italian</td></tr>
+<tr><td></td>	<td>2: Southern Europe	</td><td></td><td>	</td>		<td></td><td>English, French, Swedish, Turkish, German, Spanish, Italian</td></tr>
+<tr><td></td>	<td>3: Balkans			</td><td></td><td>	</td>		<td></td><td>Slovenian, Rumanian</td></tr>
+<tr><td></td>	<td>4: Eastern Europe	</td><td></td><td>	</td>		<td></td><td>Serbian, Russian, Estonian, Czech, German, Ukrainian, Lithuanian</td></tr>
+<tr><td></td>	<td>5: Mediterranean	</td><td></td><td>	</td>		<td></td><td>Turkish, Greek</td></tr>
+<tr><td></td>	<td>6: North Africa		</td><td></td><td>	</td>		<td></td><td>Arabic</td></tr>
+<tr><td></td>	<td>7: Middle East		</td><td></td><td>	</td>		<td></td><td>Hebrew, Arabic</td></tr>
+</table><br>
+<ul>
+<li>Finnish, Hungarian = Swedish</li>
+<li>Portuguese = Spanish</li>
+<li>Serbian, Croatian (Latin) = Slovenian</li>
+<li>Croatian (Cyrillic-1) = Serbian</li>
+<li>Bulgarian = Russian</li>
+<li>Lettish = Lithuanian</li>
+</ul>
+<br>
+<h2>Show Page Subcode in OSD</h2>
+<b>Default: OFF</b><br>
+<p>When this is set, the page subcode is displayed as well as the page number on the top left corner of the screen.</p>
+<br>
+<h2>Page Lines Caching Control</h2>
+<p>This setting defines how newly received lines replace existing stored lines</p>
+<table border=0 cellspacing=0 cellpadding=0>
+<tr><td width=50></td><td><b><u>Setting</u></b></td><td width=40></td><td></td><td width=40></td><td><b><u>Description</u></b></td></tr>
+<tr><td></td>	<td>0: Normal Error Correction			</td><td></td><td>(DEFAULT)</td><td></td><td>The new lines replace the stored line only if the stored line has an error.</td></tr>
+<tr><td></td>	<td>1: Second Chance Error Correction	</td><td></td><td>	</td>		<td></td><td>The stored lines are replaced if the new lines have no errors.</td></tr>
+<tr><td></td>	<td>2: Always Update					</td><td></td><td>	</td>		<td></td><td>The stored lines are always replaced.</td></tr>
+</table><br>
+<p>The default is <i>0: Normal Error Correction</i> but error detection, based on parity checking, can fail to detect erroneous lines.  With the default setting, undetected erroneous lines can become permanently stored.  This can be alleviated by setting <i>1: Second Chance Error Correction</i> but this also means undetected erroneous lines can replace previously error free lines.</p>
+<p>The <i>0: Normal Error Correction</i> setting takes the least amount of processing to <i>2: Always Update</i> taking the most.</p>
+<br>
+<h2>High Granularity Caching</h2>
+<b>Default: OFF</b><br>
+<p>When this is set, instead of copying whole lines as defined by the <b><i>Page Lines Caching Control</i></b> option, only the error-free bytes are copied.  Poor Teletext signals may work better when this is set.  Teletext caching takes a little more processing when this is set.</p>
+<br>
+<h2>Substitute Errors with Spaces</h2>
+<b>Default: OFF</b><br>
+<p>When this is set, erroneously received characters are replaced with spaces.</p>
+<br>
+<h2>Filter: Force Double Height Subtitles</h2>
+<b>Default: OFF</b><br>
+<p>When this is set, all lines on subtitle pages are forced double height.  This setting is for correcting poorly received subtitle pages where the double height signal has been lost.  It is not intended for use on clean signals.</p>
+<br>
+<h2>Filter: Upscroll Subtitle Duplication Remover</h2>
+<b>Default: OFF</b><br>
+<p>Turns ON or OFF the Upscroll Subtitle Duplication Remover filter.</p>
+<h3>Full Description</h2>
+<p>Broadcasters can transmit scrolling subtitles by transmitting a series of page updates in which a "scroll" constitutes of the removal of the top line and the moving up of the following lines.</p>
+<p>The problem is, broadcasters might not broadcast a single scroll update in a single page update, but instead fragmented across multiple page updates.  This fragmentation creates a line duplication effect that is characterised by the following sequence of subtitle displays:</p>
+
+<u>Initial display:</u>
+<pre>
+>> SUBTITLE STARTS ON THE TOP LINE		(update)
+AND CONTINUES ONTO THE NEXT BUT WHEN		(update)
+IT DRAWS TO THE END OF THE THIRD		(update)
+</pre>
+
+<u>After scroll update +1:</u>
+<pre>
+AND CONTINUES ONTO THE NEXT BUT WHEN		(update)
+AND CONTINUES ONTO THE NEXT BUT WHEN		(stale)
+IT DRAWS TO THE END OF THE THIRD		(stale)
+</pre>
+
+<u>After scroll update +2:</u>
+<pre>
+AND CONTINUES ONTO THE NEXT BUT WHEN		(stale)
+IT DRAWS TO THE END OF THE THIRD		(update)
+IT DRAWS TO THE END OF THE THIRD		(stale)
+</pre>
+
+<u>After scroll update +3:</u>
+<pre>
+AND CONTINUES ONTO THE NEXT BUT WHEN		(stale)
+IT DRAWS TO THE END OF THE THIRD		(stale)
+LINE, EVERYTHING MOVES UP TO CATER		(update)
+</pre>
+
+<p>Instead of transmitting one single page update in which all three subtitle lines are updated, the broadcaster may separate the update into as many as three separate page updates.  The duplicate lines only show for an instant before the next page update is received but this might cause enough distraction to make the subtitles hard to follow.</p>
+<p>The filter removes this by getting rid of duplicates lines:</p>
+
+<u>Initial display:</u>
+<pre>
+>> SUBTITLE STARTS ON THE TOP LINE		(update)
+AND CONTINUES ONTO THE NEXT BUT WHEN		(update)
+IT DRAWS TO THE END OF THE THIRD		(update)
+</pre>
+
+<u>After scroll update +1:</u>
+<pre>
+AND CONTINUES ONTO THE NEXT BUT WHEN		(update)
+IT DRAWS TO THE END OF THE THIRD		(filtered)
+					(filtered)
+</pre>
+
+<u>After scroll update +2:</u>
+<pre>
+AND CONTINUES ONTO THE NEXT BUT WHEN		(stale)
+IT DRAWS TO THE END OF THE THIRD		(update)
+					(filtered)
+</pre>
+
+<u>After scroll update +3:</u>
+<pre>
+AND CONTINUES ONTO THE NEXT BUT WHEN		(stale)
+IT DRAWS TO THE END OF THE THIRD		(stale)
+LINE, EVERYTHING MOVES UP TO CATER		(update)
+</pre>
+<pre>
+(... TO CATER... FOR THE COMING LINE.)
+</pre>
+<!-- #EndEditable --> 
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+</body><!-- #EndTemplate -->
+
+</html>
+

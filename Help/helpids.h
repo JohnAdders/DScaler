@@ -44,3 +44,4 @@
 #define IDH_CX2388X_ADV                 131133
 #define IDH_SOURCE_SPECIFIC             131134
 #define IDH_PROGRAM_LIST                131135
+#define IDH_TELETEXT                    131136

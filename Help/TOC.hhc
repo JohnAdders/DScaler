@@ -267,6 +267,11 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Teletext Settings">
+			<param name="Local" value="Teletext2.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Logging">
 			<param name="Local" value="Logging.HTM">
 			<param name="ImageNumber" value="11">

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.55 2003-01-02 11:05:24 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.56 2003-01-02 14:48:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2003/01/02 11:05:24  atnak
+// Added missing InitialTextPage implementation
+//
 // Revision 1.54  2003/01/01 21:34:11  atnak
 // Added missing subtitles force double height filter
 //
@@ -1569,13 +1572,13 @@ BOOL ProcessVTCodepageSelection(HWND hWnd, WORD wMenuID)
 SETTING VTSettings[VT_SETTING_LASTONE] =
 {
     {
-        "VT Code Page", SLIDER, 0, (long*)&VTUserCodepage,
+        "Code Page", SLIDER, 0, (long*)&VTUserCodepage,
         VTCODEPAGE_ENGLISH, 0, VTCODEPAGE_LASTONE - 1, 1, 1,
         NULL,
         "VT", "CodePage", NULL,
     },
     {
-        "VT Language Region", ITEMFROMLIST, 0, (long*)&VTRegion,
+        "Language Region", ITEMFROMLIST, 0, (long*)&VTRegion,
         VTREGION_DEFAULT, 0, VTREGION_LASTONE - 1, 1, 1,
         VTRegionName,
         "VT", "LanguageRegion", VT_RegionOnChange,

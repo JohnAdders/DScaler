@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.12 2003-01-04 20:13:32 laurentg Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.13 2003-01-05 12:42:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/01/04 20:13:32  laurentg
+// Update range for start position
+//
 // Revision 1.11  2003/01/01 20:32:39  atnak
 // Renamed DecodeLine function
 //
@@ -75,7 +78,7 @@
 #define WSS625_START_CODE_LENGTH    24
 #define WSS625_DATA_BIT_LENGTH      6
 #define WSS625_NB_DATA_BITS         14
-#define WSS625_START_POS_MIN        110
+#define WSS625_START_POS_MIN        64
 #define WSS625_START_POS_MAX        200
 #define WSS625_MIN_THRESHOLD        0x55
 
@@ -106,6 +109,9 @@ TWSSDataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FAL
 TWSSCtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
 
 // Offsets of each clock pixels (7.09379) in VBI buffer line
+// VBI capture frequency : 8 * 4.43361875 = 35.46895 MHz
+// WSS frequency : 5.0 MHz
+// Number of pixels for one bit : 35.46895 / 5 = 7.09379
 static int offsets[] = {   0,   7,  14,  21,  28,  35,  43,  50,  57,  64,
                           71,  78,  85,  92,  99, 106, 114, 121, 128, 135,
                          142, 149, 156, 163, 170, 177, 184, 192, 199, 206,
@@ -120,6 +126,44 @@ static int offsets[] = {   0,   7,  14,  21,  28,  35,  43,  50,  57,  64,
                          780, 787, 795, 802, 809, 816, 823, 830, 837, 844,
                          851, 858, 865, 873, 880, 887, 894, 901, 908, 915,
                          922, 929, 936, 943, 951, 958, 965, 972, 979, 986 };
+
+// Offsets of each clock pixels (6.8) in VBI buffer line
+// VBI capture frequency : 8 * 4.25 = 34.0 MHz
+// WSS frequency : 5.0 MHz
+// Number of pixels for one bit : 34 / 5 = 6.8
+static int offsets2[] = {  0,   7,  14,  21,  28,  35,  43,  50,  57,  64,
+                          71,  78,  85,  92,  99, 106, 114, 121, 128, 135,
+                         142, 149, 156, 163, 170, 177, 184, 192, 199, 206,
+                         213, 220, 227, 234, 241, 248, 255, 262, 270, 277,
+                         284, 291, 298, 305, 312, 319, 326, 333, 341, 348,
+                         355, 362, 369, 376, 383, 390, 397, 404, 411, 419,
+                         426, 433, 440, 447, 454, 461, 468, 475, 482, 489,
+                         497, 504, 511, 518, 525, 532, 539, 546, 553, 560,
+                         568, 575, 582, 589, 596, 603, 610, 617, 624, 631,
+                         638, 646, 653, 660, 667, 674, 681, 688, 695, 702,
+                         709, 716, 724, 731, 738, 745, 752, 759, 766, 773,
+                         780, 787, 795, 802, 809, 816, 823, 830, 837, 844,
+                         851, 858, 865, 873, 880, 887, 894, 901, 908, 915,
+                         922, 929, 936, 943, 951, 958, 965, 972, 979, 986 };
+
+// Offsets of each clock pixels (5.4) in VBI buffer line
+// VBI capture frequency : 27.0 MHz
+// WSS frequency : 5.0 MHz
+// Number of pixels for one bit : 27 / 5 = 5.4
+static int offsets3[] = {  0,   5,  11,  16,  22,  27,  32,  38,  43,  49,
+						  54,  59,  65,  70,  76,  86,  87,  92,  97, 103,
+                         108, 113, 119, 124, 130, 135, 140, 146, 151, 157,
+                         162, 167, 173, 178, 184, 189, 194, 200, 205, 211,
+                         216, 221, 227, 232, 238, 243, 248, 254, 259, 265,
+                         270, 275, 281, 286, 292, 297, 302, 308, 313, 319,
+                         324, 329, 335, 340, 346, 351, 356, 362, 367, 373,
+                         378, 383, 389, 394, 400, 405, 410, 416, 421, 427,
+                         432, 437, 443, 448, 454, 459, 464, 470, 475, 481,
+                         486, 491, 497, 502, 508, 513, 518, 524, 529, 535,
+                         540, 545, 551, 556, 562, 567, 572, 578, 583, 589,
+                         594, 599, 605, 610, 616, 621, 626, 632, 637, 643,
+                         648, 653, 659, 664, 670, 675, 680, 686, 691, 697,
+                         702, 707, 713, 718, 724, 729, 734, 740, 745, 751 };
 
 // Sequence values for run-in code
 static int WSS625_runin[WSS625_RUNIN_CODE_LENGTH] = { 1,1,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1 };
@@ -167,13 +211,13 @@ void WSS_init ()
     WSS_clear_data ();
 }
 
-static BOOL decode_sequence(BYTE* vbiline, int* DecodedVals, int NbVal, int Threshold, int *Offsets)
+static BOOL decode_sequence(BYTE* vbiline, int* DecodedVals, int NbVal, int Threshold, int *Offsets, int BitLength)
 {
     int i;
 
     for (i = 0 ; i < NbVal ; i++)
     {
-        if (decodebit (vbiline + Offsets[i] - Offsets[0], Threshold, 7) != DecodedVals[i])
+        if (decodebit (vbiline + Offsets[i] - Offsets[0], Threshold, BitLength) != DecodedVals[i])
             break;
     }
     return ( (i == NbVal) ? TRUE : FALSE );
@@ -188,9 +232,43 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
     int     bits[WSS625_NB_DATA_BITS];
     int     packedbits;
     int     nb;
+	int		BitLength;
+	int		*BitOffsets;
+	double	diff1, diff2, diff3;
+
+	// 27.0 MHz
+	diff1 = VBI_Frequency - 27.0;
+	if (diff1 < 0)
+		diff1 = -diff1;
+	// 8 * 4.25 = 34.0 MHz
+	diff2 = VBI_Frequency - 34.0;
+	if (diff2 < 0)
+		diff2 = -diff2;
+	// 8 * 4.43361875 = 35.46895 MHz
+	diff3 = VBI_Frequency - 35.46895;
+	if (diff3 < 0)
+		diff3 = -diff3;
+	if (diff1 <= diff2 && diff1 <= diff3)
+	{
+		// The closest is 27.0 MHz
+		BitLength = 5;
+		BitOffsets = &offsets3[0];
+	}
+	else if (diff2 <= diff1 && diff2 <= diff3)
+	{
+		// The closest is 34.0 MHz
+		BitLength = 7;
+		BitOffsets = &offsets[0];
+	}
+	else
+	{
+		// The closest is 35.46895 MHz
+		BitLength = 7;
+		BitOffsets = &offsets[0];
+	}
 
     Threshold = VBI_thresh;
-//    LOG(1, "threshold %x", Threshold);
+//  LOG(1, "threshold %x", Threshold);
 
     if (Threshold < WSS625_MIN_THRESHOLD)
     {
@@ -208,13 +286,13 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
 
         // run-in code decoding
         k = 0;
-        if (decode_sequence (vbiline + i + offsets[k], WSS625_runin, WSS625_RUNIN_CODE_LENGTH, Threshold, &offsets[k]))
+        if (decode_sequence (vbiline + i + BitOffsets[k], WSS625_runin, WSS625_RUNIN_CODE_LENGTH, Threshold, &BitOffsets[k], BitLength))
         {
 //			LOG(1, "WSS run-in code detected (start pos = %d, Threshold = %x)", i, Threshold);
             k += WSS625_RUNIN_CODE_LENGTH;
 
             // Start code decoding
-            if (decode_sequence (vbiline + i + offsets[k], WSS625_start, WSS625_START_CODE_LENGTH, Threshold, &offsets[k]))
+            if (decode_sequence (vbiline + i + BitOffsets[k], WSS625_start, WSS625_START_CODE_LENGTH, Threshold, &BitOffsets[k], BitLength))
             {
 //				LOG(1, "WSS start code detected");
                 k += WSS625_START_CODE_LENGTH;
@@ -223,13 +301,13 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
                 nb = 0;
                 for (j = 0 ; j < WSS625_NB_DATA_BITS ; j++)
                 {
-                    if (decode_sequence (vbiline + i + offsets[k], WSS625_0, WSS625_DATA_BIT_LENGTH, Threshold, &offsets[k]))
+                    if (decode_sequence (vbiline + i + BitOffsets[k], WSS625_0, WSS625_DATA_BIT_LENGTH, Threshold, &BitOffsets[k], BitLength))
                     {
                         bits[j] = 0;
                         nb++;
 //						LOG(1, "WSS b%d = 0 (start pos = %d, Threshold = %x)", j, i, Threshold);
                     }
-                    else if (decode_sequence (vbiline + i + offsets[k], WSS625_1, WSS625_DATA_BIT_LENGTH, Threshold, &offsets[k]))
+                    else if (decode_sequence (vbiline + i + BitOffsets[k], WSS625_1, WSS625_DATA_BIT_LENGTH, Threshold, &BitOffsets[k], BitLength))
                     {
                         bits[j] = 1;
                         nb++;
@@ -260,8 +338,11 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
 //      {
 //          for (j = 0 ; j < WSS625_DATA_BIT_LENGTH ; j++)
 //          {
-//              int pos = StartPos + offsets[k];
-//              LOG(3, "WSS bit b%d => %x %x %x %x %x %x %x", i, vbiline[pos], vbiline[pos+1], vbiline[pos+2], vbiline[pos+3], vbiline[pos+4], vbiline[pos+5], vbiline[pos+6]);
+//              int pos = StartPos + BitOffsets[k];
+//				if (BitLength == 5)
+//					LOG(3, "WSS bit b%d => %x %x %x %x %x", i, vbiline[pos], vbiline[pos+1], vbiline[pos+2], vbiline[pos+3], vbiline[pos+4]);
+//				else if (BitLength == 7)
+//					LOG(3, "WSS bit b%d => %x %x %x %x %x %x %x", i, vbiline[pos], vbiline[pos+1], vbiline[pos+2], vbiline[pos+3], vbiline[pos+4], vbiline[pos+5], vbiline[pos+6]);
 //              k++;
 //          }
 //          LOG(3, "WSS bit b%d = %d", i, bits[i]);
@@ -318,16 +399,29 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
         WSS_Data.CopyrightAsserted = (packedbits & 0x1000) ? TRUE : FALSE;
         WSS_Data.CopyProtection = (packedbits & 0x2000) ? TRUE : FALSE;
     }
-//  else
-//  {
-//      LOG(3, "WSS decode ERROR Threshold = %x", Threshold);
-//      StartPos = 0;
-//      for (j = 0 ; j < 250 ; j++)
-//      {
-//          k = StartPos + j * 7;
-//          LOG(3, "WSS pos = %d : %x %x %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4], vbiline[k + 5], vbiline[k + 6]);
-//      }
-//  }
+//	else
+//	{
+//		LOG(1, "WSS decode ERROR Threshold = %x", Threshold);
+//		StartPos = 0;
+//		while (vbiline[StartPos] < Threshold && StartPos <= WSS625_START_POS_MAX)
+			StartPos++;
+//		for (j = 0 ; j < 100 ; j++)
+//		{
+//			k = StartPos + j * BitLength;
+//			if (BitLength == 5)
+//				LOG(1, "WSS pos = %d : %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4]);
+//			else if (BitLength == 7)
+//				LOG(1, "WSS pos = %d : %x %x %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4], vbiline[k + 5], vbiline[k + 6]);
+//		}
+//		for (j = 0 ; j < 100 ; j++)
+//		{
+//			k = StartPos + BitOffsets[j];
+//			if (BitLength == 5)
+//				LOG(1, "WSS pos = %d : %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4]);
+//			else if (BitLength == 7)
+//				LOG(1, "WSS pos = %d : %x %x %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4], vbiline[k + 5], vbiline[k + 6]);
+//		}
+//	}
 
     return DecodeOk;
 }

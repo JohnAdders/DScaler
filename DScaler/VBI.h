@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.h,v 1.7 2003-01-01 20:53:10 atnak Exp $
+// $Id: VBI.h,v 1.8 2003-01-05 12:42:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ void VBI_SetMenu(HMENU hMenu);
 
 void VBI_Init();
 void VBI_Exit();
-void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd);
+void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd, double Frequency);
 void VBI_AGC(BYTE* Buffer, int start, int stop, int step);
 
 extern BYTE VBI_thresh;
@@ -64,4 +64,5 @@ extern BOOL bCaptureVBI;
 extern int VTStep;
 extern int VPSStep;
 extern BOOL bSearchHighlight;
+extern double VBI_Frequency;
 #endif

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.238 2002-10-04 11:40:08 adcockj Exp $
+// $Id: DScaler.cpp,v 1.239 2002-10-07 16:09:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.238  2002/10/04 11:40:08  adcockj
+// Removed skin and toolbar create
+//
 // Revision 1.237  2002/10/02 19:31:05  adcockj
 // Removed need to get Video Input menu
 //
@@ -3748,6 +3751,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             switch(wParam)
             {
             case SIZE_MAXIMIZED:
+                if(bMinimized == TRUE)
+                {
+                    Overlay_Create();
+                    Start_Capture();
+                }
                 if(bIsFullScreen == FALSE)
                 {
                     bIsFullScreen = TRUE;
@@ -3757,10 +3765,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 bMinimized = FALSE;
                 break;
             case SIZE_MINIMIZED:
+                //\todo need to check for timeshift active
+                Stop_Capture();
                 Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                Overlay_Destroy();
                 bMinimized = TRUE;
                 break;
             case SIZE_RESTORED:
+                if(bMinimized == TRUE)
+                {
+                    Overlay_Create();
+                    Start_Capture();
+                }
                 InvalidateRect(hWnd, NULL, FALSE);
                 WorkoutOverlaySize(FALSE);
                 SetMenuAnalog();

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.143 2002-03-21 10:26:57 robmuller Exp $
+// $Id: DScaler.cpp,v 1.144 2002-03-24 18:56:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.143  2002/03/21 10:26:57  robmuller
+// Don't show overlay adjustments dialog if the system does not support it.
+//
 // Revision 1.142  2002/03/21 08:34:07  robmuller
 // Added last line ("Program exit") to log file.
 //
@@ -577,8 +580,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // setup default ini file
 	SetIniFileForSettings("");
     
-    LoadSettingsFromIni();
-
 	// Process the command line arguments.
     // The following arguments are supported
     // -i<inifile>      specification of the ini file.
@@ -659,6 +660,10 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
             }
         }
     }
+
+    // load up ini file settings after parsing parms as 
+    // the ini file location may have changed
+    LoadSettingsFromIni();
     
     if(bDisplaySplashScreen)
     {

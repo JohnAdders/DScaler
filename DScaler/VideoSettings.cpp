@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.6 2001-07-16 18:07:50 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.7 2001-08-21 13:23:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.5  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -244,7 +247,7 @@ void VideoSettings_SetupDefaults()
         break;
     }
 
-    // set up defaults fro position parameters
+    // set up defaults for position parameters
     if(bSavePerFormat)
     {
         BT848_GetSetting(BDELAY)->Default = BT848_GetTVFormat()->bDelayB;
@@ -255,7 +258,7 @@ void VideoSettings_SetupDefaults()
         BT848_GetSetting(BDELAY)->Default = 0;
     }
 
-    BT848_GetSetting(BTFULLLUMARANGE)->Default = 0;
+    BT848_GetSetting(BTFULLLUMARANGE)->Default = TRUE;
     BT848_GetSetting(CURRENTX)->Default = 720;
     
     switch(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)))

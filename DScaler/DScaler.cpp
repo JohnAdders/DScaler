@@ -313,7 +313,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
 		hSubMenu = GetSubMenu(hMenu, 2);
 		if(hSubMenu != NULL)
-			hSubMenu = GetSubMenu(hSubMenu, 6);
+			hSubMenu = GetSubMenu(hSubMenu, 7);
 		if(hSubMenu != NULL)
 		{
 			MenuItemInfo.hSubMenu = hSubMenu;
@@ -2174,7 +2174,7 @@ HMENU GetOSDSubmenu1()
 	if(hMenu == NULL) return NULL;
 	hSubMenu = GetSubMenu(hMenu, 2);
 	if(hSubMenu == NULL) return NULL;
-	hSubMenu = GetSubMenu(hSubMenu, 6);
+	hSubMenu = GetSubMenu(hSubMenu, 7);
 	if(hSubMenu == NULL) return NULL;
 	hSubMenu = GetSubMenu(hSubMenu, 2);
 	return hSubMenu;
@@ -2187,7 +2187,7 @@ HMENU GetOSDSubmenu2()
 	if(hMenu == NULL) return NULL;
 	hSubMenu = GetSubMenu(hMenu, 2);
 	if(hSubMenu == NULL) return NULL;
-	hSubMenu = GetSubMenu(hSubMenu, 6);
+	hSubMenu = GetSubMenu(hSubMenu, 7);
 	if(hSubMenu == NULL) return NULL;
 	hSubMenu = GetSubMenu(hSubMenu, 3);
 	return hSubMenu;

@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.12 2004-11-27 01:14:25 atnak Exp $
+// $Id: TDA9887.cpp,v 1.13 2004-11-27 14:15:56 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/11/27 01:14:25  atnak
+// Fixed comments.
+//
 // Revision 1.11  2004/11/27 00:57:35  atnak
 // Completed changes for CTDA9887FromIni (and renamed to CTDA9887Ex).
 //
@@ -672,15 +675,15 @@ eTDA9887Format CTDA9887Ex::VideoFormat2TDA9887Format(IN eVideoFormat format)
 	return TDA9887_FORMAT_NONE;
 }
 
-void CTDA9887Ex::SetBit(IN OUT BYTE& vector, IN BYTE bit, IN bool set)
+void CTDA9887Ex::SetBit(IN OUT BYTE& bits, IN BYTE bit, IN bool set)
 {
 	if (set)
 	{
-		vector |= bit;
+		bits |= bit;
 	}
 	else
 	{
-		vector &= ~bit;
+		bits &= ~bit;
 	}
 }
 

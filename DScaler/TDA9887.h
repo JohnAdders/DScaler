@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.11 2004-11-27 00:57:36 atnak Exp $
+// $Id: TDA9887.h,v 1.12 2004-11-27 14:15:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/11/27 00:57:36  atnak
+// Completed changes for CTDA9887FromIni (and renamed to CTDA9887Ex).
+//
 // Revision 1.10  2004/11/23 20:24:18  to_see
 // Deleted unused defines
 //
@@ -276,7 +279,7 @@ protected:
 	// Converter for converting eVideoFormat to eTDA9887Format
 	eTDA9887Format VideoFormat2TDA9887Format(IN eVideoFormat format);
 	// Helper function for setting and unsetting bits.
-	void SetBit(IN OUT BYTE& vector, IN BYTE bit, IN bool set);
+	void SetBit(IN OUT BYTE& bits, IN BYTE bit, IN bool set);
 
 	// Standard settings for TDA9887.
     static const TTDABytes k_TDAStandardtSettings[TDA9887_FORMAT_LASTONE];

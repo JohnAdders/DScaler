@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.13 2004-12-06 09:02:26 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.14 2004-12-16 01:51:42 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/12/06 09:02:26  atnak
+// Changed register masks to precalculated values instead of bit lengths.
+//
 // Revision 1.12  2004/12/04 00:03:33  atnak
 // Added defines for SAA7133/5 registers.
 //
@@ -621,7 +624,8 @@
 #define	SAA7133_ANALOG_IO_SELECT				0x594, _ltomask(6)
 #define		SAA7133_ANALOG_IO_SELECT_OCS			0, _ltomask(3)
 #define		SAA7133_ANALOG_IO_SELECT_ICS			3, _ltomask(1)
-#define		SAA7133_ANALOG_IO_SELECT_VSEL			4, _ltomask(2)
+#define		SAA7133_ANALOG_IO_SELECT_VSEL1			4, _ltomask(1)
+#define		SAA7133_ANALOG_IO_SELECT_VSEL2			5, _ltomask(1)
 #define	SAA7133_AUDIO_CLOCK_NOMINAL				0x598, _ltomask(22)
 #define	SAA7133_PLL_CONTROL						0x59B, _ltomask(8)
 #define		SAA7133_PLL_CONTROL_SWLOOP				0, _ltomask(1)
@@ -660,7 +664,7 @@
 #define	SAA7133_E_MPX_PILOT_LVL					0x50C, _ltomask(24)
 #define		SAA7133_E_MPX_PILOT_LVL_MPX_PLEV		6, _ltomask(18)
 #define	SAA7133_E_NOISE_LVL						0x510, _ltomask(24)
-#define	SAA7133_E_HW_CONFIG						0x514, _ltomask(19)
+#define	SAA7133_E_HW_CFG						0x514, _ltomask(19)
 #define		SAA7133_E_HW_CFG_CH2MOD					0, _ltomask(2)
 #define		SAA7133_E_HW_CFG_CH1MOD					2, _ltomask(1)
 #define		SAA7133_E_HW_CFG_INITLPF				3, _ltomask(1)
@@ -676,10 +680,10 @@
 #define		SAA7133_E_HW_CFG_ID_PGAIN				18, _ltomask(1)
 #define	SAA7133_E_CARRIER1						0x518, _ltomask(24)
 #define	SAA7133_E_CARRIER2						0x51C, _ltomask(24)
-#define	SAA7133_E_MPX_CONFIG					0x520, _ltomask(24)
+#define	SAA7133_E_MPX_CFG						0x520, _ltomask(24)
 #define		SAA7133_E_MPX_CFG_MPX_PLL_BW			1, _ltomask(1)
 #define		SAA7133_E_MPX_CFG_MPX_FREQ				2, _ltomask(22)
-#define	SAA7133_E_FMSUB_CONFIG					0x524, _ltomask(24)
+#define	SAA7133_E_FMSUB_CFG						0x524, _ltomask(24)
 #define		SAA7133_E_FMSUB_CFG_FMSUB_BW			0, _ltomask(1)
 #define		SAA7133_E_FMSUB_CFG_EIAJ_DELAY			1, _ltomask(2)
 #define		SAA7133_E_FMSUB_CFG_NDETCH				3, _ltomask(1)
@@ -687,8 +691,8 @@
 #define		SAA7133_E_FMSUB_CFG_FMSUB_FREQ			8, _ltomask(16)
 #define	SAA7133_E_DEMDEC_STATUS					0x528, _ltomask(24)
 #define	SAA7133_E_MONITOR_LVL					0x52C, _ltomask(24)
-#define	SAA7133_E_FLAG_CONFIG1					0x530, _ltomask(13)
-#define	SAA7133_E_FLAG_CONFIG2					0x534, _ltomask(13)
+#define	SAA7133_E_FLAG_CFG1						0x530, _ltomask(13)
+#define	SAA7133_E_FLAG_CFG2						0x534, _ltomask(13)
 
 // XRAM register map (read w/ DSP, write w/ DSP)
 // Prefixed with "A" for distinguishing.
@@ -725,7 +729,7 @@
 #define	SAA7133_A_FM_MAGNITUDE					0x41C, _ltomask(24)
 #define	SAA7133_A_NOISE_LVL						0x420, _ltomask(24)
 #define	SAA7133_A_SOFTWARE_REVISION				0x424, _ltomask(24)
-#define	SAA7133_A_DEMDEC_CONFIG					0x428, _ltomask(22)
+#define	SAA7133_A_DEMDEC_CFG					0x428, _ltomask(22)
 #define		SAA7133_A_DEMDEC_CFG_DECPATH			0, _ltomask(3)
 #define		SAA7133_A_DEMDEC_CFG_FMDEEM				3, _ltomask(3)
 #define		SAA7133_A_DEMDEC_CFG_CH2MOD				6, _ltomask(2)
@@ -739,16 +743,16 @@
 #define		SAA7133_A_DEMDEC_CFG_ID_BYBPF			21, _ltomask(1)
 #define	SAA7133_A_DEMDEC_CARRIER1				0x42C, _ltomask(24)
 #define	SAA7133_A_DEMDEC_CARRIER2				0x430, _ltomask(24)
-#define	SAA7133_A_MPX_CONFIG					0x434, _ltomask(24)
+#define	SAA7133_A_MPX_CFG						0x434, _ltomask(24)
 #define		SAA7133_A_MPX_CFG_MPX_PLL_BW			1, _ltomask(1)
 #define		SAA7133_A_MPX_CFG_MPX_FREQ				2, _ltomask(22)
-#define	SAA7133_A_FMSUB_CONFIG					0x438, _ltomask(24)
+#define	SAA7133_A_FMSUB_CFG						0x438, _ltomask(24)
 #define		SAA7133_A_FMSUB_CFG_FMSUB_BW			0, _ltomask(1)
 #define		SAA7133_A_FMSUB_CFG_EIAJ_DELAY			1, _ltomask(2)
 #define		SAA7133_A_FMSUB_CFG_NDETCH				3, _ltomask(1)
 #define		SAA7133_A_FMSUB_CFG_NDETPB				4, _ltomask(1)
 #define		SAA7133_A_FMSUB_CFG_FMSUB_FREQ			8, _ltomask(16)
-#define	SAA7133_A_DEMDEC_OUT_CONFIG				0x43C, _ltomask(24)
+#define	SAA7133_A_DEMDEC_OUT_CFG				0x43C, _ltomask(24)
 #define		SAA7133_A_DEMDEC_OUT_CFG_DECSEL			0, _ltomask(2)
 #define		SAA7133_A_DEMDEC_OUT_CFG_FMDEMAT		2, _ltomask(3)
 #define		SAA7133_A_DEMDEC_OUT_CFG_MONOSEL		5, _ltomask(1)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ErrorBox.cpp,v 1.5 2001-11-23 10:49:17 adcockj Exp $
+// $Id: ErrorBox.cpp,v 1.6 2001-12-30 16:50:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.4  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -56,20 +59,23 @@ void _ErrorBoxOSD(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
 void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
 {
     char szDispMessage[1024];
+	// variable used to prevent recusive error problems
+	static BOOL AlreadyInErrorBox = FALSE;
 
     // put the message into the log for debugging
     LOG(1, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
 
 #ifndef _DEBUG
-    if (hWnd != NULL)
+    if (hWnd != NULL && AlreadyInErrorBox == FALSE)
     {
+		AlreadyInErrorBox = TRUE;
         HDC hDC = GetDC(hWnd);
         if(hDC != NULL)
         {
             // Show OSD text immediately and pause for 2 seconds.
             // OSD will continue to show after 2 seconds,
             // if there are no other OSD's pending afterwards. (thus the reason for 2 second delay)
-            _snprintf(szDispMessage, sizeof(szDispMessage), "ERROR: %s", szMessage);
+            _snprintf(szDispMessage, sizeof(szDispMessage), "ERROR: %s\nFile %s Line %d", szMessage, szFile, Line);
             OSD_ShowTextPersistent(hWnd, szDispMessage, 4);
             OSD_Redraw(hWnd, hDC);
             ReleaseDC(hWnd, hDC);
@@ -80,6 +86,7 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
             _snprintf(szDispMessage, sizeof(szDispMessage), "%s\nThe error occured in %s at line %d", szMessage, szFile, Line);
             RealErrorBox(szDispMessage);
         }
+		AlreadyInErrorBox = FALSE;
     }
     else
     {

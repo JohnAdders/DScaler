@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.23 2001-08-03 09:52:42 adcockj Exp $
+// $Id: Settings.cpp,v 1.24 2001-09-25 22:31:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/08/03 09:52:42  adcockj
+// Added range checking on settings and fixed setting with out of range errors
+//
 // Revision 1.22  2001/07/28 13:24:40  adcockj
 // Added UI for Overlay Controls and fixed issues with SettingsDlg
 //
@@ -94,6 +97,7 @@
 #include "Filter.h"
 #include "FieldTiming.h"
 #include "VBI_VideoText.h"
+#include "Calibration.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -216,6 +220,12 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)VT_GetSetting,
         VT_ReadSettingsFromIni,
         VT_WriteSettingsToIni,
+    },
+    {
+        WM_CALIBR_GETVALUE,
+        (GENERICGETSETTING*)Calibr_GetSetting,
+        Calibr_ReadSettingsFromIni,
+        Calibr_WriteSettingsToIni,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.89 2004-05-02 14:09:32 atnak Exp $
+// $Id: OSD.cpp,v 1.90 2004-07-25 11:25:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2004/05/02 14:09:32  atnak
+// Fixed possible problem of overlay colour getting dithered with < 32bit colour
+//
 // Revision 1.88  2003/11/12 22:14:30  robmuller
 // Add some more info to the developers statistics screen.
 //
@@ -942,24 +945,24 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
 
         // Set specified font
         strcpy(szCurrentFont, OSD_szFontName);
-        hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, OSD_szFontName);
+        hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, OSD_szFontName);
         if (hOSDFont == NULL)
         {
             // Fallback to Arial
             strcpy(szCurrentFont, "Arial");
-            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
+            hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
             if (hOSDFont == NULL)
             {
                 // Otherwise, fallback to any available font
                 strcpy(szCurrentFont, "");
-                hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
+                hOSDFont = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
             }
         }
         if (hOSDFont == NULL)
         {
             ErrorBox("Failed To Create OSD Font");
         }
-        hOSDFontOutline = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont);
+        hOSDFontOutline = CreateFont(nFontSize, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, 0, 0, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont);
 
         if (hOSDFontOutline == NULL)
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.22 2002-05-06 15:48:53 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.23 2002-05-10 20:34:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/05/06 15:48:53  laurentg
+// Informations saved in a DScaler still updated
+// Use of the comments field to show informations about a DScaler still
+//
 // Revision 1.21  2002/05/05 12:09:22  laurentg
 // All lines have now a pitch which is a multiple of 16
 // Width of picture is now forced to an even value
@@ -320,16 +324,16 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 g = TIFFGetG(PackedABGRValue);
                 b = TIFFGetB(PackedABGRValue);
 
-                y1 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
-                cb = ( -9713*r - 19068*g + 28781*b + 8388608)>>16;
+                y1 = ( ( 16829*r + 33039*g +  6416*b + 32768 ) >> 16 ) + 16;
+                cb = ( ( -9714*r - 19071*g + 28784*b + 32768 ) >> 16 ) + 128;
 
                 PackedABGRValue = bufPackedRGB[i * w + j * 2 + 1];
                 r = TIFFGetR(PackedABGRValue);
                 g = TIFFGetG(PackedABGRValue);
                 b = TIFFGetB(PackedABGRValue);
 
-                y2 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
-                cr = ( 28781*r - 24110*g -  4671*b + 8388608)>>16;
+                y2 = ( ( 16829*r + 33039*g +  6416*b + 32768 ) >> 16 ) + 16;
+                cr = ( ( 28784*r - 24103*g -  4681*b + 32768 ) >> 16 ) + 128;
 
                 *pDestBuf = LIMIT(y1);
                 ++pDestBuf;
@@ -429,20 +433,20 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
             }
             else
             {
+                y = pBufOverlay[0] - 16;
                 cb = pBufOverlay[1] - 128;
                 cr = pBufOverlay[3] - 128;
-                y = pBufOverlay[0] - 16;
-                r = ( 76284*y + 104595*cr             )>>16;
-                g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-                b = ( 76284*y             + 132252*cb )>>16;
+                r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
+                g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
+                b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
                 *pBuf++ = LIMIT(r);
                 *pBuf++ = LIMIT(g);
                 *pBuf++ = LIMIT(b);
 
                 y = pBufOverlay[2] - 16;
-                r = ( 76284*y + 104595*cr             )>>16;
-                g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-                b = ( 76284*y             + 132252*cb )>>16;
+                r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
+                g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
+                b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
                 *pBuf++ = LIMIT(r);
                 *pBuf++ = LIMIT(g);
                 *pBuf++ = LIMIT(b);
@@ -452,12 +456,12 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
         }
         if ((w != Width) && (m_FormatSaving != TIFF_CLASS_Y))
         {
+            y = pBufOverlay[0] - 16;
             cb = pBufOverlay[1] - 128;
             cr = pBufOverlay[-1] - 128;
-            y = pBufOverlay[0] - 16;
-            r = ( 76284*y + 104595*cr             )>>16;
-            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-            b = ( 76284*y             + 132252*cb )>>16;
+            r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
+            g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
+            b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
             *pBuf++ = LIMIT(r);
             *pBuf++ = LIMIT(g);
             *pBuf++ = LIMIT(b);

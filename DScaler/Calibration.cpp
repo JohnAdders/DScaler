@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.60 2002-05-06 15:48:53 laurentg Exp $
+// $Id: Calibration.cpp,v 1.61 2002-05-10 20:34:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/05/06 15:48:53  laurentg
+// Informations saved in a DScaler still updated
+// Use of the comments field to show informations about a DScaler still
+//
 // Revision 1.59  2002/05/05 12:09:21  laurentg
 // All lines have now a pitch which is a multiple of 16
 // Width of picture is now forced to an even value
@@ -658,12 +662,16 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
 {
     unsigned int y, cr, cb;
 
-//    y  = ( 16840*R + 33058*G +  6405*B + 1048576)>>16;
-//    cr = ( 28781*R - 24110*G -  4671*B + 8388608)>>16;
-//    cb = ( -9713*R - 19068*G + 28781*B + 8388608)>>16;
-    y  = ( 16843*R + 33030*G +  6423*B + 1048576)>>16;
-    cr = ( 28770*R - 24117*G -  4653*B + 8388608)>>16;
-    cb = ( -9699*R - 19071*G + 28770*B + 8388608)>>16;
+    // Kr = 0.299
+    // Kb = 0.114
+    // L = Kr * R + Kb * B + (1 – Kr – Kb) * G
+    // Y  = round(219 *  L / 255) + 16
+    // Cb = round(224 * 0.5 * (B - L) / ((1 - Kb) * 255)) + 128
+    // Cr = round(224 * 0.5 * (R - L) / ((1 - Kr) * 255)) + 128
+
+    y  = ( ( 16829*R + 33039*G +  6416*B + 32768 ) >> 16 ) + 16;
+    cb = ( ( -9714*R - 19071*G + 28784*B + 32768 ) >> 16 ) + 128;
+    cr = ( ( 28784*R - 24103*G -  4681*B + 32768 ) >> 16 ) + 128;
 
     *pY = LIMIT(y);
     *pU = LIMIT(cb);
@@ -675,13 +683,17 @@ void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsig
 {
     int y, cr, cb, r, g, b;
 
+    // R = clip( round( 1.164383 * (Y - 16)                        + 1.596027 * (V - 128) ) )
+    // G = clip( round( 1.164383 * (Y - 16) - 0.391762 * (U - 128) - 0.812968 * (V - 128) ) )
+    // B = clip( round( 1.164383 * (Y - 16) + 2.017232 * (U - 128)                        ) )
+
+    y = Y - 16;
     cb = U - 128;
     cr = V - 128;
-    y = Y - 16;
 
-    r = ( 76284*y + 104595*cr             )>>16;
-    g = ( 76284*y -  53281*cr -  25625*cb )>>16;
-    b = ( 76284*y             + 132252*cb )>>16;
+    r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
+    g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
+    b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
 
     *pR = LIMIT(r);
     *pG = LIMIT(g);
@@ -1416,6 +1428,74 @@ CCalibration::CCalibration()
 
     last_tick_count = -1;
     LoadTestPatterns();
+
+/* Tests of conversion RGB <=> YCbCr
+    unsigned char r, g, b, y, cb, cr;
+    r = 0, g = 0; b = 0;
+    CColorBar* bar = m_TestPatterns[0]->m_ColorBars[0];
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 255, g = 255; b = 255;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 255, g = 0; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 0, g = 255; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 0, g = 0; b = 255;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 191, g = 0; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 0, g = 191; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 0, g = 0; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 191, g = 191; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 191, g = 0; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 0, g = 191; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    r = 191, g = 191; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 16, cb = 128; cr = 128;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 235, cb = 128; cr = 128;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 65, cb = 100; cr = 212;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 112, cb = 72; cr = 58;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 35, cb = 212; cr = 114;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 162, cb = 44; cr = 142;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 84, cb = 184; cr = 198;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 131, cb = 156; cr = 44;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    y = 180, cb = 128; cr = 128;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+*/
 }
 
 CCalibration::~CCalibration()

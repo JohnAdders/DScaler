@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.10 2002-12-15 13:54:13 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.11 2003-03-10 17:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -760,6 +760,7 @@ enum eCX2388xCardId
     CX2388xCARD_MSI_TV_ANYWHERE_PAL,
     CX2388xCARD_ASUS,
     CX2388xCARD_PLAYHD,
+    CX2388xCARD_HAUPPAUGE_PCI_FM,
     CX2388xCARD_LASTONE,
 };
 // planar video (Used for YUY2)

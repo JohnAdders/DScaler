@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.4 2003-02-07 10:53:34 adcockj Exp $
+// $Id: Credits.cpp,v 1.5 2003-03-10 17:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/02/07 10:53:34  adcockj
+// Added a couple of missing names (Thanks Rob)
+//
 // Revision 1.3  2003/02/07 09:33:37  adcockj
 // Welcome back Ivan
 //
@@ -159,6 +162,7 @@ char *ArrCredits[] = { 	"DScaler\n",
                         "Piet Orye\f",
                         "Kevin Radke\f",
                         "Eduardo José Tagle\f",
+                        "Tom Zoerner\f",
 						"",
 						"",
 						"Projects we've borrowed from\t",

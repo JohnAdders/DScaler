@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.9 2003-02-24 11:19:51 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.10 2003-03-10 17:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/02/24 11:19:51  adcockj
+// Futher fix for issues with PlayHD
+//
 // Revision 1.8  2003/02/03 17:25:23  adcockj
 // Fixes for PlayHD
 //
@@ -420,6 +423,42 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_USER_SETUP,
         IDC_CX2388X,
     },
+    // Card info from Tom Zoerner
+    {
+        "Hauppauge WinTV PCI-FM",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {   // card has no composite in, but comes with a Cinch to S-Video adapter
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+            // FM radio input omitted
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        // \todo add eeprom read functionality
+        // these cards seem similar to the bt848 except that
+        // the contents are shifted by 8 bytes
+        TUNER_USER_SETUP,
+        IDC_CX2388X,
+    },
 };
 
 const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
@@ -428,6 +467,7 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
     //Tee Added support for PAL EVK and also added support for SSVID
     { 0x016614F1, CX2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
     { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
+    { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge WinTV PCI-FM" },
     { 0, (eCX2388xCardId)-1, NULL }
 };
 

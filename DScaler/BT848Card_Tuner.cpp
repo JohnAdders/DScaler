@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.7 2001-12-18 23:36:01 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.8 2002-02-12 02:27:45 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/12/18 23:36:01  adcockj
+// Split up the MSP chip support into two parts to avoid probelms when deleting objects
+//
 // Revision 1.6  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -85,24 +88,28 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     {
     case TUNER_MT2032:
         m_Tuner = new CMT2032();
+        strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
         m_Tuner = new CNoTuner();
+        strcpy(m_TunerType, "None ");
         break;
     default:
         m_Tuner = new CGenericTuner(tunerId);
+        strcpy(m_TunerType, "Generic ");
         break;
     }
     if (tunerId != TUNER_ABSENT) 
     {
+        int kk = strlen(m_TunerType);
         for (BYTE test = 0xC0; test < 0xCF; test +=2)
         {
             if (m_I2CBus->Write(&test, sizeof(test)))
             {
                 m_Tuner->Attach(m_I2CBus, test>>1);
-                sprintf(m_TunerStatus, "Tuner@I2C@0x%02x", test);
+                sprintf(m_TunerType + kk, " @I2C@0x%02x", test);
                 break;
             }
         }

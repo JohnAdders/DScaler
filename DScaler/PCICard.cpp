@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.5 2001-11-23 10:49:17 adcockj Exp $
+// $Id: PCICard.cpp,v 1.6 2002-02-12 02:29:40 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.4  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -72,12 +75,24 @@ DWORD CPCICard::GetSubSystemId()
     return m_SubSystemId;
 }
 
+WORD CPCICard::GetDeviceId()
+{
+    return m_DeviceId;
+}
+
+WORD CPCICard::GetVendorId()
+{
+    return m_VendorId;
+}
+
 BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 {
     if(m_bOpen)
     {
         ClosePCICard();
     }
+    m_DeviceId = DeviceID;
+    m_VendorId = VendorID;
 
     TDSDrvParam hwParam;
     DWORD dwReturnedLength;

@@ -206,35 +206,32 @@ END
 // Dialog
 //
 
-IDD_HWINFO DIALOG DISCARDABLE  22, 17, 201, 212
+IDD_HWINFO DIALOG DISCARDABLE  22, 17, 202, 166
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "DScaler Hardware Information"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,68,193,65,14,WS_GROUP
-    GROUPBOX        "BT-Hardware",IDC_STATIC,3,2,195,113
-    GROUPBOX        "Video-Subsystem",IDC_STATIC,3,118,195,27
-    GROUPBOX        "Processor",IDC_STATIC,3,149,195,33
-    LTEXT           "BT-Typ",IDC_STATIC,5,15,40,10
-    LTEXT           "",IDC_TEXT1,66,15,125,10
-    LTEXT           "Vendor ID",IDC_STATIC,5,25,40,10
-    LTEXT           "",IDC_TEXT6,66,25,125,10
-    LTEXT           "Device ID",IDC_STATIC,5,35,40,10
-    LTEXT           "",IDC_TEXT7,66,35,125,10
-    LTEXT           "Auto Detect ID",IDC_STATIC,5,45,50,10
-    LTEXT           "",IDC_AUTODECTECTID,66,45,125,10
-    LTEXT           "Tuner",IDC_STATIC,5,60,45,10
-    LTEXT           "",IDC_TEXT13,66,60,125,10
-    LTEXT           "MSP/Radio",IDC_STATIC,5,70,43,10
-    LTEXT           "",IDC_TEXT14,66,70,125,10
-    LTEXT           "MSP-Version",IDC_STATIC,5,80,43,10
-    LTEXT           "",IDC_TEXT16,66,80,125,10
-    LTEXT           "Videotext",IDC_STATIC,5,90,40,10
-    LTEXT           "",IDC_TEXT15,66,90,125,10
-    LTEXT           "Overlay",IDC_STATIC,5,130,45,10
-    LTEXT           "",IDC_TEXT18,66,130,125,10
-    LTEXT           "CPU Type",IDC_STATIC,5,163,45,10
-    LTEXT           "",IDC_CPU_TYPE,66,163,125,10
+    DEFPUSHBUTTON   "OK",IDOK,65,150,65,14,WS_GROUP
+    GROUPBOX        "Hardware",IDC_STATIC,3,0,195,95
+    GROUPBOX        "Other",IDC_STATIC,3,105,195,43
+    LTEXT           "Video Decoder:",IDC_STATIC,5,15,51,10
+    LTEXT           "",IDC_BT_CHIP_TYPE,66,15,125,10
+    LTEXT           "Vendor ID:",IDC_STATIC,5,25,40,10
+    LTEXT           "",IDC_BT_VENDOR_ID,66,25,125,10
+    LTEXT           "Device ID:",IDC_STATIC,5,35,40,10
+    LTEXT           "",IDC_BT_DEVICE_ID,66,35,125,10
+    LTEXT           "Auto Detect ID:",IDC_STATIC,5,45,50,10
+    LTEXT           "",IDC_BT_AUTODECTECT_ID,66,45,125,10
+    LTEXT           "Tuner:",IDC_STATIC,5,60,45,10
+    LTEXT           "",IDC_TUNER_TYPE,66,60,125,10
+    LTEXT           "Audio Decoder:",IDC_STATIC,5,70,51,10
+    LTEXT           "",IDC_AUDIO_DECODER_TYPE,66,70,125,10
+    LTEXT           "Videotext:",IDC_STATIC,5,79,40,10
+    LTEXT           "",IDC_VIDEO_TEXT_TYPE,66,79,125,10
+    LTEXT           "Overlay:",IDC_STATIC,5,120,45,10
+    LTEXT           "",IDC_OVERLAY,66,120,125,10
+    LTEXT           "CPU:",IDC_STATIC,5,135,45,10
+    LTEXT           "",IDC_CPU_TYPE,66,135,125,10
 END
 
 IDD_CHANNELLIST DIALOG DISCARDABLE  22, 17, 335, 183
@@ -1175,8 +1172,8 @@ GUIDELINES DESIGNINFO DISCARDABLE
 BEGIN
     IDD_HWINFO, DIALOG
     BEGIN
-        RIGHTMARGIN, 198
-        BOTTOMMARGIN, 207
+        RIGHTMARGIN, 199
+        BOTTOMMARGIN, 161
     END
 
     IDD_CHANNELLIST, DIALOG

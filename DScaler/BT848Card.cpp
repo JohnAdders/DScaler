@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.17 2002-02-01 04:43:55 ittarnavsky Exp $
+// $Id: BT848Card.cpp,v 1.18 2002-02-12 02:27:45 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/02/01 04:43:55  ittarnavsky
+// some more audio related fixes
+// removed the handletimermessages and getaudioname methods
+// which break the separation of concerns oo principle
+//
 // Revision 1.16  2002/01/23 12:20:32  robmuller
 // Added member function HandleTimerMessages(int TimerId).
 //
@@ -167,8 +172,8 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
     m_LastAudioSource(AUDIOINPUT_MUTE),
     m_Tuner(NULL)
 {
-    strcpy(m_TunerStatus,"No Tuner");
-    strcpy(m_MSPVersion,"No MSP");
+    strcpy(m_TunerType,"n/a");
+    strcpy(m_AudioDecoderType,"n/a");
 
     m_I2CInitialized = false;
     m_I2CBus = new CI2CBusForLineInterface(this);
@@ -388,7 +393,28 @@ BYTE CBT848Card::GetBDelay()
 
 LPCSTR CBT848Card::GetChipType()
 {
-    return "Unknown";
+    switch (m_DeviceId)
+    {
+    case 0x0350:
+        return "Bt848";
+    case 0x0351:
+        return "Bt849";
+    case 0x036E:
+        return "Bt878";
+    case 0x036F:
+        return "Bt878a";
+    }
+    return "n/a";
+}
+
+LPCSTR CBT848Card::GetTunerType()
+{
+    return m_TunerType;
+}
+
+LPCSTR CBT848Card::GetAudioDecoderType()
+{
+    return m_AudioDecoderType;
 }
 
 void CBT848Card::RestartRISCCode(DWORD RiscBasePhysical)
@@ -988,16 +1014,22 @@ LPCSTR CBT848Card::GetInputName(int nInput)
 BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     CBT848Card* pThis = NULL;
-    char szCardId[9] = "None    ";
+    char szCardId[9] = "n/a     ";
+    char szVendorId[9] = "n/a ";
+    char szDeviceId[9] = "n/a ";
     DWORD dwCardId(0);
 
     switch (message)
     {
     case WM_INITDIALOG:
         pThis = (CBT848Card*)lParam; 
-        SetDlgItemText(hDlg, IDC_TEXT1, pThis->GetChipType());
-        SetDlgItemText(hDlg, IDC_TEXT13, pThis->m_TunerStatus);
-        SetDlgItemText(hDlg, IDC_TEXT16, pThis->m_MSPVersion);
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pThis->GetChipType());
+        sprintf(szVendorId,"%04X", pThis->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+        sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
+        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
+        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, pThis->GetAudioDecoderType());
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {

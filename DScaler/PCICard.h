@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.7 2001-11-29 17:30:52 adcockj Exp $
+// $Id: PCICard.h,v 1.8 2002-02-12 02:29:40 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,8 @@ class CPCICard
 {
 public:
     DWORD GetSubSystemId();
+    WORD GetDeviceId();
+    WORD GetVendorId();
     /**  Try to find card with given attributes on system
          @return TRUE is device is found
     */
@@ -68,6 +70,8 @@ protected:
 
 protected:
     DWORD  m_SubSystemId;
+    WORD   m_DeviceId;
+    WORD   m_VendorId;
     BOOL   m_bOpen;
 private:
     DWORD  m_MemoryAddress;

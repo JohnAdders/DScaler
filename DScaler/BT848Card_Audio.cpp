@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.13 2002-02-01 04:43:55 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.14 2002-02-12 02:27:45 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/02/01 04:43:55  ittarnavsky
+// some more audio related fixes
+// removed the handletimermessages and getaudioname methods
+// which break the separation of concerns oo principle
+//
 // Revision 1.12  2002/01/23 22:57:29  robmuller
 // Revision D/G improvements. The code is following the documentation much closer now.
 //
@@ -103,7 +108,7 @@ void CBT848Card::InitAudio()
     // set volume to Mute level
     m_AudioControls->SetMute();
 
-    sprintf(m_MSPVersion, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
+    sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.15 2002-02-03 18:14:40 adcockj Exp $
+// $Id: BT848Card.h,v 1.16 2002-02-12 02:27:45 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/02/03 18:14:40  adcockj
+// Fixed SDI Silk & Sasem cards
+//
 // Revision 1.14  2002/01/23 12:20:32  robmuller
 // Added member function HandleTimerMessages(int TimerId).
 //
@@ -76,7 +79,6 @@ private:
     {
         SOUNDCHIP_NONE,
         SOUNDCHIP_MSP,
-        SOUNDCHIP_MT2032,
     };
 
     /// Does the card have a PLL generator - used for PAL & SECAM
@@ -141,7 +143,7 @@ public:
     CBT848Card(CHardwareDriver* pDriver);
 	~CBT848Card();
 
-	BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
+	//BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
 	void CloseCard();
     
     void SetCardType(int CardType);
@@ -203,6 +205,8 @@ public:
     BOOL GetGammaCorrection();
 
     LPCSTR GetChipType();
+    LPCSTR GetAudioDecoderType();
+    LPCSTR GetTunerType();
 
     void RestartRISCCode(DWORD RiscBasePhysical);
     void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
@@ -280,8 +284,8 @@ private:
     void BootMSP34xx(int pin);
     void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);
 
-    char m_MSPVersion[16];
-    char m_TunerStatus[32];
+    char m_AudioDecoderType[32];
+    char m_TunerType[32];
 
 private:
     eTVCardId m_CardType;

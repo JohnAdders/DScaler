@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.13 2003-08-11 22:50:50 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.14 2003-08-12 08:35:48 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/08/11 22:50:50  laurentg
+// Time slider in the media player toolbar
+//
 // Revision 1.12  2003/08/10 09:41:59  laurentg
 // New toolbar for media file player
 //
@@ -735,6 +738,8 @@ m_hIconStop(NULL)
 
 	m_Elapsed = 0;
 	m_Duration = 0;
+
+	m_Scrolling = FALSE;
 }
 
 CToolbarMediaPlayer::~CToolbarMediaPlayer()
@@ -798,7 +803,7 @@ void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long 
 			}
 		}
     }
-	if ((hWnd != NULL) && Visible() && bDoUpdate)
+	if ((hWnd != NULL) && Visible() && !m_Scrolling && bDoUpdate)
 	{		
 		UpdateControls(NULL, bDurationChanged);
 	}
@@ -863,18 +868,63 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
         break;    
     case WM_HSCROLL:
         if((HWND)lParam == GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER))
-        {                                        
-            int Position = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_GETPOS, 0, 0);
-
-			if (Position != m_Elapsed)
+        {
+			int nScrollCode = (int) LOWORD(wParam);
+			/*
+			switch (nScrollCode)
 			{
-				if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
-				{
-					((CDSFileSource*)Providers_GetCurrentSource())->SetPos(Position);
-				}
+			case SB_ENDSCROLL:
+				LOG(1, "WM_HSCROLL - SB_ENDSCROLL");
+				break;
+			case SB_LEFT:
+				LOG(1, "WM_HSCROLL - SB_LEFT");
+				break;
+			case SB_RIGHT:
+				LOG(1, "WM_HSCROLL - SB_RIGHT");
+				break;
+			case SB_LINELEFT:
+				LOG(1, "WM_HSCROLL - SB_LINELEFT");
+				break;
+			case SB_LINERIGHT:
+				LOG(1, "WM_HSCROLL - SB_LINERIGHT");
+				break;
+			case SB_PAGELEFT:
+				LOG(1, "WM_HSCROLL - SB_PAGELEFT");
+				break;
+			case SB_PAGERIGHT:
+				LOG(1, "WM_HSCROLL - SB_PAGERIGHT");
+				break;
+			case SB_THUMBPOSITION:
+				LOG(1, "WM_HSCROLL - SB_THUMBPOSITION");
+				break;
+			case SB_THUMBTRACK:
+				LOG(1, "WM_HSCROLL - SB_THUMBTRACK");
+				break;
+			default:
+				LOG(1, "WM_HSCROLL - ???");
+				break;
 			}
-            SetFocus(m_pToolbar->GethWndParent());
-            return TRUE;
+			*/
+			if (nScrollCode == SB_ENDSCROLL)
+			{
+				int Position = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_GETPOS, 0, 0);
+
+				//LOG(1, "Position %d", Position);
+				if (Position != m_Elapsed)
+				{
+					if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
+					{
+						((CDSFileSource*)Providers_GetCurrentSource())->SetPos(Position);
+					}
+				}
+				m_Scrolling = FALSE;
+			}
+			else
+			{
+				m_Scrolling = TRUE;
+			}
+			SetFocus(m_pToolbar->GethWndParent());
+			return TRUE;
         }
         break;         
      case WM_COMMAND:

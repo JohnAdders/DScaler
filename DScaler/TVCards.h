@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.18 2001-10-20 18:28:40 ittarnavsky Exp $
+// $Id: TVCards.h,v 1.19 2001-10-25 16:20:23 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -125,7 +125,8 @@ enum eTVCardId
     TVCARD_SASEM4CHNLSVID,
     TVCARD_PINNACLESAT,
     TVCARD_VHXOLD,           
-    TVCARD_VOODOOTV_200FM,
+    TVCARD_VOODOOTV_200,
+    TVCARD_VOODOOTV_FM,
     TVCARD_LASTONE,
 };
 

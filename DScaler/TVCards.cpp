@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.28 2001-10-20 18:34:12 ittarnavsky Exp $
+// $Id: TVCards.cpp,v 1.29 2001-10-25 16:20:23 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/10/20 18:34:12  ittarnavsky
+// fixed the hardware setup dialog to properly select the default tuner provided in the card definition of the curently selected card
+//
 // Revision 1.27  2001/10/20 09:36:59  adcockj
 // Fixed tuner in hardware dialog
 //
@@ -899,7 +902,7 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
     },
     // 3dfx VoodooTV 200 (USA) / FM (Europa)
 	{
-        "3dfx VoodooTV 200 (USA) / FM (Europa)", // szName
+        "3dfx VoodooTV 200 (USA)", // szName
         4, // nVideoInputs
         1, // nAudioInputs
         0, // TunerInput
@@ -907,6 +910,21 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         0x4f8a00, // GPIOMask
         { 2, 3, 0, 1,}, // MuxSelect
         { 0x957fff, 0x997fff, 0x957fff, 0x957fff}, // AudioMuxSelect
+        0, // GPIOMuxMask
+        PLL_28, // ePLLFreq
+        TUNER_MT2032, // eTunerID
+        NULL,
+    },
+    // 3dfx VoodooTV FM (Europa)
+	{
+        "3dfx VoodooTV FM (Europa)", // szName
+        4, // nVideoInputs
+        1, // nAudioInputs
+        0, // TunerInput
+        -1, // SVideoInput
+        0x4f8a00, // GPIOMask
+        { 2, 3, 0, 1,}, // MuxSelect
+        { 0x947fff, 0x987fff, 0x947fff, 0x947fff}, // AudioMuxSelect
         0, // GPIOMuxMask
         PLL_28, // ePLLFreq
         TUNER_MT2032, // eTunerID
@@ -961,8 +979,8 @@ const TAutoDectect878 AutoDectect878[] =
     { 0x023214F1, TVCARD_CONEXANTFOGHORNREVB,  "Conexant Foghorn NTSC/ATSC-B" },
     { 0x033214F1, TVCARD_CONEXANTFOGHORNREVC,  "Conexant Foghorn NTSC/ATSC-C" },
     // MAE 5 Dec 2000 End of change
-    { 0x3000121A, TVCARD_VOODOOTV_200FM, "3dfx VoodooTV 200 (USA) / FM (Europa)"},
-    { 0x3100121A, TVCARD_VOODOOTV_200FM, "3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)"},
+    { 0x3000121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa)"},
+    { 0x3100121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)"},
     // { 0x3060121A, TVCARD_VOODOOTV_100, "3dfx VoodooTV 100"},
     { 0, (eTVCardId)-1, NULL }
 };
@@ -1162,7 +1180,8 @@ void Card_Init()
     case TVCARD_HAUPPAUGE878:
         initialize_msp34xx(5);
         break;
-    case TVCARD_VOODOOTV_200FM:
+    case TVCARD_VOODOOTV_200:
+    case TVCARD_VOODOOTV_FM:
         initialize_msp34xx(20);
         break;
     case TVCARD_PXC200:

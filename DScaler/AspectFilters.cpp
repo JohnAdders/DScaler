@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.17 2002-02-23 12:00:13 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.18 2002-02-23 19:07:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/02/23 12:00:13  laurentg
+// Do nothing in WorkoutOverlaySize when source width or height is null
+//
 // Revision 1.16  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -298,7 +301,14 @@ BOOL CCropAspectFilter::adjustAspect(CAspectRectangles &ar)
     }
 
     // Crop the source rectangle down to the desired aspect...
-    ar.m_CurrentOverlaySrcRect.adjustTargetAspectByShrink(MaterialAspect);
+    if (AspectSettings.SquarePixels)
+    {
+        ar.m_CurrentOverlaySrcRect.adjustTargetAspectByGrowth(MaterialAspect);
+    }
+    else
+    {
+        ar.m_CurrentOverlaySrcRect.adjustTargetAspectByShrink(MaterialAspect);
+    }
 
     // Crop the destination rectangle
     // Bouncers are used to position the target rectangle within the cropped region...
@@ -681,7 +691,7 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
         
         PosFilter->SetChild(new CCropAspectFilter());
 
-        if (!AspectSettings.AspectImageClipped)
+        if (!AspectSettings.AspectImageClipped || AspectSettings.SquarePixels)
         {
             CAspectFilter* UnCropFilter = new CUnCropAspectFilter();
             UnCropFilter->SetChild(PosFilter);

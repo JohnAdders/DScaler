@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.35 2002-02-09 02:44:56 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.36 2002-02-23 19:07:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.34  2001/12/30 13:10:36  adcockj
 // Fix zoom bug
 //
@@ -126,6 +129,8 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_UNCHECKED);
 
+    CheckMenuItem(hMenu, IDM_SASPECT_SQUARE, MF_UNCHECKED);
+
     CheckMenuItem(hMenu, IDM_SASPECT_133, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_144, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_155, MF_UNCHECKED);
@@ -144,6 +149,10 @@ void AspectRatio_SetMenu(HMENU hMenu)
     if(AspectSettings.AutoDetectAspect)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_CHECKED);
+    }
+    else if(AspectSettings.SquarePixels)
+    {
+        CheckMenuItem(hMenu, IDM_SASPECT_SQUARE, MF_CHECKED);
     }
     else if (AspectSettings.AspectMode == 1)
     {
@@ -354,6 +363,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         else
         {
             ShowText(hWnd, "Auto Aspect Detect OFF");
+        }
+        break;
+    case IDM_SASPECT_SQUARE:
+        AspectSettings.SquarePixels = !AspectSettings.SquarePixels;
+        if (AspectSettings.SquarePixels)
+        {
+            ShowText(hWnd, "Square Pixels ON");
+        }
+        else
+        {
+            ShowText(hWnd, "Square Pixels OFF");
         }
         break;
 

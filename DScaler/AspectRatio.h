@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.28 2002-02-23 12:02:40 laurentg Exp $
+// $Id: AspectRatio.h,v 1.29 2002-02-23 19:07:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -218,6 +218,9 @@ typedef struct
 
     // which shade of grey to use for mask
     int MaskGreyShade;
+
+    // if TRUE, the pixels in the overlay must be considered as squares
+    BOOL SquarePixels;
 } TAspectSettings;
 
 extern TAspectSettings AspectSettings;

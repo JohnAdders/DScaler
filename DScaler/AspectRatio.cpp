@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.27 2002-02-23 12:00:13 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.28 2002-02-23 19:07:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/02/23 12:00:13  laurentg
+// Do nothing in WorkoutOverlaySize when source width or height is null
+//
 // Revision 1.26  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -142,7 +145,8 @@ TAspectSettings AspectSettings =
     100,100,50,50,
     FALSE,
     1000,
-    0
+    0,
+    FALSE
 };
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...
@@ -204,9 +208,16 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     ar.m_OriginalOverlaySrcRect.bottom = pSource->GetHeight();
     // Set the aspect adjustment factor...
 	///@todo maybe some error checking here?, like div. by zero
-    ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
-                                            GetActualSourceFrameAspect());
-//                                            (double)pSource->GetWidth()/(double)pSource->GetHeight());
+    if (AspectSettings.SquarePixels)
+    {
+        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
+                                                (double)pSource->GetWidth()/(double)pSource->GetHeight());
+    }
+    else
+    {
+        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
+                                                GetActualSourceFrameAspect());
+    }
 
     // Destination rectangle
     ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.3 2002-06-13 12:10:23 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.4 2002-06-23 21:41:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/06/13 12:10:23  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.2  2002/05/09 17:20:15  tobbej
 // fixed resize problem in CTreeSettingsOleProperties
 // (everytime a new page was activated the dialog size incresed)
@@ -44,6 +47,7 @@
 #include "DebugLog.h"
 #include "Other.h"
 #include "ProgramList.h"
+#include "StillSource.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -450,7 +454,13 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 
-	dlg.DoModal();
+    pPage = Still_GetTreeSettingsPage();
+    // \todo Still Help
+	pPage->SetHelpID(IDH_ADVANCED);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    dlg.DoModal();
 
 	for(vector<CTreeSettingsGeneric*>::iterator it=pages.begin();it!=pages.end();it++)
 	{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.37 2005-02-05 20:07:06 to_see Exp $
+// $Id: CX2388xCard.h,v 1.38 2005-03-24 17:57:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -220,6 +220,8 @@ public:
     bool GetSDA();
     bool GetSCL();
     void Sleep();
+    void I2CLock();
+    void I2CUnlock();
     ITuner* GetTuner() const;
 
     // Audio

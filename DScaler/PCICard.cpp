@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.20 2005-02-03 04:09:31 atnak Exp $
+// $Id: PCICard.cpp,v 1.21 2005-03-24 17:57:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/02/03 04:09:31  atnak
+// Fixed compile problem introduced in the last commit.
+//
 // Revision 1.19  2005/02/03 03:39:21  atnak
 // Added function ManageData(...)
 //
@@ -113,6 +116,7 @@ CPCICard::CPCICard(CHardwareDriver* pDriver) :
             m_SupportsACPI(false),
             m_InitialACPIStatus(0)
 {
+    InitializeCriticalSection(&m_CriticalSection);
 }
 
 CPCICard::~CPCICard()
@@ -121,6 +125,7 @@ CPCICard::~CPCICard()
     {
         ClosePCICard();
     }
+    DeleteCriticalSection(&m_CriticalSection);
 }
 
 DWORD CPCICard::GetSubSystemId()
@@ -254,6 +259,7 @@ void CPCICard::ClosePCICard()
 
 void CPCICard::WriteByte(DWORD Offset, BYTE Data)
 {
+    LockCard();
     TDSDrvParam hwParam;
 
     hwParam.dwAddress = m_MemoryBase + Offset;
@@ -267,10 +273,12 @@ void CPCICard::WriteByte(DWORD Offset, BYTE Data)
     {
         LOG(1, "WriteMemoryBYTE failed 0x%x", dwStatus);
     }
+    UnlockCard();
 }
 
 void CPCICard::WriteWord(DWORD Offset, WORD Data)
 {
+    LockCard();
     TDSDrvParam hwParam;
 
     hwParam.dwAddress = m_MemoryBase + Offset;
@@ -284,10 +292,12 @@ void CPCICard::WriteWord(DWORD Offset, WORD Data)
     {
         LOG(1, "WriteMemoryWORD failed 0x%x", dwStatus);
     }
+    UnlockCard();
 }
 
 void CPCICard::WriteDword(DWORD Offset, DWORD Data)
 {
+    LockCard();
     TDSDrvParam hwParam;
 
     hwParam.dwAddress = m_MemoryBase + Offset;
@@ -301,10 +311,12 @@ void CPCICard::WriteDword(DWORD Offset, DWORD Data)
     {
         LOG(1, "WriteMemoryDWORD failed 0x%x", dwStatus);
     }
+    UnlockCard();
 }
 
 BYTE CPCICard::ReadByte(DWORD Offset)
 {
+    LockCard();
     TDSDrvParam hwParam;
     DWORD dwReturnedLength;
     BYTE bValue(0);
@@ -321,11 +333,13 @@ BYTE CPCICard::ReadByte(DWORD Offset)
     {
         LOG(1, "ReadMemoryBYTE failed 0x%x", dwStatus);
     }
+    UnlockCard();
     return bValue;
 }
 
 WORD CPCICard::ReadWord(DWORD Offset)
 {
+    LockCard();
     TDSDrvParam hwParam;
     DWORD dwReturnedLength;
     WORD wValue(0);
@@ -342,11 +356,13 @@ WORD CPCICard::ReadWord(DWORD Offset)
     {
         LOG(1, "ReadMemoryWORD failed 0x%x", dwStatus);
     }
+    UnlockCard();
     return wValue;
 }
 
 DWORD CPCICard::ReadDword(DWORD Offset)
 {
+    LockCard();
     TDSDrvParam hwParam;
     DWORD dwReturnedLength;
     DWORD dwValue(0);
@@ -363,6 +379,7 @@ DWORD CPCICard::ReadDword(DWORD Offset)
     {
         LOG(1, "ReadMemoryDWORD failed 0x%x", dwStatus);
     }
+    UnlockCard();
     return dwValue;
 }
 
@@ -473,86 +490,110 @@ void CPCICard::ManageData(DWORD RegisterOffset, DWORD RegisterMask, CBitMask Dat
 
 void CPCICard::MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask)
 {
+    LockCard();
     BYTE Result(ReadByte(Offset));
     Result = (Result & ~Mask) | (Data & Mask);
     WriteByte(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::MaskDataWord(DWORD Offset, WORD Data, WORD Mask)
 {
+    LockCard();
     WORD Result(ReadWord(Offset));
     Result = (Result & ~Mask) | (Data & Mask);
     WriteWord(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::MaskDataDword(DWORD Offset, DWORD Data, DWORD Mask)
 {
+    LockCard();
     DWORD Result(ReadDword(Offset));
     Result = (Result & ~Mask) | (Data & Mask);
     WriteDword(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::AndOrDataByte(DWORD Offset, DWORD Data, BYTE Mask)
 {
+    LockCard();
     BYTE Result(ReadByte(Offset));
     Result = static_cast<BYTE>((Result & Mask) | Data);
     WriteByte(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::AndOrDataWord(DWORD Offset, DWORD Data, WORD Mask)
 {
+    LockCard();
     WORD Result(ReadWord(Offset));
     Result = static_cast<BYTE>((Result & Mask) | Data);
     WriteWord(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::AndOrDataDword(DWORD Offset, DWORD Data, DWORD Mask)
 {
+    LockCard();
     DWORD Result(ReadDword(Offset));
     Result = (Result & Mask) | Data;
     WriteDword(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::AndDataByte(DWORD Offset, BYTE Data)
 {
+    LockCard();
     BYTE Result(ReadByte(Offset));
     Result &= Data;
     WriteByte(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::AndDataWord(DWORD Offset, WORD Data)
 {
+    LockCard();
     WORD Result(ReadWord(Offset));
     Result &= Data;
     WriteWord(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::AndDataDword(DWORD Offset, DWORD Data)
 {
+    LockCard();
     DWORD Result(ReadDword(Offset));
     Result &= Data;
     WriteDword(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::OrDataByte(DWORD Offset, BYTE Data)
 {
+    LockCard();
     BYTE Result(ReadByte(Offset));
     Result |= Data;
     WriteByte(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::OrDataWord(DWORD Offset, WORD Data)
 {
+    LockCard();
     WORD Result(ReadWord(Offset));
     Result |= Data;
     WriteWord(Offset, Result);
+    UnlockCard();
 }
 
 void CPCICard::OrDataDword(DWORD Offset, DWORD Data)
 {
+    LockCard();
     DWORD Result(ReadDword(Offset));
     Result |= Data;
     WriteDword(Offset, Result);
+    UnlockCard();
 }
 
 
@@ -870,5 +911,14 @@ void CPCICard::SetACPIStatus(int ACPIStatus)
         }
         LOG(1, "Set ACPI status complete");
     }
+}
+void CPCICard::LockCard()
+{
+    EnterCriticalSection(&m_CriticalSection);
+}
+
+void CPCICard::UnlockCard()
+{
+    LeaveCriticalSection(&m_CriticalSection);
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.46 2005-03-23 14:20:36 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.47 2005-03-24 17:57:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2005/03/23 14:20:36  adcockj
+// Test fix for threading issues
+//
 // Revision 1.45  2005/03/11 14:54:38  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -1155,6 +1158,17 @@ bool CBT848Card::GetSCL()
     LOG(3, state ? "BT848 GetSCL - c^" : "BT848 GetSCL - c_");
     return state;
 }
+
+void CBT848Card::I2CLock()
+{
+    LockCard();
+}
+
+void CBT848Card::I2CUnlock()
+{
+    UnlockCard();
+}
+
 
 BOOL CBT848Card::Is878Family()
 {

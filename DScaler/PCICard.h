@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.19 2005-02-03 03:39:21 atnak Exp $
+// $Id: PCICard.h,v 1.20 2005-03-24 17:57:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -75,6 +75,13 @@ protected:
     void ManageByte(DWORD Offset);
 
 public:
+    /// prevent other threads from using the card while we are in the middle of something
+    /// must be called in pairs with UnlockCard
+    void LockCard();
+    /// release card and allow other threads to use the card
+    /// must be called in pairs with LockCard
+    void UnlockCard();
+
     /// Write a BYTE to shared memory
     void WriteByte(DWORD Offset, BYTE Data);
     /// Write a WORD to shared memory
@@ -135,6 +142,7 @@ private:
     HANDLE  m_hStateFile;
     boolean m_bStateIsReading;
     int     m_InitialACPIStatus;
+    CRITICAL_SECTION m_CriticalSection;
 
     BOOL GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
     BOOL SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);

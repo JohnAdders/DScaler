@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.49 2004-12-16 01:52:05 atnak Exp $
+// $Id: SAA7134Card.h,v 1.50 2005-03-24 17:57:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.	 All rights	reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2004/12/16 01:52:05  atnak
+// Added SAA7133 audio support.
+//
 // Revision	1.48  2004/12/12 12:01:41  atnak
 // Audio crystal units were	actually in	MHz.
 //
@@ -515,6 +518,8 @@ public:
 	void SetI2CCommand(BYTE	Command);
 	void SetI2CData(BYTE Data);
 	BYTE GetI2CData();
+    void I2CLock();
+    void I2CUnlock();
 
 
 	/**	Miscellaneous hardware

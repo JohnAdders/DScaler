@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2CBus.h,v 1.5 2003-10-27 10:39:51 adcockj Exp $
+// $Id: I2CBus.h,v 1.6 2005-03-24 17:57:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // copyleft 2001 itt@myself.com
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.4  2002/09/27 14:10:26  kooiman
 // thread safe i2c bus access
 //
@@ -88,8 +91,11 @@ protected:
     virtual void SendACK()=0;
     /// Send NAK
     virtual void SendNAK()=0;
-private:
-	CRITICAL_SECTION I2CCriticalSection;	
+    /// Lock device
+    virtual void Lock()=0;
+    /// Unlock device
+    virtual void Unlock()=0;
+  
 };
 
 #endif // !defined(__I2CBUS_H__)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.45 2005-02-03 03:39:58 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.46 2005-03-24 17:57:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2005/02/03 03:39:58  atnak
+// Added manage for SAA7133/5's ANALOG_IO_SELECT.
+//
 // Revision 1.44  2004/11/20 14:20:09  atnak
 // Changed the card list to an ini file.
 //
@@ -1049,6 +1052,16 @@ void CSAA7134Card::SetI2CData(BYTE Data)
 BYTE CSAA7134Card::GetI2CData()
 {
     return ReadByte(SAA7134_I2C_DATA);
+}
+
+void CSAA7134Card::I2CLock()
+{
+    LockCard();
+}
+
+void CSAA7134Card::I2CUnlock()
+{
+    UnlockCard();
 }
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: I2CLineInterface.h,v 1.3 2003-10-27 10:39:52 adcockj Exp $
+// $Id: I2CLineInterface.h,v 1.4 2005-03-24 17:57:58 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.2  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -53,6 +56,8 @@ public:
     virtual bool GetSDA()=0;
     virtual bool GetSCL()=0;
     virtual void Sleep()=0;
+    virtual void I2CLock()=0;
+    virtual void I2CUnlock()=0;
 };
 
 #endif // !defined(__I2CLINEINTERFACE_H__)

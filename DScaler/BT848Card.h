@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.45 2004-09-21 17:43:08 to_see Exp $
+// $Id: BT848Card.h,v 1.46 2005-03-24 17:57:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/09/21 17:43:08  to_see
+// Preparing support for "Hercules Smart TV Stereo" card.
+// Thanks to Quenotte and Mika Laine.
+//
 // Revision 1.44  2004/05/12 16:52:42  adcockj
 // Added channel gains fgor PMS cards
 //
@@ -374,6 +378,8 @@ public:
     bool GetSDA();
     bool GetSCL();
     void Sleep();
+    void I2CLock();
+    void I2CUnlock();
     ITuner* GetTuner() const;
 
     // GPIO stuff

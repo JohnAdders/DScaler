@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.71 2005-03-23 14:20:36 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.72 2005-03-24 17:57:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2005/03/23 14:20:36  adcockj
+// Test fix for threading issues
+//
 // Revision 1.70  2004/12/25 22:40:17  to_see
 // Changed the card list to an ini file
 //
@@ -1867,6 +1870,15 @@ bool CCX2388xCard::GetSCL()
     return state;
 }
 
+void CCX2388xCard::I2CLock()
+{
+    LockCard();
+}
+
+void CCX2388xCard::I2CUnlock()
+{
+    UnlockCard();
+}
 
 
 /*******************************************************************************

@@ -1,5 +1,5 @@
 //
-// $Id: I2CBusForLineInterface.h,v 1.4 2003-10-27 10:39:52 adcockj Exp $
+// $Id: I2CBusForLineInterface.h,v 1.5 2005-03-24 17:57:58 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -65,6 +68,8 @@ protected:
     void SendACK();
     void SendNAK();
     void Sleep();
+    void Lock();
+    void Unlock();
 
 private:
     void SetSDALo();

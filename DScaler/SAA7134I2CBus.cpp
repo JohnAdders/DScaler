@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.4 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.5 2005-03-24 17:57:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2002/10/30 04:36:43  atnak
 // Moved back I2C sleep init to reduce startup delay
 //
@@ -77,11 +80,13 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
         return true;
     }
 
+    Lock();
     if (!IsBusReady())
     {
         // Try to ready the bus
         if (!I2CStop() || !IsBusReady())
         {
+            Unlock();
             return false;
         }
     }
@@ -99,6 +104,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
         {
             LOGD("I2CBus::write(0x%x) returned true for write address in CI2CBus::read\n", address & ~1);
             I2CStop();
+            Unlock();
             return false;
         }
 
@@ -108,6 +114,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
             if(!I2CContinue())
             {
                 I2CStop();
+                Unlock();
                 return false;
             }
         }
@@ -128,6 +135,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
     {
         LOGD("I2CBus::write(0x%x) returned false for read address in CI2CBus::read\n", address | 1);
         I2CStop();
+        Unlock();
         return false;
     }
 
@@ -140,6 +148,7 @@ bool CSAA7134I2CBus::Read(const BYTE *writeBuffer,
     }
 
     I2CStop();
+    Unlock();
 
     return true;
 }
@@ -151,11 +160,14 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
     ASSERT(writeBufferSize >= 1);
     ASSERT((writeBuffer[0] & 1) == 0);
 
+    Lock();
+
     if (!IsBusReady())
     {
         // Try to ready the bus
         if (!I2CStop() || !IsBusReady())
         {
+            Unlock();
             return false;
         }
     }
@@ -164,6 +176,7 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
     if (!I2CStart())
     {
         I2CStop();
+        Unlock();
         return FALSE;
     }
 
@@ -173,11 +186,13 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
         if (!I2CContinue())
         {
             I2CStop();
+            Unlock();
             return false;
         }
     }
 
     I2CStop();
+    Unlock();
 
     return true;
 }
@@ -346,6 +361,17 @@ bool CSAA7134I2CBus::GetAcknowledge()
     // Unsupported
     return false;
 }
+
+void CSAA7134I2CBus::Lock()
+{
+    m_pSAA7134I2C->I2CLock();
+}
+
+void CSAA7134I2CBus::Unlock()
+{
+    m_pSAA7134I2C->I2CUnlock();
+}
+
 
 void CSAA7134I2CBus::SendACK()
 {

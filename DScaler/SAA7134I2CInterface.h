@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CInterface.h,v 1.4 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134I2CInterface.h,v 1.5 2005-03-24 17:57:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -83,6 +86,9 @@ public:
     virtual void SetI2CStatus(BYTE Status)=0;
 
     virtual void SetI2CCommand(BYTE Command)=0;
+
+    virtual void I2CLock()=0;
+    virtual void I2CUnlock()=0;
 };
 
 

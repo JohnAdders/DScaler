@@ -1,5 +1,5 @@
 //
-// $Id: I2CBusForLineInterface.cpp,v 1.5 2003-10-27 10:39:52 adcockj Exp $
+// $Id: I2CBusForLineInterface.cpp,v 1.6 2005-03-24 17:57:58 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.4  2001/12/08 13:43:20  adcockj
 // Fixed logging and memory leak bugs
 //
@@ -212,4 +215,14 @@ void CI2CBusForLineInterface::SendACK()
     SetSCLHi();
     SetSCLLo();
     SetSDAHi();
+}
+
+void CI2CBusForLineInterface::Lock()
+{
+    m_LineInterface->I2CLock();
+}
+
+void CI2CBusForLineInterface::Unlock()
+{
+    m_LineInterface->I2CUnlock();
 }

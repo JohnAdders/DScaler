@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Adaptive Noise Filter</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Adaptive Noise Filter
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3">
+<!-- #BeginEditable "Text" -->
+<p>
+This is yet another filter which cleans up the picture, averaging out visual noise between frames.
+</p>
+
+<P>
+The filter is designed to cope with the oddities of broadcast TV.  It automatically fine tunes itself for good or poor quality
+signal and reception, and can even deal reasonably with some kinds of interference. It's spiffy!
+</P>
+
+<P>
+The Adaptive Noise filter examines the image, infers the amount of noise in the picture, and uses that estimate to
+determine how to cancel the noise.  
+To differentiate between noise and motion, the filter makes use of correlations within and between
+fields as well as local color differences.  As with the <A HREF="GradualNoise.htm">Gradual Noise Filter</A>, the degree of certainty about motion
+and noise is used to decide what mix of the previous and current colors to show.
+</P>
+
+<HR>
+<p><b><font face="Arial" size="4">
+The Settings
+</font></b></p>
+
+<p><b><font face="Arial" font color = "#993300">
+Noise Reduction
+</font></b></p>
+
+<P>
+Sometimes the filter doesn't know whether change in the picture comes from noise or motion.  When that happens, there's a
+tradeoff -- Guess motion, and the picture will be noisier if you're wrong.  Guess noise, and a mistake will blur the movement.
+</P>
+
+<P>
+The <font color = "#993300">Noise Reduction</font> setting lets you tell the filter how to make this tradeoff.  Set it low, and the computer will play it
+safe, avoiding any parts of the image which might be in motion.  Set it high, and noise will be greatly reduced -- at the cost of blurring and
+loss of detail in slowly moving areas.  This tradeoff is affected by the amount of noise -- The more noise there is in the image, the more blurring
+will be necessary in order to reduce it.
+</P>
+
+<P>
+There's no right way to choose this -- Just move the slider until it looks as nice as possible.  Comedies and dramas are probably the best material
+for choosing settings, since facial closeups make any blurring really easy to see.  (That's because we're especially good at seeing distortion in faces.)
+</P>
+
+
+<P>
+Before you fine tune this setting, make sure that the filter has adapted to the current signal.  To do so, make use of
+the <font color = "#993300">Lock Dot</font>, described below.
+</P>
+
+<p><b><font face="Arial" font color = "#993300">
+Stability
+</font></b></p>
+
+<P>
+To get a really solid looking picture, move this setting up.  To preserve a small amount of noise throughout the picture, move it down. 
+As with <font color = "#993300">Noise Reduction</font>, this is entirely a matter of taste.
+</P>
+
+<P>
+Regardless of your <font color = "#993300">Stability</font> setting, the filter will always preserve a certain amount of variation in order to maintain the
+color depth of the original image.
+</P>
+
+
+<p><b><font face="Arial" font color = "#993300">
+Lock Dot
+</font></b></p>
+
+<P>
+It's... a small green dot!
+</P>
+
+<P>
+Check this setting, and a tiny green dot will appear toward the upper
+left of the screen when the filter's estimate of the noise is confirmed by the current picture.  That's an indication that the filter
+has settled on a noise value.  In general, the dot will turn off
+when all of the picture is in rapid motion -- When there's too much motion, the
+filter tends not to believe the current estimate.  In that case,
+the filter makes do by weighting previous good values.
+</P>
+
+<P>
+If the picture is constantly in motion, it'll take a while before the filter can figure out the noise level.  Interference also tends to
+make noise estimation take longer -- The estimation time depends on the kind and amount of the interference.
+</P>
+
+
+<P>
+If all else fails, tune to the signal with the interference, then quit and restart DScaler.  The Adaptive Noise Filter is more
+tolerant of interference right after it starts up, before it has seen a clean signal from another source.
+But with certain kinds of
+heavy interference, the filter will <EM>never</EM> be able to figure out the noise level.  In that case, the <A HREF="Noise.HTM">Temporal Noise
+Filter</A> is probably your best bet.
+</P>
+
+
+
+
+
+<HR>
+<p><b><A NAME="Fun With Noise"><font face="Arial" size="4">
+Fun With Noise
+<font></A></b></p>
+
+<p><b><font face="Arial">
+What's the best way to get rid of noise?
+</font></b></p>
+
+<P>
+Make sure you have a good signal.  Noise can come from cable jumbles, poor connections, poor
+power and grounding,
+poorly designed video input cards, electrical gadgets (anything from a dimmer switch to various computer components)
+or from a bad video source.  These issues are all beyond the scope of this help file.  I'd suggest
+a look at the <A HREF="http://www.avsforum.com/">AV Science Forum</A>'s Home Theater Computers
+board, where these topics are often discussed at length.
+
+
+<p><b><font face="Arial">
+Should I use a noise filter?
+</font></b></p>
+
+<p>
+It depends what you're watching.  Sports and nature shows in general --
+really anything with lots of moving low contrast texture -- are not handled
+well by the current noise filters.  That's because those textures look a lot like noise.
+</P>
+
+<P>
+The Adaptive filter does the best with difficult material, disabling itself
+where it detects motion.  It does surprisingly well with field sports so long as
+the background noise isn't too bad.  But it isn't
+perfect -- Road races are especially prone to blurring.
+When that happens, it's best to turn the filter off.
+</p>
+
+<p>Otherwise, you generally should have a noise filter running.</p>
+
+<p><b><font face="Arial">
+How much noise reduction should I use?
+</font></b></p>
+
+<P>
+Let your eyes be the judge. I like to keep the settings pretty
+low -- Blurred faces look worse than a little static.
+</p>
+
+<P>
+Surprisingly, small amounts of color variation can sometimes improve an image.  By
+switching back and forth between colors, the picture is able to give
+the impression of a color somewhere in between them. Also, noise can
+break up artifactual patterns in the picture, making it easier for you to ignore
+the errors.
+</p>
+
+<P>
+With that in mind, the Adaptive and Gradual Noise Filters and the Greedy (High Motion) median filter all try to preserve a
+small amount of color variation. As a result, they will never give you a completely
+stable picture.
+</P>
+
+<p><b><font face="Arial">
+Which noise filter should I use?
+</font></b></p>
+
+<P>
+If your computer is older than a Pentium 3, Athlon, or some recent
+Celerons, the Adaptive and <A HREF="GradualNoise.htm">Gradual Noise</A> filters won't show up in the menu -- because
+they can't run.  In that case, you should
+use the <A HREF="Noise.htm">Temporal Noise Filter</A>, which works fine on
+older computers. If you can run any filter, Temporal Noise and Gradual Noise
+are roughly the same speed at about 150 MHz.  The Adaptive Noise Filter is
+much slower, using about 300 MHz.
+</P>
+
+<P>
+The Temporal Noise Filter can give you a very solid picture.  The
+Gradual Noise Filter doesn't look as solid, but has less speckling and posterization
+and better color depth. The Adaptive Noise Filter has a solid
+picture (if you want it), avoids speckling, color artifacts and posterization, and
+corrects for varying levels of noise.  (Yes, it's my favorite.  But I wrote it, so I'm biased.)
+With a poor signal, the Adaptive filter
+can take a while to stabilize on a good picture, which can be annoying.
+</p>
+
+<p>
+A fourth choice is an option hidden in the <A HREF="GreedyH.HTM">Greedy (High Motion)</A> 
+deinterlacing method. One of its abilities is a median filter, which works well
+for mild noise reduction with minimal harm to the picture.  It delays the picture a little,
+making use of colors in upcoming fields in order to figure out how to reduce noise.
+The median filter is very slow (taking about 600 MHz), but you get
+excellent deinterlacing as well as the noise reduction.
+<p>
+
+<p>
+In general, the more noise filters you run at once, the <EM>worse</EM> the picture will get. In particular,
+don't run the Temporal Noise Filter at the same time as the Gradual Noise or Adaptive Noise filters. It looks awful.
+</p>
+
+
+<p><b><font face="Arial">
+Will any of the filters get rid of those annoying vertical noise bars?
+</font></b></p>
+
+<P>
+No.
+</P>
+
+<!-- #EndEditable -->
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
+</body>
+</html>
+

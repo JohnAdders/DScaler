@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.16 2002-09-04 17:12:01 tobbej Exp $
+// $Id: DSGraph.h,v 1.17 2002-09-07 13:32:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/04 17:12:01  tobbej
+// moved parts of start() to ConnectGraph()
+// some other changes for new video format dialog
+//
 // Revision 1.15  2002/08/21 20:29:20  kooiman
 // Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
 //
@@ -98,6 +102,7 @@
 //it has to be checked out in the same directory as dscaler is checked out in.
 #include "..\..\..\DSRend\DSRend.h"
 
+#include <sstream>
 /**
  * Class that manages a direct show filter graph and the filters in it.
  */
@@ -114,20 +119,10 @@ public:
 			:m_Width(0),m_Height(0),m_bForceYUY2(false),m_FieldFmt(DSREND_FIELD_FORMAT_AUTO)
 		{
 		}
-		bool operator==(CVideoFormat &fmt)
-		{
-			if(m_Width==fmt.m_Width && 
-				m_Height==fmt.m_Height && 
-				m_bForceYUY2==fmt.m_bForceYUY2 &&
-				m_FieldFmt==fmt.m_FieldFmt)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
+		bool operator==(CVideoFormat &fmt);
+		operator std::string();
+		void operator=(std::string &str);
+
 		string m_Name;
 		///Width
 		long m_Width;

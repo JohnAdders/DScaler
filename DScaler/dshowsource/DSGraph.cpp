@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.21 2002-09-04 17:12:01 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.22 2002-09-07 13:32:34 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/09/04 17:12:01  tobbej
+// moved parts of start() to ConnectGraph()
+// some other changes for new video format dialog
+//
 // Revision 1.20  2002/08/21 20:29:20  kooiman
 // Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
 //
@@ -876,5 +880,51 @@ void CDShowGraph::restoreClock()
 	}
 	m_pOldRefClk=NULL;
 
+}
+
+bool CDShowGraph::CVideoFormat::operator==(CVideoFormat &fmt)
+{
+	if(m_Width==fmt.m_Width && 
+		m_Height==fmt.m_Height && 
+		m_bForceYUY2==fmt.m_bForceYUY2 &&
+		m_FieldFmt==fmt.m_FieldFmt)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+CDShowGraph::CVideoFormat::operator std::string()
+{
+	std::stringstream str;
+	str << m_Name << "#" << m_Width << "#" << m_Height << "#" << (m_bForceYUY2 ? 1 : 0) << "#" << m_FieldFmt;
+	std::string tmp=str.str();
+	return tmp;
+}
+
+void CDShowGraph::CVideoFormat::operator=(std::string &str)
+{
+	std::vector<std::string> strlist;
+	std::string::size_type LastPos=0;
+	std::string::size_type pos;
+	while(pos=str.find("#",LastPos),pos!=std::string::npos)
+	{
+		strlist.push_back(str.substr(LastPos,pos-LastPos));
+		LastPos=pos+1;
+	}
+	if(LastPos<str.size())
+	{
+		strlist.push_back(str.substr(LastPos));
+	}
+
+	ASSERT(strlist.size()==5);
+	m_Name=strlist[0];
+	m_Width=atol(strlist[1].c_str());
+	m_Height=atol(strlist[2].c_str());
+	m_bForceYUY2=atol(strlist[3].c_str())!=0;
+	m_FieldFmt=(DSREND_FIELD_FORMAT)atol(strlist[4].c_str());
 }
 #endif

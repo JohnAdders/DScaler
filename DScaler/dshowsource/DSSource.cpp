@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.36 2002-09-04 17:10:24 tobbej Exp $
+// $Id: DSSource.cpp,v 1.37 2002-09-07 13:32:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/09/04 17:10:24  tobbej
+// renamed some variables
+// new video format configuration dialog (resolution)
+//
 // Revision 1.35  2002/09/02 19:32:21  kooiman
 // Fixed small bug. Thread doesn't crash anymore.
 //
@@ -175,6 +179,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+extern char szIniFile[MAX_PATH];
 
 struct videoStandardsType
 {
@@ -249,7 +254,21 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 
 CDSCaptureSource::~CDSCaptureSource()
 {
-
+	//save m_VideoFmt to ini file
+	if(m_VideoFmt.size()>0)
+	{
+		std::string data;
+		for(vector<CDShowGraph::CVideoFormat>::size_type i=0;i<m_VideoFmt.size();i++)
+		{
+			if(data.size()!=0)
+			{
+				data+="&";
+			}
+			data+=m_VideoFmt[i];
+		}
+		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),data.c_str(),szIniFile);
+		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),data.size(),szIniFile);
+	}
 }
 
 BOOL CDSCaptureSource::IsAccessAllowed()
@@ -546,6 +565,40 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	//m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, (sizeof(res)/sizeof(resolutionType)) - 1, IniSection);
 	m_Settings.push_back(m_Resolution);
 
+	//restore m_VideoFmt from ini file
+	UINT size=GetPrivateProfileInt(IniSection,"ResolutionSize",0,szIniFile);
+	if(size)
+	{
+		char *pcData=new char[size+1];
+		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,size+1,szIniFile);
+		if(result<size)
+		{
+			LOG(2,"DSCaptureSource: Reading too litle data, problem with ResolutionSize or ResolutionData in ini file");
+		}
+		
+		string str=pcData;
+		vector<std::string> strlist;
+		string::size_type LastPos=0;
+		string::size_type pos;
+		while(pos=str.find("&",LastPos),pos!=string::npos)
+		{
+			strlist.push_back(str.substr(LastPos,pos-LastPos));
+			LastPos=pos+1;
+		}
+		if(LastPos<str.size())
+		{
+			strlist.push_back(str.substr(LastPos));
+		}
+		for(vector<std::string>::size_type i=0;i<strlist.size();i++)
+		{
+			CDShowGraph::CVideoFormat fmt;
+			fmt=strlist[i];
+			m_VideoFmt.push_back(fmt);
+		}
+
+		delete pcData;
+	}
+	
 	ReadFromIni();
 	LOG(2,"DSCaptureSource: setting read from .ini");
 }
@@ -1158,7 +1211,10 @@ void CDSCaptureSource::Start()
 		 * in CreateSettings and then call SetDefaultVideoFmt here only if
 		 * m_VideoFmt is empty
 		 */
-		CreateDefaultVideoFmt();
+		if(m_VideoFmt.size()==0)
+		{
+			CreateDefaultVideoFmt();
+		}
 
 		if(m_Resolution->GetValue()>=0 && m_Resolution->GetValue()<m_VideoFmt.size())
 		{

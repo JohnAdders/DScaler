@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.6 2004-08-27 13:12:41 to_see Exp $
+// $Id: TDA9887.h,v 1.7 2004-09-11 20:19:55 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/08/27 13:12:41  to_see
+// Added audio support for Ati Tv Wonder Pro
+//
 // Revision 1.5  2004/06/23 20:15:22  to_see
 // Created an new struct TControlSettings for better handling
 // more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
@@ -84,7 +87,7 @@ private:
 		BYTE Pal_BG[3];
 		BYTE Pal_I[3];
 		BYTE Pal_DK[3];
-		BYTE Pal_L[3];
+		BYTE Secam_L[3];
 		BYTE Ntsc[3];
 		BYTE Ntsc_Jp[3];
 		BYTE Fm_Radio[3];

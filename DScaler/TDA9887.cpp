@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.7 2004-08-27 13:12:41 to_see Exp $
+// $Id: TDA9887.cpp,v 1.8 2004-09-11 20:19:55 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/08/27 13:12:41  to_see
+// Added audio support for Ati Tv Wonder Pro
+//
 // Revision 1.6  2004/06/23 20:15:22  to_see
 // Created an new struct TControlSettings for better handling
 // more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
@@ -54,7 +57,7 @@ const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
 		{0x96, 0x70, 0x49}, // PAL_BG
 		{0x96, 0x70, 0x4a}, // PAL_I
 		{0x96, 0x70, 0x4b}, // PAL_DK
-		{0x86, 0x50, 0x4b}, // PAL_L
+		{0x86, 0x50, 0x4b}, // SECAM_L
 		{0x96, 0x70, 0x44}, // NTSC
 		{0x96, 0x70, 0x40}, // NTSC_JP
 		{0x8e, 0x0d, 0x77}, // FM_RADIO
@@ -64,7 +67,7 @@ const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
         {0x56, 0x70, 0x49}, // PAL_BG		Working
         {0x56, 0x6e, 0x4a}, // PAL_I		Working
         {0x56, 0x70, 0x4b}, // PAL_DK		Working
-        {0x86, 0x50, 0x4b}, // PAL_L		?
+        {0x86, 0x50, 0x4b}, // SECAM_L		?
         {0x92, 0x30, 0x04}, // NTSC			Working
         {0x92, 0x30, 0x40}, // NTSC_JP		?
         {0x8e, 0x0d, 0x77}, // FM_RADIO		?
@@ -74,10 +77,10 @@ const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
         {0x16, 0x70, 0x49}, // PAL_BG		Working
         {0x16, 0x6e, 0x4a}, // PAL_I		?
         {0x16, 0x70, 0x4b}, // PAL_DK		Working
-        {0x86, 0x50, 0x4b}, // PAL_L		?
+        {0x86, 0x50, 0x4b}, // SECAM_L		?
         {0x92, 0x30, 0x04}, // NTSC			?
         {0x92, 0x30, 0x40}, // NTSC_JP		?
-        {0x8e, 0x0d, 0x77}, // FM_RADIO		?
+        {0x8e, 0x70, 0x49}, // FM_RADIO		? must work
     },
 	{
         TDA9887_ATI_TV_WONDER_PRO,
@@ -100,7 +103,7 @@ const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
         {0x00, 0x00, 0x00}, // PAL_BG		?
         {0x00, 0x00, 0x00}, // PAL_I		?
         {0x00, 0x00, 0x00}, // PAL_DK		?
-        {0x00, 0x00, 0x00}, // PAL_L		?
+        {0x00, 0x00, 0x00}, // SECAM_L		?
         {0x00, 0x00, 0x00}, // NTSC			?
         {0x00, 0x00, 0x00}, // NTSC_JP		?
         {0x00, 0x00, 0x00}, // FM_RADIO		?
@@ -180,7 +183,7 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 	
 	case VIDEOFORMAT_SECAM_L:
     case VIDEOFORMAT_SECAM_L1:
-		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Pal_L, 3);
+		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Secam_L, 3);
 		break;
 
     case VIDEOFORMAT_PAL_60:    

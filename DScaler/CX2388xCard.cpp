@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.16 2002-11-09 20:53:46 laurentg Exp $
+// $Id: CX2388xCard.cpp,v 1.17 2002-11-11 17:10:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/11/09 20:53:46  laurentg
+// New CX2388x settings
+//
 // Revision 1.15  2002/11/09 00:22:23  laurentg
 // New settings for CX2388x chip
 //
@@ -1113,6 +1116,14 @@ void CCX2388xCard::ManageMyState()
     ManageDword(CX2388X_SAMPLERATECONV);  
     ManageDword(CX2388X_SUBCARRIERSTEP);  
     ManageDword(CX2388X_SUBCARRIERSTEPDR);
+
+    ManageDword(MO_GP0_IO);
+    ManageDword(MO_GP1_IO);   
+    ManageDword(MO_GP2_IO);
+    ManageDword(MO_GP3_IO);
+    ManageDword(MO_GPIO);
+    ManageDword(MO_GPOE);
+    ManageDword(MO_GP_ISM);
 }
 
 void CCX2388xCard::ResetHardware()
@@ -1696,6 +1707,13 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(CX2388X_VIP_HSCALE);
     DumpRegister(CX2388X_VIP_VSCALE);
     DumpRegister(CX2388X_VBOS);
+
+    DumpRegister(MO_GP0_IO);
+    DumpRegister(MO_GP1_IO);   
+    DumpRegister(MO_GP2_IO);
+    DumpRegister(MO_GP3_IO);
+    DumpRegister(MO_GPIO);
+    DumpRegister(MO_GPOE);
 
     fclose(hFile);
 }

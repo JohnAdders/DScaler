@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.27 2002-02-08 19:11:43 laurentg Exp $
+// $Id: StillSource.cpp,v 1.28 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/02/08 19:11:43  laurentg
+// Don't add the file to the playlist if the file is not supported
+//
 // Revision 1.26  2002/02/08 00:36:06  laurentg
 // Support of a new type of file : DScaler patterns
 //
@@ -129,6 +132,7 @@
 #include "TiffHelper.h"
 #include "Calibration.h"
 #include "OutThreads.h"
+#include "AspectRatio.h"
 
 
 #define TIMER_SLIDESHOW 50
@@ -822,4 +826,9 @@ BOOL CStillSource::IsVideoPresent()
 BOOL CStillSource::IsAccessAllowed()
 {
     return (m_Position != -1 && m_PlayList.size() > 0);
+}
+
+void CStillSource::SetOverscan()
+{
+    AspectSettings.InitialOverscan = 0;
 }

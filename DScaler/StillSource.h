@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.17 2002-02-08 00:36:06 laurentg Exp $
+// $Id: StillSource.h,v 1.18 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -86,6 +86,7 @@ public:
     ISetting* GetSaturation() {return NULL;};
     ISetting* GetSaturationU() {return NULL;};
     ISetting* GetSaturationV() {return NULL;};
+    ISetting* GetOverscan() {return NULL;};
 	eTunerId GetTunerId();
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
@@ -103,6 +104,7 @@ public:
     void SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();
+    void SetOverscan();
 
     friend class CTiffHelper;
     friend class CPatternHelper;

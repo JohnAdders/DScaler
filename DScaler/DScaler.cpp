@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.123 2002-02-08 08:14:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.124 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.123  2002/02/08 08:14:21  adcockj
+// Select saved channel on startup if in tuner mode
+//
 // Revision 1.122  2002/02/07 13:04:54  temperton
 // Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
 //
@@ -1320,17 +1323,30 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_PLUS:
-            Setting_Up(Aspect_GetSetting(OVERSCAN));
+            if((pSetting = Providers_GetCurrentSource()->GetOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
         case IDM_OVERSCAN_MINUS:
-            Setting_Down(Aspect_GetSetting(OVERSCAN));
+            if((pSetting = Providers_GetCurrentSource()->GetOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
         case IDM_OVERSCAN_CURRENT:
-            Setting_OSDShow(Aspect_GetSetting(OVERSCAN), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetOverscan()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Overscan Control");
+            }
             break;
 
         case IDM_AUTOHIDE_CURSOR:
@@ -2642,17 +2658,6 @@ void MainWndOnDestroy()
         KillTimers();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Kill Timers");}
-
-    __try
-    {
-        if (pCalibration->IsRunning())
-        {
-            // Restore the usual overscan
-            pCalibration->RestoreUsualOverscan(FALSE);
-        }
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error RestoreUsualOverscan");}
-
 
     // stop capture before stopping timneshift to avoid crash
     __try

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.53 2002-01-26 18:04:28 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.54 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/01/26 18:04:28  laurentg
+// Locking and unlocking the overlay and not the overlay back buffer when taking stills
+//
 // Revision 1.52  2001/12/17 19:31:17  tobbej
 // added COM init to output thread
 //
@@ -499,6 +502,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // catch anything fatal in this loop so we don't crash the machine
     __try
     {
+        pSource->SetOverscan();
+        WorkoutOverlaySize(TRUE);
+
         pSource->Start();
 
         // Sets processor Affinity and Thread priority according to menu selection

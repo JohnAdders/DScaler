@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.7 2002-02-07 22:08:23 tobbej Exp $
+// $Id: DSSource.h,v 1.8 2002-02-09 02:49:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/07 22:08:23  tobbej
+// changed for new file input
+//
 // Revision 1.6  2002/02/05 17:27:17  tobbej
 // fixed alignment problems
 // update dropped/drawn fields stats
@@ -104,6 +107,8 @@ public:
 	ISetting* GetSaturationU() {return NULL;};
 	ISetting* GetSaturationV() {return NULL;};
 
+	ISetting* GetOverscan() {return NULL;};
+
 	eVideoFormat GetFormat();
 	BOOL IsInTunerMode();
 	int GetWidth();
@@ -118,6 +123,8 @@ public:
 	void SetMenu(HMENU hMenu);
 	BOOL IsAccessAllowed();
 	LPCSTR GetMenuLabel();
+
+    void SetOverscan();
 	
 	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};

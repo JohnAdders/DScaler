@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.18 2002-02-08 19:27:18 adcockj Exp $
+// $Id: BT848Source.h,v 1.19 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,7 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
+    ISetting* GetOverscan();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
 	eTunerId GetTunerId();
@@ -69,6 +70,7 @@ public:
     LPCSTR GetMenuLabel() {return NULL;};
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
+    void SetOverscan();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -126,6 +128,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Saturation);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, SaturationU);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, SaturationV);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Overscan);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, BDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, HDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, VDelay);

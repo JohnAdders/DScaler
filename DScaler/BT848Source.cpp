@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.24 2002-02-08 19:27:18 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.25 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/02/08 19:27:18  adcockj
+// Fixed problems with video settings dialog
+//
 // Revision 1.23  2002/01/26 17:54:48  laurentg
 // Bug correction regarding pixel width updates
 //
@@ -140,6 +143,7 @@
 #include "FD_60Hz.h"
 #include "FD_50Hz.h"
 #include "DebugLog.h"
+#include "AspectRatio.h"
 
 
 
@@ -214,6 +218,9 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_SaturationV = new CSaturationVSetting(this, "Red Saturation", DEFAULT_SAT_V_NTSC, 0, 511, IniSection);
     m_Settings.push_back(m_SaturationV);
+
+    m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection);
+    m_Settings.push_back(m_Overscan);
 
     m_BDelay = new CBDelaySetting(this, "Macrovision Timing", 0, 0, 255, IniSection);
     m_Settings.push_back(m_BDelay);
@@ -643,6 +650,11 @@ ISetting* CBT848Source::GetSaturationV()
     return m_SaturationV;
 }
 
+ISetting* CBT848Source::GetOverscan()
+{
+    return m_Overscan;
+}
+
 void CBT848Source::BtAgcDisableOnChange(long NewValue, long OldValue)
 {
     m_pBT848Card->SetAgcDisable(NewValue);
@@ -1026,6 +1038,12 @@ void CBT848Source::SaturationOnChange(long Sat, long OldValue)
     }
 }
 
+void CBT848Source::OverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
 void CBT848Source::TunerTypeOnChange(long TunerId, long OldValue)
 {
     m_pBT848Card->InitTuner((eTunerId)TunerId);
@@ -1176,4 +1194,9 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 eTunerId CBT848Source::GetTunerId()
 {
     return m_pBT848Card->GetTuner()->GetTunerId();
+}
+
+void CBT848Source::SetOverscan()
+{
+    AspectSettings.InitialOverscan = m_Overscan->GetValue();
 }

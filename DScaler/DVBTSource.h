@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.7 2002-02-02 01:31:18 laurentg Exp $
+// $Id: DVBTSource.h,v 1.8 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,7 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
+    ISetting* GetOverscan();
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return TRUE;}
     int GetWidth() {return 720;};
@@ -59,6 +60,7 @@ public:
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
     LPCSTR GetMenuLabel() {return NULL;};
     BOOL IsAccessAllowed() {return TRUE;};
+    void SetOverscan();
 
 private:
     std::string  m_Section;

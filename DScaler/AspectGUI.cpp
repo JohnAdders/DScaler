@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.34 2001-12-30 13:10:36 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.35 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/12/30 13:10:36  adcockj
+// Fix zoom bug
+//
 // Revision 1.33  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -724,13 +727,6 @@ const char* VertPosString[3] =
     "BOTTOM", "CENTER", "TOP"
 };
 
-BOOL Aspect_Overscan_OnChange(long Overscan)
-{
-    AspectSettings.InitialOverscan = Overscan;
-    WorkoutOverlaySize(TRUE);
-    return FALSE;
-}
-
 BOOL AspectMode_OnChange(long NewValue)
 {
     AspectSettings.AspectMode = NewValue;
@@ -867,12 +863,6 @@ BOOL MaskGreyShade_OnChange(long NewValue)
 
 SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
 {
-    {
-        "Overscan", SLIDER, 0, (long*)&AspectSettings.InitialOverscan,
-        DEFAULT_OVERSCAN_NTSC, 0, 150, 1, 1,
-        NULL,
-        "Hardware", "InitialOverscan", Aspect_Overscan_OnChange,
-    },
     {
         "Source Aspect", SLIDER, 0, (long*)&AspectSettings.SourceAspect,
         1333, 1000, 3000, 1, 1000,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.49 2002-02-01 20:25:24 robmuller Exp $
+// $Id: DS_Control.h,v 1.50 2002-02-09 02:48:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/02/01 20:25:24  robmuller
+// Added new option to FLT_TNoise.
+//
 // Revision 1.48  2002/01/22 14:50:10  robmuller
 // Added keyboard lock option.
 //
@@ -287,8 +290,7 @@ typedef enum
 
 typedef enum
 {
-    OVERSCAN = 0,
-    SOURCE_ASPECT,
+    SOURCE_ASPECT = 0,
     CUSTOM_SOURCE_ASPECT,
     TARGET_ASPECT,
     CUSTOM_TARGET_ASPECT,

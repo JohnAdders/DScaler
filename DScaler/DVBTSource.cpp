@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.cpp,v 1.5 2001-11-29 14:04:07 adcockj Exp $
+// $Id: DVBTSource.cpp,v 1.6 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.4  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -35,6 +38,7 @@
 
 #include "stdafx.h"
 #include "DVBTSource.h"
+#include "AspectRatio.h"
 
 CDVBTSource::CDVBTSource(CDVBTCard* pDVBTCard, LPCSTR IniSection) :
     CSource(WM_DVBT_GETVALUE, IDC_DVBT),
@@ -113,6 +117,11 @@ ISetting* CDVBTSource::GetSaturationV()
     return NULL;
 }
 
+ISetting* CDVBTSource::GetOverscan()
+{
+    return NULL;
+}
+
 BOOL CDVBTSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
     return FALSE;
@@ -121,4 +130,9 @@ BOOL CDVBTSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 BOOL CDVBTSource::IsVideoPresent()
 {
     return m_pDVBTCard->IsVideoPresent();
+}
+
+void CDVBTSource::SetOverscan()
+{
+    AspectSettings.InitialOverscan = 0;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.9 2002-02-02 01:31:18 laurentg Exp $
+// $Id: Source.h,v 1.10 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,8 @@ public:
     virtual ISetting* GetSaturationU() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetSaturationV() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetOverscan() = 0;
 	/// Get the tuner Id
     virtual eTunerId GetTunerId() = 0;
     /// Get the original video format e.g. PAL, NTSC
@@ -104,6 +106,7 @@ public:
     HMENU GetSourceMenu();
     // Is access to this source allowed
     virtual BOOL IsAccessAllowed() = 0;
+    virtual void SetOverscan() = 0;
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();

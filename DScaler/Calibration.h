@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.21 2002-02-08 00:36:06 laurentg Exp $
+// $Id: Calibration.h,v 1.22 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -320,8 +320,6 @@ public:
     CTestPattern* GetCurrentTestPattern();
     CSubPattern* GetSubPattern(eTypeAdjust type_adjust);
     CSubPattern* GetCurrentSubPattern();
-    void SaveUsualOverscan();
-    void RestoreUsualOverscan(BOOL refresh);
     void Start(eTypeCalibration type);
     void Stop();
     BOOL IsRunning();
@@ -344,7 +342,6 @@ protected:
 private:
     BOOL step_init(eTypeAdjust type_adjust, CCalSetting*_setting1, CCalSetting*_setting2, CCalSetting*_setting3);
     BOOL step_process(TDeinterlaceInfo* pInfo, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL* best_found);
-    int usual_overscan;
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;

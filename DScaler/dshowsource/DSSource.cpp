@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.9 2002-02-07 22:08:23 tobbej Exp $
+// $Id: DSSource.cpp,v 1.10 2002-02-09 02:49:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/02/07 22:08:23  tobbej
+// changed for new file input
+//
 // Revision 1.8  2002/02/05 17:52:27  tobbej
 // changed alignment calc
 //
@@ -72,6 +75,7 @@
 #include "DShowFileSource.h"
 #include "CaptureDevice.h"
 #include <dvdmedia.h>		//VIDEOINFOHEADER2
+#include "AspectRatio.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -783,6 +787,11 @@ LPCSTR CDSSource::GetMenuLabel()
 		}
 	}
 	return NULL;
+}
+
+void CDSSource::SetOverscan()
+{
+    AspectSettings.InitialOverscan = 0;
 }
 
 LPCSTR CDSSource::GetStatus()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.39 2002-02-08 00:36:06 laurentg Exp $
+// $Id: Calibration.cpp,v 1.40 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/02/08 00:36:06  laurentg
+// Support of a new type of file : DScaler patterns
+//
 // Revision 1.38  2001/12/08 13:43:20  adcockj
 // Fixed logging and memory leak bugs
 //
@@ -1628,23 +1631,6 @@ CSubPattern* CCalibration::GetCurrentSubPattern()
 	return m_CurSubPat;
 }
 
-void CCalibration::SaveUsualOverscan()
-{
-    usual_overscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
-}
-
-void CCalibration::RestoreUsualOverscan(BOOL refresh)
-{
-    if (refresh)
-    {
-        Setting_SetValue(Aspect_GetSetting(OVERSCAN), usual_overscan);
-    }
-    else
-    {
-        AspectSettings.InitialOverscan = usual_overscan;
-    }
-}
-
 void CCalibration::Start(eTypeCalibration type)
 {
     if (m_CurTestPat == NULL)
@@ -1682,10 +1668,9 @@ void CCalibration::Start(eTypeCalibration type)
     saturation_V->Save();
     hue->Save();
 
-    // Save the value of usual overscan
-    SaveUsualOverscan();
     // Set the overscan to a value specific to calibration
-    Setting_SetValue(Aspect_GetSetting(OVERSCAN), SourceOverscan);
+    AspectSettings.InitialOverscan = SourceOverscan;
+    WorkoutOverlaySize(TRUE);
 
     switch (m_TypeCalibration)
     {
@@ -1745,7 +1730,8 @@ void CCalibration::Stop()
     }
 
     // Restore the usual overscan
-    RestoreUsualOverscan(TRUE);
+    Providers_GetCurrentSource()->SetOverscan();
+    WorkoutOverlaySize(TRUE);
 
     // Erase the OSD screen
     OSD_Clear(hWnd);
@@ -2336,7 +2322,8 @@ CCalibration* pCalibration = NULL;
 BOOL Calibr_Overscan_OnChange(long Overscan)
 {
     SourceOverscan = Overscan;
-    Setting_SetValue(Aspect_GetSetting(OVERSCAN), Overscan);
+    AspectSettings.InitialOverscan = SourceOverscan;
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 

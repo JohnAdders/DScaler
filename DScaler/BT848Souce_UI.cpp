@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.15 2002-02-08 08:13:17 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.16 2002-02-09 02:44:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/02/08 08:13:17  adcockj
+// Put input type text on menu
+//
 // Revision 1.14  2002/01/24 00:00:13  robmuller
 // Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
 //
@@ -76,6 +79,7 @@
 #include "BT848_Defines.h"
 #include "DScaler.h"
 #include "OutThreads.h"
+#include "AspectRatio.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
 
@@ -754,6 +758,7 @@ void CBT848Source::ChangeSectionNamesForInput()
         m_Saturation->SetSection(m_Section.c_str());
         m_SaturationU->SetSection(m_Section.c_str());
         m_SaturationV->SetSection(m_Section.c_str());
+        m_Overscan->SetSection(m_Section.c_str());
         m_BDelay->SetSection(m_Section.c_str());
     }
     else
@@ -766,6 +771,7 @@ void CBT848Source::ChangeSectionNamesForInput()
         m_Saturation->SetSection(szSection);
         m_SaturationU->SetSection(szSection);
         m_SaturationV->SetSection(szSection);
+        m_Overscan->SetSection(szSection);
         m_BDelay->SetSection(szSection);
     }
 
@@ -783,7 +789,7 @@ void CBT848Source::ChangeDefaultsForInput()
         m_Saturation->ChangeDefault((DEFAULT_SAT_U_NTSC + DEFAULT_SAT_V_NTSC) / 2);
         m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC);
         m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC);
-        //Aspect_GetSetting(OVERSCAN)->Default = DEFAULT_OVERSCAN_NTSC;
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
     }
     else
     {
@@ -793,7 +799,7 @@ void CBT848Source::ChangeDefaultsForInput()
         m_Saturation->ChangeDefault((DEFAULT_SAT_U_PAL + DEFAULT_SAT_V_PAL) / 2);
         m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL);
         m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL);
-        //Aspect_GetSetting(OVERSCAN)->Default = DEFAULT_OVERSCAN_PAL;
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
     }
 
     // set up defaults fro position parameters
@@ -818,6 +824,7 @@ void CBT848Source::LoadInputSettings()
     m_Saturation->ReadFromIni();
     m_SaturationU->ReadFromIni();
     m_SaturationV->ReadFromIni();
+    m_Overscan->ReadFromIni();
     m_BDelay->ReadFromIni();
 }
 
@@ -829,5 +836,6 @@ void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
     m_Saturation->WriteToIni(bOptimizeFileAccess);
     m_SaturationU->WriteToIni(bOptimizeFileAccess);
     m_SaturationV->WriteToIni(bOptimizeFileAccess);
+    m_Overscan->WriteToIni(bOptimizeFileAccess);
     m_BDelay->WriteToIni(bOptimizeFileAccess);
 }

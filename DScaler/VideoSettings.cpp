@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.13 2001-11-29 14:04:07 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.14 2002-02-09 02:44:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.12  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -104,6 +107,7 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
     static ISetting* SaturationU = NULL;
     static ISetting* SaturationV = NULL;
     static ISetting* Saturation = NULL;
+    static ISetting* Overscan = NULL;
 
     switch (message)
     {
@@ -114,6 +118,7 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
         Saturation = Providers_GetCurrentSource()->GetSaturation();    
         SaturationU = Providers_GetCurrentSource()->GetSaturationU();    
         SaturationV = Providers_GetCurrentSource()->GetSaturationV();    
+        Overscan = Providers_GetCurrentSource()->GetOverscan();    
 
         if(Brightness != NULL)
         {
@@ -187,9 +192,17 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER6), FALSE);
         }
 
-        TOverscan = Setting_GetValue(Aspect_GetSetting(OVERSCAN));
-        SetDlgItemInt(hDlg, IDC_D7, TOverscan, FALSE);
-        Setting_SetupSlider(Aspect_GetSetting(OVERSCAN), GetDlgItem(hDlg, IDC_SLIDER7));
+        if(Overscan != NULL)
+        {
+            TOverscan = Overscan->GetValue();
+            SetDlgItemInt(hDlg, IDC_D7, TOverscan, TRUE);
+            Overscan->SetupControl(GetDlgItem(hDlg, IDC_SLIDER7));
+        }
+        else
+        {
+            Edit_Enable(GetDlgItem(hDlg, IDC_D7), FALSE);
+            Slider_Enable(GetDlgItem(hDlg, IDC_SLIDER7), FALSE);
+        }
 
         Button_SetCheck(GetDlgItem(hDlg, IDC_BYFORMAT), bSavePerFormat?BST_CHECKED:BST_UNCHECKED);
         Button_SetCheck(GetDlgItem(hDlg, IDC_BYINPUT), bSavePerInput?BST_CHECKED:BST_UNCHECKED);
@@ -227,6 +240,10 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             if(SaturationV != NULL)
             {
                 SaturationV->SetValue(TSaturationV);
+            }
+            if(Overscan != NULL)
+            {
+                Overscan->SetValue(TOverscan);
             }
             EndDialog(hDlg, TRUE);
             break;
@@ -268,9 +285,12 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
                 SaturationV->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
                 SetDlgItemInt(hDlg, IDC_D6, SaturationV->GetValue(), FALSE);
             }
-            
-            Setting_SetControlValue(Aspect_GetSetting(OVERSCAN), GetDlgItem(hDlg, IDC_SLIDER7));
-            SetDlgItemInt(hDlg, IDC_D7, Setting_GetValue(Aspect_GetSetting(OVERSCAN)), FALSE);
+            if(Overscan != NULL)
+            {
+                Overscan->SetDefault();
+                Overscan->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER7));
+                SetDlgItemInt(hDlg, IDC_D7, Overscan->GetValue(), FALSE);
+            }
             break;
         default:
             break;
@@ -320,8 +340,8 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
         }
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER7))
         {
-            Setting_SetFromControl(Aspect_GetSetting(OVERSCAN), (HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D7, Setting_GetValue(Aspect_GetSetting(OVERSCAN)), FALSE);
+            Overscan->SetFromControl((HWND)lParam);
+            SetDlgItemInt(hDlg, IDC_D7, Overscan->GetValue(), FALSE);
         }
         break;
     default:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingConfig.cpp,v 1.5 2004-08-20 07:27:09 atnak Exp $
+// $Id: SettingConfig.cpp,v 1.6 2004-09-08 07:15:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/08/20 07:27:09  atnak
+// Removed the title value.
+//
 // Revision 1.4  2004/08/14 13:45:23  adcockj
 // Fixes to get new settings code working under VS6
 //
@@ -833,7 +836,7 @@ BOOL CSettingConfigAssociation::IsDependantBlocked(ULONG index, BYTE dependencyI
 
 void CSettingConfigAssociation::RecalculateBlocked()
 {
-	BYTE dependencyCount = m_associationVector.size();
+	BYTE dependencyCount = (BYTE)m_associationVector.size();
 	for (BYTE i = 0; i < dependencyCount; i++)
 	{
 		m_associationVector.at(i).blockedBits = 0;
@@ -854,7 +857,7 @@ void CSettingConfigAssociation::RecalculateBlocked(BYTE dependencyIndex)
 	CSettingConfigDependant* dependee = m_associationVector.at(dependencyIndex).dependee;
 	DBIT dependeeBits = (dependee != NULL) ? dependee->m_dependeeBits : (1 << dependencyIndex);
 
-	BYTE dependencyCount = m_associationVector.size();
+	BYTE dependencyCount = (BYTE)m_associationVector.size();
 	for (BYTE i = 0; i < dependencyCount; i++)
 	{
 		if ((dependee = m_associationVector.at(i).dependee) == NULL)

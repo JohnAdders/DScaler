@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.11 2004-01-14 20:01:31 robmuller Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.12 2004-01-23 11:26:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/01/14 20:01:31  robmuller
+// Fix balance.
+//
 // Revision 1.10  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -205,7 +208,7 @@ void CCX2388xCard::AudioInitBTSC(eStereoType StereoType)
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
 
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_BTSC_AUTO_STEREO);
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_BTSC_AUTO_SAP);
     
     // These dbx values should be right....
     //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
@@ -272,7 +275,7 @@ void CCX2388xCard::AudioInitBTSCSAP(eStereoType StereoType)
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
 
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_BTSC_AUTO_STEREO);
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_BTSC_AUTO_STEREO);
     
     // These dbx values should be right....
     //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
@@ -333,7 +336,7 @@ void CCX2388xCard::AudioInitFM(eStereoType StereoType)
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
 
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_BTSC_AUTO_STEREO);
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_BTSC_AUTO_STEREO);
     
     // These dbx values should be right....
     //WriteDword(AUD_DBX_IN_GAIN,          0x6dc0);
@@ -395,7 +398,7 @@ void CCX2388xCard::AudioInitEIAJ(eStereoType StereoType)
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
 
-    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_EIAJ_AUTO_STEREO);
+    WriteDword(AUD_CTL,                  EN_DAC_ENABLE | EN_DMTRX_SUMDIFF | EN_EIAJ_AUTO_STEREO);
     
     // fix pilot detection
     WriteDword(AUD_HP_PROG_IIR4_1,       0x0019);

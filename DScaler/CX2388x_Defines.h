@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.19 2004-01-19 14:31:20 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.20 2004-01-23 11:27:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -492,10 +492,11 @@
 #define EN_I2SIN_STR2DAC        0x00004000
 #define EN_I2SIN_ENABLE         0x00008000
 
-#define EN_DMTRX_SUMDIFF        0x00000800
-#define EN_DMTRX_SUMR           0x00000880
-#define EN_DMTRX_LR             0x00000900
-#define EN_DMTRX_MONO           0x00000980
+#define EN_DMTRX_SUMDIFF        (0 << 7)
+#define EN_DMTRX_SUMR           (1 << 7)
+#define EN_DMTRX_LR             (2 << 7)
+#define EN_DMTRX_MONO           (3 << 7)
+#define EN_DMTRX_BYPASS         (1 << 11)
 
 // Video 
 #define VID_CAPTURE_CONTROL		0x310180

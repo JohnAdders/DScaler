@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.6 2001-07-16 18:07:50 adcockj Exp $
+// $Id: DScaler.h,v 1.7 2001-07-26 22:26:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,7 @@ extern HMENU GetVideoDeinterlaceSubmenu();
 extern HMENU GetChannelsSubmenu();
 extern HMENU GetOSDSubmenu1();
 extern HMENU GetOSDSubmenu2();
+extern HMENU GetPatternsSubmenu();
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

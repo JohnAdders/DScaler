@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.47 2001-07-24 12:19:00 adcockj Exp $
+// $Id: DScaler.cpp,v 1.48 2001-07-26 22:26:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2001/07/24 12:19:00  adcockj
+// Added code and tools for crash logging from VirtualDub
+//
 // Revision 1.46  2001/07/23 20:52:07  ericschmidt
 // Added TimeShift class.  Original Release.  Got record and playback code working.
 //
@@ -125,6 +128,7 @@
 #include "DebugLog.h"
 #include "TimeShift.h"
 #include "Crash.h"
+#include "Calibration.h"
 
 HWND hWnd = NULL;
 HINSTANCE hInst = NULL;
@@ -474,6 +478,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             PostMessage(hWnd, WM_COMMAND, IDM_OSDSCREEN_ACTIVATE, LOWORD(wParam)-IDM_OSDSCREEN_ACTIVATE-1);
             break;
         }
+        if ( (LOWORD(wParam) > IDM_PATTERN_SELECT) && (LOWORD(wParam) <= (IDM_PATTERN_SELECT+MAX_TEST_PATTERNS)) )
+        {
+            PostMessage(hWnd, WM_COMMAND, IDM_PATTERN_SELECT, LOWORD(wParam)-IDM_PATTERN_SELECT-1);
+            break;
+        }
 
         switch (LOWORD(wParam))
         {
@@ -566,6 +575,22 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 Channel_Change(lParam);
             }
+            break;
+
+        case IDM_PATTERN_SELECT:
+            pCalibration->SelectTestPattern(lParam);
+            break;
+
+        case IDM_START_AUTO_CALIBRATION:
+            pCalibration->Start(AUTO_CALIBR);
+            break;
+
+        case IDM_START_MANUAL_CALIBRATION:
+            pCalibration->Start(MANUAL_CALIBR);
+            break;
+
+        case IDM_STOP_CALIBRATION:
+            pCalibration->Stop();
             break;
 
         case IDM_RESET:
@@ -1992,6 +2017,8 @@ void MainWndOnInitBT(HWND hWnd)
         
         Channels_UpdateMenu(hMenu);
         OSD_UpdateMenu(hMenu);
+        pCalibration->LoadTestPatterns();
+        pCalibration->UpdateMenu(hMenu);
 
         SetMenuAnalog();
 
@@ -2014,6 +2041,8 @@ void MainWndOnCreate(HWND hWnd)
     int i;
     int ProcessorMask;
     SYSTEM_INFO SysInfo;
+
+    pCalibration = new CCalibration();
 
     GetSystemInfo(&SysInfo);
     AddSplashTextLine("Table Build");
@@ -2215,6 +2244,7 @@ void SetMenuAnalog()
     Audio_SetMenu(hMenu);
     VT_SetMenu(hMenu);
     TimeShift::OnSetMenu(hMenu);
+    pCalibration->SetMenu(hMenu);
 }
 
 HMENU GetFiltersSubmenu()
@@ -2273,6 +2303,17 @@ HMENU GetOSDSubmenu2()
     hSubMenu = GetSubMenu(hSubMenu, 7);
     if(hSubMenu == NULL) return NULL;
     hSubMenu = GetSubMenu(hSubMenu, 3);
+    return hSubMenu;
+}
+
+HMENU GetPatternsSubmenu()
+{
+    HMENU hSubMenu;
+
+    if(hMenu == NULL) return NULL;
+    hSubMenu = GetSubMenu(hMenu, 5);
+    if(hSubMenu == NULL) return NULL;
+    hSubMenu = GetSubMenu(hSubMenu, 6);
     return hSubMenu;
 }
 

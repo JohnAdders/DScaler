@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.6 2002-12-05 17:10:47 adcockj Exp $
+// $Id: RegSpy.cpp,v 1.7 2002-12-06 00:28:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/12/05 17:10:47  adcockj
+// Added new registers for debugging sound on cx2388x
+//
 // Revision 1.5  2002/12/05 08:38:39  atnak
 // Fixed no redraw bug in last update
 //
@@ -202,9 +205,9 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(CX2388X_VIDEO_INPUT);
     AddDWRegister(CX2388X_TEMPORAL_DEC);
     AddDWRegister(CX2388X_AGC_BURST_DELAY);
-    AddDWRegister(CX2388X_BRIGHT_CONTRAST); 
-    AddDWRegister(CX2388X_UVSATURATION);    
-    AddDWRegister(CX2388X_HUE);             
+    AddDWRegister(CX2388X_BRIGHT_CONTRAST);
+    AddDWRegister(CX2388X_UVSATURATION);
+    AddDWRegister(CX2388X_HUE);
     AddDWRegister(CX2388X_WHITE_CRUSH);
     AddDWRegister(CX2388X_PIXEL_CNT_NOTCH);
     AddDWRegister(CX2388X_HORZ_DELAY_EVEN);
@@ -215,22 +218,22 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(CX2388X_VDELAYCCIR_ODD);
     AddDWRegister(CX2388X_HACTIVE_EVEN);
     AddDWRegister(CX2388X_HACTIVE_ODD);
-    AddDWRegister(CX2388X_VACTIVE_EVEN);    
-    AddDWRegister(CX2388X_VACTIVE_ODD);     
-    AddDWRegister(CX2388X_HSCALE_EVEN);     
-    AddDWRegister(CX2388X_HSCALE_ODD);      
-    AddDWRegister(CX2388X_VSCALE_EVEN);     
-    AddDWRegister(CX2388X_VSCALE_ODD);      
-    AddDWRegister(CX2388X_FILTER_EVEN);     
-    AddDWRegister(CX2388X_FILTER_ODD);      
+    AddDWRegister(CX2388X_VACTIVE_EVEN);
+    AddDWRegister(CX2388X_VACTIVE_ODD);
+    AddDWRegister(CX2388X_HSCALE_EVEN);
+    AddDWRegister(CX2388X_HSCALE_ODD);
+    AddDWRegister(CX2388X_VSCALE_EVEN);
+    AddDWRegister(CX2388X_VSCALE_ODD);
+    AddDWRegister(CX2388X_FILTER_EVEN);
+    AddDWRegister(CX2388X_FILTER_ODD);
     AddDWRegister(CX2388X_FORMAT_2HCOMB);
     AddDWRegister(CX2388X_PLL);
     AddDWRegister(CX2388X_PLL_ADJUST);
-    AddDWRegister(CX2388X_SAMPLERATECONV);  
-    AddDWRegister(CX2388X_SAMPLERATEFIFO);  
-    AddDWRegister(CX2388X_SUBCARRIERSTEP);  
+    AddDWRegister(CX2388X_SAMPLERATECONV);
+    AddDWRegister(CX2388X_SAMPLERATEFIFO);
+    AddDWRegister(CX2388X_SUBCARRIERSTEP);
     AddDWRegister(CX2388X_SUBCARRIERSTEPDR);
-    AddDWRegister(CX2388X_CAPTURECONTROL);  
+    AddDWRegister(CX2388X_CAPTURECONTROL);
     AddDWRegister(CX2388X_VIDEO_COLOR_FORMAT);
     AddDWRegister(CX2388X_VBI_SIZE);
     AddDWRegister(CX2388X_FIELD_CAP_CNT);
@@ -242,7 +245,7 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
     AddDWRegister(CX2388X_PINMUX_IO);
 
     AddDWRegister(MO_GP0_IO);
-    AddDWRegister(MO_GP1_IO);   
+    AddDWRegister(MO_GP1_IO);
     AddDWRegister(MO_GP2_IO);
     AddDWRegister(MO_GP3_IO);
     AddDWRegister(MO_GPIO);
@@ -404,7 +407,7 @@ void __cdecl SAA7134RegSpy(TRegister** hRegisterListTail)
 //      REGSPYFUNC* SetupFunction;
 //  }
 
-TChip Chips[] = 
+TChip Chips[] =
 {
     {
         "BT848",
@@ -432,8 +435,8 @@ TChip Chips[] =
     },
     {
         "CX2388x",
-        0x14F1, 
-        0x8800, 
+        0x14F1,
+        0x8800,
         CX2388xRegSpy,
     },
     {
@@ -452,7 +455,7 @@ typedef struct _REGDISPLAYINFO
     LPCRITICAL_SECTION  pRegisterListMutex;
     BYTE*               pLogState;
     LONG                nScrollPos;
-	BOOL				bRedrawAll;
+    BOOL                bRedrawAll;
 } TREGDISPLAYINFO;
 
 BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam);
@@ -872,26 +875,6 @@ HFONT CreateRegDisplayFont()
 }
 
 
-//  Creates a hDC compatible 24bit DIB section of nWidth x nHeight
-//  Caller must delete hBitmap with DeleteObject() when done.
-HBITMAP CreateDIBBitmap(HDC hDC, LONG nWidth, LONG nHeight)
-{
-    BITMAPINFO  BitmapInfo;
-    LPVOID      pvBits;
-
-    ZeroMemory(&BitmapInfo, sizeof(BITMAPINFO));
-
-    BitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    BitmapInfo.bmiHeader.biWidth = nWidth;
-    BitmapInfo.bmiHeader.biHeight = -nHeight;
-    BitmapInfo.bmiHeader.biPlanes = 1;
-    BitmapInfo.bmiHeader.biBitCount = 24;
-    BitmapInfo.bmiHeader.biCompression = BI_RGB;
-
-    return CreateDIBSection(hDC, &BitmapInfo, DIB_RGB_COLORS, &pvBits, NULL, 0);
-}
-
-
 //  This proc handles the drawing of the register
 //  display box
 LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -952,7 +935,7 @@ LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
                 nDisplayWidth = Rect.right;
                 nDisplayHeight = Rect.bottom;
 
-                hOffscreenBitmap = CreateDIBBitmap(hOffscreenDC,
+                hOffscreenBitmap = CreateCompatibleBitmap(hDC,
                     nDisplayWidth, nDisplayHeight);
 
                 if(hOffscreenBitmap == NULL)
@@ -1085,7 +1068,7 @@ LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             // Release the mutex
             LeaveCriticalSection(gRegDisplayInfo.pRegisterListMutex);
 
-			gRegDisplayInfo.bRedrawAll = FALSE;
+            gRegDisplayInfo.bRedrawAll = FALSE;
 
             // Blit the offscreen buffer onto the main display
             BitBlt(hDC, 0, 0, nDisplayWidth, nDisplayHeight, hOffscreenDC, 0, 0, SRCCOPY);
@@ -1409,7 +1392,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
 
                     sprintf(szBuffer,"0x%04X", pSource->Chip->DeviceId);
                     SetDlgItemText(hDlg, IDC_DEVICEID, szBuffer);
-                    
+
                     sprintf(szBuffer,"0x%08X", pSource->SubSystemId);
                     SetDlgItemText(hDlg, IDC_SUBSYSTEMID, szBuffer);
 
@@ -1427,7 +1410,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                             // Get the default register list
                             (pSource->Chip->SetupFunction)(hRegisterListTail);
                         }
-                        
+
                         if(pRegisterList != NULL)
                         {
                             int Count = 0;
@@ -1505,8 +1488,8 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 EnableWindow(hLogState, FALSE);
                 SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
 
-				gRegDisplayInfo.bRedrawAll = TRUE;
-				InvalidateRect(hRegDisplay, NULL, FALSE);
+                gRegDisplayInfo.bRedrawAll = TRUE;
+                InvalidateRect(hRegDisplay, NULL, FALSE);
             }
             else if(nLogState != MAX_LOG_STATES)
             {
@@ -1546,8 +1529,8 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                     SetDlgItemText(hDlg, IDC_LOGSTATE, "Log State");
                     SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
 
-					gRegDisplayInfo.bRedrawAll = TRUE;
-					InvalidateRect(hRegDisplay, NULL, FALSE);
+                    gRegDisplayInfo.bRedrawAll = TRUE;
+                    InvalidateRect(hRegDisplay, NULL, FALSE);
                 }
             }
 
@@ -1739,7 +1722,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
             {
                 TrackPosition = ScrollMax;
             }
-            
+
             SendMessage(hDlg, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, TrackPosition),
                 (LPARAM)GetDlgItem(hDlg, IDC_REGSCROLL));
         }
@@ -1813,10 +1796,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         DWORD SubSystemId;
         int DeviceIndex(0);
 
-        while(pHardwareDriver->DoesThisPCICardExist( 
-                                                        Chips[i].VendorId, 
-                                                        Chips[i].DeviceId, 
-                                                        DeviceIndex, 
+        while(pHardwareDriver->DoesThisPCICardExist(
+                                                        Chips[i].VendorId,
+                                                        Chips[i].DeviceId,
+                                                        DeviceIndex,
                                                         SubSystemId
                                                    ) == TRUE)
         {

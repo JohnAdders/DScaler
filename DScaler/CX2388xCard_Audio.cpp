@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.26 2004-06-28 20:18:16 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.27 2004-07-10 11:56:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2004/06/28 20:18:16  to_see
+// More fixes for A2 audio.
+// Moved all VideoStandards by default from Nicam to A2.
+//
 // Revision 1.25  2004/06/19 20:13:47  to_see
 // Faster and better A2 Stereo Detection
 //
@@ -682,22 +686,10 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
     {
         switch (TVFormat)
         {
-		/* moved by default to A2 (to_see)
-        case VIDEOFORMAT_PAL_D:
-        case VIDEOFORMAT_PAL_G:
         case VIDEOFORMAT_PAL_I:
-        case VIDEOFORMAT_SECAM_B:
-        case VIDEOFORMAT_SECAM_D:
-        case VIDEOFORMAT_SECAM_G:
-        case VIDEOFORMAT_SECAM_H:
-        case VIDEOFORMAT_SECAM_K:
-        case VIDEOFORMAT_SECAM_K1:
-        case VIDEOFORMAT_SECAM_L:
-        case VIDEOFORMAT_SECAM_L1:
             Standard = AUDIO_STANDARD_NICAM;
             break;
 
-		*/
         case VIDEOFORMAT_NTSC_M:
             Standard = AUDIO_STANDARD_BTSC;
             break;
@@ -708,7 +700,6 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
 
         case VIDEOFORMAT_PAL_D:
         case VIDEOFORMAT_PAL_G:
-        case VIDEOFORMAT_PAL_I:
         case VIDEOFORMAT_SECAM_B:
         case VIDEOFORMAT_SECAM_D:
         case VIDEOFORMAT_SECAM_G:

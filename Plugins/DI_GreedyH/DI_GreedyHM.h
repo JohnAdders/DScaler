@@ -1,4 +1,4 @@
-// $Id: DI_GreedyHM.h,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyHM.h,v 1.3 2001-07-29 10:07:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ typedef struct
 
 // A bunch of shared variables used by all the very similar routines
 #define FSFIELDS 4		// number of fields to buffer
-#define FSMAXROWS 241	// allow space for max 240 rows/field, plus a spare
+#define FSMAXROWS 289	// allow space for max 288 rows/field, plus a spare
 #define FSMAXCOLS 1000	// allow space for max 1000 screen cols
 #define FSCOLCT FSMAXCOLS * FSFIELDS / 4 // number qwords in row = cols * 4 fields / 4 pixels
 #define FSCOLSIZE 32	// bytes to skip for info for next col (of 4 fields and 4 pixels)

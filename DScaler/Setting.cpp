@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.31 2003-10-27 10:39:54 adcockj Exp $
+// $Id: Setting.cpp,v 1.32 2004-04-06 12:20:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.30  2003/08/16 10:29:20  atnak
 // Added the hook necessary for the new settings master
 //
@@ -829,7 +832,7 @@ void CSliderSetting::GetDisplayText(LPSTR szBuffer)
     }
     else
     {
-        sprintf(szBuffer, "%s %.*f", szName, (int)log10(m_pSetting->OSDDivider), (float)(*m_pSetting->pValue) / (float)m_pSetting->OSDDivider);
+        sprintf(szBuffer, "%s %.*f", szName, (int)log10((double)m_pSetting->OSDDivider), (float)(*m_pSetting->pValue) / (float)m_pSetting->OSDDivider);
     }
 }
 

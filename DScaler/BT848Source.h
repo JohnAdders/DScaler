@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.63 2003-11-13 17:32:48 adcockj Exp $
+// $Id: BT848Source.h,v 1.64 2004-04-06 12:20:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2003/11/13 17:32:48  adcockj
+// Added BT8x8 register debugger
+//
 // Revision 1.62  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -108,7 +111,7 @@
 */
 class CBT848Source : public CSource
 {
-    DECLARE_CLASS_SETTINGS(CBT848Source);
+    //DECLARE_CLASS_SETTINGS(CBT848Source);
 public:
     CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CBT848Source();

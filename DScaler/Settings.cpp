@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.57 2003-12-18 15:57:41 adcockj Exp $
+// $Id: Settings.cpp,v 1.58 2004-04-06 12:20:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/12/18 15:57:41  adcockj
+// Added MT2050 tuner type support (untested)
+//
 // Revision 1.56  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -951,7 +954,7 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
             }
             else
             {
-                sprintf(szBuffer, "%s %.*f", pSetting->szDisplayName, (int)log10(pSetting->OSDDivider), (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
+                sprintf(szBuffer, "%s %.*f", pSetting->szDisplayName, (int)log10((double)pSetting->OSDDivider), (float)*(pSetting->pValue) / (float)pSetting->OSDDivider);
             }
             break;
         case CHARSTRING:

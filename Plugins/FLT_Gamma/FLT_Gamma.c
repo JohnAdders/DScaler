@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.16 2003-09-13 08:36:16 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.17 2004-04-06 12:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/09/13 08:36:16  adcockj
+// Crash patch from Steve Gotthardt (Patch-805174)
+//
 // Revision 1.15  2003/06/26 11:42:54  adcockj
 // Reduced teh size of some of the dlls
 //
@@ -50,9 +53,9 @@
 #include "math.h"
 #include "..\help\helpids.h"
 
-unsigned char GammaTable[256];
+unsigned char GammaTable[256] = {0,};
 
-FILTER_METHOD GammaMethod;
+FILTER_METHOD GammaMethod; 
 
 long Gamma = 1300;
 BOOL bUseStoredTable = FALSE;

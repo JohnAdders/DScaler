@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSTVTuner.cpp,v 1.6 2003-10-27 10:39:57 adcockj Exp $
+// $Id: DSTVTuner.cpp,v 1.7 2004-04-06 12:20:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/10/27 10:39:57  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.5  2002/10/27 12:16:46  tobbej
 // renamed some functions
 // fixed indentation and tabs->spaces
@@ -632,7 +635,7 @@ int CDShowTVTuner::FrequencyToChannel(long dwFrequency)
             //LOG(2,"Frequency to channel: %d -> %d. exact match",dwFrequency,i+m_MinChannel);
             return i+m_MinChannel;
         }
-        if ((iClose < 0) || (abs(dwFreqFromTable - dwFrequency) < abs(iDistance)) )
+        if ((iClose < 0) || (abs((long)(dwFreqFromTable - dwFrequency)) < abs((long)iDistance)) )
         {
             // Closest match
             iClose = i;

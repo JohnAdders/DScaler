@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.cpp,v 1.4 2003-10-27 10:39:57 adcockj Exp $
+// $Id: DevEnum.cpp,v 1.5 2004-04-06 12:20:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:57  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2001/12/17 19:36:16  tobbej
 // renamed a few classes
 //
@@ -114,13 +117,13 @@ bool CDShowDevEnum::getNext()
 		WCHAR *szDisplayName=NULL;
 		if(SUCCEEDED(pMoniker->GetDisplayName(NULL,NULL,&szDisplayName)))
 		{
-			m_DisplayName.Format("%S",szDisplayName ? szDisplayName : L"");
+			m_DisplayName = szDisplayName ? szDisplayName : L"";
 			CoTaskMemFree(szDisplayName);
 		}
 		else
 		{
 			//sätt den till en tom sträng om de blev fel
-			m_DisplayName="";
+			m_DisplayName=L"";
 		}
 
 		return true;

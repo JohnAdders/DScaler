@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.44 2003-10-27 10:39:54 adcockj Exp $
+// $Id: SAA7134Source.h,v 1.45 2004-04-06 12:20:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.43  2003/10/10 11:15:20  laurentg
 // Bug fixed : access to the audio mixer
 //
@@ -186,7 +189,7 @@
 class CSAA7134Source : public CSource,
                        public CSAA7134Common
 {
-    DECLARE_CLASS_SETTINGS(CSAA7134Source);
+    //DECLARE_CLASS_SETTINGS(CSAA7134Source);
 public:
     CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PagelistDMAMem[kMAX_PAGETABLES], CUserMemory* DisplayDMAMem[kMAX_FRAMEBUFFERS], CUserMemory* VBIDMAMem[kMAX_FRAMEBUFFERS], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CSAA7134Source();

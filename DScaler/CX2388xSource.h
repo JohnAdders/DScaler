@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.33 2004-03-07 12:20:12 to_see Exp $
+// $Id: CX2388xSource.h,v 1.34 2004-04-06 12:20:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@
 */
 class CCX2388xSource : public CSource
 {
-    DECLARE_CLASS_SETTINGS(CCX2388xSource);
+    //DECLARE_CLASS_SETTINGS(CCX2388xSource);
 public:
     CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection);
     ~CCX2388xSource();

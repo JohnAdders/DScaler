@@ -1,5 +1,5 @@
 //
-// $Id: MT2050.cpp,v 1.4 2004-02-11 15:29:52 robmuller Exp $
+// $Id: MT2050.cpp,v 1.5 2004-04-06 12:20:48 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/02/11 15:29:52  robmuller
+// Register tweak thanks to Pityu.
+//
 // Revision 1.3  2004/01/14 17:06:44  robmuller
 // New line character from LOG call removed.
 //
@@ -253,9 +256,9 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 		num2 = 0;
 		LO2I++;
 	}
-	div1a = floor(LO1I / 12) - 1;
+	div1a = floor((double)(LO1I / 12.0)) - 1;
 	div1b = LO1I % 12;
-	div2a = floor(LO2I / 8) - 1;
+	div2a = floor(double(LO2I / 8.0)) - 1;
 	div2b = LO2I % 8;
 //3.4 Writing registers
 	if (rfin < 277000000)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.88 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.89 2004-04-06 12:20:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.87  2003/08/15 18:22:57  laurentg
 // Save in the source if it is the first setup
 //
@@ -808,7 +811,7 @@ DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWante
     for (nPages = 0; nPages < nPagesWanted; nPages++)
     {
         pPhysical = pDMAMemory->TranslateToPhysical(pUser, PAGE_SIZE, &GotBytes);
-        if (pPhysical == 0 || pPhysical & ~PAGE_MASK > 0 || GotBytes < PAGE_SIZE)
+        if ((pPhysical == 0) || ((pPhysical & ~PAGE_MASK) > 0) || (GotBytes < PAGE_SIZE))
         {
             break;
         }

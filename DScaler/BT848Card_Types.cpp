@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.21 2002-08-03 17:57:52 kooiman Exp $
+// $Id: BT848Card_Types.cpp,v 1.22 2002-09-04 11:58:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/08/03 17:57:52  kooiman
+// Added new cards & tuners. Changed the tuner combobox into a sorted list.
+//
 // Revision 1.20  2002/07/29 13:10:20  dschmelzer
 // Thanks to Laurent for spotting the typo on c-video jumper
 //
@@ -3550,7 +3553,7 @@ const eTunerId CBT848Card::m_Tuners_miro[] =
 	TUNER_TEMIC_4016FY5_PAL,    
 	TUNER_PHILIPS_PAL_I, 
 	TUNER_ABSENT,               
-	TUNER_ABSENT,
+	TUNER_MT2032_PAL,
 	TUNER_ABSENT,               
 	TUNER_ABSENT  
 };
@@ -3564,7 +3567,7 @@ const bool CBT848Card::m_Tuners_miro_fm[] =
 	true	,true	  ,true	  ,true	,   
 	true	,true	  ,true	  ,false	,  
 	false	,false	,false	,false	,  
-	false	,false	,false	,false 
+	false	,true	,false	,false 
 };
 
 const eTunerId CBT848Card::m_Tuners_hauppauge[]=

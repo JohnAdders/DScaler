@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.5 2002-01-16 20:49:30 adcockj Exp $
+// $Id: MT2032.cpp,v 1.6 2002-09-04 11:58:45 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/01/16 20:49:30  adcockj
+// Added Rob Muller's fixes for Radio
+//
 // Revision 1.4  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -44,10 +47,12 @@
 #define OPTIMIZE_VCO 1   // perform VCO optimizations
 
 
-CMT2032::CMT2032() :
+CMT2032::CMT2032(eVideoFormat DefaultVideoFormat, eTVCardId TVCardId) :
     m_XOGC(0),
     m_Initialized(false)
 {
+    m_DefaultVideoFormat = DefaultVideoFormat;
+    m_TVCardId = TVCardId;
 }
 
 BYTE CMT2032::GetDefaultAddress() const
@@ -62,8 +67,7 @@ eTunerId CMT2032::GetTunerId()
 
 eVideoFormat CMT2032::GetDefaultVideoFormat()
 {
-    /// \todo: check if this is the VoodooTV FM card anad return PAL
-    return VIDEOFORMAT_NTSC_M;
+    return m_DefaultVideoFormat;
 }
 
 bool CMT2032::HasRadio() const
@@ -122,6 +126,18 @@ void CMT2032::Initialize()
 {
     int             xogc, xok = 0;
 
+    switch (m_TVCardId)
+    {
+      case TVCARD_MIRO:
+      case TVCARD_MIROPRO:
+      case TVCARD_PINNACLERAVE:
+      case TVCARD_PINNACLEPRO:            
+          PreparePinnacle(TRUE);          
+          break;
+      default:
+          break;      
+    }   
+
     /* Initialize Registers per spec. */
     SetRegister(2, 0xff);
     SetRegister(3, 0x0f);
@@ -151,6 +167,21 @@ void CMT2032::Initialize()
         }
         SetRegister(7, 0x88 + xogc);
     } while (xok != 1);
+
+
+    switch (m_TVCardId)
+    {
+      case TVCARD_MIRO:
+      case TVCARD_MIROPRO:
+      case TVCARD_PINNACLERAVE:
+      case TVCARD_PINNACLEPRO:            
+          PreparePinnacle(FALSE);
+          break;
+      default:
+          break;      
+    }   
+
+
     m_XOGC = xogc;
     m_Initialized = true;
 }
@@ -393,6 +424,18 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to)
         return;
     }
 
+    switch (m_TVCardId)
+    {
+      case TVCARD_MIRO:
+      case TVCARD_MIROPRO:
+      case TVCARD_PINNACLERAVE:
+      case TVCARD_PINNACLEPRO:            
+          PreparePinnacle(TRUE);          
+          break;
+      default:
+          break;      
+    }   
+
     /* send only the relevant registers per Rev. 1.2 */
     SetRegister(0, buf[0x00]);
     SetRegister(1, buf[0x01]);
@@ -427,6 +470,19 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to)
     }
 
     SetRegister(2, 0x20);
+
+
+    switch (m_TVCardId)
+    {
+      case TVCARD_MIRO:
+      case TVCARD_MIROPRO:
+      case TVCARD_PINNACLERAVE:
+      case TVCARD_PINNACLEPRO:            
+          PreparePinnacle(FALSE);
+          break;
+      default:
+          break;      
+    }   
 }
 
 bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
@@ -453,4 +509,18 @@ bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
 
     SetIFFreq(frequency * 1000 / 16 * 1000, 1090 * 1000 * 1000, if2, from, to);
     return true;
+}
+
+void CMT2032::PreparePinnacle(BOOL bPrepare)
+{
+   BYTE tunerset[] = {0x86, 0x00, 0x54};
+   
+   if (bPrepare)
+   {
+      tunerset[2] |= 0x80;
+   }
+   if (m_I2CBus->Write(tunerset, 3) || m_I2CBus->Write(tunerset, 3))
+   {
+      //Success
+   }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.9 2002-08-20 09:48:43 kooiman Exp $
+// $Id: GenericTuner.cpp,v 1.10 2002-09-04 11:58:45 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/20 09:48:43  kooiman
+// Fixed wrong byte swapping for Philips SECAM tuner. Prevented crash when m_I2CBus is NULL.
+//
 // Revision 1.8  2002/08/17 11:27:23  kooiman
 // Fixed tuning for Temic 4046FM5 and Philips FQ1216ME.
 //
@@ -347,8 +350,20 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
       }
     case TUNER_LG_TAPCNEW_PAL:
       {
-          TUNERDEF(TUNER_LG_TAPCNEW_PAL, VIDEOFORMAT_NTSC_M,
+          TUNERDEF(TUNER_LG_TAPCNEW_PAL, VIDEOFORMAT_PAL_B,
               16*(170.00),16*(450.00),0x01,0x02,0x08,0x8e,623);
+          break;
+      }
+    case TUNER_PHILIPS_FM1216ME_MK3:
+      {
+          TUNERDEF(TUNER_PHILIPS_FM1216ME_MK3, VIDEOFORMAT_PAL_B,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,623);
+          break;
+      }
+    case TUNER_LG_TAPCNEW_NTSC:
+      {
+          TUNERDEF(TUNER_LG_TAPCNEW_NTSC, VIDEOFORMAT_NTSC_M,
+              16*(170.00),16*(450.00),0x01,0x02,0x08,0x8e,732);
           break;
       }
     }

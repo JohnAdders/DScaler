@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.3 2002-08-03 17:57:52 kooiman Exp $
+// $Id: ITuner.cpp,v 1.4 2002-09-04 11:58:45 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/08/03 17:57:52  kooiman
+// Added new cards & tuners. Changed the tuner combobox into a sorted list.
+//
 // Revision 1.2  2002/01/16 19:16:20  adcockj
 // added support for LG NTSC (TAPCH701P)
 //
@@ -79,6 +82,9 @@ const char *TunerNames[TUNER_LASTONE] =
 		"Temic 4012 FY5 [PAL D/K/L]",				        // TUNER_TEMIC_4012FY5		
 		"Temic 4136 FY5 [NTSC]",				            // TUNER_TEMIC_4136FY5
     "LG TAPC-new   [PAL]", 		  	            	// TUNER_LG_TAPCNEW_PAL		
+    "Philips FQ1216ME MK3  [PAL/SECAM multi]",
+	  "LG TAPC-new   [NTSC]",
+    "MT2032 universal [PAL default]"
 };
 
 }

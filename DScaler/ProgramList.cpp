@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.71 2002-08-18 14:35:29 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.72 2002-09-04 11:58:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2002/08/18 14:35:29  robmuller
+// Changed default.
+//
 // Revision 1.70  2002/08/16 18:45:56  kooiman
 // Added optional screen update delay during tuner frequency switch.
 //
@@ -514,6 +517,7 @@ BOOL FindFrequency(DWORD Freq, int Format)
         // Even channels with interference and snow are tuned and detected in about max 80ms,
         // so 120ms seems to be a safe value.
     case TUNER_MT2032:
+    case TUNER_MT2032_PAL:
         MaxTuneDelay = 120;
         break;
     default:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.17 2002-08-19 18:58:24 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.18 2002-09-04 11:58:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -510,6 +510,9 @@ enum eTunerId
     TUNER_TEMIC_4012FY5,
     TUNER_TEMIC_4136FY5,
     TUNER_LG_TAPCNEW_PAL,
+    TUNER_PHILIPS_FM1216ME_MK3,
+    TUNER_LG_TAPCNEW_NTSC,
+    TUNER_MT2032_PAL,
     TUNER_LASTONE,
 };
 

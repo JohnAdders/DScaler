@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.8 2002-02-12 02:27:45 ittarnavsky Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.9 2002-09-04 11:58:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/02/12 02:27:45  ittarnavsky
+// fixed the hardware info dialog
+//
 // Revision 1.7  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -73,6 +76,7 @@
 #include "NoTuner.h"
 #include "MT2032.h"
 #include "GenericTuner.h"
+#include "DebugLog.h"
 
 
 BOOL CBT848Card::InitTuner(eTunerId tunerId)
@@ -87,7 +91,11 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     switch (tunerId)
     {
     case TUNER_MT2032:
-        m_Tuner = new CMT2032();
+        m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M, m_CardType);
+        strcpy(m_TunerType, "MT2032 ");
+        break;
+    case TUNER_MT2032_PAL:
+        m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B, m_CardType);
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_AUTODETECT:
@@ -101,8 +109,28 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         strcpy(m_TunerType, "Generic ");
         break;
     }
+    
     if (tunerId != TUNER_ABSENT) 
-    {
+    {                
+        BOOL bFoundTuner = FALSE;
+
+        switch (m_CardType)
+        {
+          case TVCARD_MIRO:
+          case TVCARD_MIROPRO:
+          case TVCARD_PINNACLERAVE:
+          case TVCARD_PINNACLEPRO:            
+            if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
+            {
+                BYTE tunerset[] = {0x86, 0x00, 0x54};
+                tunerset[2] |= 0x80;
+                if (m_I2CBus->Write(tunerset, 3) || m_I2CBus->Write(tunerset, 3))
+                {
+                    //Enable tuner port success
+                }
+            }
+        }
+
         int kk = strlen(m_TunerType);
         for (BYTE test = 0xC0; test < 0xCF; test +=2)
         {
@@ -110,10 +138,41 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             {
                 m_Tuner->Attach(m_I2CBus, test>>1);
                 sprintf(m_TunerType + kk, " @I2C@0x%02x", test);
+                bFoundTuner = TRUE;
+                LOG(1,"Tuner: Found at I2C address 0x%02x",test);
                 break;
             }
+       }
+
+
+       switch (m_CardType)
+        {
+          case TVCARD_MIRO:
+          case TVCARD_MIROPRO:
+          case TVCARD_PINNACLERAVE:
+          case TVCARD_PINNACLEPRO:            
+            if (tunerId == TUNER_MT2032)
+            {
+                BYTE tunerset[] = {0x86, 0x00, 0x54};                
+                if (m_I2CBus->Write(tunerset, 3) || m_I2CBus->Write(tunerset, 3))
+                {
+                    //Disable tuner port success
+                }
+            }
         }
+
+
+       if (!bFoundTuner)
+       {
+          LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
+          
+          delete m_Tuner; 
+          m_Tuner = new CNoTuner();
+          strcpy(m_TunerType, "None ");           
+       }
+       return bFoundTuner;
     }
+
     return TRUE;
 }
 

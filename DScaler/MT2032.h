@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
+// $Id: MT2032.h,v 1.4 2002-09-04 11:58:45 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -45,7 +48,7 @@
 class CMT2032: public ITuner  
 {
 public:
-    CMT2032();
+    CMT2032(eVideoFormat DefaultVideoFormat, eTVCardId TVCardId);
     WORD GetVersion();
     WORD GetVendor();
     
@@ -71,9 +74,13 @@ private:
     int OptimizeVCO(int sel, int lock);
     void SetIFFreq(int rfin, int if1, int if2, int from, int to);
 
+    void PreparePinnacle(BOOL bPrepare);
+
 private:
     int m_XOGC;    // holds the value of XOGC register after init
     bool m_Initialized;
+    eTVCardId m_TVCardId;
+    eVideoFormat m_DefaultVideoFormat;
 };
 
 #endif // !defined(__MT2032_H__)

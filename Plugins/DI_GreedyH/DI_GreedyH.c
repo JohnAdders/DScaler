@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.3 2001-07-26 02:42:10 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.4 2001-07-28 18:47:24 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/26 02:42:10  trbarry
+// Recognize Athlon CPU
+//
 // Revision 1.2  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -72,14 +75,14 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 {
 	{
 		"Max Comb", SLIDER, 0,			// szDisplayName, TYPE, orig val
-		&GreedyMaxComb, 4, 0,			// *pValue,Default, Min
+		&GreedyMaxComb, 11, 0,			// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyMaxComb", NULL,			// Ini name, pfnOnChange
 	},
 	{
 		"Motion Threshold", SLIDER, 0,	// szDisplayName, TYPE, orig val
-		&GreedyMotionThreshold, 23, 0,	// *pValue,Default, Min
+		&GreedyMotionThreshold, 21, 0,	// *pValue,Default, Min
 		255, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyMotionThreshold", NULL,		// Ini name, pfnOnChange
@@ -107,7 +110,7 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 	},
 	{
 		"Edge Enhance", SLIDER, 0,		// szDisplayName, TYPE, orig val
-		&GreedyEdgeEnhAmt, 20, 0,		// *pValue,Default, Min
+		&GreedyEdgeEnhAmt, 50, 0,		// *pValue,Default, Min
 		100, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyEdgeEnhAmt", NULL,		// Ini name, pfnOnChange
@@ -455,12 +458,12 @@ static BOOL ShowDiag = FALSE;
 
 		case IDC_DEFAULT:
 // Note - actual default values below should maybe be set in DI_GreedyHSETTINGS
-			GreedyMaxComb = 4;					// max comb we allow past clip
-			GreedyMotionThreshold= 23;			// ignore changes < this
+			GreedyMaxComb = 11;					// max comb we allow past clip
+			GreedyMotionThreshold= 21;			// ignore changes < this
 			GreedyMotionSense = 28;				// how rapidly to bob when > Threshold
 			GreedyGoodPullDownLvl= 90;			
 			GreedyBadPullDownLvl = 85;			
-			GreedyEdgeEnhAmt = 25;				// % sharpness to add				
+			GreedyEdgeEnhAmt = 50;				// % sharpness to add				
 			GreedyMedianFilterAmt = 3;			// Don't filter if > this
 			GreedyLowMotionPdLvl = 9;			// Do PullDown on if motion < this
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyHM.c,v 1.3 2001-07-28 18:47:24 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -32,12 +36,12 @@
 #include "DI_GreedyHM.h"
 
 // Note - actual default values below may be set in DI_GreedyHSETTINGS
-long GreedyMaxComb = 4;					// max comb we allow past clip
-long GreedyMotionThreshold = 23;		// ignore changes < this
+long GreedyMaxComb = 11;					// max comb we allow past clip
+long GreedyMotionThreshold = 21;		// ignore changes < this
 long GreedyMotionSense = 28;	        // how rapidly to bob when > Threshold
 long GreedyGoodPullDownLvl = 90;		// Best Comb avg / Comb Avg must be < thes
 long GreedyBadPullDownLvl = 85;		    // No Pulldown if field comb / Best avg comb > this
-long GreedyEdgeEnhAmt = 25;				// % sharpness to add				
+long GreedyEdgeEnhAmt = 50;				// % sharpness to add				
 long GreedyMedianFilterAmt = 3;			// Don't filter if > this
 long GreedyLowMotionPdLvl = 9;		    // Do PullDown on if motion < this
 
@@ -193,7 +197,7 @@ BOOL UpdateFieldStore()
 
 // A version of UpdateFieldStore with Median Filter and Edge Enhancement
 #define USE_MEDIAN_FILTER
-#undef USE_SHARPNESS		
+#define USE_SHARPNESS		
 #undef FUNC_NAME		
 #define FUNC_NAME DI_GrUpdtFS_M_E
 #include "DI_GrUpdtFS.asm"

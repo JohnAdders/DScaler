@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHF.c,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyHF.c,v 1.3 2001-07-28 18:47:24 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // This is the first version of the Greedy High Motion Deinterlace method I wrote (and kept). 
@@ -223,9 +227,9 @@ DoNext8Bytes:
 			pmaxub	mm4, mm0				// now = Max(best,Min(L1,L3)
 			pminub	mm2, mm4 				// now = Min( Max(best, Min(L1,L3), L2 )=L2 clipped
 			pand	mm2, YMask				// keep only luma from calc'd value
-// chroma comes from either L1 or avg(L1,L3) depending upon parm
+// chroma comes from avg(L1,L3) 
 			movq	mm6, mm1				// L1
-			pavgb   mm6, mm3				// avg L3
+	        pavgb   mm6, mm3				// avg L3
 			pand    mm6, UVMask             // keep only chroma
 			por		mm2, mm6				// and combine
 

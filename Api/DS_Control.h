@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.149 2003-07-30 03:24:34 atnak Exp $
+// $Id: DS_Control.h,v 1.150 2003-08-02 12:01:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.149  2003/07/30 03:24:34  atnak
+// Added NOHARDWAREMUTE to list of saved settings
+//
 // Revision 1.148  2003/07/18 09:39:53  adcockj
 // Added option to release processor during JT
 //
@@ -771,6 +774,8 @@ typedef enum
 	PSTRIPRESO576I,
 	PSTRIPRESO480I,
 	SKINNAME,
+	CHANNELPREVIEWWNBCOLS,
+	CHANNELPREVIEWNBROWS,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 
@@ -1449,8 +1454,8 @@ typedef enum
     NBCONSECUTIVESTILLS,
 	KEEPORIGINALRATIO,
 	OSDFORSTILLS,
-	PREVIESTILLSWNBCOLS,
-	PREVIEWSTILLSNBROWS,
+	STILLPREVIEWWNBCOLS,
+	STILLPREVIEWNBROWS,
 	MAXMEMFORSTILLS,
 	SAVINGPATH,
     STILL_SETTING_LASTONE,

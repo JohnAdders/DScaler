@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.32 2003-07-02 21:44:19 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.33 2003-08-02 12:04:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/07/02 21:44:19  laurentg
+// TimeShift settings
+//
 // Revision 1.31  2003/01/12 16:19:35  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -663,12 +666,22 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 
-        pPage = DScaler_GetTreeSettingsPage2();
+        pPage = DScaler_GetTreeSettingsPage3();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = DScaler_GetTreeSettingsPage4();
 	    pPage->SetHelpID(IDH_ADVANCED);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 
         pPage = TimeShift_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = DScaler_GetTreeSettingsPage2();
 	    pPage->SetHelpID(IDH_ADVANCED);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);

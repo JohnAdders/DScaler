@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.332 2003-07-29 13:33:06 atnak Exp $
+// $Id: DScaler.cpp,v 1.333 2003-08-02 12:04:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.332  2003/07/29 13:33:06  atnak
+// Overhauled mixer code
+//
 // Revision 1.331  2003/07/24 21:15:18  laurentg
 // Hide the toolbar when starting in full screen mode
 //
@@ -1241,6 +1244,9 @@ static int FullCpu = 1;
 static int VideoCard = 0;
 static int ShowHWSetupBox;
 static long m_EventTimerID = 0;
+
+static int ChannelPreviewNbCols = 4;
+static int ChannelPreviewNbRows = 4;
 
 ///**************************************************************************
 //
@@ -2958,7 +2964,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			}
 			else if (Providers_GetCurrentSource() && Providers_GetCurrentSource()->IsInTunerMode())
             {
-				pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, 4, 4, Providers_GetCurrentSource());
+				pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, ChannelPreviewNbCols, ChannelPreviewNbRows, Providers_GetCurrentSource());
 				pMultiFrames->RequestSwitch();
             }
 			else
@@ -6420,6 +6426,27 @@ BOOL MinimizeHandling_OnChange(long NewValue)
 }
 
 
+BOOL ChannelPreviewNbCols_OnChange(long NewValue)
+{
+    ChannelPreviewNbCols = (int)NewValue;
+	if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive())
+	{
+		pMultiFrames->RequestSwitch();
+	}
+    return FALSE;
+}
+
+BOOL ChannelPreviewNbRows_OnChange(long NewValue)
+{
+    ChannelPreviewNbRows = (int)NewValue;
+	if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_CHANNELS) && pMultiFrames->IsActive())
+	{
+		pMultiFrames->RequestSwitch();
+	}
+    return FALSE;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -6641,6 +6668,18 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         NULL,
         "MainWindow", "SkinName", NULL,
     },
+    {
+        "Number of columns in preview mode", SLIDER, 0, (long*)&ChannelPreviewNbCols,
+         4, 2, 10, 1, 1,
+         NULL,
+        "Still", "ChannelPreviewNbCols", ChannelPreviewNbCols_OnChange,
+    },
+    {
+        "Number of rows in preview mode", SLIDER, 0, (long*)&ChannelPreviewNbRows,
+         4, 2, 10, 1, 1,
+         NULL,
+        "Still", "ChannelPreviewNbRows", ChannelPreviewNbRows_OnChange,
+    },
 };
 
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)
@@ -6703,17 +6742,37 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 {
     // Other Settings
-    SETTING* OtherSettings[9] =
+    SETTING* OtherSettings[6] =
     {
         &DScalerSettings[DISPLAYSPLASHSCREEN    ],
         &DScalerSettings[AUTOHIDECURSOR         ],
         &DScalerSettings[LOCKKEYBOARD           ],
         &DScalerSettings[SCREENSAVEROFF         ],
-        &DScalerSettings[REVERSECHANNELSCROLLING],
         &DScalerSettings[SINGLEKEYTELETEXTTOGGLE],
         &DScalerSettings[MINIMIZEHANDLING       ],
+    };
+    return new CTreeSettingsGeneric("Other Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
+}
+
+CTreeSettingsGeneric* DScaler_GetTreeSettingsPage3()
+{
+    // Channel Settings
+    SETTING* OtherSettings[3] =
+    {
+        &DScalerSettings[REVERSECHANNELSCROLLING],
+        &DScalerSettings[CHANNELPREVIEWWNBCOLS],
+        &DScalerSettings[CHANNELPREVIEWNBROWS],
+    };
+    return new CTreeSettingsGeneric("Channel Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
+}
+
+CTreeSettingsGeneric* DScaler_GetTreeSettingsPage4()
+{
+    // PowerStrip Settings
+    SETTING* OtherSettings[2] =
+    {
         &DScalerSettings[PSTRIPRESO576I			],
         &DScalerSettings[PSTRIPRESO480I			],
     };
-    return new CTreeSettingsGeneric("Other Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
+    return new CTreeSettingsGeneric("PowerStrip Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
 }

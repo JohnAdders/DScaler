@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.13 2001-12-07 17:52:38 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.14 2002-02-03 18:15:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/12/07 17:52:38  adcockj
+// Plugtest fixes
+//
 // Revision 1.12  2001/12/03 20:40:32  adcockj
 // Plugtest fixes
 //
@@ -152,6 +155,10 @@ BOOL FillInfoStruct(TDeinterlaceInfo* pInfo, char* SnapshotFile)
     }
 
 	pInfo->InputPitch = pInfo->LineLength;
+	if(pInfo->OverlayPitch == 0)
+	{
+		pInfo->OverlayPitch = 1024 * 2;
+	}
     pInfo->Overlay = (BYTE*)malloc(pInfo->OverlayPitch * pInfo->FrameHeight);
     pInfo->CpuFeatureFlags = CpuFeatureFlags;
     pInfo->pMemcpy = memcpyMMX;

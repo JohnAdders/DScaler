@@ -471,7 +471,7 @@ BEGIN
     CONTROL         "Disable the use of the card's hardware mute (only affects those with mute)",
                     IDC_DISABLE_HW_MUTE,"Button",BS_AUTOCHECKBOX | 
                     WS_DISABLED | WS_TABSTOP,6,236,245,11
-    CONTROL         "Reset the above mixer line to original states on exit",
+    CONTROL         "Reset the above mixer lines to original states on exit",
                     IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
                     WS_TABSTOP,6,249,179,11
     DEFPUSHBUTTON   "OK",IDOK,160,267,47,15

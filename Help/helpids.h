@@ -39,3 +39,4 @@
 #define IDH_STILL                       131128
 #define IDH_CALIBRATION                 131129
 #define IDH_SETTINGSBYCHANNEL           131130
+#define IDH_SAA713X_ADV                 131131

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.101 2002-10-28 17:50:01 adcockj Exp $
+// $Id: DS_Control.h,v 1.102 2002-10-29 03:07:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2002/10/28 17:50:01  adcockj
+// Fixes for channels combo
+// Reorganized scanning
+//
 // Revision 1.100  2002/10/28 12:04:56  atnak
 // Updated SAA7134_SETTING
 //
@@ -1491,6 +1495,7 @@ typedef enum
     SAA7134AUDIOSTANDARDCH2FMDEEMPH,
     SAA7134AUTOMATICVOLUMELEVEL,
     SAA7134VBIUPSCALEDIVISOR,
+    SAA7134VBIDEBUGOVERLAY,
     SAA7134AUTOMATICGAINCONTROL,
     SAA7134GAINCONTROLLEVEL,
     SAA7134VIDEOMIRROR,

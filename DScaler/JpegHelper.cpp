@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.3 2002-05-03 20:36:49 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.4 2002-05-04 12:03:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/05/03 20:36:49  laurentg
+// 16 byte aligned data
+//
 // Revision 1.2  2002/05/02 20:16:27  laurentg
 // JPEG format added to take still
 //
@@ -29,6 +32,7 @@
 
 #include "stdafx.h"
 #include "JpegHelper.h"
+#include "Deinterlace.h"
 #include "DebugLog.h"
 #define XMD_H
 extern "C"
@@ -64,7 +68,9 @@ typedef my_destination_mgr * my_dest_ptr;
 
 
 #define INPUT_BUF_SIZE  4096	/* choose an efficiently fread'able size */
-#define OUTPUT_BUF_SIZE  4096	/* choose an efficiently fwrite'able size */
+#define OUTPUT_BUF_SIZE 4096	/* choose an efficiently fwrite'able size */
+#define SQUARE_MODE_ON  "DScaler:Square Pixels Mode:ON"
+#define SQUARE_MODE_OFF "DScaler:Square Pixels Mode:OFF"
 
 #define JFREAD(file,buf,sizeofbuf)  \
   ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
@@ -412,10 +418,12 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     BYTE* pDestBuf;
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
+    jpeg_saved_marker_ptr pMarker;
 	FILE* infile;
     JDIMENSION num_scanlines;
     JSAMPARRAY buffer;
     JDIMENSION buffer_height;
+    BOOL Square = TRUE;
     jmp_buf jmp_mark;
 
     // Open the input stream (file)
@@ -451,6 +459,10 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 	// Specify the source of the compressed data (eg, a file)
 	my_jpeg_stdio_src(&cinfo, infile);
 
+    // Read DScaler markers APP1 and APP2
+//    jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xFFFF);
+    jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xFFFF);
+
     // Call jpeg_read_header() to obtain image info
 	(void)jpeg_read_header(&cinfo, TRUE);
 
@@ -461,6 +473,18 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     LOG(2, "scale_num %u", cinfo.scale_num);
     LOG(2, "scale_denom %u", cinfo.scale_denom);
     LOG(2, "output_gamma %f", cinfo.output_gamma);
+
+    pMarker = cinfo.marker_list;
+    while (pMarker != NULL)
+    {
+        LOG(2, "marker %d", pMarker->marker);
+        if ( (pMarker->marker == JPEG_APP0+2)
+          && ! strncmp((char*)pMarker->data, SQUARE_MODE_OFF, pMarker->data_length) )
+        {
+            Square = FALSE;
+        }
+        pMarker = pMarker->next;
+    }
 
     // Set parameters for decompression
     cinfo.out_color_space = JCS_YCbCr;
@@ -539,7 +563,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;
-    m_pParent->m_SquarePixels = TRUE;
+    m_pParent->m_SquarePixels = Square;
 
     return TRUE;
 }
@@ -554,6 +578,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     JSAMPLE* pLineBuf;
     BYTE *pBufOverlay;
     int i, quality;
+    char description[132];
     jmp_buf jmp_mark;
 
     // Allocate memory buffer to store one line of data
@@ -608,6 +633,20 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
 
     // Start compression
     jpeg_start_compress(&cinfo, TRUE);
+
+    // Write DScaler marker APP1 with the DScaler current context
+    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (JOCTET*)description, strlen(description));
+
+    // Write DScaler marker APP2 to save if square pixels mode is on or off
+    if (m_pParent->m_SquarePixels)
+    {
+        jpeg_write_marker(&cinfo, JPEG_APP0 + 2, (JOCTET*)SQUARE_MODE_ON, strlen(SQUARE_MODE_ON));
+    }
+    else
+    {
+        jpeg_write_marker(&cinfo, JPEG_APP0 + 2, (JOCTET*)SQUARE_MODE_OFF, strlen(SQUARE_MODE_OFF));
+    }
 
     // Process data
     row_pointer[0] = pLineBuf;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.9 2002-10-06 12:14:52 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.10 2002-10-08 12:22:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/06 12:14:52  atnak
+// cleaned up SetPageTable(...)
+//
 // Revision 1.8  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -138,10 +141,13 @@ BYTE CSAA7134Card::TaskID2TaskMask(eTaskID TaskID)
 
 void CSAA7134Card::ResetHardware()
 {
+    WriteByte(SAA7134_REGION_ENABLE, 0x00);
+    WriteByte(SAA7134_REGION_ENABLE, SAA7134_REGION_ENABLE_SWRST);
+    WriteByte(SAA7134_REGION_ENABLE, 0x00);
+
     // LOG(0, "Initial registery dump");
     // DumpRegisters();
 
-    WriteByte(SAA7134_REGION_ENABLE, 0x00);
     WriteWord(SAA7134_SOURCE_TIMING, 0x00);
 
     WriteByte(SAA7134_START_GREEN, 0x00);
@@ -515,7 +521,7 @@ void CSAA7134Card::StopCapture()
 
 BOOL CSAA7134Card::IsVideoPresent()
 {
-    WORD CheckMask = SAA7134_STATUS_VIDEO_HLVLN | SAA7134_STATUS_VIDEO_HLCK;
+    WORD CheckMask = SAA7134_STATUS_VIDEO_HLCK;
 
     if ((ReadWord(SAA7134_STATUS_VIDEO) & CheckMask) == 0)
     {

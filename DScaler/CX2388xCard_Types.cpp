@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.6 2002-12-04 17:43:49 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.7 2002-12-05 17:11:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/12/04 17:43:49  adcockj
+// Contrast and Brightness adjustments so that h3d card behaves in expected way
+//
 // Revision 1.5  2002/11/15 17:10:51  adcockj
 // Setting of GPIO pins for MSI TV@nywhere
 //
@@ -298,7 +301,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
-        MSINTSCInputSelect,
+        MSIInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
@@ -333,13 +336,73 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
             },
         },
         NULL,
-        MSIPALInputSelect,
+        MSIInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_MT2032_PAL,
+        IDC_CX2388X,
+    },
+    {
+        "Asus TV Tuner 880 NTSC",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+        },
+        NULL,
+        AsusInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_USER_SETUP,
+        IDC_CX2388X,
+    },
+    {
+        "Prolink PlayTV HD",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+        },
+        NULL,
+        PlayHDInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_USER_SETUP,
         IDC_CX2388X,
     },
 };
@@ -349,6 +412,7 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
     { 0x006614F1, CX2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
     //Tee Added support for PAL EVK and also added support for SSVID
     { 0x016614F1, CX2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
+    { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
     { 0, (eCX2388xCardId)-1, NULL }
 };
 
@@ -469,56 +533,68 @@ HMENU CCX2388xCard::GetCardSpecificMenu()
     return LoadMenu(hResourceInst, MAKEINTRESOURCE(m_TVCards[m_CardType].MenuId));
 }
 
-
-void CCX2388xCard::MSIPALInputSelect(int nInput)
-{
-    StandardInputSelect(nInput);
-    if(nInput == 0)
-    {
-        // GPIO pins will probably be different for PAL but we'll
-        // these in as a placeholder
-        WriteDword(MO_GP0_IO, 0x000000ff);
-        WriteDword(MO_GP1_IO, 0x000000c0);
-        WriteDword(MO_GP2_IO, 0x0000ff80); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GPIO, 0x00000000); 
-        WriteDword(MO_GPOE, 0x00000000); 
-    }
-    else
-    {
-        // Turn off anything audio if we're not the tuner
-        WriteDword(MO_GP0_IO, 0x00000000);
-        WriteDword(MO_GP1_IO, 0x00000000);
-        WriteDword(MO_GP2_IO, 0x00000000); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GPIO, 0x00000000); 
-        WriteDword(MO_GPOE, 0x00000000); 
-    }
-}
-
-void CCX2388xCard::MSINTSCInputSelect(int nInput)
+void CCX2388xCard::MSIInputSelect(int nInput)
 {
     StandardInputSelect(nInput);
     if(nInput == 0)
     {
         // GPIO pins set according to values supplied by
-        // musicthebee on AVS
+        // Ryan Griffin - Stegink
         WriteDword(MO_GP0_IO, 0x000000ff);
-        WriteDword(MO_GP1_IO, 0x000000c0);
-        WriteDword(MO_GP2_IO, 0x0000ff80); 
+        WriteDword(MO_GP1_IO, 0x00008040);
+        WriteDword(MO_GP2_IO, 0x0000fc1f); 
         WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GPIO, 0x00000000); 
-        WriteDword(MO_GPOE, 0x00000000); 
     }
     else
     {
         // Turn off anything audio if we're not the tuner
         WriteDword(MO_GP0_IO, 0x00000000);
-        WriteDword(MO_GP1_IO, 0x00000000);
-        WriteDword(MO_GP2_IO, 0x00000000); 
+        WriteDword(MO_GP1_IO, 0x00008000);
+        WriteDword(MO_GP2_IO, 0x0000ff80); 
         WriteDword(MO_GP3_IO, 0x00000000); 
-        WriteDword(MO_GPIO, 0x00000000); 
-        WriteDword(MO_GPOE, 0x00000000); 
     }
 }
 
+void CCX2388xCard::PlayHDInputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+    if(nInput == 0)
+    {
+        // GPIO pins set according to values supplied by
+        // Tom Fotja
+        WriteDword(MO_GP0_IO, 0x00000ff1);
+        WriteDword(MO_GP1_IO, 0x000000c0);
+        WriteDword(MO_GP2_IO, 0x0000ff80); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+    }
+    else
+    {
+        // Turn off anything audio if we're not the tuner
+        WriteDword(MO_GP0_IO, 0x0000ff00);
+        WriteDword(MO_GP1_IO, 0x0000ff00);
+        WriteDword(MO_GP2_IO, 0x0000ff00); 
+        WriteDword(MO_GP3_IO, 0x0000ff00); 
+    }
+}
+
+void CCX2388xCard::AsusInputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+    if(nInput == 0)
+    {
+        // GPIO pins set according to values supplied by
+        // Phil Rasmussen 
+        WriteDword(MO_GP0_IO, 0x000080ff);
+        WriteDword(MO_GP1_IO, 0x000001ff);
+        WriteDword(MO_GP2_IO, 0x000000ff); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+    }
+    else
+    {
+        // Turn off anything audio if we're not the tuner
+        WriteDword(MO_GP0_IO, 0x0000ff00);
+        WriteDword(MO_GP1_IO, 0x0000ff00);
+        WriteDword(MO_GP2_IO, 0x0000ff00); 
+        WriteDword(MO_GP3_IO, 0x00000000); 
+    }
+}

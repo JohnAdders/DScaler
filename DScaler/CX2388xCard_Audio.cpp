@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.6 2002-11-29 17:19:09 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.7 2002-12-05 17:11:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/11/29 17:19:09  adcockj
+// extra logging
+//
 // Revision 1.5  2002/11/29 17:09:46  adcockj
 // Some sound fixes (hopefully)
 //
@@ -51,8 +54,13 @@
 
 void CCX2388xCard::AudioInit(eVideoFormat Format)
 {
+    // stop the audio and wait for buffers to clear
+    WriteDword(MO_AUD_DMACNTRL, 0x00000000);
+    ::Sleep(100);
+
     // \todo sort this out
     // most of what's below is probably rubbish
+
     switch (Format)
     {
     case VIDEOFORMAT_PAL_B:
@@ -96,6 +104,9 @@ void CCX2388xCard::AudioInit(eVideoFormat Format)
         AudioInitA2();
         break;
     }
+
+    // start the audio running
+    AudioInitDMA();
 }
 
 void CCX2388xCard::SetAudioMute()
@@ -120,7 +131,7 @@ void CCX2388xCard::SetAudioUnMute()
 void CCX2388xCard::AudioInitDMA()
 {
     WriteDword(MO_AUDD_LNGTH,SRAM_FIFO_AUDIO_BUFFER_SIZE);
-    //WriteDword(MO_AUDR_LNGTH,SRAM_FIFO_AUDIO_BUFFER_SIZE);
+    WriteDword(MO_AUDR_LNGTH,SRAM_FIFO_AUDIO_BUFFER_SIZE);
     WriteDword(MO_AUD_DMACNTRL, 0x00000003);
 }
 

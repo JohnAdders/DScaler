@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.13 2002-12-04 17:43:49 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.14 2002-12-05 17:11:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -239,8 +239,9 @@ private:
 
 	void InitH3D();
 	void H3DInputSelect(int nInput);
-    void MSIPALInputSelect(int nInput);
-    void MSINTSCInputSelect(int nInput);
+    void MSIInputSelect(int nInput);
+    void PlayHDInputSelect(int nInput);
+    void AsusInputSelect(int nInput);
 
 	void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
     void SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness);

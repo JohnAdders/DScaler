@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegLog.cpp,v 1.7 2002-12-04 14:15:06 adcockj Exp $
+// $Id: RegLog.cpp,v 1.8 2002-12-05 17:11:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/12/04 14:15:06  adcockj
+// Fixed RegSpy Problems
+//
 // Revision 1.6  2002/11/29 17:19:09  adcockj
 // extra logging
 //
@@ -196,12 +199,12 @@ void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpDWRegister(MO_GPIO);
     DumpDWRegister(MO_GPOE);
 
-    DumpDWRegister(0x02320d01);
-    DumpDWRegister(0x02320d02);
-    DumpDWRegister(0x02320d03);
-    DumpDWRegister(0x02320d04);
-    DumpDWRegister(0x02320d2a);
-    DumpDWRegister(0x02320d2b);
+    DumpDWRegister(0x0320d01);
+    DumpDWRegister(0x0320d02);
+    DumpDWRegister(0x0320d03);
+    DumpDWRegister(0x0320d04);
+    DumpDWRegister(0x0320d2a);
+    DumpDWRegister(0x0320d2b);
 
     DumpDWRegister(AUD_DN0_FREQ);
     DumpDWRegister(AUD_POLY0_DDS_CONSTANT);

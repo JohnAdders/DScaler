@@ -2,8 +2,9 @@
 // Microsoft Developer Studio generated include file.
 // Used by DScalerRes.rc
 //
-#define IDM_SAVE_SETTINGS_NOW           100
-#define IDM_STATUSBAR                   133
+#define IDA_DSCALER                     150
+#define IDM_SAVE_SETTINGS_NOW           151
+#define IDM_STATUSBAR                   152
 #define IDD_ABOUT                       160
 #define IDD_ADV_VIDEOSETTINGS           161
 #define IDD_ANALOGSCAN                  162
@@ -753,7 +754,6 @@
 #define IDM_VT_UK                       2026
 #define IDM_VT_FRENCH                   2027
 #define IDM_LOGOKILL_SETTINGS           2028
-#define IDM_VT_HUNGARIAN                2028
 #define IDM_LINCORR_SETTINGS            2029
 #define IDM_TSOPTIONS                   2030
 #define IDM_TSRECORD                    2031
@@ -791,21 +791,21 @@
 #define IDM_RIGHT_CROP_CURRENT          2084
 #define IDM_SELECT_PICTURE              2085
 #define IDM_SOURCE_FIRST                2086
-#define IDM_SOURCE_LAST                 2087
-#define IDM_SAVE_BY_FORMAT              2088
-#define IDM_SAVE_BY_INPUT               2089
-#define IDM_SAVE_BY_CHANNEL             2090
-#define IDA_DSCALER                     2091
+#define IDM_SOURCE_LAST                 2186
+#define IDM_SAVE_BY_FORMAT              2187
+#define IDM_SAVE_BY_INPUT               2188
+#define IDM_SAVE_BY_CHANNEL             2189
+#define IDM_VT_HUNGARIAN                2190
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        2092
-#define _APS_NEXT_COMMAND_VALUE         2029
+#define _APS_3D_CONTROLS                1
+#define _APS_NEXT_RESOURCE_VALUE        187
+#define _APS_NEXT_COMMAND_VALUE         2192
 #define _APS_NEXT_CONTROL_VALUE         1893
-#define _APS_NEXT_SYMED_VALUE           2191
+#define _APS_NEXT_SYMED_VALUE           2192
 #endif
 #endif

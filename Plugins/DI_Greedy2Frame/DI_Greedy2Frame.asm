@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy2Frame.asm,v 1.7 2001-11-22 22:27:00 adcockj Exp $
+// $Id: DI_Greedy2Frame.asm,v 1.8 2001-11-23 17:18:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/22 22:27:00  adcockj
+// Bug Fixes
+//
 // Revision 1.6  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -93,7 +96,7 @@ BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
                                 (qwGreedyTwoFrameThreshold << 16);
 
 
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         M1 = pInfo->PictureHistory[0]->pData;
         T1 = pInfo->PictureHistory[1]->pData;
@@ -294,7 +297,7 @@ MAINLOOP_LABEL:
         B0 += Pitch;
     }
 
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         pInfo->pMemcpy(Dest, T1, pInfo->LineLength);
         Dest += pInfo->OverlayPitch;

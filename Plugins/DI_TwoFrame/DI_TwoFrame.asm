@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TwoFrame.asm,v 1.5 2001-11-22 22:29:25 adcockj Exp $
+// $Id: DI_TwoFrame.asm,v 1.6 2001-11-23 17:18:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/22 22:29:25  adcockj
+// Bug Fix
+//
 // Revision 1.4  2001/11/22 22:27:00  adcockj
 // Bug Fixes
 //
@@ -118,7 +121,7 @@ BOOL DeinterlaceFieldTwoFrame_MMX(TDeinterlaceInfo* pInfo)
     // copy first even line no matter what, and the first odd line if we're
     // processing an odd field.
 
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         YVal0 = pInfo->PictureHistory[0]->pData;
         YVal1 = pInfo->PictureHistory[1]->pData + Pitch;
@@ -318,7 +321,7 @@ MAINLOOP_LABEL:
     }
 
     // Copy last odd line if we're processing an even field.
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_EVEN)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
     {
         pInfo->pMemcpy(Dest, YVal1, pInfo->LineLength);
     }

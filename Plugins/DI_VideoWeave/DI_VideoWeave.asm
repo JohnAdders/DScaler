@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoWeave.asm,v 1.3 2001-11-21 15:21:41 adcockj Exp $
+// $Id: DI_VideoWeave.asm,v 1.4 2001-11-23 17:18:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.2  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -74,7 +78,7 @@ BOOL DeinterlaceFieldWeave_MMX(TDeinterlaceInfo* pInfo)
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
 
 
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         YVal1 = pInfo->PictureHistory[1]->pData;
         YVal2 = pInfo->PictureHistory[0]->pData;
@@ -230,7 +234,7 @@ MAINLOOP_LABEL:
     }
 
     // Copy last odd line if we're processing an odd field.
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         pInfo->pMemcpy(Dest, YVal2, LineLength);
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.63 2003-04-08 14:17:23 adcockj Exp $
+// $Id: Other.cpp,v 1.64 2003-04-15 13:06:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2003/04/08 14:17:23  adcockj
+// Used dynamic calling of new multi-monitor functions to allow running on NT4
+//
 // Revision 1.62  2003/03/29 13:36:36  laurentg
 // Allow the display of DScaler to monitors other than the primary
 //
@@ -304,7 +307,7 @@ static HMONITOR hCurrentMon = NULL;
 
 // we've got to load these functions dynamically 
 // so that we continue to run on NT 4
-HMONITOR (WINAPI * lpMonitorFromWindowA)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
+HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
 BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi) = NULL;
 
 
@@ -325,7 +328,7 @@ static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDrive
 	// so we need to replace the NULL handle in single monitor context with the non-NULL value
 	if (hMonitor == NULL)
 	{
-		hMonitor = lpMonitorFromWindowA(NULL, MONITOR_DEFAULTTOPRIMARY);
+		hMonitor = lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
 	}	
 	LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
@@ -355,27 +358,42 @@ static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDrive
 }
 
 //-----------------------------------------------------------------------------
-void ListMonitors(HWND hWnd)
+static BOOL ListMonitors(HWND hWnd)
 {
+    BOOL RetVal = TRUE;
+
 	HINSTANCE h = LoadLibrary("ddraw.dll");
 
     // If ddraw.dll doesn't exist in the search path,
     // then DirectX probably isn't installed, so fail.
-    if (!h) return;
+    if(h != NULL)
+    {
+	    // Retrieve the function from the DDL
+        LPDIRECTDRAWENUMERATEEX lpDDEnumEx;
+        lpDDEnumEx = (LPDIRECTDRAWENUMERATEEX) GetProcAddress(h,"DirectDrawEnumerateExA");
+        if (lpDDEnumEx)
+	    {
+		    // If the function is there, call it to enumerate all display 
+		    // devices attached to the desktop
+		    if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
+            {
+                RetVal = FALSE;
+            }
+	    }
+        else
+        {
+            RetVal = FALSE;
+        }
 
-	// Retrieve the function from the DDL
-    LPDIRECTDRAWENUMERATEEX lpDDEnumEx;
-    lpDDEnumEx = (LPDIRECTDRAWENUMERATEEX) GetProcAddress(h,"DirectDrawEnumerateExA");
-    if (lpDDEnumEx)
-	{
-		// If the function is there, call it to enumerate all display 
-		// devices attached to the desktop
-		lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES);
+        // If the library was loaded by calling LoadLibrary(),
+        // then you must use FreeLibrary() to let go of it.
+        FreeLibrary(h);
 	}
-
-    // If the library was loaded by calling LoadLibrary(),
-    // then you must use FreeLibrary() to let go of it.
-    FreeLibrary(h);
+    else
+    {
+        RetVal = FALSE;
+    }
+    return RetVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -383,13 +401,18 @@ static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
 {
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
-    HMONITOR (WINAPI * lpMonitorFromWindowA)( IN HWND hwnd, IN DWORD dwFlags);
 	HINSTANCE h = LoadLibrary("user32.dll");
-    lpMonitorFromWindowA = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindowA");
+    lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindow");
     lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
 
-    // if we can't see these new functions just use a normal DD create
-    if(lpMonitorFromWindowA == NULL || lpGetMonitorInfoA == NULL)
+    // If the library was loaded by calling LoadLibrary(),
+    // then you must use FreeLibrary() to let go of it.
+    // Since we will already have an outstanding reference to user32.dll
+    // it's OK to Free it here before we've even called the functions
+    FreeLibrary(h);
+
+    // if we can't see these new functions or we fail to list the moitors just use a normal DD create
+    if(lpMonitorFromWindow == NULL || lpGetMonitorInfoA == NULL || ListMonitors(hWnd) == FALSE)
     {
         if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
         {
@@ -399,7 +422,8 @@ static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
         return lpDD;
     }
 
-	HMONITOR hMonitor = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    // got the list of monitors then get the DD context from the current one
+	HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	for (int i=0 ; i<NbMonitors ; i++)
 	{
@@ -414,7 +438,7 @@ static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
 //-----------------------------------------------------------------------------
 void GetMonitorRect(HWND hWnd, RECT* rect)
 {
-    if(lpMonitorFromWindowA == NULL)
+    if(lpMonitorFromWindow == NULL)
     {
         rect->top = 0;
         rect->left = 0;
@@ -423,7 +447,7 @@ void GetMonitorRect(HWND hWnd, RECT* rect)
         return;
     }
 
-	HMONITOR hMonitor = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
+	HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 	MONITORINFO MonInfo;
 
 	MonInfo.cbSize = sizeof(MONITORINFO);
@@ -436,21 +460,21 @@ void GetMonitorRect(HWND hWnd, RECT* rect)
 //-----------------------------------------------------------------------------
 void SetCurrentMonitor(HWND hWnd)
 {
-    if(lpMonitorFromWindowA != NULL)
+    if(lpMonitorFromWindow != NULL)
     {
-    	hCurrentMon = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    	hCurrentMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
     }
 }
 
 //-----------------------------------------------------------------------------
 void CheckChangeMonitor(HWND hWnd)
 {
-    if(lpMonitorFromWindowA == NULL)
+    if(lpMonitorFromWindow == NULL)
     {
     	return;
     }
 
-	HMONITOR hMon = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
+	HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	if (hCurrentMon == NULL)
 		return;
@@ -1563,7 +1587,7 @@ void ExitDD(void)
     if (lpDD != NULL)
     {
         Overlay_Destroy();
-        if(lpMonitorFromWindowA != NULL)
+        if(lpMonitorFromWindow != NULL)
         {
 	        for (int i=0 ; i<NbMonitors ; i++)
 	        {

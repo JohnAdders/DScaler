@@ -508,22 +508,22 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,12,78,74,10
     CONTROL         "Full Luma Range",IDC_LUMA_RANGE,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,12,91,67,10
+    CONTROL         "Vertical Filter",IDC_VERT_FILTER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,103,83,10
     CONTROL         "Even Luma Decimation ",IDC_E_LUMA_DEC,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,13,87,10
+    CONTROL         "Odd Luma Decimation ",IDC_O_LUMA_DEC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,106,26,84,10
     CONTROL         "Even Chroma Comb",IDC_E_COMB,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,106,39,76,10
+    CONTROL         "Odd Chroma Comb",IDC_O_COMB,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,106,52,74,10
     CONTROL         "Color Bars",IDC_COLOR_BARS,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,106,65,48,10
     CONTROL         "Gamma Corr Removal",IDC_GAMMA_CORR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,78,83,10
-    CONTROL         "Odd Luma Decimation ",IDC_O_LUMA_DEC,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,106,26,84,10
-    CONTROL         "Odd Chroma Comb",IDC_O_COMB,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,106,52,74,10
     CONTROL         "Horizontal Filter",IDC_HOR_FILTER,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,91,83,10
-    CONTROL         "Vertical Filter",IDC_VERT_FILTER,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,103,83,10
 END
 
 UI_SUB_MENU DIALOG DISCARDABLE  0, 0, 375, 193
@@ -855,8 +855,7 @@ BEGIN
             MENUITEM "Text 4",                      IDM_TEXT4
         END
         MENUITEM SEPARATOR
-        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT
-        , GRAYED
+        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
@@ -910,7 +909,9 @@ BEGIN
         MENUITEM "&Channels",                   65535
         MENUITEM "Deinterlace &Mode",           65535
         MENUITEM "Aspect &Ratio",               65535
-        MENUITEM "Fi&lters",                    65535
+        MENUITEM "Fi&lters",                    1
+        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        MENUITEM "Pixel  &Width",               0
         MENUITEM "&Datacasting",                65535
         MENUITEM "&OSD",                        65535
         MENUITEM "Full &Screen",                IDM_FULL_SCREEN

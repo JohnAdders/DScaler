@@ -288,11 +288,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
 		}
 
+		hSubMenu = GetSubMenu(hMenu, 4);
+		if(hSubMenu != NULL)
+			hSubMenu = GetSubMenu(hSubMenu, 5);
+		if(hSubMenu != NULL)
+		{
+			MenuItemInfo.hSubMenu = hSubMenu;
+			SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
+		}
+
 		hSubMenu = GetSubMenu(hMenu, 6);
 		if(hSubMenu != NULL)
 		{
 			MenuItemInfo.hSubMenu = hSubMenu;
-			SetMenuItemInfo(hMenuPopup,7,TRUE,&MenuItemInfo);
+			SetMenuItemInfo(hMenuPopup,9,TRUE,&MenuItemInfo);
 		}
 
 		hSubMenu = GetSubMenu(hMenu, 2);
@@ -301,7 +310,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		if(hSubMenu != NULL)
 		{
 			MenuItemInfo.hSubMenu = hSubMenu;
-			SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
+			SetMenuItemInfo(hMenuPopup,10,TRUE,&MenuItemInfo);
 		}
 	}
 

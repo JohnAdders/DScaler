@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.25 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.26 2004-03-26 14:19:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.24  2003/08/14 08:25:17  atnak
 // Fix to mute lining and audio channel clush
 //
@@ -165,6 +168,7 @@ void CSAA7134Card::InitAudio()
     WriteByte(SAA7134_I2S_OUTPUT_FORMAT,        0x00);
     WriteByte(SAA7134_I2S_OUTPUT_SELECT,        0x00);
     WriteByte(SAA7134_I2S_OUTPUT_LEVEL,         0x00);
+    WriteByte(SAA7134_I2S_AUDIO_OUTPUT,         0x01);
 
     // Zero is for no plus or minus gain
     SetAudioVolume(0);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.125 2002-02-09 13:08:41 laurentg Exp $
+// $Id: DScaler.cpp,v 1.126 2002-02-09 15:30:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.125  2002/02/09 13:08:41  laurentg
+// New menu items to access to UI for calibration and OSD settings
+//
 // Revision 1.124  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -2926,7 +2929,7 @@ HMENU GetOSDSubmenu2()
 
 HMENU GetPatternsSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 5, "Test &Pattern Select");
+    return GetOrCreateSubSubSubMenu(4, 7, 0, "Test &Patterns");
 }
 
 //---------------------------------------------------------------------------

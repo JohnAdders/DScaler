@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.202 2002-07-30 21:20:59 laurentg Exp $
+// $Id: DScaler.cpp,v 1.203 2002-07-31 20:23:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.202  2002/07/30 21:20:59  laurentg
+// Merge of menus View, AspectRatio and OSD
+//
 // Revision 1.201  2002/07/29 21:33:06  laurentg
 // "Show Video Method UI" feature restored
 //
@@ -3738,8 +3741,7 @@ HMENU GetChannelsSubmenu()
 
 HMENU GetOSDSubmenu()
 {
-    HMENU hmenu = GetSubMenuWithName(hMenu, 3, "&OSD");
-//    HMENU hmenu = GetOrCreateSubSubMenu(3, 16, "&OSD");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 3, "&View");
     ASSERT(hmenu != NULL);
 
     return hmenu;

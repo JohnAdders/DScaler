@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster.cpp,v 1.9 2003-04-23 08:30:57 adcockj Exp $
+// $Id: SettingsMaster.cpp,v 1.10 2003-05-30 10:06:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/04/23 08:30:57  adcockj
+// Prevent section names from having square brackets
+//
 // Revision 1.8  2003/01/21 10:41:40  adcockj
 // Added header
 //
@@ -308,7 +311,7 @@ void CSettingsMaster::SetVideoFormat(long NewValue)
 {
     if (NewValue >= 0 && NewValue < VIDEOFORMAT_LASTONE)
     {
-        m_VideoFormatName = VideoFormatNames[NewValue];
+        m_VideoFormatName = VideoFormatSaveNames[NewValue];
     }
     else
     {

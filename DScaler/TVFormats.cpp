@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.10 2003-02-02 15:24:54 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.11 2003-05-30 10:06:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/02/02 15:24:54  adcockj
+// Fix for PAL60 issues with cx2388x
+//
 // Revision 1.9  2003/01/07 16:49:07  adcockj
 // Changes to allow variable sampling rates for VBI
 //
@@ -218,6 +221,32 @@ const char *VideoFormatNames[VIDEOFORMAT_LASTONE] =
     "SECAM-K1",
     "SECAM-L",
     "SECAM-L1",
+
+    "NTSC-M",
+    "NTSC-M-Japan",
+    "NTSC-50",
+};
+
+const char *VideoFormatSaveNames[VIDEOFORMAT_LASTONE] = 
+{
+    "PAL-B",
+    "PAL-B",
+    "PAL-B",
+    "PAL-B",
+    "PAL-B",
+    "PAL-M",
+    "PAL-N",
+    "PAL-60",
+    "PAL-N-COMBO",
+
+    "SECAM",
+    "SECAM",
+    "SECAM",
+    "SECAM",
+    "SECAM",
+    "SECAM",
+    "SECAM",
+    "SECAM",
 
     "NTSC-M",
     "NTSC-M-Japan",

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.h,v 1.6 2003-01-07 16:49:08 adcockj Exp $
+// $Id: TVFormats.h,v 1.7 2003-05-30 10:06:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/01/07 16:49:08  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.5  2002/10/18 11:41:47  adcockj
 // Updated Fsc values
 //
@@ -92,6 +95,7 @@ bool IsNTSCVideoFormat(eVideoFormat Format);
 bool IsSECAMVideoFormat(eVideoFormat Format);
 
 extern const char* VideoFormatNames[];
+extern const char* VideoFormatSaveNames[];
 
 
 #endif

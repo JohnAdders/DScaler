@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.8 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Card.h,v 1.9 2002-10-06 12:14:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.7  2002/10/04 13:24:46  atnak
 // Audio mux select through GPIO added (for 7130 cards)
 //
@@ -363,13 +366,11 @@ private:
 private:
     static const TCardType m_TVCards[];
 
-    // Keeps track of the number of pages assigned to DMA
-    DWORD           m_nDMAChannelPageCount[7];
-    // If this is FALSE, m_nDMAChannelPageCount stores memory size
-    BOOL            m_bDMAChannelUsesPages[7];
+    // Keeps track of the amount of memory assigned to DMA
+    DWORD               m_DMAChannelMemorySize[7];
 
     // Keep track of the regions for which DMA is prepared
-    BYTE            m_PreparedRegions;
+    BYTE                m_PreparedRegions;
 
     eVideoStandard      m_VideoStandard;
     eAudioStandard      m_AudioStandard;

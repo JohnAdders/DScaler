@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.8 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.9 2002-10-06 12:14:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.7  2002/10/04 13:24:46  atnak
 // Audio mux select through GPIO added (for 7130 cards)
 //
@@ -279,22 +282,20 @@ void CSAA7134Card::SetupTasks()
 
 
 /*
- * RegionID one of:
- * REGIONID_VIDEO_A
- * REGIONID_VIDEO_B
- * REGIONID_VBI_A
- * REGIONID_VBI_B
+ *  SetPageTable
+ *
+ *  If page tables aren't being used, pPhysical should be 0 and
+ *  nPages should contain the size of the memory block that will be
+ *  used with this channel.
+ *
+ *  RegionID is one of: REGIONID_VIDEO_A, REGIONID_VIDEO_B
+ *                      REGIONID_VBI_A, REGIONID_VBI_B
  */
-
-// If pages aren't being used, nPages should contain buffer size
 void CSAA7134Card::SetPageTable(eRegionID RegionID, DWORD pPhysical, DWORD nPages)
 {
     int Channel = RegionID2Channel(RegionID);
 
-    m_nDMAChannelPageCount[Channel] = nPages;
-    m_bDMAChannelUsesPages[Channel] = (pPhysical != 0UL);
-    
-    if (m_bDMAChannelUsesPages[Channel])
+    if (pPhysical != 0)
     {
         DWORD Page = pPhysical >> 12;
 
@@ -303,12 +304,16 @@ void CSAA7134Card::SetPageTable(eRegionID RegionID, DWORD pPhysical, DWORD nPage
         WriteByte(SAA7134_RS_CONTROL_1(Channel), Page >> 8 & 0xFF);
         WriteByte(SAA7134_RS_CONTROL_2(Channel), Page >> 16 |
             SAA7134_RS_CONTROL_2_ME | SAA7134_RS_CONTROL_2_BURST_MAX);
+
+        m_DMAChannelMemorySize[Channel] = nPages * 4096;
     }
     else
     {
         WriteByte(SAA7134_RS_CONTROL_0(Channel), 0x00);
         WriteByte(SAA7134_RS_CONTROL_1(Channel), 0x00);
         WriteByte(SAA7134_RS_CONTROL_2(Channel), SAA7134_RS_CONTROL_2_BURST_MAX);
+
+        m_DMAChannelMemorySize[Channel] = nPages;
     }
 }
 
@@ -392,8 +397,6 @@ void CSAA7134Card::VerifyMemorySize(eRegionID RegionID)
 }
 
 
-#define PAGE_SIZE (1<<12)
-
 WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLine)
 {
     int Channel = RegionID2Channel(RegionID);
@@ -405,15 +408,7 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
     DWORD MaxBaseOffset = (Offset2 > Offset1) ? Offset2 : Offset1;
     DWORD MinimumBytesAvailable;
 
-    if (m_bDMAChannelUsesPages[Channel])
-    {
-        MinimumBytesAvailable = m_nDMAChannelPageCount[Channel] * PAGE_SIZE;
-    }
-    else
-    {
-        // m_nDMAChannelPageCount[n] should contain the memory size
-        MinimumBytesAvailable = m_nDMAChannelPageCount[Channel];
-    }
+    MinimumBytesAvailable = m_DMAChannelMemorySize[Channel];
 
     MinimumBytesAvailable -= MaxBaseOffset;
     if (MinimumBytesAvailable < wBytesPerLine)
@@ -423,8 +418,6 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
 
     return (MinimumBytesAvailable - wBytesPerLine) / Pitch + 1;
 }
-
-#undef PAGE_SIZE
 
 
 void CSAA7134Card::SetDMA(eRegionID RegionID, BOOL bState)

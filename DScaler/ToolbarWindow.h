@@ -15,56 +15,21 @@ enum eToolbarRowAlign
     TOOLBARCHILD_ALIGN_RIGHTBOTTOM,
 };
 
-class CToolbarWindow;
+#define TOOLBARBUTTON_ICON_HALIGN_LEFT 0
+#define TOOLBARBUTTON_ICON_HALIGN_RIGHT 1
+#define TOOLBARBUTTON_ICON_HALIGN_CENTER 2
+#define TOOLBARBUTTON_ICON_VALIGN_TOP 0
+#define TOOLBARBUTTON_ICON_VALIGN_BOTTOM 4
+#define TOOLBARBUTTON_ICON_VALIGN_CENTER 8
 
-class CToolbarChild
-{
-protected:
-    HWND hWnd;
-    HINSTANCE hResourceInst;
-    CToolbarWindow *m_pToolbar;
-    vector<CBitmapAsButton*> Buttons;    
-    CBitmapsFromIniSection BitmapsFromIniSection;
-    
-    virtual LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+#define TOOLBARBUTTON_TEXT_HALIGN_LEFT 0
+#define TOOLBARBUTTON_TEXT_HALIGN_RIGHT 16
+#define TOOLBARBUTTON_TEXT_HALIGN_CENTER 32
+#define TOOLBARBUTTON_TEXT_VALIGN_TOP 0
+#define TOOLBARBUTTON_TEXT_VALIGN_BOTTOM 64
+#define TOOLBARBUTTON_TEXT_VALIGN_CENTER 128
 
-    int m_PosX;
-    int m_PosY;
-    int m_PosW;
-    int m_PosH;
-
-	int m_Visible;
-public:
-	int Visible();
-
-	BOOL Show();
-    BOOL Hide();
-
-    int  Width();  
-    int  Height();
-
-    BOOL SetPos(int x,int y,int w, int h, BOOL bUpdate);
-    BOOL GetPos(LPRECT lpRect);
-
-    HWND GethWnd() { return hWnd; };  
-
-	virtual void UpdateWindow() {;};
-
-    CToolbarChild(CToolbarWindow *pToolbar);    
-    ~CToolbarChild();
-    
-    virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
-    virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
-
-    virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
-    virtual BOOL RemoveSkinDlgItem(UINT uItemID);
-
-	virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
-    
-    static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-    static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
-    static LRESULT StaticToolbarChildButtonProc(string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-};
+class CToolbarChild;
 
 class CToolbarWindow : public CWindowBorder
 {
@@ -78,6 +43,8 @@ protected:
         int  Row;
         eToolbarRowAlign  Align;
         CToolbarChild* pChild;
+		CToolbarChild* pBarLeft;
+		CToolbarChild* pBarRight;
     } TChildInfo;
     vector<TChildInfo> vChildList;
 
@@ -96,7 +63,11 @@ protected:
     int IsToolbarVisible;
     int MainToolbarPosition;
 
-
+	int m_lastWindowPos_x;
+    int m_lastWindowPos_y;
+    int m_lastWindowPos_w;
+    int m_lastWindowPos_h;
+	
     BOOL SetPos(int x, int y, int w, int h);
     BOOL GetPos(LPRECT rc);
 public:
@@ -106,7 +77,8 @@ public:
     HWND GethWnd() { return hWndToolbar; };  
     HWND GethWndParent() { return hWndParent; };  
 
-    BOOL Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Order, int Row);
+    BOOL AttachBar(CToolbarChild *pChild, int Left, CToolbarChild *pBar);
+	BOOL Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Order, int Row);
     void Remove(CToolbarChild *pChild);
     CToolbarWindow(HWND hWndParent, HINSTANCE hInst, int Child);
     ~CToolbarWindow();
@@ -125,6 +97,8 @@ public:
     void SetPosition(int Pos);
     int GetPosition();
 
+	void Margins(int l,int t,int r,int b, int child_lr, int child_tb);
+
     BOOL Show();
     BOOL Hide();
     void UpdateWindowPosition(HWND hParentWnd);
@@ -135,5 +109,64 @@ public:
     static LRESULT CALLBACK ToolbarProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
+class CToolbarChild
+{
+protected:
+    HWND hWnd;
+    HINSTANCE hResourceInst;
+    CToolbarWindow *m_pToolbar;
+    vector<CBitmapAsButton*> Buttons;    
+    CBitmapsFromIniSection BitmapsFromIniSection;
+    
+    virtual LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+
+    int m_PosX;
+    int m_PosY;
+    int m_PosW;
+    int m_PosH;
+
+	HBRUSH m_BgBrush;
+	HPEN m_hPen3DShadow;
+	HPEN m_hPen3DLight;
+
+	int m_Visible;
+public:
+	int Visible();
+
+	BOOL Show();
+    BOOL Hide();
+
+    int  Width();  
+    int  Height();
+
+    BOOL SetPos(int x,int y,int w, int h, BOOL bUpdate);
+    BOOL GetPos(LPRECT lpRect);
+
+    HWND GethWnd() { return hWnd; };  
+	HWND GethWndParent() { return m_pToolbar->GethWnd(); }
+	HWND GethWndParentOfToolbar() { return m_pToolbar->GethWndParent(); }
+
+	void DrawItem(DRAWITEMSTRUCT* pDrawItemStruct, HICON hIcon, LPCSTR szText, int Width, int Height, int Align);
+
+	virtual void UpdateWindow() {;};
+
+    CToolbarChild(CToolbarWindow *pToolbar);    
+    ~CToolbarChild();
+    
+    virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
+    virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
+
+    virtual BOOL SkinWindow(HWND hWnd, string sID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL RemoveSkin(string sID);
+
+	virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL RemoveSkinDlgItem(UINT uItemID);
+
+	virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    
+    static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+    static LRESULT StaticToolbarChildButtonProc(string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+};
 
 #endif

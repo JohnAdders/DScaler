@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.5 2002-10-02 10:52:35 kooiman Exp $
+// $Id: Toolbars.cpp,v 1.6 2002-10-07 20:33:50 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/02 10:52:35  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.4  2002/10/01 15:53:16  adcockj
 // Fixed crash on startup
 //
@@ -81,14 +84,17 @@ extern void ShowText(HWND hWnd, LPCTSTR szText);
 
 CToolbarChannels::CToolbarChannels(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
     LastChannel(-1),
-    m_oldComboProc(NULL)
+    m_oldComboProc(NULL),
+	m_hIconChannelUp(NULL),
+	m_hIconChannelDown(NULL),
+	m_hIconChannelPrevious(NULL)
 {
     eEventType EventList[] = {EVENT_CHANNEL_CHANGE, EVENT_ENDOFLIST};
 	EventCollector->Register(this, EventList);   
 
 	long OldValue;
 	long NewValue;
-	if (EventCollector->LastEventValues(EVENT_CHANNEL_CHANGE, NULL, &OldValue, &NewValue)>0)
+	if (EventCollector->LastEventValues(Providers_GetCurrentSource(), EVENT_CHANNEL_CHANGE, &OldValue, &NewValue)>0)
 	{
 		LastChannel = NewValue;
 	}	
@@ -96,8 +102,21 @@ CToolbarChannels::CToolbarChannels(CToolbarWindow *pToolbar) : CToolbarChild(pTo
 
 CToolbarChannels::~CToolbarChannels()
 {
-    EventCollector->Unregister(this);
-
+    if (m_hIconChannelUp != NULL)
+	{
+		::DestroyIcon(m_hIconChannelUp);
+		m_hIconChannelUp = NULL;
+	}
+	if (m_hIconChannelDown != NULL)
+	{
+		::DestroyIcon(m_hIconChannelDown);
+		m_hIconChannelDown = NULL;
+	}
+	if (m_hIconChannelPrevious != NULL)
+	{
+		::DestroyIcon(m_hIconChannelPrevious);
+		m_hIconChannelPrevious = NULL;
+	}	
 }
 
 
@@ -130,6 +149,7 @@ LRESULT CToolbarChannels::MyComboProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	case WM_CHAR:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+		SetFocus(m_pToolbar->GethWndParent());
 		return FALSE;	
 	
 	}
@@ -206,27 +226,22 @@ void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
             }
         }
 	}
+	SetFocus(m_pToolbar->GethWndParent());
 }
 
 
 LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {      
-    if (message == WM_GETDLGCODE)
-	{
-        return DLGC_WANTCHARS;
-	}
-	if ((hWnd == NULL) && (message == WM_INITDIALOG))
+    if ((hWnd == NULL) && (message == WM_INITDIALOG))
     {
-        HBITMAP hBmp;
-        
-        hBmp = LoadBitmap(hResourceInst, MAKEINTRESOURCE(IDB_TOOLBAR_CHANNELS_UP));
-        SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_SPINUP),BM_SETIMAGE,IMAGE_BITMAP,LPARAM(hBmp));
+       m_hIconChannelUp = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_CHANNELS_UP),IMAGE_ICON,0,0,0);
+        SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_SPINUP),BM_SETIMAGE,IMAGE_ICON,LPARAM(m_hIconChannelUp));
 
-        hBmp = LoadBitmap(hResourceInst, MAKEINTRESOURCE(IDB_TOOLBAR_CHANNELS_DOWN));
-        SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_SPINDOWN),BM_SETIMAGE,IMAGE_BITMAP,LPARAM(hBmp));
-
-        hBmp = LoadBitmap(hResourceInst, MAKEINTRESOURCE(IDB_TOOLBAR_CHANNELS_PREVIOUS));
-        SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_PREVIOUS),BM_SETIMAGE,IMAGE_BITMAP,LPARAM(hBmp));        
+        m_hIconChannelDown = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_CHANNELS_DOWN),IMAGE_ICON,0,0,0);
+        SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_SPINDOWN),BM_SETIMAGE,IMAGE_ICON,LPARAM(m_hIconChannelDown));
+        		
+		m_hIconChannelPrevious = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_CHANNELS_PREVIOUS),IMAGE_ICON,0,0,0);
+        SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_PREVIOUS),BM_SETIMAGE,IMAGE_ICON,LPARAM(m_hIconChannelPrevious));
 
         UpdateControls(hDlg, TRUE);        
         return TRUE;
@@ -235,14 +250,12 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
 
     switch (message)
     {
-    case  WM_ERASEBKGND:
-        //LOG(2,"Toolbar Channels: 0x%08x: bg erase",hWnd);
+    case  WM_ERASEBKGND:   
         return TRUE;
         break;
     case WM_PAINT:
         PAINTSTRUCT ps;            
         ::BeginPaint(hDlg,&ps);                        
-        //LOG(2,"Toolbar Channels: 0x%08x: wm_paint: %d %d,%d,%d,%d",hWnd,ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
         if (ps.fErase)
         {                    
             m_pToolbar->PaintChildBG(hDlg,ps.hdc,NULL);
@@ -269,6 +282,7 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
                     {
                         LastChannel = Channel;
                         SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDC_TOOLBAR_CHANNELS_LIST,Channel);
+						SetFocus(m_pToolbar->GethWndParent());
                     }
                     return TRUE;
                 }
@@ -276,16 +290,19 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
             case IDC_TOOLBAR_CHANNELS_SPINUP:
                 {
                     SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDM_CHANNELPLUS,0);                                       
+					SetFocus(m_pToolbar->GethWndParent());
                     return TRUE;
                 }
             case IDC_TOOLBAR_CHANNELS_SPINDOWN:
                 {
                     SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDM_CHANNELMINUS,0);
+					SetFocus(m_pToolbar->GethWndParent());
                     return TRUE;
                 }
             case IDC_TOOLBAR_CHANNELS_PREVIOUS:
                 {
                     SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDM_CHANNEL_PREVIOUS,0);
+					SetFocus(m_pToolbar->GethWndParent());
                     return TRUE;
                 }
                 break;            
@@ -295,10 +312,42 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
         break;
     case WM_NCHITTEST:
         {
-            //return ::DefWindowProc(pThis->GethWndParent(), WM_NCLBUTTONDOWN, HTCAPTION, lParam);
             return HTCLIENT;
         }
         break;
+	case WM_DRAWITEM:
+		{
+			DRAWITEMSTRUCT *pDrawItem;
+			char szText[100];
+			HICON hIcon = NULL;
+			int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
+						TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
+			
+			szText[0] = 0;
+			pDrawItem = (DRAWITEMSTRUCT*)lParam;
+			
+			if ((pDrawItem != NULL) && (pDrawItem->CtlID==IDC_TOOLBAR_CHANNELS_SPINUP))
+			{
+				hIcon = m_hIconChannelUp;
+			}
+			else if ((pDrawItem != NULL) && (pDrawItem->CtlID==IDC_TOOLBAR_CHANNELS_SPINDOWN))
+			{
+				hIcon = m_hIconChannelDown;
+			}
+			else if ((pDrawItem != NULL) && (pDrawItem->CtlID==IDC_TOOLBAR_CHANNELS_PREVIOUS))
+			{
+				hIcon = m_hIconChannelPrevious;
+			}
+
+			if ((pDrawItem != NULL) && ((hIcon != NULL) || (szText[0]!=0)))
+			{
+				RECT rc;
+				GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
+
+				DrawItem(pDrawItem, hIcon, szText, rc.right-rc.left, rc.bottom-rc.top, Align);				
+			}
+		}
+		break;
             
     case WM_CLOSE:
     case WM_DESTROY:					
@@ -323,9 +372,15 @@ void CToolbarChannels::Reset()
 
 CToolbarVolume::CToolbarVolume(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
 m_Mute(0),
-m_Volume(0)
+m_Volume(0),
+m_hIconMute(NULL),
+m_hIconUnMute(NULL),
+m_hIconMono(NULL),
+m_hIconStereo(NULL),
+m_hIconLang1(NULL),
+m_hIconLang2(NULL)
 {
-	eEventType EventList[] = {EVENT_MUTE, EVENT_VOLUME, EVENT_MIXERVOLUME, EVENT_ENDOFLIST};
+	eEventType EventList[] = {EVENT_MUTE, EVENT_VOLUME, EVENT_MIXERVOLUME, EVENT_SOUNDCHANNEL, EVENT_SOURCE_CHANGE, EVENT_ENDOFLIST};
 	EventCollector->Register(this, EventList);
 	
 	long OldValue;
@@ -334,39 +389,100 @@ m_Volume(0)
 	{
 		m_Mute = NewValue;
 	}
-	if (EventCollector->LastEventValues(EVENT_VOLUME, NULL, &OldValue, &NewValue)>0)
+
+	m_VolumeMin = 0;
+	m_VolumeMax = 100;
+	m_UseMixer = TRUE;
+
+	if (bUseMixer)
 	{
-		m_Volume = NewValue;
+		if (EventCollector->LastEventValues(EVENT_MIXERVOLUME, NULL, &OldValue, &NewValue)>0)
+		{
+			m_Volume = NewValue;
+		}		
 	} 
-	else if (EventCollector->LastEventValues(EVENT_MIXERVOLUME, NULL, &OldValue, &NewValue)>0)
+	else 
 	{
-		m_Volume = NewValue*10;
+		m_UseMixer = FALSE;
+		if (EventCollector->LastEventValues(Providers_GetCurrentSource(), EVENT_VOLUME, &OldValue, &NewValue)>0)
+		{
+			m_Volume = NewValue;
+		}
+		
+		if (Providers_GetCurrentSource() != NULL)
+		{
+			ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+			if (pSetting != NULL)
+			{
+				m_VolumeMin = pSetting->GetMin();
+				m_VolumeMax = pSetting->GetMax();
+			}
+		}
+	}
+
+	m_SoundChannel = SOUNDCHANNEL_MONO;
+
+	if (EventCollector->LastEventValues(Providers_GetCurrentSource(), EVENT_SOUNDCHANNEL, &OldValue, &NewValue)>0)
+	{
+		m_SoundChannel = (eSoundChannel)NewValue;
 	}
 }
 
 CToolbarVolume::~CToolbarVolume()
 {
-	EventCollector->Unregister(this);
+	if (m_hIconMute != NULL)
+	{
+		::DestroyIcon(m_hIconMute);
+		m_hIconMute = NULL;
+	}
+	if (m_hIconUnMute != NULL)
+	{
+		::DestroyIcon(m_hIconUnMute);
+		m_hIconUnMute = NULL;
+	}
 }
 
 
 void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-	if (Event == EVENT_MUTE)
+	bool bVolumeLimitsChanged = FALSE;
+	if ((Event == EVENT_SOURCE_CHANGE) || (bUseMixer != m_UseMixer))
+	{
+		m_VolumeMin = 0;
+		m_VolumeMax = 100;
+		m_UseMixer = bUseMixer;
+	
+		if (!bUseMixer && (Providers_GetCurrentSource() != NULL))
+		{
+			ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+			if (pSetting != NULL)
+			{
+				m_VolumeMin = pSetting->GetMin();
+				m_VolumeMax = pSetting->GetMax();
+			}
+		}
+		bVolumeLimitsChanged = TRUE;
+	}
+	else if (Event == EVENT_MUTE)
     {
         m_Mute = (NewValue)? TRUE : FALSE;
     } 
-    else if ((Event == EVENT_VOLUME) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
+    else if ((Event == EVENT_VOLUME) && (!bUseMixer) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
     {
         m_Volume = NewValue;
     }
-	else  if (Event == EVENT_MIXERVOLUME)
+	else if ((Event == EVENT_MIXERVOLUME) && bUseMixer)
 	{
-		m_Volume = NewValue*10;
+		m_Volume = NewValue;
+		LOG(2,"Toolbar Volume: Event: volume = %d",m_Volume);
 	}    
-	if ((hWnd != NULL) && Visible())
+	else if ((Event == EVENT_SOUNDCHANNEL) && (pObject == (CEventObject*)Providers_GetCurrentSource()))
 	{
-		UpdateControls(NULL, FALSE);
+		m_SoundChannel = (eSoundChannel)NewValue;
+	}
+	if ((hWnd != NULL) && Visible())
+	{		
+		UpdateControls(NULL, bVolumeLimitsChanged);
 	}
 }
 
@@ -380,13 +496,25 @@ void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
 
    if (bInitDialog)
    {
-        SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETRANGE, TRUE,(LPARAM)MAKELONG((int)0,(int)1000));
+        SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETRANGE, TRUE,(LPARAM)MAKELONG(0,m_VolumeMax-m_VolumeMin+1));
    }
    
-   SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_Volume);
+    LOG(2,"Toolbar Volume: Update controls: volume = %d",m_Volume);
+    SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_VolumeMin+m_Volume);
+  
+    // Mute
+    CheckDlgButton(hWnd, IDC_TOOLBAR_VOLUME_MUTE, m_Mute?BST_CHECKED:BST_UNCHECKED);  	
+	//Repaint control with correct m_Mute
+	InvalidateRect(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_MUTE), NULL, FALSE);
 
-   // Mute
-   CheckDlgButton(hWnd, IDC_TOOLBAR_VOLUME_MUTE, m_Mute);  
+	
+	//Sound channel
+	CheckDlgButton(hWnd, IDC_TOOLBAR_VOLUME_CHANNEL, (UINT)(m_SoundChannel-SOUNDCHANNEL_MONO));
+	//Repaint control with correct m_SoundChannel
+	InvalidateRect(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_CHANNEL), NULL, FALSE);
+
+	SetFocus(m_pToolbar->GethWndParent());
+	
 }
 
 void CToolbarVolume::Reset()
@@ -398,7 +526,16 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
 {
     if ((hWnd == NULL) && (message == WM_INITDIALOG))
     {
-        UpdateControls(hDlg, TRUE);        
+    	m_hIconUnMute = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_VOLUME_UNMUTE),IMAGE_ICON,0,0,0);
+		m_hIconMute = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_VOLUME_MUTE),IMAGE_ICON,0,0,0);
+
+		m_hIconMono = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_VOLUME_MONO),IMAGE_ICON,0,0,0);
+		m_hIconStereo = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_VOLUME_STEREO),IMAGE_ICON,0,0,0);
+		m_hIconLang1  = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_VOLUME_STEREO),IMAGE_ICON,0,0,0);
+		m_hIconLang2  = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_VOLUME_STEREO),IMAGE_ICON,0,0,0);
+        
+        
+		UpdateControls(hDlg, TRUE);        
         return TRUE;
     }
     if (hWnd != hDlg) { return FALSE; }
@@ -406,13 +543,11 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
     switch (message)
     {
     case  WM_ERASEBKGND:
-        //LOG(2,"Toolbar Volume: 0x%08x: bg erase",hWnd);
         return TRUE;
         break;
     case WM_PAINT:
         PAINTSTRUCT ps;            
         ::BeginPaint(hDlg,&ps);                        
-        //LOG(2,"Toolbar Volume: 0x%08x: wm_paint: %d %d,%d,%d,%d",hWnd,ps.fErase,ps.rcPaint.left,ps.rcPaint.top,ps.rcPaint.right,ps.rcPaint.bottom);
         if (ps.fErase)
         {                    
             m_pToolbar->PaintChildBG(hDlg,ps.hdc,NULL);
@@ -428,9 +563,13 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
         if((HWND)lParam == GetDlgItem(hDlg, IDC_TOOLBAR_VOLUME_SLIDER))
         {                                        
             int Volume = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_VOLUME_SLIDER), TBM_GETPOS, 0,0);
+			Volume -= m_VolumeMin;
 
-            SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDC_TOOLBAR_VOLUME_SLIDER,Volume);
-            
+			if (Volume != m_Volume)
+			{
+				SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDC_TOOLBAR_VOLUME_SLIDER,Volume);
+			}
+            SetFocus(m_pToolbar->GethWndParent());
             return TRUE;
         }
         break;         
@@ -442,9 +581,22 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
                     //BOOL bMute = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_TOOLBAR_VOLUME_MUTE));
                    
 					m_Mute=!m_Mute;
-					CheckDlgButton(hDlg, IDC_TOOLBAR_VOLUME_MUTE, m_Mute);
-
-                    SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDC_TOOLBAR_VOLUME_MUTE, m_Mute);                    
+					CheckDlgButton(hDlg, IDC_TOOLBAR_VOLUME_MUTE, m_Mute);					
+                    SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDC_TOOLBAR_VOLUME_MUTE, m_Mute);
+					SetFocus(m_pToolbar->GethWndParent());					
+                    return TRUE;
+                }                   
+                break;
+			case IDC_TOOLBAR_VOLUME_CHANNEL:
+				{
+                    int num = m_SoundChannel;
+					num++;
+					if (num > SOUNDCHANNEL_LANGUAGE2)
+					{
+						num = SOUNDCHANNEL_MONO;
+					}					
+					SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND, IDC_TOOLBAR_VOLUME_CHANNEL, num);
+					SetFocus(m_pToolbar->GethWndParent());					
                     return TRUE;
                 }                   
                 break;
@@ -452,9 +604,64 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
             break;
         }    
         break;
+	case WM_DRAWITEM:
+		{
+			DRAWITEMSTRUCT *pDrawItem;
+			HICON hIcon = NULL;
+			int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
+						TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
+			char szText[100];
+			
+			szText[0] = 0;
+			pDrawItem = (DRAWITEMSTRUCT*)lParam;
+			
+			if ((pDrawItem != NULL) && (pDrawItem->CtlID==IDC_TOOLBAR_VOLUME_CHANNEL))
+			{
+				switch (m_SoundChannel)
+				{
+				case SOUNDCHANNEL_STEREO: 
+					hIcon = m_hIconStereo;
+					strcpy(szText,"Stereo");
+					break;
+				case SOUNDCHANNEL_LANGUAGE1:
+					hIcon = m_hIconLang1;
+					strcpy(szText,"Lang 1");
+					break;
+				case SOUNDCHANNEL_LANGUAGE2:
+					hIcon = m_hIconLang2;		
+					strcpy(szText,"Lang 2");
+					break;
+				default:
+					hIcon = m_hIconMono;						
+					strcpy(szText,"Mono");
+				}
+				Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_TOP|
+						TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_BOTTOM;
+			}
+			
+			if ((pDrawItem != NULL) && (pDrawItem->CtlID==IDC_TOOLBAR_VOLUME_MUTE))
+			{
+				if (m_Mute)
+				{
+					hIcon = m_hIconMute;
+				}
+				else
+				{
+					hIcon = m_hIconUnMute;
+				}
+			}
+
+			if ((pDrawItem != NULL) && ((hIcon != NULL) || (szText[0]!=0)))
+			{
+				RECT rc;
+				GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
+
+				DrawItem(pDrawItem, hIcon, szText, rc.right-rc.left, rc.bottom-rc.top, Align);				
+			}
+		}
+		break;
     case WM_NCHITTEST:
         {
-            //return ::DefWindowProc(pThis->GethWndParent(), WM_NCLBUTTONDOWN, HTCAPTION, lParam);
             return HTCLIENT;
         }
         break;
@@ -473,7 +680,7 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
 // Toolbar Logo ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-CToolbarLogo::CToolbarLogo(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar)
+CToolbarLogo::CToolbarLogo(CToolbarWindow* pToolbar) : CToolbarChild(pToolbar)
 {    
 	OriginalLogoWidth = 0;
 	OriginalLogoHeight =0;
@@ -551,15 +758,147 @@ LRESULT CToolbarLogo::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, L
             return HTCLIENT;
         }
         break; 
-	case WM_CHAR:
-	case WM_KEYDOWN:
-	case WM_KEYUP:
-		return FALSE;	
+	case WM_COMMAND:
+		SetFocus(m_pToolbar->GethWndParent());
+		return FALSE;
     case WM_CLOSE:
     case WM_DESTROY:
         return FALSE;
     }
-    return FALSE;
-    
+    return FALSE;    
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Toolbar Bar ////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+CToolbar1Bar::CToolbar1Bar(CToolbarWindow* pToolbar) : CToolbarChild(pToolbar)
+{    
+	OriginalWidth = 0;
+	OriginalHeight =0;
+	LeftMargin = 0;
+	RightMargin = 0;
+	hWndPicture = NULL;
+}
+
+CToolbar1Bar::~CToolbar1Bar()
+{
+	if (hWndPicture != NULL)
+	{
+		DestroyWindow(hWndPicture);
+		hWndPicture = NULL;
+	}
+	if (hBmp != NULL)
+	{
+		::DeleteObject(hBmp);
+		hBmp = NULL;
+	}
+}
+
+HWND CToolbar1Bar::Create(LPCSTR szClassName, HINSTANCE hResourceInst)
+{
+	HWND hWnd = CToolbarChild::Create(szClassName, hResourceInst);
+	
+	if (hWnd != NULL)
+	{
+		//Create picture window
+		hWndPicture = CreateWindow(
+						  "Static",      
+						  "",
+						  SS_BITMAP | WS_CHILD | WS_VISIBLE,
+						  LeftMargin,         // starting x position 
+						  0,         // starting y position 
+						  10,        // width 
+						  100,        // height 
+						  hWnd,  // parent window 
+						  NULL,        // No menu 
+						  hResourceInst,
+						  NULL); 
+		    
+		if (hWndPicture != NULL)
+		{
+			hBmp = LoadBitmap(hResourceInst, MAKEINTRESOURCE(IDB_TOOLBAR_BAR_BAR));
+	        SendMessage(hWndPicture,STM_SETIMAGE,IMAGE_BITMAP,LPARAM(hBmp));
+			
+			RECT rc;
+			GetWindowRect(hWndPicture, &rc);
+			OriginalWidth = rc.right-rc.left;
+			OriginalHeight = rc.bottom-rc.top;
+
+			Reset();			
+		}
+	}
+	return hWnd;
+
+}
+
+void CToolbar1Bar::Reset()
+{
+    if ((Buttons.size()>0) && (Buttons[0] != NULL))
+    {
+        int Width = Buttons[0]->Width();
+        int Height = Buttons[0]->Height();
+		CToolbarChild::SetPos(0,0,LeftMargin + Width + RightMargin,Height, TRUE);			
+    }
+	else
+	{
+		if (OriginalWidth>0)
+		{
+			CToolbarChild::SetPos(0,0,LeftMargin + OriginalWidth + RightMargin,OriginalHeight, TRUE);			
+		}
+	}	
+}
+
+void CToolbar1Bar::Margins(int l,int r) 
+{ 
+	LeftMargin=l; 
+	RightMargin=r;
+	Reset();
+	if (hWndPicture != NULL)
+	{
+		SetWindowPos(hWndPicture, NULL, LeftMargin,0, 0,0, SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+	}
+}
+
+LRESULT CToolbar1Bar::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if ((hWnd == NULL) && (message == WM_INITDIALOG))
+    {                
+		return TRUE;
+    }
+    if (hWnd != hDlg) { return FALSE; }
+
+    switch (message)
+    {
+    case  WM_ERASEBKGND:
+        return TRUE;
+        break;
+    case WM_PAINT:
+        PAINTSTRUCT ps;            
+        ::BeginPaint(hDlg,&ps);                        
+        if (ps.fErase)
+        {                    
+            m_pToolbar->PaintChildBG(hDlg,ps.hdc,NULL);
+        }
+        else
+        {
+            m_pToolbar->PaintChildBG(hDlg,ps.hdc,&ps.rcPaint);
+        }
+        ::EndPaint(hDlg, &ps);
+        return TRUE;
+        break;    
+    case WM_NCHITTEST:
+        {
+            return HTCLIENT;
+        }
+        break; 
+	case WM_COMMAND:
+		SetFocus(m_pToolbar->GethWndParent());
+		return FALSE;
+    case WM_CLOSE:
+    case WM_DESTROY:
+        return FALSE;
+    }
+    return FALSE;    
+}

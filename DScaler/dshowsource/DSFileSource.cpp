@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.6 2003-01-07 23:31:23 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.7 2003-01-08 20:49:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/01/07 23:31:23  laurentg
+// New overscan settings
+//
 // Revision 1.5  2002/10/22 04:09:49  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -146,6 +149,7 @@ void CDSFileSource::SetOverscan()
 	AspectSettings.InitialBottomOverscan = 0;
 	AspectSettings.InitialLeftOverscan = 0;
 	AspectSettings.InitialRightOverscan = 0;
+    AspectSettings.bAnalogueBlanking = FALSE;
 }
 
 LPCSTR CDSFileSource::GetStatus()

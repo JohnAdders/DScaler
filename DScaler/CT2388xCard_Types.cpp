@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.6 2002-10-21 16:07:26 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.7 2002-10-23 16:10:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/21 16:07:26  adcockj
+// Added H & V delay options for CX2388x cards
+//
 // Revision 1.5  2002/10/21 07:19:33  adcockj
 // Preliminary Support for PixelView XCapture
 //
@@ -313,12 +316,14 @@ void CCT2388xCard::StandardInputSelect(int nInput)
     
         // Read and mask the video input register
         DWORD dwVal = ReadDword(CT2388X_VIDEO_INPUT);
-        
         // zero out mux and svideo bit
         // and force auto detect
 		// also turn off CCIR input
 		// also VERTEN & SPSPD
         dwVal &= 0xFFFC3F00;
+
+        // start with default values except turn of CFILT
+        DWORD FilterSetup(0);
 
 		// set the Mux up from the card setup
         dwVal |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CT2388X_VIDEO_INPUT_MUX_SHIFT);
@@ -334,7 +339,9 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 // Switch chroma DAC to chroma channel
                 OrDataDword(MO_AFECFG_IO, 0x00000001);
                 // switch off luma notch
-                MaskDataDword(CT2388X_FILTER_EVEN, CT2388X_FILTER_LNOTCH, CT2388X_FILTER_LNOTCH);
+                // Luma notch is 1 = off
+                FilterSetup |= CT2388X_FILTER_LNOTCH;
+                // turn on 
                 break;
             case INPUTTYPE_CCIR:
 				dwVal |= CT2388X_VIDEO_INPUT_PE_SRCSEL;
@@ -345,13 +352,37 @@ void CCT2388xCard::StandardInputSelect(int nInput)
             case INPUTTYPE_TUNER:
             case INPUTTYPE_COMPOSITE:
             default:
-                // enable luma notch
-                MaskDataDword(CT2388X_FILTER_EVEN, 0, CT2388X_FILTER_LNOTCH);
+                // test for Laurent
+                // Try out SECAM Notch Filter
+                if(false)
+                {
+                    // May have to switch off normal luma notch
+                    // to see any effect
+                    //FilterSetup |= CT2388X_FILTER_LNOTCH;
+                    
+                    // SECAM Luma notch is 1 = on
+                    FilterSetup |= CT2388X_FILTER_SNOTCH;
+                }
+
                 WriteDword(CT2388X_VIDEO_INPUT,dwVal);
                 // Switch chroma DAC to audio
                 AndDataDword(MO_AFECFG_IO, 0xFFFFFFFE);
                 break;
         }
+
+        // test for Laurent
+        // other stuff that may be required
+        if(false)
+        {
+            // QCIF HFilter
+            FilterSetup |= (1<<11);
+
+            // 29 Tap first chroma demod
+            FilterSetup |= (1<<15);
+        }
+        
+        WriteDword(CT2388X_FILTER_EVEN, FilterSetup);
+        WriteDword(CT2388X_FILTER_ODD, FilterSetup);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.14 2002-10-23 15:18:07 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.15 2002-10-23 16:10:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/23 15:18:07  adcockj
+// Added preliminary code for VBI
+//
 // Revision 1.13  2002/10/22 18:52:18  adcockj
 // Added ASPI support
 //
@@ -423,7 +426,14 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     else if(true)
     {
         DWORD HTotal(0);
-        DWORD Format2HComb(0x183f0008);
+        // set up with
+        // Previous line remodulation - on
+        // 3-d Comb filter - on
+        // Comb Range - 1f
+        // Full Luma Range - on
+        // PAL Invert Phase - off
+        // Coring - off
+        DWORD Format2HComb(0x181f0008);
 
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
@@ -508,7 +518,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
         WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
-        WriteDword(CT2388X_FORMAT_2HCOMB, HTotal);
+        WriteDword(CT2388X_FORMAT_2HCOMB, Format2HComb);
 
         // set up subcarrier frequency
         DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 27.0) * (double)(1<<22));
@@ -671,7 +681,7 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
         WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
-        WriteDword(CT2388X_FORMAT_2HCOMB, HTotal);
+        WriteDword(CT2388X_FORMAT_2HCOMB, Format2HComb);
 
         if(VDelayOverride != 0)
         {

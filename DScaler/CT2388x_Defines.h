@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388x_Defines.h,v 1.4 2002-10-21 16:07:26 adcockj Exp $
+// $Id: CT2388x_Defines.h,v 1.5 2002-10-23 16:10:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -579,6 +579,7 @@
 #define CT2388X_FILTER_SNOTCH   (1 << 18)
 #define CT2388X_FILTER_CLPF1_MASK (3 << 14)
 #define CT2388X_FILTER_CLPF1_SEC   (2 << 14)
+#define CT2388X_FILTER_CLPF1_11   (0 << 14)
 
 #define CT2388X_FORMAT_2HCOMB   0x00310164
 #define CT2388X_PLL             0x00310168

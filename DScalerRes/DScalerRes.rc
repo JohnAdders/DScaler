@@ -519,14 +519,14 @@ BEGIN
                     IDC_STATIC,3,78,274,35
 END
 
-IDD_SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 161
+IDD_SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 199
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Card & Tuner Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,7,138,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,65,138,50,14
-    PUSHBUTTON      "&Auto-Detect",IDC_AUTODETECT,201,138,50,14
+    DEFPUSHBUTTON   "OK",IDOK,8,178,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,66,178,50,14
+    PUSHBUTTON      "&Auto-Detect",IDC_AUTODETECT,35,141,50,14
     COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
                     CBS_SORT | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
@@ -545,6 +545,8 @@ BEGIN
     LTEXT           "",IDC_BT_DEVICE_ID,209,118,64,10
     LTEXT           "Auto Detect ID:",IDC_STATIC,12,118,50,10
     LTEXT           "",IDC_BT_AUTODECTECT_ID,76,118,65,10
+    CTEXT           "If you don't know what card/tuner to select, try the auto-detection by the software. That will probably select for you the right card, but please note that the tuner detection is only working in few cases.",
+                    IDC_STATIC,108,133,178,35
 END
 
 IDD_DISASM_CRASH DIALOG DISCARDABLE  0, 0, 399, 234
@@ -1891,7 +1893,7 @@ BEGIN
 
     IDD_SELECTCARD, DIALOG
     BEGIN
-        BOTTOMMARGIN, 160
+        BOTTOMMARGIN, 198
     END
 
     IDD_TSOPTIONS, DIALOG

@@ -413,7 +413,7 @@ END
 IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 90
 STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
     WS_SYSMENU
-CAPTION "DScaler Videotext Info"
+CAPTION "DScaler Teletext Info"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,55,71,50,15
@@ -426,7 +426,7 @@ BEGIN
     LTEXT           "Current Page",IDC_STATIC,10,34,55,10
     EDITTEXT        IDC_TEXT2,105,34,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
                     ES_READONLY
-    GROUPBOX        "VideoText Cache State",IDC_STATIC,5,4,150,62
+    GROUPBOX        "Teletext Cache State",IDC_STATIC,5,4,150,62
 END
 
 IDD_VPSSTATUS DIALOG DISCARDABLE  22, 17, 187, 66
@@ -1363,7 +1363,7 @@ BEGIN
     BEGIN
         MENUITEM "Capture VBI-&Data",           IDM_VBI
         MENUITEM SEPARATOR
-        MENUITEM "&VideoText",                  IDM_VBI_VT, GRAYED
+        MENUITEM "T&eletext",                   IDM_VBI_VT, GRAYED
         MENUITEM "V&PS-Data",                   IDM_VBI_VPS, GRAYED
         MENUITEM "&WSS-Data",                   IDM_VBI_WSS, GRAYED
         POPUP "&Closed Captions"
@@ -1396,16 +1396,16 @@ BEGIN
             MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
         END
         MENUITEM "Teletext Font &Anti-aliasing", IDM_VT_ANTIALIAS
-        MENUITEM "Videotext &Reset (After switch over Composite)  ", 
+        MENUITEM "Teletext &Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "&Search VideoText ...\tCtrl+F", IDM_VT_SEARCH, GRAYED
+        MENUITEM "&Search Teletext ...\tCtrl+F", IDM_VT_SEARCH, GRAYED
         MENUITEM "Search &Next\tF3",            IDM_VT_SEARCHNEXT, GRAYED
         MENUITEM "Search &Highlight",           IDM_VT_SEARCHHIGHLIGHT
         , GRAYED
-        MENUITEM "Goto Teletext Page ...",      IDM_VT_GOTO
+        MENUITEM "&Goto Teletext Page ...",     IDM_VT_GOTO
         MENUITEM SEPARATOR
-        MENUITEM "Videotext-Infos ...",         IDM_VT_OUT, GRAYED
+        MENUITEM "Teletext-Infos ...",          IDM_VT_OUT, GRAYED
         MENUITEM "VPS-Infos ...",               IDM_VPS_OUT, GRAYED
     END
     POPUP "&Help"

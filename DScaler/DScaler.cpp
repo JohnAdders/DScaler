@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.353 2003-10-10 11:18:59 laurentg Exp $
+// $Id: DScaler.cpp,v 1.354 2003-10-13 19:10:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.353  2003/10/10 11:18:59  laurentg
+// Bug fixed : access to the audio mixer
+//
 // Revision 1.352  2003/10/03 11:40:11  laurentg
 // Update the combobox in the channel toolbar when exiting the channel setup dialog box
 //
@@ -3540,7 +3543,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 if (NewState == VT_OFF)
                 {
-                    OSD_ShowText("VideoText OFF", 0);
+                    OSD_ShowText("Teletext OFF", 0);
                 }
                 else
                 {
@@ -5104,7 +5107,7 @@ void MainWndOnCreate(HWND hWnd)
 
     GetSystemInfo(&SysInfo);
     AddSplashTextLine("Table Build");
-    AddSplashTextLine("VideoText");
+    AddSplashTextLine("Teletext");
 
     VBI_Init(); 
     OSD_Init();

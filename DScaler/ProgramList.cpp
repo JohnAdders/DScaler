@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.66 2002-08-04 12:28:32 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.67 2002-08-05 12:04:26 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/08/04 12:28:32  kooiman
+// Fixed previous channel feature.
+//
 // Revision 1.65  2002/08/02 21:59:03  laurentg
 // Hide the menu "Channels" from the menu bar when the source has no tuner or when the tuner is not the selected input
 //
@@ -1234,6 +1237,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
             {
 				Audio_Mute();
                 Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.
+                Providers_GetCurrentSource()->ChannelPreChange(CurrentProgram, NewChannel);
                 if (!DontStorePrevious)
                 {
                     PreviousProgram = CurrentProgram;
@@ -1258,6 +1262,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                         break;
                     }
                 }
+                Providers_GetCurrentSource()->ChannelChange(CurrentProgram);
                 Sleep(PostSwitchMuteDelay);
                 VT_ChannelChange();
                 StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());

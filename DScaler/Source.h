@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.13 2002-05-06 15:38:50 laurentg Exp $
+// $Id: Source.h,v 1.14 2002-08-05 12:03:17 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -108,6 +108,8 @@ public:
     virtual BOOL IsAccessAllowed() = 0;
     virtual void SetOverscan() = 0;
     virtual BOOL HasSquarePixels() = 0;
+    virtual void ChannelPreChange(int OldChannel, int NewChannel) = 0;
+    virtual void ChannelChange(int NewChannel) = 0;
     char* GetComments();
 protected:
     CSource(long SetMessage, long MenuId);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.56 2002-04-06 11:46:45 laurentg Exp $
+// $Id: OSD.cpp,v 1.57 2002-04-27 14:08:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/04/06 11:46:45  laurentg
+// Check that the current source is not NULL to avoid DScaler exits
+//
 // Revision 1.55  2002/02/23 15:43:08  laurentg
 // General screen (OSD) updated
 //
@@ -836,21 +839,24 @@ static void OSD_RefreshGeneralScreen(double Size)
     OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Source ratio
-    sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
-    if ( (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 1)
-      && (Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) != 1333) )
+    if (!AspectSettings.SquarePixels)
     {
-        strcat(szInfo, " Letterbox");
+        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
+        if ( (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 1)
+          && (Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) != 1333) )
+        {
+            strcat(szInfo, " Letterbox");
+        }
+        else if (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 2)
+        {
+            strcat(szInfo, " Anamorphic");
+        }
+        if (Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)))
+        {
+            strcat(szInfo, " auto");
+        }
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     }
-    else if (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 2)
-    {
-        strcat(szInfo, " Anamorphic");
-    }
-    if (Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)))
-    {
-        strcat(szInfo, " auto");
-    }
-    OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Display ratio
     nLine++;

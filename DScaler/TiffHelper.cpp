@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.18 2002-04-15 22:50:09 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.19 2002-04-27 14:08:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/04/15 22:50:09  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.17  2002/04/14 17:25:26  laurentg
 // New formats of TIFF files supported to take stills : Class R (RGB) with compression LZW or Packbits or JPEG
 //
@@ -95,6 +99,8 @@
 #include "..\ThirdParty\LibTiff\tiffio.h"
 
 
+#define SQUARE_MARK "(square)"
+
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
 //#define NO_CHECK_TIFF_COMPRESS
@@ -163,7 +169,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     uint32 StripSize;
     uint16 Compression;
     char* Software;
-    char* Artist;
+    char* Description;
 
     // Open the file
     tif = TIFFOpen(FileName, "r");
@@ -346,8 +352,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     }
     else
     {
-        if ( !TIFFGetField(tif, TIFFTAG_ARTIST, &Artist)
-          || strcmp(Artist, "***") )
+        if ( !TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &Description)
+          || !strstr(Description, SQUARE_MARK) )
         {
             m_pParent->m_SquarePixels = FALSE;
         }
@@ -375,7 +381,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
 {
     int y, cr, cb, r, g, b;
-    char description[80];
+    char description[132];
     TIFF* tif;
     BYTE *pBufOverlay;
     uint8* buffer;
@@ -465,6 +471,11 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     // Fields of the directory
     //
     sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    if (m_pParent->m_SquarePixels)
+    {
+        strcat(description, "\n\n");
+        strcat(description, SQUARE_MARK);
+    }
     time(&long_time);
     tm_time = localtime(&long_time);
 
@@ -476,9 +487,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
         !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip
         !TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3) ||               // RGB = 3 channels/pixel
         !TIFFSetField(tif, TIFFTAG_SOFTWARE, GetProductNameAndVersion()) ||
-        !TIFFSetField(tif, TIFFTAG_DATETIME, asctime(tm_time)) ||
-        // WARNING: tag "artist" is used to store information about whether pixels of the picture are square or not
-        !TIFFSetField(tif, TIFFTAG_ARTIST, m_pParent->m_SquarePixels ? "***" : ""))
+        !TIFFSetField(tif, TIFFTAG_DATETIME, asctime(tm_time)))
     {
         _TIFFfree(buffer);
         TIFFClose(tif);

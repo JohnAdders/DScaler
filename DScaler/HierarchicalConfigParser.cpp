@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.3 2004-11-21 14:17:38 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.4 2004-11-21 16:21:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/11/21 14:17:38  atnak
+// Made line comments able to start anywhere in the line.
+//
 // Revision 1.2  2004/11/20 16:36:40  atnak
 // Removed the use of ifstream and added custom buffered line reader.
 //
@@ -914,7 +917,7 @@ bool CHCParser::ProcessEqual()
 
 	if (m_parseStates.front().expect & EXPECT_OPEN_V)
 	{
-		m_parseStates.front().expect &= ~(EXPECT_TAG|EXPECT_OPEN_L);
+		m_parseStates.front().expect &= ~EXPECT_TAG;
 		m_parseStates.front().expect |= EXPECT_VALUE;
 	}
 	else
@@ -968,21 +971,24 @@ bool CHCParser::ProcessValue()
 	}
 	else if (IsAlnum(*m_linePoint))
 	{
-		char* parseStart = m_linePoint;
-		for ( ; IsAlnum(*m_linePoint); m_linePoint++) ;
-
-		char delim = *m_linePoint;
-		*m_linePoint = '\0';
-
-		if (!AcceptValue(m_parseStates.front().parseTags,
-			m_parseStates.front().parseTags->parseTypes & (PARSE_CONSTANT|PARSE_NUMERIC),
-			parseStart, (unsigned long)(m_linePoint - parseStart)))
+		if (m_parseStates.front().parseTags->parseTypes & (PARSE_CONSTANT|PARSE_NUMERIC))
 		{
-			return false;
-		}
+			char* parseStart = m_linePoint;
+			for ( ; IsAlnum(*m_linePoint); m_linePoint++) ;
 
-		*m_linePoint = delim;
-		return true;
+			char delim = *m_linePoint;
+			*m_linePoint = '\0';
+
+			if (!AcceptValue(m_parseStates.front().parseTags,
+				m_parseStates.front().parseTags->parseTypes & (PARSE_CONSTANT|PARSE_NUMERIC),
+				parseStart, (unsigned long)(m_linePoint - parseStart)))
+			{
+				return false;
+			}
+
+			*m_linePoint = delim;
+			return true;
+		}
 	}
 
 	return false;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.309 2003-02-08 13:16:47 laurentg Exp $
+// $Id: DScaler.cpp,v 1.310 2003-02-27 01:37:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.309  2003/02/08 13:16:47  laurentg
+// Change resolution in full screen mode slightly updated
+//
 // Revision 1.308  2003/02/07 12:46:17  laurentg
 // Change resolution correctly handled when DScaler is minimized and restored
 //
@@ -4406,12 +4409,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // Paint the OSD stuff
             OSD_Redraw(hDC, &Rect);
 
+            OffscreenHDC.EndPaint();
+
             if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
             {
-                WindowBorder->Paint(hWnd, hDC, &sPaint.rcPaint);
+                WindowBorder->Paint(hWnd, sPaint.hdc, &sPaint.rcPaint);
             }
-
-            OffscreenHDC.EndPaint();
 
             EndPaint(hWnd, &sPaint);
         }

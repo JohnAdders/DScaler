@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.h,v 1.6 2003-02-06 19:47:29 ittarnavsky Exp $
+// $Id: ITuner.h,v 1.7 2003-02-06 21:27:41 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/02/06 19:47:29  ittarnavsky
+// removed dependency on BT848_Defines.h, introduced new TunerID.h
+//
 // Revision 1.5  2002/10/26 15:37:57  adcockj
 // Made ITuner more abstract by removing inheritance from CI2CDevice
 // New class II2CTuner created for tuners that are controled by I2C
@@ -51,8 +54,6 @@
 #include "TunerID.h"
 #include "TVFormats.h"
 #include "I2CDevice.h"
-
-extern const char *TunerNames[TUNER_LASTONE];
 
 #define TUNER_AFCSTATUS_NOCARRIER 1000000000L
 

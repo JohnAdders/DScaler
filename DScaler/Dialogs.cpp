@@ -40,6 +40,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "Dialogs.h"
 #include "BT848.h"
 #include "DScaler.h"

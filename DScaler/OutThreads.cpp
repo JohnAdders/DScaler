@@ -65,6 +65,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "OutThreads.h"
 #include "Other.h"
 #include "BT848.h"
@@ -81,6 +82,7 @@
 #include "FD_60Hz.h"
 #include "FD_50Hz.h"
 #include "FD_Common.h"
+#include "FD_CommonFunctions.h"
 #include "CPU.h"
 #include "FieldTiming.h"
 
@@ -425,6 +427,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 		while(!bStopThread)
 		{
 			// update with any changes
+			CurrentMethod = GetCurrentDeintMethod();
 			info.SleepInterval = Sleep_Interval;
 			info.bDoAccurateFlips = DoAccurateFlips;
 			info.bRunningLate = Hurry_When_Late;
@@ -434,7 +437,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			
 			if(bIsPaused == FALSE)
 			{
-				CurrentMethod = GetCurrentDeintMethod();
 				info.OverlayPitch = OverlayPitch;
 				info.LineLength = CurrentX * 2;
 				info.FrameWidth = CurrentX;
@@ -481,11 +483,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				{
                     if(bAutoDetectMode == TRUE)
                     {
-					    // experimental
-					    // does both comb and diff
-					    // but in slightly different way
-					    // uncomment to play
-					    DoBothCombAndDiff(&info);
+                        // we will need always need both comb and diff
+                        // for film detect to work properly
+                        PerformFilmDetectCalculations(&info, TRUE, TRUE);
 
 					    if(bIsPAL)
 					    {
@@ -495,22 +495,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
 						    UpdateNTSCPulldownMode(&info);
 					    }
-						// get the current method after the film modes have been selected
+						// get the current method again
+                        // after the film modes have been selected
 						CurrentMethod = GetCurrentDeintMethod();
                     }
                     else
                     {
-						CurrentMethod = GetCurrentDeintMethod();
-
-					    if(CurrentMethod->bNeedCombFactor)
-					    {
-						    GetCombFactor(&info);
-					    }
-
-					    if(CurrentMethod->bNeedFieldDiff)
-					    {
-						    CompareFields(&info);
-					    }
+                        PerformFilmDetectCalculations(&info, 
+                                                        CurrentMethod->bNeedCombFactor, 
+                                                        CurrentMethod->bNeedFieldDiff);
                     }
 				}
 

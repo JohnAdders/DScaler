@@ -65,12 +65,6 @@ typedef enum
 
 #define MAX_FIELD_HISTORY 5
 
-void memcpyMMX(void *Dest, void *Src, size_t nBytes);
-
-#ifdef USE_SSE
-void memcpySSE(void *Dest, void *Src, size_t nBytes);
-#endif
-
 BOOL LoadDeinterlacePlugins();
 void UnloadDeinterlacePlugins();
 

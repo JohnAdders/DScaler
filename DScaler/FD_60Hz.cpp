@@ -41,6 +41,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "OutThreads.h"
 #include "FD_60Hz.h"
 #include "FD_Common.h"
@@ -189,8 +190,6 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
 	// Threshold32Pulldown probably should be changed to be automatically
 	// compensating depending on the material.
 	
-	CompareFields(pInfo);
-
 	if(MovingAverage <= 0)
 	{
 		MovingAverage = 1;
@@ -232,7 +231,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
                 if(ThresholdPulldownMismatch > 0 &&
 			        pInfo->FieldDiff >= ThresholdPulldownMismatch &&
 			        DoWeWantToFlip(pInfo) &&
-			        GetCombFactor(pInfo) > LastCombFactor + 200) 
+			        pInfo->CombFactor > LastCombFactor + 200) 
 		        {
 			        NextPulldownRepeatCount = 1;
 			        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
@@ -256,7 +255,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo)
                 if(ThresholdPulldownMismatch > 0 &&
 			        pInfo->FieldDiff >= ThresholdPulldownMismatch &&
 			        DoWeWantToFlip(pInfo) &&
-			        GetCombFactor(pInfo) > LastCombFactor + 200) 
+			        pInfo->CombFactor > LastCombFactor + 200) 
 		        {
 			        NextPulldownRepeatCount = 1;
                     // Reset the paramters of the Comb method

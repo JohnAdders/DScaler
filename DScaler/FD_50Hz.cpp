@@ -73,9 +73,13 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 		StartFilmTicks = 0;
 		return;
 	}
-
-	GetCombFactor(pInfo);
-	PercentDecrease = ((double)pInfo->CombFactor * 100.0) / ((double)LastCombFactor + 100.0);
+    
+    if(pInfo->CombFactor < 0)
+    {
+        return;
+    }
+	
+    PercentDecrease = ((double)pInfo->CombFactor * 100.0) / ((double)LastCombFactor + 100.0);
 	PercentIncrease = ((double)(pInfo->CombFactor - LastCombFactor) * 100.0) / ((double)LastCombFactor + 100.0);
 
 	if(!IsFilmMode())

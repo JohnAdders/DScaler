@@ -32,6 +32,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "tvcards.h"
 #include "bt848.h"
 #include "i2c.h"

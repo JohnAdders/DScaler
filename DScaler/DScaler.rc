@@ -717,6 +717,7 @@ BEGIN
             MENUITEM "&Automatic Pulldown Detect",  IDM_AUTODETECT
             MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
             MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
+            MENUITEM "Use &Chroma in Film Detect",  IDM_USECHROMA
             MENUITEM SEPARATOR
             POPUP "&Manual Film Mode Select"
             BEGIN

@@ -49,6 +49,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "Settings.h"
 #include "Tuner.h"
 #include "Audio.h"

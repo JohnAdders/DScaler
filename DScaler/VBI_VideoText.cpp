@@ -36,6 +36,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "bt848.h"
 #include "VBI_VideoText.h"
 #include "VBI_CCdecode.h"

@@ -33,6 +33,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "VBI_CCdecode.h"
 #include "DebugLog.h"
 #include "DScaler.h"

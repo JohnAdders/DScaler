@@ -64,6 +64,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "Other.h"
 #include "BT848.h"
 #include "CPU.h"
@@ -82,6 +83,7 @@
 #include "VBI.h"
 #include "FD_60Hz.H"
 #include "FD_50Hz.H"
+#include "FD_Common.H"
 #include "Filter.h"
 #include "Splash.h"
 #include "VideoSettings.h"
@@ -1216,6 +1218,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			Stop_Capture();
 			Setting_SetValue(OutThreads_GetSetting(DOACCURATEFLIPS), 
 				!Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)));
+			Start_Capture();
+			break;
+        
+        case IDM_USECHROMA:
+			Stop_Capture();
+			Setting_SetValue(FD_Common_GetSetting(USECHROMA), 
+				!Setting_GetValue(FD_Common_GetSetting(USECHROMA)));
 			Start_Capture();
 			break;
 

@@ -29,6 +29,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "Splash.h"
 #include "DScaler.h"
 #include "DebugLog.h"

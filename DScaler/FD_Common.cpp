@@ -42,6 +42,7 @@
 #include "stdafx.h"
 #include "OutThreads.h"
 #include "FD_Common.h"
+#include "FD_CommonFunctions.h"
 #include "DebugLog.h"
 
 
@@ -51,10 +52,64 @@ long BitShift = 13;
 long CombEdgeDetect = 625;
 long CombJaggieThreshold = 73;
 long DiffThreshold = 224;
+BOOL UseChromaInDetect = FALSE;
 
+void CalcCombFactor(DEINTERLACE_INFO *pInfo);
+void CalcDiffFactor(DEINTERLACE_INFO *pInfo);
+void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo);
+void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo);
+void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo);
+void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo);
+
+// want to be able to access these from the assemby routines they should
+// be together in memory so don't make them const even though they are
+extern "C"
+{
+    __int64 qwYMask    = 0x00ff00ff00ff00ff;
+    __int64 qwOnes = 0x0001000100010001;
+    __int64 qwThreshold;
+    __int64 qwBitShift;
+}
+
+void PerformFilmDetectCalculations(DEINTERLACE_INFO *pInfo, BOOL NeedComb, BOOL NeedDiff)
+{
+    if(NeedComb && NeedDiff)
+    {
+        if(UseChromaInDetect)
+        {
+            DoBothCombAndDiffChroma(pInfo);
+        }
+        else
+        {
+            DoBothCombAndDiff(pInfo);
+        }
+    }
+    else if(NeedComb)
+    {
+        if(UseChromaInDetect)
+        {
+            CalcCombFactorChroma(pInfo);        
+        }
+        else
+        {
+            CalcCombFactor(pInfo);
+        }
+    }
+    else if(NeedDiff)
+    {
+        if(UseChromaInDetect)
+        {
+            CalcDiffFactorChroma(pInfo);
+        }
+        else
+        {
+            CalcDiffFactor(pInfo);
+        }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-// GetCombFactor
+// CalcCombFactor
 //
 // This routine basically calculates how close the pixels in pSecondaryLines
 // are the interpelated pixels between pPrimaryLines
@@ -69,117 +124,37 @@ long DiffThreshold = 224;
 // VBI lines are off screen
 // the BitShift value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-long GetCombFactor(DEINTERLACE_INFO *pInfo)
+void CalcCombFactor(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
-	WORD LineFactor;
 	long CombFactor = 0;
-	short* YVal1;
-	short* YVal2;
-	short* YVal3;
-	long ActiveX = pInfo->SourceRect.right - pInfo->SourceRect.left;
-	const __int64 YMask    = 0x00ff00ff00ff00ff;
-	const __int64 qwOnes = 0x0001000100010001;
 
-	__int64 qwEdgeDetect;
-	__int64 qwThreshold;
-
-	// If we've already computed the comb factor, just return it.
-	if (pInfo->CombFactor > -1)
-		return pInfo->CombFactor;
-
-	// If one of the fields is missing, treat them as very different.
+    // If one of the fields is missing, treat them as very different.
 	if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL)
 	{
 		pInfo->CombFactor = 0x7fffffff;
-		return pInfo->CombFactor;
+		return;
 	}
 
-	qwEdgeDetect = CombEdgeDetect;
-	qwEdgeDetect += (qwEdgeDetect << 48) + (qwEdgeDetect << 32) + (qwEdgeDetect << 16);
 	qwThreshold = CombJaggieThreshold;
 	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
 
-	for (Line = pInfo->SourceRect.top / 2; Line < pInfo->SourceRect.bottom / 2 - 1; ++Line)
+	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	{
 		if(pInfo->IsOdd)
 		{
-			YVal1 = pInfo->OddLines[0][Line] + (pInfo->SourceRect.left & ~1);
-			YVal2 = pInfo->EvenLines[0][Line + 1] + (pInfo->SourceRect.left & ~1);
-			YVal3 = pInfo->OddLines[0][Line + 1] + (pInfo->SourceRect.left & ~1);
+            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
+                                            pInfo->EvenLines[0][Line + 1] + 16, 
+                                            pInfo->OddLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
 		}
 		else
 		{
-			YVal1 = pInfo->EvenLines[0][Line] + (pInfo->SourceRect.left & ~1);
-			YVal2 = pInfo->OddLines[0][Line] + (pInfo->SourceRect.left & ~1);
-			YVal3 = pInfo->EvenLines[0][Line + 1] + (pInfo->SourceRect.left & ~1);
+            CombFactor += CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
 		}
-
-		_asm
-		{
-			mov ecx, ActiveX
-			mov eax,dword ptr [YVal1]
-			mov ebx,dword ptr [YVal2]
-			mov edx,dword ptr [YVal3]
-			shr ecx, 2       // there are ActiveX * 2 / 8 qwords
-		    movq mm1, YMask
-			pxor mm0, mm0    // mm0 = 0
-align 8
-Next8Bytes:
-			movq mm3, qword ptr[eax] 
-			movq mm4, qword ptr[ebx] 
-			movq mm5, qword ptr[edx]
-
-			pand mm3, YMask
-			pand mm4, YMask
-			pand mm5, YMask
-
-			// work out (O1 - E) * (O2 - E) - EdgeDetect * (O1 - O2) ^ 2 >> 12
-			// result will be in mm6
-
-			psrlw mm3, 01
-			psrlw mm4, 01
-			psrlw mm5, 01
-
-			movq mm6, mm3
-			psubw mm6, mm4		//mm6 = O1 - E
-
-			movq mm7, mm5
-			psubw mm7, mm4		//mm7 = O2 - E
-
-			pmullw mm6, mm7		// mm0 = (O1 - E) * (O2 - E)
-
-			movq mm7, mm3
-			psubw mm7, mm5		// mm7 = (O1 - O2)
-			pmullw mm7, mm7		// mm7 = (O1 - O2) ^ 2
-			psrlw mm7, 12		// mm7 = (O1 - O2) ^ 2 >> 12
-			pmullw mm7, qwEdgeDetect		// mm1  = EdgeDetect * (O1 - O2) ^ 2 >> 12
-
-			psubw mm6, mm7      // mm6 is what we want
-
-			pcmpgtw mm6, qwThreshold
-
-			pand mm6, qwOnes
-
-			paddw mm0, mm6
-
-			add eax, 8
-			add ebx, 8
-			add edx, 8
-
-			dec ecx
-			jne near Next8Bytes
-
-			movd eax, mm0
-			psrlq mm0,32
-			movd ecx, mm0
-			add ecx, eax
-            mov ax, cx
-            shr ecx, 16
-            add ax, cx
-			mov LineFactor, ax
-		}
-		CombFactor += LineFactor;
 	}
 
     // Clear out MMX registers before we need to do floating point again
@@ -190,11 +165,55 @@ Next8Bytes:
 
 	pInfo->CombFactor = CombFactor;
 	LOG(" Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
-	return CombFactor;
+	return;
+}
+
+void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo)
+{
+	int Line;
+	long CombFactor = 0;
+
+	// If one of the fields is missing, treat them as very different.
+	if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL)
+	{
+		pInfo->CombFactor = 0x7fffffff;
+		return;
+	}
+
+	qwThreshold = CombJaggieThreshold;
+	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
+
+	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
+	{
+		if(pInfo->IsOdd)
+		{
+            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
+                                            pInfo->EvenLines[0][Line + 1] + 16, 
+                                            pInfo->OddLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
+		}
+		else
+		{
+            CombFactor += CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
+		}
+	}
+
+    // Clear out MMX registers before we need to do floating point again
+    _asm
+    {
+ 		emms
+    }
+
+	pInfo->CombFactor = CombFactor;
+	LOG(" Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
+	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CompareFields
+// CalcDiffFactor
 //
 // This routine basically calculates how close the pixels in pLines2
 // are to the pixels in pLines1
@@ -206,22 +225,14 @@ Next8Bytes:
 // VBI lines are off screen
 // the BitShift value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-long CompareFields(DEINTERLACE_INFO *pInfo)
+void CalcDiffFactor(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
-	DWORD LineFactor;
 	long DiffFactor = 0;
-	short* YVal1;
-	short* YVal2;
-	long ActiveX = pInfo->SourceRect.right - pInfo->SourceRect.left;
-	const __int64 YMask    = 0x00ff00ff00ff00ff;
-	__int64 wBitShift    = BitShift;
 	short** pLines1;
 	short** pLines2;
-
-	// If we've already computed the field difference, just return it.
-	if (pInfo->FieldDiff > -1)
-		return pInfo->FieldDiff;
+    
+    qwBitShift = BitShift;
 
 	if(pInfo->IsOdd)
 	{
@@ -236,55 +247,187 @@ long CompareFields(DEINTERLACE_INFO *pInfo)
 
 	// If we skipped a field, treat the new one as maximally different.
 	if (pLines1 == NULL || pLines2 == NULL)
-		return 0x7fffffff;
+    {
+        pInfo->FieldDiff = 0x7fffffff;
+		return;
+    }
 
-	for (Line = pInfo->SourceRect.top / 2; Line < pInfo->SourceRect.bottom / 2; ++Line)
+	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	{
-		YVal1 = pLines1[Line] + (pInfo->SourceRect.left & ~1);
-		YVal2 = pLines2[Line] + (pInfo->SourceRect.left & ~1);
-		_asm
-		{
-			mov ecx, ActiveX
-			mov eax,dword ptr [YVal1]
-			mov ebx,dword ptr [YVal2]
-			shr ecx, 2		 // there are ActiveX * 2 / 8 qwords
-		    movq mm1, YMask
-			movq mm7, wBitShift
-			pxor mm0, mm0    // mm0 = 0  this is running total
-align 8
-Next8Bytes:
-			movq mm4, qword ptr[eax] 
-			movq mm5, qword ptr[ebx] 
-			pand mm5, mm1    // get only Y compoment
-			pand mm4, mm1    // get only Y compoment
-
-			psubw mm4, mm5   // mm4 = Y1 - Y2
-			pmaddwd mm4, mm4 // mm4 = (Y1 - Y2) ^ 2
-			psrld mm4, mm7   // divide mm4 by 2 ^ Bitshift
-			paddd mm0, mm4   // keep total in mm0
-
-			add eax, 8
-			add ebx, 8
-			
-			dec ecx
-			jne near Next8Bytes
-
-			movd eax, mm0
-			psrlq mm0,32
-			movd ecx, mm0
-			add ecx, eax
-			mov LineFactor, ecx
-			emms
-		}
-		DiffFactor += (long)sqrt(LineFactor);
+		DiffFactor += (long)sqrt(CalcDiffFactorLine(pLines1[Line] + 16,
+                                                    pLines2[Line] + 16,
+                                                    pInfo->LineLength - 32));
 	}
 
 	pInfo->FieldDiff = DiffFactor;
 	LOG(" Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
-	return DiffFactor;
 }
 
-void DoBothCombAndDiff(DEINTERLACE_INFO *info)
+///////////////////////////////////////////////////////////////////////////////
+// CalcDiffFactorChroma
+//
+// This routine basically calculates how close the pixels in pLines2
+// are to the pixels in pLines1
+// this is my attempt to implement Mark Rejhon's 3:2 pulldown code
+// we will use this to dect the times when we get three fields in a row from
+// the same frame
+// the result is the total average diffrence between the Y components of each pixel
+// This function only works on the area displayed so will perform better if any
+// VBI lines are off screen
+// the BitShift value is used to filter out noise and quantization error
+///////////////////////////////////////////////////////////////////////////////
+void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo)
+{
+	int Line;
+	long DiffFactor = 0;
+	short** pLines1;
+	short** pLines2;
+    
+    qwBitShift = BitShift;
+
+	if(pInfo->IsOdd)
+	{
+		pLines1 = pInfo->OddLines[1];
+		pLines2 = pInfo->OddLines[0];
+	}
+	else
+	{
+		pLines1 = pInfo->EvenLines[1];
+		pLines2 = pInfo->EvenLines[0];
+	}
+
+	// If we skipped a field, treat the new one as maximally different.
+	if (pLines1 == NULL || pLines2 == NULL)
+    {
+        pInfo->FieldDiff = 0x7fffffff;
+		return;
+    }
+
+	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
+	{
+		DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pLines1[Line] + 16,
+                                                        pLines2[Line] + 16,
+                                                        pInfo->LineLength - 32));
+	}
+
+	pInfo->FieldDiff = DiffFactor;
+	LOG(" Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+}
+
+void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
+{
+	int Line;
+	long CombFactor = 0;
+	long DiffFactor = 0;
+
+    qwThreshold = CombJaggieThreshold;
+	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
+    qwBitShift = BitShift;
+    
+    if(pInfo->IsOdd)
+    {
+        // If one of the fields is missing, treat them as very different.
+	    if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->OddLines[1] == NULL)
+	    {
+		    pInfo->CombFactor = 0x7fffffff;
+		    pInfo->FieldDiff = 0x7fffffff;
+		    return;
+	    }
+	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
+	    {
+            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
+                                            pInfo->EvenLines[0][Line + 1] + 16, 
+                                            pInfo->OddLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
+		    DiffFactor += (long)sqrt(CalcDiffFactorLine(pInfo->OddLines[0][Line] + 16,
+                                                        pInfo->OddLines[1][Line] + 16,
+                                                        pInfo->LineLength - 32));
+	    }
+    }
+    else
+    {
+        // If one of the fields is missing, treat them as very different.
+	    if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->EvenLines[1] == NULL)
+	    {
+		    pInfo->CombFactor = 0x7fffffff;
+		    pInfo->FieldDiff = 0x7fffffff;
+		    return;
+	    }
+	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
+	    {
+            CombFactor += CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
+		    DiffFactor += (long)sqrt(CalcDiffFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                                        pInfo->EvenLines[1][Line] + 16,
+                                                        pInfo->LineLength - 32));
+	    }
+    }
+
+	pInfo->CombFactor = CombFactor;
+	pInfo->FieldDiff = DiffFactor;
+	LOG(" Frame %d %c CF = %d FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor, pInfo->FieldDiff);
+}
+
+void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
+{
+	int Line;
+	long CombFactor = 0;
+	long DiffFactor = 0;
+
+    qwThreshold = CombJaggieThreshold;
+	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
+    qwBitShift = BitShift;
+    
+    if(pInfo->IsOdd)
+    {
+        // If one of the fields is missing, treat them as very different.
+	    if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->OddLines[1] == NULL)
+	    {
+		    pInfo->CombFactor = 0x7fffffff;
+		    pInfo->FieldDiff = 0x7fffffff;
+		    return;
+	    }
+	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
+	    {
+            CombFactor += CalcCombFactorLineChroma(pInfo->OddLines[0][Line] + 16,
+                                            pInfo->EvenLines[0][Line + 1] + 16, 
+                                            pInfo->OddLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
+		    DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
+                                                        pInfo->OddLines[1][Line] + 16,
+                                                        pInfo->LineLength - 32));
+	    }
+    }
+    else
+    {
+        // If one of the fields is missing, treat them as very different.
+	    if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->EvenLines[1] == NULL)
+	    {
+		    pInfo->CombFactor = 0x7fffffff;
+		    pInfo->FieldDiff = 0x7fffffff;
+		    return;
+	    }
+	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
+	    {
+            CombFactor += CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
+                                            pInfo->LineLength - 32);
+		    DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+                                                        pInfo->EvenLines[1][Line] + 16,
+                                                        pInfo->LineLength - 32));
+	    }
+    }
+
+	pInfo->CombFactor = CombFactor;
+	pInfo->FieldDiff = DiffFactor;
+	LOG(" Frame %d %c CF = %d FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor, pInfo->FieldDiff);
+}
+
+
+void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
 {
 	int Line;
 	int LoopCtr;
@@ -490,128 +633,6 @@ BOOL Weave(DEINTERLACE_INFO *info)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// Copies memory to two locations using MMX registers for speed.
-void memcpyBOBMMX(void *Dest1, void *Dest2, void *Src, size_t nBytes)
-{
-	__asm
-	{
-		mov		esi, dword ptr[Src]
-		mov		edi, dword ptr[Dest1]
-		mov     ebx, dword ptr[Dest2]
-		mov		ecx, nBytes
-		shr     ecx, 6                      // nBytes / 64
-align 8
-CopyLoop:
-		movq	mm0, qword ptr[esi]
-		movq	mm1, qword ptr[esi+8*1]
-		movq	mm2, qword ptr[esi+8*2]
-		movq	mm3, qword ptr[esi+8*3]
-		movq	mm4, qword ptr[esi+8*4]
-		movq	mm5, qword ptr[esi+8*5]
-		movq	mm6, qword ptr[esi+8*6]
-		movq	mm7, qword ptr[esi+8*7]
-		movq	qword ptr[edi], mm0
-		movq	qword ptr[edi+8*1], mm1
-		movq	qword ptr[edi+8*2], mm2
-		movq	qword ptr[edi+8*3], mm3
-		movq	qword ptr[edi+8*4], mm4
-		movq	qword ptr[edi+8*5], mm5
-		movq	qword ptr[edi+8*6], mm6
-		movq	qword ptr[edi+8*7], mm7
-		movq	qword ptr[ebx], mm0
-		movq	qword ptr[ebx+8*1], mm1
-		movq	qword ptr[ebx+8*2], mm2
-		movq	qword ptr[ebx+8*3], mm3
-		movq	qword ptr[ebx+8*4], mm4
-		movq	qword ptr[ebx+8*5], mm5
-		movq	qword ptr[ebx+8*6], mm6
-		movq	qword ptr[ebx+8*7], mm7
-		add		esi, 64
-		add		edi, 64
-		add		ebx, 64
-		dec ecx
-		jne near CopyLoop
-
-		mov		ecx, nBytes
-		and     ecx, 63
-		cmp     ecx, 0
-		je EndCopyLoop
-align 8
-CopyLoop2:
-		mov dl, byte ptr[esi] 
-		mov byte ptr[edi], dl
-		mov byte ptr[ebx], dl
-		inc esi
-		inc edi
-		inc ebx
-		dec ecx
-		jne near CopyLoop2
-EndCopyLoop:
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// Copies memory to two locations using MMX registers for speed.
-void memcpyBOBSSE(void *Dest1, void *Dest2, void *Src, size_t nBytes)
-{
-	__asm
-	{
-		mov		esi, dword ptr[Src]
-		mov		edi, dword ptr[Dest1]
-		mov     ebx, dword ptr[Dest2]
-		mov		ecx, nBytes
-		shr     ecx, 7                      // nBytes / 128
-align 8
-CopyLoop:
-		movaps	xmm0, xmmword ptr[esi]
-		movaps	xmm1, xmmword ptr[esi+16*1]
-		movaps	xmm2, xmmword ptr[esi+16*2]
-		movaps	xmm3, xmmword ptr[esi+16*3]
-		movaps	xmm4, xmmword ptr[esi+16*4]
-		movaps	xmm5, xmmword ptr[esi+16*5]
-		movaps	xmm6, xmmword ptr[esi+16*6]
-		movaps	xmm7, xmmword ptr[esi+16*7]
-		movntps	xmmword ptr[edi], xmm0
-		movntps	xmmword ptr[edi+16*1], xmm1
-		movntps	xmmword ptr[edi+16*2], xmm2
-		movntps	xmmword ptr[edi+16*3], xmm3
-		movntps	xmmword ptr[edi+16*4], xmm4
-		movntps	xmmword ptr[edi+16*5], xmm5
-		movntps	xmmword ptr[edi+16*6], xmm6
-		movntps	xmmword ptr[edi+16*7], xmm7
-		movntps	xmmword ptr[ebx], xmm0
-		movntps	xmmword ptr[ebx+16*1], xmm1
-		movntps	xmmword ptr[ebx+16*2], xmm2
-		movntps	xmmword ptr[ebx+16*3], xmm3
-		movntps	xmmword ptr[ebx+16*4], xmm4
-		movntps	xmmword ptr[ebx+16*5], xmm5
-		movntps	xmmword ptr[ebx+16*6], xmm6
-		movntps	xmmword ptr[ebx+16*7], xmm7
-		add		esi, 128
-		add		edi, 128
-		add		ebx, 128
-		dec ecx
-		jne near CopyLoop
-
-		mov		ecx, nBytes
-		and     ecx, 127
-		cmp     ecx, 0
-		je EndCopyLoop
-align 8
-CopyLoop2:
-		mov dl, byte ptr[esi] 
-		mov byte ptr[edi], dl
-		mov byte ptr[ebx], dl
-		inc esi
-		inc edi
-		inc ebx
-		dec ecx
-		jne near CopyLoop2
-EndCopyLoop:
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////
 // Simple Bob.  Copies the most recent field to the overlay, with each scanline
 // copied twice.
 /////////////////////////////////////////////////////////////////////////////
@@ -717,6 +738,13 @@ SETTING FD_CommonSettings[FD_COMMON_SETTING_LASTONE] =
 		224, 0, 5000, 5, 1,
 		NULL,
 		"Pulldown", "DiffThreshold", NULL,
+
+	},
+	{
+		"Use Chroma in Film Detect", YESNO, 0, (long*)&UseChromaInDetect,
+		0, 0, 1, 1, 1,
+		NULL,
+		"Pulldown", "UseChroma", NULL,
 
 	},
 };

@@ -17,7 +17,6 @@
 #include <math.h>
 #include <mmsystem.h>
 #include <winioctl.h>
-#include "resource.h"
 #include "ErrorBox.h"
 #include "DSDrv.h"
 #include "COMMCTRL.H"

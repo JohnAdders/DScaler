@@ -57,6 +57,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "OSD.h"
 #include "AspectRatio.h"
 #include "Other.h"

@@ -45,6 +45,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "ProgramList.h"
 #include "Tuner.h"
 #include "BT848.h"

@@ -36,6 +36,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "MixerDev.h"
 #include "DScaler.h"
 

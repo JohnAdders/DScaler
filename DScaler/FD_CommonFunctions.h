@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// FD_Common.h
+// FD_CommonFunctions.h
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,31 +20,23 @@
 //
 // Date          Developer             Changes
 //
-// 09 Jan 2001   John Adcock           Split into new file
+// 01 Jun 2001   John Adcock           Split into new file
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __FD_COMMON_H___
-#define __FD_COMMON_H___
+#ifndef __FD_COMMON_FUNCTIONS_H___
+#define __FD_COMMON_FUNCTIONS_H___
 
-#include "settings.h"
-#include "deinterlace.h"
-
-
-// Get Hold of the FD_50Hz.c file settings
-SETTING* FD_Common_GetSetting(FD_COMMON_SETTING Setting);
-void FD_Common_ReadSettingsFromIni();
-void FD_Common_WriteSettingsToIni();
-
-#define MAXMODESWITCHES 50	// Maximum number of switches to track in TrackModeSwitches()
-
-void ResetModeSwitches();
-BOOL TrackModeSwitches();
-
-void PerformFilmDetectCalculations(DEINTERLACE_INFO *pInfo, BOOL NeedComb, BOOL NeedDiff);
-
-BOOL Weave(DEINTERLACE_INFO *info);
-BOOL Bob(DEINTERLACE_INFO *info);
-
+extern "C"
+{
+    WORD CalcCombFactorLine(short* YVal1, short* YVal2, short* YVal3, long BytesToProcess);
+    WORD CalcCombFactorLineChroma(short* YVal1, short* YVal2, short* YVal3, long BytesToProcess);
+    DWORD CalcDiffFactorLine(short* YVal1, short* YVal2, long BytesToProcess);
+    DWORD CalcDiffFactorLineChroma(short* YVal1, short* YVal2, long BytesToProcess);
+    void memcpyBOBMMX(void *Dest1, void *Dest2, void *Src, size_t nBytes);
+    void memcpyBOBSSE(void *Dest1, void *Dest2, void *Src, size_t nBytes);
+    void memcpyMMX(void *Dest, void *Src, size_t nBytes);
+    void memcpySSE(void *Dest, void *Src, size_t nBytes);
+}
 
 #endif

@@ -31,6 +31,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "bt848.h"
 #include "AspectRatio.h"
 #include "Audio.h"

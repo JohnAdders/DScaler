@@ -43,6 +43,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "resource.h"
 #include "bt848.h"
 #include "OutThreads.h"
 #include "Audio.h"

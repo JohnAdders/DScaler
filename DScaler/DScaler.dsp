@@ -168,6 +168,37 @@ SOURCE=.\FD_Common.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FD_CommonFunctions.asm
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+# Begin Custom Build
+IntDir=.\Debug
+InputPath=.\FD_CommonFunctions.asm
+InputName=FD_CommonFunctions
+
+"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	ml /c /Zd /coff /nologo /Fo$(IntDir)\$(InputName).obj $(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# Begin Custom Build
+IntDir=.\Release
+InputPath=.\FD_CommonFunctions.asm
+InputName=FD_CommonFunctions
+
+"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	ml /c /coff /nologo /Fo$(IntDir)\$(InputName).obj $(InputPath)
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\FieldTiming.cpp
 # End Source File
 # Begin Source File
@@ -444,6 +475,10 @@ SOURCE=.\res\VTx10x12.bmp
 SOURCE=.\res\Vtx15x18.bmp
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\Plugins\DI_Bob\FD_CommonFunctions.asm
+# End Source File
 # Begin Source File
 
 SOURCE=.\READ_ME_FIRST_NOW.txt

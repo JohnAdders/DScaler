@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.32 2003-04-17 09:17:47 atnak Exp $
+// $Id: SAA7134Card.h,v 1.33 2003-06-27 08:05:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/04/17 09:17:47  atnak
+// Added V-Gear MyTV SAP PK
+//
 // Revision 1.31  2003/04/16 15:12:17  atnak
 // Comments for audio clock values
 //
@@ -441,6 +444,7 @@ private:
     void ManliMTV002CardInputSelect(int nInput);
     void PrimeTV7133CardInputSelect(int nInput);
 	void VGearMyTVSAPCardInputSelect(int nInput);
+	void AOpenVA1000L2CardInputSelect(int nInput);
 
 
 private:

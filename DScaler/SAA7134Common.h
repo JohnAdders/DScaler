@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.22 2003-06-01 19:42:32 atnak Exp $
+// $Id: SAA7134Common.h,v 1.23 2003-06-27 08:05:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/06/01 19:42:32  atnak
+// Adds "external" sound type for either stereo or mono
+//
 // Revision 1.21  2003/04/28 06:28:04  atnak
 // Added ASUS TV/FM
 //
@@ -133,6 +136,7 @@ protected:
         SAA7134CARDID_MANLIMTV002,
 		SAA7134CARDID_VGEAR_MYTV_SAP,
 		SAA7134CARDID_ASUS_TVFM,
+		SAA7134CARDID_AOPEN_VA1000_L2,
         SAA7134CARDID_LASTONE,
     };
 

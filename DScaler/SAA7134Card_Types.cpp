@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.31 2003-04-28 06:28:05 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.32 2003-06-27 08:05:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/04/28 06:28:05  atnak
+// Added ASUS TV/FM
+//
 // Revision 1.30  2003/04/17 09:17:46  atnak
 // Added V-Gear MyTV SAP PK
 //
@@ -796,6 +799,36 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
+    // SAA7134CARDID_AOPEN_VA1000_L2 - Aopen VA1000 Lite2 (saa7130)
+	// Thanks "stu" <ausstu@ho...>
+    {
+        "Aopen VA1000 Lite2",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+        },
+        TUNER_LG_TAPCNEW_PAL,
+        AUDIOCRYSTAL_NONE,
+        NULL,
+        AOpenVA1000L2CardInputSelect,
+    },
 };
 
 
@@ -1088,6 +1121,25 @@ void CSAA7134Card::VGearMyTVSAPCardInputSelect(int nInput)
     case 2: // S-Video
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x4400, 0x0EFFFFFF);
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0400, 0x4400);
+        break;
+    default:
+        break;
+    }
+}
+
+
+void CSAA7134Card::AOpenVA1000L2CardInputSelect(int nInput)
+{
+	StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case 0: // Tuner
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x40, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x70, 0x40);
+    case 1: // Composite
+    case 2: // S-Video
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x20, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x70, 0x20);
         break;
     default:
         break;

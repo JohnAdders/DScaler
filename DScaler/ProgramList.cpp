@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.88 2002-10-29 19:23:49 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.89 2002-10-31 14:02:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2002/10/29 19:23:49  adcockj
+// Fix for duplicate channels on editing last entry
+//
 // Revision 1.87  2002/10/29 12:57:36  adcockj
 // Fixed channel numbering problem, crash with no channel.txt and curent program select on start
 //
@@ -1517,6 +1520,13 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             MyIsUsingAFC = OldIsUsingAFC;
             CloseDialog(hDlg, TRUE);
             break;
+        case IDC_HELPBTN:
+            HtmlHelp(hWnd, "DScaler.chm::/ProgramList.htm", HH_DISPLAY_TOPIC, 0);
+            break;
+
+        default:
+            break;
+
         }
         
         break;

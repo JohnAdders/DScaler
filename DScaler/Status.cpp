@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.15 2003-10-27 10:39:54 adcockj Exp $
+// $Id: Status.cpp,v 1.16 2005-03-23 14:21:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.14  2003/01/26 10:34:57  tobbej
 // changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
 //
@@ -91,7 +94,7 @@ HWND hwndStatusBar = NULL;
 
 BOOL StatusBar_Init()
 {
-    hwndStatusBar = CreateStatusWindow(WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, "Starting ...", hWnd, IDC_STATUSBAR);
+    hwndStatusBar = CreateStatusWindow(WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, "Starting ...", GetMainWnd(), IDC_STATUSBAR);
 
     if (!hwndStatusBar)
     {

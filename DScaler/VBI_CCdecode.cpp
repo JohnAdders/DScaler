@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.21 2005-03-11 14:54:41 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.22 2005-03-23 14:21:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/03/11 14:54:41  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.20  2004/10/26 16:44:54  adcockj
 // More CC fixes from Rani Feldman
 //
@@ -865,7 +868,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
     }
     if(bPaintNow)
     {
-        PostMessage(hWnd, WM_COMMAND, IDM_OSD_CC_TEXT, (LPARAM)Screens);
+        PostMessageToMainWindow(WM_COMMAND, IDM_OSD_CC_TEXT, (LPARAM)Screens);
     }
     LastCode=data;
     return 0;

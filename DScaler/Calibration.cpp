@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.81 2003-10-27 10:39:51 adcockj Exp $
+// $Id: Calibration.cpp,v 1.82 2005-03-23 14:20:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.80  2003/05/26 22:04:11  laurentg
 // Update of the OSD displayed when doing calibration
 //
@@ -1136,7 +1139,7 @@ void CCalibration::Stop()
     {
         OSD_ShowInfosScreen(0, 0);
         if ( (current_step != -1)
-          || (MessageBox(hWnd, "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
+          || (MessageBox(GetMainWnd(), "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
         {
             if (m_Brightness != NULL)
                 m_Brightness->Restore();

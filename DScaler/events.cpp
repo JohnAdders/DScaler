@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.14 2003-10-27 10:39:54 adcockj Exp $
+// $Id: events.cpp,v 1.15 2005-03-23 14:21:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.13  2003/01/12 16:19:35  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -452,7 +455,7 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
     // we want to signal the event and then run away
     // so use Post rather than Send.  Using send also causes
     // threading problems
-    PostMessage(hWnd, UWM_EVENTADDEDTOQUEUE, 0, 0);
+    PostMessageToMainWindow(UWM_EVENTADDEDTOQUEUE, 0, 0);
 }
 
 

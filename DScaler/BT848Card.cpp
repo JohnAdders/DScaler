@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.45 2005-03-11 14:54:38 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.46 2005-03-23 14:20:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2005/03/11 14:54:38  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.44  2004/04/18 12:00:55  adcockj
 // Fixes for eeprom corruption
 //
@@ -1205,7 +1208,7 @@ void CBT848Card::ResetChip()
 
 void CBT848Card::ShowRegisterSettingsDialog(HINSTANCE hBT8x8ResourceInst)
 {
-    DialogBoxParam(hBT8x8ResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
+    DialogBoxParam(hBT8x8ResourceInst, "REGISTEREDIT", GetMainWnd(), RegisterEditProc, (LPARAM)this);
 }
 
 #define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}

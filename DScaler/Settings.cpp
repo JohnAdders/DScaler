@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.58 2004-04-06 12:20:48 adcockj Exp $
+// $Id: Settings.cpp,v 1.59 2005-03-23 14:21:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2004/04/06 12:20:48  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.57  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -1100,45 +1103,45 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
     switch(NewValue)
     {
     case DISPLAY:
-        Setting_OSDShow(pSetting, hWnd);
+        Setting_OSDShow(pSetting, GetMainWnd());
         break;
     case ADJUSTUP:
 		if (pSetting->Type != CHARSTRING)
 		{
 			Setting_Up(pSetting);
-			Setting_OSDShow(pSetting, hWnd);
+			Setting_OSDShow(pSetting, GetMainWnd());
 		}
         break;
     case ADJUSTDOWN:
 		if (pSetting->Type != CHARSTRING)
 		{
 			Setting_Down(pSetting);
-			Setting_OSDShow(pSetting, hWnd);
+			Setting_OSDShow(pSetting, GetMainWnd());
 		}
         break;
     case INCREMENT:
 		if (pSetting->Type != CHARSTRING)
 		{
 			Setting_SetValue(pSetting, Setting_GetValue(pSetting) + pSetting->StepValue);
-			Setting_OSDShow(pSetting, hWnd);
+			Setting_OSDShow(pSetting, GetMainWnd());
 		}
         break;
     case DECREMENT:
 		if (pSetting->Type != CHARSTRING)
 		{
 			Setting_SetValue(pSetting, Setting_GetValue(pSetting) - pSetting->StepValue);
-			Setting_OSDShow(pSetting, hWnd);
+			Setting_OSDShow(pSetting, GetMainWnd());
 		}
         break;
     case RESET:
         Setting_SetDefault(pSetting);
-        Setting_OSDShow(pSetting, hWnd);
+        Setting_OSDShow(pSetting, GetMainWnd());
         break;
     case TOGGLEBOOL:
         if(pSetting->Type == YESNO || pSetting->Type == ONOFF)
         {
             Setting_SetValue(pSetting, !Setting_GetValue(pSetting));
-            Setting_OSDShow(pSetting, hWnd);
+            Setting_OSDShow(pSetting, GetMainWnd());
         }
         break;
     case ADJUSTUP_SILENT:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.47 2003-10-27 10:39:50 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.48 2005-03-23 14:20:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.46  2003/08/09 15:53:39  laurentg
 // Bad refresh of the toolbar when in full screen mode corrected
 //
@@ -245,175 +248,170 @@ double GetActualSourceFrameAspect()
 // Takes into account of aspect ratio control.
 void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 {
-    CFilterChain FilterChain;
-    int SourceHeight;
-    int SourceWidth;
-
-    static BOOL InFunction = FALSE;
-    if(InFunction == TRUE) return;
-
-	CheckChangeMonitor(hWnd);
-	RECT ScreenRect;
-	GetMonitorRect(hWnd, &ScreenRect);
-
-    CAspectRectangles ar;
-    CSource* pSource = Providers_GetCurrentSource();
-
-	if (pMultiFrames && pMultiFrames->IsActive())
-	{
-		SourceHeight = pMultiFrames->GetHeight();
-		SourceWidth = pMultiFrames->GetWidth();
-	}
-	else if (pSource)
-	{
-		SourceHeight = pSource->GetHeight();
-		SourceWidth = pSource->GetWidth();
-	}
-	else
-	{
-		SourceHeight = 720;
-		SourceWidth = 480;
-	}
-    // If source width or source height is null, we do nothing
-    if (SourceWidth == 0 || SourceHeight == 0)
+    // be very careful here as we don't want to cause a deadlock
+    // we need to interact with the mian window in here but we need to
+    // do so in a way that halts processing and also copes with the window thread being busy
+    // while we want to do this
+    if(!IsMainWindowThread())
     {
-        LOG(2,"Zero height or width in WorkoutOverlaySize!");
-        LOGD("Zero height or width in WorkoutOverlaySize!\n");
-        return;
-    }
-
-    InFunction = TRUE;
-    UpdateWindowState();
-
-    // Setup the rectangles...
-    // Previous ones...
-    ar.m_PrevDestRect = AspectSettings.DestinationRect;
-    ar.m_PrevSrcRect = AspectSettings.SourceRect;
-    // Source frame
-    ar.m_OriginalOverlaySrcRect.left = 0;
-    ar.m_OriginalOverlaySrcRect.right = SourceWidth;
-    ar.m_OriginalOverlaySrcRect.top = 0;
-    ar.m_OriginalOverlaySrcRect.bottom = SourceHeight;
-    // Set the aspect adjustment factor...
-    if (AspectSettings.SquarePixels)
-    {
-        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)SourceWidth/(double)SourceHeight,
-                                                (double)SourceWidth/(double)SourceHeight);
+        ResetMainWindowEvent();
+        PostMessageToMainWindow(UWM_OVERLAY_UPDATE, ForceRedraw, allowResize);
+        WaitForMainWindowEvent();
     }
     else
     {
-        ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)SourceWidth/(double)SourceHeight,
-                                                GetActualSourceFrameAspect());
-    }
+        CFilterChain FilterChain;
+        int SourceHeight;
+        int SourceWidth;
 
-    // Destination rectangle
-    //ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
-    GetDisplayAreaRect(hWnd,&ar.m_OriginalOverlayDestRect, TRUE);
-    ClientToScreen(hWnd, (POINT*) &ar.m_OriginalOverlayDestRect.left);
-    ClientToScreen(hWnd, (POINT*) &ar.m_OriginalOverlayDestRect.right);
+        static BOOL InFunction = FALSE;
+        if(InFunction == TRUE) return;
 
-    // Set the aspect adjustment factor if the screen aspect is specified...
-    if (AspectSettings.TargetAspect)
-    {
-        ar.m_OriginalOverlayDestRect.setAspectAdjust((double) (ScreenRect.right  - ScreenRect.left) / (double) (ScreenRect.bottom - ScreenRect.top),
-                                                 AspectSettings.TargetAspect/1000.0);
-    }
+	    CheckChangeMonitor(GetMainWnd());
+	    RECT ScreenRect;
+	    GetMonitorRect(GetMainWnd(), &ScreenRect);
 
-    // Set current values to original for starters...
-    ar.m_CurrentOverlaySrcRect = ar.m_OriginalOverlaySrcRect;
-    ar.m_CurrentOverlayDestRect = ar.m_OriginalOverlayDestRect;
+        CAspectRectangles ar;
+        CSource* pSource = Providers_GetCurrentSource();
 
-    // Build filter chain and apply
-    /// \todo Filter chain should be saved and only rebuilt if options are changed
-    FilterChain.BuildFilterChain(SourceWidth, SourceHeight);
-    if (FilterChain.ApplyFilters(ar, allowResize))
-    {
-        InFunction = FALSE;
-        WorkoutOverlaySize(FALSE, FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
-        return;
-    }
-
-    // If we're in half-height Mode, squish the source rectangle accordingly.  This
-    // allows the overlay hardware to do our bobbing for us.
-	if ( (!pMultiFrames || !pMultiFrames->IsActive())
-      && (InHalfHeightMode() == TRUE) )
-    {
-        ar.m_CurrentOverlaySrcRect.top /= 2;
-        ar.m_CurrentOverlaySrcRect.bottom /= 2;
-    }
-
-    // Save the settings....
-    AspectSettings.SourceRect = ar.m_CurrentOverlaySrcRect;
-    AspectSettings.DestinationRectWindow = ar.m_CurrentOverlayDestRect;
-    AspectSettings.DestinationRect = ar.m_CurrentOverlayDestRect;
-    ScreenToClient(hWnd,((PPOINT)&AspectSettings.DestinationRect.left));
-    ScreenToClient(hWnd,((PPOINT)&AspectSettings.DestinationRect.right));
-
-	// cut the on-screen overlay surface out of the monitor screen area
-	if (AspectSettings.DestinationRectWindow.right > ScreenRect.right)
-	{
-		AspectSettings.DestinationRectWindow.right = ScreenRect.right;
-	}
-
-	if (AspectSettings.DestinationRectWindow.left < ScreenRect.left)
-	{
-		AspectSettings.DestinationRectWindow.left = ScreenRect.left;
-	}
-
-	if (AspectSettings.DestinationRectWindow.top < ScreenRect.top)
-	{
-		AspectSettings.DestinationRectWindow.top = ScreenRect.top;
-	}
-
-	if (AspectSettings.DestinationRectWindow.bottom > ScreenRect.bottom)
-	{
-		AspectSettings.DestinationRectWindow.bottom = ScreenRect.bottom;
-	}
-	AspectSettings.DestinationRectWindow.left   -= ScreenRect.left;
-	AspectSettings.DestinationRectWindow.right  -= ScreenRect.left;
-	AspectSettings.DestinationRectWindow.top    -= ScreenRect.top;
-	AspectSettings.DestinationRectWindow.bottom -= ScreenRect.top;
-
-    // Invert the rectangle if necessary...
-    //
-    // Removed for now - seems to cause application to crash - looks
-    // like video drivers can't deal with this...
-    /*
-    if (( AspectSettings.invertX && AspectSettings.SourceRect.right > AspectSettings.SourceRect.left)
-        ||
-        (!AspectSettings.invertX && AspectSettings.SourceRect.right < AspectSettings.SourceRect.left))
-    {
-        int t = AspectSettings.SourceRect.right;
-        AspectSettings.SourceRect.right = AspectSettings.SourceRect.left;
-        AspectSettings.SourceRect.left = t;
-    }
-    if (( AspectSettings.invertY && AspectSettings.SourceRect.bottom > AspectSettings.SourceRect.top)
-        ||
-        (!AspectSettings.invertY && AspectSettings.SourceRect.bottom < AspectSettings.SourceRect.top)) {
-        int t = AspectSettings.SourceRect.top;
-        AspectSettings.SourceRect.top = AspectSettings.SourceRect.bottom;
-        AspectSettings.SourceRect.bottom = t;
-    }
-    */
-
-    if(ForceRedraw)
-    {
-        // if we have changed source recatangle then we seem to need
-        // to do a hide first
-        // at least on nVidia cards
-        if (memcmp(&ar.m_PrevSrcRect,&AspectSettings.SourceRect,sizeof(ar.m_PrevSrcRect)))
+	    if (pMultiFrames && pMultiFrames->IsActive())
+	    {
+		    SourceHeight = pMultiFrames->GetHeight();
+		    SourceWidth = pMultiFrames->GetWidth();
+	    }
+	    else if (pSource)
+	    {
+		    SourceHeight = pSource->GetHeight();
+		    SourceWidth = pSource->GetWidth();
+	    }
+	    else
+	    {
+		    SourceHeight = 720;
+		    SourceWidth = 480;
+	    }
+        // If source width or source height is null, we do nothing
+        if (SourceWidth == 0 || SourceHeight == 0)
         {
-            Overlay_Update(NULL, NULL, DDOVER_HIDE);
+            LOG(2,"Zero height or width in WorkoutOverlaySize!");
+            LOGD("Zero height or width in WorkoutOverlaySize!\n");
+            return;
         }
 
-        Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+        InFunction = TRUE;
+        UpdateWindowState();
 
-        InvalidateRect(hWnd, NULL, FALSE);
-    }
-    else
-    {
-        // Set the overlay
-        if (!AspectSettings.DeferedSetOverlay) // MRS 2-22-01 - Defered overlay set
+        // Setup the rectangles...
+        // Previous ones...
+        ar.m_PrevDestRect = AspectSettings.DestinationRect;
+        ar.m_PrevSrcRect = AspectSettings.SourceRect;
+        // Source frame
+        ar.m_OriginalOverlaySrcRect.left = 0;
+        ar.m_OriginalOverlaySrcRect.right = SourceWidth;
+        ar.m_OriginalOverlaySrcRect.top = 0;
+        ar.m_OriginalOverlaySrcRect.bottom = SourceHeight;
+        // Set the aspect adjustment factor...
+        if (AspectSettings.SquarePixels)
+        {
+            ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)SourceWidth/(double)SourceHeight,
+                                                    (double)SourceWidth/(double)SourceHeight);
+        }
+        else
+        {
+            ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)SourceWidth/(double)SourceHeight,
+                                                    GetActualSourceFrameAspect());
+        }
+
+        // Destination rectangle
+        //ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
+        GetDisplayAreaRect(GetMainWnd(), &ar.m_OriginalOverlayDestRect, TRUE);
+        ClientToScreen(GetMainWnd(), (POINT*) &ar.m_OriginalOverlayDestRect.left);
+        ClientToScreen(GetMainWnd(), (POINT*) &ar.m_OriginalOverlayDestRect.right);
+
+        // Set the aspect adjustment factor if the screen aspect is specified...
+        if (AspectSettings.TargetAspect)
+        {
+            ar.m_OriginalOverlayDestRect.setAspectAdjust((double) (ScreenRect.right  - ScreenRect.left) / (double) (ScreenRect.bottom - ScreenRect.top),
+                                                    AspectSettings.TargetAspect/1000.0);
+        }
+
+        // Set current values to original for starters...
+        ar.m_CurrentOverlaySrcRect = ar.m_OriginalOverlaySrcRect;
+        ar.m_CurrentOverlayDestRect = ar.m_OriginalOverlayDestRect;
+
+        // Build filter chain and apply
+        /// \todo Filter chain should be saved and only rebuilt if options are changed
+        FilterChain.BuildFilterChain(SourceWidth, SourceHeight);
+        if (FilterChain.ApplyFilters(ar, allowResize))
+        {
+            InFunction = FALSE;
+            WorkoutOverlaySize(FALSE, FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
+            return;
+        }
+
+        // If we're in half-height Mode, squish the source rectangle accordingly.  This
+        // allows the overlay hardware to do our bobbing for us.
+	    if ( (!pMultiFrames || !pMultiFrames->IsActive())
+        && (InHalfHeightMode() == TRUE) )
+        {
+            ar.m_CurrentOverlaySrcRect.top /= 2;
+            ar.m_CurrentOverlaySrcRect.bottom /= 2;
+        }
+
+        // Save the settings....
+        AspectSettings.SourceRect = ar.m_CurrentOverlaySrcRect;
+        AspectSettings.DestinationRectWindow = ar.m_CurrentOverlayDestRect;
+        AspectSettings.DestinationRect = ar.m_CurrentOverlayDestRect;
+        ScreenToClient(GetMainWnd(), ((PPOINT)&AspectSettings.DestinationRect.left));
+        ScreenToClient(GetMainWnd(), ((PPOINT)&AspectSettings.DestinationRect.right));
+
+	    // cut the on-screen overlay surface out of the monitor screen area
+	    if (AspectSettings.DestinationRectWindow.right > ScreenRect.right)
+	    {
+		    AspectSettings.DestinationRectWindow.right = ScreenRect.right;
+	    }
+
+	    if (AspectSettings.DestinationRectWindow.left < ScreenRect.left)
+	    {
+		    AspectSettings.DestinationRectWindow.left = ScreenRect.left;
+	    }
+
+	    if (AspectSettings.DestinationRectWindow.top < ScreenRect.top)
+	    {
+		    AspectSettings.DestinationRectWindow.top = ScreenRect.top;
+	    }
+
+	    if (AspectSettings.DestinationRectWindow.bottom > ScreenRect.bottom)
+	    {
+		    AspectSettings.DestinationRectWindow.bottom = ScreenRect.bottom;
+	    }
+	    AspectSettings.DestinationRectWindow.left   -= ScreenRect.left;
+	    AspectSettings.DestinationRectWindow.right  -= ScreenRect.left;
+	    AspectSettings.DestinationRectWindow.top    -= ScreenRect.top;
+	    AspectSettings.DestinationRectWindow.bottom -= ScreenRect.top;
+
+        // Invert the rectangle if necessary...
+        //
+        // Removed for now - seems to cause application to crash - looks
+        // like video drivers can't deal with this...
+        /*
+        if (( AspectSettings.invertX && AspectSettings.SourceRect.right > AspectSettings.SourceRect.left)
+            ||
+            (!AspectSettings.invertX && AspectSettings.SourceRect.right < AspectSettings.SourceRect.left))
+        {
+            int t = AspectSettings.SourceRect.right;
+            AspectSettings.SourceRect.right = AspectSettings.SourceRect.left;
+            AspectSettings.SourceRect.left = t;
+        }
+        if (( AspectSettings.invertY && AspectSettings.SourceRect.bottom > AspectSettings.SourceRect.top)
+            ||
+            (!AspectSettings.invertY && AspectSettings.SourceRect.bottom < AspectSettings.SourceRect.top)) {
+            int t = AspectSettings.SourceRect.top;
+            AspectSettings.SourceRect.top = AspectSettings.SourceRect.bottom;
+            AspectSettings.SourceRect.bottom = t;
+        }
+        */
+
+        if(ForceRedraw)
         {
             // if we have changed source recatangle then we seem to need
             // to do a hide first
@@ -425,27 +423,12 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
             Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
 
-            // repaint if needed
-            if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
-            {
-                // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-                RECT invalidate;
-                UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
-                InvalidateRect(hWnd,&invalidate,FALSE);
-            }
+            InvalidateRect(GetMainWnd(), NULL, FALSE);
         }
         else
         {
-            // repaint now and set off overlay setting for later
-            if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
-            {
-                // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-                RECT invalidate;
-                UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
-                InvalidateRect(hWnd,&invalidate,FALSE);
-                AspectSettings.OverlayNeedsSetting = TRUE;
-            }
-            else
+            // Set the overlay
+            if (!AspectSettings.DeferedSetOverlay) // MRS 2-22-01 - Defered overlay set
             {
                 // if we have changed source recatangle then we seem to need
                 // to do a hide first
@@ -454,14 +437,47 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
                 {
                     Overlay_Update(NULL, NULL, DDOVER_HIDE);
                 }
-                // If not invalidating, we need to update the overlay now...
+
                 Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
-                AspectSettings.OverlayNeedsSetting = FALSE;
+
+                // repaint if needed
+                if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
+                {
+                    // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+                    RECT invalidate;
+                    UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
+                    InvalidateRect(GetMainWnd(), &invalidate, FALSE);
+                }
+            }
+            else
+            {
+                // repaint now and set off overlay setting for later
+                if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
+                {
+                    // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+                    RECT invalidate;
+                    UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
+                    InvalidateRect(GetMainWnd(), &invalidate, FALSE);
+                    AspectSettings.OverlayNeedsSetting = TRUE;
+                }
+                else
+                {
+                    // if we have changed source recatangle then we seem to need
+                    // to do a hide first
+                    // at least on nVidia cards
+                    if (memcmp(&ar.m_PrevSrcRect,&AspectSettings.SourceRect,sizeof(ar.m_PrevSrcRect)))
+                    {
+                        Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                    }
+                    // If not invalidating, we need to update the overlay now...
+                    Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+                    AspectSettings.OverlayNeedsSetting = FALSE;
+                }
             }
         }
-    }
 
-    InFunction = FALSE;
+        InFunction = FALSE;
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.376 2005-03-21 22:39:14 laurentg Exp $
+// $Id: DScaler.cpp,v 1.377 2005-03-23 14:20:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.376  2005/03/21 22:39:14  laurentg
+// EPG: changes regarding OSD
+//
 // Revision 1.375  2005/03/20 22:56:18  laurentg
 // New OSD screens added for EPG
 //
@@ -1155,6 +1158,7 @@
  */
 
 #include "stdafx.h"
+#define ISDSCALERCPPFILE
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "Other.h"
@@ -1301,6 +1305,8 @@ UINT MsgTaskbarRestart;
 
 NOTIFYICONDATA nIcon;
 
+DWORD hMainThread = NULL;
+
 // Current sleepmode timers (minutes)
 TSMState SMState;
 #define SMPeriodCount       7
@@ -1396,6 +1402,8 @@ static long m_EventTimerID = 0;
 static int ChannelPreviewNbCols = 4;
 static int ChannelPreviewNbRows = 4;
 
+static HANDLE hMainWindowEvent = NULL;
+
 ///**************************************************************************
 //
 // FUNCTION: WinMain(HANDLE, HANDLE, LPSTR, int)
@@ -1414,6 +1422,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     CreateMutex(NULL, FALSE, "DScaler"); 
 
     hDScalerInst = hInstance;
+    hMainThread = GetCurrentThreadId();
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetUnhandledExceptionFilter(CrashHandler);
@@ -5009,6 +5018,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return 0;
         break;
 
+    case UWM_OVERLAY_UPDATE:
+        WorkoutOverlaySize((BOOL)wParam, (BOOL)lParam);
+        SetEvent(hMainWindowEvent);
+        return 0;
+        break;
+
     default:
         {
             LONG RetVal = Settings_HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
@@ -6103,6 +6118,11 @@ void CleanUpMemory()
     pCalibration = NULL;
     delete pPerf;
     pPerf = NULL;
+    if(hMainWindowEvent != NULL)
+    {
+        ResetEvent(hMainWindowEvent);
+    }
+
 }
 
 //---------------------------------------------------------------------------
@@ -7208,4 +7228,46 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage4()
         &DScalerSettings[PSTRIPRESO480I			],
     };
     return new CTreeSettingsGeneric("PowerStrip Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
+}
+
+HWND GetMainWnd()
+{
+    if(!IsMainWindowThread())
+    {
+        LOG(1, "Window request from outside main thread");
+    }
+    return hWnd;
+}
+
+void PostMessageToMainWindow(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+    PostMessage(hWnd, Msg, wParam, lParam);
+}
+
+BOOL IsMainWindowThread()
+{
+    return (GetCurrentThreadId() == hMainThread);
+}
+
+void WaitForMainWindowEvent()
+{
+    if(hMainWindowEvent != NULL)
+    {
+        if(WaitForSingleObject(hMainWindowEvent, 10) == WAIT_TIMEOUT)
+        {
+            LOG(1, "Timed out waiting for window message to be processed");
+        }
+    }
+}
+
+void ResetMainWindowEvent()
+{
+    if(hMainWindowEvent == NULL)
+    {
+        hMainWindowEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    }
+    if(hMainWindowEvent != NULL)
+    {
+        ResetEvent(hMainWindowEvent);
+    }
 }

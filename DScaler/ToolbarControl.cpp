@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.17 2003-10-27 10:39:54 adcockj Exp $
+// $Id: ToolbarControl.cpp,v 1.18 2005-03-23 14:21:02 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.16  2003/10/03 11:40:11  laurentg
 // Update the combobox in the channel toolbar when exiting the channel setup dialog box
 //
@@ -624,7 +627,7 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 
 			if ((Toolbar1 != NULL) && Toolbar1->Visible())
 			{
-				CToolbarControl::Set(hWnd, NULL);
+				CToolbarControl::Set(GetMainWnd(), NULL);
 			}
 		}
 	}
@@ -663,13 +666,13 @@ BOOL CToolbarControl::AutomaticDisplay(POINT Pt)
 		if (IsInBar && !Toolbar1->Visible())
 		{
 			// Show the toolbar
-			Set(hWnd, NULL, 0);
+			Set(GetMainWnd(), NULL, 0);
 			return TRUE;
 		}
 		else if (!IsInBar && Toolbar1->Visible())
 		{
 			// Hide the toolbar
-			Set(hWnd, NULL, 1);
+			Set(GetMainWnd(), NULL, 1);
 			return TRUE;
 		}
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.106 2005-03-21 22:39:15 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.107 2005-03-23 14:20:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2005/03/21 22:39:15  laurentg
+// EPG: changes regarding OSD
+//
 // Revision 1.105  2005/03/08 03:32:23  robmuller
 // Don't scan duplicate frequencies when in non-US style.
 //
@@ -1602,7 +1605,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_HELPBTN:
             if(HIWORD(wParam) == BN_CLICKED)
             {
-                HtmlHelp(hWnd, "DScaler.chm::/ProgramList.htm", HH_DISPLAY_TOPIC, 0);
+                HtmlHelp(GetMainWnd(), "DScaler.chm::/ProgramList.htm", HH_DISPLAY_TOPIC, 0);
             }
             break;
 

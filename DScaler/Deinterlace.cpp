@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.49 2003-10-27 10:39:51 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.50 2005-03-23 14:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.48  2003/04/26 19:02:37  laurentg
 // Character string settings and memory management
 //
@@ -321,7 +324,7 @@ void Deinterlace_SetStatus(LPCSTR StatusText)
     {
         LPSTR tmpstr=(LPSTR)malloc(len+1);
         strncpy(tmpstr,StatusText,len+1);
-        PostMessage(hWnd,UWM_DEINTERLACE_SETSTATUS,(WPARAM)tmpstr,0);
+        PostMessageToMainWindow(UWM_DEINTERLACE_SETSTATUS, (WPARAM)tmpstr,0);
     }
 }
 
@@ -787,7 +790,7 @@ void ShowVideoModeUI()
 {
     if(VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI != NULL)
     {
-        VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI(hWnd);
+        VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI(GetMainWnd());
     }
 }
 

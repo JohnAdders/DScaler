@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.20 2003-10-27 10:39:51 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.21 2005-03-23 14:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.19  2003/03/05 21:43:32  tobbej
 // changed com init, this fixes problems with open file dialog
 //
@@ -216,10 +219,10 @@ void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
 	}
 
 	//try to open the help
-    if(::HtmlHelp(hWnd, "DScaler.chm", nCmd, dwData)==NULL)
+    if(::HtmlHelp(::GetMainWnd(), "DScaler.chm", nCmd, dwData)==NULL)
 	{
 		//didnt work, maybe wrong help id? try to open just the toc
-        if(::HtmlHelp(hWnd, "DScaler.chm", HH_DISPLAY_TOC, NULL)==NULL)
+        if(::HtmlHelp(::GetMainWnd(), "DScaler.chm", HH_DISPLAY_TOC, NULL)==NULL)
 		{
 			AfxMessageBox(_T("Failed to open help"),MB_OK|MB_ICONASTERISK);
 		}

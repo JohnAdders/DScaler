@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.73 2005-03-11 17:16:40 adcockj Exp $
+// $Id: Other.cpp,v 1.74 2005-03-23 14:20:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2005/03/11 17:16:40  adcockj
+// ifdefed out stuff that required newer sdk
+//
 // Revision 1.72  2005/03/11 13:03:08  adcockj
 // handle MCE remote buttons for teletext
 //
@@ -498,31 +501,31 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
                                 // just exit if the user want to get
                                 // the media center home page
                                 // (or any of the other TV ones)
-                                PostMessage(hWnd, WM_CLOSE, 0, 0);
+                                PostMessageToMainWindow(WM_CLOSE, 0, 0);
                                 break;
                             case 90:
                                 // teletext
-                                PostMessage(hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
+                                PostMessageToMainWindow(WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
                                 bHandled = TRUE;
                                 break;
                             case 91:
                                 //red
-                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY1, 0);
+                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY1, 0);
                                 bHandled = TRUE;
                                 break;
                             case 92:
                                 // green
-                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY2, 0);
+                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY2, 0);
                                 bHandled = TRUE;
                                 break;
                             case 93:
                                 // yellow
-                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY3, 0);
+                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY3, 0);
                                 bHandled = TRUE;
                                 break;
                             case 94:
                                 // blue
-                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY4, 0);
+                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY4, 0);
                                 bHandled = TRUE;
                                 break;
                             default:
@@ -1675,7 +1678,7 @@ BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBu
             FlipResult = lpDDOverlay->Flip(NULL, DDFLIP_WAIT); 
             if(SUCCEEDED(FlipResult))
             {
-                PostMessage(hWnd, WM_OUTTHREADS_SETVALUE, WAITFORFLIP, 1);
+                PostMessageToMainWindow(WM_OUTTHREADS_SETVALUE, WAITFORFLIP, 1);
             }
         }
         if(FlipResult != DDERR_WASSTILLDRAWING && 

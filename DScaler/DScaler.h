@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.54 2004-02-21 14:11:30 to_see Exp $
+// $Id: DScaler.h,v 1.55 2005-03-23 14:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -158,6 +158,7 @@ typedef struct
 #define UWM_OSD                 WM_APP + 0x1004
 #define UWM_DEINTERLACE_SETSTATUS WM_APP + 0x1005
 #define UWM_SWITCH_WINDOW		WM_APP + 0x1006
+#define UWM_OVERLAY_UPDATE		WM_APP + 0x1007
 
 #define VTM_VTHEADERUPDATE      0x0001
 #define VTM_VTPAGEUPDATE        0x0002
@@ -168,7 +169,12 @@ typedef struct
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;
-extern HWND hWnd;
+HWND GetMainWnd();
+void PostMessageToMainWindow(UINT Msg, WPARAM wParam, LPARAM lParam);
+BOOL IsMainWindowThread();
+void WaitForMainWindowEvent();
+void ResetMainWindowEvent();
+
 extern HWND hPSWnd;
 extern HCURSOR hCursorHand;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.64 2005-01-12 21:42:04 robmuller Exp $
+// $Id: AspectGUI.cpp,v 1.65 2005-03-23 14:20:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2005/01/12 21:42:04  robmuller
+// Zooming and zoom center now uses smaller steps.
+//
 // Revision 1.63  2004/05/02 14:09:32  atnak
 // Fixed possible problem of overlay colour getting dithered with < 32bit colour
 //
@@ -1102,11 +1105,11 @@ BOOL Bounce_OnChange(long NewValue)
     AspectSettings.BounceEnabled = NewValue != 0;
     if (!AspectSettings.BounceEnabled)
     {
-        KillTimer(hWnd, TIMER_BOUNCE);
+        KillTimer(GetMainWnd(), TIMER_BOUNCE);
     }
     else
     {
-        SetTimer(hWnd, TIMER_BOUNCE, AspectSettings.TimerBounceMS, NULL);
+        SetTimer(GetMainWnd(), TIMER_BOUNCE, AspectSettings.TimerBounceMS, NULL);
     }
     return FALSE;
 }
@@ -1116,11 +1119,11 @@ BOOL Orbit_OnChange(long NewValue)
     AspectSettings.OrbitEnabled = NewValue != 0;
     if (!AspectSettings.OrbitEnabled) 
     {
-        KillTimer(hWnd, TIMER_ORBIT);
+        KillTimer(GetMainWnd(), TIMER_ORBIT);
     }
     else
     {
-        SetTimer(hWnd, TIMER_ORBIT, AspectSettings.TimerOrbitMS, NULL);
+        SetTimer(GetMainWnd(), TIMER_ORBIT, AspectSettings.TimerOrbitMS, NULL);
     }
     return FALSE;
 }
@@ -1170,7 +1173,7 @@ BOOL ChromaRange_OnChange(long NewValue)
 BOOL MaskGreyShade_OnChange(long NewValue)
 {
     AspectSettings.MaskGreyShade = NewValue;  
-    InvalidateRect(hWnd, NULL, FALSE);
+    InvalidateRect(GetMainWnd(), NULL, FALSE);
     return FALSE;
 }
 

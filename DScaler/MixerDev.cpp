@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.53 2005-03-06 03:46:13 atnak Exp $
+// $Id: MixerDev.cpp,v 1.54 2005-03-23 14:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2005/03/06 03:46:13  atnak
+// Changed to a more proper way of temporary setting the source.
+//
 // Revision 1.52  2005/03/04 09:58:44  atnak
 // - Added some much needed comments and changed some code to be less
 // cryptic.  Changed code to removed all warnings in the .Net compiler.
@@ -419,7 +422,7 @@ void Mixer_SetupDlg(HWND hWndParent)
 	CSource* source = Providers_GetCurrentSource();
 	if ((source == NULL) || !source->IsAudioMixerAccessAllowed())
 	{
-        MessageBox(hWnd, "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
+        MessageBox(GetMainWnd(), "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
 	}
 	else
 	{
@@ -461,7 +464,7 @@ void Mixer_SetupDlg(HWND hWndParent)
 		}
 		else
 		{
-			MessageBox(hWnd, "No mixer hardware found", "DScaler Error", MB_OK);
+			MessageBox(GetMainWnd(), "No mixer hardware found", "DScaler Error", MB_OK);
 		}
     }
 }

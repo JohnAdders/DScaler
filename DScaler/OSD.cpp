@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.92 2005-03-21 22:39:15 laurentg Exp $
+// $Id: OSD.cpp,v 1.93 2005-03-23 14:20:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2005/03/21 22:39:15  laurentg
+// EPG: changes regarding OSD
+//
 // Revision 1.91  2005/03/20 22:56:22  laurentg
 // New OSD screens added for EPG
 //
@@ -747,15 +750,15 @@ void OSD_ShowText(HDC hDC, LPRECT lpRect, LPCTSTR pszText, double dSize,
 
     OSD_Redraw(hDC, lpRect);
 
-    KillTimer(::hWnd, OSD_TIMER_REFRESH_ID);
+    KillTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID);
 
     if (bPersistent == FALSE)
     {
-        SetTimer(hWnd, OSD_TIMER_ID, OSD_TIMER_DELAY, NULL);
+        SetTimer(GetMainWnd(), OSD_TIMER_ID, OSD_TIMER_DELAY, NULL);
     }
     else
     {
-        KillTimer(::hWnd, OSD_TIMER_ID);
+        KillTimer(GetMainWnd(), OSD_TIMER_ID);
     }
 
     if (OSD_bAutoHide)
@@ -802,11 +805,11 @@ void OSD_ShowInfosScreen(HDC hDC, LPRECT lpRect, INT IdxScreen, DOUBLE Size)
 
         if (ActiveScreens[IdxScreen].auto_hide)
         {
-            SetTimer(::hWnd, OSD_TIMER_ID, OSD_TIMER_DELAY, NULL);
+            SetTimer(GetMainWnd(), OSD_TIMER_ID, OSD_TIMER_DELAY, NULL);
         }
         else
         {
-            KillTimer(::hWnd, OSD_TIMER_ID);
+            KillTimer(GetMainWnd(), OSD_TIMER_ID);
         }
     }
 }
@@ -843,8 +846,8 @@ void OSD_ShowNextInfosScreen(HDC hDC, LPRECT lpRect, DOUBLE Size)
 // Reserved: Clear currently displayed OSD
 void OSD_Clear(HDC hDC, LPRECT lpRect)
 {
-    KillTimer(::hWnd, OSD_TIMER_ID);
-    KillTimer(::hWnd, OSD_TIMER_REFRESH_ID);
+    KillTimer(GetMainWnd(), OSD_TIMER_ID);
+    KillTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID);
 
     OSD_bOverride = FALSE;
 
@@ -871,7 +874,7 @@ void OSD_InvalidateTextsArea()
 {
     for (int i = 0 ; i < OSD_nTextCount ; i++)
     {
-        InvalidateRect(::hWnd, &(OSD_Text[i].CurrentRect), FALSE);
+        InvalidateRect(GetMainWnd(), &(OSD_Text[i].CurrentRect), FALSE);
     }
 }
 
@@ -921,7 +924,7 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     }
 #endif
 
-    SetTimer(::hWnd, OSD_TIMER_REFRESH_ID,
+    SetTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID,
         ActiveScreens[OSD_IdxCurrentScreen].refresh_delay, NULL);
 }
 
@@ -1141,7 +1144,7 @@ void OSD_PostCommand(TOSDCommand* pOSDCommand)
     else
     {
         // Start the queue
-        PostMessage(::hWnd, UWM_OSD, OSDM_DISPLAYUPDATE, 0);
+        PostMessage(GetMainWnd(), UWM_OSD, OSDM_DISPLAYUPDATE, 0);
     }
 }
 

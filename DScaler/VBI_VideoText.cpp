@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.74 2004-11-08 18:15:24 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.75 2005-03-23 14:21:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2004/11/08 18:15:24  atnak
+// Made UxTheme dynamically load for backwards compatibility
+//
 // Revision 1.73  2004/11/08 16:12:27  atnak
 // Fix to strange problem with vertical tab control when using XP visual style
 //
@@ -425,7 +428,7 @@ void VT_SetState(HDC hDC, LPRECT lpRect, eVTState State)
         VTState = State;
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+        SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         return;
     }
 
@@ -448,10 +451,10 @@ void VT_SetState(HDC hDC, LPRECT lpRect, eVTState State)
         VTPageHex = 0xFFFF;
         VTPageSubCode = 0xFFFF;
 
-        KillTimer(::hWnd, VTFlashTimer);
+        KillTimer(GetMainWnd(), VTFlashTimer);
         VTFlashTimer = 0;
 
-        KillTimer(::hWnd, TIMER_VTINPUT);
+        KillTimer(GetMainWnd(), TIMER_VTINPUT);
         VTShowOSD = FALSE;
 
         VTHilightListPtr = NULL;
@@ -612,13 +615,13 @@ BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+        SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         VT_HistoryPushPage(VTPageHex);
     }
     else
     {
         VTHilightListPtr = NULL;
-        KillTimer(::hWnd, VTFlashTimer);
+        KillTimer(GetMainWnd(), VTFlashTimer);
         VTFlashTimer = 0;
         VTDecoder.GetDisplayHeader(&VTVisiblePage, FALSE);
         VTVisiblePage.wControlBits = VTCONTROL_INHIBITDISP;
@@ -662,7 +665,7 @@ BOOL VT_PageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+        SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         VT_HistoryPushPage(VTPageHex);
 
         return TRUE;
@@ -715,7 +718,7 @@ BOOL VT_SubPageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+        SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
 
         return TRUE;
     }
@@ -806,7 +809,7 @@ BOOL VT_PerformSearch(HDC hDC, LPRECT lpRect, BOOL bInclusive, BOOL bReverse)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+        SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         VT_HistoryPushPage(VTPageHex);
 
         return TRUE;
@@ -840,7 +843,7 @@ BOOL VT_ShowTestPage(HDC hDC, LPRECT lpRect)
     VT_UpdateFlashTimer();
     VT_SetPageOSD(NULL, TRUE);
     VT_Redraw(hDC, lpRect);
-    SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+    SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
 
     return TRUE;
 }
@@ -935,7 +938,7 @@ void VT_ShowHeader(HDC hDC, LPRECT lpRect, char OSD[3])
 {
     VT_SetPageOSD(OSD, TRUE);
     VT_Redraw(hDC, lpRect, VTDF_HEADERONLY);
-    SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
+    SetTimer(GetMainWnd(), TIMER_VTINPUT, g_VTOSDTimeout, NULL);
 }
 
 
@@ -1059,7 +1062,7 @@ void VT_ClearInput()
 
 void VT_OnInputTimer(HDC hDC, LPRECT lpRect)
 {
-    KillTimer(::hWnd, TIMER_VTINPUT);
+    KillTimer(GetMainWnd(), TIMER_VTINPUT);
     VT_ClearInput();
 
     if (VTState == VT_OFF)
@@ -1167,11 +1170,11 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
     switch (uMsg)
     {
     case DECODEREVENT_HEADERUPDATE:
-        PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTHEADERUPDATE, NULL);
+        PostMessageToMainWindow(UWM_VIDEOTEXT, VTM_VTHEADERUPDATE, NULL);
         break;
 
     case DECODEREVENT_COMMENTUPDATE:
-        PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTCOMMENTUPDATE, dwParam);
+        PostMessageToMainWindow(UWM_VIDEOTEXT, VTM_VTCOMMENTUPDATE, dwParam);
         break;
 
     case DECODEREVENT_PAGEUPDATE:
@@ -1182,14 +1185,14 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
             {
                 if (VTPageSubCode == 0xFFFF || HIWORD(dwParam) == VTPageSubCode)
                 {
-                    PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwParam);
+                    PostMessageToMainWindow(WM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwParam);
                 }
             }
             LeaveCriticalSection(&VTPageChangeMutex);
         }
         else*/
         {
-            PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwParam);
+            PostMessageToMainWindow(UWM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwParam);
         }
         break;
 
@@ -1201,14 +1204,14 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
             {
                 if (VTPageSubCode == 0xFFFF)
                 {
-                    PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTPAGEREFRESH, dwParam);
+                    PostMessageToMainWindow(WM_VIDEOTEXT, VTM_VTPAGEREFRESH, dwParam);
                 }
             }
             LeaveCriticalSection(&VTPageChangeMutex);
         }
         else*/
         {
-            PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTPAGEREFRESH, dwParam);
+            PostMessageToMainWindow(UWM_VIDEOTEXT, VTM_VTPAGEREFRESH, dwParam);
         }
         break;
     }
@@ -1465,14 +1468,14 @@ void VT_UpdateFlashTimer()
     {
         if (VTFlashTimer == 0)
         {
-            VTFlashTimer = SetTimer(::hWnd, TIMER_VTFLASHER, TIMER_VTFLASHER_MS, NULL);
+            VTFlashTimer = SetTimer(GetMainWnd(), TIMER_VTFLASHER, TIMER_VTFLASHER_MS, NULL);
         }
     }
     else
     {
         if (VTFlashTimer != 0)
         {
-            if (KillTimer(::hWnd, VTFlashTimer))
+            if (KillTimer(GetMainWnd(), VTFlashTimer))
             {
                 VTFlashTimer = 0;
             }
@@ -1819,12 +1822,12 @@ BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 {
                     if (VT_GetState() == VT_OFF)
                     {
-                        SendMessage(::hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
+                        SendMessage(GetMainWnd(), WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
                     }
 
                     if (VT_SetPage(NULL, NULL, wPageHex))
                     {
-                        InvalidateDisplayAreaRect(::hWnd, NULL, FALSE);
+                        InvalidateDisplayAreaRect(GetMainWnd(), NULL, FALSE);
                     }
                 }
             }
@@ -2013,7 +2016,7 @@ BOOL ProcessVTCodepageSelection(HWND hWnd, WORD wMenuID)
 
                     if (VT_GetState() != VT_OFF)
                     {
-                        InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+                        InvalidateDisplayAreaRect(GetMainWnd(), NULL, FALSE);
                     }
                 }
             }
@@ -2148,7 +2151,7 @@ BOOL VT_RegionOnChange(long NewValue)
         {
             if (VT_SetCodepage(NULL, NULL, VTCODEPAGE_NONE))
             {
-                InvalidateDisplayAreaRect(::hWnd, NULL, FALSE);
+                InvalidateDisplayAreaRect(GetMainWnd(), NULL, FALSE);
             }
         }
     }
@@ -2163,7 +2166,7 @@ BOOL VT_ShowSubcodeInOSDOnChange(long NewValue)
 
     if (VT_GetState() != VT_OFF)
     {
-        InvalidateDisplayAreaRect(::hWnd, NULL, FALSE);
+        InvalidateDisplayAreaRect(GetMainWnd(), NULL, FALSE);
     }
 
     return FALSE;

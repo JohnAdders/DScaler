@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.72 2005-03-11 14:54:39 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.73 2005-03-23 14:20:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2005/03/11 14:54:39  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.71  2004/12/25 22:40:18  to_see
 // Changed the card list to an ini file
 //
@@ -1169,7 +1172,7 @@ eVideoFormat CCX2388xSource::GetFormat()
 
 void CCX2388xSource::SetFormat(eVideoFormat NewFormat)
 {
-    PostMessage(hWnd, WM_CX2388X_SETVALUE, CX2388XTVFORMAT, NewFormat);
+    PostMessageToMainWindow(WM_CX2388X_SETVALUE, CX2388XTVFORMAT, NewFormat);
 }
 
 
@@ -1804,7 +1807,7 @@ void CCX2388xSource::SetupCard()
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
-        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), GetMainWnd(), (DLGPROC) SelectCardProc, (LPARAM)this);
         EnableCancelButton = 1;
     }
 

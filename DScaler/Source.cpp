@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.19 2003-10-27 10:39:54 adcockj Exp $
+// $Id: Source.cpp,v 1.20 2005-03-23 14:21:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.18  2003/08/15 16:51:11  laurentg
 // New event type EVENT_NO_VOLUME
 // Update the volume toolbar when exiting from the audio mixer setup dialog box
@@ -146,7 +149,7 @@ void CSource::NotifySizeChange()
     if (Providers_GetCurrentSource() == this)
     {
     	//tell dscaler that size has changed, the real work will be done in the main message loop
-	    PostMessage(hWnd,UWM_INPUTSIZE_CHANGE,0,0);
+	    PostMessageToMainWindow(UWM_INPUTSIZE_CHANGE,0,0);
     }
 }
 
@@ -156,7 +159,7 @@ void CSource::NotifySquarePixelsCheck()
     {
     	// Tell dscaler to check whether "square pixels" AR mode must be on or off
         // The real work will be done in the main message loop
-	    PostMessage(hWnd,UWM_SQUAREPIXELS_CHECK,0,0);
+	    PostMessageToMainWindow(UWM_SQUAREPIXELS_CHECK,0,0);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.136 2004-12-16 21:58:17 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.137 2005-03-23 14:20:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.136  2004/12/16 21:58:17  robmuller
+// Fix errors when compiling without DShow.
+//
 // Revision 1.135  2004/12/14 23:23:44  laurentg
 // Action behind menu "DShow => Stop" now run by the output thread
 //
@@ -627,7 +630,7 @@ void Stop_Thread()
             // --AtNak 2003-07-31  [In progress comments, remove when fixed.]
             // http://sourceforge.net/mailarchive/message.php?msg_id=5703600
 
-            MessageBox(hWnd,
+            MessageBox(GetMainWnd(),
                 "The video thread failed to exit in a timely manner and was forcefully "
                 "terminated.  You may experience further problems.",
                 "Unexpected Error", MB_OK);
@@ -780,6 +783,26 @@ void Start_Capture()
     {
         // make sure half height Modes are set correctly
         Overlay_Clean();
+
+        // moved this stuff out of the processing thared to avoid windo calls
+        // in the processing thread
+		if (pMultiFrames && pMultiFrames->IsActive())
+		{
+			// Check whether preview mode must be switched to OFF
+			if ( (Providers_GetCurrentSource() != pMultiFrames->GetSource())
+			  || ( (pMultiFrames->GetMode() == PREVIEW_CHANNELS)
+			    && !Providers_GetCurrentSource()->IsInTunerMode() ) )
+			{
+				delete pMultiFrames;
+				pMultiFrames = NULL;
+			}
+		}
+		if (!pMultiFrames || !pMultiFrames->IsActive())
+		{
+			Providers_GetCurrentSource()->SetAspectRatioData();
+			WorkoutOverlaySize(TRUE);
+		}
+
         if (Providers_GetCurrentSource())
         {
 			Providers_GetCurrentSource()->Start();
@@ -881,27 +904,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     {
         VDCHECKPOINT;
 
-		if (pMultiFrames && pMultiFrames->IsActive())
-		{
-			// Check whether preview mode must be switched to OFF
-			if ( (pSource != pMultiFrames->GetSource())
-			  || ( (pMultiFrames->GetMode() == PREVIEW_CHANNELS)
-			    && !pSource->IsInTunerMode() ) )
-			{
-				delete pMultiFrames;
-				pMultiFrames = NULL;
-			}
-		}
-
-	    bUseExtraBuffer = Filter_WillWeDoOutput()
+        bUseExtraBuffer = Filter_WillWeDoOutput()
 			           || (pMultiFrames && pMultiFrames->IsActive())
 					   || (CTimeShift::IsRunning() == TRUE && CTimeShift::WorkOnInputFrames() == FALSE);
 
-		if (!pMultiFrames || !pMultiFrames->IsActive())
-		{
-			pSource->SetAspectRatioData();
-			WorkoutOverlaySize(TRUE);
-		}
 
         // Anti-plop and update screen delay timers may have been cancelled.
         // Reset to default values
@@ -936,7 +942,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				{
 					continue;
 				}
-				PostMessage(hWnd,UWM_SWITCH_WINDOW,0,0);
+				PostMessageToMainWindow(UWM_SWITCH_WINDOW,0,0);
 				bCheckSignalPresent = FALSE;
 			}
 
@@ -950,7 +956,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					nMissing++;
 					if (nMissing > 30)
 					{
-						PostMessage(hWnd,UWM_SWITCH_WINDOW,0,0);
+						PostMessageToMainWindow(UWM_SWITCH_WINDOW,0,0);
 						bCheckSignalMissing = FALSE;
 						nMissing = 0;
 					}
@@ -1285,8 +1291,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
-								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+								PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
+								PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
 #ifdef WANT_DSHOW_SUPPORT
 								CoUninitialize();
 #endif
@@ -1366,8 +1372,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
-								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+								PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
+								PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
 #ifdef WANT_DSHOW_SUPPORT
 								CoUninitialize();
 #endif
@@ -1443,8 +1449,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Flip");
-								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+								PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_STOP, 0);
+								PostMessageToMainWindow(WM_COMMAND, IDM_OVERLAY_START, 0);
 								DScalerDeinitializeThread();
 								return 1;
 							}

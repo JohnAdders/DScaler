@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.12 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MultiFrames.cpp,v 1.13 2005-03-23 14:20:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.11  2003/08/02 12:48:25  laurentg
 // Ctrl+Up and Ctrl+Down to go to the previous and next pages when in preview mode
 //
@@ -303,11 +306,11 @@ void CMultiFrames::SelectFrame()
 			DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 			if (m_Mode == PREVIEW_CHANNELS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNELMINUS, 0);
 			}
 			else if (m_Mode == PREVIEW_STILLS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
 			}
 		}
 		else if (m_NextPage == TRUE)
@@ -323,11 +326,11 @@ void CMultiFrames::SelectFrame()
 			DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 			if (m_Mode == PREVIEW_CHANNELS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNELPLUS, 0);
 			}
 			else if (m_Mode == PREVIEW_STILLS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
 			}
 		}
 		else if (m_DeltaNewFrame != 0)
@@ -345,11 +348,11 @@ void CMultiFrames::SelectFrame()
 				DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				if (m_Mode == PREVIEW_CHANNELS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, m_FrameFilled[m_CurrentFrame]);
+					SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNEL_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
 				else if (m_Mode == PREVIEW_STILLS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, m_FrameFilled[m_CurrentFrame]);
+					SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
 				m_FrameFilled[m_CurrentFrame] = -1;
 			}
@@ -362,11 +365,11 @@ void CMultiFrames::SelectFrame()
 				DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				if (m_Mode == PREVIEW_CHANNELS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, m_FrameFilled[m_CurrentFrame]);
+					SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNEL_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
 				else if (m_Mode == PREVIEW_STILLS)
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, m_FrameFilled[m_CurrentFrame]);
+					SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_INDEX, m_FrameFilled[m_CurrentFrame]);
 				}
 			}
 		}
@@ -388,22 +391,22 @@ void CMultiFrames::SelectFrame()
 		{
 			if (m_Mode == PREVIEW_CHANNELS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNELMINUS, 0);
 			}
 			else if (m_Mode == PREVIEW_STILLS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
 			}
 		}
 		else
 		{
 			if (m_Mode == PREVIEW_CHANNELS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_CHANNELPLUS, 0);
 			}
 			else if (m_Mode == PREVIEW_STILLS)
 			{
-				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
+				SendMessage(GetMainWnd(), WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
 			}
 		}
 	}

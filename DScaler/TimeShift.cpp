@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.35 2005-03-11 14:54:40 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.36 2005-03-23 14:21:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2005/03/11 14:54:40  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.34  2004/08/12 16:27:47  adcockj
 // added timeshift changes from emu
 //
@@ -435,7 +438,7 @@ bool CTimeShift::OnRecord(void)
         "Schedule", "Start", m_Start, szIniFile); // reset INI
 
         // Do a timer messagebox to the start of the scheduled recording
-        SchedMessageBox mbox(CWnd::FromHandle(hWnd));   // handle
+        SchedMessageBox mbox(CWnd::FromHandle(GetMainWnd()));   // handle
         int m_delay = sleeptime; // set the count-down period
         bool m_close = true; // irrelevant - hard coded the switch
         // irrelevant - hardcoded the icon
@@ -520,7 +523,7 @@ bool CTimeShift::OnRecord(void)
             LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream 
             if (RecordTimerF)
             {
-                MessageBox(hWnd,
+                MessageBox(GetMainWnd(),
                     "Sorry! Recording stopped!\n"
                     "\n"
                     "You do not have enough\n"
@@ -532,7 +535,7 @@ bool CTimeShift::OnRecord(void)
             }
             else
             {
-                MessageBox(hWnd,
+                MessageBox(GetMainWnd(),
                     "Sorry! Timed recording stopped!\n"
                     "\n"
                     "You do not have enough\n"
@@ -561,14 +564,14 @@ bool CTimeShift::OnRecord(void)
             
             if (ScheduleF) // Was it a scheduled recording?
             {
-                MessageBox(hWnd,
+                MessageBox(GetMainWnd(),
                         "Your scheduled recording was saved.",
                         "Recording Information",
                         MB_ICONEXCLAMATION | MB_OK);
             }
             else
             {
-                MessageBox(hWnd,
+                MessageBox(GetMainWnd(),
                         "Your timed recording was saved.",
                         "Recording Information",
                         MB_ICONEXCLAMATION | MB_OK);
@@ -586,7 +589,7 @@ bool CTimeShift::OnRecord(void)
         if (TotalFreeBytes < 314572800)
         {
             LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream
-            MessageBox(hWnd,
+            MessageBox(GetMainWnd(),
                         "Sorry! You do not have enough\n"
                         "disk space to record a video.",
                         "Information",
@@ -779,7 +782,7 @@ bool CTimeShift::OnOptions(void)
 
         if (m_pTimeShift->m_mode == MODE_STOPPED)
         {
-            CTSOptionsDlg dlg(CWnd::FromHandle(hWnd));
+            CTSOptionsDlg dlg(CWnd::FromHandle(GetMainWnd()));
             result = dlg.DoModal() == IDOK;
 
             // Save off any changes we've made now, rather than in destructor.
@@ -789,7 +792,7 @@ bool CTimeShift::OnOptions(void)
         }
         else
         {
-            MessageBox(hWnd,
+            MessageBox(GetMainWnd(),
                        "TimeShift options are only available during stop mode.",
                        "Information",
                        MB_OK);
@@ -1668,7 +1671,7 @@ bool CTimeShift::AssureCreated(void)
         if(WarningShown == FALSE)
         {
             int Result  = MessageBox(
-                                        hWnd, 
+                                        GetMainWnd(), 
                                         "TimeShift (only manual recording is implemented at the moment)\n"
                                         "is an experimental/test feature. We have had reports of this\n" 
                                         "feature crashing and causing serious problems including disk\n"
@@ -2542,7 +2545,7 @@ bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
 
         // We basically want to trigger an OnGoNext() but I don't want to call
         // that from within this thread.
-        PostMessage(hWnd, WM_COMMAND, IDM_TSNEXT, 0);
+        PostMessageToMainWindow(WM_COMMAND, IDM_TSNEXT, 0);
 
         return false;
     }
@@ -2713,7 +2716,7 @@ bool CTimeShift::ReadVideo2(TDeinterlaceInfo *pInfo)
 
         // We basically want to trigger an OnGoNext() but I don't want to call
         // that from within this thread.
-        PostMessage(hWnd, WM_COMMAND, IDM_TSNEXT, 0);
+        PostMessageToMainWindow(WM_COMMAND, IDM_TSNEXT, 0);
 
         return false;
     }
@@ -3028,7 +3031,7 @@ bool CTimeShift::CompressionOptions(void)
     LPAVICOMPRESSOPTIONS opts[numStreams] = {&optsVideo, &optsAudio};
 
     // hWnd is the main global hwnd.
-    if (AVISaveOptions(hWnd, 0, numStreams, streams, opts))
+    if (AVISaveOptions(GetMainWnd(), 0, numStreams, streams, opts))
     {
         // For audio, we need to reset the wave format.
         // Check the user clicked OK on this stream setup by looking for

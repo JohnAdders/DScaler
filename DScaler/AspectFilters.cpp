@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.34 2003-10-27 10:39:50 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.35 2005-03-23 14:20:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.33  2003/08/09 15:53:39  laurentg
 // Bad refresh of the toolbar when in full screen mode corrected
 //
@@ -714,9 +717,9 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
         {
             currentClientRect.bottom -= StatusBar_Height();
         }*/
-        GetDisplayAreaRect(hWnd,&currentClientRect, TRUE);
-        ClientToScreen(hWnd, (POINT*) &currentClientRect.left);
-        ClientToScreen(hWnd, (POINT*) &currentClientRect.right);
+        GetDisplayAreaRect(GetMainWnd(), &currentClientRect, TRUE);
+        ClientToScreen(GetMainWnd(), (POINT*) &currentClientRect.left);
+        ClientToScreen(GetMainWnd(), (POINT*) &currentClientRect.right);
 
         #ifdef __ASPECTFILTER_DEBUG__
             currentClientRect.DebugDump("Current Client Rect");
@@ -750,19 +753,19 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             currentClientRect.enforceMinSize(8);
             
             // Convert client rect to window rect...
-            AddDisplayAreaRect(hWnd,&currentClientRect);
+            AddDisplayAreaRect(GetMainWnd(), &currentClientRect);
 
             OrigClientTop = currentClientRect.top;
             AdjustWindowRectEx(&currentClientRect,
-                               GetWindowLong(hWnd,GWL_STYLE),
+                               GetWindowLong(GetMainWnd(), GWL_STYLE),
                                FALSE, /* we deal with the menu later */
-                               GetWindowLong(hWnd, GWL_EXSTYLE));
+                               GetWindowLong(GetMainWnd(), GWL_EXSTYLE));
             // Adjust for the menu bar
             // Workaround since AdjustWindowRectEx does not work correct with a wrapped menu bar
             if(bShowMenu)
             {
                 RECT TempRect = currentClientRect;
-                SendMessage(hWnd, WM_NCCALCSIZE, FALSE, (LPARAM)(LPRECT)&TempRect);
+                SendMessage(GetMainWnd(), WM_NCCALCSIZE, FALSE, (LPARAM)(LPRECT)&TempRect);
                 currentClientRect.top -= TempRect.top - OrigClientTop;
             }
             
@@ -771,7 +774,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             #endif
 
             // Set the window...
-            SetWindowPos(hWnd,NULL,currentClientRect.left,currentClientRect.top,currentClientRect.width(),currentClientRect.height(),
+            SetWindowPos(GetMainWnd(), NULL,currentClientRect.left,currentClientRect.top,currentClientRect.width(),currentClientRect.height(),
                          SWP_NOZORDER);
             
             #ifdef __ASPECTFILTER_DEBUG__

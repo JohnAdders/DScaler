@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.95 2005-03-06 15:53:03 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.96 2005-03-23 14:21:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2005/03/06 15:53:03  atnak
+// Fixed card name not saved by initial card  setup dialog if auto-detected.
+//
 // Revision 1.94  2005/03/06 00:35:26  robmuller
 // Changed default value for automatic volume leveling.
 //
@@ -432,7 +435,7 @@ CSAA7134Source::~CSAA7134Source()
 {
 
     CleanupUI();
-    KillTimer(hWnd, TIMER_MSP);
+    KillTimer(GetMainWnd(), TIMER_MSP);
 
     // SAA7134 reserves input -1 as the clean up indicator
     m_pSAA7134Card->SetVideoSource(-1);
@@ -742,7 +745,7 @@ void CSAA7134Source::Start()
     Timing_Reset();
 
     // This timer is used to update STATUS_AUDIO
-    SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
+    SetTimer(GetMainWnd(), TIMER_MSP, TIMER_MSP_MS, NULL);
 
     NotifySizeChange();
     NotifySquarePixelsCheck();
@@ -761,7 +764,7 @@ void CSAA7134Source::Stop()
     DisableOnChange();
     // stop capture
     m_pSAA7134Card->StopCapture();    
-    KillTimer(hWnd, TIMER_MSP);
+    KillTimer(GetMainWnd(), TIMER_MSP);
 }
 
 
@@ -1338,7 +1341,7 @@ void CSAA7134Source::SetupCard()
 
         // then display the hardware setup dialog
         m_bSelectCardCancelButton = FALSE;
-        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), GetMainWnd(), (DLGPROC) SelectCardProc, (LPARAM)this);
         m_bSelectCardCancelButton = TRUE;
     }
 
@@ -1434,7 +1437,7 @@ LPCSTR CSAA7134Source::GetStatus()
 
 void CSAA7134Source::SetFormat(eVideoFormat NewFormat)
 {
-    PostMessage(hWnd, WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
+    PostMessageToMainWindow(WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
 }
 
 

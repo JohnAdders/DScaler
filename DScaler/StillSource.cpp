@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.105 2005-03-11 14:54:40 adcockj Exp $
+// $Id: StillSource.cpp,v 1.106 2005-03-23 14:21:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.105  2005/03/11 14:54:40  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.104  2005/03/04 20:40:55  laurentg
 // Change unit (1/10 sec) for the setting defining the delay between periodic stills
 //
@@ -571,7 +574,7 @@ CStillSource::~CStillSource()
     }
 	FreeOriginalFrameBuffer();
     ClearPlayList();
-    KillTimer(hWnd, TIMER_SLIDESHOW);
+    KillTimer(GetMainWnd(), TIMER_SLIDESHOW);
 }
 
 BOOL CStillSource::LoadPlayList(LPCSTR FileName)
@@ -1223,7 +1226,7 @@ void CStillSource::Start()
         // If no file of the playlist is readable
         if (!m_IsPictureRead)
         {
-            PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
+            PostMessageToMainWindow(WM_COMMAND, IDM_CLOSE_ALL, 0);
         }
 
         // The file is loaded and notification of size change is done
@@ -1247,7 +1250,7 @@ void CStillSource::Stop()
     if (m_SlideShowActive)
     {
         m_SlideShowActive = FALSE;
-        KillTimer(hWnd, TIMER_SLIDESHOW);
+        KillTimer(GetMainWnd(), TIMER_SLIDESHOW);
     }
     if (m_StillFrameBuffer != NULL)
     {
@@ -1549,7 +1552,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 m_Position = -1;
             }
             UpdateMenu();
-            PostMessage(hWnd, WM_COMMAND, IDM_SWITCH_SOURCE, 0);
+            PostMessageToMainWindow(WM_COMMAND, IDM_SWITCH_SOURCE, 0);
         }
         else
         {
@@ -1564,7 +1567,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         ClearPlayList();
         m_Position = -1;
         UpdateMenu();
-        PostMessage(hWnd, WM_COMMAND, IDM_SWITCH_SOURCE, 0);
+        PostMessageToMainWindow(WM_COMMAND, IDM_SWITCH_SOURCE, 0);
         return TRUE;
         break;
     case IDM_PLAYLIST_SAVE:
@@ -1685,7 +1688,7 @@ BOOL CStillSource::ReadNextFrameInFile()
             else
             {
                 m_Position = CurrentPos;
-                PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_CLOSE_ALL, 0);
             }
         }
         break;
@@ -1716,7 +1719,7 @@ BOOL CStillSource::ReadNextFrameInFile()
             else
             {
                 m_Position = CurrentPos;
-                PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_CLOSE_ALL, 0);
             }
         }
         break;
@@ -2063,7 +2066,7 @@ void CStillSource::HandleTimerMessages(int TimerId)
         m_NewFileRequested = STILL_REQ_NEXT_CIRC;
         m_NewFileReqPos = m_Position + 1;
         m_SlideShowActive = TRUE;
-        SetTimer(hWnd, TIMER_SLIDESHOW, Setting_GetValue(Still_GetSetting(SLIDESHOWDELAY)) * 1000, NULL);
+        SetTimer(GetMainWnd(), TIMER_SLIDESHOW, Setting_GetValue(Still_GetSetting(SLIDESHOWDELAY)) * 1000, NULL);
     }
 }
 
@@ -2119,14 +2122,14 @@ void CStillSource::SetAspectRatioData()
 BOOL Pattern_Height_OnChange(long NewValue)
 {
     PatternHeight = (int)NewValue;
-    PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_CURRENT, 0);
+    PostMessageToMainWindow(WM_COMMAND, IDM_PLAYLIST_CURRENT, 0);
     return FALSE;
 }
 
 BOOL Pattern_Width_OnChange(long NewValue)
 {
     PatternWidth = (int)NewValue;
-    PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_CURRENT, 0);
+    PostMessageToMainWindow(WM_COMMAND, IDM_PLAYLIST_CURRENT, 0);
     return FALSE;
 }
 

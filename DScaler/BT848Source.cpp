@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.134 2005-03-11 14:54:39 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.135 2005-03-23 14:20:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.134  2005/03/11 14:54:39  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.133  2004/11/13 21:45:56  to_see
 // - Some minor fixes
 // - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
@@ -558,7 +561,7 @@ CBT848Source::~CBT848Source()
 {
     EventCollector->Unregister(this);
 
-    KillTimer(hWnd, TIMER_MSP);
+    KillTimer(GetMainWnd(), TIMER_MSP);
     delete m_pBT848Card;
 }
 
@@ -937,7 +940,7 @@ void CBT848Source::Start()
         m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());    
         m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 
-        SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
+        SetTimer(GetMainWnd(), TIMER_MSP, TIMER_MSP_MS, NULL);
     }
     
 }
@@ -1118,7 +1121,7 @@ void CBT848Source::Stop()
     m_pBT848Card->StopCapture();
     if(IsInTunerMode())
     {
-        KillTimer(hWnd, TIMER_MSP);
+        KillTimer(GetMainWnd(), TIMER_MSP);
     }
 }
 
@@ -1237,7 +1240,7 @@ eVideoFormat CBT848Source::GetFormat()
 
 void CBT848Source::SetFormat(eVideoFormat NewFormat)
 {
-    PostMessage(hWnd, WM_BT848_SETVALUE, TVFORMAT, NewFormat);
+    PostMessageToMainWindow(WM_BT848_SETVALUE, TVFORMAT, NewFormat);
 }
 
 
@@ -1429,7 +1432,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
             QueryPerformanceCounter(&EndOfWait);
             if(EndOfWait.QuadPart -  StartOfWait.QuadPart > 150000)
             {
-                PostMessage(hWnd, WM_COMMAND, IDM_RESET, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
                 //  after tell the card to reset just exit out and we will probably show garbage here
                 break;      
             }
@@ -1515,7 +1518,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             QueryPerformanceCounter(&EndOfWait);
             if(EndOfWait.QuadPart -  StartOfWait.QuadPart > 150000)
             {
-                PostMessage(hWnd, WM_COMMAND, IDM_RESET, 0);
+                PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
                 //  after tell the card to reset just exit out and we will probably show garbage here
                 break;      
             }
@@ -1897,7 +1900,7 @@ void CBT848Source::SetupCard()
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
-        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), GetMainWnd(), (DLGPROC) SelectCardProc, (LPARAM)this);
         EnableCancelButton = 1;
 
         if(m_TunerType->GetValue() != TUNER_ABSENT)

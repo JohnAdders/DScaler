@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.14 2005-03-11 14:54:39 adcockj Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.15 2005-03-23 14:20:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2005/03/11 14:54:39  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.13  2004/12/30 18:14:42  to_see
 // Added Pal(I) FM audio
 //
@@ -151,12 +154,12 @@ void CCX2388xSource::StereoTypeOnChange(long NewValue, long OldValue)
 void CCX2388xSource::StartUpdateAudioStatus()
 {
 	m_AutoDetectA2Counter = 0;
-	SetTimer(hWnd, TIMER_CX2388X, TIMER_CX2388X_MS, NULL);
+	SetTimer(GetMainWnd(), TIMER_CX2388X, TIMER_CX2388X_MS, NULL);
 }
 
 void CCX2388xSource::StopUpdateAudioStatus()
 {
-	KillTimer(hWnd, TIMER_CX2388X);
+	KillTimer(GetMainWnd(), TIMER_CX2388X);
 }
 
 // called every 250ms

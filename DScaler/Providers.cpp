@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.73 2004-12-04 00:06:51 atnak Exp $
+// $Id: Providers.cpp,v 1.74 2005-03-23 14:20:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2004/12/04 00:06:51  atnak
+// Got rid of warnings in VC++ .Net 2003.
+//
 // Revision 1.72  2004/07/10 11:17:31  adcockj
 // Fix compile error
 //
@@ -323,7 +326,7 @@ extern char szIniFile[MAX_PATH];
 
 void Providers_MixerSetup()
 {
-	MessageBox(hWnd,
+	MessageBox(GetMainWnd(),
 		"The following dialog will allow you to configure how "
 		"DScaler uses the system mixer.  Configuring DScaler to use the "
 		"system mixer allows DScaler to change the volume level and the "
@@ -336,7 +339,7 @@ void Providers_MixerSetup()
 		"the \"Use the system mixer\" option unchecked.  If unsure, it "
 		"is recommended you use the system mixer.", "Next...", MB_OK);
 
-    Mixer_SetupDlg(hWnd);
+    Mixer_SetupDlg(GetMainWnd());
 }
 
 
@@ -392,7 +395,7 @@ int Providers_Load(HMENU hMenu)
             int RegFlag = GetPrivateProfileInt("CX2388x", "UseDShow", -1, szIniFile);
             if(RegFlag == -1)
             {
-                int Resp = MessageBox(hWnd, " You have a CX2388x card.  There have been several reported instability "
+                int Resp = MessageBox(GetMainWnd(), " You have a CX2388x card.  There have been several reported instability "
                     "problems with these cards if we allow the drivers to run.  Beacuse of this you can either run with "
                     "DScaler's own drivers or with the DShow drivers but not both.  Do you want to use DScaler's own driver?",
                     "CX2388x Question", MB_YESNO | MB_ICONQUESTION);

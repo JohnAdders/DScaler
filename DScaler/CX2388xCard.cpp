@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.70 2004-12-25 22:40:17 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.71 2005-03-23 14:20:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2004/12/25 22:40:17  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.69  2004/12/20 18:55:33  to_see
 // Moved tuner code to new file CX2388xCard_Tuner.cpp
 //
@@ -2133,7 +2136,7 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
 
 void CCX2388xCard::ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst)
 {
-    DialogBoxParam(hCX2388xResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
+    DialogBoxParam(hCX2388xResourceInst, "REGISTEREDIT", GetMainWnd(), RegisterEditProc, (LPARAM)this);
 }
 
 #define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}

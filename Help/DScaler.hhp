@@ -12,31 +12,32 @@ Title=DScaler Help
 
 
 [FILES]
-22Pulldown.HTM
-32Pulldown.HTM
+22Pulldown.htm
+32Pulldown.htm
 32spec.htm
-Aspect.HTM
+Aspect.htm
 Authors.htm
 COPYING.html
 DScaler_Readme.htm
 FAQ.htm
-Gamma.HTM
-IniFile.HTM
+Gamma.htm
+IniFile.htm
 keyboard.htm
-LinearCorrection.HTM
-Logging.HTM
-LogoKiller.HTM
-Noise.HTM
-Overlay.HTM
-PulldownShared.HTM
-Sharpness.HTM
+LinearCorrection.htm
+Logging.htm
+LogoKiller.htm
+Noise.htm
+Overlay.htm
+PulldownShared.htm
+Sharpness.htm
 Standards.htm
 Thanks.htm
-Timing.HTM
+Timing.htm
 user_support.htm
 OldGame.htm
 TemporalComb.htm
 Greedy2Frame.htm
+Calibration.htm
 
 [INFOTYPES]
 

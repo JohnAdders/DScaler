@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.6 2002-09-29 16:16:21 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.7 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -105,6 +105,7 @@ private:
     void SetupPictureStructures();
 
     void ChangeChannelSectionNames();
+    void ChangeDefaultsForCard();
 
     ISetting* GetCurrentAudioSetting();
 

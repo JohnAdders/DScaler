@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.14 2002-10-17 13:31:37 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.15 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/17 13:31:37  adcockj
+// Give Holo3d different menu and updated settings
+//
 // Revision 1.13  2002/10/02 19:02:06  adcockj
 // Faster film mode change
 //
@@ -114,6 +117,7 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     
     
     ReadFromIni();
+    ChangeDefaultsForCard();
     ChangeSectionNamesForInput();
     ChangeDefaultsForInput();
     LoadInputSettings();
@@ -227,7 +231,7 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");
     m_Settings.push_back(m_bSavePerChannel);
 
-    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", TRUE, IniSection, pH3DGroup, FlagsAll);
+    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_IsVideoProgressive);
 
     m_FLIFilmDetect = new CFLIFilmDetectSetting(this, "FLI Film Detect", TRUE, IniSection, pH3DGroup, FlagsAll);
@@ -916,7 +920,6 @@ void CCT2388xSource::TunerTypeOnChange(long TunerId, long OldValue)
     m_pCard->InitTuner((eTunerId)TunerId);
 }
 
-
 BOOL CCT2388xSource::IsInTunerMode()
 {
     return m_pCard->IsInputATuner(m_VideoSource->GetValue());
@@ -938,6 +941,13 @@ void CCT2388xSource::SetupCard()
         PostShowDialogOrMenu();
         EnableCancelButton = 1;
 
+		ChangeDefaultsForCard();
+		m_Brightness->SetDefault();
+		m_Contrast->SetDefault();
+		m_Hue->SetDefault();
+		m_SaturationU->SetDefault();
+		m_SaturationV->SetDefault();
+		//m_IsVideoProgressive->SetDefault();
     }
     m_pCard->SetCardType(m_CardType->GetValue());
     m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.4 2002-10-17 13:31:37 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.5 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/17 13:31:37  adcockj
+// Give Holo3d different menu and updated settings
+//
 // Revision 1.3  2002/09/22 17:47:04  adcockj
 // Fixes for holo3d
 //
@@ -203,6 +206,32 @@ const CCT2388xCard::TCardType CCT2388xCard::m_TVCards[CT2388xCARD_LASTONE] =
         H3DSetFormat,
         TUNER_ABSENT,
         IDC_CT2388X_H3D,
+ 	},
+	{
+		"PixelView XCapture",
+		2,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				2,
+			},
+		},
+		NULL,
+		StandardInputSelect,
+        SetAnalogBrightness,
+        SetAnalogContrast,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_ABSENT,
+        IDC_CT2388X,
  	},
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_H3D.cpp,v 1.7 2002-09-29 16:16:21 adcockj Exp $
+// $Id: CT2388xCard_H3D.cpp,v 1.8 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/29 16:16:21  adcockj
+// Holo3d imrprovements
+//
 // Revision 1.6  2002/09/26 16:32:33  adcockj
 // Holo3d fixes
 //
@@ -75,6 +78,10 @@ void CCT2388xCard::InitH3D()
     }
 
     for(DWORD i(0x390000); i <= 0x39000F; ++i)
+    {
+        fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
+    }
+    for(i =0x39000d; i <= 0x390FFd; i += 0x10)
     {
         fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
     }

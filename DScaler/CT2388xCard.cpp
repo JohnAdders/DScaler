@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.10 2002-10-18 16:12:31 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.11 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/18 16:12:31  adcockj
+// Tidy up and fixes for Cx2388x analogue support
+//
 // Revision 1.9  2002/10/08 11:22:40  adcockj
 // Changed some defines for consistency
 //
@@ -297,9 +300,6 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentX = 720;
 		WriteByte(CT2388X_PINMUX_IO, 0x02);
 
-        SetPLL(27.0);
-        SetSampleRateConverter(27.0);
-
         // Since we are digital here we don't really care which
         // format we choose as long as it has the right number of lines
 		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
@@ -324,20 +324,15 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         }
         else
         {
-            if (CurrentY == 576)
-            {
-                VertDelay = 0x0E;
-            }
-            else
-            {
-                VertDelay = 0x0C;
-            }
+            VertDelay = 0x0C;
         }
 
         WriteDword(CT2388X_FORMAT_2HCOMB, 0x183f0008);
         WriteDword(CT2388X_VIP_CONFIG, 1);
         WriteDword(CT2388X_VDELAYCCIR_EVEN, VertDelay);
         WriteDword(CT2388X_VDELAYCCIR_ODD, VertDelay);
+        WriteDword(CT2388X_VERT_DELAY_EVEN, VertDelay);
+        WriteDword(CT2388X_VERT_DELAY_ODD, VertDelay);
 
         if(HDelayOverride != 0)
         {
@@ -355,7 +350,6 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
         }
 
-
         if (CurrentY == 576)
         {
             HorzScale = 0x0504;
@@ -364,7 +358,6 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             HorzScale = 0x00F8;
         }
-    
     }
     // Test to see how to get best analogue picture
     // try using the sample rate convertor
@@ -373,13 +366,21 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         DWORD HTotal(0);
         DWORD Format2HComb(0x183f0008);
 
-        CurrentX = 720;
+        if (CurrentY == 576)
+        {
+	        CurrentX = 702;
+        }
+        else
+        {
+	        CurrentX = 714;
+        }
 
         SetPLL(27.0);
         SetSampleRateConverter(27.0);
 
         // Setup correct format
 		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+		VideoInput &= 0xfffffff0;
 
         switch(TVFormat)
         {
@@ -461,11 +462,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             if (CurrentY == 576)
             {
-                VertDelay = 0x26;
+                VertDelay = 0x20;
             }
             else
             {
-                VertDelay = 0x14;
+                VertDelay = 0x1C;
             }
         }
 
@@ -500,19 +501,36 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         if (CurrentY == 576)
         {
-            SetPLL(35.46895);
-            SetSampleRateConverter(35.46895);
+            SetPLL(35.44);
             HorzScale = 0x0504;
+
+			// set up subcarrier frequency
+			DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 35.44) * (double)(1<<22));
+			WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+			// Subcarrier frequency Dr, for SECAM only but lets
+			// set it anyway
+			RegValue = (DWORD)((8.0 * 4.406250 / 35.44) * (double)(1<<22));
+			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
         }
         else
         {
             SetPLL(28.636363);
-            SetSampleRateConverter(28.636363);
             HorzScale = 0x00F8;
+
+			// set up subcarrier frequency
+			DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 28.636363) * (double)(1<<22));
+			WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+			// Subcarrier frequency Dr, for SECAM only but lets
+			// set it anyway
+			RegValue = (DWORD)((8.0 * 4.406250 / 28.636363) * (double)(1<<22));
+			WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
         }
+
+        SetSampleRateConverter(28.636363);
 
         // Setup correct format
 		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+		VideoInput &= 0xfffffff0;
 
         switch(TVFormat)
         {
@@ -578,14 +596,6 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
         WriteDword(CT2388X_FORMAT_2HCOMB, HTotal);
 
-        // set up subcarrier frequency
-        DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 27.0) * (double)(1<<22));
-        WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
-        // Subcarrier frequency Dr, for SECAM only but lets
-        // set it anyway
-        RegValue = (DWORD)((8.0 * 4.406250 / 27.0) * (double)(1<<22));
-        WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
-
         if(VDelayOverride != 0)
         {
             VertDelay = VDelayOverride;
@@ -594,11 +604,11 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         {
             if (CurrentY == 576)
             {
-                VertDelay = 0x26;
+                VertDelay = 0x20;
             }
             else
             {
-                VertDelay = 0x14;
+                VertDelay = 0x1C;
             }
         }
 

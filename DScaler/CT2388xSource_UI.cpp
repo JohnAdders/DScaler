@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.5 2002-09-29 16:16:21 adcockj Exp $
+// $Id: CT2388xSource_UI.cpp,v 1.6 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/29 16:16:21  adcockj
+// Holo3d imrprovements
+//
 // Revision 1.4  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -346,10 +349,42 @@ void CCT2388xSource::ChangeSectionNamesForInput()
     ChangeDefaultsForInput();
 }
 
-void CCT2388xSource::ChangeDefaultsForInput()
+void CCT2388xSource::ChangeDefaultsForCard()
 {
+    if(m_CardType->GetValue() != CT2388xCARD_HOLO3D)
+    {
+        m_Brightness->ChangeDefault(128);
+        m_Contrast->ChangeDefault(0x39);
+        m_Hue->ChangeDefault(128);
+        m_Saturation->ChangeDefault((0x7f + 0x5A) / 2);
+        m_SaturationU->ChangeDefault(0x7f);
+        m_SaturationV->ChangeDefault(0x5A);
+        m_IsVideoProgressive->ChangeDefault(FALSE);
+    }
+    else
+    {
+        m_Brightness->ChangeDefault(128);
+        m_Contrast->ChangeDefault(128);
+        m_Hue->ChangeDefault(128);
+        m_Saturation->ChangeDefault(128);
+        m_SaturationU->ChangeDefault(128);
+        m_SaturationV->ChangeDefault(128);
+        m_IsVideoProgressive->ChangeDefault(TRUE);
+    }
 }
 
+void CCT2388xSource::ChangeDefaultsForInput()
+{
+    eVideoFormat format = GetFormat();
+    if(IsNTSCVideoFormat(format))
+    {
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+    }
+    else
+    {
+        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+    }
+}
 
 void CCT2388xSource::LoadInputSettings()
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388x_Defines.h,v 1.2 2002-10-08 11:22:40 adcockj Exp $
+// $Id: CT2388x_Defines.h,v 1.3 2002-10-21 07:19:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -737,6 +737,7 @@ enum eCT2388xCardId
     CT2388xCARD_CONEXANT_EVK,
     CT2388xCARD_CONEXANT_EVK_PAL,
     CT2388xCARD_HOLO3D,
+    CT2388xCARD_PIXELVIEW_XCAPTURE,
     CT2388xCARD_LASTONE,
 };
 #define SRAM_CMDS_21                0x180040 // 48 DWORDS

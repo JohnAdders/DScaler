@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.13 2002-10-07 20:31:02 kooiman Exp $
+// $Id: AudioDecoder.h,v 1.14 2002-10-11 21:31:47 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/07 20:31:02  kooiman
+// Fixed autodetect bugs.
+//
 // Revision 1.12  2002/10/02 10:52:35  kooiman
 // Fixed C++ type casting for events.
 //
@@ -108,7 +111,6 @@ public:
     virtual void SetAudioInput(eAudioInput audioInput);
     virtual eAudioInput GetAudioInput();    
     virtual const char* GetAudioInputName(eAudioInput audioInput);
-    virtual int GetNumAudioInputs() { return AUDIOINPUT_STEREO+1; }
 
     // Standard
     virtual void SetAudioStandard(long Standard, eVideoFormat videoformat);
@@ -125,7 +127,24 @@ public:
     // SupportedSoundChannels == 2: detect now, no standard detect
     virtual void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);
 
-    virtual LPCSTR GetAudioDecoderID(){return NULL;};
+    /// The type of the AudioDecoder component
+    enum eAudioDecoderType
+    {
+        AUDIODECODERTYPE_DETECT = -1,
+        AUDIODECODERTYPE_NONE,
+        AUDIODECODERTYPE_MSP34x0,
+        AUDIODECODERTYPE_TERRATV,
+        AUDIODECODERTYPE_WINFAST2000,
+        AUDIODECODERTYPE_GVBCTV3,
+        AUDIODECODERTYPE_LT9415,
+        AUDIODECODERTYPE_WINDVR,
+        AUDIODECODERTYPE_AVER_TVPHONE_NEW,
+        AUDIODECODERTYPE_AVER_TVPHONE_OLD,
+        AUDIODECODERTYPE_LASTONE
+    };
+    virtual eAudioDecoderType GetAudioDecoderType();
+
+    // \todo: eliminate this
     virtual int SetAudioDecoderValue(int What, long Val) {return 0;};
     virtual long GetAudioDecoderValue(int What){ return 0;};
 

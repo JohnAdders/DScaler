@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.5 2002-10-02 10:52:35 kooiman Exp $
+// $Id: events.h,v 1.6 2002-10-07 20:29:49 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,8 @@ enum eEventType
 	EVENT_VOLUME,
 	EVENT_MIXERVOLUME,
 	EVENT_AUDIOSTANDARD_DETECTED,
-	EVENT_AUDIOCHANNELSUPPORT_DETECTED
+	EVENT_AUDIOCHANNELSUPPORT_DETECTED,
+	EVENT_SOUNDCHANNEL
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 
@@ -74,11 +75,6 @@ protected:
     
     vector<TEventCallbackInfo> m_EventObjects;
 
-	vector<int>  m_RaisedEvent;
-	vector<long> m_LastOldValues;
-	vector<long> m_LastNewValues;
-	vector<CEventObject*> m_LastEventObjects;
-
 	typedef struct
 	{
 		CEventObject *pEventObject;
@@ -90,10 +86,13 @@ protected:
 
 	deque<TEventInfo> m_ScheduledEventList;
 	CRITICAL_SECTION  m_EventCriticalSection;
+	CRITICAL_SECTION  m_LastEventCriticalSection;
 	long			  m_ScheduleTimerID;
 
 	HANDLE			  m_EventCollectorThread;		
     BOOL			  m_bStopThread;
+
+	vector<TEventInfo> m_LastEvents;
     
 	void StartThread();
     void StopThread();

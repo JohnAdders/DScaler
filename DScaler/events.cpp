@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.5 2002-10-02 10:52:35 kooiman Exp $
+// $Id: events.cpp,v 1.6 2002-10-07 20:29:48 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/02 10:52:35  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.4  2002/09/28 13:34:07  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -101,13 +104,15 @@ CEventCollector::CEventCollector()
 	m_EventCollectorThread = NULL;
     m_bStopThread = FALSE;
 	InitializeCriticalSection(&m_EventCriticalSection);
+	InitializeCriticalSection(&m_LastEventCriticalSection);
 }
 
 CEventCollector::~CEventCollector()
 {
     StopThread();
-
+	
 	DeleteCriticalSection(&m_EventCriticalSection);
+	DeleteCriticalSection(&m_LastEventCriticalSection);
 	for (int i = 0; i < m_EventObjects.size(); i++)
     {
         if (m_EventObjects[i].EventList != NULL)
@@ -200,6 +205,23 @@ void CEventCollector::Unregister(CEventObject *pObject)
         }
     }
     m_EventObjects = NewList;
+
+	//Remove from last event list
+	EnterCriticalSection(&m_LastEventCriticalSection);
+	vector<TEventInfo> NewList2;
+	for (i = 0; i < m_LastEvents.size(); i++)
+	{
+		if (m_LastEvents[i].pEventObject == pObject)
+		{
+			//remove
+		}
+		else
+		{
+			NewList2.push_back(m_LastEvents[i]);
+		}
+	}
+	m_LastEvents = NewList2;
+	LeaveCriticalSection(&m_LastEventCriticalSection);
 }
 
 void CEventCollector::RaiseEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
@@ -236,49 +258,79 @@ void CEventCollector::RaiseScheduledEvent(CEventObject *pEventObject, eEventType
             }
         }        
     }
-	while (Event>=m_RaisedEvent.size())
+	
+	EnterCriticalSection(&m_LastEventCriticalSection);
+	for (i = 0; i < m_LastEvents.size(); i++)
 	{
-		m_RaisedEvent.push_back(0);
+		if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
+		{
+			m_LastEvents[i].OldValue = OldValue;
+			m_LastEvents[i].NewValue = NewValue;
+			break;
+		}
 	}
-	while (Event>=m_LastOldValues.size())
+	
+	if (i >= m_LastEvents.size()) //new
 	{
-		m_LastOldValues.push_back(0);
-	}
-	while (Event>=m_LastNewValues.size())
-	{
-		m_LastNewValues.push_back(0);
-	}
-	while (Event>=m_LastEventObjects.size())
-	{
-		m_LastEventObjects.push_back(0);
-	}
-	m_RaisedEvent[Event]++;
-	m_LastOldValues[Event] = OldValue;
-	m_LastNewValues[Event] = NewValue;
-	m_LastEventObjects[Event] = pEventObject;
+		TEventInfo EventInfo;
+		EventInfo.pEventObject = pEventObject;
+		EventInfo.Event = Event;
+		EventInfo.OldValue = OldValue;
+		EventInfo.NewValue = NewValue;
+		m_LastEvents.push_back(EventInfo);		
+	}		
+	LeaveCriticalSection(&m_LastEventCriticalSection);
 }
 
 
 int CEventCollector::LastEventValues(eEventType Event, CEventObject **pEventObject, long *OldValue, long *NewValue)
 {
-	if (Event>= m_RaisedEvent.size())
+	EnterCriticalSection(&m_LastEventCriticalSection);
+	for (int i = 0; i < m_LastEvents.size(); i++)
 	{
-		return 0;
+		if (m_LastEvents[i].Event == Event)
+		{			
+			if (pEventObject!=NULL) 
+			{ 
+				*pEventObject = m_LastEvents[i].pEventObject; 
+			}
+			if (OldValue!=NULL) 
+			{ 
+				*OldValue = m_LastEvents[i].OldValue; 
+			}
+			if (NewValue!=NULL) 
+			{ 
+				*NewValue = m_LastEvents[i].NewValue; 
+			}
+			LeaveCriticalSection(&m_LastEventCriticalSection);
+			return 1;
+		}
 	}
-	if (m_RaisedEvent[Event]>0)
-	{
-		if (pEventObject!=NULL) { *pEventObject = m_LastEventObjects[Event]; }
-		if (OldValue!=NULL) { *OldValue = m_LastOldValues[Event]; }
-		if (NewValue!=NULL) { *NewValue = m_LastNewValues[Event]; }
-	}
-	return m_RaisedEvent[Event];
+	LeaveCriticalSection(&m_LastEventCriticalSection);
+	return 0;
 }
 
 int CEventCollector::LastEventValues(CEventObject *pEventObject, eEventType Event, long *OldValue, long *NewValue)
 {
-	///\todo return last event value of object pEventObject
-
-	return LastEventValues(Event, NULL, OldValue, NewValue);
+	EnterCriticalSection(&m_LastEventCriticalSection);
+	for (int i = 0; i < m_LastEvents.size(); i++)
+	{
+		if ((m_LastEvents[i].Event == Event) && (m_LastEvents[i].pEventObject == pEventObject))
+		{			
+			if (OldValue!=NULL) 
+			{ 
+				*OldValue = m_LastEvents[i].OldValue; 
+			}
+			if (NewValue!=NULL) 
+			{ 
+				*NewValue = m_LastEvents[i].NewValue; 
+			}
+			LeaveCriticalSection(&m_LastEventCriticalSection);
+			return 1;
+		}
+	}
+	LeaveCriticalSection(&m_LastEventCriticalSection);
+	return 0;
 }
 
 int CEventCollector::NumEventsWaiting()
@@ -298,6 +350,25 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 		return;
 	}
 	EnterCriticalSection(&m_EventCriticalSection);
+
+	if (m_ScheduledEventList.size()>0)
+	{
+		deque<TEventInfo> NewEventList;
+		for (int i = 0; i < m_ScheduledEventList.size(); i++)
+		{
+			if ((m_ScheduledEventList[i].pEventObject == pEventObject)
+				&& (m_ScheduledEventList[i].Event == Event))
+			{
+				//Old duplicate event. remove
+			}
+			else
+			{
+				NewEventList.push_back(m_ScheduledEventList[i]);
+			}
+		}
+		m_ScheduledEventList = NewEventList;
+	}
+
 	TEventInfo ei;
 	ei.pEventObject = pEventObject;
 	ei.Event = Event;

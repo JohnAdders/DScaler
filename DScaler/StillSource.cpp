@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.75 2002-10-29 20:58:12 laurentg Exp $
+// $Id: StillSource.cpp,v 1.76 2002-11-01 11:09:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2002/10/29 20:58:12  laurentg
+// Calibration source cut in Calibration + Pattern
+//
 // Revision 1.74  2002/10/27 12:18:51  laurentg
 // New setting to define the number of consecutive stills
 //
@@ -848,6 +851,8 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 			return;
 		}
 	}
+
+	OSD_ShowText(hWnd, strrchr(FilePath, '\\') + 1, 0);
 
     m_SquarePixels = AspectSettings.SquarePixels;
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))

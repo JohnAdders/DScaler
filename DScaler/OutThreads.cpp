@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.97 2002-10-29 20:51:55 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.98 2002-11-01 11:09:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2002/10/29 20:51:55  laurentg
+// Overlay must be locked when taking a still from the overlay
+//
 // Revision 1.96  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -656,6 +659,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     long SourceAspectAdjust = 1000;
 	BYTE* pAllocBuf = NULL;
 	BOOL bTakeStill = FALSE;
+	BOOL bUseOverlay = TRUE;
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -732,6 +736,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             bFlipNow = FALSE;
 			bTakeStill = FALSE;
 			pAllocBuf = NULL;
+			bUseOverlay = TRUE;
             GetDestRect(&Info.DestRect);
             
             // Go and get the next input field
@@ -770,6 +775,30 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             }
 
             pPerf->InitCycle();
+
+			if (RequestStillType == STILL_TIFF)
+			{
+				bTakeStill = TRUE;
+				if (RequestStillInMemory)
+				{
+					// If we are taking a still in memory, we need to allocate
+					// a memory buffer and use this buffer as output
+					// That means too that the overlay will not be updated
+					bUseOverlay = FALSE;
+					Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+					pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
+					LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
+					if (pAllocBuf == NULL)
+					{
+						RequestStillType = STILL_NONE;
+						bTakeStill = FALSE;
+						bUseOverlay = TRUE;
+					}
+				}
+				// After that line, we must use variable bTakeStill instead of RequestStillType
+				// because RequestStillType could be set by the GUI thread at the same time,
+				// and we must be certain that memory allocation has been done
+			}
 
             if(bIsPaused == FALSE)
             {
@@ -973,36 +1002,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                         }
 
-						if (RequestStillType == STILL_TIFF)
-						{
-							bTakeStill = TRUE;
-							if (RequestStillInMemory)
-							{
-								// If we are taking a still in memory, we need to allocate
-								// a memory buffer and use this buffer as output
-								// That means too that the overlay will not be updated
-								Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-								pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
-								LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
-								if (pAllocBuf == NULL)
-								{
-									RequestStillType = STILL_NONE;
-									bTakeStill = FALSE;
-								}
-							}
-							// After that line, we must use variable bTakeStill instead of RequestStillType
-							// because RequestStillType could be set by the GUI thread at the same time,
-							// and we must be certain that memory allocation has been done
-						}
-
-						if(!bTakeStill || !RequestStillInMemory)
+						if(bUseOverlay)
 						{
 #ifdef _DEBUG
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 #endif
 
-							// The overlay is used as output
-							// So we have to lock it
 							if(!Overlay_Lock_Back_Buffer(&Info))
 							{
 								Providers_GetCurrentSource()->Stop();
@@ -1061,37 +1066,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                         }
 
-						if(bFlipNow && bTakeStill)
-						{
-							// We take the still while the overlay is locked
-							if (RequestStillInMemory)
-							{
-								((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch, pAllocBuf);
-							}
-							else
-							{
-								((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
-							}
-							RequestStillNb--;
-							if (RequestStillNb <= 0)
-							{
-								if (RequestStillInMemory)
-								{
-									OSD_ShowText(hWnd, "Still(s) stored in memory", 0);
-								}
-								else
-								{
-									OSD_ShowText(hWnd, "Still saved in file", 0);
-								}
-								RequestStillType = STILL_NONE;
-							}
-
-							// There is now no need to flip the overlay because :
-							// - either we work in memory and the overlay has not been updated
-							// - or we work with the overlay but it is certainly too late to flip it
-							bFlipNow = FALSE;
-						}
-
 #ifdef _DEBUG
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
@@ -1116,8 +1090,17 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
 #endif
 
-                        // flip if required
-                        if (bFlipNow)
+						if(bTakeStill && !bFlipNow)
+						{
+							bTakeStill = FALSE;
+							if (pAllocBuf != NULL)
+							{
+								free(pAllocBuf);
+							}
+						}
+
+                        // flip overlay if required
+                        if (bFlipNow && bUseOverlay)
                         {
 #ifdef _DEBUG
 	                        pPerf->StartCount(PERF_FLIP_OVERLAY);
@@ -1217,6 +1200,67 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     }
                 }
             }
+			else
+			{
+				if (bTakeStill && RequestStillInMemory)
+				{
+					// We need to copy the content of the overlay in the memory buffer
+
+					BYTE* StillBuffer = Info.Overlay;
+					int LinePitch = Info.OverlayPitch;
+
+					if(Overlay_Lock(&Info))
+					{
+						BYTE* CurrentLine = Info.Overlay;
+						BYTE* DestLine = StillBuffer;
+						for (int i = 0; i < Info.FrameHeight; i++)
+						{
+							Info.pMemcpy(DestLine, CurrentLine, Info.LineLength);
+							DestLine += LinePitch;
+							CurrentLine += Info.OverlayPitch;
+						}
+
+                        Overlay_Unlock();
+					}
+					else
+					{
+						bTakeStill = FALSE;
+						if (pAllocBuf != NULL)
+						{
+							free(pAllocBuf);
+						}
+					}
+
+					Info.Overlay = StillBuffer;
+					Info.OverlayPitch = LinePitch;
+				}
+			}
+
+			if (bTakeStill)
+			{
+				if (RequestStillInMemory)
+				{
+					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch, pAllocBuf);
+				}
+				else
+				{
+					// We must lock the overlay
+					if(Overlay_Lock(&Info))
+					{
+						((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
+                        Overlay_Unlock();
+					}
+				}
+				RequestStillNb--;
+				if (RequestStillNb <= 0)
+				{
+					if (RequestStillInMemory)
+					{
+						OSD_ShowText(hWnd, "Still(s) in memory", 0);
+					}
+					RequestStillType = STILL_NONE;
+				}
+			}
 
             // if asked save the current Info to a file
             if(RequestStillType == STILL_SNAPSHOT)

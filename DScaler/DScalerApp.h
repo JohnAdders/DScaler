@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.h,v 1.2 2001-07-12 16:02:57 adcockj Exp $
+// $Id: DScalerApp.h,v 1.3 2001-11-04 14:44:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,10 @@ public:
 // Overrides
     // ClassWizard generated virtual function overrides
     //{{AFX_VIRTUAL(CDScalerApp)
-    public:
+	public:
     virtual BOOL InitInstance();
-    //}}AFX_VIRTUAL
+	virtual void WinHelp(DWORD dwData, UINT nCmd = HELP_CONTEXT);
+	//}}AFX_VIRTUAL
 
 // Implementation
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.7 2001-11-02 16:30:08 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.8 2001-11-04 14:44:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.6.2.3  2001/08/21 09:43:01  adcockj
 // Brought branch up to date with latest code fixes
 //
@@ -128,14 +131,10 @@ bool TimeShift::OnDestroy(void)
 
     if (m_pTimeShift)
     {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
         delete m_pTimeShift;
         m_pTimeShift = NULL;
 
         result = true;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
 
     return result;

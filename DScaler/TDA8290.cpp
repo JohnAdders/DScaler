@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.cpp,v 1.5 2005-03-09 13:48:51 atnak Exp $
+// $Id: TDA8290.cpp,v 1.6 2005-03-19 11:15:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/09 13:48:51  atnak
+// Added more LOGs for debugging.
+//
 // Revision 1.4  2005/03/09 13:19:51  atnak
 // Added CreateDetectedTDA8290 function.
 //
@@ -97,8 +100,6 @@ void CTDA8290::TunerSet(bool bPreSet, eVideoFormat videoFormat)
 	{
 		// Set video system standard.
 		SetVideoSystemStandard(standard);
-		// Activate expert mode.
-		WriteToSubAddress(TDA8290_STANDARD_REG, 0x80);
 
 		// "1.1 Set input ADC register" (data-sheet)
 		WriteToSubAddress(TDA8290_ADC, 0x14);
@@ -241,6 +242,10 @@ void CTDA8290::SetVideoSystemStandard(eTDA8290Standard standard)
 
 	// Bits: 0..6 := standard, 7 := expert mode
 	WriteToSubAddress(TDA8290_STANDARD_REG, sgStandard[(int)standard]);
+	// Activate expert mode.  I think it might need to be broken into two
+	// calls like this so the first call sets everything up in easy mode
+	// before expert mode is switched on.
+	WriteToSubAddress(TDA8290_STANDARD_REG, sgStandard[(int)standard]|0x80);
 }
 
 eTDA8290Standard CTDA8290::GetTDA8290Standard(eVideoFormat videoFormat)

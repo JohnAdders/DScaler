@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.26 2001-10-18 16:24:07 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.27 2001-10-18 18:53:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/10/18 16:24:07  adcockj
+// Added onchange for bblanking color
+//
 // Revision 1.25  2001/10/18 16:20:40  adcockj
 // Made Color of blanking adjustable
 //
@@ -827,7 +830,7 @@ BOOL ChromaRange_OnChange(long NewValue)
 BOOL MaskGreyShade_OnChange(long NewValue)
 {
     AspectSettings.MaskGreyShade = NewValue;  
-    WorkoutOverlaySize();
+    InvalidateRect(hWnd, NULL, FALSE);
     return FALSE;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.130 2003-11-11 22:16:30 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.131 2003-11-21 14:56:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.130  2003/11/11 22:16:30  robmuller
+// Add ability to include the performance statistics in a release build.
+//
 // Revision 1.129  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -1523,11 +1526,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			{
 				if (RequestStillInMemory)
 				{
-					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(Info.FrameHeight, Info.FrameWidth, pAllocBuf, Info.OverlayPitch);
+					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(CurrentMethod->bIsHalfHeight ? Info.FieldHeight : Info.FrameHeight, Info.FrameWidth, pAllocBuf, Info.OverlayPitch);
 				}
 				else
 				{
-					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
+					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(CurrentMethod->bIsHalfHeight ? Info.FieldHeight : Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
 					if (pAllocBuf != NULL)
 					{
 						free(pAllocBuf);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.1 2001-08-03 12:27:17 adcockj Exp $
+// $Id: FLT_Sharpness.c,v 1.2 2001-08-03 14:24:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,12 +18,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/03 12:27:17  adcockj
+// Added Sharpness filter (copy of code from GreedyH)
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"
 
-long Sharpness = 10;
+long Sharpness = 128;
 
 long FilterSharpness(DEINTERLACE_INFO *info)
 {
@@ -118,7 +121,7 @@ SETTING FLT_SharpnessSettings[FLT_SHARPNESS_SETTING_LASTONE] =
 {
     {
         "Sharpness", SLIDER, 0, &Sharpness,
-        128, 0, 255, 10, 1000,
+        128, 0, 255, 1, 1,
         NULL,
         "SharpnessFilter", "Sharpness", NULL,
     },

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.65 2003-01-18 13:55:43 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.66 2003-01-20 11:35:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2003/01/18 13:55:43  laurentg
+// New methods GetHDelay and GetVDelay
+//
 // Revision 1.64  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -323,11 +326,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
 
     SetupCard();
 
-    ChangeDefaultsForSetup(SETUP_CHANGE_ANY, FALSE);
-
     InitializeUI();
-
-    Reset();
 }
 
 
@@ -367,6 +366,8 @@ void CSAA7134Source::SetSourceAsCurrent()
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
     SettingsMaster->LoadSettings();
+
+    Reset();
 }
 
 void CSAA7134Source::CreateSettings(LPCSTR IniSection)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.26 2001-11-29 17:30:51 adcockj Exp $
+// $Id: AspectRatio.h,v 1.27 2002-02-23 00:37:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -88,6 +88,7 @@ int     FindAspectRatio(short** EvenField, short** OddField);
 void    AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo);
 void    GetSourceRect(RECT* rect);
 void    GetDestRect(RECT* rect);
+void    ResetARStats();
 void    SwitchToRatio(int nMode, int nRatio);
 double  GetActualSourceFrameAspect();
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.133 2002-02-19 16:03:36 tobbej Exp $
+// $Id: DScaler.cpp,v 1.134 2002-02-23 00:37:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.133  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.132  2002/02/18 23:28:05  laurentg
 // Overlay settings dialog box updated
 // New menu item to choose between DScaler overlay settings and external overlay settings
@@ -1683,6 +1687,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_RESET_STATS:
             ResetDeinterlaceStats();
+            ResetARStats();
             pPerf->Reset();
             break;
 

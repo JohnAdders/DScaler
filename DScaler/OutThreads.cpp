@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.61 2002-02-20 18:38:27 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.62 2002-02-23 00:37:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2002/02/20 18:38:27  tobbej
+// removed unneeded WorkoutOverlaySize
+//
 // Revision 1.60  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -519,6 +522,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     }
 
     ResetDeinterlaceStats();
+    ResetARStats();
 
     // catch anything fatal in this loop so we don't crash the machine
     __try

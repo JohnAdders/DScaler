@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.26 2001-11-29 17:30:51 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.27 2002-02-23 00:37:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.25  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -147,6 +151,20 @@ int nNbRatioSwitch = 0;
 
 
 
+void ResetARStats()
+{
+    for (int i=0 ; i<MAX_RATIO_STATISTICS ; i++)
+    {
+        RatioStatistics[i].mode = -1;
+        RatioStatistics[i].ratio = -1;
+        RatioStatistics[i].switch_count = 0;
+    }
+    RatioStatistics[0].mode = AspectSettings.AspectMode;
+    RatioStatistics[0].ratio = AspectSettings.SourceAspect;
+    RatioStatistics[0].switch_count = 1;
+    nNbRatioSwitch = 1;
+}
+
 //----------------------------------------------------------------------------
 // Switch to a new aspect ratio and record it in the ratio history list.
 // Use nRatio = -1 to only switch between anamorphic/nonanamorphic
@@ -154,18 +172,6 @@ void SwitchToRatio(int nMode, int nRatio)
 {
     int now = GetTickCount();
     int i;
-
-    // Initialize the data structure for statistics
-    // if it is the first ratio switch
-    if (nNbRatioSwitch == 0)
-    {
-        for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
-        {
-            RatioStatistics[i].mode = -1;
-            RatioStatistics[i].ratio = -1;
-            RatioStatistics[i].switch_count = 0;
-        }
-    }
 
     // Update anamorphic/nonanamorphic status
     AspectSettings.AspectMode = nMode;

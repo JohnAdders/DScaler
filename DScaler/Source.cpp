@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.4 2002-02-19 16:03:36 tobbej Exp $
+// $Id: Source.cpp,v 1.5 2002-02-22 23:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.3  2001/11/25 21:19:40  laurentg
 // New method GetMenuLabel and method GetMenu renamed GetSourceMenu
 //
@@ -49,6 +53,8 @@
 #include "resource.h"
 #include "Source.h"
 #include "DScaler.h"
+#include "Providers.h"
+
 
 CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
@@ -75,6 +81,9 @@ HMENU CSource::GetSourceMenu()
 
 void CSource::NotifySizeChange()
 {
-	//tell dscaler that size has changed, the real work will be done in the main message loop
-	PostMessage(hWnd,UWM_INPUTSIZE_CHANGE,0,0);
+    if (Providers_GetCurrentSource() == this)
+    {
+    	//tell dscaler that size has changed, the real work will be done in the main message loop
+	    PostMessage(hWnd,UWM_INPUTSIZE_CHANGE,0,0);
+    }
 }

@@ -50,8 +50,9 @@ Step by step instructions:
    Visual Studio->Tools->Options->Directories->Include Files
       D:\NTDDK\inc
       D:\NTDDK\inc\ddk
-      D:\NTDDK\inc\win_me
+      {the various MSVC directories}
       D:\98DDK\inc\win98
+      D:\NTDDK\inc\win_me
 
    Visual Studio->Tools->Options->Directories->Library Files
       D:\NTDDK\libfre\i386
@@ -69,7 +70,7 @@ Step by step instructions:
   selected the Debug Configuration)
 
 10. If you make useful changes to the code, please make your changes
-    to the LATEST source code and submit to dtv@marky.com
+    to the LATEST source code and submit to johnadcock@hotmail.com
    
 
 ---END---

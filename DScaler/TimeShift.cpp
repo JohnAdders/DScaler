@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.15 2002-02-19 16:04:01 tobbej Exp $
+// $Id: TimeShift.cpp,v 1.16 2002-05-24 22:51:52 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/02/19 16:04:01  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.14  2002/02/09 11:09:50  temperton
 // Frame rate of created AVI now depends on TV format.
 //
@@ -579,6 +583,7 @@ LPBYTE P3_YUVtoRGB(LPBYTE dest, short *src, DWORD w)
         jnz next4
 
         mov dest, edi
+        emms
     }
 
     return dest;
@@ -685,6 +690,7 @@ LPBYTE P3_AvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
         jnz next4
 
         mov dest, edi
+        emms
     }
 
     return dest;
@@ -844,6 +850,7 @@ LPBYTE P3_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
         jnz next4
 
         mov src, esi
+        emms
     }
 
     return src;

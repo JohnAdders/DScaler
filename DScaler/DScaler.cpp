@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.105 2001-12-16 18:40:28 laurentg Exp $
+// $Id: DScaler.cpp,v 1.106 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.105  2001/12/16 18:40:28  laurentg
+// Reset statistics
+//
 // Revision 1.104  2001/12/16 16:31:43  adcockj
 // Bug fixes
 //
@@ -398,7 +401,6 @@ void Cursor_UpdateVisibility();
 void Cursor_SetVisibility(BOOL bVisible);
 int Cursor_SetType(int type);
 void Cursor_VTUpdate(bool PosValid, int x, int y);
-const char* GetSourceName(int nVideoSource);
 void MainWndOnDestroy();
 void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
@@ -894,7 +896,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHANNEL_LIST:
-            SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
+            SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
             Channels_UpdateMenu(::GetMenu(hWnd));
             break;

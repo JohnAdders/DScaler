@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.8 2001-12-03 17:27:56 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.9 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -441,9 +441,7 @@ enum eTVCardId
     TVCARD_MM100PCTV,
     TVCARD_GMV1,
     TVCARD_BESTBUY_NEW,
-    // Sasem 4 channel card has 2 jumper configurations.  s-video (1) or composite.(4)
-    /// \todo Add composite jumpered card settings
-    TVCARD_SASEM4CHNLSVID,
+    TVCARD_SASEM4CHNLSVID_S,
     TVCARD_PINNACLESAT,
     TVCARD_VHXOLD,           
     TVCARD_VOODOOTV_200,
@@ -456,6 +454,9 @@ enum eTVCardId
     TVCARD_GVBCTV4PCI,
     TVCARD_PXELVWPLTVPAK,
     TVCARD_TVIEW_RDS_FM,
+    TVCARD_SASEM4CHNLSVID_C,
+    TVCARD_SDISILK_S,
+    TVCARD_SDISILK_C,
     TVCARD_LASTONE,
 };
 
@@ -501,37 +502,6 @@ enum eTunerId
     TUNER_LASTONE,
 };
 
-enum ePLLFreq
-{
-    PLL_NONE = 0,
-    PLL_28,
-    PLL_35,
-};
-
-typedef struct
-{
-    char* szName;
-    int nVideoInputs;
-    int nAudioInputs;
-    int TunerInput;
-    int SVideoInput;
-    DWORD GPIOMask;
-    DWORD MuxSelect[10];
-    DWORD AudioMuxSelect[6]; // Tuner, Radio, external, internal, mute, stereo 
-    DWORD GPIOMuxMask;   // GPIO MUX mask 
-
-    // other settings 
-    ePLLFreq pll;
-    eTunerId TunerId;
-} TCardSetup;
-
-typedef struct
-{
-    DWORD ID;
-    eTVCardId CardId;
-    char* szName;
-} TAutoDectect878;
-
 #define MSP_MODE_AM_DETECT   0
 #define MSP_MODE_AM_DETECT2  1
 #define MSP_MODE_FM_RADIO    2
@@ -551,8 +521,6 @@ enum eSoundChannel
 
 #define TIMER_MSP           8
 #define TIMER_MSP_MS        10000
-
-extern const TCardSetup TVCards[TVCARD_LASTONE];
 
 // 10/19/2000 Mark Rejhon
 // Better NTSC defaults

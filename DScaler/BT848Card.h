@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.9 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Card.h,v 1.10 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BT848CARD_H___
@@ -32,6 +35,9 @@
 #include "IAudioControls.h"
 #include "NoAudioControls.h"
 
+#define INPUTS_PER_CARD 6
+
+
 /** A Generic bt848 based capture card
     The card can cope with the standard inputs,
     a tuner and one of the supported sound chips.
@@ -41,32 +47,81 @@
 class CBT848Card : public CPCICard, 
                    public II2CLineInterface
 {
-public:
-    /// The standard inputs on a bt848 card, the CCIR656 ones will be moved later
-    enum eVideoSourceType
+private:
+    /// Different types of input currently supported
+    enum eInputType
     {
-        SOURCE_TUNER = 0,
-        SOURCE_COMPOSITE,
-        SOURCE_SVIDEO,
-        SOURCE_OTHER1,
-        SOURCE_OTHER2,
-        SOURCE_COMPVIASVIDEO,
-        SOURCE_CCIR656_1,
-        SOURCE_CCIR656_2,
-        SOURCE_CCIR656_3,
-        SOURCE_CCIR656_4,
+        /// standard composite input
+        INPUTTYPE_COMPOSITE,
+        /// standard s-video input
+        INPUTTYPE_SVIDEO,
+        /// standard analogue tuner input composite
+        INPUTTYPE_TUNER,
+        // Digital CCIR656 input on the GPIO pins
+        INPUTTYPE_CCIR,
+        // Radio input so no video
+        INPUTTYPE_RADIO,
     };
 
+    /// Sounds chips we expect to find on a card
+    enum eSoundChip
+    {
+        SOUNDCHIP_NONE,
+        SOUNDCHIP_MSP,
+        SOUNDCHIP_MT2032,
+    };
+
+    /// Does the card have a PLL generator - used for PAL & SECAM
+    enum ePLLFreq
+    {
+        PLL_NONE = 0,
+        PLL_28,
+        PLL_35,
+    };
+
+    /// Defines each input on a card
+    typedef struct
+    {
+        /// Name of the input
+        LPCSTR szName;
+        eInputType InputType;
+        BYTE MuxSelect;
+    } TInputType;
+
+    /// Defines the specific settings for a given card
+    typedef struct
+    {
+        LPCSTR szName;
+        int NumInputs;
+        TInputType Inputs[INPUTS_PER_CARD];
+        ePLLFreq PLLFreq;
+        eTunerId TunerId;
+        eSoundChip SoundChip;
+        void (CBT848Card::*pInitCardFunction)(void);
+        void (CBT848Card::*pInputSwitchFunction)(int);
+        void (CBT848Card::*pSoundChannelFunction)(eSoundChannel);
+        DWORD GPIOMask;
+        DWORD AudioMuxSelect[8];
+    } TCardType;
+
+    typedef struct
+    {
+        DWORD ID;
+        eTVCardId CardId;
+        char* szName;
+    } TAutoDectect878;
+
+public:
     CBT848Card(CHardwareDriver* pDriver);
 	~CBT848Card();
 
 	BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
 	void CloseCard();
     
-    void SetCardType(eTVCardId CardType);
+    void SetCardType(int CardType);
     eTVCardId GetCardType();
     
-    void SetVideoSource(eTVCardId CardType, eVideoSourceType nInput);
+    void SetVideoSource(int nInput);
 
     void ResetHardware(DWORD RiscBasePhysical);
 
@@ -124,7 +179,7 @@ public:
     LPCSTR GetChipType();
 
     void RestartRISCCode(DWORD RiscBasePhysical);
-    void SetGeoSize(eTVCardId BtCardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
+    void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay);
 
     BOOL IsVideoPresent();
     void SetRISCStartAddress(DWORD RiscBasePhysical);
@@ -145,17 +200,19 @@ public:
     void SetAudioTreble(WORD nTreble);
 
     void SetAudioStandard(eVideoFormat videoFormat);
-    void SetAudioSource(eTVCardId tvCardId, eAudioInput nChannel);
+    void SetAudioSource(eAudioInput nChannel);
     void SetAudioChannel(eSoundChannel audioChannel);
     void GetMSPPrintMode(LPSTR Text);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
-    void CardSpecificInit(eTVCardId CardType);
 
     BOOL InitTuner(eTunerId tunerId);
-    const char* GetSourceName(eVideoSourceType nVideoSource);
+    LPCSTR GetInputName(int nVideoSource);
+    LPCSTR GetCardName(eTVCardId CardId);
+    int GetNumInputs();
+    BOOL IsInputATuner(int nInput);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -177,18 +234,24 @@ private:
 private:
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
     void SetPLL(ePLLFreq PLL);
-    BOOL IsCCIRSource(eVideoSourceType nInput);
-    
-    void HauppaugeBootMSP34xx(int pin);
+    BOOL IsCCIRSource(int nInput);
+    const TCardType* GetCardSetup();
+
+    void StandardBT848InputSelect(int nInput);
+    void Sasem4ChannelInputSelect(int nInput);
+
     void InitPXC200();
-    void CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
-    const TCardSetup* GetCardSetup(eTVCardId CardType);
+    void InitHauppauge();
+    void InitVoodoo();
 
     void SetAudioGVBCTV3PCI(eSoundChannel soundChannel);
     void SetAudioLT9415(eSoundChannel soundChannel);
     void SetAudioTERRATV(eSoundChannel soundChannel);
     void SetAudioAVER_TVPHONE(eSoundChannel soundChannel);
     void SetAudioWINFAST2000(eSoundChannel soundChannel);
+
+    void BootMSP34xx(int pin);
+    void CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
 
     char m_MSPVersion[16];
     char m_TunerStatus[32];
@@ -201,6 +264,8 @@ private:
     CAudioDecoder*  m_AudioDecoder;
     IAudioControls* m_AudioControls;
     eAudioInput     m_LastAudioSource;
+    static const TCardType m_TVCards[TVCARD_LASTONE];
+    static const TAutoDectect878 m_AutoDectect878[];
 };
 
 

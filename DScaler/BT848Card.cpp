@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.13 2001-12-16 17:04:37 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.14 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/12/16 17:04:37  adcockj
+// Debug Log improvements
+//
 // Revision 1.12  2001/12/12 17:12:36  adcockj
 // Tidy up SetGeoSize
 //
@@ -213,64 +216,32 @@ void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
     SetPLL(PLL_NONE);
 }
 
-
-void CBT848Card::SetVideoSource(eTVCardId CardType, eVideoSourceType nInput)
+void CBT848Card::SetCardType(int CardType)
 {
-    DWORD MuxSel;
-    // 0= Tuner,
-    // 1= Composite,
-    // 2= SVideo,
-    // 3= Other 1
-    // 4= Other 2
-    // 5= Composite via SVideo
-
-    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(CardType)->GPIOMuxMask, ~GetCardSetup(CardType)->GPIOMuxMask);
-    AndDataByte(BT848_IFORM, (BYTE)~BT848_IFORM_MUXSEL);
-
-    // set the comp bit for svideo
-    switch (nInput)
+    if(m_CardType != CardType)
     {
-    case SOURCE_TUNER:
-        AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
-        AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(CardType)->MuxSelect[GetCardSetup(CardType)->TunerInput & 7];
-        break;
-    case SOURCE_SVIDEO:
-        OrDataByte(BT848_E_CONTROL, BT848_CONTROL_COMP);
-        OrDataByte(BT848_O_CONTROL, BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(CardType)->MuxSelect[GetCardSetup(CardType)->SVideoInput & 7];
-        break;
-    case SOURCE_COMPVIASVIDEO:
-        AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
-        AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(CardType)->MuxSelect[GetCardSetup(CardType)->SVideoInput & 7];
-        break;
-    case SOURCE_COMPOSITE:
-    case SOURCE_OTHER1:
-    case SOURCE_OTHER2:
-    case SOURCE_CCIR656_1:
-    case SOURCE_CCIR656_2:
-    case SOURCE_CCIR656_3:
-    case SOURCE_CCIR656_4:
-    default:
-        AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
-        AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
-        MuxSel = GetCardSetup(CardType)->MuxSelect[nInput];
-        break;
-    }
-    
-    MaskDataByte(BT848_IFORM, (BYTE) (((MuxSel) & 3) << 5), BT848_IFORM_MUXSEL);
-    AndOrDataDword(BT848_GPIO_DATA, MuxSel >> 4, ~GetCardSetup(CardType)->GPIOMuxMask);
-}
+        m_CardType = (eTVCardId)CardType;
 
-void CBT848Card::SetCardType(eTVCardId CardType)
-{
-    m_CardType = CardType;
+        // perform card specific init
+        if(m_TVCards[m_CardType].pInitCardFunction != NULL)
+        {
+            // call correct function
+            // this funny syntax is the only one that works
+            // if you want help understanding what is going on
+            // I suggest you read http://www.newty.de/
+            (*this.*m_TVCards[m_CardType].pInitCardFunction)();
+        }
+    }
 }
 
 eTVCardId CBT848Card::GetCardType()
 {
     return m_CardType;
+}
+
+LPCSTR CBT848Card::GetCardName(eTVCardId CardId)
+{
+    return m_TVCards[CardId].szName;
 }
 
 
@@ -721,7 +692,7 @@ BOOL CBT848Card::GetGammaCorrection()
 
 
 //-------------------------------
-void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride)
+void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride)
 {
     int VertScale;
     int HorzScale;
@@ -835,9 +806,9 @@ void CBT848Card::SetGeoSize(eTVCardId CardType, eVideoSourceType nInput, eVideoF
     else
     {
         // set the pll on the card if appropriate
-        if(GetTVFormat(TVFormat)->NeedsPLL == TRUE && GetCardSetup(CardType)->pll != PLL_NONE)
+        if(GetTVFormat(TVFormat)->NeedsPLL == TRUE && GetCardSetup()->PLLFreq != PLL_NONE)
         {
-            SetPLL(GetCardSetup(CardType)->pll);
+            SetPLL(GetCardSetup()->PLLFreq);
         }
         else
         {
@@ -957,17 +928,9 @@ void CBT848Card::SetPLL(ePLLFreq PLL)
     WriteByte(BT848_DVSIF, 0x00);
 }
 
-BOOL CBT848Card::IsCCIRSource(eVideoSourceType nInput)
+BOOL CBT848Card::IsCCIRSource(int nInput)
 {
-    switch (nInput)
-    {
-    case SOURCE_CCIR656_1:
-    case SOURCE_CCIR656_2:
-    case SOURCE_CCIR656_3:
-    case SOURCE_CCIR656_4:
-        return TRUE;
-    }
-    return FALSE;
+    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
 }
 
 BOOL CBT848Card::IsVideoPresent()
@@ -1003,22 +966,13 @@ void CBT848Card::StartCapture(BOOL bCaptureVBI)
 }
 
 
-const char* CBT848Card::GetSourceName(eVideoSourceType nVideoSource)
+LPCSTR CBT848Card::GetInputName(int nInput)
 {
-    switch (nVideoSource)
+    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
     {
-    case SOURCE_TUNER:         return Channel_GetName(); break;
-    case SOURCE_COMPOSITE:     return "Composite"; break;
-    case SOURCE_SVIDEO:        return "S-Video"; break;
-    case SOURCE_OTHER1:        return "Other 1"; break;
-    case SOURCE_OTHER2:        return "Other 2"; break;
-    case SOURCE_COMPVIASVIDEO: return "Composite via S-Video"; break;
-    case SOURCE_CCIR656_1:     return "CCIR656 1"; break;
-    case SOURCE_CCIR656_2:     return "CCIR656 2"; break;
-    case SOURCE_CCIR656_3:     return "CCIR656 3"; break;
-    case SOURCE_CCIR656_4:     return "CCIR656 4"; break;
+        return m_TVCards[m_CardType].Inputs[nInput].szName;
     }
-    return "Unknown";
+    return "Error";
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.7 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.8 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.6  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -89,7 +92,7 @@ void CBT848Card::SetAudioMute()
     }
     else
     {
-        SetAudioSource(m_CardType, AUDIOINPUT_MUTE);
+        SetAudioSource(AUDIOINPUT_MUTE);
     }
 }
 
@@ -102,7 +105,7 @@ void CBT848Card::SetAudioUnMute(long nVolume)
     }
     else
     {
-        SetAudioSource(m_CardType, m_LastAudioSource);
+        SetAudioSource(m_LastAudioSource);
     }
 }
 
@@ -136,120 +139,16 @@ void CBT848Card::SetAudioChannel(eSoundChannel soundChannel)
     }
     else
     {
-        switch(m_CardType)
+        if(m_TVCards[m_CardType].pSoundChannelFunction != NULL)
         {
-        case TVCARD_GVBCTV3PCI:
-        case TVCARD_GVBCTV4PCI:
-            SetAudioGVBCTV3PCI(soundChannel);
-            break;
-        case TVCARD_LIFETEC:
-            SetAudioLT9415(soundChannel);
-            break;
-        case TVCARD_TERRATV:
-            SetAudioTERRATV(soundChannel);
-            break;
-        case TVCARD_AVERMEDIA:
-            SetAudioAVER_TVPHONE(soundChannel);
-            break;
-        case TVCARD_WINFAST2000:
-            SetAudioWINFAST2000(soundChannel);
-            break;
-        default:
-            break;
+            // call correct function
+            // this funny syntax is the only one that works
+            // if you want help understanding what is going on
+            // I suggest you read http://www.newty.de/
+            (*this.*m_TVCards[m_CardType].pSoundChannelFunction)(soundChannel);
         }
     }
 }
-
-
-void CBT848Card::SetAudioGVBCTV3PCI(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x300);
-    switch(soundChannel)
-    {
-    case STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x200, ~0x300);
-        break;
-    case LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x300, ~0x300);
-        break;
-    default:
-    case LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x000, ~0x300);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioLT9415(eSoundChannel soundChannel)
-{
-    switch(soundChannel)
-    {
-    case STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x0880, ~0x0880);
-        break;
-    case LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x0080, ~0x0880);
-        break;
-    default:
-    case LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x0880);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioTERRATV(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)
-    {
-    case STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x180000, ~0x180000);
-        break;
-    case LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x080000, ~0x180000);
-        break;
-    default:
-    case LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x000000, ~0x180000);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioAVER_TVPHONE(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)
-    {
-    case STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x01, ~0x03);
-        break;
-    case LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x02, ~0x03);
-        break;
-    default:
-        break;
-    }
-}
-
-void CBT848Card::SetAudioWINFAST2000(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)
-    {
-    case STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x020000, ~0x430000);
-        break;
-    case LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
-        break;
-    case LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x410000, ~0x430000);
-        break;
-    default:
-        AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
-        break;
-    }
-}
-
 
 void CBT848Card::GetMSPPrintMode(LPSTR Text)
 {
@@ -315,19 +214,19 @@ void CBT848Card::SetAudioStandard(eVideoFormat videoFormat)
     m_AudioDecoder->SetVideoFormat(videoFormat);
 }
 
-void CBT848Card::SetAudioSource(eTVCardId CardType, eAudioInput nChannel)
+void CBT848Card::SetAudioSource(eAudioInput nChannel)
 {
     int i;
     DWORD MuxSelect;
 
-    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup(CardType)->GPIOMask, ~GetCardSetup(CardType)->GPIOMask);
+    AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup()->GPIOMask, ~GetCardSetup()->GPIOMask);
 
     switch(nChannel)
     {
     case AUDIOINPUT_RADIO:
     case AUDIOINPUT_MUTE:
         // just get on with it
-        MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
+        MuxSelect = GetCardSetup()->AudioMuxSelect[nChannel];
         break;
     default:
         // see if there is a video signal present
@@ -340,11 +239,11 @@ void CBT848Card::SetAudioSource(eTVCardId CardType, eAudioInput nChannel)
         // if video not in H-lock, turn audio off 
         if (i == 20)
         {
-            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[AUDIOINPUT_MUTE];
+            MuxSelect = GetCardSetup()->AudioMuxSelect[AUDIOINPUT_MUTE];
         }
         else
         {
-            MuxSelect = GetCardSetup(CardType)->AudioMuxSelect[nChannel];
+            MuxSelect = GetCardSetup()->AudioMuxSelect[nChannel];
         }
         m_LastAudioSource = nChannel;
         break;
@@ -353,6 +252,6 @@ void CBT848Card::SetAudioSource(eTVCardId CardType, eAudioInput nChannel)
 
     // select direct input 
     //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
-    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup(CardType)->GPIOMask); 
+    AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup()->GPIOMask); 
 }
 

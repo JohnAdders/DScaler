@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.7 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.8 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.6  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -43,872 +47,3143 @@
 #include "resource.h"
 #include "BT848Card.h"
 #include "BT848_Defines.h"
+#include "DebugLog.h"
 
-const TCardSetup TVCards[/*TVCARD_LASTONE*/] =
+const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] = 
 {
-    {
-        "Unknown Card",
-        3, 1, 0, 2, 0,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 0, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "MIRO PCTV",
-        4, 1, 0, 2, 15,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 2, 0, 0, 0, 10, 0},
-        0,
-        PLL_NONE,
-        TUNER_AUTODETECT,
-    },
-    {
-        "Hauppauge old",
-        4, 1, 0, 2, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 4, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "STB",
-        3, 1, 0, 2, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 4, 0, 2, 3, 1, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Intel",
-        3, 1, 0, -1, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 4, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Diamond DTV2000",
-        3, 1, 0, 2, 3,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 0, 1, 3, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "AVerMedia TVPhone",
-        3, 1, 0, 3, 15,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {12, 4, 11, 11, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "MATRIX-Vision MV-Delta",
-        5, 1, -1, 3, 0,
-        { 2, 3, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    // 0x08 
-    {
-        "Fly Video II",
-        3, 1, 0, 2, 0xc00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0xc00, 0x800, 0x400, 0xc00, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "TurboTV",
-        3, 1, 0, 2, 3,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 1, 1, 2, 3, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Standard BT878",
-        4, 1, 0, 2, 7,
-        { 2, 0, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 4, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "MIRO PCTV pro",
-        3, 1, 0, 2, 65551,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {1, 65537, 0, 0, 10, 0},
-        0,
-        PLL_NONE,
-        TUNER_AUTODETECT,
-    },
-    {
-        "ADS Technologies Channel Surfer TV",
-        3, 1, 2, 2, 15,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 13, 14, 11, 7, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "AVerMedia TVCapture 98",
-        3, 4, 0, 2, 15,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 13, 14, 11, 7, 0, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Aimslab VHX",
-        3, 1, 0, 2, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 4, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Zoltrix TV-Max",
-        3, 1, 0, 2, 15,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {0, 0, 1 , 0, 10, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    // 0x10 
-    {
-        "Pixelview PlayTV (bt878)",
-        3, 1, 0, 2, 0x01fe00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x01c000, 0, 0x018000, 0x014000, 0x002000, 0 },
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Leadtek WinView 601",
-        3, 1, 0, 2, 0x8300f8,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x4fa007,0xcfa007,0xcfa007,0xcfa007,0xcfa007,0xcfa007},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "AVEC Intercapture",
-        3, 2, 0, 2, 0,
-        {2, 3, 1, 1, 0, 0, 0, 0},
-        {1, 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "LifeView FlyKit w/o Tuner",
-        3, 1, -1, -1, 0x8dff00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "CEI Raffles Card",
-        3, 3, 0, 2, 0,
-        {2, 3, 1, 1, 0, 0, 0, 0},
-        {0, 0, 0, 0 ,0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Lucky Star Image World ConferenceTV",
-        3, 1, 0, 2, 0x00fffe07,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 131072, 1, 1638400, 3, 4, 0},
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL_I,
-    },
-    {
-        "Phoebe Tv Master + FM",
-        3, 1, 0, 2, 0xc00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {0, 1, 0x800, 0x400, 0xc00, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Modular Technology MM205 PCTV, bt878",
-        2, 1, 0, -1, 7,
-        { 2, 3 , 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    // 0x18 
-    {
-        "Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)",
-        3, 1, 0, 2, 0xe00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {0x400, 0x400, 0x400, 0x400, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Terratec/Vobis TV-Boostar",
-        3, 1, 0, 2, 16777215,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {131072, 1, 1638400, 3, 4, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Newer Hauppauge WinCam (bt878)",
-        4, 1, 0, 3, 7,
-        { 2, 0, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 4, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "MAXI TV Video PCI2",
-        3, 1, 0, 2, 0xffff,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 0xc00, 0},
-        0,
-        PLL_NONE,
-        TUNER_PHILIPS_SECAM,
-    },
-    {
-        "Terratec TerraTV+",
-        3, 1, 0, 2, 0x70000,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x20000, 0x30000, 0x00000, 0x10000, 0x40000, 0x00000},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Imagenation PXC200",
-        5, 1, -1, 4, 0,
-        { 2, 3, 1, 0, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "FlyVideo 98",
-        3, 1, 0, 2, 0x8dfe00,
-        {2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0x8dff00, 0x8df700, 0x8de700, 0x8dff00, 0 },
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "iProTV",
-        3, 1, 0, 2, 1,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 1, 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    // 0x20 
-    {
-        "Intel Create and Share PCI",
-        4, 1, 0, 2, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 4, 4, 4, 4, 4, 4},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Terratec TerraTValue",
-        3, 1, 0, 2, 0xffff00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x500, 0, 0x300, 0x900, 0x900, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Leadtek WinFast 2000",
-        3, 1, 0, 2, 0xfff000,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x621000,0x620100,0x621100,0x620000,0xE210000,0x620000},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Chronos Video Shuttle II",
-        3, 3, 0, 2, 0x1800,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0, 0x1000, 0x1000, 0x0800, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Typhoon TView TV/FM Tuner",
-        3, 3, 0, 2, 0x1800,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0x800, 0, 0, 0x1800, 0 },
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "PixelView PlayTV pro",
-        3, 1, 0, 2, 0xff,
-        { 2, 3, 1, 1, 0, 0, 0, 0 },
-        { 0x21, 0x20, 0x24, 0x2c, 0x29, 0x29 },
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "TView99 CPH063",
-        3, 1, 0, 2, 0x551e00,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x551400, 0x551200, 0, 0, 0, 0x551200 },
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Pinnacle PCTV Rave",
-        3, 1, 0, 2, 0x03000F,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 2, 0, 0, 0, 1, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    // 0x28 
-    {
-        "STB2",
-        3, 1, 0, 2, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 4, 0, 2, 3, 1, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "AVerMedia TVPhone 98",
-        3, 4, 0, 2, 4,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 13, 14, 11, 7, 0, 0},
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL,
-    },
-    {
-        "ProVideo PV951", // pic16c54 
-        3, 1, 0, 2, 0,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 0, 0},
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL_I,
-    },
-    {
-        "Little OnAir TV",
-        3, 1, 0, 2, 0xe00b,
-        {2, 3, 1, 1, 0, 0, 0, 0},
-        {0xff9ff6, 0xff9ff6, 0xff1ff7, 0, 0xff3ffc, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Sigma TVII-FM",
-        2, 1, 0, -1, 3,
-        {2, 3, 1, 1, 0, 0, 0, 0},
-        {1, 1, 0, 2, 3, 0},
-        0,
-        PLL_NONE,
-        TUNER_USER_SETUP,
-    },
-    {
-        "MATRIX-Vision MV-Delta 2",
-        5, 1, -1, 3, 0,
-        { 2, 3, 1, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Zoltrix Genie TV",
-        3, 1, 0, 2, 0xbcf03f,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0xbc803f, 0, 0xbcb03f, 0, 0xbcb03f, 0},
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL,
-    },
-    {
-        "Terratec TV/Radio+", // Radio ?? 
-        3, 1, 0, 2, 0x1f0000,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0xe2ffff, 0, 0, 0, 0xe0ffff, 0xe2ffff },
-        0,
-        PLL_35,
-        TUNER_PHILIPS_PAL_I,
-    },
-    // 0x30 
-    {
-        "Dynalink Magic TView",
-        3, 1, 0, 2, 15,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        {2, 0, 0, 0, 1, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    // MAE 20 Nov 2000 Start of change
-    {
-        "Conexant Bt878 NTSC XEVK",
-        3, 1, 0, 2, 0xFFFEFF,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x001000, 0x001000, 0x000000, 0x000000, 0x003000, 0x000000},
-        0,
-        PLL_NONE,
-        TUNER_PHILIPS_NTSC,
-    },
-    {
-        "Rockwell Bt878 NTSC XEVK",
-        3, 1, 0, 2, 0xFFFEFF,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x001000, 0x001000, 0x000000, 0x000000, 0x003000, 0x000000},
-        0,
-        PLL_NONE,
-        TUNER_PHILIPS_NTSC,
-    },
-    // MAE 20 Nov 2000 End of change
-    // MAE 5 Dec 2000 Start of change
-    {
-        "Conexant Foghorn NTSC/ATSC-A",
-        3, 1, 0, 2, 0xFF00F8,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x000048, 0x000048, 0x000048, 0x000048, 0x000048, 0x000048},
-        0,
-        PLL_NONE,
-        TUNER_PHILIPS_1236D_NTSC_INPUT1,
-    },
-    {
-        "Conexant Foghorn NTSC/ATSC-B",
-        3, 1, 0, 2, 0xFF00F8,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x000048, 0x000048, 0x000048, 0x000048, 0x000048, 0x000048},
-        0,
-        PLL_NONE,
-        TUNER_PHILIPS_1236D_NTSC_INPUT1,
-    },
-    {
-        "Conexant Foghorn NTSC/ATSC-C",
-        3, 1, 0, 2, 0xFF00F8,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0x000048, 0x000048, 0x000048, 0x000048, 0x000048, 0x000048},
-        0,
-        PLL_NONE,
-        TUNER_PHILIPS_1236D_NTSC_INPUT1,
-    },
-    // MAE 5 Dec 2000 End of change
-    {
-        "RS BT Card",
-        3, 4, 0, 2, 0x1f800,
-        { 0x010002, 0x010003, 0x010001, 0x00000000, 0x00000000, 0x00000000, 
-            0x010000, 0x090000, 0x110000, 0x190000},
-        { 13, 14, 11, 7, 0, 0 },
-        0x1f800,
-        PLL_28,
-        TUNER_ABSENT,
-    },
-    {
-        "Cybermail AV",
-        3, 1, -1, 2, 0xFFFEFF,
-        { 2, 3, 1, 2, 0, 0, 0, 0},
-        { 0x001000, 0x001000, 0x000000, 0x000000, 0x003000, 0x000000},
-        0,
-        PLL_NONE,
-        TUNER_ABSENT,
-    },
-    {
-        "Viewcast Osprey",
-        3, 1, -1, 1, 0,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 0, 0},
-        0,
-        PLL_NONE,
-        TUNER_ABSENT,
-    },
-    {
-        // Lukas Gebauer <geby@volny.cz>
-        "ATI TV-Wonder",
-        3, 1, 0, 2, 0xf03f,
-        /// \todo check this 3.0.0 { 2, 3, 0, 1, 0, 0, 0, 0},
-        { 2, 3, 1, 0, 0, 0, 0, 0},
-        { 0xbffe, 0, 0xbfff, 0, 0xbffe, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        // Lukas Gebauer <geby@volny.cz>
-        "ATI TV-Wonder VE",
-        2, 1, 0, -1, 1,
-        { 2, 3, 0, 1, 0, 0, 0, 0},
-        { 0, 0, 1, 0, 0, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-     },
-     {
-        "GV-BCTV3",
-        3, 1, 0, 2, 0x010f00,
-        {2, 3, 0, 0},
-        {0x10000, 0, 0x10000, 0, 0, 0},
-        0,
-        PLL_28,
-        TUNER_ALPS_TSCH6_NTSC,
-    },
-    {
-        "Prolink PV-BT878P+4E (PixelView PlayTV PAK)",
-        4, 1, 0, 2, 0xAA0000,
-        { 2, 3, 1, 1 },
-        { 0x20000, 0, 0x80000, 0x80000, 0xa8000, 0x46000  },
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL_I,
-    },
-    {
-        "Eagle Wireless Capricorn2 (bt878A)",
-        4, 1, 0, 2, 7,
-        { 2, 0, 1, 1},
-        { 0, 1, 2, 3, 4},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        // David Härdeman <david@2gen.com>
-        "Pinnacle PCTV Studio Pro",
-        3,1,0,2,0x03000F,
-        { 2, 3, 1, 1},
-        { 1, 0x10001, 0, 0, 10},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        // Claas Langbehn <claas@bigfoot.com>,
-        //   Sven Grothklags <sven@upb.de>
-        "Typhoon TView RDS / FM Stereo",
-        3, 3, 0, 2, 0x1c,
-        { 2, 3, 1, 1},
-        { 0, 0, 0x10, 8, 4 },
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL_I,
-    },
-    {
-        // Tim Röstermundt <rosterm@uni-muenster.de>
-        //   in de.comp.os.unix.linux.hardware:
-        //  options bttv card=0 pll=1 radio=1 gpiomask=0x18e0
-        //  audiomux=0x44c71f,0x44d71f,0,0x44d71f,0x44dfff
-        //  options tuner Type=5 
-        "Lifetec LT 9415 TV",
-        4,1,0,2,0x18e0,
-        { 2, 3, 1, 1},
-        { 0x0000,0x0800,0x1000,0x1000,0x18e0 },
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL,
-    },
-    {
-        // Miguel Angel Alvarez <maacruz@navegalia.com>
-        //   old Easy TV BT848 version (model CPH031) 
-        "BESTBUY Easy TV",
-        4,1,0,2,0xF,
-        { 2, 3, 1, 0},
-        { 2, 0, 0, 0, 10},
-        0,
-        PLL_28,
-        TUNER_TEMIC_4002FH5_PAL,
-    },
-    {
-        "FlyVideo '98/FM / 2000S",
-        3,3,0,2,0x18e0,
-        { 2, 3, 0, 1},
-        { 0,0x18e0,0x1000,0x1000,0x1080, 0x1080 },
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL,
-    },
-    {
-        // Steve Hosgood <steve@equiinet.com>
-        "GrandTec 'Grand Video Capture'",
-        2, 0, -1, 1, 0,
-        { 3, 1 },
-        { 0 },
-        0,
-        PLL_35,
-        TUNER_ABSENT,
-    },
-    {
-        // Daniel Herrington <daniel.herrington@home.com>
-        "Phoebe TV Master Only (No FM)",
-        3,1,0,2,0x0e00,
-        { 2, 3, 1, 1},
-        { 0x400, 0x400, 0x400, 0x400, 0x800, 0x400 },
-        0,
-        PLL_NONE,
-        TUNER_TEMIC_4036FY5_NTSC,
-    },
-    {
-        // Matti Mottus <mottus@physic.ut.ee>
-        "TV Capturer",
-        4, 1, 0, 2, 0x03000F,
-        { 2, 3, 1, 0},
-        { 2,0,0,0,1 },
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        // Philip Blundell <philb@gnu.org>
-        "MM100PCTV",
-        2, 2, 0, -1, 11,
-        { 2, 3, 1, 1},
-        { 2, 0, 0, 1, 8},
-        0,
-        PLL_NONE,
-        TUNER_TEMIC_4002FH5_PAL,
-    },
-    {
-        // Adrian Cox <adrian@humboldt.co.uk>
-        "AG Electronics GMV1",
-        2,0,-1,1, 0xF,
-        { 2, 2},
-        {0, 0, 0, 0, 0, 0 },
-        0,
-        PLL_28,
-        TUNER_ABSENT,
-    },
-    {
-        // Miguel Angel Alvarez <maacruz@navegalia.com>
-        // new Easy TV BT878 version (model CPH061) 
-        // special thanks to Informatica Mieres for providing the card 
-        "BESTBUY Easy TV (bt878)",
-        3, 2, 0, 2, 0xFF,
-        { 2, 3, 1, 0},
-        { 1, 0, 4, 4, 9},
-        0,
-        PLL_28,
-        TUNER_PHILIPS_PAL,
-    },
-    // 24 Jul 2001 Dan Schmelzer
-    // Sasem 4-Channel Developer Card (s-video jumper chosen)
-    /** \todo Add audio input support
-              Add GPIO support
-	          Add composite jumpered card
-    */
-    {
-        "Sasem 4-Channel Dev Board (S-Video Jumper)",
-        1, 1, -1, 0, 0,
-        { 2, 2, 1, 2},
-        { 0},
-        0,
-        PLL_NONE,
-        TUNER_ABSENT,
-    },
-    {
-        "Pinnacle PCTV Sat",
-        2, 1, -1, 2, 0x03000F,
-        { 0, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 0, 0, 0, 1, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    // 17 Sep 2001 Dax Sieger
-    // AIMS Labs VideoHighway Extreme Card (older - original version)
-    /// \todo ADD FM Radio Support
+	// Card Number 0 - Unknown Card
 	{
-        "Aimslab VideoHighway Extreme (not 98)",
-        3, 1, 0, 2, 7,
-        { 2, 3, 1, 1, 0, 0, 0, 0},
-        { 0, 2, 1, 3, 4, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    // 3dfx VoodooTV 200 (USA) / FM (Europa)
+		"Unknown Card",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 1 - MIRO PCTV
 	{
-        "3dfx VoodooTV 200 (USA)", // szName
-        4, // nVideoInputs
-        1, // nAudioInputs
-        0, // TunerInput
-        -1, // SVideoInput
-        0x4f8a00, // GPIOMask
-        { 2, 3, 0, 1,}, // MuxSelect
-        { 0x957fff, 0x997fff, 0x957fff, 0x957fff}, // AudioMuxSelect
-        0, // GPIOMuxMask
-        PLL_28, // ePLLFreq
-        TUNER_MT2032, // eTunerID
-    },
-    // 3dfx VoodooTV FM (Europa)
+		"MIRO PCTV",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_AUTODETECT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0x2, 0, 0, 0, 0xA, 0, }
+	},
+	// Card Number 2 - Hauppauge old
 	{
-        "3dfx VoodooTV FM (Europa)", // szName
-        4, // nVideoInputs
-        1, // nAudioInputs
-        0, // TunerInput
-        -1, // SVideoInput
-        0x4f8a00, // GPIOMask
-        { 2, 3, 0, 1,}, // MuxSelect
-        { 0x947fff, 0x987fff, 0x947fff, 0x947fff}, // AudioMuxSelect
-        0, // GPIOMuxMask
-        PLL_28, // ePLLFreq
-        TUNER_MT2032, // eTunerID
-    },
-    // use this card so that the MSP chip is not reset on startup
-    // should let Dscaler work as it did in 2.3.0
-    {
-        "Standard BT878 (No Init MSP)",
-        4, 1, 0, 2, 7,
-        { 2, 0, 1, 1, 0, 0, 0, 0},
-        { 0, 1, 2, 3, 4, 0},
-        0,
-        PLL_28,
-        TUNER_USER_SETUP,
-    },
-    {
-        "Terratec TValueRadio",                 // szName
-        3,                                      // nVideoInputs
-        1,                                      // nAudioInputs
-        0,                                      // TunerInput
-        2,                                      // SVideoInput
-        0xffff00,                               // GPIOMask
-        { 2, 3, 1, 1},                          // MuxSelect
-        { 0x500, 0x500, 0x300, 0x900, 0x900},   // AudioMuxSelect
-        0,                                      // GPIOMuxMask
-        PLL_28,                                 // ePPLFreq
-        TUNER_PHILIPS_PAL,                      // eTunerID
-    },
-    {
-        "Flyvideo 98EZ (capture only)", // szName
-        4,                              // nVideoInputs
-        0,                              // nAudioInputs
-        -1,                             // TunerInput
-        2,                              // SVideoInput
-        0,                              // GPIOMask
-        { 2, 3, 1, 1},                  // MuxSelect: AV1, AV2, SVHS, CVid adapter on SVHS
-        { 0 },                          // AudioMuxSelect
-        0,                              // GPIOMuxMask
-        PLL_28,                         // ePPLFreq
-        TUNER_ABSENT,                   // eTunerID
-    },
-    {
-        /* Philip Blundell <pb@nexus.co.uk> */
-        "Active Imaging AIMMS", // szName
-        1,                      // nVideoInputs
-        0,                      // nAudioInputs
-        -1,                     // TunerInput
-        0,                      // SVideoInput
-        0,                      // GPIOMask
-        { 2},                   // MuxSelect
-        { 0},                   // AudioMuxSelect
-        0,                      // GPIOMuxMask
-        PLL_28,                 // ePPLFreq
-        TUNER_ABSENT,           // eTunerID
-    },
-    {
-        /* DeeJay <deejay@westel900.net (2000S) */
-        "FlyVideo 2000S",                               // szName
-        3,                                              // nVideoInputs
-        3,                                              // nAudioInputs
-        0,                                              // TunerInput
-        2,                                              // SVideoInput
-        0x18e0,                                         // GPIOMask
-        { 2, 3, 0, 1},                                  // MuxSelect
-        { 0, 0x18e0, 0x1000, 0x1000, 0x1080, 0x1080},   // AudioMuxSelect
-        0,                                              // GPIOMuxMask
-        PLL_28,                                         // ePPLFreq
-        TUNER_PHILIPS_PAL,                              // eTunerID
-    },
-    {
-        /* TANAKA Kei <peg00625@nifty.com> */
-        "GV-BCTV4/PCI",                     // szName
-        3,                                  // nVideoInputs
-        1,                                  // nAudioInputs
-        0,                                  // TunerInput
-        2,                                  // SVideoInput
-        0x010f00,                           // GPIOMask
-        { 2, 3, 0, 0},                      // MuxSelect
-        { 0x10000, 0, 0x10000, 0, 0, 0},    // AudioMuxSelect
-        0,                                  // GPIOMuxMask
-        PLL_28,                             // ePPLFreq
-        TUNER_SHARP_2U5JF5540_NTSC,         // eTunerID
-    },
-    {
-        "Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP", // szName
-        4,                                                                  // nVideoInputs
-        1,                                                                  // nAudioInputs
-        0,                                                                  // TunerInput
-        2,                                                                  // SVideoInput
-        0xAA0000,                                                           // GPIOMask
-        { 2, 3, 1, 1},                                                      // MuxSelect
-        { 0x20000, 0, 0x80000, 0x80000, 0xa8000, 0x46000},                  // AudioMuxSelect
-        0,                                                                  // GPIOMuxMask
-        PLL_28,                                                             // ePPLFreq
-        TUNER_PHILIPS_PAL_I,                                                // eTunerID
-    },
-    {
-        /* Claas Langbehn <claas@bigfoot.com>,
-           Sven Grothklags <sven@upb.de> */
-        "Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS",  // szName
-        3,                                                      // nVideoInputs
-        3,                                                      // nAudioInputs
-        0,                                                      // TunerInput
-        2,                                                      // SVideoInput
-        0x1c,                                                   // GPIOMask
-        { 2, 3, 1, 1},                                          // MuxSelect
-        { 0, 0, 0x10, 8, 4},                                    // AudioMuxSelect
-        0,                                                      // GPIOMuxMask
-        PLL_28,                                                 // ePPLFreq
-        TUNER_PHILIPS_PAL_I,                                    // eTunerID
-    },
+		"Hauppauge old",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		InitHauppauge,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 3 - STB
+	{
+		"STB",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0x4, 0, 0x2, 0x3, 0x1, 0, }
+	},
+	// Card Number 4 - Intel
+	{
+		"Intel",
+		3,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 5 - Diamond DTV2000
+	{
+		"Diamond DTV2000",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3,
+		{0, 0x1, 0, 0x1, 0x3, 0, }
+	},
+	// Card Number 6 - AVerMedia TVPhone
+	{
+		"AVerMedia TVPhone",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		SetAudioAVER_TVPHONE,
+		0xF,
+		{0xC, 0x4, 0xB, 0xB, 0, 0, }
+	},
+	// Card Number 7 - MATRIX-Vision MV-Delta
+	{
+		"MATRIX-Vision MV-Delta",
+		5,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 8 - Fly Video II
+	{
+		"Fly Video II",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xC00,
+		{0, 0xC00, 0x800, 0x400, 0xC00, 0, }
+	},
+	// Card Number 9 - TurboTV
+	{
+		"TurboTV",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3,
+		{0x1, 0x1, 0x2, 0x3, 0, 0, }
+	},
+	// Card Number 10 - Standard BT878
+	{
+		"Standard BT878",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_MSP,
+		InitHauppauge,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 11 - MIRO PCTV pro
+	{
+		"MIRO PCTV pro",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_AUTODETECT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1000F,
+		{0x1, 0x10001, 0, 0, 0xA, 0, }
+	},
+	// Card Number 12 - ADS Technologies Channel Surfer TV
+	{
+		"ADS Technologies Channel Surfer TV",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				1,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+	},
+	// Card Number 13 - AVerMedia TVCapture 98
+	{
+		"AVerMedia TVCapture 98",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+	},
+	// Card Number 14 - Aimslab VHX
+	{
+		"Aimslab VHX",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 15 - Zoltrix TV-Max
+	{
+		"Zoltrix TV-Max",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0, 0, 0x1, 0, 0xA, 0, }
+	},
+	// Card Number 16 - Pixelview PlayTV (bt878)
+	{
+		"Pixelview PlayTV (bt878)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1FE00,
+		{0x1C000, 0, 0x18000, 0x14000, 0x2000, 0, }
+	},
+	// Card Number 17 - Leadtek WinView 601
+	{
+		"Leadtek WinView 601",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x8300F8,
+		{0x4FA007, 0xCFA007, 0xCFA007, 0xCFA007, 0xCFA007, 0xCFA007, }
+	},
+	// Card Number 18 - AVEC Intercapture
+	{
+		"AVEC Intercapture",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0x1, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 19 - LifeView FlyKit w/o Tuner
+	{
+		"LifeView FlyKit w/o Tuner",
+		3,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x8DFF00,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 20 - CEI Raffles Card
+	{
+		"CEI Raffles Card",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 21 - Lucky Star Image World ConferenceTV
+	{
+		"Lucky Star Image World ConferenceTV",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFE07,
+		{0x20000, 0x1, 0x190000, 0x3, 0x4, 0, }
+	},
+	// Card Number 22 - Phoebe Tv Master + FM
+	{
+		"Phoebe Tv Master + FM",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xC00,
+		{0, 0x1, 0x800, 0x400, 0xC00, 0, }
+	},
+	// Card Number 23 - Modular Technology MM205 PCTV, bt878
+	{
+		"Modular Technology MM205 PCTV, bt878",
+		2,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 24 - Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)
+	{
+		"Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xE00,
+		{0x400, 0x400, 0x400, 0x400, 0, 0, }
+	},
+	// Card Number 25 - Terratec/Vobis TV-Boostar
+	{
+		"Terratec/Vobis TV-Boostar",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFFFF,
+		{0x20000, 0x1, 0x190000, 0x3, 0x4, 0, }
+	},
+	// Card Number 26 - Newer Hauppauge WinCam (bt878)
+	{
+		"Newer Hauppauge WinCam (bt878)",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 27 - MAXI TV Video PCI2
+	{
+		"MAXI TV Video PCI2",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_PHILIPS_SECAM,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFF,
+		{0, 0x1, 0x2, 0x3, 0xC00, 0, }
+	},
+	// Card Number 28 - Terratec TerraTV+
+	{
+		"Terratec TerraTV+",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		SetAudioTERRATV,
+		0x70000,
+		{0x20000, 0x30000, 0, 0x10000, 0x40000, 0, }
+	},
+	// Card Number 29 - Imagenation PXC200
+	{
+		"Imagenation PXC200",
+		5,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		InitPXC200,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 30 - FlyVideo 98
+	{
+		"FlyVideo 98",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x8DFE00,
+		{0, 0x8DFF00, 0x8DF700, 0x8DE700, 0x8DFF00, 0, }
+	},
+	// Card Number 31 - iProTV
+	{
+		"iProTV",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1,
+		{0x1, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 32 - Intel Create and Share PCI
+	{
+		"Intel Create and Share PCI",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0x4, 0x4, 0x4, 0x4, 0x4, 0x4, }
+	},
+	// Card Number 33 - Terratec TerraTValue
+	{
+		"Terratec TerraTValue",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFF00,
+		{0x500, 0, 0x300, 0x900, 0x900, 0, }
+	},
+	// Card Number 34 - Leadtek WinFast 2000
+	{
+		"Leadtek WinFast 2000",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		SetAudioWINFAST2000,
+		0xFFF000,
+		{0x621000, 0x620100, 0x621100, 0x620000, 0xE210000, 0x620000, }
+	},
+	// Card Number 35 - Chronos Video Shuttle II
+	{
+		"Chronos Video Shuttle II",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1800,
+		{0, 0, 0x1000, 0x1000, 0x800, 0, }
+	},
+	// Card Number 36 - Typhoon TView TV/FM Tuner
+	{
+		"Typhoon TView TV/FM Tuner",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1800,
+		{0, 0x800, 0, 0, 0x1800, 0, }
+	},
+	// Card Number 37 - PixelView PlayTV pro
+	{
+		"PixelView PlayTV pro",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFF,
+		{0x21, 0x20, 0x24, 0x2C, 0x29, 0x29, }
+	},
+	// Card Number 38 - TView99 CPH063
+	{
+		"TView99 CPH063",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x551E00,
+		{0x551400, 0x551200, 0, 0, 0, 0x551200, }
+	},
+	// Card Number 39 - Pinnacle PCTV Rave
+	{
+		"Pinnacle PCTV Rave",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3000F,
+		{0x2, 0, 0, 0, 0x1, 0, }
+	},
+	// Card Number 40 - STB2
+	{
+		"STB2",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0x4, 0, 0x2, 0x3, 0x1, 0, }
+	},
+	// Card Number 41 - AVerMedia TVPhone 98
+	{
+		"AVerMedia TVPhone 98",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x4,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+	},
+	// Card Number 42 - ProVideo PV951
+	{
+		"ProVideo PV951",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 43 - Little OnAir TV
+	{
+		"Little OnAir TV",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xE00B,
+		{0xFF9FF6, 0xFF9FF6, 0xFF1FF7, 0, 0xFF3FFC, 0, }
+	},
+	// Card Number 44 - Sigma TVII-FM
+	{
+		"Sigma TVII-FM",
+		2,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+		},
+		PLL_NONE,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3,
+		{0x1, 0x1, 0, 0x2, 0x3, 0, }
+	},
+	// Card Number 45 - MATRIX-Vision MV-Delta 2
+	{
+		"MATRIX-Vision MV-Delta 2",
+		5,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 46 - Zoltrix Genie TV
+	{
+		"Zoltrix Genie TV",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xBCF03F,
+		{0xBC803F, 0, 0xBCB03F, 0, 0xBCB03F, 0, }
+	},
+	// Card Number 47 - Terratec TV/Radio+
+	{
+		"Terratec TV/Radio+",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_35,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1F0000,
+		{0xE2FFFF, 0, 0, 0, 0xE0FFFF, 0xE2FFFF, }
+	},
+	// Card Number 48 - Dynalink Magic TView
+	{
+		"Dynalink Magic TView",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0x2, 0, 0, 0, 0x1, 0, }
+	},
+	// Card Number 49 - Conexant Bt878 NTSC XEVK
+	{
+		"Conexant Bt878 NTSC XEVK",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_PHILIPS_NTSC,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFEFF,
+		{0x1000, 0x1000, 0, 0, 0x3000, 0, }
+	},
+	// Card Number 50 - Rockwell Bt878 NTSC XEVK
+	{
+		"Rockwell Bt878 NTSC XEVK",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_PHILIPS_NTSC,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFEFF,
+		{0x1000, 0x1000, 0, 0, 0x3000, 0, }
+	},
+	// Card Number 51 - Conexant Foghorn NTSC/ATSC-A
+	{
+		"Conexant Foghorn NTSC/ATSC-A",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_PHILIPS_1236D_NTSC_INPUT1,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFF00F8,
+		{0x48, 0x48, 0x48, 0x48, 0x48, 0x48, }
+	},
+	// Card Number 52 - Conexant Foghorn NTSC/ATSC-B
+	{
+		"Conexant Foghorn NTSC/ATSC-B",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_PHILIPS_1236D_NTSC_INPUT1,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFF00F8,
+		{0x48, 0x48, 0x48, 0x48, 0x48, 0x48, }
+	},
+	// Card Number 53 - Conexant Foghorn NTSC/ATSC-C
+	{
+		"Conexant Foghorn NTSC/ATSC-C",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_PHILIPS_1236D_NTSC_INPUT1,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFF00F8,
+		{0x48, 0x48, 0x48, 0x48, 0x48, 0x48, }
+	},
+	// Card Number 54 - RS BT Card
+	{
+		"RS BT Card",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1F800,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+	},
+	// Card Number 55 - Cybermail AV
+	{
+		"Cybermail AV",
+		4,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFEFF,
+		{0x1000, 0x1000, 0, 0, 0x3000, 0, }
+	},
+	// Card Number 56 - Viewcast Osprey
+	{
+		"Viewcast Osprey",
+		4,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				3,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+		},
+		PLL_NONE,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 57 - ATI TV-Wonder
+	{
+		"ATI TV-Wonder",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF03F,
+		{0xBFFE, 0, 0xBFFF, 0, 0xBFFE, 0, }
+	},
+	// Card Number 58 - ATI TV-Wonder VE
+	{
+		"ATI TV-Wonder VE",
+		2,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1,
+		{0, 0, 0x1, 0, 0, 0, }
+	},
+	// Card Number 59 - GV-BCTV3
+	{
+		"GV-BCTV3",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_28,
+		TUNER_ALPS_TSCH6_NTSC,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		SetAudioGVBCTV3PCI,
+		0x10F00,
+		{0x10000, 0, 0x10000, 0, 0, 0, }
+	},
+	// Card Number 60 - Prolink PV-BT878P+4E (PixelView PlayTV PAK)
+	{
+		"Prolink PV-BT878P+4E (PixelView PlayTV PAK)",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xAA0000,
+		{0x20000, 0, 0x80000, 0x80000, 0xA8000, 0x46000, }
+	},
+	// Card Number 61 - Eagle Wireless Capricorn2 (bt878A)
+	{
+		"Eagle Wireless Capricorn2 (bt878A)",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 62 - Pinnacle PCTV Studio Pro
+	{
+		"Pinnacle PCTV Studio Pro",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3000F,
+		{0x1, 0x10001, 0, 0, 0xA, 0, }
+	},
+	// Card Number 63 - Typhoon TView RDS / FM Stereo
+	{
+		"Typhoon TView RDS / FM Stereo",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1C,
+		{0, 0, 0x10, 0x8, 0x4, 0, }
+	},
+	// Card Number 64 - Lifetec LT 9415 TV
+	{
+		"Lifetec LT 9415 TV",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		SetAudioLT9415,
+		0x18E0,
+		{0, 0x800, 0x1000, 0x1000, 0x18E0, 0, }
+	},
+	// Card Number 65 - BESTBUY Easy TV
+	{
+		"BESTBUY Easy TV",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_TEMIC_4002FH5_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0x2, 0, 0, 0, 0xA, 0, }
+	},
+	// Card Number 66 - FlyVideo '98/FM / 2000S
+	{
+		"FlyVideo '98/FM / 2000S",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x18E0,
+		{0, 0x18E0, 0x1000, 0x1000, 0x1080, 0x1080, }
+	},
+	// Card Number 67 - GrandTec 'Grand Video Capture'
+	{
+		"GrandTec 'Grand Video Capture'",
+		3,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_35,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 68 - Phoebe TV Master Only (No FM)
+	{
+		"Phoebe TV Master Only (No FM)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_NONE,
+		TUNER_TEMIC_4036FY5_NTSC,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xE00,
+		{0x400, 0x400, 0x400, 0x400, 0x800, 0x400, }
+	},
+	// Card Number 69 - TV Capturer
+	{
+		"TV Capturer",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3000F,
+		{0x2, 0, 0, 0, 0x1, 0, }
+	},
+	// Card Number 70 - MM100PCTV
+	{
+		"MM100PCTV",
+		2,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+		},
+		PLL_NONE,
+		TUNER_TEMIC_4002FH5_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xB,
+		{0x2, 0, 0, 0x1, 0x8, 0, }
+	},
+	// Card Number 71 - AG Electronics GMV1
+	{
+		"AG Electronics GMV1",
+		3,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				2,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+		},
+		PLL_28,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xF,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 72 - BESTBUY Easy TV (bt878)
+	{
+		"BESTBUY Easy TV (bt878)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFF,
+		{0x1, 0, 0x4, 0x4, 0x9, 0, }
+	},
+	// Card Number 73 - Sasem 4-Channel Dev Board (S-Video Jumper)
+	{
+		"Sasem 4-Channel Dev Board (S-Video Jumper)",
+		4,
+		{
+			{
+				"Composite 1",
+				INPUTTYPE_COMPOSITE,
+				0x00,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0x01,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0x03,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0xD2
+			},
+		},
+		PLL_NONE,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		Sasem4ChannelInputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 74 - Pinnacle PCTV Sat
+	{
+		"Pinnacle PCTV Sat",
+		3,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x3000F,
+		{0, 0, 0, 0, 0x1, 0, }
+	},
+	// Card Number 75 - Aimslab VideoHighway Extreme (not 98)
+	{
+		"Aimslab VideoHighway Extreme (not 98)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x2, 0x1, 0x3, 0x4, 0, }
+	},
+	// Card Number 76 - 3dfx VoodooTV 200 (USA)
+	{
+		"3dfx VoodooTV 200 (USA)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_MT2032,
+		SOUNDCHIP_NONE,
+		InitVoodoo,
+		StandardBT848InputSelect,
+		NULL,
+		0x4F8A00,
+		{0x957FFF, 0x997FFF, 0x957FFF, 0x957FFF, 0, 0, }
+	},
+	// Card Number 77 - 3dfx VoodooTV FM (Europa)
+	{
+		"3dfx VoodooTV FM (Europa)",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_MT2032,
+		SOUNDCHIP_NONE,
+		InitVoodoo,
+		StandardBT848InputSelect,
+		NULL,
+		0x4F8A00,
+		{0x947FFF, 0x987FFF, 0x947FFF, 0x947FFF, 0, 0, }
+	},
+	// Card Number 78 - Standard BT878 (No Init MSP)
+	{
+		"Standard BT878 (No Init MSP)",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_USER_SETUP,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x7,
+		{0, 0x1, 0x2, 0x3, 0x4, 0, }
+	},
+	// Card Number 79 - Terratec TValueRadio
+	{
+		"Terratec TValueRadio",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xFFFF00,
+		{0x500, 0x500, 0x300, 0x900, 0x900, 0, }
+	},
+	// Card Number 80 - Flyvideo 98EZ (capture only)
+	{
+		"Flyvideo 98EZ (capture only)",
+		5,
+		{
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 81 - Active Imaging AIMMS
+	{
+		"Active Imaging AIMMS",
+		2,
+		{
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				2,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				2,
+			},
+		},
+		PLL_28,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 82 - FlyVideo 2000S
+	{
+		"FlyVideo 2000S",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x18E0,
+		{0, 0x18E0, 0x1000, 0x1000, 0x1080, 0x1080, }
+	},
+	// Card Number 83 - GV-BCTV4/PCI
+	{
+		"GV-BCTV4/PCI",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+		},
+		PLL_28,
+		TUNER_SHARP_2U5JF5540_NTSC,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		SetAudioGVBCTV3PCI,
+		0x10F00,
+		{0x10000, 0, 0x10000, 0, 0, 0, }
+	},
+	// Card Number 84 - Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP
+	{
+		"Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP",
+		5,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0xAA0000,
+		{0x20000, 0, 0x80000, 0x80000, 0xA8000, 0x46000, }
+	},
+	// Card Number 85 - Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS
+	{
+		"Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS",
+		4,
+		{
+			{
+				"Tuner",
+				INPUTTYPE_TUNER,
+				2,
+			},
+			{
+				"Composite",
+				INPUTTYPE_COMPOSITE,
+				3,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				1,
+			},
+			{
+				"Composite over S-Video",
+				INPUTTYPE_COMPOSITE,
+				1,
+			},
+		},
+		PLL_28,
+		TUNER_PHILIPS_PAL_I,
+		SOUNDCHIP_NONE,
+		NULL,
+		StandardBT848InputSelect,
+		NULL,
+		0x1C,
+		{0, 0, 0x10, 0x8, 0x4, 0, }
+	},
+	// Card Number 86 - Sasem 4-Channel Dev Board (C-Video Jumper)
+	{
+		"Sasem 4-Channel Dev Board (C-Video Jumper)",
+		4,
+		{
+			{
+				"Composite 1",
+				INPUTTYPE_COMPOSITE,
+				0x00,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0x01,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0x02,
+			},
+			{
+				"Composite 4",
+				INPUTTYPE_COMPOSITE,
+				0x03,
+			},
+		},
+		PLL_NONE,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		Sasem4ChannelInputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 87 - SDI Silk 100 (S-Video Jumper)
+	{
+		"SDI Silk 100 (S-Video Jumper)",
+		5,
+		{
+			{
+				"Composite 1",
+				INPUTTYPE_COMPOSITE,
+				0x00,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0x01,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0x03,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0xD2,
+			},
+			{
+				"SDI",
+				INPUTTYPE_CCIR,
+				0x00,
+			},
+		},
+		PLL_NONE,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		Sasem4ChannelInputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
+	// Card Number 88 - SDI Silk 100 (C-Video Jumper)
+	{
+		"SDI Silk 100 (C-Video Jumper)",
+		5,
+		{
+			{
+				"Composite 1",
+				INPUTTYPE_COMPOSITE,
+				0x00,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0x01,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0x02,
+			},
+			{
+				"Composite 4",
+				INPUTTYPE_COMPOSITE,
+				0x03,
+			},
+			{
+				"SDI",
+				INPUTTYPE_CCIR,
+				0x00,
+			},
+		},
+		PLL_NONE,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		NULL,
+		Sasem4ChannelInputSelect,
+		NULL,
+		0x0,
+		{0, 0, 0, 0, 0, 0, }
+	},
 };
 
-static const TAutoDectect878 AutoDectect878[] =
+const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
 {
     // There are taken from bttv vesrion 7.68
     { 0x00011002, TVCARD_ATI_TVWONDER,  "ATI TV Wonder" },
@@ -971,29 +3246,55 @@ static const TAutoDectect878 AutoDectect878[] =
     { 0, (eTVCardId)-1, NULL }
 };
 
-
 eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
 {
-    eTunerId Tuner = TUNER_ABSENT;
-    switch(CardId)
+    if(m_TVCards[CardId].TunerId == TUNER_USER_SETUP)
     {
-    case TVCARD_MIRO:
-    case TVCARD_MIROPRO:
-        Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
-        break;
-    default:
-        if (TVCards[CardId].TunerId > TUNER_ABSENT && TVCards[CardId].TunerId < TUNER_LASTONE)
-        {
-            Tuner = TVCards[CardId].TunerId;
-        }
-        break;
+        return TUNER_ABSENT;
     }
-    return Tuner;
+    else if(m_TVCards[CardId].TunerId == TUNER_AUTODETECT)
+    {
+        eTunerId Tuner = TUNER_ABSENT;
+        switch(CardId)
+        {
+        case TVCARD_MIRO:
+        case TVCARD_MIROPRO:
+            Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
+            break;
+        default:
+            break;
+        }
+        return Tuner;
+    }
+    else
+    {
+        return m_TVCards[CardId].TunerId;
+    }
 }
 
-const TCardSetup* CBT848Card::GetCardSetup(eTVCardId CardType)
+int CBT848Card::GetNumInputs()
 {
-    return &(TVCards[CardType]);
+    return m_TVCards[m_CardType].NumInputs;
+}
+
+BOOL CBT848Card::IsInputATuner(int nInput)
+{
+    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
+}
+
+
+void CBT848Card::SetVideoSource(int nInput)
+{
+    // call correct function
+    // this funny syntax is the only one that works
+    // if you want help understanding what is going on
+    // I suggest you read http://www.newty.de/
+    (*this.*m_TVCards[m_CardType].pInputSwitchFunction)(nInput);
+}
+
+const CBT848Card::TCardType* CBT848Card::GetCardSetup()
+{
+    return &(m_TVCards[m_CardType]);
 }
 
 eTVCardId CBT848Card::AutoDetectCardType()
@@ -1004,11 +3305,11 @@ eTVCardId CBT848Card::AutoDetectCardType()
         if (Id != 0 && Id != 0xffffffff)
         {
             int i;
-            for (i = 0; AutoDectect878[i].ID != 0; i++)
+            for (i = 0; m_AutoDectect878[i].ID != 0; i++)
             {
-                if (AutoDectect878[i].ID  == Id)
+                if (m_AutoDectect878[i].ID  == Id)
                 {
-                    return AutoDectect878[i].CardId;
+                    return m_AutoDectect878[i].CardId;
                 }
             }
         }
@@ -1020,37 +3321,187 @@ eTVCardId CBT848Card::AutoDetectCardType()
     return TVCARD_UNKNOWN;
 }
 
-// do any specific card related initilaisation
-void CBT848Card::CardSpecificInit(eTVCardId CardType)
+void CBT848Card::StandardBT848InputSelect(int nInput)
 {
-    switch(CardType)
+    if(nInput >= m_TVCards[m_CardType].NumInputs)
     {
-    case TVCARD_HAUPPAUGE:
-    case TVCARD_HAUPPAUGE878:
-        HauppaugeBootMSP34xx(5);
+        LOG(1, "Input Select Called for invalid input");
+        nInput = m_TVCards[m_CardType].NumInputs - 1;
+    }
+    if(nInput < 0)
+    {
+        LOG(1, "Input Select Called for invalid input");
+        nInput = 0;
+    }
+    
+    AndDataByte(BT848_IFORM, (BYTE)~BT848_IFORM_MUXSEL);
+
+    // set the comp bit for svideo
+    switch (m_TVCards[m_CardType].Inputs[nInput].InputType)
+    {
+    case INPUTTYPE_SVIDEO:
+        OrDataByte(BT848_E_CONTROL, BT848_CONTROL_COMP);
+        OrDataByte(BT848_O_CONTROL, BT848_CONTROL_COMP);
         break;
-    case TVCARD_VOODOOTV_200:
-    case TVCARD_VOODOOTV_FM:
-        HauppaugeBootMSP34xx(20);
+    case INPUTTYPE_TUNER:
+    case INPUTTYPE_COMPOSITE:
+    case INPUTTYPE_CCIR:
+    default:
+        AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
+        AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
         break;
-    case TVCARD_PXC200:
-        InitPXC200();
-        break;
-    case TVCARD_SASEM4CHNLSVID:
-        // Initialize and set the Philips TDA8540 4x4 switch matrix for s-video
+    }
+
+    DWORD MuxSel = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
+    MaskDataByte(BT848_IFORM, (BYTE) (MuxSel << 5), BT848_IFORM_MUXSEL);
+}
+
+void CBT848Card::Sasem4ChannelInputSelect(int nInput)
+{
+    if(nInput >= m_TVCards[m_CardType].NumInputs)
+    {
+        LOG(1, "Input Select Called for invalid input");
+        nInput = m_TVCards[m_CardType].NumInputs - 1;
+    }
+    if(nInput < 0)
+    {
+        LOG(1, "Input Select Called for invalid input");
+        nInput = 0;
+    }
+
+    // these cards always use mux 2
+    MaskDataByte(BT848_IFORM, (BYTE) (2 << 5), BT848_IFORM_MUXSEL);
+
+    if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
+    {
+        OrDataByte(BT848_E_CONTROL, BT848_CONTROL_COMP);
+        OrDataByte(BT848_O_CONTROL, BT848_CONTROL_COMP);
+        // Set the Philips TDA8540 4x4 switch matrix for s-video input
         // 0xD2 SW1 choose OUT3=IN3; OUT2=IN1; OUT1=IN0; OUT0=IN2
         // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux    
-        // 0x03 OEN choose OUT0 and OUT1 high (i.e., s-video)
+        // 0x03 OEN choose OUT0 and OUT1 high (s-video)
         CtrlTDA8540(0x90, 0x00, 0xD2, 0x07, 0x03);
+    }
+    else
+    {
+        AndDataByte(BT848_E_CONTROL, ~BT848_CONTROL_COMP);
+        AndDataByte(BT848_O_CONTROL, ~BT848_CONTROL_COMP);
+        // Set the Philips TDA8540 4x4 switch matrix for composite switch 1 input
+        // 0x00 SW1 choose the MuxSelect setting
+        // 0x87 GCO choose (1000) gain; (01) clamp; (11) aux    
+        // 0x01 OEN choose OUT0 high
+        BYTE OutputSelect = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
+        CtrlTDA8540(0x90, 0x00, OutputSelect, 0x87, 0x01);
+    }
+}
+
+// ----------------------------------------------------------------------- 
+// Card specifc settings for those cards that
+// use GPIO pinds to control the stereo output
+// from the tuner
+
+void CBT848Card::SetAudioGVBCTV3PCI(eSoundChannel soundChannel)
+{
+    OrDataDword(BT848_GPIO_DATA, 0x300);
+    switch(soundChannel)
+    {
+    case STEREO:
+        AndOrDataDword(BT848_GPIO_DATA, 0x200, ~0x300);
+        break;
+    case LANGUAGE2:
+        AndOrDataDword(BT848_GPIO_DATA, 0x300, ~0x300);
+        break;
+    default:
+    case LANGUAGE1:
+        AndOrDataDword(BT848_GPIO_DATA, 0x000, ~0x300);
+        break;
+    }
+}
+
+void CBT848Card::SetAudioLT9415(eSoundChannel soundChannel)
+{
+    switch(soundChannel)
+    {
+    case STEREO:
+        AndOrDataDword(BT848_GPIO_DATA, 0x0880, ~0x0880);
+        break;
+    case LANGUAGE2:
+        AndOrDataDword(BT848_GPIO_DATA, 0x0080, ~0x0880);
+        break;
+    default:
+    case LANGUAGE1:
+        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x0880);
+        break;
+    }
+}
+
+void CBT848Card::SetAudioTERRATV(eSoundChannel soundChannel)
+{
+    OrDataDword(BT848_GPIO_DATA, 0x180000);
+    switch(soundChannel)
+    {
+    case STEREO:
+        AndOrDataDword(BT848_GPIO_DATA, 0x180000, ~0x180000);
+        break;
+    case LANGUAGE2:
+        AndOrDataDword(BT848_GPIO_DATA, 0x080000, ~0x180000);
+        break;
+    default:
+    case LANGUAGE1:
+        AndOrDataDword(BT848_GPIO_DATA, 0x000000, ~0x180000);
+        break;
+    }
+}
+
+void CBT848Card::SetAudioAVER_TVPHONE(eSoundChannel soundChannel)
+{
+    OrDataDword(BT848_GPIO_DATA, 0x180000);
+    switch(soundChannel)
+    {
+    case STEREO:
+        AndOrDataDword(BT848_GPIO_DATA, 0x01, ~0x03);
+        break;
+    case LANGUAGE1:
+        AndOrDataDword(BT848_GPIO_DATA, 0x02, ~0x03);
         break;
     default:
         break;
     }
 }
 
+void CBT848Card::SetAudioWINFAST2000(eSoundChannel soundChannel)
+{
+    OrDataDword(BT848_GPIO_DATA, 0x180000);
+    switch(soundChannel)
+    {
+    case STEREO:
+        AndOrDataDword(BT848_GPIO_DATA, 0x020000, ~0x430000);
+        break;
+    case LANGUAGE1:
+        AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
+        break;
+    case LANGUAGE2:
+        AndOrDataDword(BT848_GPIO_DATA, 0x410000, ~0x430000);
+        break;
+    default:
+        AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
+        break;
+    }
+}
+
+void CBT848Card::InitHauppauge()
+{
+    BootMSP34xx(5);
+}
+
+void CBT848Card::InitVoodoo()
+{
+    BootMSP34xx(20);
+}
+
 // reset/enable the MSP on some Hauppauge cards 
 // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
-void CBT848Card::HauppaugeBootMSP34xx(int pin)
+void CBT848Card::BootMSP34xx(int pin)
 {
     int mask = 1 << pin;
     AndOrDataDword(BT848_GPIO_OUT_EN, mask, ~mask);
@@ -1068,13 +3519,25 @@ void CBT848Card::HauppaugeBootMSP34xx(int pin)
 
 void CBT848Card::InitPXC200()
 {
-    const BYTE vals[] =
+    //I2C_Lock();
+    //I2C_Write(0x5E, 0, 0x80, 1);
+    const BYTE InitDac[] =
     {
-        0x08, 0x09, 0x0a, 0x0b, 0x0d, 0x0d,
-        0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+        0x5E, 0, 
+        0x80, 1,
+    };
+
+    const BYTE InitPic[] =
+    {
+        0x1E, 0,
+        0x08, 0x09, 
+        0x0a, 0x0b, 
+        0x0d, 0x0d,
+        0x01, 0x02, 
+        0x03, 0x04, 
+        0x05, 0x06,
         0x00
     };
-    int i;
 
     // Initialise GPIO-connevted stuff 
     WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only 
@@ -1095,19 +3558,13 @@ void CBT848Card::InitPXC200()
     WriteByte(BT848_ADC, BT848_ADC_RESERVED | BT848_ADC_AGC_EN);
 
     //  Initialise MAX517 DAC 
-    //I2C_Lock();
-    //I2C_Write(0x5E, 0, 0x80, 1);
+    m_I2CBus->Write(InitDac, sizeof(InitDac));
 
     //  Initialise 12C508 PIC 
     //  The I2CWrite and I2CRead commmands are actually to the
     //  same chips - but the R/W bit is included in the address
     //  argument so the numbers are different 
-    for (i = 0; i < sizeof(vals)/sizeof(int); i++)
-    {
-        //I2C_Write(0x1E, vals[i], 0, 1);
-        //I2C_Read(0x1F);
-    }
-    //I2C_Unlock();
+    m_I2CBus->Write(InitPic, sizeof(InitPic));
 }
 
 // ----------------------------------------------------------------------- 
@@ -1151,15 +3608,15 @@ void CBT848Card::InitPXC200()
 
 void CBT848Card::CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN)
 {
-    /*
-    I2C_Lock();
-    I2C_Start();
-    I2C_SendByte(SLV, 5); 
-    I2C_SendByte(SUB, 0); 
-    I2C_SendByte(SW1, 0); 
-    I2C_SendByte(GCO, 0); 
-    I2C_SendByte(OEN, 0); 
-    I2C_Stop();
-    I2C_Unlock();
-    */
+    BYTE buffer[10] = 
+    {
+        SLV, 5,
+        SUB, 0,
+        SW1, 0,
+        GCO, 0,
+        OEN, 0,
+    };
+
+    m_I2CBus->Write(buffer, 10);
 }
+

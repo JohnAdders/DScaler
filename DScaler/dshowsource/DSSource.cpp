@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.3 2001-12-17 19:39:38 tobbej Exp $
+// $Id: DSSource.cpp,v 1.4 2001-12-18 13:12:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/17 19:39:38  tobbej
+// implemented the picture history and field management
+// crossbar support.
+//
 // Revision 1.2  2001/12/14 14:11:13  adcockj
 // Added #ifdef to allow compilation without SDK
 //
@@ -119,7 +123,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	}
 	switch(LOWORD(wParam))
 	{
-	case ID_DSHOW_RENDERERPROPERTIES:
+	case IDM_DSHOW_RENDERERPROPERTIES:
 		if(m_pDSGraph!=NULL)
 		{
 			m_pDSGraph->showRendererProperies(hWnd);
@@ -238,8 +242,8 @@ void CDSSource::SetMenu(HMENU hMenu)
 	topMenu.Attach(m_hMenu);
 	CMenu *menu=topMenu.GetSubMenu(0);
 
-	int vidPos=FindMenuID(menu,ID_DSHOW_VIDEOINPUT);
-	int audPos=FindMenuID(menu,ID_DSHOW_AUDIOINPUT);
+	int vidPos=FindMenuID(menu,IDM_DSHOW_VIDEOINPUT);
+	int audPos=FindMenuID(menu,IDM_DSHOW_AUDIOINPUT);
 	CMenu vidSubMenu;
 	CMenu audSubMenu;
 
@@ -261,9 +265,9 @@ void CDSSource::SetMenu(HMENU hMenu)
 		//create a new submenu and insert it
 		CString str;
 		vidSubMenu.CreateMenu();
-		menu->GetMenuString(ID_DSHOW_VIDEOINPUT,str,MF_BYCOMMAND);
+		menu->GetMenuString(IDM_DSHOW_VIDEOINPUT,str,MF_BYCOMMAND);
 
-		menu->ModifyMenu(ID_DSHOW_VIDEOINPUT,MF_POPUP|MF_BYCOMMAND,(UINT) vidSubMenu.GetSafeHmenu(),str);
+		menu->ModifyMenu(IDM_DSHOW_VIDEOINPUT,MF_POPUP|MF_BYCOMMAND,(UINT) vidSubMenu.GetSafeHmenu(),str);
 	}
 
 	//same thing for the audio submenu
@@ -284,9 +288,9 @@ void CDSSource::SetMenu(HMENU hMenu)
 		//create a new submenu and insert it
 		CString str;
 		audSubMenu.CreateMenu();
-		menu->GetMenuString(ID_DSHOW_AUDIOINPUT,str,MF_BYCOMMAND);
+		menu->GetMenuString(IDM_DSHOW_AUDIOINPUT,str,MF_BYCOMMAND);
 
-		menu->ModifyMenu(ID_DSHOW_AUDIOINPUT,MF_POPUP|MF_BYCOMMAND,(UINT) audSubMenu.GetSafeHmenu(),str);
+		menu->ModifyMenu(IDM_DSHOW_AUDIOINPUT,MF_POPUP|MF_BYCOMMAND,(UINT) audSubMenu.GetSafeHmenu(),str);
 	}
 
 	for(int i=0;i<pCrossbar->GetInputCount();i++)

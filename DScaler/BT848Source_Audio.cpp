@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.7 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Source_Audio.cpp,v 1.8 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.6  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -88,7 +91,7 @@ void CBT848Source::TrebleOnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioSource((eTVCardId)m_CardType->GetValue(), (eAudioInput)NewValue);
+    m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
 }
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)

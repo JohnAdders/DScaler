@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.9 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Souce_UI.cpp,v 1.10 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.8  2001/12/03 17:27:55  adcockj
 // SECAM NICAM patch from Quenotte
 //
@@ -60,7 +63,6 @@
 #include "OutThreads.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
-extern const TCardSetup TVCards[TVCARD_LASTONE];
 
 BOOL APIENTRY CBT848Source::AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -186,7 +188,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         for(i = 0; i < TVCARD_LASTONE; i++)
         {
             int nIndex;
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)TVCards[i].szName);
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i));
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == pThis->m_CardType->GetValue())
             {
@@ -240,18 +242,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         case IDC_CARDSSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
             i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
-            if(TVCards[i].TunerId == TUNER_USER_SETUP)
-            {
-                ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), TUNER_ABSENT);
-            }
-            else if(TVCards[i].TunerId == TUNER_AUTODETECT)
-            {
-                ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), pThis->m_pBT848Card->AutoDetectTuner((eTVCardId)i));
-            }
-            else
-            {
-                ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), TVCards[i].TunerId);
-            }
+            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), pThis->m_pBT848Card->AutoDetectTuner((eTVCardId)i));
             break;
         default:
             break;
@@ -265,55 +256,23 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 
 void CBT848Source::SetMenu(HMENU hMenu)
 {
-    int NumExtraInputs;
+    int i;
 
-    // need to keep track of how many other inputs there are
-    // there is always one composite input
-    NumExtraInputs = TVCards[m_CardType->GetValue()].nVideoInputs  - 1;
-
-    if(TVCards[m_CardType->GetValue()].SVideoInput == -1)
+    for(i = 0;i < m_pBT848Card->GetNumInputs(); ++i)
     {
-        EnableMenuItem(m_hMenu, IDM_SOURCE_SVIDEO, MF_GRAYED);
-        EnableMenuItem(m_hMenu, IDM_SOURCE_COMPVIASVIDEO, MF_GRAYED);
+        EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
+        CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
+        ModifyMenu(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_BYCOMMAND | MF_STRING, 0, m_pBT848Card->GetInputName(i));
     }
-    else
+    
+    while(i < INPUTS_PER_CARD)
     {
-        EnableMenuItem(m_hMenu, IDM_SOURCE_SVIDEO, MF_ENABLED);
-        EnableMenuItem(m_hMenu, IDM_SOURCE_COMPVIASVIDEO, MF_ENABLED);
-        // we've used up one more input
-        --NumExtraInputs;
+        ModifyMenu(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_BYCOMMAND | MF_STRING, 0, "No Input");
+        EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
+        ++i;
     }
-
-    if(HasTuner())
-    {
-        EnableMenuItem(m_hMenu, IDM_SOURCE_TUNER, MF_ENABLED);
-        // we've used up one more input
-        --NumExtraInputs;
-    }
-    else
-    {
-        EnableMenuItem(m_hMenu, IDM_SOURCE_TUNER, MF_GRAYED);
-    }
-
-    EnableMenuItem(m_hMenu, IDM_SOURCE_OTHER1, (NumExtraInputs > 0)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(m_hMenu, IDM_SOURCE_OTHER2, (NumExtraInputs > 1)?MF_ENABLED:MF_GRAYED);
-
-    EnableMenuItem(m_hMenu, IDM_SOURCE_CCIR656_1, (m_CardType->GetValue() == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(m_hMenu, IDM_SOURCE_CCIR656_2, (m_CardType->GetValue() == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(m_hMenu, IDM_SOURCE_CCIR656_3, (m_CardType->GetValue() == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(m_hMenu, IDM_SOURCE_CCIR656_4, (m_CardType->GetValue() == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);
 
     BOOL DoneWidth = FALSE;
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_TUNER, (m_VideoSource->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_COMPOSITE, (m_VideoSource->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_SVIDEO, (m_VideoSource->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_OTHER1, (m_VideoSource->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_OTHER2, (m_VideoSource->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_COMPVIASVIDEO, (m_VideoSource->GetValue() == 5));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_CCIR656_1, (m_VideoSource->GetValue() == 6));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_CCIR656_2, (m_VideoSource->GetValue() == 7));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_CCIR656_3, (m_VideoSource->GetValue() == 8));
-    CheckMenuItemBool(m_hMenu, IDM_SOURCE_CCIR656_4, (m_VideoSource->GetValue() == 9));
 
     if(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 < 768)
     {
@@ -499,6 +458,9 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SETUPCARD:
             Stop_Capture();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+            m_pBT848Card->SetCardType(m_CardType->GetValue());
+            m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
+            m_pBT848Card->InitAudio();
             Start_Capture();
             break;
 
@@ -605,19 +567,15 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             break;
 
-        case IDM_SOURCE_TUNER:
-        case IDM_SOURCE_COMPOSITE:
-        case IDM_SOURCE_SVIDEO:
-        case IDM_SOURCE_OTHER1:
-        case IDM_SOURCE_OTHER2:
-        case IDM_SOURCE_COMPVIASVIDEO:
-        case IDM_SOURCE_CCIR656_1:
-        case IDM_SOURCE_CCIR656_2:
-        case IDM_SOURCE_CCIR656_3:
-        case IDM_SOURCE_CCIR656_4:
+        case IDM_SOURCE_INPUT1:
+        case IDM_SOURCE_INPUT2:
+        case IDM_SOURCE_INPUT3:
+        case IDM_SOURCE_INPUT4:
+        case IDM_SOURCE_INPUT5:
+        case IDM_SOURCE_INPUT6:
             {
-                CBT848Card::eVideoSourceType nValue = (CBT848Card::eVideoSourceType)(LOWORD(wParam) - IDM_SOURCE_TUNER);
-                ShowText(hWnd, m_pBT848Card->GetSourceName(nValue));
+                int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
+                ShowText(hWnd, m_pBT848Card->GetInputName(nValue));
                 m_VideoSource->SetValue(nValue);
             }
             break;
@@ -809,24 +767,6 @@ void CBT848Source::ChangeDefaultsForInput()
     {
         m_BDelay->ChangeDefault(0);
     }
-
-    switch(m_VideoSource->GetValue())
-    {
-    case CBT848Card::SOURCE_CCIR656_1:
-    case CBT848Card::SOURCE_CCIR656_2:
-    case CBT848Card::SOURCE_CCIR656_3:
-    case CBT848Card::SOURCE_CCIR656_4:
-        m_Brightness->ChangeDefault(0);
-        m_Contrast->ChangeDefault(0x80);
-        m_Hue->ChangeDefault(0x00);
-        m_Saturation->ChangeDefault(0x80);
-        m_SaturationU->ChangeDefault(0x80);
-        m_SaturationV->ChangeDefault(0x80);
-        break;
-    default:
-        break;
-    }
-
 }
 
 

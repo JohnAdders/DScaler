@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.22 2001-11-23 10:49:17 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.23 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.21  2001/11/19 11:11:45  temperton
 // Store mixer name instead of index in ini.
 //
@@ -101,11 +104,7 @@ BOOL bResetOnExit = TRUE;
 long MixerIndex = 0;
 char MixerName[MAXPNAMELEN] = {0};
 long DestIndex = 0;
-long TunerLineIndex = -1;
-long CompositeLineIndex = -1;
-long SVideoLineIndex = -1;
-long Other1LineIndex = -1;
-long Other2LineIndex = -1;
+long InputIndexes[6] = {-1, -1, -1, -1, -1, -1,};
 
 CMixerLineSource::CMixerLineSource(HMIXER hMixer, int DestId, int SourceId)
 {
@@ -509,11 +508,12 @@ void EnableComboBoxes(HWND hDlg, BOOL Enabled)
 {
     ComboBox_Enable(GetDlgItem(hDlg, IDC_MIXER), Enabled);
     ComboBox_Enable(GetDlgItem(hDlg, IDC_DEST), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_TUNER), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_COMPOSITE), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_SVIDEO), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_OTHER1), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_OTHER2), Enabled);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT1), Enabled);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT2), Enabled);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT3), Enabled);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT4), Enabled);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT5), Enabled);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT6), Enabled);
 }
 
 void FillLineBox(HWND hDlg, long ControlId, long SelIndex)
@@ -536,11 +536,12 @@ void FillLineBox(HWND hDlg, long ControlId, long SelIndex)
 
 void FillLineBoxes(HWND hDlg)
 {
-    FillLineBox(hDlg, IDC_TUNER, TunerLineIndex);
-    FillLineBox(hDlg, IDC_COMPOSITE, CompositeLineIndex);
-    FillLineBox(hDlg, IDC_SVIDEO, SVideoLineIndex);
-    FillLineBox(hDlg, IDC_OTHER1, Other1LineIndex);
-    FillLineBox(hDlg, IDC_OTHER2, Other2LineIndex);
+    FillLineBox(hDlg, IDC_INPUT1, InputIndexes[0]);
+    FillLineBox(hDlg, IDC_INPUT2, InputIndexes[1]);
+    FillLineBox(hDlg, IDC_INPUT3, InputIndexes[2]);
+    FillLineBox(hDlg, IDC_INPUT4, InputIndexes[3]);
+    FillLineBox(hDlg, IDC_INPUT5, InputIndexes[4]);
+    FillLineBox(hDlg, IDC_INPUT6, InputIndexes[5]);
 }
 
 void FillDestBox(HWND hDlg)
@@ -576,11 +577,8 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     static BOOL Old_bUseMixer;
     static long Old_MixerIndex;
     static long Old_DestIndex;
-    static long Old_TunerLineIndex;
-    static long Old_CompositeLineIndex;
-    static long Old_SVideoLineIndex;
-    static long Old_Other1LineIndex;
-    static long Old_Other2LineIndex;
+    static long OldIndexes[6];
+    int i;
 
     switch (message)
     {
@@ -588,11 +586,10 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         Old_bUseMixer = bUseMixer;
         Old_MixerIndex = MixerIndex;
         Old_DestIndex = DestIndex;
-        Old_TunerLineIndex = TunerLineIndex;
-        Old_CompositeLineIndex = CompositeLineIndex;
-        Old_SVideoLineIndex = SVideoLineIndex;
-        Old_Other1LineIndex = Other1LineIndex;
-        Old_Other2LineIndex = Other2LineIndex;
+        for(i = 0; i < 6; ++i)
+        {
+            OldIndexes[i] = InputIndexes[i];
+        }
         Button_SetCheck(GetDlgItem(hDlg, IDC_USE_MIXER), bUseMixer);
         Button_SetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT), bResetOnExit);
         if(bUseMixer == TRUE)
@@ -638,11 +635,12 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             MixerIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER));
             lstrcpy((char*) &MixerName, pSoundSystem->GetMixerName2(MixerIndex));
             DestIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
-            TunerLineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_TUNER));
-            CompositeLineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_COMPOSITE));
-            SVideoLineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_SVIDEO));
-            Other1LineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_OTHER1));
-            Other2LineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_OTHER2));
+            InputIndexes[0] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT1));
+            InputIndexes[1] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT2));
+            InputIndexes[2] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT3));
+            InputIndexes[3] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT4));
+            InputIndexes[4] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT5));
+            InputIndexes[5] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT6));
             if(bUseMixer == FALSE)
             {
                 pSoundSystem->SetMixer(-1);
@@ -655,11 +653,10 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             bUseMixer = Old_bUseMixer;
             MixerIndex = Old_MixerIndex;
             DestIndex = Old_DestIndex;
-            TunerLineIndex = Old_TunerLineIndex;
-            CompositeLineIndex = Old_CompositeLineIndex;
-            SVideoLineIndex = Old_SVideoLineIndex;
-            Other1LineIndex = Old_Other1LineIndex;
-            Other2LineIndex = Old_Other2LineIndex;
+            for(i = 0; i < 6; ++i)
+            {
+                InputIndexes[i] = OldIndexes[i];
+            }
             if(bUseMixer == FALSE)
             {
                 pSoundSystem->SetMixer(-1);
@@ -703,7 +700,7 @@ CMixerLineDest* Mixer_GetDestLine()
     return pSoundSystem->GetMixer()->GetDestLine(DestIndex);
 }
 
-CMixerLineSource* Mixer_GetInputLine(long NewType)
+CMixerLineSource* Mixer_GetInputLine(long nInput)
 {
     CMixerLineDest* DestLine = Mixer_GetDestLine();
     if(DestLine == NULL)
@@ -713,41 +710,9 @@ CMixerLineSource* Mixer_GetInputLine(long NewType)
 
     if(bUseMixer)
     {
-        switch(NewType)
+        if(InputIndexes[nInput] > -1)
         {
-        case CBT848Card::SOURCE_TUNER:
-            if(TunerLineIndex > -1)
-            {
-                return DestLine->GetSourceLine(TunerLineIndex);
-            }
-            break;
-        case CBT848Card::SOURCE_COMPOSITE:
-            if(CompositeLineIndex > -1)
-            {
-                return DestLine->GetSourceLine(CompositeLineIndex);
-            }
-            break;
-        case CBT848Card::SOURCE_SVIDEO:
-        case CBT848Card::SOURCE_COMPVIASVIDEO:
-            if(SVideoLineIndex > -1)
-            {
-                return DestLine->GetSourceLine(SVideoLineIndex);
-            }
-            break;
-        case CBT848Card::SOURCE_OTHER1:
-            if(Other1LineIndex > -1)
-            {
-                return DestLine->GetSourceLine(Other1LineIndex);
-            }
-            break;
-        case CBT848Card::SOURCE_OTHER2:
-            if(Other2LineIndex > -1)
-            {
-                return DestLine->GetSourceLine(Other2LineIndex);
-            }
-            break;
-        default:
-            break;
+            return DestLine->GetSourceLine(InputIndexes[nInput]);
         }
     }
     return NULL;
@@ -755,70 +720,75 @@ CMixerLineSource* Mixer_GetInputLine(long NewType)
 
 void Mixer_Mute()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
-   if(CurLine != NULL)
-   {
+    // \todo Fix this so that it uses the correct input
+    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    if(CurLine != NULL)
+    {
        CurLine->SetMute(TRUE);
-   }
+    }
 }
 
 void Mixer_UnMute()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
-   if(CurLine != NULL)
-   {
+    // \todo Fix this so that it uses the correct input
+    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    if(CurLine != NULL)
+    {
        CurLine->SetMute(FALSE);
-   }
+    }
 }
 
 void Mixer_Volume_Up()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
-   if(CurLine != NULL)
-   {
-       long Vol = CurLine->GetVolume();
-       if(Vol <= 95)
-       {
+    // \todo Fix this so that it uses the correct input
+    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    if(CurLine != NULL)
+    {
+        long Vol = CurLine->GetVolume();
+        if(Vol <= 95)
+        {
            CurLine->SetVolume(Vol+5);
-       }
-       else
-       {
+        }
+        else
+        {
            CurLine->SetVolume(100);
-       }
-   }
+        }
+    }
 }
 
 void Mixer_Volume_Down()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
-   if(CurLine != NULL)
-   {
-       long Vol = CurLine->GetVolume();
-       if(Vol >= 5)
-       {
-           CurLine->SetVolume(Vol-5);
-       }
-       else
-       {
-           CurLine->SetVolume(0);
-       }
-   }
+    // \todo Fix this so that it uses the correct input
+    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    if(CurLine != NULL)
+    {
+        long Vol = CurLine->GetVolume();
+        if(Vol >= 5)
+        {
+            CurLine->SetVolume(Vol-5);
+        }
+        else
+        {
+            CurLine->SetVolume(0);
+        }
+    }
 }
 
 long Mixer_GetVolume()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
-   if(CurLine != NULL)
-   {
-       return CurLine->GetVolume();
-   }
-   else
-   {
-       return 0;
-   }
+    // \todo Fix this so that it uses the correct input
+    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    if(CurLine != NULL)
+    {
+        return CurLine->GetVolume();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
-void Mixer_OnInputChange(CBT848Card::eVideoSourceType NewType)
+void Mixer_OnInputChange(int NewType)
 {
     CMixerLineDest* DestLine = Mixer_GetDestLine();
     if(DestLine == NULL)
@@ -828,39 +798,14 @@ void Mixer_OnInputChange(CBT848Card::eVideoSourceType NewType)
 
     if(bUseMixer)
     {
-        if(TunerLineIndex > -1)
+        for(int i(0) ; i < 6; ++i)
         {
-            if(DestLine->GetSourceLine(TunerLineIndex) != NULL)
+            if(InputIndexes[i] != -1)
             {
-                DestLine->GetSourceLine(TunerLineIndex)->SetMute(NewType != CBT848Card::SOURCE_TUNER);
-            }
-        }
-        if(CompositeLineIndex > -1)
-        {
-            if(DestLine->GetSourceLine(CompositeLineIndex) != NULL)
-            {
-                DestLine->GetSourceLine(CompositeLineIndex)->SetMute(NewType != CBT848Card::SOURCE_COMPOSITE);
-            }
-        }
-        if(SVideoLineIndex > -1)
-        {
-            if(DestLine->GetSourceLine(SVideoLineIndex) != NULL)
-            {
-                DestLine->GetSourceLine(SVideoLineIndex)->SetMute((NewType != CBT848Card::SOURCE_SVIDEO) && (NewType != CBT848Card::SOURCE_COMPVIASVIDEO));
-            }
-        }
-        if(Other1LineIndex > -1)
-        {
-            if(DestLine->GetSourceLine(Other1LineIndex) != NULL)
-            {
-                DestLine->GetSourceLine(Other1LineIndex)->SetMute(NewType != CBT848Card::SOURCE_OTHER1);
-            }
-        }
-        if(Other2LineIndex > -1)
-        {
-            if(DestLine->GetSourceLine(Other2LineIndex) != NULL)
-            {
-                DestLine->GetSourceLine(Other2LineIndex)->SetMute(NewType != CBT848Card::SOURCE_OTHER2);
+                if(DestLine->GetSourceLine(InputIndexes[i]) != NULL)
+                {
+                    DestLine->GetSourceLine(InputIndexes[i])->SetMute(NewType != i);
+                }
             }
         }
     }
@@ -893,7 +838,7 @@ void Mixer_Init()
         pSoundSystem->SetMixer(MixerIndex);
         if(pSoundSystem->GetMixer() != NULL)
         {
-            Mixer_OnInputChange(CBT848Card::SOURCE_TUNER);
+            Mixer_OnInputChange(0);
         }
         else
         {
@@ -923,12 +868,6 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         NULL,
         "Mixer", "UseMixer", NULL,
     },
-/*    {
-        "MixerIndex", SLIDER, 0, (long*)&MixerIndex,
-        0, 0, 255, 1, 1,
-        NULL,
-        "Mixer", "MixerIndex", NULL,
-    },*/
     {
         "DestIndex", SLIDER, 0, (long*)&DestIndex,
         0, 0, 255, 1, 1,
@@ -936,34 +875,46 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         "Mixer", "DestIndex", NULL,
     },
     {
-        "TunerLineIndex", SLIDER, 0, (long*)&TunerLineIndex,
+        "Input 1 Index", SLIDER, 0, (long*)&InputIndexes[0],
         -1, -1, 255, 1, 1,
         NULL,
-        "Mixer", "TunerLineIndex", NULL,
+        "Mixer", "Input1Index", NULL,
     },
     {
-        "CompositeLineIndex", SLIDER, 0, (long*)&CompositeLineIndex,
+        "Input 2 Index", SLIDER, 0, (long*)&InputIndexes[1],
         -1, -1, 255, 1, 1,
         NULL,
-        "Mixer", "CompositeLineIndex", NULL,
+        "Mixer", "Input2Index", NULL,
     },
     {
-        "SVideoLineIndex", SLIDER, 0, (long*)&SVideoLineIndex,
+        "Input 3 Index", SLIDER, 0, (long*)&InputIndexes[2],
         -1, -1, 255, 1, 1,
         NULL,
-        "Mixer", "SVideoLineIndex", NULL,
+        "Mixer", "Input3Index", NULL,
     },
     {
-        "Other1LineIndex", SLIDER, 0, (long*)&Other1LineIndex,
+        "Input 4 Index", SLIDER, 0, (long*)&InputIndexes[3],
         -1, -1, 255, 1, 1,
         NULL,
-        "Mixer", "Other1LineIndex", NULL,
+        "Mixer", "Input4Index", NULL,
     },
     {
         "Reset Mixer on Exit", ONOFF, 0, (long*)&bResetOnExit,
         TRUE, 0, 1, 1, 1, 
         NULL,
         "Mixer", "ResetOnExit", NULL,
+    },
+    {
+        "Input 5 Index", SLIDER, 0, (long*)&InputIndexes[4],
+        -1, -1, 255, 1, 1,
+        NULL,
+        "Mixer", "Input6Index", NULL,
+    },
+    {
+        "Input 6 Index", SLIDER, 0, (long*)&InputIndexes[5],
+        -1, -1, 255, 1, 1,
+        NULL,
+        "Mixer", "Input6Index", NULL,
     },
 };
 

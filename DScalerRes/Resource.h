@@ -199,12 +199,12 @@
 #define IDM_OSDSCREEN_SHOW              820
 #define IDM_OSDSCREEN_ACTIVATE          840
 #define IDM_END                         1032
-#define IDM_SOURCE_TUNER                1089
-#define IDM_SOURCE_COMPOSITE            1090
-#define IDM_SOURCE_SVIDEO               1091
-#define IDM_SOURCE_OTHER1               1092
-#define IDM_SOURCE_OTHER2               1093
-#define IDM_SOURCE_COMPVIASVIDEO        1094
+#define IDM_SOURCE_INPUT1               1089
+#define IDM_SOURCE_INPUT2               1090
+#define IDM_SOURCE_INPUT3               1091
+#define IDM_SOURCE_INPUT4               1092
+#define IDM_SOURCE_INPUT5               1093
+#define IDM_SOURCE_INPUT6               1094
 #define IDM_SOURCE_CCIR656_1            1095
 #define IDM_SOURCE_CCIR656_2            1096
 #define IDM_SOURCE_CCIR656_3            1097
@@ -294,7 +294,7 @@
 #define IDC_COMBO10                     1458
 #define IDC_COMBO11                     1459
 #define IDC_COMBO12                     1460
-#define IDC_COMPOSITE                   1461
+#define IDC_INPUT1                      1461
 #define IDC_CONTEXTMENU                 1462
 #define IDC_COUNTRY                     1463
 #define IDC_CPU_TYPE                    1464
@@ -528,8 +528,8 @@
 #define IDC_O_COMB                      1697
 #define IDC_O_LUMA_DEC                  1698
 #define IDC_O_LUMA_PEAK                 1699
-#define IDC_OTHER1                      1700
-#define IDC_OTHER2                      1701
+#define IDC_INPUT4                      1700
+#define IDC_INPUT5                      1701
 #define IDC_P1                          1702
 #define IDC_P2                          1703
 #define IDC_P3                          1704
@@ -659,7 +659,7 @@
 #define IDC_STATIC8                     1828
 #define IDC_STATIC_BOMBREASON           1829
 #define IDC_STILL                       1830
-#define IDC_SVIDEO                      1831
+#define IDC_INPUT2                      1831
 #define IDC_TEXT                        1832
 #define IDC_TEXT1                       1833
 #define IDC_TEXT2                       1834
@@ -709,7 +709,7 @@
 #define IDC_TSWAVEHELP                  1878
 #define IDC_TSWAVEINCOMBO               1879
 #define IDC_TSWAVEOUTCOMBO              1880
-#define IDC_TUNER                       1881
+#define IDC_INPUT3                      1881
 #define IDC_TUNERSELECT                 1882
 #define IDC_UP                          1883
 #define IDC_USE_INTERP_BOB              1884
@@ -721,6 +721,7 @@
 #define IDC_VERT_FILTER                 1890
 #define IDC_Y                           1891
 #define IDC_VBI_FPS                     1892
+#define IDC_INPUT6                      1893
 #define IDM_TAKESTREAMSNAP              1899
 #define IDM_FIRST_DEINTMETHOD           1900
 #define IDM_LAST_DEINTMETHOD            1999
@@ -805,8 +806,8 @@
 #define IDM_PLAYLIST_FIRST              2212
 #define IDM_PLAYLIST_LAST               2213
 #define IDM_PLAYLIST_SLIDESHOW          2214
-#define ID_DSHOW_VIDEOINPUT             2220
-#define ID_DSHOW_AUDIOINPUT             2221
+#define IDM_DSHOW_VIDEOINPUT             2220
+#define IDM_DSHOW_AUDIOINPUT             2221
 #define IDM_CROSSBAR_INPUT0             2222
 #define IDM_CROSSBAR_INPUT1             2223
 #define IDM_CROSSBAR_INPUT2             2224
@@ -829,7 +830,7 @@
 #define IDM_CROSSBAR_INPUT19            2240
 #define IDM_CROSSBAR_INPUT_MAX          2240
 #define IDM_RESET_STATS                 2241
-#define ID_DSHOW_RENDERERPROPERTIES     2242
+#define IDM_DSHOW_RENDERERPROPERTIES     2242
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -849,10 +850,10 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                     1
+#define _APS_3D_CONTROLS                1
 #define _APS_NEXT_RESOURCE_VALUE        188
 #define _APS_NEXT_COMMAND_VALUE         2243
-#define _APS_NEXT_CONTROL_VALUE         1893
+#define _APS_NEXT_CONTROL_VALUE         1894
 #define _APS_NEXT_SYMED_VALUE           2213
 #endif
 #endif

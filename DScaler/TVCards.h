@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.24 2001-11-29 17:30:52 adcockj Exp $
+// $Id: TVCards.h,v 1.25 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -215,7 +215,6 @@ typedef struct
 eTVCardId Card_AutoDetect();
 eTunerId Card_AutoDetectTuner(eTVCardId CardId);
 void Card_Init();
-const TCardSetup* GetCardSetup();
 const TTunerSetup* GetTunerSetup();
 void TVCard_FirstTimeSetupHardware();
 LPCSTR TVCard_AutoDetectID();

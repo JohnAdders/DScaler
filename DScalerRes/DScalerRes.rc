@@ -131,26 +131,26 @@ BEGIN
     VK_DOWN,        IDM_VT_PAGE_DOWN,       VIRTKEY, NOINVERT
     VK_ESCAPE,      IDM_RETURN_TO_WINDOW,   VIRTKEY, NOINVERT
     VK_F1,          IDM_HELP_README,        VIRTKEY, NOINVERT
-    VK_F1,          IDM_SOURCE_TUNER,       VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F1,          IDM_SOURCE_INPUT1,       VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F2,          IDM_SOURCE_COMPOSITE,   VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F2,          IDM_SOURCE_INPUT2,   VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    VK_F3,          IDM_SOURCE_SVIDEO,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F3,          IDM_SOURCE_INPUT3,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F4,          IDM_END,                VIRTKEY, ALT, NOINVERT
-    VK_F4,          IDM_SOURCE_COMPVIASVIDEO, VIRTKEY, CONTROL, ALT, 
+    VK_F4,          IDM_SOURCE_INPUT4, VIRTKEY, CONTROL, ALT, 
                                                     NOINVERT
     VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F5,          IDM_TELETEXT_KEY1,      VIRTKEY, NOINVERT
-    VK_F5,          IDM_SOURCE_OTHER1,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F5,          IDM_SOURCE_INPUT5,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F5,          IDM_AUDIO_4,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F6,          IDM_TELETEXT_KEY2,      VIRTKEY, NOINVERT
-    VK_F6,          IDM_SOURCE_OTHER2,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F6,          IDM_SOURCE_INPUT6,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F7,          IDM_TELETEXT_KEY3,      VIRTKEY, NOINVERT
@@ -452,15 +452,17 @@ BEGIN
     LTEXT           "S-Video",IDC_STATIC,6,97,34,11
     LTEXT           "Other 1",IDC_STATIC,6,115,24,11
     LTEXT           "Other 2",IDC_STATIC,6,133,24,11
-    COMBOBOX        IDC_TUNER,66,59,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT1,66,59,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_COMPOSITE,66,77,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT2,66,77,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_SVIDEO,66,95,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT3,66,95,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_OTHER1,66,113,178,45,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT4,66,113,178,45,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_OTHER2,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_INPUT5,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_INPUT6,66,149,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Reset Mixer to Initial Settings on Exit",
                     IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,88,
@@ -1025,20 +1027,12 @@ BEGIN
     BEGIN
         POPUP "Video &Input"
         BEGIN
-            MENUITEM "&Tuner\tCtrl+Alt+F1",         IDM_SOURCE_TUNER
-            MENUITEM "&Composite\tCtrl+Alt+F2",     IDM_SOURCE_COMPOSITE
-            MENUITEM "&S-Video\tCtrl+Alt+F3",       IDM_SOURCE_SVIDEO
-            MENUITEM "Co&mposite via S-Video  \tCtrl+Alt+F4", 
-                                                    IDM_SOURCE_COMPVIASVIDEO
-            MENUITEM "Other - &1\tCtrl+Alt+F5",     IDM_SOURCE_OTHER1
-            MENUITEM "Other - &2\tCtrl+Alt+F6",     IDM_SOURCE_OTHER2
-            POPUP "CC&IR"
-            BEGIN
-                MENUITEM "CCIR &1",                     IDM_SOURCE_CCIR656_1
-                MENUITEM "CCIR &2",                     IDM_SOURCE_CCIR656_2
-                MENUITEM "CCIR &3",                     IDM_SOURCE_CCIR656_3
-                MENUITEM "CCIR &4",                     IDM_SOURCE_CCIR656_4
-            END
+            MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
+            MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2
+            MENUITEM "Input &3\tCtrl+Alt+F3",       IDM_SOURCE_INPUT3
+            MENUITEM "Input &4\tCtrl+Alt+F4",       IDM_SOURCE_INPUT4
+            MENUITEM "Input &5\tCtrl+Alt+F5",       IDM_SOURCE_INPUT5
+            MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
         END
         POPUP "Video &Format"
         BEGIN
@@ -1127,11 +1121,11 @@ IDC_DSHOWSOURCEMENU MENU DISCARDABLE
 BEGIN
     POPUP "DShow"
     BEGIN
-        MENUITEM "Video input",                 ID_DSHOW_VIDEOINPUT
-        MENUITEM "Audio input",                 ID_DSHOW_AUDIOINPUT
+        MENUITEM "Video input",                 IDM_DSHOW_VIDEOINPUT
+        MENUITEM "Audio input",                 IDM_DSHOW_AUDIOINPUT
         MENUITEM SEPARATOR
         MENUITEM "Reset card",                  IDM_RESET
-        MENUITEM "Renderer properties...",      ID_DSHOW_RENDERERPROPERTIES
+        MENUITEM "Renderer properties...",      IDM_DSHOW_RENDERERPROPERTIES
     END
 END
 

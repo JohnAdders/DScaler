@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.15 2001-12-16 10:14:16 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.16 2001-12-18 13:12:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/12/16 10:14:16  laurentg
+// Calculation of used fields restored
+//
 // Revision 1.14  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -115,7 +118,6 @@
 #include "DebugLog.h"
 
 
-extern const TCardSetup TVCards[TVCARD_LASTONE];
 
 CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
     CSource(WM_BT848_GETVALUE, IDC_BT848),
@@ -256,7 +258,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
-    m_VideoSource = new CVideoSourceSetting(this, "Video Source", CBT848Card::SOURCE_COMPOSITE, 0, CBT848Card::SOURCE_CCIR656_4, IniSection);
+    m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
     m_Settings.push_back(m_VideoSource);
 
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
@@ -332,7 +334,7 @@ void CBT848Source::Start()
 void CBT848Source::Reset()
 {
     m_pBT848Card->ResetHardware(m_RiscBasePhysical);
-    m_pBT848Card->SetVideoSource((eTVCardId)m_CardType->GetValue(), (CBT848Card::eVideoSourceType)m_VideoSource->GetValue());
+    m_pBT848Card->SetVideoSource(m_VideoSource->GetValue());
     if (m_BDelay->GetValue() != 0)
     {
         // BDELAY override from .ini file
@@ -366,8 +368,7 @@ void CBT848Source::Reset()
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pBT848Card->SetGeoSize(
-                                (eTVCardId)m_CardType->GetValue(),
-                                (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
+                                m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
                                 m_CurrentY, 
@@ -378,7 +379,7 @@ void CBT848Source::Reset()
 
     /// \todo FIXME anything else to initialize here?
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
-    m_pBT848Card->SetAudioSource((eTVCardId)m_CardType->GetValue(), (eAudioInput)m_AudioSource->GetValue());
+    m_pBT848Card->SetAudioSource((eAudioInput)m_AudioSource->GetValue());
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 }
 
@@ -830,10 +831,11 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     Audio_Mute();
     SaveInputSettings();
     LoadInputSettings();
-    switch(NewValue)
+    Reset();
+
+    // set up sound
+    if(m_pBT848Card->IsInputATuner(NewValue))
     {
-    case CBT848Card::SOURCE_TUNER:
-        Reset();
         if(m_pBT848Card->HasMSP())
         {
             m_AudioSource->SetValue(AUDIOINPUT_RADIO);
@@ -843,25 +845,11 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
             m_AudioSource->SetValue(AUDIOINPUT_TUNER);
         }
         Channel_SetCurrent();
-        break;
-
-    // MAE 13 Dec 2000 for CCIR656 Digital input
-    case CBT848Card::SOURCE_CCIR656_1:
-    case CBT848Card::SOURCE_CCIR656_2:
-    case CBT848Card::SOURCE_CCIR656_3:
-    case CBT848Card::SOURCE_CCIR656_4:
-    case CBT848Card::SOURCE_COMPOSITE:
-    case CBT848Card::SOURCE_SVIDEO:
-    case CBT848Card::SOURCE_OTHER1:
-    case CBT848Card::SOURCE_OTHER2:
-    case CBT848Card::SOURCE_COMPVIASVIDEO:
-        Reset();
-        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
-        break;
-    default:
-        break;
     }
-
+    else
+    {
+        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
+    }
     Audio_Unmute();
     Start_Capture();
 }
@@ -889,8 +877,7 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
     Stop_Capture();
     m_CurrentX = NewValue;
     m_pBT848Card->SetGeoSize(
-                                (eTVCardId)m_CardType->GetValue(),
-                                (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
+                                m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
                                 m_CurrentY, 
@@ -905,8 +892,7 @@ void CBT848Source::HDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     m_pBT848Card->SetGeoSize(
-                                (eTVCardId)m_CardType->GetValue(),
-                                (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
+                                m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
                                 m_CurrentY, 
@@ -921,8 +907,7 @@ void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     m_pBT848Card->SetGeoSize(
-                                (eTVCardId)m_CardType->GetValue(),
-                                (CBT848Card::eVideoSourceType)m_VideoSource->GetValue(), 
+                                m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
                                 m_CurrentX, 
                                 m_CurrentY, 
@@ -1017,7 +1002,7 @@ void CBT848Source::TunerTypeOnChange(long TunerId, long OldValue)
 
 BOOL CBT848Source::IsInTunerMode()
 {
-    return (m_VideoSource->GetValue() == CBT848Card::SOURCE_TUNER);
+    return m_pBT848Card->IsInputATuner(m_VideoSource->GetValue());
 }
 
 
@@ -1032,7 +1017,7 @@ void CBT848Source::SetupCard()
         // then display the hardware setup dialog
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
     }
-    m_pBT848Card->CardSpecificInit((eTVCardId)m_CardType->GetValue());
+    m_pBT848Card->SetCardType(m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
     m_pBT848Card->InitAudio();
 }

@@ -2652,6 +2652,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\SettingConfig.cpp">
+			</File>
+			<File
+				RelativePath=".\SettingGroup.cpp">
+			</File>
+			<File
 				RelativePath="SettingHolder.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -2671,6 +2677,18 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SettingKey.cpp">
+			</File>
+			<File
+				RelativePath=".\SettingLimiter.cpp">
+			</File>
+			<File
+				RelativePath=".\SettingObject.cpp">
+			</File>
+			<File
+				RelativePath=".\SettingRepository.cpp">
 			</File>
 			<File
 				RelativePath="Settings.cpp">
@@ -2734,6 +2752,9 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SettingValue.cpp">
 			</File>
 			<File
 				RelativePath="dshowsource\SingleCrossbar.cpp">
@@ -2925,6 +2946,9 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SubItemCheckboxListCtrl.cpp">
 			</File>
 			<File
 				RelativePath="TDA9873AudioDecoder.cpp">
@@ -3137,6 +3161,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\TreeSettingsAssociations.cpp">
+			</File>
+			<File
 				RelativePath="TreeSettingsDlg.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3219,6 +3246,9 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\TreeSettingsSettingConfig.cpp">
 			</File>
 			<File
 				RelativePath="TSOptionsDlg.cpp">
@@ -3928,7 +3958,25 @@
 				RelativePath="Setting.h">
 			</File>
 			<File
+				RelativePath=".\SettingConfig.h">
+			</File>
+			<File
+				RelativePath=".\SettingGroup.h">
+			</File>
+			<File
 				RelativePath="SettingHolder.h">
+			</File>
+			<File
+				RelativePath=".\SettingKey.h">
+			</File>
+			<File
+				RelativePath=".\SettingLimiter.h">
+			</File>
+			<File
+				RelativePath=".\SettingObject.h">
+			</File>
+			<File
+				RelativePath=".\SettingRepository.h">
 			</File>
 			<File
 				RelativePath="settings.h">
@@ -3938,6 +3986,9 @@
 			</File>
 			<File
 				RelativePath="SettingsPerChannel.h">
+			</File>
+			<File
+				RelativePath=".\SettingValue.h">
 			</File>
 			<File
 				RelativePath="dshowsource\SingleCrossbar.h">
@@ -3973,6 +4024,9 @@
 				RelativePath="StillSource.h">
 			</File>
 			<File
+				RelativePath=".\SubItemCheckboxListCtrl.h">
+			</File>
+			<File
 				RelativePath="TDA9873AudioDecoder.h">
 			</File>
 			<File
@@ -4003,6 +4057,9 @@
 				RelativePath="ToolbarWindow.h">
 			</File>
 			<File
+				RelativePath=".\TreeSettingsAssociations.h">
+			</File>
+			<File
 				RelativePath="TreeSettingsDlg.h">
 			</File>
 			<File
@@ -4013,6 +4070,9 @@
 			</File>
 			<File
 				RelativePath="TreeSettingsPage.h">
+			</File>
+			<File
+				RelativePath=".\TreeSettingsSettingConfig.h">
 			</File>
 			<File
 				RelativePath="TSOptionsDlg.h">

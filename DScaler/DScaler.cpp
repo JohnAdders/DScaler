@@ -1621,16 +1621,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			PAINTSTRUCT sPaint;
 			BeginPaint(hWnd, &sPaint);
 			PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
-			OSD_Redraw(hWnd, sPaint.hdc);
 			if(VTState != VT_OFF)
 			{
 				VT_Redraw(hWnd, sPaint.hdc);
 			}
+            else
+            {
+    			OSD_Redraw(hWnd, sPaint.hdc);
+            }
 			EndPaint(hWnd, &sPaint);
-			// MRS 2-23-01 - Neither of these 2 lines should be needed
-			// Why are they here?  Removed to see if they clear up flashing issues.
-            //ValidateRect(hWnd, &sPaint.rcPaint); 
-			//StatusBar_Repaint(); 
 		}
 		break;
 	

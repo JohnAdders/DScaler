@@ -53,6 +53,7 @@
 #include "ProgramList.h"
 #include "Other.h"
 #include "VideoSettings.h"
+#include "VBI.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -992,8 +993,7 @@ void BT848_CreateRiscCode(int nFlags)
 		*(pRiscCode++) = 0;
 
 		// Create VBI code of required
-		if (nField % 2 == 0 && nFlags & BT848_CAP_CTL_CAPTURE_VBI_EVEN ||
-			nField % 2 == 1 && nFlags & BT848_CAP_CTL_CAPTURE_VBI_ODD)
+		if (Capture_VBI)
 		{
 			*(pRiscCode++) = (DWORD) (BT848_RISC_SYNC | BT848_FIFO_STATUS_FM1);
 			*(pRiscCode++) = 0;

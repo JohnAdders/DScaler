@@ -440,7 +440,7 @@ void VBI_decode_vt(unsigned char *dat)
 				{
 					if(VTState != VT_OFF && VBI_CURRENT_PAGE == VTDialog.Page - 100)
 					{
-						PostMessage(hWnd, IDM_FAST_REPAINT, 0, 0);
+                        InvalidateRect(hWnd, NULL);
 					}
 					VBI_CURRENT_PAGE = -1;
 				}
@@ -459,7 +459,7 @@ void VBI_decode_vt(unsigned char *dat)
 		StorePacket30(dat);
 		if(VTState != VT_OFF)
 		{
-			PostMessage(hWnd, IDM_FAST_REPAINT, 0, 0);
+            InvalidateRect(hWnd, NULL);
 		}
 		break;
 	case 31:

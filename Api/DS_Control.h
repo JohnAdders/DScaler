@@ -672,5 +672,22 @@ typedef enum
 #define WM_MIXERDEV_SETVALUE		(WM_USER + 125)
 #define WM_MIXERDEV_CHANGEVALUE	    (WM_USER + 225)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FieldTiming.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	AUTOFORMATDETECT = 0,
+	FIFTY_HZ_FORMAT,
+	SIXTY_HZ_FORMAT,
+	FORMATCHANGETHRESHOLD,
+	TIMING_SETTING_LASTONE,
+} TIMING_SETTING;
+
+#define WM_TIMING_GETVALUE			(WM_USER + 26)
+#define WM_TIMING_SETVALUE			(WM_USER + 126)
+#define WM_TIMING_CHANGEVALUE	    (WM_USER + 226)
+
 
 #endif

@@ -22,6 +22,9 @@
 // 09 Jan 2001   John Adcock           Split out into new file
 //                                     Changed functions to use DEINTERLACE_INFO
 //
+// 17 Jun 2001   John Adcock           Added autoformat detection based on input
+//                                     frequency
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -29,6 +32,8 @@
 #include "BT848.h"
 #include "DebugLog.h"
 #include "Deinterlace.h"
+#include "DScaler.h"
+#include "resource.h"
 
 LARGE_INTEGER TimerFrequency;
 double RunningAverageCounterTicks;
@@ -37,11 +42,16 @@ LARGE_INTEGER LastFieldTime;
 LARGE_INTEGER CurrentFieldTime;
 LARGE_INTEGER LastFlipTime;
 LARGE_INTEGER CurrentFlipTime;
+LARGE_INTEGER LastTenFieldTime;
 BOOL bIsPAL;
 BOOL FlipAdjust;
 int nDroppedFields = 0;
 int nUsedFields = 0;
 double Weight = 0.005;
+BOOL bDoAutoFormatDetect = TRUE;
+long FiftyHzFormat = FORMAT_PAL_BDGHI;
+long SixtyHzFormat = FORMAT_NTSC;
+long FormatChangeThreshold = 2;
 
 void Timing_Setup()
 {
@@ -274,6 +284,9 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
 {
+	LARGE_INTEGER CurrentTime;
+	static long RepeatCount = 0;
+
 	if(pInfo->bDoAccurateFlips && IsFilmMode())
 	{
 		Timing_WaitForNextFieldAccurate(pInfo);
@@ -286,6 +299,63 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
 	{
 		nUsedFields++;
 	}
+	// auto input detect
+	if(bDoAutoFormatDetect == TRUE)
+	{
+		if(pInfo->CurrentFrame == 0 && pInfo->IsOdd == TRUE)
+		{
+			QueryPerformanceCounter(&CurrentTime);
+			if(LastTenFieldTime.QuadPart != 0)
+			{
+				long TenFieldTime;
+				TenFieldTime = MulDiv((int)(CurrentTime.QuadPart - LastTenFieldTime.QuadPart), 1000, (int)(TimerFrequency.QuadPart));
+
+				// If we are not on a 50Hz mode and we get 50hz timings then flip
+				// to 50hz mode
+				if(!(BT848_GetTVFormat()->Is25fps) &&
+					TenFieldTime >= 195 && TenFieldTime <= 205)
+				{
+					++RepeatCount;
+					if(RepeatCount > FormatChangeThreshold)
+					{
+						PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + FiftyHzFormat, 0);
+						LOG("Went to 50Hz mode - Last Ten Count %d", TenFieldTime);
+					}
+				}
+				// If we are not on a 60Hz mode and we get 60hz timings then flip
+				// to 60hz mode, however this is not what we seem to get when playing
+				// back 60Hz stuff when in PAL
+				else if(BT848_GetTVFormat()->Is25fps && 
+					TenFieldTime >= 160 && TenFieldTime <= 172)
+				{
+					++RepeatCount;
+					if(RepeatCount > FormatChangeThreshold)
+					{
+						PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
+						LOG("Went to 60Hz mode - Last Ten Count %d", TenFieldTime);
+					}
+				}
+				// If we are not on a 60Hz mode and we get 60hz timings then flip
+				// to 60hz mode, in my tests I get 334 come back as the timings
+				// when playing NTSC in PAL mode so this check is also needed
+				else if(BT848_GetTVFormat()->Is25fps && 
+					TenFieldTime >= 330 && TenFieldTime <= 340)
+				{
+					++RepeatCount;
+					if(RepeatCount > FormatChangeThreshold)
+					{
+						PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
+						LOG("Went to 60Hz mode - Last Ten Count %d", TenFieldTime);
+					}
+				}
+				else
+				{
+					RepeatCount = 0;
+				}
+			}
+			LastTenFieldTime.QuadPart = CurrentTime.QuadPart;
+		}
+	}
 }
 
 void Timing_Reset()
@@ -294,6 +364,7 @@ void Timing_Reset()
 	CurrentFieldTime.QuadPart = 0;
 	LastFlipTime.QuadPart = 0;
 	CurrentFlipTime.QuadPart = 0;
+	LastTenFieldTime.QuadPart = 0;
 }
 
 void Timing_WaitForTimeToFlip(DEINTERLACE_INFO* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread)
@@ -307,8 +378,6 @@ void Timing_WaitForTimeToFlip(DEINTERLACE_INFO* pInfo, DEINTERLACE_METHOD* Curre
 		else
 		{
 			LONGLONG TicksToWait;
-			//int NewPos;
-			//int OldPos = BT848_GetRISCPosAsInt();
 
 			// work out the required ticks between flips
 			if(bIsPAL)
@@ -322,15 +391,6 @@ void Timing_WaitForTimeToFlip(DEINTERLACE_INFO* pInfo, DEINTERLACE_METHOD* Curre
 			QueryPerformanceCounter(&CurrentFlipTime);
 			while(!(*bStopThread) && (CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) < TicksToWait)
 			{
-				//NewPos = BT848_GetRISCPosAsInt();
-				//if((NewPos + 9) % 10 == OldPos)
-				//{
-				//	if((NewPos & 1) == 0)
-				//	{
-				//		UpdateRunningAverage(&CurrentFlipTime);
-				//	}
-				//	OldPos = NewPos;
-				//}
 				QueryPerformanceCounter(&CurrentFlipTime);
 			}
 			LastFlipTime.QuadPart = CurrentFlipTime.QuadPart;
@@ -361,4 +421,71 @@ int Timing_GetUsedFields()
 void Timing_ResetUsedFields()
 {
 	nUsedFields = 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+// Start of Settings related code
+/////////////////////////////////////////////////////////////////////////////
+SETTING TimingSettings[TIMING_SETTING_LASTONE] =
+{
+	{
+		"Auto Format Detect", ONOFF, 0, (long*)&bDoAutoFormatDetect,
+		TRUE, 0, 1, 1, 1,
+		NULL,
+		"Timing", "DoAutoFormatDetect", NULL,
+	},
+	{
+		"50Hz Format", ONOFF, 0, (long*)&FiftyHzFormat,
+		FORMAT_PAL_BDGHI, FORMAT_PAL_BDGHI, FORMAT_PAL60, 1, 1,
+		NULL,
+		"Timing", "50Hz", NULL,
+	},
+	{
+		"60Hz Format", ONOFF, 0, (long*)&SixtyHzFormat,
+		FORMAT_NTSC, FORMAT_PAL_BDGHI, FORMAT_PAL60, 1, 1,
+		NULL,
+		"Timing", "60Hz", NULL,
+	},
+	{
+		"Format Change Threshold", ONOFF, 0, (long*)&FormatChangeThreshold,
+		2, 0, 50, 1, 1,
+		NULL,
+		"Timing", "FormatChangeThreshold", NULL,
+	},
+};
+
+SETTING* Timing_GetSetting(TIMING_SETTING Setting)
+{
+	if(Setting > -1 && Setting < TIMING_SETTING_LASTONE)
+	{
+		return &(TimingSettings[Setting]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void Timing_ReadSettingsFromIni()
+{
+	int i;
+	for(i = 0; i < TIMING_SETTING_LASTONE; i++)
+	{
+		Setting_ReadFromIni(&(TimingSettings[i]));
+	}
+}
+
+void Timing_WriteSettingsToIni()
+{
+	int i;
+	for(i = 0; i < TIMING_SETTING_LASTONE; i++)
+	{
+		Setting_WriteToIni(&(TimingSettings[i]));
+	}
+}
+
+void Timing_SetMenu(HMENU hMenu)
+{
+	CheckMenuItem(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect?MF_CHECKED:MF_UNCHECKED);
 }

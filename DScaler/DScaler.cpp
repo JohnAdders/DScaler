@@ -90,6 +90,7 @@
 #include "VBI_CCdecode.h"
 #include "VBI_VideoText.h"
 #include "Deinterlace.h"
+#include "FieldTiming.h"
 #include "DebugLog.h"
 
 HWND hWnd = NULL;
@@ -1071,6 +1072,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), 
 				!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));
 			Start_Capture();
+			break;
+
+		case IDM_AUTO_FORMAT:
+			Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
+				!Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
 			break;
 
 		case IDM_CAPTURE_PAUSE:
@@ -2182,6 +2188,7 @@ void SetMenuAnalog()
 	Channels_SetMenu(hMenu);
 	OSD_SetMenu(hMenu);
 	FD_Common_SetMenu(hMenu);
+	Timing_SetMenu(hMenu);
 }
 
 HMENU GetFiltersSubmenu()

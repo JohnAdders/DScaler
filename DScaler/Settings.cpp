@@ -72,6 +72,7 @@
 #include "TVCards.h"
 #include "VideoSettings.h"
 #include "Filter.h"
+#include "FieldTiming.h"
 
 char szIniFile[MAX_PATH] = "DScaler.ini";
 
@@ -121,6 +122,7 @@ void LoadSettingsFromIni()
 	OSD_ReadSettingsFromIni();
 	VBI_ReadSettingsFromIni();
 	MixerDev_ReadSettingsFromIni();
+	Timing_ReadSettingsFromIni();
 
 	GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, szIniFile);
 	DebugLogEnabled = GetPrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
@@ -201,6 +203,9 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_MIXERDEV_GETVALUE:		
 			RetVal = Setting_GetValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam));
 			break;
+		case WM_TIMING_GETVALUE:		
+			RetVal = Setting_GetValue(Timing_GetSetting((TIMING_SETTING)wParam));
+			break;
 
 		case WM_ASPECT_SETVALUE:
 			Setting_SetValue(Aspect_GetSetting((ASPECT_SETTING)wParam), lParam);
@@ -240,6 +245,9 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 			break;
 		case WM_MIXERDEV_SETVALUE:		
 			Setting_SetValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam), lParam);
+			break;
+		case WM_TIMING_SETVALUE:		
+			Setting_SetValue(Timing_GetSetting((TIMING_SETTING)wParam), lParam);
 			break;
 
 		case WM_ASPECT_CHANGEVALUE:
@@ -281,6 +289,9 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 		case WM_MIXERDEV_CHANGEVALUE:		
 			Setting_ChangeValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam), (eCHANGEVALUE)lParam);
 			break;
+		case WM_TIMING_CHANGEVALUE:		
+			Setting_ChangeValue(Timing_GetSetting((TIMING_SETTING)wParam), (eCHANGEVALUE)lParam);
+			break;
 		
 		default:
 			*bDone = FALSE;
@@ -310,6 +321,7 @@ void WriteSettingsToIni()
 	Filter_WriteSettingsToIni();
 	VBI_WriteSettingsToIni();
 	MixerDev_WriteSettingsToIni();
+	Timing_WriteSettingsToIni();
 
 	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, szIniFile);
 	WritePrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);

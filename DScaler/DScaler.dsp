@@ -716,6 +716,10 @@ SOURCE=.\TSOptionsDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TunerID.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TVFormats.cpp
 # End Source File
 # Begin Source File

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- Old Game Method</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+Gradual Noise Filter
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3">
+<!-- #BeginEditable "Text" -->
+<p>This filter cleans up the picture, averaging out visual noise between frames.</p>
+
+<p>When colors change just a little, the filter decides that it's probably noise,
+and only slightly changes the color from the previous frame. As the change in color
+increases, the filter becomes more and more convinced that the change is due to motion
+rather than noise -- and the new color gets more and more weight.</p>
+
+<HR>
+<p><b><font face="Arial" size="4" font color="#993300">Noise Reduction</font></b></p>
+
+<p>There's just one setting -- <font color="#993300">Noise Reduction</font>.</p>
+
+<P>The higher you set it, the more you'll cut down on noise -- but the more blurring you will see.
+In general, reasonable settings range from 10 (to soften the occasional speckle without
+artifacts) to 80 (to average out really heavy noise at the cost of bad
+blurring). I prefer somewhere between 25 (to reduce noise with minimal artifacts) and 45
+(for better reduction, but visible blurring)
+At extremely high <font color="#993300">Noise Reduction</font> values, you'll start to see artifactual vertical lines.</P>
+
+<p>To choose a setting for it, turn on just about any sitcom -- anything with moving faces. Increase
+<font color="#993300">Noise Reduction</font> until the suppression of noise doesn't
+seem worth the blur.</p>
+
+<p>(Faces are a good place to check for blur because we're especially sensitive
+to distortion there.)</p>
+
+
+
+<HR>
+<p><b><font face="Arial" size="4">Fun With Noise<font></b></p>
+
+<p><b><font face="Arial" size="3">Should I use a noise filter?</font></b></p>
+
+<p>That depends on what you're watching. With sports or nature shows --
+really anything with lots of moving low contrast texture -- you
+should turn the noise filter off.  That's
+because the filters are fooled by grass fields, which to a dumb
+computer look just like noise.</p>
+
+<p>Otherwise, you generally should have a noise filter running.</p>
+
+<p><b><font face="Arial" size="3">How much noise reduction should I use?</font></b></p>
+
+<P>Let your eyes be the judge. I like to keep the settings pretty
+low -- Blurred faces look worse than a little static.</p>
+
+<P>Surprisingly, small amounts of color variation can sometimes improve an image.  By
+switching back and forth between colors, the picture is able to give
+the impression of a color somewhere in between them. Also, noise can
+break up artifactual patterns in the picture, making it easier for you to ignore
+the errors.</p>
+
+<P>With that in mind, the Gradual Noise Filter tries to preserve a
+small amount of color variation. As a result, it will never give you a completely
+stable picture.</P>
+
+<p><b><font face="Arial" size="3">Which noise filter should I use?</font></b></p>
+
+<P>If your computer is older than a Pentium 3, Athlon, or some recent
+Celerons, the Gradual Noise Filter won't show up in the menu -- because
+it can't run.  In that case, you should
+use the <A HREF="Noise.htm">Temporal Noise Filter</A>, which works fine on
+older computers. Even if you can run either filter, Temporal Noise is slightly
+faster -- It uses roughly 150MHz as opposed to the Gradual Noise
+Filter's 175MHz.</P>
+
+<P>If you can spare the CPU time, the choice is a matter of taste.  The
+Temporal Noise Filter will give you a more solid picture.  The
+Gradual Noise Filter tends to have less speckling and posterization
+and better color depth. Watch both and choose your favorite.</p>
+
+<p>Don't run the Temporal Noise Filter and the Gradual Noise Filter
+at the same time. It looks awful.</p>
+
+
+<!-- #EndEditable -->
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+<!-- #EndTemplate -->
+</body>
+</html>
+

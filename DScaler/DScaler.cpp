@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.276 2003-01-07 23:27:02 laurentg Exp $
+// $Id: DScaler.cpp,v 1.277 2003-01-08 20:22:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.276  2003/01/07 23:27:02  laurentg
+// New overscan settings
+//
 // Revision 1.275  2003/01/07 13:40:59  robmuller
 // Added Help menu entry to the popup menu.
 //
@@ -2895,22 +2898,30 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 ShowText(hWnd, "No Overscan Control");
             }
-			// TO BE CHANGED (LG) : show the value of all overscans
-            else if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
-            {
-                pSetting->OSDShow();
-            }
-            else if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
-            {
-                pSetting->OSDShow();
-            }
-            else if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
-            {
-                pSetting->OSDShow();
-            }
-            else if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
-            {
-                pSetting->OSDShow();
+            else
+			{
+				strcpy(Text, "Overscan");
+				if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
+				{
+//					sprintf(&Text[strlen(Text)], "\nTop %u", pSetting->GetValue());
+					sprintf(&Text[strlen(Text)], " T %u", pSetting->GetValue());
+				}
+				if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
+				{
+//					sprintf(&Text[strlen(Text)], "\nBottom %u", pSetting->GetValue());
+					sprintf(&Text[strlen(Text)], " B %u", pSetting->GetValue());
+				}
+				if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
+				{
+//					sprintf(&Text[strlen(Text)], "\nLeft %u", pSetting->GetValue());
+					sprintf(&Text[strlen(Text)], " L %u", pSetting->GetValue());
+				}
+				if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
+				{
+//					sprintf(&Text[strlen(Text)], "\nRight %u", pSetting->GetValue());
+					sprintf(&Text[strlen(Text)], " R %u", pSetting->GetValue());
+				}
+				ShowText(hWnd, Text);
             }
             break;
 

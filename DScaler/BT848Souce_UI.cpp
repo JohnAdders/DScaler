@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.56 2002-10-07 22:31:27 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.57 2002-10-11 21:42:29 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/10/07 22:31:27  kooiman
+// Fixed audio initialization.
+//
 // Revision 1.55  2002/10/07 20:31:04  kooiman
 // Fixed autodetect bugs.
 //
@@ -1116,10 +1119,18 @@ void CBT848Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO, TRUE);
     CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
 
-    CheckMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, m_UseInputPin1->GetValue());
+    if (m_pBT848Card->GetAudioDecoderType() == CAudioDecoder::AUDIODECODERTYPE_MSP34x0)
+    {
+        EnableMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, TRUE);
+        CheckMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, m_UseInputPin1->GetValue());
+    }
+    else
+    {
+        EnableMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, FALSE);
+    }
 
     // Why does a pop-up menu item don't have an own ID?
-	hBTMenu = GetSubMenu(m_hMenu, 0);
+    hBTMenu = GetSubMenu(m_hMenu, 0);
     for (i = 0; i < GetMenuItemCount(hBTMenu); i++)
     {
         if (GetMenuItemID(GetSubMenu(hBTMenu, i), 0) == IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT)

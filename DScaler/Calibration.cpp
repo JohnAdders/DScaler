@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.79 2003-01-30 22:32:39 laurentg Exp $
+// $Id: Calibration.cpp,v 1.80 2003-05-26 22:04:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2003/01/30 22:32:39  laurentg
+// Restriction to maximum range for the settings deleted
+//
 // Revision 1.78  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -1064,7 +1067,7 @@ void CCalibration::Start(eTypeCalibration type)
     case CAL_AUTO_COLOR:
         initial_step = 12;
         nb_steps = 12;
-        if (m_Saturation_U != NULL && m_Hue != NULL)
+        if (m_Saturation_U != NULL)
         {
             OkToStart = TRUE;
             m_Saturation_U->AdjustDefault();
@@ -1072,13 +1075,16 @@ void CCalibration::Start(eTypeCalibration type)
 			{
 	            m_Saturation_V->AdjustDefault();
 			}
-            m_Hue->AdjustDefault();
+			if (m_Hue != NULL)
+			{
+	            m_Hue->AdjustDefault();
+			}
         }
         break;
     case CAL_AUTO_FULL:
         initial_step = 1;
         nb_steps = 23;
-        if (m_Brightness != NULL && m_Contrast != NULL && m_Saturation_U != NULL && m_Hue != NULL)
+        if (m_Brightness != NULL && m_Contrast != NULL && m_Saturation_U != NULL)
         {
             OkToStart = TRUE;
             m_Brightness->AdjustDefault();
@@ -1088,7 +1094,10 @@ void CCalibration::Start(eTypeCalibration type)
 			{
 	            m_Saturation_V->AdjustDefault();
 			}
-            m_Hue->AdjustDefault();
+			if (m_Hue != NULL)
+			{
+	            m_Hue->AdjustDefault();
+			}
         }
         break;
     case CAL_MANUAL:
@@ -1432,6 +1441,11 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 18:
+        if (m_Saturation_V == NULL)
+        {
+            current_step += 2;
+            break;
+        }
         m_Saturation_V->SetFullRange();
         if (step_init(ADJ_SATURATION_V, m_Saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
@@ -1453,6 +1467,11 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 20:
+        if (m_Hue == NULL)
+        {
+            current_step += 2;
+            break;
+        }
         m_Hue->SetRange(30);
         if (step_init(ADJ_HUE, m_Hue, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
@@ -1501,16 +1520,23 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 		{
 			nb2 = 1;
 		}
-        if (m_Hue->GetResult(&mask, &min, &max) > 0)
-        {
-            m_Hue->SetRange(mask);
-        }
-        else
-        {
-            m_Hue->SetRange(0);
-        }
-		free(mask);
-        nb3 = m_Hue->GetRange(NULL, &min, &max);
+		if (m_Hue != NULL)
+		{
+			if (m_Hue->GetResult(&mask, &min, &max) > 0)
+			{
+				m_Hue->SetRange(mask);
+			}
+			else
+			{
+				m_Hue->SetRange(0);
+			}
+			free(mask);
+			nb3 = m_Hue->GetRange(NULL, &min, &max);
+		}
+		else
+		{
+			nb3 = 1;
+		}
         if ((nb1 == 1) && (nb2 == 1) && (nb3 == 1))
         {
             current_step += 2;

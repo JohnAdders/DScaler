@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.83 2003-04-26 19:39:10 laurentg Exp $
+// $Id: OSD.cpp,v 1.84 2003-05-26 22:04:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2003/04/26 19:39:10  laurentg
+// New character string settings
+//
 // Revision 1.82  2003/03/09 19:46:26  laurentg
 // Updated field statistics
 //
@@ -1867,27 +1870,35 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
             }
+            pSetting = pSource->GetHue();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+            }
+            pSetting = pSource->GetSaturation();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Color : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            }
             pSetting = pSource->GetSaturationU();
             if(pSetting != NULL)
             {
                 sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+                OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
             }
             pSetting = pSource->GetSaturationV();
             if(pSetting != NULL)
             {
                 sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-                OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-            }
-            pSetting = pSource->GetHue();
-            if(pSetting != NULL)
-            {
-                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
             }
         }
         else
         {
+			nLine = 8;
+
             // do brightness
             pSetting = pSource->GetBrightness();
             if(pSetting != NULL)
@@ -1908,13 +1919,9 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
-            }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
+	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
 
-            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
 
             // do Contrast
             pSetting = pSource->GetContrast();
@@ -1936,12 +1943,35 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
+	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
-            else
+
+
+            // do Color
+            pSetting = pSource->GetSaturation();
+            if(pSetting != NULL)
             {
-                strcpy(szInfo, "Not Supported on this Source");
+                sprintf (szInfo, "Color : %03u", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 12)
+                    || (pCalibration->GetCurrentStep() == 13)
+                    || (pCalibration->GetCurrentStep() == 14)
+                    || (pCalibration->GetCurrentStep() == 15)
+                    || (pCalibration->GetCurrentStep() == 16)
+                    || (pCalibration->GetCurrentStep() == 17)
+                    || (pCalibration->GetCurrentStep() == 18)
+                    || (pCalibration->GetCurrentStep() == 19)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
+	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
-            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
 
 
             // do Color U
@@ -1963,12 +1993,8 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
+	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
 
 
             // do Color V
@@ -1990,12 +2016,8 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
+	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
 
             // do Hue
             pSetting = pSource->GetHue();
@@ -2014,12 +2036,8 @@ static void OSD_RefreshCalibrationScreen(double Size)
                 {
                     Color = -1;
                 }
+	            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
-            else
-            {
-                strcpy(szInfo, "Not Supported on this Source");
-            }
-            OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
         }
     }
 
@@ -2060,15 +2078,13 @@ static void OSD_RefreshCalibrationScreen(double Size)
             case 13:
             case 14:
             case 15:
-                strcpy(szInfo, "Adjusting Saturation U ...");
-                break;
             case 16:
             case 17:
             case 18:
             case 19:
-                strcpy(szInfo, "Adjusting Saturation V ...");
+                strcpy(szInfo, "Adjusting Color ...");
                 break;
-            case 20:
+              case 20:
             case 21:
                 strcpy(szInfo, "Adjusting Hue ...");
                 break;

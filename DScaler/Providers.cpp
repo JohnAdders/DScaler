@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.59 2003-02-22 16:45:02 tobbej Exp $
+// $Id: Providers.cpp,v 1.60 2003-03-25 00:02:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2003/02/22 16:45:02  tobbej
+// added a new open file dialog that allows entering urls
+//
 // Revision 1.58  2003/02/05 19:39:49  tobbej
 // renamed some functions
 //
@@ -357,6 +360,21 @@ int Providers_Load(HMENU hMenu)
         delete HardwareDriver;
         HardwareDriver = NULL;
     }
+
+#ifdef WANT_DSHOW_SUPPORT
+    DSProvider = new CDSProvider();
+    for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
+    {
+        Source = new TSource;
+        Source->Name = DSProvider->GetSourceName(i);
+        Source->Name += " (DShow)";
+        Source->Object = DSProvider->GetSource(i);
+        Source->DisplayInMenu = TRUE;
+        Sources.push_back(Source);
+        DSProvider->GetSource(i)->Mute();
+    }
+#endif
+
     StillProvider = new CStillProvider();
     for(i = 0; i < StillProvider->GetNumberOfSources(); ++i)
     {
@@ -373,19 +391,6 @@ int Providers_Load(HMENU hMenu)
         Source->DisplayInMenu = TRUE;
         Sources.push_back(Source);
     }
-
-#ifdef WANT_DSHOW_SUPPORT
-    DSProvider = new CDSProvider();
-    for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
-    {
-        Source = new TSource;
-        Source->Name = DSProvider->GetSourceName(i);
-        Source->Object = DSProvider->GetSource(i);
-        Source->DisplayInMenu = TRUE;
-        Sources.push_back(Source);
-        DSProvider->GetSource(i)->Mute();
-    }
-#endif
 
     DefaultSource = Providers_GetIntroSource();
     if (!DefaultSource || !DefaultSource->IsAccessAllowed())

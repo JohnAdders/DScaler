@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.346 2003-08-24 11:22:28 atnak Exp $
+// $Id: DScaler.cpp,v 1.347 2003-08-25 04:04:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.346  2003/08/24 11:22:28  atnak
+// Patched Overlay Stop/Start for indexed Start/Stop Capture states
+//
 // Revision 1.345  2003/08/16 18:40:43  laurentg
 // Disable access to the audio mixer dialog box for the movie file source
 // Display the audio mixer dialog box at first setup of a DShow capture source
@@ -4973,7 +4976,6 @@ void MainWndOnInitBT(HWND hWnd)
         }
 
         AddSplashTextLine("Setup Mixer");
-        Mixer_Init();
 
         AddSplashTextLine("Start Timers");
         if(bIsFullScreen == FALSE && bDisplayStatusBar == TRUE)
@@ -5077,7 +5079,8 @@ void MainWndOnCreate(HWND hWnd)
 
     VBI_Init(); 
     OSD_Init();
-    
+    Mixer_Init();
+
     Load_Program_List_ASCII();
 
     AddSplashTextLine("System Analysis");

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.66 2003-08-16 18:40:43 laurentg Exp $
+// $Id: Providers.cpp,v 1.67 2003-08-25 04:04:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2003/08/16 18:40:43  laurentg
+// Disable access to the audio mixer dialog box for the movie file source
+// Display the audio mixer dialog box at first setup of a DShow capture source
+//
 // Revision 1.65  2003/08/16 09:20:57  laurentg
 // Disable access to audio mixer dialog box when the current source is a still
 //
@@ -340,9 +344,8 @@ int Providers_Load(HMENU hMenu)
 					"If you do not wish to let DScaler use the system mixer, leave "
 					"the \"Use the system mixer\" option unchecked.  If unsure, it "
 					"is recommended you use the system mixer.", "Next...", MB_OK);
-				Mixer_Init();
-				Mixer_SetupDlg(hWnd);
-				Mixer_Exit();
+
+                Mixer_SetupDlg(hWnd);
 			}
 
             // Mute the audio of each source
@@ -383,10 +386,9 @@ int Providers_Load(HMENU hMenu)
 					"If you do not wish to let DScaler use the system mixer, leave "
 					"the \"Use the system mixer\" option unchecked.  If unsure, it "
 					"is recommended you use the system mixer.", "Next...", MB_OK);
-				Mixer_Init();
-				Mixer_SetupDlg(hWnd);
-				Mixer_Exit();
-			}
+
+                Mixer_SetupDlg(hWnd);
+            }
 
             // Mute the audio of each source
             CX2388xProvider->GetSource(i)->Mute();
@@ -426,9 +428,8 @@ int Providers_Load(HMENU hMenu)
 					"If you do not wish to let DScaler use the system mixer, leave "
 					"the \"Use the system mixer\" option unchecked.  If unsure, it "
 					"is recommended you use the system mixer.", "Next...", MB_OK);
-				Mixer_Init();
-				Mixer_SetupDlg(hWnd);
-				Mixer_Exit();
+
+                Mixer_SetupDlg(hWnd);
 			}
 
             // Mute the audio of each source
@@ -495,9 +496,8 @@ int Providers_Load(HMENU hMenu)
 				"If you do not wish to let DScaler use the system mixer, leave "
 				"the \"Use the system mixer\" option unchecked.  If unsure, it "
 				"is recommended you use the system mixer.", "Next...", MB_OK);
-			Mixer_Init();
-			Mixer_SetupDlg(hWnd);
-			Mixer_Exit();
+
+            Mixer_SetupDlg(hWnd);
 		}
 
         DSProvider->GetSource(i)->Mute();

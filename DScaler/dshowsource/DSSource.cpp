@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.43 2002-09-28 13:36:15 kooiman Exp $
+// $Id: DSSource.cpp,v 1.44 2002-09-28 14:32:47 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/09/28 13:36:15  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.42  2002/09/26 10:35:34  kooiman
 // Use new event code.
 //
@@ -1124,7 +1127,7 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 
 void CDSCaptureSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (pEventObject != this)
+    if ((void*)pEventObject != (void*)this)
 	{
 		return;
 	}

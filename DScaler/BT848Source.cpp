@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.76 2002-09-28 13:33:04 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.77 2002-09-28 14:31:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2002/09/28 13:33:04  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.75  2002/09/27 14:13:29  kooiman
 // Improved stereo detection & manual audio standard dialog box.
 //
@@ -395,7 +398,7 @@ CBT848Source::~CBT848Source()
 
 void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (pEventObject != this)
+    if ((void*)pEventObject != (void*)this)
 	{
 		return;
 	}

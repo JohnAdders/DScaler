@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.18 2001-11-02 16:30:07 adcockj Exp $
+// $Id: Calibration.h,v 1.19 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -93,26 +93,26 @@ class CColorBar
 {
 public:
     CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
-    CColorBar(CColorBar *pColorBar);
+    CColorBar(CColorBar* pColorBar);
 
     // This methode returns the position of the color bar
-    void GetPosition(unsigned short int *left, unsigned short int *right, unsigned short int *top, unsigned short int *bottom);
+    void GetPosition(unsigned short int* left, unsigned short int* right, unsigned short int* top, unsigned short int* bottom);
 
     // This methode returns the reference color
-    void GetRefColor(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
+    void GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
     // This methode returns the calculated average color
-    void GetCurrentAvgColor(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
+    void GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
     // This methode returns the delta between reference color and calculated average color
-    void GetDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal);
+    void GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
 
     // This method analyzed the overlay buffer to calculate average color
     // in the zone defined by the color bar
-    BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width);
+    BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
     // This method draws in the video signal a rectangle around the color bar
-    void DrawPosition(short **Lines, int height, int width);
+    void DrawPosition(TDeinterlaceInfo* pInfo);
 
 protected: 
     // Left position of the rectangular zone in the full test pattern
@@ -172,10 +172,10 @@ protected:
 
 private:
     // Convert RGB to YUV
-    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char *pY, unsigned char *pU, unsigned char *pV);
+    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
 
     // Convert YUV to RGB
-    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char *pR, unsigned char *pG, unsigned char *pB);
+    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
 
     unsigned int cpt_Y;
     unsigned int cpt_U;
@@ -200,27 +200,27 @@ public:
     eTypeAdjust GetTypeAdjust();
 
     // This method allows to add a new color bar in the sub-pattern
-    int AddColorBar(CColorBar *color_bar);
+    int AddColorBar(CColorBar* color_bar);
 
     // This method returns the first bar of the test pattern
-    CColorBar *GetFirstColorBar();
+    CColorBar* GetFirstColorBar();
     
     // This method returns the next color bar of the sub-pattern
-    CColorBar *GetNextColorBar();
+    CColorBar* GetNextColorBar();
 
     // This function searches in the sub-pattern if it exists color
     // bars with same features as the one in argument
-    CColorBar *FindSameCoclorBar(CColorBar *pColorBar);
+    CColorBar* FindSameCoclorBar(CColorBar* pColorBar);
 
     // This method analyzes the current overlay buffer
-    BOOL CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width);
+    BOOL CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
     // This methode returns the sum of absolute delta between reference color
     // and calculated average color through all the color bars
-    void GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal);
+    void GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
 
     // This method draws in the video signal rectangles around each color bar of the sub-pattern
-    void DrawPositions(short **Lines, int height, int width);
+    void DrawPositions(TDeinterlaceInfo* pInfo);
 
 protected:
     // type of settings that can be adjusted with this sub-pattern
@@ -230,7 +230,7 @@ protected:
     unsigned char nb_color_bars;
 
     // Color bars of the sub-pattern
-    CColorBar *color_bars[MAX_COLOR_BARS];
+    CColorBar* color_bars[MAX_COLOR_BARS];
 
 private:
     // Index to current color bar
@@ -250,13 +250,13 @@ public:
     ~CTestPattern();
 
     // This method returns the name of the test pattern
-    char *GetName();
+    char* GetName();
 
     // This method returns the video format of the test pattern
     eVideoFormat GetVideoFormat();
 
     // This method allows to add a new sub-pattern to the test pattern
-    int AddSubPattern(CSubPattern *sub_pattern);
+    int AddSubPattern(CSubPattern* sub_pattern);
 
     // This method allows to create a new sub-pattern to the test pattern
     // which is a merge of all the others sub-patterns
@@ -267,7 +267,7 @@ public:
     eTypeContentPattern DetermineTypeContent();
 
     // This method returns the (first) sub-pattern allowing to adjust particular settings
-    CSubPattern *GetSubPattern(eTypeAdjust type_adjust);
+    CSubPattern* GetSubPattern(eTypeAdjust type_adjust);
 
 protected:
     // Name of the test pattern
@@ -280,14 +280,14 @@ protected:
     unsigned char nb_sub_patterns;
 
     // Sub-patterns of the test pattern
-    CSubPattern *sub_patterns[MAX_SUB_PATTERNS];
+    CSubPattern* sub_patterns[MAX_SUB_PATTERNS];
 
 private:
     // This method returns the first sub-pattern of the test pattern
-    CSubPattern *GetFirstSubPattern();
+    CSubPattern* GetFirstSubPattern();
     
     // This method returns the next sub-pattern of the test pattern
-    CSubPattern *GetNextSubPattern();
+    CSubPattern* GetNextSubPattern();
 
     // Index to current sub-pattern
     int idx_sub_pattern;
@@ -307,8 +307,8 @@ public:
     void SetFullRange();
     void SetRange(int min_val, int max_val);
     void SetRange(int delta);
-    void SetRange(int *mask);
-    int GetRange(int *mask, int *min_val, int *max_val);
+    void SetRange(int* mask);
+    int GetRange(int* mask, int* min_val, int* max_val);
     void AdjustMin();
     void AdjustMax();
     void AdjustDefault();
@@ -316,7 +316,7 @@ public:
     void AdjustBest();
     void InitResult();
     BOOL UpdateResult(int diff, int stop_threshold, BOOL only_one);
-    int GetResult(int *mask, int *min_val, int *max_val);
+    int GetResult(int* mask, int* min_val, int* max_val);
 
 protected:
     void Adjust(int value);
@@ -357,9 +357,9 @@ public:
     void SetMenu(HMENU hMenu);
     BOOL ProcessSelection(HWND hWnd, WORD wMenuId);
     void SelectTestPattern(int num);
-    CTestPattern *GetCurrentTestPattern();
-    CSubPattern *GetSubPattern(eTypeAdjust type_adjust);
-    CSubPattern *GetCurrentSubPattern();
+    CTestPattern* GetCurrentTestPattern();
+    CSubPattern* GetSubPattern(eTypeAdjust type_adjust);
+    CSubPattern* GetCurrentSubPattern();
     void SaveUsualOverscan();
     void RestoreUsualOverscan(BOOL refresh);
     void Start(eTypeCalibration type);
@@ -367,24 +367,24 @@ public:
     BOOL IsRunning();
     int GetCurrentStep();
     eTypeCalibration GetType();
-    void Make(short **Lines, int height, int width, int tick_count);
+    void Make(TDeinterlaceInfo* pInfo, int tick_count);
 
 protected:
     int nb_test_patterns;
-    CTestPattern *test_patterns[MAX_TEST_PATTERNS];
-    CTestPattern *current_test_pattern;
-    CSubPattern *current_sub_pattern;
+    CTestPattern* test_patterns[MAX_TEST_PATTERNS];
+    CTestPattern* current_test_pattern;
+    CSubPattern* current_sub_pattern;
     eTypeCalibration type_calibration;
     BOOL running;
-    CCalSetting *brightness;
-    CCalSetting *contrast;
-    CCalSetting *saturation_U;
-    CCalSetting *saturation_V;
-    CCalSetting *hue;
+    CCalSetting* brightness;
+    CCalSetting* contrast;
+    CCalSetting* saturation_U;
+    CCalSetting* saturation_V;
+    CCalSetting* hue;
 
 private:
-    BOOL step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CCalSetting *_setting2, CCalSetting *_setting3);
-    BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL *best_found);
+    BOOL step_init(eTypeAdjust type_adjust, CCalSetting*_setting1, CCalSetting*_setting2, CCalSetting*_setting3);
+    BOOL step_process(TDeinterlaceInfo* pInfo, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL* best_found);
     int usual_overscan;
     int last_tick_count;
     unsigned int initial_step;
@@ -395,14 +395,14 @@ private:
     int total_dif;
     int nb_calcul;
     BOOL first_calc;
-    CCalSetting *setting1;
-    CCalSetting *setting2;
-    CCalSetting *setting3;
+    CCalSetting* setting1;
+    CCalSetting* setting2;
+    CCalSetting* setting3;
 };
 
 
 // Global variables
-extern CCalibration *pCalibration;
+extern CCalibration* pCalibration;
 
 
 SETTING* Calibr_GetSetting(CALIBR_SETTING Setting);

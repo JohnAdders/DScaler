@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.88 2001-11-19 14:02:48 adcockj Exp $
+// $Id: DScaler.cpp,v 1.89 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2001/11/19 14:02:48  adcockj
+// Apply patches from Sandu Turcan
+//
 // Revision 1.87  2001/11/17 18:15:57  adcockj
 // Bugfixes (including very silly performance bug)
 //
@@ -1337,70 +1340,70 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TSOPTIONS:
-            TimeShift::OnOptions();
+            CTimeShift::OnOptions();
             break;
 
         case IDM_TSRECORD:
-            if (TimeShift::OnRecord())
+            if (CTimeShift::OnRecord())
             {
                 ShowText(hWnd, "Recording");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSSTOP:
-            if (TimeShift::OnStop())
+            if (CTimeShift::OnStop())
             {
                 ShowText(hWnd, "Stopped");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSPLAY:
-            if (TimeShift::OnPlay())
+            if (CTimeShift::OnPlay())
             {
                 ShowText(hWnd, "Playing");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSPAUSE:
-            if (TimeShift::OnPause())
+            if (CTimeShift::OnPause())
             {
                 ShowText(hWnd, "Paused");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSFFWD:
-            if (TimeShift::OnFastForward())
+            if (CTimeShift::OnFastForward())
             {
                 ShowText(hWnd, "Scanning >>>");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSRWND:
-            if (TimeShift::OnFastBackward())
+            if (CTimeShift::OnFastBackward())
             {
                 ShowText(hWnd, "Scanning <<<");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSNEXT:
-            if (TimeShift::OnGoNext())
+            if (CTimeShift::OnGoNext())
             {
                 ShowText(hWnd, "Next Clip");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSPREV:
-            if (TimeShift::OnGoPrev())
+            if (CTimeShift::OnGoPrev())
             {
                 ShowText(hWnd, "Previous Clip");
-                TimeShift::OnSetMenu(hMenu);
+                CTimeShift::OnSetMenu(hMenu);
             }
             break;
 
@@ -2269,21 +2272,21 @@ void MainWndOnDestroy()
       
     __try
     {
-        LOG(1, "Try TimeShift::OnStop");
+        LOG(1, "Try CTimeShift::OnStop");
 
-        TimeShift::OnStop();
+        CTimeShift::OnStop();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnStop");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error CTimeShift::OnStop");}
 
     
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     __try
     {
-        LOG(1, "Try TimeShift::OnDestroy");
+        LOG(1, "Try CTimeShift::OnDestroy");
 
-        TimeShift::OnDestroy();
+        CTimeShift::OnDestroy();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnDestroy");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error CTimeShift::OnDestroy");}
 
     __try
     {
@@ -2388,7 +2391,7 @@ void SetMenuAnalog()
     VT_SetMenu(hMenu);
     Providers_SetMenu(hMenu);
 
-    TimeShift::OnSetMenu(hMenu);
+    CTimeShift::OnSetMenu(hMenu);
     if(pCalibration)
     {
         pCalibration->SetMenu(hMenu);

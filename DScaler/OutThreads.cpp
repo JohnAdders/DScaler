@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.41 2001-11-21 15:21:39 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.42 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.40  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -356,24 +360,19 @@ void SaveStreamSnapshot(TDeinterlaceInfo* pInfo)
     // the data in a test program
     fwrite(pInfo, sizeof(TDeinterlaceInfo), 1, file);
 
-    // save all the Odd fields first
+    // save all the fields
     i = 0;
-    while(i < MAX_FIELD_HISTORY && pInfo->OddLines[i] != NULL)
+    while(i < MAX_FIELD_HISTORY && pInfo->PictureHistory[i] != NULL)
     {
-        for(j = 0; j < pInfo->FieldHeight; ++j)
-        {
-            fwrite(pInfo->OddLines[i][j], pInfo->LineLength, 1, file);
-        }
-        i++;      
-    }
+        //write out the header with flags
+        fwrite(pInfo->PictureHistory[i], sizeof(TPicture), 1, file);
 
-    // then all the even frames
-    i = 0;
-    while(i < MAX_FIELD_HISTORY && pInfo->EvenLines[i] != NULL)
-    {
+        // write out the data
+        BYTE* CurLine = pInfo->PictureHistory[i]->pData;
         for(j = 0; j < pInfo->FieldHeight; ++j)
         {
-            fwrite(pInfo->EvenLines[i][j], pInfo->LineLength, 1, file);
+            fwrite(CurLine, pInfo->LineLength, 1, file);
+            CurLine += pInfo->InputPitch;
         }
         i++;      
     }
@@ -494,14 +493,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				// Card calibration
 				if (pCalibration->IsRunning())
 				{
-                    if (Info.IsOdd && (Info.OddLines[0] != NULL))
-                    {
-    					pCalibration->Make(Info.OddLines[0], Info.FieldHeight, Info.FrameWidth, GetTickCount());
-                    }
-                    else if (!Info.IsOdd && (Info.EvenLines[0] != NULL))
-                    {
-    					pCalibration->Make(Info.EvenLines[0], Info.FieldHeight, Info.FrameWidth, GetTickCount());
-                    }
+    				pCalibration->Make(&Info, GetTickCount());
 				}
 
                 // update the source area
@@ -515,7 +507,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // filter at some point (i.e. FLT_TimeShift), but I'm not sure
                 // if that's the right thing to do since it ties into other
                 // parts of the app.
-                TimeShift::OnNewFrame(&Info);
+                CTimeShift::OnNewFrame(&Info);
 
                 if(!Info.bMissedFrame)
                 {
@@ -567,7 +559,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // do the aspect ratio only every other frame
                         // also do this outside of the internal lock
                         // to avoid conflicts
-                        if(Info.IsOdd)
+                        if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
                         {
                             AdjustAspectRatio(SourceAspectAdjust, &Info);
                         }
@@ -584,49 +576,29 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         bOverlayLocked = TRUE;
 
                         // calculate History
-                        if(Info.IsOdd)
+                        if(Info.PictureHistory[1] == NULL)
                         {
-                            if(Info.EvenLines[0] == NULL)
-                            {
-                                nHistory = 1;
-                            }
-                            else if(Info.OddLines[1] == NULL)
-                            {
-                                nHistory = 2;
-                            }
-                            else if(Info.EvenLines[1] == NULL)
-                            {
-                                nHistory = 3;
-                            }
-                            else
-                            {
-                                nHistory = 4;
-                            }
+                            nHistory = 1;
+                        }
+                        else if(Info.PictureHistory[2] == NULL)
+                        {
+                            nHistory = 2;
+                        }
+                        else if(Info.PictureHistory[3] == NULL)
+                        {
+                            nHistory = 3;
                         }
                         else
                         {
-                            if(Info.OddLines[0] == NULL)
-                            {
-                                nHistory = 1;
-                            }
-                            else if(Info.EvenLines[1] == NULL)
-                            {
-                                nHistory = 2;
-                            }
-                            else if(Info.OddLines[1] == NULL)
-                            {
-                                nHistory = 3;
-                            }
-                            else
-                            {
-                                nHistory = 4;
-                            }
+                            nHistory = 4;
                         }
 
                         // if we have dropped a field then do BOB 
                         // or if we need to get more history
                         // if we are doing a half height Mode then just do that
                         // anyway as it will be just as fast
+                        if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
+
                         if(CurrentMethod->bIsHalfHeight == FALSE && 
                             ((Info.bMissedFrame == TRUE) || (nHistory < CurrentMethod->nFieldsRequired)))
                         {
@@ -665,7 +637,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
                             if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
                             {
-                                FlipFlag |= (Info.IsOdd)?DDFLIP_ODD:DDFLIP_EVEN;
+                                if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+                                {
+                                    FlipFlag |= DDFLIP_ODD;
+                                }
+                                else if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
+                                {
+                                    FlipFlag |= DDFLIP_EVEN;
+                                }
                             }
 
                             // Need to wait for a good time to flip

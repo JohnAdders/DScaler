@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.4 2001-11-21 15:21:39 adcockj Exp $
+// $Id: BT848Source.h,v 1.5 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -90,11 +90,12 @@ private:
     DWORD        m_RiscBasePhysical; 
     DWORD*       m_RiscBaseLinear;
     long         m_BytesPerRISCField;
-    short*       m_ppEvenLines[5][DSCALER_MAX_HEIGHT / 2];
-    short*       m_ppOddLines[5][DSCALER_MAX_HEIGHT / 2];
+    TPicture     m_EvenFields[5];
+    TPicture     m_OddFields[5];
     long         m_CurrentX;
     long         m_CurrentY;
     long         m_CurrentVBILines;
+    BOOL         m_IsFieldOdd;
 
     std::string  m_Section;
 

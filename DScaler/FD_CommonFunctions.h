@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_CommonFunctions.h,v 1.6 2001-07-13 16:14:56 adcockj Exp $
+// $Id: FD_CommonFunctions.h,v 1.7 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,10 +29,10 @@
 
 extern "C"
 {
-    WORD CalcCombFactorLine(short* YVal1, short* YVal2, short* YVal3, long BytesToProcess);
-    WORD CalcCombFactorLineChroma(short* YVal1, short* YVal2, short* YVal3, long BytesToProcess);
-    DWORD CalcDiffFactorLine(short* YVal1, short* YVal2, long BytesToProcess);
-    DWORD CalcDiffFactorLineChroma(short* YVal1, short* YVal2, long BytesToProcess);
+    WORD CalcCombFactorLine(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, long BytesToProcess);
+    WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, long BytesToProcess);
+    DWORD CalcDiffFactorLine(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
+    DWORD CalcDiffFactorLineChroma(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
     void memcpyBOBMMX(void* Dest1, void* Dest2, void* Src, size_t nBytes);
     void memcpyBOBSSE(void* Dest1, void* Dest2, void* Src, size_t nBytes);
     void memcpyMMX(void* Dest, void* Src, size_t nBytes);

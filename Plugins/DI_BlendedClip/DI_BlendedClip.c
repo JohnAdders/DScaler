@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_BlendedClip.c,v 1.7 2001-11-21 15:21:40 adcockj Exp $
+// $Id: DI_BlendedClip.c,v 1.8 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/21 15:21:40  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.6  2001/08/06 18:14:54  tobbej
 // modified settings struct to match blended clip's own ui
 //
@@ -314,11 +318,11 @@ BOOL DeinterlaceBlendedClip(TDeinterlaceInfo* pInfo)
     i = BlcPixelCombSense * 257/100;        // scale to range of 0-257
     PixelCombSense = i << 48 | i << 32 | i << 16 | i;    // only 32 bits?>>>>
     
-    OddPtr = (pInfo->IsOdd) ? 1 : 0;
+    OddPtr = (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ? 1 : 0;
     
 // copy first even line no matter what, and the first odd line if we're
 // processing an odd field.
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(OddPtr)
     {
         L1 = pInfo->PictureHistory[0]->pData;
         L2 = pInfo->PictureHistory[1]->pData + Pitch;  
@@ -548,7 +552,7 @@ DoNext8Bytes:
     }
 
     // Copy last odd line if we're processing an even field.
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_EVEN)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
     {
         pInfo->pMemcpy(Dest,
                   L2,

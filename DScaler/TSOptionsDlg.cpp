@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.6 2001-11-20 11:43:00 temperton Exp $
+// $Id: TSOptionsDlg.cpp,v 1.7 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,13 +26,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/20 11:43:00  temperton
+// Store wave-device names instead of indexes in ini
+//
 // Revision 1.5  2001/08/06 03:00:17  ericschmidt
 // solidified auto-pixel-width detection
 // preliminary pausing-of-live-tv work
 //
 // Revision 1.4  2001/07/26 15:28:14  ericschmidt
 // Added AVI height control, i.e. even/odd/averaged lines.
-// Used existing cpu/mmx detection in TimeShift code.
+// Used existing cpu/mmx detection in CTimeShift:: code.
 //
 // Revision 1.3  2001/07/24 12:25:49  adcockj
 // Added copyright notice as per standards
@@ -41,7 +44,7 @@
 // Added Id to comment block
 //
 // Revision 1.1  2001/07/23 20:52:07  ericschmidt
-// Added TimeShift class.  Original Release.  Got record and playback code working.
+// Added CTimeShift:: class.  Original Release.  Got record and playback code working.
 //
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -180,7 +183,7 @@ void CTSOptionsDlg::OnButtonCompression()
     if (!options)
     {
         options = true;
-        TimeShift::OnCompressionOptions();
+        CTimeShift::OnCompressionOptions();
         options = false;
     }
 }
@@ -198,15 +201,15 @@ void CTSOptionsDlg::OnButtonOK()
         char name[MAXPNAMELEN];
         if(m_WaveInComboBox.GetLBText(m_WaveInComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
         {
-            TimeShift::OnSetWaveInDevice((char*) &name);
+            CTimeShift::OnSetWaveInDevice((char*) &name);
         }
 
         if(m_WaveOutComboBox.GetLBText(m_WaveOutComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
         {
-            TimeShift::OnSetWaveOutDevice((char*) &name);
+            CTimeShift::OnSetWaveOutDevice((char*) &name);
         }
 
-        TimeShift::OnSetRecHeight(m_RecHeight);
+        CTimeShift::OnSetRecHeight(m_RecHeight);
 
         CDialog::OnOK();
     }
@@ -217,11 +220,11 @@ BOOL CTSOptionsDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
     // Should've already created the timeshift object elsehere.
-    ASSERT(TimeShift::m_pTimeShift != NULL);
+    ASSERT(CTimeShift::m_pTimeShift != NULL);
 
     int index = 0;
     char* waveInDevice;
-    if(!TimeShift::OnGetWaveInDevice(&waveInDevice))
+    if(!CTimeShift::OnGetWaveInDevice(&waveInDevice))
         waveInDevice = NULL;
 
     UINT numDevs = waveInGetNumDevs();
@@ -244,7 +247,7 @@ BOOL CTSOptionsDlg::OnInitDialog()
 
     index = 0;
     char* waveOutDevice;
-    if(!TimeShift::OnGetWaveOutDevice(&waveOutDevice))
+    if(!CTimeShift::OnGetWaveOutDevice(&waveOutDevice))
         waveOutDevice = NULL;
 
     numDevs = waveOutGetNumDevs();
@@ -266,7 +269,7 @@ BOOL CTSOptionsDlg::OnInitDialog()
     m_WaveOutComboBox.SetCurSel(index);
 
     index;
-    if (TimeShift::OnGetRecHeight(&index)) // Leave as default if fails.
+    if (CTimeShift::OnGetRecHeight(&index)) // Leave as default if fails.
         m_RecHeight = index;
 
     // Refresh the controls on the dialog with the current data.

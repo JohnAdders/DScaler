@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.8 2001-11-21 15:21:39 adcockj Exp $
+// $Id: TimeShift.h,v 1.9 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.7  2001/11/20 11:43:00  temperton
 // Store wave-device names instead of indexes in ini
 //
@@ -75,7 +79,7 @@ class CTSOptionsDlg;
 #define TS_HALFHEIGHTODD  2
 #define TS_HALFHEIGHTAVG  3
 
-class TimeShift
+class CTimeShift
 {
     friend CTSOptionsDlg;
 
@@ -113,8 +117,8 @@ public:
 
 // Implementation
 private:
-    TimeShift();
-    ~TimeShift();
+    CTimeShift();
+    ~CTimeShift();
 
     // Create the timeshift object if it's not already created.
     static bool AssureCreated(void);
@@ -165,7 +169,7 @@ private:
     bool ReadFromIni(void);
     bool WriteToIni(void);
 
-    static TimeShift *m_pTimeShift;
+    static CTimeShift *m_pTimeShift;
 
     CRITICAL_SECTION m_lock; // Audio and video come from different threads.
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DS_ApiCommon.h,v 1.13 2001-11-21 15:21:39 adcockj Exp $
+// $Id: DS_ApiCommon.h,v 1.14 2001-11-22 13:32:03 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.12  2001/11/10 10:36:27  pgubanov
 // Need to specify _cdecl on memcpy() - plugins assume cdecl while DShow filter assumes _stdcall
 //
@@ -160,10 +164,8 @@ typedef struct
     // The part of the overlay that we actually show
     RECT SourceRect;
 
-    // True if the most recent field is an odd one; false if it was even.
-    BOOL IsOdd;
-
-    // which frame are we on
+    // which frame are we on now
+    // TODO remove this
     int CurrentFrame;
 
     // Overlay pitch (number of bytes between scanlines).

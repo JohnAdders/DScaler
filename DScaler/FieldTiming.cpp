@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.22 2001-11-21 15:21:39 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.23 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.21  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -187,7 +191,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
 
     if(bDoAutoFormatDetect == TRUE)
     {
-        if(pInfo->CurrentFrame == 0 && pInfo->IsOdd == TRUE)
+        if(pInfo->CurrentFrame == 0 && ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0))
         {
             LARGE_INTEGER CurrentTime;
             QueryPerformanceCounter(&CurrentTime);

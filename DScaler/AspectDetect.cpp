@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.21 2001-11-21 15:21:39 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.22 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.20  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -210,7 +214,7 @@ void SwitchToRatio(int nMode, int nRatio)
 // For speed's sake, the code is a little sloppy at the moment; it always
 // looks at a multiple of 4 pixels.  It never looks at *more* pixels than are
 // requested, though.
-static inline int GetNonBlackCount(short* Line, int StartX, int EndX)
+static inline int GetNonBlackCount(BYTE* Line, int StartX, int EndX)
 {
     int qwordCount = (EndX - StartX) / 4;
     int threshold;
@@ -254,7 +258,7 @@ static inline int GetNonBlackCount(short* Line, int StartX, int EndX)
     // pixels?  Try not doing it for now, but it could make memory access
     // more efficient.
 
-    Line += StartX;
+    Line += StartX * 2;
 
     _asm {
         mov     ecx, qwordCount
@@ -307,7 +311,7 @@ BlackLoop:
 int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
 {
     int y, ylimit;
-    short* line;
+    BYTE* line;
     int skipCount = 0;
     int skipCountPercent = AspectSettings.SkipPercent;
     int pixelCount;
@@ -331,11 +335,11 @@ int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
     {
         if (y & 1)
         {
-            line = pInfo->OddLines[0][y / 2];
+            line = pInfo->PictureHistory[0]->pData + pInfo->InputPitch * (y / 2);
         }
         else
         {
-            line = pInfo->EvenLines[0][y / 2];
+            line = pInfo->PictureHistory[1]->pData + pInfo->InputPitch * (y / 2);
         }
 
         pixelCount = GetNonBlackCount(line, skipCount, pInfo->FrameWidth - skipCount * 2);
@@ -421,12 +425,6 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
     int WssSourceRatio;
     int maxRatio;
 
-
-    if(pInfo->EvenLines[0] == NULL || pInfo->OddLines[0] == NULL)
-    {
-        return;
-    }
-
     // first see if we have go any filters changing the aspect ratio
     if(LastSourceAspectAdjust != SourceAspectAdjust)
     {
@@ -479,7 +477,6 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
     // If the user told us to detect the current ratio, do it.
     if (AspectSettings.DetectAspectNow)
     {
-
         SwitchToRatio(newMode, newRatio);
         newRatioFrameCount = 0;
         newRatioFrameCount2 = 0;

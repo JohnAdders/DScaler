@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.5 2001-11-21 15:21:39 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.6 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.4  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -90,7 +94,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_CurrentX(720),
     m_CurrentY(480),
     m_CurrentVBILines(19),
-    m_Section(IniSection)
+    m_Section(IniSection),
+    m_IsFieldOdd(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -112,11 +117,12 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     // Set up 5 sets of pointers to the start of odd and even lines
     for (int j(0); j < 5; j++)
     {
-        for (int i(0); i < DSCALER_MAX_HEIGHT; i += 2)
-        {
-            m_ppOddLines[j][i / 2] = (short*) m_pDisplay[j] + (i + 1) * 1024;
-            m_ppEvenLines[j][i / 2] = (short*) m_pDisplay[j] + i * 1024;
-        }
+        m_OddFields[j].pData = m_pDisplay[j] + 2048;
+        m_OddFields[j].Flags = PICTURE_INTERLACED_ODD;
+        m_OddFields[j].IsFirstInSeries = FALSE;
+        m_EvenFields[j].pData = m_pDisplay[j];
+        m_EvenFields[j].Flags = PICTURE_INTERLACED_EVEN;
+        m_EvenFields[j].IsFirstInSeries = FALSE;
     }
     SetupCard();
     if(pBT848Card->HasMSP())
@@ -490,28 +496,27 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     // auto input detect
     Timimg_AutoFormatDetect(pInfo);
 
-    if(pInfo->IsOdd)
+    memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory) - sizeof(pInfo->PictureHistory[0]));
+    if(m_IsFieldOdd)
     {
-        memmove(&pInfo->OddLines[1], &pInfo->OddLines[0], sizeof(pInfo->OddLines) - sizeof(pInfo->OddLines[0]));
         if(m_ReversePolarity->GetValue() == FALSE)
         {
-            pInfo->OddLines[0] = m_ppOddLines[pInfo->CurrentFrame];
+            pInfo->PictureHistory[0] = &m_OddFields[pInfo->CurrentFrame];
         }
         else
         {
-            pInfo->OddLines[0] = m_ppEvenLines[pInfo->CurrentFrame];
+            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
         }
     }
     else
     {
-        memmove(&pInfo->EvenLines[1], &pInfo->EvenLines[0], sizeof(pInfo->EvenLines) - sizeof(pInfo->EvenLines[0]));
         if(m_ReversePolarity->GetValue() == FALSE)
         {
-            pInfo->EvenLines[0] = m_ppEvenLines[pInfo->CurrentFrame];
+            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
         }
         else
         {
-            pInfo->EvenLines[0] = m_ppOddLines[(pInfo->CurrentFrame + 4) % 5];
+            pInfo->PictureHistory[0] = &m_OddFields[(pInfo->CurrentFrame + 4) % 5];
         }
     }
 
@@ -519,6 +524,7 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FrameWidth = m_CurrentX;
     pInfo->FrameHeight = m_CurrentY;
     pInfo->FieldHeight = m_CurrentY / 2;
+    pInfo->InputPitch = 4096;
 
 }
 
@@ -709,7 +715,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     BOOL bSlept = FALSE;
     int NewPos;
     int Diff;
-    int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
+    int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
 
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
@@ -724,8 +730,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     if(Diff > 1)
     {
         // delete all history
-        memset(pInfo->EvenLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
-        memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
+        memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -742,16 +747,16 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 
     switch(NewPos)
     {
-    case 0: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 4; break;
-    case 1: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 0; break;
-    case 2: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 0; break;
-    case 3: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 1; break;
-    case 4: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 1; break;
-    case 5: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 2; break;
-    case 6: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 2; break;
-    case 7: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 3; break;
-    case 8: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 3; break;
-    case 9: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 4; break;
+    case 0: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 4; break;
+    case 1: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 0; break;
+    case 2: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 0; break;
+    case 3: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 1; break;
+    case 4: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 1; break;
+    case 5: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 2; break;
+    case 6: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 2; break;
+    case 7: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 3; break;
+    case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
+    case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
 }
 
@@ -760,7 +765,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     BOOL bSlept = FALSE;
     int NewPos;
     int Diff;
-    int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
+    int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
@@ -786,8 +791,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     else
     {
         // delete all history
-        memset(pInfo->EvenLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
-        memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
+        memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(1, " Dropped Frame");
@@ -796,22 +800,22 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
     switch(NewPos)
     {
-    case 0: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 4; break;
-    case 1: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 0; break;
-    case 2: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 0; break;
-    case 3: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 1; break;
-    case 4: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 1; break;
-    case 5: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 2; break;
-    case 6: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 2; break;
-    case 7: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 3; break;
-    case 8: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 3; break;
-    case 9: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 4; break;
+    case 0: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 4; break;
+    case 1: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 0; break;
+    case 2: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 0; break;
+    case 3: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 1; break;
+    case 4: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 1; break;
+    case 5: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 2; break;
+    case 6: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 2; break;
+    case 7: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 3; break;
+    case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
+    case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
     // we've just got a new field
     // we are going to time the odd to odd
     // input frequency
-    if(pInfo->IsOdd)
+    if(m_IsFieldOdd)
     {
         Timing_UpdateRunningAverage(pInfo);
     }
@@ -1145,12 +1149,12 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
     int nLineTarget;
     BYTE* pVBI = (LPBYTE) m_pVBILines[(pInfo->CurrentFrame + 4) % 5];
-    if (pInfo->IsOdd)
+    if (m_IsFieldOdd)
     {
         pVBI += m_CurrentVBILines * 2048;
     }
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines ; nLineTarget++)
     {
-       VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, pInfo->IsOdd);
+       VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
     }
 }

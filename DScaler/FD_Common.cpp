@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.20 2001-11-21 15:21:39 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.21 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.19  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -186,25 +190,42 @@ long CalculateTotalCombFactor(DWORD* Combs, TDeinterlaceInfo* pInfo)
 ///////////////////////////////////////////////////////////////////////////////
 void CalcCombFactor(TDeinterlaceInfo* pInfo)
 {
-    int Line;
-    DWORD Combs[DSCALER_MAX_HEIGHT / 2];
-
     // If one of the fields is missing, treat them as very different.
-    if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL)
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
     {
         pInfo->CombFactor = 0x7fffffff;
         return;
     }
 
+    int Line;
+    DWORD Combs[DSCALER_MAX_HEIGHT / 2];
+    DWORD Pitch = pInfo->InputPitch;
+    BYTE* EvenLine;
+    BYTE* OddLine;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
+
     qwThreshold = CombJaggieThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
 
+    if(IsOdd)
+    {
+        EvenLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+        OddLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+    }
+    else
+    {
+        EvenLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+        OddLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+    }
+
     for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
     {
-        Combs[Line] = CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                        pInfo->OddLines[0][Line] + 16, 
-                                        pInfo->EvenLines[0][Line + 1] + 16,
+        Combs[Line] = CalcCombFactorLine(EvenLine + 16,
+                                        OddLine + 16, 
+                                        EvenLine + Pitch + 16,
                                         pInfo->LineLength - 32);
+        EvenLine += Pitch;
+        OddLine += Pitch;
     }
 
     // Clear out MMX registers before we need to do floating point again
@@ -214,31 +235,48 @@ void CalcCombFactor(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
-    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
+    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
     return;
 }
 
 void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
 {
-    int Line;
-    DWORD Combs[DSCALER_MAX_HEIGHT / 2];
-
     // If one of the fields is missing, treat them as very different.
-    if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL)
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
     {
         pInfo->CombFactor = 0x7fffffff;
         return;
     }
 
+    int Line;
+    DWORD Combs[DSCALER_MAX_HEIGHT / 2];
+    DWORD Pitch = pInfo->InputPitch;
+    BYTE* EvenLine;
+    BYTE* OddLine;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
+
     qwThreshold = CombJaggieThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
 
+    if(IsOdd)
+    {
+        EvenLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+        OddLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+    }
+    else
+    {
+        EvenLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+        OddLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+    }
+
     for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
     {
-        Combs[Line] = CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
-                                        pInfo->OddLines[0][Line] + 16, 
-                                        pInfo->EvenLines[0][Line + 1] + 16,
+        Combs[Line] = CalcCombFactorLineChroma(EvenLine + 16,
+                                        OddLine + 16, 
+                                        EvenLine + Pitch + 16,
                                         pInfo->LineLength - 32);
+        EvenLine += Pitch;
+        OddLine += Pitch;
     }
 
     // Clear out MMX registers before we need to do floating point again
@@ -248,7 +286,7 @@ void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
-    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
+    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->CombFactor);
     return;
 }
 
@@ -267,36 +305,30 @@ void CalcCombFactorChroma(TDeinterlaceInfo* pInfo)
 ///////////////////////////////////////////////////////////////////////////////
 void CalcDiffFactor(TDeinterlaceInfo* pInfo)
 {
-    int Line;
-    long DiffFactor = 0;
-    short** pLines1;
-    short** pLines2;
-    
-    qwBitShift = BitShift;
-
-    if(pInfo->IsOdd)
-    {
-        pLines1 = pInfo->OddLines[1];
-        pLines2 = pInfo->OddLines[0];
-    }
-    else
-    {
-        pLines1 = pInfo->EvenLines[1];
-        pLines2 = pInfo->EvenLines[0];
-    }
-
     // If we skipped a field, treat the new one as maximally different.
-    if (pLines1 == NULL || pLines2 == NULL)
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[2] == NULL)
     {
         pInfo->FieldDiff = 0x7fffffff;
         return;
     }
 
+    int Line;
+    long DiffFactor = 0;
+    DWORD Pitch = pInfo->InputPitch;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
+    
+    qwBitShift = BitShift;
+
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+    BYTE* PreviousLine = pInfo->PictureHistory[2]->pData + 16 * Pitch;
+
     for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
     {
-        DiffFactor += CalcDiffFactorLine(pLines1[Line] + 16,
-                                                pLines2[Line] + 16,
-                                                pInfo->LineLength - 32);
+        DiffFactor += CalcDiffFactorLine(CurrentLine + 16,
+                                            PreviousLine + 16,
+                                            pInfo->LineLength - 32);
+        CurrentLine += Pitch;
+        PreviousLine += Pitch;
     }
 
     _asm
@@ -305,7 +337,7 @@ void CalcDiffFactor(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -323,36 +355,30 @@ void CalcDiffFactor(TDeinterlaceInfo* pInfo)
 ///////////////////////////////////////////////////////////////////////////////
 void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo)
 {
-    int Line;
-    long DiffFactor = 0;
-    short** pLines1;
-    short** pLines2;
-    
-    qwBitShift = BitShift;
-
-    if(pInfo->IsOdd)
-    {
-        pLines1 = pInfo->OddLines[1];
-        pLines2 = pInfo->OddLines[0];
-    }
-    else
-    {
-        pLines1 = pInfo->EvenLines[1];
-        pLines2 = pInfo->EvenLines[0];
-    }
-
     // If we skipped a field, treat the new one as maximally different.
-    if (pLines1 == NULL || pLines2 == NULL)
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[2] == NULL)
     {
         pInfo->FieldDiff = 0x7fffffff;
         return;
     }
 
+    int Line;
+    long DiffFactor = 0;
+    DWORD Pitch = pInfo->InputPitch;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
+    
+    qwBitShift = BitShift;
+
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+    BYTE* PreviousLine = pInfo->PictureHistory[2]->pData + 16 * Pitch;
+
     for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
     {
-        DiffFactor += CalcDiffFactorLineChroma(pLines1[Line] + 16,
-                                                    pLines2[Line] + 16,
-                                                    pInfo->LineLength - 32);
+        DiffFactor += CalcDiffFactorLineChroma(CurrentLine + 16,
+                                                PreviousLine + 16,
+                                                pInfo->LineLength - 32);
+        CurrentLine += Pitch;
+        PreviousLine += Pitch;
     }
 
     _asm
@@ -361,57 +387,66 @@ void CalcDiffFactorChroma(TDeinterlaceInfo* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
 void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
 {
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL || pInfo->PictureHistory[2] == NULL)
+    {
+        pInfo->CombFactor = 0x7fffffff;
+        pInfo->FieldDiff = 0x7fffffff;
+        return;
+    }
+
     int Line;
     long DiffFactor = 0;
     DWORD Combs[DSCALER_MAX_HEIGHT / 2];
+    DWORD Pitch = pInfo->InputPitch;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
 
     qwThreshold = CombJaggieThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
     qwBitShift = BitShift;
     
-    if(pInfo->IsOdd)
+    if(IsOdd)
     {
+        BYTE* EvenLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+        BYTE* OddLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+        BYTE* PreviousLine = pInfo->PictureHistory[2]->pData + 16 * Pitch;
         // If one of the fields is missing, treat them as very different.
-        if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->OddLines[1] == NULL)
-        {
-            pInfo->CombFactor = 0x7fffffff;
-            pInfo->FieldDiff = 0x7fffffff;
-            return;
-        }
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
-            Combs[Line] = CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
+            Combs[Line] = CalcCombFactorLine(EvenLine + 16,
+                                            OddLine + 16, 
+                                            EvenLine + Pitch + 16,
                                             pInfo->LineLength - 32);
-            DiffFactor += CalcDiffFactorLine(pInfo->OddLines[0][Line] + 16,
-                                                        pInfo->OddLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32);
+            DiffFactor += CalcDiffFactorLine(OddLine + 16,
+                                                PreviousLine + 16,
+                                                pInfo->LineLength - 32);
+            EvenLine += Pitch;
+            OddLine += Pitch;
+            PreviousLine += Pitch;
         }
     }
     else
     {
-        // If one of the fields is missing, treat them as very different.
-        if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->EvenLines[1] == NULL)
-        {
-            pInfo->CombFactor = 0x7fffffff;
-            pInfo->FieldDiff = 0x7fffffff;
-            return;
-        }
+        BYTE* EvenLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+        BYTE* OddLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+        BYTE* PreviousLine = pInfo->PictureHistory[2]->pData + 16 * Pitch;
+
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
-            Combs[Line] = CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
+            Combs[Line] = CalcCombFactorLine(EvenLine + 16,
+                                            OddLine + 16, 
+                                            EvenLine + Pitch + 16,
                                             pInfo->LineLength - 32);
-            DiffFactor += CalcDiffFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                                        pInfo->EvenLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32);
+            DiffFactor += CalcDiffFactorLine(EvenLine + 16,
+                                                PreviousLine + 16,
+                                                pInfo->LineLength - 32);
+            EvenLine += Pitch;
+            OddLine += Pitch;
+            PreviousLine += Pitch;
         }
     }
     _asm
@@ -421,57 +456,66 @@ void DoBothCombAndDiff(TDeinterlaceInfo* pInfo)
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
 {
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL || pInfo->PictureHistory[2] == NULL)
+    {
+        pInfo->CombFactor = 0x7fffffff;
+        pInfo->FieldDiff = 0x7fffffff;
+        return;
+    }
+
     int Line;
-    DWORD DiffFactor = 0;
+    long DiffFactor = 0;
     DWORD Combs[DSCALER_MAX_HEIGHT / 2];
+    DWORD Pitch = pInfo->InputPitch;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
 
     qwThreshold = CombJaggieThreshold;
     qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
     qwBitShift = BitShift;
     
-    if(pInfo->IsOdd)
+    if(IsOdd)
     {
+        BYTE* EvenLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+        BYTE* OddLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+        BYTE* PreviousLine = pInfo->PictureHistory[2]->pData + 16 * Pitch;
         // If one of the fields is missing, treat them as very different.
-        if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->OddLines[1] == NULL)
-        {
-            pInfo->CombFactor = 0x7fffffff;
-            pInfo->FieldDiff = 0x7fffffff;
-            return;
-        }
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
-            Combs[Line] = CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
-                                            pInfo->LineLength - 32);
-            DiffFactor += CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
-                                                        pInfo->OddLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32);
+            Combs[Line] = CalcCombFactorLineChroma(EvenLine + 16,
+                                                    OddLine + 16, 
+                                                    EvenLine + Pitch + 16,
+                                                    pInfo->LineLength - 32);
+            DiffFactor += CalcDiffFactorLineChroma(OddLine + 16,
+                                                    PreviousLine + 16,
+                                                    pInfo->LineLength - 32);
+            EvenLine += Pitch;
+            OddLine += Pitch;
+            PreviousLine += Pitch;
         }
     }
     else
     {
-        // If one of the fields is missing, treat them as very different.
-        if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL || pInfo->EvenLines[1] == NULL)
-        {
-            pInfo->CombFactor = 0x7fffffff;
-            pInfo->FieldDiff = 0x7fffffff;
-            return;
-        }
+        BYTE* EvenLine = pInfo->PictureHistory[0]->pData + 16 * Pitch;
+        BYTE* OddLine = pInfo->PictureHistory[1]->pData + 16 * Pitch;
+        BYTE* PreviousLine = pInfo->PictureHistory[2]->pData + 16 * Pitch;
+
         for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
         {
-            Combs[Line] = CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
-                                            pInfo->LineLength - 32);
-            DiffFactor += CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
-                                                        pInfo->EvenLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32);
+            Combs[Line] = CalcCombFactorLineChroma(EvenLine + 16,
+                                                    OddLine + 16, 
+                                                    EvenLine + Pitch + 16,
+                                                    pInfo->LineLength - 32);
+            DiffFactor += CalcDiffFactorLineChroma(EvenLine + 16,
+                                                    PreviousLine + 16,
+                                                    pInfo->LineLength - 32);
+            EvenLine += Pitch;
+            OddLine += Pitch;
+            PreviousLine += Pitch;
         }
     }
     _asm
@@ -481,206 +525,39 @@ void DoBothCombAndDiffChroma(TDeinterlaceInfo* pInfo)
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
-
-void DoBothCombAndDiffExperimental(TDeinterlaceInfo* pInfo)
-{
-    int Line;
-    int LoopCtr;
-    short* L1;     // ptr to Line1, of 3
-    short* L2;     // ptr to Line2, the weave line
-    short* L3;     // ptr to Line3
-    short* LP2;     // ptr to prev Line2
-    short** pOddLines = pInfo->OddLines[0];
-    short** pEvenLines = pInfo->EvenLines[0];
-    short** pPrevLines = pInfo->IsOdd ? pInfo->OddLines[1] : pInfo->EvenLines[1];
-    const __int64 qwShiftMask = 0xfefffefffefffeff; // to avoid shifting chroma to luma
-    const __int64 qwOnes = 0x0001000100010001;
-    __int64 qwThresholdWeave;
-    __int64 qwThresholdDiff;
-    __int64 i;
-    unsigned long DiffFactor = 0;
-    unsigned long WeaveFactor = 0;
-
-    i = 20; // what is different
-    qwThresholdWeave = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
-    i = 10; // what is different
-    qwThresholdDiff = i << 56 | i << 48 | i << 40 | i << 32 | i << 24 | i << 16 | i << 8 | i;
-
-
-    if (pOddLines == NULL || pEvenLines == NULL || pPrevLines == NULL)
-        return;
-
-    for (Line = 16; Line < (pInfo->FieldHeight - 16); ++Line)
-    {
-        LoopCtr = pInfo->LineLength / 8;    // there are LineLength / 8 qwords per line
-
-        if (pInfo->IsOdd)
-        {
-            L1 = pEvenLines[Line];
-            L2 = pOddLines[Line];
-            L3 = pEvenLines[Line + 1];
-            LP2 = pPrevLines[Line];   // prev Odd lines
-        }
-        else
-        {
-            L1 = pOddLines[Line] ;
-            L2 = pEvenLines[Line + 1];
-            L3 = pOddLines[Line + 1];
-            LP2 = pPrevLines[Line + 1];   // prev even lines
-        }
-
-        _asm
-        {
-            mov eax, dword ptr [L1]
-            mov ebx, dword ptr [L2]
-            mov edx, dword ptr [L3]
-            mov esi, dword ptr [LP2]
-            mov ecx, LoopCtr
-            pxor mm7,mm7
-            pxor mm6,mm6
-            pxor mm5,mm5
-
-            align 8
-            MAINLOOP_LABEL:
-            movq mm0, qword ptr[eax]  // L1
-            movq mm1, qword ptr[edx]  // L3
-
-            // average L1 and L3 leave result in mm0
-            pand mm0, qwShiftMask   // L1
-            psrlw mm0, 1
-            pand mm1, qwShiftMask   // L3
-            psrlw   mm1, 1
-            paddb   mm0, mm1    // the average, for computing comb
-
-            movq mm1, qword ptr[ebx]  // L2
-            // get abs Value of possible L2 comb answer in mm0
-            // mm2 will have L2 in it
-            movq mm2, mm1    // L2
-            psubusb mm1, mm0    // L2 - avg
-            psubusb mm0, mm2    // avg - L2
-            por  mm0, mm1    // abs(avg-L2)
-
-            pand mm0, qwShiftMask
-            psrlw mm0, 1           // abs(avg-L2)/2
-            pcmpgtb mm0, qwThresholdWeave
-            pand mm0, qwOnes       // 1 if abs(avg-L2)/2 > Threshold
-            paddusb mm7, mm0                // Count of all times the comb threshold
-                                    // has been exceeded
-
-            movq mm1, qword ptr[esi]     // LP2
-            movq mm0, mm1    // L2
-            psubusb mm1, mm2    // L2 - LP2
-            psubusb mm2, mm0    // LP2 - L2
-            por  mm1, mm2    // abs(LP2-L2)
-
-            pand mm1, qwShiftMask
-            psrlw mm1, 1           // abs(avg-L2)/2
-            pcmpgtb mm1, qwThresholdDiff
-            pand mm1, qwOnes       // 1 if abs(avg-L2)/2 > Threshold
-            paddusb mm6, mm1                // Count of all times the diff threshold
-
-            // bump ptrs and loop
-            lea  eax,[eax+8]
-            lea  ebx,[ebx+8]
-            lea  edx,[edx+8]
-            lea  esi,[esi+8]
-            loop  MAINLOOP_LABEL
-
-            // OK so now we have mm6 and mm7 as out totals
-            xor edx, edx
-            xor ebx, ebx
-            movd eax, mm6
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            psrlq mm6,32
-            movd eax, mm6
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            add DiffFactor, ebx
-
-            xor edx, edx
-            xor ebx, ebx
-            movd eax, mm7
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            psrlq mm7,32
-            movd eax, mm7
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            shr eax, 8
-            mov dl, al
-            add ebx, edx
-            add WeaveFactor, ebx
-        }
-    }
-
-    pInfo->CombFactor = WeaveFactor;
-    pInfo->FieldDiff = DiffFactor;
-
-    LOG(2, "Frame %d %c FD = %d CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
-
-    // clear out the MMX registers ready for doing floating point
-    // again
-    _asm
-    {
-        emms
-    }
-    return;
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Simple Weave.  Copies alternating scanlines from the most recent fields.
 BOOL Weave(TDeinterlaceInfo* pInfo)
 {
     int i;
-    BYTE* lpOverlay = pInfo->Overlay;
+    BYTE *lpOverlay = pInfo->Overlay;
+    BYTE* CurrentOddLine;
+    BYTE* CurrentEvenLine;
+    DWORD Pitch = pInfo->InputPitch;
 
-    if (pInfo->EvenLines[0] == NULL || pInfo->OddLines[0] == NULL)
-        return FALSE;
-
+    if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+    {
+        CurrentOddLine = pInfo->PictureHistory[0]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[1]->pData;
+    }
+    else
+    {
+        CurrentOddLine = pInfo->PictureHistory[1]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[0]->pData;
+    }
+    
     for (i = 0; i < pInfo->FieldHeight; i++)
     {
-        pInfo->pMemcpy(lpOverlay, pInfo->EvenLines[0][i], pInfo->LineLength);
+        pInfo->pMemcpy(lpOverlay, CurrentEvenLine, pInfo->LineLength);
         lpOverlay += pInfo->OverlayPitch;
+        CurrentEvenLine += Pitch;
 
-        pInfo->pMemcpy(lpOverlay, pInfo->OddLines[0][i], pInfo->LineLength);
+        pInfo->pMemcpy(lpOverlay, CurrentOddLine, pInfo->LineLength);
         lpOverlay += pInfo->OverlayPitch;
+        CurrentOddLine += Pitch;
     }
     _asm
     {
@@ -692,33 +569,31 @@ BOOL Weave(TDeinterlaceInfo* pInfo)
 BOOL WeaveDelay(TDeinterlaceInfo* pInfo, int Delay)
 {
     int i;
-    BYTE* lpOverlay = pInfo->Overlay;
-    short** OddLines;
-    short** EvenLines;
+    BYTE *lpOverlay = pInfo->Overlay;
+    BYTE* CurrentOddLine;
+    BYTE* CurrentEvenLine;
+    DWORD Pitch = pInfo->InputPitch;
 
-    if(pInfo->IsOdd == TRUE)
+    if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
-        OddLines = pInfo->OddLines[(Delay + 1) / 2];
-        EvenLines = pInfo->EvenLines[Delay / 2];
+        CurrentOddLine = pInfo->PictureHistory[Delay]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[Delay + 1]->pData;
     }
     else
     {
-        OddLines = pInfo->OddLines[Delay / 2];
-        EvenLines = pInfo->EvenLines[(Delay + 1) / 2];
-    }
-
-    if (EvenLines == NULL || OddLines == NULL)
-    {
-        return FALSE;
+        CurrentOddLine = pInfo->PictureHistory[Delay + 1]->pData;
+        CurrentEvenLine = pInfo->PictureHistory[Delay]->pData;
     }
 
     for (i = 0; i < pInfo->FieldHeight; i++)
     {
-        pInfo->pMemcpy(lpOverlay, EvenLines[i], pInfo->LineLength);
+        pInfo->pMemcpy(lpOverlay, CurrentEvenLine, pInfo->LineLength);
         lpOverlay += pInfo->OverlayPitch;
+        CurrentEvenLine += Pitch;
 
-        pInfo->pMemcpy(lpOverlay, OddLines[i], pInfo->LineLength);
+        pInfo->pMemcpy(lpOverlay, CurrentOddLine, pInfo->LineLength);
         lpOverlay += pInfo->OverlayPitch;
+        CurrentOddLine += Pitch;
     }
     _asm
     {
@@ -736,9 +611,10 @@ BOOL SimpleFilmMode(TDeinterlaceInfo* pInfo, PFNFLIP* pfnFlip)
     BYTE* lpOverlay = pInfo->Overlay;
     int TestField;
     int TestOdd;
+    BOOL IsOdd((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
 
 
-    if(pInfo->IsOdd == TRUE)
+    if(IsOdd == TRUE)
     {
         TestField = (pInfo->CurrentFrame + 5 - FilmFlipDelay / 2) % 5;
         TestOdd = ((FilmFlipDelay % 2) == 0);
@@ -768,53 +644,57 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
 {
     int i;
     BYTE* lpOverlay = pInfo->Overlay;
-    short** lines;
- 
-    // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
-    if (pInfo->IsOdd)
-    {
-        lines = pInfo->OddLines[0];
-        // No recent data?  We can't do anything.
-        if (lines == NULL)
-            return FALSE;
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
+    DWORD Pitch = pInfo->InputPitch;
 
+    // No recent data?  We can't do anything.
+    if (CurrentLine == NULL)
+    {
+        return FALSE;
+    }
+    
+    // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
+    if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+    {
         if (pInfo->CpuFeatureFlags & FEATURE_SSE)
         {
-            memcpySSE(lpOverlay, lines[0], pInfo->LineLength);   // extra copy of first line
-            lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
+            lpOverlay += pInfo->OverlayPitch;                            // and offset out output ptr
+            CurrentLine += Pitch;
             for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
                 memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
-                    lines[i], pInfo->LineLength);
+                    CurrentLine, pInfo->LineLength);
                 lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
-            memcpySSE(lpOverlay, lines[i], pInfo->LineLength);   // only 1 copy of last line
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // only 1 copy of last line
         }
         else
         {
-            memcpyMMX(lpOverlay, lines[0], pInfo->LineLength);   // extra copy of first line
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
             lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
+            CurrentLine += Pitch;
             for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
                 memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,
-                    lines[i], pInfo->LineLength);
+                    CurrentLine, pInfo->LineLength);
                 lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
-            memcpyMMX(lpOverlay, lines[i], pInfo->LineLength);   // only 1 copy of last line
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // only 1 copy of last line
         }
     }   
     else
     {
-        lines = pInfo->EvenLines[0];
-        if (lines == NULL)
-                return FALSE;
         if (pInfo->CpuFeatureFlags & FEATURE_SSE)
         {
             for (i = 0; i < pInfo->FieldHeight; i++)
             {
                 memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
-                    lines[i], pInfo->LineLength);
+                    CurrentLine, pInfo->LineLength);
                 lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
         }
         else
@@ -822,8 +702,9 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
             for (i = 0; i < pInfo->FieldHeight; i++)
             {
                 memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,
-                    lines[i], pInfo->LineLength);
+                    CurrentLine, pInfo->LineLength);
                 lpOverlay += 2 * pInfo->OverlayPitch;
+                CurrentLine += Pitch;
             }
         }
     }

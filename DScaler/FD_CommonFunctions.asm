@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.12 2001-07-13 16:14:56 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.13 2001-11-22 13:32:03 adcockj Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.12  2001/07/13 16:14:56  adcockj
+; Changed lots of variables to match Coding standards
+;
 ; Revision 1.11  2001/07/12 16:16:40  adcockj
 ; Added CVS Id and Log
 ;
@@ -48,7 +51,7 @@ extern _qwBitShift:qword
 
     .code
 ;////////////////////////////////////////////////////////////////////
-; WORD CalcCombFactorLineChroma(short* YVal1, short* YVal2, short* YVal3, 
+; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, 
 ;       long BytesToProcess);
 ;////////////////////////////////////////////////////////////////////
     
@@ -139,7 +142,7 @@ Comb_Loop:
     ret
 
 ;////////////////////////////////////////////////////////////////////
-; WORD CalcCombFactorLineChroma(short* YVal1, short* YVal2, short* YVal3, 
+; WORD CalcCombFactorLineChroma(BYTE* YVal1, BYTE* YVal2, BYTE* YVal3, 
 ;       long BytesToProcess);
 ;////////////////////////////////////////////////////////////////////
 
@@ -260,7 +263,7 @@ CombChroma_Loop:
     ret
 
 ;////////////////////////////////////////////////////////////////////
-; DWORD CalcDiffFactorLine(short* YVal1, short* YVal2, long BytesToProcess);
+; DWORD CalcDiffFactorLine(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
 ;////////////////////////////////////////////////////////////////////
 
 public _CalcDiffFactorLine
@@ -312,7 +315,7 @@ Diff_Loop:
     ret 
 
 ;////////////////////////////////////////////////////////////////////
-; DWORD CalcDiffFactorLineChroma(short* YVal1, short* YVal2, long BytesToProcess);
+; DWORD CalcDiffFactorLineChroma(BYTE* YVal1, BYTE* YVal2, long BytesToProcess);
 ;////////////////////////////////////////////////////////////////////
 
 public _CalcDiffFactorLineChroma

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.32 2001-11-21 12:32:11 adcockj Exp $
+// $Id: Calibration.cpp,v 1.33 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/11/21 12:32:11  adcockj
+// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
+//
 // Revision 1.31  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -99,7 +102,7 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
     cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
 }
 
-CColorBar::CColorBar(CColorBar *pColorBar)
+CColorBar::CColorBar(CColorBar* pColorBar)
 {
     unsigned char val1, val2, val3;
     unsigned short int left, right, top, bottom;
@@ -124,7 +127,7 @@ CColorBar::CColorBar(CColorBar *pColorBar)
 }
 
 // This methode returns the position of the color bar
-void CColorBar::GetPosition(unsigned short int *left, unsigned short int *right, unsigned short int *top, unsigned short int *bottom)
+void CColorBar::GetPosition(unsigned short int* left, unsigned short int* right, unsigned short int* top, unsigned short int* bottom)
 {
     *left = left_border;
     *right = right_border;
@@ -134,7 +137,7 @@ void CColorBar::GetPosition(unsigned short int *left, unsigned short int *right,
 
 // This methode returns the reference color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetRefColor(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V)
+void CColorBar::GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
 { 
     if (YUV)
     {
@@ -152,7 +155,7 @@ void CColorBar::GetRefColor(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, 
 
 // This methode returns the calculated average color
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V)
+void CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
 { 
     if (YUV)
     {
@@ -171,7 +174,7 @@ void CColorBar::GetCurrentAvgColor(BOOL YUV, unsigned char *pR_Y, unsigned char 
 // This methode returns the delta between reference color and calculated average color
 // It includes a delta for each color component + the sum of these three absolute deltas.
 // If parameter YUV is TRUE, it returns YUV values else RGB values
-void CColorBar::GetDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal)
+void CColorBar::GetDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal)
 {
     if (YUV)
     {
@@ -194,13 +197,15 @@ void CColorBar::GetDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pT
 
 // This method analyzed the overlay buffer to calculate average color
 // in the zone defined by the color bar
-BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width)
+BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo)
 { 
     int left, right, top, bottom, i, j;
     unsigned int Y, U, V, nb_Y, nb_U, nb_V;
-    BYTE *buf;
+    BYTE* buf;
     int overscan;
     int left_crop, total_crop;
+    int width = pInfo->FrameWidth;
+    int height = pInfo->FieldHeight;
 
     if (reinit)
     {
@@ -211,10 +216,10 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = SourceOverscan * width / (height * 2);
-    left_crop = ((LeftCropping * width) + 500) / 1000;
-    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
-    left = (width + total_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
+    overscan = SourceOverscan*  width / (height*  2);
+    left_crop = ((LeftCropping*  width) + 500) / 1000;
+    total_crop = (((LeftCropping + RightCropping)*  width) + 500) / 1000;
+    left = (width + total_crop - 2*  overscan)*  left_border / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -223,7 +228,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     {
         left = width - 1;
     }
-    right = (width + total_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2*  overscan)*  right_border / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -233,8 +238,8 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
         right = width - 1;
     }
     overscan = SourceOverscan;
-    top = (height - overscan) * top_border / 10000 + overscan / 2;
-    bottom = (height - overscan) * bottom_border / 10000 + overscan / 2;
+    top = (height - overscan)*  top_border / 10000 + overscan / 2;
+    bottom = (height - overscan)*  bottom_border / 10000 + overscan / 2;
 
     // Sum separately Y, U and V in this rectangular zone
     // Each line is like this : YUYVYUYV...
@@ -245,7 +250,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     {
         for (j = left ; j <= right ; j++)
         {
-            buf = (BYTE *)Lines[i];
+            buf = pInfo->PictureHistory[0]->pData + (i * pInfo->InputPitch);
             Y += buf[j*2];
             nb_Y++;
             if (j % 2)
@@ -271,7 +276,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
     {
         if (nb_Y > 0)
         {
-            Y_val = (cpt_Y + (cpt_nb * nb_Y / 2)) / (cpt_nb * nb_Y);
+            Y_val = (cpt_Y + (cpt_nb*  nb_Y / 2)) / (cpt_nb*  nb_Y);
         }
         else
         {
@@ -279,7 +284,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
         }
         if (nb_Y > 0)
         {
-            U_val = (cpt_U + (cpt_nb * nb_U / 2)) / (cpt_nb * nb_U);
+            U_val = (cpt_U + (cpt_nb*  nb_U / 2)) / (cpt_nb*  nb_U);
         }
         else
         {
@@ -287,13 +292,13 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
         }
         if (nb_Y > 0)
         {
-            V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
+            V_val = (cpt_V + (cpt_nb*  nb_V / 2)) / (cpt_nb*  nb_V);
         }
         else
         {
             V_val = 0;
         }
-        V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
+        V_val = (cpt_V + (cpt_nb*  nb_V / 2)) / (cpt_nb*  nb_V);
 
         // Save corresponding RGB values too
         YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
@@ -315,18 +320,20 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **L
 }
 
 // This method draws in the video signal a rectangle around the color bar
-void CColorBar::DrawPosition(short **Lines, int height, int width)
+void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
 {
     int left, right, top, bottom, i;
-    BYTE *buf;
+    BYTE* buf;
     int overscan;
     int left_crop, total_crop;
+    int width = pInfo->FrameWidth;
+    int height = pInfo->FieldHeight;
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = SourceOverscan * width / (height * 2);
-    left_crop = ((LeftCropping * width) + 500) / 1000;
-    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
-    left = (width + total_crop - 2 * overscan) * left_border / 10000 - left_crop + overscan;
+    overscan = SourceOverscan*  width / (height*  2);
+    left_crop = ((LeftCropping*  width) + 500) / 1000;
+    total_crop = (((LeftCropping + RightCropping)*  width) + 500) / 1000;
+    left = (width + total_crop - 2*  overscan)*  left_border / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -335,7 +342,7 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
     {
         left = width - 1;
     }
-    right = (width + total_crop - 2 * overscan) * right_border / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2*  overscan)*  right_border / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -345,8 +352,8 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
         right = width - 1;
     }
     overscan = SourceOverscan;
-    top = (height - overscan) * top_border / 10000 + overscan / 2;
-    bottom = (height - overscan) * bottom_border / 10000 + overscan / 2;
+    top = (height - overscan)*  top_border / 10000 + overscan / 2;
+    bottom = (height - overscan)*  bottom_border / 10000 + overscan / 2;
 
     if ((left % 2) == 1)
     {
@@ -359,7 +366,7 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
 
     for (i = top ; i <= bottom ; i++)
     {
-        buf = (BYTE *)Lines[i];
+        buf = pInfo->PictureHistory[0]->pData + (i * pInfo->InputPitch);
         buf[left*2  ] = (ref_Y_val < 128) ? 235 : 16;
         buf[left*2+1] = 128;
         buf[left*2+2] = (ref_Y_val < 128) ? 235 : 16;
@@ -373,17 +380,17 @@ void CColorBar::DrawPosition(short **Lines, int height, int width)
     right++;
     for (i = left ; i <= right ; i++)
     {
-        buf = (BYTE *)Lines[top];
+        buf = pInfo->PictureHistory[0]->pData + (top * pInfo->InputPitch);
         buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
         buf[i*2+1] = 128;
-        buf = (BYTE *)Lines[bottom];
+        buf = pInfo->PictureHistory[0]->pData + (bottom * pInfo->InputPitch);
         buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
         buf[i*2+1] = 128;
     }
 }
 
 // Convert RGB to YUV
-void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char *pY, unsigned char *pU, unsigned char *pV)
+void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV)
 {
     unsigned int y, cr, cb;
 
@@ -400,7 +407,7 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
 }
 
 // Convert YUV to RGB
-void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char *pR, unsigned char *pG, unsigned char *pB)
+void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB)
 {
     int y, cr, cb, r, g, b;
 
@@ -451,7 +458,7 @@ eTypeAdjust CSubPattern::GetTypeAdjust()
 
 // This method allows to add a new color bar in the sub-pattern
 // Returns 0 if the color bar is correctly added
-int CSubPattern::AddColorBar(CColorBar *color_bar)
+int CSubPattern::AddColorBar(CColorBar* color_bar)
 {
     int i;
 
@@ -477,7 +484,7 @@ int CSubPattern::AddColorBar(CColorBar *color_bar)
 // This method returns the first bar of the test pattern
 // The first is the first added
 // Returns NULL pointer if no color bar is defined for the sub-pattern
-CColorBar *CSubPattern::GetFirstColorBar()
+CColorBar* CSubPattern::GetFirstColorBar()
 {
     for (idx_color_bar = 0 ; idx_color_bar < MAX_COLOR_BARS ; idx_color_bar++)
     {
@@ -493,7 +500,7 @@ CColorBar *CSubPattern::GetFirstColorBar()
 // This method returns the next color bar of the sub-pattern
 // GetFirstColorBar must be called at least one time before calling GetNextColorBar
 // Returns NULL pointer if we were already on the last color bar
-CColorBar *CSubPattern::GetNextColorBar()
+CColorBar* CSubPattern::GetNextColorBar()
 {
     for (idx_color_bar++; idx_color_bar < MAX_COLOR_BARS ; idx_color_bar++)
     {
@@ -509,9 +516,9 @@ CColorBar *CSubPattern::GetNextColorBar()
 // This function searches in the sub-pattern if it exists color
 // bars with same features as the one in argument
 // Returns one of the found color bars or NULL if no found
-CColorBar *CSubPattern::FindSameCoclorBar(CColorBar *pColorBar)
+CColorBar* CSubPattern::FindSameCoclorBar(CColorBar* pColorBar)
 {
-    CColorBar *pCurBar;
+    CColorBar* pCurBar;
     unsigned short int left, right, top, bottom;
     unsigned char Y, U, V;
     unsigned short int left2, right2, top2, bottom2;
@@ -541,7 +548,7 @@ CColorBar *CSubPattern::FindSameCoclorBar(CColorBar *pColorBar)
 }
 
 // This method analyzes the current overlay buffer
-BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width)
+BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo)
 {
     BOOL result_avail;
 
@@ -550,7 +557,7 @@ BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed
     {
         if (color_bars[i] != NULL)
         {
-            result_avail = color_bars[i]->CalcAvgColor(reinit, nb_calc_needed, Lines, height, width);
+            result_avail = color_bars[i]->CalcAvgColor(reinit, nb_calc_needed, pInfo);
         }
     }
 
@@ -559,7 +566,7 @@ BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed
 
 // This methode returns the sum of absolute delta between reference color
 // and calculated average color through all the color bars
-void CSubPattern::GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal)
+void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal)
 {
     int i, j;
     int delta[4];
@@ -590,14 +597,14 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, in
 }
 	
 // This method draws in the video signal rectangles around each color bar of the sub-pattern
-void CSubPattern::DrawPositions(short **Lines, int height, int width)
+void CSubPattern::DrawPositions(TDeinterlaceInfo* pInfo)
 {
     // Do the job for each defined color bar
     for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
     {
         if (color_bars[i] != NULL)
         {
-            color_bars[i]->DrawPosition(Lines, height, width);
+            color_bars[i]->DrawPosition(pInfo);
         }
     }
 }
@@ -629,7 +636,7 @@ CTestPattern::~CTestPattern()
 }
 
 // This method returns the name of the test pattern
-char *CTestPattern::GetName()
+char* CTestPattern::GetName()
 {
     return pattern_name;
 }
@@ -642,7 +649,7 @@ eVideoFormat CTestPattern::GetVideoFormat()
 
 // This method allows to add a new sub-pattern to the test pattern
 // Returns 0 if the sub-pattern is correctly added
-int CTestPattern::AddSubPattern(CSubPattern *sub_pattern)
+int CTestPattern::AddSubPattern(CSubPattern* sub_pattern)
 {
     int i;
 
@@ -671,9 +678,9 @@ int CTestPattern::AddSubPattern(CSubPattern *sub_pattern)
 int CTestPattern::CreateGlobalSubPattern()
 {
     int i;
-    CSubPattern *sub_pattern;
-    CColorBar *pCurBar;
-    CColorBar *pNewBar;
+    CSubPattern* sub_pattern;
+    CColorBar* pCurBar;
+    CColorBar* pNewBar;
 
     // Create the new sub-pattern
     sub_pattern = new CSubPattern(ADJ_MANUAL);
@@ -738,9 +745,9 @@ eTypeContentPattern CTestPattern::DetermineTypeContent()
 
 // This method returns the (first) sub-pattern allowing to adjust particular settings
 // Returns NULL pointer if no sub-pattern allows to do this type of adjustments
-CSubPattern *CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
+CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
 {
-    CSubPattern *sub_pattern;
+    CSubPattern* sub_pattern;
 
     sub_pattern = GetFirstSubPattern();
     while (sub_pattern != NULL)
@@ -757,7 +764,7 @@ CSubPattern *CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
 // This method returns the first sub-pattern of the test pattern
 // The first is the first added
 // Returns NULL pointer if no sub-pattern is defined for the test pattern
-CSubPattern *CTestPattern::GetFirstSubPattern()
+CSubPattern* CTestPattern::GetFirstSubPattern()
 {
     for (idx_sub_pattern = 0 ; idx_sub_pattern < MAX_SUB_PATTERNS ; idx_sub_pattern++)
     {
@@ -773,7 +780,7 @@ CSubPattern *CTestPattern::GetFirstSubPattern()
 // This method returns the next sub-pattern of the test pattern
 // GetFirstSubPattern must be called at least one time before calling GetNextSubPattern
 // Returns NULL pointer if we were already on the last sub-pattern
-CSubPattern *CTestPattern::GetNextSubPattern()
+CSubPattern* CTestPattern::GetNextSubPattern()
 {
     for (idx_sub_pattern++; idx_sub_pattern < MAX_SUB_PATTERNS ; idx_sub_pattern++)
     {
@@ -871,7 +878,7 @@ void CCalSetting::SetRange(int delta)
     SetRange(min_val, max_val);
 }
 
-void CCalSetting::SetRange(int *mask)
+void CCalSetting::SetRange(int* mask)
 {
     int i, nb;
 
@@ -897,7 +904,7 @@ void CCalSetting::SetRange(int *mask)
     }
 }
 
-int CCalSetting::GetRange(int *mask, int *min_val, int *max_val)
+int CCalSetting::GetRange(int* mask, int* min_val, int* max_val)
 {
     int i, nb;
 
@@ -913,8 +920,8 @@ int CCalSetting::GetRange(int *mask, int *min_val, int *max_val)
     {
         mask[i] = mask_input[i];
     }
-    *min_val = min_value;
-    *max_val = max_value;
+   * min_val = min_value;
+   * max_val = max_value;
 
     return nb;
 }
@@ -1033,7 +1040,7 @@ BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
     return min_found;
 }
 
-int CCalSetting::GetResult(int *mask, int *min_val, int *max_val)
+int CCalSetting::GetResult(int* mask, int* min_val, int* max_val)
 {
     int i;
     int nb_min;
@@ -1063,8 +1070,8 @@ int CCalSetting::GetResult(int *mask, int *min_val, int *max_val)
         {
             mask[i] = mask_output[i];
         }
-        *min_val = best_val_min;
-        *max_val = best_val_max;
+       * min_val = best_val_min;
+       * max_val = best_val_max;
     }
 
     return nb_min;
@@ -1115,8 +1122,8 @@ CCalibration::~CCalibration()
 // This method loads all the predefined test patterns
 void CCalibration::LoadTestPatterns()
 {
-    CColorBar *color_bar;
-    CSubPattern *sub_pattern;
+    CColorBar* color_bar;
+    CSubPattern* sub_pattern;
 
     test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", FORMAT_NTSC);
 
@@ -1638,7 +1645,7 @@ void CCalibration::UpdateMenu(HMENU hMenu)
     HMENU           hMenuPatterns;
     MENUITEMINFO    MenuItemInfo;
     int             i;
-	char			*name;
+	char*		    name;
 
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
@@ -1728,14 +1735,14 @@ void CCalibration::SelectTestPattern(int num)
     current_sub_pattern = NULL;
 }
 
-CTestPattern *CCalibration::GetCurrentTestPattern()
+CTestPattern* CCalibration::GetCurrentTestPattern()
 {
 	return current_test_pattern;
 }
 
-CSubPattern *CCalibration::GetSubPattern(eTypeAdjust type_adjust)
+CSubPattern* CCalibration::GetSubPattern(eTypeAdjust type_adjust)
 {
-    CSubPattern *sub_pattern = NULL;
+    CSubPattern* sub_pattern = NULL;
 
     if (current_test_pattern != NULL)
     {
@@ -1745,7 +1752,7 @@ CSubPattern *CCalibration::GetSubPattern(eTypeAdjust type_adjust)
     return sub_pattern;
 }
 
-CSubPattern *CCalibration::GetCurrentSubPattern()
+CSubPattern* CCalibration::GetCurrentSubPattern()
 {
 	return current_sub_pattern;
 }
@@ -1891,7 +1898,7 @@ eTypeCalibration CCalibration::GetType()
 	return type_calibration;
 }
 
-void CCalibration::Make(short **Lines, int height, int width, int tick_count)
+void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 {
     int nb1, nb2, nb3;
     int min, max;
@@ -1907,7 +1914,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     {
         if (current_sub_pattern != NULL)
         {
-            current_sub_pattern->DrawPositions(Lines, height, width);
+            current_sub_pattern->DrawPositions(pInfo);
         }
 		return;
     }
@@ -1935,7 +1942,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         new_settings |= hue->Update();
 
         // Calculations with current setitngs
-        if ( current_sub_pattern->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS_LOW, Lines, height, width)
+        if ( current_sub_pattern->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS_LOW, pInfo)
           && (type_calibration != CAL_MANUAL) )
         {
             current_step = -1;
@@ -1946,7 +1953,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 1:
         brightness->SetRange((nb_tries == 0) ? 75 : 25);
-        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - brightness - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -1959,7 +1966,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 2:     // Step to find a short range for brightness setting
-        if (step_process(Lines, height, width, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step += (found ? 3 : 1);
         }
@@ -1967,7 +1974,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 3:
         brightness->SetFullRange();
-        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - brightness - full range - try %d", nb_tries+1);
             current_step++;
@@ -1980,7 +1987,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 4:     // Step to find a short range for brightness setting
-        if (step_process(Lines, height, width, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step++;
         }
@@ -1988,7 +1995,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 5:
         contrast->SetRange((nb_tries == 0) ? 50 : 25);
-        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - contrast - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -2001,7 +2008,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 6:     // Step to find a short range for contrast setting
-        if (step_process(Lines, height, width, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step += (found ? 3 : 1);
         }
@@ -2009,7 +2016,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 7:
         contrast->SetFullRange();
-        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - contrast - full range - try %d", nb_tries+1);
             current_step++;
@@ -2022,7 +2029,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 8:     // Step to find a short range for contrast setting
-        if (step_process(Lines, height, width, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 1, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step++;
         }
@@ -2065,7 +2072,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
             current_step += 2;
             break;
         }
-        if (step_init(ADJ_BRIGHTNESS_CONTRAST, brightness, contrast, (CCalSetting *)NULL))
+        if (step_init(ADJ_BRIGHTNESS_CONTRAST, brightness, contrast, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - brightness + contrast - %d %d", nb1, nb2);
             current_step++;
@@ -2077,7 +2084,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 11:     // Step to adjust fine brightness + contradt
-        if (step_process(Lines, height, width, 1, NB_CALCULATIONS_HIGH, FALSE, TRUE, &found))
+        if (step_process(pInfo, 1, NB_CALCULATIONS_HIGH, FALSE, TRUE, &found))
         {
             current_step++;
         }
@@ -2085,7 +2092,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 12:
         saturation_U->SetRange(75);
-        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation U - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -2098,7 +2105,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 13:     // Step to find a short range for saturation U setting
-        if (step_process(Lines, height, width, 2, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 2, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step += (found ? 3 : 1);
         }
@@ -2106,7 +2113,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 14:
         saturation_U->SetFullRange();
-        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation U - full range - try %d", nb_tries+1);
             current_step++;
@@ -2119,7 +2126,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 15:     // Step to find a short range for saturation U setting
-        if (step_process(Lines, height, width, 2, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 2, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step++;
         }
@@ -2127,7 +2134,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 16:
         saturation_V->SetRange(75);
-        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation V - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -2140,7 +2147,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 17:    // Step to find a short range for saturation V setting
-        if (step_process(Lines, height, width, 3, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 3, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step += (found ? 3 : 1);
         }
@@ -2148,7 +2155,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 18:
         saturation_V->SetFullRange();
-        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation V - full range - try %d", nb_tries+1);
             current_step++;
@@ -2161,7 +2168,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 19:    // Step to find a short range for saturation V setting
-        if (step_process(Lines, height, width, 3, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 3, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step++;
         }
@@ -2169,7 +2176,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     case 20:
         hue->SetRange(30);
-        if (step_init(ADJ_HUE, hue, (CCalSetting *)NULL, (CCalSetting *)NULL))
+        if (step_init(ADJ_HUE, hue, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - hue - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -2182,7 +2189,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 21:    // Step to find a short range for hue setting
-        if (step_process(Lines, height, width, 2, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
+        if (step_process(pInfo, 2, NB_CALCULATIONS_LOW, TRUE, FALSE, &found))
         {
             current_step++;
         }
@@ -2233,7 +2240,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 23:    // Step to adjust fine color saturation and hue
-        if (step_process(Lines, height, width, 4, NB_CALCULATIONS_HIGH, FALSE, TRUE, &found))
+        if (step_process(pInfo, 4, NB_CALCULATIONS_HIGH, FALSE, TRUE, &found))
         {
             current_step++;
         }
@@ -2252,40 +2259,40 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 
     if (current_sub_pattern != NULL)
     {
-        current_sub_pattern->DrawPositions(Lines, height, width);
+        current_sub_pattern->DrawPositions(pInfo);
     }
 }
 
-BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CCalSetting *_setting2, CCalSetting *_setting3)
+BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting* _setting1, CCalSetting* _setting2, CCalSetting* _setting3)
 {
     // Get the bar to use for this step
     current_sub_pattern = GetSubPattern(type_adjust);
     if (current_sub_pattern == NULL)
     {
-        setting1 = (CCalSetting *)NULL;
-        setting2 = (CCalSetting *)NULL;
-        setting3 = (CCalSetting *)NULL;
+        setting1 = (CCalSetting* )NULL;
+        setting2 = (CCalSetting* )NULL;
+        setting3 = (CCalSetting* )NULL;
         return FALSE;
     }
     else
     {
         // Initialize
         setting1 = _setting1;
-        if (setting1 != (CCalSetting *)NULL)
+        if (setting1 != (CCalSetting* )NULL)
         {
             // Set the settings to their minimum
             setting1->AdjustMin();
             setting1->InitResult();
         }
         setting2 = _setting2;
-        if (setting2 != (CCalSetting *)NULL)
+        if (setting2 != (CCalSetting* )NULL)
         {
             // Set the settings to their minimum
             setting2->AdjustMin();
             setting2->InitResult();
         }
         setting3 = _setting3;
-        if (setting3 != (CCalSetting *)NULL)
+        if (setting3 != (CCalSetting* )NULL)
         {
             // Set the settings to their minimum
             setting3->AdjustMin();
@@ -2300,7 +2307,7 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CC
     }
 }
 
-BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL *best_found)
+BOOL CCalibration::step_process(TDeinterlaceInfo* pInfo, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL* best_found)
 {
     int val[4];
     BOOL YUV;
@@ -2308,7 +2315,7 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
 //    int dif;
 
     // Calculations with current settings
-    current_sub_pattern->CalcCurrentSubPattern(TRUE, 1, Lines, height, width);
+    current_sub_pattern->CalcCurrentSubPattern(TRUE, 1, pInfo);
 
     // See how good is the red result
     if ((sig_component >= 1) && (sig_component <= 4))
@@ -2333,34 +2340,34 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
         return FALSE;
     }
 
-    if (setting1 != (CCalSetting *)NULL)
+    if (setting1 != (CCalSetting* )NULL)
     {
-        *best_found = setting1->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*nb_calc : -1, only_one);
-//        *best_found = setting1->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
+       * best_found = setting1->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*nb_calc : -1, only_one);
+//       * best_found = setting1->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
     }
-    if (setting2 != (CCalSetting *)NULL)
+    if (setting2 != (CCalSetting* )NULL)
     {
-        *best_found = setting2->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*nb_calc : -1, only_one);
-//        *best_found = setting2->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
+       * best_found = setting2->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*nb_calc : -1, only_one);
+//       * best_found = setting2->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
     }
-    if (setting3 != (CCalSetting *)NULL)
+    if (setting3 != (CCalSetting* )NULL)
     {
-        *best_found = setting3->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*nb_calc : -1, only_one);
-//        *best_found = setting3->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
+       * best_found = setting3->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*nb_calc : -1, only_one);
+//       * best_found = setting3->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
     }
 
     nb_calcul = 0;
     total_dif = 0;
 
     // Increase the third setting
-    if ((setting3 != (CCalSetting *)NULL) && setting3->AdjustNext())
+    if ((setting3 != (CCalSetting* )NULL) && setting3->AdjustNext())
     {
         return FALSE;
     }
     // Increase the second setting
-    else if ((setting2 != (CCalSetting *)NULL) && setting2->AdjustNext())
+    else if ((setting2 != (CCalSetting* )NULL) && setting2->AdjustNext())
     {
-        if (setting3 != (CCalSetting *)NULL)
+        if (setting3 != (CCalSetting* )NULL)
         {
             // Set the third setting to its minimum
             setting3->AdjustMin();
@@ -2368,14 +2375,14 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
         return FALSE;
     }
     // Increase the first setting
-    else if ((setting1 != (CCalSetting *)NULL) && setting1->AdjustNext())
+    else if ((setting1 != (CCalSetting* )NULL) && setting1->AdjustNext())
     {
-        if (setting2 != (CCalSetting *)NULL)
+        if (setting2 != (CCalSetting* )NULL)
         {
             // Set the second setting to its minimum
             setting2->AdjustMin();
         }
-        if (setting3 != (CCalSetting *)NULL)
+        if (setting3 != (CCalSetting* )NULL)
         {
             // Set the third setting to its minimum
             setting3->AdjustMin();
@@ -2385,15 +2392,15 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
     else
     {
         // Set the settings to the best values found
-        if (setting1 != (CCalSetting *)NULL)
+        if (setting1 != (CCalSetting* )NULL)
         {
             setting1->AdjustBest();
         }
-        if (setting2 != (CCalSetting *)NULL)
+        if (setting2 != (CCalSetting* )NULL)
         {
             setting2->AdjustBest();
         }
-        if (setting3 != (CCalSetting *)NULL)
+        if (setting3 != (CCalSetting* )NULL)
         {
             setting3->AdjustBest();
         }
@@ -2403,7 +2410,7 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
 
 /////////////////////////////////////////////////////////////////////////////
 
-CCalibration *pCalibration = NULL;
+CCalibration* pCalibration = NULL;
 
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

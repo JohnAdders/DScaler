@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.19 2001-11-21 15:21:39 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.20 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.18  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -103,6 +107,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
     static long PrivateRepeatCount = PALPulldownRepeatCount;
     static long NotSureCount = 0;
     static BOOL NeedToCheckComb = FALSE;
+    BOOL IsOdd = ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
 
     // call with pInfo as NULL to reset static variables when we start the thread
     // each time
@@ -154,7 +159,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
             pInfo->FieldDiff > MovementThreshold &&
             LastCombFactor > CombThreshold)
         {
-            if(LastPolarity == pInfo->IsOdd)
+            if(LastPolarity == IsOdd)
             {
                 if(RepeatCount < PrivateRepeatCount)
                 {
@@ -180,12 +185,12 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                 {
                     if(FieldsSinceLastChange > 100 || (GetFilmMode() == FILM_22_PULLDOWN_COMB))
                     {
-                        if(pInfo->IsOdd == TRUE)
+                        if(IsOdd == TRUE)
                         {
                             SetFilmDeinterlaceMode(FILM_22_PULLDOWN_ODD);
                             LOG(2, "Gone to Odd");
                         }
-                        if(pInfo->IsOdd == FALSE)
+                        if(IsOdd == FALSE)
                         {
                             SetFilmDeinterlaceMode(FILM_22_PULLDOWN_EVEN);
                             LOG(2, "Gone to Even");
@@ -198,7 +203,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
             }
             else
             {
-                LastPolarity = pInfo->IsOdd;
+                LastPolarity = IsOdd;
                 RepeatCount = 1;
                 LOG(2, "Reset RepeatCount %d", RepeatCount);
             }
@@ -214,7 +219,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
         // check that if there is movement that there is not too much combing
         // going on
         if(pInfo->FieldDiff >= ThresholdPulldownMismatch && // only force video if this field is very different,
-            LastPolarity == pInfo->IsOdd &&
+            LastPolarity == IsOdd &&
             pInfo->CombFactor > (LastCombFactor + ThresholdPulldownComb) &&   // and it'd produce artifacts
             pInfo->CombFactor > ThresholdPulldownComb)
         {
@@ -245,7 +250,7 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
                 }
             }
         }
-        if(LastPolarity == pInfo->IsOdd)
+        if(LastPolarity == IsOdd)
         {
             if(pInfo->FieldDiff >= ThresholdPulldownMismatch)
             {

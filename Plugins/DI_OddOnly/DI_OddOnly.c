@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OddOnly.c,v 1.5 2001-11-21 15:21:40 adcockj Exp $
+// $Id: DI_OddOnly.c,v 1.6 2001-11-22 13:32:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/21 15:21:40  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.4  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -38,7 +42,7 @@ BOOL DeinterlaceOddOnly(TDeinterlaceInfo* pInfo)
     int nLineTarget;
     BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
 
-    if(pInfo->PictureHistory[0]->Flags | PICTURE_INTERLACED_ODD)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
     {
         for(nLineTarget = 0; nLineTarget < pInfo->FieldHeight; nLineTarget++)
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.asm,v 1.3 2001-11-21 15:21:40 adcockj Exp $
+// $Id: DI_OldGame.asm,v 1.4 2001-11-22 13:32:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/21 15:21:40  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.2  2001/08/30 10:03:51  adcockj
 // Slightly improved the color averaging
 // Added a "composite mode" switch to force averaging when crosstalk is more important than blur.
@@ -130,7 +134,7 @@ long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
         BYTE*           pDestination = pInfo->Overlay;
         DWORD           LineTarget = 0;
 
-        if ((ppNewLines == NULL) || (ppOldLines == NULL))
+        if ((pNewLines == NULL) || (pOldLines == NULL))
         {
             return TRUE;
         }

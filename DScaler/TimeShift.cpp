@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.10 2001-11-21 15:21:39 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.11 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.9  2001/11/20 11:43:00  temperton
 // Store wave-device names instead of indexes in ini
 //
@@ -131,7 +135,7 @@
 
 /////////////////////////////// Static Interface ///////////////////////////////
 
-bool TimeShift::OnDestroy(void)
+bool CTimeShift::OnDestroy(void)
 {
     bool result = false;
 
@@ -146,7 +150,7 @@ bool TimeShift::OnDestroy(void)
     return result;
 }
 
-bool TimeShift::OnRecord(void)
+bool CTimeShift::OnRecord(void)
 {
     AssureCreated();
 
@@ -167,7 +171,7 @@ bool TimeShift::OnRecord(void)
     return result;
 }
 
-bool TimeShift::OnPause(void)
+bool CTimeShift::OnPause(void)
 {
     AssureCreated();
 
@@ -188,7 +192,7 @@ bool TimeShift::OnPause(void)
     return result;
 }
 
-bool TimeShift::OnPlay(void)
+bool CTimeShift::OnPlay(void)
 {
     AssureCreated();
 
@@ -213,7 +217,7 @@ bool TimeShift::OnPlay(void)
     return result;
 }
 
-bool TimeShift::OnStop(void)
+bool CTimeShift::OnStop(void)
 {
     AssureCreated();
 
@@ -242,7 +246,7 @@ bool TimeShift::OnStop(void)
     return result;
 }
 
-bool TimeShift::OnGoNext(void)
+bool CTimeShift::OnGoNext(void)
 {
     AssureCreated();
 
@@ -264,7 +268,7 @@ bool TimeShift::OnGoNext(void)
     return result;
 }
 
-bool TimeShift::OnGoPrev(void)
+bool CTimeShift::OnGoPrev(void)
 {
     AssureCreated();
 
@@ -286,7 +290,7 @@ bool TimeShift::OnGoPrev(void)
     return result;
 }
 
-bool TimeShift::OnOptions(void)
+bool CTimeShift::OnOptions(void)
 {
     AssureCreated();
 
@@ -321,7 +325,7 @@ bool TimeShift::OnOptions(void)
 }
 
 // Called from the capture thread.
-bool TimeShift::OnNewFrame(TDeinterlaceInfo *info)
+bool CTimeShift::OnNewFrame(TDeinterlaceInfo *pInfo)
 {
     bool result = false;
 
@@ -329,23 +333,23 @@ bool TimeShift::OnNewFrame(TDeinterlaceInfo *info)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
-        // Only write the frame if we're recording.
-        result =
-            m_pTimeShift->m_mode == MODE_RECORDING ||
+        if(m_pTimeShift->m_mode == MODE_RECORDING ||
             m_pTimeShift->m_mode == MODE_PAUSED ||
-            m_pTimeShift->m_mode == MODE_SHIFTING ?
-            m_pTimeShift->WriteVideo(info) :
-            m_pTimeShift->m_mode == MODE_PLAYING ?
-            m_pTimeShift->ReadVideo(info) :
-            false;
-
+            m_pTimeShift->m_mode == MODE_SHIFTING)
+        {
+            result = m_pTimeShift->WriteVideo(pInfo);
+        }
+        else if(m_pTimeShift->m_mode == MODE_PLAYING)
+        {
+            result = m_pTimeShift->ReadVideo(pInfo);
+        }
         LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
 
     return result;
 }
 
-bool TimeShift::OnWaveInData(void)
+bool CTimeShift::OnWaveInData(void)
 {
     bool result = false;
 
@@ -366,7 +370,7 @@ bool TimeShift::OnWaveInData(void)
     return result;
 }
 
-bool TimeShift::OnWaveOutDone(void)
+bool CTimeShift::OnWaveOutDone(void)
 {
     bool result = false;
 
@@ -386,7 +390,7 @@ bool TimeShift::OnWaveOutDone(void)
     return result;
 }
 
-bool TimeShift::OnSetMenu(HMENU hMenu)
+bool CTimeShift::OnSetMenu(HMENU hMenu)
 {
     bool result = false;
 
@@ -479,10 +483,10 @@ B = (Y - 16) * 1.0711 + (U - 128.0) *  1.772 + (V - 128.0) *  0.00;
 
 */
 
-TimeShift *TimeShift::m_pTimeShift = NULL;
-LPBYTE (*TimeShift::m_YUVtoRGB)(LPBYTE,short *,DWORD) = NULL;
-LPBYTE (*TimeShift::m_AvgYUVtoRGB)(LPBYTE,short *,short *,DWORD) = NULL;
-LPBYTE (*TimeShift::m_RGBtoYUV)(short *,LPBYTE,DWORD) = NULL;
+CTimeShift* CTimeShift::m_pTimeShift = NULL;
+LPBYTE (*CTimeShift::m_YUVtoRGB)(LPBYTE,short *,DWORD) = NULL;
+LPBYTE (*CTimeShift::m_AvgYUVtoRGB)(LPBYTE,short *,short *,DWORD) = NULL;
+LPBYTE (*CTimeShift::m_RGBtoYUV)(short *,LPBYTE,DWORD) = NULL;
 
 // The mmx code requires at least a Pentium-III.
 #define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
@@ -911,7 +915,7 @@ LPBYTE C_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
     return src;
 }
 
-TimeShift::TimeShift()
+CTimeShift::CTimeShift()
     :
     m_mode(MODE_STOPPED),
     m_fps(30), // Our AVIs will always be 30 fps.
@@ -1025,7 +1029,7 @@ TimeShift::TimeShift()
     m_pTimeShift = NULL;
 }
 
-TimeShift::~TimeShift()
+CTimeShift::~CTimeShift()
 {
     // NOTE: This will deadlock if we crash in OnNewFrame.  So, the solution
     // would be to fix any crash bugs and we can leave this lock as is.
@@ -1043,20 +1047,20 @@ TimeShift::~TimeShift()
     DeleteCriticalSection(&m_lock);
 }
 
-bool TimeShift::AssureCreated(void)
+bool CTimeShift::AssureCreated(void)
 {
     if (!m_pTimeShift)
-        m_pTimeShift = new TimeShift;
+        m_pTimeShift = new CTimeShift();
 
     return m_pTimeShift != NULL;
 }
 
-bool TimeShift::OnSetDimensions(void)
+bool CTimeShift::OnSetDimensions(void)
 {
     return m_pTimeShift ? m_pTimeShift->SetDimensions() : false;
 }
 
-bool TimeShift::OnGetDimenstions(int *w, int *h)
+bool CTimeShift::OnGetDimenstions(int *w, int *h)
 {
     if (m_pTimeShift && w && h)
     {
@@ -1068,12 +1072,12 @@ bool TimeShift::OnGetDimenstions(int *w, int *h)
     return false;
 }
 
-bool TimeShift::OnSetWaveInDevice(char *pszDevice)
+bool CTimeShift::OnSetWaveInDevice(char *pszDevice)
 {
     return m_pTimeShift ? m_pTimeShift->SetWaveInDevice(pszDevice) : false;
 }
 
-bool TimeShift::OnGetWaveInDevice(char **ppszDevice)
+bool CTimeShift::OnGetWaveInDevice(char **ppszDevice)
 {
     if (m_pTimeShift && ppszDevice)
     {
@@ -1084,12 +1088,12 @@ bool TimeShift::OnGetWaveInDevice(char **ppszDevice)
     return false;
 }
 
-bool TimeShift::OnSetWaveOutDevice(char *pszDevice)
+bool CTimeShift::OnSetWaveOutDevice(char *pszDevice)
 {
     return m_pTimeShift ? m_pTimeShift->SetWaveOutDevice(pszDevice) : false;
 }
 
-bool TimeShift::OnGetWaveOutDevice(char **ppszDevice)
+bool CTimeShift::OnGetWaveOutDevice(char **ppszDevice)
 {
     if (m_pTimeShift && ppszDevice)
     {
@@ -1100,12 +1104,12 @@ bool TimeShift::OnGetWaveOutDevice(char **ppszDevice)
     return false;
 }
 
-bool TimeShift::OnSetRecHeight(int index)
+bool CTimeShift::OnSetRecHeight(int index)
 {
     return m_pTimeShift ? m_pTimeShift->SetRecHeight(index) : false;
 }
 
-bool TimeShift::OnGetRecHeight(int *index)
+bool CTimeShift::OnGetRecHeight(int *index)
 {
     if (m_pTimeShift && index)
     {
@@ -1116,12 +1120,12 @@ bool TimeShift::OnGetRecHeight(int *index)
     return false;
 }
 
-bool TimeShift::OnCompressionOptions(void)
+bool CTimeShift::OnCompressionOptions(void)
 {
     return m_pTimeShift ? m_pTimeShift->CompressionOptions() : false;
 }
 
-bool TimeShift::SetBT848PixelWidth(int pixelWidth)
+bool CTimeShift::SetBT848PixelWidth(int pixelWidth)
 {
     bool result = false;
 
@@ -1139,7 +1143,7 @@ bool TimeShift::SetBT848PixelWidth(int pixelWidth)
     return result;
 }
 
-bool TimeShift::DoMute(bool mute)
+bool CTimeShift::DoMute(bool mute)
 {
     if (m_pTimeShift)
     {
@@ -1192,7 +1196,7 @@ static void CALLBACK WaveInProc(
     DWORD dwParam2)
 {
     if (uMsg == WIM_DATA)
-        TimeShift::OnWaveInData();
+        CTimeShift::OnWaveInData();
 }
 
 static void CALLBACK WaveOutProc(
@@ -1203,10 +1207,10 @@ static void CALLBACK WaveOutProc(
     DWORD dwParam2)
 {
     if (uMsg == WOM_DONE)
-		TimeShift::OnWaveOutDone();
+		CTimeShift::OnWaveOutDone();
 }
 
-bool TimeShift::Record(bool pause)
+bool CTimeShift::Record(bool pause)
 {
     // Clear all variables.
     Stop();
@@ -1325,7 +1329,7 @@ bool TimeShift::Record(bool pause)
     return true;
 }
 
-bool TimeShift::Play(void)
+bool CTimeShift::Play(void)
 {
     if (m_mode != MODE_PAUSED)
         // Clear all variables.
@@ -1434,7 +1438,7 @@ bool TimeShift::Play(void)
     return true;
 }
 
-bool TimeShift::Stop(void)
+bool CTimeShift::Stop(void)
 {
     // Set mode to stopped first in case we continue to receive callbacks.
     m_mode = MODE_STOPPED;
@@ -1538,7 +1542,7 @@ bool TimeShift::Stop(void)
     return true;
 }
 
-bool TimeShift::GoNext(void)
+bool CTimeShift::GoNext(void)
 {
     int curFile = m_curFile;
 
@@ -1556,7 +1560,7 @@ bool TimeShift::GoNext(void)
     return Play();
 }
 
-bool TimeShift::GoPrev(void)
+bool CTimeShift::GoPrev(void)
 {
     int curFile = m_curFile;
 
@@ -1574,36 +1578,39 @@ bool TimeShift::GoPrev(void)
     return Play();
 }
 
-bool TimeShift::WriteVideo(TDeinterlaceInfo *info)
+bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
 {
     if (!m_psCompressedVideo)
+    {
         return false;
+    }
 
-//      if ((!info->IsOdd && info->EvenLines[0] == NULL) ||
-//          (info->IsOdd && info->OddLines[0] == NULL))
-//          return false;
     // Use this more restrictive check.
-    if (info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
+    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
+    {
         return false;
+    }
 
     m_thisTimeRecord = GetTickCount();
 
     // Make sure everything starts out at zero.
     if (!m_startTimeRecord)
+    {
         m_startTimeRecord = m_thisTimeRecord;
+    }
 
     DWORD thisFrame =
         DWORD((double)m_fps * double(m_thisTimeRecord - m_startTimeRecord)
               / 1000.0 + 0.5);
 
     LPBYTE dest = m_recordBits;
-    DWORD frameWidth = (info->FrameWidth >> 2) << 2;
+    DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
     DWORD w = min(m_bih.biWidth, frameWidth);
-    DWORD h = min(m_bih.biHeight, info->FieldHeight);
+    DWORD h = min(m_bih.biHeight, pInfo->FieldHeight);
     DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
 
     // Our AVI is 30fps.  Write after even field is received.
-    if (!info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
     {
         int y = h - 1;
 
@@ -1627,24 +1634,34 @@ bool TimeShift::WriteVideo(TDeinterlaceInfo *info)
         default:
         case TS_HALFHEIGHTEVEN:
             for (; y >= 0; --y)
+            {
+                BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
                 dest = m_YUVtoRGB(dest,
-                                  info->EvenLines[0][y],
+                                  (SHORT*)CurrentLine,
                                   w) + more;
+            }
             break;
 #if 0 // EAS20010805: There is a crash bug here somewhere...
         case TS_HALFHEIGHTODD:
             for (; y >= 0; --y)
+            {
+                BYTE* CurrentLine = pInfo->PictureHistory[1]->pData + y * pInfo->InputPitch;
                 dest = m_YUVtoRGB(dest,
-                                  info->OddLines[0][y],
+                                  (SHORT*)CurrentLine,
                                   w) + more;
+            }
             break;
 
         case TS_HALFHEIGHTAVG:
             for (; y >= 0; --y)
+            {
+                BYTE* EvenLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
+                BYTE* OddLine = pInfo->PictureHistory[1]->pData + y * pInfo->InputPitch;
                 dest = m_AvgYUVtoRGB(dest,
-                                     info->EvenLines[0][y],
-                                     info->OddLines[0][y],
+                                     (SHORT*)EvenLine,
+                                     (SHORT*)OddLine,
                                      w) + more;
+            }
             break;
 #endif // 0
         }
@@ -1668,8 +1685,8 @@ bool TimeShift::WriteVideo(TDeinterlaceInfo *info)
     {
     case MODE_PAUSED:
         // FIXME: Make pause bits YUY2 so we don't have to convert every time.
-        // FIXME: Use info->pMemcpy() here, but it crashes. ???
-        if (!m_gotPauseBits && !info->IsOdd)
+        // FIXME: Use pInfo->pMemcpy() here, but it crashes. ???
+        if (!m_gotPauseBits && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN))
         {
             memcpy(m_playBits, m_recordBits, m_bih.biSizeImage);
             m_gotPauseBits = true;
@@ -1678,42 +1695,44 @@ bool TimeShift::WriteVideo(TDeinterlaceInfo *info)
         if (m_gotPauseBits)
         {
             LPBYTE src = m_playBits;
-            DWORD frameWidth = (info->FrameWidth >> 2) << 2;
+            DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
             DWORD w = min(m_bih.biWidth, frameWidth);
-            DWORD h = min(m_bih.biHeight, info->FieldHeight);
+            DWORD h = min(m_bih.biHeight, pInfo->FieldHeight);
             DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
 
-            if (info->IsOdd)
-                for (int y = h - 1; y >= 0; --y)
-                    src = m_RGBtoYUV(info->OddLines[0][y], src, w) + more;
-            else
-                for (int y = h - 1; y >= 0; --y)
-                    src = m_RGBtoYUV(info->EvenLines[0][y], src, w) + more;
+            for (int y = h - 1; y >= 0; --y)
+            {
+                BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
+                src = m_RGBtoYUV((SHORT*)CurrentLine, src, w) + more;
+            }
         }
         break;
 
     case MODE_SHIFTING:
-        ReadVideo(info);
+        ReadVideo(pInfo);
         break;
     }
 
     return true;
 }
 
-bool TimeShift::ReadVideo(TDeinterlaceInfo *info)
+bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
 {
     if (!m_psCompressedVideoP)
         return false;
 
-    if ((!info->IsOdd && info->EvenLines[0] == NULL) ||
-        (info->IsOdd && info->OddLines[0] == NULL))
+    if (pInfo->PictureHistory[0] == NULL)
+    {
         return false;
+    }
 
     m_thisTimePlay = GetTickCount();
 
     // Make sure everything starts out at zero.
     if (!m_startTimePlay)
+    {
         m_startTimePlay = m_thisTimePlay;
+    }
 
     DWORD thisFrame =
         DWORD((double)m_fps * double(m_thisTimePlay - m_startTimePlay)
@@ -1734,37 +1753,36 @@ bool TimeShift::ReadVideo(TDeinterlaceInfo *info)
     }
 
     // Our AVI is 30fps.  Read after odd field is received.
-    if (info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+    {
         m_lpbi = m_pGetFrame ?
             (LPBITMAPINFOHEADER)AVIStreamGetFrame(m_pGetFrame, thisFrame) :NULL;
+    }
 
     if (m_lpbi)
     {
         LPBYTE src = LPBYTE(m_lpbi) + m_lpbi->biSize;
-        DWORD frameWidth = (info->FrameWidth >> 2) << 2;
+        DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
         DWORD w = min(m_lpbi->biWidth, frameWidth);
-        DWORD h = min(m_lpbi->biHeight, info->FieldHeight);
+        DWORD h = min(m_lpbi->biHeight, pInfo->FieldHeight);
         DWORD more = (m_lpbi->biBitCount >> 3) * (m_lpbi->biWidth - w);
 
-        if (info->IsOdd)
-            for (int y = h - 1; y >= 0; --y)
-                src = m_RGBtoYUV(info->OddLines[0][y], src, w) + more;
-        else
-            // FIXME? Maybe keep the previous field around and memcpy here
-            // instead of reprocessing the pixels we already did last time?
-            // Probably not, the mmx code is almost as fast and we'd have to
-            // do two memcpys.  One to save it, one to copy to even lines.
-            for (int y = h - 1; y >= 0; --y)
-                src = m_RGBtoYUV(info->EvenLines[0][y], src, w) + more;
+        for (int y = h - 1; y >= 0; --y)
+        {
+            BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
+            src = m_RGBtoYUV((SHORT*)CurrentLine, src, w) + more;
+        }
     }
 
-    if (!info->IsOdd)
+    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
+    {
         m_lpbi = NULL;
+    }
 
     return true;
 }
 
-bool TimeShift::WriteAudio(void)
+bool CTimeShift::WriteAudio(void)
 {
     if (!m_psCompressedAudio)
         return false;
@@ -1794,7 +1812,7 @@ bool TimeShift::WriteAudio(void)
     return true;
 }
 
-bool TimeShift::ReadAudio(void)
+bool CTimeShift::ReadAudio(void)
 {
     if (!m_psCompressedAudioP)
         return false;
@@ -1836,7 +1854,7 @@ bool TimeShift::ReadAudio(void)
     return true;
 }
 
-bool TimeShift::SetDimensions(void)
+bool CTimeShift::SetDimensions(void)
 {
     if (m_mode == MODE_STOPPED)
     {
@@ -1844,7 +1862,7 @@ bool TimeShift::SetDimensions(void)
         int w = CurrentX;
         int h = CurrentY;
 
-        // Reset all the bitmapinfo stuff.
+        // Reset all the bitmappInfo stuff.
         memset(&m_bih, 0, sizeof(m_bih));
         m_bih.biSize = sizeof(m_bih);
         m_bih.biWidth = (w >> 2) << 2; // 4-pixel (12-byte) align.
@@ -1864,7 +1882,7 @@ bool TimeShift::SetDimensions(void)
     return false;
 }
 
-bool TimeShift::SetWaveInDevice(char* pszDevice)
+bool CTimeShift::SetWaveInDevice(char* pszDevice)
 {
     if (m_mode == MODE_STOPPED && pszDevice)
     {
@@ -1876,7 +1894,7 @@ bool TimeShift::SetWaveInDevice(char* pszDevice)
     return false;
 }
 
-bool TimeShift::SetWaveOutDevice(char* pszDevice)
+bool CTimeShift::SetWaveOutDevice(char* pszDevice)
 {
     if (m_mode == MODE_STOPPED && pszDevice)
     {
@@ -1888,7 +1906,7 @@ bool TimeShift::SetWaveOutDevice(char* pszDevice)
     return false;
 }
 
-bool TimeShift::GetWaveInDeviceIndex(int *index)
+bool CTimeShift::GetWaveInDeviceIndex(int *index)
 {
     int count = waveInGetNumDevs();
 
@@ -1915,7 +1933,7 @@ bool TimeShift::GetWaveInDeviceIndex(int *index)
     return false;
 }
 
-bool TimeShift::GetWaveOutDeviceIndex(int *index)
+bool CTimeShift::GetWaveOutDeviceIndex(int *index)
 {
     int count = waveOutGetNumDevs();
 
@@ -1942,7 +1960,7 @@ bool TimeShift::GetWaveOutDeviceIndex(int *index)
     return false;
 }
 
-bool TimeShift::SetRecHeight(int index)
+bool CTimeShift::SetRecHeight(int index)
 {
     if (m_mode == MODE_STOPPED)
     {
@@ -1954,7 +1972,7 @@ bool TimeShift::SetRecHeight(int index)
     return false;
 }
 
-bool TimeShift::CompressionOptions(void)
+bool CTimeShift::CompressionOptions(void)
 {
     // Must be stopped before attempting to bring up compression options dialog.
     if (m_mode != MODE_STOPPED)
@@ -1976,7 +1994,7 @@ bool TimeShift::CompressionOptions(void)
     AVIFileCreateStream(pfile, &psVideo, &m_infoVideo);
 
     // NOTE: Add space for the color table if we want to save 8-bit AVIs.
-    // Also, for the options dialog, set the info header's compression so it'll
+    // Also, for the options dialog, set the pInfo header's compression so it'll
     // show up under "Current Format:", then set it back to BI_RGB for the
     // actual recording process.
     BITMAPINFOHEADER bih = m_bih;
@@ -2033,7 +2051,7 @@ bool TimeShift::CompressionOptions(void)
     return result;
 }
 
-bool TimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)
+bool CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)
 {
     // Set the newly selcted compression codec, if it was indeed set.
     if (opts->fccHandler)
@@ -2057,7 +2075,7 @@ bool TimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)
     return true;
 }
 
-bool TimeShift::UpdateAudioInfo(void)
+bool CTimeShift::UpdateAudioInfo(void)
 {
     // Leave all other stream header fields as they were above.
     m_infoAudio.fccHandler = 0; // optsAudio.fccHandler // Should be zero.
@@ -2069,7 +2087,7 @@ bool TimeShift::UpdateAudioInfo(void)
     return true;
 }
 
-bool TimeShift::ReadFromIni(void)
+bool CTimeShift::ReadFromIni(void)
 {
     extern char szIniFile[MAX_PATH];
     char temp[1000] = "";
@@ -2106,7 +2124,7 @@ bool TimeShift::ReadFromIni(void)
     return true;
 }
 
-bool TimeShift::WriteToIni(void)
+bool CTimeShift::WriteToIni(void)
 {
     extern char szIniFile[MAX_PATH];
     char temp[1000];

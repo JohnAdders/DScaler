@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.6 2001-11-09 12:42:07 adcockj Exp $
+// $Id: TSOptionsDlg.h,v 1.7 2001-11-22 13:32:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.5  2001/08/06 03:00:17  ericschmidt
 // solidified auto-pixel-width detection
 // preliminary pausing-of-live-tv work
@@ -55,14 +58,14 @@
 
 
 // Declare this for friend declaration below.
-class TimeShift;
+class CTimeShift;
 
 /////////////////////////////////////////////////////////////////////////////
 // CTSOptionsDlg dialog
 
 class CTSOptionsDlg : public CDialog
 {
-    friend TimeShift;
+    friend CTimeShift;
 
 public:
 // Construction

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.29 2002-11-07 20:33:16 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.30 2002-11-13 11:15:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/11/07 20:33:16  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.28  2002/11/07 19:02:08  adcockj
 // Fixed bug in new state management code
 //
@@ -238,6 +241,8 @@ void CBT848Card::SetDMA(BOOL bState)
 
 void CBT848Card::ManageMyState()
 {
+    // disabled bt848 temporarily due to crashing
+    return;
     // save and restore everything that might be used
     // by the real drivers
     ManageByte(BT848_IFORM);

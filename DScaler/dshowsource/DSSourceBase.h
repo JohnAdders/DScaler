@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.6 2002-09-14 17:05:49 tobbej Exp $
+// $Id: DSSourceBase.h,v 1.7 2002-09-24 17:15:37 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/14 17:05:49  tobbej
+// implemented audio output device selection
+//
 // Revision 1.5  2002/09/04 17:07:16  tobbej
 // renamed some variables
 // fixed bug in Reset(), it called the wrong Start()
@@ -56,6 +59,15 @@
 #include "Source.h"
 #include "DSGraph.h"
 
+/**
+ * @bug if the output thread is terminated by a call to TerminateThread when
+ * m_hOutThreadSync is held problems will occur, for example Stop() will
+ * block for ever. (not 100% sure this is what is happening, but atleast
+ * Stop() blocks for  ever sometimes)
+ *
+ * @bug sometimes accessing the menu while the filter graph is building
+ * causes problems
+ */
 class CDSSourceBase : public CSource  
 {
 public:
@@ -106,6 +118,9 @@ protected:
 private:
 	void UpdateDroppedFields();
 	CString m_IniSection;
+
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSourceBase, Volume);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSourceBase, Balance);
 };
 
 #endif // !defined(AFX_DSSOURCEBASE_H__E88C9FB3_4694_419D_AD7C_22F2E17260B4__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.5 2002-09-16 20:08:21 adcockj Exp $
+// $Id: DSSourceBase.cpp,v 1.6 2002-09-24 17:15:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/16 20:08:21  adcockj
+// fixed format detect for cx2388x
+//
 // Revision 1.4  2002/09/14 17:05:49  tobbej
 // implemented audio output device selection
 //
@@ -85,6 +88,12 @@ CDSSourceBase::~CDSSourceBase()
 
 void CDSSourceBase::CreateSettings(LPCSTR IniSection)
 {
+	m_Volume = new CVolumeSetting(this, "Volume", 0, LONG_MIN, LONG_MAX, IniSection);
+	m_Settings.push_back(m_Volume);
+
+	m_Balance = new CBalanceSetting(this, "Balance", 0, LONG_MIN, LONG_MAX, IniSection);
+	m_Settings.push_back(m_Balance);
+
 	CString AudioDevice;
 	m_IniSection=IniSection;
 	GetPrivateProfileString(IniSection,_T("AudioDevice"),_T(""),AudioDevice.GetBufferSetLength(MAX_PATH),MAX_PATH,GetIniFileForSettings());
@@ -357,22 +366,127 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 void CDSSourceBase::Mute()
 {
-
+	if(m_pDSGraph==NULL)
+	{
+		return;
+	}
+	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
+	if(pControlls==NULL)
+	{
+		LOG(3,"Failed to get audio controlls, mute will not work");
+		return;
+	}
+	
+	long min=0;
+	long max=0;
+	pControlls->GetVolumeMinMax(min,max);
+	
+	try
+	{
+		pControlls->SetVolume(min);
+	}
+	catch(CDShowException e)
+	{
+		LOG(3,"Exception in Mute, Error: %s",(LPCSTR)e.getErrorText());
+	}
 }
 
 void CDSSourceBase::UnMute()
 {
-
+	long volume=m_Volume->GetValue();
+	VolumeOnChange(volume,volume);
 }
 
 ISetting* CDSSourceBase::GetVolume()
 {
-	return NULL;
+	if(m_pDSGraph==NULL)
+	{
+		return NULL;
+	}
+	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
+	if(pControlls==NULL)
+	{
+		LOG(3,"Failed to get audio controlls, volume will not work");
+		return NULL;
+	}
+	
+	long min=0;
+	long max=0;
+	pControlls->GetVolumeMinMax(min,max);
+	m_Volume->SetMax(max);
+	m_Volume->SetMin(min);
+	return m_Volume;
 }
 
 ISetting* CDSSourceBase::GetBalance()
 {
-	return NULL;
+	if(m_pDSGraph==NULL)
+	{
+		return NULL;
+	}
+	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
+	if(pControlls==NULL)
+	{
+		LOG(3,"Failed to get audio controlls, balance will not work");
+		return NULL;
+	}
+	
+	long min=0;
+	long max=0;
+	pControlls->GetBalanceMinMax(min,max);
+	m_Balance->SetMax(max);
+	m_Balance->SetMin(min);
+	return m_Balance;
+}
+
+void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
+{
+	if(m_pDSGraph==NULL)
+	{
+		LOG(3,"Can't change volume because there is no filter graph");
+		return;
+	}
+	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
+	if(pControlls==NULL)
+	{
+		LOG(3,"Failed to get audio controlls");
+		return;
+	}
+
+	try
+	{
+		pControlls->SetVolume(NewValue);
+	}
+	catch(CDShowException e)
+	{
+		LOG(3,"Exception in VolumeOnChange, Error: %s",(LPCSTR)e.getErrorText());
+		m_Volume->SetValue(OldValue,TRUE);
+	}
+}
+
+void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
+{
+	if(m_pDSGraph==NULL)
+	{
+		LOG(3,"Can't change balance because there is no filter graph");
+		return;
+	}
+	CDShowAudioControls *pControlls=m_pDSGraph->GetAudioControls();
+	if(pControlls==NULL)
+	{
+		LOG(3,"Failed to get audio controlls");
+		return;
+	}
+
+	try
+	{
+		pControlls->SetBalance(NewValue);
+	}
+	catch(CDShowException e)
+	{
+		LOG(3,"Exception in BalanceOnChange, Error: %s",(LPCSTR)e.getErrorText());
+		m_Balance->SetValue(OldValue,TRUE);
+	}
 }
 
 LPCSTR CDSSourceBase::IDString()

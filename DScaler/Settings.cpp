@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.35 2002-08-06 18:31:10 kooiman Exp $
+// $Id: Settings.cpp,v 1.36 2002-08-07 09:54:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/08/06 18:31:10  kooiman
+// Bit more flexibility.
+//
 // Revision 1.34  2002/06/13 11:43:55  robmuller
 // Settings at default value that did not exist in the ini file were not written to the ini file.
 //
@@ -146,6 +149,7 @@
 #include "Providers.h"
 #include "Calibration.h"
 #include "StillSource.h"
+#include "SettingsPerChannel.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -268,6 +272,12 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)AntiPlop_GetSetting,
         AntiPlop_ReadSettingsFromIni,
         AntiPlop_WriteSettingsToIni,
+    },
+    {
+        WM_SETTINGSPERCHANNEL_GETVALUE,
+        (GENERICGETSETTING*)SettingsPerChannel_GetSetting,
+        SettingsPerChannel_ReadSettingsFromIni,
+        SettingsPerChannel_WriteSettingsToIni,
     },
 };
 

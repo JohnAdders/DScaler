@@ -1249,7 +1249,7 @@
 #define IDM_DSHOW_FORWARD_300S          32976
 #define IDM_DSHOW_FORWARD_600S          32977
 #define IDM_DSHOW_FORWARD_1800S         32978
-#define IDM_SCAN_EPG                    32979
+#define IDM_IMPORT_XMLTV                32979
 #define IDM_LOAD_EPG                    32980
 #define IDM_DISPLAY_EPG                 32981
 #define IDM_DISPLAY_EPG_NOW             32982
@@ -1261,6 +1261,7 @@
 #define IDM_DISPLAY_EPG_PREV_IN_PAGE    32988
 #define IDM_EPG_VIEW_PROG               32989
 #define IDM_HIDE_EPG                    32990
+#define IDM_IMPORT_NEXTVIEW             32991
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1281,7 +1282,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        267
-#define _APS_NEXT_COMMAND_VALUE         32991
+#define _APS_NEXT_COMMAND_VALUE         32992
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

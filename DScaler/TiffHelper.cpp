@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.11 2002-02-26 21:24:25 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.12 2002-04-10 22:18:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/02/26 21:24:25  laurentg
+// Move the test on the still file size in order to have a global treatment later
+//
 // Revision 1.10  2002/02/23 00:30:47  laurentg
 // NotifySizeChange
 //
@@ -180,7 +183,9 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
         _TIFFfree(bufYCbCr);
     }
-    else
+    else if ( ((Class == PHOTOMETRIC_YCBCR) && ( (Compression == COMPRESSION_LZW) || (Compression == COMPRESSION_JPEG) ))
+           || ((Class == PHOTOMETRIC_RGB) && ( (Compression == COMPRESSION_LZW) || (Compression == COMPRESSION_NONE) || (Compression == COMPRESSION_PACKBITS) ))
+           || ((Class != PHOTOMETRIC_RGB) && (Class != PHOTOMETRIC_YCBCR)) )
     {
         npixels = w * h;
         bufPackedRGB = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
@@ -249,6 +254,12 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         }
 
         _TIFFfree(bufPackedRGB);
+    }
+    else
+    {
+        free(m_pParent->m_OriginalFrame.pData);
+        TIFFClose(tif);
+        return FALSE;
     }
 
     // Close the file

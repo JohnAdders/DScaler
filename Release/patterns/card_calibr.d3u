@@ -1,9 +1,9 @@
-patterns\THX_PAL_1.pat
-# patterns\THX_NTSC_1.pat
-# patterns\THX_NTSC_2.pat
-patterns\VE_NTSC_1.pat
-patterns\VE_NTSC_2.pat
-# patterns\AVIA_NTSC_1.pat
-# patterns\AVIA_NTSC_2.pat
-patterns\LAL_1.pat
-patterns\LAL_2.pat
+VE_NTSC_1.pat
+VE_NTSC_2.pat
+AVIA_NTSC_1.pat
+AVIA_NTSC_2.pat
+THX_NTSC_1.pat
+THX_NTSC_2.pat
+THX_PAL_1.pat
+LAL_1.pat
+LAL_2.pat

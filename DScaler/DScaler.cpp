@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.151 2002-05-06 15:34:59 laurentg Exp $
+// $Id: DScaler.cpp,v 1.152 2002-05-19 22:19:20 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.151  2002/05/06 15:34:59  laurentg
+// Key <i> to show source informations through OSD
+//
 // Revision 1.150  2002/05/01 20:34:10  tobbej
 // generate crashlog if crashing in MainWndProc
 //
@@ -2480,15 +2483,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     bIsFullScreen = TRUE;
                     Cursor_UpdateVisibility();
                     WorkoutOverlaySize(FALSE);
+                    UnPause_Capture();
                 }
                 break;
             case SIZE_MINIMIZED:
                 Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                Pause_Capture();
                 break;
             case SIZE_RESTORED:
                 InvalidateRect(hWnd, NULL, FALSE);
                 WorkoutOverlaySize(FALSE);
                 SetMenuAnalog();
+                UnPause_Capture();
                 break;
             default:
                 break;

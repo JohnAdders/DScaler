@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.35 2001-08-14 11:36:03 adcockj Exp $
+// $Id: DS_Control.h,v 1.36 2001-08-15 17:45:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2001/08/14 11:36:03  adcockj
+// Mixer change to allow restore of initial mixer settings
+//
 // Revision 1.34  2001/08/09 21:34:59  adcockj
 // Fixed bugs raise by Timo and Keld
 //
@@ -616,7 +619,6 @@ typedef enum
     OSD_BACKGROUND,
     OSD_OUTLINE,
     OSD_AUTOHIDE_SCREEN,
-    OSD_USE_RGB,
     OSD_SETTING_LASTONE,
 } OSD_SETTING;
 #define WM_OSD_GETVALUE     (WM_USER + 18)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.66 2003-01-15 20:55:33 tobbej Exp $
+// $Id: DSSource.cpp,v 1.67 2003-01-18 10:49:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2003/01/15 20:55:33  tobbej
+// added audio channel selection menu
+// fixed so video format menu is greyed when in tuner mode
+//
 // Revision 1.65  2003/01/12 21:27:45  adcockj
 // Added flags for per settings groups
 //
@@ -1453,7 +1457,7 @@ ISetting* CDSCaptureSource::GetRightOverscan()
 	return m_RightOverscan;
 }
 
-void CDSCaptureSource::SetOverscan()
+void CDSCaptureSource::SetAspectRatioData()
 {
 	AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
 	AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.10 2003-01-16 13:30:49 adcockj Exp $
+// $Id: DSFileSource.h,v 1.11 2003-01-18 10:49:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.9  2003/01/10 17:38:43  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -96,7 +99,7 @@ public:
 	ISetting* GetBottomOverscan() {return NULL;};
 	ISetting* GetLeftOverscan() {return NULL;};
 	ISetting* GetRightOverscan() {return NULL;};
-	void SetOverscan();
+	void SetAspectRatioData();
 
 	LPCSTR GetStatus();
 	void HandleTimerMessages(int TimerId);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.37 2003-01-16 13:30:49 adcockj Exp $
+// $Id: DSSource.h,v 1.38 2003-01-18 10:49:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.36  2003/01/10 17:38:45  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -225,7 +228,7 @@ public:
 	BOOL IsAccessAllowed();
 	LPCSTR GetMenuLabel();
 
-	void SetOverscan();
+	void SetAspectRatioData();
 	
 	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};

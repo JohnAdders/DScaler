@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.7 2003-01-08 20:49:49 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.8 2003-01-18 10:49:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/01/08 20:49:49  laurentg
+// New settings for analogue blanking by source
+//
 // Revision 1.6  2003/01/07 23:31:23  laurentg
 // New overscan settings
 //
@@ -143,7 +146,7 @@ BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 	}
 }
 
-void CDSFileSource::SetOverscan()
+void CDSFileSource::SetAspectRatioData()
 {
 	AspectSettings.InitialTopOverscan = 0;
 	AspectSettings.InitialBottomOverscan = 0;

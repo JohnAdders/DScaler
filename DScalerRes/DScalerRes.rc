@@ -1305,7 +1305,7 @@ BEGIN
         BEGIN
             MENUITEM "&Record\tShift+R",            IDM_TSRECORD
             MENUITEM "Pl&ay\tShift+P",              IDM_TSPLAY
-            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE, GRAYED
+            MENUITEM "Pa&use\t|",                   IDM_TSPAUSE
             MENUITEM "&Stop\tShift+S",              IDM_TSSTOP
             MENUITEM "Fast &Forward\t}",            IDM_TSFFWD, GRAYED
             MENUITEM "Fast &Backward\t{",           IDM_TSRWND, GRAYED

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.7 2001-11-25 10:41:26 laurentg Exp $
+// $Id: StillSource.h,v 1.8 2001-11-25 21:25:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,8 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
     BOOL IsVideoPresent() {return TRUE;};
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
+    LPCSTR GetMenuLabel();
+    virtual BOOL    ReadNextFrameInFile() = 0;
 
 protected:
     int         m_Width;
@@ -63,8 +65,6 @@ protected:
     BOOL        m_AlreadyTryToRead;
 
 private:
-    virtual BOOL    ReadNextFrameInFile() = 0;
-
     DWORD       m_LastTickCount;
     double      m_FrameDuration;
 };

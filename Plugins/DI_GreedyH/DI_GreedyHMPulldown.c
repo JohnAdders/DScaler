@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHMPulldown.c,v 1.3 2001-10-02 17:44:41 trbarry Exp $
+// $Id: DI_GreedyHMPulldown.c,v 1.4 2001-11-13 17:24:49 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -205,12 +205,14 @@ BOOL CanDoPulldown()					// check if we should do pulldown, doit
 	// set up pointers, offsets
 	SetFsPtrs(&L1, &L2, &L2P, &L3, &CopySrc, &CopyDest, &WeaveDest);
 	// chk forward/backward Greedy Choice Flag for this field
-	if (!(Hist[hPtr].Flags & 1))
+	if (!(Hist[hPtr].Flags & 1))   // temp
 	{
-		L2 = L2P;
+   		L2 = L2P;
 	}
-
-	for (line = 0; line < (FieldHeight); ++line)
+ //   L2=L1; //>>> for test only
+//    CopySrc=L2; //>>>
+//      L2=CopySrc; //>>>
+    for (line = 0; line < (FieldHeight); ++line)
 	{
 		FieldStoreCopy(CopyDest, &FieldStore[CopySrc], LineLength);
 		CopyDest += 2 * OverlayPitch;
@@ -448,7 +450,7 @@ BOOL PullDown_V(BOOL SelectL2)
 	pFieldStore = & FieldStore[0];		// starting ptr into FieldStore[L2]
 	pFieldStoreEnd = & FieldStore[FieldHeight * FSCOLCT];		// ending ptr into FieldStore[L2]
 	pL2 = & FieldStore[L2];				// starting ptr into FieldStore[L2]
-	LoopCtrW = LineLength / 8 - 1;		// do 8 bytes at a time, adjusted
+	LoopCtrW = LineLength / 8;		    // do 8 bytes at a time, adjusted
 
 	for (line = 0; line < (FieldHeight); ++line)
 	{

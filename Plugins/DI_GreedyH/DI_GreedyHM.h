@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.h,v 1.7 2001-11-02 10:46:09 adcockj Exp $
+// $Id: DI_GreedyHM.h,v 1.8 2001-11-13 17:24:49 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -56,9 +56,8 @@ typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
 typedef unsigned int        UINT;
 #define MEMCPY_FUNC int // not used except in DScaler
-
-#define FSMAXROWS 541	// allow space for max 540 rows/field, plus a spare
-#define FSMAXCOLS 1928	// allow space for max 1928 screen cols
+#define FSMAXROWS 545	// allow space for max 544 rows/field, plus a spare
+#define FSMAXCOLS 1932	// allow space for max 1928 screen cols + extra qword
 #endif                                                  // end of DScaler/avisynth specific stuff
 
 

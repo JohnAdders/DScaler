@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.33 2003-01-25 23:43:15 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.34 2003-01-27 22:04:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/25 23:43:15  laurentg
+// Default video settings for SECAM
+//
 // Revision 1.32  2003/01/21 14:42:14  adcockj
 // Changed PAL defaults and added place for SECAM defaults
 //
@@ -174,6 +177,11 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     int nIndex;
     char buf[128];
     static CCX2388xSource* pThis;
+    CCX2388xCard* pCard = NULL;
+    char szCardId[9] = "n/a     ";
+    char szVendorId[9] = "n/a ";
+    char szDeviceId[9] = "n/a ";
+    DWORD dwCardId(0);
 
     switch (message)
     {
@@ -212,6 +220,20 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
           }
         }
+
+		pCard = pThis->GetCard();
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
+        sprintf(szVendorId,"%04X", pCard->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+        sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
+        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        dwCardId = pCard->GetSubSystemId();
+        if(dwCardId != 0 && dwCardId != 0xffffffff)
+        {
+            sprintf(szCardId,"%8X", dwCardId);
+        }
+        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
+
         return TRUE;
         break;
     case WM_COMMAND:
@@ -359,6 +381,10 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_pCard->SetCardType(m_CardType->GetValue());
             m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
             Start_Capture();
+            break;
+
+        case IDM_HWINFO:
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CCX2388xCard::ChipSettingProc, (LPARAM)m_pCard);
             break;
 
         case IDM_SOURCE_INPUT1:

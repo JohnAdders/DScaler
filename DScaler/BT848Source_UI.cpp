@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.15 2003-01-25 23:44:14 laurentg Exp $
+// $Id: BT848Source_UI.cpp,v 1.16 2003-01-27 22:04:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/01/25 23:44:14  laurentg
+// Default video settings for SECAM
+//
 // Revision 1.14  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -882,6 +885,11 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
     int nIndex;
     char buf[128];
     static CBT848Source* pThis;
+    CBT848Card* pCard = NULL;
+    char szCardId[9] = "n/a     ";
+    char szVendorId[9] = "n/a ";
+    char szDeviceId[9] = "n/a ";
+    DWORD dwCardId(0);
 
     switch (message)
     {
@@ -920,6 +928,20 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
                 SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
             }
         }
+
+		pCard = pThis->GetBT848Card();
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType());
+        sprintf(szVendorId,"%04X", pCard->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+        sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
+        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        dwCardId = pCard->GetSubSystemId();
+        if(dwCardId != 0 && dwCardId != 0xffffffff)
+        {
+            sprintf(szCardId,"%8X", dwCardId);
+        }
+        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
+
         return TRUE;
         break;
     case WM_COMMAND:

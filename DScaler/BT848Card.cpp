@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.33 2003-01-15 15:54:22 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.34 2003-01-27 22:04:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.32  2003/01/13 17:46:41  adcockj
 // HDelay and VDelay turned from absolute to adjustments
 //
@@ -1101,35 +1104,6 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
             sprintf(szCardId,"%8X", dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
-
-        SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
-        
-        // TB 20010109 added Chip Type
-        if (CpuFeatureFlags & FEATURE_SSE2)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "SSE2");
-        }
-        else if (CpuFeatureFlags & FEATURE_SSE)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "SSE");
-        }
-        else if (CpuFeatureFlags & FEATURE_MMXEXT)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "MMXEXT");
-        }
-        else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "3DNOWEXT");
-        }
-        else if (CpuFeatureFlags & FEATURE_3DNOW)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "3DNOW");
-        }
-        else
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "MMX");
-        }
-
         return TRUE;
         break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.37 2003-01-26 12:33:26 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.38 2003-01-27 22:04:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/01/26 12:33:26  adcockj
+// Fixed problem with PAL60
+//
 // Revision 1.36  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -1518,6 +1521,47 @@ LPCSTR CCX2388xCard::GetInputName(int nInput)
         return m_TVCards[m_CardType].Inputs[nInput].szName;
     }
     return "Error";
+}
+
+BOOL APIENTRY CCX2388xCard::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    CCX2388xCard* pThis = NULL;
+    char szCardId[9] = "n/a     ";
+    char szVendorId[9] = "n/a ";
+    char szDeviceId[9] = "n/a ";
+    DWORD dwCardId(0);
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        pThis = (CCX2388xCard*)lParam; 
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, "CX2388x");
+        sprintf(szVendorId,"%04X", pThis->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+        sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
+        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
+        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "");
+        dwCardId = pThis->GetSubSystemId();
+        if(dwCardId != 0 && dwCardId != 0xffffffff)
+        {
+            sprintf(szCardId,"%8X", dwCardId);
+        }
+        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
+        return TRUE;
+        break;
+
+    case WM_COMMAND:
+
+        if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
+        {
+            EndDialog(hDlg, TRUE);
+        }
+
+        break;
+    }
+
+    return (FALSE);
 }
 
 ULONG CCX2388xCard::GetTickCount()

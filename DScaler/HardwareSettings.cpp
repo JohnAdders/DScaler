@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.7 2003-01-18 10:24:45 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.8 2003-01-27 22:04:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/01/18 10:24:45  laurentg
+// Suppression of the video card field from the general hardware setup dialog box
+//
 // Revision 1.6  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -49,6 +52,7 @@
 #include "DebugLog.h"
 #include "Providers.h"
 #include "FieldTiming.h"
+#include "Cpu.h"
 
 static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCpu, int VideoCard)
 {
@@ -144,6 +148,32 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Keep CPU for other applications");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Use full CPU for best results");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(FULLCPU)), 0);
+        LPCSTR pCPUTypeString;
+        if (CpuFeatureFlags & FEATURE_SSE2)
+        {
+            pCPUTypeString = "SSE2";
+        }
+        else if (CpuFeatureFlags & FEATURE_SSE)
+        {
+            pCPUTypeString = "SSE";
+        }
+        else if (CpuFeatureFlags & FEATURE_MMXEXT)
+        {
+            pCPUTypeString = "MMXEXT";
+        }
+        else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
+        {
+            pCPUTypeString = "3DNOWEXT";
+        }
+        else if (CpuFeatureFlags & FEATURE_3DNOW)
+        {
+            pCPUTypeString = "3DNOW";
+        }
+        else
+        {
+            pCPUTypeString = "MMX";
+        }
+        SetDlgItemText(hDlg, IDC_CPU_TYPE, pCPUTypeString);
         return TRUE;
         break;
     case WM_COMMAND:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.37 2003-01-19 19:46:27 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.38 2003-01-27 22:04:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/01/19 19:46:27  laurentg
+// GetInitialHeight must return the height of the input picture
+//
 // Revision 1.36  2003/01/19 11:09:11  laurentg
 // New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
 //
@@ -170,6 +173,8 @@ public:
 
     void Mute();
     void UnMute();
+
+    CSAA7134Card* GetCard();
 
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     void DecodeVBI(TDeinterlaceInfo* pInfo);

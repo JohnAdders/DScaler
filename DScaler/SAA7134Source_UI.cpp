@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.36 2003-01-23 01:52:21 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.37 2003-01-27 22:04:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/01/23 01:52:21  atnak
+// Fixed settings
+//
 // Revision 1.35  2003/01/19 10:39:56  laurentg
 // Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
 //
@@ -242,6 +245,11 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     int nIndex;
     char buf[128];
     static CSAA7134Source* pThis;
+    CSAA7134Card* pCard = NULL;
+    char szCardId[9] = "n/a     ";
+    char szVendorId[9] = "n/a ";
+    char szDeviceId[9] = "n/a ";
+    DWORD dwCardId(0);
 
     switch (message)
     {
@@ -280,6 +288,19 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
             }
         }
+
+		pCard = pThis->GetCard();
+        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType());
+        sprintf(szVendorId,"%04X", pCard->GetVendorId());
+        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
+        sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
+        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
+        dwCardId = pCard->GetSubSystemId();
+        if (dwCardId != 0 && dwCardId != 0xffffffff)
+        {
+            sprintf(szCardId, "x%8X", dwCardId);
+        }
+        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))

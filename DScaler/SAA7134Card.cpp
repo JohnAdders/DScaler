@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.30 2003-01-15 15:54:23 adcockj Exp $
+// $Id: SAA7134Card.cpp,v 1.31 2003-01-27 22:04:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/01/15 15:54:23  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.29  2002/12/09 00:32:13  atnak
 // Added new muting stuff
 //
@@ -1008,36 +1011,8 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         if (dwCardId != 0 && dwCardId != 0xffffffff)
         {
             sprintf(szCardId, "x%08X", dwCardId);
-            SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         }
-        SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
-
-        LPCSTR pCPUTypeString;
-        if (CpuFeatureFlags & FEATURE_SSE2)
-        {
-            pCPUTypeString = "SSE2";
-        }
-        else if (CpuFeatureFlags & FEATURE_SSE)
-        {
-            pCPUTypeString = "SSE";
-        }
-        else if (CpuFeatureFlags & FEATURE_MMXEXT)
-        {
-            pCPUTypeString = "MMXEXT";
-        }
-        else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
-        {
-            pCPUTypeString = "3DNOWEXT";
-        }
-        else if (CpuFeatureFlags & FEATURE_3DNOW)
-        {
-            pCPUTypeString = "3DNOW";
-        }
-        else
-        {
-            pCPUTypeString = "MMX";
-        }
-        SetDlgItemText(hDlg, IDC_CPU_TYPE, pCPUTypeString);
+        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;
         break;
 

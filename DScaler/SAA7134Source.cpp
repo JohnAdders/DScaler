@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.68 2003-01-23 02:18:45 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.69 2003-01-27 22:04:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2003/01/23 02:18:45  atnak
+// Minor changes
+//
 // Revision 1.67  2003/01/23 01:52:22  atnak
 // Fixed settings
 //
@@ -727,6 +730,12 @@ DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWante
     }
 
     return nPages;
+}
+
+
+CSAA7134Card* CSAA7134Source::GetCard()
+{
+    return m_pSAA7134Card;
 }
 
 

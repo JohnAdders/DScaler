@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.6 2002-09-24 17:15:36 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.7 2002-09-26 10:35:34 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/24 17:15:36  tobbej
+// support for volume, balance and mute/unmute
+//
 // Revision 1.5  2002/09/16 20:08:21  adcockj
 // fixed format detect for cx2388x
 //
@@ -460,7 +463,7 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
 	catch(CDShowException e)
 	{
 		LOG(3,"Exception in VolumeOnChange, Error: %s",(LPCSTR)e.getErrorText());
-		m_Volume->SetValue(OldValue,TRUE);
+		m_Volume->SetValue(OldValue,ONCHANGE_NONE);
 	}
 }
 
@@ -485,7 +488,7 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
 	catch(CDShowException e)
 	{
 		LOG(3,"Exception in BalanceOnChange, Error: %s",(LPCSTR)e.getErrorText());
-		m_Balance->SetValue(OldValue,TRUE);
+		m_Balance->SetValue(OldValue,ONCHANGE_NONE);
 	}
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.25 2002-09-11 16:42:33 tobbej Exp $
+// $Id: DSSource.h,v 1.26 2002-09-26 10:35:34 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/09/11 16:42:33  tobbej
+// fixed so resolutions submenu can be empty and not always replaced with defaults if all resolutions is removed
+//
 // Revision 1.24  2002/09/04 17:10:24  tobbej
 // renamed some variables
 // new video format configuration dialog (resolution)
@@ -139,9 +142,11 @@ class CDSCaptureSource : public CDSSourceBase
 public:
 	CDSCaptureSource(string device,string deviceName);
 	virtual ~CDSCaptureSource();
-
+    
 	//from CSettingsHolder
 	void CreateSettings(LPCSTR IniSection);
+    //from ceventobject
+    virtual void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 	void HandleTimerMessages(int TimerId);

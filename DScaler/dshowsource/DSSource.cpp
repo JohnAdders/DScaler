@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.41 2002-09-24 17:16:28 tobbej Exp $
+// $Id: DSSource.cpp,v 1.42 2002-09-26 10:35:34 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/09/24 17:16:28  tobbej
+// spelling error
+//
 // Revision 1.40  2002/09/14 17:05:49  tobbej
 // implemented audio output device selection
 //
@@ -261,6 +264,8 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 	m_IDString = std::string("DS_") + device;
 	CreateSettings(device.c_str());
 
+    eEventType EventList[] = {EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
+    EventCollector->Register(this, EventList);
 	SettingsPerChannel_RegisterOnSetup(this, CDSCaptureSource::OnSetup);
 }
 
@@ -327,7 +332,7 @@ ISetting* CDSCaptureSource::GetBrightness()
 				m_Brightness->SetMax(max);
 				m_Brightness->SetMin(min);
 
-				m_Brightness->ChangeDefault(def,TRUE);
+				m_Brightness->ChangeDefault(def,ONCHANGE_NONE);
 				return m_Brightness;
 			}
 			catch(CDShowException e)
@@ -391,7 +396,7 @@ ISetting* CDSCaptureSource::GetContrast()
 				m_Contrast->SetMax(max);
 				m_Contrast->SetMin(min);
 
-				m_Contrast->ChangeDefault(def,TRUE);
+				m_Contrast->ChangeDefault(def,ONCHANGE_NONE);
 				return m_Contrast;
 			}
 			catch(CDShowException e)
@@ -454,7 +459,7 @@ ISetting* CDSCaptureSource::GetHue()
 				m_Hue->SetMax(max);
 				m_Hue->SetMin(min);
 
-				m_Hue->ChangeDefault(def, TRUE);
+				m_Hue->ChangeDefault(def, ONCHANGE_NONE);
 				return m_Hue;
 			}
 			catch(CDShowException e)
@@ -517,7 +522,7 @@ ISetting* CDSCaptureSource::GetSaturation()
 				m_Saturation->SetMax(max);
 				m_Saturation->SetMin(min);
 
-				m_Saturation->ChangeDefault(def,TRUE);
+				m_Saturation->ChangeDefault(def,ONCHANGE_NONE);
 				return m_Saturation;
 			}
 			catch(CDShowException e)
@@ -1102,16 +1107,24 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 
 		SettingsPerChannel_RegisterSetting("DSOverscan","DShow - Overscan",TRUE, m_Overscan);
 
-    SettingsPerChannel_NewDefaults(m_IDString.c_str(), FALSE);
+        SettingsPerChannel_NewDefaults(m_IDString.c_str(), FALSE);
 
-		Channel_Register_Change_Notification(this, CDSCaptureSource::ChannelChange);
+	    //Channel_Register_Change_Notification(this, CDSCaptureSource::ChannelChange);
 
 	}
 	else
 	{
 		SettingsPerChannel_UnregisterSection(m_IDString.c_str());
-		Channel_UnRegister_Change_Notification(this, CDSCaptureSource::ChannelChange);
+		//Channel_UnRegister_Change_Notification(this, CDSCaptureSource::ChannelChange);
 	}
+}
+
+void CDSCaptureSource::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+    if (Event == EVENT_CHANNEL_CHANGE)
+    {
+        TunerChannelChange(0,OldValue,NewValue);
+    }    
 }
 
 void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)

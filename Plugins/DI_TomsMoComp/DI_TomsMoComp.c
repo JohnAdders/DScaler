@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TomsMoComp.c,v 1.1 2002-07-07 20:07:24 trbarry Exp $
+// $Id: DI_TomsMoComp.c,v 1.2 2002-07-08 17:44:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/07/07 20:07:24  trbarry
+// First cut at TomsMoComp, motion compensated deinterlace
+//
 // Revision 1.0  2002/05/04 16:13:33  trbarry
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -90,11 +93,12 @@ DEINTERLACE_METHOD TomsMoCompMethod =
     4,									// number fields needed
     0,
     0,
-    WM_DI_TOMSMOCOMP_GETVALUE - WM_USER,
+    WM_DI_TOMSMOCOMP_GETVALUE - WM_APP,
     NULL,
     0,
     FALSE,
     FALSE,
+    IDH_DEINTERLACE,
 };
 
 

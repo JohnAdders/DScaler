@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.69 2002-07-08 13:53:35 trbarry Exp $
+// $Id: DS_Control.h,v 1.70 2002-07-08 17:44:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2002/07/08 13:53:35  trbarry
+// First cut at motion compensated deinterlace
+//
 // Revision 1.68  2002/07/02 20:00:05  adcockj
 // New setting for MSP input pin selection
 //
@@ -1184,9 +1187,9 @@ typedef enum
     DI_TOMSMOCOMP_SETTING_LASTONE,
 } DI_TOMSMOCOMP_SETTING;
 
-#define WM_DI_TOMSMOCOMP_GETVALUE     (WM_USER + 42)
-#define WM_DI_TOMSMOCOMP_SETVALUE     (WM_USER + 141)
-#define WM_DI_TOMSMOCOMP_CHANGEVALUE  (WM_USER + 241)
+#define WM_DI_TOMSMOCOMP_GETVALUE     (WM_APP + 42)
+#define WM_DI_TOMSMOCOMP_SETVALUE     (WM_APP + 141)
+#define WM_DI_TOMSMOCOMP_CHANGEVALUE  (WM_APP + 241)
 
 
 

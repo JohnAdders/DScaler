@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.11 2002-11-12 01:26:25 atnak Exp $
+// $Id: SAA7134Common.h,v 1.12 2002-12-14 00:29:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/11/12 01:26:25  atnak
+// Changed the define name of a card
+//
 // Revision 1.10  2002/11/10 09:30:57  atnak
 // Added Chroma only comb filter mode for SECAM
 //
@@ -95,6 +98,7 @@ protected:
         SAA7134CARDID_CINERGY400,
         SAA7134CARDID_MEDION5044,
         SAA7134CARDID_KWTV713XRF,
+        SAA7134CARDID_MANLIMTV001,
         SAA7134CARDID_LASTONE,
     };
 
@@ -176,11 +180,11 @@ protected:
 
     enum eAudioInputSource
     {
-        /// standard tuner line
+        /// standard tuner line - 0x02
         AUDIOINPUTSOURCE_DAC = 0,
-        /// internal line 1 input
+        /// internal line 1 input - 0x00
         AUDIOINPUTSOURCE_LINE1,
-        /// internal line 2 input
+        /// internal line 2 input - 0x01
         AUDIOINPUTSOURCE_LINE2,
     };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.13 2002-12-10 11:05:46 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.14 2002-12-14 00:29:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/12/10 11:05:46  atnak
+// Fixed FlyVideo 3000 audio for external inputs
+//
 // Revision 1.12  2002/11/12 01:26:25  atnak
 // Changed the define name of a card
 //
@@ -79,7 +82,7 @@
 
 const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
 {
-    // SAA7134CARD_UNKNOWN - Unknown Card
+    // SAA7134CARDID_UNKNOWN - Unknown Card
     {
         "*Unknown Card*",
         4,
@@ -114,7 +117,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_PROTEUSPRO - Proteus Pro [philips reference design]
+    // SAA7134CARDID_PROTEUSPRO - Proteus Pro [philips reference design]
     {
         "Proteus Pro [philips reference design]",
         2,
@@ -137,7 +140,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_FLYVIDEO3000 - LifeView FlyVIDEO3000
+    // SAA7134CARDID_FLYVIDEO3000 - LifeView FlyVIDEO3000
     {
         "LifeView FlyVIDEO3000",
         5,
@@ -178,7 +181,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         FLYVIDEO3000CardInputSelect,
     },
-    // SAA7134CARD_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
+    // SAA7134CARDID_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
     {
         "LifeView FlyVIDEO2000",
         4,
@@ -213,7 +216,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         FLYVIDEO2000CardInputSelect,
     },
-    // SAA7134CARD_EMPRESS - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
+    // SAA7134CARDID_EMPRESS - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
     {
         "EMPRESS",
         4,
@@ -248,7 +251,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_MONSTERTV - SKNet Monster TV
+    // SAA7134CARDID_MONSTERTV - SKNet Monster TV
     {
         "SKNet Monster TV",
         4,
@@ -283,7 +286,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_TEVIONMD9717 - Tevion MD 9717
+    // SAA7134CARDID_TEVIONMD9717 - Tevion MD 9717
     {
         "Tevion MD 9717",
         4,
@@ -353,7 +356,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_CINERGY400 - Terratec Cinergy 400 TV
+    // SAA7134CARDID_CINERGY400 - Terratec Cinergy 400 TV
     {
         "Terratec Cinergy 400 TV",
         4,
@@ -388,7 +391,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_MEDION5044 - Medion 5044
+    // SAA7134CARDID_MEDION5044 - Medion 5044
     {
         "Medion 5044",
         5,
@@ -429,7 +432,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         MEDION5044CardInputSelect,
     },
-    // SAA7134CARD_KWTV713XRF - KWORLD KW-TV713XRF (saa7130)
+    // SAA7134CARDID_KWTV713XRF - KWORLD KW-TV713XRF (saa7130)
     // Thanks "b" <b@ki...>
     {
         "KWORLD KW-TV713XRF / KUROUTO SHIKOU",
@@ -458,6 +461,36 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         AUDIOCRYSTAL_NONE,
         NULL,
         KWTV713XRFCardInputSelect,
+    },
+    // SAA7134CARDID_MANLIMTV001 - Manli M-TV001 (saa7130)
+    // Thanks "Bedo" Bedo@dscaler.forums
+    {
+        "Manli M-TV001",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+        },
+        TUNER_LG_B11D_PAL,  // Should be LG TPI8PSB12P PAL B/G
+        AUDIOCRYSTAL_NONE,
+        NULL,
+        ManliMTV001CardInputSelect,
     },
 };
 
@@ -644,6 +677,23 @@ void CSAA7134Card::KWTV713XRFCardInputSelect(int nInput)
 
     // this card probably needs GPIO changes but I don't
     // know what they are
+}
+
+
+void CSAA7134Card::ManliMTV001CardInputSelect(int nInput)
+{
+    StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case 0:
+    case 1:
+    case 2:
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x6000);
+        break;
+    default:
+        break;
+    }
 }
 
 

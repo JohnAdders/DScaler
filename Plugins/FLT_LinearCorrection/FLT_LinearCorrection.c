@@ -30,13 +30,13 @@ FILTER_METHOD LinearCorrMethod;
 
 typedef struct _BlendStruct
 {
-	short	pixel1Y;	// The first pixel to use to calculate luminance
-	short	pixel2Y;	// The second pixel to use to calculate luminance
-	short	pixel1UV;	// The first pixel to use to calculate color
-	short	pixel2UV;	// The second pixel to use to calculate color
-	short	coef1;		// Coef to apply to pixel1
+	long	pixel1Y;	// The first pixel to use to calculate luminance
+	long	pixel2Y;	// The second pixel to use to calculate luminance
+	long	pixel1UV;	// The first pixel to use to calculate color
+	long	pixel2UV;	// The second pixel to use to calculate color
+	long	coef1;		// Coef to apply to pixel1
 						// double value between 0 and 1 multiplied by 1000 to use integer
-	short	coef2;		// Coef to apply to pixel2
+	long	coef2;		// Coef to apply to pixel2
 						// double value between 0 and 1 multiplied by 1000 to use integer
 } BlendStruct;
 
@@ -216,7 +216,7 @@ void ApplyLinearFilter(BYTE* pLine, int NewWidth, MEMCPY_FUNC *pCopy)
 
 	if (DoOnlyMasking)
 	{
-		t = pLine;
+		t = (BYTE*)pLine;
 		for (i=0 ; i<PictureWidth ; i++,t+=2,tab++)
 		{
 			if (tab->pixel1Y == -1)
@@ -229,25 +229,91 @@ void ApplyLinearFilter(BYTE* pLine, int NewWidth, MEMCPY_FUNC *pCopy)
 	}
 	else
 	{
+        DWORD OldSI;
+        DWORD OldSP;
+
 		// Build the new line
 		t = TmpBuf;
-		for (i=0 ; i<PictureWidth ; i++,t+=2,tab++)
-		{
-			if (tab->pixel1Y == -1)
-			{
-				// Color the pixel in black
-				t[0] = Y_BLACK;
-				t[1] = UV_BLACK;
-			}
-			else
-			{
-				t[0] = (pLine[tab->pixel1Y] * tab->coef1 + pLine[tab->pixel2Y] * tab->coef2) / 1024;
-				t[1] = (pLine[tab->pixel1UV] * tab->coef1 + pLine[tab->pixel2UV] * tab->coef2) / 1024;
-			}
-		}
 
-		// Replace the old line by the new line
-		pCopy(pLine, TmpBuf, PictureWidth*2);
+        ///////////////////////////////////////////////////////////////////////////////////////////// 
+        // the assember code below implements the following code
+        // it doesn't seem to optimize it much
+        ///////////////////////////////////////////////////////////////////////////////////////////// 
+		// for (i=0 ; i<PictureWidth ; i++,t+=2,tab++)
+ 		// {
+ 		//	 if (tab->pixel1Y == -1)
+ 		//	 {
+ 		//		// Color the pixel in black
+ 		//		t[0] = Y_BLACK;
+ 		//		t[1] = UV_BLACK;
+ 		//	 }
+ 		//	 else
+ 		//	 {
+		//		t[0] = (pLine[tab->pixel1Y] * tab->coef1 + pLine[tab->pixel2Y] * tab->coef2) / 1024;
+ 		//		t[1] = (pLine[tab->pixel1UV] * tab->coef1 + pLine[tab->pixel2UV] * tab->coef2) / 1024;
+ 		//	 }
+ 		// }
+        // 
+ 		// // Replace the old line by the new line
+ 		// pCopy(pLine, TmpBuf, PictureWidth*2);
+        
+        _asm
+        {
+            mov OldSI, esi
+            mov OldSP, esp
+            mov ecx, PictureWidth
+            mov edi, pLine
+            mov esi, t
+            mov esp, tab
+FILTER_LOOP:
+            xor eax, eax
+            xor ebx, ebx
+            mov edx, [esp]
+            cmp edx, -1
+            je BLACKOUT
+            mov bl, byte ptr[edi + edx]
+            imul ebx, [esp + 16]
+            mov edx, [esp + 4]
+            mov al, byte ptr[edi + edx]
+            imul eax, dword ptr[esp + 20]
+            add eax, ebx
+            shr eax, 10
+            mov byte ptr[esi], al
+            inc esi
+
+            xor eax, eax
+            xor ebx, ebx
+            mov edx, [esp + 8]
+            mov bl, byte ptr[edi + edx]
+            imul ebx, [esp + 16]
+            mov edx, [esp + 12]
+            mov al, byte ptr[edi + edx]
+            imul eax, [esp + 20]
+            add eax, ebx
+            shr eax, 10
+            mov byte ptr[esi], al
+            inc esi
+
+            add esp, 24
+            loop FILTER_LOOP
+            jmp ENDPROCESS
+BLACKOUT:
+            mov byte ptr[esi], Y_BLACK
+            inc esi
+            mov byte ptr[esi], UV_BLACK
+            inc esi
+            add esp, 24
+            loop FILTER_LOOP
+ENDPROCESS:
+            mov ecx, PictureWidth
+            shl ecx, 1
+            mov esi, t
+            mov edi, pLine
+            rep movs
+
+            mov esi, OldSI
+            mov esp, OldSP
+        }
 	}
 }
 
@@ -255,7 +321,8 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
 {
 	int i;
 
-	if (info->Overlay == NULL)
+    if (info->IsOdd == TRUE && info->OddLines[0] == NULL ||
+        info->IsOdd == FALSE && info->EvenLines[0] == NULL )
 	{
 		return FALSE;
 	}
@@ -277,16 +344,38 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
 	}
 
 	// Update each line of the picture
-	for (i=0 ; i<PictureHeight ; i++)
-	{
-		if (NbPixelsPerLineTab[i] != PictureWidth)
-		{
-			ApplyLinearFilter(info->Overlay + i * info->OverlayPitch, NbPixelsPerLineTab[i], info->pMemcpy);
-		}
-	}
-
+    if(info->IsOdd)
+    {
+	    for (i = 1 ; i < PictureHeight ; i += 2)
+	    {
+		    if (NbPixelsPerLineTab[i] != PictureWidth)
+		    {
+			    ApplyLinearFilter((BYTE*)info->OddLines[0][i/2], NbPixelsPerLineTab[i], info->pMemcpy);
+		    }
+	    }
+    }
+    else
+    {
+	    for (i = 0 ; i < PictureHeight ; i += 2)
+	    {
+		    if (NbPixelsPerLineTab[i] != PictureWidth)
+		    {
+			    ApplyLinearFilter((BYTE*)info->EvenLines[0][i/2], NbPixelsPerLineTab[i], info->pMemcpy);
+		    }
+	    }
+    }
 	return TRUE;
 }
+
+void __stdcall LinearCorrStart(void)
+{
+	// Update the internal tables of the filter
+	UpdNbPixelsPerLineTable(576, 720);
+	UpdLinearFilterTables(720);
+	PictureWidth = 720;
+	PictureHeight = 576;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -344,11 +433,11 @@ FILTER_METHOD LinearCorrMethod =
 	"Linear Correction Filter",
 	"&Linear Correction (experimental)",
 	FALSE,
-	FALSE,
+	TRUE,
 	LinearCorrection, 
 	0,
 	TRUE,
-	NULL,
+	LinearCorrStart,
 	NULL,
 	NULL,
 	FLT_LINEAR_CORR_SETTING_LASTONE,

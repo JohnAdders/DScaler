@@ -94,6 +94,15 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\FLT_LinearCorrection.c
+
+!IF  "$(CFG)" == "FLT_LinearCorrection - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "FLT_LinearCorrection - Win32 Debug"
+
+# ADD CPP /FAcs
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"

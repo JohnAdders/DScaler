@@ -25,6 +25,9 @@
 
 #include "stdafx.h"
 
+char szIniFile[MAX_PATH];
+void ReadFromIni(SETTING* pSetting, char* szIniFile);
+
 void memcpyMMX(void *Dest, void *Src, size_t nBytes)
 {
 	__asm {
@@ -178,6 +181,7 @@ BOOL LoadFilterPlugin(LPCSTR szFileName, FILTER_METHOD** FilterMethod)
 	GETFILTERPLUGININFO* pfnGetFilterPluginInfo;
 	FILTER_METHOD* pMethod;
 	HMODULE hPlugInMod;
+    int i;
 
 	hPlugInMod = LoadLibrary(szFileName);
 	if(hPlugInMod == NULL)
@@ -196,6 +200,10 @@ BOOL LoadFilterPlugin(LPCSTR szFileName, FILTER_METHOD** FilterMethod)
 	{
 		*FilterMethod = pMethod;
 		pMethod->hModule = hPlugInMod;
+		for (i = 0; i < pMethod->nSettings; i++)
+		{
+			ReadFromIni(&(pMethod->pSettings[i]), szIniFile);
+		}
 		if(pMethod->pfnPluginStart != NULL)
 		{
 			pMethod->pfnPluginStart();
@@ -505,7 +513,6 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
 	LARGE_INTEGER TimerFrequency;
 	int OddField = -1;
 	int EvenField = -1;
-	char szIniFile[MAX_PATH];
 	int i;
 
 	GetCurrentDirectory(MAX_PATH, szIniFile);
@@ -525,10 +532,6 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
 		if(!LoadFilterPlugin(FilterPlugin, &FilterMethod))
 		{
 			return 1;
-		}
-		for (i = 0; i < FilterMethod->nSettings; i++)
-		{
-			ReadFromIni(&(FilterMethod->pSettings[i]), szIniFile);
 		}
 	}
 

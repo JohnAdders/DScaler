@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.69 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.70 2004-04-24 08:36:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.68  2003/03/31 16:13:23  atnak
 // Changed default for page lines caching control
 //
@@ -256,7 +259,10 @@
 #include "DScaler.h"
 #include "Providers.h"
 
-#define VT_MAXPAGEHISTORY   64
+#define VT_MAXPAGEHISTORY               64
+
+#define VT_OSD_DISPLAY_TIMEOUT          2000
+#define VT_OSD_DEFAULT_INPUT_TIMEOUT    2
 
 
 BOOL VT_SetCodepage(HDC hDC, LPRECT lpRect, eVTCodepage Codepage);
@@ -323,6 +329,11 @@ BOOL                VTShowOSD = FALSE;
 char                VTOSDBuffer[4] = "";
 char*               VTPageOSD = NULL;
 char                VTPageInput[4] = "";
+
+// This variable controls the display duration for VT_ShowHeader();
+LONG                g_VTOSDTimeout = VT_OSD_DISPLAY_TIMEOUT;
+// This variable stores the user custmized input timeout (in seconds)
+LONG                g_VTOSDInputTimeoutSec = VT_OSD_DEFAULT_INPUT_TIMEOUT;
 
 WORD                VTPageHistoryHead;
 WORD                VTPageHistory[VT_MAXPAGEHISTORY];
@@ -403,7 +414,7 @@ void VT_SetState(HDC hDC, LPRECT lpRect, eVTState State)
         VTState = State;
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         return;
     }
 
@@ -590,7 +601,7 @@ BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         VT_HistoryPushPage(VTPageHex);
     }
     else
@@ -640,7 +651,7 @@ BOOL VT_PageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         VT_HistoryPushPage(VTPageHex);
 
         return TRUE;
@@ -693,7 +704,7 @@ BOOL VT_SubPageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
 
         return TRUE;
     }
@@ -784,7 +795,7 @@ BOOL VT_PerformSearch(HDC hDC, LPRECT lpRect, BOOL bInclusive, BOOL bReverse)
         VT_UpdateFlashTimer();
         VT_SetPageOSD(NULL, TRUE);
         VT_Redraw(hDC, lpRect);
-        SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+        SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
         VT_HistoryPushPage(VTPageHex);
 
         return TRUE;
@@ -818,7 +829,7 @@ BOOL VT_ShowTestPage(HDC hDC, LPRECT lpRect)
     VT_UpdateFlashTimer();
     VT_SetPageOSD(NULL, TRUE);
     VT_Redraw(hDC, lpRect);
-    SetTimer(::hWnd, TIMER_VTINPUT, 1000, NULL);
+    SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
 
     return TRUE;
 }
@@ -913,7 +924,7 @@ void VT_ShowHeader(HDC hDC, LPRECT lpRect, char OSD[3])
 {
     VT_SetPageOSD(OSD, TRUE);
     VT_Redraw(hDC, lpRect, VTDF_HEADERONLY);
-    SetTimer(::hWnd, TIMER_VTINPUT, 1200, NULL);
+    SetTimer(::hWnd, TIMER_VTINPUT, g_VTOSDTimeout, NULL);
 }
 
 
@@ -999,6 +1010,8 @@ BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
         VTPageInput[++nLength] = '\0';
     }
 
+    g_VTOSDTimeout = g_VTOSDInputTimeoutSec * 1000;
+
     if (nLength == 3)
     {
         WORD wPageHex = VT_Input2PageHex(VTPageInput);
@@ -1016,6 +1029,8 @@ BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
     {
         VT_ShowHeader(hDC, lpRect, VTPageInput);
     }
+
+    g_VTOSDTimeout = VT_OSD_DISPLAY_TIMEOUT;
 
     return FALSE;
 }
@@ -2023,6 +2038,13 @@ SETTING VTSettings[VT_SETTING_LASTONE] =
         NULL,
         "VT", "ForceDoubleHeightSubtitlesFilter", NULL,
     },
+    {
+        "Page Number Input Timeout (seconds)", SLIDER, 0,
+        (long*)&g_VTOSDInputTimeoutSec,
+        VT_OSD_DEFAULT_INPUT_TIMEOUT, 1, 60, 1, 1,
+        NULL,
+        "VT", "PageNumberInputTimeout", NULL,
+    },
 };
 
 
@@ -2077,7 +2099,8 @@ CTreeSettingsGeneric* VideoText_GetTreeSettingsPage()
         &VTSettings[VT_HIGH_GRANULARITY_CACHING     ],
         &VTSettings[VT_SUBSTITUTE_ERROR_SPACES      ],
         &VTSettings[VT_SUBTITLE_DUPLICATION_FILTER  ],
-        &VTSettings[VT_DOUBLEHEIGHT_SUBTITLES_FILTER]
+        &VTSettings[VT_DOUBLEHEIGHT_SUBTITLES_FILTER],
+        &VTSettings[VT_PAGE_NUMBER_INPUT_TIMEOUT    ],
     };
 
     WORD nCount = sizeof(VideoTextSettings)/sizeof(SETTING*);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.103 2004-01-05 13:12:24 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.104 2005-03-06 00:23:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2004/01/05 13:12:24  adcockj
+// Added patch from Lavrenov Dmitrij (midimaker)
+//
 // Revision 1.102  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -2117,7 +2120,7 @@ SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
     },
     {
         "Post switch mute delay", SLIDER, 0, (long*)&PostSwitchMuteDelay,
-        150, 0, 1000, 1, 1,
+        600, 0, 1000, 1, 1,
         NULL,
         "Audio", "PostSwitchMuteDelay", NULL,
     },    

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.8 2004-11-27 00:31:55 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.9 2004-12-01 17:57:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2004/11/27 00:31:55  atnak
+// More bug fixes.
+//
 // Revision 1.7  2004/11/26 23:12:20  atnak
 // Fixed problem with line number being wrong introduced few changes back.
 //
@@ -59,7 +62,7 @@ using namespace std;
 using namespace HCParser;
 
 
-void HCParser::PASS_TO_PARENT(int, const ParseTag*, unsigned char, const char*, void*)
+void HCParser::PASS_TO_PARENT(int, const ParseTag*, unsigned char, const CParseValue*, void*)
 {
 };
 
@@ -222,10 +225,10 @@ wstring CHCParser::GetErrorUnicode()
 	return m_parseError.wstr();
 }
 
-long CHCParser::Str2Long(const char* text)
+int CHCParser::Str2Int(const char* text)
 {
 	const char* c = text;
-	long l = 0;
+	int n = 0;
 	bool negative = false;
 
 	if (*c == '-')
@@ -238,19 +241,19 @@ long CHCParser::Str2Long(const char* text)
 	{
 		while (*++c != '\0')
 		{
-			l *= 0x10;
+			n *= 0x10;
 
 			if (*c >= '0' && *c <= '9')
 			{
-				l += *c - '0';
+				n += *c - '0';
 			}
 			else if (*c >= 'a' && *c <= 'f')
 			{
-				l += 0x10 + *c - 'a';
+				n += 0x10 + *c - 'a';
 			}
 			else if (*c >= 'A' && *c <= 'F')
 			{
-				l += 0x10 + *c - 'A';
+				n += 0x10 + *c - 'A';
 			}
 			else
 			{
@@ -264,8 +267,8 @@ long CHCParser::Str2Long(const char* text)
 		{
 			if (*c >= '0' && *c <= '9')
 			{
-				l *= 10;
-				l += *c - '0';
+				n *= 10;
+				n += *c - '0';
 			}
 			else
 			{
@@ -274,7 +277,7 @@ long CHCParser::Str2Long(const char* text)
 		}
 	}
 
-	return negative ? -l : l;
+	return negative ? -n : n;
 }
 
 void CHCParser::TrimLeft()
@@ -640,9 +643,9 @@ bool CHCParser::TagTakesValues(const ParseTag* parseTag)
 
 	if (parseTag->parseTypes & PARSE_CHILDREN)
 	{
-		for (long i = 0; parseTag->subTags[i].tagName != NULL; i++)
+		for (long i = 0; parseTag->attributes.subTags[i].tagName != NULL; i++)
 		{
-			if (TagTakesValues(&parseTag->subTags[i]))
+			if (TagTakesValues(&parseTag->attributes.subTags[i]))
 			{
 				return true;
 			}
@@ -1035,9 +1038,9 @@ bool CHCParser::AcceptValue(const ParseTag* parseTag, unsigned char types,
 		return false;
 	}
 
-	if (types & PARSE_CONSTANT && parseTag->constants != NULL)
+	if (types & PARSE_CONSTANT && parseTag->attributes.constants != NULL)
 	{
-		const ParseConstant* pc = parseTag->constants;
+		const ParseConstant* pc = parseTag->attributes.constants;
 		for ( ; pc->constant != NULL; pc++)
 		{
 			if (stricmp(pc->constant, value) == 0)
@@ -1048,7 +1051,7 @@ bool CHCParser::AcceptValue(const ParseTag* parseTag, unsigned char types,
 
 		if (pc->constant != NULL)
 		{
-			return ReportValue(parseTag, PARSE_CONSTANT, pc->value);
+			return ReportValue(parseTag, PARSE_CONSTANT, &pc->value);
 		}
 	}
 	if (types & PARSE_NUMERIC)
@@ -1077,12 +1080,12 @@ bool CHCParser::AcceptValue(const ParseTag* parseTag, unsigned char types,
 
 		if (*c == '\0')
 		{
-			return ReportValue(parseTag, PARSE_NUMERIC, value);
+			return ReportValue(parseTag, PARSE_NUMERIC, &CParseValue(value));
 		}
 	}
 	if (types & PARSE_STRING)
 	{
-		return ReportValue(parseTag, PARSE_STRING, value);
+		return ReportValue(parseTag, PARSE_STRING, &CParseValue(value));
 	}
 
 	return false;
@@ -1093,10 +1096,10 @@ void CHCParser::InitializeParseState()
 	m_parseStates.clear();
 
 	memset(m_rootParent, 0, sizeof(m_rootParent));
-	m_rootParent[0].tagName			= "";
-	m_rootParent[0].parseTypes		= PARSE_CHILDREN;
-	m_rootParent[0].maxParseLength	= 1;
-	m_rootParent[0].subTags			= m_tagListEntry;
+	m_rootParent[0].tagName				= "";
+	m_rootParent[0].parseTypes			= PARSE_CHILDREN;
+	m_rootParent[0].maxParseLength		= 1;
+	m_rootParent[0].attributes.subTags	= m_tagListEntry;
 
 
 	ParseState parseState;
@@ -1132,7 +1135,7 @@ bool CHCParser::OpenTag(long tagIndex)
 		m_parseStates.front().expect |= EXPECT_OPEN_L|(iterateValues ? 0 : EXPECT_TAG);
 
 		// Count the number of sub tags
-		const ParseTag* parseTag = m_parseStates.front().parseTags[tagIndex].subTags;
+		const ParseTag* parseTag = m_parseStates.front().parseTags[tagIndex].attributes.subTags;
 		_ASSERT(parseTag != NULL);
 		unsigned long paramCount;
 		for (paramCount = 0; parseTag->tagName != NULL; parseTag++, paramCount++) ;
@@ -1171,12 +1174,12 @@ bool CHCParser::CloseTag(bool openNext)
 
 		if (parseTag->parseTypes & PARSE_CHILDREN)
 		{
-			for (long i = 0; parseTag->subTags[i].tagName != NULL; i++)
+			for (long i = 0; parseTag->attributes.subTags[i].tagName != NULL; i++)
 			{
-				if (m_parseStates.front().openedTagParamCounts[i] < parseTag->subTags[i].minimumNumber)
+				if (m_parseStates.front().openedTagParamCounts[i] < parseTag->attributes.subTags[i].minimumNumber)
 				{
-					SetParseError(LineError() << "Number of '" << parseTag->subTags[i].tagName <<
-						"' specified is less than limit(" << parseTag->subTags[i].minimumNumber << ")");
+					SetParseError(LineError() << "Number of '" << parseTag->attributes.subTags[i].tagName <<
+						"' specified is less than limit(" << parseTag->attributes.subTags[i].minimumNumber << ")");
 					return false;
 				}
 			}
@@ -1255,7 +1258,7 @@ bool CHCParser::OpenValue(bool withBracket)
 	if (parseTag->parseTypes & PARSE_CHILDREN)
 	{
 		parseState.iterateValues = true;
-		parseState.parseTags = parseTag->subTags;
+		parseState.parseTags = parseTag->attributes.subTags;
 		m_parseStates.push_front(parseState);
 		DebugOut(DEBUG_OUT_EXPECT, ":OV", true);
 
@@ -1331,7 +1334,7 @@ bool CHCParser::OpenTagList(bool withBracket)
 	}
 
 	parseState.iterateValues = false;
-	parseState.parseTags = parseTag->subTags;
+	parseState.parseTags = parseTag->attributes.subTags;
 	parseState.expect |= EXPECT_TAG|(withBracket ? 0 : EXPECT_SECTION);
 	m_parseStates.push_front(parseState);
 
@@ -1399,7 +1402,8 @@ bool CHCParser::ReportClose(const ParseTag* parseTag)
 	return ReportValue(parseTag, 0, NULL, REPORT_CLOSE);
 }
 
-bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const char* value, int report)
+bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type,
+							const CParseValue* value, int report)
 {
 #ifdef _DEBUG
 	if (value != NULL)
@@ -1410,10 +1414,14 @@ bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const 
 		case PARSE_NUMERIC: DebugOut(DEBUG_OUT_REPORT, "Numeric"); break;
 		case PARSE_STRING: DebugOut(DEBUG_OUT_REPORT, "String"); break;
 		}
-		// Don't look at the value for PARSE_CONSTANT (see PC_VALUE()).
-		if (type != PARSE_CONSTANT)
+
+		if (value->GetString() != NULL)
 		{
-			DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value);
+			DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value->GetString());
+		}
+		else
+		{
+			DebugOut(DEBUG_OUT_REPORT, ParseError() << "=" << value->GetNumber());
 		}
 	}
 #endif
@@ -1454,6 +1462,48 @@ bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const 
 		}
 	}
 	return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CParseValue
+//////////////////////////////////////////////////////////////////////////
+
+CParseValue::CParseValue() :
+	m_string(NULL),
+	m_number(0)
+{
+}
+
+CParseValue::CParseValue(const char* str) :
+	m_string(str),
+	m_number(0)
+{
+}
+
+CParseValue::CParseValue(int number) :
+	m_string(NULL),
+	m_number(number)
+{
+
+}
+
+CParseValue::~CParseValue()
+{
+}
+
+const char* CParseValue::GetString() const
+{
+	return m_string;
+}
+
+int CParseValue::GetNumber() const
+{
+	if (m_string != NULL)
+	{
+		return CHCParser::Str2Int(m_string);
+	}
+	return m_number;
 }
 
 

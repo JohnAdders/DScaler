@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.h,v 1.1 2004-11-27 01:00:54 atnak Exp $
+// $Id: ParsingCommon.h,v 1.2 2004-12-01 17:57:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/11/27 01:00:54  atnak
+// New file for storing common parsing procedures for ini file card lists.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __PARSINGCOMMON_H___
@@ -83,10 +86,10 @@ struct _ParseUseTDA9887Info
 //////////////////////////////////////////////////////////////////////////
 
 BOOL ReadTunerProc(IN int report, IN const HCParser::ParseTag* tag, IN unsigned char type,
-				   IN const char* value, IN OUT TParseTunerInfo* tunerInfo);
+				   IN const HCParser::CParseValue* value, IN OUT TParseTunerInfo* tunerInfo);
 
 BOOL ReadUseTDA9887Proc(IN int report, IN const HCParser::ParseTag* tag, IN unsigned char type,
-						IN const char* value, IN OUT TParseUseTDA9887Info* useTDA9887Info);
+						IN const HCParser::CParseValue* value, IN OUT TParseUseTDA9887Info* useTDA9887Info);
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.43 2004-11-28 20:46:35 atnak Exp $
+// $Id: SAA7134Card.h,v 1.44 2004-12-01 17:57:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2004/11/28 20:46:35  atnak
+// Made changes to satisfy VC++ 6.
+//
 // Revision 1.42  2004/11/27 19:11:44  atnak
 // Added settings specific tor TDA9887 to the card list.
 //
@@ -489,13 +492,13 @@ public:
 
     /** Card list parsing
      */
-    static void ReadCardInputInfoProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
-    static void ReadCardInputProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
-    static void ReadCardUseTDA9887Proc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
-    static void ReadCardDefaultTunerProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
-    static void ReadCardInfoProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
-    static void ReadCardAutoDetectIDProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
-    static void ReadCardProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardInputInfoProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardInputProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardUseTDA9887Proc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardDefaultTunerProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardInfoProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardAutoDetectIDProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
+    static void ReadCardProc(int, const HCParser::ParseTag*, unsigned char, const HCParser::CParseValue*, void*);
     static BOOL APIENTRY ParseErrorProc(HWND hDlg, UINT message, UINT wParam, LPARAM lParam);
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.4 2004-11-27 19:26:33 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.5 2004-12-01 17:57:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/11/27 19:26:33  atnak
+// Minor changes.
+//
 // Revision 1.3  2004/11/27 19:23:39  atnak
 // Changed more constant names.
 //
@@ -50,115 +53,115 @@ static void SetTDA9887ModeMaskAndBits(OUT TTDA9887Modes&, IN BYTE, IN bool);
 // referred to by its name in the card list ini files.
 const ParseConstant k_parseTunerConstants[] =
 {
-	{ "ABSENT",						PC_VALUE(0) },
-	{ "PHILIPS_PAL_I",				PC_VALUE(1) },
-	{ "PHILIPS_NTSC",				PC_VALUE(2) },
-	{ "PHILIPS_SECAM",				PC_VALUE(3) },
-	{ "PHILIPS_PAL",				PC_VALUE(4) },
-	{ "TEMIC_4002FH5_PAL",			PC_VALUE(5) },
-	{ "TEMIC_4032FY5_NTSC",			PC_VALUE(6) },
-	{ "TEMIC_4062FY5_PAL_I",		PC_VALUE(7) },
-	{ "TEMIC_4036FY5_NTSC",			PC_VALUE(8) },
-	{ "ALPS_TSBH1_NTSC",			PC_VALUE(9) },
-	{ "ALPS_TSBE1_PAL",				PC_VALUE(10) },
-	{ "ALPS_TSBB5_PAL_I",			PC_VALUE(11) },
-	{ "ALPS_TSBE5_PAL",				PC_VALUE(12) },
-	{ "ALPS_TSBC5_PAL",				PC_VALUE(13) },
-	{ "TEMIC_4006FH5_PAL",			PC_VALUE(14) },
-	{ "PHILIPS_1236D_NTSC_INPUT1",	PC_VALUE(15) },
-	{ "PHILIPS_1236D_NTSC_INPUT2",	PC_VALUE(16) },
-	{ "ALPS_TSCH6_NTSC",			PC_VALUE(17) },
-	{ "TEMIC_4016FY5_PAL",			PC_VALUE(18) },
-	{ "PHILIPS_MK2_NTSC",			PC_VALUE(19) },
-	{ "TEMIC_4066FY5_PAL_I",		PC_VALUE(20) },
-	{ "TEMIC_4006FN5_PAL",			PC_VALUE(21) },
-	{ "TEMIC_4009FR5_PAL",			PC_VALUE(22) },
-	{ "TEMIC_4039FR5_NTSC",			PC_VALUE(23) },
-	{ "TEMIC_4046FM5_MULTI",		PC_VALUE(24) },
-	{ "PHILIPS_PAL_DK",				PC_VALUE(25) },
-	{ "PHILIPS_MULTI",				PC_VALUE(26) },
-	{ "LG_I001D_PAL_I",				PC_VALUE(27) },
-	{ "LG_I701D_PAL_I",				PC_VALUE(28) },
-	{ "LG_R01F_NTSC",				PC_VALUE(29) },
-	{ "LG_B01D_PAL",				PC_VALUE(30) },
-	{ "LG_B11D_PAL",				PC_VALUE(31) },
-	{ "TEMIC_4009FN5_PAL",			PC_VALUE(32) },
-	{ "MT2032",						PC_VALUE(33) },
-	{ "SHARP_2U5JF5540_NTSC",		PC_VALUE(34) },
-	{ "LG_TAPCH701P_NTSC",			PC_VALUE(35) },
-	{ "SAMSUNG_PAL_TCPM9091PD27",	PC_VALUE(36) },
-	{ "TEMIC_4106FH5",				PC_VALUE(37) },
-	{ "TEMIC_4012FY5",				PC_VALUE(38) },
-	{ "TEMIC_4136FY5",				PC_VALUE(39) },
-	{ "LG_TAPCNEW_PAL",				PC_VALUE(40) },
-	{ "PHILIPS_FM1216ME_MK3",		PC_VALUE(41) },
-	{ "LG_TAPCNEW_NTSC",			PC_VALUE(42) },
-	{ "MT2032_PAL",					PC_VALUE(43) },
-	{ "PHILIPS_FI1286_NTSC_M_J",	PC_VALUE(44) },
-	{ "MT2050",						PC_VALUE(45) },
-	{ "MT2050_PAL",					PC_VALUE(46) },
-	{ "PHILIPS_4IN1",				PC_VALUE(47) },
+	{ "ABSENT",						TUNER_ABSENT					},
+	{ "PHILIPS_PAL_I",				TUNER_PHILIPS_PAL_I				},
+	{ "PHILIPS_NTSC",				TUNER_PHILIPS_NTSC				},
+	{ "PHILIPS_SECAM",				TUNER_PHILIPS_SECAM				},
+	{ "PHILIPS_PAL",				TUNER_PHILIPS_PAL				},
+	{ "TEMIC_4002FH5_PAL",			TUNER_TEMIC_4002FH5_PAL			},
+	{ "TEMIC_4032FY5_NTSC",			TUNER_TEMIC_4032FY5_NTSC		},
+	{ "TEMIC_4062FY5_PAL_I",		TUNER_TEMIC_4062FY5_PAL_I		},
+	{ "TEMIC_4036FY5_NTSC",			TUNER_TEMIC_4036FY5_NTSC		},
+	{ "ALPS_TSBH1_NTSC",			TUNER_ALPS_TSBH1_NTSC			},
+	{ "ALPS_TSBE1_PAL",				TUNER_ALPS_TSBE1_PAL			},
+	{ "ALPS_TSBB5_PAL_I",			TUNER_ALPS_TSBB5_PAL_I			},
+	{ "ALPS_TSBE5_PAL",				TUNER_ALPS_TSBE5_PAL			},
+	{ "ALPS_TSBC5_PAL",				TUNER_ALPS_TSBC5_PAL			},
+	{ "TEMIC_4006FH5_PAL",			TUNER_TEMIC_4006FH5_PAL			},
+	{ "PHILIPS_1236D_NTSC_INPUT1",	TUNER_PHILIPS_1236D_NTSC_INPUT1	},
+	{ "PHILIPS_1236D_NTSC_INPUT2",	TUNER_PHILIPS_1236D_NTSC_INPUT2	},
+	{ "ALPS_TSCH6_NTSC",			TUNER_ALPS_TSCH6_NTSC			},
+	{ "TEMIC_4016FY5_PAL",			TUNER_TEMIC_4016FY5_PAL			},
+	{ "PHILIPS_MK2_NTSC",			TUNER_PHILIPS_MK2_NTSC			},
+	{ "TEMIC_4066FY5_PAL_I",		TUNER_TEMIC_4066FY5_PAL_I		},
+	{ "TEMIC_4006FN5_PAL",			TUNER_TEMIC_4006FN5_PAL			},
+	{ "TEMIC_4009FR5_PAL",			TUNER_TEMIC_4009FR5_PAL			},
+	{ "TEMIC_4039FR5_NTSC",			TUNER_TEMIC_4039FR5_NTSC		},
+	{ "TEMIC_4046FM5_MULTI",		TUNER_TEMIC_4046FM5_MULTI		},
+	{ "PHILIPS_PAL_DK",				TUNER_PHILIPS_PAL_DK			},
+	{ "PHILIPS_MULTI",				TUNER_PHILIPS_MULTI				},
+	{ "LG_I001D_PAL_I",				TUNER_LG_I001D_PAL_I			},
+	{ "LG_I701D_PAL_I",				TUNER_LG_I701D_PAL_I			},
+	{ "LG_R01F_NTSC",				TUNER_LG_R01F_NTSC				},
+	{ "LG_B01D_PAL",				TUNER_LG_B01D_PAL				},
+	{ "LG_B11D_PAL",				TUNER_LG_B11D_PAL				},
+	{ "TEMIC_4009FN5_PAL",			TUNER_TEMIC_4009FN5_PAL			},
+	{ "MT2032",						TUNER_MT2032					},
+	{ "SHARP_2U5JF5540_NTSC",		TUNER_SHARP_2U5JF5540_NTSC		},
+	{ "LG_TAPCH701P_NTSC",			TUNER_LG_TAPCH701P_NTSC			},
+	{ "SAMSUNG_PAL_TCPM9091PD27",	TUNER_SAMSUNG_PAL_TCPM9091PD27	},
+	{ "TEMIC_4106FH5",				TUNER_TEMIC_4106FH5				},
+	{ "TEMIC_4012FY5",				TUNER_TEMIC_4012FY5				},
+	{ "TEMIC_4136FY5",				TUNER_TEMIC_4136FY5				},
+	{ "LG_TAPCNEW_PAL",				TUNER_LG_TAPCNEW_PAL			},
+	{ "PHILIPS_FM1216ME_MK3",		TUNER_PHILIPS_FM1216ME_MK3		},
+	{ "LG_TAPCNEW_NTSC",			TUNER_LG_TAPCNEW_NTSC			},
+	{ "MT2032_PAL",					TUNER_MT2032_PAL				},
+	{ "PHILIPS_FI1286_NTSC_M_J",	TUNER_PHILIPS_FI1286_NTSC_M_J	},
+	{ "MT2050",						TUNER_MT2050					},
+	{ "MT2050_PAL",					TUNER_MT2050_PAL				},
+	{ "PHILIPS_4IN1",				TUNER_PHILIPS_4IN1				},
 	{ NULL }
 };
 
 const ParseConstant k_parseTDAFormatConstants[] =
 {
-	{ "PAL-BG",						PC_VALUE(TDA9887_FORMAT_PAL_BG)		},
-	{ "PAL-I",						PC_VALUE(TDA9887_FORMAT_PAL_I)		},
-	{ "PAL-DK",						PC_VALUE(TDA9887_FORMAT_PAL_DK)		},
-	{ "PAL-MN",						PC_VALUE(TDA9887_FORMAT_PAL_MN)		},
-	{ "SECAM-L",					PC_VALUE(TDA9887_FORMAT_SECAM_L)	},
-	{ "SECAM-DK",					PC_VALUE(TDA9887_FORMAT_SECAM_DK)	},
-	{ "NTSC-M",						PC_VALUE(TDA9887_FORMAT_NTSC_M)		},
-	{ "NTSC-JP",					PC_VALUE(TDA9887_FORMAT_NTSC_JP)	},
-	{ "Radio",						PC_VALUE(TDA9887_FORMAT_RADIO)		},
+	{ "PAL-BG",						TDA9887_FORMAT_PAL_BG		},
+	{ "PAL-I",						TDA9887_FORMAT_PAL_I		},
+	{ "PAL-DK",						TDA9887_FORMAT_PAL_DK		},
+	{ "PAL-MN",						TDA9887_FORMAT_PAL_MN		},
+	{ "SECAM-L",					TDA9887_FORMAT_SECAM_L		},
+	{ "SECAM-DK",					TDA9887_FORMAT_SECAM_DK		},
+	{ "NTSC-M",						TDA9887_FORMAT_NTSC_M		},
+	{ "NTSC-JP",					TDA9887_FORMAT_NTSC_JP		},
+	{ "Radio",						TDA9887_FORMAT_RADIO		},
 	{ NULL }
 };
 
 const ParseConstant k_parseCarrierConstants[] =
 {
-	{ "intercarrier",				PC_VALUE(0) },
-	{ "qss",						PC_VALUE(1) },
+	{ "intercarrier",				0 },
+	{ "qss",						1 },
 	{ NULL }
 };
 
 const ParseConstant k_parseYesNoConstants[] =
 {
-	{ "yes",						PC_VALUE(1) },
-	{ "no",							PC_VALUE(0) },
-	{ "true",						PC_VALUE(1) },
-	{ "false",						PC_VALUE(0) },
-	{ "active",						PC_VALUE(1) },
-	{ "inactive",					PC_VALUE(0) },
-	{ "1",							PC_VALUE(1) },
-	{ "0",							PC_VALUE(0) },
+	{ "yes",						1 },
+	{ "no",							0 },
+	{ "true",						1 },
+	{ "false",						0 },
+	{ "active",						1 },
+	{ "inactive",					0 },
+	{ "1",							1 },
+	{ "0",							0 },
 	{ NULL }
 };
 
 const ParseConstant k_parseTakeoverPointConstants[] =
 {
-	{ "min",						PC_VALUE(0x00) },
-	{ "max",						PC_VALUE(0x1f) },
-	{ "default",					PC_VALUE(0x10) },
+	{ "min",						TDA9887_SM_TAKEOVERPOINT_MIN		},
+	{ "max",						TDA9887_SM_TAKEOVERPOINT_MAX		},
+	{ "default",					TDA9887_SM_TAKEOVERPOINT_DEFAULT	},
 	{ NULL }
 };
 
 const ParseTag k_parseUseTDA9887SetOverride[] =
 {
-	{ "Format",			PARSE_CONSTANT,					1, 8, NULL, k_parseTDAFormatConstants, PASS_TO_PARENT },
-	{ "Intercarrier",	0,								0, 0, NULL, NULL, PASS_TO_PARENT },
-	{ "QSS",			0,								0, 0, NULL, NULL, PASS_TO_PARENT },
-	{ "Carrier",		PARSE_CONSTANT,					0, 16, NULL, k_parseCarrierConstants, PASS_TO_PARENT },
-	{ "OutputPort1",	PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
-	{ "OutputPort2",	PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
-	{ "TakeoverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0, 8, NULL, k_parseTakeoverPointConstants, PASS_TO_PARENT },
+	{ "Format",			PARSE_CONSTANT,					1,	8,	k_parseTDAFormatConstants,		PASS_TO_PARENT },
+	{ "Intercarrier",	0,								0,	0,	NULL,							PASS_TO_PARENT },
+	{ "QSS",			0,								0,	0,	NULL,							PASS_TO_PARENT },
+	{ "Carrier",		PARSE_CONSTANT,					0,	16,	k_parseCarrierConstants,		PASS_TO_PARENT },
+	{ "OutputPort1",	PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT },
+	{ "OutputPort2",	PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT },
+	{ "TakeOverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0,	8,	k_parseTakeoverPointConstants,	PASS_TO_PARENT },
 	{ NULL }
 };
 
 const ParseTag k_parseUseTDA9887[] =
 {
-	{ "Use",			PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
-	{ "SetModes",		PARSE_CHILDREN,					0, 9, k_parseUseTDA9887SetOverride, NULL, PASS_TO_PARENT },
+	{ "Use",			PARSE_CONSTANT,					0,	8,	k_parseYesNoConstants,			PASS_TO_PARENT },
+	{ "SetModes",		PARSE_CHILDREN,					0,	9,	k_parseUseTDA9887SetOverride,	PASS_TO_PARENT },
 	{ NULL }
 };
 
@@ -168,7 +171,7 @@ const ParseTag k_parseUseTDA9887[] =
 //////////////////////////////////////////////////////////////////////////
 
 BOOL ReadTunerProc(IN int report, IN const ParseTag* tag, IN unsigned char type,
-				   IN const char* value, IN OUT TParseTunerInfo* tunerInfo)
+				   IN const CParseValue* value, IN OUT TParseTunerInfo* tunerInfo)
 {
 	if (report == REPORT_OPEN)
 	{
@@ -177,20 +180,12 @@ BOOL ReadTunerProc(IN int report, IN const ParseTag* tag, IN unsigned char type,
 	}
 	else if (report == REPORT_VALUE)
 	{
-		if (type & PARSE_CONSTANT)
+		int n = value->GetNumber();
+		if (n < 0 || n >= TUNER_LASTONE)
 		{
-			tunerInfo->tunerId = (eTunerId)reinterpret_cast<int>(value);
+			throw string("Invalid tuner Id");
 		}
-		else
-		{
-			long l = CHCParser::Str2Long(value);
-
-			if (l < 0 || l >= TUNER_LASTONE)
-			{
-				throw string("Invalid tuner Id");
-			}
-			tunerInfo->tunerId = (eTunerId)l;
-		}
+		tunerInfo->tunerId = static_cast<eTunerId>(n);
 	}
 	else if (report == REPORT_CLOSE)
 	{
@@ -203,14 +198,14 @@ BOOL ReadTunerProc(IN int report, IN const ParseTag* tag, IN unsigned char type,
 
 
 BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char type,
-						IN const char* value, IN OUT TParseUseTDA9887Info* useTDA9887Info)
+						IN const CParseValue* value, IN OUT TParseUseTDA9887Info* useTDA9887Info)
 {
 	// Use
 	if (tag == k_parseUseTDA9887 + 0)
 	{
 		if (report == REPORT_VALUE)
 		{
-			useTDA9887Info->useTDA9887 = reinterpret_cast<int>(value) != 0;
+			useTDA9887Info->useTDA9887 = value->GetNumber() != 0;
 		}
 	}
 	// SetOverride
@@ -243,7 +238,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 	{
 		if (report == REPORT_VALUE)
 		{
-			useTDA9887Info->_readingFormat = (eTDA9887Format)reinterpret_cast<int>(value);
+			useTDA9887Info->_readingFormat = static_cast<eTDA9887Format>(value->GetNumber());
 		}
 	}
 	// Intercarrier
@@ -270,7 +265,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 		if (report == REPORT_VALUE)
 		{
 			SetTDA9887ModeMaskAndBits(useTDA9887Info->_readingModes,
-				TDA9887_SM_CARRIER_QSS, reinterpret_cast<int>(value) != 0);
+				TDA9887_SM_CARRIER_QSS, value->GetNumber() != 0);
 		}
 	}
 	// OutputPort1
@@ -279,7 +274,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 		if (report == REPORT_VALUE)
 		{
 			SetTDA9887ModeMaskAndBits(useTDA9887Info->_readingModes,
-				TDA9887_SM_OUTPUTPORT1_INACTIVE, reinterpret_cast<int>(value) != 0);
+				TDA9887_SM_OUTPUTPORT1_INACTIVE, value->GetNumber() != 0);
 		}
 	}
 	// OutputPort2
@@ -288,20 +283,18 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 		if (report == REPORT_VALUE)
 		{
 			SetTDA9887ModeMaskAndBits(useTDA9887Info->_readingModes,
-				TDA9887_SM_OUTPUTPORT2_INACTIVE, reinterpret_cast<int>(value) != 0);
+				TDA9887_SM_OUTPUTPORT2_INACTIVE, value->GetNumber() != 0);
 		}
 	}
-	// TakeoverPoint
+	// TakeOverPoint
 	else if (tag == k_parseUseTDA9887SetOverride + 6)
 	{
 		if (report == REPORT_VALUE)
 		{
-			BYTE point = (BYTE)((type & PARSE_CONSTANT) ?
-				reinterpret_cast<BYTE>(value) : CHCParser::Str2Long(value));
-
+			BYTE point = static_cast<BYTE>(value->GetNumber());
 			if (point & ~TDA9887_SM_TAKEOVERPOINT_MASK)
 			{
-				throw string("Invalid value of TakeoverPoint");
+				throw string("Invalid value of TakeOverPoint");
 			}
 
 			useTDA9887Info->_readingModes.mask |= TDA9887_SM_TAKEOVERPOINT_MASK;

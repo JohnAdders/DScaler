@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.8 2004-11-27 00:31:55 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.9 2004-12-01 17:57:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2004/11/27 00:31:55  atnak
+// More bug fixes.
+//
 // Revision 1.7  2004/11/26 23:12:22  atnak
 // Fixed problem with line number being wrong introduced few changes back.
 //
@@ -155,11 +158,11 @@ namespace HCParser
 // conversion to multi-byte characters takes place if GetError() is used.
 //
 //
-// CHCParser::Str2Long(text)
+// CHCParser::Str2Int(text)
 //
-// Converts const char* to long.  Provided the specified text holds a number in a textual
+// Converts const char* to int.  Provided the specified text holds a number in a textual
 // representation, either in decimal (negative or positive) or hexadecimal with a leading
-// '0x', the return value is a long value of the number.  If the number cannot be parsed,
+// '0x', the return value is a int value of the number.  If the number cannot be parsed,
 // the return value is 0.
 //
 //
@@ -172,8 +175,8 @@ namespace HCParser
 // PARSE_STRING, PARSE_NUMERIC, PARSE_CONSTANT or any combination of the three bit-wise
 // ORed together.  It specifies how the CHCParser managed to read the value and may be
 // necessary if there are more than one way of parsing a value, 'value' is a textual
-// representation (const char*) of the value read.  CHCParser::Str2Long() can be used to
-// convert any numeric text values to a long representation.  For REPORT_OPEN and
+// representation (const char*) of the value read.  CHCParser::Str2Int() can be used to
+// convert any numeric text values to a int representation.  For REPORT_OPEN and
 // REPORT_CLOSE, the 'type' and 'value' arguments are 0 and NULL respectively. 'context'
 // is the pointer passed in the second argument of CHCParser.Parse().
 //
@@ -217,39 +220,72 @@ enum
 	REPORT_VALUE,
 };
 
+// Value type used by HCParser
+class CParseValue
+{
+public:
+	CParseValue();
+	CParseValue(const char* str);
+	CParseValue(int number);
+	virtual ~CParseValue();
+
+	virtual const char* GetString() const;
+	virtual int GetNumber() const;
+
+protected:
+	const char*	m_string;
+	int			m_number;
+};
+
 typedef struct _ParseConstant ParseConstant;
 typedef struct _ParseTag ParseTag;
 
 // Callback function type for ParseTag
 typedef void (ParseReadProc)(int report, const ParseTag* tag, unsigned char type,
-							 const char* value, void* context);
+							 const CParseValue* value, void* context);
 
 // This PASS_TO_PARENT value can be specified as the 'readProc' value of
 // ParseTag to have to parent tag's callback function called.
 ParseReadProc PASS_TO_PARENT; 
 
-// This macro can be used to make any type be accepted as the value in
-// the ParseConstant list.  Care should be taken when doing this.
-// ParseConstant values are passed as the 'value' parameter of
-// ParserReadProc and are not used by CHParser for any other purpose.
-// The respective type-cast will return 'value' back to the original type.
-#define PC_VALUE(value)				((const char*)(value))
-
 // Constants definition for ParseTag
 struct _ParseConstant
 {
 	const char*		constant;
-	const char*		value;
+	CParseValue		value;
 };
 
 struct _ParseTag
 {
+	// Name of the tag to be parsed.
 	const char*				tagName;
+	// Parsing mode for the tag.
 	unsigned char			parseTypes;
+	// Minimum number of the same type of tags that can be parsed.
 	unsigned long			minimumNumber;
+	// Maximum length in characters the value of the tag can be or
+	// maximum tags of the same kind for PARSE_CHILDREN.
 	unsigned long			maxParseLength;
-	const ParseTag*			subTags;
-	const ParseConstant*	constants;
+
+	// This class allows the single attributes value to be
+	// initialized for either PARSE_CHILDREN or PARSE_CONSTANTS.
+	class CAttributes
+	{
+	public:
+		CAttributes(int = NULL) :
+			subTags(NULL), constants(NULL) { }
+		CAttributes(const ParseTag* subTags) :
+			subTags(subTags), constants(NULL) { };
+		CAttributes(const ParseConstant* constants) :
+			subTags(NULL), constants(constants) { };
+
+		const ParseTag*			subTags;
+		const ParseConstant*	constants;
+	};
+
+	// Either a list of child tags or a list of constants.
+	CAttributes				attributes;
+	// The callback to be called when the tag is parsed.
 	ParseReadProc*			readProc;
 };
 
@@ -274,7 +310,7 @@ public:
 	std::string GetError();
 	std::wstring GetErrorUnicode();
 
-	static long Str2Long(const char* text);
+	static int Str2Int(const char* text);
 
 	static bool IsUnicodeOS();
 	static FILE* OpenLocalFile(const char* filename);
@@ -404,7 +440,7 @@ private:
 	bool ReportOpen(const ParseTag* parseTag);
 	bool ReportClose(const ParseTag* parseTag);
 	bool ReportValue(const ParseTag* parseTag, unsigned char type,
-					 const char* value, int report = REPORT_VALUE);
+					 const CParseValue* value, int report = REPORT_VALUE);
 
 	void TrimLeft();
 	bool TagTakesValues(const ParseTag* parseTag);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.53 2002-09-28 13:33:04 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.54 2002-09-29 13:56:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/09/28 13:33:04  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.52  2002/09/27 14:17:40  kooiman
 // Improved stereo detection & manual audio standard dialog box.
 //
@@ -1325,7 +1328,9 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     {
         case IDM_SETUPCARD:
             Stop_Capture();
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+            PostShowDialogOrMenu();
             m_pBT848Card->SetCardType(m_CardType->GetValue());
             m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
             m_pBT848Card->InitAudio();
@@ -1455,15 +1460,21 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
             
         case IDM_HWINFO:
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CBT848Card::ChipSettingProc, (LPARAM)m_pBT848Card);
+            PostShowDialogOrMenu();
             break;
 
         case IDM_AUDIOSETTINGS:
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
+            PostShowDialogOrMenu();
             break;
         
         case IDM_ADV_VIDEOSETTINGS:
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
+            PostShowDialogOrMenu();
             break;
 
         // Video format (NTSC, PAL, etc)
@@ -1560,7 +1571,9 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 		case IDM_AUDIOSTANDARD_MANUAL:
             m_AudioStandardDetect->SetValue(4, ONCHANGE_NONE);
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_MANUAL), hWnd, AudioStandardManualProc, (LPARAM)this);
+            PostShowDialogOrMenu();
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:
             {

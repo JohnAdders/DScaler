@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.3 2002-09-25 15:11:12 adcockj Exp $
+// $Id: CT2388xSource_UI.cpp,v 1.4 2002-09-29 13:56:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.2  2002/09/22 17:47:04  adcockj
 // Fixes for holo3d
 //
@@ -193,7 +196,9 @@ BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     {
         case IDM_SETUPCARD:
             Stop_Capture();
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+            PostShowDialogOrMenu();
             m_pCard->SetCardType(m_CardType->GetValue());
             m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
             Start_Capture();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.18 2002-09-28 13:34:36 kooiman Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.19 2002-09-29 13:56:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/09/28 13:34:36  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.17  2002/09/11 18:19:44  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -472,6 +475,8 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 {
     int mask = iSettingsMask;
 
+    PreShowDialogOrMenu();
+
     if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK)) )
     {
         mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK;
@@ -654,4 +659,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 		delete *it;
 	}
 	pages.erase(pages.begin(),pages.end());
+
+    PostShowDialogOrMenu();
 }

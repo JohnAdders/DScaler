@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.20 2002-09-28 18:08:20 adcockj Exp $
+// $Id: SettingsPerChannel.cpp,v 1.21 2002-09-29 13:56:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/09/28 18:08:20  adcockj
+// Fixed crashing due to bad cast
+//
 // Revision 1.19  2002/09/28 13:34:08  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -1043,7 +1046,7 @@ void SettingsPerChannel_UnregisterSection(const char* szSubSection)
         }
         else
         {
-          newSettings.push_back((*it));
+            newSettings.push_back((*it));
         }
     }           
     vSpcChannelSettings = newSettings;
@@ -1818,19 +1821,20 @@ SETTING SettingsPerChannel_CommonSettings[SETTINGSPERCHANNEL_COMMONSETTINGS_LAST
 };
 
 
-int SettingsPerChannel_BuildSettingsArray(SETTING* &SettingsPerChannel_Settings)
+int SettingsPerChannel_BuildSettingsArray(SETTING*& SettingsPerChannel_Settings)
 {
     if (SettingsPerChannel_Settings != NULL)
     {
         delete[] SettingsPerChannel_Settings;
-
     }
     SettingsPerChannel_Settings = new SETTING[SETTINGSPERCHANNEL_COMMONSETTINGS_LASTONE +  vSpcChannelSettings.size()];
+    
     int i;
-    for ( i=0; i<SETTINGSPERCHANNEL_COMMONSETTINGS_LASTONE; i++)
+    for (i = 0; i < SETTINGSPERCHANNEL_COMMONSETTINGS_LASTONE; i++)
     {
        SettingsPerChannel_Settings[i] = SettingsPerChannel_CommonSettings[i]; 
     }
+
     for(vector<TChannelSetting*>::iterator it = vSpcChannelSettings.begin();
                 it != vSpcChannelSettings.end(); ++it)
     {

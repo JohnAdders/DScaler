@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.30 2002-09-28 13:31:41 kooiman Exp $
+// $Id: MixerDev.cpp,v 1.31 2002-09-29 13:56:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/09/28 13:31:41  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.29  2002/09/26 16:35:20  kooiman
 // Volume event support.
 //
@@ -766,6 +769,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 void Mixer_SetupDlg(HWND hWndParent)
 {
+    PreShowDialogOrMenu();
     if(pSoundSystem == NULL || pSoundSystem->GetNumMixers() > 0)
     {
         DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
@@ -774,6 +778,7 @@ void Mixer_SetupDlg(HWND hWndParent)
     {
         MessageBox(hWnd, "No Mixer hardware found", "DScaler Error", MB_OK);
     }
+    PreShowDialogOrMenu();
 }
 
 CMixerLineDest* Mixer_GetDestLine()

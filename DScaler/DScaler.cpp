@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.231 2002-09-28 18:20:28 robmuller Exp $
+// $Id: DScaler.cpp,v 1.232 2002-09-29 13:56:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.231  2002/09/28 18:20:28  robmuller
+// Fixed a problem caused by the renaming of a menu entry.
+// Added a check to detect this error earlier next time.
+//
 // Revision 1.230  2002/09/28 13:34:08  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -836,10 +840,10 @@ char szSkinName[MAX_PATH+1];
 char szSkinDirectory[MAX_PATH+1];
 vector<string> vSkinNameList;
 
-CSettingsMaster *SettingsMaster = NULL;
-CEventCollector *EventCollector = NULL;
-CWindowBorder *WindowBorder = NULL;
-CToolbarControl *ToolbarControl = NULL;
+CSettingsMaster* SettingsMaster = NULL;
+CEventCollector* EventCollector = NULL;
+CWindowBorder* WindowBorder = NULL;
+CToolbarControl* ToolbarControl = NULL;
 
 
 BOOL IsFullScreen_OnChange(long NewValue);
@@ -864,14 +868,14 @@ void GlobalEventTimer_Start();
 void GlobalEventTimer_Stop();
 
 
-static const char *UIPriorityNames[3] = 
+static const char* UIPriorityNames[3] = 
 {
     "Normal",
     "High",
     "Very High",
 };
 
-static const char *DecodingPriorityNames[5] = 
+static const char* DecodingPriorityNames[5] = 
 {
     "Low",
     "Normal",
@@ -1505,10 +1509,10 @@ void SetScreensaverMode(BOOL bScreensaverOff)
     }
 }
 
-void UpdateSleepMode(TSMState *SMState, char *Text)
+void UpdateSleepMode(TSMState* SMState, char* Text)
 {
     time_t curr = 0;
-    struct tm *SMTime = NULL;
+    struct tm* SMTime = NULL;
     UINT uiPeriod;
 
     switch( SMState->State )
@@ -1667,7 +1671,7 @@ BOOL BorderGetClientRect(HWND hWnd, LPRECT lpRect)
     return result;
 }
 
-LRESULT BorderButtonProc(string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT BorderButtonProc(string sID, void* pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (sID=="BUTTON_CLOSE")
     {
@@ -1748,7 +1752,7 @@ LPCSTR GetSkinDirectory()
     }
 
     char szPath[MAX_PATH+1];
-    char *s = NULL;
+    char* s = NULL;
     int len = GetFullPathName(GetIniFileForSettings(), MAX_PATH, szPath, &s);
     if ((len > 0) && (s!=NULL))
     {
@@ -2165,13 +2169,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 //Get searchstring dialog, search only if user pressed OK button/enter key
+                PreShowDialogOrMenu();
                 if(DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH), hWnd, 
                     (DLGPROC)VTSearchProc))
                 {
                     //Search all pages and act
                     SearchGotoVTPage(true);
                 }
-
+                PostShowDialogOrMenu();
             }
             break;
 
@@ -2232,7 +2237,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
             }
+            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
+            PostShowDialogOrMenu();
             Channels_UpdateMenu(hMenu);
             break;
 
@@ -2378,7 +2385,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_ABOUT:
+            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutProc);
+            PostShowDialogOrMenu();
             break;
 
         case IDM_BRIGHTNESS_PLUS:
@@ -2653,15 +2662,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VIDEOSETTINGS:
+            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VIDEOSETTINGS), hWnd, VideoSettingProc);
+            PostShowDialogOrMenu();
             break;
 
         case IDM_VPS_OUT:
+            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VPSSTATUS), hWnd, VPSInfoProc);
+            PostShowDialogOrMenu();
             break;
 
         case IDM_VT_OUT:
+            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSTATUS), hWnd, VTInfoProc);
+            PostShowDialogOrMenu();
             break;
 
         case IDM_VBI:
@@ -3006,6 +3021,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERLAYSETTINGS:
+            PreShowDialogOrMenu();
             if(!CanDoOverlayColorControl())
             {
                 MessageBox(hWnd, "Overlay color control is not supported by your video card.",
@@ -3015,6 +3031,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
             }
+            PostShowDialogOrMenu();
             break;
 
         case IDM_USE_DSCALER_OVERLAY:
@@ -3156,35 +3173,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 		
 	case IDM_SETTINGS_CHANGESETTINGS:
-            bInMenuOrDialogBox = TRUE;
-            Cursor_UpdateVisibility();
             CTreeSettingsDlg::ShowTreeSettingsDlg(ADVANCED_SETTINGS_MASK);
-            bInMenuOrDialogBox = FALSE;
-            Cursor_UpdateVisibility();
             break;
 
         case IDM_SETTINGS_FILTERSETTINGS:
-            bInMenuOrDialogBox = TRUE;
-            Cursor_UpdateVisibility();
             CTreeSettingsDlg::ShowTreeSettingsDlg(FILTER_SETTINGS_MASK);
-            bInMenuOrDialogBox = FALSE;
-            Cursor_UpdateVisibility();
             break;
 
         case IDM_SETTINGS_DEINTERLACESETTINGS:
-            bInMenuOrDialogBox = TRUE;
-            Cursor_UpdateVisibility();
             CTreeSettingsDlg::ShowTreeSettingsDlg(DEINTERLACE_SETTINGS_MASK);
-            bInMenuOrDialogBox = FALSE;
-            Cursor_UpdateVisibility();
             break;
 
 		/*case IDM_SETTINGS_CHANGEALLSETTINGS:
-			bInMenuOrDialogBox = TRUE;
-            Cursor_UpdateVisibility();
             CTreeSettingsDlg::ShowTreeSettingsDlg(ALL_SETTINGS_MASK);
-            bInMenuOrDialogBox = FALSE;
-            Cursor_UpdateVisibility();
             break;*/
 
 
@@ -3208,7 +3209,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_SETUPHARDWARE:
             // Stop and start capture because of possible pixel width chaange
             Stop_Capture();
+            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)1);
+            PostShowDialogOrMenu();
             Start_Capture();
             break;
 
@@ -3436,14 +3439,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_ENTERMENULOOP:
-        bInMenuOrDialogBox = TRUE;
-        Cursor_UpdateVisibility();
+        PreShowDialogOrMenu();
         return 0;
         break;
 
     case WM_EXITMENULOOP:
-        bInMenuOrDialogBox = FALSE;
-        Cursor_UpdateVisibility();
+        PostShowDialogOrMenu();
         return 0;
         break;
 
@@ -3463,14 +3464,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_KILLFOCUS:
-        bInMenuOrDialogBox = TRUE;
-        Cursor_UpdateVisibility();
+        PreShowDialogOrMenu();
         return 0;
         break;
 
     case WM_SETFOCUS:
-        bInMenuOrDialogBox = FALSE;
-        Cursor_UpdateVisibility();
+        PostShowDialogOrMenu();
         return 0;
         break;
 
@@ -3584,9 +3583,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
         case TIMER_HIDECURSOR:
-            KillTimer(hWnd, TIMER_HIDECURSOR);
             if (!bInMenuOrDialogBox)
+            {
+                KillTimer(hWnd, TIMER_HIDECURSOR);
                 Cursor_SetVisibility(FALSE);
+            }
             break;
         //-------------------------------
         case TIMER_VTFLASHER:
@@ -3802,7 +3803,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                         sizeof(string), MF_BYPOSITION) != 0)
                     {
                         // get rid off the shortcut text
-                        char *ch = strchr(string, '\t');
+                        char* ch = strchr(string, '\t');
                         if(ch != NULL)
                         {
                             *ch = '\0';
@@ -4021,7 +4022,9 @@ void MainWndOnInitBT(HWND hWnd)
 
     if (ShowHWSetupBox)
     {
+        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)0);
+        PostShowDialogOrMenu();
     }
 
     if (Providers_Load(hMenu) > 0)
@@ -4364,7 +4367,7 @@ void MainWndOnDestroy()
     __try
     {
         LOG(1, "Try free settings");
-        if (SettingsMaster!=NULL)
+        if (SettingsMaster != NULL)
         {
             delete SettingsMaster;
             SettingsMaster = NULL;
@@ -5106,6 +5109,17 @@ void GlobalEventTimer_Stop()
 	}
 }
 
+void PreShowDialogOrMenu()
+{
+    bInMenuOrDialogBox = TRUE;
+    Cursor_UpdateVisibility();
+}
+
+void PostShowDialogOrMenu()
+{
+    bInMenuOrDialogBox = FALSE;
+    Cursor_UpdateVisibility();
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

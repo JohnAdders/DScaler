@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.16 2001-08-08 18:24:13 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.17 2001-08-09 21:42:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/08/08 18:24:13  adcockj
+// Fixed film delay bug
+//
 // Revision 1.15  2001/08/08 08:54:32  adcockj
 // Added Delay option to film modes
 // Switched comb modes to use greedy (low) on bad cadence instead of doings it's own thing
@@ -737,7 +740,7 @@ BOOL SimpleFilmMode(DEINTERLACE_INFO* pInfo, PFNFLIP* pfnFlip)
         TestField = (pInfo->CurrentFrame + 5 - (FilmFlipDelay + 1) / 2) % 5;
         TestOdd = ((FilmFlipDelay % 2) != 0);
     }
-    LOGD("TestField %d %d %d %d\n", pInfo->CurrentFrame, pInfo->IsOdd, TestField, TestOdd);
+
     if(pfnFlip(TestField, TestOdd) == TRUE)
     {
         return WeaveDelay(pInfo, FilmFlipDelay);

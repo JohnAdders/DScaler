@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.30 2004-06-02 18:44:06 to_see Exp $
+// $Id: CX2388xCard.h,v 1.31 2004-06-19 20:13:47 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -220,9 +220,6 @@ public:
     void SetAudioVolume(WORD nVolume);
     void SetAudioBalance(WORD nBalance);
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
-	DWORD GetAudioStatusRegister();
-	void SetAutoA2StereoToMono();
-	void SetAutoA2StereoToStereo();
 	eCX2388xAudioStandard GetCurrentAudioStandard();
 	eCX2388xStereoType GetCurrentStereoType();
 

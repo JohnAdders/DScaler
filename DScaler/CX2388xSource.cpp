@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.67 2004-06-01 20:04:51 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.68 2004-06-19 20:13:47 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2004/06/01 20:04:51  to_see
+// some minor audio fixes
+//
 // Revision 1.66  2004/05/21 18:35:59  to_see
 // Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
 //
@@ -418,8 +421,7 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     m_NumFields(10),
     m_hCX2388xResourceInst(NULL),
 	m_InitialSetup(FALSE),
-	m_AutoDetectA2StereoCounter(0),
-	m_AutoDetectA2BilingualCounter(0),
+	m_AutoDetectA2Counter(0),
 	m_bDriverStoped(FALSE)
 {
     CreateSettings(IniSection);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.24 2004-06-02 18:44:06 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.25 2004-06-19 20:13:47 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2004/06/02 18:44:06  to_see
+// New TAudioRegList structure to hold audio register
+// settings for better handling
+//
 // Revision 1.23  2004/06/01 20:04:51  to_see
 // some minor audio fixes
 //
@@ -415,8 +419,7 @@ const CCX2388xCard::TAudioRegList CCX2388xCard::m_RegList_A2_BGDK_Common[]=
 	{AUD_PILOT_BQD_2_K2,		0x00400000},
 	{AUD_PILOT_BQD_2_K3,		0x00000000},
 	{AUD_PILOT_BQD_2_K4,		0x00000000},
-	{AUD_MODE_CHG_TIMER,		0x00000060},
-	{AUD_START_TIMER,			0x00000000},
+	{AUD_MODE_CHG_TIMER,		0x00000040},
 	{AUD_AFE_12DB_EN,			0x00000001},
 	{AUD_CORDIC_SHIFT_0,		0x00000007},
 	{AUD_CORDIC_SHIFT_1,		0x00000007},
@@ -767,14 +770,6 @@ void CCX2388xCard::SetAudioBalance(WORD nBalance)
 
 void CCX2388xCard::SetAudioMute()
 {
-	// Causes no pop every time
-	if(m_CardType == CX2388xCARD_HAUPPAUGE_PCI_FM)
-	{
-		// set U1 (4052) pin INH to 1
-		DWORD dwval = ReadDword(MO_GP0_IO) | 0x04;
-		WriteDword(MO_GP0_IO, dwval);
-	}
-
 	// Mute the audio
 	DWORD dwval = ReadDword(AUD_VOL_CTL) & 0x1FF;
 	dwval |= EN_DAC_MUTE_EN;
@@ -786,14 +781,6 @@ void CCX2388xCard::SetAudioUnMute(WORD nVolume)
 	// Unmute the audio and set volume
 	DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
 	WriteDword(AUD_VOL_CTL,dwval);
-
-	// Causes no pop every time
-	if(m_CardType == CX2388xCARD_HAUPPAUGE_PCI_FM)
-	{
-		// set U1 (4052) pin INH to 0
-		DWORD dwval = ReadDword(MO_GP0_IO) & ~0x04;
-		WriteDword(MO_GP0_IO, dwval);
-	}
 }
 
 void CCX2388xCard::AudioInitDMA()
@@ -925,8 +912,54 @@ void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType Ster
 
 void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-	if(TVFormat == VIDEOFORMAT_PAL_I)
+	DWORD dwTemp = EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF;
+
+	switch (TVFormat)
 	{
+	case VIDEOFORMAT_PAL_B:
+	case VIDEOFORMAT_PAL_G:
+		SetAudioRegisters(m_RegList_A2_BGDK_Common);
+		
+		// don't know when needed
+		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
+		
+		SetAudioRegisters(m_RegList_A2_BG);
+		
+		switch(StereoType)
+		{
+		case STEREOTYPE_MONO:
+		case STEREOTYPE_ALT1:
+			dwTemp |= EN_A2_FORCE_MONO1;
+			break;
+
+		case STEREOTYPE_ALT2:
+			dwTemp |= EN_A2_FORCE_MONO2;
+			break;
+
+		case STEREOTYPE_STEREO:
+			dwTemp |= EN_A2_FORCE_STEREO;
+			break;
+
+		case STEREOTYPE_AUTO:
+			dwTemp |= EN_A2_AUTO_STEREO;
+			break;
+		}
+		
+		break;
+
+	case VIDEOFORMAT_PAL_D:
+	case VIDEOFORMAT_SECAM_K:
+	case VIDEOFORMAT_SECAM_D:
+		SetAudioRegisters(m_RegList_A2_BGDK_Common);
+
+		// don't know when needed
+		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
+
+		SetAudioRegisters(m_RegList_A2_DK);
+		dwTemp |= EN_A2_FORCE_MONO1;
+		break;
+
+	case VIDEOFORMAT_PAL_I:
 		SetAudioRegisters(m_RegList_A2_I_Common);
 		SetAudioRegisters(m_RegList_A2_I_Deemph1);
 		
@@ -934,88 +967,18 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		//SetAudioRegisters(m_RegList_A2_I_Deemph2);
 		//SetAudioRegisters(m_RegList_A2_I_Special);
 
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_AUTO_STEREO);
-		WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
-		m_CurrentStereoType = STEREOTYPE_MONO;
+		dwTemp |= EN_A2_FORCE_MONO1;
+		break;
+
+	// not tested !
+	case VIDEOFORMAT_NTSC_M:
+		SetAudioRegisters(m_RegList_A2_M);
+		dwTemp |= EN_A2_FORCE_MONO1;
+		break;
 	}
 
-	else
-	{
-		SetAudioRegisters(m_RegList_A2_BGDK_Common);
-
-		// this is needed for an Leadtek TV2000 Expert card with Phillips MK3 Tuner
-		// for Pal(BGDK) (other Standard's unknown). Other cards have bad audio with this
-		// settings. Don't know how to make an 'if' here at the moment so comment out...
-		//SetAudioRegisters(m_RegList_A2_BGDK_Special);
-		
-		switch (TVFormat)
-		{
-		case VIDEOFORMAT_PAL_B:
-		case VIDEOFORMAT_PAL_G:
-			SetAudioRegisters(m_RegList_A2_BG);
-			break;
-
-		case VIDEOFORMAT_PAL_D:
-		case VIDEOFORMAT_SECAM_K:
-		case VIDEOFORMAT_SECAM_D:
-			SetAudioRegisters(m_RegList_A2_DK);
-			break;
-
-		// not tested !
-		case VIDEOFORMAT_NTSC_M:
-			SetAudioRegisters(m_RegList_A2_M);
-			break;
-		}
-
-		switch(StereoType)
-		{
-		case STEREOTYPE_MONO:
-			WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO1);
-			break;
-
-		case STEREOTYPE_ALT1:
-			WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO1);
-			break;
-
-		case STEREOTYPE_ALT2:
-			WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO2);
-			break;
-
-		case STEREOTYPE_STEREO:
-			WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_SUMDIFF|EN_A2_FORCE_STEREO);
-			break;
-
-		case STEREOTYPE_AUTO:
-			WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_SUMDIFF|EN_A2_AUTO_STEREO);
-			break;
-		}
-
-		WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
-	}
-}
-
-void CCX2388xCard::SetAutoA2StereoToMono()
-{
-	// set timer to an lower value for faster detection
-	// of bit 0 + 1 in AUD_CTL
-	WriteDword(AUD_MODE_CHG_TIMER,		0x00000060);
-	WriteDword(AUD_PHASE_FIX_CTL,		0x00000000);
-	AndOrDataDword(AUD_DEEMPH1_SRC_SEL,	0, ~0x00000002);
-}
-
-void CCX2388xCard::SetAutoA2StereoToStereo()
-{
-	// set timer to this value makes
-	// bit 0 + 1 in AUD_CTL stable
-	WriteDword(AUD_MODE_CHG_TIMER,		0x000000f0);
-	WriteDword(AUD_PHASE_FIX_CTL,		0x00000001);
-	OrDataDword(AUD_DEEMPH1_SRC_SEL,	0x00000002);
-}
-
-DWORD CCX2388xCard::GetAudioStatusRegister()
-{
-	DWORD dwVal = ReadDword(AUD_STATUS) & 0x0000002f;
-	return dwVal;
+	WriteDword(AUD_CTL,			dwTemp);
+	WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
 }
 
 eCX2388xAudioStandard CCX2388xCard::GetCurrentAudioStandard()

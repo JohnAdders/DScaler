@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.35 2004-05-21 18:35:59 to_see Exp $
+// $Id: CX2388xSource.h,v 1.36 2004-06-19 20:13:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ private:
 	void StartUpdateAudioStatus();
 	void StopUpdateAudioStatus();
 	void UpdateAudioStatus();
-	eSoundChannel AutoDetectA2Sound();
+	eSoundChannel AutoDetectA2Stereo();
 	eSoundChannel AutoDetectNicamSound();
 	BOOL StartStopConexantDriver(DWORD NewState);
 
@@ -176,8 +176,7 @@ private:
 
 	BOOL		 m_InitialSetup;
 
-	long		 m_AutoDetectA2StereoCounter;
-	long		 m_AutoDetectA2BilingualCounter;
+	long		 m_AutoDetectA2Counter;
 	BOOL		 m_bDriverStoped;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.8 2004-06-02 18:44:07 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.9 2004-06-19 20:13:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2004/06/02 18:44:07  to_see
+// New TAudioRegList structure to hold audio register
+// settings for better handling
+//
 // Revision 1.7  2004/04/19 17:33:30  to_see
 // Added BTSCSAP and FM Audio
 //
@@ -125,8 +129,7 @@ void CCX2388xSource::StereoTypeOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::StartUpdateAudioStatus()
 {
-	m_AutoDetectA2StereoCounter		= 0;
-	m_AutoDetectA2BilingualCounter	= 0;
+	m_AutoDetectA2Counter = 0;
 	SetTimer(hWnd, TIMER_CX2388X, TIMER_CX2388X_MS, NULL);
 }
 
@@ -152,30 +155,43 @@ void CCX2388xSource::UpdateAudioStatus()
 				}
 			}
 
+			eVideoFormat TVFormat = (eVideoFormat)m_VideoFormat->GetValue();
+
 			switch(m_pCard->GetCurrentAudioStandard())
 			{
 			case AUDIO_STANDARD_A2:
-				switch(m_pCard->GetCurrentStereoType())
-				{
-				case STEREOTYPE_AUTO:
-					SoundChannel = AutoDetectA2Sound();
-					break;
 				
-				case STEREOTYPE_MONO:
+				// only Pal(BG) uses A2 Stereo
+				if((TVFormat == VIDEOFORMAT_PAL_B) || (TVFormat == VIDEOFORMAT_PAL_G))
+				{
+					switch(m_pCard->GetCurrentStereoType())
+					{
+					case STEREOTYPE_AUTO:
+						SoundChannel = AutoDetectA2Stereo();
+						break;
+					
+					case STEREOTYPE_MONO:
+						SoundChannel = SOUNDCHANNEL_MONO;
+						break;
+
+					case STEREOTYPE_STEREO:
+						SoundChannel = SOUNDCHANNEL_STEREO;
+						break;
+
+					case STEREOTYPE_ALT1:
+						SoundChannel = SOUNDCHANNEL_LANGUAGE1;
+						break;
+
+					case STEREOTYPE_ALT2:
+						SoundChannel = SOUNDCHANNEL_LANGUAGE2;
+						break;
+					}
+				}
+
+				else
+				{
 					SoundChannel = SOUNDCHANNEL_MONO;
-					break;
-
-				case STEREOTYPE_STEREO:
-					SoundChannel = SOUNDCHANNEL_STEREO;
-					break;
-
-				case STEREOTYPE_ALT1:
-					SoundChannel = SOUNDCHANNEL_LANGUAGE1;
-					break;
-
-				case STEREOTYPE_ALT2:
-					SoundChannel = SOUNDCHANNEL_LANGUAGE2;
-					break;
+					// \ Todo: Detect Nicam
 				}
 				
 				break;
@@ -244,8 +260,7 @@ void CCX2388xSource::UpdateAudioStatus()
 				}
 			}
 		
-			m_AutoDetectA2StereoCounter		= 0;
-			m_AutoDetectA2BilingualCounter	= 0;
+			m_AutoDetectA2Counter = 0;
 		}
 	}
 
@@ -280,65 +295,56 @@ void CCX2388xSource::UpdateAudioStatus()
     EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, -1, SoundChannel);
 }
 
-eSoundChannel CCX2388xSource::AutoDetectA2Sound()
+eSoundChannel CCX2388xSource::AutoDetectA2Stereo()
 {
-	if(m_pCard->GetCurrentStereoType() == SOUNDCHANNEL_MONO)
+	static int iA2DetectCnt = 0;
+
+	// Start Auto Detecting...
+	if(m_AutoDetectA2Counter == 0)
 	{
-		return SOUNDCHANNEL_MONO;
-	}
-	
-	eSoundChannel SoundChannelA2 = SOUNDCHANNEL_MONO;
-	DWORD dwVal = m_pCard->GetAudioStatusRegister();
-
-	switch(dwVal & 0x03)
-	{
-	case 0: // Stereo or Bilingual detected
-		if((dwVal & 0x08) == 0x08)
-		{
-			// Test if C2 detected for bilingual
-			if(m_AutoDetectA2BilingualCounter < 10) m_AutoDetectA2BilingualCounter++;
-		}
-
-		else
-		{
-			if(m_AutoDetectA2StereoCounter    < 10) m_AutoDetectA2StereoCounter++;
-			if(m_AutoDetectA2BilingualCounter >  0) m_AutoDetectA2BilingualCounter--;
-		}
-
-		break;
-
-	case 2:  // Mono detected
-		if(m_AutoDetectA2StereoCounter    > 0) m_AutoDetectA2StereoCounter--;
-		if(m_AutoDetectA2BilingualCounter > 0) m_AutoDetectA2BilingualCounter--;
-		break;
-
-	case 1:	// \todo: detect Dual Mono
-	case 3:	// \todo: detect SAP
-		break;
+		// ... with Mono.
+		iA2DetectCnt = 0;
+		m_pCard->WriteDword(AUD_PHASE_FIX_CTL, 0x00000000);
+		m_pCard->AndOrDataDword(AUD_DEEMPH1_SRC_SEL, 0, ~0x00000002);
 	}
 
-	if(m_AutoDetectA2BilingualCounter > 5)
+	// Timeout Auto Detecting after 10 * 250 ms
+	if(m_AutoDetectA2Counter == 10)
 	{
-		m_pCard->SetAutoA2StereoToStereo();
-		SoundChannelA2 = SOUNDCHANNEL_LANGUAGE1;
-	}
-
-	else
-	{
-		if(m_AutoDetectA2StereoCounter > 5)
+		if(iA2DetectCnt < 3)
 		{
-			m_pCard->SetAutoA2StereoToStereo();
-			SoundChannelA2 = SOUNDCHANNEL_STEREO;
+			// Stereo not found; switch to Mono
+			m_pCard->OrDataDword(AUD_DEEMPH1_SRC_SEL, 0x00000002);
+			m_pCard->WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF|EN_A2_FORCE_MONO1);
 		}
 
-		else
-		{
-			m_pCard->SetAutoA2StereoToMono();
-			SoundChannelA2 = SOUNDCHANNEL_MONO;
-		}
+		m_AutoDetectA2Counter++;
 	}
 
-	return SoundChannelA2;
+	else if(m_AutoDetectA2Counter < 10)
+	{
+		DWORD dwVal = m_pCard->ReadDword(AUD_STATUS) & 0x03;
+
+		if(dwVal == 0)
+		{
+			// Stereo detected
+			iA2DetectCnt++;
+			if(iA2DetectCnt == 3)
+			{
+				// after 3x detected switch to Stereo
+				m_pCard->WriteDword(AUD_MODE_CHG_TIMER,		0x000000f0);
+				m_pCard->WriteDword(AUD_PHASE_FIX_CTL,		0x00000001);
+				m_pCard->OrDataDword(AUD_DEEMPH1_SRC_SEL,	0x00000002);
+				m_pCard->WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_FMRADIO_EN_RDS|EN_DMTRX_SUMDIFF|EN_A2_FORCE_STEREO);
+			}
+		}
+
+		m_AutoDetectA2Counter++;
+	}
+
+	eSoundChannel SoundChannel;
+	iA2DetectCnt >= 3 ? SoundChannel = SOUNDCHANNEL_STEREO : SoundChannel = SOUNDCHANNEL_MONO;
+	return SoundChannel;
 }
 
 eSoundChannel CCX2388xSource::AutoDetectNicamSound()

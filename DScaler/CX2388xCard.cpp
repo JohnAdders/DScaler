@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.57 2004-04-18 12:01:03 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.58 2004-04-19 15:13:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2004/04/18 12:01:03  adcockj
+// Fixes for eeprom corruption
+//
 // Revision 1.56  2004/03/07 17:34:48  to_see
 // moved CCX2388xCard::AutoDetectTuner from CX2388xCard.cpp to CX2388xCard_Types.cpp
 // to can use correct sizeof(m_Tuners_Hauppauge_CX2388x_Card)
@@ -1919,7 +1922,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
     BYTE IFDemDeviceAddress[2] = {0,0};
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
-    int NumAddressesToSearch = 1;
+    int NumAddressesToSearch = 2;
 
     if(LookForIFDemod)
     {        

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.15 2004-02-11 20:33:59 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.16 2004-04-19 15:13:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/02/11 20:33:59  adcockj
+// Support multiple locations of TDA9887 (thanks to Pityu)
+//
 // Revision 1.14  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -189,7 +192,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
                     Id = 63 - Id;
                     CTDA9887Pinnacle *pTDA9887Pinnacle = new CTDA9887Pinnacle(Id);
                     pExternalIFDemodulator = pTDA9887Pinnacle;
+                    NumAddressesToSearch = 2;
                     IFDemDeviceAddress[0] = I2C_TDA9887_0;
+                    IFDemDeviceAddress[1] = I2C_TDA9887_1;
                 }
             }
             break;
@@ -208,6 +213,7 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             {
                 CTDA9887 *pTDA9887 = new CTDA9887();
                 pExternalIFDemodulator = pTDA9887;
+                NumAddressesToSearch = 2;
                 IFDemDeviceAddress[0] = I2C_TDA9887_0;
                 IFDemDeviceAddress[1] = I2C_TDA9887_1;
             }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.10 2004-02-11 20:34:00 adcockj Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.11 2004-04-19 15:13:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/02/11 20:34:00  adcockj
+// Support multiple locations of TDA9887 (thanks to Pityu)
+//
 // Revision 1.9  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -135,7 +138,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
     BYTE IFDemDeviceAddress[2] = {0,0};
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
-    int NumAddressesToSearch = 1;
+    int NumAddressesToSearch = 2;
 
     if(LookForIFDemod)
     {        

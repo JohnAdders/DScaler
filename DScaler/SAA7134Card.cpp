@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.43 2004-04-24 11:12:01 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.44 2004-11-20 14:20:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2004/04/24 11:12:01  atnak
+// fix: dma memory safety check broke when available memory was zero or close to
+//
 // Revision 1.42  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -590,10 +593,10 @@ void CSAA7134Card::SetPageTable(eRegionID RegionID, DWORD pPhysical, DWORD nPage
         DWORD Page = pPhysical >> 12;
 
         // ME must be enabled for page tables to work
-        WriteByte(SAA7134_RS_CONTROL_0(Channel), Page & 0xFF);
-        WriteByte(SAA7134_RS_CONTROL_1(Channel), Page >> 8 & 0xFF);
-        WriteByte(SAA7134_RS_CONTROL_2(Channel), Page >> 16 |
-            SAA7134_RS_CONTROL_2_ME | SAA7134_RS_CONTROL_2_BURST_MAX);
+        WriteByte(SAA7134_RS_CONTROL_0(Channel), (BYTE)(Page & 0xFF));
+        WriteByte(SAA7134_RS_CONTROL_1(Channel), (BYTE)(Page >> 8 & 0xFF));
+        WriteByte(SAA7134_RS_CONTROL_2(Channel), (BYTE)(Page >> 16 |
+            SAA7134_RS_CONTROL_2_ME | SAA7134_RS_CONTROL_2_BURST_MAX));
 
         m_DMAChannelMemorySize[Channel] = nPages * 4096;
     }
@@ -713,7 +716,7 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
         return 0;
     }
 
-    return (MinimumBytesAvailable - wBytesPerLine) / Pitch + 1;
+    return (WORD)((MinimumBytesAvailable - wBytesPerLine) / Pitch + 1);
 }
 
 
@@ -1109,37 +1112,6 @@ LPCSTR CSAA7134Card::GetChipType()
 }
 
 
-void CSAA7134Card::SetCardType(int CardType)
-{
-    if (m_CardType != CardType)
-    {
-        m_CardType = (eSAA7134CardId)CardType;
-
-        // perform card specific init
-        if (m_SAA7134Cards[m_CardType].pInitCardFunction != NULL)
-        {
-            // call correct function
-            // this funny syntax is the only one that works
-            // if you want help understanding what is going on
-            // I suggest you read http://www.newty.de/
-            (*this.*m_SAA7134Cards[m_CardType].pInitCardFunction)();
-        }
-    }
-}
-
-
-CSAA7134Card::eSAA7134CardId CSAA7134Card::GetCardType()
-{
-    return m_CardType;
-}
-
-
-LPCSTR CSAA7134Card::GetTunerType()
-{
-    return m_TunerType;
-}
-
-
 /*
  *  UNUSED STUFF
  */
@@ -1260,8 +1232,8 @@ void CSAA7134Card::StatGPIO()
     MaskDataDword(SAA7134_GPIO_GPMODE, SAA7134_GPIO_GPMODE_GPRESCN,
         SAA7134_GPIO_GPMODE_GPRESCN);
 
-    DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE) & 0x0FFFFFFF;
-    DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS) & 0x0FFFFFFF;
+    DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE) & 0x0EFFFFFF;
+    DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS) & 0x0EFFFFFF;
     LOG(0, "debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n", Mode,
             (~Mode) & Status, Mode & Status);
 }

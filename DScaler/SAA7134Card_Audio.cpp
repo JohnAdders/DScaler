@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.26 2004-03-26 14:19:21 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.27 2004-11-20 14:20:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2004/03/26 14:19:21  atnak
+// I2S mode init change, probably won't make any difference
+//
 // Revision 1.25  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -996,9 +999,9 @@ void CSAA7134Card::SetAudioTreble(WORD nTreble)
 
 int CSAA7134Card::GetInputAudioLine(int nInput)
 {
-    if (nInput < m_SAA7134Cards[m_CardType].NumInputs && nInput >= 0)
+    if (nInput < m_SAA713xCards[m_CardType].NumInputs && nInput >= 0)
     {
-        return m_SAA7134Cards[m_CardType].Inputs[nInput].AudioLineSelect;
+        return m_SAA713xCards[m_CardType].Inputs[nInput].AudioLineSelect;
     }
     return 0;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.12 2004-04-19 20:38:38 adcockj Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.13 2004-11-20 14:20:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/04/19 20:38:38  adcockj
+// Fix for previous fix (must learn to program...)
+//
 // Revision 1.11  2004/04/19 15:13:20  adcockj
 // Fix failing to find tda9887 at alternate addresses
 //
@@ -211,7 +214,15 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     return bFoundTuner;
 }
 
+
 ITuner* CSAA7134Card::GetTuner() const
 {
     return m_Tuner;
 }
+
+
+LPCSTR CSAA7134Card::GetTunerType()
+{
+    return m_TunerType;
+}
+

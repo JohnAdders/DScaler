@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.40 2004-02-24 04:17:58 atnak Exp $
+// $Id: SAA7134Card.h,v 1.41 2004-11-20 14:20:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2004/02/24 04:17:58  atnak
+// Added a help comment
+//
 // Revision 1.39  2004/02/18 06:39:47  atnak
 // Changed Setup Card / Tuner so that only cards of the same device are
 // shown in the card list.
@@ -166,12 +169,14 @@
 #include "SAA7134_Defines.h"
 #include "SAA7134Common.h"
 #include "SAA7134I2CInterface.h"
+#include "HierarchicalConfigParser.h"
 
 #include "ITuner.h"
 //#include "AudioDecoder.h"
 #include "IAudioControls.h"
 
 #define SA_INPUTS_PER_CARD 7
+#define SA_AUTODETECT_ID_PER_CARD 3
 
 
 /** A Generic saa7134 based capture card
@@ -208,7 +213,7 @@ private:
 
     /// SAA7134's video input pins
     /// RegSpy: SAA7134_ANALOG_IN_CTRL1
-    /// RegSpy: 0x0000nnnn
+    /// RegSpy: 0000nnnn
     /// RegSpy: nnnn: 5 = reserved
     /// RegSpy: nnnn: 6 or 8 = 0 + s-video
     /// RegSpy: nnnn: 7 or 9 = 1 + s-video
@@ -234,7 +239,7 @@ private:
     typedef struct
     {
         /// Name of the input
-        LPCSTR szName;
+        char szName[64];
         /// Type of the input
         eInputType InputType;
         /// Which video pin on the card is to be used
@@ -248,7 +253,7 @@ private:
     /// Defines the specific settings for a given card
     typedef struct
     {
-        LPCSTR szName;
+        char szName[128];
         WORD DeviceId;
         int NumInputs;
         TInputType Inputs[SA_INPUTS_PER_CARD];
@@ -256,14 +261,7 @@ private:
         /// The type of clock crystal the card has
         eAudioCrystal AudioCrystal;
         DWORD dwGPIOMode;
-        /// Any card specific initialization - may be NULL
-        void (CSAA7134Card::*pInitCardFunction)(void);
-        /** Function used to switch between sources
-            Cannot be NULL
-            Default is StandardBT848InputSelect
-        */
-        void (CSAA7134Card::*pInputSwitchFunction)(int);
-        DWORD dwAutoDetectId;
+        DWORD AutoDetectId[SA_AUTODETECT_ID_PER_CARD];
     } TCardType;
 
     /// used to store the ID for autodetection
@@ -275,6 +273,28 @@ private:
         eSAA7134CardId CardId;
     } TAutoDetectSAA7134;
 
+    /// used to store temporary information used while parsing
+    /// the SAA713x card list
+    typedef struct
+    {
+        std::vector<TCardType>* pCardList;
+        TCardType* pCurrentCard;
+        size_t nGoodCards;
+        HCParser::CHCParser* pHCParser;
+    } TParseCardInfo;
+
+
+public:
+    // Reads SAA713x cards out of an INI file for all instances of
+    // CSAA7134Card to use.  If this is not called, CSAA7134 will
+    // have no cards to work with.  A return value of FALSE indicates
+    // a parsing error occured and the user chose to EXIT the program.
+    static BOOL InitializeSAA713xCardList();
+    // This function makes sure there is at least the "unknown" card
+    // in the card list.  It is called by InitializeSAA713xCardList()
+    // and other functions so does not need to be called directly.
+    static void InitializeSAA713xUnknownCard();
+
 
 public:
     CSAA7134Card(CHardwareDriver* pDriver);
@@ -284,6 +304,7 @@ public:
     /** General card setup
      */
     int     GetMaxCards();
+	int     GetCardByName(LPCSTR cardName);
     LPCSTR  GetCardName(eSAA7134CardId CardId);
     WORD    GetCardDeviceId(eSAA7134CardId CardId);
 
@@ -437,6 +458,16 @@ public:
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 
+    /** Card list parsing
+     */
+    static void ReadCardInputInfoProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardInputProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardInfoProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardAutoDetectIDProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static void ReadCardProc(int, const HCParser::ParseTag*, unsigned char, const char*, void*);
+    static BOOL APIENTRY ParseErrorProc(HWND hDlg, UINT message, UINT wParam, LPARAM lParam);
+
+
     /** DEBUG
      */
     void CheckRegisters(DWORD* AOdd, DWORD* AEven, DWORD* BOdd, DWORD* BEven);
@@ -484,7 +515,19 @@ private:
 
 private:
     /// Holds the list of all cards
-    static const TCardType m_SAA7134Cards[];
+    static const TCardType          m_SAA7134UnknownCard;
+    static std::vector<TCardType>   m_SAA713xCards;
+
+    static const HCParser::ParseConstant k_parseSAA713xInputAudioPinConstants[];
+    static const HCParser::ParseConstant k_parseSAA713xInputTypeConstants[];
+    static const HCParser::ParseConstant k_parseSAA713xAudioCrystalConstants[];
+    static const HCParser::ParseConstant k_parseSAA713xDefaultTunerConstants[];
+
+    static const HCParser::ParseTag k_parseSAA713xCardInputGPIOSet[];
+    static const HCParser::ParseTag k_parseSAA713xCardInput[];
+    static const HCParser::ParseTag k_parseSAA713xCardAutoDetectID[];
+    static const HCParser::ParseTag k_parseSAA713xCard[];
+    static const HCParser::ParseTag k_parseSAA713xCardList[];
 
     eSAA7134CardId      m_CardType;
     char                m_TunerType[32];
@@ -508,3 +551,4 @@ private:
 
 
 #endif
+

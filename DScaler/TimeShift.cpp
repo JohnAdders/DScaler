@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.31 2003-12-28 22:59:00 robmuller Exp $
+// $Id: TimeShift.cpp,v 1.32 2003-12-29 01:27:53 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/12/28 22:59:00  robmuller
+// IsRunning() returns TRUE now if timeshifting is being done.
+//
 // Revision 1.30  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -157,6 +160,7 @@
 
 static BOOL ShownWarning = TRUE;
 static BOOL WarningShown = FALSE;
+static DWORD AVIFileSizeLimit = 0;
 
 static char ExePath[MAX_PATH] = {0};
 static char* SavingPath = NULL;
@@ -439,6 +443,13 @@ bool CTimeShift::OnNewInputFrame(TDeinterlaceInfo *pInfo)
 		LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
 
+	// It would be a good idea to fix the file size limitation. Until then we split the AVI.
+	if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024)
+	{
+		m_pTimeShift->OnStop();
+		m_pTimeShift->OnRecord();
+	}
+
     return result;
 }
 
@@ -464,6 +475,11 @@ bool CTimeShift::OnNewOutputFrame(TDeinterlaceInfo *pInfo)
 
 		LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
+	if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024)
+	{
+		m_pTimeShift->OnStop();
+		m_pTimeShift->OnRecord();
+	}
 
     return result;
 }
@@ -1044,6 +1060,7 @@ CTimeShift::CTimeShift()
     m_recordBits(NULL),
     m_playBits(NULL),
     m_gotPauseBits(FALSE),
+	m_BytesWritten(0),
 	m_pfile(NULL),
     m_psVideo(NULL),
     m_psAudio(NULL),
@@ -1796,6 +1813,7 @@ bool CTimeShift::Stop(void)
     m_recordBits = NULL;
     m_playBits = NULL;
     m_gotPauseBits = FALSE;
+	m_BytesWritten = 0;
 
     m_pfile = NULL;
     m_psVideo = NULL;
@@ -1971,16 +1989,12 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
 				break;
 			}
 
-			long bytesWritten = 0;
-			long samplesWritten = 0;
-			AVIStreamWrite(m_psCompressedVideo,
+			MyAVIStreamWrite(m_psCompressedVideo,
 						   thisFrame,
 						   1,
 						   m_recordBits,
 						   m_bih.biSizeImage,
-						   AVIIF_KEYFRAME,
-						   &samplesWritten,
-						   &bytesWritten);
+						   AVIIF_KEYFRAME);
 
 			// Even if we failed to write to the stream, we'll leave space.
 			m_infoVideo.dwLength = thisFrame + 1;
@@ -2152,16 +2166,12 @@ bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
 		}
 		DataOkForPause = true;
 
-		long bytesWritten = 0;
-		long samplesWritten = 0;
-		AVIStreamWrite(m_psCompressedVideo,
+		MyAVIStreamWrite(m_psCompressedVideo,
 					   thisFrame,
 					   1,
 					   m_recordBits,
 					   m_bih.biSizeImage,
-					   AVIIF_KEYFRAME,
-					   &samplesWritten,
-					   &bytesWritten);
+					   AVIIF_KEYFRAME);
 
 		// Even if we failed to write to the stream, we'll leave space.
 		m_infoVideo.dwLength = thisFrame + 1;
@@ -2293,18 +2303,13 @@ bool CTimeShift::WriteAudio(void)
     DWORD count = m_waveInHdrs[m_nextWaveInHdr].dwBytesRecorded;
 
     DWORD numSamples = count / m_infoAudio.dwSampleSize;
-    long bytesWritten = 0;
-    long samplesWritten = 0;
 
-    // If this fails, there's nothing we can do but continue, no problem.
-    AVIStreamWrite(m_psCompressedAudio,
+    MyAVIStreamWrite(m_psCompressedAudio,
                    m_nextSampleRecord,
                    numSamples,
                    m_waveInBufs[m_nextWaveInHdr],
                    count,
-                   AVIIF_KEYFRAME,
-                   &samplesWritten,
-                   &bytesWritten);
+                   AVIIF_KEYFRAME);
 
     // Re-add this buffer to the waveIn queue.
     waveInAddBuffer(m_hWaveIn, m_waveInHdrs + m_nextWaveInHdr, sizeof(WAVEHDR));
@@ -2313,6 +2318,25 @@ bool CTimeShift::WriteAudio(void)
     m_nextSampleRecord += numSamples;
 
     return true;
+}
+
+DWORD CTimeShift::MyAVIStreamWrite(PAVISTREAM pavi, LONG lStart, LONG lSamples, LPVOID lpBuffer, LONG cbBuffer, DWORD dwFlags)
+{
+	DWORD result = 0;
+    long bytesWritten = 0;
+    long samplesWritten = 0;
+
+    // If this fails, there's nothing we can do but continue, no problem.
+    result = AVIStreamWrite(pavi,
+					        lStart,
+							lSamples,
+							lpBuffer,
+							cbBuffer,
+							dwFlags,
+							&samplesWritten,
+							&bytesWritten);
+	m_BytesWritten += bytesWritten;
+	return result;
 }
 
 bool CTimeShift::ReadAudio(void)
@@ -2740,6 +2764,12 @@ SETTING TimeShiftSettings[TIMESHIFT_SETTING_LASTONE] =
         NULL,
         "TimeShift", "ShownWarning", NULL,
     },
+	{
+		"AVI file size limit in MB", SLIDER, 0, (long*)&AVIFileSizeLimit,
+		2000, 0, 1000000, 1, 1,
+		NULL,
+		"TimeShift", "AVIFileSizeLimit", NULL,
+	},
 };
 
 

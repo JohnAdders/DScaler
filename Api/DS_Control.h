@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.153 2003-11-18 16:36:33 robmuller Exp $
+// $Id: DS_Control.h,v 1.154 2003-12-29 01:27:53 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.153  2003/11/18 16:36:33  robmuller
+// Added option to disable the keyboard lock for dialog boxes.
+//
 // Revision 1.152  2003/11/11 22:16:30  robmuller
 // Add ability to include the performance statistics in a release build.
 //
@@ -1808,6 +1811,7 @@ typedef enum
 {
 	TIMESHIFTSAVINGPATH,
 	TIMESHIFTSHOWWARNING,
+	TIMESHIFTFILELIMIT,
     TIMESHIFT_SETTING_LASTONE,
 } TIMESHIFT_SETTING;
 

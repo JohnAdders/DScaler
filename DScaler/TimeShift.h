@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.19 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TimeShift.h,v 1.20 2003-12-29 01:27:54 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.18  2003/10/11 17:25:53  laurentg
 // Comments updated
 //
@@ -254,6 +257,7 @@ private:
     bool ReadVideo2(TDeinterlaceInfo *info);
     bool WriteAudio(void);
     bool ReadAudio(void);
+	DWORD MyAVIStreamWrite(PAVISTREAM pavi, LONG lStart, LONG lSamples, LPVOID lpBuffer, LONG cbBuffer, DWORD dwFlags);
 
     /// These simply implement their public static counterparts.
     /// Uses current DScaler settings to set.
@@ -304,6 +308,7 @@ private:
     /// We'll decode the compressed bits into here.
     LPBYTE m_playBits; 
     bool m_gotPauseBits;
+	DWORD	m_BytesWritten;
 
     WAVEFORMATEX m_waveFormat;
 

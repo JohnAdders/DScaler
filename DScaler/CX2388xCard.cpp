@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.23 2002-11-28 15:15:21 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.24 2002-11-28 18:07:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/11/28 15:15:21  adcockj
+// Fixed pll dump
+//
 // Revision 1.22  2002/11/27 17:41:57  adcockj
 // Fixed setting PLL registers in DumpRegister
 //
@@ -1750,6 +1753,7 @@ ITuner* CCX2388xCard::GetTuner() const
 }
 
 #define DumpRegister(Reg) fprintf(hFile, #Reg "\t%08x\n", ReadDword(Reg))
+#define DumpBRegister(Reg) fprintf(hFile, #Reg "\t%02x\n", ReadByte(Reg))
 
 void CCX2388xCard::DumpChipStatus(const char* CardName)
 {
@@ -1815,12 +1819,12 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(MO_GPIO);
     DumpRegister(MO_GPOE);
 
-    DumpRegister(0x02320d01);
-    DumpRegister(0x02320d02);
-    DumpRegister(0x02320d03);
-    DumpRegister(0x02320d04);
-    DumpRegister(0x02320d2a);
-    DumpRegister(0x02320d2b);
+    DumpBRegister(0x320d01);
+    DumpBRegister(0x320d02);
+    DumpBRegister(0x320d03);
+    DumpBRegister(0x320d04);
+    DumpBRegister(0x320d2a);
+    DumpBRegister(0x320d2b);
 
     DumpRegister(AUD_DN0_FREQ);
     DumpRegister(AUD_POLY0_DDS_CONSTANT);

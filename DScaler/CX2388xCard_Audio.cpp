@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.3 2002-11-27 17:41:57 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.4 2002-11-28 18:07:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/27 17:41:57  adcockj
+// Fixed setting PLL registers in DumpRegister
+//
 // Revision 1.2  2002/11/25 12:20:33  adcockj
 // Changed audio init
 //
@@ -313,12 +316,12 @@ void CCX2388xCard::AudioInitNICAM()
 
 
     //; setup QAM registers
-    WriteDword(0x02320d01,                  0x06);  //; 02 prefix means byte access
-    WriteDword(0x02320d02,                  0x82);  //; 02 prefix means byte access
-    WriteDword(0x02320d03,                  0x16);  //; 02 prefix means byte access
-    WriteDword(0x02320d04,                  0x05);  //; 02 prefix means byte access
-    WriteDword(0x02320d2a,                  0x34);  //; 02 prefix means byte access
-    WriteDword(0x02320d2b,                  0x4c);  //; 02 prefix means byte access
+    WriteByte(0x320d01,                  0x06);
+    WriteByte(0x320d02,                  0x82);
+    WriteByte(0x320d03,                  0x16);
+    WriteByte(0x320d04,                  0x05);
+    WriteByte(0x320d2a,                  0x34);
+    WriteByte(0x320d2b,                  0x4c);
 
     // setup Audio PLL
     WriteDword(AUD_PLL_PRESCALE,         0x0002);

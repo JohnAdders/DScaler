@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.25 2002-02-16 11:37:29 laurentg Exp $
+// $Id: Calibration.h,v 1.26 2002-02-16 13:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,6 +47,8 @@ enum eTypeDraw {
     DRAW_LINEH,
     DRAW_LINEV,
     DRAW_LINEX,
+    DRAW_GRADATIONH,
+    DRAW_GRADATIONV,
 };
 
 /// Define all types of adjustments for a sub-pattern

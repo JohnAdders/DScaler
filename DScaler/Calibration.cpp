@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.46 2002-02-16 11:37:29 laurentg Exp $
+// $Id: Calibration.cpp,v 1.47 2002-02-16 13:22:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/02/16 11:37:29  laurentg
+// Pattern generator improvments
+// New gamma and test scaling patterns
+//
 // Revision 1.45  2002/02/14 23:16:59  laurentg
 // Stop / start capture never needed when switching between files of the playlist
 // CurrentX / CurrentY not updated in StillSource but in the main decoding loop
@@ -565,6 +569,30 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
         }
         break;
 
+    case DRAW_GRADATIONH:
+        for (i = top ; i <= bottom ; i++)
+        {
+            buf = Buffer + (i * Pitch);
+            for (j = left ; j <= right ; j++)
+            {
+                buf[j*2  ] = 219 * (j - left) / (right - left) + 16;
+                buf[j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
+            }
+        }
+        break;
+
+    case DRAW_GRADATIONV:
+        for (i = top ; i <= bottom ; i++)
+        {
+            buf = Buffer + (i * Pitch);
+            for (j = left ; j <= right ; j++)
+            {
+                buf[j*2  ] = 219 * (i - top) / (bottom - top) + 16;
+                buf[j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
+            }
+        }
+        break;
+
     default:
         break;
     }
@@ -779,6 +807,14 @@ CTestPattern::CTestPattern(LPCSTR FileName)
                 else if (!strcmp(s_val2, "LINEX"))
                 {
                     TypeDraw = DRAW_LINEX;
+                }
+                else if (!strcmp(s_val2, "GRADH"))
+                {
+                    TypeDraw = DRAW_GRADATIONH;
+                }
+                else if (!strcmp(s_val2, "GRADV"))
+                {
+                    TypeDraw = DRAW_GRADATIONV;
                 }
                 else
                 {

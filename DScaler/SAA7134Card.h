@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.36 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Card.h,v 1.37 2003-10-27 16:22:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.35  2003/08/14 08:25:17  atnak
 // Fix to mute lining and audio channel clush
 //
@@ -155,7 +158,7 @@
 //#include "AudioDecoder.h"
 #include "IAudioControls.h"
 
-#define INPUTS_PER_CARD 7
+#define SA_INPUTS_PER_CARD 7
 
 
 /** A Generic saa7134 based capture card
@@ -226,7 +229,7 @@ private:
     {
         LPCSTR szName;
         int NumInputs;
-        TInputType Inputs[INPUTS_PER_CARD];
+        TInputType Inputs[SA_INPUTS_PER_CARD];
         eTunerId TunerId;
         /// The type of clock crystal the card has
         eAudioCrystal AudioCrystal;

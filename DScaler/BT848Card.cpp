@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.38 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.39 2003-10-27 16:22:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.37  2003/02/06 19:52:21  ittarnavsky
 // changes due to the move of VBI_xxx definition
 //
@@ -237,7 +240,8 @@ static BYTE SRAMTable_PAL[ 60 ] =
 CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
     CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
-    m_Tuner(NULL)
+    m_Tuner(NULL),
+    m_CurrentInput(0)
 {
     strcpy(m_TunerType,"n/a");
     strcpy(m_AudioDecoderType,"n/a");
@@ -389,47 +393,7 @@ LPCSTR CBT848Card::GetCardName(eTVCardId CardId)
 }
 
 
-void CBT848Card::SetBrightness(BYTE Brightness)
-{
-    WriteByte(BT848_BRIGHT, Brightness);
-}
-
-BYTE CBT848Card::GetBrightness()
-{
-    return ReadByte(BT848_BRIGHT);
-}
-
-void CBT848Card::SetWhiteCrushUp(BYTE WhiteCrushUp)
-{
-    WriteByte(BT848_WC_UP, WhiteCrushUp);
-}
-
-BYTE CBT848Card::GetWhiteCrushUp()
-{
-    return ReadByte(BT848_WC_UP);
-}
-
-void CBT848Card::SetWhiteCrushDown(BYTE WhiteCrushDown)
-{
-    WriteByte(BT848_WC_DOWN, WhiteCrushDown);
-}
-
-BYTE CBT848Card::GetWhiteCrushDown()
-{
-    return ReadByte(BT848_WC_DOWN);
-}
-
-void CBT848Card::SetHue(BYTE Hue)
-{
-    WriteByte(BT848_HUE, Hue);
-}
-
-BYTE CBT848Card::GetHue()
-{
-    return ReadByte(BT848_HUE);
-}
-
-void CBT848Card::SetContrast(WORD Contrast)
+void CBT848Card::SetAnalogContrastBrightness(WORD Contrast, BYTE Brightness)
 {
     WriteByte(BT848_CONTRAST_LO, (BYTE) (Contrast & 0xff));
     if(Contrast > 0xff)
@@ -442,21 +406,25 @@ void CBT848Card::SetContrast(WORD Contrast)
         MaskDataByte(BT848_E_CONTROL, 0, BT848_CONTROL_CON_MSB);
         MaskDataByte(BT848_O_CONTROL, 0, BT848_CONTROL_CON_MSB);
     }
+    WriteByte(BT848_BRIGHT, Brightness);
 }
 
-WORD CBT848Card::GetContrast(WORD Contrast)
+void CBT848Card::SetWhiteCrushUp(BYTE WhiteCrushUp)
 {
-    if(ReadByte(BT848_E_CONTROL) & BT848_CONTROL_CON_MSB)
-    {
-        return 0x100 + ReadByte(BT848_CONTRAST_LO);
-    }
-    else
-    {
-        return ReadByte(BT848_CONTRAST_LO);
-    }
+    WriteByte(BT848_WC_UP, WhiteCrushUp);
 }
 
-void CBT848Card::SetSaturationU(WORD SaturationU)
+void CBT848Card::SetWhiteCrushDown(BYTE WhiteCrushDown)
+{
+    WriteByte(BT848_WC_DOWN, WhiteCrushDown);
+}
+
+void CBT848Card::SetAnalogHue(BYTE Hue)
+{
+    WriteByte(BT848_HUE, Hue);
+}
+
+void CBT848Card::SetAnalogSaturationU(WORD SaturationU)
 {
     WriteByte(BT848_SAT_U_LO, (BYTE) (SaturationU & 0xff));
     if(SaturationU > 0xff)
@@ -471,19 +439,8 @@ void CBT848Card::SetSaturationU(WORD SaturationU)
     }
 }
 
-WORD CBT848Card::GetSaturationU(WORD SaturationU)
-{
-    if(ReadByte(BT848_E_CONTROL) & BT848_CONTROL_SAT_U_MSB)
-    {
-        return 0x100 + ReadByte(BT848_SAT_U_LO);
-    }
-    else
-    {
-        return ReadByte(BT848_SAT_U_LO);
-    }
-}
 
-void CBT848Card::SetSaturationV(WORD SaturationV)
+void CBT848Card::SetAnalogSaturationV(WORD SaturationV)
 {
     WriteByte(BT848_SAT_V_LO, (BYTE) (SaturationV & 0xff));
     if(SaturationV > 0xff)
@@ -498,28 +455,11 @@ void CBT848Card::SetSaturationV(WORD SaturationV)
     }
 }
 
-WORD CBT848Card::GetSaturationV(WORD SaturationV)
-{
-    if(ReadByte(BT848_E_CONTROL) & BT848_CONTROL_SAT_V_MSB)
-    {
-        return 0x100 + ReadByte(BT848_SAT_V_LO);
-    }
-    else
-    {
-        return ReadByte(BT848_SAT_V_LO);
-    }
-}
 
 void CBT848Card::SetBDelay(BYTE BDelay)
 {
     WriteByte(BT848_BDELAY, BDelay);
 }
-
-BYTE CBT848Card::GetBDelay()
-{
-    return ReadByte(BT848_BDELAY);
-}
-
 
 LPCSTR CBT848Card::GetChipType()
 {
@@ -563,10 +503,6 @@ void CBT848Card::SetEvenLumaDec(BOOL EvenLumaDec)
     }
 }
 
-BOOL CBT848Card::GetEvenLumaDec()
-{
-    return (ReadByte(BT848_E_CONTROL) & BT848_CONTROL_LDEC) != 0;
-}
 
 void CBT848Card::SetOddLumaDec(BOOL OddLumaDec)
 {
@@ -578,11 +514,6 @@ void CBT848Card::SetOddLumaDec(BOOL OddLumaDec)
     {
         MaskDataByte(BT848_O_CONTROL, 0, BT848_CONTROL_LDEC);
     }
-}
-
-BOOL CBT848Card::GetOddLumaDec()
-{
-    return ReadByte(BT848_O_CONTROL) & BT848_CONTROL_LDEC;
 }
 
 void CBT848Card::SetEvenChromaAGC(BOOL EvenChromaAGC)
@@ -597,11 +528,6 @@ void CBT848Card::SetEvenChromaAGC(BOOL EvenChromaAGC)
     }
 }
 
-BOOL CBT848Card::GetEvenChromaAGC()
-{
-    return (ReadByte(BT848_E_SCLOOP) & BT848_SCLOOP_CAGC) != 0;
-}
-
 void CBT848Card::SetOddChromaAGC(BOOL OddChromaAGC)
 {
     if(OddChromaAGC)
@@ -614,10 +540,6 @@ void CBT848Card::SetOddChromaAGC(BOOL OddChromaAGC)
     }
 }
 
-BOOL CBT848Card::GetOddChromaAGC()
-{
-    return (ReadByte(BT848_O_SCLOOP) & BT848_SCLOOP_CAGC) != 0;
-}
 
 void CBT848Card::SetEvenLumaPeak(BOOL EvenLumaPeak)
 {
@@ -631,11 +553,6 @@ void CBT848Card::SetEvenLumaPeak(BOOL EvenLumaPeak)
     }
 }
 
-BOOL CBT848Card::GetEvenLumaPeak()
-{
-    return (ReadByte(BT848_E_SCLOOP) & BT848_SCLOOP_LUMA_PEAK) != 0;
-}
-
 void CBT848Card::SetOddLumaPeak(BOOL OddLumaPeak)
 {
     if(OddLumaPeak)
@@ -646,11 +563,6 @@ void CBT848Card::SetOddLumaPeak(BOOL OddLumaPeak)
     {
         MaskDataByte(BT848_O_SCLOOP, 0, BT848_SCLOOP_LUMA_PEAK);
     }
-}
-
-BOOL CBT848Card::GetOddLumaPeak()
-{
-    return (ReadByte(BT848_O_SCLOOP) & BT848_SCLOOP_LUMA_PEAK) != 0;
 }
 
 void CBT848Card::SetColorKill(BOOL ColorKill)
@@ -667,11 +579,6 @@ void CBT848Card::SetColorKill(BOOL ColorKill)
     }
 }
 
-BOOL CBT848Card::GetColorKill()
-{
-    return (ReadByte(BT848_E_SCLOOP) & BT848_SCLOOP_CKILL) != 0;
-}
-
 void CBT848Card::SetHorFilter(BOOL HorFilter)
 {
     if(HorFilter)
@@ -684,11 +591,6 @@ void CBT848Card::SetHorFilter(BOOL HorFilter)
         MaskDataByte(BT848_O_SCLOOP, 0, BT848_SCLOOP_HFILT_FULL);
         MaskDataByte(BT848_E_SCLOOP, 0, BT848_SCLOOP_HFILT_FULL);
     }
-}
-
-BOOL CBT848Card::GetHorFilter()
-{
-    return (ReadByte(BT848_O_SCLOOP) & BT848_SCLOOP_HFILT_FULL) != 0;
 }
 
 void CBT848Card::SetVertFilter(BOOL VertFilter)
@@ -705,11 +607,6 @@ void CBT848Card::SetVertFilter(BOOL VertFilter)
     }
 }
 
-BOOL CBT848Card::GetVertFilter()
-{
-    return (ReadByte(BT848_E_VTC) & BT848_VTC_VFILT_2TAPZ) != 0;
-}
-
 void CBT848Card::SetFullLumaRange(BOOL FullLumaRange)
 {
     if(FullLumaRange)
@@ -722,11 +619,6 @@ void CBT848Card::SetFullLumaRange(BOOL FullLumaRange)
     }
 }
 
-BOOL CBT848Card::GetFullLumaRange()
-{
-    return (ReadByte(BT848_OFORM) & BT848_OFORM_RANGE) != 0;
-}
-
 void CBT848Card::SetCoring(BOOL Coring)
 {
     if(Coring)
@@ -737,11 +629,6 @@ void CBT848Card::SetCoring(BOOL Coring)
     {
         MaskDataByte(BT848_OFORM, 0, BT848_OFORM_CORE32);
     }
-}
-
-BOOL CBT848Card::GetCoring()
-{
-    return (ReadByte(BT848_OFORM) & BT848_OFORM_CORE32) != 0;
 }
 
    
@@ -757,11 +644,6 @@ void CBT848Card::SetEvenComb(BOOL EvenComb)
     }
 }
 
-BOOL CBT848Card::GetEvenComb()
-{
-    return (ReadByte(BT848_E_VSCALE_HI) & BT848_VSCALE_COMB) != 0;
-}
-
 void CBT848Card::SetOddComb(BOOL OddComb)
 {
     if(OddComb)
@@ -772,11 +654,6 @@ void CBT848Card::SetOddComb(BOOL OddComb)
     {
         MaskDataByte(BT848_O_VSCALE_HI, 0, BT848_VSCALE_COMB);
     }
-}
-
-BOOL CBT848Card::GetOddComb()
-{
-    return (ReadByte(BT848_O_VSCALE_HI) & BT848_VSCALE_COMB) != 0;
 }
 
 void CBT848Card::SetAgcDisable(BOOL AgcDisable)
@@ -791,11 +668,6 @@ void CBT848Card::SetAgcDisable(BOOL AgcDisable)
     }
 }
 
-BOOL CBT848Card::GetAgcDisable()
-{
-    return (ReadByte(BT848_ADC) & BT848_ADC_AGC_EN) != 0;
-}
-
 void CBT848Card::SetCrush(BOOL Crush)
 {
     if(Crush)
@@ -806,11 +678,6 @@ void CBT848Card::SetCrush(BOOL Crush)
     {
         MaskDataByte(BT848_ADC, 0, BT848_ADC_CRUSH);
     }
-}
-
-BOOL CBT848Card::GetCrush()
-{
-    return (ReadByte(BT848_ADC) & BT848_ADC_CRUSH) != 0;
 }
 
 
@@ -826,11 +693,6 @@ void CBT848Card::SetColorBars(BOOL ColorBars)
     }
 }
 
-BOOL CBT848Card::GetColorBars()
-{
-    return (ReadByte(BT848_COLOR_CTL) & BT848_COLOR_CTL_COLOR_BARS) != 0;
-}
-
 void CBT848Card::SetGammaCorrection(BOOL GammaCorrection)
 {
     if(GammaCorrection)
@@ -843,9 +705,29 @@ void CBT848Card::SetGammaCorrection(BOOL GammaCorrection)
     }
 }
 
-BOOL CBT848Card::GetGammaCorrection()
+void CBT848Card::SetContrastBrightness(WORD Contrast, BYTE Brightness)
 {
-    return (ReadByte(BT848_COLOR_CTL) & BT848_COLOR_CTL_GAMMA) != 0;
+    (*this.*m_TVCards[m_CardType].pSetContrastBrightness)(Contrast, Brightness);
+}
+
+void CBT848Card::SetHue(BYTE Hue)
+{
+    (*this.*m_TVCards[m_CardType].pSetHue)(Hue);
+}
+
+void CBT848Card::SetSaturationU(WORD SaturationU)
+{
+    (*this.*m_TVCards[m_CardType].pSetSaturationU)(SaturationU);
+}
+
+void CBT848Card::SetSaturationV(WORD SaturationV)
+{
+    (*this.*m_TVCards[m_CardType].pSetSaturationV)(SaturationV);
+}
+
+void CBT848Card::StandardSetFormat(int nInput, eVideoFormat Format)
+{
+    // do nothing
 }
 
 
@@ -995,6 +877,9 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
     Crop = ((HorzActive >> 8) & 0x03) | ((HorzDelay >> 6) & 0x0c) | ((VertActive >> 4) & 0x30) | ((VertDelay >> 2) & 0xc0);
     SetGeometryEvenOdd(FALSE, HorzScale, VertScale, HorzActive, VertActive, HorzDelay, VertDelay, Crop);
     SetGeometryEvenOdd(TRUE, HorzScale, VertScale, HorzActive, VertActive, HorzDelay, VertDelay, Crop);
+
+    // call any card specific format setup
+    (*this.*m_TVCards[m_CardType].pSetFormat)(nInput, TVFormat);
 }
 
 

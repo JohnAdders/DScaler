@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.42 2003-10-27 10:39:54 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.43 2003-10-27 16:22:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.41  2003/05/29 15:55:26  laurentg
 // Settings management updated (saving of video format per video input deactivated)
 //
@@ -1206,7 +1209,7 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
     }
 
-    while(i < INPUTS_PER_CARD)
+    while(i < SA_INPUTS_PER_CARD)
     {
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
         ++i;

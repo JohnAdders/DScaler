@@ -84,6 +84,7 @@
 #define IDM_VIDEOSETTINGS               265
 #define IDI_TOOLBAR_MEDIAPLAYER_PAUSE   265
 #define IDM_CHANNELPLUS                 266
+#define IDC_PMS                         266
 #define IDM_CHANNELMINUS                267
 #define IDM_TOGGLE_MENU                 268
 #define IDM_HWINFO                      270
@@ -261,10 +262,10 @@
 #define IDM_SOURCE_INPUT7               1095
 #define IDM_SOURCE_INPUT8               1096
 #define IDM_SOURCE_INPUT9               1097
-#define IDM_SOURCE_CCIR656_1            1098
-#define IDM_SOURCE_CCIR656_2            1099
-#define IDM_SOURCE_CCIR656_3            1100
-#define IDM_SOURCE_CCIR656_4            1101
+#define IDM_SOURCE_INPUT10              1098
+#define IDM_SOURCE_INPUT11              1099
+#define IDM_SOURCE_INPUT12              1100
+#define IDM_SOURCE_INPUT13              1101
 #define IDM_AUDIO_0                     1110
 #define IDM_AUDIO_1                     1111
 #define IDM_AUDIO_2                     1112
@@ -1232,7 +1233,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        266
+#define _APS_NEXT_RESOURCE_VALUE        267
 #define _APS_NEXT_COMMAND_VALUE         32979
 #define _APS_NEXT_CONTROL_VALUE         8090
 #define _APS_NEXT_SYMED_VALUE           2526

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.355 2003-10-27 10:39:51 adcockj Exp $
+// $Id: DScaler.cpp,v 1.356 2003-10-27 16:22:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.355  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.354  2003/10/13 19:10:14  laurentg
 // Videotext renamed Teletext
 //
@@ -4515,6 +4518,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 else if(strcmp(ChannelString, "000000000") == 0)
                 {
                     SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT9, 0);
+                }
+                else if(strcmp(ChannelString, "0000000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT10, 0);
+                }
+                else if(strcmp(ChannelString, "00000000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT11, 0);
+                }
+                else if(strcmp(ChannelString, "000000000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT12, 0);
                 }
             }
             ChannelString[0] = '\0';

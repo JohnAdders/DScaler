@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.128 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.129 2003-10-27 16:22:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.128  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.127  2003/08/15 18:20:26  laurentg
 // Save in the source if it is the first setup
 //
@@ -737,7 +740,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
-    m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
+    m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 12, IniSection);
     m_Settings.push_back(m_VideoSource);
 
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
@@ -921,8 +924,7 @@ void CBT848Source::Reset()
     }
 
 
-    m_pBT848Card->SetBrightness(m_Brightness->GetValue());
-    m_pBT848Card->SetContrast(m_Contrast->GetValue());
+    m_pBT848Card->SetContrastBrightness(m_Contrast->GetValue(), m_Brightness->GetValue());
     m_pBT848Card->SetHue(m_Hue->GetValue());
     m_pBT848Card->SetSaturationU(m_SaturationU->GetValue());
     m_pBT848Card->SetSaturationV(m_SaturationV->GetValue());
@@ -1642,7 +1644,7 @@ void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 
 void CBT848Source::BrightnessOnChange(long Brightness, long OldValue)
 {
-    m_pBT848Card->SetBrightness(Brightness);
+    m_pBT848Card->SetContrastBrightness(m_Contrast->GetValue(), Brightness);
 }
 
 void CBT848Source::BtWhiteCrushUpOnChange(long NewValue, long OldValue)
@@ -1685,7 +1687,7 @@ void CBT848Source::HueOnChange(long Hue, long OldValue)
 
 void CBT848Source::ContrastOnChange(long Contrast, long OldValue)
 {
-    m_pBT848Card->SetContrast(Contrast);
+    m_pBT848Card->SetContrastBrightness(Contrast, m_Brightness->GetValue());
 }
 
 void CBT848Source::SaturationUOnChange(long SatU, long OldValue)
@@ -1809,6 +1811,12 @@ void CBT848Source::SetupCard()
     }
     
     InitAudio();
+
+    // set up card specific menu
+    DestroyMenu(m_hMenu);
+    m_hMenu = m_pBT848Card->GetCardSpecificMenu();
+    Providers_UpdateMenu(m_hMenu);
+
 }
 
 void CBT848Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.39 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Card.h,v 1.40 2003-10-27 16:22:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.38  2002/11/07 20:33:16  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -125,7 +128,9 @@
 #include "AudioDecoder.h"
 #include "AudioControls.h"
 
-#define INPUTS_PER_CARD 7
+#include "SAA7118.h"
+
+#define BT_INPUTS_PER_CARD 12
 
 /** A Generic bt848 based capture card
     The card can cope with the standard inputs,
@@ -183,7 +188,7 @@ private:
     {
         LPCSTR szName;
         int NumInputs;
-        TInputType Inputs[INPUTS_PER_CARD];
+        TInputType Inputs[BT_INPUTS_PER_CARD];
         ePLLFreq PLLFreq;
         eTunerId TunerId;
         eSoundChip SoundChip;
@@ -194,6 +199,16 @@ private:
             Default is StandardBT848InputSelect
         */
         void (CBT848Card::*pInputSwitchFunction)(int);
+        /// Function to set Contrast and Brightness Default SetAnalogContrastBrightness
+        void (CBT848Card::*pSetContrastBrightness)(WORD, BYTE);
+        /// Function to set SaturationU Default SetAnalogSaturationU
+        void (CBT848Card::*pSetSaturationU)(WORD);
+        /// Function to set SaturationV Default SetAnalogSaturationV
+        void (CBT848Card::*pSetSaturationV)(WORD);
+        /// Function to set Hue Default SetAnalogHue
+        void (CBT848Card::*pSetHue)(BYTE);
+        /// Function to set Format Default SetFormat
+        void (CBT848Card::*pSetFormat)(int, eVideoFormat);
         /// Any card specific method used to select stereo - may be NULL
         CAudioDecoder::eAudioDecoderType AudioDecoderType;
         /// Bit Mask for audio GPIO operations
@@ -229,56 +244,30 @@ public:
 
     void ResetHardware(DWORD RiscBasePhysical);
 
-    void SetBrightness(BYTE Brightness);
-    BYTE GetBrightness();
+    void SetContrastBrightness(WORD Contrast, BYTE Brightness);
     void SetWhiteCrushUp(BYTE WhiteCrushUp);
-    BYTE GetWhiteCrushUp();
     void SetWhiteCrushDown(BYTE WhiteCrushDown);
-    BYTE GetWhiteCrushDown();
     void SetHue(BYTE Hue);
-    BYTE GetHue();
-    void SetContrast(WORD Contrast);
-    WORD GetContrast(WORD Contrast);
     void SetSaturationU(WORD SaturationU);
-    WORD GetSaturationU(WORD SaturationU);
     void SetSaturationV(WORD SaturationV);
-    WORD GetSaturationV(WORD SaturationV);
     void SetBDelay(BYTE BDelay);
-    BYTE GetBDelay();
     void SetEvenLumaDec(BOOL EvenLumaDec);
-    BOOL GetEvenLumaDec();
     void SetOddLumaDec(BOOL OddLumaDec);
-    BOOL GetOddLumaDec();
     void SetEvenChromaAGC(BOOL EvenChromaAGC);
-    BOOL GetEvenChromaAGC();
     void SetOddChromaAGC(BOOL OddChromaAGC);
-    BOOL GetOddChromaAGC();
     void SetEvenLumaPeak(BOOL EvenLumaPeak);
-    BOOL GetEvenLumaPeak();
     void SetOddLumaPeak(BOOL OddLumaPeak);
-    BOOL GetOddLumaPeak();
     void SetColorKill(BOOL ColorKill);
-    BOOL GetColorKill();
     void SetHorFilter(BOOL HorFilter);
-    BOOL GetHorFilter();
     void SetVertFilter(BOOL VertFilter);
-    BOOL GetVertFilter();
     void SetFullLumaRange(BOOL FullLumaRange);
-    BOOL GetFullLumaRange();
     void SetCoring(BOOL Coring);
-    BOOL GetCoring();
     void SetEvenComb(BOOL EvenComb);
-    BOOL GetEvenComb();
     void SetOddComb(BOOL OddComb);
-    BOOL GetOddComb();
     void SetAgcDisable(BOOL AgcDisable);
-    BOOL GetAgcDisable();
     void SetCrush(BOOL Crush);
-    BOOL GetCrush();
     void SetColorBars(BOOL ColorBars);
-    BOOL GetColorBars();
     void SetGammaCorrection(BOOL GammaCorrection);
-    BOOL GetGammaCorrection();
 
     LPCSTR GetChipType();
     LPCSTR GetTunerType();
@@ -292,6 +281,8 @@ public:
     void SetDMA(BOOL bState);
     void StopCapture();
     void StartCapture(BOOL bCaptureVBI);
+
+    HMENU GetCardSpecificMenu();
 
     void InitAudio(bool UsePin1);
 
@@ -372,6 +363,7 @@ public:
     void SetGPDATA(ULONG val);
     ULONG GetGPDATA();
 
+
 protected:
     void ManageMyState();
     BOOL SupportsACPI() {return Is878Family();};
@@ -393,6 +385,7 @@ private:
     void Sasem4ChannelInputSelect(int nInput);
     void RSBTCardInputSelect(int nInput);
     void Silk200InputSelect(int nInput);
+    void StandardSetFormat(int nInput, eVideoFormat TVFormat);
 
     void InitPXC200();
     void InitHauppauge();
@@ -413,6 +406,22 @@ private:
     II2CTuner*         m_Tuner;
     CAudioDecoder*  m_AudioDecoder;
     CAudioControls* m_AudioControls;
+
+	CSAA7118*       m_SAA7118;
+	int             m_CurrentInput;
+
+	void InitPMSDeluxe();
+	void PMSDeluxeInputSelect(int nInput);
+	void SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat);
+	void SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness);
+	void SetPMSDeluxeSaturationU(WORD SaturationU);
+	void SetPMSDeluxeSaturationV(WORD SaturationV);
+	void SetPMSDeluxeHue(BYTE Hue);
+
+    void SetAnalogContrastBrightness(WORD Contrast, BYTE Brightness);
+    void SetAnalogSaturationU(WORD SaturationU);
+    void SetAnalogSaturationV(WORD SaturationV);
+    void SetAnalogHue(BYTE Hue);
 
     static const TCardType m_TVCards[TVCARD_LASTONE];
     static const TAutoDectect878 m_AutoDectect878[];

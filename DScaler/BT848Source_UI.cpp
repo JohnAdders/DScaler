@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.19 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.20 2003-10-27 16:22:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.18  2003/03/23 10:42:20  laurentg
 // Avoid to switch to an unknown video input when using 000...
 //
@@ -1063,7 +1066,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
 	}
     
-    while(i < INPUTS_PER_CARD)
+    while(i < BT_INPUTS_PER_CARD)
     {
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_GRAYED);
         ++i;
@@ -1392,6 +1395,11 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT5:
         case IDM_SOURCE_INPUT6:
         case IDM_SOURCE_INPUT7:
+        case IDM_SOURCE_INPUT8:
+        case IDM_SOURCE_INPUT9:
+        case IDM_SOURCE_INPUT10:
+        case IDM_SOURCE_INPUT11:
+        case IDM_SOURCE_INPUT12:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
 				if (nValue < m_pBT848Card->GetNumInputs())
@@ -1533,12 +1541,25 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_NTSC, bDontSetValue);
-        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_NTSC, bDontSetValue);
-        m_Hue->ChangeDefault(DEFAULT_HUE_NTSC, bDontSetValue);
-        m_Saturation->ChangeDefault((DEFAULT_SAT_U_NTSC + DEFAULT_SAT_V_NTSC) / 2, bDontSetValue);
-        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC, bDontSetValue);
-        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC, bDontSetValue);
+        if(m_CardType->GetValue() != TVCARD_PMSDELUXE)
+        {
+            m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_NTSC, bDontSetValue);
+            m_Contrast->ChangeDefault(DEFAULT_CONTRAST_NTSC, bDontSetValue);
+            m_Hue->ChangeDefault(DEFAULT_HUE_NTSC, bDontSetValue);
+            m_Saturation->ChangeDefault((DEFAULT_SAT_U_NTSC + DEFAULT_SAT_V_NTSC) / 2, bDontSetValue);
+            m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC, bDontSetValue);
+            m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC, bDontSetValue);
+        }
+        else
+        {
+            m_Brightness->ChangeDefault(128, bDontSetValue);
+            m_Contrast->ChangeDefault(128, bDontSetValue);
+            m_Hue->ChangeDefault(128, bDontSetValue);
+            m_Saturation->ChangeDefault(128, bDontSetValue);
+            m_SaturationU->ChangeDefault(128, bDontSetValue);
+            m_SaturationV->ChangeDefault(128, bDontSetValue);
+        }
+
         m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
@@ -1546,12 +1567,24 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     }
     else if(IsSECAMVideoFormat(format))
     {
-        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_SECAM, bDontSetValue);
-        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_SECAM, bDontSetValue);
-        m_Hue->ChangeDefault(DEFAULT_HUE_SECAM, bDontSetValue);
-        m_Saturation->ChangeDefault((DEFAULT_SAT_U_SECAM + DEFAULT_SAT_V_SECAM) / 2, bDontSetValue);
-        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_SECAM, bDontSetValue);
-        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_SECAM, bDontSetValue);
+        if(m_CardType->GetValue() != TVCARD_PMSDELUXE)
+        {
+            m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_SECAM, bDontSetValue);
+            m_Contrast->ChangeDefault(DEFAULT_CONTRAST_SECAM, bDontSetValue);
+            m_Hue->ChangeDefault(DEFAULT_HUE_SECAM, bDontSetValue);
+            m_Saturation->ChangeDefault((DEFAULT_SAT_U_SECAM + DEFAULT_SAT_V_SECAM) / 2, bDontSetValue);
+            m_SaturationU->ChangeDefault(DEFAULT_SAT_U_SECAM, bDontSetValue);
+            m_SaturationV->ChangeDefault(DEFAULT_SAT_V_SECAM, bDontSetValue);
+        }
+        else
+        {
+            m_Brightness->ChangeDefault(128, bDontSetValue);
+            m_Contrast->ChangeDefault(128, bDontSetValue);
+            m_Hue->ChangeDefault(128, bDontSetValue);
+            m_Saturation->ChangeDefault(128, bDontSetValue);
+            m_SaturationU->ChangeDefault(128, bDontSetValue);
+            m_SaturationV->ChangeDefault(128, bDontSetValue);
+        }
         m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
@@ -1559,12 +1592,24 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
     }
     else
     {
-        m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL, bDontSetValue);
-        m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL, bDontSetValue);
-        m_Hue->ChangeDefault(DEFAULT_HUE_PAL, bDontSetValue);
-        m_Saturation->ChangeDefault((DEFAULT_SAT_U_PAL + DEFAULT_SAT_V_PAL) / 2, bDontSetValue);
-        m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL, bDontSetValue);
-        m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL, bDontSetValue);
+        if(m_CardType->GetValue() != TVCARD_PMSDELUXE)
+        {
+            m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL, bDontSetValue);
+            m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL, bDontSetValue);
+            m_Hue->ChangeDefault(DEFAULT_HUE_PAL, bDontSetValue);
+            m_Saturation->ChangeDefault((DEFAULT_SAT_U_PAL + DEFAULT_SAT_V_PAL) / 2, bDontSetValue);
+            m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL, bDontSetValue);
+            m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL, bDontSetValue);
+        }
+        else
+        {
+            m_Brightness->ChangeDefault(128, bDontSetValue);
+            m_Contrast->ChangeDefault(128, bDontSetValue);
+            m_Hue->ChangeDefault(128, bDontSetValue);
+            m_Saturation->ChangeDefault(128, bDontSetValue);
+            m_SaturationU->ChangeDefault(128, bDontSetValue);
+            m_SaturationV->ChangeDefault(128, bDontSetValue);
+        }
         m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);

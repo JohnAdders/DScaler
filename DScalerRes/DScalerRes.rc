@@ -146,7 +146,10 @@ BEGIN
     VK_F1,          IDM_SOURCE_INPUT1,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
+    VK_F10,         IDM_SOURCE_INPUT10,   VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F11,         IDM_CHARSET_TEST,       VIRTKEY, NOINVERT
+    VK_F11,         IDM_SOURCE_INPUT11,   VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F12,         IDM_SOURCE_INPUT12,   VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F2,          IDM_SOURCE_INPUT2,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
@@ -1828,6 +1831,43 @@ BEGIN
         MENUITEM "&Options",                    IDM_OPTIONS
         MENUITEM SEPARATOR
         MENUITEM "&Show/Hide",                  IDM_TRAYSHOW
+    END
+END
+
+IDC_PMS MENU DISCARDABLE 
+BEGIN
+    POPUP "&PMS PDI Deluxe"
+    BEGIN
+        POPUP "&Video Input"
+        BEGIN
+            MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
+            MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2
+            MENUITEM "Input &3\tCtrl+Alt+F3",       IDM_SOURCE_INPUT3
+            MENUITEM "Input &4\tCtrl+Alt+F4",       IDM_SOURCE_INPUT4
+            MENUITEM "Input &5\tCtrl+Alt+F5",       IDM_SOURCE_INPUT5
+            MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
+            MENUITEM "Input &7\tCtrl+Alt+F7",       IDM_SOURCE_INPUT7
+            MENUITEM "Input &8\tCtrl+Alt+F8",       IDM_SOURCE_INPUT8
+            MENUITEM "Input &9\tCtrl+Alt+F9",       IDM_SOURCE_INPUT9
+            MENUITEM "Inpu&t 10\tCtrl+Alt+F10",     IDM_SOURCE_INPUT10
+            MENUITEM "Inp&ut 11\tCtrl+Alt+F11",     IDM_SOURCE_INPUT11
+            MENUITEM "In&put 12\tCtrl+Alt+F12",     IDM_SOURCE_INPUT12
+        END
+        POPUP "Video &Format"
+        BEGIN
+            MENUITEM "&PAL-BDGHI",                  IDM_TYPEFORMAT_0
+            MENUITEM "&NTSC",                       IDM_TYPEFORMAT_1
+            MENUITEM "&SECAM",                      IDM_TYPEFORMAT_2
+            MENUITEM "PAL-&M",                      IDM_TYPEFORMAT_3
+            MENUITEM "PA&L-N",                      IDM_TYPEFORMAT_4
+            MENUITEM "NTSC-&Japan ",                IDM_TYPEFORMAT_5
+            MENUITEM "PAL-&60",                     IDM_TYPEFORMAT_6
+            MENUITEM "NTSC-&50",                    IDM_TYPEFORMAT_7
+            MENUITEM "PAL-N&C",                     IDM_TYPEFORMAT_8
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
+        MENUITEM "Reset Capture Card",          IDM_RESET
     END
 END
 

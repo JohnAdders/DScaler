@@ -553,6 +553,11 @@ int SettingsPerChannel_RegisterSetting(const char *szName, const char *szDescrip
     return SettingsPerChannel_RegisterSetting(szName, szDescription, bDefault, NULL,NULL,pValue);
 }
 
+int SettingsPerChannel_RegisterSetting(const char *szName, const char *szDescription,BOOL bDefault)
+{    
+    return SettingsPerChannel_RegisterSetting(szName, szDescription, bDefault, NULL,NULL,NULL);
+}
+
 
 
 void SettingsPerChannel_RegisterSetSection(const char *szSubSection)

@@ -15,6 +15,7 @@ void SettingsPerChannel_ToDefaultState(BOOL bTrue);
 
 void SettingsPerChannel_ClearAll();
 
+int  SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault);
 int  SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, CSimpleSetting *CSSetting);
 int  SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, SETTING *Setting);
 int  SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, long** pValue);
@@ -27,7 +28,7 @@ void SettingsPerChannel_ReadSettings(const char *szSubSection, int Channel, int 
 void SettingsPerChannel_WriteSettings(const char *szSubSection, int Channel, BOOL bOptimizeFileAccess);
 void SettingsPerChannel_ReadDefaults(const char *szSubSection, int Channel);
 void SettingsPerChannel_ClearSettings(const char *szSubSection, int Channel, int ClearIniSection);
-
+ 
 void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int Channel);
 
 void SettingsPerChannel_Setup(int Start, int Channel);

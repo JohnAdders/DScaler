@@ -839,41 +839,14 @@ BEGIN
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
         MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
-        POPUP "Window &Position"
-        BEGIN
-            MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
-            MENUITEM "&Centre\tCtrl+Numpad 5",      IDM_WINPOS_VERT_CENTRE
-            MENUITEM "&Bottom\tCtrl+Numpad-Down",   IDM_WINPOS_VERT_BOTTOM
-            MENUITEM SEPARATOR
-            MENUITEM "&Left",                       IDM_WINPOS_HORZ_LEFT
-            MENUITEM "&Centre",                     IDM_WINPOS_HORZ_CENTRE
-            MENUITEM "&Right",                      IDM_WINPOS_HORZ_RIGHT
-            MENUITEM SEPARATOR
-            MENUITEM "Bounce Window Position\tCtrl+B", IDM_WINPOS_BOUNCE
-            MENUITEM "Defer Setting Overlay",       IDM_ASPECT_DEFER_OVERLAY
-            MENUITEM "Orbiting\tAlt+O",             IDM_WINPOS_ORBIT
-            MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
-        END
-        POPUP "&Zoom"
-        BEGIN
-            MENUITEM "Zoom -\tZ",                   IDM_ZOOM_MINUS
-            MENUITEM "Zoom +\tShift+Z",             IDM_ZOOM_PLUS
-            MENUITEM SEPARATOR
-            MENUITEM "1x",                          IDM_ZOOM_10
-            MENUITEM "1.5x",                        IDM_ZOOM_15
-            MENUITEM "2x",                          IDM_ZOOM_20
-            MENUITEM "2.5x",                        IDM_ZOOM_25
-            MENUITEM "3x",                          IDM_ZOOM_30
-            MENUITEM "3.5x",                        IDM_ZOOM_35
-            MENUITEM "4x",                          IDM_ZOOM_40
-        END
+        MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
     END
     POPUP "&AspectRatio"
     BEGIN
         MENUITEM "4:3 Fullscreen",              IDM_ASPECT_FULLSCREEN
         MENUITEM "Letterboxed",                 IDM_ASPECT_LETTERBOX
         MENUITEM "16:9 Anamorphic",             IDM_ASPECT_ANAMORPHIC
-        POPUP "Advanced Image Aspect Ratios"
+        POPUP "Advanced &Image Aspect Ratios"
         BEGIN
             MENUITEM "Autodetect (experimental)\tA", IDM_SASPECT_AUTO_TOGGLE
             MENUITEM "Detect from Current Image\t`", IDM_SASPECT_COMPUTE
@@ -897,7 +870,7 @@ BEGIN
             MENUITEM "Clipped (Add Black Bars if Necessary)\tCtrl+P", 
                                                     IDM_SASPECT_CLIP
         END
-        POPUP "Aspect Ratio of Display Screen"
+        POPUP "Aspect Ratio of &Display Screen"
         BEGIN
             MENUITEM "Same as Computer Resolution\tAlt+0", IDM_TASPECT_0
             MENUITEM "1.33 - TVs, monitors\tAlt+1", IDM_TASPECT_133
@@ -908,6 +881,32 @@ BEGIN
             MENUITEM "2.35\tAlt+6",                 IDM_TASPECT_235
             MENUITEM "Custom  (from .INI file)\tAlt+9", IDM_TASPECT_CUSTOM
         END
+        POPUP "Window &Position"
+        BEGIN
+            MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
+            MENUITEM "&Centre\tCtrl+Numpad 5",      IDM_WINPOS_VERT_CENTRE
+            MENUITEM "&Bottom\tCtrl+Numpad-Down",   IDM_WINPOS_VERT_BOTTOM
+            MENUITEM SEPARATOR
+            MENUITEM "&Left",                       IDM_WINPOS_HORZ_LEFT
+            MENUITEM "&Centre",                     IDM_WINPOS_HORZ_CENTRE
+            MENUITEM "&Right",                      IDM_WINPOS_HORZ_RIGHT
+            MENUITEM SEPARATOR
+            MENUITEM "Bounce Window Position\tCtrl+B", IDM_WINPOS_BOUNCE
+            MENUITEM "Orbiting\tAlt+O",             IDM_WINPOS_ORBIT
+        END
+        POPUP "&Zoom"
+        BEGIN
+            MENUITEM "Zoom -\tZ",                   IDM_ZOOM_MINUS
+            MENUITEM "Zoom +\tShift+Z",             IDM_ZOOM_PLUS
+            MENUITEM SEPARATOR
+            MENUITEM "1x",                          IDM_ZOOM_10
+            MENUITEM "1.5x",                        IDM_ZOOM_15
+            MENUITEM "2x",                          IDM_ZOOM_20
+            MENUITEM "2.5x",                        IDM_ZOOM_25
+            MENUITEM "3x",                          IDM_ZOOM_30
+            MENUITEM "3.5x",                        IDM_ZOOM_35
+            MENUITEM "4x",                          IDM_ZOOM_40
+        END
     END
     POPUP "Deinter&lace"
     BEGIN
@@ -917,7 +916,6 @@ BEGIN
         MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
                                                 IDM_AUTODETECT
         MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
-        MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
         MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
         MENUITEM SEPARATOR
         MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.20 2004-01-05 13:12:24 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.21 2004-01-07 10:08:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -113,6 +113,7 @@ private:
         eInputType InputType;
         /// Which mux on the card is to be used
         BYTE MuxSelect;
+        DWORD GPIOFlags;
     } TInputType;
 
     /// Defines the specific settings for a given card

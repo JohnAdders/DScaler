@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.15 2004-01-05 13:12:24 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.16 2004-01-07 10:08:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/01/05 13:12:24  adcockj
+// Added patch from Lavrenov Dmitrij (midimaker)
+//
 // Revision 1.14  2003/12/17 08:28:57  adcockj
 // Added Leadtek Winfast Expert (Thanks to Tom Zoerner)
 //
@@ -126,21 +129,25 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Colour Bars",
                 INPUTTYPE_COLOURBARS,
                 0,
+                0x00000000,
             },
         },
         NULL,
@@ -162,21 +169,25 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Colour Bars",
                 INPUTTYPE_COLOURBARS,
                 0,
+                0x00000000,
             },
         },
         NULL,
@@ -198,21 +209,25 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Colour Bars",
                 INPUTTYPE_COLOURBARS,
                 0,
+                0x00000000,
             },
         },
         NULL,
@@ -234,46 +249,55 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Component",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "RGsB",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "SDI",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "Composite G",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "Composite B",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "Composite R",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "Composite BNC",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
             {
                 "PDI",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
         },
         InitH3D,
@@ -295,11 +319,13 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -321,21 +347,25 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Composite Over S-Video",
                 INPUTTYPE_COMPOSITE,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -357,21 +387,25 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Composite Over S-Video",
                 INPUTTYPE_COMPOSITE,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -393,16 +427,19 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Composite Over S-Video",
                 INPUTTYPE_COMPOSITE,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -424,16 +461,19 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Composite Over S-Video",
                 INPUTTYPE_COMPOSITE,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -449,23 +489,33 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
     },
     // Card info from Tom Zoerner
     {
-        "Hauppauge WinTV PCI-FM",
-        3,
+        "Hauppauge WinTV 34xxx models",
+        4,
         {
             {
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+    			0x0000ff01,
+
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+    			0x0000ff02,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+    			0x0000ff02,
             },
             {   // card has no composite in, but comes with a Cinch to S-Video adapter
                 "Composite Over S-Video",
                 INPUTTYPE_COMPOSITE,
                 2,
+    			0x0000ff02,
             },
             // FM radio input omitted
         },
@@ -491,16 +541,19 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "PDI",
                 INPUTTYPE_CCIR,
                 3,
+                0x00000000,
             },
         },
         NULL,
@@ -524,16 +577,19 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -555,21 +611,25 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
+                0x00000000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
+                0x00000000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
+                0x00000000,
             },
             {
                 "Composite Over S-Video",
                 INPUTTYPE_COMPOSITE,
                 2,
+                0x00000000,
             },
         },
         NULL,
@@ -583,15 +643,51 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_MT2050_PAL,
         IDC_CX2388X,
     },
+    {
+        "ATI TV Wonder Pro",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+                0x00000000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+                0x00000000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+                0x00000000,
+            },
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_USER_SETUP,
+        IDC_CX2388X,
+    },
 };
 
 const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
 {
     { 0x006614F1, CX2388xCARD_CONEXANT_EVK, "Conexant CX23880 TV/FM EVK" },
+    { 0x00f81002, CX2388xCARD_ATI_WONDER_PRO, "ATI Wonder Pro"},
     //Tee Added support for PAL EVK and also added support for SSVID
     { 0x016614F1, CX2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
     { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
-    { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge WinTV PCI-FM" },
+    { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
+    { 0x34000070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
     { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" },
     { 0x86061462, CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL, "MSI TV@nywhere Master"},
     { 0, (eCX2388xCardId)-1, NULL }
@@ -706,7 +802,11 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         }
         
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
+
     }
+
+    // set up any sound stuff
+    WriteDword(MO_GP0_IO, m_TVCards[m_CardType].Inputs[nInput].GPIOFlags);
 }
 
 HMENU CCX2388xCard::GetCardSpecificMenu()

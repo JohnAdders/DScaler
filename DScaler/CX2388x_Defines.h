@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.16 2004-01-05 13:12:24 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.17 2004-01-07 10:08:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -773,6 +773,7 @@ enum eCX2388xCardId
     CX2388xCARD_PIXELVIEW_XCAPTURE_PDIMOD,
     CX2388xCARD_LEADTEK_WINFAST_EXPERT,
 	CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL,
+	CX2388xCARD_ATI_WONDER_PRO,
     CX2388xCARD_LASTONE,
 };
 // planar video (Used for YUY2)

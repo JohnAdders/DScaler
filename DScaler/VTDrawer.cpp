@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.11 2002-10-12 18:43:32 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.12 2002-10-15 11:53:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/12 18:43:32  atnak
+// some changes for tranparency and boxed background
+//
 // Revision 1.10  2002/10/12 00:38:07  atnak
 // Changed Draw() to be BBC specs compatible
 //
@@ -126,7 +129,8 @@ CVTDrawer::~CVTDrawer()
 
 
 bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, 
-    LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow)
+    LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow,
+    int iTempPageOSD)
 {
     BYTE DisplayChar, Char;
     BYTE DisplayModes;
@@ -142,7 +146,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     BOOL bHasDouble = FALSE;
     BOOL bHighLightChar = FALSE;
     BOOL bTransparencyPresent = FALSE;
-    BOOL bBoxedTextOnly;
+    BOOL bBoxedTextOnly = FALSE;
 
     int n;
     char tmp[41];
@@ -174,9 +178,9 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     HFONT hFontSave = (HFONT) SelectObject(hDC, hCurrentFont = m_hFont);
     HGDIOBJ hBrushSave = (HFONT) SelectObject(hDC, m_hBrushes[0]);
 
-    if (bBoxedTextOnly = (pPage->wCtrl & (3 << 4)))
+    if (pPage->wCtrl & (3 << 4))
     {
-        ulFlags |= VTDF_MIXMODE;
+        bTransparencyPresent = TRUE;
     }
 
     for (int row = startrow; row < endrow; row++)
@@ -191,7 +195,14 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
 
         if (row == 0)
         {
-            sprintf(tmp, "  P%-3d \x7", pPage->Page + 100);
+            if (iTempPageOSD >= 0)
+            {
+                sprintf(tmp, "  P%-3d \x7", iTempPageOSD);
+            }
+            else
+            {
+                sprintf(tmp, "  P%-3d \x7", pPage->Page + 100);
+            }
 
             if ((pPage->bUpdated == FALSE) && (pHeader))
             {
@@ -202,10 +213,11 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     tmp[n] = (*pHeader)[n] & 0x7f;
                 }              
             }
-            else if (bBoxedTextOnly)
+            else if ((pPage->wCtrl & (3 << 4)) && iTempPageOSD == -1)
             {
                 // if the page is newsflash or subtitle
                 // show nothing
+                ulFlags |= VTDF_MIXMODE;
                 memset(tmp, ' ', 40);
             }
             else
@@ -245,6 +257,12 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 {
                     bHasDouble = TRUE;
                 }
+            }
+
+            if (pPage->wCtrl & (3 << 4))
+            {
+                bBoxedTextOnly = TRUE;
+                ulFlags |= VTDF_MIXMODE;
             }
         }
 

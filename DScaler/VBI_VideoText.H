@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.25 2002-06-20 20:00:33 robmuller Exp $
+// $Id: VBI_VideoText.H,v 1.26 2002-10-15 11:53:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -200,6 +200,7 @@ TVTPage* VT_PageGet(int Page, int SubPage);
 
 bool VT_ContainsUpdatedPage();
 void VT_CreateTestPage();
+void VT_SetPageOSD(HWND hWnd, HDC hDC, int Page, BOOL bShow);
 void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed);
 void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader);
 void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.7 2002-10-12 18:43:32 atnak Exp $
+// $Id: VTDrawer.h,v 1.8 2002-10-15 11:53:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/12 18:43:32  atnak
+// some changes for tranparency and boxed background
+//
 // Revision 1.6  2002/10/12 00:38:07  atnak
 // Changed Draw() to be BBC specs compatible
 //
@@ -75,7 +78,7 @@ public:
     ~CVTDrawer();
     void SetBounds(HDC hDC, RECT* Rect);
 	void SetHiliteText(const char* Text);
-    bool Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow);
+    bool Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow, int iTempPageOSD);
 
     int GetAvgWidth();
     int GetAvgHeight();

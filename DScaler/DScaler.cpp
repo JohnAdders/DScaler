@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.243 2002-10-08 13:23:19 adcockj Exp $
+// $Id: DScaler.cpp,v 1.244 2002-10-15 11:53:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.243  2002/10/08 13:23:19  adcockj
+// Actually reverted to old minimize behaviour
+//
 // Revision 1.242  2002/10/08 12:12:35  adcockj
 // Changed minimize behaviour back to how it was
 //
@@ -803,7 +806,8 @@ HMENU   hMenu;
 HMENU   hSubMenuChannels = NULL;
 HACCEL  hAccel;
 
-char ChannelString[10];
+char ChannelString[10] = "";
+BOOL ChannelStringIsVT;
 
 int MainProcessor=0;
 int DecodeProcessor=0;
@@ -1409,6 +1413,18 @@ BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
     return FALSE; 
 } 
 
+void ShowVTHeader()
+{
+    HDC hDC = GetDC(hWnd);
+    VT_SetPageOSD(hWnd, hDC, -1, TRUE);
+
+    *ChannelString = '\0';
+    ChannelStringIsVT = TRUE;
+    // This takes care of hiding the header.
+    // Maybe there this should use a new timer
+    SetTimer(hWnd, TIMER_KEYNUMBER, 1000, NULL);
+}
+
 void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
 {
     if ((Page < 100) || (Page > 899))
@@ -1432,6 +1448,7 @@ void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
         VTSubPageLocked = false;
     }
 
+    ShowVTHeader();
     VT_PurgeRedrawCache();
     VT_DoUpdate_Page(VTPage - 100, VTSubPage);
     VT_UpdateFlashTimerStatus();
@@ -2282,21 +2299,33 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHANNELPLUS:
-            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
+            if (VTState != VT_OFF)
+            {
+                ShowVTHeader();
+            }
+            else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
                 Channel_Increment();
             }
             break;
 
         case IDM_CHANNELMINUS:
-            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
+            if (VTState != VT_OFF)
+            {
+                ShowVTHeader();
+            }
+            else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
                 Channel_Decrement();
             }
             break;
 
         case IDM_CHANNEL_PREVIOUS:
-            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
+            if (VTState != VT_OFF)
+            {
+                ShowVTHeader();
+            }
+            else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
                 Channel_Previous();
             }
@@ -3544,11 +3573,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_KEYNUMBER:
             KillTimer(hWnd, TIMER_KEYNUMBER);
     		i = atoi(ChannelString);
-            if(VTState != VT_OFF)
+            if(ChannelStringIsVT || VTState != VT_OFF)
             {
-                if(i >= 100 && i < 900) //This checking not needed now...
+                HDC hDC = GetDC(hWnd);
+                VT_SetPageOSD(hWnd, hDC, -1, FALSE);
+
+                if (VTState != VT_OFF)
                 {
-                    SetVTPage(i, 0, false, false);
+                    if(i >= 100 && i < 900) //This checking not needed now...
+                    {
+                        SetVTPage(i, 0, false, false);
+                    }
                 }
             }
             else
@@ -4353,6 +4388,12 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     if (((char) wParam >= '0') && ((char) wParam <= '9'))
     {
+        if (ChannelStringIsVT != (VTState != VT_OFF))
+        {
+            ChannelString[0] = '\0';
+        }
+        ChannelStringIsVT = (VTState != VT_OFF);
+
         sprintf(Text, "%c", (char)wParam);
         // if something gets broken in the future
         if(strlen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
@@ -4409,6 +4450,11 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
+                if (VTState != VT_OFF)
+                {
+                    HDC hDC = GetDC(hWnd);
+                    VT_SetPageOSD(hWnd, hDC, atoi(ChannelString), TRUE);
+                }
                 SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
             }
             if(VTState == VT_OFF)

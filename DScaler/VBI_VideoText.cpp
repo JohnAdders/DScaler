@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.49 2002-10-15 03:36:29 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.50 2002-10-15 11:53:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/10/15 03:36:29  atnak
+// removed rounding from last commit - it wasn't necessary
+//
 // Revision 1.48  2002/10/15 02:02:58  atnak
 // Added rounding in VT decoding to improve accuracy
 //
@@ -198,6 +201,7 @@ bool VTShowHidden = false;
 bool VTShowFlashed = false;
 bool VTFlashTimerSet = false;
 bool VTAntiAlias = true;
+int VTPageOSD = -1;
 
 int VTSearchPage = -1;
 int VTSearchSubPage = -1;
@@ -986,6 +990,34 @@ void VT_ChannelChange()
     VT_ResetStation();
 }
 
+void VT_SetPageOSD(HWND hWnd, HDC hDC, int Page, BOOL bShow)
+{
+    BOOL bChanged;
+
+    if (bShow)
+    {
+        if (Page == -1)
+        {
+            bChanged = (VTPageOSD != -2);
+            VTPageOSD = -2;
+        }
+        else
+        {
+            bChanged = (VTPageOSD != Page);
+            VTPageOSD = Page;
+        }
+    }
+    else
+    {
+        bChanged = (VTPageOSD != -1);
+        VTPageOSD = -1;
+    }
+
+    if (bChanged && VTState != VT_OFF)
+    {
+        VT_RedrawClock(hWnd, hDC, TRUE);
+    }
+}
 
 void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed)
 {
@@ -1001,7 +1033,8 @@ void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed)
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL,
         (VTShowHidden ? VTDF_HIDDEN : 0) |
         ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
-        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, NULL);
+        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, NULL,
+        VTPageOSD);
 }
 
 void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
@@ -1014,7 +1047,8 @@ void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
         (VTShowHidden ? VTDF_HIDDEN : 0) |
         (ShowFlashed ? VTDF_FLASHONLY : VTDF_CLEARFLASH) |
         ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
-        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0);
+        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0,
+        VTPageOSD);
 }
 
 void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
@@ -1026,7 +1060,8 @@ void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
         (RedrawHeader ? VTDF_HEADERONLY : VTDF_CLOCKONLY) |
         ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), 
-        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0);
+        bVTAutoCodePage ? VTAutoCodePage : VTCodePage, 0,
+        VTPageOSD);
 }
 
 void VT_ProcessRedrawCache(HWND hWnd, HDC hDC)
@@ -1053,7 +1088,8 @@ void VT_ProcessRedrawCache(HWND hWnd, HDC hDC)
                     (VTShowHidden ? VTDF_HIDDEN : 0) |
                     ((VTState == VT_MIX) ? VTDF_MIXMODE : 0) |
                     VTDF_THISROWONLY, 
-                    bVTAutoCodePage ? VTAutoCodePage : VTCodePage, a);
+                    bVTAutoCodePage ? VTAutoCodePage : VTCodePage, a,
+                    VTPageOSD);
             }
         }
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.33 2005-02-03 04:26:54 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.34 2005-03-10 05:06:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2005/02/03 04:26:54  atnak
+// Fixed problem in WriteDSPData7133().
+//
 // Revision 1.32  2005/01/20 03:18:37  atnak
 // Removed irregular tabs introduced by tabify.  Fixed wording of registerSize.
 //
@@ -1242,6 +1245,18 @@ void CSAA7134Card::SetAudioSampleRate7133(eAudioSampleRate sampleRate)
 
 void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 {
+	if (m_DeviceId != 0x7133 && m_DeviceId != 0x7135)
+	{
+		if (InputSource == AUDIOINPUTSOURCE_DAC_LINE1)
+		{
+			InputSource = AUDIOINPUTSOURCE_LINE1;
+		}
+		else if (InputSource == AUDIOINPUTSOURCE_DAC_LINE2)
+		{
+			InputSource = AUDIOINPUTSOURCE_LINE2;
+		}
+	}
+
 	m_AudioInputSource = InputSource;
 
 	if (m_bAudioLineReservedForMute)
@@ -1258,17 +1273,17 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 		return;
 	}
 
-	_SetIOSelectOCS(m_AudioInputSource, m_bStereoExternalLines);
+	_SetIOSelectOCS(InputSource, m_bStereoExternalLines);
 
 	if (InputSource == AUDIOINPUTSOURCE_DAC)
 	{
 		SetAudioSampleRate(AUDIOSAMPLERATE_32000Hz);
 	}
-	else if (InputSource == AUDIOINPUTSOURCE_LINE1)
+	else if (InputSource == AUDIOINPUTSOURCE_LINE1 || InputSource == AUDIOINPUTSOURCE_DAC_LINE1)
 	{
 		AndDataByte(SAA7134_ANALOG_IO_SELECT, ~SAA7134_ANALOG_IO_SELECT_ICS);
 	}
-	else if (InputSource == AUDIOINPUTSOURCE_LINE2)
+	else if (InputSource == AUDIOINPUTSOURCE_LINE2 || InputSource == AUDIOINPUTSOURCE_DAC_LINE2)
 	{
 		OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
 	}
@@ -1277,13 +1292,13 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 
 void CSAA7134Card::SetAudioSource7133(eAudioInputSource inputSource)
 {
-	_SetIOSelectOCS7133(m_AudioInputSource, m_bStereoExternalLines);
+	_SetIOSelectOCS7133(inputSource, m_bStereoExternalLines);
 
 	if (inputSource == AUDIOINPUTSOURCE_DAC)
 	{
 		SetAudioSampleRate7133(AUDIOSAMPLERATE_32000Hz);
 	}
-	else if (inputSource == AUDIOINPUTSOURCE_LINE1)
+	else if (inputSource == AUDIOINPUTSOURCE_LINE1 || inputSource == AUDIOINPUTSOURCE_DAC_LINE1)
 	{
 		// Input crossbar select line 1.  Sample rate and audio clock adjustments
 		// for the external two lines should be made by CSAA7134Source calling
@@ -1291,7 +1306,7 @@ void CSAA7134Card::SetAudioSource7133(eAudioInputSource inputSource)
 		// sample rate state to be able to make the adjustment itself.
 		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_ICS, 0));
 	}
-	else if (inputSource == AUDIOINPUTSOURCE_LINE2)
+	else if (inputSource == AUDIOINPUTSOURCE_LINE2 || inputSource == AUDIOINPUTSOURCE_DAC_LINE2)
 	{
 		// Input crossbar select line 2.
 		WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_ICS, 1));
@@ -1312,7 +1327,9 @@ void CSAA7134Card::_SetIOSelectOCS(eAudioInputSource InputSource, BOOL bStereoEx
 	switch (InputSource)
 	{
 	case AUDIOINPUTSOURCE_DAC: LineSelect = 0x02; break;
+	case AUDIOINPUTSOURCE_DAC_LINE1:
 	case AUDIOINPUTSOURCE_LINE1: LineSelect = bStereoExternal ? 0x00 : 0x03; break;
+	case AUDIOINPUTSOURCE_DAC_LINE2:
 	case AUDIOINPUTSOURCE_LINE2: LineSelect = bStereoExternal ? 0x01 : 0x05; break;
 	}
 
@@ -1329,11 +1346,29 @@ void CSAA7134Card::_SetIOSelectOCS7133(eAudioInputSource inputSource, BOOL bSter
 	switch (inputSource)
 	{
 		// DAC L/DAC R
-	case AUDIOINPUTSOURCE_DAC: ocs = 0x2; break;
+	case AUDIOINPUTSOURCE_DAC: ocs = 0x2;
+		// DACL = MAIN left, DACR = MAIN right.
+		WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL2,
+			_B(SAA7133_A_DIGITAL_OUTPUT_SEL2_ASDACL, 0)|
+			_B(SAA7133_A_DIGITAL_OUTPUT_SEL2_ASDACR, 1));
+		break;
 		// EXTIL1/EXTIR1 or EXTIL1/EXTIL1
 	case AUDIOINPUTSOURCE_LINE1: ocs = (bStereoExternal ? 0x0 : 0x3); break;
 		// EXTIL2/EXTIR2 or EXTIL2/EXTIL2
 	case AUDIOINPUTSOURCE_LINE2: ocs = (bStereoExternal ? 0x1 : 0x5); break;
+		// Via DAC auxiliary lines.
+	case AUDIOINPUTSOURCE_DAC_LINE1:
+		// DACL = AUX1 left, DACR = AUX1 right.
+		WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL2,
+			_B(SAA7133_A_DIGITAL_OUTPUT_SEL2_ASDACL, 2)|
+			_B(SAA7133_A_DIGITAL_OUTPUT_SEL2_ASDACR, 3));
+		break;
+	case AUDIOINPUTSOURCE_DAC_LINE2:
+		// DACL = AUX2 left, DACR = AUX2 right.
+		WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL2,
+			_B(SAA7133_A_DIGITAL_OUTPUT_SEL2_ASDACL, 4)|
+			_B(SAA7133_A_DIGITAL_OUTPUT_SEL2_ASDACR, 5));
+		break;
 	}
 
 	WriteData(SAA7133_ANALOG_IO_SELECT, _B(SAA7133_ANALOG_IO_SELECT_OCS, ocs));
@@ -1342,7 +1377,10 @@ void CSAA7134Card::_SetIOSelectOCS7133(eAudioInputSource inputSource, BOOL bSter
 
 BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel AudioChannel)
 {
-	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+	if (m_AudioInputSource == AUDIOINPUTSOURCE_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_LINE2 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_DAC_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_DAC_LINE2)
 	{
 		// external lines are only stereo
 		if (AudioChannel == AUDIOCHANNEL_MONO ||
@@ -1418,7 +1456,10 @@ BOOL CSAA7134Card::_IsAudioChannelDetected7133(eAudioChannel audioChannel)
 
 void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
 {
-	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+	if (m_AudioInputSource == AUDIOINPUTSOURCE_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_LINE2 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_DAC_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_DAC_LINE2)
 	{
 		m_bStereoExternalLines = (AudioChannel == AUDIOCHANNEL_STEREO);
 
@@ -1513,7 +1554,13 @@ void CSAA7134Card::_SetAudioChannel7133(eAudioChannel audioChannel)
 
 CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 {
-	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+	if (m_DeviceId == 0x7133 || m_DeviceId == 0x7135)
+	{
+		return GetAudioChannel7133();
+	}
+
+	if (m_AudioInputSource == AUDIOINPUTSOURCE_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_LINE2)
 	{
 		if (m_bAudioLineReservedForMute)
 		{
@@ -1607,7 +1654,10 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 
 CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel7133()
 {
-	if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+	if (m_AudioInputSource == AUDIOINPUTSOURCE_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_LINE2 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_DAC_LINE1 ||
+		m_AudioInputSource == AUDIOINPUTSOURCE_DAC_LINE2)
 	{
 		if (m_bAudioLineReservedForMute)
 		{

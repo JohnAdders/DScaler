@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.28 2004-11-20 14:20:41 atnak Exp $
+// $Id: SAA7134Common.h,v 1.29 2005-03-10 05:06:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2004/11/20 14:20:41  atnak
+// Tab to space changes.
+//
 // Revision 1.27  2004/11/16 08:58:58  atnak
 // Renumbered eAudioInputSource constants for consistency to actual values
 //
@@ -221,13 +224,19 @@ protected:
     enum eAudioInputSource
     {
         /// reserved, used in INPUTTYPE_FINAL
-        AUDIOINPUTSOURCE_NONE = -1,
-        /// internal line 1 input - 0x00
-        AUDIOINPUTSOURCE_LINE1 = 0,
-        /// internal line 2 input - 0x01
-        AUDIOINPUTSOURCE_LINE2 = 1,
-        /// standard tuner line - 0x02
-        AUDIOINPUTSOURCE_DAC = 2,
+        AUDIOINPUTSOURCE_NONE		= -1,
+        /// auxiliary line 1 input - 0x00
+        AUDIOINPUTSOURCE_LINE1		= 0,
+        /// auxiliary line 2 input - 0x01
+        AUDIOINPUTSOURCE_LINE2		= 1,
+        /// standard tuner via dac - 0x02
+        AUDIOINPUTSOURCE_DAC		= 2,
+
+		/// These two are for SAA7133/5
+		/// auxiliary line 1 via dac - 0x02
+		AUDIOINPUTSOURCE_DAC_LINE1	= 3,
+		/// auxiliary line 2 via dac - 0x02
+		AUDIOINPUTSOURCE_DAC_LINE2	= 4,
     };
 
     enum eAudioStandard

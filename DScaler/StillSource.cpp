@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.88 2003-03-05 22:08:46 laurentg Exp $
+// $Id: StillSource.cpp,v 1.89 2003-03-09 19:48:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2003/03/05 22:08:46  laurentg
+// Updated management of 16 bytes aligned buffer for stills
+//
 // Revision 1.87  2003/02/26 21:58:40  laurentg
 // Updated GetNextField method
 //
@@ -1230,6 +1233,10 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         bLate = FALSE;							// if we waited then we are not late
         CurrentTickCount = GetTickCount();
     }
+	if (bLate)
+	{
+		Timing_IncrementNotWaitedFields();
+	}
     FieldDistance = (CurrentTickCount - m_LastTickCount) / m_FrameDuration;
     if(FieldDistance == 1)
     {
@@ -1242,10 +1249,6 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 			{
 				Timing_AddDroppedFields(1);
 			}
-			else
-			{
-	            Timing_AddLateFields(1);
-			}
 		}
     }
     else if (FieldDistance <= (MaxFieldShift+1))
@@ -1256,7 +1259,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 			Timing_SetFlipAdjustFlag(TRUE);
 		}
         pInfo->bMissedFrame = FALSE;
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else

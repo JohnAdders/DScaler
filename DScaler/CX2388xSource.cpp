@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.48 2003-03-09 11:35:24 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.49 2003-03-09 19:48:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2003/03/09 11:35:24  laurentg
+// Judder Terminator - input timing slightly updated
+//
 // Revision 1.47  2003/03/08 20:01:25  laurentg
 // New setting "always sleep"
 //
@@ -1121,9 +1124,13 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
-	if (bAlwaysSleep)
+	if (bLate)
 	{
-	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+		if (bAlwaysSleep)
+		{
+			Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+		}
+		Timing_IncrementNotWaitedFields();
 	}
 
     FieldDistance = (10 + NewPos - OldPos) % 10;
@@ -1132,22 +1139,18 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bMissedFrame = FALSE;
 		if (bLate)
 		{
+            LOG(2, " Running late but right field");
 			if (pInfo->bRunningLate)
 			{
 				Timing_AddDroppedFields(1);
 			}
-			else
-			{
-	            Timing_AddLateFields(1);
-			}
-            LOG(2, " Running late but right field");
 		}
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % 10;
         pInfo->bMissedFrame = FALSE;
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
@@ -1214,9 +1217,13 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
-	if (bAlwaysSleep)
+	if (bLate)
 	{
-	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+		if (bAlwaysSleep)
+		{
+			Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+		}
+		Timing_IncrementNotWaitedFields();
 	}
 
     FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
@@ -1225,22 +1232,18 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         pInfo->bMissedFrame = FALSE;
 		if (bLate)
 		{
+            LOG(2, " Running late but right field");
 			if (pInfo->bRunningLate)
 			{
 				Timing_AddDroppedFields(1);
 			}
-			else
-			{
-	            Timing_AddLateFields(1);
-			}
-            LOG(2, " Running late but right field");
 		}
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % 10;
         pInfo->bMissedFrame = FALSE;
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
@@ -1269,6 +1272,10 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
+	if (bLate)
+	{
+		Timing_IncrementNotWaitedFields();
+	}
 
     FieldDistance = (10 + NewPos - OldPos) % 10;
     if(FieldDistance == 1)
@@ -1277,14 +1284,13 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 		if (bLate)
 		{
             LOG(2, " Running late but right field");
-            Timing_AddLateFields(1);
 		}
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % 10;
         Timing_SetFlipAdjustFlag(TRUE);
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
@@ -1351,6 +1357,10 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
     }
+	if (bLate)
+	{
+		Timing_IncrementNotWaitedFields();
+	}
 
     FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
     if(FieldDistance == 1)
@@ -1359,14 +1369,13 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
 		if (bLate)
 		{
             LOG(2, " Running late but right field");
-            Timing_AddLateFields(1);
 		}
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % m_NumFields;
         Timing_SetFlipAdjustFlag(TRUE);
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else

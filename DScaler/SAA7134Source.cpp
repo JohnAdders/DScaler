@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.74 2003-03-08 20:01:26 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.75 2003-03-09 19:48:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2003/03/08 20:01:26  laurentg
+// New setting "always sleep"
+//
 // Revision 1.73  2003/02/26 20:53:33  laurentg
 // New timing setting MaxFieldShift
 //
@@ -888,6 +891,14 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
     }
+	else
+	{
+		if (bAlwaysSleep)
+		{
+			// A sleep must be done
+		}
+		Timing_IncrementNotWaitedFields();
+	}
 
     // The distance from the new field the field card
     // is currently working on
@@ -904,10 +915,6 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 				// Not sure why we need to do this
 				Timing_AddDroppedFields(1);
 			}
-			else
-			{
-	            Timing_AddLateFields(1);
-			}
 		}
     }
     else if (bTryToCatchUp && FieldDistance <= (MaxFieldShift+1))
@@ -915,7 +922,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // Try to catch up
         pInfo->bMissedFrame = FALSE;
         LOG(2, " Running late by %d fields", FieldDistance - 1);
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
     }
     else
     {
@@ -948,6 +955,10 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
     }
+	else
+	{
+		Timing_IncrementNotWaitedFields();
+	}
 
     // The distance from the new field the field card
     // is currently working on
@@ -957,7 +968,6 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 		if (!bWaited)
 		{
             LOG(2, " Running late but right field");
-            Timing_AddLateFields(1);
 		}
     }
     else if (FieldDistance <= (MaxFieldShift+1))
@@ -965,7 +975,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         // Slightly late but try to recover
         Timing_SetFlipAdjustFlag(TRUE);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
-        Timing_AddLateFields(FieldDistance);
+        Timing_AddLateFields(FieldDistance - 1);
     }
     else
     {

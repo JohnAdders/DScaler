@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.h,v 1.5 2003-02-22 13:36:37 laurentg Exp $
+// $Id: Perf.h,v 1.6 2003-03-09 19:46:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/02/22 13:36:37  laurentg
+// New statistics to check fields runnign late and no flip at time
+//
 // Revision 1.4  2002/10/27 20:39:08  laurentg
 // Performance statistics only computed in DEBUG buildd
 // Developer OSD screen only present in DEBUG build
@@ -108,14 +111,17 @@ public:
     DWORD GetMinDuration(ePerfType PerfType);
     DWORD GetMaxDuration(ePerfType PerfType);
     int GetNumberDroppedFields();
+    int GetNumberNotWaitedFields();
     int GetNumberLateFields();
     int GetNumberUsedFields();
     int GetNumberNoFlipAtTime();
     double GetAverageDroppedFields();
+    double GetAverageNotWaitedFields();
     double GetAverageLateFields();
     double GetAverageUsedFields();
     double GetAverageNoFlipAtTime();
     int GetDroppedFieldsLastSecond();
+    int GetNotWaitedFieldsLastSecond();
     int GetLateFieldsLastSecond();
     int GetUsedFieldsLastSecond();
     int GetNoFlipAtTimeLastSecond();
@@ -126,10 +132,12 @@ private:
     DWORD       m_TickStart;
     DWORD       m_TickStartLastSec;
     int         m_TotalDroppedFields;
+    int         m_TotalNotWaitedFields;
     int         m_TotalLateFields;
     int         m_TotalUsedFields;
     int         m_TotalNoFlipAtTime;
     double      m_DroppedFieldsLastSec;
+    double      m_NotWaitedFieldsLastSec;
     double      m_LateFieldsLastSec;
     double      m_UsedFieldsLastSec;
     double      m_NoFlipAtTimeLastSec;

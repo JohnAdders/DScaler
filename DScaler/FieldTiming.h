@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.15 2003-03-08 20:01:26 laurentg Exp $
+// $Id: FieldTiming.h,v 1.16 2003-03-09 19:46:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,8 @@ void Timing_Reset();
 void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread);
 int Timing_GetDroppedFields();
 void Timing_ResetDroppedFields();
+int Timing_GetNotWaitedFields();
+void Timing_ResetNotWaitedFields();
 int Timing_GetLateFields();
 void Timing_ResetLateFields();
 int Timing_GetUsedFields();
@@ -59,6 +61,7 @@ int Timing_GetNoFlipAtTime();
 void Timing_ResetNoFlipAtTime();
 void Timing_IncrementUsedFields();
 void Timing_AddDroppedFields(int nDropped);
+void Timing_IncrementNotWaitedFields();
 void Timing_AddLateFields(int nLate);
 void Timing_IncrementNoFlipAtTime();
 void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.34 2003-03-08 20:01:26 laurentg Exp $
+// $Id: FieldTiming.cpp,v 1.35 2003-03-09 19:46:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/03/08 20:01:26  laurentg
+// New setting "always sleep"
+//
 // Revision 1.33  2003/02/26 20:53:31  laurentg
 // New timing setting MaxFieldShift
 //
@@ -118,6 +121,7 @@ LARGE_INTEGER CurrentFlipTime;
 BOOL bIsPAL;
 BOOL FlipAdjust;
 int nDroppedFields = 0;
+int nNotWaitedFields = 0;
 int nLateFields = 0;
 int nNoFlipAtTime = 0;
 int nUsedFields = 0;
@@ -354,6 +358,16 @@ void Timing_ResetDroppedFields()
     nDroppedFields = 0;
 }
 
+int Timing_GetNotWaitedFields()
+{
+    return nNotWaitedFields;
+}
+
+void Timing_ResetNotWaitedFields()
+{
+    nNotWaitedFields = 0;
+}
+
 int Timing_GetLateFields()
 {
     return nLateFields;
@@ -392,6 +406,11 @@ void Timing_IncrementUsedFields()
 void Timing_AddDroppedFields(int nDropped)
 {
     nDroppedFields += nDropped;
+}
+
+void Timing_IncrementNotWaitedFields()
+{
+    ++nNotWaitedFields;
 }
 
 void Timing_AddLateFields(int nLate)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.12 2001-07-28 13:24:40 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.13 2001-07-29 12:39:28 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/28 13:24:40  adcockj
+// Added UI for Overlay Controls and fixed issues with SettingsDlg
+//
 // Revision 1.11  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -86,6 +89,7 @@ BEGIN_MESSAGE_MAP(CSettingsDlg, CDialog)
     ON_BN_CLICKED(IDC_SETTINGS_CHECK, OnCheckClick)
     ON_CBN_SELCHANGE(IDC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
     ON_NOTIFY(UDN_DELTAPOS, IDC_SETTINGS_SPIN, OnDeltaposSettingsSpin)
+	ON_WM_CLOSE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -154,7 +158,7 @@ void CSettingsDlg::OnSelchangeList()
     case SLIDER:
         m_DefaultButton.ShowWindow(SW_SHOWNA);
         m_Edit.ShowWindow(SW_SHOWNA);
-        if(m_Settings[idx].MaxValue <= 0x7FFF)
+        if(m_Settings[idx].MaxValue <= UD_MAXVAL && m_Settings[idx].MinValue >= UD_MINVAL)
         {
             m_Spin.ShowWindow(SW_SHOWNA);
         }
@@ -319,6 +323,12 @@ void CSettingsDlg::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CSettingsDlg::OnOK() 
 {
-	CDialog::OnOK();
-	WriteSettingsToIni(TRUE);
+    CDialog::OnOK();
+    WriteSettingsToIni(TRUE);
+}
+
+void CSettingsDlg::OnClose() 
+{
+    WriteSettingsToIni(TRUE);
+    CDialog::OnClose();
 }

@@ -244,20 +244,27 @@ FONT 8, "MS Sans Serif"
 BEGIN
     LISTBOX         IDC_PROGRAMLIST,2,3,104,153,LBS_NOINTEGRALHEIGHT | 
                     WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Setup",IDC_STATIC,116,3,217,51
     CONTROL         "Keyed Numbers are channels not postions (US Style)",
                     IDC_CUTOMCHANNELORDER,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,124,17,195,8
     COMBOBOX        IDC_COUNTRY,121,35,152,75,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     PUSHBUTTON      "Scan",IDC_SCAN,282,35,43,13
+    GROUPBOX        "Details",IDC_STATIC,115,55,218,103
+    LTEXT           "Name",IDC_STATIC,121,68,46,8
     EDITTEXT        IDC_NAME,173,65,153,14,ES_AUTOHSCROLL
+    LTEXT           "Frequency",IDC_STATIC,120,86,44,10
     EDITTEXT        IDC_FREQUENCY,173,84,45,12,ES_AUTOHSCROLL
+    LTEXT           "MHz",IDC_STATIC,224,86,16,8
     PUSHBUTTON      "Set",IDC_SETFREQ,252,84,43,12
     SCROLLBAR       IDC_FINETUNE,304,84,22,13
+    LTEXT           "Channel",IDC_STATIC,121,104,48,12
     COMBOBOX        IDC_CHANNEL,174,102,47,107,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     CONTROL         "Active",IDC_ACTIVE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,229,102,93,12
+    LTEXT           "Format",IDC_STATIC,121,123,40,11
     COMBOBOX        IDC_FORMAT,173,120,152,73,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     PUSHBUTTON      "Copy",IDC_ADD,123,139,43,13
@@ -266,13 +273,6 @@ BEGIN
     PUSHBUTTON      "Down",IDC_DOWN,273,139,43,13
     DEFPUSHBUTTON   "OK",IDOK,1,165,43,13,WS_GROUP
     PUSHBUTTON      "Cancel",IDCANCEL,49,165,43,13,WS_GROUP
-    GROUPBOX        "Setup",IDC_STATIC,116,3,217,51
-    GROUPBOX        "Details",IDC_STATIC,115,55,218,103
-    LTEXT           "Name",IDC_STATIC,121,68,46,8
-    LTEXT           "Frequency",IDC_STATIC,120,86,44,10
-    LTEXT           "Channel",IDC_STATIC,121,104,48,12
-    LTEXT           "Format",IDC_STATIC,121,123,40,11
-    LTEXT           "MHz",IDC_STATIC,224,86,16,8
 END
 
 IDD_SPLASHBOX DIALOGEX 0, 0, 145, 192
@@ -331,40 +331,42 @@ BEGIN
     PUSHBUTTON      "&Default",IDC_DEFAULT,113,161,45,15
 END
 
-IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 169, 237
+IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 170, 250
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio-Settings (Analog)"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CTEXT           "Volume",IDC_STATIC,14,10,33,10
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,7,45,150
-    DEFPUSHBUTTON   "OK",IDOK,117,215,45,15
-    PUSHBUTTON      "Default",IDC_DEFAULT,62,215,45,15
+    CTEXT           "Volume",IDC_STATIC,14,10,33,10
+    CTEXT           "Bass",IDC_STATIC,67,10,33,8
+    CTEXT           "Treble",IDC_STATIC,121,10,33,10
+    CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
     EDITTEXT        IDC_D1,13,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CTEXT           "Bass",IDC_STATIC,67,10,33,8
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,61,7,45,150
     EDITTEXT        IDC_D4,65,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CTEXT           "Treble",IDC_STATIC,121,10,33,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,117,7,45,150
     EDITTEXT        IDC_D5,121,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    PUSHBUTTON      "Cancel",IDCANCEL,5,215,45,15
-    GROUPBOX        "",IDC_STATIC,5,155,157,44
-    CTEXT           "Balance",IDC_STATIC,45,165,33,10
-    EDITTEXT        IDC_D6,87,164,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_VERT | 
                     TBS_BOTH | WS_TABSTOP,14,54,29,97
     CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_VERT | 
                     TBS_BOTH | WS_TABSTOP,69,54,29,97
     CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_VERT | 
                     TBS_BOTH | WS_TABSTOP,125,54,29,97
+    GROUPBOX        "",IDC_STATIC,6,155,157,44
+    CTEXT           "Balance",IDC_STATIC,45,165,33,10
+    EDITTEXT        IDC_D6,87,164,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
     CONTROL         "Slider6",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
                     WS_TABSTOP,7,178,152,15
+    CONTROL         "Activate Superbass",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,32,208,115,12
+    PUSHBUTTON      "Cancel",IDCANCEL,5,228,45,15
+    PUSHBUTTON      "Default",IDC_DEFAULT,62,228,45,15
+    DEFPUSHBUTTON   "OK",IDOK,118,228,45,15
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,61,7,45,150
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,118,7,45,150
 END
 
 IDD_AUDIOEQUALIZER DIALOG DISCARDABLE  0, 0, 257, 175
@@ -373,39 +375,39 @@ STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE |
 CAPTION "Audio-Settings Equalizer"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CTEXT           "Channel 1",-1,10,10,33,10
     CONTROL         "",-1,"Static",SS_ETCHEDFRAME,5,5,45,150
-    DEFPUSHBUTTON   "OK",IDOK,205,160,45,15
-    PUSHBUTTON      "Default",IDC_DEFAULT,105,160,45,15
+    CTEXT           "Channel 1",-1,10,10,33,10
     EDITTEXT        IDC_D1,10,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CTEXT           "Channel 2",-1,60,10,33,10
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,55,5,45,150
-    EDITTEXT        IDC_D2,60,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CTEXT           "Channel 3",-1,110,10,33,10
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,105,5,45,150
-    EDITTEXT        IDC_D3,110,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CTEXT           "Channel 4",-1,160,10,33,8
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,155,5,45,150
-    EDITTEXT        IDC_D4,160,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CTEXT           "Channel 5",-1,210,10,33,10
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,205,5,45,150
-    EDITTEXT        IDC_D5,210,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    PUSHBUTTON      "Cancel",IDCANCEL,7,160,45,15
     CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
                     TBS_VERT | TBS_BOTH | WS_TABSTOP,13,47,29,97
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,55,5,45,150
+    CTEXT           "Channel 2",-1,60,10,33,10
+    EDITTEXT        IDC_D2,60,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
     CONTROL         "Slider2",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
                     TBS_VERT | TBS_BOTH | WS_TABSTOP,63,47,29,97
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,105,5,45,150
+    CTEXT           "Channel 3",-1,110,10,33,10
+    EDITTEXT        IDC_D3,110,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
     CONTROL         "Slider3",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
                     TBS_VERT | TBS_BOTH | WS_TABSTOP,113,47,29,97
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,155,5,45,150
+    CTEXT           "Channel 4",-1,160,10,33,8
+    EDITTEXT        IDC_D4,160,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
     CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_AUTOTICKS | 
                     TBS_VERT | TBS_BOTH | WS_TABSTOP,163,47,29,97
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,205,5,45,150
+    CTEXT           "Channel 5",-1,210,10,33,10
+    EDITTEXT        IDC_D5,210,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
     CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_AUTOTICKS | 
                     TBS_VERT | TBS_BOTH | WS_TABSTOP,213,47,29,97
+    PUSHBUTTON      "Cancel",IDCANCEL,7,160,45,15
+    PUSHBUTTON      "Default",IDC_DEFAULT,105,160,45,15
+    DEFPUSHBUTTON   "OK",IDOK,205,160,45,15
 END
 
 IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 98
@@ -446,31 +448,31 @@ STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "DScaler Mixer Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,6,157,32,15
-    PUSHBUTTON      "Cancel",IDCANCEL,41,157,32,15
     CONTROL         "Use Mixer",IDC_USE_MIXER,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,6,7,47,10
     LTEXT           "Mixer",IDC_STATIC,6,25,18,11
-    LTEXT           "Destination",IDC_STATIC,6,43,36,11
-    LTEXT           "Tuner Line",IDC_STATIC,6,61,35,11
     COMBOBOX        IDC_MIXER,66,23,178,50,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Destination",IDC_STATIC,6,43,36,11
     COMBOBOX        IDC_DEST,66,41,178,47,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Composite",IDC_STATIC,6,79,34,11
-    LTEXT           "S-Video",IDC_STATIC,6,97,34,11
-    LTEXT           "Other 1",IDC_STATIC,6,115,24,11
-    LTEXT           "Other 2",IDC_STATIC,6,133,24,11
+    LTEXT           "Tuner Line",IDC_STATIC,6,61,35,11
     COMBOBOX        IDC_INPUT1,66,59,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Composite",IDC_STATIC,6,79,34,11
     COMBOBOX        IDC_INPUT2,66,77,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "S-Video",IDC_STATIC,6,97,34,11
     COMBOBOX        IDC_INPUT3,66,95,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Other 1",IDC_STATIC,6,115,24,11
     COMBOBOX        IDC_INPUT4,66,113,178,45,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Other 2",IDC_STATIC,6,133,24,11
     COMBOBOX        IDC_INPUT5,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,6,157,32,15
+    PUSHBUTTON      "Cancel",IDCANCEL,41,157,32,15
     CONTROL         "Reset Mixer to Initial Settings on Exit",
                     IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,
                     158,156,10
@@ -520,28 +522,28 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Setup Hardware"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,7,209,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,65,209,50,14
-    LTEXT           "Card",IDC_STATIC,14,58,34,9
-    LTEXT           "Tuner",IDC_STATIC,14,80,38,9
-    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
-                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
     LTEXT           "Use this dialog to select the card closest to your card type.\nSome tuners are autodetected and will be selected here.  Otherwise you must try and find out what tuner you have.",
                     IDC_STATIC,7,7,286,25
     LTEXT           "The easiest way is by looking at the documenation that came with the card otherwise you will have to see if there is any marking on the silver tuner box on the card.",
                     IDC_STATIC,7,34,286,22
+    LTEXT           "Card",IDC_STATIC,14,58,34,9
+    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Tuner",IDC_STATIC,14,80,38,9
+    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
     LTEXT           "In order for DScaler to give the best results it needs to know how powerful your machine is.  Please select the nearest speed range to your machine.  If in doubt use the lower setting. (This setting is not detected)",
                     IDC_STATIC,7,101,277,26
-    LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
-                    IDC_STATIC,7,151,286,17
     LTEXT           "Processor",IDC_STATIC,14,131,41,10
-    COMBOBOX        IDC_TRADEOFF,73,175,178,190,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Defaults",IDC_STATIC,15,176,41,10
     COMBOBOX        IDC_PROCESSOR_SPEED,72,129,178,190,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
+    LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
+                    IDC_STATIC,7,151,286,17
+    LTEXT           "Defaults",IDC_STATIC,15,176,41,10
+    COMBOBOX        IDC_TRADEOFF,73,175,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,7,209,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,209,50,14
 END
 
 IDD_ADV_VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 208, 126
@@ -640,18 +642,18 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TimeShift Options (under construction)"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,66,154,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,122,154,50,14
     PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,47,7,
                     146,14
     PUSHBUTTON      "Help",IDC_TSCOMPRESSIONHELP,202,7,30,14
+    PUSHBUTTON      "Audio-Mixer Setup...",IDC_TSMIXERBUTTON,47,26,146,14
+    PUSHBUTTON      "Help",IDC_TSMIXERHELP,202,26,30,14
+    RTEXT           "Wave In:",IDC_STATIC,13,51,30,8
     COMBOBOX        IDC_TSWAVEINCOMBO,47,48,146,88,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Help",IDC_TSWAVEHELP,202,56,30,14
+    RTEXT           "Wave Out:",IDC_STATIC,8,69,36,8
     COMBOBOX        IDC_TSWAVEOUTCOMBO,47,66,146,70,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Help",IDC_TSWAVEHELP,202,56,30,14
-    RTEXT           "Wave In:",IDC_STATIC,13,51,30,8
-    RTEXT           "Wave Out:",IDC_STATIC,8,69,36,8
     GROUPBOX        "Recording Height",IDC_STATIC,39,85,160,61
     CONTROL         "Full-height (not yet implemented)",
                     IDC_TSFULLHEIGHTRADIO,"Button",BS_AUTORADIOBUTTON | 
@@ -664,8 +666,8 @@ BEGIN
                     IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,47,
                     129,129,10
     PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,202,108,30,14
-    PUSHBUTTON      "Audio-Mixer Setup...",IDC_TSMIXERBUTTON,47,26,146,14
-    PUSHBUTTON      "Help",IDC_TSMIXERHELP,202,26,30,14
+    DEFPUSHBUTTON   "OK",IDOK,66,154,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,122,154,50,14
 END
 
 IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 358, 162
@@ -1200,9 +1202,9 @@ BEGIN
     IDD_AUDIOSETTINGS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 162
+        RIGHTMARGIN, 163
         TOPMARGIN, 7
-        BOTTOMMARGIN, 230
+        BOTTOMMARGIN, 243
     END
 
     IDD_AUDIOEQUALIZER, DIALOG
@@ -1341,18 +1343,18 @@ END
 
 IDD_SELECTCARD DLGINIT
 BEGIN
-    IDC_TRADEOFF, 0x403, 30, 0
-0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20, 
-0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072, 
-    IDC_TRADEOFF, 0x403, 21, 0
-0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c, 
-0x7974, "\000" 
     IDC_PROCESSOR_SPEED, 0x403, 13, 0
 0x6241, 0x766f, 0x2065, 0x3035, 0x4d30, 0x7a48, "\000" 
     IDC_PROCESSOR_SPEED, 0x403, 17, 0
 0x3033, 0x4d30, 0x7a68, 0x2d20, 0x3520, 0x3030, 0x4d20, 0x7a48, "\000" 
     IDC_PROCESSOR_SPEED, 0x403, 13, 0
 0x6542, 0x6f6c, 0x2077, 0x3033, 0x4d30, 0x7a48, "\000" 
+    IDC_TRADEOFF, 0x403, 30, 0
+0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20, 
+0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072, 
+    IDC_TRADEOFF, 0x403, 21, 0
+0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c, 
+0x7974, "\000" 
     0
 END
 

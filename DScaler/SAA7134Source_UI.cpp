@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.7 2002-09-29 13:56:30 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.8 2002-10-03 23:31:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/29 13:56:30  adcockj
+// Fixed some cursor hide problems
+//
 // Revision 1.6  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -191,7 +194,7 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
         sprintf(buf, "Edit Register on %s chip", pThis->GetChipName());
         SetWindowText(hDlg, buf);
         SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < 0x300; i++)
+        for(i = 0; i < 0x400; i++)
         {
             int nIndex;
             sprintf(buf, "0x%03X", i);
@@ -244,7 +247,7 @@ BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wPa
         case IDC_REGISTERSELECT:
             i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_REGISTERSELECT));
             dwAddress = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), i);
-            if (dwAddress >= 0x300)
+            if (dwAddress >= 0x400)
             {
                 bUnsafeRead = TRUE;
                 bDisableChanges = TRUE;
@@ -502,7 +505,9 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 //  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, (m_AudioChannel->GetValue() == 3));
 //  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, (m_AudioChannel->GetValue() == 4));
 
-    CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_NONSTANDARDSIGNAL, m_NonstandardSignal->GetValue());
+    CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_HPLLMODE0, m_HPLLMode->GetValue() == 0);
+    CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_HPLLMODE1, m_HPLLMode->GetValue() == 1);
+    CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_HPLLMODE2, m_HPLLMode->GetValue() == 2);
 
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
@@ -606,9 +611,19 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             // m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE2);
             break;
 
-        case IDM_SAA7134CARD_NONSTANDARDSIGNAL:
-            m_NonstandardSignal->SetValue(!m_NonstandardSignal->GetValue());
-            m_NonstandardSignal->OSDShow();
+        case IDM_SAA7134CARD_HPLLMODE0:
+            ShowText(hWnd, "TV Mode");
+            m_HPLLMode->SetValue(0);
+            break;
+
+        case IDM_SAA7134CARD_HPLLMODE1:
+            ShowText(hWnd, "VCR Mode");
+            m_HPLLMode->SetValue(1);
+            break;
+
+        case IDM_SAA7134CARD_HPLLMODE2:
+            ShowText(hWnd, "Fast Tracking");
+            m_HPLLMode->SetValue(2);
             break;
 
         case IDM_AUDIO_0:
@@ -617,13 +632,13 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             GetCurrentAudioSetting()->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
             switch (GetCurrentAudioSetting()->GetValue())
             {
-            case AUDIOINPUTLINE_TUNER:     
+            case AUDIOINPUTSOURCE_DAC:     
                 ShowText(hWnd, "Audio Input - Tuner");
                 break;
-            case AUDIOINPUTLINE_LINE1: 
+            case AUDIOINPUTSOURCE_LINE1: 
                 ShowText(hWnd, "Audio Input - Line 1");
                 break;
-            case AUDIOINPUTLINE_LINE2:  
+            case AUDIOINPUTSOURCE_LINE2:  
                 ShowText(hWnd, "Audio Input - Line 2");
                 break;
             }
@@ -825,13 +840,20 @@ void CSAA7134Source::ChangeSectionNamesForInput()
 void CSAA7134Source::ChangeDefaultsForInput()
 {
     eVideoFormat format = GetFormat();
-    if(IsNTSCVideoFormat(format))
+    if(IsPALVideoFormat(format))
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN);
+    }
+    else if(IsNTSCVideoFormat(format))
+    {
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN);
     }
     else
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN);
     }
 }
 
@@ -916,7 +938,7 @@ void CSAA7134Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", TRUE, m_Overscan);
         
         SettingsPerChannel_RegisterSetting("AudioChannel", "SAA713x - Audio Channel", TRUE, m_AudioChannel);
-        SettingsPerChannel_RegisterSetting("NonstandardSignal", "SAA713x - Miscellaneous", TRUE, m_NonstandardSignal);
+        SettingsPerChannel_RegisterSetting("HPLLMode", "SAA713x - Miscellaneous", TRUE, m_HPLLMode);
         
         // SettingsPerChannel_RegisterSetting("Volume","SAA713x - Volume",TRUE, m_Volume);           
         // SettingsPerChannel_RegisterSetting("Balance","SAA713x - Balance",TRUE, m_Balance);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.6 2002-11-12 19:32:21 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.7 2002-11-25 11:04:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -542,7 +542,7 @@
 #define CX2388X_PINMUX_IO            0x0035C044
 
 #define CX2388X_DEVICE_STATUS        0x00310100
-#define CX2388X_DEVICE_STATUS_HLOCK  0x40
+#define CX2388X_DEVICE_STATUS_HLOCK  (1 << 5)
 
 #define CX2388X_VIDEO_INPUT     0x00310104
 

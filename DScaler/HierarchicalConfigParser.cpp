@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.13 2004-12-12 11:26:08 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.14 2005-03-20 14:05:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/12/12 11:26:08  atnak
+// Fixes problem found by Torsten with hex numbers not properly being parsed.
+//
 // Revision 1.12  2004/12/06 00:07:31  atnak
 // Fix to VC6 working differenting for wostringstream::operator <<(const char*)
 //
@@ -168,8 +171,22 @@ bool CHCParser::IsUnicodeOS()
 	osvi.dwMajorVersion = 3;
 
 	// Windows NT (major version 3) and newer supports unicode.
+	// however windows 98 doesn't support the VerfifyVersionInfo function
+	// so we call it via the indirect method
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
-	return VerifyVersionInfo(&osvi, VER_MAJORVERSION, dwlConditionMask) != 0;
+
+	HINSTANCE h = LoadLibrary("kernel32.dll");
+
+	BOOL (WINAPI* lpVerifyVersionInfoA)(LPOSVERSIONINFOEXA lpVersionInformation, DWORD dwTypeMask, DWORDLONG dwlConditionMask) = NULL;
+
+    lpVerifyVersionInfoA = (BOOL (WINAPI*)(LPOSVERSIONINFOEXA lpVersionInformation, DWORD dwTypeMask, DWORDLONG dwlConditionMask)) GetProcAddress(h,"VerifyVersionInfoA");
+	bool result = false;
+	if(lpVerifyVersionInfoA)
+	{
+		result = lpVerifyVersionInfoA(&osvi, VER_MAJORVERSION, dwlConditionMask) != 0;
+	}
+	FreeLibrary(h);
+	return result;
 }
 
 FILE* CHCParser::OpenLocalFile(const char* filename)

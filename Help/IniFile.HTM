@@ -867,20 +867,40 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
         </tr>
         <tr> 
           <td> 
-            IgnoreNonBlackPixels
+            SkipPercent
           </td>
           <td> 
-            <p align="center">0
+            <p align="center">17
           </td>
           <td> 
             When detecting aspect ratios, we often want to ignore TV station 
               logos that extend into the letterbox area. This setting controls 
-              how many non-black pixels (see LuminanceThreshold) must be present 
-              on a line before it's no longer considered part of a letterbox bar. 
-              A value of 0 means 20% of the width of the screen, more than big 
-              enough to cover most logos. <em>If you never watch letterboxed material 
-              with station logos, e.g. if all your letterboxed material is on 
-              laserdisc or DVD, set this to 1.</em>
+              what percentage of the image is skipped over on the left and right
+              sides when we're scanning for black bars.  A value of 0 means to
+              scan the entire width of each line (minus overscan area, if any).
+              That setting makes sense if you never watch letterbox material with
+              station logos, e.g. if all your letterboxed material is on laserdisc
+              or DVD.
+              Setting this higher than 25 or so probably doesn't make sense,
+              since at that point you'll be scanning less than half of the image
+              and dark scenes will be increasingly likely to fake the detection out.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            IgnoreNonBlackPixels
+          </td>
+          <td> 
+            <p align="center">3
+          </td>
+          <td> 
+              When detecting aspect ratios, ignore up to this many non-black pixels
+              (see LuminanceThreshold)
+              in a scanline.  That is, a setting of 5 means that a scanline has to
+              have at least 6 non-black pixels to be considered the start of the
+              picture area.  A low value is generally good here; if your sources
+              tend to have clean letterbox bars, setting this to 0 will minimize
+              the risk of bad detection during dark scenes.
           </td>
         </tr>
         <tr> 

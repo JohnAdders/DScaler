@@ -295,7 +295,6 @@ Diff_Loop:
 	psrlq mm0,32
 	movd eax, mm0
 	add eax, ecx
-	;emms
 
 	pop	ebx
 	pop	esi
@@ -353,15 +352,12 @@ DiffChroma_Loop:
 	dec ecx
 	jne DiffChroma_Loop
 
-    ; average the two running totals
-    ;psrld mm6, 1
-    ;psrld mm7, 1
+    ; add the two running totals
     paddd mm6, mm7
 	movd ecx, mm6
 	psrlq mm6, 32
 	movd eax, mm6
 	add eax, ecx
-	;emms
 
 	pop	ebx
 	pop	esi

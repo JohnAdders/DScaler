@@ -45,11 +45,12 @@
 #include "FD_Common.h"
 #include "FD_CommonFunctions.h"
 #include "DebugLog.h"
+#include "Other.h"
 
 
 // Settings
 // Default values which can be overwritten by the INI file
-long BitShift = 13;
+long BitShift = 12;
 long CombEdgeDetect = 625;
 long CombJaggieThreshold = 73;
 long DiffThreshold = 224;
@@ -62,11 +63,11 @@ void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo);
 void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo);
 void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo);
 
-// want to be able to access these from the assemby routines they should
+// want to be able to access these from the assembler routines they should
 // be together in memory so don't make them const even though they are
 extern "C"
 {
-    __int64 qwYMask    = 0x00ff00ff00ff00ff;
+    __int64 qwYMask = 0x00ff00ff00ff00ff;
     __int64 qwOnes = 0x0001000100010001;
     __int64 qwThreshold;
     __int64 qwBitShift;
@@ -109,6 +110,30 @@ void PerformFilmDetectCalculations(DEINTERLACE_INFO *pInfo, BOOL NeedComb, BOOL 
     }
 }
 
+long CalculateTotalCombFactor(DWORD* Combs, DEINTERLACE_INFO* pInfo)
+{
+	long CombFactor = 0;
+	for (int Line = 17; Line < pInfo->FieldHeight - 17; ++Line)
+	{
+		if(Combs[Line - 1] > 0 && Combs[Line + 1] > 0)
+		{
+			if(Combs[Line - 1] < Combs[Line])
+			{
+				CombFactor += Combs[Line - 1];
+			}
+			else if(Combs[Line + 1] < Combs[Line])
+			{
+				CombFactor += Combs[Line + 1];
+			}
+			else
+			{
+				CombFactor += Combs[Line];
+			}
+		}
+	}
+	return CombFactor;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // CalcCombFactor
 //
@@ -128,7 +153,7 @@ void PerformFilmDetectCalculations(DEINTERLACE_INFO *pInfo, BOOL NeedComb, BOOL 
 void CalcCombFactor(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
-	long CombFactor = 0;
+	DWORD Combs[DSCALER_MAX_HEIGHT / 2];
 
     // If one of the fields is missing, treat them as very different.
 	if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL)
@@ -142,20 +167,10 @@ void CalcCombFactor(DEINTERLACE_INFO *pInfo)
 
 	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	{
-		if(pInfo->IsOdd)
-		{
-            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
-                                            pInfo->EvenLines[0][Line + 1] + 16, 
-                                            pInfo->OddLines[0][Line + 1] + 16,
-                                            pInfo->LineLength - 32);
-		}
-		else
-		{
-            CombFactor += CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
-                                            pInfo->LineLength - 32);
-		}
+        Combs[Line] = CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                        pInfo->OddLines[0][Line] + 16, 
+                                        pInfo->EvenLines[0][Line + 1] + 16,
+                                        pInfo->LineLength - 32);
 	}
 
     // Clear out MMX registers before we need to do floating point again
@@ -164,7 +179,7 @@ void CalcCombFactor(DEINTERLACE_INFO *pInfo)
  		emms
     }
 
-	pInfo->CombFactor = CombFactor;
+	pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
 	LOG(" Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
 	return;
 }
@@ -172,7 +187,7 @@ void CalcCombFactor(DEINTERLACE_INFO *pInfo)
 void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
-	long CombFactor = 0;
+	DWORD Combs[DSCALER_MAX_HEIGHT / 2];
 
 	// If one of the fields is missing, treat them as very different.
 	if (pInfo->OddLines[0] == NULL || pInfo->EvenLines[0] == NULL)
@@ -186,20 +201,10 @@ void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo)
 
 	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	{
-		if(pInfo->IsOdd)
-		{
-            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
-                                            pInfo->EvenLines[0][Line + 1] + 16, 
-                                            pInfo->OddLines[0][Line + 1] + 16,
-                                            pInfo->LineLength - 32);
-		}
-		else
-		{
-            CombFactor += CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
-                                            pInfo->OddLines[0][Line] + 16, 
-                                            pInfo->EvenLines[0][Line + 1] + 16,
-                                            pInfo->LineLength - 32);
-		}
+        Combs[Line] = CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+                                        pInfo->OddLines[0][Line] + 16, 
+                                        pInfo->EvenLines[0][Line + 1] + 16,
+                                        pInfo->LineLength - 32);
 	}
 
     // Clear out MMX registers before we need to do floating point again
@@ -208,7 +213,7 @@ void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo)
  		emms
     }
 
-	pInfo->CombFactor = CombFactor;
+	pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
 	LOG(" Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
 	return;
 }
@@ -255,9 +260,14 @@ void CalcDiffFactor(DEINTERLACE_INFO *pInfo)
 
 	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	{
-		DiffFactor += (long)sqrt(CalcDiffFactorLine(pLines1[Line] + 16,
-                                                    pLines2[Line] + 16,
-                                                    pInfo->LineLength - 32));
+		DiffFactor += CalcDiffFactorLine(pLines1[Line] + 16,
+                                                pLines2[Line] + 16,
+                                                pInfo->LineLength - 32);
+	}
+
+	_asm
+	{
+		emms
 	}
 
 	pInfo->FieldDiff = DiffFactor;
@@ -306,9 +316,14 @@ void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo)
 
 	for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	{
-		DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pLines1[Line] + 16,
-                                                        pLines2[Line] + 16,
-                                                        pInfo->LineLength - 32));
+		DiffFactor += CalcDiffFactorLineChroma(pLines1[Line] + 16,
+                                                    pLines2[Line] + 16,
+                                                    pInfo->LineLength - 32);
+	}
+
+	_asm
+	{
+		emms
 	}
 
 	pInfo->FieldDiff = DiffFactor;
@@ -318,8 +333,8 @@ void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo)
 void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
-	long CombFactor = 0;
 	long DiffFactor = 0;
+	DWORD Combs[DSCALER_MAX_HEIGHT / 2];
 
     qwThreshold = CombJaggieThreshold;
 	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
@@ -336,13 +351,13 @@ void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
 	    }
 	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	    {
-            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
-                                            pInfo->EvenLines[0][Line + 1] + 16, 
-                                            pInfo->OddLines[0][Line + 1] + 16,
+            Combs[Line] = CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
-		    DiffFactor += (long)sqrt(CalcDiffFactorLine(pInfo->OddLines[0][Line] + 16,
+		    DiffFactor += CalcDiffFactorLine(pInfo->OddLines[0][Line] + 16,
                                                         pInfo->OddLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32));
+                                                        pInfo->LineLength - 32);
 	    }
     }
     else
@@ -356,17 +371,21 @@ void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
 	    }
 	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	    {
-            CombFactor += CalcCombFactorLine(pInfo->OddLines[0][Line] + 16,
-                                            pInfo->EvenLines[0][Line + 1] + 16, 
-                                            pInfo->OddLines[0][Line + 1] + 16,
+            Combs[Line] = CalcCombFactorLine(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
-		    DiffFactor += (long)sqrt(CalcDiffFactorLine(pInfo->EvenLines[0][Line] + 16,
+		    DiffFactor += CalcDiffFactorLine(pInfo->EvenLines[0][Line] + 16,
                                                         pInfo->EvenLines[1][Line] + 16,
-                                                        pInfo->LineLength - 32));
+                                                        pInfo->LineLength - 32);
 	    }
     }
+	_asm
+	{
+		emms
+	}
 
-	pInfo->CombFactor = CombFactor;
+	pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
 	pInfo->FieldDiff = DiffFactor;
 	LOG(" Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
@@ -374,8 +393,8 @@ void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
 void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
 {
 	int Line;
-	long CombFactor = 0;
 	DWORD DiffFactor = 0;
+	DWORD Combs[DSCALER_MAX_HEIGHT / 2];
 
     qwThreshold = CombJaggieThreshold;
 	qwThreshold += (qwThreshold << 48) + (qwThreshold << 32) + (qwThreshold << 16);
@@ -392,13 +411,10 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
 	    }
 	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	    {
-            CombFactor += CalcCombFactorLineChroma(pInfo->OddLines[0][Line] + 16,
-                                            pInfo->EvenLines[0][Line + 1] + 16, 
-                                            pInfo->OddLines[0][Line + 1] + 16,
+            Combs[Line] = CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
-		    //DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
-            //                                            pInfo->OddLines[1][Line] + 16,
-            //                                            pInfo->LineLength - 32));
 		    DiffFactor += CalcDiffFactorLineChroma(pInfo->OddLines[0][Line] + 16,
                                                         pInfo->OddLines[1][Line] + 16,
                                                         pInfo->LineLength - 32);
@@ -415,13 +431,10 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
 	    }
 	    for (Line = 16; Line < pInfo->FieldHeight - 16; ++Line)
 	    {
-            CombFactor += CalcCombFactorLineChroma(pInfo->OddLines[0][Line] + 16,
-                                            pInfo->EvenLines[0][Line + 1] + 16, 
-                                            pInfo->OddLines[0][Line + 1] + 16,
+            Combs[Line] = CalcCombFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
+                                            pInfo->OddLines[0][Line] + 16, 
+                                            pInfo->EvenLines[0][Line + 1] + 16,
                                             pInfo->LineLength - 32);
-		    //DiffFactor += (long)sqrt(CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
-            //                                            pInfo->EvenLines[1][Line] + 16,
-            //                                            pInfo->LineLength - 32));
 		    DiffFactor += CalcDiffFactorLineChroma(pInfo->EvenLines[0][Line] + 16,
                                                         pInfo->EvenLines[1][Line] + 16,
                                                         pInfo->LineLength - 32);
@@ -432,11 +445,10 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
 		emms
 	}
 
-	pInfo->CombFactor = CombFactor;
+	pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
 	pInfo->FieldDiff = DiffFactor;
 	LOG(" Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
-
 
 void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
 {
@@ -725,7 +737,7 @@ SETTING FD_CommonSettings[FD_COMMON_SETTING_LASTONE] =
 {
 	{
 		"Bit Shift", SLIDER, 0, &BitShift,
-		13, 0, 15, 1, 1,
+		12, 0, 15, 1, 1,
 		NULL,
 		"Pulldown", "BitShift", NULL,
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.28 2003-01-04 16:54:39 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.29 2003-01-07 22:59:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/01/04 16:54:39  adcockj
+// Disabled format menu when in tuner mode
+//
 // Revision 1.27  2002/12/31 13:21:22  adcockj
 // Fixes for SetDefault Problems (needs testing)
 //
@@ -1901,7 +1904,6 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vector <CSimpleSetting*>vSettingsList;
 
     vSettingsList.push_back(m_AutomaticVolumeLevel);
-    vSettingsList.push_back(m_VBIUpscaleDivisor);
     vSettingsList.push_back(m_VBIDebugOverlay);
     vSettingsList.push_back(m_AutomaticGainControl);
     vSettingsList.push_back(m_AdaptiveCombFilter);

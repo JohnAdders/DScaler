@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.14 2002-12-26 05:06:17 atnak Exp $
+// $Id: SAA7134Common.h,v 1.15 2003-01-07 23:00:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/12/26 05:06:17  atnak
+// Added Terratec Cinergy 600 TV
+//
 // Revision 1.13  2002/12/24 08:22:14  atnak
 // Added Prime 7133 card
 //
@@ -88,6 +91,11 @@ protected:
         kMAX_VBI_PAGETABLES         = kMAX_FRAMEBUFFERS,
         kMAX_VID_PAGETABLES         = kMAX_FRAMEBUFFERS,
         kMAX_PAGETABLES             = kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES,
+    };
+
+    enum
+    {
+        kSAA7134_27MHZ_VBISCALE     = 0x200,
     };
 
     /// SAA713x Card Ids

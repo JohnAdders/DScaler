@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.9 2002-11-10 09:30:57 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.10 2003-01-07 23:00:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/10 09:30:57  atnak
+// Added Chroma only comb filter mode for SECAM
+//
 // Revision 1.8  2002/10/26 04:42:50  atnak
 // Added AGC config and automatic volume leveling control
 //
@@ -226,14 +229,6 @@ void CSAA7134Card::SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
     WriteWord(SAA7134_VBI_V_START(TaskMask), VStart);
     WriteWord(SAA7134_VBI_V_STOP(TaskMask), VStop);
 
-    // SAA7134_VBI_H_SCALE_INC:
-    //   0x400 for 100%, 0x200 for 200%
-
-    // (This may be specific to PAL-BG)
-    // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
-    // can't handle this scaling.  Instead, we scale UpscaleDivisor
-    // and manually scale a little more in SAA7134Source.cpp
-    //
     WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), UpscaleDivisor);
 
     WORD Lines = VStop - VStart + 1;
@@ -245,7 +240,9 @@ void CSAA7134Card::SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
         WORD LinesAvailable = CalculateLinesAvailable(RegionID, SampleBytes);
 
         if (LinesAvailable < Lines)
+        {
             Lines = LinesAvailable;
+        }
     }
 
     WriteWord(SAA7134_VBI_V_LEN(TaskMask), Lines);
@@ -333,7 +330,9 @@ void CSAA7134Card::SetTaskGeometry(eTaskID TaskID,
         WORD LinesAvailable = CalculateLinesAvailable(RegionID, ScaleWidth * 2);
 
         if (LinesAvailable < Lines)
+        {
             Lines = LinesAvailable;
+        }
     }
 
     // The number of lines and pixels to DMA

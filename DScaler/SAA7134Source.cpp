@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.53 2003-01-05 18:35:45 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.54 2003-01-07 22:59:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.52  2003/01/05 16:54:54  laurentg
 // Updated parameters for VBI_DecodeLine
 //
@@ -432,11 +435,6 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_MEDIUMDECAY, AUTOMATICVOLUME_LONGDECAY, IniSection, m_AutomaticVolumeSzList);
     m_Settings.push_back(m_AutomaticVolumeLevel);
 
-    // HELPTEXT: Lower means better VBI reception/decoding but
-    // how far it can be lowered depends on individual cards.
-    m_VBIUpscaleDivisor = new CVBIUpscaleDivisorSetting(this, "VBI Upscale Divisor", 0x1A8, 0x186, 0x400, IniSection);
-    m_Settings.push_back(m_VBIUpscaleDivisor);
-
     m_VBIDebugOverlay = new CYesNoSetting("VBI Debug Overlay", FALSE, IniSection, "VBIDebugOverlay");
     m_Settings.push_back(m_VBIDebugOverlay);
 
@@ -485,7 +483,6 @@ void CSAA7134Source::SetupSettings()
         { m_CustomPixelWidth,       SETUP_SINGLE },
         { m_ReversePolarity,        SETUP_SINGLE },
         { m_AutomaticVolumeLevel,   SETUP_SINGLE },
-        { m_VBIUpscaleDivisor,      SETUP_SINGLE },
         { m_VideoMirror,            SETUP_SINGLE },
         { m_AudioLine1Voltage,      SETUP_SINGLE },
         { m_AudioLine2Voltage,      SETUP_SINGLE },
@@ -562,7 +559,6 @@ void CSAA7134Source::Reset()
     SetupVideoSource();
 
     m_pSAA7134Card->SetVideoMirror(m_VideoMirror->GetValue());
-    m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
     m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)m_AudioLine1Voltage->GetValue());
     m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)m_AudioLine2Voltage->GetValue());
@@ -600,7 +596,7 @@ void CSAA7134Source::SetupVideoStandard()
                                     m_CurrentY,
                                     m_HDelay->GetValue(),
                                     m_VDelay->GetValue(),
-                                    m_VBIUpscaleDivisor->GetValue());
+                                    kSAA7134_27MHZ_VBISCALE);
 
     m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
     m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
@@ -626,7 +622,8 @@ void CSAA7134Source::Start()
     NotifySquarePixelsCheck();
     m_ProcessingFieldID = -1;
 
-	VBI_Init_data(27.0);
+    VBI_Init_data(27.0);
+	//VBI_Init_data(35.468950);
 }
 
 
@@ -673,8 +670,10 @@ void CSAA7134Source::SetupDMAMemory()
 
         RegionID = (nFrame == 0) ? REGIONID_VBI_A : REGIONID_VBI_B;
 
+        // Offset the base offset by 40 because VBI_DecodeLine wants
+        // data to start 40 bytes into the buffer.
         m_pSAA7134Card->SetPageTable(RegionID, m_VBIPageTablePhysical[nFrame], nPages);
-        m_pSAA7134Card->SetBaseOffsets(RegionID, 0, 0 + kMAX_VBILINES * 2048, 2048);
+        m_pSAA7134Card->SetBaseOffsets(RegionID, 40, 40 + kMAX_VBILINES * 2048, 2048);
         m_pSAA7134Card->SetBSwapAndWSwap(RegionID, FALSE, FALSE);
 
         // It should now be safe to enable the channel
@@ -1120,11 +1119,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     int nLineTarget;
     BYTE* pVBI;
 
-    GetFrameIndex(m_CurrentFieldID, &nFrameIndex, &bIsFieldOdd);
-
-    // VBI should have been DMA'd before the video
-    pVBI = (LPBYTE) m_pVBILines[nFrameIndex];
-
+    // Wait a few ticks after changing the channel
     if (m_ChannelChangeTick)
     {
         DWORD CurrentTick = GetTickCount();
@@ -1137,34 +1132,19 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
         m_ChannelChangeTick = 0;
     }
 
-    BYTE ConvertBuffer[2048];
+    GetFrameIndex(m_CurrentFieldID, &nFrameIndex, &bIsFieldOdd);
+
+    // VBI should have been DMA'd before the video
+    pVBI = (LPBYTE) m_pVBILines[nFrameIndex];
 
     if (bIsFieldOdd)
     {
         pVBI += m_CurrentVBILines * 2048;
     }
 
-    // Convert SAA7134's VBI buffer to the way DScaler wants it
-    // 1. Shift the data 40 bytes to to the left
-    // 2. Horizontal scale 262.54% (0x400/0x186)  Some of this is already
-    //    done.  We get the card to do 0x400/m_VBIUpscaleDivisor scaling
-    //    for us in SAA7134Card, so we need to trim this up a bit.
-    //      - ala. SAA7134Card::SetTaskVBIGeometry()
-    //
-    for (int i(0); i < 40; i++)
-    {
-        ConvertBuffer[i] = 0x00;
-    }
-
-    double ScaleRatio = (double) 0x186 / m_VBIUpscaleDivisor->GetValue();
-
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
-        for (int i(40), j(0); i < 2048; i++, j++)
-        {
-            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)(j * ScaleRatio)];
-        }
-        VBI_DecodeLine(ConvertBuffer, nLineTarget, bIsFieldOdd);
+        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, bIsFieldOdd);
     }
 }
 
@@ -1588,14 +1568,6 @@ void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
 void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
 {
     m_pSAA7134Card->SetCombFilter((eCombFilter)NewValue);
-}
-
-
-void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
-{
-    Stop_Capture();
-    m_pSAA7134Card->SetVBIGeometry(NewValue);
-    Start_Capture();
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.asm,v 1.1 2001-07-30 08:25:22 adcockj Exp $
+// $Id: DI_OldGame.asm,v 1.2 2001-08-30 10:03:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,7 +20,42 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/07/30 08:25:22  adcockj
+// Added Lindsey Dubb's method
+//
 /////////////////////////////////////////////////////////////////////////////
+
+// Processor specific averaging:
+// Set destMM to average of destMM and sourceMM
+// (Code from DI_GreedyHM.h by Tom Barry, with modification)
+// Note that the MMX version rounds down; the other versions round toward the
+// first operand.  And yes, shiftMask and noLowBitsMask could be the same, but
+// this is a little easier to follow.
+// sourceMM and tempMM are changed 
+
+#undef AVERAGE
+#if defined(IS_SSE) || defined(IS_MMXEXT)
+#define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
+    { \
+    __asm pand sourceMM, noLowBitsMask \
+    __asm pavgb destMM, sourceMM \
+    }
+#elif defined(IS_3DNOW)
+#define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
+    { \
+    __asm pand sourceMM, noLowBitsMask \
+    __asm pavgusb destMM, sourceMM \
+    }
+#else
+#define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
+    { \
+	__asm pand sourceMM, shiftMask \
+	__asm psrlw sourceMM, 1 \
+	__asm pand destMM, shiftMask \
+	__asm psrlw destMM, 1 \
+	__asm paddusb destMM, sourceMM \
+    }
+#endif // processor specific averaging routine
 
 #if defined(IS_SSE)
 #define MAINLOOP_LABEL DoNext8Bytes_SSE
@@ -30,6 +65,8 @@
 #define MAINLOOP_LABEL DoNext8Bytes_MMX
 #endif
 
+// Hidden in the preprocessor stuff below is the actual routine
+
 #if defined(IS_SSE)
 long OldGameFilter_SSE(DEINTERLACE_INFO *info)
 #elif defined(IS_3DNOW)
@@ -38,105 +75,99 @@ long OldGameFilter_3DNOW(DEINTERLACE_INFO *info)
 long OldGameFilter_MMX(DEINTERLACE_INFO *info)
 #endif
 {
-
 #ifdef LD_DEBUG
     {
-        char    szInfo[64];
-        wsprintf(szInfo, "Comb %u", info->CombFactor);
+        char    OutputString[64];
+        wsprintf(OutputString, "Motion %u", info->CombFactor);
         if (gPfnSetStatus != NULL)
         {
-            gPfnSetStatus(szInfo);
+            gPfnSetStatus(OutputString);
         }
     }
 #endif
-
     // If the field is significantly different than the previous one,
     // show the new frame unaltered.
     // This is just a tiny change on the evenOnly/oddOnly filters
-    if ((info->bMissedFrame) || (info->CombFactor > gMaxComb))
+
+    if ( (info->bMissedFrame) ||
+        ((gDisableMotionChecking == FALSE) && (info->CombFactor > gMaxComb)) )
     {
-        short**     ThisField;
-        int         LineTarget;
+        WORD**     ppThisField = NULL;
+        DWORD      LineTarget = 0;
 
         if (info->IsOdd) 
         {
-            ThisField = info->OddLines[0];
+            ppThisField = info->OddLines[0];
         }
         else 
         {
-            ThisField = info->EvenLines[0];
+            ppThisField = info->EvenLines[0];
         }
-        for (LineTarget = 0; LineTarget < info->FieldHeight; LineTarget++)
+        if (ppThisField == NULL)
+        {
+            return TRUE;
+        }
+        for (LineTarget = 0; LineTarget < (DWORD)info->FieldHeight; LineTarget++)
         {
             // copy latest field's rows to overlay, resulting in a half-height image.
             info->pMemcpy(info->Overlay + LineTarget * info->OverlayPitch,
-                        ThisField[LineTarget],
+                        ppThisField[LineTarget],
                         info->LineLength);
         }
     }
     // If the field is very similar to the last one, average them.
     // This code is a cut down version of Steven Grimm's temporal noise filter.
+    // It does a really nice job on video via a composite connector 
     else
     {
-        short**         NewLines;
-        short**         OldLines;
-        int             y;
-        int             Cycles;
-        unsigned short* Destination = (unsigned short *) (info->Overlay);
-#ifdef IS_MMX
-        const __int64   qwAvgMask = 0xFEFEFEFEFEFEFEFE;
-#endif
+        WORD**          ppNewLines = NULL;
+        WORD**          ppOldLines = NULL;
+        const DWORD     Cycles = ((DWORD)info->LineLength) / 8;
+        const __int64   qwShiftMask = 0xFEFFFEFFFEFFFEFF;
+        const __int64   qwNoLowBitsMask = 0xFEFEFEFEFEFEFEFE;
+        WORD*           pDestination = (unsigned short *) (info->Overlay);
+        DWORD           LineTarget = 0;
 
         if (info->IsOdd)
         {
-            NewLines = info->OddLines[0];
-            OldLines = info->EvenLines[0];
+            ppNewLines = info->OddLines[0];
+            ppOldLines = info->EvenLines[0];
         }
         else
         {
-            NewLines = info->EvenLines[0];
-            OldLines = info->OddLines[0];
+            ppNewLines = info->EvenLines[0];
+            ppOldLines = info->OddLines[0];
         }
 
-        Cycles = info->LineLength / 8;
+        if ((ppNewLines == NULL) || (ppOldLines == NULL))
+        {
+            return TRUE;
+        }
 
-
-        for (y = 0; y < info->FieldHeight; y++)
+        for (LineTarget = 0; LineTarget < (DWORD)info->FieldHeight; ++LineTarget)
         {
             _asm 
             {
-                mov esi, Destination            // Destination is incremented at the bottom of the loop
+                mov esi, pDestination           // Destination is incremented at the bottom of the loop
                 mov ecx, Cycles
-                mov ebx, y
+                mov ebx, LineTarget
                 shl ebx, 2
-                mov edx, NewLines
+                mov edx, ppNewLines
                 add edx, ebx
                 mov eax, dword ptr[edx]
-                mov edx, OldLines
+                mov edx, ppOldLines
                 add edx, ebx
                 mov ebx, dword ptr[edx]
 
 MAINLOOP_LABEL:
 
-                movq mm2, qword ptr[eax]        // mm0 = NewPixel
+                movq mm2, qword ptr[eax]        // mm2 = NewPixel
                 movq mm1, qword ptr[ebx]        // mm1 = OldPixel
 
                 // Now determine the weighted averages of the old and new pixel values.
                 // Since the frames are likely to be similar for only a short time, use
                 // a more even weighting than employed in the temporal nose filter
-#if defined(IS_SSE)
-                pavgb mm2, mm1                  // mm2 = avg(NewPixel, OldPixel)
-#elif defined(IS_3DNOW)
-                pavgusb mm2, mm1                // mm2 = avg(NewPixel, OldPixel)
-#else
-                movq mm3, mm1                   // mm3 = OldPixel
-                movq mm4, qwAvgMask             // mm4 = mask to remove lower bits of bytes
-                pand mm3, mm4                   // mm3 = OldPixel with LSBs removed
-                pand mm2, mm4                   // mm4 = OldPixel with LSBs removed
-                psrlw mm3, 1                    // mm3 = OldPixel / 2
-                psrlw mm2, 1                    // mm2 = NewPixel / 2
-                paddusb mm2, mm3                // mm2 = avg(NewPixel, OldPixel)
-#endif
+                AVERAGE(mm2, mm1, mm7, qwShiftMask, qwNoLowBitsMask)
 
                 movq qword ptr[esi], mm2        // Output to the overlay buffer
 
@@ -145,7 +176,7 @@ MAINLOOP_LABEL:
                 add esi, 8                      // Move the output pointer
                 loop MAINLOOP_LABEL
             }
-            Destination += info->OverlayPitch/2;
+            pDestination += info->OverlayPitch/2;
         }
     }
     _asm

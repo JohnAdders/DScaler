@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.c,v 1.1 2001-07-30 08:25:22 adcockj Exp $
+// $Id: DI_OldGame.c,v 1.2 2001-08-30 10:03:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/07/30 08:25:22  adcockj
+// Added Lindsey Dubb's method
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -28,47 +31,102 @@
 //uncomment to turn on logging
 //#define LD_DEBUG
 
-static long                         gMaxComb = 300;
-static DEINTERLACEPLUGINSETSTATUS*  gPfnSetStatus = NULL;
+/////////////////////////////////////////////////////////////////////////////
+/*
+"Up and down, up and down.  Pardon me, but my lunch wants to join the sea"
+                                            - from Shining Force
 
-#define IS_SSE 1
-#include "DI_OldGame.asm"
-#undef IS_SSE
+This is the Old Game "deinterlacing" method.  More accurately, it's the Old
+Game nondeinterlacing method, which circumvents the deinterlacing done in the
+other algorithms.
 
-#define IS_3DNOW 1
-#include "DI_OldGame.asm"
-#undef IS_3DNOW
+Specifically:
+It assumes that the image is half height and progressive, and therefore
+shouldn't be deinterlaced.  In addition, it averages when there isn't
+any detected motion in order to clean up noise a bit. This works well
+for games which run at less than a full 50 or 60 FPS.  It's downright
+necessary if the game is connected via composite, since video games tend
+to have awful chroma/luma crosstalk.
 
-#define IS_MMX 1
-#include "DI_OldGame.asm"
-#undef IS_MMX
+Ways this filter could be improved:
+- The Playstation, Super Nintendo, Saturn, and Nintendo 64 all can switch
+  between an interlaced and a progressive half-height mode.  It would be
+  nice to be able to automatically detect this and forward the deinterlacing
+  on to a real deinterlacing algorithm.  But this would require DScaler
+  to keep checking whether the vertical resolution has changed, which
+  it currently doesn't.
+- Potentially, you could also try to infer the horizontal resolution,
+  deconvolve the image, and smooth it more optimally.  I really doubt
+  it would be worth the effort.
+- The difference between fields could be used in composite mode to infer
+  motion.  But it often makes sense to average even when there is some
+  30 FPS motion, so this wouldn't be easy.
+*/
+/////////////////////////////////////////////////////////////////////////////
 
-SETTING DI_OldGameSettings[DI_OLDGAME_SETTING_LASTONE] =
-{
-    {
-        "Maximum still comb", SLIDER, 0, &gMaxComb,
-        300, 1, 10000, 1, 1,
-        NULL,
-        "DI_OldGame", "maxComb", NULL,
-    },
-};
+/////////////////////////////////////////////////////////////////////////////
+// Function prototypes
+/////////////////////////////////////////////////////////////////////////////
 
+__declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags);
+BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved);
+long OldGameFilter_SSE(DEINTERLACE_INFO *info);
+long OldGameFilter_3DNOW(DEINTERLACE_INFO *info);
+long OldGameFilter_MMX(DEINTERLACE_INFO *info);
 
 #ifdef LD_DEBUG
-void __cdecl OldGameDebugStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus)
-{
-    gPfnSetStatus = SetStatus;
-}
+void __cdecl OldGameDebugStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins,
+                               DEINTERLACEPLUGINSETSTATUS* SetStatus);
 #endif
 
 
+/////////////////////////////////////////////////////////////////////////////
+// Begin plugin globals
+/////////////////////////////////////////////////////////////////////////////
 
-DEINTERLACE_METHOD OldGameMethod =
+// gMaxComb is compared to the comb factor to determine if the image has
+// enough motion to force us to send the image to the screen unaltered
+// instead of averaging witht he previous image.
+
+static long                         gMaxComb = 300;
+
+// When using a composite connector, crosstalk is bad enough that it's
+// (almost) always worth averaging.
+
+static long                         gDisableMotionChecking = FALSE;
+
+// This is used to put up the comb factor for testing purposes.
+
+#ifdef LD_DEBUG
+static DEINTERLACEPLUGINSETSTATUS*  gPfnSetStatus = NULL;
+#endif
+
+static DEINTERLACE_METHOD OldGameMethod;
+
+
+static SETTING DI_OldGameSettings[DI_OLDGAME_SETTING_LASTONE] =
+{
+    {
+        "Maximum motion", SLIDER, 0, &gMaxComb,
+        300, 1, 5000, 1, 1,
+        NULL,
+        "DI_OldGame", "maxComb", NULL,
+    },
+    {
+        "Composite mode", ONOFF, 0, &gDisableMotionChecking,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "DI_OldGame", "CompositeMode", NULL,
+    }
+};
+
+
+static DEINTERLACE_METHOD OldGameMethod =
 {
     sizeof(DEINTERLACE_METHOD),
     DEINTERLACE_CURRENT_VERSION,
     "Old Game", 
-    NULL,     // And why would anyone use this as an adaptive method?
+    NULL,     // It could make sense to use this with a resolution sensing adaptive filter
     TRUE, 
     FALSE, 
     NULL, 
@@ -85,7 +143,7 @@ DEINTERLACE_METHOD OldGameMethod =
 #endif
     NULL,
     NULL,
-    2,
+    1,
     0,
     0,
     -1,
@@ -94,6 +152,35 @@ DEINTERLACE_METHOD OldGameMethod =
     FALSE,
     TRUE,
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Main code (included from Dl_OldGame.asm)
+/////////////////////////////////////////////////////////////////////////////
+
+#define IS_SSE 1
+#include "DI_OldGame.asm"
+#undef IS_SSE
+
+#define IS_3DNOW 1
+#include "DI_OldGame.asm"
+#undef IS_3DNOW
+
+#define IS_MMX 1
+#include "DI_OldGame.asm"
+#undef IS_MMX
+
+
+////////////////////////////////////////////////////////////////////////////
+// Start of utility code
+/////////////////////////////////////////////////////////////////////////////
+
+#ifdef LD_DEBUG
+void __cdecl OldGameDebugStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus)
+{
+    gPfnSetStatus = SetStatus;
+}
+#endif  // LD_DEBUG
 
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags)

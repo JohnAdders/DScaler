@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.cpp,v 1.4 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MSP34x0AudioDecoder.cpp,v 1.5 2004-01-16 09:14:03 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2002/10/27 12:33:33  adcockj
 // Fixed UseInputPin1 code
 //
@@ -399,12 +402,12 @@ void CMSP34x0AudioDecoder::Initialize()
     m_bHasEqualizer = false;
     m_bHasDolby = false;
 
-    if(GetVersion() & 0xFF >= 0x07)
+    if((GetVersion() & 0xFF) >= 0x07)
     {
         m_MSPVersion = MSPVersionG;
         m_bHasDolby = true;
     }
-    else if(GetVersion() & 0xFF >= 0x04)
+    else if((GetVersion() & 0xFF) >= 0x04)
     {
         m_MSPVersion = MSPVersionD;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.40 2002-09-14 17:05:49 tobbej Exp $
+// $Id: DSSource.cpp,v 1.41 2002-09-24 17:16:28 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/09/14 17:05:49  tobbej
+// implemented audio output device selection
+//
 // Revision 1.39  2002/09/11 17:12:05  tobbej
 // prevent audio input from changing video
 //
@@ -1255,7 +1258,7 @@ void CDSCaptureSource::Start()
 					break;
 				case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
 					//oops we broke the filter graph, reset resolution 
-					//setting so we dont break it the next time too.
+					//setting so we don't break it the next time too.
 					m_Resolution->SetValue(-1);
 					LOG(2,"Error restoring resolution, broke filter graph");
 					break;

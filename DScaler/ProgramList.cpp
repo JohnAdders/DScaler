@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.57 2002-06-13 12:10:22 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.58 2002-06-13 14:00:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/06/13 12:10:22  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.56  2002/06/13 10:40:37  robmuller
 // Made anti plop mute delay configurable.
 //
@@ -191,7 +194,6 @@
 #include "MixerDev.h"
 #include "OSD.h"
 #include "Providers.h"
-#include "SettingsDlg.h"
 
 int CurSel;
 unsigned short SelectButton;

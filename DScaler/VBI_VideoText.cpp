@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.14 2001-08-21 09:39:46 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.15 2001-09-02 14:17:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/08/21 09:39:46  adcockj
+// Added Greek teletext Codepage
+//
 // Revision 1.13  2001/08/13 18:07:24  adcockj
 // Added Czech code page for teletext
 //
@@ -540,191 +543,187 @@ void VT_DoUpdate_Page(int Page)
 
     BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal, bHasDouble;
     BYTE nLastGraph;
-    unsigned short CurrentFg, CurrentBkg, RealBkg;
-    WORD wCharHeight, wCharWidth;
+    unsigned short CurrentFg, CurrentBkg, DefaultBkg;
     BYTE c, ch;
     int endrow;
     int n, row, x, y;
     char tmp[41];
-    BITMAPINFO* pCharSet;
-    char tmp2[9];
-    int VT_Bitmap_width;
 
     BYTE* src;
     BYTE* dest;
     unsigned short* dest1;
 
-    BOOL bHideTopLine, bForceShowTopLine;
-    unsigned short Black, ForceBlack, ForceTransparent;
-
-    if (VTPages[Page].bUpdated == FALSE)
-    {
-        Black = VTColourTable[0];   //
-        bHideTopLine = FALSE;
-        ForceTransparent = VTColourTable[8];
-        ForceBlack = VTColourTable[0];
-    }
-    else
-    {
-
-        if ((VTPages[Page].wCtrl & (3 << 4)) || VTState == VT_MIX)
-            Black = VTColourTable[8];
-        else
-            Black = VTColourTable[0];   // 0
-
-        ForceTransparent = VTColourTable[8];
-        ForceBlack = VTColourTable[0];
-
-        if (VTPages[Page].wCtrl & (3 << 4))
-            bHideTopLine = TRUE;
-        else
-            bHideTopLine = FALSE;
-    }
-
-    wCharWidth = LARGE_WIDTH;
-    wCharHeight = LARGE_HEIGHT;
-    pCharSet = VTCharSet;
-    VT_Bitmap_width = VT_LARGE_BITMAP_WIDTH;
-
-    bForceShowTopLine = TRUE;
 
     bHasDouble = FALSE;
-    endrow = 25;
 
+    // if we havent got the full page just show the header
     if (VTPages[Page].bUpdated == FALSE)
     {
         endrow = 1;
     }
     else
     {
-        if (VTPages[Page].bUpdated == 0)
-            endrow = 1;
+        endrow = 25;
     }
 
     for (row = 0; row < endrow; row++)
     {
+        // if the last row has a double height character then skip to next line
         if (bHasDouble)
         {
             bHasDouble = FALSE;
             continue;
         }
+
+        // reset all status flags
         bGraph = bHoldGraph = bSepGraph = bBox = bFlash = bDouble = bConceal = bHasDouble = FALSE;
         nLastGraph = 32;
 
-        if (VTPages[Page].bUpdated == FALSE)
+        if(row == 0)
         {
+            sprintf(tmp, "  P%-3d \x7", Page + 100);
 
-            sprintf(tmp2, "  P%-3d \x7", VTPage);
-            for (n = 0; n < 40; n++)
+            if (VTPages[Page].bUpdated == FALSE)
             {
-                tmp[n] = VTHeaderLine[n] & 0x7f;
-                if (tmp[n] == 0x0d)
-                    bHasDouble = TRUE;
-                strncpy(tmp, tmp2, 8);
-            }
-
-        }
-        else
-        {
-
-            for (n = 0; n < 40; n++)
-            {
-                tmp[n] = VTPages[Page].Frame[row][n] & 0x7f;
-                if (tmp[n] == 0x0d)
-                    bHasDouble = TRUE;
-            }
-            tmp[n] = '\0';
-
-            if (row == 0)
-            {
-                sprintf(tmp2, "  P%-3d \x7", VTPage);
-                strncpy(tmp, tmp2, 8);
-                if (VTPages[Page].Fill == FALSE)
+                // if the current page hasn't yet been filled
+                // show the last header
+                for (n = 8; n < 40; n++)
                 {
-                    for (n = 0; n < 40; n++)
-                    {
-                        tmp[n] = VTHeaderLine[n] & 0x7f;
-                        if (tmp[n] == 0x0d)
-                            bHasDouble = TRUE;
-                        strncpy(tmp, tmp2, 8);
-                    }
+                    tmp[n] = VTHeaderLine[n] & 0x7f;
+                }
+                
+                DefaultBkg = VTColourTable[0];
+            }
+            else
+            {
+                // if the current page has been filled
+                // show the original header
+                for (n = 8; n < 30; n++)
+                {
+                    tmp[n] = VTPages[Page].Frame[row][n] & 0x7f;
+                }
+                // but the time from the most recent
+                for (n = 30; n < 40; n++)
+                {
+                    tmp[n] = VTHeaderLine[n] & 0x7f;
+                }
+
+                if(!(VTPages[Page].wCtrl & (3 << 4)) && VTState != VT_MIX)
+                {
+                    DefaultBkg = VTColourTable[0];
                 }
                 else
                 {
-                    for (n = 30; n < 40; n++)
-                    {
-                        tmp[n] = VTHeaderLine[n] & 0x7f;
-                        if (tmp[n] == 0x0d)
-                            bHasDouble = TRUE;
-                    }
+                    DefaultBkg = VTColourTable[8];
+                }
 
+                if (VTPages[Page].wCtrl & (3 << 4))
+                {
+                    memset(tmp, 32, 40);
                 }
             }
         }
-
-        RealBkg = ForceBlack;
-        if (Page != 0)
-        {
-            if (row == 0 && ((VTPages[Page].bUpdated == FALSE) || (bForceShowTopLine || (!bHideTopLine && VTState != VT_MIX))))
-                CurrentBkg = ForceBlack;
-            else
-                CurrentBkg = Black;
-
-            if ((bHideTopLine && !bForceShowTopLine) && row == 0 && (VTPages[Page].bUpdated == TRUE))
-                memset(tmp, 32, 40);
-        }
         else
-            CurrentBkg = ForceBlack;
+        {
+            for (n = 0; n < 40; n++)
+            {
+                tmp[n] = VTPages[Page].Frame[row][n] & 0x7f;
+                if(tmp[n] == 0x0d)
+                {
+                    bHasDouble = TRUE;
+                }
+            }
+
+            if ((VTPages[Page].wCtrl & (3 << 4)) || VTState == VT_MIX)
+            {
+                DefaultBkg = VTColourTable[8];
+            }
+            else
+            {
+                DefaultBkg = VTColourTable[0];
+            }
+        }
+        tmp[40] = '\0';
 
         CurrentFg = VTColourTable[7];
-        for (n = 0; n < 40; n++)
+        CurrentBkg = DefaultBkg;
+
+        for (n = 0; n < 40; ++n)
         {
             c = tmp[n];
             ch = c;
-            if (c < 32)
+            if (c < 0x20)
             {
-                if (c < 8)
+                switch(c)
                 {
+                case 0x00:
+                case 0x01:
+                case 0x02:
+                case 0x03:
+                case 0x04:
+                case 0x05:
+                case 0x06:
+                case 0x07:
                     CurrentFg = VTColourTable[c];
                     bGraph = FALSE;
-                }
-                if (c >= 0x10 && c <= 0x17)
-                {
+                    break;
+                case 0x08:
+                    bFlash = TRUE;
+                    break;
+                case 0x09:
+                    bFlash = FALSE;
+                    break;
+                case 0x0a:
+                    CurrentBkg = DefaultBkg;
+                    bBox = FALSE;
+                    break;
+                case 0x0b:
+                    CurrentBkg = VTColourTable[0];
+                    bBox = TRUE;
+                    break;
+                case 0x0c:
+                    bDouble = FALSE;
+                    break;
+                case 0x0d:
+                    bDouble = TRUE;
+                    break;
+                case 0x10:
+                case 0x11:
+                case 0x12:
+                case 0x13:
+                case 0x14:
+                case 0x15:
+                case 0x16:
+                case 0x17:
                     bGraph = TRUE;
                     CurrentFg = VTColourTable[c - 0x10];
-                }
-                if (c == 0x1d)
-                {
-                    CurrentBkg = (bBox || Black != ForceTransparent) ? CurrentFg : ForceTransparent;
-                    RealBkg = CurrentFg;
-                }
-                if (c == 0x1c)
-                {
-                    CurrentBkg = bBox ? ForceBlack : Black;
-                    RealBkg = ForceBlack;
-                }
-                if (c == 0x08)
-                    bFlash = TRUE;
-                if (c == 0x09)
-                    bFlash = FALSE;
-                if (c == 0x0c)
-                    bDouble = FALSE;
-                if (c == 0x0d)
-                    bDouble = TRUE;
-                if (c == 0x18)
+                    break;
+                case 0x18:
                     bConceal = TRUE;
-                if (c == 0x19)
+                    break;
+                case 0x19:
                     bSepGraph = FALSE;
-                if (c == 0x1a)
+                    break;
+                case 0x1a:
                     bSepGraph = TRUE;
-                if (c == 0x1e)
+                    break;
+                case 0x1c:
+                    CurrentBkg = bBox ? VTColourTable[0] : DefaultBkg;
+                    break;
+                case 0x1d:
+                    CurrentBkg = CurrentFg;
+                    break;
+                case 0x1e:
                     bHoldGraph = TRUE;
-                if (c == 0x1f)
+                    break;
+                case 0x1f:
                     bHoldGraph = FALSE;
+                    break;
+                default:
+                    break;
+                }
                 ch = bHoldGraph ? nLastGraph : 32;
             }
-            if ((CurrentFg == VTColourTable[7]) && (VTPages[Page].bUpdated == FALSE) && (!row && n > 7))
-                CurrentFg = VTColourTable[2];
             nLastGraph = 32;
             if (bGraph && (ch & 0x20))
             {
@@ -732,56 +731,48 @@ void VT_DoUpdate_Page(int Page)
                 ch = (ch & 0x1f) | ((ch & 0x40) >> 1);
                 ch += 96;
                 if (bSepGraph)
+                {
                     ch += 64;
+                }
             }
             else
+            {
                 ch -= 32;
+            }
 
-            src = _BitmapLargeChar(pCharSet, ch);
+            src = _BitmapLargeChar(VTCharSet, ch);
             dest = _BitmapDataP(VTScreen);
             dest += VTScreen->bmiHeader.biSizeImage;
-            dest -= ((40 - n) * (wCharWidth * 2)) + ((wCharWidth / 2) * 2);
-            dest -= (row * VT_Bitmap_width * wCharHeight * 2);
+            dest -= ((40 - n) * (LARGE_WIDTH * 2)) + ((LARGE_WIDTH / 2) * 2);
+            dest -= (row * VT_LARGE_BITMAP_WIDTH * LARGE_HEIGHT * 2);
 
-            for (y = 0; y < ((bDouble && (row < 24)) ? wCharHeight * 2 : wCharHeight); y++)
+            for (y = 0; y < ((bDouble && (row < 24)) ? LARGE_HEIGHT * 2 : LARGE_HEIGHT); y++)
             {
                 if (!bDouble || (bDouble && (!(y & 1))))
-                    src -= ROUNDUP(pCharSet->bmiHeader.biWidth);
+                {
+                    src -= ROUNDUP(VTCharSet->bmiHeader.biWidth);
+                }
 
-                for (x = 0; x < wCharWidth; x++)
+                for (x = 0; x < LARGE_WIDTH; x++)
                 {
                      dest1 = (WORD*)(dest + x * 2);
                     *(dest1) = (unsigned short) (*(src + x) ? CurrentFg : CurrentBkg);
                 }
-                dest -= VT_Bitmap_width * 2;
+                dest -= VT_LARGE_BITMAP_WIDTH * 2;
 
             }
             if (!bDouble && bHasDouble && row < 24)
             {
-                for (y = 0; y < wCharHeight; y++)
+                for (y = 0; y < LARGE_HEIGHT; y++)
                 {
-                    for (x = 0; x < wCharWidth; x++)
+                    for (x = 0; x < LARGE_WIDTH; x++)
                     {
                         dest1 = (WORD*)(dest + x * 2);
                         *(dest1) = CurrentBkg;
                     }
-                    dest -= VT_Bitmap_width * 2;
+                    dest -= VT_LARGE_BITMAP_WIDTH * 2;
                 }
 
-            }
-
-            if (c < 32)
-            {
-                if (c == 0x0a)  // Box off
-                {
-                    CurrentBkg = (Black == ForceTransparent) ? ForceTransparent : RealBkg;
-                    bBox = FALSE;
-                }
-                if (c == 0x0b)  // Box on
-                {
-                    CurrentBkg = RealBkg;
-                    bBox = TRUE;
-                }
             }
         }
     }

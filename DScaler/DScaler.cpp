@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.66 2001-09-02 12:13:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.67 2001-09-02 14:17:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2001/09/02 12:13:21  adcockj
+// Changed dscaler webiste
+// Tidied up resource spelling
+//
 // Revision 1.65  2001/08/24 21:36:46  adcockj
 // Menu bug fix
 //
@@ -1098,6 +1102,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
                 Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
             }
+            
+            VT_DoUpdate_Page(VTPage - 100);
+
             WorkoutOverlaySize();
 
             InvalidateRect(hWnd,NULL,FALSE);

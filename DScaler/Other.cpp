@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.14 2001-08-13 18:54:55 adcockj Exp $
+// $Id: Other.cpp,v 1.15 2001-09-02 14:17:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/08/13 18:54:55  adcockj
+// Tidied up surface blanking code
+//
 // Revision 1.13  2001/08/11 11:17:57  adcockj
 // Fixed problems when using zero backbuffers
 //
@@ -227,6 +230,9 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         {
             dwFlags |= DDOVER_KEYDESTOVERRIDE;
 
+            // if we are doing teletext the override the
+            // background to pink so that we can do transparent
+            // with the PAL RGB colours
             if(VTState == VT_OFF)
             {
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
@@ -239,7 +245,13 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             }
             else
             {
-                PhysicalOverlayColor = RGB(255, 0, 255);
+                PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
+                if (PhysicalOverlayColor == 0)      // sometimes we glitch and can't get the Value
+                {
+                    LOG(1, " Physical overlay color is zero!  Retrying.");
+                    PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
+                }
+                LOG(1, " Physical overlay color is %x", PhysicalOverlayColor);
             }
 
             DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;

@@ -405,6 +405,7 @@ CCalibration::CCalibration()
     type_calibration = AUTO_CALIBR;
     running = FALSE;
     last_tick_count = -1;
+    LoadTestPatterns();
 }
 
 CCalibration::~CCalibration()
@@ -568,6 +569,11 @@ void CCalibration::SetMenu(HMENU hMenu)
     int     NbItems;
 	char	*name;
 
+    if ((current_test_pattern != NULL) && (current_test_pattern->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT))))
+    {
+        current_test_pattern = NULL;
+    }
+
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
 
@@ -580,7 +586,7 @@ void CCalibration::SetMenu(HMENU hMenu)
 			if (strlen (name) > 0)
 			{
 				EnableMenuItem(hMenuPatterns, j, running ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-//				EnableMenuItem(hMenuPatterns, j, (running || (current_test_pattern->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT)))) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+				EnableMenuItem(hMenuPatterns, j, (running || (test_patterns[i]->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT)))) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
 				CheckMenuItem(hMenuPatterns, j, (current_test_pattern == test_patterns[i]) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
 				j++;
 			}
@@ -613,13 +619,17 @@ void CCalibration::Start(eTypeCalibration type)
 {
 	type_calibration = type;
 	running = TRUE;
-//    OSD_ShowInfosScreen(hWnd, 3, 0);
+
+    // Display the specific OSD screen
+    OSD_ShowInfosScreen(hWnd, 4, 0);
 }
 
 void CCalibration::Stop()
 {
 	running = FALSE;
-//    OSD_Clear(hWnd);
+
+    // Erase the OSD screen
+    OSD_Clear(hWnd);
 }
 
 BOOL CCalibration::IsRunning()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.20 2001-08-08 21:58:16 laurentg Exp $
+// $Id: OSD.cpp,v 1.21 2001-08-09 22:18:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/08/08 21:58:16  laurentg
+// Lot of comments added - not finished
+//
 // Revision 1.19  2001/08/05 20:14:49  laurentg
 // New OSD screen added for AR autodetection
 //
@@ -133,14 +136,17 @@ static int  NbText = 0;
 static struct 
 {
     char    name[24];       // Name of the screen
+    BOOL    managed_by_app; // TRUE if only app can display the screen
+    BOOL    auto_hide;      // TRUE if the screen must disappear after a delay
     int     refresh_delay;  // Refresh period in ms (0 means no refresh)
-    BOOL    active;         // Screen to take into account or not
+    BOOL    active;         // TRUE if user can show the screen
+    BOOL    lock;           // TRUE if display of the screen should lock OSD
 } ActiveScreens[] = {
-    { "General screen",          OSD_TIMER_REFRESH_DELAY, TRUE  },
-    { "Statistics screen",       1000,                    FALSE },
-    { "WSS decoding screen",     OSD_TIMER_REFRESH_DELAY, FALSE },
-    { "AR autodetection screen", OSD_TIMER_REFRESH_DELAY, FALSE	},
-    { "Card calibration screen", 250,                     FALSE },
+    { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE },
+    { "Statistics screen",       FALSE, TRUE,  1000,                    FALSE, FALSE },
+    { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE },
+    { "AR autodetection screen", FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE },
+    { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE  },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
 static BOOL bRestoreScreen = FALSE; // Restore Info screen when clear OSD
@@ -280,7 +286,7 @@ void OSD_Clear(HWND hWnd)
     }
     if (bRestoreScreen && (IdxCurrentScreen != -1) && ActiveScreens[IdxCurrentScreen].active)
     {
-        OSD_RefreshInfosScreen(hWnd, 0, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
+        OSD_RefreshInfosScreen(hWnd, 0, ActiveScreens[IdxCurrentScreen].auto_hide ? OSD_AUTOHIDE : OSD_PERSISTENT);
     }
     else
     {
@@ -1018,6 +1024,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
     OSD_Show(hWnd, ShowType, ActiveScreens[IdxCurrentScreen].refresh_delay);
     bRestoreScreen = FALSE;
+    if (ActiveScreens[IdxCurrentScreen].lock) bOverride = TRUE;
 }
 
 //---------------------------------------------------------------------------
@@ -1030,6 +1037,8 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
     int     PrevIdxScreen;
     int     i;
 
+    if (bOverride) return;
+
     // determine which screen to display
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     PrevIdxScreen = IdxCurrentScreen;
@@ -1037,7 +1046,7 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
     IdxCurrentScreen = -1;
     for (i = IdxScreen ; i < NbScreens ; i++)
     {
-        if (ActiveScreens[i].active)
+        if (ActiveScreens[i].active && !ActiveScreens[i].managed_by_app)
         {
             if (IdxCurrentScreen == -1)
                 IdxCurrentScreen = i;
@@ -1052,7 +1061,7 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
         return;
     }
 
-    OSD_RefreshInfosScreen(hWnd, Size, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
+    OSD_RefreshInfosScreen(hWnd, Size, ActiveScreens[IdxCurrentScreen].auto_hide ? OSD_AUTOHIDE : OSD_PERSISTENT);
 }
 
 //---------------------------------------------------------------------------
@@ -1061,6 +1070,8 @@ void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double Size)
 {
     int     NbScreens;      // number of OSD scrrens
     int     PrevIdxScreen;
+
+    if (bOverride) return;
 
     PrevIdxScreen = IdxCurrentScreen;
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
@@ -1080,7 +1091,7 @@ void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double Size)
         return;
     }
 
-    OSD_RefreshInfosScreen(hWnd, Size, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
+    OSD_RefreshInfosScreen(hWnd, Size, ActiveScreens[IdxScreen].auto_hide ? OSD_AUTOHIDE : OSD_PERSISTENT);
 }
 
 //---------------------------------------------------------------------------
@@ -1125,7 +1136,7 @@ void OSD_UpdateMenu(HMENU hMenu)
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     for (i=0,j=2 ; i<NbScreens ; i++)
     {
-        if (strlen (ActiveScreens[i].name) > 0)
+        if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
             MenuItemInfo.cbSize = sizeof (MenuItemInfo);
             MenuItemInfo.fType = MFT_STRING;
@@ -1162,7 +1173,7 @@ void OSD_SetMenu(HMENU hMenu)
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     for (i=0,j=2 ; (j<NbItems) && (i<NbScreens) ; i++)
     {
-        if (strlen (ActiveScreens[i].name) > 0)
+        if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
             EnableMenuItem(hMenuOSD1, i+2, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
             CheckMenuItem(hMenuOSD2, i+2, ActiveScreens[i].active ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
@@ -1177,8 +1188,19 @@ void OSD_SetMenu(HMENU hMenu)
 
 BOOL OSD_AutoHide_OnChange(long NewValue)
 {
+    int NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
+
     bRestoreScreen = FALSE;
     bAutoHide = NewValue;
+
+    for(int i = 0; i < NbScreens; i++)
+    {
+        if (!ActiveScreens[i].managed_by_app)
+        {
+            ActiveScreens[i].auto_hide = NewValue;
+        }
+    }
+
     return TRUE;
 }
 
@@ -1264,18 +1286,22 @@ void OSD_ReadSettingsFromIni()
     {
         Setting_ReadFromIni(&(OSDSettings[i]));
     }
+    OSD_AutoHide_OnChange(bAutoHide);
     GetPrivateProfileString("OSD", "FontName", "Arial", szFontName, sizeof(szFontName) , GetIniFileForSettings());
     for(i = 0; i < NbScreens; i++)
     {
-        sprintf(szIniKey, "Screen%uSelected", i+1);
-        GetPrivateProfileString("OSD", szIniKey, "undefined", szScreenSel, sizeof(szScreenSel) , GetIniFileForSettings());
-        if (!strcmp(szScreenSel, "0"))
+        if (!ActiveScreens[i].managed_by_app)
         {
-            ActiveScreens[i].active = FALSE;
-        }
-        else if (!strcmp(szScreenSel, "1"))
-        {
-            ActiveScreens[i].active = TRUE;
+            sprintf(szIniKey, "Screen%uSelected", i+1);
+            GetPrivateProfileString("OSD", szIniKey, "undefined", szScreenSel, sizeof(szScreenSel) , GetIniFileForSettings());
+            if (!strcmp(szScreenSel, "0"))
+            {
+                ActiveScreens[i].active = FALSE;
+            }
+            else if (!strcmp(szScreenSel, "1"))
+            {
+                ActiveScreens[i].active = TRUE;
+            }
         }
     }
 }
@@ -1293,7 +1319,10 @@ void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     WritePrivateProfileString("OSD", "FontName", szFontName, GetIniFileForSettings());
     for(i = 0; i < NbScreens; i++)
     {
-        sprintf(szIniKey, "Screen%uSelected", i+1);
-        WritePrivateProfileString("OSD", szIniKey, ActiveScreens[i].active ? "1" : "0", GetIniFileForSettings());
+        if (!ActiveScreens[i].managed_by_app)
+        {
+            sprintf(szIniKey, "Screen%uSelected", i+1);
+            WritePrivateProfileString("OSD", szIniKey, ActiveScreens[i].active ? "1" : "0", GetIniFileForSettings());
+        }
     }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.27 2001-08-08 16:39:17 adcockj Exp $
+// $Id: Bt848.cpp,v 1.28 2001-08-09 22:18:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/08/08 16:39:17  adcockj
+// Changed to reflect changes in driver code as we move to multiple card support
+//
 // Revision 1.26  2001/08/08 10:53:30  adcockj
 // Preliminary changes to driver to support multiple cards
 //
@@ -75,6 +78,7 @@
 #include "VideoSettings.h"
 #include "VBI.h"
 #include "SettingsDlg.h"
+#include "Calibration.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Private Structures, funtions and data
@@ -1603,6 +1607,10 @@ BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
 BOOL VideoSource_OnChange(long NewValue)
 {
     Stop_Capture();
+    if (pCalibration->IsRunning())
+    {
+        pCalibration->Stop();
+    }
     Audio_Mute();
     VideoSettings_SaveTVFormat();
     VideoSettings_Save();
@@ -1653,6 +1661,10 @@ BOOL VideoSource_OnChange(long NewValue)
 BOOL TVFormat_OnChange(long NewValue)
 {
     Stop_Capture();
+    if (pCalibration->IsRunning())
+    {
+        pCalibration->Stop();
+    }
     VideoSettings_SaveTVFormat();
     VideoSettings_Save();
     TVFormat = NewValue;

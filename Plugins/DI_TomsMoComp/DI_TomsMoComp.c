@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TomsMoComp.c,v 1.6 2003-03-25 10:13:10 laurentg Exp $
+// $Id: DI_TomsMoComp.c,v 1.7 2003-06-17 12:46:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/03/25 10:13:10  laurentg
+// Allow running of TomsMoComp SSE and 3DNOW methods with Toms'agreement
+//
 // Revision 1.5  2002/12/10 16:32:19  adcockj
 // Fix StrangeBob for MMX
 //
@@ -118,7 +121,7 @@ DEINTERLACE_METHOD TomsMoCompMethod =
     0,
     FALSE,
     FALSE,
-    IDH_DEINTERLACE,
+    IDH_TOMSMOCOMP,
 };
 
 

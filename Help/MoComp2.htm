@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+  <HEAD>
+    <!-- #BeginEditable "doctitle" -->
+    <TITLE>
+      DScaler -- MoComp2
+    </TITLE>
+    <!-- #EndEditable -->
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<STYLE TYPE="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</STYLE>
+  </HEAD>
+  <BODY BGCOLOR="#FFFFFF">
+    <TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+      <TR>
+        <TD HEIGHT="1" WIDTH="160">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+        <TD HEIGHT="1" WIDTH="342">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+        <TD HEIGHT="1" WIDTH="501">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH="160">
+          <IMG SRC="images/dscalerlogo.jpg" ALT="DScaler Logo">
+        </TD>
+        <TD COLSPAN="2" ALIGN="right" VALIGN="bottom">
+          <FONT FACE="Verdana, Arial, Helvetica, sans-serif" SIZE="5"><B>
+          <!-- #BeginEditable "Page%20Title" -->
+          MoComp2<!-- #EndEditable --></B></FONT>
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00" ALIGN="right">
+        <TD COLSPAN="3">
+          <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT="2"></TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <!-- #BeginEditable "Text" -->
+          <P>
+            This is a new method that should be considered a work in progress.  At the moment
+						it is a motion adaptive method with diagonal interpolation based on:
+          </P>
+          <P>
+						<b>T. Chen, H.R. Wu; & Z.H. Yu,</b><br> 
+						"Efficient deinterlacing algorithm using edge-based line average interpolation"<br> 
+						<i>Optical Engineering, Volume 39, Issue 8, (2000)</i><br>
+          </P>
+          <P>
+						 This method also incorporates built in chroma smoothing to help disguise 
+						 MPEG chroma problems.
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+						  Who Should Use It?
+						</FONT></B>
+          </P>
+          <P>
+            The method should be a general use one but at the moment most consider TomsMoComp 
+						to give a better picture.  As this method uses less CPU than TomsMoComp it may be well
+						suited to those who run a lot of filters.
+						Note the built in chroma smoother means that this method may give better results
+						with digital sourced material such as DVD or DVB. 
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+						  The Settings
+						</FONT></B>
+          </P>
+          <P>
+						 There are currently no user settings.  The search effort setting currently
+						 has no effect.
+          </P>
+          <!-- #EndEditable -->
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00">
+        <TD COLSPAN="3">
+          <DIV ALIGN="center">
+            <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT="2"></DIV>
+        </TD>
+      </TR>
+    </TABLE>
+    <!-- #EndTemplate -->
+  </BODY>
+</HTML>
+

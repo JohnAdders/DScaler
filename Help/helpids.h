@@ -12,7 +12,7 @@
 #define IDH_INVERSION                   131084
 #define IDH_BLACK_WHITE                 131085
 #define IDH_DSCOPE_VIDEO                131086
-#define IDH_LUMINCHROMASHIFT			131087
+#define IDH_LUMINCHROMASHIFT		131087
 
 
 #define IDH_DEINTERLACE                 131090
@@ -30,6 +30,8 @@
 #define IDH_VIDEOBOB                    131102
 #define IDH_VIDEOWEAVE                  131103
 #define IDH_WEAVE                       131104
+#define IDH_TOMSMOCOMP                  131105
+#define IDH_MOCOMP2                     131106
 
 #define IDH_ADVANCED                    131120
 #define IDH_22_PULLDOWN                 131121

@@ -150,6 +150,11 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MoComp2">
+			<param name="Local" value="MoComp2.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Odd Only">
 			<param name="Local" value="OddOnly.HTM">
 			<param name="ImageNumber" value="11">
@@ -162,6 +167,11 @@
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Scaler Bob">
 			<param name="Local" value="ScalerBob.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TomsMoComp">
+			<param name="Local" value="TomsMoComp.htm">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">

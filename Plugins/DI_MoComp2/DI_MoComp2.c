@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_MoComp2.c,v 1.2 2003-03-05 13:55:20 adcockj Exp $
+// $Id: DI_MoComp2.c,v 1.3 2003-06-17 12:46:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/03/05 13:55:20  adcockj
+// Allow SSE optimizations
+//
 // Revision 1.1  2003/01/02 13:15:00  adcockj
 // Added new plug-ins ready for developement by copying TomsMoComp and Gamma
 //
@@ -95,7 +98,7 @@ DEINTERLACE_METHOD MoComp2Method =
     0,
     FALSE,
     FALSE,
-    IDH_DEINTERLACE,
+    IDH_MOCOMP2,
 };
 
 

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/08/07 00:42:38  lindsey
+// Made prefetching into a user option.
+//
 // Revision 1.9  2002/06/18 19:46:08  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -280,8 +283,8 @@ FILTER_METHOD GradualNoiseMethod =
     FLT_GradualNoiseSettings,
     WM_FLT_GNOISE_GETVALUE - WM_APP,        // Settings offset
     TRUE,                                   // Can handle interlaced material
-    2,                                      // Requires field before last
-    IDH_GRADUAL_NOISE
+    3,                                      // Requires field before last
+    IDH_GRADUAL_NOISE                       // Help ID
 };
 
 

@@ -679,6 +679,7 @@
 #define IDC_STATIC_BOMBREASON           1829
 #define IDC_STILL                       1830
 #define IDC_INPUT2                      1831
+#define IDC_SAA7134                     1831
 #define IDC_TEXT                        1832
 #define IDC_TEXT1                       1833
 #define IDC_TEXT2                       1834
@@ -1022,6 +1023,17 @@
 #define IDM_DSHOW_SETTINGS              32798
 #define IDC_DSHOW_VIDEOFMTS_DELETE      32799
 #define IDC_DSHOW_VIDEOFMTS_NEW         32800
+#define IDM_AUDIOSTANDARD_1             32801
+#define IDM_AUDIOSTANDARD_2             32802
+#define IDM_AUDIOSTANDARD_3             32803
+#define IDM_AUDIOSTANDARD_4             32804
+#define IDM_AUDIOSTANDARD_5             32805
+#define IDM_AUDIOSTANDARD_6             32806
+#define IDM_AUDIOSTANDARD_7             32807
+#define IDM_AUDIOSTANDARD_8             32808
+#define IDM_AUDIOSTANDARD_9             32809
+#define IDM_AUDIOSTANDARD_10            32810
+#define IDM_INTERNAL_OSS                32811
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1043,7 +1055,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        213
-#define _APS_NEXT_COMMAND_VALUE         32801
+#define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         8052
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif

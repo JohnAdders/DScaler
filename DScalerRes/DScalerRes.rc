@@ -1331,6 +1331,103 @@ BEGIN
     END
 END
 
+IDC_SAA7134 MENU DISCARDABLE 
+BEGIN
+    POPUP "SAA&7134 Card"
+    BEGIN
+        POPUP "Video &Input"
+        BEGIN
+            MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
+            MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2
+            MENUITEM "Input &3\tCtrl+Alt+F3",       IDM_SOURCE_INPUT3
+            MENUITEM "Input &4\tCtrl+Alt+F4",       IDM_SOURCE_INPUT4
+            MENUITEM "Input &5\tCtrl+Alt+F5",       IDM_SOURCE_INPUT5
+            MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
+            MENUITEM "Input &7\tCtrl+Alt+F7",       IDM_SOURCE_INPUT7
+        END
+        POPUP "Video &Format"
+        BEGIN
+            MENUITEM "&PAL-BDGHI",                  IDM_TYPEFORMAT_0
+            MENUITEM "&NTSC",                       IDM_TYPEFORMAT_1
+            MENUITEM "&SECAM",                      IDM_TYPEFORMAT_2
+            MENUITEM "PAL-&M",                      IDM_TYPEFORMAT_3
+            MENUITEM "PA&L-N",                      IDM_TYPEFORMAT_4
+            MENUITEM "NTSC-&Japan ",                IDM_TYPEFORMAT_5
+            MENUITEM "PAL-&60",                     IDM_TYPEFORMAT_6
+            MENUITEM "NTSC-&50",                    IDM_TYPEFORMAT_7
+            MENUITEM "PAL-N&C",                     IDM_TYPEFORMAT_8
+        END
+        POPUP "Pixel &Width"
+        BEGIN
+            MENUITEM "768",                         IDM_SETTINGS_PIXELWIDTH_768
+
+            MENUITEM "754",                         IDM_SETTINGS_PIXELWIDTH_754
+
+            MENUITEM "720",                         IDM_SETTINGS_PIXELWIDTH_720
+            , CHECKED
+            MENUITEM "640",                         IDM_SETTINGS_PIXELWIDTH_640
+
+            MENUITEM "480",                         IDM_SETTINGS_PIXELWIDTH_480
+
+            MENUITEM "384",                         IDM_SETTINGS_PIXELWIDTH_384
+
+            MENUITEM "320",                         IDM_SETTINGS_PIXELWIDTH_320
+
+            MENUITEM "Custom ...",                  IDM_SETTINGS_PIXELWIDTH_CUSTOM
+
+        END
+        POPUP "&Audio Input"
+        BEGIN
+            MENUITEM "&Mute\tM",                    IDM_MUTE
+            MENUITEM "&Tuner\tCtrl+Shift+F1",       IDM_AUDIO_0
+            MENUITEM "Line &1\tCtrl+Shift+F2",      IDM_AUDIO_1
+            MENUITEM "Line &2\tCtrl+Shift+F3",      IDM_AUDIO_2
+            MENUITEM SEPARATOR
+            MENUITEM "Use internal &OSS",           IDM_INTERNAL_OSS
+        END
+        POPUP "Audio Sta&ndard"
+        BEGIN
+            MENUITEM "PAL-B/G FM-stereo",           IDM_AUDIOSTANDARD_1
+            MENUITEM "PAL-D/K1 FM-stereo",          IDM_AUDIOSTANDARD_2
+            MENUITEM "PAL-D/K2 FM-stereo",          IDM_AUDIOSTANDARD_3
+            MENUITEM "PAL-D/K3 FM-stereo",          IDM_AUDIOSTANDARD_4
+            MENUITEM "PAL-B/G NICAM",               IDM_AUDIOSTANDARD_5
+            MENUITEM "PAL-I NICAM",                 IDM_AUDIOSTANDARD_6
+            MENUITEM "PAL-D/K NICAM",               IDM_AUDIOSTANDARD_7
+            MENUITEM "SECAM-L NICAM",               IDM_AUDIOSTANDARD_8
+            MENUITEM "NTSC-M",                      IDM_AUDIOSTANDARD_9
+            MENUITEM "NTSC-A2 FM-stereo",           IDM_AUDIOSTANDARD_10
+        END
+        POPUP "Audio &Channel"
+        BEGIN
+            MENUITEM "&Mono",                       IDM_SOUNDCHANNEL_MONO
+            MENUITEM "&Stereo",                     IDM_SOUNDCHANNEL_STEREO
+            MENUITEM "Speech Channel &1",           IDM_SOUNDCHANNEL_LANGUAGE1
+
+            MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
+
+            MENUITEM SEPARATOR
+            MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO, GRAYED
+        END
+        POPUP "MSP 34x0 Audio Settings"
+        BEGIN
+            MENUITEM "&Volume and Tone",            IDM_AUDIOSETTINGS
+            MENUITEM "&Equalizer",                  IDM_MSP_EQUALIZER
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Setup Card / Tuner ...",     IDM_SETUPCARD
+        MENUITEM SEPARATOR
+        POPUP "Advanced"
+        BEGIN
+            MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
+            MENUITEM "Reset Capture Card",          IDM_RESET
+            MENUITEM "&Hardware Info ...",          IDM_HWINFO
+            MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
+            MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
+        END
+    END
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////

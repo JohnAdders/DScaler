@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.7 2002-10-15 15:03:24 kooiman Exp $
+// $Id: TreeSettingsDlg.h,v 1.8 2002-10-19 15:15:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/15 15:03:24  kooiman
+// Resizable tree setting dialog
+//
 // Revision 1.6  2002/10/02 10:52:55  kooiman
 // Fix memory leak.
 //
@@ -55,6 +58,7 @@
 #include "Setting.h"
 #include "TreeSettingsPage.h"
 #include "..\DScalerRes\resource.h"
+#include "GradientStatic.h"
 
 #define FILTER_SETTINGS_MASK        0x01
 #define DEINTERLACE_SETTINGS_MASK   0x02
@@ -71,17 +75,17 @@ class CTreeSettingsDlg : public CDialog
 // Construction
 public:
 	CTreeSettingsDlg(CString caption,CWnd* pParent = NULL);   // standard constructor
-	
+
 	/**
 	 * Adds a new page to the tree.
 	 *
 	 * @param pPage pointer to the page
-	 * @param parent parent node in the tree. 
+	 * @param parent parent node in the tree.
 	 * note that the parent must already have been added with a call to AddPage
 	 * @return integer used when adding new pages as a child of this one
 	 */
 	int AddPage(CTreeSettingsPage *pPage,int parent=-1,int imageIndex=0,int imageIndexSelected=0);
-	
+
 	bool ShowPage(int iPage);
 
 	/**
@@ -96,6 +100,7 @@ public:
 	//{{AFX_DATA(CTreeSettingsDlg)
 	enum { IDD = IDD_TREESETTING };
 	CTreeCtrl	m_tree;
+	CGradientStatic	m_PageHeader;
 	//}}AFX_DATA
 
 
@@ -140,6 +145,8 @@ private:
 	int m_iStartPage;
     //image list
     CImageList m_ImageList;
+
+	CFont m_StaticFont;
 };
 
 //{{AFX_INSERT_LOCATION}}

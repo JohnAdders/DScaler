@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsPage.cpp,v 1.3 2002-05-19 12:01:43 tobbej Exp $
+// $Id: TreeSettingsPage.cpp,v 1.4 2002-10-19 15:15:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/05/19 12:01:43  tobbej
+// fixed sizing of propertypage
+//
 // Revision 1.2  2002/05/09 17:20:15  tobbej
 // fixed resize problem in CTreeSettingsOleProperties
 // (everytime a new page was activated the dialog size incresed)
@@ -44,14 +47,31 @@ static char THIS_FILE[] = __FILE__;
 // CTreeSettingsPage dialog
 
 
-CTreeSettingsPage::CTreeSettingsPage(CString name,UINT nIDTemplate)
-	: CDialog(nIDTemplate, NULL),m_dlgID(nIDTemplate),m_name(name),m_minHeight(0),m_minWidth(0),m_bInitMinSize(true)
+CTreeSettingsPage::CTreeSettingsPage(CString TreeName,UINT nIDTemplate)
+:CDialog(nIDTemplate, NULL),
+m_dlgID(nIDTemplate),
+m_name(TreeName),
+m_HeaderName(TreeName),
+m_minHeight(0),
+m_minWidth(0),
+m_bInitMinSize(true)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsPage)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 }
 
+CTreeSettingsPage::CTreeSettingsPage(CString TreeName,CString HeaderName,UINT nIDTemplate)
+:CDialog(nIDTemplate, NULL),
+m_dlgID(nIDTemplate),
+m_name(TreeName),
+m_HeaderName(HeaderName),
+m_minHeight(0),
+m_minWidth(0),
+m_bInitMinSize(true)
+{
+
+}
 
 void CTreeSettingsPage::DoDataExchange(CDataExchange* pDX)
 {
@@ -71,7 +91,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsPage message handlers
 
-BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg) 
+BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg)
 {
 	//dont allow escape key to be processed by the page
 	//the escape key will normaly close the dialog
@@ -79,7 +99,7 @@ BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg)
 	{
 		return TRUE;
 	}
-	
+
 	return CDialog::PreTranslateMessage(pMsg);
 }
 

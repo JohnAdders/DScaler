@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.5 2002-10-15 15:04:01 kooiman Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.6 2002-10-19 15:15:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/15 15:04:01  kooiman
+// Resizable tree setting dialog and use ISetting/CSimpleSetting as setting interface.
+//
 // Revision 1.4  2002/09/28 13:34:36  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -67,9 +70,9 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING* settings,long c
 {
     //{{AFX_DATA_INIT(CTreeSettingsGeneric)
     //}}AFX_DATA_INIT
-    
+
     m_SettingsCount = count;
-    m_Settings.LoadSettingStructures(settings,0,m_SettingsCount);    
+    m_Settings.LoadSettingStructures(settings,0,m_SettingsCount);
     m_DeleteSettingsOnExit = TRUE;
 }
 
@@ -78,12 +81,12 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> 
 	m_CurrentSetting(0),
     m_Settings((SETTINGHOLDERID)0),
     m_DeleteSettingsOnExit(FALSE)
-{  
-    m_SettingsCount = csettings.size();      
+{
+    m_SettingsCount = csettings.size();
     for (int i = 0; i < m_SettingsCount; i++)
     {
         m_Settings.AddSetting(csettings[i]);
-    }  
+    }
 }
 
 CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTINGEX* settings,long count)
@@ -94,11 +97,11 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTINGEX* settings,long
 {
     //{{AFX_DATA_INIT(CTreeSettingsGeneric)
     //}}AFX_DATA_INIT
-    
+
     CSettingGroupList LocalGroupList;
 
     m_SettingsCount = count;
-    m_Settings.LoadSettingStructuresEx(settings,0,m_SettingsCount,&LocalGroupList);        
+    m_Settings.LoadSettingStructuresEx(settings,0,m_SettingsCount,&LocalGroupList);
     for (int i = 0; i < m_SettingsCount; i++)
     {
         if (m_Settings[i] != NULL)
@@ -132,9 +135,9 @@ void CTreeSettingsGeneric::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT, m_CheckVideoInputBox);
 	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT, m_CheckAudioInputBox);
 	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOFORMAT, m_CheckVideoFormatBox);
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, m_CheckChannelBox);	
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SETTINGINFO, m_SavePerInfoBox);		
-	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_TOPBOX, m_TopGroupBox);	
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_CHANNEL, m_CheckChannelBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SETTINGINFO, m_SavePerInfoBox);
+	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_TOPBOX, m_TopGroupBox);
     //}}AFX_DATA_MAP
 }
 
@@ -192,7 +195,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
     m_CurrentSetting = idx;
 
     SETTING_TYPE Type = NOT_PRESENT;
-    
+
     if (m_Settings[m_CurrentSetting] != NULL)
     {
         Type = m_Settings[m_CurrentSetting]->GetType();
@@ -247,22 +250,22 @@ void CTreeSettingsGeneric::OnSelchangeList()
 	BOOL bShowBoxes = FALSE;
 	if ((m_Settings[m_CurrentSetting] != NULL) && (m_Settings[m_CurrentSetting]->GetFlags() != 0))
     {
-		bShowBoxes = TRUE;	
+		bShowBoxes = TRUE;
 	}
 
     char *szName = NULL;
     if (m_Settings[m_CurrentSetting] != NULL)
     {
         szName = (char*)((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetDisplayName();
-        if (szName == NULL) 
-        { 
-            szName = (char*)((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetEntry();         
+        if (szName == NULL)
+        {
+            szName = (char*)((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetEntry();
         }
     }
 
-    if (szName == NULL) 
-    { 
-        szName = ""; 
+    if (szName == NULL)
+    {
+        szName = "";
     }
 
 	if (bShowBoxes)
@@ -273,17 +276,17 @@ void CTreeSettingsGeneric::OnSelchangeList()
 		m_CheckVideoInputBox.ShowWindow(SW_SHOW);
 		m_CheckAudioInputBox.ShowWindow(SW_SHOW);
 		m_CheckVideoFormatBox.ShowWindow(SW_SHOW);
-		m_CheckChannelBox.ShowWindow(SW_SHOW);		
+		m_CheckChannelBox.ShowWindow(SW_SHOW);
 
 		char szBuffer[200];
-          	    
+
 		if (szName[0] != 0)
 		{
 			sprintf(szBuffer,"Load and save \"%s\" per",szName);
 		} else {
 			szBuffer[0] = 0;
 		}
-		m_TopGroupBox.SetWindowText(szBuffer);		
+		m_TopGroupBox.SetWindowText(szBuffer);
 	}
 	else
 	{
@@ -293,7 +296,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
 		m_CheckAudioInputBox.ShowWindow(SW_HIDE);
 		m_CheckVideoFormatBox.ShowWindow(SW_HIDE);
 		m_CheckChannelBox.ShowWindow(SW_HIDE);
-		
+
 		m_TopGroupBox.SetWindowText("");
 		m_SavePerInfoBox.SetWindowText(szName);
 		m_SavePerInfoBox.ShowWindow(SW_SHOW);
@@ -343,21 +346,21 @@ void CTreeSettingsGeneric::UpdateControls()
     {
         //Setting_SetupSlider(m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
         CSliderSetting *pSetting = (CSliderSetting*)m_Settings[m_CurrentSetting];
-        pSetting->SetupControl(m_Slider.m_hWnd);        
+        pSetting->SetupControl(m_Slider.m_hWnd);
     }
 
     if((m_Combo.GetStyle() & WS_VISIBLE) && (m_Settings[m_CurrentSetting]->GetType() == ITEMFROMLIST))
     {
         CListSetting *pSetting = (CListSetting*)m_Settings[m_CurrentSetting];
         char **pszList = (char**)pSetting->GetList();
-        
+
         m_Combo.ResetContent();
         if(pszList != NULL)
         {
             bool bFoundSetting=false;
-            
+
             for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
-            {                
+            {
                 //is there any text for this item?
                 if ( (pszList[i] != NULL) && (strlen(pszList[i])>0) )
                 {
@@ -381,16 +384,16 @@ void CTreeSettingsGeneric::UpdateControls()
             }
         }
     }
-	
+
 	if (m_Settings[m_CurrentSetting]->GetFlags() != 0)
-	{	
+	{
 		long Flags = m_Settings[m_CurrentSetting]->GetFlags();
 		m_CheckGlobalBox.SetCheck(((Flags & SETTINGFLAG_GLOBAL)!=0));
 		m_CheckSourceBox.SetCheck(((Flags & SETTINGFLAG_PER_SOURCE)!=0));
 		m_CheckVideoInputBox.SetCheck(((Flags & SETTINGFLAG_PER_VIDEOINPUT)!=0));
 		m_CheckAudioInputBox.SetCheck(((Flags & SETTINGFLAG_PER_AUDIOINPUT)!=0));
 		m_CheckVideoFormatBox.SetCheck(((Flags & SETTINGFLAG_PER_VIDEOFORMAT)!=0));
-		m_CheckChannelBox.SetCheck(((Flags & SETTINGFLAG_PER_CHANNEL)!=0));			        
+		m_CheckChannelBox.SetCheck(((Flags & SETTINGFLAG_PER_CHANNEL)!=0));
 
 		//Till it works:
 		Flags&=~SETTINGFLAG_ALLOW_MASK;
@@ -400,7 +403,7 @@ void CTreeSettingsGeneric::UpdateControls()
 		m_CheckVideoInputBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_VIDEOINPUT)!=0));
 		m_CheckAudioInputBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_AUDIOINPUT)!=0));
 		m_CheckVideoFormatBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_VIDEOFORMAT)!=0));
-		m_CheckChannelBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_CHANNEL)!=0));	
+		m_CheckChannelBox.EnableWindow(((Flags & SETTINGFLAG_ALLOW_PER_CHANNEL)!=0));
 	}
     bInUpdate = false;
 }
@@ -412,35 +415,35 @@ void CTreeSettingsGeneric::OnChangeEdit()
 
     CString Value;
     m_Edit.GetWindowText(Value);
-    
+
     if (m_Settings[m_CurrentSetting] != NULL)
     {
         m_Settings[m_CurrentSetting]->SetValue(atol(Value));
     }
-    
+
     UpdateControls();
 }
 
 void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
     //slider has changed
-    
+
     if ( (m_Settings[m_CurrentSetting] != NULL) && (m_Settings[m_CurrentSetting]->GetType() == SLIDER) )
     {
         CSliderSetting *pSetting = (CSliderSetting*)m_Settings[m_CurrentSetting];
         pSetting->SetFromControl(m_Slider.m_hWnd);
     }
-    
+
     UpdateControls();
 }
 
 void CTreeSettingsGeneric::OnSettingsDefault()
-{    
+{
     if (m_Settings[m_CurrentSetting] != NULL)
     {
         m_Settings[m_CurrentSetting]->SetDefault();
     }
-    
+
     UpdateControls();
 }
 
@@ -448,9 +451,9 @@ void CTreeSettingsGeneric::OnCheckClick()
 {
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        m_Settings[m_CurrentSetting]->SetValue(m_CheckBox.GetCheck());    
+        m_Settings[m_CurrentSetting]->SetValue(m_CheckBox.GetCheck());
     }
-    
+
     UpdateControls();
 }
 
@@ -461,7 +464,7 @@ void CTreeSettingsGeneric::OnCheckGlobalClick()
 		long Flags = m_Settings[m_CurrentSetting]->GetFlags();
         if (Flags & SETTINGFLAG_ALLOW_GLOBAL)
         {
-            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_GLOBAL, (Flags&SETTINGFLAG_GLOBAL) ? FALSE : TRUE);		
+            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_GLOBAL, (Flags&SETTINGFLAG_GLOBAL) ? FALSE : TRUE);
         }
 	}
 	UpdateControls();
@@ -487,7 +490,7 @@ void CTreeSettingsGeneric::OnCheckVideoInputClick()
         long Flags = m_Settings[m_CurrentSetting]->GetFlags();
         if (Flags & SETTINGFLAG_ALLOW_PER_VIDEOINPUT)
         {
-            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_VIDEOINPUT, (Flags&SETTINGFLAG_PER_VIDEOINPUT) ? FALSE : TRUE);		
+            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_VIDEOINPUT, (Flags&SETTINGFLAG_PER_VIDEOINPUT) ? FALSE : TRUE);
         }
 	}
 	UpdateControls();
@@ -500,7 +503,7 @@ void CTreeSettingsGeneric::OnCheckAudioInputClick()
 		long Flags = m_Settings[m_CurrentSetting]->GetFlags();
         if (Flags & SETTINGFLAG_ALLOW_PER_AUDIOINPUT)
         {
-            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_AUDIOINPUT, (Flags&SETTINGFLAG_PER_AUDIOINPUT) ? FALSE : TRUE);		
+            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_AUDIOINPUT, (Flags&SETTINGFLAG_PER_AUDIOINPUT) ? FALSE : TRUE);
         }
 	}
 	UpdateControls();
@@ -514,7 +517,7 @@ void CTreeSettingsGeneric::OnCheckVideoFormatClick()
 		long Flags = m_Settings[m_CurrentSetting]->GetFlags();
         if (Flags & SETTINGFLAG_ALLOW_PER_VIDEOFORMAT)
         {
-            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_VIDEOFORMAT, (Flags&SETTINGFLAG_PER_VIDEOFORMAT) ? FALSE : TRUE);		
+            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_VIDEOFORMAT, (Flags&SETTINGFLAG_PER_VIDEOFORMAT) ? FALSE : TRUE);
         }
 	}
 	UpdateControls();
@@ -527,7 +530,7 @@ void CTreeSettingsGeneric::OnCheckChannelClick()
 		long Flags = m_Settings[m_CurrentSetting]->GetFlags();
         if (Flags & SETTINGFLAG_ALLOW_PER_CHANNEL)
         {
-            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_CHANNEL, (Flags&SETTINGFLAG_PER_CHANNEL) ? FALSE : TRUE);		
+            m_Settings[m_CurrentSetting]->SetFlag(SETTINGFLAG_PER_CHANNEL, (Flags&SETTINGFLAG_PER_CHANNEL) ? FALSE : TRUE);
         }
 	}
 	UpdateControls();
@@ -537,7 +540,7 @@ void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
 {
     if((m_Combo.GetCurSel()!=CB_ERR) && (m_Settings[m_CurrentSetting] != NULL))
     {
-        m_Settings[m_CurrentSetting]->SetValue(m_Combo.GetItemData(m_Combo.GetCurSel()));        
+        m_Settings[m_CurrentSetting]->SetValue(m_Combo.GetItemData(m_Combo.GetCurSel()));
     }
     UpdateControls();
 }
@@ -548,8 +551,8 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-        long Value = m_Settings[m_CurrentSetting]->GetValue();    
-        
+        long Value = m_Settings[m_CurrentSetting]->GetValue();
+
         if(pNMUpDown->iDelta > 0)
         {
             ((CSimpleSetting*)m_Settings[m_CurrentSetting])->Up();
@@ -557,7 +560,7 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
         else
         {
             ((CSimpleSetting*)m_Settings[m_CurrentSetting])->Down();
-        }    
+        }
 
         *pResult = m_Settings[m_CurrentSetting]->GetValue();
     }
@@ -568,36 +571,38 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
 void CTreeSettingsGeneric::OnOK()
 {
     //WriteSettingsToIni(TRUE);
-    
+
     //Write settings & clear list
     m_Settings.ClearSettingList(m_DeleteSettingsOnExit, TRUE);
     CTreeSettingsPage::OnOK();
 }
 
-void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy) 
-{    
+void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
+{
+    CTreeSettingsPage::OnSize(nType,cx,cy);
+
     RECT rect;
     int TopBoxBottom = -1;
     int ValueBoxTop = -1;
 
-    CWnd *pTopBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_TOPBOX); 
+    CWnd *pTopBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_TOPBOX);
     if (pTopBox != NULL)
     {
         pTopBox->GetWindowRect(&rect);
         ScreenToClient(&rect);
-        rect.right = cx;        
-        pTopBox->MoveWindow(&rect,FALSE);        
+        rect.right = cx;
+        pTopBox->MoveWindow(&rect);
         TopBoxBottom = rect.bottom;
     }
 
 
-    CWnd *pValueBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_VALUEBOX);    
+    CWnd *pValueBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_VALUEBOX);
     if (pValueBox != NULL)
     {
         int DefaultBtnLeft = 0;
         RECT rcBox;
         RECT rcBoxOrg;
-        
+
         pValueBox->GetWindowRect(&rect);
         ScreenToClient(&rect);
 
@@ -606,14 +611,14 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
         rect.right = cx;
         rect.top = cy - (rect.bottom-rect.top);
         rect.bottom = cy;
-        pValueBox->MoveWindow(&rect,FALSE);
+        pValueBox->MoveWindow(&rect);
         ValueBoxTop = rect.top;
 
         // Items in box
         rcBox = rect;
-        
+
         // Default button
-        CWnd *pDefaultBtn = GetDlgItem(IDC_TREESETTINGS_GENERIC_DEFAULT); 
+        CWnd *pDefaultBtn = GetDlgItem(IDC_TREESETTINGS_GENERIC_DEFAULT);
         if (pDefaultBtn != NULL)
         {
             pDefaultBtn->GetWindowRect(&rect);
@@ -623,16 +628,16 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
 
             rect.right = rcBox.right - 5;
             rect.bottom = rcBox.bottom - 5;
-            
+
             rect.left = rect.right - Width;
-            rect.top = rect.bottom - Height;        
-            pDefaultBtn->MoveWindow(&rect,FALSE);
+            rect.top = rect.bottom - Height;
+            pDefaultBtn->MoveWindow(&rect);
 
             DefaultBtnLeft = rect.left;
         }
 
         // Check box
-        CWnd *pCheckBtn = GetDlgItem(IDC_TREESETTINGS_GENERIC_CHECK); 
+        CWnd *pCheckBtn = GetDlgItem(IDC_TREESETTINGS_GENERIC_CHECK);
         if (pCheckBtn != NULL)
         {
             pCheckBtn->GetWindowRect(&rect);
@@ -640,36 +645,36 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             int Height= (rect.bottom-rect.top);
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
-            rect.right = rcBox.right - 5;                        
-            pCheckBtn->MoveWindow(&rect,FALSE);
+            rect.right = rcBox.right - 5;
+            pCheckBtn->MoveWindow(&rect);
         }
-    
+
         // Edit box
-        CWnd *pEditBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT); 
+        CWnd *pEditBox = GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT);
         if (pEditBox != NULL)
         {
             pEditBox->GetWindowRect(&rect);
             ScreenToClient(&rect);
             int Height= (rect.bottom-rect.top);
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
-            rect.bottom = rect.top + Height;                                 
-            pEditBox->MoveWindow(&rect,FALSE);
+            rect.bottom = rect.top + Height;
+            pEditBox->MoveWindow(&rect);
         }
-        
+
         // Spin
-        CWnd *pSpinControl = GetDlgItem(IDC_TREESETTINGS_GENERIC_SPIN); 
+        CWnd *pSpinControl = GetDlgItem(IDC_TREESETTINGS_GENERIC_SPIN);
         if (pSpinControl != NULL)
         {
             pSpinControl->GetWindowRect(&rect);
             ScreenToClient(&rect);
             int Height= (rect.bottom-rect.top);
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
-            rect.bottom = rect.top + Height;                                 
-            pSpinControl->MoveWindow(&rect,FALSE);
+            rect.bottom = rect.top + Height;
+            pSpinControl->MoveWindow(&rect);
         }
 
         //Slider
-        CWnd *pSlider = GetDlgItem(IDC_TREESETTINGS_GENERIC_SLIDER); 
+        CWnd *pSlider = GetDlgItem(IDC_TREESETTINGS_GENERIC_SLIDER);
         if (pSlider != NULL)
         {
             pSlider->GetWindowRect(&rect);
@@ -680,12 +685,12 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
                 rect.right = DefaultBtnLeft - 10;
             }
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
-            rect.bottom = rect.top + Height;                                 
-            pSlider->MoveWindow(&rect,FALSE);
+            rect.bottom = rect.top + Height;
+            pSlider->MoveWindow(&rect);
         }
 
-        //Combo box        
-        CWnd *pChooseFromList = GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST); 
+        //Combo box
+        CWnd *pChooseFromList = GetDlgItem(IDC_TREESETTINGS_GENERIC_CHOOSEFROMLIST);
         if (pChooseFromList != NULL)
         {
             pChooseFromList->GetWindowRect(&rect);
@@ -696,23 +701,24 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
                 rect.right = DefaultBtnLeft - 10;
             }
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
-            rect.bottom = rect.top + Height;                                 
-            pChooseFromList->MoveWindow(&rect,FALSE);
+            rect.bottom = rect.top + Height;
+            pChooseFromList->MoveWindow(&rect);
         }
     }
 
-    
-    CWnd *pList = GetDlgItem(IDC_TREESETTINGS_GENERIC_LIST); 
+
+    CWnd *pList = GetDlgItem(IDC_TREESETTINGS_GENERIC_LIST);
     if (pList != NULL)
     {
         pList->GetWindowRect(&rect);
         ScreenToClient(&rect);
-        rect.right = cx;        
+        rect.right = cx;
         if (ValueBoxTop > rect.top)
         {
            rect.bottom = ValueBoxTop;
         }
-        pList->MoveWindow(&rect,FALSE);
+        pList->MoveWindow(&rect);
     }
-    
+    Invalidate();
+
 }

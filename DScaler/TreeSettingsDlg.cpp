@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.21 2002-10-15 15:03:24 kooiman Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.22 2002-10-19 15:15:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/10/15 15:03:24  kooiman
+// Resizable tree setting dialog
+//
 // Revision 1.20  2002/10/02 10:52:55  kooiman
 // Fix memory leak.
 //
@@ -138,6 +141,7 @@ void CTreeSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CTreeSettingsDlg)
 	DDX_Control(pDX, IDC_TREESETTINGS_TREE, m_tree);
+	DDX_Control(pDX, IDC_TREESETTINGS_STATIC, m_PageHeader);
 	//}}AFX_DATA_MAP
 }
 
@@ -153,7 +157,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CTreeSettingsDlg message handlers
 
-void CTreeSettingsDlg::OnOK() 
+void CTreeSettingsDlg::OnOK()
 {
 	for(int i=0;i<m_pages.size();i++)
 	{
@@ -181,11 +185,11 @@ void CTreeSettingsDlg::OnOK()
 			pPage->OnOK();
 		}
 	}
-	
+
 	CDialog::OnOK();
 }
 
-void CTreeSettingsDlg::OnCancel() 
+void CTreeSettingsDlg::OnCancel()
 {
 	for(int i=0;i<m_pages.size();i++)
 	{
@@ -200,18 +204,18 @@ void CTreeSettingsDlg::OnCancel()
 	for(i=0;i<m_pages.size();i++)
 	{
 		CTreeSettingsPage *pPage=m_pages[i].m_pPage;
-		
+
 		//call OnCancel only on pages that has been created (selected atleast once)
 		if(::IsWindow(pPage->m_hWnd))
 		{
 			pPage->OnCancel();
 		}
 	}
-	
+
 	CDialog::OnCancel();
 }
 
-void CTreeSettingsDlg::OnSelchangingTree(NMHDR* pNMHDR, LRESULT* pResult) 
+void CTreeSettingsDlg::OnSelchangingTree(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	NM_TREEVIEW* pNMTreeView = (NM_TREEVIEW*)pNMHDR;
 	*pResult = 0;
@@ -225,11 +229,19 @@ void CTreeSettingsDlg::OnSelchangingTree(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 }
 
-BOOL CTreeSettingsDlg::OnInitDialog() 
+BOOL CTreeSettingsDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-	
+
 	SetWindowText(m_settingsDlgCaption);
+
+	m_StaticFont.CreateFont(18,0,0,0,900,0,0,0,0,0,0,ANTIALIASED_QUALITY,0,"Arial");
+	m_PageHeader.SetFont(&m_StaticFont);
+
+	//don't know if m_PageHeader:s default colors looks good on all versions of windows
+	//the comented lines below changes the gradient to a black and white gradient with white text
+	/*m_PageHeader.SetGradientColor(RGB(0,0,0),RGB(255,255,255));
+	m_PageHeader.SetTextColor(RGB(255,255,255));*/
 
     m_tree.SetImageList(&m_ImageList, TVSIL_NORMAL);
 
@@ -250,7 +262,7 @@ BOOL CTreeSettingsDlg::OnInitDialog()
         {
             ExpandPage = 0;
         }
-        m_tree.SetItemState(hNode,(i==ExpandPage)?TVIS_EXPANDED:0,TVIS_EXPANDED);        
+        m_tree.SetItemState(hNode,(i==ExpandPage)?TVIS_EXPANDED:0,TVIS_EXPANDED);
 		m_tree.SetItemData(hNode,i);
 		m_pages[i].m_hTreeItem=hNode;
 	}
@@ -308,7 +320,7 @@ bool CTreeSettingsDlg::ShowPage(int iPage)
 	{
 		return false;
 	}
-	
+
 	//deactivate current page
 	CTreeSettingsPage *pCurrentPage=NULL;
 	if(m_iCurrentPage>=0 && m_iCurrentPage<m_pages.size())
@@ -323,32 +335,34 @@ bool CTreeSettingsDlg::ShowPage(int iPage)
 			return false;
 		}
 	}
-	
+
 	//show the new page
 	pNewPage->ShowWindow(SW_SHOWNOACTIVATE);
 	m_iCurrentPage=iPage;
-	
+
 	//make sure the new page is properly positioned
 	CRect rect;
 	GetClientRect(&rect);
 	PostMessage(WM_SIZE,SIZE_RESTORED,MAKELPARAM(rect.Width(),rect.Height()));
+
+	m_PageHeader.SetWindowText(pNewPage->GetHeaderName());
 	return true;
 }
 
-void CTreeSettingsDlg::OnHelpBtn() 
+void CTreeSettingsDlg::OnHelpBtn()
 {
 	//send WM_COMMANDHELP (mfc internal message) to the currently active page
 	if(m_iCurrentPage>=0 && m_iCurrentPage<m_pages.size())
 	{
 		m_pages[m_iCurrentPage].m_pPage->SendMessage(WM_COMMANDHELP);
 	}
-	
+
 }
 
-void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy) 
+void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
-	
+
 	if(m_iCurrentPage>=0 && m_iCurrentPage<m_pages.size())
 	{
 		CRect rect;
@@ -366,8 +380,8 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
         rect.left = righthalf;
 		rect.right = cx-10;
 		rect.bottom=cy-50;
-		pPageFrame->MoveWindow(rect,FALSE);
-		
+		pPageFrame->MoveWindow(rect);
+
 		//check if the current size is enough for the active page
 		int minWidth=0;
 		int minHeight=0;
@@ -376,17 +390,26 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		{
 			CRect dlgRect;
 			GetWindowRect(&dlgRect);
-			
+
 			//calculate by how much the size must be increased
 			int newWidth=(minWidth-rect.Width())>0 ? minWidth-rect.Width() : 0;
 			int newHeight=(minHeight-rect.Height())>0 ?minHeight-rect.Height() : 0;
-			
+
 			dlgRect.right+=newWidth;
 			dlgRect.bottom+=newHeight;
 			MoveWindow(&dlgRect);
 			return;
 		}
-		m_pages[m_iCurrentPage].m_pPage->MoveWindow(rect,FALSE);
+		m_pages[m_iCurrentPage].m_pPage->MoveWindow(rect);
+		m_pages[m_iCurrentPage].m_pPage->Invalidate();
+
+		CRect gradient;
+		m_PageHeader.GetWindowRect(gradient);
+		ScreenToClient(&gradient);
+		gradient.left=rect.left;
+		gradient.right=rect.right;
+		m_PageHeader.MoveWindow(gradient);
+		m_PageHeader.InvalidateRect(NULL);
 
 		//line
 		CRect line;
@@ -396,15 +419,15 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		height=line.Height();
 		rect.top=cy-40-height;
 		rect.bottom=rect.top+height;
-		pLine->MoveWindow(&rect,FALSE);
-		
+		pLine->MoveWindow(&rect);
+
 		//tree
 		m_tree.GetWindowRect(&rect);
-		ScreenToClient(&rect);        
+		ScreenToClient(&rect);
         rect.right = rect.left + righthalf - 15;
 		rect.bottom=cy-40;
-		m_tree.MoveWindow(&rect,FALSE);
-		
+		m_tree.MoveWindow(&rect);
+
 		//buttons
 		CWnd *pOkBtn=GetDlgItem(IDOK);
 		CWnd *pCancelBtn=GetDlgItem(IDCANCEL);
@@ -419,26 +442,29 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		rect.left=rect.right-width;
 		rect.top=cy-30;
 		rect.bottom=rect.top+height;
-		pHelpBtn->MoveWindow(&rect,FALSE);
+		pHelpBtn->MoveWindow(&rect);
+		pHelpBtn->Invalidate();
 
 		rect.right=rect.left-5;
 		rect.left=rect.right-width;
-		pCancelBtn->MoveWindow(&rect,FALSE);
+		pCancelBtn->MoveWindow(&rect);
+		pCancelBtn->Invalidate();
 
 		rect.right=rect.left-5;
 		rect.left=rect.right-width;
-		pOkBtn->MoveWindow(&rect,FALSE);
-		InvalidateRect(NULL);
+		pOkBtn->MoveWindow(&rect);
+		pOkBtn->Invalidate();
+		//InvalidateRect(NULL);
 	}
-	
+
 }
 
 
 void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsPage*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList)
 {
 	CTreeSettingsPage *pRootPage;
-	CTreeSettingsGeneric *pPage;	
-	
+	CTreeSettingsGeneric *pPage;
+
 	if (pGroupList != NULL)
 	{
 		IndexList[Depth] = -1;
@@ -447,11 +473,11 @@ void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTr
 		for (int i = 0; i < pGroupList->NumGroups(IndexList); i++)
 		{
 			SubIndexList[Depth] = i;
-			CSettingGroup *pGroup = pGroupList->Find(SubIndexList);			
+			CSettingGroup *pGroup = pGroupList->Find(SubIndexList);
 
             if((pGroup != NULL) && (pGroup->GetObject()!=NULL))
             {
-                try 
+                try
                 {
                     CSource *pSource = dynamic_cast<CSource*>(pGroup->GetObject());
                     if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
@@ -463,42 +489,42 @@ void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTr
                 catch (...)
                 {
                     //No source
-                }                              
+                }
             }
 
 			if (pGroup != NULL)
 			{
 				char *szName = (char*)pGroup->GetLongName();
-				if ((szName == NULL) || (szName[0]==0)) 
-				{ 
-					szName = (char*)pGroup->GetName(); 
-				}											
+				if ((szName == NULL) || (szName[0]==0))
+				{
+					szName = (char*)pGroup->GetName();
+				}
                 int ImageIndex = 0;
                 int ImageIndexSelected = 0;
                 int SubNr;
 
-				pPage = SettingsMaster->GroupTreeSettings(pGroup);				
+				pPage = SettingsMaster->GroupTreeSettings(pGroup);
 				if (pPage != NULL)
 				{
-					pages->push_back(pPage);					
+					pages->push_back(pPage);
                     SubNr = dlg->AddPage(pPage, Nr, ImageIndex, ImageIndexSelected);
 				}
 				else
 				{
 					pRootPage = new CTreeSettingsPage(CString(szName), IDD_TREESETTINGS_EMPTY);
-					//pPage->SetHelpID();				
-					pages->push_back(pRootPage);					
+					//pPage->SetHelpID();
+					pages->push_back(pRootPage);
 					SubNr = dlg->AddPage(pRootPage, Nr, ImageIndex, ImageIndexSelected);
 				}
 				if (Depth<10)
 				{
-					IndexList[Depth] = i;								
+					IndexList[Depth] = i;
 					AddMasterSettingSubTree(dlg,pages,Depth+1,IndexList,SubIndexList,SubNr,pGroupList);
 					IndexList[Depth] = -1;
 					SubIndexList[Depth] = -1;
 				}
 			}
-		}		
+		}
 	}
 }
 
@@ -520,7 +546,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     long i;
 
 	CTreeSettingsPage RootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
-	
+
 	//the default help id is HID_BASE_RESOURCE+dialog template id
 	//but we cant use that for empty pages and the generic property page
 	//so set a new help id to use insted.
@@ -540,7 +566,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
                                                                     FilterMethods[i]->nSettings
                                                                   );
 		    pPage->SetHelpID(FilterMethods[i]->HelpID);
-		    
+
 		    pages.push_back(pPage);
 		    dlg.AddPage(pPage, Root);
 	    }
@@ -562,7 +588,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
                                                                     DeintMethods[i]->nSettings
                                                                   );
 		    pPage->SetHelpID(DeintMethods[i]->HelpID);
-		    
+
 		    pages.push_back(pPage);
 		    dlg.AddPage(pPage, Root);
 	    }
@@ -575,7 +601,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     {
         int Root = dlg.AddPage(&AdvRootPage);
         CTreeSettingsGeneric* pPage;
-       
+
         if (Providers_GetCurrentSource() && (strncmp(Providers_GetCurrentSource()->IDString(),"BT8",3)==0) )
         {
             CBT848Source *pBT848Source = (CBT848Source*)Providers_GetCurrentSource();
@@ -583,7 +609,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
             pages.push_back(pPage);
             dlg.AddPage(pPage, Root);
         }
-        
+
         pPage = FD50_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_22_PULLDOWN);
 	    pages.push_back(pPage);
@@ -668,7 +694,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     }
 	//Add SettingMaster tree:
 
-	
+
 	CSettingGroupList *pGroupList = SettingsMaster->Groups();
 
 	if ((mask & ALL_SETTINGS_MASK) && (pGroupList != NULL))
@@ -679,7 +705,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 		IndexList[Depth] = -1;
 		SubIndexList[Depth] = -1;
 		SubIndexList[Depth+1] = -1;
-		AddMasterSettingSubTree(&dlg, &pages, Depth,IndexList,SubIndexList,-1,pGroupList);							
+		AddMasterSettingSubTree(&dlg, &pages, Depth,IndexList,SubIndexList,-1,pGroupList);
 	}
 
 

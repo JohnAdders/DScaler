@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.42 2003-11-14 09:37:47 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.43 2003-11-14 10:32:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/11/14 09:37:47  adcockj
+// Added degub register settings for PMS card
+//
 // Revision 1.41  2003/11/13 17:32:48  adcockj
 // Added BT8x8 register debugger
 //
@@ -1295,7 +1298,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             {
                 RegValue &= ~(1 << (LOWORD(wParam) - IDC_BIT0));
             }
-            if(RegValue < 0x1000)
+            if(dwAddress < 0x1000)
             {
                 pThis->WriteDword(dwAddress, RegValue);
             }
@@ -1303,7 +1306,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             {
                 if(pThis->m_SAA7118 != NULL)
                 {
-                    pThis->m_SAA7118->SetRegister(RegValue - 0x1000, RegValue);
+                    pThis->m_SAA7118->SetRegister(dwAddress - 0x1000, RegValue);
                 }
             }
             break;
@@ -1315,7 +1318,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
                 if(Index != -1)
                 {
                     dwAddress = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index);
-                    if(RegValue < 0x1000)
+                    if(dwAddress < 0x1000)
                     {
                         RegValue = pThis->ReadByte(dwAddress);
                     }
@@ -1323,7 +1326,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
                     {
                         if(pThis->m_SAA7118 != NULL)
                         {
-                            RegValue = pThis->m_SAA7118->GetRegister(RegValue - 0x1000);
+                            RegValue = pThis->m_SAA7118->GetRegister(dwAddress - 0x1000);
                         }
                     }
                     BYTE TempRegValue(RegValue);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.cpp,v 1.7 2001-08-13 12:05:12 adcockj Exp $
+// $Id: DSDrv.cpp,v 1.8 2001-08-14 10:30:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/08/13 12:05:12  adcockj
+// Updated range for contrast and saturation
+// Added more code for new driver interface
+//
 // Revision 1.6  2001/08/08 18:02:23  adcockj
 // Fixed memorymap bug
 //
@@ -73,8 +77,8 @@ public:
     void writePortL(DWORD dwAddress, DWORD dwValue);
     DWORD allocMemory(DWORD dwLength, DWORD dwFlags, PMemStruct* ppMemStruct);
     DWORD freeMemory(PMemStruct pMemStruct);
-    DWORD pciGetHardwareResources(DWORD dwVendorID, DWORD  dwDeviceID, DWORD dwCardIndex, TPCICARDINFO* pPCICardInfo);
-    DWORD memoryMap(DWORD dwBusNumber, DWORD dwAddress, DWORD dwLength);
+    DWORD pciGetHardwareResources(DWORD dwVendorID, DWORD  dwDeviceID, PDWORD pdwMemoryAddress, PDWORD pdwMemoryLength, PDWORD pdwSubSystemId);
+    DWORD memoryMap(DWORD dwAddress, DWORD dwLength);
     void memoryUnmap(DWORD dwAddress, DWORD dwLength);
     void memoryWriteDWORD(DWORD dwAddress, DWORD dwValue);
     DWORD memoryReadDWORD(DWORD dwAddress);
@@ -177,9 +181,9 @@ DWORD WINAPI memoryFree(PMemStruct pMemStruct)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD WINAPI memoryMap(DWORD dwBusNumber, DWORD dwAddress, DWORD dwLength)
+DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength)
 {
-    return DSDriver.memoryMap(dwBusNumber, dwAddress, dwLength);
+    return DSDriver.memoryMap(dwAddress, dwLength);
 }
 
 //---------------------------------------------------------------------------
@@ -228,19 +232,17 @@ BYTE WINAPI memoryReadBYTE(DWORD dwAddress)
 // Get back the PCI hardware resources, we assumes that only mapped memory
 // is avail.
 //---------------------------------------------------------------------------
-DWORD WINAPI pciGetHardwareResources(
-                                         DWORD   dwVendorID,
-                                         DWORD   dwDeviceID,
-                                         DWORD   dwCardIndex,
-                                         TPCICARDINFO* pPCICardInfo
-                                     )
+DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
+                                        DWORD dwDeviceID,
+                                        PDWORD pdwMemoryAddress,
+                                        PDWORD pdwMemoryLength,
+                                        PDWORD pdwSubSystemId)
 {
-    return DSDriver.pciGetHardwareResources(
-                                                dwVendorID,
+    return DSDriver.pciGetHardwareResources(dwVendorID,
                                                 dwDeviceID,
-                                                dwCardIndex,
-                                                pPCICardInfo
-                                            );
+                                                pdwMemoryAddress,
+                                                pdwMemoryLength,
+                                                pdwSubSystemId);
 }
 
 //---------------------------------------------------------------------------
@@ -435,15 +437,15 @@ DWORD CDSDriver::freeMemory(PMemStruct pMemStruct)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CDSDriver::memoryMap(DWORD dwBusNumber, DWORD dwAddress, DWORD dwLength)
+DWORD CDSDriver::memoryMap(DWORD dwAddress, DWORD dwLength)
 {
     TDSDrvParam hwParam;
-    DWORD       dwMappedAddress(0);
+    DWORD       dwMappedAddress;
     DWORD       dwReturnedLength;
 
-    hwParam.dwAddress = dwBusNumber;
-    hwParam.dwValue = dwAddress;
-    hwParam.dwFlags = dwLength;
+    hwParam.dwAddress = dwAddress;
+    hwParam.dwValue   = dwLength;
+    dwMappedAddress = 0;
 
     deviceControl(ioctlMapMemory,
                     &hwParam,
@@ -556,7 +558,6 @@ BYTE CDSDriver::memoryReadBYTE(DWORD dwAddress)
     BYTE ucValue(0);
 
     hwParam.dwAddress = dwAddress;
-    hwParam.dwValue = dwAddress;
     deviceControl(ioctlReadMemoryBYTE,
                     &hwParam,
                     sizeof(hwParam.dwAddress),
@@ -570,13 +571,13 @@ BYTE CDSDriver::memoryReadBYTE(DWORD dwAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CDSDriver::pciGetHardwareResources(
-                                            DWORD   dwVendorID,
-                                            DWORD   dwDeviceID,
-                                            DWORD   dwCardIndex,
-                                            TPCICARDINFO* pPCICardInfo
-                                        )
+DWORD CDSDriver::pciGetHardwareResources(DWORD dwVendorID,
+                                            DWORD dwDeviceID,
+                                            PDWORD pdwMemoryAddress,
+                                            PDWORD pdwMemoryLength,
+                                            PDWORD pdwSubSystemId)
 {
+    PCI_COMMON_CONFIG pciConfig;
     TDSDrvParam hwParam;
     DWORD dwStatus;
     DWORD dwLength;
@@ -588,19 +589,32 @@ DWORD CDSDriver::pciGetHardwareResources(
 
     hwParam.dwAddress = dwVendorID;
     hwParam.dwValue = dwDeviceID;
-    hwParam.dwFlags = dwCardIndex;
 
     dwStatus = deviceControl(ioctlGetPCIInfo,
                                 &hwParam,
                                 sizeof(hwParam),
-                                pPCICardInfo,
-                                sizeof(TPCICARDINFO),
+                                &pciConfig,
+                                sizeof(pciConfig),
                                 &dwLength);
 
-    if ( dwStatus != ERROR_SUCCESS)
+    if ( dwStatus == ERROR_SUCCESS)
     {
-        debugOut(dbTrace,"pciGetHardwareResource for %X %X failed",dwVendorID, dwDeviceID);
-        memset(pPCICardInfo, 0, sizeof(TPCICARDINFO));
+        //
+        // Ok, here is the simplification, we use only the first address
+        // For our current project this is enough (I hope so)
+        //
+
+        *pdwMemoryAddress = pciConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
+        *pdwMemoryLength = 0x1000;
+        *pdwSubSystemId = (pciConfig.u.type0.SubSystemID << 16) + pciConfig.u.type0.SubVendorID;
+    }
+    else
+    {
+        debugOut(dbTrace,"pciGetHardewareResource for %X %X failed",dwVendorID,dwDeviceID);
+
+        *pdwMemoryAddress = 0;
+        *pdwMemoryLength = 0;
+        *pdwSubSystemId = 0;
     }
 
     return dwStatus;
@@ -673,32 +687,7 @@ DWORD CDSDriver::DSDrvStartDriver(void)
         }
     }
 
-    if(dwResult == ERROR_SUCCESS)
-    {
-        // OK so we've loaded the driver 
-        // we had better check that it's the same version as we are
-        // otherwise all sorts of nasty things could happen
-        // n.b. note that if someone else has already loaded our driver this may
-        // happen.  Hopefully any highup apps will just get the
-        // access denied message and then fail reasonable gracefully
-        DWORD dwReturnedLength;
-        DWORD dwVersion(0);
-
-        deviceControl(ioctlGetVersion,
-                        NULL,
-                        0,
-                        &dwVersion,
-                        sizeof(dwVersion),
-                        &dwReturnedLength);
-
-
-        if(dwVersion != DSDRV_VERSION)
-        {
-            DSDrvStopDriver();
-            dwResult = ERROR_INVALID_HANDLE;
-        }
-    }
-    bDriverRunning = (dwResult == ERROR_SUCCESS);
+    bDriverRunning = ( dwResult == ERROR_SUCCESS);
 
     return dwResult;
 }

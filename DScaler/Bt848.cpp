@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.31 2001-08-13 18:05:43 adcockj Exp $
+// $Id: Bt848.cpp,v 1.32 2001-08-14 10:30:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/08/13 18:05:43  adcockj
+// Fixed saturation settings code
+//
 // Revision 1.30  2001/08/13 12:05:12  adcockj
 // Updated range for contrast and saturation
 // Added more code for new driver interface
@@ -95,8 +98,11 @@
 /////////////////////////////////////////////////////////////////////////////
 typedef struct
 {
+   DWORD dwPhysicalAddress;
+   DWORD dwMemoryLength;
    DWORD dwMemoryBase;
-   TPCICARDINFO PCICardInfo;
+   DWORD dwIrqNumber;
+   DWORD dwSubSystemID;
 } TBT848;
 
 TBT848* hBT8X8 = NULL;
@@ -476,7 +482,7 @@ void BT848_SaveSettings(LPCSTR szFileName)
 //-------------------------------
 DWORD BT848_GetSubSystemID()
 {
-    return hBT8X8->PCICardInfo.dwSubSystemId;
+    return hBT8X8->dwSubSystemID;
 }
 
 //-------------------------------
@@ -1124,7 +1130,7 @@ void BT848_Close()
     {
         BT848_WriteByte(BT848_SRESET, 0);
     
-        memoryUnmap(hBT8X8->dwMemoryBase, hBT8X8->PCICardInfo.dwMemoryLength);
+        memoryUnmap(hBT8X8->dwPhysicalAddress, hBT8X8->dwMemoryLength);
 
         free(hBT8X8);
         hBT8X8 = NULL;
@@ -1144,12 +1150,11 @@ int BT848_Open(DWORD dwVendorID, DWORD dwDeviceID, DWORD options, BOOL Lock)
 
     memset(hBT8X8, 0, sizeof(TBT848));
 
-    Ret = pciGetHardwareResources( 
-                                    dwVendorID,  
+    Ret = pciGetHardwareResources( dwVendorID,  
                                     dwDeviceID,
-                                    0,
-                                    &(hBT8X8->PCICardInfo)
-                                 );
+                                    &hBT8X8->dwPhysicalAddress,
+                                    &hBT8X8->dwMemoryLength,
+                                    &hBT8X8->dwSubSystemID);
 
 
     // check if handle valid & version OK
@@ -1160,11 +1165,7 @@ int BT848_Open(DWORD dwVendorID, DWORD dwDeviceID, DWORD options, BOOL Lock)
         goto Exit;
     }
 
-    hBT8X8->dwMemoryBase = memoryMap(
-                                        hBT8X8->PCICardInfo.dwBusNumber,
-                                        hBT8X8->PCICardInfo.dwMemoryAddress, 
-                                        hBT8X8->PCICardInfo.dwMemoryLength
-                                    );
+    hBT8X8->dwMemoryBase = memoryMap(hBT8X8->dwPhysicalAddress, hBT8X8->dwMemoryLength);
     if(hBT8X8->dwMemoryBase == 0)
     {
         Ret = 3;
@@ -1266,36 +1267,6 @@ BYTE* GetFirstFullPage(PMemStruct pMem)
         pRetVal += pPages[0].dwSize;
     }
     return (BYTE*)pRetVal;  
-}
-
-BYTE BT848_ReadByte(DWORD dwOffset)
-{
-    return memoryReadBYTE(hBT8X8->dwMemoryBase + dwOffset);
-}
-
-WORD BT848_ReadWord(DWORD dwOffset)
-{
-    return memoryReadWORD(hBT8X8->dwMemoryBase + dwOffset);
-}
-
-DWORD BT848_ReadDword(DWORD dwOffset)
-{
-    return memoryReadDWORD(hBT8X8->dwMemoryBase + dwOffset);
-}
-
-void BT848_WriteByte(DWORD dwOffset,BYTE data)
-{
-    memoryWriteBYTE(hBT8X8->dwMemoryBase + dwOffset, data);
-}
-
-void BT848_WriteWord(DWORD dwOffset,WORD data) 
-{
-    memoryWriteWORD(hBT8X8->dwMemoryBase + dwOffset, data);
-}
-
-void BT848_WriteDword(DWORD dwOffset, DWORD data)
-{
-    memoryWriteDWORD(hBT8X8->dwMemoryBase + dwOffset, data);
 }
 
 void BT848_MaskDataByte(int Offset, BYTE d, BYTE m)

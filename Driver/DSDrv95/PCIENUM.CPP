@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.4 2001-08-08 16:37:50 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.5 2001-08-14 10:30:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/08/08 16:37:50  adcockj
+// Made drivers stateless to support multiple cards
+// Added version check
+// Changed meaning of memory access functions so that you no longer pass just the offset
+//
 // Revision 1.3  2001/08/08 10:53:30  adcockj
 // Preliminary changes to driver to support multiple cards
 //
@@ -60,13 +65,7 @@
 //---------------------------------------------------------------------------
 // We can find some PCI information for WINDOWS 9x in the registry
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciFindDevice(
-                                            DWORD  vendorID, 
-                                            DWORD  deviceID, 
-                                            DWORD dwCardIndex,
-                                            DWORD* pdwBusNumber, 
-                                            DWORD* pdwSlotNumber
-                                       )
+NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWORD* pdwBusNumber, DWORD* pdwSlotNumber)
 {
     CHAR                  devicePath[128];
     CHAR                  subkeyPath[128];
@@ -80,7 +79,6 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
     int                   iIndex,jIndex;
     CONFIGRET             cr;
     int                   bFound;
-    DWORD                 CardCount(0);
 
     sprintf(devicePath, "VEN_%04X&DEV_%04X", vendorID, deviceID);
 
@@ -96,7 +94,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
     bFound         = 0;
 
     status = _RegOpenKey(HKEY_LOCAL_MACHINE,"ENUM\\PCI",&pciKey);
-    if(status != STATUS_SUCCESS)
+    if ( status != STATUS_SUCCESS)
     {
         debugOut(dbError,"! cannot open HKL\\ENUM\\PCI error %X",status);
         return status;
@@ -104,14 +102,14 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
     
     bFound = FALSE;
 
-    for(iIndex = 0; !bFound && (status == STATUS_SUCCESS); iIndex++)
+    for ( iIndex = 0; ! bFound && (status == STATUS_SUCCESS); iIndex++)
     {
         status = _RegEnumKey(pciKey, iIndex, subkeyPath, sizeof(subkeyPath));
 
-        if( status == STATUS_SUCCESS)
+        if ( status == STATUS_SUCCESS)
         {
             debugOut(dbTrace," found <%s>", subkeyPath);
-            if(strstr(subkeyPath, devicePath ) != NULL)
+            if (strstr(subkeyPath, devicePath ) != NULL)
             {
                 //
                 // Now we have the full path name for given vendor ID
@@ -128,7 +126,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 
                     status2 = STATUS_SUCCESS;
 
-                    for (jIndex = 0; !bFound && (status2 == STATUS_SUCCESS); jIndex++)
+                    for ( jIndex = 0; ! bFound && (status2 == STATUS_SUCCESS); jIndex++)
                     {
                         status2 = _RegEnumKey(deviceKey, jIndex, workingPath2, sizeof(workingPath2));
 
@@ -141,16 +139,8 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
                             cr = _CONFIGMG_Locate_DevNode((DEVNODE *)pdwSlotNumber, hardwareID, 0);
                             if (cr == STATUS_SUCCESS)
                             {
-                                if(CardCount == dwCardIndex)
-                                {
-                                    debugOut(dbTrace," device node %X found", *pdwSlotNumber);
-                                    bFound = TRUE;
-                                }
-                                else
-                                {
-                                    *pdwSlotNumber = 0;
-                                    ++CardCount;
-                                }
+                                bFound = TRUE;
+                                debugOut(dbTrace," device node %X found", *pdwSlotNumber);
                             }
                         }
                     }
@@ -166,7 +156,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 
     _RegCloseKey(pciKey);
 
-    if (bFound == FALSE || *pdwSlotNumber == 0)
+    if ( *pdwSlotNumber == 0)
     {
         debugOut(dbError," key not found, PCI board not installed");
         return ERROR_ACCESS_DENIED;
@@ -180,22 +170,18 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration)
 {
-    PCI_COMMON_CONFIG PCIConfiguration;
     CONFIGRET cr;
 
-    cr = _CONFIGMG_Call_Enumerator_Function(pPCICardInfo->dwSlotNumber,
+    cr = _CONFIGMG_Call_Enumerator_Function(dwSlotNumber,
                                             PCI_ENUM_FUNC_GET_DEVICE_INFO,
                                             0,
-                                            &PCIConfiguration,
-                                            sizeof(PCIConfiguration),
+                                            pciConfiguration,
+                                            sizeof(*pciConfiguration),
                                             0);
 
-    debugOut(dbTrace,"get PCI device info for node %lX returns %X",pPCICardInfo->dwSlotNumber, cr);
+    debugOut(dbTrace,"get PCI device info for node %lX returns %X",dwSlotNumber,cr);
 
-    pPCICardInfo->dwMemoryAddress = PCIConfiguration.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
-    pPCICardInfo->dwMemoryLength = 0x1000;
-    pPCICardInfo->dwSubSystemId = (PCIConfiguration.u.type0.SubSystemID << 16) + PCIConfiguration.u.type0.SubVendorID;
     return cr;
 }

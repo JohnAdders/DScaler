@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.7 2001-08-13 18:15:10 adcockj Exp $
+// $Id: DSDrv.H,v 1.8 2001-08-14 10:30:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,20 +39,15 @@
 #if ! defined (__DSDRVDEF_H)
 #define __DSDRVDEF_H
 
-// define version number to be compiled into both files
-// we use this to make sure that we are atlingh the same language in both the 
-// drivers and the dll
-#define DSDRV_VERSION 0x3040
-
 #define ALLOC_MEMORY_CONTIG 1
 
-typedef struct
+typedef struct _PageStruct
 {
 	DWORD dwSize;
 	DWORD dwPhysical;
 } TPageStruct, * PPageStruct;
 
-typedef struct
+typedef struct _MemStruct
 {
 	DWORD dwTotalSize;
 	DWORD dwPages;
@@ -62,22 +57,11 @@ typedef struct
 } TMemStruct, * PMemStruct;
 
 
-typedef struct
-{
-    DWORD  dwMemoryAddress;
-    DWORD  dwMemoryLength;
-    DWORD  dwSubSystemId;
-    DWORD  dwBusNumber;
-    DWORD  dwSlotNumber;
-} TPCICARDINFO;
-
 #if defined (WIN32) && !defined (_NTKERNEL_)
 
 #include <winioctl.h>
 
 #elif defined(WIN95)
-
-
 
 //
 // Macro definition for defining IOCTL and FSCTL function control codes.  Note
@@ -158,8 +142,6 @@ extern "C" {
 #define DSDRV_READ_MEMORY_BYTE (DSDRV_BASE + 16)
 #define DSDRV_WRITE_MEMORY_BYTE (DSDRV_BASE + 17)
 
-#define DSDRV_GETVERSION (DSDRV_BASE + 18)
-
 
 
 //
@@ -186,7 +168,6 @@ extern "C" {
 #define ioctlWriteMemoryWORD DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_WORD, METHOD_IN_DIRECT)
 #define ioctlReadMemoryBYTE DSDRV_CTL_CODE( DSDRV_READ_MEMORY_BYTE, METHOD_OUT_DIRECT)
 #define ioctlWriteMemoryBYTE DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_BYTE, METHOD_IN_DIRECT)
-#define ioctlGetVersion DSDRV_CTL_CODE( DSDRV_GETVERSION, METHOD_OUT_DIRECT)
 
 
 typedef struct tagDSDrvParam
@@ -257,20 +238,14 @@ DWORD WINAPI memoryAlloc(DWORD  dwLength,
 
 DWORD WINAPI memoryFree(PMemStruct pMemStruct);
 
-DWORD WINAPI pciGetHardwareResources(DWORD    dwVendorID,
+DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
                                       DWORD   dwDeviceID,
-                                      DWORD   dwCardIndex,
-                                      TPCICARDINFO* pPCICardInfo);
+                                      PDWORD  pdwMemoryAddress,
+                                      PDWORD  pdwMemoryLength,
+                                      PDWORD  pdwSubSystemId);
 
-DWORD WINAPI memoryMap(DWORD dwBusNumber, DWORD dwAddress, DWORD dwLength);
+DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength);
 void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength);
-
-// John Adcock 2001/08/08 
-// note that the addresses used below are no longer the offsets
-// as of this version we are passing the dwMemoryBase + offset
-// This will cause old code to fail in a nasty way
-// but is required as we move to support for multiple cards
-
 void WINAPI memoryWriteDWORD(DWORD dwAddress, DWORD dwValue);
 DWORD WINAPI memoryReadDWORD(DWORD dwAddress);
 void WINAPI memoryWriteWORD(DWORD dwAddress, WORD wValue);
@@ -285,7 +260,6 @@ typedef DWORD (WINAPI * PMemoryWrite)(DWORD dwAddress, DWORD dwValue);
 
 typedef DWORD (WINAPI * PPCIGetHardwareResources)(DWORD   dwVendorID,
                                                   DWORD   dwDeviceID,
-                                                  DWORD   dwCardIndex,
                                                   PDWORD  pdwMemoryAddress,
                                                   PDWORD  pdwMemoryLength,
                                                   PDWORD  pdwSubSystemId);

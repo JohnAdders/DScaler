@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.5 2001-08-08 16:37:50 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.6 2001-08-14 10:30:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/08/08 16:37:50  adcockj
+// Made drivers stateless to support multiple cards
+// Added version check
+// Changed meaning of memory access functions so that you no longer pass just the offset
+//
 // Revision 1.4  2001/08/08 10:53:30  adcockj
 // Preliminary changes to driver to support multiple cards
 //
@@ -51,20 +56,13 @@
 // Find the PCI devices for the VendorId and DeviceId specified by the
 // caller.
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciFindDevice(
-                                            DWORD vendorID, 
-                                            DWORD deviceID, 
-                                            DWORD dwCardIndex,
-                                            DWORD* pdwBusNumber, 
-                                            DWORD*  pdwSlotNumber
-                                       )
+NTSTATUS CIOAccessDevice::pciFindDevice(USHORT vendorID, USHORT deviceID, DWORD* pdwBusNumber, DWORD*  pdwSlotNumber)
 {
     PCI_SLOT_NUMBER         slotNumber;
     PCI_COMMON_CONFIG       pciData;
     DWORD                   busNumber;
     DWORD                   deviceNumber;
     DWORD                   functionNumber;
-    DWORD                   CardCount(0);
 
     // Remeber ...
     //
@@ -89,7 +87,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
         //
         // Scan each device.
         //
-        for(deviceNumber = 0; deviceNumber < PCI_MAX_DEVICES; deviceNumber++)
+        for (deviceNumber = 0; deviceNumber < PCI_MAX_DEVICES; deviceNumber++)
         {
             slotNumber.u.bits.DeviceNumber = deviceNumber;
 
@@ -97,7 +95,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
             // Scan each function.
             //
 
-            for(functionNumber = 0; functionNumber < PCI_MAX_FUNCTION; functionNumber++)
+            for (functionNumber = 0; functionNumber < PCI_MAX_FUNCTION; functionNumber++)
             {
                 slotNumber.u.bits.FunctionNumber = functionNumber;
 
@@ -106,7 +104,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
                 // Read the complete 256 bytes of configuration information
                 //
 
-                if(HalGetBusData(PCIConfiguration,
+                if (HalGetBusData(PCIConfiguration,
                                      busNumber,
                                      slotNumber.u.AsULONG,
                                      &pciData,
@@ -123,28 +121,22 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
                     break;
                 }
 
-                if(pciData.VendorID != 0xFFFF)
+                if ( pciData.VendorID != 0xFFFF)
                 {
                     debugOut(dbTrace,"found pci device %lX %lX",pciData.VendorID,pciData.DeviceID);
                 }
 
-                if((pciData.VendorID == vendorID) && (pciData.DeviceID == deviceID))
+                if ( (pciData.VendorID == vendorID) && (pciData.DeviceID == deviceID) )
                 {
                     //
                     // At this point, we've found a valid PCI device.
-                    // check if it is the one we want
-                    if(CardCount == dwCardIndex)
-                    {
-                        // Get back the information for the located device.
-                        *pdwBusNumber  = busNumber;
-                        *pdwSlotNumber = slotNumber.u.AsULONG;
+                    // Get back the information for the located device.
+                    //
 
-                        return STATUS_SUCCESS;
-                    }
-                    else
-                    {
-                        ++CardCount;
-                    }
+                    *pdwBusNumber  = busNumber;
+                    *pdwSlotNumber = slotNumber.u.AsULONG;
+
+                    return STATUS_SUCCESS;
                 }
             } // functionNumber
         }   // deviceNumber
@@ -153,28 +145,38 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
     return STATUS_DEVICE_DOES_NOT_EXIST;
 }
 
+
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration)
 {
-    PCI_COMMON_CONFIG PCIConfig;
     NTSTATUS status;
 
-    debugOut(dbTrace,"get pci configuration for bus %X slot %X",pPCICardInfo->dwBusNumber,pPCICardInfo->dwSlotNumber);
+    debugOut(dbTrace,"get pci configuration for bus %X slot %X",dwBusNumber,dwSlotNumber);
 
     status = HalGetBusData(PCIConfiguration,
-                            pPCICardInfo->dwBusNumber,
-                            pPCICardInfo->dwSlotNumber,
-                            &PCIConfig,
-                            sizeof(PCIConfig));
+                            dwBusNumber,
+                            dwSlotNumber,
+                            pciConfiguration,
+                            sizeof(*pciConfiguration));
 
-    debugOut(dbTrace,"found address %lX, irq %lX", PCIConfig.u.type0.BaseAddresses[0],
-                                                    PCIConfig.u.type0.InterruptLine);
-
-    pPCICardInfo->dwMemoryAddress = PCIConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
-    pPCICardInfo->dwMemoryLength = 0x1000;
-    pPCICardInfo->dwSubSystemId = (PCIConfig.u.type0.SubSystemID << 16) + PCIConfig.u.type0.SubVendorID;
-
+    debugOut(dbTrace,"found address %lX, irq %lX", pciConfiguration->u.type0.BaseAddresses[0],
+                                                    pciConfiguration->u.type0.InterruptLine);
     return STATUS_SUCCESS;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

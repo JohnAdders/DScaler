@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.38 2002-09-26 11:33:42 kooiman Exp $
+// $Id: BT848Source.h,v 1.39 2002-09-27 14:13:28 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -87,8 +87,7 @@ public:
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     CTreeSettingsGeneric* BT848_GetTreeSettingsPage();
-
-    static void StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel);
+    
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -97,7 +96,7 @@ private:
     static BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);	
     
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
@@ -114,7 +113,7 @@ private:
 
     ISetting* GetCurrentAudioSetting();
 
-    static void StaticAudioStandardDetected(void *pThis, int What, long Value);
+    //static void StaticAudioStandardDetected(void *pThis, int What, long Value);	
     void AudioStandardDetected(long Standard);
     void SupportedSoundChannelsDetected(eSupportedSoundChannels supported);
 
@@ -212,6 +211,8 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardManual);
 	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMajorCarrier);
 	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMinorCarrier);    	
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioStandardInStatusBar);    
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSP34xxFlags);
 
 protected:
 	int m_InitialACPIStatus;

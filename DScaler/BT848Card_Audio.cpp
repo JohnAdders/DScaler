@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.21 2002-09-16 14:37:36 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.22 2002-09-27 14:13:28 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/09/16 14:37:36  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.20  2002/09/15 15:57:27  kooiman
 // Added Audio standard support.
 //
@@ -260,10 +263,27 @@ long CBT848Card::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
     return m_AudioDecoder->GetAudioStandardFromVideoFormat(videoFormat);
 }
 
-void CBT848Card::DetectAudioStandard(long Interval, int SupportedSoundChannels,  void *pThis, void (*pfnDetected)(void *pThis, int What, long Value))
+void CBT848Card::DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel)
 {
-    m_AudioDecoder->DetectAudioStandard(Interval, SupportedSoundChannels, pThis, pfnDetected);
+    m_AudioDecoder->DetectAudioStandard(Interval, SupportedSoundChannels, TargetChannel);
 }
+
+
+LPCSTR CBT848Card::GetAudioDecoderID()
+{
+    return m_AudioDecoder->GetAudioDecoderID();
+}
+
+int CBT848Card::SetAudioDecoderValue(int What, long Val)
+{
+    return m_AudioDecoder->SetAudioDecoderValue(What, Val);
+}
+
+long CBT848Card::GetAudioDecoderValue(int What)
+{
+    return m_AudioDecoder->GetAudioDecoderValue(What);
+}
+
 
 // Do not call this function before changing the video source, it is checking to see if a video
 // signal is present. Audio is muted if no video signal is detected. 

@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.10 2002-09-16 14:37:35 kooiman Exp $
+// $Id: AudioDecoder.cpp,v 1.11 2002-09-27 14:13:27 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/16 14:37:35  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.9  2002/09/15 15:57:27  kooiman
 // Added Audio standard support.
 //
@@ -68,8 +71,6 @@ CAudioDecoder::CAudioDecoder()
     m_AudioStandard = 0;
     m_AudioStandardMajorCarrier = 0;
     m_AudioStandardMinorCarrier = 0;
-
-    m_pfnDetected = NULL;    
 }
 
 CAudioDecoder::~CAudioDecoder()
@@ -178,9 +179,7 @@ long CAudioDecoder::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
     return 0;
 }
 
-void CAudioDecoder::DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value))
+void CAudioDecoder::DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel)
 {    
     m_StandardDetectInterval = Interval;
-    m_pfnDetected = pfnDetected;
-    m_pfnDetected_pThis = pThis;
 }

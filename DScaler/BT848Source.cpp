@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.74 2002-09-26 16:37:20 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.75 2002-09-27 14:13:29 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/09/26 16:37:20  kooiman
+// Volume event support.
+//
 // Revision 1.73  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -294,6 +297,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "Providers.h"
 
 extern long EnableCancelButton;
 
@@ -333,7 +337,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     
     SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
     
-    eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
+    eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_AUDIOSTANDARD_DETECTED,EVENT_AUDIOCHANNELSUPPORT_DETECTED,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
 
 
@@ -387,7 +391,11 @@ CBT848Source::~CBT848Source()
 
 void CBT848Source::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (Event == EVENT_CHANNEL_PRECHANGE)
+    if (Providers_GetCurrentSource() != this)
+	{
+		return;
+	}
+	if (Event == EVENT_CHANNEL_PRECHANGE)
     {
         ChannelChange(1, OldValue, NewValue);
     }
@@ -395,6 +403,14 @@ void CBT848Source::OnEvent(eEventType Event, long OldValue, long NewValue, eEven
     {
         ChannelChange(0, OldValue, NewValue);
     }
+	else if (Event == EVENT_AUDIOSTANDARD_DETECTED)
+	{
+		AudioStandardDetected(NewValue);        
+	}
+	else if (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED)
+	{
+		SupportedSoundChannelsDetected((eSupportedSoundChannels)NewValue);
+	}
 }
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
@@ -601,6 +617,12 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 	m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection);
     m_Settings.push_back(m_AudioStandardMinorCarrier);
 
+    m_AudioStandardInStatusBar = new CAudioStandardInStatusBarSetting(this, "Audio Standard in Statusbar", FALSE, IniSection);
+    m_Settings.push_back(m_AudioStandardInStatusBar);
+        
+    m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection);
+    m_Settings.push_back(m_MSP34xxFlags);    
+
     //SettingsMaster->Register(BT848_SETTINGID, this);	
 
     ReadFromIni();
@@ -625,6 +647,8 @@ void CBT848Source::Start()
     //NotifyInputChange(0, AUDIOINPUT, -1, m_VideoSource->GetValue());
     NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());    
     Channel_Reset();
+    m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);    
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
 }
 
 void CBT848Source::Reset()
@@ -674,10 +698,11 @@ void CBT848Source::Reset()
                             );
     
     NotifySizeChange();
+
+    m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue(), ONCHANGE_SET_FORCE);
     
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-    //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
-    AudioStandardDetectOnChange(m_AudioStandardDetect->GetValue(),m_AudioStandardDetect->GetValue());
+    m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);    
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
 }
 
@@ -1469,7 +1494,12 @@ void CBT848Source::SetOverscan()
 
 
 void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
-{
+{    
+    if ((PreChange) && m_AutoStereoSelect->GetValue())
+    {
+        m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
+    }
+    
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
         //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
@@ -1477,7 +1507,8 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
     } 
     else if ((!PreChange) && m_AutoStereoSelect->GetValue())
     {      
-        m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, this, StaticAudioStandardDetected);         
+        m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2,
+            (m_AutoStereoSelect->GetValue())?SOUNDCHANNEL_STEREO : (eSoundChannel)(m_AudioChannel->GetValue()));
     }
     ///\todo schedule to occur after audio standard / stereo detect
     if (!PreChange && (m_AudioAutoVolumeCorrection->GetValue() > 0))

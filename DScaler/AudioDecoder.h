@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.10 2002-09-16 14:37:35 kooiman Exp $
+// $Id: AudioDecoder.h,v 1.11 2002-09-27 14:13:27 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/16 14:37:35  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.9  2002/09/15 15:57:27  kooiman
 // Added Audio standard support.
 //
@@ -113,7 +116,11 @@ public:
     // Interval in milliseconds
     // SupportedSoundChannels == 1: detect after standard
     // SupportedSoundChannels == 2: detect now, no standard detect
-    virtual void DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value));
+    virtual void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);
+
+    virtual LPCSTR GetAudioDecoderID(){return NULL;};
+    virtual int SetAudioDecoderValue(int What, long Val) {return 0;};
+    virtual long GetAudioDecoderValue(int What){ return 0;};
 
 protected:
     eVideoFormat m_VideoFormat;
@@ -125,8 +132,6 @@ protected:
     long m_AudioStandardMinorCarrier; // In Hz
 
     long m_StandardDetectInterval;
-    void (*m_pfnDetected)(void *pThis, int What, long Value); //What=1: standard, 2: soundchannels supported
-    void *m_pfnDetected_pThis;
 };
 
 #endif // !defined(__AUDIODECODER_H__)

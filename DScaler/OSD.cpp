@@ -223,7 +223,7 @@ void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double dfSize)
 {
     bOverride = FALSE;
     OSD_ShowText(hWnd, szText, dfSize);
-    bOverride = TRUE;
+    if (strlen(szText)) bOverride = TRUE;
 }
 
 //---------------------------------------------------------------------------

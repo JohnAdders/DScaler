@@ -1272,11 +1272,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_SET_OSD_TEXT:
             // Useful for external programs for custom control of dTV's OSD display
             // Such as macros in software such as Girder, etc.
-            if (lParam && GlobalGetAtomName((ATOM) lParam, Text, sizeof(Text)))
-            {
-                OSD_ShowTextOverride(hWnd, Text, 0);
-                GlobalDeleteAtom((ATOM) lParam);
-            }
+            if (lParam)
+			{
+				lstrcpy(Text, "");
+				GlobalGetAtomName((ATOM) lParam, Text, sizeof(Text));
+				OSD_ShowTextOverride(hWnd, Text, 0);
+				GlobalDeleteAtom((ATOM) lParam);
+			}
+			else
+			{
+				OSD_ShowTextOverride(hWnd, "", 0);
+			}
 			break;
 
         case IDM_SAVE_SETTINGS_NOW:

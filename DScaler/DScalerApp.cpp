@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.18 2002-10-16 16:16:52 tobbej Exp $
+// $Id: DScalerApp.cpp,v 1.19 2003-03-05 21:43:32 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/16 16:16:52  tobbej
+// added some comments
+//
 // Revision 1.17  2002/09/28 14:54:42  tobbej
 // added a call to CoUninitialize
 //
@@ -81,6 +84,7 @@
 #include "DScalerApp.h"
 #include "DScaler.h"
 #include <afxpriv.h>
+#include <afxdisp.h>
 #include "crash.h"
 
 #ifdef _DEBUG
@@ -137,7 +141,9 @@ BOOL CDScalerApp::InitInstance()
     //Marshaling can only be left out if both threads are in the same
     //apartment and this can only happen if both is in a multithreaded
     //apartment
-	CoInitializeEx(NULL,COINIT_MULTITHREADED);
+	//CoInitializeEx(NULL,COINIT_MULTITHREADED);
+
+	AfxOleInit();
 #endif
 
 // changes to allow copmilation under VC 7.0 added by IDLSOFT
@@ -177,9 +183,9 @@ BOOL CDScalerApp::InitInstance()
     AfxSetResourceHandle(m_hInstance);
     FreeLibrary(hResourceInst);
 
-#ifdef WANT_DSHOW_SUPPORT
-	CoUninitialize();
-#endif
+//#ifdef WANT_DSHOW_SUPPORT
+//	CoUninitialize();
+//#endif
 	DScalerDeinitializeThread();
 
     // return false so message loop doesn't start

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.72 2002-07-20 10:26:34 laurentg Exp $
+// $Id: DS_Control.h,v 1.73 2002-07-20 13:01:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2002/07/20 10:26:34  laurentg
+// New settings to select the wished OSD screens
+//
 // Revision 1.71  2002/07/19 15:25:09  laurentg
 // New settings (other settings) added in the tree settings + related menu items deleted
 //
@@ -525,6 +528,7 @@ typedef enum
 {
     HURRYWHENLATE = 0,
     WAITFORFLIP,
+    DOVERTICALFLIP,
     DOACCURATEFLIPS,
     AUTODETECT,
     WAITFORVSYNC,

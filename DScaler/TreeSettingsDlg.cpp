@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.11 2002-07-20 12:09:39 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.12 2002-07-20 13:07:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/07/20 12:09:39  laurentg
+// Card calibration settings added in the tree settings
+//
 // Revision 1.10  2002/07/19 15:31:39  laurentg
 // New settings (other settings) added in the tree settings + related menu items deleted
 //
@@ -72,6 +75,7 @@
 #include "DScaler.h"
 #include "OSD.h"
 #include "Calibration.h"
+#include "OutThreads.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -459,6 +463,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 
     pPage = Timing_GetTreeSettingsPage();
 	pPage->SetHelpID(IDH_TIMING);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = OutThreads_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_ADVANCED);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 

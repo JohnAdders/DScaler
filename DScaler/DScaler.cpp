@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.194 2002-07-20 10:33:06 laurentg Exp $
+// $Id: DScaler.cpp,v 1.195 2002-07-20 13:07:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.194  2002/07/20 10:33:06  laurentg
+// New settings to select the wished OSD screens
+//
 // Revision 1.193  2002/07/19 15:31:38  laurentg
 // New settings (other settings) added in the tree settings + related menu items deleted
 //
@@ -1987,10 +1990,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_CAPTURE_PAUSE:
             Pause_Toggle_Capture();
-            break;
-
-        case IDM_VERTICAL_FLIP:
-            Toggle_Vertical_Flip();
             break;
 
         case IDM_AUDIO_MIXER:

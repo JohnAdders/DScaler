@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.73 2002-06-23 20:48:16 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.74 2002-07-20 13:07:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/06/23 20:48:16  laurentg
+// bHurryWhenLate set to FALSE by default
+//
 // Revision 1.72  2002/06/23 18:06:00  laurentg
 // Vertical mirror
 //
@@ -1053,6 +1056,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     return 0;
 }
 
+BOOL OutThreads_DoVerticalFlip_OnChange(long NewValue)
+{
+    Toggle_Vertical_Flip();
+    Sleep(100);
+    return FALSE;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -1069,6 +1079,12 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "Threads", "WaitForFlip", NULL,
+    },
+    {
+        "Vertical Mirror", ONOFF, 0, (long*)&bDoVerticalFlip,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "Threads", "DoVerticalFlip", OutThreads_DoVerticalFlip_OnChange,
     },
     {
         "JudderTerminator", ONOFF, 0, (long*)&DoAccurateFlips,
@@ -1126,10 +1142,14 @@ void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
+CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage()
+{
+    return new CTreeSettingsGeneric("Decoding / Output Settings", OutThreadsSettings, DOACCURATEFLIPS);
+}
+
 void OutThreads_SetMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_CAPTURE_PAUSE, bIsPaused);
     CheckMenuItemBool(hMenu, IDM_AUTODETECT, bAutoDetectMode);
     CheckMenuItemBool(hMenu, IDM_JUDDERTERMINATOR, DoAccurateFlips);
-    CheckMenuItemBool(hMenu, IDM_VERTICAL_FLIP, bDoVerticalFlip);
 }

@@ -980,8 +980,6 @@ BEGIN
         MENUITEM "Change &Settings...",         IDM_SETTINGS_CHANGESETTINGS
         MENUITEM SEPARATOR
         MENUITEM "&Reset Statistics",           IDM_RESET_STATS
-        MENUITEM SEPARATOR
-        MENUITEM "Vertical &Mirror",            IDM_VERTICAL_FLIP
     END
     POPUP "&Sources"
     BEGIN

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.13 2002-06-22 14:57:45 laurentg Exp $
+// $Id: OutThreads.h,v 1.14 2002-07-20 13:07:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,6 +47,7 @@
 SETTING* OutThreads_GetSetting(OUTTHREADS_SETTING Setting);
 void OutThreads_ReadSettingsFromIni();
 void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage();
 void OutThreads_SetMenu(HMENU hMenu);
 
 void Free_Picture_History(TDeinterlaceInfo* pInfo);

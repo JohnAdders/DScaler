@@ -124,55 +124,7 @@ SOURCE=.\MoComp2All2.inc
 # End Source File
 # Begin Source File
 
-SOURCE=.\SearchLoop0A.inc
-# End Source File
-# Begin Source File
-
 SOURCE=.\SearchLoopBottom.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopEdgeA.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopEdgeA8.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopEdgeAH.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopEdgeAH8.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddA.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddA2.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddA6.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddAH.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddAH2.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddAH6.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopOddAHH2.inc
 # End Source File
 # Begin Source File
 
@@ -180,11 +132,7 @@ SOURCE=.\SearchLoopTop.inc
 # End Source File
 # Begin Source File
 
-SOURCE=.\SearchLoopVA.inc
-# End Source File
-# Begin Source File
-
-SOURCE=.\SearchLoopVAH.inc
+SOURCE=.\SimpleWeave.inc
 # End Source File
 # Begin Source File
 

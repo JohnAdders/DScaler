@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.30 2003-02-12 22:09:47 atnak Exp $
+// $Id: SAA7134Card.h,v 1.31 2003-04-16 15:12:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/02/12 22:09:47  atnak
+// Added M-TV002
+//
 // Revision 1.29  2002/12/24 08:22:14  atnak
 // Added Prime 7133 card
 //
@@ -182,8 +185,8 @@ private:
     enum eAudioCrystal
     {
         AUDIOCRYSTAL_NONE = 0,          // only on saa7130
-        AUDIOCRYSTAL_32110Hz,
-        AUDIOCRYSTAL_24576Hz,
+        AUDIOCRYSTAL_32110Hz,			// 0x187DE7
+        AUDIOCRYSTAL_24576Hz,			// 0x200000
     };
 
     /// Defines each input on a card

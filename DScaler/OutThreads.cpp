@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.89 2002-10-08 12:12:35 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.90 2002-10-26 15:22:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2002/10/08 12:12:35  adcockj
+// Changed minimize behaviour back to how it was
+//
 // Revision 1.88  2002/10/07 18:36:20  adcockj
 // Corrected judderterminator logic
 //
@@ -360,7 +363,7 @@ BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
 eStreamStillType    RequestStillType = STILL_NONE;
 BOOL                RequestToggleFlip = FALSE;
-BOOL                bDoVerticalFlip = FALSE;
+BOOL                bDoVerticalFlipSetting = FALSE;
 HANDLE              OutThread;
 
 // Dynamically updated variables
@@ -734,9 +737,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // Vertical flipping support
                 // Here we change all the valid history so that the top line is the bottom one
                 // and the pitch is negative
-                // Note that we don't "own" these picture but we have them for the time being
+                // Note that we don't "own" these pictures but we have them for the time being
                 // so make sure that we change them back after we use them
-                if (bDoVerticalFlip)
+                // so just in case the setting gets changes while we are using it 
+                // we save the current value
+                BOOL bDoVerticalFlipCurrent = bDoVerticalFlipSetting;
+                if (bDoVerticalFlipCurrent)
                 {
                     for(int i(0); i < MAX_PICTURE_HISTORY; ++i)
                     {
@@ -1023,11 +1029,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             
                 // Vertical flipping support
                 // change the pictures back to how they were before
-                // not that we use the bDoVerticalFlip
+                // not that we use the bDoVerticalFlipCurrent
                 // at the top and here, so this variable cannot change 
                 // during the processing
-                // this is enforced by the RequestToggleFlip variable
-                if (bDoVerticalFlip)
+                if (bDoVerticalFlipCurrent)
                 {
                     // Use of a negative pitch + a pointer to the last line of the field
                     Info.InputPitch *= -1;
@@ -1070,13 +1075,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 RequestStillType = STILL_NONE;
             }
 
-            if (RequestToggleFlip)
-            {
-                bDoVerticalFlip = !bDoVerticalFlip;
-                ClearPictureHistory(&Info);
-                RequestToggleFlip = FALSE;
-            }
-
             // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;
         }
@@ -1117,13 +1115,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     return 0;
 }
 
-BOOL OutThreads_DoVerticalFlip_OnChange(long NewValue)
-{
-    Toggle_Vertical_Flip();
-    Sleep(100);
-    return FALSE;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -1145,10 +1136,10 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
         "Threads", "WaitForFlip", NULL,
     },
     {
-        "Vertical Mirror", ONOFF, 0, (long*)&bDoVerticalFlip,
+        "Vertical Mirror", ONOFF, 0, (long*)&bDoVerticalFlipSetting,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "Threads", "DoVerticalFlip", OutThreads_DoVerticalFlip_OnChange,
+        "Threads", "DoVerticalFlip", NULL,
     },
     {
         "Tuner Switch Update Delay", SLIDER, 0, (long*)&TunerSwitchScreenUpdateDelay,

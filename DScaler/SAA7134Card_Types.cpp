@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.50 2004-11-20 14:20:09 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.51 2004-11-20 17:58:03 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2004/11/20 14:20:09  atnak
+// Changed the card list to an ini file.
+//
 // Revision 1.41  2004/02/18 06:39:47  atnak
 // Changed Setup Card / Tuner so that only cards of the same device are
 // shown in the card list.
@@ -514,7 +517,7 @@ void CSAA7134Card::ReadCardAutoDetectIDProc(int reason, const ParseTag* tag, uns
 
 void CSAA7134Card::ReadCardProc(int reason, const ParseTag*, unsigned char, const char*, void* context)
 {
-    static TCardType cardDefaults = { "", 0x0000, 0, {}, TUNER_ABSENT, AUDIOCRYSTAL_NONE, 0, { 0, 0, 0 } };
+    static TCardType cardDefaults = { "", 0x0000, 0, { 0 }, TUNER_ABSENT, AUDIOCRYSTAL_NONE, 0, { 0, 0, 0 } };
     TParseCardInfo* parseInfo = (TParseCardInfo*)context;
 
     switch (reason)

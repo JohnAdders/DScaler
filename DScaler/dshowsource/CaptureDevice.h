@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.6 2002-03-15 23:08:59 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.7 2002-04-16 15:30:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/03/15 23:08:59  tobbej
+// changed dropped frames counter to include dropped frames in source filter.
+// experimented a bit with btwincap:s ir support
+//
 // Revision 1.5  2002/02/13 16:58:22  tobbej
 // changed some comments
 //
@@ -111,6 +115,8 @@ public:
 	ULONG getRemoteCode();
 
 private:
+	
+	void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
 	bool m_bIsConnected;
 	CDShowBaseCrossbar *m_pCrossbar;
 
@@ -120,6 +126,8 @@ private:
 
 	CComPtr<IAMAnalogVideoDecoder> m_pAVideoDec;
 	CComPtr<IAMVideoProcAmp> m_pVideoProcAmp;
+
+	CComPtr<IAMDroppedFrames> m_pDroppedFrames;
 };
 
 #endif // !defined(AFX_DSHOWCAPTUREDEVICE_H__50B8522B_CD99_471C_A39D_9BE98CACC7EB__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.6 2002-04-03 19:53:19 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.7 2002-04-16 15:30:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/04/03 19:53:19  tobbej
+// try to render interleaved stream first, this might help dv sources (untested)
+//
 // Revision 1.5  2002/03/15 23:08:59  tobbej
 // changed dropped frames counter to include dropped frames in source filter.
 // experimented a bit with btwincap:s ir support
@@ -127,19 +130,41 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 		}
 	}
 	m_bIsConnected=true;
+	if(m_pDroppedFrames==NULL)
+	{
+		findIAMDroppedFrames(filter);
+	}
+}
+
+void CDShowCaptureDevice::findIAMDroppedFrames(CComPtr<IBaseFilter> filter)
+{
+	CComPtr<IAMDroppedFrames> df;
+	//try to find IAMDroppedFrames on the filter itself first
+	HRESULT hr=m_vidDev.QueryInterface(&df);
+	if(SUCCEEDED(hr))
+	{
+		m_pDroppedFrames=df;
+	}
+	else
+	{
+		//try to find the interface on one of the pins
+		hr=m_pBuilder->FindInterface(&LOOK_UPSTREAM_ONLY,&MEDIATYPE_Video,filter,IID_IAMDroppedFrames,(void**)&df);
+		if(SUCCEEDED(hr))
+		{
+			m_pDroppedFrames=df;
+		}
+	}
 }
 
 long CDShowCaptureDevice::getNumDroppedFrames()
 {
-	CComPtr<IAMDroppedFrames> pDroppedFrames;
-	HRESULT hr=m_vidDev.QueryInterface(&pDroppedFrames);
-	if(FAILED(hr))
+	if(m_pDroppedFrames==NULL)
 	{
 		return 0;
 	}
 	
 	long dropped=0;
-	hr=pDroppedFrames->GetNumDropped(&dropped);
+	HRESULT hr=m_pDroppedFrames->GetNumDropped(&dropped);
 	if(FAILED(hr))
 	{
 		return 0;

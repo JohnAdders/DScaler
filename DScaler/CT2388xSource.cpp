@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.12 2002-10-02 10:55:46 kooiman Exp $
+// $Id: CT2388xSource.cpp,v 1.13 2002-10-02 19:02:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/02 10:55:46  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.11  2002/09/29 16:16:21  adcockj
 // Holo3d imrprovements
 //
@@ -1019,9 +1022,10 @@ void CCT2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)
 
 void CCT2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
 {
-    Stop_Capture();
-    Reset();
-    Start_Capture();
+	if(m_CardType->GetValue() == CT2388xCARD_HOLO3D)
+	{
+	    m_pCard->SetFLIFilmDetect(NewValue);
+	}
 }
 
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: main.cpp,v 1.1 2002-10-30 18:04:16 tobbej Exp $
+// $Id: main.cpp,v 1.2 2003-02-22 16:50:28 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/30 18:04:16  tobbej
+// new tool for extracting frequency tables from directshow to channel.txt format
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -126,6 +129,241 @@ char* VideoStandardToString(DWORD VideoStandard)
 	}
 }
 
+char* CountryCodeToString(WORD CountryCode)
+{
+	typedef struct
+	{
+		WORD CountryCode;
+		char *Name;
+	}TCountryList;
+	TCountryList list[]=
+	{
+		1,"USA",
+		2,"Canada",
+		7,"Russia",
+		20,"Egypt",
+		27,"South Africa",
+		30,"Greece",
+		31,"Netherlands",
+		32,"Belgium",
+		33,"France",
+		34,"Spain",
+		36,"Hungary",
+		39,"Italy",
+		39,"Vatican City",
+		40,"Romania",
+		41,"Liechtenstein",
+		41,"Switzerland",
+		43,"Austria",
+		44,"United Kingdom",
+		45,"Denmark",
+		46,"Sweden",
+		47,"Norway",
+		48,"Poland",
+		49,"Germany",
+		51,"Peru",
+		52,"Mexico",
+		53,"Cuba",
+		53,"Guantanamo Bay",
+		54,"Argentina",
+		55,"Brazil",
+		56,"Chile",
+		57,"Colombia",
+		58,"Bolivarian Republic of Venezuela",
+		60,"Malaysia",
+		61,"Australia",
+		61,"Cocos-Keeling Islands",
+		62,"Indonesia",
+		63,"Philippines",
+		64,"New Zealand",
+		65,"Singapore",
+		66,"Thailand",
+		81,"Japan",
+		82,"Korea (South)",
+		84,"Vietnam",
+		86,"China",
+		90,"Turkey",
+		91,"India",
+		92,"Pakistan",
+		93,"Afghanistan",
+		94,"Sri Lanka",
+		95,"Myanmar",
+		98,"Iran",
+		212,"Morocco",
+		213,"Algeria",
+		216,"Tunisia",
+		218,"Libya",
+		220,"Gambia",
+		221,"Senegal Republic",
+		222,"Mauritania",
+		223,"Mali",
+		224,"Guinea",
+		225,"Cote D'Ivoire",
+		226,"Burkina Faso",
+		227,"Niger",
+		228,"Togo",
+		229,"Benin",
+		230,"Mauritius",
+		231,"Liberia",
+		232,"Sierra Leone",
+		233,"Ghana",
+		234,"Nigeria",
+		235,"Chad",
+		236,"Central African Republic",
+		237,"Cameroon",
+		238,"Cape Verde Islands",
+		239,"Sao Tome and Principe",
+		240,"Equatorial Guinea",
+		241,"Gabon",
+		242,"Congo",
+		243,"Congo(DRC)",
+		244,"Angola",
+		245,"Guinea-Bissau",
+		246,"Diego Garcia",
+		247,"Ascension Island",
+		248,"Seychelle Islands",
+		249,"Sudan",
+		250,"Rwanda",
+		251,"Ethiopia",
+		252,"Somalia",
+		253,"Djibouti",
+		254,"Kenya",
+		255,"Tanzania",
+		256,"Uganda",
+		257,"Burundi",
+		258,"Mozambique",
+		260,"Zambia",
+		261,"Madagascar",
+		262,"Reunion Island",
+		263,"Zimbabwe",
+		264,"Namibia",
+		265,"Malawi",
+		266,"Lesotho",
+		267,"Botswana",
+		268,"Swaziland",
+		269,"Comoros",
+		269,"Mayotte Island",
+		290,"St. Helena",
+		291,"Eritrea",
+		297,"Aruba",
+		298,"Faroe Islands",
+		299,"Greenland",
+		350,"Gibraltar",
+		351,"Portugal",
+		352,"Luxembourg",
+		353,"Ireland",
+		354,"Iceland",
+		355,"Albania",
+		356,"Malta",
+		357,"Cyprus",
+		358,"Finland",
+		359,"Bulgaria",
+		370,"Lithuania",
+		371,"Latvia",
+		372,"Estonia",
+		373,"Moldova",
+		374,"Armenia",
+		375,"Belarus",
+		376,"Andorra",
+		377,"Monaco",
+		378,"San Marino",
+		380,"Ukraine",
+		381,"Serbia and Montenegro",
+		385,"Croatia",
+		386,"Slovenia",
+		387,"Bosnia and Herzegovina",
+		389,"F.Y.R.O.M. (Former Yugoslav Republic of Macedonia)",
+		420,"Czech Republic",
+		421,"Slovak Republic",
+		500,"Falkland Islands (Islas Malvinas)",
+		501,"Belize",
+		502,"Guatemala",
+		503,"El Salvador",
+		504,"Honduras",
+		505,"Nicaragua",
+		506,"Costa Rica",
+		507,"Panama",
+		508,"St. Pierre and Miquelon",
+		509,"Haiti",
+		590,"French Antilles",
+		590,"Guadeloupe",
+		591,"Bolivia",
+		592,"Guyana",
+		593,"Ecuador",
+		594,"French Guiana",
+		595,"Paraguay",
+		596,"Martinique",
+		597,"Suriname",
+		598,"Uruguay",
+		599,"Netherlands Antilles",
+		670,"Rota Island",
+		670,"Saipan Island",
+		670,"Tinian Island",
+		671,"Guam",
+		672,"Australian Antarctic Territory",
+		672,"Christmas Island",
+		672,"Norfolk Island",
+		673,"Brunei",
+		674,"Nauru",
+		675,"Papua New Guinea",
+		676,"Tonga",
+		677,"Solomon Islands",
+		678,"Vanuatu",
+		679,"Fiji Islands",
+		680,"Palau",
+		681,"Wallis and Futuna Islands",
+		682,"Cook Islands",
+		683,"Niue",
+		684,"Territory of American Samoa",
+		685,"Samoa",
+		686,"Kiribati Republic",
+		687,"New Caledonia",
+		688,"Tuvalu",
+		689,"French Polynesia",
+		690,"Tokelau",
+		691,"Micronesia",
+		692,"Marshall Islands",
+		850,"Korea (North)",
+		852,"Hong Kong SAR",
+		853,"Macau SAR",
+		855,"Cambodia",
+		856,"Laos",
+		871,"INMARSAT (Atlantic-East)",
+		872,"INMARSAT (Pacific)",
+		873,"INMARSAT (Indian)",
+		874,"INMARSAT (Atlantic-West)",
+		880,"Bangladesh",
+		886,"Taiwan",
+		960,"Maldives",
+		961,"Lebanon",
+		962,"Jordan",
+		963,"Syria",
+		964,"Iraq",
+		965,"Kuwait",
+		966,"Saudi Arabia",
+		967,"Yemen",
+		968,"Oman",
+		971,"United Arab Emirates",
+		972,"Israel",
+		973,"Bahrain",
+		974,"Qatar",
+		975,"Bhutan",
+		976,"Mongolia",
+		977,"Nepal",
+		994,"Azerbaijan",
+		995,"Georgia",
+		0,NULL
+	};
+	for(long index=0;list[index].Name!=NULL;index++)
+	{
+		if(list[index].CountryCode==CountryCode)
+		{
+			return list[index].Name;
+		}
+	}
+	return NULL;
+}
+
 void PrintFrequencyList(TRCCountryList &CountryList,bool AirTable,bool CableTable)
 {
 	char lName[20];
@@ -136,7 +374,15 @@ void PrintFrequencyList(TRCCountryList &CountryList,bool AirTable,bool CableTabl
 		FreqTable = (long*)GetRcData("kstvtune.ax", lName, szRCDATA, hDSTunerModule);
 		if(FreqTable!=NULL)
 		{
-			std::cout << "[Country " << CountryList.CountryCode << " Cable Frequency]" << std::endl;
+			char *CountryName=CountryCodeToString(CountryList.CountryCode);
+			if(CountryName!=NULL)
+			{
+				std::cout << "[" << CountryName << " Cable Frequency]" << std::endl;
+			}
+			else
+			{
+				std::cout << "[Country " << CountryList.CountryCode << " Cable Frequency]" << std::endl;
+			}
 			std::cout << "ChannelLow=" << FreqTable[0] << std::endl;
 			std::cout << "ChannelHigh=" << FreqTable[1] << std::endl;
 			if(VideoStandardToString(CountryList.VideoStandard)!=NULL)
@@ -155,7 +401,15 @@ void PrintFrequencyList(TRCCountryList &CountryList,bool AirTable,bool CableTabl
 		FreqTable = (long*)GetRcData("kstvtune.ax", lName, szRCDATA, hDSTunerModule);
 		if(FreqTable!=NULL)
 		{
-			std::cout << "[Country " << CountryList.CountryCode << " Air Frequency]" << std::endl;
+			char *CountryName=CountryCodeToString(CountryList.CountryCode);
+			if(CountryName!=NULL)
+			{
+				std::cout << "[" << CountryName << " Air Frequency]" << std::endl;
+			}
+			else
+			{
+				std::cout << "[Country " << CountryList.CountryCode << " Air Frequency]" << std::endl;
+			}
 			std::cout << "ChannelLow=" << FreqTable[0] << std::endl;
 			std::cout << "ChannelHigh=" << FreqTable[1] << std::endl;
 			if(VideoStandardToString(CountryList.VideoStandard)!=NULL)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.30 2004-12-16 01:52:10 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.31 2004-12-16 23:51:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.	 All rights	reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2004/12/16 01:52:10  atnak
+// Added SAA7133 audio support.
+//
 // Revision	1.28  2004/12/06 09:03:23  atnak
 // Added some SAA7133 audio	related	functions.
 //
@@ -310,12 +313,12 @@ BOOL CSAA7134Card::WaitDSPAccessState7133(BOOL bRead)
 
 BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD	registerSize, CBitVector value)
 {
-#ifndef	_DEBUG
+#ifdef _DEBUG
 	if (registerOffset < 0x400 || registerOffset >=	0x580)
 	{
 		TRACE("WriteDSPData7133	used for low latency register %lu!", registerOffset);
 		WriteData(registerOffset, registerSize,	value);
-		return;
+		return TRUE;
 	}
 #endif
 
@@ -335,12 +338,12 @@ BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD	registerSize, CB
 
 BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerSize, CBitVector& value)
 {
-#ifndef	_DEBUG
+#ifdef _DEBUG
 	if (registerOffset < 0x400 || registerOffset >=	0x580)
 	{
 		TRACE("ReadDSPData7133 used	for	low	latency	register %lu!",	registerOffset);
 		value =	ReadData(registerOffset, registerSize);
-		return;
+		return TRUE;
 	}
 #endif
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.4 2004-11-21 16:21:16 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.5 2004-11-21 23:18:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/11/21 16:21:16  atnak
+// Bug fix and slight change.
+//
 // Revision 1.3  2004/11/21 14:17:38  atnak
 // Made line comments able to start anywhere in the line.
 //
@@ -832,6 +835,11 @@ bool CHCParser::ProcessTag()
 #ifdef _DEBUG
 	DebugOut(DEBUG_OUT_REPORT, "\n");
 #endif
+
+	if (!ReportTag(parseTag))
+	{
+		return false;
+	}
 	return OpenTag((long)(parseTag - m_parseStates.front().parseTags));
 }
 
@@ -1338,6 +1346,11 @@ bool CHCParser::CloseValue()
 
 	DebugOut(DEBUG_OUT_EXPECT, ":CV", true);
 	return true;
+}
+
+bool CHCParser::ReportTag(const ParseTag* parseTag)
+{
+	return ReportValue(parseTag, 0, NULL, REPORT_TAG);
 }
 
 bool CHCParser::ReportOpen(const ParseTag* parseTag)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.4 2004-11-20 16:43:16 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.5 2004-11-21 23:18:35 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/11/20 16:43:16  atnak
+// Made an enum public so sub classes can access them.
+//
 // Revision 1.3  2004/11/20 16:36:40  atnak
 // Removed the use of ifstream and added custom buffered line reader.
 //
@@ -199,6 +202,7 @@ enum
 // ParseReadProc reasons
 enum
 {
+	REPORT_TAG,
 	REPORT_OPEN,
 	REPORT_CLOSE,
 	REPORT_VALUE,
@@ -377,6 +381,7 @@ private:
 	void SetParseError(ParseError& error);
 	void AddExpectLine(ParseError& error, bool debugging = false);
 
+	bool ReportTag(const ParseTag* parseTag);
 	bool ReportOpen(const ParseTag* parseTag);
 	bool ReportClose(const ParseTag* parseTag);
 	bool ReportValue(const ParseTag* parseTag, unsigned char type,

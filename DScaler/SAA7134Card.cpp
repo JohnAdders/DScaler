@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.38 2003-07-29 12:02:15 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.39 2003-08-12 06:46:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/07/29 12:02:15  atnak
+// Fixes card might not mute on exit
+//
 // Revision 1.37  2003/06/01 19:47:34  atnak
 // PRESET tweak
 //
@@ -171,7 +174,8 @@ CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     m_CardType(SAA7134CARDID_UNKNOWN),
     m_Tuner(NULL),
     m_PreparedRegions(0x00),
-    m_VideoStandard(VIDEOSTANDARD_INVALID)
+    m_VideoStandard(VIDEOSTANDARD_INVALID),
+    m_bAudioLineMuteReserved(FALSE)
 {
     m_LastTriggerError = 0UL;
 

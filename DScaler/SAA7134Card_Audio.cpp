@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.20 2003-06-01 19:42:32 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.21 2003-08-12 06:46:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/06/01 19:42:32  atnak
+// Adds "external" sound type for either stereo or mono
+//
 // Revision 1.19  2002/12/09 00:32:13  atnak
 // Added new muting stuff
 //
@@ -103,14 +106,14 @@ void CSAA7134Card::InitAudio()
 {
     SetAudioSource(AUDIOINPUTSOURCE_LINE1);
 
+    // Initially mute everything
+    SetAudioMute();
+
     if (m_DeviceId == 0x7130)
     {
         // saa7130 doesn't support most audio stuff
         return;
     }
-
-    // mute all
-    WriteByte(SAA7134_AUDIO_MUTE_CTRL,          0xFF);
 
     // auto gain control enabled
     WriteByte(SAA7134_AGC_GAIN_SELECT,          0x00);
@@ -554,6 +557,13 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 {
     BYTE LineSelect;
 
+    m_AudioInputSource = InputSource;
+
+    if (m_bAudioLineMuteReserved != FALSE)
+    {
+        return;
+    }
+
     switch (InputSource)
     {
     case AUDIOINPUTSOURCE_DAC: LineSelect = 0x02; break;
@@ -563,8 +573,6 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
 
     MaskDataByte(SAA7134_ANALOG_IO_SELECT, LineSelect,
         SAA7134_ANALOG_IO_SELECT_OCS);
-
-    m_AudioInputSource = InputSource;
 
     if (InputSource == AUDIOINPUTSOURCE_DAC)
     {
@@ -904,6 +912,9 @@ void CSAA7134Card::SetAudioMute()
 
         MaskDataByte(SAA7134_ANALOG_IO_SELECT, MuteLine,
             SAA7134_ANALOG_IO_SELECT_OCS);
+
+        // Set this so we know the audio line is reserved
+        m_bAudioLineMuteReserved = TRUE;
     }
     else
     {
@@ -917,6 +928,7 @@ void CSAA7134Card::SetAudioUnMute()
     if (m_DeviceId == 0x7130)
     {
         SetAudioSource(m_AudioInputSource);
+        m_bAudioLineMuteReserved = FALSE;
     }
     else
     {

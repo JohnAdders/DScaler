@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.33 2003-06-27 08:05:41 atnak Exp $
+// $Id: SAA7134Card.h,v 1.34 2003-08-12 06:46:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/06/27 08:05:41  atnak
+// Added AOPEN VA1000 Lite2
+//
 // Revision 1.32  2003/04/17 09:17:47  atnak
 // Added V-Gear MyTV SAP PK
 //
@@ -467,7 +470,11 @@ private:
     DWORD               m_LastTriggerError;
 
     eVideoStandard      m_VideoStandard;
+
     eAudioInputSource   m_AudioInputSource;
+    /// This is set to TRUE whenever the audio line used
+    /// for muting, on cards without proper mute - saa7130s
+    BOOL                m_bAudioLineMuteReserved;
 };
 
 

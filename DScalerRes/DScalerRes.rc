@@ -1161,6 +1161,8 @@ BEGIN
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
             MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
             MENUITEM "Save By Channel",             IDM_SAVE_BY_CHANNEL
+            MENUITEM "Clear Channel Settings",      IDM_SAVE_BY_CHANNEL_CLEARSETTINGS
+            , GRAYED
         END
     END
 END

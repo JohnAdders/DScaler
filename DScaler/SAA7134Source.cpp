@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.42 2002-11-07 20:33:17 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.43 2002-11-08 12:16:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/11/07 20:33:17  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.41  2002/11/07 18:54:21  atnak
 // Redid getting next field -- fixes some issues
 //
@@ -215,6 +218,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     SettingsPerChannel_RegisterOnSetup(this, SAA7134_OnSetup);
 
     ReadFromIni();
+
+    SetupCard();
     LoadSettings(SETUP_CHANGE_ANY);
 
     InitializeUI();
@@ -250,7 +255,6 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
         m_EvenFields[k].IsFirstInSeries = FALSE;
     }
 
-    SetupCard();
     Reset();
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());

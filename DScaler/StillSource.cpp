@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.20 2001-12-08 20:00:24 laurentg Exp $
+// $Id: StillSource.cpp,v 1.21 2001-12-16 10:15:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/12/08 20:00:24  laurentg
+// Access control on sources
+//
 // Revision 1.19  2001/12/08 17:39:14  laurentg
 // Slide show feature added
 //
@@ -364,6 +367,8 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FieldHeight = m_Height;
     pInfo->InputPitch = pInfo->LineLength;
     pInfo->PictureHistory[0] = &m_StillFrame;
+
+    Timing_IncrementUsedFields();
 }
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -420,6 +425,11 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             KillTimer(hWnd, TIMER_SLIDESHOW);
         }
+        break;
+    case IDM_CLOSE_FILE:
+        ClearPlayList();
+        m_Position = -1;
+        PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
         break;
     default:
         break;

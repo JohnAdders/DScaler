@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.8 2003-08-09 21:12:18 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.9 2003-08-10 00:34:24 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/08/09 21:12:18  laurentg
+// Display volume toolbar only for sources having a volume control
+//
 // Revision 1.7  2003/08/09 20:18:37  laurentg
 // Automatic show/hide the toolbar when in full screen mode
 //
@@ -98,6 +101,7 @@ Toolbar1Logo(NULL)
 		int VideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
 		bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
 		bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
+		bShowVolume = TRUE;
 	}
 	
 	//Set proper bit
@@ -494,6 +498,7 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 			int VideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
 			BOOL bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
 			BOOL bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
+			bShowVolume = TRUE;
 			
 			//Set proper bit
 			int Visible = HIWORD(m_Toolbar1Channels->GetValue());
@@ -605,10 +610,12 @@ void CToolbarControl::UpdateMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_Toolbar1Position->GetValue()==0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, ((HIWORD(m_Toolbar1Channels->GetValue())&1)!=0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, (HIWORD(m_Toolbar1Volume->GetValue())!=0));
+//    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, FALSE);
     
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, (m_ShowToolbar1->GetValue()!=0));
+//    EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, (m_ShowToolbar1->GetValue()!=0));
 }
 
 //Process menu commands

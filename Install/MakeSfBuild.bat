@@ -8,7 +8,7 @@ cd DScalerBuild%1
 cvs -z3 -d:ext:adcockj@cvs.sf.net:/cvsroot/deinterlace co DScaler
 cd DScaler\Dscaler
 ..\..\..\Dscaler\Release\verinc
-echo cvs commit -m Update Verion for release %1
+cvs commit -m Update Verion for release %1
 cd ..
 pause
 7z a -tzip ..\DScaler%1src.zip *.* -r

@@ -177,32 +177,32 @@
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Gamma">
-			<param name="Local" value="Gamma.htm">
+			<param name="Local" value="Gamma.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Temporal Noise">
-			<param name="Local" value="Noise.htm">
+			<param name="Local" value="Noise.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Logo Killer">
-			<param name="Local" value="LogoKiller.htm">
+			<param name="Local" value="LogoKiller.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Sharpness">
-			<param name="Local" value="Sharpness.htm">
+			<param name="Local" value="Sharpness.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Linear Correction Filter">
-			<param name="Local" value="LinearCorrection.htm">
+			<param name="Local" value="LinearCorrection.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Temporal Comb">
-			<param name="Local" value="TemporalComb.htm">
+			<param name="Local" value="TemporalComb.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 	</UL>
@@ -213,42 +213,42 @@
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="2:2 Puldown Settings">
-			<param name="Local" value="22Pulldown.htm">
+			<param name="Local" value="22Pulldown.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="3:2 Puldown Settings">
-			<param name="Local" value="32Pulldown.htm">
+			<param name="Local" value="32Pulldown.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Shared Puldown Settings">
-			<param name="Local" value="PulldownShared.htm">
+			<param name="Local" value="PulldownShared.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Logging">
-			<param name="Local" value="Logging.htm">
+			<param name="Local" value="Logging.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Aspect Ratio">
-			<param name="Local" value="Aspect.htm">
+			<param name="Local" value="Aspect.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Field Timing">
-			<param name="Local" value="Timing.htm">
+			<param name="Local" value="Timing.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Overlay">
-			<param name="Local" value="Overlay.htm">
+			<param name="Local" value="Overlay.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Ini File Settings">
-			<param name="Local" value="IniFile.htm">
+			<param name="Local" value="IniFile.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 	</UL>

@@ -34,6 +34,8 @@ BEGIN
     "-",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
     "0",            IDM_SASPECT_0,          VIRTKEY, CONTROL, NOINVERT
     "0",            IDM_TASPECT_0,          VIRTKEY, ALT, NOINVERT
+    "0",            IDM_SASPECT_SQUARE,     VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
     "1",            IDM_SASPECT_133,        VIRTKEY, CONTROL, NOINVERT
     "1",            IDM_TASPECT_133,        VIRTKEY, ALT, NOINVERT
     "2",            IDM_SASPECT_166,        VIRTKEY, CONTROL, NOINVERT
@@ -846,10 +848,11 @@ BEGIN
         MENUITEM "&16:9 Anamorphic",            IDM_ASPECT_ANAMORPHIC
         POPUP "Advanced &Image Aspect Ratios"
         BEGIN
-            MENUITEM "Autodetect (experimental)\tA", IDM_SASPECT_AUTO_TOGGLE
-            MENUITEM "Detect from Current Image\t`", IDM_SASPECT_COMPUTE
-            MENUITEM "Stretch to Window\tCtrl+0",   IDM_SASPECT_0
-            MENUITEM "Square Pixels (experimental)", IDM_SASPECT_SQUARE
+            MENUITEM "&Autodetect (experimental)\tA", 
+                                                    IDM_SASPECT_AUTO_TOGGLE
+            MENUITEM "&Detect from Current Image\t`", IDM_SASPECT_COMPUTE
+            MENUITEM "&Stretch to &Window\tCtrl+0", IDM_SASPECT_0
+            MENUITEM "&Square Pixels\tCtrl+Shift+0", IDM_SASPECT_SQUARE
             MENUITEM "1.33\tCtrl+1",                IDM_SASPECT_133
             MENUITEM "1.44   Letterboxed\tCtrl+7",  IDM_SASPECT_144
             MENUITEM "1.55   Letterboxed\tCtrl+8",  IDM_SASPECT_155
@@ -865,7 +868,7 @@ BEGIN
             MENUITEM "2.35   Anamorphic\tCtrl+Shift+6", IDM_SASPECT_235A
             MENUITEM "Custom  (from .INI file)\tCtrl+9", IDM_SASPECT_CUSTOM
             MENUITEM SEPARATOR
-            MENUITEM "Clipped (Add Black Bars if Necessary)\tCtrl+P", 
+            MENUITEM "&Clipped (Add Black Bars if Necessary)\tCtrl+P", 
                                                     IDM_SASPECT_CLIP
         END
         POPUP "Aspect Ratio of &Display Screen"

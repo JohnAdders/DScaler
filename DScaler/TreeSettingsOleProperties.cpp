@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.1 2002-04-24 19:04:01 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.2 2002-05-02 20:05:51 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/04/24 19:04:01  tobbej
+// new treebased settings dialog
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +77,7 @@ CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
 		HRESULT hr=pPage->m_pPropertyPage->Deactivate();
 		hr=pPage->m_pPropertyPage->SetPageSite(NULL);
 		hr=pPage->m_pPropertyPage->SetObjects(0,NULL);
-		ASSERT(SUCCEEDED(hr));
+		//ASSERT(SUCCEEDED(hr));
 		pPage->m_pPropertyPage.Release();
 		pPage->m_pPageSite->Release();
 		pPage->m_pPageSite=NULL;

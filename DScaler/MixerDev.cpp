@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.20 2001-11-09 12:42:07 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.21 2001-11-19 11:11:45 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.19  2001/11/02 16:32:54  adcockj
 // Removed conflict tags
 //
@@ -91,6 +94,7 @@ CSoundSystem* pSoundSystem = NULL;
 BOOL bUseMixer = FALSE;
 BOOL bResetOnExit = TRUE;
 long MixerIndex = 0;
+char MixerName[MAXPNAMELEN] = {0};
 long DestIndex = 0;
 long TunerLineIndex = -1;
 long CompositeLineIndex = -1;
@@ -430,6 +434,39 @@ char* CSoundSystem::GetMixerName(int MixerIndex)
     }
 }
 
+char* CSoundSystem::GetMixerName2(int MixerIndex)
+{
+    static MIXERCAPS MixerCaps;
+    MMRESULT mmresult = mixerGetDevCaps(MixerIndex, &MixerCaps, sizeof(MixerCaps));
+    if(mmresult == MMSYSERR_NOERROR)
+    {
+        return MixerCaps.szPname;
+    }
+    else
+    {
+        static char szMixerError = NULL;
+        return &szMixerError;
+    }
+}
+
+int CSoundSystem::FindMixer(char* szPname)
+{
+    int DeviceCount = mixerGetNumDevs();
+    for (int i = 0; i < DeviceCount; i++)
+    {
+        char* pDeviceName = GetMixerName2(i);
+        if(*pDeviceName)
+        {
+            if(!lstrcmp(szPname, pDeviceName))
+            {
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
+
 void CSoundSystem::SetMixer(int MixerIndex)
 {
     if(m_Mixer != NULL)
@@ -594,6 +631,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
         case IDOK:
             MixerIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER));
+            lstrcpy((char*) &MixerName, pSoundSystem->GetMixerName2(MixerIndex));
             DestIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
             TunerLineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_TUNER));
             CompositeLineIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_COMPOSITE));
@@ -863,6 +901,15 @@ void Mixer_Init()
     }
 }
 
+void Mixer_UpdateIndex()
+{
+    MixerIndex = CSoundSystem::FindMixer((char*) &MixerName);
+    if(MixerIndex < 0)
+    {
+        MixerIndex = NULL;
+    }
+}
+
 SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
 {
     {
@@ -871,12 +918,12 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         NULL,
         "Mixer", "UseMixer", NULL,
     },
-    {
+/*    {
         "MixerIndex", SLIDER, 0, (long*)&MixerIndex,
         0, 0, 255, 1, 1,
         NULL,
         "Mixer", "MixerIndex", NULL,
-    },
+    },*/
     {
         "DestIndex", SLIDER, 0, (long*)&DestIndex,
         0, 0, 255, 1, 1,
@@ -935,6 +982,14 @@ void MixerDev_ReadSettingsFromIni()
     {
         Setting_ReadFromIni(&(MixerDevSettings[i]));
     }
+    
+    extern char szIniFile[MAX_PATH];
+    GetPrivateProfileString("Mixer", "MixerName", "", (char*) &MixerName, sizeof(MixerName), szIniFile);
+    MixerIndex = CSoundSystem::FindMixer((char*) MixerName);
+    if(MixerIndex < 0)
+    {
+        MixerIndex = NULL;
+    }
 }
 
 void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
@@ -944,6 +999,9 @@ void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(MixerDevSettings[i]), bOptimizeFileAccess);
     }
+
+    extern char szIniFile[MAX_PATH];
+    WritePrivateProfileString("Mixer", "MixerName", (char*) &MixerName, szIniFile);
 }
 
 

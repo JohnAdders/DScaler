@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.13 2001-11-02 16:30:08 adcockj Exp $
+// $Id: MixerDev.h,v 1.14 2001-11-19 11:11:45 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -106,6 +106,8 @@ public:
     ~CSoundSystem();
     int GetNumMixers();
     char* GetMixerName(int MixerIndex);
+    static char* GetMixerName2(int MixerIndex);
+    static int FindMixer(char* szPname);
     void SetMixer(int MixerIndex);
     CMixer* GetMixer();
 private:
@@ -125,5 +127,6 @@ void Mixer_Volume_Down();
 long Mixer_GetVolume();
 void Mixer_Init();
 void Mixer_Exit();
+void Mixer_UpdateIndex();
 
 #endif

@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.5 2004-08-27 13:11:27 to_see Exp $
+// $Id: TunerID.h,v 1.6 2004-12-29 20:17:19 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/08/27 13:11:27  to_see
+// Added Philips 4in1 tuner (from v4l2)
+//
 // Revision 1.4  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -99,6 +102,7 @@ enum eTunerId
     TUNER_MT2050,
     TUNER_MT2050_PAL,
 	TUNER_PHILIPS_4IN1,
+    TUNER_TCL_2002N,
     TUNER_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.10 2004-12-17 00:22:51 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.11 2004-12-29 20:17:19 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/12/17 00:22:51  atnak
+// Added a keyword for setting tda9887 modes for all formats.
+//
 // Revision 1.9  2004/12/16 04:53:50  atnak
 // Added "auto detect" and "user setup" to tuner parsing.
 //
@@ -118,6 +121,7 @@ const CParseConstant k_parseTunerConstants[] =
 	PC( "MT2050",						TUNER_MT2050					),
 	PC( "MT2050_PAL",					TUNER_MT2050_PAL				),
 	PC( "PHILIPS_4IN1",					TUNER_PHILIPS_4IN1				),
+	PC( "TCL_2002N",					TUNER_TCL_2002N  				),
 	PC( NULL )
 };
 

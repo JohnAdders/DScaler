@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.cpp,v 1.4 2004-08-27 13:11:27 to_see Exp $
+// $Id: TunerID.cpp,v 1.5 2004-12-29 20:17:19 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/08/27 13:11:27  to_see
+// Added Philips 4in1 tuner (from v4l2)
+//
 // Revision 1.3  2003/12/18 15:57:41  adcockj
 // Added MT2050 tuner type support (untested)
 //
@@ -93,6 +96,7 @@ const char *TunerNames[TUNER_LASTONE] =
         "MT2050 [NTSC]",
         "MT2050 [PAL]",
 		"Philips 4in1 [ATI TV Wonder Pro/Conexant]",	// TUNER_PHILIPS_4IN1
+		"TCL 2002N",                                	// TUNER_TCL_2002N
 };
 
 }

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.16 2004-08-27 13:11:27 to_see Exp $
+// $Id: GenericTuner.cpp,v 1.17 2004-12-29 20:17:19 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/08/27 13:11:27  to_see
+// Added Philips 4in1 tuner (from v4l2)
+//
 // Revision 1.15  2004/06/30 17:39:00  to_see
 // Added some fixes for Philips MK3 tuner & TDA9887
 //
@@ -408,6 +411,12 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
       {
           TUNERDEF(TUNER_PHILIPS_4IN1, VIDEOFORMAT_NTSC_M,
               16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,732);
+          break;
+      }
+    case TUNER_TCL_2002N:
+      {
+          TUNERDEF(TUNER_TCL_2002N, VIDEOFORMAT_NTSC_M,
+              16*(172.00),16*(448.00),0x01,0x02,0x08,0x8e,732);
           break;
       }
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.101 2002-12-09 00:32:14 atnak Exp $
+// $Id: OutThreads.cpp,v 1.102 2002-12-13 20:31:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2002/12/09 00:32:14  atnak
+// Added new muting stuff
+//
 // Revision 1.100  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -404,6 +407,7 @@ BOOL				RequestStillInMemory = FALSE;
 BOOL                RequestToggleFlip = FALSE;
 BOOL                bDoVerticalFlipSetting = FALSE;
 HANDLE              OutThread;
+DWORD OutThreadID=0;
 
 // Capture state variables
 BOOL                bCaptureStarted = FALSE;
@@ -446,11 +450,31 @@ void ShiftPictureHistory(TDeinterlaceInfo* pInfo, int NumFieldsValid)
     pInfo->PictureHistory[0] = NULL;
 }
 
+/**
+ * This function triggers an assert if called on output thread.
+ * This can be used during debuging to make sure that a certain part of the
+ * code is not called from the output thread.
+ * To use this function use the ASSERTONOUTTHREAD macro, this will make sure
+ * that the assert is only triggered in debug build.
+ */
+#ifdef _DEBUG
+void AssertOnOutThread()
+{
+	if(OutThreadID!=0)
+	{
+		if(GetCurrentThreadId()==OutThreadID)
+		{
+			//the reason for using int 3 insted of ASSERT() is that the ASSERT
+			//macro shows a dialog which might create problems.
+			_asm int 3;
+		}
+	}
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 void Start_Thread()
 {
-    DWORD LinkThreadID;
-
     // make sure we start with a clean sheet of paper
     Overlay_Clean();
 
@@ -461,7 +485,7 @@ void Start_Thread()
                              YUVOutThread,                  // Thread procedure.
                              NULL,                          // Parameter.
                              (DWORD) 0,                     // Start immediatly.
-                             (LPDWORD) & LinkThreadID);     // Thread ID.
+                             (LPDWORD) &OutThreadID);       // Thread ID.
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1172,8 +1196,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
 								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
 								DScalerDeinitializeThread();
-								ExitThread(1);
-								return 0;
+								return 1;
 							}
 
 #ifdef _DEBUG

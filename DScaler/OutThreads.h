@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.18 2002-10-26 21:42:05 laurentg Exp $
+// $Id: OutThreads.h,v 1.19 2002-12-13 20:31:18 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -74,5 +74,12 @@ BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
 BOOL LockOverlay(TDeinterlaceInfo* pInfo);
 
 extern BOOL VTPageContainsTransparency;
+
+#ifdef _DEBUG
+	#define ASSERTONOUTTHREAD AssertOnOutThread()
+	void AssertOnOutThread();
+#else
+	#define ASSERTONOUTTHREAD
+#endif
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.13 2002-02-08 08:14:42 adcockj Exp $
+// $Id: ProgramList.h,v 1.14 2002-02-26 19:21:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -77,6 +77,11 @@ private:
     BOOL m_Active;
 };
 
+typedef struct {
+    DWORD Freq;
+    int Format;
+} TCountryChannel;
+
 class CCountry
 {
 public:
@@ -85,7 +90,7 @@ public:
     string m_Name;
     int m_MinChannel;
     int m_MaxChannel;
-    vector<DWORD> m_Frequencies;
+    vector<TCountryChannel> m_Frequencies;
 };
 
 void Channels_Exit();

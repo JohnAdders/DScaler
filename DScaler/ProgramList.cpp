@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.49 2002-02-24 20:20:12 temperton Exp $
+// $Id: ProgramList.cpp,v 1.50 2002-02-26 19:21:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/02/24 20:20:12  temperton
+// Now we use currently selected video format instead of tuner default
+//
 // Revision 1.48  2002/02/11 21:23:54  laurentg
 // Grayed certain items in the Channels menu when the current input is not the tuner
 //
@@ -181,6 +184,9 @@ long PreviousProgramm = 0;
 BOOL bCustomChannelOrder = FALSE;
 BOOL InScan = FALSE;
 BOOL InUpdate = FALSE;
+
+int WM_DRAGLISTMESSAGE = 0;
+long DragItemIndex = 0;
 
 CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active)
 {
@@ -340,14 +346,14 @@ void ResetProgramList(HWND hDlg)
     {
         for(int i(0); i < Countries[CountryCode]->m_Frequencies.size(); ++i)
         {
-            if(Countries[CountryCode]->m_Frequencies[i] != 0)
+            if(Countries[CountryCode]->m_Frequencies[i].Freq != 0)
             {
                 char sbuf[256];
                 sprintf(sbuf, "%d", Countries[CountryCode]->m_MinChannel + i);
                 MyChannels.push_back(new CChannel(sbuf, 
-                                        Countries[CountryCode]->m_Frequencies[i],
+                                        Countries[CountryCode]->m_Frequencies[i].Freq,
                                         Countries[CountryCode]->m_MinChannel + i,
-                                        -1,
+                                        Countries[CountryCode]->m_Frequencies[i].Format,
                                         TRUE));
                 ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
             }
@@ -382,7 +388,7 @@ void RefreshChannelList(HWND hDlg)
     SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), CB_SETITEMDATA, Index, 0);
     for(int i(0); i < Countries[CountryCode]->m_Frequencies.size(); ++i)
     {
-        if(Countries[CountryCode]->m_Frequencies[i] != 0)
+        if(Countries[CountryCode]->m_Frequencies[i].Freq != 0)
         {
             char sbuf[256];
             sprintf(sbuf, "%d", Countries[CountryCode]->m_MinChannel + i);
@@ -394,11 +400,16 @@ void RefreshChannelList(HWND hDlg)
 }
 
 //returns TRUE if a video signal is found
-BOOL FindFrequency(DWORD Freq)
+BOOL FindFrequency(DWORD Freq, int Format)
 {
     char sbuf[256];
 
-    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, VIDEOFORMAT_LASTONE))
+    if(Format == -1)
+    {
+        Format = VIDEOFORMAT_LASTONE;
+    }
+
+    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, (eVideoFormat)Format))
     {
         sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
         ErrorBox(sbuf);
@@ -460,7 +471,7 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
     UpdateDetails(hDlg);
     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ChannelNum);
 
-    result = FindFrequency(MyChannels[ChannelNum]->GetFrequency());
+    result = FindFrequency(MyChannels[ChannelNum]->GetFrequency(), MyChannels[ChannelNum]->GetFormat());
 
     MyChannels[ChannelNum]->SetActive(result);
     InUpdate = FALSE;
@@ -477,19 +488,22 @@ void ScanFrequency(HWND hDlg, int FreqNum)
 
     char sbuf[256];
 
-    DWORD Freq = Countries[CountryCode]->m_Frequencies[FreqNum];
+    DWORD Freq = Countries[CountryCode]->m_Frequencies[FreqNum].Freq;
     
     if(Freq == 0)
     {
         return;
     }
 
+    int Format = Countries[CountryCode]->m_Frequencies[FreqNum].Format;
+
     SelectChannel(hDlg, FreqNum + Countries[CountryCode]->m_MinChannel);
+    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), Format + 1);
 
     sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
-    if(FindFrequency(Freq))
+    if(FindFrequency(Freq, Format))
     {
         char sbuf[256];
         ++CurrentProgramm;
@@ -498,7 +512,7 @@ void ScanFrequency(HWND hDlg, int FreqNum)
                                             sbuf, 
                                             Freq, 
                                             Countries[CountryCode]->m_MinChannel + FreqNum, 
-                                            -1, 
+                                            Format, 
                                             TRUE
                                          ));
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
@@ -571,6 +585,9 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
         RefreshProgramList(hDlg, CurrentProgramm);
 
+        WM_DRAGLISTMESSAGE = RegisterWindowMessage(DRAGLISTMSGSTRING);
+        MakeDragList(GetDlgItem(hDlg, IDC_PROGRAMLIST));
+        
         OldCustom = bCustomChannelOrder;
         OldCountryCode = CountryCode;
         Button_SetCheck(GetDlgItem(hDlg, IDC_CUTOMCHANNELORDER), bCustomChannelOrder?BST_CHECKED:BST_UNCHECKED);
@@ -735,11 +752,14 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 // set the frequency
                 int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
                 long Freq = 0;
+                int Format = -1;
                 Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
-                Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel];
+                Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Freq;
+                Format = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Format;
                 sprintf(sbuf, "%10.4f", Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
                 ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
+                ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), Format + 1);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
@@ -868,9 +888,60 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EndDialog(hDlg, TRUE);
             break;
         }
-
         break;
     }
+
+
+    if(message == WM_DRAGLISTMESSAGE)
+    {
+        int Item = 0;
+        LPDRAGLISTINFO pDragInfo = (LPDRAGLISTINFO) lParam; 
+        switch(pDragInfo->uNotification)
+        {
+        case DL_BEGINDRAG:
+            DragItemIndex = ListBox_GetCurSel(pDragInfo->hWnd);
+            SetWindowLong(hDlg, DWL_MSGRESULT, TRUE);
+            break;
+        case DL_DROPPED:
+            DrawInsert(hDlg, pDragInfo->hWnd, -1);               
+            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
+            if((Item >= 0) && (Item != DragItemIndex)) 
+            {
+                CChannel* Temp = MyChannels[DragItemIndex];
+                CurrentProgramm = DragItemIndex;
+                if(Item < DragItemIndex)
+                {
+                    while(CurrentProgramm > Item)
+                    {
+                        MyChannels[CurrentProgramm] = MyChannels[CurrentProgramm - 1];
+                        --CurrentProgramm;
+                    }
+                }
+                else
+                {
+                    while(CurrentProgramm < Item)
+                    {
+                        MyChannels[CurrentProgramm] = MyChannels[CurrentProgramm + 1];
+                        ++CurrentProgramm;
+                    }
+                }
+                MyChannels[Item] = Temp;
+                CurrentProgramm = Item; 
+                RefreshProgramList(hDlg, CurrentProgramm);
+            }
+            break;
+        case DL_CANCELDRAG:
+            DrawInsert(hDlg, pDragInfo->hWnd, -1);
+            break;
+        case DL_DRAGGING:
+            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
+            DrawInsert(hDlg, pDragInfo->hWnd, Item);
+            SetWindowLong(hDlg, DWL_MSGRESULT, DL_MOVECURSOR);
+            break;
+        }
+        return (TRUE);
+    }
+
     return (FALSE);
 }
 
@@ -1248,6 +1319,18 @@ void Unload_Country_Settings()
     Countries.clear();
 }
 
+int StrToVideoFormat(char* pszFormat)
+{
+    for(int a = 0; a < VIDEOFORMAT_LASTONE; ++a)
+    {
+        if(!stricmp(pszFormat, VideoFormatNames[a]))
+        {
+            return a;
+        }  
+    }
+   
+    return -1;
+}
 
 void Load_Country_Settings()
 {
@@ -1258,6 +1341,7 @@ void Load_Country_Settings()
     char*     eol_ptr;
     string    Name;
     CCountry* NewCountry = NULL;
+    int       Format = -1;
 
     if ((CountryFile = fopen("Channel.txt", "r")) == NULL)
     {
@@ -1276,7 +1360,10 @@ void Load_Country_Settings()
         {
             *eol_ptr = '\0';
         }
-
+        if(eol_ptr == line)
+        {
+            continue;
+        }
         if(((Pos = strstr(line, "[")) != 0) && ((Pos1 = strstr(line, "]")) != 0) && Pos1 > Pos)
         {
             if(NewCountry != NULL)
@@ -1287,6 +1374,7 @@ void Load_Country_Settings()
             NewCountry = new CCountry();
             NewCountry->m_Name = Pos;
             NewCountry->m_Name[Pos1-Pos] = '\0';
+            Format = -1;
         }
         else
         {
@@ -1305,6 +1393,10 @@ void Load_Country_Settings()
             {
                 NewCountry->m_MaxChannel = atoi(Pos + strlen("ChannelHigh="));
             }
+            else if ((Pos = strstr(line, "Format=")) != 0)
+            {
+                Format = StrToVideoFormat(Pos + strlen("Format="));
+            }
             else
             {
                 Pos = line;
@@ -1313,9 +1405,11 @@ void Load_Country_Settings()
                     if ((*Pos >= '0') && (*Pos <= '9'))
                     {
                         // convert frequency in KHz to Units that the tuner wants
-                        long Freq = atol(Pos);
-                        Freq = MulDiv(Freq, 16, 1000000);
-                        NewCountry->m_Frequencies.push_back(Freq);
+                        TCountryChannel Channel;
+                        Channel.Freq = atol(Pos);
+                        Channel.Freq = MulDiv(Channel.Freq, 16, 1000000);
+                        Channel.Format = Format;
+                        NewCountry->m_Frequencies.push_back(Channel);
                         break;
                     }
                     Pos++;

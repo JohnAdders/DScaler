@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.20 2002-11-25 09:52:55 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.21 2002-11-25 12:22:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/11/25 09:52:55  adcockj
+// Commented out state code
+//
 // Revision 1.19  2002/11/12 19:32:21  adcockj
 // Fixes for pixel width code
 //
@@ -1805,6 +1808,120 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(MO_GP3_IO);
     DumpRegister(MO_GPIO);
     DumpRegister(MO_GPOE);
+
+    DumpRegister(0x02320d01);
+    DumpRegister(0x02320d02);
+    DumpRegister(0x02320d03);
+    DumpRegister(0x02320d04);
+    DumpRegister(0x02320d2a);
+    DumpRegister(0x02320d2b);
+
+    DumpRegister(AUD_DN0_FREQ);
+    DumpRegister(AUD_POLY0_DDS_CONSTANT);
+    DumpRegister(AUD_IIR1_0_SEL);
+    DumpRegister(AUD_IIR1_1_SEL);
+    DumpRegister(AUD_IIR1_2_SEL);
+    DumpRegister(AUD_IIR1_3_SEL);
+    DumpRegister(AUD_IIR1_4_SEL);
+    DumpRegister(AUD_IIR1_5_SEL);
+    DumpRegister(AUD_IIR1_0_SHIFT);
+    DumpRegister(AUD_IIR1_1_SHIFT);
+    DumpRegister(AUD_IIR1_2_SHIFT);
+    DumpRegister(AUD_IIR1_3_SHIFT);
+    DumpRegister(AUD_IIR1_4_SHIFT);
+    DumpRegister(AUD_IIR1_5_SHIFT);
+    DumpRegister(AUD_IIR2_0_SEL);
+    DumpRegister(AUD_IIR2_1_SEL);
+    DumpRegister(AUD_IIR2_2_SEL);
+    DumpRegister(AUD_IIR2_3_SEL);
+    DumpRegister(AUD_IIR3_0_SEL);
+    DumpRegister(AUD_IIR3_1_SEL);
+    DumpRegister(AUD_IIR3_2_SEL);
+    DumpRegister(AUD_IIR3_0_SHIFT);
+    DumpRegister(AUD_IIR3_1_SHIFT);
+    DumpRegister(AUD_IIR3_2_SHIFT);
+    DumpRegister(AUD_IIR4_0_SEL);
+    DumpRegister(AUD_IIR4_1_SEL);
+    DumpRegister(AUD_IIR4_2_SEL);
+    DumpRegister(AUD_IIR4_0_SHIFT);
+    DumpRegister(AUD_IIR4_1_SHIFT);
+    DumpRegister(AUD_IIR4_2_SHIFT);
+    DumpRegister(AUD_IIR4_0_CA0);
+    DumpRegister(AUD_IIR4_0_CA1);
+    DumpRegister(AUD_IIR4_0_CA2);
+    DumpRegister(AUD_IIR4_0_CB0);
+    DumpRegister(AUD_IIR4_0_CB1);
+    DumpRegister(AUD_IIR4_1_CA0);
+    DumpRegister(AUD_IIR4_1_CA1);
+    DumpRegister(AUD_IIR4_1_CA2);
+    DumpRegister(AUD_IIR4_1_CB0);
+    DumpRegister(AUD_IIR4_1_CB1);
+    DumpRegister(AUD_IIR4_2_CA0);
+    DumpRegister(AUD_IIR4_2_CA1);
+    DumpRegister(AUD_IIR4_2_CA2);
+    DumpRegister(AUD_IIR4_2_CB0);
+    DumpRegister(AUD_IIR4_2_CB1);
+    DumpRegister(AUD_HP_MD_IIR4_1);
+    DumpRegister(AUD_HP_PROG_IIR4_1);
+    DumpRegister(AUD_DN1_FREQ);
+    DumpRegister(AUD_DN1_SRC_SEL);
+    DumpRegister(AUD_DN1_SHFT);
+    DumpRegister(AUD_DN1_AFC);
+    DumpRegister(AUD_DN1_FREQ_SHIFT);
+    DumpRegister(AUD_DN2_SRC_SEL);
+    DumpRegister(AUD_DN2_SHFT);
+    DumpRegister(AUD_DN2_AFC);
+    DumpRegister(AUD_DN2_FREQ);
+    DumpRegister(AUD_DN2_FREQ_SHIFT);
+    DumpRegister(AUD_PDET_SRC);
+    DumpRegister(AUD_PDET_SHIFT);
+    DumpRegister(AUD_DEEMPH0_SRC_SEL);
+    DumpRegister(AUD_DEEMPH1_SRC_SEL);
+    DumpRegister(AUD_DEEMPH0_SHIFT);
+    DumpRegister(AUD_DEEMPH1_SHIFT);
+    DumpRegister(AUD_DEEMPH0_G0);
+    DumpRegister(AUD_DEEMPH0_A0);
+    DumpRegister(AUD_DEEMPH0_B0);
+    DumpRegister(AUD_DEEMPH0_A1);
+    DumpRegister(AUD_DEEMPH0_B1);
+    DumpRegister(AUD_DEEMPH1_G0);
+    DumpRegister(AUD_DEEMPH1_A0);
+    DumpRegister(AUD_DEEMPH1_B0);
+    DumpRegister(AUD_DEEMPH1_A1);
+    DumpRegister(AUD_DEEMPH1_B1);
+    DumpRegister(AUD_PLL_EN);
+    DumpRegister(AUD_DMD_RA_DDS);
+    DumpRegister(AUD_RATE_ADJ1);
+    DumpRegister(AUD_RATE_ADJ2);
+    DumpRegister(AUD_RATE_ADJ3);
+    DumpRegister(AUD_RATE_ADJ4);
+    DumpRegister(AUD_RATE_ADJ5);
+    DumpRegister(AUD_C2_UP_THR);
+    DumpRegister(AUD_C2_LO_THR);
+    DumpRegister(AUD_C1_UP_THR);
+    DumpRegister(AUD_C1_LO_THR);
+    DumpRegister(AUD_CTL);
+    DumpRegister(AUD_DCOC_0_SRC);
+    DumpRegister(AUD_DCOC_1_SRC);
+    DumpRegister(AUD_DCOC1_SHIFT);
+    DumpRegister(AUD_DCOC_1_SHIFT_IN0);
+    DumpRegister(AUD_DCOC_1_SHIFT_IN1);
+    DumpRegister(AUD_DCOC_PASS_IN);
+    DumpRegister(AUD_IIR4_0_SEL);
+    DumpRegister(AUD_DN1_AFC);
+    DumpRegister(AUD_DCOC_2_SRC);
+    DumpRegister(AUD_IIR4_1_SEL);
+    DumpRegister(AUD_CTL);
+    DumpRegister(AUD_DN2_SRC_SEL);
+    DumpRegister(AUD_DN2_FREQ);
+    DumpRegister(AUD_POLY0_DDS_CONSTANT);
+    DumpRegister(AUD_PHASE_FIX_CTL);
+    DumpRegister(AUD_CORDIC_SHIFT_1);
+
+    // setup Audio PLL
+    WriteDword(AUD_PLL_PRESCALE,         0x0002);
+    WriteDword(AUD_PLL_INT,              0x001f);
+
 
     fclose(hFile);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.37 2003-01-27 22:04:15 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.38 2003-01-28 07:22:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/01/27 22:04:15  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.36  2003/01/23 01:52:21  atnak
 // Fixed settings
 //
@@ -246,9 +251,9 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     char buf[128];
     static CSAA7134Source* pThis;
     CSAA7134Card* pCard = NULL;
-    char szCardId[9] = "n/a     ";
-    char szVendorId[9] = "n/a ";
-    char szDeviceId[9] = "n/a ";
+    char szCardId[9] = "none";
+    char szVendorId[9] = "none";
+    char szDeviceId[9] = "none";
     DWORD dwCardId(0);
 
     switch (message)
@@ -296,9 +301,9 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
         dwCardId = pCard->GetSubSystemId();
-        if (dwCardId != 0 && dwCardId != 0xffffffff)
+        if (dwCardId != 0x00001131)
         {
-            sprintf(szCardId, "x%8X", dwCardId);
+            sprintf(szCardId, "%08X", dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         break;

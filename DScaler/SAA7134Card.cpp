@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.32 2003-01-27 22:16:05 laurentg Exp $
+// $Id: SAA7134Card.cpp,v 1.33 2003-01-28 07:22:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/27 22:16:05  laurentg
+// Always set a value for audio decoder type in the hardware info dialog box
+//
 // Revision 1.31  2003/01/27 22:04:11  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -987,9 +990,9 @@ BYTE CSAA7134Card::GetI2CData()
 BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     CSAA7134Card* pThis = NULL;
-    char szCardId[9] = "n/a     ";
-    char szVendorId[9] = "n/a ";
-    char szDeviceId[9] = "n/a ";
+    char szCardId[9] = "none";
+    char szVendorId[9] = "none";
+    char szDeviceId[9] = "none";
     DWORD dwCardId(0);
 
     switch (message)
@@ -1017,9 +1020,9 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         }
 
         dwCardId = pThis->GetSubSystemId();
-        if (dwCardId != 0 && dwCardId != 0xffffffff)
+        if (dwCardId != 0x00001131)
         {
-            sprintf(szCardId, "x%08X", dwCardId);
+            sprintf(szCardId, "%08X", dwCardId);
         }
         SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         return TRUE;

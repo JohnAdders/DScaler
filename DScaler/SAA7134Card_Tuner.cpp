@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.6 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.7 2003-01-28 07:22:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.5  2002/10/16 21:43:04  kooiman
 // Created seperate class for External IF Demodulator chips like TDA9887
 //
@@ -68,21 +71,21 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     {
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
-        strcpy(m_TunerType, "MT2032 ");
+        strcpy(m_TunerType, "MT2032");
         break;
     case TUNER_MT2032_PAL:
         m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
-        strcpy(m_TunerType, "MT2032 ");
+        strcpy(m_TunerType, "MT2032");
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
         m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");
+        strcpy(m_TunerType, "None");
         break;
     default:
         m_Tuner = new CGenericTuner(tunerId);
-        strcpy(m_TunerType, "Generic ");
+        strcpy(m_TunerType, "Generic");
         break;
     }
 
@@ -146,7 +149,7 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
             m_Tuner->Attach(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
+            sprintf(m_TunerType + kk, " at I2C address 0x%02X", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);
             break;

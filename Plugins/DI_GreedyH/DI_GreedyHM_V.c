@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM_V.c,v 1.3 2001-08-17 17:08:42 trbarry Exp $
+// $Id: DI_GreedyHM_V.c,v 1.4 2001-08-17 19:30:55 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/17 17:08:42  trbarry
+// GreedyH performance enhancement:
+//
+// Unroll loop to support Write Combining in Vertical Filter
+// (curiously this now peforms better than without V. Filter)
+//
 // Revision 1.2  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -86,8 +92,7 @@ BOOL FUNCT_NAME()
 	pFieldStore = & FieldStore[0];		// starting ptr into FieldStore[L2]
 	pFieldStoreEnd = & FieldStore[FieldHeight * FSCOLCT];		// ending ptr into FieldStore[L2]
 	pL2 = & FieldStore[L2];				// starting ptr into FieldStore[L2]
-//>>>	LoopCtrW = LineLength / 8 - 1;		// do 8 bytes at a time, adjusted
-	LoopCtrW = LineLength / 32 - 1;		// do 8 bytes at a time, adjusted
+	LoopCtrW = LineLength / 32;		    // do 8 bytes at a time, adjusted
 
 	for (line = 0; line < (FieldHeight); ++line)
 	{

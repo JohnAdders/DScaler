@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.2 2001-08-30 10:04:59 adcockj Exp $
+// $Id: FLT_TemporalComb.asm,v 1.3 2001-12-16 01:34:32 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/08/30 10:04:59  adcockj
+// Added a "trade speed for accuracy" mode which improves detection and
+//  correction of dot crawl by removing a feedback problem -- at the
+//  cost of 2MB of memory, which also slows things down a bit
+// Changed szIniSection for the parameters from "NoiseFilter" to "TCombFilter"
+// Made some small changes to the comments
+// (Added on behalf of Lindsey Dubb)
+//
 // Revision 1.1  2001/08/23 06:38:43  adcockj
 // Added First version of Lindsey Dubb's filter
 //
@@ -48,10 +56,10 @@
 // - The MMX and 3DNOW code use pmulhw or pmulhrw instead of pmulhuw, which
 //   results in the loss of one bit of precision in the decay of the shimmer
 //   map.  This matters some for very low decay percentages.
-// - The MMX code uses a slower averaging routine which rounds down. The other
-//   code uses a faster averaging routine which rounds up. It would be possible
-//   to average better by rounding toward one of the operands, but it's not
-//   worth the slowdown.
+// - The MMX code uses a slower averaging routine which rounds down and loses
+//   a bit when both operands are odd. The other code uses a faster averaging
+//   routine which rounds up. It would be possible to average better by rounding
+//   toward one of the operands, but it's not worth the slowdown.
 // - The 3DNOW code uses femms instead of emms.  Whee.
 
 
@@ -62,7 +70,8 @@
 // Processor specific averaging:
 // Set destMM to average of destMM and sourceMM
 // (Code from DI_GreedyHM.h by Tom Barry)
-// Note that the MMX version rounds down; the other versions round up.
+// Note that the MMX version rounds down, and is off by one if both operands are
+// odd; the other versions round up.
 // Changes destMM, tempMM
 
 #undef AVERAGE
@@ -151,7 +160,7 @@
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Processor-specific lablelling
+// Processor-specific labelling
 /////////////////////////////////////////////////////////////////////////////
 
 #undef MAINLOOP_LABEL
@@ -193,9 +202,9 @@ void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
     DWORD           LastShimmer = 0;
     DWORD           LocalDecayCoefficient = 0;
 #if defined(IS_3DNOW)
-    DWORD           RoundingCompensation = 1 + FIXED_POINT_DIVISOR/2;
+    const DWORD     RoundingCompensation = 1 + FIXED_POINT_DIVISOR/2;
 #else
-    DWORD           RoundingCompensation = 0;
+    const DWORD     RoundingCompensation = 0;
 #endif
 
     LocalDecayCoefficient = gDecayCoefficient;
@@ -212,7 +221,7 @@ void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
     // gShimmerThreshold needs to be reparameterized for three reasons:
     // - If it's too high, it'll be impossible to reach the threshold, which
     //   makes it less than useful.
-    // - It it's too low, there are some very predictable nasty artifacts.  Specifically:
+    // - If it's too low, there are some very predictable nasty artifacts.  Specifically:
     //    - If S < D * (maximum accumulation ~= A / (1 - D)), then it'll be possible for so
     //      much shimmering evidence to accumulate that a single field without shimmering
     //      won't be enough to prevent the shimmer compensation from triggering.  That will
@@ -277,9 +286,10 @@ void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
     }
 
     // Scale the gShimmerThreshold percent onto the range of values determined above:
-    // (One is subtracted from pAveragingThreshold because a ">" rather than ">=" is used for comparison)
+    // (One is subtracted from sAveragingThreshold because a ">" rather than ">=" is used for comparison)
 
     *pAveragingThreshold = MinThreshold + ((gShimmerThreshold)*(MaxThreshold - MinThreshold) + 50)/100 - 1;
+    return;
 }
 
 
@@ -287,85 +297,72 @@ void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
 // The image processing routine
 
 #if defined(IS_MMXEXT)
-long FilterTemporalComb_MMXEXT(DEINTERLACE_INFO *info)
+long FilterTemporalComb_MMXEXT(TDeinterlaceInfo *pInfo)
 #elif defined(IS_SSE)
-long FilterTemporalComb_SSE(DEINTERLACE_INFO *info)
+long FilterTemporalComb_SSE(TDeinterlaceInfo *pInfo)
 #elif defined(IS_3DNOW)
-long FilterTemporalComb_3DNOW(DEINTERLACE_INFO *info)
+long FilterTemporalComb_3DNOW(TDeinterlaceInfo *pInfo)
 #else
-long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
+long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
 #endif  // processor specific routine name
 {
     DWORD           ThisLine = 0;
-    WORD***         pppTheseFields = NULL;
-    WORD*           pSource = NULL;
-    WORD*           pLastLast = NULL;
-    const __int64   qwAccumulate = 0x0147014701470147;  // = quadword of 327 (= ACCUMULATION) decimal
+    TPicture**      pTPictures = pInfo->PictureHistory;
+    BYTE*           pSource = NULL;
+    BYTE*           pLastLast = NULL;
+    const __int64   qwAccumulate = 0x0147014701470147;              // = quadword of 327 (= ACCUMULATION) decimal
     __int64         qwDecayCoefficient = 0;
 
-    const LONG      Cycles = -(((int) info->LineLength/32) * 32);
+    const LONG      Cycles = -(((int) pInfo->LineLength/32) * 32);
     static LONG     sAveragingThreshold = 0;
-    WORD*           pLast = NULL;
-    WORD*           pMap = NULL;
+    BYTE*           pLast = NULL;
+    BYTE*           pMap = NULL;
     __int64         qwMotionThreshold = 0;
     __int64         qwAveragingThreshold = 0;
-    const LONG      LineWords = info->OverlayPitch/sizeof(short);   // Assumes the lines are alligned
 
-    __int64         qwShiftMask = 0xFEFFFEFFFEFFFEFF;
-    DWORD           BottomLine = 0;
+    const __int64   qwShiftMask = 0xFEFFFEFFFEFFFEFF;
+    const DWORD     BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture
     static DWORD    sDecayNumerator = 0;
     static DWORD    sLastOverlayPitch = 0;
     static int      sLastFieldHeight = 0;
     static DWORD    sLastShimmerPercent = 0;
     static DWORD    sLastDecayPercent = 0;
-    WORD***         pppThoseFields = NULL;
 
-    if ((info->OverlayPitch != sLastOverlayPitch) || (info->FieldHeight != sLastFieldHeight))
+    if ((pInfo->OverlayPitch != sLastOverlayPitch) || (pInfo->FieldHeight != sLastFieldHeight))
     {
-        sLastOverlayPitch = info->OverlayPitch;
-        sLastFieldHeight = info->FieldHeight;
+        sLastOverlayPitch = pInfo->OverlayPitch;
+        sLastFieldHeight = pInfo->FieldHeight;
         CleanupTemporalComb();
     }
     if (gpShimmerMap == NULL)
     {
         DWORD   Index = 0;
-        gpShimmerMap = malloc(info->OverlayPitch * sizeof(short) * info->FieldHeight);
+        gpShimmerMap = malloc(pInfo->InputPitch * pInfo->FieldHeight);
         if (gpShimmerMap == NULL)
         {
             return 1000;    // !! Should notify user !!
         }
-        for ( ; Index < (info->OverlayPitch * info->FieldHeight); ++Index)
+        for ( ; Index < (pInfo->InputPitch * pInfo->FieldHeight / sizeof(DWORD)); ++Index)
         {
-            gpShimmerMap[Index] = 0;
+            ((DWORD*)gpShimmerMap)[Index] = 0;
         }
     }
 
-    if (info->IsOdd == TRUE)
-    {
-        pppTheseFields = info->OddLines;
-        pppThoseFields = info->EvenLines;
-    }
-    else
-    {
-        pppTheseFields = info->EvenLines;
-        pppThoseFields = info->OddLines;
-    }
-
-    if ((pppTheseFields[0] == NULL) || (pppTheseFields[1] == NULL) || (pppTheseFields[2] == NULL))
-    {
+    if (
+        (pTPictures[0] == NULL) || (pTPictures[2] == NULL) || (pTPictures[4] == NULL)
+    ) {
         return 1000;
     }
 
-    if (gDoFieldBuffering)
+    if (gDoFieldBuffering == TRUE)
     {
         LONG    ErrorCode;
-        ErrorCode = UpdateBuffers(info, pppTheseFields, pppThoseFields);
-        if (ErrorCode)
+        ErrorCode = UpdateBuffers(pInfo);
+        if (ErrorCode != 0)
         {
             return ErrorCode;
         }
     }
-
 
     // Have either of the scaled parameters changed?
     // If so, we need to reparameterize again.  Reparameterization is a good idea with this filter
@@ -378,6 +375,7 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
         sLastDecayPercent = gDecayCoefficient;
         RESCALING_PROCEDURE_NAME(&sDecayNumerator, &sAveragingThreshold);
     }
+
 
     // A small math trick to cut down on shifts:
     // The decay numerator has already been scaled to fixed point (divisor = 2^14).
@@ -400,39 +398,35 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
     qwMotionThreshold = gInPhaseLuminanceThreshold | (gInPhaseChromaThreshold << 8);
     qwMotionThreshold |= (qwMotionThreshold << 48) | (qwMotionThreshold << 32) | (qwMotionThreshold << 16);
 
-    // Limit processing to the displayed part of the picture
-    BottomLine = info->SourceRect.bottom/2;
 
-    for (ThisLine = info->SourceRect.top; ThisLine < BottomLine; ++ThisLine)
+    ThisLine = pInfo->SourceRect.top;
+    pMap = gpShimmerMap + (ThisLine * pInfo->InputPitch);
+    pSource = pTPictures[0]->pData + (ThisLine * pInfo->InputPitch);
+    if (gDoFieldBuffering == TRUE)
     {
-        pMap = gpShimmerMap + (ThisLine * LineWords);
-        pSource = pppTheseFields[0][ThisLine];
-        if (gDoFieldBuffering == TRUE)
-        {
-            if (info->IsOdd == TRUE)
-            {
-                pLast = gppFieldBuffer[1] + (ThisLine * LineWords);
-                pLastLast = gppFieldBuffer[3] + (ThisLine * LineWords);
-            }
-            else
-            {
-                pLast = gppFieldBuffer[2] + (ThisLine * LineWords);
-                pLastLast = gppFieldBuffer[4] + (ThisLine * LineWords);
-            }
-        }
-        else
-        {
-            pLast = pppTheseFields[1][ThisLine];
-            pLastLast = pppTheseFields[2][ThisLine];
-        }
+        pLast = gppFieldBuffer[2] + (ThisLine * pInfo->InputPitch);
+        pLastLast = gppFieldBuffer[4] + (ThisLine * pInfo->InputPitch);
+    }
+    else
+    {
+        pLast = pTPictures[2]->pData + (ThisLine * pInfo->InputPitch);
+        pLastLast = pTPictures[4]->pData + (ThisLine * pInfo->InputPitch);
+    }
 
+    for ( ; ThisLine < BottomLine; ++ThisLine)
+    {
+        pMap += pInfo->InputPitch;
+        pSource += pInfo->InputPitch;
+        pLast += pInfo->InputPitch;
+        pLastLast += pInfo->InputPitch;
+        
         __asm
         {
             // Cycles is negative for optimization reasons.  So the subtractions below actually add the
             // real number of cycles.  The indexing is then determined by adding the negative counter
             // (i.e., subtracting its absolute value).
 
-            // What a confusing explantion.  I should probably have done this the sensible way, instead.
+            // What a confusing explanation.  I should probably have done this the sensible way, instead.
 
             mov ecx, Cycles
 
@@ -668,9 +662,8 @@ MAINLOOP_LABEL:
 
             add ecx, 32
             jnz MAINLOOP_LABEL
-        }                        
+        }
     }
-
 
     // need to clear up MMX registers
 

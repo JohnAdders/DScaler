@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.h,v 1.1 2002-09-12 21:44:27 ittarnavsky Exp $
+// $Id: MSP34x0AudioControls.h,v 1.2 2002-09-15 15:58:33 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/12 21:44:27  ittarnavsky
+// split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__MSP34X0AUDIOCONTROLS_H__)
@@ -42,8 +45,7 @@ public:
     CMSP34x0AudioControls();
 	virtual ~CMSP34x0AudioControls() {};
     void SetSpatialEffects(long nSpatial);
-	void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);
-	void SetAutomaticVolumeCorrection(long nDecayTimeIndex);
+	void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);	
 
     // from IAudioControls
     bool HasMute();
@@ -67,7 +69,9 @@ public:
     bool HasLoudness();
     void SetLoudness(WORD nLevel);
     WORD GetLoudness();
-
+    bool HasAutoVolumeCorrection();
+    void SetAutoVolumeCorrection(long milliSeconds);
+    long GetAutoVolumeCorrection();
 
 private:
     bool m_bMuted;

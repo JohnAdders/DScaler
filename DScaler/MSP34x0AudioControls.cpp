@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.cpp,v 1.1 2002-09-12 21:44:27 ittarnavsky Exp $
+// $Id: MSP34x0AudioControls.cpp,v 1.2 2002-09-15 15:58:33 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/12 21:44:27  ittarnavsky
+// split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -79,6 +82,9 @@ void CMSP34x0AudioControls::SetVolume(WORD nVolume)
     }
     SetDSPRegister(DSP_WR_LDSPK_VOLUME, nVolume << 4);
     SetDSPRegister(DSP_WR_HEADPH_VOLUME, nVolume << 4);
+
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, (nVolume!=0) ? 0x4000 : 0);    
+    SetDSPRegister(DSP_WR_SCART2_VOLUME, (nVolume!=0) ? 0x4000 : 0);        
 }
 
 WORD CMSP34x0AudioControls::GetVolume()
@@ -227,15 +233,29 @@ WORD CMSP34x0AudioControls::GetLoudness()
     return (GetDSPRegister(DSP_RD_LDSPK_LOUDNESS) >> 8) & 0xFF;
 }
 
-void CMSP34x0AudioControls::SetAutomaticVolumeCorrection(long nDecayTimeIndex)
+void CMSP34x0AudioControls::SetAutoVolumeCorrection(long milliSeconds)
 {
-	if (nDecayTimeIndex == 0)
+    if (milliSeconds == 0)
 	{
 		SetDSPRegister(DSP_WR_AVC, 0x0000);
 	}
 	else
-	{
-		SetDSPRegister(DSP_WR_AVC, 0x8000 | ((nDecayTimeIndex&0x0F) << 8));
+	{      	
+        WORD Val = 0x08; //8 seconds
+        if (milliSeconds <= 4000)
+        {
+            Val = 0x04;  //4 seconds
+        }
+        if (milliSeconds <= 2000)
+        {
+            Val = 0x02;  //2 seconds
+        }
+        if (milliSeconds < 1000)
+        {
+            Val = 0x01;  //20 ms
+        }
+        
+		SetDSPRegister(DSP_WR_AVC, 0x8000 | ((Val&0x0F) << 8));
 	}
 }
 
@@ -288,3 +308,35 @@ void CMSP34x0AudioControls::SetSpatialEffects(long nSpatial)
     SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nSpatial & 0xFF) << 8) | 0x8);
 }
 
+
+bool CMSP34x0AudioControls::HasAutoVolumeCorrection()
+{
+    ///\todo Which MSP chips support this?
+    return TRUE;
+}
+
+long CMSP34x0AudioControls::GetAutoVolumeCorrection()
+{
+    WORD Result = GetDSPRegister(DSP_RD_AVC);
+    if (Result&0x8000)
+    {
+        if (Result&0x0010)
+        {
+            return 20;
+        }
+        else if (Result&0x0020)
+        {
+            return 2000;
+        } 
+        else if (Result&0x0040)
+        {
+            return 4000;
+        }
+        else if (Result&0x0080)
+        {
+            return 8000;
+        }
+        return 0;
+    }
+    return 0;
+}

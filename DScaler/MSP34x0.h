@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.16 2002-09-12 21:44:44 ittarnavsky Exp $
+// $Id: MSP34x0.h,v 1.17 2002-09-15 15:58:33 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/12 21:44:44  ittarnavsky
+// split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
+//
 // Revision 1.15  2002/09/07 20:54:49  kooiman
 // Added equalizer, loudness, spatial effects for MSP34xx
 //
@@ -192,6 +195,7 @@ protected:
         DSP_RD_A2_STEREO_DETECT = 0x0018,
         DSP_RD_FM1_DCLVL = 0x001B,
         DSP_RD_FM2_DCLVL = 0x001C,
+        DSP_RD_AVC = 0x0029,
     };
     WORD GetDSPRegister(eDSPReadRegister reg);
 
@@ -258,11 +262,22 @@ class CMSP34x0Decoder : public CMSP34x0, public CAudioDecoder
 public:
     CMSP34x0Decoder();
 	virtual ~CMSP34x0Decoder();
-    // from CAudioDecoder the default Getters are used
-    void SetVideoFormat(eVideoFormat videoFormat);
+    // from CAudioDecoder the default Getters are used    
     void SetSoundChannel(eSoundChannel soundChannel);
     void SetAudioInput(eAudioInput audioInput);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);	
+
+    // Standard
+    void SetAudioStandard(long Standard, eVideoFormat videoformat);
+    long GetAudioStandardCurrent();
+    const char* GetAudioStandardName(long Standard);
+    int GetNumAudioStandards();
+    long GetAudioStandard(int nIndex);
+    long GetAudioStandardMajorCarrier(long Standard);
+    long GetAudioStandardMinorCarrier(long Standard);
+    void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
+    long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
+    void DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard));
 
 	BOOL HasEqualizer() { return m_bHasEqualizer; }
 	BOOL HasDolby() { return m_bHasDolby; }
@@ -291,7 +306,7 @@ private:
         MSP34x0_STANDARD_SAT_MONO = 0x0050,
         MSP34x0_STANDARD_SAT = 0x0051,
         MSP34x0_STANDARD_SAT_ADR = 0x0060,
-        MSP34x0_STANDARD_AUDODETECTION_IN_PROGRESS = 0x07FF,
+        MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS = 0x07FF,
     };
 
     enum eMonoType
@@ -317,11 +332,13 @@ private:
         FIR_I_NICAM,
         FIR_L_NICAM,
         FIR_BG_DK_DUAL_FM,
+        FIR_AM_DETECT,
     };
     
 #define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
     enum eCarrier
     {
+        MSP34x0_NOCARRIER           = 0,
         MSP34x0_CARRIER_4_5         = MSP_CARRIER(4.5),
         MSP34x0_CARRIER_4_724212    = MSP_CARRIER(4.724212),
         MSP34x0_CARRIER_5_5         = MSP_CARRIER(5.5),
@@ -335,7 +352,8 @@ private:
         MSP34x0_CARRIER_6_7421875   = MSP_CARRIER(6.7421875),
         MSP34x0_CARRIER_7_02        = MSP_CARRIER(7.02),
         MSP34x0_CARRIER_7_20        = MSP_CARRIER(7.20),
-        MSP34x0_CARRIER_10_7        = MSP_CARRIER(10.7),
+        MSP34x0_CARRIER_7_38        = MSP_CARRIER(7.38),
+        MSP34x0_CARRIER_10_7        = MSP_CARRIER(10.7),        
     };
 #undef MSP_CARRIER
     
@@ -383,22 +401,54 @@ private:
         MSPVersionG,
     };
 
+    typedef struct 
+    {
+      eCarrier Major;
+      eCarrier Minor[10];
+    } TCarrierDetect;
+
     void SetSCARTxbar(eScartOutput output, eScartInput input);
 
+public:
+    int DetectThread();
 private:
-    void ReconfigureRevA();
+    int m_CarrierDetect_Phase;    
+    void Initialize3400();
+    eStandard DetectStandard3400();
+    void SetStandard3400(eStandard standard, eVideoFormat videoformat);
+    void SetSoundChannel3400(eSoundChannel soundChannel);
+    void SetCarrier3400(eCarrier MajorCarrier, eCarrier MinorCarrier);
+    
+    void Initialize34x1G();
+    eStandard DetectStandard34x1G();
+    void SetStandard34x1G(eStandard standard, eVideoFormat videoformat);
+    void SetSoundChannel34x1G(eSoundChannel soundChannel);
+    void SetCarrier34x1G(eCarrier MajorCarrier, eCarrier MinorCarrier);
+
+    // Detect thread
+    HANDLE m_MSP34xxThread;
+    bool m_bStopThread;
+    void StartThread();
+    void StopThread();
+
+    int  m_AutoDetecting;
+    long m_DetectCounter;
+    long m_DetectInterval10ms;
+    //
 
 private:
-	WORD GetSoundStandard();
 	void Initialize();
 	void SetModus();
 	BOOL m_IsInitialized;
     eMSPVersion m_MSPVersion;
 	BOOL m_bHasEqualizer;
-	BOOL m_bHasDolby;
+	BOOL m_bHasDolby;    
+    BOOL m_ForceAMSound;
+    BOOL m_ForceVersionA;
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];
+    static TCarrierDetect CarrierDetectTable[];
     bool m_bUseInputPin1;
 };
 

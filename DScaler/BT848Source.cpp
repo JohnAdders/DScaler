@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.116 2003-02-22 13:42:42 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.117 2003-02-26 20:53:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.116  2003/02/22 13:42:42  laurentg
+// New counter to count fields runnign late
+// Update input frequency on cleanish field changes only which means when the field is no running late
+//
 // Revision 1.115  2003/02/16 10:31:38  laurentg
 // GetNextFieldAccurate : call to Timing_UpdateRunningAverage as it is done for CX2388x
 //
@@ -1296,15 +1300,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     }
 
     FieldDistance = (10 + NewPos - OldPos) % 10;
-    if(FieldDistance > 1)
-    {
-        // delete all history
-        ClearPictureHistory(pInfo);
-        pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
-    }
-    else
+    if(FieldDistance == 1)
     {
         pInfo->bMissedFrame = FALSE;
 		if (bLate)
@@ -1319,6 +1315,21 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 	            Timing_AddLateFields(1);
 			}
 		}
+    }
+    else if (FieldDistance <= (MaxFieldShift+1))
+    {
+        NewPos = (OldPos + 1) % 10;
+        pInfo->bMissedFrame = FALSE;
+        Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
+    }
+    else
+    {
+        // delete all history
+        ClearPictureHistory(pInfo);
+        pInfo->bMissedFrame = TRUE;
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
 
     switch(NewPos)
@@ -1361,12 +1372,12 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             Timing_AddLateFields(1);
 		}
     }
-    else if((FieldDistance == 2) || (FieldDistance == 3))
+    else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % 10;
         Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
         Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
     {

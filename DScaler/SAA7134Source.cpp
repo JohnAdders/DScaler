@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.72 2003-02-25 21:47:05 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.73 2003-02-26 20:53:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2003/02/25 21:47:05  laurentg
+// Slightly update relative to preceeding updates
+//
 // Revision 1.71  2003/02/22 13:42:42  laurentg
 // New counter to count fields runnign late
 // Update input frequency on cleanish field changes only which means when the field is no running late
@@ -904,12 +907,10 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 			}
 		}
     }
-    else if (bTryToCatchUp && FieldDistance <= 2)
+    else if (bTryToCatchUp && FieldDistance <= (MaxFieldShift+1))
     {
         // Try to catch up
-        // pInfo->bRunningLate = TRUE;
-        // Not sure why we need to do this
-        // Timing_AddDroppedFields(1);
+        pInfo->bMissedFrame = FALSE;
         LOG(2, " Running late by %d fields", FieldDistance - 1);
         Timing_AddLateFields(FieldDistance);
     }
@@ -956,7 +957,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             Timing_AddLateFields(1);
 		}
     }
-    else if (FieldDistance == 2)
+    else if (FieldDistance <= (MaxFieldShift+1))
     {
         // Slightly late but try to recover
         Timing_SetFlipAdjustFlag(TRUE);

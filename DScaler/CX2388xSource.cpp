@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.45 2003-02-22 13:42:42 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.46 2003-02-26 20:53:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2003/02/22 13:42:42  laurentg
+// New counter to count fields runnign late
+// Update input frequency on cleanish field changes only which means when the field is no running late
+//
 // Revision 1.44  2003/02/16 10:11:10  laurentg
 // White Crush ON by default (to solve flickering problem with XCapture)
 //
@@ -1113,20 +1117,11 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     }
 
     FieldDistance = (10 + NewPos - OldPos) % 10;
-    if(FieldDistance > 1)
-    {
-        // delete all history
-        ClearPictureHistory(pInfo);
-        pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
-    }
-    else
+    if(FieldDistance == 1)
     {
         pInfo->bMissedFrame = FALSE;
 		if (bLate)
 		{
-            LOG(2, " Running late but right field");
 			if (pInfo->bRunningLate)
 			{
 				Timing_AddDroppedFields(1);
@@ -1135,7 +1130,23 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 			{
 	            Timing_AddLateFields(1);
 			}
+            LOG(2, " Running late but right field");
 		}
+    }
+    else if (FieldDistance <= (MaxFieldShift+1))
+    {
+        NewPos = (OldPos + 1) % 10;
+        pInfo->bMissedFrame = FALSE;
+        Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
+    }
+    else
+    {
+        // delete all history
+        ClearPictureHistory(pInfo);
+        pInfo->bMissedFrame = TRUE;
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
 
     switch(NewPos)
@@ -1195,20 +1206,11 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
     }
 
     FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
-    if(FieldDistance > 1)
-    {
-        // delete all history
-        ClearPictureHistory(pInfo);
-        pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(FieldDistance - 1);
-        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
-    }
-    else
+    if(FieldDistance == 1)
     {
         pInfo->bMissedFrame = FALSE;
 		if (bLate)
 		{
-            LOG(2, " Running late but right field");
 			if (pInfo->bRunningLate)
 			{
 				Timing_AddDroppedFields(1);
@@ -1217,7 +1219,23 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
 			{
 	            Timing_AddLateFields(1);
 			}
+            LOG(2, " Running late but right field");
 		}
+    }
+    else if (FieldDistance <= (MaxFieldShift+1))
+    {
+        NewPos = (OldPos + 1) % 10;
+        pInfo->bMissedFrame = FALSE;
+        Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
+    }
+    else
+    {
+        // delete all history
+        ClearPictureHistory(pInfo);
+        pInfo->bMissedFrame = TRUE;
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
 
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
@@ -1248,12 +1266,12 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             Timing_AddLateFields(1);
 		}
     }
-    else if((FieldDistance == 2) || (FieldDistance == 3))
+    else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % 10;
         Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
         Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
     {
@@ -1317,12 +1335,12 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
             Timing_AddLateFields(1);
 		}
     }
-    else if((FieldDistance == 2) || (FieldDistance == 3))
+    else if (FieldDistance <= (MaxFieldShift+1))
     {
         NewPos = (OldPos + 1) % m_NumFields;
         Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Running late by %d fields", FieldDistance - 1);
         Timing_AddLateFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
     {

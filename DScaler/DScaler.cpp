@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.156 2002-05-24 10:52:58 robmuller Exp $
+// $Id: DScaler.cpp,v 1.157 2002-05-24 15:12:12 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.156  2002/05/24 10:52:58  robmuller
+// Applied patch #559718 by PietOO.
+// SleepTimer implementation.
+//
 // Revision 1.155  2002/05/23 18:45:03  robmuller
 // Patch #559554 by PietOO.
 // Teletext: + text search ctrl-F & next F3
@@ -2525,12 +2529,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 else
                 {
-                    strcpy(Text, Providers_GetCurrentSource()->GetStatus());
+					memset(Text,0,128);
+                    strncpy(Text, Providers_GetCurrentSource()->GetStatus(),128);
                     if(Text[0] == 0x00)
                     {
                         if(Providers_GetCurrentSource()->IsInTunerMode())
                         {
-                            strcpy(Text, Channel_GetName());
+                            strncpy(Text, Channel_GetName(),128);
                         }
                     }
                 }

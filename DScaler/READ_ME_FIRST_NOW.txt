@@ -34,22 +34,29 @@ Step by step instructions:
 
 5. Get the Complete Windows DDK (with Windows 2000 and ME support) from:
    http://www.microsoft.com/ddk/W2kDDK.asp#Download
-   Install as D:\NTDDK or another drive of your choice.
-   We'll use drive D: as an example here.
+   Install as C:\NTDDK or another drive of your choice.
+   We'll use drive C: as an example here.
 
-6. In Visual Studio, add the following to the list of directories,
+6. Get the Windows Platform SDK (with DirectX support) from:
+   http://www.microsoft.com/platformsdk/
+   Install as c:\program files\Microsoft SDK or another drive of your choice.
+   We'll use drive C: as an example here.
+
+7. In Visual Studio, add the following to the list of directories,
    EXACTLY as ordered.  This is VERY IMPORTANT, or the project won't
-   compile properly.  You can substitute the drive letter "D:",
+   compile properly.  You can substitute the drive letter "C:",
    however, with the drive that the files are in on your particular system.
 
    Visual Studio->Tools->Options->Directories->Include Files
-      D:\NTDDK\inc
-      D:\NTDDK\inc\ddk
+      C:\NTDDK\inc
+      C:\NTDDK\inc\ddk
+	  C:\Program Files\Microsoft SDK\include
       {the various MSVC directories}
-      D:\NTDDK\inc\win_me
+      C:\NTDDK\inc\win_me
 
    Visual Studio->Tools->Options->Directories->Library Files
-      {the various MSVC directories}
+      C:\Program Files\Microsoft SDK\lib
+	  {the various MSVC directories}
       D:\NTDDK\libfre\i386
       D:\NTDDK\lib\win_me
 
@@ -57,23 +64,11 @@ Step by step instructions:
       {the various MSVC directories}
       D:\NTDDK\bin
 
-7. Do a "Build All"
+8. Do a "Build All"
 
-8. You have a ready-to-run ready-to-distribute DScaler package in the
+9. You have a ready-to-run ready-to-distribute DScaler package in the
    ..\Release directory.  (Or the ..\Debug directory, if you
    selected the Debug Configuration)
 
-9. If you make useful changes to the code, please make your changes
-   to the LATEST source code and submit to johnadcock@hotmail.com
-
-
----END---
-
-
-ebug Configuration)
-
 10. If you make useful changes to the code, please make your changes
-    to the LATEST source code and submit to johnadcock@hotmail.com
-   
-
----END---
+   to the LATEST source code and submit to johnadcock@hotmail.com

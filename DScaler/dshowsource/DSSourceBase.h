@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.10 2002-10-29 20:01:07 tobbej Exp $
+// $Id: DSSourceBase.h,v 1.11 2002-11-06 20:49:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/29 20:01:07  tobbej
+// fixed GetSettingsPage()
+//
 // Revision 1.9  2002/10/26 08:38:59  tobbej
 // fixed compile problems by reverting HasTuner and SetTunerFrequency
 //
@@ -107,7 +110,7 @@ public:
 
 	ITuner* GetTuner() {return NULL;}
 	
-	CTreeSettingsGeneric* GetTreeSettingsPage() {return NULL;}
+	CTreeSettingsPage* GetTreeSettingsPage() {return NULL;}
 	
 protected:
 	CDShowGraph *m_pDSGraph;

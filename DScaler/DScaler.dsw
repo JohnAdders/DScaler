@@ -207,6 +207,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "DSRend"=..\..\DSRend\DSRend.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "DScaler"=.\DScaler.dsp - Package Owner=<4>
 
 Package=<5>
@@ -316,6 +328,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Disasm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DSRend
     End Project Dependency
 }}}
 

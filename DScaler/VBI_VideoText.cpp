@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.17 2001-09-05 15:08:43 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.18 2001-09-05 16:22:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.16  2001/09/05 06:59:13  adcockj
 // Teletext fixes
 //
@@ -319,21 +322,39 @@ void VBI_decode_vt(unsigned char* dat)
 
         if(MagazineStates[mag].bStarted)
         {
+            // Check if we need to repaint screen
             if(VTState != VT_OFF && MagazineStates[mag].Page == VTPage - 100)
             {
+                // update the display bitmap
                 VT_DoUpdate_Page(VTPage - 100);
-                HDC hDC = Overlay_GetDC();
-                if(hDC != NULL)
+                if(hWnd == GetForegroundWindow())
                 {
-                    __try
+                    // if we are the foreground window then
+                    // do a fast paint here by getting
+                    // the DC from the DirectDraw surface
+                    HDC hDC = Overlay_GetDC();
+                    if(hDC != NULL)
                     {
-                        VT_Redraw(hWnd, hDC, TRUE);
+                        // we have to be careful once we've got the
+                        // DC we are put in a critcal section and
+                        // we need to make sure that we get out of it
+                        __try
+                        {
+                            VT_Redraw(hWnd, hDC, TRUE);
+                        }
+                        __except(CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+                        {
+                            LOG(1, "Crash in VT_Redraw");
+                        }
+                        Overlay_ReleaseDC(hDC);
                     }
-                    __except(CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
-                    {
-                        LOG(1, "Crash in VT_Redraw");
-                    }
-                    Overlay_ReleaseDC(hDC);
+                }
+                else
+                {
+                    // otherwise just force a repaint
+                    // this will flash but we don't
+                    // want to just draw over other applications
+                    InvalidateRect(hWnd, NULL, FALSE);
                 }
             }
         }

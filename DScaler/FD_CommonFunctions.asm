@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.19 2003-07-14 19:18:07 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.20 2003-09-14 08:44:51 adcockj Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.19  2003/07/14 19:18:07  adcockj
+; Bug fixes to new comb factor calc
+;
 ; Revision 1.18  2003/04/17 16:25:18  adcockj
 ; More changes to the as yet unused comb detection
 ;
@@ -871,15 +874,14 @@ MemcpySSE_Loop:
     movntps [edi+16*7], xmm7
     add     esi, 128
     add     edi, 128
-    dec ecx
-    jnz MemcpySSE_Loop
+    loop MemcpySSE_Loop
 
     mov     ecx, nBytes
     and     ecx, 127
     cmp     ecx, 0
     je MemcpySSE_End
     rep movsb
-
+align 4
 MemcpySSE_End:
     pop esi
     pop edi

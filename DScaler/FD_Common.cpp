@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.22 2001-11-23 10:49:17 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.23 2001-11-23 19:33:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.21  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -665,7 +668,6 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
         {
             pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
             lpOverlay += pInfo->OverlayPitch;                            // and offset out output ptr
-            CurrentLine += Pitch;
             for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
                 memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
@@ -679,7 +681,6 @@ BOOL Bob(TDeinterlaceInfo* pInfo)
         {
             pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
             lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
-            CurrentLine += Pitch;
             for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
                 memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,

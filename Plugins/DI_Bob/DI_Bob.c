@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Bob.c,v 1.6 2001-11-22 13:32:03 adcockj Exp $
+// $Id: DI_Bob.c,v 1.7 2001-11-23 19:33:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.5  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -183,7 +186,6 @@ BOOL DeinterlaceBob(TDeinterlaceInfo* pInfo)
         {
             pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
             lpOverlay += pInfo->OverlayPitch;                            // and offset out output ptr
-            CurrentLine += Pitch;
             for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
                 memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
@@ -197,7 +199,6 @@ BOOL DeinterlaceBob(TDeinterlaceInfo* pInfo)
         {
             pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);   // extra copy of first line
             lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
-            CurrentLine += Pitch;
             for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
                 memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.34 2002-03-04 20:03:50 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.35 2002-03-04 20:44:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -916,12 +916,12 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
     {
-	    m_pBT848Card->SetAudioSource((eAudioInput)m_AudioSource->GetValue());
+        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
         Channel_SetCurrent();
     }
     else
     {
-        m_AudioSource->SetValue(AUDIOINPUT_MUTE);
+        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
     }
     Audio_Unmute();
     Start_Capture();
@@ -1111,11 +1111,11 @@ void CBT848Source::SetupCard()
 
     if(m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()))
     {
-		m_pBT848Card->SetAudioSource((eAudioInput)m_AudioSource->GetValue());
+        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
     }
     else
     {
-		m_pBT848Card->SetAudioSource(AUDIOINPUT_MUTE);
+        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
     }
 }
 

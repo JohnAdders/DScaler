@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.12 2002-03-04 20:03:50 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.13 2002-03-04 20:44:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -119,10 +119,7 @@ void CBT848Source::TrebleOnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    if(m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()))
-    {
-		m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
-	}
+    m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
 }
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)

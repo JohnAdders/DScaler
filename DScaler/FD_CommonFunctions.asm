@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.17 2003-04-17 07:13:25 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.18 2003-04-17 16:25:18 adcockj Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.17  2003/04/17 07:13:25  adcockj
+; Bug fixes to new unused film detection code
+;
 ; Revision 1.16  2003/04/15 13:05:36  adcockj
 ; Unused test code for comb and diff
 ;
@@ -283,6 +286,30 @@ CombChroma_Loop:
 ; DWORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31, 
 ;                               BYTE* YVal12, BYTE* YVal22, BYTE* YVal32,
 ;       long BytesToProcess, DWORD* CombFactor);
+;
+; This code is an experimental attempt to improve the comb
+; detection that is used for bad edit detection and also for
+; 2:2 film detection.
+;
+; Where the old code used to look for combs in the visible
+; picture the new code looks for a combination of
+; visible comb and a comb in the differences.
+;
+; Naming Convention
+; <- older       newer ->
+;      O12       O11
+;           E2         E1
+;      O22       O21
+;
+; With moving Video material the movement comb factors are expected to be 
+; spread between all fields evenly as E2 and E1 are taken from temporally
+; different pictures
+; With moving film material the movement comb factors should move in a pattern 
+; as E1 either belongs with O11 and O21 or it doesn't.  A high movement comb
+; will indicate that E1 doesn't belong with O11 and O21 and a high picture comb 
+; will indicate that this will be visible so the combination is bad as
+; can be used as a bad edit detection method.
+;
 ;////////////////////////////////////////////////////////////////////
 
 public _CalcCombAndDiffLine
@@ -312,57 +339,124 @@ _CalcCombAndDiffLine:
     mov ebp, dword ptr [YVal32]
 
     shr ecx, 3                  ; there are BytesToProcess / 8 qwords
-    pxor mm5, mm5               ; mm0 = 0
-    pxor mm6, mm6               ; mm0 = 0
-    pxor mm7, mm7               ; mm0 = 0
+    pxor mm6, mm6               ; mm6 = 0 ; Diff Total
+    pxor mm7, mm7               ; mm7 = 0 ; Comb Total
 align 4
 CombAndDiff_Loop:
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; Calculate |O11 - O12|/2
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     movq mm0, qword ptr[eax]    ; mm0 = O11
     movq mm1, qword ptr[edi]    ; mm1 = O12
+    pand mm0, _qwYMask
+    pand mm1, _qwYMask
 
     movq    mm2, mm0
     psubusb mm2, mm1
     psubusb mm1, mm0
-    por     mm2, mm1
-    pand    mm2, _qwYMask
-    psrlw   mm2, 4
+    por     mm1, mm2
+    psrlw   mm1, 1
+    
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; Calculate |O21 - O22|/2
+    ;
+    ; Current State
+    ; mm0 = O11
+    ; mm1 = |O11 - O12|/2
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    pcmpeqw mm2, mm7            ; FF if abs diff < 16
-
-    movq mm0, qword ptr[edx]    ; mm0 = O21
-    movq mm1, qword ptr[ebp]    ; mm1 = O22
-    movq    mm3, mm0
-    psubusb mm3, mm1
-    psubusb mm1, mm0
-    por     mm3, mm1
+    movq mm2, qword ptr[edx]    ; mm0 = O21
+    movq mm3, qword ptr[ebp]    ; mm1 = O22
+    pand mm2, _qwYMask
+    pand mm3, _qwYMask
+    movq    mm4, mm2
+    psubusb mm4, mm3
+    psubusb mm3, mm2
+    por     mm3, mm4
     pand    mm3, _qwYMask
-    psrlw   mm3, 4
+    psrlw   mm3, 1
 
-    pcmpeqw mm3, mm7            ; FF if abs diff < 16
-    pand    mm2, mm3
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; calculate visible diff indicator
+    ;
+    ; Current State
+    ; mm0 = O11
+    ; mm1 = |O11 - O12|/2
+    ; mm2 = O21
+    ; mm3 = |O21 - O22|/2
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    movq mm0, qword ptr[ebx]    ; mm0 = E1
-    movq mm1, qword ptr[esi]    ; mm1 = E2
+    movq mm5, qword ptr[ebx]    ; mm0 = E1
+    pand mm5, _qwYMask
 
-    pand    mm0, _qwYMask
-    pand    mm1, _qwYMask
+    psubw mm0, mm5              ; mm0 = (O11 - E)
+    psubw mm2, mm5              ; mm2 = (O21 - E)
+    movq mm4, mm0
+    psubw mm4, mm2              ; mm4 = (O11 - O21)
 
-    movq    mm4, mm1
-    psubw   mm4, mm3
-    movq    mm3, mm0
-    psubusb mm3, mm1
-    psubusb mm1, mm0
-    por     mm3, mm1
-    psrlw   mm3, 4
+    pmullw mm0, mm2             ; mm0 = (O11 - E)*(O21 - E)
+    pmullw mm4, mm4             ; mm4 = (O11 - O21)^2
+    psrlw  mm4, 7               ; mm4 = (O11 - O21)^2 >> 7
+    psubw  mm0, mm4             ; mm0 = (O11 - E)*(O21 - E) - (O11 - O21)^2 >> 7
 
-    pcmpeqw mm3, mm7            ; FF if abs diff < 16
-    pandn mm2, mm3              ; FF if middle is moving but outer two are stationary
-    pand  mm2, _qwOnes          ; 1 if middle is we have a comb
-    paddusw mm5, mm2
+    pcmpgtw mm0, _qwThreshold   ; FF if there is going to be a visible comb
 
-    pmaddwd mm4, mm4            ; mm4 = (Y1 - Y2) ^ 2
-    psrld mm4, _qwBitShift      ; divide mm4 by 2 ^ Bitshift
-    paddd mm6, mm4              ; keep total in mm6
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; Calculate |E1 - E2|/2
+    ;
+    ; Current State
+    ; mm0 = visble comb result
+    ; mm1 = |O11 - O12|/2
+    ; mm3 = |O21 - O22|/2
+    ; mm5 = E1
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    movq mm2, qword ptr[esi]    ; mm2 = E2
+    pand    mm2, _qwYMask
+
+    movq    mm4, mm2
+    psubusb mm4, mm5
+    psubusb mm5, mm2
+    por     mm5, mm4
+    movq    mm2, mm5            ; mm2 = |E1 - E2| but unshifted like the others
+    psrlw   mm5, 1
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; calculate movement diff indicator
+    ;
+    ; Current State
+    ; mm0 = visble comb result
+    ; mm1 = |O11 - O12|/2 = M1
+    ; mm2 = |E1 - E2|
+    ; mm3 = |O21 - O22|/2 = M3
+    ; mm5 = |E1 - E2|/2 = M2
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    psubw mm1, mm5              ; mm1 = (M1 - M2)
+    psubw mm3, mm5              ; mm3 = (M3 - M2)
+    movq mm4, mm1
+    psubw mm4, mm3              ; mm4 = (M1 - M3)
+
+    pmullw mm1, mm3             ; mm1 = (M1 - M2)*(M3 - M2)
+    pmullw mm4, mm4             ; mm4 = (M1 - M3)^2
+    psrlw  mm4, 7               ; mm4 = (M1 - M3)^2 >> 7
+    psubw  mm1, mm4             ; mm1 = (M1 - M2)*(M3 - M2) - (M1 - M3)^2 >> 7
+
+    pcmpgtw mm1, _qwThreshold   ; FF if there is a movement comb
+    
+    pand mm0, mm1
+    pand mm0, _qwOnes
+    paddw mm7, mm0
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; Calculate diff factor
+    ;
+    ; Current State
+    ; mm2 = |E1 - E2| for diff
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    pmaddwd mm2, mm2            ; mm2 = |E1 - E2| ^ 2
+    psrld mm2, _qwBitShift      ; divide mm2 by 2 ^ Bitshift
+    paddd mm6, mm2              ; keep total in mm6
     
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; Bottom
@@ -377,15 +471,18 @@ CombAndDiff_Loop:
     dec ecx
     jne CombAndDiff_Loop
 
-    movd ecx, mm5
-    psrlq mm5,32
-    movd eax, mm5
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ; Return Comb factor
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    movd ecx, mm7
+    psrlq mm7,32
+    movd eax, mm7
     add ecx, eax
 	xor eax, eax
     mov ax, cx
     shr ecx, 16
-    add ax, cx
-    shr ax, 1
+    add eax, ecx
+    shr eax, 1
     mov Dword Ptr [CombFactor], eax
 
     ; return mm6 as return value

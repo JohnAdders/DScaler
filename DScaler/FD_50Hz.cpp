@@ -62,6 +62,8 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	static DWORD StartFilmTicks = 0;
 	double PercentDecrease = 0;
 	double PercentIncrease = 0;
+	static long FieldsSinceLastChange = 0;
+	static long PrivateRepeatCount = PALPulldownRepeatCount;
 
 	// call with pInfo as NULL to reset static variables when we start the thread
 	// each time
@@ -73,6 +75,8 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 		LastDiff = 0;
 		ResetModeSwitches();
 		StartFilmTicks = 0;
+		FieldsSinceLastChange = 0;
+		PrivateRepeatCount = PALPulldownRepeatCount;
 		return;
 	}
     
@@ -81,10 +85,15 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
         return;
     }
 	
+	if(FieldsSinceLastChange < 0x7FFF)
+	{
+		++FieldsSinceLastChange;
+	}
+
     PercentDecrease = ((double)pInfo->CombFactor * 100.0) / ((double)LastCombFactor + 100.0);
 	PercentIncrease = ((double)(pInfo->CombFactor - LastCombFactor) * 100.0) / ((double)LastCombFactor + 100.0);
 
-	if(!IsFilmMode())
+	if(!IsFilmMode() || GetFilmMode() == FILM_32_PULLDOWN_COMB)
 	{
 		if(PercentDecrease < PulldownThresholdLow && 
             LastDiff > PulldownThresholdLow &&
@@ -93,7 +102,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 		{
 			if(LastPolarity == pInfo->IsOdd)
 			{
-				if(RepeatCount < PALPulldownRepeatCount)
+				if(RepeatCount < PrivateRepeatCount)
 				{
 					if(RepeatCount == 0)
 					{
@@ -115,15 +124,24 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 				}
 				else
 				{
-					if(pInfo->IsOdd == TRUE)
+					if(FieldsSinceLastChange < 100)
 					{
-						SetFilmDeinterlaceMode(FILM_22_PULLDOWN_ODD);
-						LOG(" Gone to Odd");
+	        			SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+						FieldsSinceLastChange = 0;
+						PrivateRepeatCount = PALPulldownRepeatCount * 3;
 					}
-					if(pInfo->IsOdd == FALSE)
+					else
 					{
-						SetFilmDeinterlaceMode(FILM_22_PULLDOWN_EVEN);
-						LOG(" Gone to Even");
+						if(pInfo->IsOdd == TRUE)
+						{
+							SetFilmDeinterlaceMode(FILM_22_PULLDOWN_ODD);
+							LOG(" Gone to Odd");
+						}
+						if(pInfo->IsOdd == FALSE)
+						{
+							SetFilmDeinterlaceMode(FILM_22_PULLDOWN_EVEN);
+							LOG(" Gone to Even");
+						}
 					}
 				}
 			}
@@ -138,71 +156,25 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 	}
 	else
 	{
-		if(PercentDecrease < PulldownThresholdLow)
+		if(PercentDecrease < PulldownThresholdLow && 
+			LastDiff > PulldownThresholdLow &&
+			pInfo->FieldDiff > MovementThreshold &&
+			LastCombFactor > CombThreshold &&
+			LastPolarity != pInfo->IsOdd)
 		{
-            if(pInfo->CombFactor > CombThreshold &&
-                pInfo->FieldDiff > MovementThreshold)
+
+            if(bFallbackToVideo)
             {
-                if(bFallbackToVideo)
-                {
-        			SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
-					LOG(" Gone back to video");
-                }
-                else
-                {
-			        if(LastPolarity != pInfo->IsOdd)
-			        {
-					    RepeatCount--;
-					    LOG(" Downed RepeatCount 1 %d", RepeatCount);
-                    }
-                    else
-                    {
-				        if(RepeatCount < PALPulldownRepeatCount)
-				        {
-					        RepeatCount++;
-					        LOG(" Upped RepeatCount 1 %d", RepeatCount);
-                        }
-                    }
-                }
+        		SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+				LOG(" Gone back to video");
             }
-			if(LastPolarity != pInfo->IsOdd)
-			{
-				if(LastDiff > PulldownThresholdLow)
-				{
-				}
-			}
-			else
-			{
-				if(RepeatCount < PALPulldownRepeatCount)
-				{
-					RepeatCount++;
-					LOG(" Upped RepeatCount 1 %d", RepeatCount);
-				}
-			}
-		}
-		
-		if(PercentIncrease > PulldownThresholdHigh && LastDiff > PulldownThresholdLow)
-		{
-			if(GetFilmMode() == FILM_22_PULLDOWN_ODD && pInfo->IsOdd == TRUE)
-			{
-				RepeatCount--;
-				LOG(" Downed RepeatCount 2 %d", RepeatCount);
-			}
-			if(GetFilmMode() == FILM_22_PULLDOWN_EVEN && pInfo->IsOdd == FALSE)
-			{
-				RepeatCount--;
-				LOG(" Downed RepeatCount 2 %d", RepeatCount);
-			}
-		}
-		// FIXME: Should have a different parameter here
-		if(RepeatCount <= (PALPulldownRepeatCount - PALPulldownRepeatCount2))
-		{
-			SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
-			LOG(" Back To Video Mode");
-			RepeatCount = PALPulldownRepeatCount - 1;
-			LastPolarity = !pInfo->IsOdd;
-			StartFilmTicks = GetTickCount();
-		}
+            else
+            {
+				SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+				LOG(" Gone to Comb Mode");
+				RepeatCount = PrivateRepeatCount;
+            }
+        }
 	}
 
 	LastDiff = PercentDecrease;

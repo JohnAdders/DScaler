@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.44 2003-08-15 09:29:08 atnak Exp $
+// $Id: MixerDev.cpp,v 1.45 2003-08-15 09:56:49 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/08/15 09:29:08  atnak
+// Minor updates
+//
 // Revision 1.43  2003/07/30 03:24:34  atnak
 // Added NOHARDWAREMUTE to list of saved settings
 //
@@ -287,10 +290,10 @@ BOOL Mixer_GetMute(void)
 
     if (pLineSrc != NULL)
     {
-        return pLineSrc->GetMute();
+        return pLineSrc->GetMute() != FALSE;
     }
 
-    return FALSE;
+    return -1;
 }
 
 

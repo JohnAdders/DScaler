@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.42 2001-11-29 17:30:52 adcockj Exp $
+// $Id: OSD.cpp,v 1.43 2001-12-16 13:13:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.41  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -205,6 +209,8 @@
 #include "Calibration.h"
 #include "Providers.h"
 #include "PaintingHDC.h"
+#include "Perf.h"
+#include "DebugLog.h"
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -960,25 +966,37 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Title
         OSD_AddText("Statistics", Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-        nLine = 3;
+        nLine = 1;
 
         OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        sprintf (szInfo, "Number : %ld", nTotalDropFields);
+        sprintf (szInfo, "Number : %ld", pPerf->GetNumberDroppedFields());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Last second : %d", (int)ceil(nDropFieldsLastSec - 0.5));
-//      sprintf (szInfo, "Last second : %.1f", nDropFieldsLastSec);
+        sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Average / s : %.1f", (double)nTotalDropFields * 1000 / (double)nSecTicks);
+        sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         OSD_AddText("Used fields", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        sprintf (szInfo, "Last second : %d", (int)ceil(nUsedFieldsLastSec - 0.5));
-//      sprintf (szInfo, "Last second : %.1f", nUsedFieldsLastSec);
+        sprintf (szInfo, "Last second : %d", pPerf->GetUsedFieldsLastSecond());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Average / s : %.1f", (double)nTotalUsedFields * 1000.0 / (double)nSecTicks);
+        sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageUsedFields());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+        OSD_AddText("Average Time per cycle (1/10 ms)", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        for (i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
+        {
+            if (pPerf->IsValid((ePerfType)i))
+            {
+                sprintf(szInfo, "%s : %d",
+                        pPerf->GetName((ePerfType)i), 
+                        pPerf->GetAverageDuration((ePerfType)i));
+                pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, pos);
+                nLine++;
+            }
+        }
 
         nLine = 3;
 

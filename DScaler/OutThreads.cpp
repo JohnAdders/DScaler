@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.49 2001-11-29 17:30:52 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.50 2001-12-16 13:13:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.48  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -220,6 +224,7 @@
 #include "Crash.h"
 #include "Providers.h"
 #include "StillProvider.h"
+#include "Perf.h"
 
 typedef enum
 {
@@ -232,6 +237,7 @@ typedef enum
 BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
 eStreamStillType    RequestStillType = STILL_NONE;
+BOOL                RequestStatsReset = FALSE;
 HANDLE              OutThread;
 
 // Dynamically updated variables
@@ -250,16 +256,6 @@ BOOL                bJudderTerminatorOnVideo = TRUE;
 
 /// \todo should be able to get of this variable
 long                OverlayPitch = 0;
-
-// Statistics
-long                nTotalDropFields = 0;
-double              nDropFieldsLastSec = 0;
-long                nTotalUsedFields = 0;
-double              nUsedFieldsLastSec = 0;
-long                nSecTicks = 0;
-long                nInitialTicks = -1;
-long                nLastTicks = 0;
-long                nTotalDeintModeChanges = 0;
 
 
 long CurrentX = 720;
@@ -348,6 +344,11 @@ void RequestStreamSnap()
 void RequestStill()
 {
    RequestStillType = STILL_TIFF;
+}
+
+void RequestStatisticsReset()
+{
+   RequestStatsReset = TRUE;
 }
 
 // save the Info structure to a snapshot file
@@ -461,13 +462,10 @@ void Reset_Capture()
 
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 {
-    char Text[128];
-    DWORD dwLastSecondTicks;
     BOOL bFlipNow = TRUE;
     TDeinterlaceInfo Info;
     DEINTERLACE_METHOD* PrevDeintMethod = NULL;
     DEINTERLACE_METHOD* CurrentMethod = NULL;
-    DWORD CurrentTickCount;
     int nHistory = 0;
     long SourceAspectAdjust = 1000;
     CSource* pSource = Providers_GetCurrentSource();
@@ -505,9 +503,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         else
             UpdateNTSCPulldownMode(NULL);
 
-        dwLastSecondTicks = GetTickCount();
         while(!bStopThread)
         {
+            pPerf->StartCount(PERF_WAIT_FIELD);
+
             // update with any changes
             CurrentMethod = GetCurrentDeintMethod();
             Info.bDoAccurateFlips = DoAccurateFlips;
@@ -523,6 +522,24 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
             CurrentX = Info.FrameWidth;
             CurrentY = Info.FrameHeight;
+
+            pPerf->StopCount(PERF_WAIT_FIELD);
+
+            if (Info.bMissedFrame || Info.bRunningLate)
+            {
+                for (int i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
+                {
+                    if (pPerf->IsValid((ePerfType)i))
+                    {
+                        LOG(2, "    %s : %d (avg %d)",
+                            pPerf->GetName((ePerfType)i), 
+                            pPerf->GetDurationLastCycle((ePerfType)i), 
+                            pPerf->GetAverageDuration((ePerfType)i));
+                    }
+                }
+            }
+
+            pPerf->InitCycle();
 
             if(bIsPaused == FALSE)
             {
@@ -552,15 +569,25 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // Card calibration
 				if (pCalibration->IsRunning())
 				{
+                    pPerf->StartCount(PERF_CALIBRATION);
+
     				pCalibration->Make(&Info, GetTickCount());
+
+                    pPerf->StopCount(PERF_CALIBRATION);
 				}
 
                 // update the source area
                 GetSourceRect(&Info.SourceRect);
                 
+                pPerf->StartCount(PERF_INPUT_FILTERS);
+
                 // do any filters that operarate on the input
                 // only
                 SourceAspectAdjust = Filter_DoInput(&Info, nHistory, (Info.bRunningLate || Info.bMissedFrame));
+
+                pPerf->StopCount(PERF_INPUT_FILTERS);
+
+                pPerf->StartCount(PERF_TIMESHIFT);
 
                 // NOTE: I might go ahead and make the TimeShift module an input
                 // filter at some point (i.e. FLT_TimeShift), but I'm not sure
@@ -568,11 +595,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // parts of the app.
                 CTimeShift::OnNewFrame(&Info);
 
+                pPerf->StopCount(PERF_TIMESHIFT);
+
                 if(!Info.bMissedFrame)
                 {
                     // do film detect
                     if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
                     {
+                        pPerf->StartCount(PERF_PULLDOWN_DETECT);
+
                         // we have an interlaced source
                         if(bAutoDetectMode == TRUE)
                         {
@@ -603,6 +634,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                                             CurrentMethod->bNeedCombFactor, 
                                                             CurrentMethod->bNeedFieldDiff);
                         }
+
+                        pPerf->StopCount(PERF_PULLDOWN_DETECT);
                     }
                     else
                     {
@@ -613,7 +646,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 if (bCaptureVBI == TRUE)
                 {
+                    pPerf->StartCount(PERF_VBI);
+
                     pSource->DecodeVBI(&Info);
+
+                    pPerf->StopCount(PERF_VBI);
                 }
 
                 // do we need to unlock overlay if we crash
@@ -631,8 +668,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         if ( (Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ||
                              (Info.PictureHistory[0]->Flags == PICTURE_PROGRESSIVE) )
                         {
+                            pPerf->StartCount(PERF_RATIO);
+
                             AdjustAspectRatio(SourceAspectAdjust, &Info);
+
+                            pPerf->StopCount(PERF_RATIO);
                         }
+
+                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 
                         if(!Overlay_Lock(&Info))
                         {
@@ -644,6 +687,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             return 1;
                         }
                         bOverlayLocked = TRUE;
+
+                        pPerf->StopCount(PERF_LOCK_OVERLAY);
+
+                        pPerf->StartCount(PERF_DEINTERLACE);
 
                         if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
                         {
@@ -681,12 +728,20 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             }
                         }
                     
+                        pPerf->StopCount(PERF_DEINTERLACE);
+
                         if (bFlipNow)
                         {
+                            pPerf->StartCount(PERF_OUTPUT_FILTERS);
+
                             // Do any filters that run on the output
                             // need to do this while the surface is locked
                             Filter_DoOutput(&Info, nHistory, Info.bMissedFrame);
+
+                            pPerf->StopCount(PERF_OUTPUT_FILTERS);
                         }
+
+                        pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 
                         // somewhere above we will have locked the buffer, unlock before flip
                         if(!Overlay_Unlock())
@@ -700,9 +755,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                         bOverlayLocked = FALSE;
 
+                        pPerf->StopCount(PERF_UNLOCK_OVERLAY);
+
                         // flip if required
                         if (bFlipNow)
                         {
+                            pPerf->StartCount(PERF_FLIP_OVERLAY);
+
                             // setup flip flag
                             // the odd and even flags may help the scaled bob
                             // on some cards
@@ -735,41 +794,23 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 ExitThread(1);
                                 return 0;
                             }
+
+                            pPerf->StopCount(PERF_FLIP_OVERLAY);
                         }
                     }
-
                 }                   
                 // if there is any exception thrown in the above then just carry on
                 __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
                 { 
                     if(bOverlayLocked == TRUE)
                     {
+                        pPerf->StartCount(PERF_UNLOCK_OVERLAY);
+
                         Overlay_Unlock();
+
+                        pPerf->StopCount(PERF_UNLOCK_OVERLAY);
                     }
                     LOG(1, "Crash in output code");
-                }
-            }
-            
-            CurrentTickCount = GetTickCount();
-            if (dwLastSecondTicks + 1000 <= CurrentTickCount)
-            {
-                nTotalDropFields += Timing_GetDroppedFields();
-                nTotalUsedFields += Timing_GetUsedFields();
-                nDropFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / (double)(CurrentTickCount - dwLastSecondTicks);
-                nUsedFieldsLastSec = (double)Timing_GetUsedFields() * 1000.0 / (double)(CurrentTickCount - dwLastSecondTicks);
-                Timing_ResetDroppedFields();
-                Timing_ResetUsedFields();
-                nSecTicks += CurrentTickCount - dwLastSecondTicks;
-                dwLastSecondTicks = CurrentTickCount;
-                CurrentMethod->ModeTicks += CurrentTickCount - nLastTicks;
-                nLastTicks = CurrentTickCount;
-                if (IsStatusBarVisible())
-                {
-                    sprintf(Text, "%d DF/S", (int)ceil(nDropFieldsLastSec - 0.5));
-                    
-                    //TJ 010508: this will cause YUVOutThread thread to stop
-                    //responding if main thread is not processing messages
-                    StatusBar_ShowText(STATUS_FPS, Text);
                 }
             }
 
@@ -787,6 +828,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             {
                 StillProvider_SaveSnapshot(&Info);
                 RequestStillType = STILL_NONE;
+            }
+
+            if (RequestStatsReset)
+            {
+                pPerf->Reset();
+                RequestStatsReset = FALSE;
             }
 
             // save the last pulldown Mode so that we know if its changed

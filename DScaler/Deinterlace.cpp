@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.28 2001-12-15 17:41:55 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.29 2001-12-16 13:13:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/12/15 17:41:55  adcockj
+// Fix for crash in greedy when in pulldown comb mode
+//
 // Revision 1.27  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -111,6 +114,11 @@
 #include "DebugLog.h"
 #include "SettingsDlg.h"
 #include "Providers.h"
+
+// Statistics
+long    nInitialTicks = -1;
+long    nLastTicks = 0;
+long    nTotalDeintModeChanges = 0;
 
 DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 {

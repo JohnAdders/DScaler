@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.102 2001-12-08 14:22:19 laurentg Exp $
+// $Id: DScaler.cpp,v 1.103 2001-12-16 13:13:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2001/12/08 14:22:19  laurentg
+// Bug fix regarding Sources submenu in the right mouse menu
+//
 // Revision 1.101  2001/12/08 13:43:20  adcockj
 // Fixed logging and memory leak bugs
 //
@@ -327,6 +330,7 @@
 #include "Calibration.h"
 #include "Providers.h"
 #include "OverlaySettings.h"
+#include "Perf.h"
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -1435,6 +1439,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             RequestStill();
             break;
 
+        case IDM_RESET_STATS:
+            RequestStatisticsReset();
+            break;
+
         case IDM_TSOPTIONS:
             CTimeShift::OnOptions();
             break;
@@ -1930,13 +1938,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
         //-------------------------------
         case TIMER_STATUS:
-            strcpy(Text, Providers_GetCurrentSource()->GetStatus());
+            if (IsStatusBarVisible())
+            {
+                strcpy(Text, Providers_GetCurrentSource()->GetStatus());
+                if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+	    		{
+                    sprintf(Text, "Volume Mute");
+			    }
+                StatusBar_ShowText(STATUS_TEXT, Text);
 
-            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
-			{
-                sprintf(Text, "Volume Mute");
-			}
-            StatusBar_ShowText(STATUS_TEXT, Text);
+                sprintf(Text, "%d DF/S", pPerf->GetDroppedFieldsLastSecond());
+                StatusBar_ShowText(STATUS_FPS, Text);
+            }
             break;
         //-------------------------------
         case TIMER_KEYNUMBER:
@@ -2276,6 +2289,8 @@ void MainWndOnCreate(HWND hWnd)
     SYSTEM_INFO SysInfo;
 
     pCalibration = new CCalibration();
+
+    pPerf = new CPerf();
 
     GetSystemInfo(&SysInfo);
     AddSplashTextLine("Table Build");

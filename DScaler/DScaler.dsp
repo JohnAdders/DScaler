@@ -363,6 +363,10 @@ SOURCE=.\PCICard.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Perf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\PinEnum.cpp
 # End Source File
 # Begin Source File
@@ -692,6 +696,10 @@ SOURCE=.\PaintingHDC.h
 # Begin Source File
 
 SOURCE=.\PCICard.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Perf.h
 # End Source File
 # Begin Source File
 

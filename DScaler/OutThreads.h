@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.9 2001-11-28 16:04:50 adcockj Exp $
+// $Id: OutThreads.h,v 1.10 2001-12-16 13:13:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ void UnPause_Capture();
 void Pause_Toggle_Capture();
 void RequestStreamSnap();
 void RequestStill();
+void RequestStatisticsReset();
 
 void Start_Thread();
 void Stop_Thread();
@@ -67,16 +68,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter);
 
 BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
 BOOL LockOverlay(TDeinterlaceInfo* pInfo);
-
-// Statistics
-extern long nTotalDropFields;
-extern double   nDropFieldsLastSec;
-extern long nTotalUsedFields;
-extern double   nUsedFieldsLastSec;
-extern long nSecTicks;
-extern long nInitialTicks;
-extern long nLastTicks;
-extern long nTotalDeintModeChanges;
 
 extern long CurrentX;
 extern long CurrentY;

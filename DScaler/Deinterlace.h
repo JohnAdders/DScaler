@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.12 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Deinterlace.h,v 1.13 2001-12-16 13:13:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,7 @@
 
 #include "settings.h"
 #include "DS_Deinterlace.h"
+
 
 // Get Hold of the Deinterlace.c file settings
 SETTING* Deinterlace_GetSetting(long nIndex, long Setting);
@@ -87,5 +88,10 @@ void DecrementDeinterlaceMode();
 void PrepareDeinterlaceMode();
 
 extern const char* DeinterlaceNames[100];
+
+// Statistics
+extern long nInitialTicks;
+extern long nLastTicks;
+extern long nTotalDeintModeChanges;
 
 #endif

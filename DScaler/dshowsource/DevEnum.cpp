@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.cpp,v 1.2 2001-12-14 14:11:13 adcockj Exp $
+// $Id: DevEnum.cpp,v 1.3 2001-12-17 19:36:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/14 14:11:13  adcockj
+// Added #ifdef to allow compilation without SDK
+//
 // Revision 1.1  2001/12/09 22:01:48  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -32,7 +35,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DevEnum.cpp implementation of the CDevEnum class.
+ * @file DevEnum.cpp implementation of the CDShowDevEnum class.
  */
 #include "stdafx.h"
 
@@ -52,25 +55,25 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDevEnum::CDevEnum()
+CDShowDevEnum::CDShowDevEnum()
 :m_pSysDevEnum(NULL),m_pEnumCat(NULL)
 {
 	createSysEnum();
 }
 
-CDevEnum::CDevEnum(REFCLSID devClass)
+CDShowDevEnum::CDShowDevEnum(REFCLSID devClass)
 :m_pSysDevEnum(NULL),m_pEnumCat(NULL)
 {
 	createSysEnum();
 	initEnum(devClass);
 }
 
-CDevEnum::~CDevEnum()
+CDShowDevEnum::~CDShowDevEnum()
 {
 
 }
 
-void CDevEnum::initEnum(REFCLSID devClass)
+void CDShowDevEnum::initEnum(REFCLSID devClass)
 {
 	HRESULT hr;
 	if(m_pEnumCat!=NULL)
@@ -82,11 +85,11 @@ void CDevEnum::initEnum(REFCLSID devClass)
 	hr=m_pSysDevEnum->CreateClassEnumerator(devClass, &m_pEnumCat, 0);
 	if(hr!=S_OK)
 	{
-		throw CDevEnumException("Cant create Class enumerator",hr);
+		throw CDShowDevEnumException("Cant create Class enumerator",hr);
 	}
 }
 
-bool CDevEnum::getNext()
+bool CDShowDevEnum::getNext()
 {
 	CComPtr<IMoniker> pMoniker;
 	ULONG cFetched;
@@ -94,7 +97,7 @@ bool CDevEnum::getNext()
 	//check that device enumerator is initialized
 	if(m_pEnumCat==NULL)
 	{
-		throw CDevEnumException("initialize device enumerator before using it");
+		throw CDShowDevEnumException("initialize device enumerator before using it");
 	}
 	
 	if(m_pEnumCat->Next(1, &pMoniker, &cFetched) == S_OK)
@@ -125,18 +128,18 @@ bool CDevEnum::getNext()
 	}
 }
 
-void CDevEnum::createSysEnum()
+void CDShowDevEnum::createSysEnum()
 {
 	HRESULT hr=m_pSysDevEnum.CoCreateInstance(CLSID_SystemDeviceEnum);
 	if(FAILED(hr))
 	{
 		//throw an exception
 		//this error shoud never hapend unless somting is very wrong (or com is not initialized)
-		throw CDevEnumException("Cant create System Device Enumerator",hr);
+		throw CDShowDevEnumException("Cant create System Device Enumerator",hr);
 	}
 }
 
-void CDevEnum::createDevice(string displayName,REFIID interf, void *device)
+void CDShowDevEnum::createDevice(string displayName,REFIID interf, void *device)
 {
 	WCHAR *name;
 
@@ -157,21 +160,21 @@ void CDevEnum::createDevice(string displayName,REFIID interf, void *device)
 		if(FAILED(hr))
 		{
 			delete [] name;
-			throw(CDevEnumException("createDevice: cant create moniker",hr));
+			throw CDShowDevEnumException("createDevice: cant create moniker",hr);
 		}
 	}
 	hr = pmDev->BindToObject(0, 0, interf, (void**)device);
 	if(FAILED(hr))
 	{
 		delete [] name;
-		throw(CDevEnumException("createDevice: BindToObject failed",hr));
+		throw CDShowDevEnumException("createDevice: BindToObject failed",hr);
 	}
 	
 	delete [] name;
 	
 }
 
-string CDevEnum::getProperty(string szName)
+string CDShowDevEnum::getProperty(string szName)
 {
 	USES_CONVERSION;
 

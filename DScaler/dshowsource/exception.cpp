@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: exception.cpp,v 1.2 2001-12-14 14:11:13 adcockj Exp $
+// $Id: exception.cpp,v 1.3 2001-12-17 19:36:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/14 14:11:13  adcockj
+// Added #ifdef to allow compilation without SDK
+//
 // Revision 1.1  2001/12/09 22:01:48  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -32,7 +35,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file exception.cpp implementation of the CDSException class.
+ * @file exception.cpp implementation of the CDShowException class.
  */
 
 #include "stdafx.h"
@@ -50,24 +53,24 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CDSException::CDSException(CString msg,HRESULT hr)
+CDShowException::CDShowException(CString msg,HRESULT hr)
 :m_errMsg(msg),m_hasErrNo(true),m_err(hr)
 {
 
 }
 
-CDSException::CDSException(CString msg)
+CDShowException::CDShowException(CString msg)
 :m_errMsg(msg),m_hasErrNo(false),m_err(S_OK)
 {
 
 }
 
-CDSException::~CDSException()
+CDShowException::~CDShowException()
 {
 
 }
 
-CString CDSException::getErrorText()
+CString CDShowException::getErrorText()
 {
 	CString msg;
 	CString tmpstr;

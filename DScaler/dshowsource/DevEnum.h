@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.h,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: DevEnum.h,v 1.2 2001-12-17 19:36:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,11 +24,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file DevEnum.h interface for the CDevEnum class.
+ * @file DevEnum.h interface for the CDShowDevEnum class.
  */
 
 #if !defined(AFX_DEVENUM_H__480881D3_9016_422D_8B1C_44D23FED26FE__INCLUDED_)
@@ -42,20 +46,20 @@
 
 /**
  * Exception class for CDevEnum
- * @see CDSException
+ * @see CDShowException
  */
-class CDevEnumException: public CDSException
+class CDShowDevEnumException: public CDShowException
 {
 public:
-	CDevEnumException(CString msg,HRESULT hr):CDSException(msg,hr) {};
-	CDevEnumException(CString msg):CDSException(msg) {};
+	CDShowDevEnumException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
+	CDShowDevEnumException(CString msg):CDShowException(msg) {};
 };
 
 /**
  * Class for enumerating dshow devices.
  * It is a class built around the direct show "System device enumerator"
  */
-class CDevEnum  
+class CDShowDevEnum  
 {
 public:
 
@@ -100,14 +104,14 @@ public:
 	 * Default constructor.
 	 * You must call initEnum memeber befor using the object
 	 */
-	CDevEnum();
+	CDShowDevEnum();
 
 	/**
 	 * Constructor that initializes the object to use the specified device class.
 	 * @throws CDevEnumException
 	 */
-	CDevEnum(REFCLSID devClass);
-	virtual ~CDevEnum();
+	CDShowDevEnum(REFCLSID devClass);
+	virtual ~CDShowDevEnum();
 
 private:
 	/// @throws CDevEnumException

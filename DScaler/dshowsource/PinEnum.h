@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PinEnum.h,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: PinEnum.h,v 1.2 2001-12-17 19:36:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,11 +24,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file PinEnum.h interface for the CPinEnum class.
+ * @file PinEnum.h interface for the CDShowPinEnum class.
  */
 
 #if !defined(AFX_PINENUM_H__1446F155_3DEC_4476_805E_0B74863B7EC7__INCLUDED_)
@@ -41,15 +45,15 @@
 #include "exception.h"
 
 /**
- * Exception class for CPinEnum
- * @see CDSException
- * @see CPinEnum
+ * Exception class for CDShowPinEnum
+ * @see CDShowException
+ * @see CDShowPinEnum
  */
-class CPinEnumException :public CDSException
+class CDShowPinEnumException :public CDShowException
 {
 public:
-	CPinEnumException(CString msg,HRESULT hr):CDSException(msg,hr) {};
-	CPinEnumException(CString msg):CDSException(msg) {};
+	CDShowPinEnumException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
+	CDShowPinEnumException(CString msg):CDShowException(msg) {};
 };
 
 
@@ -58,7 +62,7 @@ public:
  * Class that enumerates a IBaseFilter's pins.
  * It can be locked to a specified direction (input or output pins)
  */
-class CPinEnum
+class CDShowPinEnum
 {
 public:
 	/**
@@ -68,7 +72,7 @@ public:
 	 * @param filter filter whos pins is to be enumerated
 	 * @param pinDir direction
 	 */
-	CPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir);	//endast viss riktning
+	CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir);	//endast viss riktning
 	
 	/**
 	 * Constructs a CPinEnum object that enumerates all pins.
@@ -76,33 +80,32 @@ public:
 	 * @exception CPinEnumException this is thrown if unable to create a enumerator for the filter
 	 * @param filter filter whos pins is to be enumerated
 	 */
-	CPinEnum(CComPtr<IBaseFilter> filter);
+	CDShowPinEnum(CComPtr<IBaseFilter> filter);
 	
 	/** Copy construktor */
-	CPinEnum(CPinEnum &pin);
+	CDShowPinEnum(CDShowPinEnum &pin);
 	/** Destruktor */
-	virtual ~CPinEnum();
+	virtual ~CDShowPinEnum();
 
 	/**
 	 * Gets next pin.
 	 * Currently thers no exception thrown, insted a NULL is returned
 	 *
-	 * @return returns next pin
+	 * @return next pin
 	 */
 	CComPtr<IPin> next();
 
 	/**
-	 * Skipps pins
+	 * Skips pins
 	 * 
 	 * @param cPins number of pins to skip
-	 * @return anger om de gick bra eller inte
+	 * @return true if successfull
 	 */
 	bool skip(ULONG cPins);
 	
 	/**
 	 * Resets the enumerator to the begining.
-	 *
-	 * @return anger om de gick bra eller inte
+	 * @return true if successfull
 	 */
 	bool reset();
 	

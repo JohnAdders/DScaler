@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PinEnum.cpp,v 1.2 2001-12-14 14:11:13 adcockj Exp $
+// $Id: PinEnum.cpp,v 1.3 2001-12-17 19:36:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/14 14:11:13  adcockj
+// Added #ifdef to allow compilation without SDK
+//
 // Revision 1.1  2001/12/09 22:01:48  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -32,7 +35,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file PinEnum.cpp implementation of the CPinEnum class.
+ * @file PinEnum.cpp implementation of the CDShowPinEnum class.
  */
 
 
@@ -52,7 +55,7 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CPinEnum::CPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
+CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
 :m_anydir(false)
 {
 	ASSERT(filter!=NULL);
@@ -60,27 +63,27 @@ CPinEnum::CPinEnum(CComPtr<IBaseFilter> filter,PIN_DIRECTION pinDir)
 
 	HRESULT hr=filter->EnumPins(&m_pins);
 	if(FAILED(hr))
-		throw CPinEnumException("Failed to create pin enumerator",hr);
+		throw CDShowPinEnumException("Failed to create pin enumerator",hr);
 	
 	ASSERT(m_pins!=NULL);
 	m_pinDir=pinDir;
 }
 
-CPinEnum::CPinEnum(CComPtr<IBaseFilter> filter)
+CDShowPinEnum::CDShowPinEnum(CComPtr<IBaseFilter> filter)
 :m_anydir(true)
 {
 	ASSERT(filter!=NULL);
 	HRESULT hr=filter->EnumPins(&m_pins);
 	if(FAILED(hr))
-		throw CPinEnumException("Failed to create pin enumerator",hr);
+		throw CDShowPinEnumException("Failed to create pin enumerator",hr);
 }
 
-CPinEnum::CPinEnum(CPinEnum &pin)
+CDShowPinEnum::CDShowPinEnum(CDShowPinEnum &pin)
 {
 	m_pins=pin.clone();
 }
 
-CPinEnum::~CPinEnum()
+CDShowPinEnum::~CDShowPinEnum()
 {
 
 }
@@ -89,7 +92,7 @@ CPinEnum::~CPinEnum()
 // Implementation
 //////////////////////////////////////////////////////////////////////
 
-CComPtr<IPin> CPinEnum::next()
+CComPtr<IPin> CDShowPinEnum::next()
 {
 	CComPtr<IPin> pin;
 	HRESULT hr=S_OK;
@@ -129,13 +132,14 @@ CComPtr<IPin> CPinEnum::next()
 	return pin;
 }
 
-CComPtr<IPin> CPinEnum::operator[](int index)
+CComPtr<IPin> CDShowPinEnum::operator[](int index)
 {
 	CComPtr<IPin> pin;
 	
 	//reset the enumerator
 	reset();
 
+	//we cant use skip here since we might be "locked" in a specified pin direction.
 	for(int i=0;i<index;i++)
 	{
 		pin=next();
@@ -143,24 +147,24 @@ CComPtr<IPin> CPinEnum::operator[](int index)
 	return pin;
 }
 
-bool CPinEnum::skip(ULONG cPins)
+bool CDShowPinEnum::skip(ULONG cPins)
 {
 	return SUCCEEDED(m_pins->Skip(cPins))==TRUE;
 }
 
-bool CPinEnum::reset()
+bool CDShowPinEnum::reset()
 {
 	return SUCCEEDED(m_pins->Reset())==TRUE;
 }
 
-CComPtr<IEnumPins> CPinEnum::clone()
+CComPtr<IEnumPins> CDShowPinEnum::clone()
 {
 	CComPtr<IEnumPins> pEnum;
 	HRESULT hr=m_pins->Clone(&pEnum);
 	
 	if(FAILED(hr))
 	{
-		throw CPinEnumException("clone() failed",hr);
+		throw CDShowPinEnumException("clone() failed",hr);
 	}
 
 	return pEnum;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: exception.h,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: exception.h,v 1.2 2001-12-17 19:36:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -42,12 +46,12 @@
 /**
  * Exception baseclass.
  */
-class CDSException
+class CDShowException
 {
 public:
-	CDSException(CString msg,HRESULT hr);
-	CDSException(CString msg);
-	virtual ~CDSException();
+	CDShowException(CString msg,HRESULT hr);
+	CDShowException(CString msg);
+	virtual ~CDShowException();
 	
 	/**
 	 * @return the error message

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.h,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: DSProvider.h,v 1.2 2001-12-17 19:36:45 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -43,8 +47,9 @@
 #include <map>
 
 /**
- * Source provider for wdm video capture devices.
+ * Source provider for Direct show video capture devices.
  * @bug there will probably be problems if some devices is removed while dscaler is running
+ * @see CDSSource
  */
 class CDSProvider : public ISourceProvider  
 {
@@ -54,6 +59,7 @@ public:
 
     virtual int GetNumberOfSources();
     virtual CSource* GetSource(int SourceIndex);
+	
 	string getSourceName(int SourceIndex);
 
 private:

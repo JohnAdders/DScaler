@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.11 2002-11-12 15:22:50 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.12 2002-11-13 10:34:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/11/12 15:22:50  adcockj
+// Made new flag settings have default setting
+// Added pixel width for CX2388x cards
+//
 // Revision 1.10  2002/11/12 11:33:07  adcockj
 // Fixed OSD
 //
@@ -443,6 +447,20 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     
         case IDM_SETTINGS_PIXELWIDTH_CUSTOM:
             m_PixelWidth->SetValue(m_CustomPixelWidth->GetValue());
+            break;
+
+        case IDM_PIXELWIDTH_PLUS:
+            m_PixelWidth->ChangeValue(ADJUSTUP);
+            SendMessage(hWnd, WM_COMMAND, IDM_PIXELWIDTH_CURRENT, 0);
+            break;
+
+        case IDM_PIXELWIDTH_MINUS:
+            m_PixelWidth->ChangeValue(ADJUSTDOWN);
+            SendMessage(hWnd, WM_COMMAND, IDM_PIXELWIDTH_CURRENT, 0);
+            break;
+
+        case IDM_PIXELWIDTH_CURRENT:
+            m_PixelWidth->OSDShow();
             break;
 
         default:

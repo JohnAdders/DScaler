@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.13 2002-11-12 15:22:47 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.14 2002-11-13 10:34:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/11/12 15:22:47  adcockj
+// Made new flag settings have default setting
+// Added pixel width for CX2388x cards
+//
 // Revision 1.12  2002/11/12 09:18:29  adcockj
 // Correct default for EatLinesAtTop
 //
@@ -1196,6 +1200,28 @@ void CCX2388xSource::SetupCard()
 
 void CCX2388xSource::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 {
+    // now do defaults based on the processor speed selected
+    if(ProcessorSpeed == 0)
+    {
+        // User has selected below 300 MHz
+        m_PixelWidth->ChangeDefault(640);
+    }
+    else if(ProcessorSpeed == 1)
+    {
+        // User has selected 300 MHz - 500 MHz
+        m_PixelWidth->ChangeDefault(720);
+    }
+    else if(ProcessorSpeed == 2)
+    {
+        // User has selected 500 MHz - 1 GHz
+        m_PixelWidth->ChangeDefault(720);
+    }
+    else
+    {
+        // user has fast processor use best defaults
+        m_PixelWidth->ChangeDefault(720);
+    }
+
 }
 
 void CCX2388xSource::ChangeTVSettingsBasedOnTuner()

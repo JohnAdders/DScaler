@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.2 2003-03-17 22:34:29 laurentg Exp $
+// $Id: MultiFrames.h,v 1.3 2003-03-20 23:27:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/03/17 22:34:29  laurentg
+// First step for the navigation through channels in preview mode
+//
 // Revision 1.1  2003/03/16 18:27:46  laurentg
 // New multiple frames feature
 //
@@ -54,24 +57,53 @@ public:
 protected:
 
 private:
+	// Allocate memory buffer to store the picture containing all the frames
 	void AllocateMemoryBuffer();
+
+	// Free previously allocated memory buffer to store the picture containing all the frames
 	void FreeMemoryBuffer();
-	void SelectFrameBuffer(int iFrame);
+
+	void SelectFrameBuffer(int iFrame, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight);
+
+	// Add a border around each frame - boder size is 2 pixels
+	// Color is different for the current active frame and other frames
 	void DrawBorders();
+
+	// Shift all frames in the grid
+	//
+	// A positive value for iDeltaFrames means that some frames will
+	// disappear at top left and new ones will appeared at bottom right
+	// A negative value for iDeltaFrames means that some frames will
+	// disappear at bottom right and new ones will appeared at top left
 	void ShiftFrames(int iDeltaFrames);
-	int iWidth;
-	int iHeight;
-	BOOL bActive;
+
+	// Move the content of one frame from one position to another one
+	void MoveFrame(int iFrameSrc, int iFrameDest);
+
+	// Paint in black the content of a frame
+	void ResetFrameToBlack(int iFrame);
+
+	// The screen is cut in m_NbCols columns and m_NbRows rows
+	// In this grid, m_NbFrames frames are considered
+	// (it is possible to have m_NbCols * m_NbRows > m_NbFrames)
+	int m_NbFrames;
+	int m_NbCols;
+	int m_NbRows;
+
+	// Width and height in pixels of the picture containing all the frames
+	int m_Width;
+	int m_Height;
+
+	// Memory buffer containing all the frames
+	BYTE* m_MemoryBuffer;
+
+	// The active frame in the grid
+	int m_CurrentFrame;
+
+	// Indicate if multiple frames mode is ON or OFF
+	BOOL m_Active;
+
 	BOOL bSwitchRequested;
-	BYTE* lpMemoryBuffer;
-	int iNbFrames;
-	int iCurrentFrame;
-	int iNbCols;
-	int iNbRows;
-	BYTE* lpFrameBuffer;
-	int iFrameWidth;
-	int iFrameHeight;
-	int iFramePitch;
 	int *bFrameFilled;
 	DWORD LastTickCount;
 	int iDeltaTicksChange;

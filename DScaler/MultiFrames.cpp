@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.3 2003-03-19 23:55:19 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.4 2003-03-20 23:27:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/03/19 23:55:19  laurentg
+// First step to add stills preview mode
+// Second step for the navigation through channels in preview mode
+//
 // Revision 1.2  2003/03/17 22:34:23  laurentg
 // First step for the navigation through channels in preview mode
 //
@@ -40,7 +44,6 @@
 #include "AspectRatio.h"
 #include "ProgramList.h"
 #include "DScaler.h"
-//#include "OSD.h"
 
 
 CMultiFrames* pMultiFrames = NULL;
@@ -48,19 +51,19 @@ CMultiFrames* pMultiFrames = NULL;
 
 CMultiFrames::CMultiFrames(int iFrames, int iDuration)
 {
-	bActive = FALSE;
+	m_Active = FALSE;
 	bSwitchRequested = FALSE;
-	lpMemoryBuffer = NULL;
-	iNbFrames = iFrames;
-	iCurrentFrame = 0;
-	iNbRows = (int)sqrt((double)iNbFrames);
-	iNbCols = iNbFrames / iNbRows;
-	if (iNbFrames % iNbRows)
+	m_MemoryBuffer = NULL;
+	m_NbFrames = iFrames;
+	m_CurrentFrame = 0;
+	m_NbRows = (int)sqrt((double)m_NbFrames);
+	m_NbCols = m_NbFrames / m_NbRows;
+	if (m_NbFrames % m_NbRows)
 	{
-		iNbCols++;
+		m_NbCols++;
 	}
-	iWidth = DSCALER_MAX_WIDTH;
-	iHeight = DSCALER_MAX_HEIGHT;
+	m_Width = DSCALER_MAX_WIDTH;
+	m_Height = DSCALER_MAX_HEIGHT;
 	iDeltaTicksChange = iDuration;
 }
 
@@ -71,25 +74,25 @@ CMultiFrames::~CMultiFrames()
 
 int CMultiFrames::GetWidth()
 {
-	return iWidth;
+	return m_Width;
 }
 
 int CMultiFrames::GetHeight()
 {
-	return iHeight;
+	return m_Height;
 }
 
 BOOL CMultiFrames::IsActive()
 {
-	return bActive;
+	return m_Active;
 }
 
 void CMultiFrames::Enable()
 {
 	AllocateMemoryBuffer();
-	bFrameFilled = (int*) malloc(iNbFrames * sizeof(BOOL));
-	bActive = (lpMemoryBuffer != NULL);
-	if (bActive)
+	bFrameFilled = (int*) malloc(m_NbFrames * sizeof(BOOL));
+	m_Active = (m_MemoryBuffer != NULL);
+	if (m_Active)
 	{
 		Reset();
 		UpdateSquarePixelsMode(TRUE);
@@ -108,7 +111,7 @@ void CMultiFrames::Disable()
 
 	FreeMemoryBuffer();
 	free(bFrameFilled);
-	bActive = FALSE;
+	m_Active = FALSE;
     if (pSource)
     {
         UpdateSquarePixelsMode(pSource->HasSquarePixels());
@@ -142,29 +145,17 @@ void CMultiFrames::DoSwitch()
 
 void CMultiFrames::Reset()
 {
-	if (!bActive)
+	if (!m_Active)
 	{
 		return;
 	}
 
-	iCurrentFrame = 0;
+	m_CurrentFrame = 0;
 	LastTickCount = 0;
-	for (int i=0 ; i < iNbFrames ; i++)
+	for (int i=0 ; i < m_NbFrames ; i++)
 	{
+		ResetFrameToBlack(i);
 		bFrameFilled[i] = -1;
-	}
-
-	// Reset the memory buffer to a black picture
-    int iPitch = iWidth * 2;
-    BYTE* lpStartBuffer = START_ALIGNED16(lpMemoryBuffer);
-	for (int iLine=0 ; iLine < iHeight ; iLine++)
-	{
-		for (int iPixel=0 ; iPixel < iWidth ; iPixel++)
-		{
-			lpStartBuffer[iPixel*2] = 16;
-			lpStartBuffer[iPixel*2+1] = 128;
-		}
-		lpStartBuffer += iPitch;
 	}
 }
 
@@ -173,7 +164,7 @@ void CMultiFrames::SelectFrame()
 	CSource* pSource = Providers_GetCurrentSource();
 	int i;
 
-	if (!bActive || !pSource)
+	if (!m_Active || !pSource)
 	{
 		bNavigAllowed = FALSE;
 		return;
@@ -185,21 +176,21 @@ void CMultiFrames::SelectFrame()
 		LastTickCount = CurrentTickCount;
 	}
 
-	if (bFrameFilled[iCurrentFrame] == -1)
+	if (bFrameFilled[m_CurrentFrame] == -1)
 	{
 		bNavigAllowed = FALSE;
 		return;
 	}
 
-	for (i=0; i < iNbFrames ; i++)
+	for (i=0; i < m_NbFrames ; i++)
 	{
-		if (bFrameFilled[(iCurrentFrame+i+1) % iNbFrames] == -1)
+		if (bFrameFilled[(m_CurrentFrame+i+1) % m_NbFrames] == -1)
 		{
 			bNavigAllowed = FALSE;
 			break;
 		}
 	}
-	if (i == iNbFrames)
+	if (i == m_NbFrames)
 	{
 		if (!bNavigAllowed)
 		{
@@ -211,22 +202,22 @@ void CMultiFrames::SelectFrame()
 	{
 		if (iDeltaNewFrame != 0)
 		{
-			if ( ((iCurrentFrame + iDeltaNewFrame) >= 0)
-			  && ((iCurrentFrame + iDeltaNewFrame) < iNbFrames) )
+			if ( ((m_CurrentFrame + iDeltaNewFrame) >= 0)
+			  && ((m_CurrentFrame + iDeltaNewFrame) < m_NbFrames) )
 			{
-				iCurrentFrame += iDeltaNewFrame;
+				m_CurrentFrame += iDeltaNewFrame;
 				if (pSource->IsInTunerMode())
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
 				else if ( (pSource == Providers_GetStillsSource())
 				       || (pSource == Providers_GetSnapshotsSource())
 				       || (pSource == Providers_GetPatternsSource())
 				       || (pSource == Providers_GetIntroSource()) )
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[iCurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
-				bFrameFilled[iCurrentFrame] = -1;
+				bFrameFilled[m_CurrentFrame] = -1;
 				bNavigAllowed = FALSE;
 			}
 			else
@@ -234,16 +225,15 @@ void CMultiFrames::SelectFrame()
 				ShiftFrames(iDeltaNewFrame);
 				if (pSource->IsInTunerMode())
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[iCurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
 				else if ( (pSource == Providers_GetStillsSource())
 				       || (pSource == Providers_GetSnapshotsSource())
 				       || (pSource == Providers_GetPatternsSource())
 				       || (pSource == Providers_GetIntroSource()) )
 				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[iCurrentFrame]);
+					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_INDEX, bFrameFilled[m_CurrentFrame]);
 				}
-				bFrameFilled[iCurrentFrame] = -1;
 				bNavigAllowed = FALSE;
 			}
 		}
@@ -252,7 +242,7 @@ void CMultiFrames::SelectFrame()
 	{
 		if ((CurrentTickCount - LastTickCount) >= iDeltaTicksChange)
 		{
-			iCurrentFrame = (iCurrentFrame+i+1) % iNbFrames;
+			m_CurrentFrame = (m_CurrentFrame+i+1) % m_NbFrames;
 			LastTickCount = CurrentTickCount;
 			if (pSource->IsInTunerMode())
 			{
@@ -272,8 +262,12 @@ void CMultiFrames::SelectFrame()
 void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, BYTE** lpBuffer, int* Pitch)
 {
 	CSource* pSource = Providers_GetCurrentSource();
+	BYTE* lpFrameBuffer;
+	int iFrameWidth;
+	int iFrameHeight;
+	int iFramePitch;
 
-	if (!bActive || !pSource)
+	if (!m_Active || !pSource)
 	{
 		*lpBuffer = NULL;
 		*Pitch = 0;
@@ -281,7 +275,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	}
 
 	// Retrieve the buffer corresponding to the frame in the global multiple frames buffer
-	SelectFrameBuffer(iCurrentFrame);
+	SelectFrameBuffer(m_CurrentFrame, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
 
 	// Shift to bottom for two lines and to right for two pixels
 	// to leave place for the borders
@@ -309,11 +303,12 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 		else
 		{
 			iUpdWidth = iFrameHeight * pInfo->FrameWidth / pInfo->FrameHeight;
+			iUpdWidth &= 0xfffffffe;
 			if (iUpdWidth > iFrameWidth)
 			{
 				iUpdWidth = iFrameWidth;
 			}
-			lpFrameBuffer += ( (iFrameWidth - iUpdWidth) / 2 ) * 2;
+			lpFrameBuffer += ( (iFrameWidth - iUpdWidth) / 4 ) * 4;
 			iFrameWidth = iUpdWidth;
 		}
 	}
@@ -322,26 +317,26 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 
 	if (pSource->IsInTunerMode())
 	{
-		bFrameFilled[iCurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
+		bFrameFilled[m_CurrentFrame] = Setting_GetValue(Channels_GetSetting(CURRENTPROGRAM));
 	}
 	else if ( (pSource == Providers_GetStillsSource())
 		   || (pSource == Providers_GetSnapshotsSource())
 		   || (pSource == Providers_GetPatternsSource())
 		   || (pSource == Providers_GetIntroSource()) )
 	{
-		bFrameFilled[iCurrentFrame] = ((CStillSource*)pSource)->GetPlaylistPosition();
+		bFrameFilled[m_CurrentFrame] = ((CStillSource*)pSource)->GetPlaylistPosition();
 	}
 
 	DrawBorders();
 
 	// The input picture is replaced by the full multiple frames picture
 	*bUseExtraBuffer = TRUE;
-	*lpBuffer = lpMemoryBuffer;
-	*Pitch = iWidth * 2;
-	pInfo->FieldHeight = iHeight;
-	pInfo->FrameHeight = iHeight;
-	pInfo->FrameWidth = iWidth;
-	pInfo->LineLength = iWidth * 2;
+	*lpBuffer = m_MemoryBuffer;
+	*Pitch = m_Width * 2;
+	pInfo->FieldHeight = m_Height;
+	pInfo->FrameHeight = m_Height;
+	pInfo->FrameWidth = m_Width;
+	pInfo->LineLength = m_Width * 2;
 }
 
 BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -352,7 +347,7 @@ BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		// Up key
 		if (bNavigAllowed)
 		{
-			iDeltaNewFrame -= iNbCols;
+			iDeltaNewFrame -= m_NbCols;
 			return TRUE;
 		}
 		break;
@@ -360,7 +355,7 @@ BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		// Down key
 		if (bNavigAllowed)
 		{
-			iDeltaNewFrame += iNbCols;
+			iDeltaNewFrame += m_NbCols;
 			return TRUE;
 		}
 		break;
@@ -391,60 +386,68 @@ BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     return FALSE;
 }
 
+// Allocate memory buffer to store the picture containing all the frames
 void CMultiFrames::AllocateMemoryBuffer()
 {
-	if (lpMemoryBuffer == NULL)
+	if (m_MemoryBuffer == NULL)
 	{
-		lpMemoryBuffer = (BYTE*)malloc(iWidth * iHeight * 2 + 16);
-		if (lpMemoryBuffer == NULL)
+		m_MemoryBuffer = (BYTE*)malloc(m_Width * m_Height * 2 + 16);
+		if (m_MemoryBuffer == NULL)
 		{
 		   LOG(1, "Couldn't create additional buffer for multiple frames output");
 		}
 	}
 }
 
+// Free previously allocated memory buffer to store the picture containing all the frames
 void CMultiFrames::FreeMemoryBuffer()
 {
-	if (lpMemoryBuffer != NULL)
+	if (m_MemoryBuffer != NULL)
 	{
-		free(lpMemoryBuffer);
-		lpMemoryBuffer = NULL;
+		free(m_MemoryBuffer);
+		m_MemoryBuffer = NULL;
 	}
 }
 
-void CMultiFrames::SelectFrameBuffer(int iFrame)
+void CMultiFrames::SelectFrameBuffer(int iFrame, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight)
 {
-	int iRow = iFrame / iNbCols;
-	int iCol = iFrame % iNbCols;
+	int iRow = iFrame / m_NbCols;
+	int iCol = iFrame % m_NbCols;
 
-	iFramePitch = iWidth * 2;
-	iFrameWidth = iWidth / iNbCols;
-	iFrameHeight = iHeight / iNbRows;
-	lpFrameBuffer = START_ALIGNED16(lpMemoryBuffer) + iRow * iFrameHeight * iFramePitch + iCol * iFrameWidth * 2;
+	*iFramePitch = m_Width * 2;
+	*iFrameWidth = m_Width / m_NbCols;
+	*iFrameHeight = m_Height / m_NbRows;
+	*lpFrameBuffer = START_ALIGNED16(m_MemoryBuffer) + iRow * *iFrameHeight * *iFramePitch + iCol * *iFrameWidth * 2;
 }
 
+// Add a border around each frame - boder size is 2 pixels
+// Color is different for the current active frame and other frames
 void CMultiFrames::DrawBorders()
 {
 	BYTE* lpStartBuffer;
+	BYTE* lpFrameBuffer;
+	int iFrameWidth;
+	int iFrameHeight;
+	int iFramePitch;
 
-	for (int i=0 ; i < iNbFrames ; i++)
+	for (int i=0 ; i < m_NbFrames ; i++)
 	{
-		SelectFrameBuffer(i);
+		SelectFrameBuffer(i, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
 
 		for (int iPixel=0 ; iPixel < iFrameWidth ; iPixel++)
 		{
 			// Top border
 			lpStartBuffer = lpFrameBuffer;
-			lpStartBuffer[iPixel*2] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[iPixel*2+1] = 128;
-			lpStartBuffer[iFramePitch+iPixel*2] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[iFramePitch+iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[iFramePitch+iPixel*2+1] = 128;
 
 			// Bottom border
 			lpStartBuffer = lpFrameBuffer + (iFrameHeight - 2) * iFramePitch;
-			lpStartBuffer[iPixel*2] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[iPixel*2+1] = 128;
-			lpStartBuffer[iFramePitch+iPixel*2] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[iFramePitch+iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[iFramePitch+iPixel*2+1] = 128;
 		}
 
@@ -452,42 +455,112 @@ void CMultiFrames::DrawBorders()
 		{
 			// Left border
 			lpStartBuffer = lpFrameBuffer + iLine * iFramePitch;
-			lpStartBuffer[0] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[0] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[1] = 128;
-			lpStartBuffer[2] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[2] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[3] = 128;
 
 			// Right borders
 			lpStartBuffer = lpFrameBuffer + iLine * iFramePitch + (iFrameWidth - 2) * 2;
-			lpStartBuffer[0] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[0] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[1] = 128;
-			lpStartBuffer[2] = (i == iCurrentFrame) ? 235 : 128;
+			lpStartBuffer[2] = (i == m_CurrentFrame) ? 235 : 128;
 			lpStartBuffer[3] = 128;
 		}
 	}
 }
 
+// Shift all frames in the grid
+//
+// A positive value for iDeltaFrames means that some frames will
+// disappear at top left and new ones will appeared at bottom right
+// A negative value for iDeltaFrames means that some frames will
+// disappear at bottom right and new ones will appeared at top left
 void CMultiFrames::ShiftFrames(int iDeltaFrames)
 {
-	if ((iDeltaFrames > 0) && (iDeltaFrames < iNbFrames))
+	int i;
+
+	if ((iDeltaFrames > 0) && (iDeltaFrames < m_NbFrames))
 	{
-		BYTE* lpStartBuffer = START_ALIGNED16(lpMemoryBuffer);
-		int i;
-		int iRow = iDeltaFrames / iNbCols;
-		int iCol = iDeltaFrames % iNbCols;
-		int iP = iWidth * 2;
-		int iW = iWidth / iNbCols;
-		int iH = iHeight / iNbRows;
-		int iShift = iRow * iH * iP + iCol * iW * 2;
-		memcpy(lpStartBuffer, lpStartBuffer + iShift, iHeight * iWidth * 2 - iShift);
-		for (i=0 ; i<(iNbFrames-iDeltaFrames) ; i++)
+		for (i=0 ; i<(m_NbFrames-iDeltaFrames) ; i++)
 		{
+			MoveFrame(i+iDeltaFrames, i);
 			bFrameFilled[i] = bFrameFilled[i+iDeltaFrames];
 		}
-		for (i=(iNbFrames-iDeltaFrames) ; i<iNbFrames ; i++)
+		for (i=(m_NbFrames-iDeltaFrames) ; i<m_NbFrames ; i++)
 		{
+			ResetFrameToBlack(i);
 			bFrameFilled[i] = -1;
 		}
-		iCurrentFrame -= iDeltaFrames;
+		// TO BE DEFINED : what value to set for m_CurrentFrame
+		m_CurrentFrame -= iDeltaFrames;
+	}
+	else if ((iDeltaFrames < 0) && (-iDeltaFrames < m_NbFrames))
+	{
+		iDeltaFrames *= -1;
+		for (i=(m_NbFrames-1) ; i>=iDeltaFrames ; i--)
+		{
+			MoveFrame(i-iDeltaFrames, i);
+			bFrameFilled[i] = bFrameFilled[i-iDeltaFrames];
+		}
+		for (i=(iDeltaFrames-1) ; i>=0 ; i--)
+		{
+			ResetFrameToBlack(i);
+			bFrameFilled[i] = -1;
+		}
+		// TO BE DEFINED : what value to set for m_CurrentFrame
+		m_CurrentFrame += iDeltaFrames;
+	}
+}
+
+// Move the content of one frame from one position to another one
+void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
+{
+	BYTE* lpFrameSrcBuffer;
+	int iFrameSrcWidth;
+	int iFrameSrcHeight;
+	int iFrameSrcPitch;
+	BYTE* lpFrameDestBuffer;
+	int iFrameDestWidth;
+	int iFrameDestHeight;
+	int iFrameDestPitch;
+
+	SelectFrameBuffer(iFrameSrc, &lpFrameSrcBuffer, &iFrameSrcPitch, &iFrameSrcWidth, &iFrameSrcHeight);
+	SelectFrameBuffer(iFrameDest, &lpFrameDestBuffer, &iFrameDestPitch, &iFrameDestWidth, &iFrameDestHeight);
+
+	// The source and destination frames must have the same size
+	if (iFrameSrcWidth == iFrameDestWidth && iFrameSrcHeight == iFrameDestHeight)
+	{
+		for (int iLine=0 ; iLine < iFrameSrcHeight ; iLine++)
+		{
+			for (int iPixel=0 ; iPixel < iFrameSrcWidth ; iPixel++)
+			{
+				lpFrameDestBuffer[iPixel*2] = lpFrameSrcBuffer[iPixel*2];
+				lpFrameDestBuffer[iPixel*2+1] = lpFrameSrcBuffer[iPixel*2+1];
+			}
+			lpFrameSrcBuffer += iFrameSrcPitch;
+			lpFrameDestBuffer += iFrameDestPitch;
+		}
+	}
+}
+
+// Paint in black the content of a frame
+void CMultiFrames::ResetFrameToBlack(int iFrame)
+{
+	BYTE* lpFrameBuffer;
+	int iFrameWidth;
+	int iFrameHeight;
+	int iFramePitch;
+
+	SelectFrameBuffer(iFrame, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
+
+	for (int iLine=0 ; iLine < iFrameHeight ; iLine++)
+	{
+		for (int iPixel=0 ; iPixel < iFrameWidth ; iPixel++)
+		{
+			lpFrameBuffer[iPixel*2] = 16;
+			lpFrameBuffer[iPixel*2+1] = 128;
+		}
+		lpFrameBuffer += iFramePitch;
 	}
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.17 2002-11-06 20:49:00 adcockj Exp $
+// $Id: stdafx.h,v 1.18 2003-03-05 21:45:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/11/06 20:49:00  adcockj
+// Changes for DSShow compiliation
+//
 // Revision 1.16  2002/06/13 08:21:30  adcockj
 // Changed to compile without DShow by default
 //
@@ -99,7 +102,7 @@
 #include "HtmlHelp.H"
 #include <vector>
 #include <string>
-
+#include <sstream>
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC
 #undef IDC_STATIC

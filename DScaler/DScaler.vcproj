@@ -825,6 +825,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\CX2388xCard_Tuner.cpp">
+			</File>
+			<File
 				RelativePath="CX2388xCard_Types.cpp">
 				<FileConfiguration
 					Name="Release|Win32">

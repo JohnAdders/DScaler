@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.79 2003-01-24 01:55:18 atnak Exp $
+// $Id: OSD.cpp,v 1.80 2003-01-24 02:20:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.78  2003/01/19 11:09:10  laurentg
 // New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
 //
@@ -322,6 +326,7 @@
 #include "Calibration.h"
 #include "Providers.h"
 #include "Perf.h"
+#include "DebugLog.h"
 
 
 #define OSD_COLOR_TITLE     RGB(255,150,150)
@@ -637,23 +642,6 @@ void OSD_Clear()
 }
 
 
-/*
-#ifdef _DEBUG
-    LARGE_INTEGER count, count1, pfreq;
-    BOOL bPerformanceCounter = QueryPerformanceCounter(&count);
-#endif
-
-#ifdef _DEBUG
-    if(bPerformanceCounter)
-    {
-        QueryPerformanceFrequency(&pfreq);
-        QueryPerformanceCounter(&count1);
-        LOGD("OSD_Show in %d ms\n", (int) (count1.QuadPart-count.QuadPart)/(pfreq.QuadPart/1000));
-    }
-#endif
-*/
-
-
 //---------------------------------------------------------------------------
 // Linking: Handles UWM_OSD OSDM_DISPLAYUPDATE messages
 // Linking: to perform posted drawing commands
@@ -859,6 +847,11 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     OSD_InvalidateTextsArea();
     OSD_ClearAllTexts();
 
+#ifdef _DEBUG
+    LARGE_INTEGER FirstCount, SecondCount, Frequency;
+    BOOL bPerformanceCounter = QueryPerformanceCounter(&FirstCount);
+#endif
+
     if (ActiveScreens[OSD_IdxCurrentScreen].RefreshFunction != NULL)
     {
         (*(ActiveScreens[OSD_IdxCurrentScreen].RefreshFunction))(Size);
@@ -870,6 +863,16 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     }
 
     OSD_Redraw(hDC, lpRect);
+
+#ifdef _DEBUG
+    if (bPerformanceCounter)
+    {
+        QueryPerformanceFrequency(&Frequency);
+        QueryPerformanceCounter(&SecondCount);
+        LOGD("OSD_RefreshInfosScreen in %ld ms\n", (int)(SecondCount.QuadPart -
+            FirstCount.QuadPart)/(Frequency.QuadPart/1000));
+    }
+#endif
 
     SetTimer(::hWnd, OSD_TIMER_REFRESH_ID,
         ActiveScreens[OSD_IdxCurrentScreen].refresh_delay, NULL);

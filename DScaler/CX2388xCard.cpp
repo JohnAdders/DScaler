@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.9 2002-11-06 20:15:27 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.10 2002-11-07 13:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/06 20:15:27  adcockj
+// Centered pixels to work with my equipment
+//
 // Revision 1.8  2002/11/06 11:11:23  adcockj
 // Added new Settings and applied Laurent's filter setup suggestions
 //
@@ -935,6 +938,93 @@ DWORD CCX2388xCard::GetRISCPos()
     return ReadDword(CX2388X_VIDY_GP_CNT);
 }
 
+void CCX2388xCard::ManageMyState()
+{
+    // save and restore everything that might be used
+    // by the real drivers
+
+    // save and restore the whole of the SRAM
+    // as the drivers might well have stored code and fifo
+    // buffers in there that we will overwrite
+    for(DWORD i(0x180040); i < 0x187FFF; i += 4)
+    {
+        ManageDword(i);
+    }
+
+    // save and restore the registers than we overwrite
+    ManageDword(MO_DMA21_PTR2);
+    ManageDword(MO_DMA21_CNT1);
+    ManageDword(MO_DMA21_CNT2);
+
+    ManageDword(MO_DMA24_PTR2);
+    ManageDword(MO_DMA24_CNT1);
+    ManageDword(MO_DMA24_CNT2);
+    
+    ManageDword(MO_DMA25_PTR2);
+    ManageDword(MO_DMA25_CNT1);
+    ManageDword(MO_DMA25_CNT2);
+
+    ManageDword(MO_DMA26_PTR2);
+    ManageDword(MO_DMA26_CNT1);
+    ManageDword(MO_DMA26_CNT2);
+
+    ManageDword(CX2388X_VIDEO_INPUT);
+    ManageDword(CX2388X_TEMPORAL_DEC);
+    ManageDword(CX2388X_AGC_BURST_DELAY);
+    ManageDword(CX2388X_BRIGHT_CONTRAST); 
+    ManageDword(CX2388X_UVSATURATION);    
+    ManageDword(CX2388X_HUE);             
+    ManageDword(CX2388X_WHITE_CRUSH);
+    ManageDword(CX2388X_PIXEL_CNT_NOTCH);
+    ManageDword(CX2388X_HORZ_DELAY_EVEN);
+    ManageDword(CX2388X_HORZ_DELAY_ODD);
+    ManageDword(CX2388X_VERT_DELAY_EVEN);
+    ManageDword(CX2388X_VERT_DELAY_ODD);
+    ManageDword(CX2388X_VDELAYCCIR_EVEN);
+    ManageDword(CX2388X_VDELAYCCIR_ODD);
+    ManageDword(CX2388X_HACTIVE_EVEN);
+    ManageDword(CX2388X_HACTIVE_ODD);
+    ManageDword(CX2388X_VACTIVE_EVEN);    
+    ManageDword(CX2388X_VACTIVE_ODD);     
+    ManageDword(CX2388X_HSCALE_EVEN);     
+    ManageDword(CX2388X_HSCALE_ODD);      
+    ManageDword(CX2388X_VSCALE_EVEN);     
+    ManageDword(CX2388X_VSCALE_ODD);      
+    ManageDword(CX2388X_FILTER_EVEN);     
+    ManageDword(CX2388X_FILTER_ODD);      
+    ManageDword(CX2388X_FORMAT_2HCOMB);
+    ManageDword(CX2388X_PLL);
+    ManageDword(CX2388X_PLL_ADJUST);
+    ManageDword(CX2388X_SAMPLERATECONV);  
+    ManageDword(CX2388X_SAMPLERATEFIFO);  
+    ManageDword(CX2388X_SUBCARRIERSTEP);  
+    ManageDword(CX2388X_SUBCARRIERSTEPDR);
+    ManageDword(CX2388X_CAPTURECONTROL);  
+    ManageDword(CX2388X_VIDEO_COLOR_FORMAT);
+    ManageDword(CX2388X_VBI_SIZE);
+    ManageDword(CX2388X_FIELD_CAP_CNT);
+    ManageDword(CX2388X_VIP_CONFIG);
+    ManageDword(CX2388X_VIP_CONTBRGT);
+    ManageDword(CX2388X_VIP_HSCALE);
+    ManageDword(CX2388X_VIP_VSCALE);
+
+    ManageDword(CX2388X_VIDEO_COLOR_FORMAT);
+
+    ManageDword(MO_PDMA_STHRSH);
+    ManageDword(MO_PDMA_DTHRSH);
+
+    ManageDword(CX2388X_AGC_SYNC_TIP1); 
+    ManageDword(CX2388X_AGC_BACK_VBI); 
+
+    // do these last jsut in case the chip was
+    // left in a running mode
+    ManageDword(CX2388X_DEV_CNTRL2); 
+    ManageDword(CX2388X_VID_DMA_CNTRL);
+    ManageDword(CX2388X_CAPTURECONTROL);
+    
+    ManageDword(CX2388X_VID_INTMSK);
+}
+
 void CCX2388xCard::ResetHardware()
 {
     PCI_COMMON_CONFIG PCI_Config;
@@ -1140,11 +1230,11 @@ void CCX2388xCard::ResetHardware()
     //
     // 1.  Set bits 16:9 of register 0xE4310208 to 0x00.  
     //     The default value is 0x03803C0F, which becomes 0x0380000F with this change.
-    WriteDword( 0x00310208, 0x0380000F ); 
+    WriteDword( CX2388X_AGC_SYNC_TIP1, 0x0380000F ); 
 
     //2.  Set bits 27:26 of register 0xE4310200 to 0x0.  The default value is
     //    0x0CE00555, which becomes 0x00E00555 with this change.
-    WriteDword( 0x00310200, 0x00E00555 ); 
+    WriteDword( CX2388X_AGC_BACK_VBI, 0x00E00555 ); 
 
     // Disable all of the interrupts
     WriteDword( CX2388X_VID_INTMSK, 0x00000000 );

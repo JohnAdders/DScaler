@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.12 2002-09-12 21:40:37 ittarnavsky Exp $
+// $Id: PCICard.h,v 1.13 2002-11-07 13:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,28 @@ protected:
     /// Close the card and unmap memory
     void ClosePCICard();
 
+    /*** Must be defined in derived classes
+         This function tells the state management code which
+         Memory addresses to save and restore by calling the
+         ManageXXXX functions.
+    */
+    virtual void ManageMyState() = 0;
+    /** Tells the state management code to save and restore 
+        the DWORD at Offset.
+        This function must only be called from ManageMyState
+    */
+    void ManageDword(DWORD Offset);
+    /** Tells the state management code to save and restore 
+        the WORD at Offset
+        This function must only be called from ManageMyState
+    */
+    void ManageWord(DWORD Offset);
+    /** Tells the state management code to save and restore 
+        the BYTE at Offset
+        This function must only be called from ManageMyState
+    */
+    void ManageByte(DWORD Offset);
+
 public:
     /// Write a BYTE to shared memory
     void WriteByte(DWORD Offset, BYTE Data);
@@ -71,18 +93,26 @@ public:
     void OrDataWord(DWORD Offset, WORD Data);
     void OrDataDword(DWORD Offset, DWORD Data);
 
-protected:
-    DWORD  m_SubSystemId;
-    WORD   m_DeviceId;
-    WORD   m_VendorId;
-    DWORD  m_BusNumber;
-    DWORD  m_SlotNumber;
-    BOOL   m_bOpen;
 private:
-    DWORD  m_MemoryAddress;
-    DWORD  m_MemoryLength;
-    DWORD  m_MemoryBase;
+    /// Called from OpenPCICard to save the state of the card
+    void SaveState();
+    /// Called from ClosePCICard to restore the state of the card
+    void RestoreState();
+
+protected:
+    DWORD   m_SubSystemId;
+    WORD    m_DeviceId;
+    WORD    m_VendorId;
+    DWORD   m_BusNumber;
+    DWORD   m_SlotNumber;
+    BOOL    m_bOpen;
+private:
+    DWORD   m_MemoryAddress;
+    DWORD   m_MemoryLength;
+    DWORD   m_MemoryBase;
     CHardwareDriver* m_pDriver;
+    HANDLE  m_hStateFile;
+    boolean m_bStateIsReading;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.36 2002-10-27 12:33:33 adcockj Exp $
+// $Id: BT848Card.h,v 1.37 2002-11-07 13:37:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/10/27 12:33:33  adcockj
+// Fixed UseInputPin1 code
+//
 // Revision 1.35  2002/10/26 15:37:55  adcockj
 // Made ITuner more abstract by removing inheritance from CI2CDevice
 // New class II2CTuner created for tuners that are controled by I2C
@@ -362,6 +365,10 @@ public:
     ULONG GetGPOE();
     void SetGPDATA(ULONG val);
     ULONG GetGPDATA();
+
+protected:
+    void ManageMyState();
+
 private:
     ULONG GetTickCount();
     DWORD m_I2CSleepCycle;

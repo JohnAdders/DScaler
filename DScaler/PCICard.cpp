@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.11 2002-10-29 11:05:28 adcockj Exp $
+// $Id: PCICard.cpp,v 1.12 2002-11-07 13:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.10  2002/10/22 16:01:42  adcockj
 // Changed definition of IOCTLs
 //
@@ -65,6 +68,7 @@
 #include "HardwareDriver.h"
 #include "DebugLog.h"
 
+extern "C" unsigned long gBuildNum;
 
 CPCICard::CPCICard(CHardwareDriver* pDriver) :
             m_pDriver(pDriver),
@@ -74,7 +78,9 @@ CPCICard::CPCICard(CHardwareDriver* pDriver) :
             m_BusNumber(0),
             m_SlotNumber(0),
             m_MemoryBase(0),
-            m_bOpen(FALSE)
+            m_bOpen(FALSE),
+            m_hStateFile(INVALID_HANDLE_VALUE),
+            m_bStateIsReading(false)
 {
 }
 
@@ -170,6 +176,11 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
     {
         LOG(1, "GetPCIInfo failed for %X %X failed 0x%x", VendorID, DeviceID, dwStatus);
     }
+
+    // commented out for the time being until
+    // I've tested it properly at home
+    //SaveState();
+
     return m_bOpen;
 }
 
@@ -177,6 +188,10 @@ void CPCICard::ClosePCICard()
 {
     if(m_MemoryBase != NULL)
     {
+        // commented out for the time being until
+        // I've tested it properly at home
+        //RestoreState();
+
         TDSDrvParam hwParam;
 
         hwParam.dwAddress = m_MemoryBase;
@@ -453,4 +468,146 @@ BOOL CPCICard::SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
         return FALSE;
     }
     return TRUE;
+}
+
+void CPCICard::SaveState()
+{
+    char TempPath[MAX_PATH];
+    char TempFileName[MAX_PATH];
+
+    if(GetTempPath(MAX_PATH, TempPath) == 0)
+    {
+        LOG(0, "Can't create Temp path for saving state");
+        return;
+    }
+
+    if(GetTempFileName(TempPath, "DS4", 0, TempFileName) == 0)
+    {
+        LOG(0, "Can't create Temp file name for saving state");
+        return;
+    }
+
+    m_hStateFile = CreateFile(
+                                TempFileName, 
+                                GENERIC_READ | GENERIC_WRITE,
+                                0,
+                                NULL,
+                                CREATE_ALWAYS,
+                                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
+                                NULL
+                             );
+    
+    if(m_hStateFile == INVALID_HANDLE_VALUE)
+    {
+        LOG(0, "Can't create Temp file for saving state");
+        return;
+    }
+
+    DWORD BytesWritten(0);
+
+    WriteFile(m_hStateFile, &gBuildNum, 4, &BytesWritten, NULL);
+
+    m_bStateIsReading = false;
+    ManageMyState();
+}
+
+void CPCICard::RestoreState()
+{
+    if(m_hStateFile != INVALID_HANDLE_VALUE)
+    {
+        // reset the pointer to the start of the file
+        SetFilePointer(m_hStateFile, 0, NULL, FILE_BEGIN);
+
+        DWORD StoredBuildNumber(0);
+        DWORD BytesRead(0);
+
+        ReadFile(m_hStateFile, &StoredBuildNumber, 4, &BytesRead, NULL);
+
+        if(StoredBuildNumber == gBuildNum)
+        {
+            m_bStateIsReading = true;
+            ManageMyState();
+        }
+        else
+        {
+            LOG(0, "Inavlid version on state file");
+        }
+
+        CloseHandle(m_hStateFile);
+    }
+}
+
+void CPCICard::ManageDword(DWORD Offset)
+{
+    if(m_hStateFile != INVALID_HANDLE_VALUE)
+    {
+        if(m_bStateIsReading)
+        {
+            DWORD ReadData(0);
+            DWORD BytesRead(0);
+            ReadFile(m_hStateFile, &ReadData, sizeof(DWORD), &BytesRead, NULL);
+            if(BytesRead == sizeof(DWORD))
+            {
+                WriteDword(Offset, ReadData);
+            }
+        }
+        else
+        {
+            DWORD WriteData(0);
+            DWORD BytesWritten(0);
+
+            WriteData = ReadDword(Offset);
+            WriteFile(m_hStateFile, &WriteData, sizeof(DWORD), &BytesWritten, NULL);
+        }
+    }
+}
+
+void CPCICard::ManageWord(DWORD Offset)
+{
+    if(m_hStateFile != INVALID_HANDLE_VALUE)
+    {
+        if(m_bStateIsReading)
+        {
+            WORD ReadData(0);
+            DWORD BytesRead(0);
+            ReadFile(m_hStateFile, &ReadData, sizeof(WORD), &BytesRead, NULL);
+            if(BytesRead == sizeof(WORD))
+            {
+                WriteWord(Offset, ReadData);
+            }
+        }
+        else
+        {
+            WORD WriteData(0);
+            DWORD BytesWritten(0);
+
+            WriteData = ReadWord(Offset);
+            WriteFile(m_hStateFile, &WriteData, sizeof(WORD), &BytesWritten, NULL);
+        }
+    }
+}
+
+void CPCICard::ManageByte(DWORD Offset)
+{
+    if(m_hStateFile != INVALID_HANDLE_VALUE)
+    {
+        if(m_bStateIsReading)
+        {
+            BYTE ReadData(0);
+            DWORD BytesRead(0);
+            ReadFile(m_hStateFile, &ReadData, sizeof(BYTE), &BytesRead, NULL);
+            if(BytesRead == sizeof(BYTE))
+            {
+                WriteByte(Offset, ReadData);
+            }
+        }
+        else
+        {
+            BYTE WriteData(0);
+            DWORD BytesWritten(0);
+
+            WriteData = ReadByte(Offset);
+            WriteFile(m_hStateFile, &WriteData, sizeof(BYTE), &BytesWritten, NULL);
+        }
+    }
 }

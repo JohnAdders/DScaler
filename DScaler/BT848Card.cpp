@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.26 2002-10-11 21:36:11 ittarnavsky Exp $
+// $Id: BT848Card.cpp,v 1.27 2002-11-07 13:37:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/11 21:36:11  ittarnavsky
+// removed GetAudioDecoderType()
+//
 // Revision 1.25  2002/10/11 13:38:13  kooiman
 // Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
 //
@@ -230,6 +233,69 @@ void CBT848Card::SetDMA(BOOL bState)
         AndDataWord(BT848_GPIO_DMA_CTL, ~3);
     }
 }
+
+void CBT848Card::ManageMyState()
+{
+    // save and restore everything that might be used
+    // by the real drivers
+    ManageByte(BT848_IFORM);
+    ManageByte(BT848_FCNTR);
+    ManageByte(BT848_PLL_F_LO);
+    ManageByte(BT848_PLL_F_HI);
+    ManageByte(BT848_PLL_XCI);
+    ManageByte(BT848_TGCTRL);
+    ManageByte(BT848_TDEC);
+    ManageByte(BT848_E_CROP);
+    ManageByte(BT848_O_CROP);
+    ManageByte(BT848_E_VDELAY_LO);
+    ManageByte(BT848_O_VDELAY_LO);
+    ManageByte(BT848_E_VACTIVE_LO);
+    ManageByte(BT848_O_VACTIVE_LO);
+    ManageByte(BT848_E_HDELAY_LO);
+    ManageByte(BT848_O_HDELAY_LO);
+    ManageByte(BT848_E_HACTIVE_LO);
+    ManageByte(BT848_O_HACTIVE_LO);
+    ManageByte(BT848_E_HSCALE_HI);
+    ManageByte(BT848_O_HSCALE_HI);
+    ManageByte(BT848_E_HSCALE_LO);
+    ManageByte(BT848_O_HSCALE_LO);
+    ManageByte(BT848_BRIGHT);
+    ManageByte(BT848_E_CONTROL);
+    ManageByte(BT848_O_CONTROL);
+    ManageByte(BT848_CONTRAST_LO);
+    ManageByte(BT848_SAT_U_LO);
+    ManageByte(BT848_SAT_V_LO);
+    ManageByte(BT848_HUE);
+    ManageByte(BT848_E_SCLOOP);
+    ManageByte(BT848_O_SCLOOP);
+    ManageByte(BT848_WC_UP);
+    ManageByte(BT848_WC_DOWN);
+    ManageByte(BT848_VTOTAL_LO);
+    ManageByte(BT848_VTOTAL_HI);
+    ManageByte(BT848_DVSIF);
+    ManageByte(BT848_OFORM);
+    ManageByte(BT848_E_VSCALE_HI);
+    ManageByte(BT848_O_VSCALE_HI);
+    ManageByte(BT848_E_VSCALE_LO);
+    ManageByte(BT848_O_VSCALE_LO);
+    ManageByte(BT848_ADC);
+    ManageByte(BT848_E_VTC);
+    ManageByte(BT848_O_VTC);
+    ManageByte(BT848_COLOR_FMT);
+    ManageByte(BT848_COLOR_CTL);
+    ManageByte(BT848_CAP_CTL);
+    ManageByte(BT848_VBI_PACK_SIZE);
+    ManageByte(BT848_VBI_PACK_DEL);
+    ManageByte(BT848_INT_MASK);
+    ManageByte(BT848_INT_ETBF);
+    ManageByte(BT848_GPIO_OUT_EN);
+    ManageByte(BT848_GPIO_OUT_EN_HIBYTE);
+    ManageByte(BT848_GPIO_DATA);
+    // do these ones last
+    ManageByte(BT848_RISC_STRT_ADD);
+    ManageByte(BT848_GPIO_DMA_CTL);
+}
+
 
 void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
 {

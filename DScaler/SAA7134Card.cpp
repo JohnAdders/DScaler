@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.24 2002-10-31 05:02:55 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.25 2002-11-07 13:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/10/31 05:02:55  atnak
+// Settings cleanup and audio tweaks
+//
 // Revision 1.23  2002/10/30 04:35:48  atnak
 // Added attempt to reduce driver conflict instability
 //
@@ -206,6 +209,9 @@ void CSAA7134Card::RestoreCard()
 {
 }
 
+void CSAA7134Card::ManageMyState()
+{
+}
 
 void CSAA7134Card::ResetHardware()
 {

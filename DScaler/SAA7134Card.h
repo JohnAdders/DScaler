@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.20 2002-10-30 04:35:47 atnak Exp $
+// $Id: SAA7134Card.h,v 1.21 2002-11-07 13:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/10/30 04:35:47  atnak
+// Added attempt to reduce driver conflict instability
+//
 // Revision 1.19  2002/10/28 11:10:15  atnak
 // Various changes and revamp to settings
 //
@@ -387,6 +390,8 @@ protected:
 
     int RegionID2Channel(eRegionID RegionID);
     BYTE TaskID2TaskMask(eTaskID TaskID);
+
+    void ManageMyState();
 
 
 private:

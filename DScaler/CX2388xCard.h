@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.5 2002-11-06 11:11:23 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.6 2002-11-07 13:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -169,6 +169,9 @@ public:
     void SetAudioMute();
     void SetAudioUnMute();
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
+
+protected:
+    void ManageMyState();
 
 private:
     ULONG GetTickCount();

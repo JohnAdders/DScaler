@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.225 2002-09-24 17:21:07 tobbej Exp $
+// $Id: DScaler.cpp,v 1.226 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.225  2002/09/24 17:21:07  tobbej
+// fixed osd flashing when changing volume
+//
 // Revision 1.224  2002/09/18 11:38:05  kooiman
 // Preparations for skinned dscaler look.
 //
@@ -2824,7 +2827,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             EnableMenuItemBool(hMenu, ID_SETTINGS_CLEARCHANNELSETTINGS, SettingsPerChannel());
             break;
         case ID_SETTINGS_CLEARCHANNELSETTINGS:
-            SettingsPerChannel_ClearSettings(NULL, -2, -2, 1);
+            SettingsPerChannel_ClearSettings(NULL, -2, -2, (eVideoFormat)-2, 1);
             break;
         
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:

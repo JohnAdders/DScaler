@@ -29,13 +29,13 @@ void SettingsPerChannel_RegisterSetSection(const char *szSubSection);
 void SettingsPerChannel_UnregisterSection(const char *szSubSection);
 
 // Read & write settings from .ini file
-void SettingsPerChannel_ReadSettings(const char *szSubSection, int Input, int Channel, int DefaultValuesFirst = 1);
+void SettingsPerChannel_ReadSettings(const char *szSubSection, int Input, int Channel, eVideoFormat VideoFormat, int DefaultValuesFirst = 1);
 void SettingsPerChannel_WriteSettings(BOOL bOptimizeFileAccess);
-void SettingsPerChannel_ReadDefaults(const char *szSubSection, int Input, int Channel);
-void SettingsPerChannel_ClearSettings(const char *szSubSection, int Input, int Channel, int ClearIniSection);
+void SettingsPerChannel_ReadDefaults(const char *szSubSection, int Input, int Channel, eVideoFormat VideoFormat);
+void SettingsPerChannel_ClearSettings(const char *szSubSection, int Input, int Channel, eVideoFormat VideoFormat, int ClearIniSection);
  
 void SettingsPerChannel_NewDefaults(const char* szSubSection,BOOL bCurrentValue);
-void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int Input, int Channel);
+void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int Input, int Channel, eVideoFormat VideoFormat);
 
 // Setup startup/shutdown functions
 void SettingsPerChannel_Setup(int Start);

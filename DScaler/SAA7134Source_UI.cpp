@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.5 2002-09-16 17:52:34 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.6 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/16 17:52:34  atnak
+// Support for SAA7134Res.dll dialogs
+//
 // Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -889,7 +892,7 @@ void CSAA7134Source::ChangeChannelSectionNames()
         {            
             if (m_CurrentChannel >=0)
             {            
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel);
+                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
             }        
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }

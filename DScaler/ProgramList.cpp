@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.72 2002-09-04 11:58:45 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.73 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.71  2002/08/18 14:35:29  robmuller
 // Changed default.
 //
@@ -1011,7 +1014,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDOK:
             Write_Program_List_ASCII();
             Unload_Country_Settings();
-			WriteSettingsToIni(TRUE);
+            WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -1291,7 +1294,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
         {
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
-				        int OldChannel = CurrentProgram;
+                        int OldChannel = CurrentProgram;
                 Audio_Mute();
                 Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.
                 Channel_Change_Notify(1, OldChannel, NewChannel);
@@ -1350,7 +1353,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
-				
+                
             }
         }
     }

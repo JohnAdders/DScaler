@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.21 2002-09-16 19:34:19 adcockj Exp $
+// $Id: Source.h,v 1.22 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,8 @@
 enum eSourceInputType
     {
         VIDEOINPUT = 0,
-        AUDIOINPUT
+        AUDIOINPUT,
+        VIDEOFORMAT
     };
 
 typedef void (__cdecl INPUTCHANGE_NOTIFICATION)(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput);

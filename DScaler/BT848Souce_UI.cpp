@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.47 2002-09-16 14:37:36 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.48 2002-09-25 15:11:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/09/16 14:37:36  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.46  2002/09/15 19:52:22  kooiman
 // Adressed some NICAM AM issues.
 //
@@ -1557,7 +1560,7 @@ void CBT848Source::ChangeChannelSectionNames()
         {            
             if (m_CurrentChannel >=0)
             {            
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel);
+                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
             }        
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.5 2002-09-22 17:47:04 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.6 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/22 17:47:04  adcockj
+// Fixes for holo3d
+//
 // Revision 1.4  2002/09/16 20:08:21  adcockj
 // fixed format detect for cx2388x
 //
@@ -80,6 +83,8 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     CreateSettings(IniSection);
 
     SettingsPerChannel_RegisterOnSetup(this, CT2388x_OnSetup);
+    Channel_Register_Change_Notification(this, CCT2388xSource::StaticChannelChange);
+
 
     ReadFromIni();
     ChangeSectionNamesForInput();
@@ -98,10 +103,12 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     Reset();
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
+    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
 }
 
 CCT2388xSource::~CCT2388xSource()
 {
+    Channel_UnRegister_Change_Notification(this, CCT2388xSource::StaticChannelChange);
     delete m_pCard;
 }
 
@@ -776,9 +783,11 @@ void CCT2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CCT2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 {
+    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
+    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
     Reset();
     Start_Capture();
 }
@@ -1026,3 +1035,17 @@ BOOL CCT2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
   }
   return FALSE;
 }
+
+void CCT2388xSource::StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel)
+{
+    if (pThis != NULL)
+    {
+        ((CCT2388xSource*)pThis)->ChannelChange(PreChange, OldChannel, NewChannel);
+    }
+}
+
+void CCT2388xSource::ChannelChange(int PreChange,int OldChannel,int NewChannel)
+{
+    ;
+}
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.2 2002-09-15 14:20:38 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.3 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,6 +81,8 @@ public:
     int GetInput(eSourceInputType InputType);
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
+
+    static void StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel);
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

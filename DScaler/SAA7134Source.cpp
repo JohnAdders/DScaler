@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.9 2002-09-16 20:08:21 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.10 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/16 20:08:21  adcockj
+// fixed format detect for cx2388x
+//
 // Revision 1.8  2002/09/16 19:34:19  adcockj
 // Fix for auto format change
 //
@@ -157,6 +160,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     Reset();
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
+    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
 }
 
 CSAA7134Source::~CSAA7134Source()
@@ -828,10 +832,12 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
+    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
+    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
     Start_Capture();
 }
 

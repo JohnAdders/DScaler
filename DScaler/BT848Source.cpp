@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.71 2002-09-22 17:47:04 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.72 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2002/09/22 17:47:04  adcockj
+// Fixes for holo3d
+//
 // Revision 1.70  2002/09/21 08:28:04  kooiman
 // Preparations for fm radio accidentally slipped in. Disabled it till it works.
 //
@@ -354,6 +357,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     Reset();
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
+    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
 }
 
 CBT848Source::~CBT848Source()
@@ -1134,10 +1138,12 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
+    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
+    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
     Start_Capture();
 }
 
@@ -1441,6 +1447,7 @@ void CBT848Source::StaticChannelChange(void *pThis, int PreChange,int OldChannel
         ((CBT848Source*)pThis)->ChannelChange(PreChange, OldChannel, NewChannel);
     }
 }
+
 void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
 {
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))

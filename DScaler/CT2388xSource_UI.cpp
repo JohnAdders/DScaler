@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.2 2002-09-22 17:47:04 adcockj Exp $
+// $Id: CT2388xSource_UI.cpp,v 1.3 2002-09-25 15:11:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/22 17:47:04  adcockj
+// Fixes for holo3d
+//
 // Revision 1.1  2002/09/11 18:19:38  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -396,7 +399,7 @@ void CCT2388xSource::ChangeChannelSectionNames()
         {            
             if (m_CurrentChannel >=0)
             {            
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel);
+                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
             }        
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.12 2003-05-26 20:49:03 laurentg Exp $
+// $Id: SAA7134Common.cpp,v 1.13 2003-06-01 19:41:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/05/26 20:49:03  laurentg
+// Corrections for datacasting
+// Enable the Cancel button in the setup card dialog box
+//
 // Revision 1.11  2002/11/10 09:30:57  atnak
 // Added Chroma only comb filter mode for SECAM
 //
@@ -69,6 +73,13 @@
 #include "DebugLog.h"
 
 
+/*
+ *  Optimal video vdelays if VBI is not used:
+ *  PAL = 19
+ *  NTSC = 16
+ *  SECAM = 19
+ */
+
 CSAA7134Common::TVideoStandardDefinition CSAA7134Common::m_VideoStandards[] =
 {
     // VIDEOSTANDARD_AUTODETECT
@@ -77,19 +88,19 @@ CSAA7134Common::TVideoStandardDefinition CSAA7134Common::m_VideoStandards[] =
     },
     // VIDEOSTANDARD_PAL_BGDHI
     {
-        720, 288, 0, 19, TRUE, 1, 19, 0x0,
+        720, 288, 0, 20, TRUE, 1, 19, 0x0,
     },
     // VIDEOSTANDARD_PAL_N_COMBO
     {
-        720, 288, 0, 19, TRUE, 1, 19, 0x2,
+        720, 288, 0, 20, TRUE, 1, 19, 0x2,
     },
     // VIDEOSTANDARD_PAL_60
     {
-        720, 240, 0, 19, FALSE, 1, 19, 0x1,
+        720, 240, 0, 20, FALSE, 1, 19, 0x1,
     },
     // VIDEOSTANDARD_PAL_M
     {
-        720, 240, 0, 19, FALSE, 1, 19, 0x3,
+        720, 240, 0, 20, FALSE, 1, 19, 0x3,
     },
     // VIDEOSTANDARD_SECAM
     {

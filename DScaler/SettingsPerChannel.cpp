@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.7 2002-08-14 22:04:25 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.8 2002-08-15 14:16:45 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/08/14 22:04:25  kooiman
+// Bug fix
+//
 // Revision 1.6  2002/08/13 21:21:24  kooiman
 // Improved settings per channel to account for source and input changes.
 //
@@ -175,7 +178,7 @@ static BOOL bSbcFirstSource = TRUE;
 static int iSbcLastLoadedChannel = NO_CHANNEL;               // Last loaded channel specific settings
 static BOOL bSetupStarted = FALSE;
 static std::string sSbcSubSection;                           // Current subsection for registration
-static std::vector<TSbcSourceInputInfo> vSbcSourceInputInfo;
+static std::vector<TSbcSourceInputInfo*> vSbcSourceInputInfo;
 static std::vector< TOnSetupFunction> vSbcOnSetupList;
 
 // Array of GUI toggle settings (for TreeView settings).
@@ -346,19 +349,20 @@ long TChannelSetting::GetDefault()
 void TChannelSetting::LoadChannelSpecifics(std::string SourceID, int VideoInput, int Channel, BOOL bNoOnChange)
 {
     int i;
-    int s;
+    int s;    
     for (s = 0; s < vChannelSpecificSettingsList.size(); s++)
-    {
+    {        
         TSbcSourceInputInfo *pInfo = vChannelSpecificSettingsList[s].pInfo;
         if ( (pInfo->sSourceID == SourceID) && (pInfo->VideoInput == VideoInput) )
         {
             for (i = 0; i<vChannelSpecificSettingsList[s].vChannels.size(); i++)
-            {
+            {                
                 TChannelSpecificSetting *ChannelSpecific = &(vChannelSpecificSettingsList[s].vChannels[i]);
                 if (ChannelSpecific->Channel == Channel)
                 {
                     Flag = ChannelSpecific->Flag;    
                     LastValue = ChannelSpecific->LastValue;
+                
                     if (GetValue() != ChannelSpecific->Value)
                     {
                         SetValue(ChannelSpecific->Value, bNoOnChange);
@@ -368,6 +372,7 @@ void TChannelSetting::LoadChannelSpecifics(std::string SourceID, int VideoInput,
             }
         }
     }
+    
     Flag    = 0;
     if (GetValue() != DefaultValue)
     {
@@ -663,6 +668,13 @@ void SettingsPerChannel_ClearAll()
         }
         vSbcChannelSettings.clear();
     }
+    //clear source info list
+    int i;
+    for (i = 0; i < vSbcSourceInputInfo.size(); i++)
+    {
+         delete vSbcSourceInputInfo[i];
+    }
+    vSbcSourceInputInfo.clear();
 }
 
 
@@ -925,7 +937,7 @@ BOOL SettingsPerChannel_ReadFromIni(const char *szMainSection, const char *szSub
 
 void SettingsPerChannel_ReadSettings(const char *szSubSection, int VideoInput, int Channel, int DefaultValuesFirst)
 {
-    LOG(2,"Read settings for channel %d.",Channel+1);
+    LOG(2,"SBC: Read settings for input %d, channel %d.",VideoInput,Channel);
     if (!SettingsPerChannel() || !SettingsPerChannel_ChannelOk(VideoInput, Channel))
     {
         return;
@@ -945,6 +957,7 @@ void SettingsPerChannel_ReadSettings(const char *szSubSection, int VideoInput, i
 
             if (iSbcLastLoadedChannel != Channel)
             {
+                LOG(2,"SBC: Read settings: Load channel specifics");                
                 CSetting->LoadChannelSpecifics(sSbcCurrentSource, VideoInput, Channel, TRUE);                
             }
 
@@ -1004,7 +1017,6 @@ void SettingsPerChannel_ReadDefaults(const char *szSubSection, int Input, int Ch
 
 void SettingsPerChannel_WriteSettings(BOOL bOptimizeFileAccess)
 {
-    //LOG(2,"Store settings for channel %d, subsection %s.",Channel,(szSubSection==NULL)?"":szSubSection);    
     
     // Save current channel settings (if enabled)
     if (SettingsPerChannel() && SettingsPerChannel_ChannelOk(iSbcCurrentVideoInput, iSbcCurrentChannel))
@@ -1164,10 +1176,10 @@ BOOL SettingsPerChannel_ChannelOk(int VideoInput, int Channel)
     int i;
     for (i = 0; i < vSbcSourceInputInfo.size(); i++)
     {
-        if (   (vSbcSourceInputInfo[i].pSource == Providers_GetCurrentSource()) 
-            && (vSbcSourceInputInfo[i].VideoInput == VideoInput) )
+        if (   (vSbcSourceInputInfo[i]->pSource == Providers_GetCurrentSource()) 
+            && (vSbcSourceInputInfo[i]->VideoInput == VideoInput) )
         {
-            if (vSbcSourceInputInfo[i].HasTuner == 0)
+            if (vSbcSourceInputInfo[i]->HasTuner == 0)
             {
                 return (Channel == 0) ? TRUE : FALSE;               
             }
@@ -1198,34 +1210,35 @@ TSbcSourceInputInfo *SettingsPerChannel_AddSourceAndInputInfo(CSource *pSource, 
     }
     for (i = 0; i < vSbcSourceInputInfo.size(); i++)
     {
-        if (   (vSbcSourceInputInfo[i].sSourceID == sSourceID) 
-            && (vSbcSourceInputInfo[i].VideoInput == VideoInput) )
+        if (   (vSbcSourceInputInfo[i]->sSourceID == sSourceID) 
+            && (vSbcSourceInputInfo[i]->VideoInput == VideoInput) )
         {
             if (HasTuner >= 0)
             {
-                vSbcSourceInputInfo[i].HasTuner = HasTuner;
+                vSbcSourceInputInfo[i]->HasTuner = HasTuner;
             }   
-            return &(vSbcSourceInputInfo[i]);    
+            return (vSbcSourceInputInfo[i]);
         }
     }
 
-
+   
    // New source & input info
-   TSbcSourceInputInfo SSIInfo;
+   TSbcSourceInputInfo *SSIInfo = new TSbcSourceInputInfo;
 
-   SSIInfo.pSource = pSource;
-   SSIInfo.sSourceID = sSourceID;
-   SSIInfo.VideoInput = VideoInput;
-   SSIInfo.HasTuner = HasTuner;
-   SSIInfo.LastChannel = NO_CHANNEL;
+   SSIInfo->pSource = pSource;
+   SSIInfo->sSourceID = sSourceID;
+   SSIInfo->VideoInput = VideoInput;
+   SSIInfo->HasTuner = HasTuner;
+   SSIInfo->LastChannel = NO_CHANNEL;
    if (HasTuner >= 0)
    {
-       SSIInfo.LastChannel = 0;
+       SSIInfo->LastChannel = 0;
    }      
 
    i = vSbcSourceInputInfo.size();
    vSbcSourceInputInfo.push_back(SSIInfo);
-   return &(vSbcSourceInputInfo[i]);
+
+   return (vSbcSourceInputInfo[i]);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1246,6 +1259,7 @@ void SettingsPerChannel_InputAndChannelChange(int PreChange, CSource *pSource, i
       if (bSetupStarted && SettingsPerChannel() && SettingsPerChannel_ChannelOk(iSbcCurrentVideoInput, iSbcCurrentChannel)
           && (bSbcVideoInputSpecific || (InputHasTuner==1)) )
       {                    
+          LOG(2,"SBC: Change input/channel: save settings for in=%d, ch=%d (%s)", iSbcCurrentVideoInput, iSbcCurrentChannel, sSbcCurrentSource.c_str());
           for(vector<TChannelSetting*>::iterator it = vSbcChannelSettings.begin();
             it != vSbcChannelSettings.end();
             ++it)
@@ -1313,13 +1327,17 @@ void SettingsPerChannel_InputAndChannelChange(int PreChange, CSource *pSource, i
 
 void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource)
 {    
+    LOG(2,"SBC: Source change %i (%s)",Flags,(pSource==NULL)?"NULL":pSource->IDString());
     if (Flags&SOURCECHANGE_PRECHANGE)
     {
+         SettingsPerChannel_Setup(2);
+
          // before change
          if (!SettingsPerChannel() || !SettingsPerChannel_ChannelOk(iSbcCurrentVideoInput, iSbcCurrentChannel))
          {
             return;
          }
+         LOG(2,"Change source: save channel settings");
          SettingsPerChannel_SaveChannelSettings(NULL, iSbcCurrentVideoInput, iSbcCurrentChannel);         
          iSbcLastLoadedChannel = NO_CHANNEL; // force read of new channel values
     }
@@ -1355,22 +1373,28 @@ void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource)
 
         if (bChanged && !bSbcSourceSpecific)
         {
+            LOG(2,"SBC: Source change: reset channel specific settings");
             //reset channels & inputs
             for(vector<TChannelSetting*>::iterator it = vSbcChannelSettings.begin();
                 it != vSbcChannelSettings.end();
                 ++it)
             {
-                (*it)->vChannelSpecificSettingsList.clear();
+                (*it)->vChannelSpecificSettingsList.clear();                
             }
             //clear source info list
-            vSbcSourceInputInfo.clear();                            
+            int i; 
+            for (i = 0; i < vSbcSourceInputInfo.size(); i++)
+            {
+                delete vSbcSourceInputInfo[i];
+            }
+            vSbcSourceInputInfo.clear();
         }
         if (bChanged)
         {
             iSbcCurrentVideoInput = NO_VIDEOINPUT;
             iSbcCurrentChannel = NO_CHANNEL;
             iSbcLastLoadedChannel = NO_CHANNEL;
-            SettingsPerChannel_Setup(2);
+            SettingsPerChannel_Setup(3);
         }
 
         if (SettingsPerChannel_ChannelOk(iSbcCurrentVideoInput, iSbcCurrentChannel))
@@ -1383,7 +1407,14 @@ void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource)
 
 void SettingsPerChannel_ChannelChange(void *pThis, int PreChange, int OldChannel, int NewChannel)
 {
-   SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), iSbcCurrentVideoInput, -1, NewChannel);
+   try 
+   {
+      SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), iSbcCurrentVideoInput, -1, NewChannel);
+   } 
+   catch (...)
+   {
+      LOG(1,"Crash in SettingsPerChannel_ChannelChange");
+   }
 }
 
 void SettingsPerChannel_VideoInputChange(CSource *pSource, int PreChange, int Input, int IsTuner)
@@ -1392,7 +1423,14 @@ void SettingsPerChannel_VideoInputChange(CSource *pSource, int PreChange, int In
    {
       return;
    }
-   SettingsPerChannel_InputAndChannelChange(PreChange, pSource, Input, IsTuner, NO_CHANNEL);
+   try 
+   {
+      SettingsPerChannel_InputAndChannelChange(PreChange, pSource, Input, IsTuner, NO_CHANNEL);
+   } 
+   catch (...)
+   {
+      LOG(1,"Crash in SettingsPerChannel_VideoInputChange");
+   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1426,22 +1464,33 @@ void SettingsPerChannel_Setup(int Start)
     int i;    
 
     bSetupStarted = TRUE;
-    if (Start)
-    {        
-        SettingsPerChannel_SourceChange(NULL, SOURCECHANGE_PROVIDER, Providers_GetCurrentSource());        
-    }
 
+    if (Start == 1)
+    {
+        if (Providers_GetCurrentSource() != NULL)
+        {
+            sSbcCurrentSource = Providers_GetCurrentSource()->IDString();
+            if (!bSbcSourceSpecific)
+            {
+                sSbcCurrentSource = "";
+            }
+        }
+        Providers_Register_SourceChangeNotification(NULL, SettingsPerChannel_SourceChange);
+    }
+    
     for (i = 0; i < vSbcOnSetupList.size(); i++)
     {    
        vSbcOnSetupList[i].pfnOnSetup(vSbcOnSetupList[i].pThis, Start); 
     }
-    if (Start)
+    if (Start==1)
     {
        Channel_Register_Change_Notification(NULL, SettingsPerChannel_ChannelChange);       
        SettingsPerChannel_InputAndChannelChange(0,Providers_GetCurrentSource(), iSbcCurrentVideoInput, -1, iSbcCurrentChannel);        
     }
-    else
+    if (Start==0)
     {
+       Providers_Unregister_SourceChangeNotification(NULL, SettingsPerChannel_SourceChange);
+
        Channel_UnRegister_Change_Notification(NULL, SettingsPerChannel_ChannelChange);
        SettingsPerChannel_ClearAll();
 

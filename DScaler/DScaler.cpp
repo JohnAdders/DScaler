@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.100 2001-12-03 19:33:59 adcockj Exp $
+// $Id: DScaler.cpp,v 1.101 2001-12-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2001/12/03 19:33:59  adcockj
+// Bug fixes for settings and memory
+//
 // Revision 1.99  2001/12/03 17:14:42  adcockj
 // Added command line patch from Arie van Wijngaarden
 //
@@ -1766,6 +1769,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone)
             {
                 bDone = ProcessOSDSelection(hWnd, LOWORD(wParam));
+            }
+            if(!bDone && pCalibration != NULL)
+            {
+                bDone = pCalibration->ProcessSelection(hWnd, LOWORD(wParam));
             }
             if(!bDone)
             {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.37 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: Calibration.cpp,v 1.38 2001-12-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.36  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -1657,6 +1660,22 @@ void CCalibration::UnloadTestPatterns()
     current_sub_pattern = NULL;
 }
 
+BOOL CCalibration::ProcessSelection(HWND hWnd, WORD wMenuId)
+{
+    int i;
+
+	for (i = 0; i < MAX_TEST_PATTERNS; i++)
+	{
+		if (test_patterns[i] != NULL && wMenuId == IDM_PATTERN_SELECT + i + 1)
+        {
+			pCalibration->SelectTestPattern(i);
+			return TRUE;
+        }
+    }
+	return FALSE;
+}
+
+
 void CCalibration::UpdateMenu(HMENU hMenu)
 {
     HMENU           hMenuPatterns;
@@ -2503,3 +2522,4 @@ void Calibr_WriteSettingsToIni(BOOL bOptimizeFileAccess)
         Setting_WriteToIni(&(CalibrSettings[i]), bOptimizeFileAccess);
     }
 }
+

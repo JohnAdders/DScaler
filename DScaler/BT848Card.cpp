@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.10 2001-12-05 21:45:10 ittarnavsky Exp $
+// $Id: BT848Card.cpp,v 1.11 2001-12-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/05 21:45:10  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.9  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -158,6 +161,10 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 CBT848Card::~CBT848Card()
 {
     ClosePCICard();
+	delete m_I2CBus;
+	delete m_AudioControls;
+	delete m_AudioDecoder;
+	delete m_Tuner;
 }
 
 void CBT848Card::CloseCard()

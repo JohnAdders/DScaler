@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.3 2001-12-05 00:08:41 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.4 2001-12-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/05 00:08:41  laurentg
+// Use of LibTiff DLL
+//
 // Revision 1.2  2001/11/30 10:46:43  adcockj
 // Fixed crashes and leaks
 //
@@ -231,7 +234,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     uint8* buffer;
     uint8* pBuf;
     tsize_t size;
-    float ycbcrCoeffs[3] = { .299, .587, .114 };
+    float ycbcrCoeffs[3] = { 0.299f, 0.587f, 0.114f };
     float refBlackWhite[6] = { 15., 235., 128., 240., 128., 240. };
 
     if (m_FormatSaving == TIFF_CLASS_Y)

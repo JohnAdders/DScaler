@@ -1,5 +1,5 @@
 //
-// $Id: I2CBusForLineInterface.cpp,v 1.3 2001-11-29 17:30:52 adcockj Exp $
+// $Id: I2CBusForLineInterface.cpp,v 1.4 2001-12-08 13:43:20 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -89,7 +93,7 @@ void CI2CBusForLineInterface::Start()
 {
     ASSERT(m_LineInterface != 0);
 
-    LOG(1, "S");
+    LOG(4, "I2C BusForLine Start");
     // I2C start: SDA 1 -> 0 with SCL = 1
     // SDA   ^^^\___
     // SCL ___/^^^\_____       
@@ -105,7 +109,7 @@ void CI2CBusForLineInterface::Stop()
 {
     ASSERT(m_LineInterface != 0);
 
-    LOG(1, "P");
+    LOG(4, "I2C BusForLine Stop");
     // I2C stop: SDA 0 -> 1 with SCL = 1
     // SDA    ___/^^^
     // SCL ____/^^^
@@ -126,7 +130,7 @@ bool CI2CBusForLineInterface::GetAcknowledge()
     bool result = m_LineInterface->GetSDA();
     SetSCLHi();
     SetSCLLo();
-    LOG(1, result ? ".N" : ".A");
+    LOG(4, result ? "I2C BusForLine got NAK" : "I2C BusForLine got ACK");
     return !result;
 }
 
@@ -134,7 +138,7 @@ bool CI2CBusForLineInterface::Write(BYTE byte)
 {
     ASSERT(m_LineInterface != 0);
 
-    LOG(1, "%02X", byte);
+    LOG(4, "I2C BusForLine NAK Write %02X", byte);
     for(BYTE mask = 0x80; mask > 0; mask /= 2) 
     {
         SetSCLLo();
@@ -167,7 +171,7 @@ unsigned char CI2CBusForLineInterface::Read(bool last)
             result |= mask;
         }
     }
-    LOG(1, ".%02X", result);
+    LOG(4, "I2C BusForLine Read %02X", result);
     if (last)
     {
         SendNAK();
@@ -183,7 +187,7 @@ void CI2CBusForLineInterface::SendNAK()
 {
     ASSERT(m_LineInterface != 0);
 
-    LOG(1, "N");
+    LOG(4, "I2C BusForLine send NAK");
     SetSCLLo();
     SetSDAHi();
     SetSCLHi();
@@ -195,7 +199,7 @@ void CI2CBusForLineInterface::SendACK()
 {
     ASSERT(m_LineInterface != 0);
 
-    LOG(1, "A");
+    LOG(4, "I2C BusForLine send ACK");
     SetSCLLo();
     SetSDALo();
     SetSCLHi();

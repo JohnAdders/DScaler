@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.45 2003-04-30 17:30:51 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.46 2003-08-09 15:53:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2003/04/30 17:30:51  laurentg
+// Init of custom aspect ratio fixed
+//
 // Revision 1.44  2003/03/29 13:37:51  laurentg
 // Allow the display of DScaler to monitors other than the primary
 //
@@ -298,7 +301,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     // Destination rectangle
     //ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
-    GetDisplayAreaRect(hWnd,&ar.m_OriginalOverlayDestRect);
+    GetDisplayAreaRect(hWnd,&ar.m_OriginalOverlayDestRect, TRUE);
     ClientToScreen(hWnd, (POINT*) &ar.m_OriginalOverlayDestRect.left);
     ClientToScreen(hWnd, (POINT*) &ar.m_OriginalOverlayDestRect.right);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.50 2003-08-02 12:04:13 laurentg Exp $
+// $Id: DScaler.h,v 1.51 2003-08-09 15:53:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ void Overlay_Stop(HWND hWnd);
 void Overlay_Start(HWND hWnd);
 void ShowText(HWND hWnd, LPCTSTR szText);
 
-BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect);
+BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar = FALSE);
 void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase);
 void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect);
 

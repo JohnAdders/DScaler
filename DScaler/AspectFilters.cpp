@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.32 2003-07-02 20:35:11 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.33 2003-08-09 15:53:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/07/02 20:35:11  laurentg
+// Allow virtual screen with origin different from (0,0)
+//
 // Revision 1.31  2003/06/14 12:02:59  laurentg
 // Comment added for something that should maybe need a correction
 //
@@ -704,7 +707,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
         {
             currentClientRect.bottom -= StatusBar_Height();
         }*/
-        GetDisplayAreaRect(hWnd,&currentClientRect);
+        GetDisplayAreaRect(hWnd,&currentClientRect, TRUE);
         ClientToScreen(hWnd, (POINT*) &currentClientRect.left);
         ClientToScreen(hWnd, (POINT*) &currentClientRect.right);
 

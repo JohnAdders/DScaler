@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.334 2003-08-09 13:03:09 laurentg Exp $
+// $Id: DScaler.cpp,v 1.335 2003-08-09 15:53:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.334  2003/08/09 13:03:09  laurentg
+// Display of the toolbar in full screen mode
+//
 // Revision 1.333  2003/08/02 12:04:13  laurentg
 // Two new settings to define how many channels to display in preview mode
 //
@@ -2259,12 +2262,17 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
 }
 
 
-BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect)
+BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 {
     BOOL result = GetClientRect(hWnd, lpRect);
 
     if(bIsFullScreen == TRUE) 
     {
+        if (WithToolbar == FALSE && ToolbarControl != NULL)
+        {
+            ToolbarControl->AdjustArea(lpRect, 1);        
+        }
+
         return result;
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarWindow.cpp,v 1.4 2003-08-09 12:59:46 laurentg Exp $
+// $Id: ToolbarWindow.cpp,v 1.5 2003-08-09 15:53:39 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/08/09 12:59:46  laurentg
+// Display of the toolbar in full screen mode
+//
 // Revision 1.3  2002/10/07 20:33:50  kooiman
 // Fixed lots of toolbar bugs & added grip/separator bars.
 //
@@ -500,7 +503,7 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
       
       int Visible = IsToolbarVisible; 
       IsToolbarVisible = 0;
-      GetDisplayAreaRect(hParentWnd, &rc); 
+      GetDisplayAreaRect(hParentWnd, &rc, TRUE); 
       IsToolbarVisible = Visible;
       GetPos(&rcBar); 
 

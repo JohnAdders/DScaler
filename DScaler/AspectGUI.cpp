@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.59 2003-04-28 17:31:59 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.60 2003-08-09 15:53:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2003/04/28 17:31:59  laurentg
+// Fix to avoid crash when exiting
+//
 // Revision 1.58  2003/04/20 11:34:37  laurentg
 // "Zoom Off" instead of "Zoom 1x" in OSD
 //
@@ -961,7 +964,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
     
     // Draw black in the 4 borders
     //GetClientRect(hWnd,&winRect);
-    GetDisplayAreaRect(hWnd,&winRect);
+    GetDisplayAreaRect(hWnd,&winRect, TRUE);
     
     // Top
     r2.left = winRect.left;

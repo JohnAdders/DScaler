@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.124 2003-08-04 23:48:24 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.125 2003-08-15 09:22:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.124  2003/08/04 23:48:24  laurentg
+// Use extra buffer when recording DScaler output frames
+//
 // Revision 1.123  2003/07/31 07:00:38  atnak
 // Cleaned up Stop_Thread() code
 //
@@ -589,7 +592,7 @@ void Stop_Thread()
             // THIS SHOULD NOT HAPPEN
 
             // ...but it is and it's something we need to debug.
-            // WorkoutOverlaySize(TRUE) in the thread sometimes infinite loops!
+            // There are deadlocks with GUI access from the YUVOutThread.
             // --AtNak 2003-07-31  [In progress comments, remove when fixed.]            
 
             MessageBox(hWnd,

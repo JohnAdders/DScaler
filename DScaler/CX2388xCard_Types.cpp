@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.2 2002-10-29 16:20:30 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.3 2002-11-03 15:54:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/29 16:20:30  adcockj
+// Added card setup for MSI TV@nywhere (no work done on sound)
+//
 // Revision 1.1  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -354,7 +357,14 @@ int CCX2388xCard::GetNumInputs()
 
 BOOL CCX2388xCard::IsInputATuner(int nInput)
 {
-    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
+    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    {
+        return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 void CCX2388xCard::SetVideoSource(int nInput)
@@ -390,7 +400,6 @@ eCX2388xCardId CCX2388xCard::AutoDetectCardType()
 
 void CCX2388xCard::StandardInputSelect(int nInput)
 {
-    m_CurrentInput = nInput;
     if(nInput >= m_TVCards[m_CardType].NumInputs)
     {
         LOG(1, "Input Select Called for invalid input");
@@ -401,6 +410,7 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         LOG(1, "Input Select Called for invalid input");
         nInput = 0;
     }
+    m_CurrentInput = nInput;
 
     if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_COLOURBARS)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.5 2002-10-31 15:55:49 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.6 2002-11-03 15:54:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -117,6 +117,8 @@ private:
 
     ISetting* GetCurrentAudioSetting();
 
+    void InitializeUI();
+
 private:
     CCX2388xCard*  m_pCard;
     BYTE*        m_pDisplay[5];
@@ -138,6 +140,8 @@ private:
     std::string  m_ChannelSubSection;
     BOOL         m_SettingsByChannelStarted;
     int          m_NumFields;
+    HINSTANCE    m_hCX2388xResourceInst;
+
 
     std::string  m_Section;
     std::string  m_IDString;

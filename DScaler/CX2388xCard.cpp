@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.5 2002-10-31 15:55:46 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.6 2002-11-03 15:54:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/31 15:55:46  adcockj
+// Moved audio code from Connexant dTV version
+//
 // Revision 1.4  2002/10/31 14:09:54  adcockj
 // Move back to 720 pixel width now that we have analogue blanking mode
 //
@@ -103,6 +106,7 @@
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
+#include "..\DScalerResDbg\CX2388xRes\resource.h"
 #include "resource.h"
 #include "CX2388xCard.h"
 #include "CX2388x_Defines.h"
@@ -112,6 +116,7 @@
 #include "NoTuner.h"
 #include "MT2032.h"
 #include "GenericTuner.h"
+#include "DScaler.h"
 
 
 CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
@@ -823,7 +828,14 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
 BOOL CCX2388xCard::IsCCIRSource(int nInput)
 {
-    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
+    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    {
+        return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 BOOL CCX2388xCard::IsVideoPresent()
@@ -1353,4 +1365,149 @@ void CCX2388xCard::DumpChipStatus(const char* CardName)
     DumpRegister(CX2388X_VBOS);
 
     fclose(hFile);
+}
+
+void CCX2388xCard::ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst)
+{
+    DialogBoxParam(hCX2388xResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
+}
+
+#define AddRegister(Reg) {long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), #Reg); ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, Reg);}
+
+BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    static CCX2388xCard* pThis;
+    static DWORD dwAddress;
+    static DWORD dwRegValue;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        pThis = (CCX2388xCard*)lParam;
+        SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_RESETCONTENT, 0, 0);
+        
+        AddRegister(CX2388X_DEVICE_STATUS);
+        AddRegister(CX2388X_VIDEO_INPUT);
+        AddRegister(CX2388X_TEMPORAL_DEC);
+        AddRegister(CX2388X_AGC_BURST_DELAY);
+        AddRegister(CX2388X_BRIGHT_CONTRAST); 
+        AddRegister(CX2388X_UVSATURATION);    
+        AddRegister(CX2388X_HUE);             
+        AddRegister(CX2388X_WHITE_CRUSH);
+        AddRegister(CX2388X_PIXEL_CNT_NOTCH);
+        AddRegister(CX2388X_HORZ_DELAY_EVEN);
+        AddRegister(CX2388X_HORZ_DELAY_ODD);
+        AddRegister(CX2388X_VERT_DELAY_EVEN);
+        AddRegister(CX2388X_VERT_DELAY_ODD);
+        AddRegister(CX2388X_VDELAYCCIR_EVEN);
+        AddRegister(CX2388X_VDELAYCCIR_ODD);
+        AddRegister(CX2388X_HACTIVE_EVEN);
+        AddRegister(CX2388X_HACTIVE_ODD);
+        AddRegister(CX2388X_VACTIVE_EVEN);    
+        AddRegister(CX2388X_VACTIVE_ODD);     
+        AddRegister(CX2388X_HSCALE_EVEN);     
+        AddRegister(CX2388X_HSCALE_ODD);      
+        AddRegister(CX2388X_VSCALE_EVEN);     
+        AddRegister(CX2388X_VSCALE_ODD);      
+        AddRegister(CX2388X_FILTER_EVEN);     
+        AddRegister(CX2388X_FILTER_ODD);      
+        AddRegister(CX2388X_FORMAT_2HCOMB);
+        AddRegister(CX2388X_PLL);
+        AddRegister(CX2388X_PLL_ADJUST);
+        AddRegister(CX2388X_SAMPLERATECONV);  
+        AddRegister(CX2388X_SAMPLERATEFIFO);  
+        AddRegister(CX2388X_SUBCARRIERSTEP);  
+        AddRegister(CX2388X_SUBCARRIERSTEPDR);
+        AddRegister(CX2388X_CAPTURECONTROL);  
+        AddRegister(CX2388X_VIDEO_COLOR_FORMAT);
+        AddRegister(CX2388X_VBI_SIZE);
+        AddRegister(CX2388X_FIELD_CAP_CNT);
+        AddRegister(CX2388X_VIP_CONFIG);
+        AddRegister(CX2388X_VIP_CONTBRGT);
+        AddRegister(CX2388X_VIP_HSCALE);
+        AddRegister(CX2388X_VIP_VSCALE);
+        break;
+    case WM_COMMAND:
+        switch(LOWORD(wParam))
+        {
+        case IDOK:
+            EndDialog(hDlg, TRUE);
+            break;
+
+        case IDC_BIT0:
+        case IDC_BIT1:
+        case IDC_BIT2:
+        case IDC_BIT3:
+        case IDC_BIT4:
+        case IDC_BIT5:
+        case IDC_BIT6:
+        case IDC_BIT7:
+        case IDC_BIT8:
+        case IDC_BIT9:
+        case IDC_BIT10:
+        case IDC_BIT11:
+        case IDC_BIT12:
+        case IDC_BIT13:
+        case IDC_BIT14:
+        case IDC_BIT15:
+        case IDC_BIT16:
+        case IDC_BIT17:
+        case IDC_BIT18:
+        case IDC_BIT19:
+        case IDC_BIT20:
+        case IDC_BIT21:
+        case IDC_BIT22:
+        case IDC_BIT23:
+        case IDC_BIT24:
+        case IDC_BIT25:
+        case IDC_BIT26:
+        case IDC_BIT27:
+        case IDC_BIT28:
+        case IDC_BIT29:
+        case IDC_BIT30:
+        case IDC_BIT31:
+            if(Button_GetCheck(GetDlgItem(hDlg, LOWORD(wParam))) == BST_CHECKED)
+            {
+                dwRegValue |= 1 << (LOWORD(wParam) - IDC_BIT0);
+            }
+            else
+            {
+                dwRegValue &= ~(1 << (LOWORD(wParam) - IDC_BIT0));
+            }
+            pThis->WriteDword(dwAddress, dwRegValue);
+            break;
+
+        case IDC_REGISTERSELECT:
+            if(HIWORD(wParam) == LBN_SELCHANGE)
+            {
+                long Index = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_REGISTERSELECT));
+                if(Index != -1)
+                {
+                    dwAddress = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index);
+                    dwRegValue = pThis->ReadDword(dwAddress);
+                    DWORD TempRegValue(dwRegValue);
+                    for(int i(0); i < 32; ++i)
+                    {
+                        if(TempRegValue & 1)
+                        {
+                            Button_SetCheck(GetDlgItem(hDlg, IDC_BIT0 + i), BST_CHECKED);
+                        }
+                        else
+                        {
+                            Button_SetCheck(GetDlgItem(hDlg, IDC_BIT0 + i), BST_UNCHECKED);
+                        }
+                        TempRegValue = TempRegValue >> 1;
+                    }
+                }
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+    
+    default:
+        break;
+    }
+    return (FALSE);
 }

@@ -1,0 +1,169 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "REGISTEREDIT", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 192
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 167
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+REGISTEREDIT DIALOG DISCARDABLE  0, 0, 199, 174
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Registers by Hand"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Exit",IDOK,7,153,50,14
+    COMBOBOX        IDC_REGISTERSELECT,14,49,164,13,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Register to change",IDC_STATIC,15,38,106,10
+    LTEXT           "Don't play about with these values unless you really know what you're doing, machine crashes are only a mouse click away!",
+                    IDC_STATIC,14,7,167,31
+    CONTROL         "0",IDC_BIT0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,70,
+                    21,9
+    CONTROL         "1",IDC_BIT1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,79,
+                    21,9
+    CONTROL         "2",IDC_BIT2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,88,
+                    21,9
+    CONTROL         "3",IDC_BIT3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,97,
+                    21,9
+    CONTROL         "4",IDC_BIT4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,
+                    106,21,9
+    CONTROL         "5",IDC_BIT5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,
+                    115,21,9
+    CONTROL         "6",IDC_BIT6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,
+                    124,21,9
+    CONTROL         "7",IDC_BIT7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,
+                    133,21,9
+    CONTROL         "8",IDC_BIT8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,70,
+                    21,9
+    CONTROL         "9",IDC_BIT9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,79,
+                    21,9
+    CONTROL         "10",IDC_BIT10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,
+                    88,21,9
+    CONTROL         "11",IDC_BIT11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,
+                    97,21,9
+    CONTROL         "12",IDC_BIT12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,
+                    106,21,9
+    CONTROL         "13",IDC_BIT13,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,
+                    115,21,9
+    CONTROL         "14",IDC_BIT14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,
+                    124,21,9
+    CONTROL         "15",IDC_BIT15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,
+                    133,21,9
+    CONTROL         "16",IDC_BIT16,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    70,21,9
+    CONTROL         "17",IDC_BIT17,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    79,21,9
+    CONTROL         "18",IDC_BIT18,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    88,21,9
+    CONTROL         "19",IDC_BIT19,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    97,21,9
+    CONTROL         "20",IDC_BIT20,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    106,21,9
+    CONTROL         "21",IDC_BIT21,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    115,21,9
+    CONTROL         "22",IDC_BIT22,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    124,21,9
+    CONTROL         "23",IDC_BIT23,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
+                    133,21,9
+    CONTROL         "24",IDC_BIT24,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    70,21,9
+    CONTROL         "25",IDC_BIT25,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    79,21,9
+    CONTROL         "26",IDC_BIT26,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    88,21,9
+    CONTROL         "27",IDC_BIT27,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    97,21,9
+    CONTROL         "28",IDC_BIT28,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    106,21,9
+    CONTROL         "29",IDC_BIT29,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    115,21,9
+    CONTROL         "30",IDC_BIT30,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    124,21,9
+    CONTROL         "31",IDC_BIT31,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,
+                    134,21,9
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

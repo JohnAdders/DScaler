@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.4 2002-10-31 14:47:20 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.5 2002-11-03 15:54:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/31 14:47:20  adcockj
+// Added Sharpness
+//
 // Revision 1.3  2002/10/31 03:10:55  atnak
 // Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
 //
@@ -346,6 +349,18 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_VDELAY_CURRENT:
             m_VDelay->OSDShow();
             break;
+        case IDM_DSVIDEO_STANDARD_0:
+            // "Custom Settings ..." menu
+            if (m_hCX2388xResourceInst != NULL)
+            {
+                m_pCard->ShowRegisterSettingsDialog(m_hCX2388xResourceInst);
+            }
+            else
+            {
+                ShowText(hWnd, "CX2388xRes.dll not loaded");
+            }
+            break;
+
 
         default:
             return FALSE;
@@ -541,4 +556,32 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);
+}
+
+void CCX2388xSource::InitializeUI()
+{
+    MENUITEMINFO    MenuItemInfo;
+    HMENU           hSubMenu;
+    LPSTR           pMenuName;
+
+    m_hCX2388xResourceInst = LoadLibrary("CX2388xRes.dll");
+
+    if(m_hCX2388xResourceInst != NULL)
+    {
+        hSubMenu = GetSubMenu(m_hMenu, 0);
+
+        // Set up two separators with the Custom Settings ...
+        // menu in between before listing the standards.
+        MenuItemInfo.cbSize = sizeof(MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_TYPE;
+        MenuItemInfo.fType = MFT_SEPARATOR;
+
+        pMenuName = "Custom Settings ...";
+        MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
+        MenuItemInfo.fType = MFT_STRING;
+        MenuItemInfo.dwTypeData = pMenuName;
+        MenuItemInfo.cch = strlen(pMenuName);
+        MenuItemInfo.wID = IDM_DSVIDEO_STANDARD_0;
+        InsertMenuItem(hSubMenu, 5, TRUE, &MenuItemInfo);
+    }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.3 2002-10-31 15:55:47 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.4 2002-11-03 15:54:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ public:
 
     void SetAudioMute();
     void SetAudioUnMute();
-
+    void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
 
 private:
     ULONG GetTickCount();
@@ -211,6 +211,7 @@ private:
     void AudioInitEIAJ();
     void AudioInitA2();
     void AudioInitNICAM();
+    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 private:
     eCX2388xCardId m_CardType;

@@ -125,7 +125,7 @@ BEGIN
     "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
     "S",            IDM_TSSTOP,             VIRTKEY, SHIFT, NOINVERT
     "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, NOINVERT
-    "T",            IDM_VT_MIXEDMODE,         VIRTKEY, SHIFT, NOINVERT
+    "T",            IDM_VT_MIXEDMODE,       VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_MINUS,  VIRTKEY, NOINVERT
     "U",            IDM_USATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
     "U",            IDM_USATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL, 
@@ -251,7 +251,7 @@ END
 IDD_CHANNELLIST DIALOGEX 22, 17, 357, 241
 STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION
 CAPTION "Channel List"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     GROUPBOX        "Channel List",IDC_STATIC,5,0,115,215,BS_LEFT,
                     WS_EX_TRANSPARENT
@@ -1575,7 +1575,7 @@ BEGIN
         END
         POPUP "Audio Sta&ndard"
         BEGIN
-            MENUITEM "Passthrough Sample Rate",     IDC_STATIC, GRAYED
+            MENUITEM "Passthrough Sample Rate",     65535, GRAYED
             MENUITEM "Sample Rate: 32000 Hz",       IDM_AUDIOSTANDARD_32000
             , GRAYED
             MENUITEM "Sample Rate: 44100 Hz",       IDM_AUDIOSTANDARD_44100
@@ -1692,8 +1692,8 @@ BEGIN
         POPUP "Advanced"
         BEGIN
             MENUITEM "Reset Capture Card",          IDM_RESET
-            MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
             MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
+            MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
         END
         MENUITEM "&Progressive Input\t Ctrl+Alt+P", IDM_PROGRESSIVE
         MENUITEM "FLI &Film Detect\tCtrl+Alt+F", IDM_FLI_FILMDETECT

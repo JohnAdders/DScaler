@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.33 2002-01-19 17:50:41 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.34 2002-02-07 13:04:54 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/01/19 17:50:41  robmuller
+// Clear more data on channel change.
+//
 // Revision 1.32  2002/01/19 12:53:00  temperton
 // Teletext pages updates at correct time.
 // Teletext can use variable-width font.
@@ -1201,5 +1204,7 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_HEBREW, (VTCodePage == VT_HEBREW_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_SWEDISH, (VTCodePage == VT_SWEDISH_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_ITALIAN, (VTCodePage == VT_ITALIAN_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_SPANISH, (VTCodePage == VT_SPANISH_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_POLISH, (VTCodePage == VT_POLISH_CODE_PAGE));
 }
 

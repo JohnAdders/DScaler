@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.121 2002-02-03 22:48:21 robmuller Exp $
+// $Id: DScaler.cpp,v 1.122 2002-02-07 13:04:54 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.121  2002/02/03 22:48:21  robmuller
+// Added command line parameters /driverinstall and /driveruninstall.
+//
 // Revision 1.120  2002/02/03 10:31:22  tobbej
 // fixed so its posibel to open popup menu from keyboard
 //
@@ -1555,6 +1558,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_VT_ITALIAN:
             VT_SetCodePage(VT_ITALIAN_CODE_PAGE);
+            InvalidateRect(hWnd, NULL, TRUE);
+            break;
+
+        case IDM_VT_SPANISH:
+            VT_SetCodePage(VT_SPANISH_CODE_PAGE);
+            InvalidateRect(hWnd, NULL, TRUE);
+            break;
+
+        case IDM_VT_POLISH:
+            VT_SetCodePage(VT_POLISH_CODE_PAGE);
             InvalidateRect(hWnd, NULL, TRUE);
             break;
 

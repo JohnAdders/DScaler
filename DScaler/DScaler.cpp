@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.352 2003-10-03 11:40:11 laurentg Exp $
+// $Id: DScaler.cpp,v 1.353 2003-10-10 11:18:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.352  2003/10/03 11:40:11  laurentg
+// Update the combobox in the channel toolbar when exiting the channel setup dialog box
+//
 // Revision 1.351  2003/09/27 13:38:42  adcockj
 // Restored auto format menu
 //
@@ -5545,7 +5548,7 @@ void SetMenuAnalog()
     EnableMenuItem(hMenu, IDM_OVERLAY_STOP, bMinimized ? MF_GRAYED : MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_TAKECYCLICSTILL, bTakingCyclicStills);
 
-    EnableMenuItem(hMenu, IDM_AUDIO_MIXER, ((Providers_GetCurrentSource() == NULL) || Providers_IsStillSource(Providers_GetCurrentSource()) || Providers_IsMovieFileSource(Providers_GetCurrentSource())) ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_AUDIO_MIXER, ((Providers_GetCurrentSource() == NULL) || !Providers_GetCurrentSource()->IsAudioMixerAccessAllowed()) ? MF_GRAYED : MF_ENABLED);
 
     SetMixedModeMenu(hMenu, !bVTSingleKeyToggle);
 

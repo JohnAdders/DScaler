@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.27 2003-08-15 18:21:27 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.28 2003-10-10 11:15:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -105,6 +105,8 @@ public:
     void UnPause() {return;};
 
 	BOOL HasMediaControl() {return FALSE;};
+
+    BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
 	BOOL IsInitialSetup() {return m_InitialSetup;};
 

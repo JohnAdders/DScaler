@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.18 2003-08-16 18:40:43 laurentg Exp $
+// $Id: Providers.h,v 1.19 2003-10-10 11:16:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,6 @@ CSource* Providers_GetSnapshotsSource();
 CSource* Providers_GetPatternsSource();
 CSource* Providers_GetIntroSource();
 BOOL Providers_IsStillSource(CSource* source);
-BOOL Providers_IsMovieFileSource(CSource* source);
 int Providers_FindSource();
 void Providers_SetMenu(HMENU hMenu);
 void Providers_UpdateMenu(HMENU hMenu);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.42 2003-08-15 18:22:57 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.43 2003-10-10 11:15:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/08/15 18:22:57  laurentg
+// Save in the source if it is the first setup
+//
 // Revision 1.41  2003/08/11 20:45:55  laurentg
 // Method to know if the source can be controled through a media player
 //
@@ -263,6 +266,8 @@ public:
     void UnPause() {return;};
 
 	BOOL HasMediaControl() {return FALSE;};
+
+    BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
 	BOOL IsInitialSetup() {return m_InitialSetup;};
 

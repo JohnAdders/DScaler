@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.21 2003-08-11 20:45:55 laurentg Exp $
+// $Id: DVBTSource.h,v 1.22 2003-10-10 11:15:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -77,6 +77,7 @@ public:
     void UnPause() {return;};
 
 	BOOL HasMediaControl() {return FALSE;};
+    BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
 private:
     std::string  m_Section;

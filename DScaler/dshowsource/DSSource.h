@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.41 2003-08-16 18:36:58 laurentg Exp $
+// $Id: DSSource.h,v 1.42 2003-10-10 11:13:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/08/16 18:36:58  laurentg
+// New method to know if it was the first setup of the card
+// New method to know if the source is a movie file
+//
 // Revision 1.40  2003/02/05 19:12:43  tobbej
 // added support for capture devices where audio can be rendered from directshow
 // modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
@@ -258,7 +262,7 @@ public:
 
 	ITuner* GetTuner();
 
-	BOOL IsCaptureSource() {return TRUE;};
+    BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
 private:
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.49 2003-09-14 09:20:30 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.50 2003-10-10 11:16:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2003/09/14 09:20:30  adcockj
+// Fix so that inputs display in mixer dialog on first run
+//
 // Revision 1.48  2003/08/16 18:40:43  laurentg
 // Disable access to the audio mixer dialog box for the movie file source
 // Display the audio mixer dialog box at first setup of a DShow capture source
@@ -399,7 +402,7 @@ void Mixer_Volume_Down()
 void Mixer_SetupDlg(HWND hWndParent)
 {
 	CSource* source = Providers_GetCurrentSource();
-	if ((source == NULL) || Providers_IsStillSource(source) || Providers_IsMovieFileSource(source))
+	if ((source == NULL) || !source->IsAudioMixerAccessAllowed())
 	{
         MessageBox(hWnd, "No audio mixer setup needed for the current source", "DScaler Warning", MB_OK);
 	}

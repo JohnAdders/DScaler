@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.38 2003-08-11 20:45:55 laurentg Exp $
+// $Id: Source.h,v 1.39 2003-10-10 11:15:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -177,6 +177,8 @@ public:
     virtual void UnPause() = 0;
 
 	virtual BOOL HasMediaControl() = 0;
+
+    virtual BOOL IsAudioMixerAccessAllowed() = 0;
 
 protected:
     CSource(long SetMessage, long MenuId);

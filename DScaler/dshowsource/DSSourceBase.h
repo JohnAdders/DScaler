@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.21 2003-08-16 18:36:59 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.22 2003-10-10 11:13:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/08/16 18:36:59  laurentg
+// New method to know if it was the first setup of the card
+// New method to know if the source is a movie file
+//
 // Revision 1.20  2003/08/15 14:28:16  laurentg
 // Management of volume
 //
@@ -157,8 +161,9 @@ public:
 	int GetDuration();
 	void ChangePos(int delta_sec);
 
+    BOOL IsAudioMixerAccessAllowed() {return FALSE;};
+
 	BOOL IsInitialSetup() {return m_InitialSetup;};
-	BOOL IsCaptureSource() {return FALSE;};
 
 protected:
 	CDShowGraph *m_pDSGraph;

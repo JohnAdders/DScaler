@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.68 2003-09-14 09:20:59 adcockj Exp $
+// $Id: Providers.cpp,v 1.69 2003-10-10 11:16:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2003/09/14 09:20:59  adcockj
+// Put repeated code in function
+//
 // Revision 1.67  2003/08/25 04:04:00  atnak
 // Moved the initial Mixer_Init() call to the correct place
 //
@@ -630,21 +633,6 @@ BOOL Providers_IsStillSource(CSource* source)
 		for (int i=0 ; i<StillProvider->GetNumberOfSources() ; i++)
 		{
 			if (StillProvider->GetSource(i) == source)
-			{
-				return TRUE;
-			}
-		}
-	}
-	return FALSE;
-}
-
-BOOL Providers_IsMovieFileSource(CSource* source)
-{
-	if (DSProvider != NULL)
-	{
-		for (int i=0 ; i<DSProvider->GetNumberOfSources() ; i++)
-		{
-			if ((DSProvider->GetSource(i) == source) && !((CDSSourceBase*)source)->IsCaptureSource())
 			{
 				return TRUE;
 			}

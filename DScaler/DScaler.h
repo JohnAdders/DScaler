@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.32 2002-09-18 11:38:05 kooiman Exp $
+// $Id: DScaler.h,v 1.33 2002-09-26 10:07:10 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -70,6 +70,8 @@ void ShowText(HWND hWnd, LPCTSTR szText);
 BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect);
 void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase);
 void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect);
+
+LPCSTR GetSkinDirectory();
 
 HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCSTR szMenuText);
 

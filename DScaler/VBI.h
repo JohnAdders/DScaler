@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.h,v 1.10 2003-01-07 16:49:09 adcockj Exp $
+// $Id: VBI.h,v 1.11 2003-02-06 19:41:42 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,8 @@
 #define __VBI_H___
 
 #include "settings.h"
+
+#define VBI_SPL 2044
 
 // Get Hold of the FD_50Hz.c file settings
 SETTING* VBI_GetSetting(VBI_SETTING Setting);

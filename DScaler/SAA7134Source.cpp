@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.27 2002-10-20 09:27:55 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.28 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/10/20 09:27:55  atnak
+// Fixes negative dropped frames for accurate
+//
 // Revision 1.26  2002/10/20 07:41:04  atnak
 // custom audio standard setup + etc
 //
@@ -1269,18 +1272,6 @@ void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
     }
 }
 
-BOOL CSAA7134Source::HasTuner()
-{
-    if(m_TunerType->GetValue() != TUNER_ABSENT)
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
 
 BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
@@ -1508,11 +1499,6 @@ void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
 */
 
 
-eTunerId CSAA7134Source::GetTunerId()
-{
-    return m_pSAA7134Card->GetTuner()->GetTunerId();
-}
-
 LPCSTR CSAA7134Source::GetMenuLabel()
 {
     return m_pSAA7134Card->GetCardName(m_pSAA7134Card->GetCardType());
@@ -1621,4 +1607,9 @@ BOOL CSAA7134Source::InputHasTuner(eSourceInputType InputType, int Nr)
         }
     }
     return FALSE;
+}
+
+ITuner* CSAA7134Source::GetTuner()
+{
+    return m_pSAA7134Card->GetTuner();
 }

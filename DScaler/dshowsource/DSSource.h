@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.27 2002-09-28 13:36:15 kooiman Exp $
+// $Id: DSSource.h,v 1.28 2002-10-22 04:10:12 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/09/28 13:36:15  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.26  2002/09/26 10:35:34  kooiman
 // Use new event code.
 //
@@ -169,7 +172,7 @@ public:
 	BOOL IsInTunerMode();
 	
 	eTunerId GetTunerId() {return TUNER_ABSENT;}
-	BOOL HasTuner();
+	
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsVideoPresent();
 
@@ -203,6 +206,8 @@ public:
 	
 	void Start();
 	void Stop();
+
+    virtual ITuner* GetTuner() {return NULL;};
 
 private:
 	///resets m_VideoFmt to default

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.16 2002-10-21 16:07:26 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.17 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/21 16:07:26  adcockj
+// Added H & V delay options for CX2388x cards
+//
 // Revision 1.15  2002/10/21 07:19:33  adcockj
 // Preliminary Support for PixelView XCapture
 //
@@ -983,18 +986,6 @@ void CCT2388xSource::ChangeTVSettingsBasedOnTuner()
     }
 }
 
-BOOL CCT2388xSource::HasTuner()
-{
-    if(m_TunerType->GetValue() != TUNER_ABSENT)
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
 
 BOOL CCT2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
@@ -1019,10 +1010,6 @@ void CCT2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
 }
 
-eTunerId CCT2388xSource::GetTunerId()
-{
-    return m_pCard->GetTuner()->GetTunerId();
-}
 
 LPCSTR CCT2388xSource::GetMenuLabel()
 {
@@ -1158,3 +1145,7 @@ BOOL CCT2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
   return FALSE;
 }
 
+ITuner* CCT2388xSource::GetTuner()
+{
+    return m_pCard->GetTuner();
+}

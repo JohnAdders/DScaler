@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.11 2002-08-11 12:08:24 laurentg Exp $
+// $Id: DVBTSource.h,v 1.12 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ public:
     BOOL IsInTunerMode() {return TRUE;}
     int GetWidth() {return 720;};
     int GetHeight() {return 576;};
-    BOOL HasTuner();
+   
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);

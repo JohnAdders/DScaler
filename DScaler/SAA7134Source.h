@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.15 2002-10-20 07:41:04 atnak Exp $
+// $Id: SAA7134Source.h,v 1.16 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/20 07:41:04  atnak
+// custom audio standard setup + etc
+//
 // Revision 1.14  2002/10/12 20:03:12  atnak
 // added half second wait for DecodeVBI() after channel change
 //
@@ -107,7 +110,7 @@ public:
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
     ISetting* GetOverscan();
-    eTunerId GetTunerId();
+
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -115,7 +118,7 @@ public:
     int GetHeight();
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
-    BOOL HasTuner();
+  
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
@@ -139,6 +142,8 @@ public:
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+    
+    ITuner* GetTuner();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.86 2002-10-15 18:31:45 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.87 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2002/10/15 18:31:45  kooiman
+// Added stereo detect interval for continuous scanning for stereo mode.
+//
 // Revision 1.85  2002/10/15 15:25:19  kooiman
 // Setting groups changes.
 //
@@ -1506,18 +1509,6 @@ void CBT848Source::ChangeTVSettingsBasedOnTuner()
     }
 }
 
-BOOL CBT848Source::HasTuner()
-{
-    if(m_TunerType->GetValue() != TUNER_ABSENT)
-    {
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
@@ -1557,11 +1548,6 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     {
        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
     }
-}
-
-eTunerId CBT848Source::GetTunerId()
-{
-    return m_pBT848Card->GetTuner()->GetTunerId();
 }
 
 LPCSTR CBT848Source::GetMenuLabel()
@@ -1705,6 +1691,13 @@ BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)
   }
   return FALSE;
 }
+
+
+ITuner* CBT848Source::GetTuner() 
+{
+    return m_pBT848Card->GetTuner();
+}
+
 
 CTreeSettingsGeneric* CBT848Source::BT848_GetTreeSettingsPage()
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.69 2002-09-29 10:14:15 adcockj Exp $
+// $Id: StillSource.cpp,v 1.70 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2002/09/29 10:14:15  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.68  2002/08/23 19:16:24  laurentg
 // Writing of SavingPath setting in ini file updated
 //
@@ -1135,11 +1138,6 @@ LPCSTR CStillSource::GetStatus()
     }
 }
 
-eTunerId CStillSource::GetTunerId()
-{
-    return TUNER_ABSENT;
-}
-
 eVideoFormat CStillSource::GetFormat()
 {
     return VIDEOFORMAT_PAL_B;
@@ -1771,3 +1769,5 @@ BOOL CStillSource::IsItemInList(LPCSTR FileName)
     }
     return found;
 }
+
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.43 2002-10-15 18:31:44 kooiman Exp $
+// $Id: BT848Source.h,v 1.44 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/10/15 18:31:44  kooiman
+// Added stereo detect interval for continuous scanning for stereo mode.
+//
 // Revision 1.42  2002/10/11 21:44:40  ittarnavsky
 // added rcs/cvs log tag
 //
@@ -62,7 +65,7 @@ public:
     ISetting* GetOverscan();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
-	eTunerId GetTunerId();
+	
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -70,7 +73,7 @@ public:
     int GetHeight();
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
-    BOOL HasTuner();
+    
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
@@ -92,8 +95,11 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
+    ITuner* GetTuner();
+
     CTreeSettingsGeneric* BT848_GetTreeSettingsPage();
     
+   
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 

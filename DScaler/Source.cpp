@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.11 2002-10-17 13:31:37 adcockj Exp $
+// $Id: Source.cpp,v 1.12 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/17 13:31:37  adcockj
+// Give Holo3d different menu and updated settings
+//
 // Revision 1.10  2002/09/28 13:31:41  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -147,4 +150,19 @@ void CSource::NotifyVideoFormatChange(int PreChange, eVideoFormat OldFormat, eVi
     {
         EventCollector->RaiseEvent(this, (PreChange?EVENT_VIDEOFORMAT_PRECHANGE:EVENT_VIDEOFORMAT_CHANGE), (long)OldFormat, (long)NewFormat, NULL);
     }
+}
+
+BOOL CSource::HasTuner()
+{
+    ITuner* tuner = GetTuner();
+    if (NULL == tuner)
+    {
+        return FALSE;
+    }
+    //this may differ from base behaviour..
+    if (GetTunerId() == TUNER_ABSENT)
+    {
+        return FALSE;
+    }
+    return (GetTuner()->GetTunerId() != TUNER_ABSENT);
 }

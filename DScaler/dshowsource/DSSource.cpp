@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.46 2002-10-07 20:35:17 kooiman Exp $
+// $Id: DSSource.cpp,v 1.47 2002-10-22 04:10:12 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/10/07 20:35:17  kooiman
+// Fixed cursor hide problem
+//
 // Revision 1.45  2002/10/02 10:53:40  kooiman
 // Fix C++ casting for eventobject.
 //
@@ -812,47 +815,30 @@ BOOL CDSCaptureSource::IsInTunerMode()
 	return FALSE;
 }
 
-BOOL CDSCaptureSource::HasTuner()
+//This one was really welcomed actually..
+CDShowTVTuner* CDSCaptureSource::GetTVTuner()
 {
-	if(m_pDSGraph==NULL)
-		return FALSE;
+    if(m_pDSGraph==NULL) return NULL;
 
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
-	if(pSrc==NULL)
-		return FALSE;
+	if(pSrc==NULL) return FALSE;
 
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
 		pCap=(CDShowCaptureDevice*)pSrc;
-		if(pCap->getTVTuner() != NULL)
-		{
-			return TRUE;
-		}
+		return pCap->getTVTuner();
 	}
-
-	return FALSE;
 }
+
 
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-	if(m_pDSGraph==NULL)
-		return FALSE;
+	CDShowTVTuner *pTvTuner = GetTVTuner();
+	if(pTvTuner == NULL) return FALSE;
 
-	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
-	if(pSrc==NULL)
-		return FALSE;
-
-	CDShowCaptureDevice *pCap=NULL;
-	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
-	{
-		pCap=(CDShowCaptureDevice*)pSrc;
-		CDShowTVTuner *pTvTuner = pCap->getTVTuner();
-		if(pTvTuner == NULL)
-			return FALSE;
-
-		LOG(3,"DSSource: SetTunerFrequency: Found TVTuner");
-		try
+    LOG(3,"DSSource: SetTunerFrequency: Found TVTuner");
+	try
     {
       static BOOL bFirstTime = TRUE;
 
@@ -900,10 +886,9 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
       return pTvTuner->setTunerFrequency(FrequencyId);
     }
     catch(CDShowException e)
-		{
+    {
        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
-    }
-	}
+    }	
 	return FALSE;
 }
 

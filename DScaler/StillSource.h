@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.44 2002-09-28 13:31:41 kooiman Exp $
+// $Id: StillSource.h,v 1.45 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -101,12 +101,12 @@ public:
     ISetting* GetSaturationU() {return NULL;};
     ISetting* GetSaturationV() {return NULL;};
     ISetting* GetOverscan() {return NULL;};
-	eTunerId GetTunerId();
+
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
     int GetWidth();
     int GetHeight();
-    BOOL HasTuner() {return FALSE;};
+
     void UpdateMenu();
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);
@@ -131,6 +131,8 @@ public:
     int GetInput(eSourceInputType InputType) { return -1; };
     const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
+
+    ITuner* GetTuner() {return NULL;}
 
     friend class CTiffHelper;
     friend class CJpegHelper;

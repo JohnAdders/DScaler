@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.8 2002-10-21 16:07:26 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.9 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,6 @@ public:
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
     ISetting* GetOverscan();
-	eTunerId GetTunerId();
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -61,7 +60,7 @@ public:
     int GetHeight();
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
-    BOOL HasTuner();
+  
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
@@ -82,6 +81,8 @@ public:
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+
+    ITuner* GetTuner();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

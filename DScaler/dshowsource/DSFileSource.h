@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.4 2002-09-29 09:16:25 tobbej Exp $
+// $Id: DSFileSource.h,v 1.5 2002-10-22 04:09:49 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/29 09:16:25  tobbej
+// changed GetStatus to return filename only
+//
 // Revision 1.3  2002/09/14 17:03:11  tobbej
 // implemented audio output device selection
 //
@@ -74,9 +77,7 @@ public:
 	LPCSTR GetStatus();
 	void HandleTimerMessages(int TimerId);
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-
-	eTunerId GetTunerId();
-	BOOL HasTuner();
+	
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsInTunerMode();
 
@@ -97,6 +98,8 @@ public:
 	LPCSTR GetMenuLabel();
 
 	void Start();
+
+    ITuner* GetTuner() {return NULL;}
 
 private:
 	///the file this source uses

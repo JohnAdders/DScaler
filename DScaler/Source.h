@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.23 2002-09-26 11:33:42 kooiman Exp $
+// $Id: Source.h,v 1.24 2002-10-22 04:08:50 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "Events.h"
 #include "Setting.h"
 #include "TVFormats.h"
+#include "ITuner.h"
 #include "Bt848_Defines.h"
 
 
@@ -86,8 +87,17 @@ public:
     virtual ISetting* GetSaturationV() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetOverscan() = 0;
-	/// Get the tuner Id
-    virtual eTunerId GetTunerId() = 0;
+	/// Get the tuner Id - this method may (and should) be overriden
+    virtual eTunerId GetTunerId() 
+    {
+        ITuner* tuner = GetTuner();
+        if (NULL == tuner)
+        {
+            return TUNER_ABSENT;
+        }
+        return tuner->GetTunerId();
+    }
+
     /// Get the original video format e.g. PAL, NTSC
     virtual eVideoFormat GetFormat() = 0;
     /// Are we currently showing the output from the tuner
@@ -97,7 +107,9 @@ public:
     /// Gets the height of each frame in pixels, for interlaced this is x2 FieldHeight
     virtual int GetHeight() = 0;
     /// Does this source have an anologue tuner
-    virtual BOOL HasTuner() = 0;
+    //(kept for backward compatibility)
+    /*virtual*/ BOOL HasTuner();    
+
     /// Update the content of the menu
     virtual void UpdateMenu() = 0;
     /// Update the menu with any settings
@@ -136,6 +148,8 @@ public:
     virtual int  GetInput(eSourceInputType InputType) = 0;
     virtual const char* GetInputName(eSourceInputType InputType, int Nr) = 0;
     virtual BOOL InputHasTuner(eSourceInputType InputType, int Nr) = 0;
+
+    virtual ITuner* GetTuner() = 0;
 
 protected:
     CSource(long SetMessage, long MenuId);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.67 2003-01-23 01:52:22 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.68 2003-01-23 02:18:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2003/01/23 01:52:22  atnak
+// Fixed settings
+//
 // Revision 1.66  2003/01/20 11:35:37  adcockj
 // Made Reset call Consistent with other sources
 //
@@ -1503,7 +1506,7 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
-    Reset();
+    SetupVideoSource();
     
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
@@ -1522,7 +1525,7 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
 
-    Reset();
+    SetupVideoSource();
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.cpp,v 1.15 2001-08-02 16:43:05 adcockj Exp $
+// $Id: FD_60Hz.cpp,v 1.16 2001-08-08 08:54:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.14  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -64,7 +67,8 @@
 
 // Settings
 // Default values which can be overwritten by the INI file
-long gNTSCFilmFallbackIndex = INDEX_ADAPTIVE;
+long NTSCFilmFallbackIndex = INDEX_ADAPTIVE;
+long NTSCBadCadenceIndex = INDEX_VIDEO_GREEDY;
 long Threshold32Pulldown = 15;
 long ThresholdPulldownMismatch = 100;
 long ThresholdPulldownComb = 300;
@@ -73,7 +77,7 @@ long PulldownRepeatCount = 4;
 long PulldownRepeatCount2 = 2;
 long PulldownSwitchMax = 4;
 long PulldownSwitchInterval = 3000;
-long MaxCallsToComb = 20;
+long MaxCallsToNTSCComb = 20;
 
 // Module wide declarations
 long NextPulldownRepeatCount = 0;    // for temporary increases of PullDownRepeatCount
@@ -214,7 +218,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                 // video noise or a single spurious field added/dropped
                 // during a movie causing mis-synchronization problems. 
                 LOG(2, " Back to Video, No field pairs");
-                SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
                 MOVIE_VERIFY_CYCLE = 0;
                 MOVIE_FIELD_CYCLE = 0;
             }
@@ -235,7 +239,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                         SwitchToVideo = TRUE;
                         NextPulldownRepeatCount = 1;
                         LOG(2, " Back to Video, comb factor %d", pInfo->CombFactor);
-                        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                        SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
                         MOVIE_VERIFY_CYCLE = 0;
                         MOVIE_FIELD_CYCLE = 0;
                     }
@@ -327,7 +331,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                         {
                             if(bFallbackToVideo)
                             {
-                                SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                                SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
                                 MOVIE_VERIFY_CYCLE = 0;
                                 MOVIE_FIELD_CYCLE = 0;
                                 LOG(2, " Too much film Mode cycling, switching to video");
@@ -376,7 +380,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                         SetFilmDeinterlaceMode(NewFilmMode);
                         if(TrackModeSwitches())
                         {
-                            SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                            SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
                             MOVIE_VERIFY_CYCLE = 0;
                             MOVIE_FIELD_CYCLE = 0;
                             LOG(2, " Too much film Mode cycling, switching to video");
@@ -395,7 +399,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                     LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
                     if(TrackModeSwitches())
                     {
-                        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
+                        SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
                         MOVIE_VERIFY_CYCLE = 0;
                         MOVIE_FIELD_CYCLE = 0;
                         LOG(2, " Too much film Mode cycling, switching to video");
@@ -469,146 +473,131 @@ eFilmPulldownMode GetFilmModeFromPosition(DEINTERLACE_INFO* pInfo)
 }
 
 
-BOOL FilmModeNTSC1st(DEINTERLACE_INFO* pInfo)
+BOOL FlipNTSC1st(int CurrentFrame, BOOL bIsOdd)
 {
     BOOL bFlipNow;
     // Film Mode.  If we have an entire new frame, display it.
-    switch(pInfo->CurrentFrame)
+    switch(CurrentFrame)
     {
-    case 0:  bFlipNow = FALSE;         break;
-    case 1:  bFlipNow = !pInfo->IsOdd;  break;
-    case 2:  bFlipNow = !pInfo->IsOdd;  break;
-    case 3:  bFlipNow = pInfo->IsOdd;   break;
-    case 4:  bFlipNow = pInfo->IsOdd;   break;
+    case 0:  bFlipNow = FALSE;    break;
+    case 1:  bFlipNow = !bIsOdd;  break;
+    case 2:  bFlipNow = !bIsOdd;  break;
+    case 3:  bFlipNow = bIsOdd;   break;
+    case 4:  bFlipNow = bIsOdd;   break;
     }
-    if (bFlipNow)
-        Weave(pInfo);
     return bFlipNow;
+}
+
+BOOL FlipNTSC2nd(int CurrentFrame, BOOL bIsOdd)
+{
+    BOOL bFlipNow;
+    // Film Mode.  If we have an entire new frame, display it.
+    switch(CurrentFrame)
+    {
+    case 0:  bFlipNow = bIsOdd;   break;
+    case 1:  bFlipNow = FALSE;    break;
+    case 2:  bFlipNow = !bIsOdd;  break;
+    case 3:  bFlipNow = !bIsOdd;  break;
+    case 4:  bFlipNow = bIsOdd;   break;
+    }
+    return bFlipNow;
+}
+
+BOOL FlipNTSC3rd(int CurrentFrame, BOOL bIsOdd)
+{
+    BOOL bFlipNow;
+    // Film Mode.  If we have an entire new frame, display it.
+    switch(CurrentFrame)
+    {
+    case 0:  bFlipNow = bIsOdd;   break;
+    case 1:  bFlipNow = bIsOdd;   break;
+    case 2:  bFlipNow = FALSE;    break;
+    case 3:  bFlipNow = !bIsOdd;  break;
+    case 4:  bFlipNow = !bIsOdd;  break;
+    }
+    return bFlipNow;
+}
+
+BOOL FlipNTSC4th(int CurrentFrame, BOOL bIsOdd)
+{
+    BOOL bFlipNow;
+    // Film Mode.  If we have an entire new frame, display it.
+    switch(CurrentFrame)
+    {
+    case 0:  bFlipNow = !bIsOdd;  break;
+    case 1:  bFlipNow = bIsOdd;   break;
+    case 2:  bFlipNow = bIsOdd;   break;
+    case 3:  bFlipNow = FALSE;    break;
+    case 4:  bFlipNow = !bIsOdd;  break;
+    }
+    return bFlipNow;
+}
+
+BOOL FlipNTSC5th(int CurrentFrame, BOOL bIsOdd)
+{
+    BOOL bFlipNow;
+    // Film Mode.  If we have an entire new frame, display it.
+    switch(CurrentFrame)
+    {
+    case 0:  bFlipNow = !bIsOdd;  break;
+    case 1:  bFlipNow = !bIsOdd;  break;
+    case 2:  bFlipNow = bIsOdd;   break;
+    case 3:  bFlipNow = bIsOdd;   break;
+    case 4:  bFlipNow = FALSE;    break;
+    }
+    return bFlipNow;
+}
+
+BOOL FilmModeNTSC1st(DEINTERLACE_INFO* pInfo)
+{
+    return SimpleFilmMode(pInfo, FlipNTSC1st);
 }
 
 BOOL FilmModeNTSC2nd(DEINTERLACE_INFO* pInfo)
 {
-    BOOL bFlipNow;
-    // Film Mode.  If we have an entire new frame, display it.
-    switch(pInfo->CurrentFrame)
-    {
-    case 0:  bFlipNow = pInfo->IsOdd;   break;
-    case 1:  bFlipNow = FALSE;         break;
-    case 2:  bFlipNow = !pInfo->IsOdd;  break;
-    case 3:  bFlipNow = !pInfo->IsOdd;  break;
-    case 4:  bFlipNow = pInfo->IsOdd;   break;
-    }
-    if (bFlipNow)
-        Weave(pInfo);
-    return bFlipNow;
+    return SimpleFilmMode(pInfo, FlipNTSC2nd);
 }
 
 BOOL FilmModeNTSC3rd(DEINTERLACE_INFO* pInfo)
 {
-    BOOL bFlipNow;
-    // Film Mode.  If we have an entire new frame, display it.
-    switch(pInfo->CurrentFrame)
-    {
-    case 0:  bFlipNow = pInfo->IsOdd;   break;
-    case 1:  bFlipNow = pInfo->IsOdd;   break;
-    case 2:  bFlipNow = FALSE;         break;
-    case 3:  bFlipNow = !pInfo->IsOdd;  break;
-    case 4:  bFlipNow = !pInfo->IsOdd;  break;
-    }
-    if (bFlipNow)
-        Weave(pInfo);
-    return bFlipNow;
+    return SimpleFilmMode(pInfo, FlipNTSC3rd);
 }
 
 BOOL FilmModeNTSC4th(DEINTERLACE_INFO* pInfo)
 {
-    BOOL bFlipNow;
-    // Film Mode.  If we have an entire new frame, display it.
-    switch(pInfo->CurrentFrame)
-    {
-    case 0:  bFlipNow = !pInfo->IsOdd;  break;
-    case 1:  bFlipNow = pInfo->IsOdd;   break;
-    case 2:  bFlipNow = pInfo->IsOdd;   break;
-    case 3:  bFlipNow = FALSE;         break;
-    case 4:  bFlipNow = !pInfo->IsOdd;  break;
-    }
-    if (bFlipNow)
-        Weave(pInfo);
-    return bFlipNow;
+    return SimpleFilmMode(pInfo, FlipNTSC4th);
 }
 
 BOOL FilmModeNTSC5th(DEINTERLACE_INFO* pInfo)
 {
-    BOOL bFlipNow;
-    // Film Mode.  If we have an entire new frame, display it.
-    switch(pInfo->CurrentFrame)
-    {
-    case 0:  bFlipNow = !pInfo->IsOdd;  break;
-    case 1:  bFlipNow = !pInfo->IsOdd;  break;
-    case 2:  bFlipNow = pInfo->IsOdd;   break;
-    case 3:  bFlipNow = pInfo->IsOdd;   break;
-    case 4:  bFlipNow = FALSE;         break;
-    }
-    if (bFlipNow)
-        Weave(pInfo);
-    return bFlipNow;
+    return SimpleFilmMode(pInfo, FlipNTSC5th);
 }
 
 BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo)
 {
-    static long LastComb = 0;
-    static long NumSkipped = 0;
-    static long NumVideo = 0;
     static long NumCalls = 0;
+    DEINTERLACE_METHOD* DeintMethod;
     
     if(pInfo == NULL)
     {
-        LastComb = 0;
-        NumSkipped = 0;
-        NumVideo = 0;
         NumCalls = 0;
         return FALSE;
     }
 
     ++NumCalls;
-    if(NumCalls > MaxCallsToComb)
+    if(NumCalls > MaxCallsToNTSCComb)
     {
-        SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-        LOG(2, " Gone back to video from Comb");
+        SetVideoDeinterlaceIndex(NTSCFilmFallbackIndex);
+        LOG(2, " Gone back to video from Comb Mode");
     }
-    // if we can weave these frames together without too
-    // much weaving or because there is no motion then go ahead
-    if(pInfo->CombFactor  < ThresholdPulldownComb ||
-        pInfo->FieldDiff  < Threshold32Pulldown)
+    DeintMethod = GetVideoDeintIndex(NTSCBadCadenceIndex);
+    if(DeintMethod != NULL && DeintMethod->nMethodIndex == NTSCBadCadenceIndex)
     {
-        NumSkipped = 0;
-        LastComb = pInfo->CombFactor;
-        LOG(2, " Weaved in Comb Mode");
-        return Weave(pInfo);
+        return DeintMethod->pfnAlgorithm(pInfo);
     }
     else
     {
-        // otherwise we must keep track of how long it's been
-        // since we flipped and every so often throw in a video
-        // deinterlaced frame so that we don't freeze up
-        ++NumSkipped;
-        if(NumSkipped > 2)
-        {
-            LOG(2, " Had too many skipped frames, had to use video method");
-            ++NumVideo;
-            if(NumVideo > 2)
-            {
-                SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-                LOG(2, " Gone back to video from Comb");
-            }
-            LastComb = 0;
-            return GetVideoDeintIndex(gNTSCFilmFallbackIndex)->pfnAlgorithm(pInfo);
-        }
-        else
-        {
-            LastComb = pInfo->CombFactor;
-            return FALSE;
-        }
+        return Bob(pInfo);
     }
 }
 
@@ -618,54 +607,19 @@ BOOL DidWeExpectWeave(DEINTERLACE_INFO* pInfo)
     switch(GetFilmMode())
     {
     case FILM_32_PULLDOWN_0:
-        switch(pInfo->CurrentFrame)
-        {
-        case 0:  RetVal = FALSE;         break;
-        case 1:  RetVal = !pInfo->IsOdd;  break;
-        case 2:  RetVal = !pInfo->IsOdd;  break;
-        case 3:  RetVal = pInfo->IsOdd;   break;
-        case 4:  RetVal = pInfo->IsOdd;   break;
-        }
+        return FlipNTSC1st(pInfo->CurrentFrame, pInfo->IsOdd);
         break;
     case FILM_32_PULLDOWN_1:
-        switch(pInfo->CurrentFrame)
-        {
-        case 0:  RetVal = pInfo->IsOdd;   break;
-        case 1:  RetVal = FALSE;         break;
-        case 2:  RetVal = !pInfo->IsOdd;  break;
-        case 3:  RetVal = !pInfo->IsOdd;  break;
-        case 4:  RetVal = pInfo->IsOdd;   break;
-        }
+        return FlipNTSC2nd(pInfo->CurrentFrame, pInfo->IsOdd);
         break;
     case FILM_32_PULLDOWN_2:
-        switch(pInfo->CurrentFrame)
-        {
-        case 0:  RetVal = pInfo->IsOdd;   break;
-        case 1:  RetVal = pInfo->IsOdd;   break;
-        case 2:  RetVal = FALSE;         break;
-        case 3:  RetVal = !pInfo->IsOdd;  break;
-        case 4:  RetVal = !pInfo->IsOdd;  break;
-        }
+        return FlipNTSC3rd(pInfo->CurrentFrame, pInfo->IsOdd);
         break;
     case FILM_32_PULLDOWN_3:
-        switch(pInfo->CurrentFrame)
-        {
-        case 0:  RetVal = !pInfo->IsOdd;  break;
-        case 1:  RetVal = pInfo->IsOdd;   break;
-        case 2:  RetVal = pInfo->IsOdd;   break;
-        case 3:  RetVal = FALSE;         break;
-        case 4:  RetVal = !pInfo->IsOdd;  break;
-        }
+        return FlipNTSC4th(pInfo->CurrentFrame, pInfo->IsOdd);
         break;
     case FILM_32_PULLDOWN_4:
-        switch(pInfo->CurrentFrame)
-        {
-        case 0:  RetVal = !pInfo->IsOdd;  break;
-        case 1:  RetVal = !pInfo->IsOdd;  break;
-        case 2:  RetVal = pInfo->IsOdd;   break;
-        case 3:  RetVal = pInfo->IsOdd;   break;
-        case 4:  RetVal = FALSE;         break;
-        }
+        return FlipNTSC5th(pInfo->CurrentFrame, pInfo->IsOdd);
         break;
     default:
         RetVal = FALSE;
@@ -680,7 +634,7 @@ BOOL DidWeExpectWeave(DEINTERLACE_INFO* pInfo)
 SETTING FD60Settings[FD60_SETTING_LASTONE] =
 {
     {
-        "NTSC Film Fallback Mode", ITEMFROMLIST, 0, (long*)&gNTSCFilmFallbackIndex,
+        "NTSC Video Mode", ITEMFROMLIST, 0, (long*)&NTSCFilmFallbackIndex,
         INDEX_ADAPTIVE, 0, 99, 1, 1,
         DeinterlaceNames,
         "Pulldown", "NTSCFilmFallbackMode", NULL,
@@ -736,11 +690,17 @@ SETTING FD60Settings[FD60_SETTING_LASTONE] =
 
     },
     {
-        "Max Calls to Comb Method", SLIDER, 0, (long*)&MaxCallsToComb,
+        "Max Calls to Comb Method", SLIDER, 0, (long*)&MaxCallsToNTSCComb,
         20, 0, 1000, 10, 1,
         NULL,
         "Pulldown", "MaxCallsToComb", NULL,
 
+    },
+    {
+        "NTSC Bad Cadence Mode", ITEMFROMLIST, 0, (long*)&NTSCBadCadenceIndex,
+        INDEX_VIDEO_GREEDY, 0, 99, 1, 1,
+        DeinterlaceNames,
+        "Pulldown", "NTSCFilmFallbackMode", NULL,
     },
 };
 

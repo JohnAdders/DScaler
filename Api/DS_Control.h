@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.32 2001-08-06 22:33:48 laurentg Exp $
+// $Id: DS_Control.h,v 1.33 2001-08-08 08:54:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/08/06 22:33:48  laurentg
+// Little improvments for AR autodetection
+//
 // Revision 1.31  2001/08/03 12:27:41  adcockj
 // Added sharpness filter
 //
@@ -398,6 +401,7 @@ typedef enum
     PALFILMREPEATCOUNT,
     PALFILMREPEATCOUNT2,
     MAXCALLSTOPALCOMB,
+    PALBADCADENCEMODE,
     FD50_SETTING_LASTONE,
 } FD50_SETTING;
 
@@ -421,6 +425,7 @@ typedef enum
     PULLDOWNSWITCHINTERVAL,
     PULLDOWNSWITCHMAX,
     MAXCALLSTOCOMB,
+    NTSCBADCADENCEMODE,
     FD60_SETTING_LASTONE,
 } FD60_SETTING;
 
@@ -439,6 +444,7 @@ typedef enum
     JAGGIETHRESHOLD,
     DIFFTHRESHOLD,
     USECHROMA,
+    FILMFLIPDELAY,
     FD_COMMON_SETTING_LASTONE,
 } FD_COMMON_SETTING;
 

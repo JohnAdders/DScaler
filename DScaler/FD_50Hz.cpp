@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.15 2001-08-02 16:43:05 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.16 2001-08-08 08:54:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.14  2001/07/24 12:19:00  adcockj
 // Added code and tools for crash logging from VirtualDub
 //
@@ -57,7 +60,8 @@
 #include "DebugLog.h"
 #include "SettingsDlg.h"
 
-long gPALFilmFallbackIndex = INDEX_VIDEO_2FRAME;
+long PALFilmFallbackIndex = INDEX_VIDEO_2FRAME;
+long PALBadCadenceIndex = INDEX_VIDEO_GREEDY;
 // Default values which can be overwritten by the INI file
 long PulldownThresholdLow = 30;
 long PulldownThresholdHigh = 10;
@@ -206,7 +210,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
         {
             if(bFallbackToVideo)
             {
-                SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+                SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
                 LOG(2, " Gone back to video");
                 RepeatCount = 0;
             }
@@ -214,7 +218,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
             {
                 if(FieldsSinceLastChange < 100)
                 {
-                    SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+                    SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
                     FieldsSinceLastChange = 0;
                     PrivateRepeatCount = PALPulldownRepeatCount * 4;
                     LOG(2, " Changes too fast go back to video and make it harder");
@@ -261,7 +265,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
                     {
                         if(bFallbackToVideo)
                         {
-                            SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+                            SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
                             LOG(2, " Gone back to because we're not sure");
                             RepeatCount = 0;
                         }
@@ -269,7 +273,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
                         {
                             if(FieldsSinceLastChange < 100)
                             {
-                                SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+                                SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
                                 FieldsSinceLastChange = 0;
                                 PrivateRepeatCount = PALPulldownRepeatCount * 4;
                                 LOG(2, " Changes too fast go back to video and make it harder because we're not sure");
@@ -299,44 +303,33 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
     LastCombFactor = pInfo->CombFactor;
 }
 
-BOOL FilmModePALEven(DEINTERLACE_INFO* pInfo)
+BOOL FlipPALOdd(int CurrentFrame, BOOL bIsOdd)
 {
-    if (!pInfo->IsOdd)
-    {
-        Weave(pInfo);
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
+    return bIsOdd;
+}
+
+BOOL FlipPALEven(int CurrentFrame, BOOL bIsOdd)
+{
+    return !bIsOdd;
 }
 
 BOOL FilmModePALOdd(DEINTERLACE_INFO* pInfo)
 {
-    if (pInfo->IsOdd)
-    {
-        Weave(pInfo);
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
+    return SimpleFilmMode(pInfo, FlipPALOdd);
+}
+
+BOOL FilmModePALEven(DEINTERLACE_INFO* pInfo)
+{
+    return SimpleFilmMode(pInfo, FlipPALEven);
 }
 
 BOOL FilmModePALComb(DEINTERLACE_INFO* pInfo)
 {
-    static long LastComb = 0;
-    static long NumSkipped = 0;
-    static long NumVideo = 0;
     static long NumCalls = 0;
+    DEINTERLACE_METHOD* DeintMethod;
     
     if(pInfo == NULL)
     {
-        LastComb = 0;
-        NumSkipped = 0;
-        NumVideo = 0;
         NumCalls = 0;
         return FALSE;
     }
@@ -344,42 +337,17 @@ BOOL FilmModePALComb(DEINTERLACE_INFO* pInfo)
     ++NumCalls;
     if(NumCalls > MaxCallsToPALComb)
     {
-        SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
-        LOG(2, " Gone back to video from Comb");
+        SetVideoDeinterlaceIndex(PALFilmFallbackIndex);
+        LOG(2, " Gone back to video from Comb Mode");
     }
-    // if we can weave these frames together without too
-    // much weaving or because there is no motion then go ahead
-    if(pInfo->CombFactor  < ThresholdPulldownComb ||
-        pInfo->FieldDiff  < MovementThreshold)
+    DeintMethod = GetVideoDeintIndex(PALBadCadenceIndex);
+    if(DeintMethod != NULL && DeintMethod->nMethodIndex == PALBadCadenceIndex)
     {
-        NumSkipped = 0;
-        LastComb = pInfo->CombFactor;
-        LOG(2, " Weaved in Comb Mode");
-        return Weave(pInfo);
+        return DeintMethod->pfnAlgorithm(pInfo);
     }
     else
     {
-        // otherwise we must keep track of how long it's been
-        // since we flipped and every so often throw in a video
-        // deinterlaced frame so that we don't freeze up
-        ++NumSkipped;
-        if(NumSkipped > 1)
-        {
-            LOG(2, " Had too many skipped frames, had to use video method");
-            ++NumVideo;
-            if(NumVideo > 2)
-            {
-                SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
-                LOG(2, " Gone back to video from Comb");
-            }
-            LastComb = 0;
-            return GetVideoDeintIndex(gPALFilmFallbackIndex)->pfnAlgorithm(pInfo);
-        }
-        else
-        {
-            LastComb = pInfo->CombFactor;
-            return FALSE;
-        }
+        return Bob(pInfo);
     }
 }
 
@@ -402,7 +370,7 @@ SETTING FD50Settings[FD50_SETTING_LASTONE] =
         "Pulldown", "PulldownThresholdHigh", NULL,
     },
     {
-        "PAL Film Fallback Mode", ITEMFROMLIST, 0, &gPALFilmFallbackIndex,
+        "PAL Video Mode", ITEMFROMLIST, 0, &PALFilmFallbackIndex,
         INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
         DeinterlaceNames,
         "Pulldown", "PALFilmFallbackMode", NULL,
@@ -425,6 +393,12 @@ SETTING FD50Settings[FD50_SETTING_LASTONE] =
         NULL,
         "Pulldown", "MaxCallsToPALComb", NULL,
 
+    },
+    {
+        "PAL Bad Cadence Mode", ITEMFROMLIST, 0, (long*)&PALBadCadenceIndex,
+        INDEX_VIDEO_GREEDY, 0, 99, 1, 1,
+        DeinterlaceNames,
+        "Pulldown", "PALFilmFallbackMode", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.14 2001-08-02 16:43:05 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.15 2001-08-08 08:54:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.13  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -70,6 +73,7 @@ long CombEdgeDetect = 625;
 long CombJaggieThreshold = 73;
 long DiffThreshold = 224;
 BOOL UseChromaInDetect = FALSE;
+long FilmFlipDelay = 0;
 
 void CalcCombFactor(DEINTERLACE_INFO* pInfo);
 void CalcDiffFactor(DEINTERLACE_INFO* pInfo);
@@ -670,6 +674,77 @@ BOOL Weave(DEINTERLACE_INFO* pInfo)
     return TRUE;
 }
 
+BOOL WeaveDelay(DEINTERLACE_INFO* pInfo, int Delay)
+{
+    int i;
+    BYTE* lpOverlay = pInfo->Overlay;
+    short** OddLines;
+    short** EvenLines;
+
+    if(pInfo->IsOdd == TRUE)
+    {
+        OddLines = pInfo->OddLines[(Delay + 1) / 2];
+        EvenLines = pInfo->EvenLines[Delay / 2];
+    }
+    else
+    {
+        OddLines = pInfo->OddLines[Delay / 2];
+        EvenLines = pInfo->EvenLines[(Delay + 1) / 2];
+    }
+
+    if (EvenLines == NULL || OddLines == NULL)
+    {
+        return FALSE;
+    }
+
+    for (i = 0; i < pInfo->FieldHeight; i++)
+    {
+        pInfo->pMemcpy(lpOverlay, EvenLines[i], pInfo->LineLength);
+        lpOverlay += pInfo->OverlayPitch;
+
+        pInfo->pMemcpy(lpOverlay, OddLines[i], pInfo->LineLength);
+        lpOverlay += pInfo->OverlayPitch;
+    }
+    _asm
+    {
+        emms
+    }
+    return TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SimpleFilmMode.  Copies alternating scanlines from the input after
+// accounting for an adjustable delay.
+///////////////////////////////////////////////////////////////////////////////
+BOOL SimpleFilmMode(DEINTERLACE_INFO* pInfo, PFNFLIP* pfnFlip)
+{
+    BYTE* lpOverlay = pInfo->Overlay;
+    int TestField;
+    int TestOdd;
+
+
+    if(pInfo->IsOdd == TRUE)
+    {
+        TestField = (pInfo->CurrentFrame + 5 - (FilmFlipDelay + 1) / 2) % 5;
+        TestOdd = ((FilmFlipDelay % 2) == 0);
+    }
+    else
+    {
+        TestField = (pInfo->CurrentFrame + 5 - FilmFlipDelay / 2) % 5;
+        TestOdd = ((FilmFlipDelay % 2) != 0);
+    }
+
+    if(pfnFlip(TestField, TestOdd) == FALSE)
+    {
+        return WeaveDelay(pInfo, FilmFlipDelay);
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // Simple Bob.  Copies the most recent field to the overlay, with each scanline
 // copied twice.
@@ -783,6 +858,13 @@ SETTING FD_CommonSettings[FD_COMMON_SETTING_LASTONE] =
         0, 0, 1, 1, 1,
         NULL,
         "Pulldown", "UseChroma", NULL,
+
+    },
+    {
+        "Film Flip Delay", SLIDER, 0, &FilmFlipDelay,
+        0, 0, 3, 1, 1,
+        NULL,
+        "Pulldown", "FilmFlipDelay", NULL,
 
     },
 };

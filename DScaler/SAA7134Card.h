@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.10 2002-10-08 12:24:46 atnak Exp $
+// $Id: SAA7134Card.h,v 1.11 2002-10-08 19:35:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/08 12:24:46  atnak
+// added various functions to configure carriers
+//
 // Revision 1.9  2002/10/06 12:14:52  atnak
 // cleaned up SetPageTable(...)
 //
@@ -104,6 +107,7 @@ private:
         INPUTTYPE_MUTE,
     };
 
+    // Possible clock crystals a card could have
     enum eAudioCrystal
     {
         AUDIOCRYSTAL_32110Hz = 0,
@@ -156,8 +160,6 @@ public:
     void HandleTimerMessages(int TimerId);
     CSAA7134Card(CHardwareDriver* pDriver);
     ~CSAA7134Card();
-
-    //BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
     
     void SetCardType(int CardType);
     eTVCardId GetCardType();
@@ -168,52 +170,12 @@ public:
 
     void SetBrightness(BYTE Brightness);
     BYTE GetBrightness();
-    void SetWhiteCrushUp(BYTE WhiteCrushUp);
-    BYTE GetWhiteCrushUp();
-    void SetWhiteCrushDown(BYTE WhiteCrushDown);
-    BYTE GetWhiteCrushDown();
     void SetHue(BYTE Hue);
     BYTE GetHue();
     void SetContrast(BYTE Contrast);
     BYTE GetContrast();
     void SetSaturation(BYTE Saturation);
     BYTE GetSaturation();
-    void SetBDelay(BYTE BDelay);
-    BYTE GetBDelay();
-    void SetEvenLumaDec(BOOL EvenLumaDec);
-    void SetOddLumaDec(BOOL OddLumaDec);
-    BOOL GetEvenLumaDec();
-    BOOL GetOddLumaDec();
-    void SetEvenChromaAGC(BOOL EvenChromaAGC);
-    BOOL GetEvenChromaAGC();
-    void SetOddChromaAGC(BOOL OddChromaAGC);
-    BOOL GetOddChromaAGC();
-    void SetEvenLumaPeak(BOOL EvenLumaPeak);
-    BOOL GetEvenLumaPeak();
-    void SetOddLumaPeak(BOOL OddLumaPeak);
-    BOOL GetOddLumaPeak();
-    void SetColorKill(BOOL ColorKill);
-    BOOL GetColorKill();
-    void SetHorFilter(BOOL HorFilter);
-    BOOL GetHorFilter();
-    void SetVertFilter(BOOL VertFilter);
-    BOOL GetVertFilter();
-    void SetFullLumaRange(BOOL FullLumaRange);
-    BOOL GetFullLumaRange();
-    void SetCoring(BOOL Coring);
-    BOOL GetCoring();
-    void SetEvenComb(BOOL EvenComb);
-    BOOL GetEvenComb();
-    void SetOddComb(BOOL OddComb);
-    BOOL GetOddComb();
-    void SetAgcDisable(BOOL AgcDisable);
-    BOOL GetAgcDisable();
-    void SetCrush(BOOL Crush);
-    BOOL GetCrush();
-    void SetColorBars(BOOL ColorBars);
-    BOOL GetColorBars();
-    void SetGammaCorrection(BOOL GammaCorrection);
-    BOOL GetGammaCorrection();
 
     void SetWhitePeak(BOOL WhitePeak);
     BOOL GetWhitePeak();
@@ -222,6 +184,8 @@ public:
 
     void SetHPLLMode(eHPLLMode HPLLMode);
     void SetVSyncRecovery(eVSyncRecovery VSyncRecovery);
+
+    void SetCombFilter(BOOL bEnable);
 
     LPCSTR GetChipType();
     LPCSTR GetTunerType();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.10 2002-10-08 12:22:47 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.11 2002-10-08 19:35:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/08 12:22:47  atnak
+// added software card reset in ResetHardware(), etc
+//
 // Revision 1.9  2002/10/06 12:14:52  atnak
 // cleaned up SetPageTable(...)
 //
@@ -148,7 +151,8 @@ void CSAA7134Card::ResetHardware()
     // LOG(0, "Initial registery dump");
     // DumpRegisters();
 
-    WriteWord(SAA7134_SOURCE_TIMING, 0x00);
+    WriteByte(SAA7134_SOURCE_TIMING, 0x04);
+    WriteByte(SAA7134_SOURCE_TIMING_HIBYTE, 0x20);
 
     WriteByte(SAA7134_START_GREEN, 0x00);
     WriteByte(SAA7134_START_BLUE, 0x00);
@@ -183,8 +187,7 @@ void CSAA7134Card::ResetHardware()
     WriteDword(SAA7134_IRQ1, 0UL);
     WriteDword(SAA7134_IRQ2, 0UL);
 
-    // Enable peripheral devices
-    WriteByte(SAA7134_SPECIAL_MODE, 0x01);
+    WriteByte(SAA7134_SPECIAL_MODE, 0x00);
 
     InitAudio();
 
@@ -237,8 +240,8 @@ void CSAA7134Card::SetupTasks()
     // Let Task A get Odd then Even field, follow by Task B
     // getting Odd then Even field. (Odd is DScaler's Even)
 
-    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
-    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0E);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0E);
 
     // handle two fields per task
     WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_A_MASK), 0x02);
@@ -266,8 +269,8 @@ void CSAA7134Card::SetupTasks()
     WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(SAA7134_TASK_A_MASK), 0x00);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(SAA7134_TASK_B_MASK), 0x00);
 
-    WriteByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 0x00);
-    WriteByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 0x00);
+    WriteByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 0x03);
+    WriteByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 0x03);
 
     // deinterlace y offsets ?? no idea what these are
     // Odds: 0x00 default
@@ -341,9 +344,8 @@ void CSAA7134Card::SetBaseOffsets(eRegionID RegionID,
 
     // Number bytes to offset into every page
     // Give the even offset as odd and odd offset as even
-    // WARNING!! For some reason BA2 (as upper) is done before BA1 (lower)
-    WriteDword(SAA7134_RS_BA1(Channel), dwOddOffset);
-    WriteDword(SAA7134_RS_BA2(Channel), dwEvenOffset);
+    WriteDword(SAA7134_RS_BA1(Channel), dwEvenOffset);
+    WriteDword(SAA7134_RS_BA2(Channel), dwOddOffset);
 
     // Number of bytes to spend per line
     WriteDword(SAA7134_RS_PITCH(Channel), dwPitch);
@@ -579,11 +581,11 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 
     if (Status & SAA7134_SCALER_STATUS_FIDSCO)
     {
-        bIsFieldOdd = TRUE;
+        bIsFieldOdd = FALSE;
     }
     else
     {
-        bIsFieldOdd = FALSE;
+        bIsFieldOdd = TRUE;
     }
 
     // Everything above is SAA7134 style, here we convert evens
@@ -886,15 +888,30 @@ void CSAA7134Card::EnableCCIR656VideoOut()
 // \TEMP DEBUG
 void CSAA7134Card::DumpRegisters()
 {
-    // WARNING! this dumps registers in Big Endian WORDs!!
-    // This causes addresses to be: 0x01, 0x00, 0x03, 0x02...
-    LOG(0, "WARNING! registers are dumped in Big Endian WORDs!!");
-    LOG(0, "This causes addresses to be: 0x01, 0x00, 0x03, 0x02...");
+    DWORD   Data;
+    char    HexString[64];
+
     for (int i = 0x000; i < 0x400; i += 16)
     {
-        LOG(0, "%03lX: %04lx %04lx %04lx %04lx|%04lx %04lx %04lx %04lx", i,
-            ReadWord(i), ReadWord(i+2), ReadWord(i+4), ReadWord(i+6),
-            ReadWord(i+8), ReadWord(i+10), ReadWord(i+12), ReadWord(i+14));
+        *HexString = '\0';
+
+        Data = ReadDword(i);
+        sprintf(HexString, "%02x%02x %02x%02x",
+            Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
+
+        Data = ReadDword(i + 4);
+        sprintf(HexString, "%s %02x%02x %02x%02x", HexString,
+            Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
+
+        Data = ReadDword(i + 8);
+        sprintf(HexString, "%s|%02x%02x %02x%02x", HexString,
+            Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
+        
+        Data = ReadDword(i + 12);
+        sprintf(HexString, "%s %02x%02x %02x%02x", HexString,
+            Data & 0xFF, (Data >> 8) & 0xFF, (Data >> 16) & 0xFF, (Data >> 24) & 0xFF);
+
+        LOG(0, "%03lX: %s", i, HexString);
     }
 }
 

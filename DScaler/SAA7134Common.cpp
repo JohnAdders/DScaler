@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.1 2002-10-03 23:42:07 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.2 2002-10-08 19:35:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/03 23:42:07  atnak
+// SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,47 +43,47 @@ CSAA7134Common::TVideoStandardDefinition CSAA7134Common::m_VideoStandards[] =
 {
     // VIDEOSTANDARD_AUTODETECT
     {
-        288, 720, 0, 24, TRUE, 3, 21, 0x0,
+        288, 720, 0, 24, TRUE, 4, 22, 0x0,
     },
     // VIDEOSTANDARD_PAL_BGDHI
     {
-        288, 720, 0, 22, TRUE, 3, 21, 0x0,
+        288, 720, 0, 23, TRUE, 4, 22, 0x0,
     },
     // VIDEOSTANDARD_PAL_N_COMBO
     {
-        288, 720, 0, 22, TRUE, 3, 21, 0x2,
+        288, 720, 0, 23, TRUE, 4, 22, 0x2,
     },
     // VIDEOSTANDARD_PAL_60
     {
-        240, 720, 0, 22, FALSE, 3, 21, 0x1,
+        240, 720, 0, 23, FALSE, 4, 22, 0x1,
     },
     // VIDEOSTANDARD_PAL_M
     {
-        240, 720, 0, 22, FALSE, 3, 21, 0x3,
+        240, 720, 0, 23, FALSE, 4, 22, 0x3,
     },
     // VIDEOSTANDARD_SECAM
     {
-        288, 720, 0, 24, TRUE, 3, 21, 0x5,
+        288, 720, 0, 24, TRUE, 4, 22, 0x5,
     },
     // VIDEOSTANDARD_NTSC_M
     {
-        240, 720, 0, 24, FALSE, 3, 21, 0x0,
+        240, 720, 0, 24, FALSE, 4, 22, 0x0,
     },
     // VIDEOSTANDARD_NTSC_60 (NTSC 4.43)
     {
-        240, 720, 0, 24, FALSE, 3, 21, 0x2,
+        240, 720, 0, 24, FALSE, 4, 22, 0x2,
     },
     // VIDEOSTANDARD_NTSC_Japan
     {
-        240, 720, 0, 24, FALSE, 3, 21, 0x4,
+        240, 720, 0, 24, FALSE, 4, 22, 0x4,
     },
     // VIDEOSTANDARD_NTSC_50
     {
-        288, 720, 0, 24, TRUE, 3, 21, 0x1,
+        288, 720, 0, 24, TRUE, 4, 22, 0x1,
     },
     // VIDEOSTANDARD_NTSC_N
     {
-        288, 720, 0, 24, TRUE, 3, 21, 0x3,
+        288, 720, 0, 24, TRUE, 4, 22, 0x3,
     },
 };
 

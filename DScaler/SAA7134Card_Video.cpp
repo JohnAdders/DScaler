@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.2 2002-10-06 11:11:29 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.3 2002-10-08 19:35:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/06 11:11:29  atnak
+// Added SetVSync recovery
+//
 // Revision 1.1  2002/10/03 23:42:07  atnak
 // SAA7134Common.h SAA7134Common.cpp SAA7134Card_Video.cpp added
 //
@@ -81,40 +84,6 @@ void CSAA7134Card::SetHue(BYTE Hue)
 BYTE CSAA7134Card::GetHue()
 {
     return ReadByte(SAA7134_DEC_CHROMA_HUE);
-}
-
-// Find SAA7134 equivalent or remove
-void CSAA7134Card::SetWhiteCrushUp(BYTE WhiteCrushUp)
-{
-}
-
-// Find SAA7134 equivalent or remove
-BYTE CSAA7134Card::GetWhiteCrushUp()
-{
-    return 0x00;
-}
-
-// Find SAA7134 equivalent or remove
-void CSAA7134Card::SetWhiteCrushDown(BYTE WhiteCrushDown)
-{
-//    WriteByte(BT848_WC_DOWN, WhiteCrushDown);
-}
-
-// Find SAA7134 equivalent or remove
-BYTE CSAA7134Card::GetWhiteCrushDown()
-{
-    return 0x00;
-}
-
-// Find SAA7134 equivalent or remove
-void CSAA7134Card::SetBDelay(BYTE BDelay)
-{
-}
-
-// Find SAA7134 equivalent or remove
-BYTE CSAA7134Card::GetBDelay()
-{
-    return 0x00;
 }
 
 
@@ -442,6 +411,21 @@ void CSAA7134Card::SetVSyncRecovery(eVSyncRecovery VSyncRecovery)
         break;
     }
     MaskDataByte(SAA7134_SYNC_CTRL, VNOI, SAA7134_SYNC_CTRL_VNOI);
+}
+
+
+void CSAA7134Card::SetCombFilter(BOOL bEnable)
+{
+    if (bEnable)
+    {
+        OrDataByte(SAA7134_LUMA_CTRL, SAA7134_LUMA_CTRL_YCOMB);
+        OrDataByte(SAA7134_CHROMA_CTRL1, SAA7134_CHROMA_CTRL1_CCOMB);
+    }
+    else
+    {
+        AndDataByte(SAA7134_LUMA_CTRL, ~SAA7134_LUMA_CTRL_YCOMB);
+        AndDataByte(SAA7134_CHROMA_CTRL1, ~SAA7134_CHROMA_CTRL1_CCOMB);
+    }
 }
 
 

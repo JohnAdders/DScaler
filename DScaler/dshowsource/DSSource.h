@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.34 2003-01-07 23:31:24 laurentg Exp $
+// $Id: DSSource.h,v 1.35 2003-01-08 21:47:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/07 23:31:24  laurentg
+// New overscan settings
+//
 // Revision 1.33  2003/01/06 21:34:35  tobbej
 // implemented GetFormat (not working yet)
 // implemented fm radio support
@@ -188,6 +191,7 @@ public:
 	ISetting* GetSaturationU() {return NULL;};
 	ISetting* GetSaturationV() {return NULL;};
 
+    ISetting* GetAnalogueBlanking() {return NULL;};
 	ISetting* GetTopOverscan();
 	ISetting* GetBottomOverscan();
 	ISetting* GetLeftOverscan();

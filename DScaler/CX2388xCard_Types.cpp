@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.21 2004-03-07 17:34:49 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.22 2004-03-10 17:44:03 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2004/03/07 17:34:49  to_see
+// moved CCX2388xCard::AutoDetectTuner from CX2388xCard.cpp to CX2388xCard_Types.cpp
+// to can use correct sizeof(m_Tuners_Hauppauge_CX2388x_Card)
+//
 // Revision 1.20  2004/03/07 12:20:12  to_see
 // added 2 Cards
 // working Nicam-Sound
@@ -754,20 +758,20 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
-    			0x0000bf61,
+    			0x0000ff00,
 
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
-    			0x0000bf63,
+    			0x00000ff1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
-    			0x0000bf63,
+    			0x00000ff1,
             },
             // FM radio input omitted
         },
@@ -779,7 +783,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         SetAnalogSaturationU,
         SetAnalogSaturationV,
         StandardSetFormat,
-        TUNER_PHILIPS_FM1216ME_MK3,
+        TUNER_PHILIPS_PAL,
         IDC_CX2388X,
     },
 	

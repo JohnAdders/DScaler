@@ -129,7 +129,14 @@ void Channel_SetCurrent()
 
 const char* Channel_GetName()
 {
-    return MyChannels[CurrentProgramm]->GetName();
+	if(CurrentProgramm < MyChannels.size())
+	{
+		return MyChannels[CurrentProgramm]->GetName();
+	}
+	else
+	{
+		return "Unknown";
+	}
 }
 
 
@@ -164,14 +171,17 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "PAL-N");
 		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "NTSC-J");
 		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "PAL60");
-        EditChan = CurrentProgramm;
-        SendMessage(GetDlgItem(hDlg, IDC_NAME), WM_SETTEXT, 0, (LPARAM)MyChannels[EditChan]->GetName());
-        sprintf(sbuf, "%d", MyChannels[EditChan]->GetFrequency());
-        SendMessage(GetDlgItem(hDlg, IDC_FREQUENCY), WM_SETTEXT, 0, (LPARAM)sbuf);
-        sprintf(sbuf, "%d", MyChannels[EditChan]->GetChannelNumber());
-        SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), WM_SETTEXT, 0, (LPARAM)sbuf);
-        MyChannels[EditChan]->GetChannelNumber();
-        SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_SETCURSEL, MyChannels[EditChan]->GetFormat() + 1, 0);
+		if(CurrentProgramm < MyChannels.size())
+		{
+			EditChan = CurrentProgramm;
+			SendMessage(GetDlgItem(hDlg, IDC_NAME), WM_SETTEXT, 0, (LPARAM)MyChannels[EditChan]->GetName());
+			sprintf(sbuf, "%d", MyChannels[EditChan]->GetFrequency());
+			SendMessage(GetDlgItem(hDlg, IDC_FREQUENCY), WM_SETTEXT, 0, (LPARAM)sbuf);
+			sprintf(sbuf, "%d", MyChannels[EditChan]->GetChannelNumber());
+			SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), WM_SETTEXT, 0, (LPARAM)sbuf);
+			MyChannels[EditChan]->GetChannelNumber();
+			SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_SETCURSEL, MyChannels[EditChan]->GetFormat() + 1, 0);
+		}
 		break;
 
 	case WM_COMMAND:

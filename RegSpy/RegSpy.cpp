@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.13 2003-05-05 12:57:56 adcockj Exp $
+// $Id: RegSpy.cpp,v 1.14 2003-05-05 15:30:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/05/05 12:57:56  adcockj
+// Added some support for saa7134
+//
 // Revision 1.12  2003/01/26 12:49:53  adcockj
 // Fixed link problems
 //
@@ -1000,6 +1003,11 @@ void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
                 {
                     *s++ = *c++;
                 }
+
+				while(*c != '\0')
+				{
+					c++;
+				}
             }
         }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.cpp,v 1.2 2001-07-27 16:11:32 adcockj Exp $
+// $Id: Disasm.cpp,v 1.3 2001-07-30 12:18:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/27 16:11:32  adcockj
+// Added support for new Crash dialog
+//
 // Revision 1.1  2001/07/24 12:19:00  adcockj
 // Added code and tools for crash logging from VirtualDub
 //
@@ -385,26 +388,42 @@ static const char op_paddw      []="paddw";
 static const char op_paddsb     []="paddsb";
 static const char op_paddsd     []="paddsd";
 static const char op_paddsw     []="paddsw";
+static const char op_paddq      []="paddq";
 static const char op_paddusb    []="paddusb";
 static const char op_paddusd    []="paddusd";
 static const char op_paddusw    []="paddusw";
 static const char op_pand       []="pand";
 static const char op_pandn      []="pandn";
+static const char op_pavgb      []="pavgb";
 static const char op_pavgusb    []="pavgusb";
+static const char op_pavgw      []="pavgw";
 static const char op_pcmpeqb    []="pcmpeqb";
 static const char op_pcmpeqd    []="pcmpeqd";
 static const char op_pcmpeqw    []="pcmpeqw";
 static const char op_pcmpgtb    []="pcmpgtb";
 static const char op_pcmpgtd    []="pcmpgtd";
 static const char op_pcmpgtw    []="pcmpgtw";
+static const char op_pextrw     []="pextrw";
+static const char op_pinsrw     []="pinsrw";
 
 static const char op_pmaddwd    []="pmaddwd";
+static const char op_pmaxsw     []="pmaxsw";
+static const char op_pmaxub     []="pmaxub";
+static const char op_pminsw     []="pminsw";
+static const char op_pminub     []="pminub";
+static const char op_pmovmskb   []="pmovmskb";
+static const char op_pmulhuw    []="pmulhuw";
+
 static const char op_pmulhw     []="pmulhw";
 static const char op_pmullw     []="pmullw";
+static const char op_pmuludq    []="pmuludq";
 static const char op_pop        []="pop";
 static const char op_popad      []="popad";
 static const char op_popfd      []="popfd";
 static const char op_por        []="por";
+static const char op_prefetch   []="prefetch";
+static const char op_psadbw     []="psadbw";
+static const char op_pshuf      []="pshuf?";
 static const char op_pslld      []="pslld";
 static const char op_psllq      []="psllq";
 static const char op_psllw      []="psllw";
@@ -515,7 +534,6 @@ static const char op_pfrcpit1   []="pfrcpit1";
 static const char op_pfrsqit1   []="pfsqit1";
 static const char op_pfrcpit2   []="pfrcpit2";
 static const char op_pmulhrw    []="pmulhrw";
-static const char op_prefetch   []="prefetch";
 static const char op_prefetchw  []="prefetchw";
 
 struct x86op {
@@ -807,7 +825,7 @@ static const struct x86op prefix0f_ops[]={
 /* 15 */    NULL,           0,
 /* 16 */    NULL,           0,
 /* 17 */    NULL,           0,
-/* 18 */    NULL,           0,
+/* 18 */    op_prefetch,    ADDR_Xb,
 /* 19 */    NULL,           0,
 /* 1a */    NULL,           0,
 /* 1b */    NULL,           0,
@@ -895,7 +913,7 @@ static const struct x86op prefix0f_ops[]={
 /* 6d */    NULL,           0,
 /* 6e */    op_movd,        ADDR2(ADDR_Pd,ADDR_Ed),
 /* 6f */    op_movq,        ADDR2(ADDR_Pq,ADDR_Qq),
-/* 70 */    NULL,           0,
+/* 70 */    op_pshuf,       ADDR3(ADDR_Pq,ADDR_Qd,ADDR_Ib),
 /* 71 */    NULL,           GROUP(10),
 /* 72 */    NULL,           GROUP(11),
 /* 73 */    NULL,           GROUP(12),
@@ -979,8 +997,8 @@ static const struct x86op prefix0f_ops[]={
 /* c1 */    op_xadd,        ADDR2(ADDR_Ev,ADDR_Gv),
 /* c2 */    NULL,           0,
 /* c3 */    NULL,           0,
-/* c4 */    NULL,           0,
-/* c5 */    NULL,           0,
+/* c4 */    op_pinsrw,      ADDR3(ADDR_Qd,ADDR_Gv,ADDR_Ib),
+/* c5 */    op_pextrw,      ADDR3(ADDR_Gv,ADDR_Qd,ADDR_Ib),
 /* c6 */    NULL,           0,
 /* c7 */    NULL,           GROUP(9),
 /* c8 */    op_bswap,       ADDR_reg32,
@@ -995,41 +1013,41 @@ static const struct x86op prefix0f_ops[]={
 /* d1 */    op_psrlw,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* d2 */    op_psrld,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* d3 */    op_psrlq,       ADDR2(ADDR_Pq,ADDR_Qd),
-/* d4 */    NULL,           0,
+/* d4 */    op_paddq,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* d5 */    op_pmullw,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* d6 */    NULL,           0,
-/* d7 */    NULL,           0,
+/* d7 */    op_pmovmskb,    ADDR2(ADDR_Gv,ADDR_Qd),
 /* d8 */    op_psubusb,     ADDR2(ADDR_Pq,ADDR_Qq),
 /* d9 */    op_psubusw,     ADDR2(ADDR_Pq,ADDR_Qq),
-/* da */    NULL,           0,
+/* da */    op_pminub,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* db */    op_pand,        ADDR2(ADDR_Pq,ADDR_Qq),
 /* dc */    op_paddusb,     ADDR2(ADDR_Pq,ADDR_Qq),
 /* dd */    op_paddusw,     ADDR2(ADDR_Pq,ADDR_Qq),
-/* de */    NULL,           0,
+/* de */    op_pmaxub,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* df */    op_pandn,       ADDR2(ADDR_Pq,ADDR_Qq),
-/* e0 */    NULL,           0,
+/* e0 */    op_pavgb,       ADDR2(ADDR_Pq,ADDR_Qq),
 /* e1 */    op_psraw,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* e2 */    op_psrad,       ADDR2(ADDR_Pq,ADDR_Qd),
-/* e3 */    NULL,           0,
-/* e4 */    NULL,           0,
+/* e3 */    op_pavgw,       ADDR2(ADDR_Pq,ADDR_Qq),
+/* e4 */    op_pmulhuw,     ADDR2(ADDR_Pq,ADDR_Qq),
 /* e5 */    op_pmulhw,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* e6 */    NULL,           0,
 /* e7 */    NULL,           0,
 /* e8 */    op_psubsb,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* e9 */    op_psubsw,      ADDR2(ADDR_Pq,ADDR_Qd),
-/* ea */    NULL,           0,
+/* ea */    op_pminsw,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* eb */    op_por,         ADDR2(ADDR_Pq,ADDR_Qd),
 /* ec */    op_paddsb,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* ed */    op_paddsw,      ADDR2(ADDR_Pq,ADDR_Qd),
-/* ee */    NULL,           0,
+/* ee */    op_pmaxsw,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* ef */    op_pxor,        ADDR2(ADDR_Pq,ADDR_Qd),
 /* f0 */    NULL,           0,
 /* f1 */    op_psllw,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* f2 */    op_pslld,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* f3 */    op_psllq,       ADDR2(ADDR_Pq,ADDR_Qd),
-/* f4 */    NULL,           0,
+/* f4 */    op_pmuludq,     ADDR2(ADDR_Pq,ADDR_Qd),
 /* f5 */    op_pmaddwd,     ADDR2(ADDR_Pq,ADDR_Qd),
-/* f6 */    NULL,           0,
+/* f6 */    op_psadbw,      ADDR2(ADDR_Pq,ADDR_Qd),
 /* f7 */    NULL,           0,
 /* f8 */    op_psubb,       ADDR2(ADDR_Pq,ADDR_Qd),
 /* f9 */    op_psubw,       ADDR2(ADDR_Pq,ADDR_Qd),

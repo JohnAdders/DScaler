@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.15 2002-10-28 11:10:13 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.16 2002-10-29 13:38:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/28 11:10:13  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.14  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -770,10 +773,16 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 
 void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
 {
-    DWORD AVStatus = ReadDword(SAA7134_AV_STATUS);
-
     *pBuffer = '\0';
 
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
+    DWORD AVStatus = ReadDword(SAA7134_AV_STATUS);
+    
     if (AVStatus & SAA7134_AV_STATUS_PILOT && nBufferSize > 2)
     {
         strcat(pBuffer, "FM ");
@@ -803,6 +812,12 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
 
 void CSAA7134Card::SetAutomaticVolume(eAutomaticVolume AVL)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     BYTE DACOutputSelect = 0x00;
 
     switch (AVL)

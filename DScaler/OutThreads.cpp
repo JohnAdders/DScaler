@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.75 2002-08-05 21:01:56 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.76 2002-08-06 21:03:53 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2002/08/05 21:01:56  laurentg
+// Square pixels mode updated
+//
 // Revision 1.74  2002/07/20 13:07:36  laurentg
 // New setting for vertical mirror
 //
@@ -287,7 +290,6 @@
 #include "AspectRatio.h"
 #include "DScaler.h"
 #include "DebugLog.h"
-#include "VBI.h"
 #include "Settings.h"
 #include "Filter.h"
 #include "Status.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.13 2002-04-13 18:47:53 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.14 2002-04-13 23:51:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/04/13 18:47:53  laurentg
+// Management of still files improved
+//
 // Revision 1.12  2002/04/10 22:18:12  laurentg
 // Checks to avoid loading of certain TIFF files with unsupported compression modes
 //
@@ -81,6 +84,35 @@
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
 
+static struct {
+    uint16 tag_class;
+    uint16 tag_compression;
+} tTiffTagClassCompress[] = {
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_NONE      },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_CCITTRLE  },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_CCITTFAX3 },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_CCITTFAX4 },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_MINISWHITE , COMPRESSION_LZW       },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_NONE      },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_CCITTRLE  },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_CCITTFAX3 },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_CCITTFAX4 },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_MINISBLACK , COMPRESSION_LZW       },
+    { PHOTOMETRIC_PALETTE    , COMPRESSION_NONE      },
+    { PHOTOMETRIC_PALETTE    , COMPRESSION_LZW       },
+    { PHOTOMETRIC_RGB        , COMPRESSION_NONE      },
+    { PHOTOMETRIC_RGB        , COMPRESSION_LZW       },
+    { PHOTOMETRIC_RGB        , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_SEPARATED  , COMPRESSION_NONE      },
+    { PHOTOMETRIC_SEPARATED  , COMPRESSION_LZW       },
+    { PHOTOMETRIC_SEPARATED  , COMPRESSION_PACKBITS  },
+    { PHOTOMETRIC_YCBCR      , COMPRESSION_NONE      },
+    { PHOTOMETRIC_YCBCR      , COMPRESSION_LZW       },
+    { PHOTOMETRIC_YCBCR      , COMPRESSION_JPEG      },
+};
+
 CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
     CStillSourceHelper(pParent)
 {
@@ -90,6 +122,7 @@ CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
 BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 {
     int y1, y2, cr, cb, r, g, b, i, j;
+    BOOL Found;
     BYTE* pFrameBuf;
     BYTE* pDestBuf;
     TIFF* tif;
@@ -116,6 +149,23 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
         !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
     {
+        TIFFClose(tif);
+        return FALSE;
+    }
+
+    for (i = 0, Found = FALSE ; i < (sizeof(tTiffTagClassCompress) / sizeof(tTiffTagClassCompress[0])) ; i++)
+    {
+        if ( (tTiffTagClassCompress[i].tag_class == Class)
+          && (tTiffTagClassCompress[i].tag_compression == Compression) )
+        {
+            Found = TRUE;
+            LOG(1, "File %s supported (class %d compression %d)", FileName, Class, Compression);
+            break;
+        }
+    }
+    if (!Found)
+    {
+        LOG(1, "File %s not supported (class %d compression %d)", FileName, Class, Compression);
         TIFFClose(tif);
         return FALSE;
     }
@@ -187,9 +237,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
         _TIFFfree(bufYCbCr);
     }
-    else if ( ((Class == PHOTOMETRIC_YCBCR) && ( (Compression == COMPRESSION_LZW) || (Compression == COMPRESSION_JPEG) ))
-           || ((Class == PHOTOMETRIC_RGB) && ( (Compression == COMPRESSION_LZW) || (Compression == COMPRESSION_NONE) || (Compression == COMPRESSION_PACKBITS) ))
-           || ((Class != PHOTOMETRIC_RGB) && (Class != PHOTOMETRIC_YCBCR)) )
+    else
     {
         npixels = w * h;
         bufPackedRGB = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
@@ -258,12 +306,6 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         }
 
         _TIFFfree(bufPackedRGB);
-    }
-    else
-    {
-        free(pFrameBuf);
-        TIFFClose(tif);
-        return FALSE;
     }
 
     // Close the file

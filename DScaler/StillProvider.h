@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.h,v 1.4 2001-11-24 17:58:06 laurentg Exp $
+// $Id: StillProvider.h,v 1.5 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@
 
 #include "SourceProvider.h"
 #include "StillSource.h"
+#include "DS_ApiCommon.h"
 
 class CStillProvider : public CSourceProvider
 {
@@ -34,5 +35,7 @@ public:
 private:
     vector<CStillSource*> m_StillSources;
 };
+
+void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo);
 
 #endif

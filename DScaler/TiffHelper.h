@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffSource.h,v 1.4 2001-11-25 21:25:02 laurentg Exp $
+// $Id: TiffHelper.h,v 1.1 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/25 21:25:02  laurentg
+// Method ReadNextFrameInFile moved to public section
+//
 // Revision 1.3  2001/11/25 10:41:26  laurentg
 // TIFF code moved from Other.cpp to TiffSource.c + still capture updated
 //
@@ -30,8 +33,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __TIFFSOURCE_H___
-#define __TIFFSOURCE_H___
+#ifndef __TIFFHELPER_H___
+#define __TIFFHELPER_H___
 
 #include "StillSource.h"
 
@@ -95,17 +98,16 @@ typedef struct
 } TTiffHeader;
 
 
-class CTiffSource : public CStillSource
+class CTiffHelper : public CStillSourceHelper
 {
 public:
-    CTiffSource(LPCSTR FilePath);
-    CTiffSource::CTiffSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
-    BOOL ReadNextFrameInFile();
-    BOOL WriteFrameInFile();
+    CTiffHelper(CStillSource* pParent);
+    BOOL OpenMediaFile(LPCSTR FileName);
+    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch);
 
 private:
     void FillTiffDirEntry(TTiffDirEntry* entry, WORD Tag, DWORD Value, eTiffDataType Type);
-    void FillTiffHeader(TTiffHeader* head, char* description, char* make, char* model);
+    void FillTiffHeader(TTiffHeader* head, char* description, char* make, char* model, int Height, int Width);
 };
 
 #endif

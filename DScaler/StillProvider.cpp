@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.7 2001-11-26 13:02:27 adcockj Exp $
+// $Id: StillProvider.cpp,v 1.8 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.6  2001/11/25 21:21:56  laurentg
 // Destructor modified to delete sources
 //
@@ -45,13 +48,15 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "StillProvider.h"
-#include "TiffSource.h"
+#include "Other.h"
 
+
+static CStillSource* pStillSource = NULL;
 
 CStillProvider::CStillProvider()
 {
-    CStillSource* pNewSource = new CTiffSource("testd.tif");
-    m_StillSources.push_back(pNewSource);
+    pStillSource = new CStillSource();
+    m_StillSources.push_back(pStillSource);
 }
 
 CStillProvider::~CStillProvider()
@@ -62,6 +67,8 @@ CStillProvider::~CStillProvider()
     {
         delete *it;
     }
+    
+    pStillSource = NULL;
 }
 
 int CStillProvider::GetNumberOfSources()
@@ -82,23 +89,32 @@ CSource* CStillProvider::GetSource(int SourceIndex)
     }
 }
 
-BOOL CStillProvider::AddStillSource(CStillSource* pStillSource)
+void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
 {
-    m_StillSources.push_back(pStillSource);
-    return TRUE;
-}
-
-BOOL CStillProvider::RemoveStillSource(CStillSource* pStillSource)
-{
-    for(vector<CStillSource*>::iterator it = m_StillSources.begin();
-        it != m_StillSources.end();
-        ++it)
+    if(pStillSource != NULL)
     {
-        if (*it == pStillSource)
+        int n = 0;
+        char name[13];
+        struct stat st;
+
+        if(Overlay_Lock(pInfo))
         {
-            m_StillSources.erase(it);
-            return TRUE;
+            while (n < 100)
+            {
+                sprintf(name,"tv%06d.tif",++n) ;
+                if (stat(name, &st))
+                {
+                    break;
+                }
+            }
+            if(n == 100)
+            {
+                ErrorBox("Could not create a file.  You may have too many captures already.");
+                return;
+            }
+
+            pStillSource->SaveSnapshot(name, pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
+            Overlay_Unlock();
         }
     }
-    return FALSE;
 }

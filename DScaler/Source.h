@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.3 2001-11-25 21:19:40 laurentg Exp $
+// $Id: Source.h,v 1.4 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,7 @@ public:
     virtual BOOL IsVideoPresent() = 0;
     virtual void DecodeVBI(TDeinterlaceInfo* pInfo) = 0;
     virtual LPCSTR GetMenuLabel() = 0;
+    virtual BOOL OpenMediaFile(LPCSTR FileName) = 0;
 
     HMENU GetSourceMenu();
 protected:

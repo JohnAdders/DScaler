@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.47 2001-11-26 15:27:18 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.48 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2001/11/26 15:27:18  adcockj
+// Changed filter structure
+//
 // Revision 1.46  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -213,11 +216,19 @@
 #include "Calibration.h"
 #include "Crash.h"
 #include "Providers.h"
+#include "StillProvider.h"
+
+typedef enum
+{
+    STILL_NONE,
+    STILL_TIFF,
+    STILL_SNAPSHOT,
+} eStreamStillType;
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
-BOOL                bRequestStreamSnap = FALSE;
+eStreamStillType    RequestStillType = STILL_NONE;
 HANDLE              OutThread;
 
 // Dynamically updated variables
@@ -328,9 +339,13 @@ void UnPause_Capture()
 
 void RequestStreamSnap()
 {
-   bRequestStreamSnap = TRUE;
+   RequestStillType = STILL_SNAPSHOT;
 }
 
+void RequestStill()
+{
+   RequestStillType = STILL_TIFF;
+}
 
 // save the Info structure to a snapshot file
 // these files will make it easier to test 
@@ -508,6 +523,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
             if(bIsPaused == FALSE)
             {
+                if(Info.PictureHistory[0] == NULL)
+                {
+                    Sleep(50);
+                    continue;
+                }
                 // calculate History
                 if(Info.PictureHistory[1] == NULL)
                 {
@@ -751,10 +771,19 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             }
 
             // if asked save the current Info to a file
-            if(bRequestStreamSnap == TRUE)
+            if(RequestStillType == STILL_NONE)
+            {
+                ; // carry on
+            }
+            else if(RequestStillType == STILL_SNAPSHOT)
             {
                 SaveStreamSnapshot(&Info);
-                bRequestStreamSnap = FALSE;
+                RequestStillType = STILL_NONE;
+            }
+            else if(RequestStillType == STILL_TIFF)
+            {
+                StillProvider_SaveSnapshot(&Info);
+                RequestStillType = STILL_NONE;
             }
 
             // save the last pulldown Mode so that we know if its changed

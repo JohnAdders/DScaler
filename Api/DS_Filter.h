@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Filter.h,v 1.6 2001-11-26 15:27:17 adcockj Exp $
+// $Id: DS_Filter.h,v 1.7 2001-11-28 16:04:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/26 15:27:17  adcockj
+// Changed filter structure
+//
 // Revision 1.5  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -41,7 +44,7 @@
 #include "DS_ApiCommon.h"
 
 // filter functions return the aspect ratio change 1000 = 1.0
-typedef long (__cdecl FILTER_FUNC)(TDeinterlaceInfo *Info);
+typedef long (__cdecl FILTER_FUNC)(TDeinterlaceInfo* Info);
 typedef void (__cdecl FILTERPLUGINSTART)(void);
 typedef void (__cdecl FILTERPLUGINEXIT)(void);
 

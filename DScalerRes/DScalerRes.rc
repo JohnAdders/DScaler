@@ -1145,9 +1145,10 @@ END
 
 IDC_STILL MENU DISCARDABLE 
 BEGIN
-    POPUP "S&till"
+    POPUP "Pla&ylist"
     BEGIN
-        MENUITEM "&Close",                      IDM_CLOSE_FILE
+        MENUITEM "&Previous",                   IDM_PLAYLIST_PREVIOUS
+        MENUITEM "&Next",                       IDM_PLAYLIST_NEXT
     END
 END
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.9 2001-11-25 21:29:50 laurentg Exp $
+// $Id: Providers.cpp,v 1.10 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/25 21:29:50  laurentg
+// Take still, Open file, Close file callbacks updated
+//
 // Revision 1.8  2001/11/24 22:54:25  laurentg
 // Close file added for still source
 //
@@ -65,7 +68,6 @@
 #include "Providers.h"
 #include "BT848Provider.h"
 #include "StillProvider.h"
-#include "TiffSource.h"
 #include "HardwareDriver.h"
 #include "OutThreads.h"
 #include "DScaler.h"
@@ -76,7 +78,7 @@ static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
 static CBT848Provider* BT848Provider = NULL;
 static CStillProvider* StillProvider = NULL;
-static CurrentSource = 0;
+static long CurrentSource = 0;
 
 int Providers_Load(HMENU hMenu)
 {
@@ -113,8 +115,8 @@ int Providers_Load(HMENU hMenu)
     {
         if(Sources.size() < 100)
         {
-//            sprintf(Text, "Still %d", i + 1);
-            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), StillProvider->GetSource(i)->GetMenuLabel());
+            sprintf(Text, "Still %d", i + 1);
+            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
         }
         Sources.push_back(StillProvider->GetSource(i));
     }
@@ -155,11 +157,6 @@ CSource* Providers_GetCurrentSource()
     {
         return NULL;
     }
-}
-
-CStillProvider* Providers_GetStillProvider()
-{
-    return StillProvider;
 }
 
 BOOL Providers_AddSource(CSource* pSource, HMENU hMenu, BOOL GoToNewSource)
@@ -306,17 +303,17 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             return TRUE;
         }
     }
-    else if ( (LOWORD(wParam) == IDM_OPEN_FILE) && (Sources.size() < 100) )
+    else if (LOWORD(wParam) == IDM_OPEN_FILE)
     {
         OPENFILENAME OpenFileInfo;
-        char FilePath[256];
-        char FileFilters[128];
+        char FilePath[MAX_PATH];
+        
+        char* FileFilters = "All Supported Files\0*.d3u;*.tif;*.tiff\0"
+                           "TIFF Files\0*.tif;*.tiff\0"
+                           "DScaler Playlists\0*.d3u\0";
 
         OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
         OpenFileInfo.hwndOwner = hWnd;
-        strcpy(FileFilters, "TIFF Files");
-        strcpy(&FileFilters[11], "*.TIF;*.TIFF");
-        strcpy(&FileFilters[24], "");
         OpenFileInfo.lpstrFilter = FileFilters;
         OpenFileInfo.lpstrCustomFilter = NULL;
         FilePath[0] = 0;
@@ -329,32 +326,22 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         OpenFileInfo.lpstrDefExt = NULL;
         if (GetOpenFileName(&OpenFileInfo))
         {
-            CTiffSource* TiffSource = new CTiffSource(FilePath);
-            StillProvider->AddStillSource(TiffSource);
-            Providers_AddSource(TiffSource, hMenu, TRUE);
+            Stop_Capture();
+            for(int i = 0; i < Sources.size(); ++i)
+            {
+                if(Sources[i]->OpenMediaFile(FilePath))
+                {
+                    CurrentSource = i;
+                    Providers_UpdateMenu(hMenu);
+                    Start_Capture();
+                    return TRUE;
+                }
+            }
+            Start_Capture();
+            MessageBox(hWnd, "DScaler Warning", "Unsupported File Type", MB_OK);
             return TRUE;
         }
     }
-    else if (LOWORD(wParam) == IDM_TAKESTILL)
-    {
-        Pause_Capture();
-        Sleep(100);
-        CTiffSource* TiffSource = SaveStill();
-        UnPause_Capture();
-        Sleep(100);
-        if (TiffSource != NULL)
-        {
-            char Text[128];
-
-            StillProvider->AddStillSource(TiffSource);
-            TiffSource->WriteFrameInFile();
-            Providers_AddSource(TiffSource, hMenu, FALSE);
-            sprintf(Text, "Snapshot (%s)", TiffSource->GetMenuLabel());
-            ShowText(hWnd, Text);
-        }
-        return TRUE;
-    }
-
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
         return Sources[CurrentSource]->HandleWindowsCommands(hWnd, wParam, lParam);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.11 2001-11-26 13:02:27 adcockj Exp $
+// $Id: StillSource.cpp,v 1.12 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.10  2001/11/25 21:29:50  laurentg
 // Take still, Open file, Close file callbacks updated
 //
@@ -75,61 +78,47 @@
 #include "FieldTiming.h"
 #include "DebugLog.h"
 #include "Providers.h"
+#include "TiffHelper.h"
+#include "OutThreads.h"
 
-CStillSource::CStillSource(LPCSTR FilePath) :
+CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
+{
+    m_pParent = pParent;
+}
+
+
+CPlayListItem::CPlayListItem(LPCSTR FileName, int SecondsToDisplay) :
+    m_FileName(FileName),
+    m_SecondsToDisplay(SecondsToDisplay)
+{
+}
+
+LPCSTR CPlayListItem::GetFileName()
+{
+    return m_FileName.c_str();
+}
+
+int CPlayListItem::GetSecondsToDisplay()
+{
+    return m_SecondsToDisplay;
+}
+
+CStillSource::CStillSource() :
     CSource(0, IDC_STILL)
 {
     CreateSettings("StillSource");
-    if (strlen(FilePath) < 255)
-    {
-        strcpy(m_FilePath, FilePath);
-    }
-    else
-    {
-        *m_FilePath = '\0';
-    }
     m_Width = 0;
     m_Height = 0;
     m_StillFrame.pData = NULL;
     m_StillFrame.Flags = PICTURE_PROGRESSIVE;
     m_StillFrame.IsFirstInSeries = FALSE;
+    m_OriginalFrame.pData = NULL;
+    m_OriginalFrame.Flags = PICTURE_PROGRESSIVE;
+    m_OriginalFrame.IsFirstInSeries = FALSE;
     m_FieldFrequency = 50.0;
     m_FrameDuration = 1000.0 / m_FieldFrequency;
-    m_AlreadyTryToRead = FALSE;
-}
-
-CStillSource::CStillSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch) :
-    CSource(0, IDC_STILL)
-{
-    CreateSettings("StillSource");
-    if (strlen(FilePath) < 255)
-    {
-        strcpy(m_FilePath, FilePath);
-    }
-    else
-    {
-        *m_FilePath = '\0';
-    }
-    m_Width = FrameWidth;
-    m_Height = FrameHeight;
-    m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
-    if (m_StillFrame.pData != NULL)
-    {
-        BYTE* pBufSrc = pOverlay;
-        BYTE* pBufDest = m_StillFrame.pData;
-
-        for (int i(0); i < m_Height; ++i)
-        {
-            memcpy(pBufDest, pBufSrc, m_Width * 2);
-            pBufSrc += OverlayPitch;
-            pBufDest += m_Width * 2;
-        }
-    }
-    m_StillFrame.Flags = PICTURE_PROGRESSIVE;
-    m_StillFrame.IsFirstInSeries = FALSE;
-    m_FieldFrequency = 50.0;
-    m_FrameDuration = 1000.0 / m_FieldFrequency;
-    m_AlreadyTryToRead = TRUE;
+    m_IsPictureRead = FALSE;
+    m_Position = -1;
 }
 
 CStillSource::~CStillSource()
@@ -138,6 +127,103 @@ CStillSource::~CStillSource()
     {
         free(m_StillFrame.pData);
     }
+    if (m_OriginalFrame.pData != NULL)
+    {
+        free(m_OriginalFrame.pData);
+    }
+    ClearPlayList();
+}
+
+BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
+{
+    if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
+        strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
+    {
+        CTiffHelper TiffHelper(this);
+        return TiffHelper.OpenMediaFile(FileName);
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+
+BOOL CStillSource::OpenMediaFile(LPCSTR FileName)
+{
+
+    ClearPlayList();
+    m_Position = 0;
+
+    // test for the correct extension and work out the 
+    // correct helper for the file type
+    if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
+    {
+        char Buffer[512];
+        FILE* Playlist = fopen(FileName, "r");
+        if(Playlist != NULL)
+        {
+            while(!feof(Playlist))
+            {
+                if(fgets(Buffer, 512, Playlist))
+                {
+                    Buffer[511] = '\0';
+                    if(Buffer[0] != '#' && Buffer[0] != ';')
+                    {
+                        // take care of stuff that is at end of the line
+                        while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+                        {
+                            Buffer[strlen(Buffer) - 1] = '\0';
+                        }
+                        CPlayListItem* Item = new CPlayListItem(Buffer, 10);
+                        m_PlayList.push_back(Item);
+                    }
+                }
+            }
+            fclose(Playlist);
+        }
+    }
+    else
+    {
+        CPlayListItem* Item = new CPlayListItem(FileName, 10);
+        m_PlayList.push_back(Item);
+    }
+
+    return ShowNextInPlayList();
+}
+
+BOOL CStillSource::ShowNextInPlayList()
+{
+    while(m_Position < m_PlayList.size())
+    {
+        if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
+        {
+            return TRUE;
+        }
+        ++m_Position;
+    }
+    return FALSE;
+}
+
+BOOL CStillSource::ShowPreviousInPlayList()
+{
+    while(m_Position >= 0)
+    {
+        if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
+        {
+            return TRUE;
+        }
+        --m_Position;
+    }
+    return FALSE;
+}
+
+
+
+void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
+{
+    CTiffHelper TiffHelper(this);
+    TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
 }
 
 void CStillSource::CreateSettings(LPCSTR IniSection)
@@ -156,7 +242,6 @@ void CStillSource::Stop()
         free(m_StillFrame.pData);
         m_StillFrame.pData = NULL;
     }
-    m_AlreadyTryToRead = FALSE;
 }
 
 void CStillSource::Reset()
@@ -169,7 +254,14 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     DWORD CurrentTickCount;
     int Diff;
     
-    ReadNextFrameInFile();
+    if(!ReadNextFrameInFile())
+    {
+        pInfo->bRunningLate = TRUE;
+        pInfo->bMissedFrame = TRUE;
+        pInfo->FrameWidth = 10;
+        pInfo->FrameHeight = 10;
+        return;
+    }
 
     CurrentTickCount = GetTickCount();
     if (m_LastTickCount == 0)
@@ -213,30 +305,76 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
-    if (LOWORD(wParam) == IDM_CLOSE_FILE)
+    switch(LOWORD(wParam))
     {
-        Providers_GetStillProvider()->RemoveStillSource(this);
-        Providers_RemoveSource(this, GetMenu(hWnd));
-        delete this;
+    case IDM_PLAYLIST_PREVIOUS:
+        if(m_Position > 0)
+        {
+            --m_Position;
+            Stop_Capture();
+            ShowPreviousInPlayList();
+            Start_Capture();
+        }
         return TRUE;
+        break;
+    case IDM_PLAYLIST_NEXT:
+        if(m_Position < m_PlayList.size() - 1)
+        {
+            ++m_Position;
+            Stop_Capture();
+            ShowNextInPlayList();
+            Start_Capture();
+        }
+        return TRUE;
+        break;
     }
     return FALSE;
 }
 
-LPCSTR CStillSource::GetStatus()
+BOOL CStillSource::ReadNextFrameInFile()
 {
-    LPCSTR FileName;
-
-    FileName = strrchr(m_FilePath, '\\');
-    if (FileName == NULL)
+    if (m_IsPictureRead)
     {
-        FileName = m_FilePath;
+        if(m_StillFrame.pData != NULL)
+        {
+            free(m_StillFrame.pData);
+        }
+        m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
+        if (m_StillFrame.pData != NULL)
+        {
+            memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+            return TRUE;
+        }
+        return FALSE;
     }
     else
     {
-        ++FileName;
+        return FALSE;
     }
-    return FileName;
+}
+
+
+LPCSTR CStillSource::GetStatus()
+{
+    if(m_Position != -1 && m_PlayList.size() > 0)
+    {
+        LPCSTR FileName;
+
+        FileName = strrchr(m_PlayList[m_Position]->GetFileName(), '\\');
+        if (FileName == NULL)
+        {
+            FileName = m_PlayList[m_Position]->GetFileName();
+        }
+        else
+        {
+            ++FileName;
+        }
+        return FileName;
+    }
+    else
+    {
+        return "No File";
+    }
 }
 
 eVideoFormat CStillSource::GetFormat()
@@ -254,8 +392,44 @@ int CStillSource::GetHeight()
     return m_Height;
 }
 
+void CStillSource::ClearPlayList()
+{
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it)
+    {
+        delete (*it);
+    }
+    m_PlayList.clear();
+}
+
+
 void CStillSource::SetMenu(HMENU hMenu)
 {
+    if(m_PlayList.size() > 1)
+    {
+        if(m_Position > 0)
+        {
+            EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_ENABLED);
+        }
+        else
+        {
+            EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_GRAYED);
+        }
+        if(m_Position < m_PlayList.size() - 1)
+        {
+            EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_ENABLED);
+        }
+        else
+        {
+            EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_GRAYED);
+        }
+    }
+    else
+    {
+        EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_GRAYED);
+    }
 }
 
 void CStillSource::HandleTimerMessages(int TimerId)
@@ -264,6 +438,6 @@ void CStillSource::HandleTimerMessages(int TimerId)
 
 LPCSTR CStillSource::GetMenuLabel()
 {
-    return m_FilePath;
+    return "Playlist";
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.13 2001-11-25 21:29:50 laurentg Exp $
+// $Id: Other.h,v 1.14 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,6 @@
 #define __OTHER_H___
 
 #include "settings.h"
-#include "TiffSource.h"
 
 // Get Hold of the Other.c file settings
 SETTING* Other_GetSetting(OTHER_SETTING Setting);
@@ -66,8 +65,6 @@ BOOL Overlay_Unlock();
 BOOL Overlay_Flip(DWORD FlipFlag);
 HDC Overlay_GetDC();
 void Overlay_ReleaseDC(HDC hDC);
-
-CTiffSource* SaveStill();
 
 extern DWORD DestSizeAlign;
 extern DWORD SrcSizeAlign;

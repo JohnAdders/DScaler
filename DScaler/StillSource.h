@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.8 2001-11-25 21:25:02 laurentg Exp $
+// $Id: StillSource.h,v 1.9 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,11 +21,34 @@
 
 #include "Source.h"
 
+class CStillSource;
+class CTiffHelper;
+
+class CStillSourceHelper
+{
+public:
+    CStillSourceHelper(CStillSource* pParent);
+    virtual BOOL OpenMediaFile(LPCSTR FileName) = 0;
+    virtual void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch) = 0;
+protected:
+    CStillSource* m_pParent;
+};
+
+class CPlayListItem
+{
+public:
+    CPlayListItem(LPCSTR FileName, int SecondsToDisplay);
+    LPCSTR GetFileName();
+    int GetSecondsToDisplay();
+private:
+    std::string m_FileName;
+    int m_SecondsToDisplay;
+};
+
 class CStillSource : public CSource
 {
 public:
-    CStillSource(LPCSTR FilePath);
-    CStillSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
+    CStillSource();
     ~CStillSource();
     void CreateSettings(LPCSTR IniSection);
     void Start();
@@ -55,18 +78,32 @@ public:
     BOOL IsVideoPresent() {return TRUE;};
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
     LPCSTR GetMenuLabel();
-    virtual BOOL    ReadNextFrameInFile() = 0;
+    BOOL ReadNextFrameInFile();
+    void SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
+    BOOL OpenMediaFile(LPCSTR FileName);
+
+    friend class CTiffHelper;
+
+private:
+    void ClearPlayList();
+    BOOL ShowNextInPlayList();
+    BOOL ShowPreviousInPlayList();
+    BOOL OpenPictureFile(LPCSTR FileName);
 
 protected:
     int         m_Width;
     int         m_Height;
     TPicture    m_StillFrame;
-    char        m_FilePath[256];
-    BOOL        m_AlreadyTryToRead;
+    TPicture    m_OriginalFrame;
+    vector<CPlayListItem*> m_PlayList;
+    int         m_Position;
+    BOOL        m_IsPictureRead;
 
 private:
     DWORD       m_LastTickCount;
     double      m_FrameDuration;
+
+
 };
 
 #endif

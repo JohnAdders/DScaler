@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.95 2001-11-26 13:02:27 adcockj Exp $
+// $Id: DScaler.cpp,v 1.96 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.94  2001/11/26 12:48:01  temperton
 // Teletext corrections
 //
@@ -1356,6 +1359,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_TAKESTREAMSNAP:
             RequestStreamSnap();
+            break;
+
+        case IDM_TAKESTILL:
+            RequestStill();
             break;
 
         case IDM_TSOPTIONS:

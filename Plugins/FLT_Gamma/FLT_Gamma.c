@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.11 2001-11-26 15:27:18 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.12 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/11/26 15:27:18  adcockj
+// Changed filter structure
+//
 // Revision 1.10  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -43,17 +46,19 @@ BOOL bUseStoredTable = FALSE;
 long BlackLevel = 0;
 long WhiteLevel = 255;
 
-long FilterGamma(TDeinterlaceInfo* pInfo)
+long __cdecl FilterGamma(TDeinterlaceInfo* pInfo)
 {
-    BYTE* Pixels = pInfo->PictureHistory[0]->pData;
+    BYTE* Pixels = NULL;
     short* Table;
     int y;
     int Cycles;
 
-    if (Pixels == NULL )
+    if (pInfo->PictureHistory[0] == NULL )
     {
         return 1000;
     }
+
+    Pixels = pInfo->PictureHistory[0]->pData;
 
     // Need to have the current and next-to-previous fields to do the filtering.
     Cycles = pInfo->LineLength / 4;

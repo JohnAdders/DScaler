@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.28 2001-11-26 13:02:27 adcockj Exp $
+// $Id: Other.cpp,v 1.29 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.27  2001/11/25 21:29:50  laurentg
 // Take still, Open file, Close file callbacks updated
 //
@@ -1092,55 +1095,6 @@ void ExitDD(void)
         lpDD = NULL;
     }
     DeleteCriticalSection(&hDDCritSect);
-}
-
-//-----------------------------------------------------------------------------
-// Save still image snapshot as TIFF format to disk
-CTiffSource* SaveStill()
-{
-    int n = 0;
-    char name[13];
-    struct stat st;
-    DDSURFACEDESC SurfaceDesc;
-    HRESULT ddrval;
-
-    if (lpDDOverlay == NULL)
-    {
-        ErrorBox("No Overlay");
-        return NULL;
-    }
-
-    while (n < 100)
-    {
-        sprintf(name,"tv%06d.tif",++n) ;
-        if (stat(name, &st))
-            break;
-    }
-    if(n == 100)
-    {
-        ErrorBox("Could not create a file.  You may have too many captures already.");
-        return NULL;
-    }
-
-    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
-    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
-
-    ddrval = IDirectDrawSurface_Lock(lpDDOverlay, NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
-    if (FAILED(ddrval))
-    {
-        ErrorBox("Error Locking Overlay");
-        return NULL;
-    }
-
-    CTiffSource* pTiffSource = new CTiffSource(name, CurrentY, CurrentX, (BYTE*)SurfaceDesc.lpSurface, SurfaceDesc.lPitch);
-
-    ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
-    if (FAILED(ddrval))
-    {
-        ErrorBox("Error Unlocking Overlay");
-    }
-
-    return pTiffSource;
 }
 
 BOOL Overlay_ColorKey_OnChange(long NewValue)

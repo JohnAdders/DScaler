@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffSource.cpp,v 1.3 2001-11-25 10:41:26 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.1 2001-11-28 16:04:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,18 +18,21 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/25 10:41:26  laurentg
+// TIFF code moved from Other.cpp to TiffSource.c + still capture updated
+//
 // Revision 1.2  2001/11/24 22:51:20  laurentg
 // Bug fixes regarding still source
 //
 // Revision 1.1  2001/11/24 17:55:23  laurentg
-// CTiffSource class added
+// CTiffHelper class added
 //
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include "stdafx.h"
-#include "TiffSource.h"
+#include "TiffHelper.h"
 #include "Other.h"
 #include "Deinterlace.h"
 #include "DebugLog.h"
@@ -39,98 +42,12 @@
 
 #define STRUCT_OFFSET(s,f)  ((int)(((BYTE*)&(s)->f) - (BYTE*)(s)))
 
-
-//-----------------------------------------------------------------------------
-// Fill a TIFF directory entry with information.
-void CTiffSource::FillTiffDirEntry(TTiffDirEntry* entry, WORD Tag, DWORD Value, eTiffDataType Type)
-{
-    BYTE bValue;
-    WORD wValue;
-
-    entry->Tag = Tag;
-    entry->Count = 1;
-    entry->Type = (int) Type;
-
-    switch (Type) {
-    case Byte:
-        bValue = (BYTE) Value;
-        memcpy(&entry->Value, &bValue, 1);
-        break;
-
-    case Short:
-        wValue = (WORD) Value;
-        memcpy(&entry->Value, &wValue, 2);
-        break;
-
-    case String:    // in which case it's a file offset
-    case Long:
-        entry->Value = Value;
-        break;
-    }
-}
-
-
-//-----------------------------------------------------------------------------
-// Fill a TIFF header with information about the current image.
-void CTiffSource::FillTiffHeader(TTiffHeader* head, char* description, char* make, char* model)
-{
-    memset(head, 0, sizeof(TTiffHeader));
-
-    strcpy(head->byteOrder, "II");      // Intel byte order
-    head->version = 42;                 // We're TIFF 5.0 compliant, but the version field is unused
-    head->firstDirOffset = STRUCT_OFFSET(head, numDirEntries);
-    head->numDirEntries = 14;
-    head->nextDirOffset = 0;            // No additional directories
-
-    strcpy(head->descriptionText, description);
-    strcpy(head->makeText, make);
-    strcpy(head->modelText, model);
-    head->bitCounts[0] = head->bitCounts[1] = head->bitCounts[2] = 8;
-
-    head->description.Tag = 270;
-    head->description.Type = 2;
-    head->description.Count = strlen(description) + 1;
-    head->description.Value = STRUCT_OFFSET(head, descriptionText);
-
-    head->make.Tag = 271;
-    head->make.Type = 2;
-    head->make.Count = strlen(make) + 1;
-    head->make.Value = STRUCT_OFFSET(head, makeText);
-
-    head->model.Tag = 272;
-    head->model.Type = 2;
-    head->model.Count = strlen(model) + 1;
-    head->model.Value = STRUCT_OFFSET(head, modelText);
-    
-    head->bitsPerSample.Tag = 258;
-    head->bitsPerSample.Type = Short;
-    head->bitsPerSample.Count = 3;
-    head->bitsPerSample.Value = STRUCT_OFFSET(head, bitCounts);
-
-    FillTiffDirEntry(&head->fileType, 254, 0, Long);                        // Just the image, no thumbnails
-    FillTiffDirEntry(&head->width, 256, m_Width, Short);
-    FillTiffDirEntry(&head->height, 257, m_Height, Short);
-    FillTiffDirEntry(&head->compression, 259, 1, Short);                    // No compression
-    FillTiffDirEntry(&head->photometricInterpretation, 262, 2, Short);      // RGB image data
-    FillTiffDirEntry(&head->stripOffset, 273, sizeof(TTiffHeader), Long);    // Image comes after header
-    FillTiffDirEntry(&head->samplesPerPixel, 277, 3, Short);                // RGB = 3 channels/pixel
-    FillTiffDirEntry(&head->rowsPerStrip, 278, m_Height, Short);            // Whole image is one strip
-    FillTiffDirEntry(&head->stripByteCounts, 279, m_Width * m_Height * 3, Long);   // Size of image data
-    FillTiffDirEntry(&head->planarConfiguration, 284, 1, Short);            // RGB bytes are interleaved
-}
-
-
-CTiffSource::CTiffSource(LPCSTR FilePath) :
-    CStillSource(FilePath)
+CTiffHelper::CTiffHelper(CStillSource* pParent) :
+    CStillSourceHelper(pParent)
 {
 }
 
-CTiffSource::CTiffSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch) :
-    CStillSource(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch)
-{
-}
-
-BOOL CTiffSource::ReadNextFrameInFile()
+BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 {
     FILE* file;
     TTiffHeader head;
@@ -140,22 +57,24 @@ BOOL CTiffSource::ReadNextFrameInFile()
     int y1, y2, cr, cb, r, g, b;
     BYTE*   pBuf;
 
-    if (m_AlreadyTryToRead)
-    {
-        return (m_StillFrame.pData != NULL);
-    }
-
-    m_AlreadyTryToRead = TRUE;
+    m_pParent->m_IsPictureRead = FALSE;
 
     memset(&head, 0, sizeof(head));
 
-    LOG(2, "Graphic file %s", m_FilePath);
-    file = fopen(m_FilePath,"rb");
+    LOG(2, "Graphic file %s", FileName);
+    file = fopen(FileName,"rb");
     if (!file)
     {
         return FALSE;
     }
     LOG(2, "Graphic file opened");
+
+    if(m_pParent->m_OriginalFrame.pData != NULL)
+    {
+        free(m_pParent->m_OriginalFrame.pData);
+        m_pParent->m_OriginalFrame.pData = NULL;
+    }
+
 
     //
     // File Header
@@ -294,13 +213,15 @@ BOOL CTiffSource::ReadNextFrameInFile()
     }
     LOG(2, "Graphic file header verified");
 
-    m_Height = head.height.Value;
-    m_Width = head.width.Value;
-    LOG(2, "Graphic file height = %d width = %d", m_Height, m_Width);
+    m_pParent->m_Height = head.height.Value;
+    m_pParent->m_Width = head.width.Value;
+    LOG(2, "Graphic file height = %d width = %d", m_pParent->m_Height, m_pParent->m_Width);
 
-    m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
-    if (m_StillFrame.pData == NULL)
+    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(m_pParent->m_Width * 2 * m_pParent->m_Height * sizeof(BYTE));
+    if (m_pParent->m_OriginalFrame.pData == NULL)
     {
+        free(m_pParent->m_OriginalFrame.pData);
+        m_pParent->m_OriginalFrame.pData = NULL;
         fclose(file);
         return FALSE;
     }
@@ -309,16 +230,16 @@ BOOL CTiffSource::ReadNextFrameInFile()
     //
     // RGB Pixels
     //
-    pBuf = m_StillFrame.pData;
-    for (i=0 ; i<m_Height ; i++)
+    pBuf = m_pParent->m_OriginalFrame.pData;
+    for (i=0 ; i < m_pParent->m_Height ; i++)
     {
-        for (j=0 ; j<(m_Width/2) ; j++)
+        for (j=0 ; j < (m_pParent->m_Width/2) ; j++)
         {
             if (fread(buf, 3, 1, file) != 1)
             {
                 fclose(file);
-                free(m_StillFrame.pData);
-                m_StillFrame.pData = NULL;
+                free(m_pParent->m_OriginalFrame.pData);
+                m_pParent->m_OriginalFrame.pData = NULL;
                 return FALSE;
             }
 
@@ -332,8 +253,8 @@ BOOL CTiffSource::ReadNextFrameInFile()
             if (fread(buf, 3, 1, file) != 1)
             {
                 fclose(file);
-                free(m_StillFrame.pData);
-                m_StillFrame.pData = NULL;
+                free(m_pParent->m_OriginalFrame.pData);
+                m_pParent->m_OriginalFrame.pData = NULL;
                 return FALSE;
             }
 
@@ -356,44 +277,92 @@ BOOL CTiffSource::ReadNextFrameInFile()
     }
 
     fclose(file);
+    m_pParent->m_IsPictureRead = TRUE;
     LOG(1, "Graphic file loaded");
     return TRUE;
 }
-/*
-    BYTE*   pBuf;
-    BYTE    Y;
-    BYTE    U;
-    BYTE    V;
 
-    m_Width = 720;
-    m_Height = 480;
-    m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
 
-    pBuf = m_StillFrame.pData;
-    for (int i(0); i < m_Height; ++i)
-    {
-        U = (i % 256);
-        V = 255 - (i % 256);
-//        U = V = 128;
-        for (int j(0); j < m_Width; ++j)
-        {
-            Y = (j % 256);
-            *pBuf = Y;
-            ++pBuf;
-            if ((j % 2) == 0)
-            {
-                *pBuf = U;
-            }
-            else
-            {
-                *pBuf = V;
-            }
-            ++pBuf;
-        }
+//-----------------------------------------------------------------------------
+// Fill a TIFF directory entry with information.
+void CTiffHelper::FillTiffDirEntry(TTiffDirEntry* entry, WORD Tag, DWORD Value, eTiffDataType Type)
+{
+    BYTE bValue;
+    WORD wValue;
+
+    entry->Tag = Tag;
+    entry->Count = 1;
+    entry->Type = (int) Type;
+
+    switch (Type) {
+    case Byte:
+        bValue = (BYTE) Value;
+        memcpy(&entry->Value, &bValue, 1);
+        break;
+
+    case Short:
+        wValue = (WORD) Value;
+        memcpy(&entry->Value, &wValue, 2);
+        break;
+
+    case String:    // in which case it's a file offset
+    case Long:
+        entry->Value = Value;
+        break;
     }
-*/
+}
 
-BOOL CTiffSource::WriteFrameInFile()
+
+//-----------------------------------------------------------------------------
+// Fill a TIFF header with information about the current image.
+void CTiffHelper::FillTiffHeader(TTiffHeader* head, char* description, char* make, char* model, int Height, int Width)
+{
+    memset(head, 0, sizeof(TTiffHeader));
+
+    strcpy(head->byteOrder, "II");      // Intel byte order
+    head->version = 42;                 // We're TIFF 5.0 compliant, but the version field is unused
+    head->firstDirOffset = STRUCT_OFFSET(head, numDirEntries);
+    head->numDirEntries = 14;
+    head->nextDirOffset = 0;            // No additional directories
+
+    strcpy(head->descriptionText, description);
+    strcpy(head->makeText, make);
+    strcpy(head->modelText, model);
+    head->bitCounts[0] = head->bitCounts[1] = head->bitCounts[2] = 8;
+
+    head->description.Tag = 270;
+    head->description.Type = 2;
+    head->description.Count = strlen(description) + 1;
+    head->description.Value = STRUCT_OFFSET(head, descriptionText);
+
+    head->make.Tag = 271;
+    head->make.Type = 2;
+    head->make.Count = strlen(make) + 1;
+    head->make.Value = STRUCT_OFFSET(head, makeText);
+
+    head->model.Tag = 272;
+    head->model.Type = 2;
+    head->model.Count = strlen(model) + 1;
+    head->model.Value = STRUCT_OFFSET(head, modelText);
+    
+    head->bitsPerSample.Tag = 258;
+    head->bitsPerSample.Type = Short;
+    head->bitsPerSample.Count = 3;
+    head->bitsPerSample.Value = STRUCT_OFFSET(head, bitCounts);
+
+    FillTiffDirEntry(&head->fileType, 254, 0, Long);                        // Just the image, no thumbnails
+    FillTiffDirEntry(&head->width, 256, Width, Short);
+    FillTiffDirEntry(&head->height, 257, Height, Short);
+    FillTiffDirEntry(&head->compression, 259, 1, Short);                    // No compression
+    FillTiffDirEntry(&head->photometricInterpretation, 262, 2, Short);      // RGB image data
+    FillTiffDirEntry(&head->stripOffset, 273, sizeof(TTiffHeader), Long);    // Image comes after header
+    FillTiffDirEntry(&head->samplesPerPixel, 277, 3, Short);                // RGB = 3 channels/pixel
+    FillTiffDirEntry(&head->rowsPerStrip, 278, Height, Short);            // Whole image is one strip
+    FillTiffDirEntry(&head->stripByteCounts, 279, Width * Height * 3, Long);   // Size of image data
+    FillTiffDirEntry(&head->planarConfiguration, 284, 1, Short);            // RGB bytes are interleaved
+}
+
+void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
 {
     int y, cr, cb, r, g, b, i, j, n = 0;
     FILE* file;
@@ -402,28 +371,23 @@ BOOL CTiffSource::WriteFrameInFile()
     TTiffHeader head;
     char description[80];
 
-    if (m_StillFrame.pData == NULL)
-    {
-        return FALSE;
-    }
-
-    file = fopen(m_FilePath,"wb");
+    file = fopen(FilePath,"wb");
     if (!file)
     {
-        return FALSE;
+        return;
     }
 
-    LOG(2, "WriteFrameInFile m_Width = %d m_Height %d", m_Width, m_Height);
+    LOG(2, "WriteFrameInFile Width = %d Height %d", Width, Height);
 
     sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
     // How do we figure out our version number?!?!
-    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x");
+    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x", Width, Height);
     fwrite(&head, sizeof(head), 1, file);
 
-    for (i = 0; i < m_Height; i++)
+    for (i = 0; i < Height; i++)
     {
-        buf = m_StillFrame.pData + i * m_Width * 2;
-        for (j = 0; j < m_Width ; j+=2)
+        buf = pOverlay + i * OverlayPitch;
+        for (j = 0; j < Width ; j+=2)
         {
             cb = buf[1] - 128;
             cr = buf[3] - 128;
@@ -451,5 +415,5 @@ BOOL CTiffSource::WriteFrameInFile()
         }
     }
     fclose(file);
-    return TRUE;
+    return;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.15 2003-09-26 20:54:06 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.16 2003-10-03 11:40:11 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/09/26 20:54:06  laurentg
+// Media player toolbar hidden when one skin is selected
+//
 // Revision 1.14  2003/09/07 11:05:14  laurentg
 // Elapsed time slider and skin
 //
@@ -107,7 +110,7 @@ Toolbar1Logo(NULL)
 {
     CreateSettings("Toolbars");
 	
-	eEventType EventList[] = {EVENT_SOURCE_CHANGE, EVENT_VIDEOINPUT_CHANGE, EVENT_ENDOFLIST};
+	eEventType EventList[] = {EVENT_SOURCE_CHANGE, EVENT_VIDEOINPUT_CHANGE, EVENT_CHANNELLIST_CHANGE, EVENT_ENDOFLIST};
 	EventCollector->Register(this, EventList);
 
 	
@@ -616,6 +619,13 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 			{
 				CToolbarControl::Set(hWnd, NULL);
 			}
+		}
+	}
+	else if (Event == EVENT_CHANNELLIST_CHANGE)
+	{
+		if (Toolbar1Channels != NULL)
+		{
+			Toolbar1Channels->Reset();
 		}
 	}
 }

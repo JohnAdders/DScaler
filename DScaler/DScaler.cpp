@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.351 2003-09-27 13:38:42 adcockj Exp $
+// $Id: DScaler.cpp,v 1.352 2003-10-03 11:40:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.351  2003/09/27 13:38:42  adcockj
+// Restored auto format menu
+//
 // Revision 1.350  2003/09/27 12:08:58  adcockj
 // Suppress splash when first run
 //
@@ -2968,6 +2971,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				}
 				DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
 				Channels_UpdateMenu(hMenu);
+			    EventCollector->RaiseEvent(NULL, EVENT_CHANNELLIST_CHANGE, 0, 1);
 			}
             break;
 

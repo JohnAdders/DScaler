@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.10 2003-08-15 16:51:11 laurentg Exp $
+// $Id: events.h,v 1.11 2003-10-03 11:40:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/08/15 16:51:11  laurentg
+// New event type EVENT_NO_VOLUME
+// Update the volume toolbar when exiting from the audio mixer setup dialog box
+//
 // Revision 1.9  2003/08/11 22:50:50  laurentg
 // Time slider in the media player toolbar
 //
@@ -59,7 +63,8 @@ enum eEventType
 	EVENT_SOUNDCHANNEL,
 	EVENT_DURATION,
 	EVENT_CURRENT_POSITION,
-	EVENT_NO_VOLUME
+	EVENT_NO_VOLUME,
+	EVENT_CHANNELLIST_CHANGE
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 

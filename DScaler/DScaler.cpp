@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.173 2002-06-12 20:16:33 robmuller Exp $
+// $Id: DScaler.cpp,v 1.174 2002-06-12 23:57:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.173  2002/06/12 20:16:33  robmuller
+// Mousewheel + shift changes volume.
+//
 // Revision 1.172  2002/06/06 21:40:00  robmuller
 // Fixed: timeshifting and VBI data decoding was not done when minimized.
 //
@@ -650,6 +653,7 @@ void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
 bool bScreensaverDisabled = false;
+HMENU CreateDScalerPopupMenu();
 
 ///**************************************************************************
 //
@@ -858,6 +862,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     SMState.Period = 0;
     SMState.SleepAt = 0;
 
+    // trigger any error messages if the menu is corrupt
+#ifdef _DEBUG
+    CreateDScalerPopupMenu();
+#endif
+
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
     {
@@ -904,13 +913,14 @@ HMENU CreateDScalerPopupMenu()
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fMask = MIIM_SUBMENU;
 
-        hSubMenu = GetSubMenu(hMenu, 5);
+        hSubMenu = GetSubMenuWithName(hMenu, 5, "&Sources");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,0,TRUE,&MenuItemInfo);
         }
 
+        // The name of this menu item depends on the source so we don't check the name
         hSubMenu = GetSubMenu(hMenu, 6);
         if(hSubMenu != NULL)
         {
@@ -925,30 +935,28 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,3, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenu(hMenu, 3);
+        hSubMenu = GetSubMenuWithName(hMenu, 3, "&AspectRatio");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenu(hMenu, 4);
+        hSubMenu = GetSubMenuWithName(hMenu, 4, "S&ettings");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenu(hMenu, 7);
+        hSubMenu = GetSubMenuWithName(hMenu, 7, "&Datacasting");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenu(hMenu, 2);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 8);
+        hSubMenu = GetOSDSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
@@ -3415,6 +3423,25 @@ void SetMenuAnalog()
     }
 }
 
+// This function checks the name of the menu item. A message box is shown with a debug build
+// if the name is not correct.
+HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCSTR szMenuText)
+{
+#ifdef _DEBUG
+    char name[128] = "\0";
+    char msg[128] = "\0";
+
+    GetMenuString(hMenu, nPos, name, sizeof(name), MF_BYPOSITION);
+
+    if(strcmp(name, szMenuText) != 0)
+    {
+        sprintf(msg, "GetSubMenuWithName() error: \'%s\' != \'%s\'", name, szMenuText);
+        MessageBox(hWnd, msg, "Error", MB_ICONERROR);
+    }
+#endif
+    return GetSubMenu(hMenu, nPos);
+}
+
 HMENU GetOrCreateSubSubMenu(int SubId, int SubSubId, LPCSTR szMenuText)
 {
     if(hMenu != NULL)
@@ -3525,6 +3552,15 @@ HMENU GetChannelsSubmenu()
 
     return hmenu;
 }
+
+HMENU GetOSDSubmenu()
+{
+    HMENU hmenu = GetOrCreateSubSubMenu(2, 9, "OSD");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
+}
+
 
 HMENU GetOSDSubmenu1()
 {

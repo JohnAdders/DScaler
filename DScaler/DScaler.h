@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.23 2002-06-06 21:40:00 robmuller Exp $
+// $Id: DScaler.h,v 1.24 2002-06-12 23:57:13 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,10 +66,13 @@ void Overlay_Start(HWND hWnd);
 void ShowText(HWND hWnd, LPCTSTR szText);
 BOOL IsStatusBarVisible();
 
+HMENU GetSubMenuWithName(HMENU hMenu, int nPos, LPCSTR szMenuText);
+
 HMENU GetFiltersSubmenu();
 HMENU GetFilterSettingsSubmenu();
 HMENU GetVideoDeinterlaceSubmenu();
 HMENU GetChannelsSubmenu();
+HMENU GetOSDSubmenu();
 HMENU GetOSDSubmenu1();
 HMENU GetOSDSubmenu2();
 HMENU GetPatternsSubmenu();

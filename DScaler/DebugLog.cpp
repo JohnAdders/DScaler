@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.19 2002-06-13 12:10:21 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.20 2002-06-15 10:36:58 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/06/13 12:10:21  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.18  2002/06/11 20:52:35  robmuller
 // Enable debug logging by default. Renamed debug log file to debug.log.
 //
@@ -163,7 +166,7 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
     },
     {
         "Flush After Each Write", ONOFF, 0, (long*)&FlushAfterEachWrite,
-        FALSE, 0, 1, 1, 1,
+        TRUE, 0, 1, 1, 1,
         NULL,
         "Files", "FlushAfterEachWrite", FlushAfterEachWrite_OnChange,
     },

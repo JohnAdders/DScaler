@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.3 2005-03-09 06:33:41 atnak Exp $
+// $Id: TDA8275.cpp,v 1.4 2005-03-09 07:04:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/09 06:33:41  atnak
+// More errors and omissions fixes.
+//
 // Revision 1.2  2005/03/09 06:11:46  atnak
 // Fixed errors and omissions.
 //
@@ -88,6 +91,7 @@ const CTDA8275::tStandardParam CTDA8275::k_standardParamTable[TDA8290_STANDARD_L
 	{ 7750,	0 },
 	{ 7750,	0 },
 	{ 1250,	0 },
+	{ 4750,	0 },  // FM Radio (this value is a guess)
 };
 
 
@@ -120,7 +124,7 @@ eVideoFormat CTDA8275::GetDefaultVideoFormat()
 
 bool CTDA8275::HasRadio() const
 {
-	return false;
+	return true;
 }
 
 bool CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
@@ -143,7 +147,8 @@ bool CTDA8275::SetTVFrequency(long frequencyHz, eVideoFormat videoFormat)
 
 bool CTDA8275::SetRadioFrequency(long frequencyHz)
 {
-	return false;
+	// This tuning of radio has not been tested AT ALL;
+	return SetTVFrequency(frequencyHz, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
 }
 
 long CTDA8275::GetFrequency()
@@ -239,7 +244,7 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 	channelBytes[1] = (n11ton0 << 2) & 0xFC;
 	channelBytes[3] = 0x40;
 	channelBytes[4] = sgIFLPFilter ? 0x72 : 0x52; // 7MHz (US) / 9Mhz (Europe)
-	channelBytes[5] = (row->loMax << 6)|(row->div1p5 << 5)|(row->BS << 3)|row->BP;
+	channelBytes[5] = (row->spd << 6)|(row->div1p5 << 5)|(row->BS << 3)|row->BP;
 	channelBytes[6] = 0x8F | (row->GC3 << 4);
 	channelBytes[7] = 0x8F;
 

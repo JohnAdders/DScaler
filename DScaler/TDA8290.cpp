@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.cpp,v 1.2 2005-03-08 18:12:16 atnak Exp $
+// $Id: TDA8290.cpp,v 1.3 2005-03-09 07:04:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/08 18:12:16  atnak
+// Updates.
+//
 // Revision 1.1  2005/03/07 09:21:13  atnak
 // Initial checkin of TDA8290 files.  This class is coupled with TDA8275.
 //
@@ -210,7 +213,12 @@ eTunerAFCStatus CTDA8290::GetAFCStatus(long &nFreqDeviation)
 
 void CTDA8290::SetVideoSystemStandard(eTDA8290Standard standard)
 {
-	const BYTE sgStandard[TDA8290_STANDARD_LASTONE] = { 1, 2, 4, 8, 16, 32, 64 };
+	const BYTE sgStandard[TDA8290_STANDARD_LASTONE] = { 1, 2, 4, 8, 16, 32, 64, 0 };
+
+	if (standard == TDA8290_STANDARD_RADIO)
+	{
+		return;
+	}
 
 	// Bits: 0..6 := standard, 7 := expert mode
 	WriteToSubAddress(TDA8290_STANDARD_REG, sgStandard[(int)standard]);
@@ -258,8 +266,9 @@ eTDA8290Standard CTDA8290::GetTDA8290Standard(eVideoFormat videoFormat)
 	case VIDEOFORMAT_NTSC_M_Japan:
 		standard = TDA8290_STANDARD_MN;
 		break;
+	// This value is used among ITuner and IExternalIFDemodulator for radio.
 	case (VIDEOFORMAT_LASTONE+1):
-		// Radio: Unsupported
+		standard = TDA8290_STANDARD_RADIO;
 		break;
 	}
 

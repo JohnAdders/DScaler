@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.h,v 1.2 2005-03-08 18:12:17 atnak Exp $
+// $Id: TDA8290.h,v 1.3 2005-03-09 07:04:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/08 18:12:17  atnak
+// Updates.
+//
 // Revision 1.1  2005/03/07 09:21:13  atnak
 // Initial checkin of TDA8290 files.  This class is coupled with TDA8275.
 //
@@ -91,6 +94,7 @@ enum eTDA8290Standard
 	TDA8290_STANDARD_DK,
 	TDA8290_STANDARD_L,
 	TDA8290_STANDARD_L2,
+	TDA8290_STANDARD_RADIO,
 	TDA8290_STANDARD_LASTONE
 };
 

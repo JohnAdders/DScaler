@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.249 2002-10-21 00:12:30 atnak Exp $
+// $Id: DScaler.cpp,v 1.250 2002-10-21 07:29:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.249  2002/10/21 00:12:30  atnak
+// Added comments for lastest change
+//
 // Revision 1.248  2002/10/20 23:51:12  atnak
 // Added option to reverse mousewheel
 //
@@ -5376,12 +5379,6 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Show", "AutoHideCursor", NULL,
     },
     {
-        "Reverse channel scrolling", ONOFF, 0, (long*)&bReverseChannelScroll,
-        FALSE, 0, 1, 1, 1,
-        NULL,
-        "MainWindow", "ReverseChannelScroll", NULL,
-    },
-    {
         "Lock keyboard", ONOFF, 0, (long*)&bKeyboardLock,
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -5440,6 +5437,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         0, 0, 0, 1, 1,
         NULL,
         "MainWindow", "VideoCard", NULL,
+    },
+    {
+        "Reverse channel scrolling", ONOFF, 0, (long*)&bReverseChannelScroll,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "ReverseChannelScroll", NULL,
     },
 };
 

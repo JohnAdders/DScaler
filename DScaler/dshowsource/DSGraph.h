@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.22 2003-03-09 12:14:39 tobbej Exp $
+// $Id: DSGraph.h,v 1.23 2003-08-10 11:55:29 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/03/09 12:14:39  tobbej
+// use the new graph debuging functions (only in loglevel 2 and 3)
+//
 // Revision 1.21  2003/02/05 19:13:15  tobbej
 // added support for capture devices where audio can be rendered from directshow
 // modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
@@ -113,6 +116,7 @@
 #include "DShowBaseSource.h"
 #include "TreeSettingsOleProperties.h"
 #include "DShowAudioControls.h"
+#include "DShowSeeking.h"
 
 //if you get an error here, that means you have not checked out the DSRend filter
 //or compiled it atleast once.
@@ -253,6 +257,8 @@ public:
 	 */
 	CDShowAudioControls *GetAudioControls();
 
+	CDShowSeeking *GetSeeking();
+
 private:
 	void InitGraph();
 	void CreateRenderer();
@@ -279,6 +285,7 @@ private:
 		
 	CDShowBaseSource *m_pSource;
 	CDShowAudioControls *m_pAudioControlls;
+	CDShowSeeking *m_pSeeking;
 
 	FILTER_STATE m_GraphState;
 

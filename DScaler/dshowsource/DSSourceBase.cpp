@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.18 2003-07-22 22:30:20 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.19 2003-08-10 11:55:01 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/07/22 22:30:20  laurentg
+// Correct handling of pause (P key) for video file playing
+//
 // Revision 1.17  2003/07/05 10:58:17  laurentg
 // New method SetWidth (not yet implemented)
 //
@@ -362,6 +365,31 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			//since this prevents IDSRendFilter::FreeFields from being called
 			CAutoCriticalSection lock(m_hOutThreadSync);
 			m_pDSGraph->stop();
+
+			//i don't know if this is the right place to put this
+			//but it looks like its working
+			CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+			if(pSeeking!=NULL)
+			{
+				//here is a sample on how to get the positions
+				//sometimes AM_SEEKING_CanGetCurrentPos is not set but 
+				//IMediaSeeking::GetCurrentPosition still works.
+				if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+				{
+					LONGLONG pos=pSeeking->GetCurrentPos();
+					LONGLONG duration=pSeeking->GetDuration();
+					double pos1=pos/(double)10000000;
+					double duration1=duration/(double)10000000;
+					LOGD("Current media position in seconds: %f / %f\n",pos1,duration1);
+				}
+
+				//atleast one of those flags must be set to be able to seek to the begining
+				if(pSeeking->GetCaps()&(AM_SEEKING_CanSeekBackwards|AM_SEEKING_CanSeekAbsolute))
+				{
+					//seek to the begining
+					pSeeking->SeekTo(0);
+				}
+			}
 		}
 		catch(CDShowException &e)
 		{

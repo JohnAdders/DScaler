@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.1 2002-08-11 12:14:02 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.2 2002-08-11 13:52:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/08/11 12:14:02  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -87,10 +90,13 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
 {
 //    static long OrigProcessorSpeed;
 //    static long OrigTradeOff;
+    long EnableCancelButton;
 
     switch (message)
     {
     case WM_INITDIALOG:
+        EnableCancelButton = lParam;
+        Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 - 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Below 300 MHz");

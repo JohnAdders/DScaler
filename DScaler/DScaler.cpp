@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.215 2002-08-11 12:12:10 laurentg Exp $
+// $Id: DScaler.cpp,v 1.216 2002-08-11 13:52:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.215  2002/08/11 12:12:10  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 // Revision 1.214  2002/08/09 13:33:24  laurentg
 // Processor speed and trade off settings moved from BT source settings to DScaler settings
 //
@@ -808,6 +811,7 @@ static BOOL bTakingCyclicStills = FALSE;
 
 static int ProcessorSpeed = 1;
 static int TradeOff = 1;
+static int ShowHWSetupBox;
 
 ///**************************************************************************
 //
@@ -1005,6 +1009,9 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
             }
         }
     }
+
+    ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
+                     || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF));
 
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
@@ -2734,7 +2741,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SETUPHARDWARE:
-            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)1);
             break;
 
         default:
@@ -3472,8 +3479,17 @@ void MainWndOnInitBT(HWND hWnd)
 
     AddSplashTextLine("Hardware Init");
 
+    if (ShowHWSetupBox)
+    {
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)0);
+    }
+
     if (Providers_Load(hMenu) > 0)
     {
+        if (ShowHWSetupBox)
+        {
+            Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
+        }
         if(InitDD(hWnd) == TRUE)
         {
             if(Overlay_Create() == TRUE)

@@ -1539,7 +1539,7 @@ BOOL VideoSource_OnChange(long NewValue)
 		{
 			AudioSource = AUDIOMUX_TUNER;
 		}
-		ChangeChannel(CurrentProgramm);
+		Channel_SetCurrent();
 		break;
 
 	// MAE 13 Dec 2000 for CCIR656 Digital input

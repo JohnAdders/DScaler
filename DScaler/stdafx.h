@@ -21,3 +21,7 @@
 #include "DSDrv.h"
 #include "COMMCTRL.H"
 #include "HtmlHelp.H"
+#include <vector>
+#include <string>
+
+using namespace std;

@@ -78,7 +78,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /MT /W3 /Gi /Ot /I "..\driver\include\\" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /YX /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /G6 /MT /W3 /Gi /Ot /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /D "NDEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
@@ -479,10 +479,6 @@ SOURCE=.\res\VTx10x12.bmp
 SOURCE=.\res\Vtx15x18.bmp
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=..\Plugins\DI_Bob\FD_CommonFunctions.asm
-# End Source File
 # Begin Source File
 
 SOURCE=.\READ_ME_FIRST_NOW.txt

@@ -74,6 +74,114 @@
 #include "Filter.h"
 #include "FieldTiming.h"
 
+typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
+typedef void (__cdecl GENERICREADSETTINGS)();
+typedef void (__cdecl GENERICWRITESETTINGS)();
+
+typedef struct
+{
+    UINT SetValueMessage;
+    GENERICGETSETTING* pfnGetSetting;
+    GENERICREADSETTINGS* pfnReadSettings;
+    GENERICWRITESETTINGS* pfnWriteSettings;
+} TFileWithSettings;
+
+TFileWithSettings Settings[] =
+{
+    {
+        WM_TVCARD_GETVALUE,
+        (GENERICGETSETTING*)TVCard_GetSetting,
+        TVCard_ReadSettingsFromIni,
+        TVCard_WriteSettingsToIni,
+    },
+    {
+        WM_BT848_GETVALUE,
+        (GENERICGETSETTING*)BT848_GetSetting,
+        BT848_ReadSettingsFromIni,
+        BT848_WriteSettingsToIni,
+    },
+    {
+        WM_VIDEOSETTINGS_GETVALUE,
+        (GENERICGETSETTING*)VideoSettings_GetSetting,
+        VideoSettings_ReadSettingsFromIni,
+        VideoSettings_WriteSettingsToIni,
+    },
+    {
+        WM_ASPECT_GETVALUE,
+        (GENERICGETSETTING*)Aspect_GetSetting,
+        Aspect_ReadSettingsFromIni,
+        Aspect_WriteSettingsToIni,
+    },
+    {
+        WM_DSCALER_GETVALUE,
+        (GENERICGETSETTING*)DScaler_GetSetting,
+        DScaler_ReadSettingsFromIni,
+        DScaler_WriteSettingsToIni,
+    },
+    {
+        WM_OUTTHREADS_GETVALUE,
+        (GENERICGETSETTING*)OutThreads_GetSetting,
+        OutThreads_ReadSettingsFromIni,
+        OutThreads_WriteSettingsToIni,
+    },
+    {
+        WM_OTHER_GETVALUE,
+        (GENERICGETSETTING*)Other_GetSetting,
+        Other_ReadSettingsFromIni,
+        Other_WriteSettingsToIni,
+    },
+    {
+        WM_FD50_GETVALUE,
+        (GENERICGETSETTING*)FD50_GetSetting,
+        FD50_ReadSettingsFromIni,
+        FD50_WriteSettingsToIni,
+    },
+    {
+        WM_FD60_GETVALUE,
+        (GENERICGETSETTING*)FD60_GetSetting,
+        FD60_ReadSettingsFromIni,
+        FD60_WriteSettingsToIni,
+    },
+    {
+        WM_FD_COMMON_GETVALUE,
+        (GENERICGETSETTING*)FD_Common_GetSetting,
+        FD_Common_ReadSettingsFromIni,
+        FD_Common_WriteSettingsToIni,
+    },
+    {
+        WM_OSD_GETVALUE,
+        (GENERICGETSETTING*)OSD_GetSetting,
+        OSD_ReadSettingsFromIni,
+        OSD_WriteSettingsToIni,
+    },
+    {
+        WM_VBI_GETVALUE,
+        (GENERICGETSETTING*)VBI_GetSetting,
+        VBI_ReadSettingsFromIni,
+        VBI_WriteSettingsToIni,
+    },
+    {
+        WM_TIMING_GETVALUE,
+        (GENERICGETSETTING*)Timing_GetSetting,
+        Timing_ReadSettingsFromIni,
+        Timing_WriteSettingsToIni,
+    },
+    {
+        WM_MIXERDEV_GETVALUE,
+        (GENERICGETSETTING*)MixerDev_GetSetting,
+        MixerDev_ReadSettingsFromIni,
+        MixerDev_WriteSettingsToIni,
+    },
+    {
+        WM_CHANNELS_GETVALUE,
+        (GENERICGETSETTING*)Channels_GetSetting,
+        Channels_ReadSettingsFromIni,
+        Channels_WriteSettingsToIni,
+    },
+};
+
+#define NUMSETTINGS (sizeof(Settings)/ sizeof(TFileWithSettings))
+
 char szIniFile[MAX_PATH] = "DScaler.ini";
 
 void SetIniFileForSettings(LPSTR Name)
@@ -100,42 +208,19 @@ void LoadSettingsFromIni()
 	char szKey[128];
 	int i;
 
-	// TVCard setting must be called first as this modifys some defaults for the
-	// other settings, but we need to be able to override the defaults.
-	TVCard_ReadSettingsFromIni();
-
-	BT848_ReadSettingsFromIni();
-
-	// Video Settings Also modifies defaults and ini sections in other
-	// files so must be called early
-	VideoSettings_ReadSettingsFromIni();
-
-	// Read in rest of settings from each source files read method
-	Aspect_ReadSettingsFromIni();
-	BT848_ReadSettingsFromIni();
-	DScaler_ReadSettingsFromIni();
-	OutThreads_ReadSettingsFromIni();
-	Other_ReadSettingsFromIni();
-	FD50_ReadSettingsFromIni();
-	FD60_ReadSettingsFromIni();
-	FD_Common_ReadSettingsFromIni();
-	OSD_ReadSettingsFromIni();
-	VBI_ReadSettingsFromIni();
-	MixerDev_ReadSettingsFromIni();
-	Timing_ReadSettingsFromIni();
+    for(i = 0; i < NUMSETTINGS; ++i)
+    {
+        Settings[i].pfnReadSettings();
+    }
 
 	GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, szIniFile);
 	DebugLogEnabled = GetPrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
 
 	Capture_VBI = (GetPrivateProfileInt("Show", "CaptureVBI", Capture_VBI, szIniFile) != 0);  
-	CurrentProgramm = GetPrivateProfileInt("Show", "LastProgram", CurrentProgramm, szIniFile);
-	bCustomChannelOrder = GetPrivateProfileInt("Show", "CustomChannelOrder", bCustomChannelOrder, szIniFile);
 
 	AudioSource = (AUDIOMUXTYPE)GetPrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
 		
 	bSaveSettings = (GetPrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile) != 0);
-	CountryCode = GetPrivateProfileInt("Show", "CountryCode", CountryCode, szIniFile);
-
 
 	MSPMode = GetPrivateProfileInt("MSP", "MSPMode", MSPMode, szIniFile);	
 	MSPMajorMode = GetPrivateProfileInt("MSP", "MSPMajorMode", MSPMajorMode, szIniFile);	
@@ -160,143 +245,27 @@ void LoadSettingsFromIni()
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
 {
 	LONG RetVal = 0;
-	*bDone = TRUE;
+	*bDone = FALSE;
+    int i;
 
-	switch(message)
-	{
-		case WM_ASPECT_GETVALUE:
-			RetVal =  Setting_GetValue(Aspect_GetSetting((ASPECT_SETTING)wParam));
-			break;
-		case WM_BT848_GETVALUE:		
-			RetVal =  Setting_GetValue(BT848_GetSetting((BT848_SETTING)wParam));
-			break;
-		case WM_DSCALER_GETVALUE:		
-			RetVal =  Setting_GetValue(DScaler_GetSetting((DSCALER_SETTING)wParam));
-			break;
-		case WM_OUTHREADS_GETVALUE:
-			RetVal =  Setting_GetValue(OutThreads_GetSetting((OUTTHREADS_SETTING)wParam));
-			break;
-		case WM_OTHER_GETVALUE:		
-			RetVal =  Setting_GetValue(Other_GetSetting((OTHER_SETTING)wParam));
-			break;
-		case WM_FD50_GETVALUE:		
-			RetVal =  Setting_GetValue(FD50_GetSetting((FD50_SETTING)wParam));
-			break;
-		case WM_FD60_GETVALUE:		
-			RetVal =  Setting_GetValue(FD60_GetSetting((FD60_SETTING)wParam));
-			break;
-		case WM_FD_COMMON_GETVALUE:
-			RetVal =  Setting_GetValue(FD_Common_GetSetting((FD_COMMON_SETTING)wParam));
-			break;
-		case WM_TVCARD_GETVALUE:		
-			RetVal = Setting_GetValue(TVCard_GetSetting((TVCARD_SETTING)wParam));
-			break;
-		case WM_VIDEOSETTINGS_GETVALUE:		
-			RetVal = Setting_GetValue(VideoSettings_GetSetting((VIDEOSETTINGS_SETTING)wParam));
-			break;
-		case WM_OSD_GETVALUE:		
-			RetVal = Setting_GetValue(OSD_GetSetting((OSD_SETTING)wParam));
-			break;
-		case WM_VBI_GETVALUE:		
-			RetVal = Setting_GetValue(VBI_GetSetting((VBI_SETTING)wParam));
-			break;
-		case WM_MIXERDEV_GETVALUE:		
-			RetVal = Setting_GetValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam));
-			break;
-		case WM_TIMING_GETVALUE:		
-			RetVal = Setting_GetValue(Timing_GetSetting((TIMING_SETTING)wParam));
-			break;
-
-		case WM_ASPECT_SETVALUE:
-			Setting_SetValue(Aspect_GetSetting((ASPECT_SETTING)wParam), lParam);
-			break;
-		case WM_BT848_SETVALUE:		
-			Setting_SetValue(BT848_GetSetting((BT848_SETTING)wParam), lParam);
-			break;
-		case WM_DSCALER_SETVALUE:		
-			Setting_SetValue(DScaler_GetSetting((DSCALER_SETTING)wParam), lParam);
-			break;
-		case WM_OUTHREADS_SETVALUE:
-			Setting_SetValue(OutThreads_GetSetting((OUTTHREADS_SETTING)wParam), lParam);
-			break;
-		case WM_OTHER_SETVALUE:		
-			Setting_SetValue(Other_GetSetting((OTHER_SETTING)wParam), lParam);
-			break;
-		case WM_FD50_SETVALUE:		
-			Setting_SetValue(FD50_GetSetting((FD50_SETTING)wParam), lParam);
-			break;
-		case WM_FD60_SETVALUE:		
-			Setting_SetValue(FD60_GetSetting((FD60_SETTING)wParam), lParam);
-			break;
-		case WM_FD_COMMON_SETVALUE:
-			Setting_SetValue(FD_Common_GetSetting((FD_COMMON_SETTING)wParam), lParam);
-			break;
-		case WM_TVCARD_SETVALUE:		
-			Setting_SetValue(TVCard_GetSetting((TVCARD_SETTING)wParam), lParam);
-			break;
-		case WM_VIDEOSETTINGS_SETVALUE:		
-			Setting_SetValue(VideoSettings_GetSetting((VIDEOSETTINGS_SETTING)wParam), lParam);
-			break;
-		case WM_OSD_SETVALUE:		
-			Setting_SetValue(OSD_GetSetting((OSD_SETTING)wParam), lParam);
-			break;
-		case WM_VBI_SETVALUE:		
-			Setting_SetValue(VBI_GetSetting((VBI_SETTING)wParam), lParam);
-			break;
-		case WM_MIXERDEV_SETVALUE:		
-			Setting_SetValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam), lParam);
-			break;
-		case WM_TIMING_SETVALUE:		
-			Setting_SetValue(Timing_GetSetting((TIMING_SETTING)wParam), lParam);
-			break;
-
-		case WM_ASPECT_CHANGEVALUE:
-			Setting_ChangeValue(Aspect_GetSetting((ASPECT_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_BT848_CHANGEVALUE:		
-			Setting_ChangeValue(BT848_GetSetting((BT848_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_DSCALER_CHANGEVALUE:		
-			Setting_ChangeValue(DScaler_GetSetting((DSCALER_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_OUTHREADS_CHANGEVALUE:
-			Setting_ChangeValue(OutThreads_GetSetting((OUTTHREADS_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_OTHER_CHANGEVALUE:		
-			Setting_ChangeValue(Other_GetSetting((OTHER_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_FD50_CHANGEVALUE:		
-			Setting_ChangeValue(FD50_GetSetting((FD50_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_FD60_CHANGEVALUE:		
-			Setting_ChangeValue(FD60_GetSetting((FD60_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_FD_COMMON_CHANGEVALUE:
-			Setting_ChangeValue(FD_Common_GetSetting((FD_COMMON_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_TVCARD_CHANGEVALUE:		
-			Setting_ChangeValue(TVCard_GetSetting((TVCARD_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_VIDEOSETTINGS_CHANGEVALUE:		
-			Setting_ChangeValue(VideoSettings_GetSetting((VIDEOSETTINGS_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_OSD_CHANGEVALUE:		
-			Setting_ChangeValue(OSD_GetSetting((OSD_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_VBI_CHANGEVALUE:		
-			Setting_ChangeValue(VBI_GetSetting((VBI_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_MIXERDEV_CHANGEVALUE:		
-			Setting_ChangeValue(MixerDev_GetSetting((MIXERDEV_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		case WM_TIMING_CHANGEVALUE:		
-			Setting_ChangeValue(Timing_GetSetting((TIMING_SETTING)wParam), (eCHANGEVALUE)lParam);
-			break;
-		
-		default:
-			*bDone = FALSE;
-			break;
-	}
+    for(i = 0; (*bDone == FALSE) && (i < NUMSETTINGS); ++i)
+    {
+        if(wParam == Settings[i].SetValueMessage)
+        {
+			RetVal =  Setting_GetValue(Settings[i].pfnGetSetting(wParam));
+			*bDone = TRUE;
+        }
+        else if(wParam == Settings[i].SetValueMessage + 100)
+        {
+			Setting_SetValue(Settings[i].pfnGetSetting(wParam), lParam);
+			*bDone = TRUE;
+        }
+        else if(wParam == Settings[i].SetValueMessage + 200)
+        {
+			Setting_ChangeValue(Settings[i].pfnGetSetting(wParam), (eCHANGEVALUE)lParam);
+			*bDone = TRUE;
+        }
+    }
     return RetVal;
 }
 
@@ -306,34 +275,22 @@ void WriteSettingsToIni()
 	char szKey[128];
 	int i;
 
-	Aspect_WriteSettingsToIni();
-	BT848_WriteSettingsToIni();
-	DScaler_WriteSettingsToIni();
-	OutThreads_WriteSettingsToIni();
-	Other_WriteSettingsToIni();
-	FD50_WriteSettingsToIni();
-	FD60_WriteSettingsToIni();
-	FD_Common_WriteSettingsToIni();
+    for(i = 0; i < NUMSETTINGS; ++i)
+    {
+        Settings[i].pfnWriteSettings();
+    }
+
 	Deinterlace_WriteSettingsToIni();
-	TVCard_WriteSettingsToIni();
-	VideoSettings_WriteSettingsToIni();
-	OSD_WriteSettingsToIni();
 	Filter_WriteSettingsToIni();
-	VBI_WriteSettingsToIni();
-	MixerDev_WriteSettingsToIni();
-	Timing_WriteSettingsToIni();
 
 	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, szIniFile);
 	WritePrivateProfileInt("Files", "DebugLogEnabled", DebugLogEnabled, szIniFile);
 
 	WritePrivateProfileInt("Show", "CaptureVBI", Capture_VBI, szIniFile);
-	WritePrivateProfileInt("Show", "LastProgram", CurrentProgramm, szIniFile);
-	WritePrivateProfileInt("Show", "CustomChannelOrder", bCustomChannelOrder, szIniFile);
 
 	WritePrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
 
 	WritePrivateProfileInt("Show", "SaveSettings", bSaveSettings, szIniFile);
-	WritePrivateProfileInt("Show", "CountryCode", CountryCode, szIniFile);
 
 	WritePrivateProfileInt("MSP", "MSPMode", MSPMode, szIniFile);	
 	WritePrivateProfileInt("MSP", "MSPMajorMode", MSPMajorMode, szIniFile);	

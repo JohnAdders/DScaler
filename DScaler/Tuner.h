@@ -37,23 +37,5 @@
 BOOL Tuner_Init();
 BOOL Tuner_SetFrequency(int wFrequency);
 const char* Tuner_Status();
-void Load_Country_Settings();
-void Load_Country_Specific_Settings(int LPos);
-
-typedef struct
-{
-    char Name[128];
-} TCountries;
-
-typedef struct
-{
-	char Name[128];
-	int MinChannel;
-	int MaxChannel;
-	unsigned long freq[512];
-} TChannels;
-
-extern TCountries Countries[35];
-extern TChannels Channels;
 
 #endif

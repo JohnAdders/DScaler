@@ -501,14 +501,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_CHANNELPLUS:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
-				// MAE 8 Nov 2000 Added wrap around
-				if (Programm[CurrentProgramm + 1].freq != 0)
-					ChangeChannel(CurrentProgramm + 1);
-				else
-					ChangeChannel(0);
-
-				StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
-				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
+                Channel_Increment();
 			}
 
 			break;
@@ -516,58 +509,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_CHANNELMINUS:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
-				// MAE 8 Nov 2000 Added wrap around
-				if (CurrentProgramm != 0)
-				{
-					ChangeChannel(CurrentProgramm - 1);
-				}
-				else
-				{
-					// Search for end of current program list
-					for (i=0;i<MAXPROGS;++i)
-					{
-						if (Programm[i].freq == 0)
-							break;
-					}
-					if (i != 0)
-					{
-						ChangeChannel(i - 1);
-					}
-					else
-					{
-						ChangeChannel(0);
-					}
-				}
-
-				StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
-				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
+                Channel_Decrement();
 			}
-
 			break;
 
 		case IDM_CHANNEL_PREVIOUS:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
-				if (Programm[PreviousProgramm].freq != 0)
-					ChangeChannel(PreviousProgramm);
-
-				StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
-				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
+                Channel_Previous();
 			}
 			break;
 
 		case IDM_CHANNEL_CUSTOMORDER:
-            bCustomChannelOrder = !bCustomChannelOrder;
+   			Setting_SetValue(Channels_GetSetting(CUSTOMCHANNELORDER), 
+				!Setting_GetValue(Channels_GetSetting(CUSTOMCHANNELORDER)));
 			break;
 
 		case IDM_CHANNEL_SELECT:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
-				if (Programm[lParam].freq != 0)
-					ChangeChannel(lParam);
-
-				StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
-				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
+				Channel_Change(lParam);
 			}
 			break;
 
@@ -1109,7 +1070,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
 				DialogBox(hInst, "CHANNELLIST", hWnd, (DLGPROC) ProgramListProc);
-				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
 			}
 			break;
 
@@ -1554,43 +1514,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			else
 			{
 				i = atoi(ChannelString);
-
-                BOOL found = FALSE;
-                if (bCustomChannelOrder)
-                {
-                    // Find the channel the user typed.
-                    for (int j = 0; j < MAXPROGS; ++j)
-                    {
-                        if (Programm[j].freq != 0 && int(Programm[j].chan) == i)
-                        {
-                            found = TRUE;
-                            i = j;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    found = TRUE;
-                    i = i - 1;
-                }
-
-                if (found)
-                {
-                    ChangeChannel(i);
-                    found = CurrentProgramm == i;
-                }
-
-				if (found)
-				{
-					StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
-					OSD_ShowText(hWnd, Programm[CurrentProgramm].Name, 0);
-				}
-				else
-				{
-					StatusBar_ShowText(STATUS_KEY, "Not Found");
-					OSD_ShowText(hWnd, "Not Found", 0);
-				}
+                Channel_ChangeToNumber(i);
 			}
 			ChannelString[0] = '\0';
             break;
@@ -1927,10 +1851,10 @@ void MainWndOnInitBT(HWND hWnd)
 
 		if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 		{
-			ChangeChannel(CurrentProgramm);
+			Channel_SetCurrent();
 		}
 
-		StatusBar_ShowText(STATUS_KEY, GetSourceName(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE))));
+        StatusBar_ShowText(STATUS_KEY, GetSourceName(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE))));
 
 		// do final setup routines for any files
 		// basically where we need the hWnd to be set
@@ -1977,9 +1901,8 @@ void MainWndOnCreate(HWND hWnd)
 	VBI_Init();	
 	
 	Load_Program_List_ASCII();
-	Load_Country_Settings();
 
-	AddSplashTextLine("System Analysis");
+    AddSplashTextLine("System Analysis");
 
 	sprintf(Text, "Processor %d ", SysInfo.dwProcessorType);
 	AddSplashTextLine(Text);
@@ -2175,8 +2098,6 @@ void SetMenuAnalog()
 	CheckMenuItem(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUTOHIDE_OSD,      Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN))?MF_CHECKED:MF_UNCHECKED);
 
-    CheckMenuItem(hMenu, IDM_CHANNEL_CUSTOMORDER, bCustomChannelOrder ? MF_CHECKED : MF_UNCHECKED);
-
 	AspectRatio_SetMenu(hMenu);
 	FD60_SetMenu(hMenu);
 	OutThreads_SetMenu(hMenu);
@@ -2298,7 +2219,7 @@ const char * GetSourceName(int nVideoSource)
 {
 	switch (nVideoSource)
 	{
-	case SOURCE_TUNER:         return Programm[CurrentProgramm].Name; break;
+	case SOURCE_TUNER:         return Channel_GetName(); break;
 	case SOURCE_COMPOSITE:     return "Composite"; break;
 	case SOURCE_SVIDEO:        return "S-Video"; break;
 	case SOURCE_OTHER1:        return "Other 1"; break;

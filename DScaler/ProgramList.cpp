@@ -56,6 +56,7 @@
 #include "VBI_VideoText.h"
 #include "TVCards.h"
 #include "MixerDev.h"
+#include "OSD.h"
 
 int CurSel;
 unsigned short SelectButton;
@@ -63,7 +64,11 @@ int EditProgramm;
 char KeyValue;
 HWND ProgList;
 
-TProgramm Programm[MAXPROGS+1];
+typedef vector<CChannel*> CHANNELLIST;
+typedef vector<CCountry*> COUNTRYLIST;
+
+CHANNELLIST MyChannels;
+COUNTRYLIST Countries;
 
 int CountryCode = 1;
 
@@ -71,121 +76,153 @@ long CurrentProgramm = 0;
 long PreviousProgramm = 0;
 BOOL bCustomChannelOrder = FALSE;
 
+
+CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format)
+{
+	m_Name = Name;
+    m_Freq = Freq;
+    m_Chan = ChannelNumber;
+    m_Format = Format;
+}
+
+CChannel::~CChannel()
+{
+}
+
+LPCSTR CChannel::GetName()
+{
+    return m_Name.c_str();
+}
+
+DWORD CChannel::GetFrequency()
+{
+    return m_Freq;
+}
+
+int CChannel::GetChannelNumber()
+{
+    return m_Chan;
+}
+
+int CChannel::GetFormat()
+{
+    return m_Format;
+}
+
+CCountry::CCountry()
+{
+    m_Name = "";
+    m_MinChannel = 0;
+	m_MaxChannel = 0;
+	m_Frequencies.clear();
+}
+
+CCountry::~CCountry()
+{
+	m_Frequencies.clear();
+}
+
+void Channel_SetCurrent()
+{
+    Channel_Change(CurrentProgramm);
+}
+
+const char* Channel_GetName()
+{
+    return MyChannels[CurrentProgramm]->GetName();
+}
+
+
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-	int i, j, k;
-	static BOOL NextBlock = FALSE;
-	RECT ptrtoWndPos;
-	static int currX, currY;
-	static int distance = -9999;
-	static int sPos;
-	static int EndPos;
-	static BOOL InitWin = TRUE;
+	int i;
+    CHANNELLIST::iterator it;
+    char sbuf[256];
+    static int EditChan;
 
 	switch (message)
 	{
 	case WM_INITDIALOG:
-		ProgList = CreateWindow("LISTBOX", NULL, WS_BORDER | WS_CHILD | WS_VISIBLE |
-								  LBS_NOTIFY |
-								  WS_VSCROLL, 
-								0, 0, 0, 0, hDlg, NULL, hInst, NULL);
-
 		SetCapture(hDlg);
-
-		CurSel = CurrentProgramm;
-		if (pgstarty != -1)
-		{
-			MoveWindow(hDlg, pgstartx, pgstarty, pgsizex, pgsizey, FALSE);
-		}
-
-		SendMessage(ProgList, LB_RESETCONTENT, 0, 0);
+		SendMessage(GetDlgItem(hDlg, IDC_PROGRAMLIST), LB_RESETCONTENT, 0, 0);
 
 		i = 0;
 
-		while (i < MAXPROGS)
-		{
-			if (Programm[i].freq != 0)
-			{
-				k = SendMessage(ProgList, LB_ADDSTRING, 0, (LPARAM) Programm[i].Name);
-			}
-			else
-				break;
-			i++;
-		}
+        for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+        {
+			SendMessage(GetDlgItem(hDlg, IDC_PROGRAMLIST), LB_ADDSTRING, 0, (LPARAM) (*it)->GetName());
+        }
 
-		SendMessage(ProgList, LB_SETCURSEL, CurSel, (LPARAM) 0);
+		SendMessage(GetDlgItem(hDlg, IDC_PROGRAMLIST), LB_SETCURSEL, CurrentProgramm, (LPARAM) 0);
 
-		SetFocus(ProgList); 
- 
-		break;
+		SetFocus(GetDlgItem(hDlg, IDC_PROGRAMLIST)); 
 
-	case WM_SIZE:
-		GetWindowRect(hDlg, &ptrtoWndPos);
-		currY = ptrtoWndPos.bottom - ptrtoWndPos.top;
-		currX = ptrtoWndPos.right - ptrtoWndPos.left;
-		currY = currY - 90;
-		currX = currX - 25;;
-		if (InitWin == FALSE)
-		{
-			pgstartx = ptrtoWndPos.left;
-			pgstarty = ptrtoWndPos.top;
-			pgsizex = ptrtoWndPos.right - ptrtoWndPos.left;
-			pgsizey = ptrtoWndPos.bottom - ptrtoWndPos.top;
-		}
-		InitWin = FALSE;
-		i = 0;
-		j = 6;
-
-		MoveWindow(ProgList, 6, 25, currX, currY, TRUE);
-
-		MoveWindow(GetDlgItem(hDlg, IDOK2), 25, 40 + currY, 60, 20, TRUE);
-
-		break;
-
-	case WM_MOVE:
-
-		GetWindowRect(hDlg, &ptrtoWndPos);
-		if (InitWin == FALSE)
-		{
-			pgstartx = ptrtoWndPos.left;
-			pgstarty = ptrtoWndPos.top;
-			pgsizex = ptrtoWndPos.right - ptrtoWndPos.left;
-			pgsizey = ptrtoWndPos.bottom - ptrtoWndPos.top;
-		}
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "Same as Tuner");
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "PAL");
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "NTSC");
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "PAL-M");
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "PAL-N");
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "NTSC-J");
+		SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_ADDSTRING, 0, (LPARAM) "PAL60");
+        EditChan = CurrentProgramm;
+        SendMessage(GetDlgItem(hDlg, IDC_NAME), WM_SETTEXT, 0, (LPARAM)MyChannels[EditChan]->GetName());
+        sprintf(sbuf, "%d", MyChannels[EditChan]->GetFrequency());
+        SendMessage(GetDlgItem(hDlg, IDC_FREQUENCY), WM_SETTEXT, 0, (LPARAM)sbuf);
+        sprintf(sbuf, "%d", MyChannels[EditChan]->GetChannelNumber());
+        SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), WM_SETTEXT, 0, (LPARAM)sbuf);
+        MyChannels[EditChan]->GetChannelNumber();
+        SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_SETCURSEL, MyChannels[EditChan]->GetFormat() + 1, 0);
 		break;
 
 	case WM_COMMAND:
-
-		if ((HWND) lParam == ProgList)
-		{
+        switch(LOWORD(wParam))
+        {
+        case IDC_PROGRAMLIST:
 			if (HIWORD(wParam) == LBN_SELCHANGE)
 			{
-				if (NextBlock == TRUE)
-				{
-					NextBlock = FALSE;
-					return (TRUE);
-				}
-				i = SendMessage(ProgList, LB_GETCURSEL, 0, 0);
+				i = SendMessage(GetDlgItem(hDlg, IDC_PROGRAMLIST), LB_GETCURSEL, 0, 0);
 
-				if ((i >= 0) && (i < MAXPROGS))
+				if ((i >= 0) && (i < MyChannels.size()))
 				{
 					if (i != CurrentProgramm)
 					{
-						ChangeChannel(i);
+						Channel_Change(i);
 					}
+                    EditChan = i;
+                    SendMessage(GetDlgItem(hDlg, IDC_NAME), WM_SETTEXT, 0, (LPARAM)MyChannels[EditChan]->GetName());
+                    sprintf(sbuf, "%d", MyChannels[EditChan]->GetFrequency());
+                    SendMessage(GetDlgItem(hDlg, IDC_FREQUENCY), WM_SETTEXT, 0, (LPARAM)sbuf);
+                    sprintf(sbuf, "%d", MyChannels[EditChan]->GetChannelNumber());
+                    SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), WM_SETTEXT, 0, (LPARAM)sbuf);
+                    MyChannels[EditChan]->GetChannelNumber();
+                    SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_SETCURSEL, MyChannels[EditChan]->GetFormat() + 1, 0);
 				}
 			}
-		}
-
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
+            break;
+        case IDC_CHANGE:
+            {
+                int Format;
+                DWORD Freq;
+                int Channel;
+                SendMessage(GetDlgItem(hDlg, IDC_FREQUENCY), WM_GETTEXT, 255, (LPARAM)sbuf);
+                Freq = atol(sbuf);
+                SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), WM_GETTEXT, 255, (LPARAM)sbuf);
+                Channel = atoi(sbuf);
+                Format = SendMessage(GetDlgItem(hDlg, IDC_FORMAT), CB_GETCURSEL, 0, 0) - 1;
+                delete MyChannels[EditChan];
+                SendMessage(GetDlgItem(hDlg, IDC_NAME), WM_GETTEXT, 255, (LPARAM)sbuf);
+                MyChannels[EditChan] = new CChannel(sbuf, Freq, Channel, Format);
+            }
+            break;
+        case IDOK:
+        case IDCANCEL:
 			EndDialog(hDlg, TRUE);
-		}
+            break;
+        }
 
 		break;
 	}
 	return (FALSE);
-	UNREFERENCED_PARAMETER(lParam);
 }
 
 // 
@@ -202,33 +239,22 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 //
 void Write_Program_List_ASCII()
 {
-	int i, j;
 	FILE *SettingFile;
+    CHANNELLIST::iterator it;
 	
-	i = 0;
-	while (i < MAXPROGS)
+	if ((SettingFile = fopen("program.txt", "w")) != NULL)
 	{
-		if (Programm[i].Name[0] == 0x00)
-		{
-			// i has the number of valid programs
-			break;
+        for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+        {
+			fprintf(SettingFile, "Name: %s\n", (*it)->GetName());
+			fprintf(SettingFile, "Freq: %ld\n", (*it)->GetFrequency());
+			fprintf(SettingFile, "Chan: %d\n", (*it)->GetChannelNumber());
+            if((*it)->GetFormat() != -1)
+            {
+			    fprintf(SettingFile, "Form: %d\n", (*it)->GetFormat());
+            }
 		}
-		i++;
-	}
-
-	if (i)
-	{
-		if ((SettingFile = fopen("program.txt", "w")) != NULL)
-		{
-			for (j=0;j<i;++j)
-			{
-				fprintf(SettingFile, "Name: %s\n", Programm[j].Name);
-				fprintf(SettingFile, "Freq: %ld\n", Programm[j].freq);
-				fprintf(SettingFile, "Chan: %ld\n", Programm[j].chan);
-			}
-
-			fclose(SettingFile);
-		}
+		fclose(SettingFile);
 	}
 }
 
@@ -247,82 +273,80 @@ void Write_Program_List_ASCII()
 
 void Load_Program_List_ASCII()
 {
-	int i, j, ch;
-	char sbuf[255];
+	char sbuf[256];
 	FILE *SettingFile;
+    CHANNELLIST::iterator it;
+    DWORD Frequency = -1;
+    int Channel = 1;
+    int Format = -1;
+    string Name;
 
 	// Zero out the program list
-	for (i = 0; i < MAXPROGS; i++)
-	{
-		memset(&Programm[i].Name[0], 0x00, sizeof(TProgramm));
-	}
-	
-	if ((SettingFile = fopen("program.txt", "r")) != NULL)
-	{
-		i=0;
+    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    {
+        delete (*it);
+    }
+    MyChannels.clear();
 
-		while (1)
-		{
-			// Read the name (may contain white space)
-            if (fscanf(SettingFile, "%s ", sbuf) == EOF) // Skip past "Name: "
-                break;
+    SettingFile = fopen("program.txt", "r");
+	if (SettingFile == NULL)
+    {
+        return;
+    }
+	while(!feof(SettingFile))
+    {
+        if(fgets(sbuf, 255, SettingFile) == NULL)
+        {
+    	    fclose(SettingFile);
+            return;
+        }
+		char* eol_ptr = strstr(sbuf, ";");
+		if (eol_ptr == NULL)
+        {
+			eol_ptr = strstr(sbuf, "\n");
+        }
+		if (eol_ptr != NULL)
+        {
+            *eol_ptr = '\0';
+        }
 
-            // If "Chan:" is found, it must be for the previous Programm.
-            if (i > 0 && strnicmp(sbuf, "Chan", 4) == 0)
+
+        if(strnicmp(sbuf, "Name:", 5) == 0)
+        {
+            if(Frequency != -1)
             {
-                if (fscanf(SettingFile, "%ld\n", &Programm[i - 1].chan) == EOF)
-                {
-                    // Error condition - premature EOF
-                    goto error;
-                }
-
-                // Skip past "Name: "
-                if (fscanf(SettingFile, "%s ", sbuf) == EOF)
-                    break;
+                MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format));
             }
+            Name = sbuf + 5;
+            Frequency = -1;
+            ++Channel;
+            Format = -1;
+        }
+        else if(strnicmp(sbuf, "Freq:", 5) == 0)
+        {
+            Frequency = atol(sbuf + 5);
+        }
+        else if(strnicmp(sbuf, "Chan:", 5) == 0)
+        {
+            Channel = atoi(sbuf + 5);
+        }
+        else if(strnicmp(sbuf, "Form:", 5) == 0)
+        {
+            Format = atoi(sbuf + 5);
+        }
+        else
+        {
+            ; //some other rubbish
+        }
+    }
 
-            j = 0;
-            while (1)
-            {
-                if (j == sizeof(sbuf) - 1 || (ch = getc(SettingFile)) == '\n')
-                    break;
+    if(Frequency != -1)
+    {
+        MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format));
+    }
 
-                if (ch == EOF)
-                    goto error;
-
-                if (ch != '\r')
-                    sbuf[j++] = (char)ch;
-            }
-            sbuf[j] = '\0';
-            strcpy(Programm[i].Name, sbuf);
-
-			// Read the frequency
-			if (fscanf(SettingFile, "%s %ld\n", sbuf, &Programm[i].freq) == EOF)
-			{
-				// Error condition - premature EOF
-				goto error;
-			}
-
-            // For backward compatibility, in case there's no "Chan:" entry next
-            Programm[i].chan = i + 1;
-
-			i++;
-		}
-
-		fclose(SettingFile);
-	}
-	return;
-
-error:
-	// Close the file
 	fclose(SettingFile);
-	
-	// Reset program list
-	for (i = 0; i < MAXPROGS; i++)
-	{
-		memset(&Programm[i].Name[0], 0x00, sizeof(TProgramm));
-	}
-
+	return;
 }
 
 
@@ -333,7 +357,7 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 	static HBITMAP RedBulb;
 	static HBITMAP GreenBulb;
 
-	int i, j;
+	int i;
 	
 	static int progindex = 0;
 
@@ -347,20 +371,24 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 	static unsigned int Freq;
 	static int ChannelNr;
 	static unsigned int FirstFreq = 0;
+    COUNTRYLIST::iterator it;
+    CHANNELLIST::iterator ChanIt;
+    string Name;
 
 	MSG msg;
 
 	switch (message)
 	{
 	case WM_INITDIALOG:
+    	Load_Country_Settings();
 		SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_RESETCONTENT, 0, 0);
-		for (i = 0; i < 35; i++)
-		{
-			if (Countries[i].Name[0] != 0x00)
-				SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_INSERTSTRING, i, (LPARAM) (LPSTR) Countries[i].Name);
+        i = 0;
+        for(it = Countries.begin(); it != Countries.end(); ++it)
+        {
+			SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_INSERTSTRING, i, (LPARAM)(LPSTR)((*it)->m_Name.c_str()));
+            i++;
 		}
 		SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_SETCURSEL, CountryCode, 0);
-		Load_Country_Specific_Settings(CountryCode);
 
 		RedBulb = LoadBitmap(hInst, "REDBULB");
 		GreenBulb = LoadBitmap(hInst, "GREENBULB");
@@ -424,14 +452,10 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 					
 					VT_ResetStation();
 
-					Programm[progindex].freq = Freq;
-                    Programm[progindex].chan = Channels.MinChannel + ChannelNr;
-					Programm[progindex].Typ = 'A';
-					
 					Freq = Freq + 2500;
 					if (Capture_VBI == TRUE)
 					{
-						strcpy(Programm[progindex].Name, "<No PDC>");
+						Name =  "<No PDC>";
 
 						i = 0;
 						while (i < 100)
@@ -443,12 +467,12 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 							Sleep(2);
 							if (VPS_lastname[0] != 0x00)
 							{
-								strcpy(Programm[progindex].Name, VPS_lastname);
+								Name =  VPS_lastname;
 								i = 100;
 							}
 							else if (VT_GetStation()[0] != '\0')
 							{
-								strcpy(Programm[progindex].Name, VT_GetStation());
+								Name =  VT_GetStation();
 								i = 100;
 							}
 							i++;
@@ -458,9 +482,9 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 					else
 					{
 						// MAE 7 Nov 2000 Added to get right channel names
-						sprintf(Text,"%d",Channels.MinChannel+ChannelNr);
+						sprintf(Text,"%d",Countries[CountryCode]->m_MinChannel+ChannelNr);
 
-						strcpy(Programm[progindex].Name,Text);
+						Name =  Text;
 					}
 					
 					progindex++;
@@ -470,6 +494,10 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 						ErrorBox("All storage space occupied");
 						return (TRUE);
 					}
+                    else
+                    {
+                        MyChannels.push_back(new CChannel(Name.c_str(), Freq, Countries[CountryCode]->m_MinChannel + ChannelNr, -1));
+                    }
 				
 					InvalidateRect(hDlg, NULL, FALSE);
 					UpdateWindow(hDlg);
@@ -482,9 +510,9 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 			if (STOP == TRUE)
 				return (TRUE);
 
-			if (ChannelNr <= (Channels.MaxChannel - Channels.MinChannel))
+			if (ChannelNr <= (Countries[CountryCode]->m_MaxChannel - Countries[CountryCode]->m_MinChannel))
 			{
-				Freq = Channels.freq[ChannelNr];
+				Freq = Countries[CountryCode]->m_Frequencies[ChannelNr];
 				if (!Tuner_SetFrequency(MulDiv((Freq * 1000), 16, 1000000)))
 				{
 					sprintf(Text, "SetFrequency %10.2f Failed.", (float) Freq / 1000);
@@ -493,7 +521,7 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 				}
 
 				// MAE 7 Nov 2000 Added to get right channel names
-				sprintf(Text,"%d",Channels.MinChannel+ChannelNr);
+				sprintf(Text,"%d",Countries[CountryCode]->m_MinChannel+ChannelNr);
 				SetDlgItemText(hDlg, IDC_EDIT15, Text);
 				
 				InvalidateRect(hDlg, NULL, FALSE);
@@ -508,9 +536,9 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 			{
 				if (FirstFreq != 0)
 				{
-					(void) Tuner_SetFrequency(MulDiv((Programm[0].freq * 1000), 16, 1000000));
-
-					SetDlgItemText(hDlg, IDC_EDIT15, Programm[0].Name);
+					(void) Tuner_SetFrequency(MulDiv((MyChannels[0]->GetFrequency() * 1000), 16, 1000000));
+					SetDlgItemText(hDlg, IDC_EDIT15, MyChannels[0]->GetName());
+                    CurrentProgramm = 0;
 					
 					InvalidateRect(hDlg, NULL, FALSE);
 					UpdateWindow(hDlg);
@@ -528,21 +556,21 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 			if (HIWORD(wParam) == CBN_SELCHANGE)
 			{
 				CountryCode = SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_GETCURSEL, 0, 0);
-				Load_Country_Specific_Settings(CountryCode);
 			}
 		}
 
 		if (LOWORD(wParam) == IDSTART)
 		{
 
-			Freq = Channels.freq[0];
+			Freq = Countries[CountryCode]->m_Frequencies[0];
 			ChannelNr = 0;
 
 			// Zero out the program list
-			for (j = 0; j < MAXPROGS; j++)
-			{
-				memset(&Programm[j].Name[0], 0x00, sizeof(TProgramm));
-			}
+            for(ChanIt = MyChannels.begin(); ChanIt != MyChannels.end(); ++ChanIt)
+            {
+                delete (*ChanIt);
+            }
+            MyChannels.clear();
 
 			progindex = 0;
 
@@ -558,7 +586,7 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 			}
 
 			// MAE 7 Nov 2000 Added to get right channel names
-			sprintf(Text,"%d",Channels.MinChannel+ChannelNr);
+			sprintf(Text,"%d",Countries[CountryCode]->m_MinChannel+ChannelNr);
 			SetDlgItemText(hDlg, IDC_EDIT15, Text);
 			
 			InvalidateRect(hDlg, NULL, FALSE);
@@ -576,6 +604,7 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 			Channels_UpdateMenu(GetMenu(hWnd));
 			DeleteObject(RedBulb);
 			DeleteObject(GreenBulb);
+            Unload_Country_Settings();
 			EndDialog(hDlg, TRUE);
 		}
 
@@ -585,6 +614,7 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 			Load_Program_List_ASCII();
 			DeleteObject(RedBulb);
 			DeleteObject(GreenBulb);
+            Unload_Country_Settings();
 			EndDialog(hDlg, TRUE);
 		}
 		break;
@@ -594,13 +624,13 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 }
 
 //---------------------------------------------------------------------------
-void ChangeChannel(int NewChannel)
+void Channel_Change(int NewChannel)
 {
 	if (GetTunerSetup() != NULL)
 	{
 		if(NewChannel >= 0 && NewChannel < MAXPROGS)
 		{
-			if (Programm[NewChannel].freq != 0)
+			if (MyChannels[NewChannel]->GetFrequency() != 0)
 			{
 				if(!bSystemInMute)
 				{
@@ -609,7 +639,11 @@ void ChangeChannel(int NewChannel)
 				}
 				PreviousProgramm = CurrentProgramm;
 				CurrentProgramm = NewChannel;
-				Tuner_SetFrequency(MulDiv(Programm[CurrentProgramm].freq * 1000, 16, 1000000));
+				Tuner_SetFrequency(MulDiv(MyChannels[CurrentProgramm]->GetFrequency() * 1000, 16, 1000000));
+                if(MyChannels[CurrentProgramm]->GetFormat() != -1)
+                {
+        			Setting_SetValue(BT848_GetSetting(TVFORMAT), MyChannels[CurrentProgramm]->GetFormat());
+                }
 				Sleep(20);
 				VT_ChannelChange();
 				if(!bSystemInMute)
@@ -617,6 +651,8 @@ void ChangeChannel(int NewChannel)
 					Audio_SetSource(AudioSource);
 					Mixer_UnMute();
 				}
+				StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+				OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
 			}
 		}
 	}
@@ -626,32 +662,198 @@ void Channels_UpdateMenu(HMENU hMenu)
 {
 	HMENU			hMenuChannels;
 	MENUITEMINFO	MenuItemInfo;
-	int				i, j;
-
+	int				j;
+    CHANNELLIST::iterator it;
 	hMenuChannels = GetChannelsSubmenu();
 	if(hMenuChannels == NULL) return;
 
-	i = GetMenuItemCount(hMenuChannels) - 1;
-	while (i>=2)
+	j = GetMenuItemCount(hMenuChannels) - 1;
+	while (j>=2)
 	{
-		RemoveMenu(hMenuChannels, i, MF_BYPOSITION);
-		i--;
+		RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
+		--j;
 	}
-	for (i=0,j=2 ; i<MAXPROGS ; i++)
+    
+    j = 2;
+	for (it = MyChannels.begin(); it != MyChannels.end(); ++it)
 	{
-		if (Programm[i].freq != 0)
+		if ((*it)->GetFrequency() != 0)
 		{
 			MenuItemInfo.cbSize = sizeof (MenuItemInfo);
 			MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
 			MenuItemInfo.fType = MFT_STRING;
-			MenuItemInfo.dwTypeData = Programm[i].Name;
-			MenuItemInfo.cch = strlen (Programm[i].Name);
-			MenuItemInfo.fState = (CurrentProgramm == i) ? MFS_CHECKED : MFS_ENABLED;
-			MenuItemInfo.wID = IDM_CHANNEL_SELECT + i + 1;
+			MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetName();
+			MenuItemInfo.cch = strlen ((*it)->GetName());
+			MenuItemInfo.fState = (CurrentProgramm == j - 2) ? MFS_CHECKED : MFS_ENABLED;
+			MenuItemInfo.wID = IDM_CHANNEL_SELECT + j - 1;
 			InsertMenuItem(hMenuChannels, j, TRUE, &MenuItemInfo);
 			j++;
 		}
 	}
+}
+
+void Channel_Increment()
+{
+    // MAE 8 Nov 2000 Added wrap around
+    if (CurrentProgramm + 1 < MyChannels.size())
+    {
+	    Channel_Change(CurrentProgramm + 1);
+    }
+    else
+    {
+	    Channel_Change(0);
+    }
+	StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+	OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+}
+
+void Channel_Decrement()
+{
+	// MAE 8 Nov 2000 Added wrap around
+	if (CurrentProgramm != 0)
+	{
+		Channel_Change(CurrentProgramm - 1);
+	}
+	else
+	{
+		Channel_Change(MyChannels.size() - 1);
+	}
+	StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+	OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+}
+
+void Channel_Previous()
+{
+	if (MyChannels[PreviousProgramm]->GetFrequency() != 0)
+		Channel_Change(PreviousProgramm);
+
+	StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+	OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+}
+
+void Channel_ChangeToNumber(int ChannelNumber)
+{
+    BOOL found = FALSE;
+
+    if (bCustomChannelOrder)
+    {
+        // Find the channel the user typed.
+        for (int j = 0; j < MAXPROGS; ++j)
+        {
+            if (MyChannels[j]->GetFrequency() != 0 && int(MyChannels[j]->GetChannelNumber()) == ChannelNumber)
+            {
+                found = TRUE;
+                ChannelNumber = j;
+                break;
+            }
+        }
+    }
+    else
+    {
+        found = TRUE;
+        ChannelNumber = ChannelNumber - 1;
+    }
+
+    if (found)
+    {
+        Channel_Change(ChannelNumber);
+        found = CurrentProgramm == ChannelNumber;
+    }
+
+	if (found)
+	{
+		StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+		OSD_ShowText(hWnd, MyChannels[CurrentProgramm]->GetName(), 0);
+	}
+	else
+	{
+		StatusBar_ShowText(STATUS_KEY, "Not Found");
+		OSD_ShowText(hWnd, "Not Found", 0);
+	}
+}
+
+void Unload_Country_Settings()
+{
+    COUNTRYLIST::iterator it;
+
+    // Zero out the program list
+    for(it = Countries.begin(); it != Countries.end(); ++it)
+    {
+        delete (*it);
+    }
+    Countries.clear();
+}
+
+
+void Load_Country_Settings()
+{
+	FILE *CountryFile;
+	char line[128];
+	char *Pos;
+	char *Pos1;
+	char *eol_ptr;
+	unsigned int i;
+    string Name;
+    CCountry* NewCountry = NULL;
+
+    if ((CountryFile = fopen("Channel.txt", "r")) == NULL)
+	{
+		ErrorBox("File Channel.txt not Found");
+		return;
+	}
+	i = 0;
+
+	while (fgets(line, sizeof(line), CountryFile) != NULL)
+	{
+		eol_ptr = strstr(line, ";");
+		if (eol_ptr == NULL)
+        {
+			eol_ptr = strstr(line, "\n");
+        }
+        if(eol_ptr != NULL)
+        {
+            *eol_ptr = '\0';
+        }
+
+		if(((Pos = strstr(line, "[")) != 0) && ((Pos1 = strstr(line, "]")) != 0) && Pos1 > Pos)
+		{
+            if(NewCountry != NULL)
+            {
+                Countries.push_back(NewCountry);
+            }
+			Pos++;
+            NewCountry = new CCountry();
+            NewCountry->m_Name = Pos;
+            NewCountry->m_Name[Pos1-Pos] = '\0';
+		}
+        else if ((Pos = strstr(line, "ChannelLow=")) != 0)
+        {
+            NewCountry->m_MinChannel = atoi(Pos + strlen("ChannelLow="));
+        }
+        else if ((Pos = strstr(line, "ChannelHigh=")) != 0)
+        {
+            NewCountry->m_MaxChannel = atoi(Pos + strlen("ChannelHigh="));
+        }
+        else
+        {
+			Pos = line;
+			while (*Pos != '\0')
+			{
+				if ((*Pos >= '0') && (*Pos <= '9'))
+				{
+                    NewCountry->m_Frequencies.push_back(atol(Pos));
+                    break;
+				}
+				Pos++;
+			}
+        }
+	}
+    if(NewCountry != NULL)
+    {
+        Countries.push_back(NewCountry);
+    }
+
+	fclose(CountryFile);
 }
 
 void Channels_SetMenu(HMENU hMenu)
@@ -673,5 +875,60 @@ void Channels_SetMenu(HMENU hMenu)
 	if (CurrentProgramm < nb)
 	{
 		CheckMenuItem(hMenuChannels, CurrentProgramm + 2, MF_BYPOSITION | MF_CHECKED);
+	}
+    CheckMenuItem(hMenu, IDM_CHANNEL_CUSTOMORDER, bCustomChannelOrder ? MF_CHECKED : MF_UNCHECKED);
+}
+////////////////////////////////////////////////////////////////////////////
+// Start of Settings related code
+/////////////////////////////////////////////////////////////////////////////
+SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
+{
+	{
+		"CountryCode", SLIDER, 0, (long*)&CountryCode,
+		1, 0, 100, 1, 1,
+		NULL,
+		"Show", "CountryCode", NULL,
+	},
+	{
+		"Current Program", SLIDER, 0, (long*)&CurrentProgramm,
+		0, 0, MAXPROGS, 1, 1,
+		NULL,
+		"Show", "LastProgram", NULL,
+	},
+	{
+		"Custom Channel Order", ONOFF, 0, (long*)&bCustomChannelOrder,
+		FALSE, 0, 1, 1, 1,
+		NULL,
+		"Show", "CustomChannelOrder", NULL,
+	},
+};
+
+SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)
+{
+	if(Setting > -1 && Setting < CHANNELS_SETTING_LASTONE)
+	{
+		return &(ChannelsSettings[Setting]);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void Channels_ReadSettingsFromIni()
+{
+	int i;
+	for(i = 0; i < CHANNELS_SETTING_LASTONE; i++)
+	{
+		Setting_ReadFromIni(&(ChannelsSettings[i]));
+	}
+}
+
+void Channels_WriteSettingsToIni()
+{
+	int i;
+	for(i = 0; i < CHANNELS_SETTING_LASTONE; i++)
+	{
+		Setting_WriteToIni(&(ChannelsSettings[i]));
 	}
 }

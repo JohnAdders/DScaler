@@ -321,9 +321,9 @@ typedef enum
 	OUTTHREADS_SETTING_LASTONE,
 } OUTTHREADS_SETTING;
 
-#define WM_OUTHREADS_GETVALUE		(WM_USER + 4)
-#define WM_OUTHREADS_SETVALUE		(WM_USER + 104)
-#define WM_OUTHREADS_CHANGEVALUE	(WM_USER + 204)
+#define WM_OUTTHREADS_GETVALUE		(WM_USER + 4)
+#define WM_OUTTHREADS_SETVALUE		(WM_USER + 104)
+#define WM_OUTTHREADS_CHANGEVALUE	(WM_USER + 204)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Other.c
@@ -690,5 +690,20 @@ typedef enum
 #define WM_TIMING_SETVALUE			(WM_USER + 126)
 #define WM_TIMING_CHANGEVALUE	    (WM_USER + 226)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in Program.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	COUNTRYCODE = 0,
+	CURRENTPROGRAM,
+	CUSTOMCHANNELORDER,
+	CHANNELS_SETTING_LASTONE,
+} CHANNELS_SETTING;
+
+#define WM_CHANNELS_GETVALUE			(WM_USER + 27)
+#define WM_CHANNELS_SETVALUE			(WM_USER + 127)
+#define WM_CHANNELS_CHANGEVALUE	        (WM_USER + 227)
 
 #endif

@@ -44,68 +44,60 @@
 #ifndef __PROGRAMLIST_H___
 #define __PROGRAMLIST_H___
 
+
+#include "settings.h"
+
+// Get Hold of the OutThreads.c file settings
+SETTING* Channels_GetSetting(CHANNELS_SETTING Setting);
+void Channels_ReadSettingsFromIni();
+void Channels_WriteSettingsToIni();
+void Channels_UpdateMenu(HMENU hMenu);
+void Channels_SetMenu(HMENU hMenu);
+
 #define MAXPROGS 255
 
-typedef struct
+class CChannel
 {
-	char FilterName[5];
-	unsigned char FilterId;
-	unsigned short PID;
-} TPIDFilters;
+public:
+    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format);
+    ~CChannel();
+    LPCSTR GetName();
+    DWORD GetFrequency();
+    int GetChannelNumber();
+    int GetFormat();
+private:
+	string m_Name;
+    DWORD m_Freq;
+    int m_Chan;
+    int m_Format;
+};
 
-typedef struct
+class CCountry
 {
-	char Name[255];
-    unsigned long freq;
-    unsigned long chan;
-    char Typ;
-    BOOL  Tuner_Auto;
-	BOOL  PMT_Auto;
-	BOOL  PID_Auto;
-    int power;             /* LNB power 0=off/pass through, 1=on */
-	int volt;              /* 14/18V (V=0/H=1) */
-	int afc;
-	int ttk;               /* 22KHz */
-	int diseqc;            /* Diseqc input select */
-	unsigned int srate;
-	int qam;
-	int fec;
-	int norm;
-	unsigned short  tp_id;
-	unsigned short  Video_pid;
-	unsigned short  Audio_pid;
-    unsigned short  TeleText_pid;          /* Teletext PID */
-	unsigned short  PMT_pid;
-    unsigned short  PCR_pid;
-	unsigned short  PMC_pid;
-	unsigned short  SID_pid;
-	unsigned short  AC3_pid;
-	unsigned short  EMM_pid;
-	unsigned short  ECM_pid;
-	unsigned char   TVType; //  == 00 PAL ; 11 == NTSC
-	unsigned char   ServiceTyp;
-    unsigned char   CA_ID;
-	unsigned short  Temp_Audio;
-    unsigned char   Buffer[10];   // For later Use
-	unsigned short  FilterNumber;
-    TPIDFilters Filters[12];
-} TProgramm;
-
+public:
+    CCountry();
+    ~CCountry();
+	string m_Name;
+	int m_MinChannel;
+	int m_MaxChannel;
+	vector<DWORD> m_Frequencies;
+};
 
 void Write_Program_List_ASCII();
 void Load_Program_List_ASCII();
+void Load_Country_Settings();
+void Unload_Country_Settings();
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY ChannelNumberProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-void ChangeChannel(int NewChannel);
-void Channels_UpdateMenu(HMENU hMenu);
-void Channels_SetMenu(HMENU hMenu);
 
-extern TProgramm Programm[MAXPROGS+1];
-extern int CountryCode;
-extern long CurrentProgramm;
-extern long PreviousProgramm;
-extern BOOL bCustomChannelOrder;
+void Channel_Change(int NewChannelIndex);
+void Channel_ChangeToNumber(int NewChannelNumber);
+void Channel_Increment();
+void Channel_Decrement();
+void Channel_SetCurrent();
+void Channel_Previous();
+const char* Channel_GetName();
 
 #endif

@@ -480,7 +480,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
 		nLine = 2;
 		if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 		{
-			OSD_AddText(Programm[CurrentProgramm].Name, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, dfSize));
+			OSD_AddText(Channel_GetName(), dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, dfSize));
 			nLine++;
 		}
 

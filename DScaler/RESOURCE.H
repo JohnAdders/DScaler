@@ -16,6 +16,12 @@
 #define ID_UPDATEONE                    7
 #define IDGETSDT                        7
 #define IDM_SAVE_SETTINGS_NOW           100
+#define IDC_SETTINGS_LIST               108
+#define IDC_SETTINGS_EDIT               109
+#define IDC_SETTINGS_SPIN               110
+#define IDC_SETTINGS_CHECK              111
+#define IDC_SETTINGS_SLIDER             112
+#define IDC_SETTINGS_DEFAULT            113
 #define IDM_STATUSBAR                   133
 #define IDD_ABOUT                       160
 #define IDD_ADV_VIDEOSETTINGS           161
@@ -37,6 +43,7 @@
 #define IDI_DSCALER                     179
 #define IDC_DSCALERMENU                 180
 #define IDC_CONTEXTMENU                 181
+#define IDD_SETTINGS                    182
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -841,15 +848,14 @@
 #define IDM_RETURN_TO_WINDOW            2013
 #define IDM_USECHROMA                   2014
 #define IDM_AUTO_FORMAT                 2015
-#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        182
+#define _APS_NEXT_RESOURCE_VALUE        183
 #define _APS_NEXT_COMMAND_VALUE         2016
 #define _APS_NEXT_CONTROL_VALUE         1895
-#define _APS_NEXT_SYMED_VALUE           108
+#define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

@@ -37,14 +37,14 @@ RSC=rc.exe
 # PROP BASE Intermediate_Dir "DScaler___Win32_Debug0"
 # PROP BASE Ignore_Export_Lib 0
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 0
+# PROP Use_MFC 1
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /W3 /Gm /GX /Zi /Od /I "..\driver\include\\" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /YX /FD /c
-# ADD CPP /nologo /G6 /W3 /GX /ZI /Od /I "..\api" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /GX /ZI /Od /I "..\api" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /D "_DEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
 # ADD MTL /D "_DEBUG" /mktyplib203 /win32
@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
-# ADD LINK32 ..\Driver\DSDrv\Debug\DSDrv.lib ddraw.lib dxguid.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /out:"..\Debug\DScaler.exe"
+# ADD LINK32 ..\Driver\DSDrv\Debug\DSDrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /out:"..\Debug\DScaler.exe"
 # SUBTRACT LINK32 /profile /map
 
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP BASE Intermediate_Dir "DScaler___Win32_Release"
 # PROP BASE Ignore_Export_Lib 0
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 0
+# PROP Use_MFC 1
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
@@ -94,7 +94,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
-# ADD LINK32 ..\Driver\DSDrv\Release\DSdrv.lib ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib winmm.lib comdlg32.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /incremental:yes /map /machine:I386 /out:"..\Release\DScaler.exe"
+# ADD LINK32 ..\Driver\DSDrv\Release\DSdrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib /nologo /subsystem:windows /incremental:yes /map /machine:I386 /out:"..\Release\DScaler.exe"
 # SUBTRACT LINK32 /profile /debug /nodefaultlib
 
 !ENDIF 
@@ -149,6 +149,10 @@ SOURCE=.\DScaler.cpp
 # Begin Source File
 
 SOURCE=.\DScaler.rc
+# End Source File
+# Begin Source File
+
+SOURCE=.\DScalerApp.cpp
 # End Source File
 # Begin Source File
 
@@ -232,6 +236,10 @@ SOURCE=.\ProgramList.cpp
 # Begin Source File
 
 SOURCE=.\Settings.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingsDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -320,6 +328,10 @@ SOURCE=.\DScaler.H
 # End Source File
 # Begin Source File
 
+SOURCE=.\DScalerApp.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ErrorBox.h
 # End Source File
 # Begin Source File
@@ -377,6 +389,10 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\settings.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SettingsDlg.h
 # End Source File
 # Begin Source File
 
@@ -445,10 +461,6 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
-# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -458,4 +470,8 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
+# End Section
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
 # End Section

@@ -1,6 +1,16 @@
 
-#include <windows.h>
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+#define VC_EXTRALEAN
+#include <afxwin.h>
+#include <afxext.h>
+#include <afxcmn.h>
+
+//#include <windows.h>
 #include <windowsx.h>
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>

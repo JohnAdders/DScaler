@@ -178,13 +178,14 @@ void MainWndOnDestroy();
 
 ****************************************************************************/
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	WNDCLASS wc;
 	MSG msg;
 	HWND hPrevWindow;
 
 	hInst = hInstance;
+	
 	CPU_SetupFeatureFlag();
 	// if we are already runninmg then start up old version
 	hPrevWindow = FindWindow((LPCTSTR) DSCALER_APPNAME, NULL);

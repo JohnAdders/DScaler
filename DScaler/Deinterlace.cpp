@@ -52,6 +52,7 @@
 #include "Status.h"
 #include "OSD.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
 
 DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 {
@@ -191,6 +192,14 @@ void ShowVideoModeUI()
 	if(VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI != NULL)
 	{
 		VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI(hWnd);
+	}
+	else
+	{
+		//deinterlace plugin didnt have its own ui, show generic one
+		CString dlgCaption;
+		dlgCaption="Settings for ";
+		dlgCaption+=VideoDeintMethods[gVideoPulldownMode]->szName;
+		CSettingsDlg::ShowSettingsDlg(dlgCaption,VideoDeintMethods[gVideoPulldownMode]->pSettings,VideoDeintMethods[gVideoPulldownMode]->nSettings);
 	}
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.43 2003-10-27 16:22:57 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.44 2004-02-18 06:39:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2003/10/27 16:22:57  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.42  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -265,76 +268,60 @@ void CSAA7134Source::CleanupUI()
 
 BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    int i;
-    int nIndex;
-    char buf[128];
     static CSAA7134Source* pThis;
-    CSAA7134Card* pCard = NULL;
-    char szCardId[9] = "none";
-    char szVendorId[9] = "none";
-    char szDeviceId[9] = "none";
-    DWORD dwCardId(0);
+    static long s_CardType;
+    static long s_TunerType;
+
+    enum
+    {
+        WM_UPDATE_CARD_LIST     = WM_APP,
+        WM_UPDATE_TUNER_LIST,
+    };
 
     switch (message)
     {
     case WM_INITDIALOG:
-        pThis = (CSAA7134Source*)lParam;
-        sprintf(buf, "Setup card %u with chip %s", pThis->GetDeviceIndex() + 1, pThis->GetChipName());
-        SetWindowText(hDlg, buf);
-        Button_Enable(GetDlgItem(hDlg, IDCANCEL), pThis->m_bSelectCardCancelButton);
-        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < pThis->m_pSAA7134Card->GetMaxCards(); i++)
         {
-            int nIndex;
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i));
-            SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
-            if(i == pThis->m_CardType->GetValue())
+            char buf[128];
+
+            pThis = (CSAA7134Source*)lParam;
+            sprintf(buf, "Setup card %u with chip %s", pThis->GetDeviceIndex() + 1, pThis->GetChipName());
+            SetWindowText(hDlg, buf);
+            Button_Enable(GetDlgItem(hDlg, IDCANCEL), pThis->m_bSelectCardCancelButton);
+
+            s_CardType = pThis->m_CardType->GetValue();
+            s_TunerType = pThis->m_TunerType->GetValue();
+
+            SendMessage(hDlg, WM_UPDATE_CARD_LIST, 0, 0);
+            SendMessage(hDlg, WM_UPDATE_TUNER_LIST, 0, 0);
+
+            SetFocus(hDlg);
+
+            CSAA7134Card* pCard = pThis->GetCard();
+            SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType());
+            sprintf(buf,"%04X", pCard->GetVendorId());
+            SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, buf);
+            sprintf(buf,"%04X", pCard->GetDeviceId());
+            SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, buf);
+
+            DWORD dwCardId = pCard->GetSubSystemId();
+            if (dwCardId != 0x00001131)
             {
-                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
+                sprintf(buf, "%08X", dwCardId);
+                SetDlgItemText(hDlg, IDC_AUTODECTECTID, buf);
+            }
+            else
+            {
+                SetDlgItemText(hDlg, IDC_AUTODECTECTID, "none");
             }
         }
-
-        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
-        for(i = 0; i < TUNER_LASTONE; i++)
-        {
-            nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
-        }
-
-        SetFocus(hDlg);
-        // Update the tuner combobox after the SetFocus
-        // because SetFocus modifies this combobox
-        for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
-        {
-            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-            if (i == pThis->m_TunerType->GetValue() )
-            {
-                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
-            }
-        }
-
-		pCard = pThis->GetCard();
-        SetDlgItemText(hDlg, IDC_BT_CHIP_TYPE, pCard->GetChipType());
-        sprintf(szVendorId,"%04X", pCard->GetVendorId());
-        SetDlgItemText(hDlg, IDC_BT_VENDOR_ID, szVendorId);
-        sprintf(szDeviceId,"%04X", pCard->GetDeviceId());
-        SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
-        dwCardId = pCard->GetSubSystemId();
-        if (dwCardId != 0x00001131)
-        {
-            sprintf(szCardId, "%08X", dwCardId);
-        }
-        SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {
         case IDOK:
-            i = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_GETCURSEL, 0, 0);
-            pThis->m_TunerType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), i));
-
-            i = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
-            pThis->m_CardType->SetValue(ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i));
+            pThis->m_TunerType->SetValue(s_TunerType);
+            pThis->m_CardType->SetValue(s_CardType);
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
@@ -342,55 +329,75 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
             EndDialog(hDlg, TRUE);
             break;
         case IDC_CARDSSELECT:
-            i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
-            i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
-            i = pThis->m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)i);
-            for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+            if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                if (ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex) == i)
-                {
-                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-                }
+                int i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CARDSSELECT));
+                s_CardType = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CARDSSELECT), i);
+                s_TunerType = pThis->m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)s_CardType);
+
+                SendMessage(hDlg, WM_UPDATE_TUNER_LIST, 0, 0);
             }
             break;
         case IDC_AUTODETECT:
             {
-                eSAA7134CardId CardId = pThis->m_pSAA7134Card->AutoDetectCardType();
-                eTunerId TunerId = pThis->m_pSAA7134Card->AutoDetectTuner(CardId);
+                s_CardType = pThis->m_pSAA7134Card->AutoDetectCardType();
+                s_TunerType = pThis->m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)s_CardType);
 
-                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
-                for (i = 0; i < pThis->m_pSAA7134Card->GetMaxCards(); i++)
-                {
-                    int nIndex;
-                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i));
-                    SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
-                    if (i == (int)CardId)
-                    {
-                        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
-                    }
-                }
-
-                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
-                for (i = 0; i < TUNER_LASTONE; i++)
-                {
-                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
-                    SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
-                }
-                SetFocus(hDlg);
-                // Update the tuner combobox after the SetFocus
-                // because SetFocus modifies this combobox
-                for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
-                {
-                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-                    if (i == (int)TunerId)
-                    {
-                        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
-                    }
-                }
+                SendMessage(hDlg, WM_UPDATE_CARD_LIST, 0, 0);
+                SendMessage(hDlg, WM_UPDATE_TUNER_LIST, 0, 0);
             }
             break;
         default:
             break;
+        }
+        break;
+    case WM_UPDATE_CARD_LIST:
+        {
+            // Get this card's device id
+            WORD deviceId = pThis->GetCard()->GetDeviceId();
+
+            // Clear the cards list
+            SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+
+            // Fill the cards list
+            for (int i = 0; i < pThis->m_pSAA7134Card->GetMaxCards(); i++)
+            {
+                if (i != 0 && pThis->m_pSAA7134Card->GetCardDeviceId((eSAA7134CardId)i) != deviceId)
+                {
+                    // Skip cards of different device ids
+                    continue;
+                }
+
+                LPCSTR pCardName = pThis->m_pSAA7134Card->GetCardName((eSAA7134CardId)i);
+
+                int j = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pCardName);
+                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, j, i);
+
+                // Select the appropriate card
+                if (i == s_CardType)
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, j, 0);
+                }
+            }
+        }
+        break;
+    case WM_UPDATE_TUNER_LIST:
+        {
+            // Clear the tuners list
+            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
+
+            // Fill the tuners list
+            for(int i = 0; i < TUNER_LASTONE; i++)
+            {
+                int j = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, j, i);
+
+                // Select the appropriate tuner
+                if (i == s_TunerType)
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, j, 0);
+                }
+            }
         }
         break;
     default:
@@ -1205,7 +1212,7 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
         // enable the menu and check it appropriately
         //EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
-		EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pSAA7134Card->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
+        EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pSAA7134Card->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
     }
 
@@ -1501,16 +1508,16 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT7:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
-				if (nValue < m_pSAA7134Card->GetNumInputs())
-				{
-					if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pSAA7134Card->IsInputATuner(nValue))
-					{
-						ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
-						SetTrayTip(m_pSAA7134Card->GetInputName(nValue));
-						m_VideoSource->SetValue(nValue);
-						SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
-					}
-				}
+                if (nValue < m_pSAA7134Card->GetNumInputs())
+                {
+                    if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pSAA7134Card->IsInputATuner(nValue))
+                    {
+                        ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
+                        SetTrayTip(m_pSAA7134Card->GetInputName(nValue));
+                        m_VideoSource->SetValue(nValue);
+                        SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+                    }
+                }
             }
             break;
 

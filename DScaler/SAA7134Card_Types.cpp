@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.40 2004-02-17 07:25:42 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.41 2004-02-18 06:39:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2004/02/17 07:25:42  atnak
+// Updated Compro VideoMate TV Gold Plus
+//
 // Revision 1.39  2004/02/17 06:29:14  atnak
 // Added new card Elitegroup EZ-TV
 // Added new card ST Lab PCI-TV7130
@@ -235,9 +238,11 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         StandardSAA7134InputSelect,
         0x20011131,
     },
-    // SAA7134CARDID_FLYVIDEO3000 - LifeView FlyVIDEO3000
+    // LifeView FlyVideo 3000
+    // Chronos Video Shuttle II (Based on FlyVideo 3000, Stereo)
+    // Thanks "Velizar Velinov" <veli_velinov2001@ya...>
     {
-        "LifeView FlyVIDEO3000",
+        "LifeView FlyVideo3000 / Chronos Video Shuttle II",
         0x7134,
         6,
         {
@@ -246,8 +251,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
-                0xE000, 0x8000,
-
+                //0xE000, 0x8000,
+                0xE000, 0x0000,
             },
             {
                 "Composite",
@@ -275,7 +280,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_RADIO,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
-                0xE000, 0x0000,
+                //0xE000, 0x0000,
+                0xE000, 0x2000,
             },
             {
                 NULL,
@@ -290,10 +296,12 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         0x0018e700,
         NULL,
         StandardSAA7134InputSelect,
+		0x01384e42,
     },
-    // SAA7134CARDID_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
+    // LifeView FlyVideo2000 (saa7130)
+    // Chronos Video Shuttle II (Based on FlyVideo 2000)
     {
-        "LifeView FlyVIDEO2000 / Chronos Video Shuttle II FM",
+        "LifeView FlyVideo2000 / Chronos Video Shuttle II",
         0x7130,
         6,
         {
@@ -1344,6 +1352,64 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         StandardSAA7134InputSelect,
         0xc200185b,
     },
+/*    // Chronos Video Shuttle II Stereo
+    // Thanks "Velizar Velinov" <veli_velinov2001@ya...>
+	// Maybe exactly the same as FlyVideo 3000
+    {
+        "Chronos Video Shuttle II Stereo",
+        0x7134,
+        6,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+                0xE000, 0x0000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x2000,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_NONE,
+                0xE000, 0x8000,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_24576Hz,
+        0x0000e000,
+        NULL,
+        StandardSAA7134InputSelect,
+		0x01384e42,
+    },*/
 };
 
 
@@ -1452,6 +1518,12 @@ BOOL CSAA7134Card::IsCCIRSource(int nInput)
 LPCSTR CSAA7134Card::GetCardName(eSAA7134CardId CardId)
 {
     return m_SAA7134Cards[CardId].szName;
+}
+
+
+WORD CSAA7134Card::GetCardDeviceId(eSAA7134CardId CardId)
+{
+    return m_SAA7134Cards[CardId].DeviceId;
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.38 2004-02-14 04:03:44 atnak Exp $
+// $Id: SAA7134Card.h,v 1.39 2004-02-18 06:39:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2004/02/14 04:03:44  atnak
+// Put GPIO settings and AutoDetect IDs into the main card definition
+// to remove the need for extra tables and custom functions.
+// Added card Medion Philips 7134 Chipset
+//
 // Revision 1.37  2003/10/27 16:22:57  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -192,8 +197,8 @@ private:
         INPUTTYPE_RADIO,
         /// When the card doesn't have internal mute
         INPUTTYPE_MUTE,
-		/// Stores the state the cards should be put into at the end
-		INPUTTYPE_FINAL,
+        /// Stores the state the cards should be put into at the end
+        INPUTTYPE_FINAL,
     };
 
     /// SAA7134's video input pins
@@ -212,8 +217,8 @@ private:
     enum eAudioCrystal
     {
         AUDIOCRYSTAL_NONE = 0,          // only on saa7130
-        AUDIOCRYSTAL_32110Hz,			// 0x187DE7
-        AUDIOCRYSTAL_24576Hz,			// 0x200000
+        AUDIOCRYSTAL_32110Hz,           // 0x187DE7
+        AUDIOCRYSTAL_24576Hz,           // 0x200000
     };
 
     /// Defines each input on a card
@@ -227,21 +232,21 @@ private:
         eVideoInputSource VideoInputPin;
         /// Which line on the card is to be default
         eAudioInputSource AudioLineSelect;
-		DWORD dwGPIOStatusMask;
-		DWORD dwGPIOStatusBits;
+        DWORD dwGPIOStatusMask;
+        DWORD dwGPIOStatusBits;
     } TInputType;
 
     /// Defines the specific settings for a given card
     typedef struct
     {
         LPCSTR szName;
-		WORD DeviceId;
+        WORD DeviceId;
         int NumInputs;
         TInputType Inputs[SA_INPUTS_PER_CARD];
         eTunerId TunerId;
         /// The type of clock crystal the card has
         eAudioCrystal AudioCrystal;
-		DWORD dwGPIOMode;
+        DWORD dwGPIOMode;
         /// Any card specific initialization - may be NULL
         void (CSAA7134Card::*pInitCardFunction)(void);
         /** Function used to switch between sources
@@ -249,7 +254,7 @@ private:
             Default is StandardBT848InputSelect
         */
         void (CSAA7134Card::*pInputSwitchFunction)(int);
-		DWORD dwAutoDetectId;
+        DWORD dwAutoDetectId;
     } TCardType;
 
     /// used to store the ID for autodetection
@@ -271,6 +276,7 @@ public:
      */
     int     GetMaxCards();
     LPCSTR  GetCardName(eSAA7134CardId CardId);
+    WORD    GetCardDeviceId(eSAA7134CardId CardId);
 
     void            SetCardType(int CardType);
     eSAA7134CardId  GetCardType();
@@ -286,7 +292,7 @@ public:
     LPCSTR  GetInputName(int nVideoSource);
     BOOL    IsInputATuner(int nInput);
 
-	int		GetFinalInputNumber();
+    int     GetFinalInputNumber();
 
     /** Tuner
      */

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.14 2005-04-02 14:04:11 laurentg Exp $
+// $Id: EPG.cpp,v 1.15 2005-04-02 14:23:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2005/04/02 14:04:11  laurentg
+// EPG: navigation between the browser view and the programme view improved
+//
 // Revision 1.13  2005/04/01 22:16:32  laurentg
 // EPG: new menu "Hide EPG" + new setting to define the time frame duration
 //
@@ -997,8 +1000,10 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		break;
 
 	case IDM_DISPLAY_EPG:
-		if (m_UseProgFronBrowser == FALSE)
+		if (   (m_Displayed == 1)
+			|| (m_UseProgFronBrowser == FALSE) )
 		{
+			m_UseProgFronBrowser = FALSE;
 			// Check if new EPG data have to be loaded
 			time(&TimeNow);
 			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
@@ -1193,7 +1198,8 @@ void CEPG::ShowOSD()
 	time(&TimeNow);
 	LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
 
-	if (m_Programmes.size() > 0)
+	if (   (m_Programmes.size() > 0)
+		&& (m_UseProgFronBrowser == FALSE) )
 	{
 		CSource *CurrentSource = Providers_GetCurrentSource();
 		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
@@ -1201,8 +1207,11 @@ void CEPG::ShowOSD()
 			// Search EPG info for the currently viewed channel
 			if (MyEPG.SearchForProgramme(Channel_GetName(), TimeNow) == TRUE)
 			{
-				// Display the OSD screen
-				OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+				if (m_Displayed == 0)
+				{
+					// Display the OSD screen
+					OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+				}
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.102 2005-04-02 14:04:12 laurentg Exp $
+// $Id: OSD.cpp,v 1.103 2005-04-02 14:23:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2005/04/02 14:04:12  laurentg
+// EPG: navigation between the browser view and the programme view improved
+//
 // Revision 1.101  2005/04/01 22:16:33  laurentg
 // EPG: new menu "Hide EPG" + new setting to define the time frame duration
 //
@@ -2440,8 +2443,12 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
     OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
 	time_t TimeNow;
 	time(&TimeNow);
-    sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
-    OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+	if (   (TimeNow >= StartTime)
+		&& (TimeNow < EndTime) )
+	{
+		sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+		OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+	}
 	if (SubTitle.length() > 0)
 	{
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);

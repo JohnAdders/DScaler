@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.291 2003-01-24 01:55:18 atnak Exp $
+// $Id: DScaler.cpp,v 1.292 2003-01-25 12:03:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.291  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.290  2003/01/18 12:10:48  laurentg
 // Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
 //
@@ -1788,7 +1792,12 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     if (nPaintedRects != 0)
     {
-        OSD_Redraw(hDC, &Rect);
+        RECT OSDDrawRect;
+        GetDisplayAreaRect(hWnd, &OSDDrawRect);
+
+        // Draw the OSD over the top
+        OSD_Redraw(hDC, &OSDDrawRect);
+
         OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
     }
 
@@ -1810,7 +1819,7 @@ BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     HDC hDC;
 
     HDC hWndDC = GetDC(hWnd);
-    GetDestRect(&Rect);
+    GetDisplayAreaRect(hWnd, &Rect);
 
     if (OffscreenHDC.UpdateGeometry(hWndDC, &Rect))
     {
@@ -3537,30 +3546,43 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), !Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
             break;
 
-/*        case IDM_FAST_REPAINT:
+        case IDM_FAST_REPAINT:
             {
-                RECT winRect;
-                PAINTSTRUCT sPaint;
-                GetDisplayAreaRect(hWnd, &winRect);
-                BeginPaint(hWnd, &sPaint);
-                if(VTState == VT_OFF)
+                RECT Rect;
+
+                GetDisplayAreaRect(hWnd, &Rect);
+
+                HDC hWndDC = GetDC(hWnd);
+                HDC hDC = OffscreenHDC.BeginPaint(hWndDC, &Rect);
+
+                if (VT_GetState() != VT_OFF)
                 {
-                    PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
-                    OSD_Redraw(hWnd, sPaint.hdc);
+                    RECT VTDrawRect;
+                    GetDestRect(&VTDrawRect);
+
+                    PaintColorkey(hWnd, TRUE, hDC, &Rect, TRUE);
+
+                    VT_Redraw(hDC, &VTDrawRect);
                 }
                 else
                 {
-                    VT_Redraw(hWnd, sPaint.hdc, FALSE, FALSE);
+                    PaintColorkey(hWnd, TRUE, hDC, &Rect);
                 }
+
+                OSD_Redraw(hDC, &Rect);
+
                 if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
                 {
-                    WindowBorder->Paint(hWnd, sPaint.hdc, NULL);
-                }  
-                EndPaint(hWnd, &sPaint);
-                ValidateRect(hWnd, &sPaint.rcPaint);
+                    WindowBorder->Paint(hWnd, hDC, &Rect);
+                }
+
+                OffscreenHDC.EndPaint();
+                ReleaseDC(hWnd, hWndDC);
+
+                ValidateRect(hWnd, NULL);
             }
             break;
-*/
+
         case IDM_HELP_HOMEPAGE:
             ShellExecute(hWnd, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
             break;
@@ -4227,18 +4249,22 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             HDC hDC = OffscreenHDC.BeginPaint(sPaint.hdc, &Rect);
 
-            GetDestRect(&Rect);
-
             if (VT_GetState() != VT_OFF)
             {
+                RECT VTDrawRect;
+                GetDestRect(&VTDrawRect);
+
                 PaintColorkey(hWnd, TRUE, hDC, &sPaint.rcPaint, TRUE);
-                VT_Redraw(hDC, &Rect);
+
+                // Paint the Teletext stuff
+                VT_Redraw(hDC, &VTDrawRect);
             }
             else
             {
                 PaintColorkey(hWnd, TRUE, hDC, &sPaint.rcPaint);
             }
 
+            // Paint the OSD stuff
             OSD_Redraw(hDC, &Rect);
 
             if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())

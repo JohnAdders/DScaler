@@ -1,5 +1,5 @@
 //
-// $Id: MT2050.cpp,v 1.3 2004-01-14 17:06:44 robmuller Exp $
+// $Id: MT2050.cpp,v 1.4 2004-02-11 15:29:52 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/01/14 17:06:44  robmuller
+// New line character from LOG call removed.
+//
 // Revision 1.2  2004/01/05 13:12:24  adcockj
 // Added patch from Lavrenov Dmitrij (midimaker)
 //
@@ -120,7 +123,7 @@ void CMT2050::Initialize()
     SetRegister(3, 0xC1);
     SetRegister(4, 0x00);
 	SetRegister(5, 0x63);
-    SetRegister(6, 0x10);
+    SetRegister(6, 0x11);
     SetRegister(10, 0x85);
     SetRegister(13, 0x28);
     SetRegister(15, 0x0F);

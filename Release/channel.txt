@@ -103,7 +103,45 @@ ChannelHigh=14
       209250000
       216250000
       223250000
-
+      
+[Austria Telekabel Frequency]
+ChannelLow=1
+ChannelHigh=34
+	189250000 ; ORF 1 
+	217250000 ; ORF 2 
+	671250000 ; ATV 
+	511250000 ; ARD 
+	479250000 ; ZDF 
+	703250000 ; 3sat 
+	751250000 ; ProSieben 
+	687250000 ; RTL 
+	655250000 ; SAT.1 
+	719250000 ; RTL II 
+	639250000 ; KABEL 1 
+	487250000 ; Super RTL 
+	238250000 ; VOX 
+	273250000 ; Neun Live 
+	735250000 ; BR 
+	287250000 ; MDR 
+	551250000 ; Südwest/BW 
+	471250000 ; NDR 
+	519250000 ; EUROSPORT 
+	783250000 ; DSF 
+	259250000 ; arte/KI.KA 
+	623250000 ; CNN 
+	767250000 ; NBC Europe 
+	266250000 ; n-tv 
+	252250000 ; EuroNews 
+	294250000 ; MTV 
+	527250000 ; VIVA 
+	503250000 ; Home Shopping Europe 
+	543250000 ; TW1 
+	759250000 ; BBC Prime 
+	280250000 ; TV 5 
+	245250000 ; RAI UNO 
+	535250000 ; TRT International 
+	799250000 ; INFOKANAL 
+	
 [Czech Republic Air and Cable Frequency]
 ChannelLow=1
 ChannelHigh=113

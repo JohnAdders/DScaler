@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.11 2002-10-11 13:38:14 kooiman Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.12 2002-10-16 21:42:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/11 13:38:14  kooiman
+// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
+//
 // Revision 1.10  2002/10/07 20:31:59  kooiman
 // Added/fixed TDA9887 support for new Pinnacle cards
 //
@@ -83,7 +86,8 @@
 #include "MT2032.h"
 #include "GenericTuner.h"
 #include "DebugLog.h"
-
+#include "TDA9887.h"
+#include "BT848_VoodooTV_IFdem.h"
 
 BOOL CBT848Card::InitTuner(eTunerId tunerId)
 {
@@ -97,11 +101,11 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     switch (tunerId)
     {
     case TUNER_MT2032:
-        m_Tuner = new CMT2032(this, VIDEOFORMAT_NTSC_M, m_CardType);
+        m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2032_PAL:
-        m_Tuner = new CMT2032(this, VIDEOFORMAT_PAL_B, m_CardType);
+        m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_AUTODETECT:
@@ -115,72 +119,126 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         strcpy(m_TunerType, "Generic ");
         break;
     }
-    
-    if (tunerId != TUNER_ABSENT) 
-    {                
-        BOOL bFoundTuner = FALSE;
-
-        switch (m_CardType)
-        {
-          case TVCARD_MIRO:
-          case TVCARD_MIROPRO:
-          case TVCARD_PINNACLERAVE:
-          case TVCARD_PINNACLEPRO:            
-            if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
-            {
-                // If Card has TDA9887, try to instruct it to enable the tuner
-				BYTE tda9887_tuneron[] = {0x86, 0x00, 0xD4, 0x70, 0x49};
-				BYTE tda9887_tuneroff[] = {0x86, 0x00, 0x54, 0x70, 0x49};
-                
-				m_I2CBus->Write(tda9887_tuneron, 5);
-				m_I2CBus->Write(tda9887_tuneroff, 5);
-				m_I2CBus->Write(tda9887_tuneron, 5);
-				m_I2CBus->Write(tda9887_tuneron, 5);
-            }
-        }
-
-        int kk = strlen(m_TunerType);
-        for (BYTE test = 0xC0; test < 0xCF; test +=2)
-        {
-            if (m_I2CBus->Write(&test, sizeof(test)))
-            {
-                m_Tuner->Attach(m_I2CBus, test>>1);
-                sprintf(m_TunerType + kk, " @I2C@0x%02x", test);
-                bFoundTuner = TRUE;
-                LOG(1,"Tuner: Found at I2C address 0x%02x",test);
-                break;
-            }
-       }
-
-
-       switch (m_CardType)
-       {
-          case TVCARD_MIRO:
-          case TVCARD_MIROPRO:
-          case TVCARD_PINNACLERAVE:
-          case TVCARD_PINNACLEPRO:            
-            if (tunerId == TUNER_MT2032)
-            {
-                // If Card has TDA9887, try to instruct it to disable the tuner
-				BYTE tda9887_tuneroff[] = {0x86, 0x00, 0x54, 0x70, 0x49};
-                
-				m_I2CBus->Write(tda9887_tuneroff, 5);
-            }
-       }
-
-
-       if (!bFoundTuner)
-       {
-          LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
-          
-          delete m_Tuner; 
-          m_Tuner = new CNoTuner();
-          strcpy(m_TunerType, "None ");           
-       }
-       return bFoundTuner;
+      
+        
+    // Finished if tuner type is CNoTuner
+    switch (tunerId)
+    {
+    case TUNER_AUTODETECT:
+    case TUNER_USER_SETUP:
+    case TUNER_ABSENT:
+        return TRUE;
     }
 
-    return TRUE;
+
+    // Look for possible external IF demodulator
+
+    IExternalIFDemodulator *pExternalIFDemodulator = NULL;
+    BYTE IFDemDeviceAddress = 0;
+    eVideoFormat videoFormat = VIDEOFORMAT_NTSC_M;
+
+    if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
+    {        
+        // Only check for TDA9887 if there is a MT2032 chip. Is that correct?
+
+        videoFormat = (tunerId == TUNER_MT2032)?  VIDEOFORMAT_NTSC_M : VIDEOFORMAT_PAL_B;
+        
+        switch (m_CardType)
+        {        
+        case TVCARD_MIRO:
+        case TVCARD_MIROPRO:
+        case TVCARD_PINNACLERAVE:
+        case TVCARD_PINNACLEPRO:
+           {
+               //Get Card ID
+                WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);
+                long Id = ReadDword(BT848_GPIO_DATA);                    
+                Id = ((Id >> 10) & 63) - 1;
+                
+                if (Id>=32)
+                {
+                    // Only newer cards use MT2032 & TDA9885/6/7
+                    Id = 63 - Id;
+                    CTDA9887Pinnacle *pTDA9887Pinnacle = new CTDA9887Pinnacle(Id);
+                    pExternalIFDemodulator = pTDA9887Pinnacle;
+                    IFDemDeviceAddress = I2C_TDA9887_0;
+                }
+            }
+            break;
+        
+        case TVCARD_VOODOOTV_200:
+        case TVCARD_VOODOOTV_FM:
+            {
+                CPreTuneVoodooFM *pPreTuneVoodooFM = new CPreTuneVoodooFM(this);
+                pExternalIFDemodulator = pPreTuneVoodooFM;
+                IFDemDeviceAddress = 0;
+            }
+            break;
+
+        default:
+            //Detect TDA 9887
+            {
+                CTDA9887 *pTDA9887 = new CTDA9887();
+                pExternalIFDemodulator = pTDA9887;
+                IFDemDeviceAddress = I2C_TDA9887_0;
+            }
+            break;
+        }
+    }
+        
+    // Detect and attach IF demodulator to the tuner
+    //  or delete the demodulator if the chip doesn't exist.
+    if (pExternalIFDemodulator != NULL)
+    {
+        if (IFDemDeviceAddress != 0)
+        {
+            // Attach I2C bus if the demodulator chip uses it
+            pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress);
+        }
+        if (pExternalIFDemodulator->Detect())
+        {
+            m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+            pExternalIFDemodulator->Init(TRUE, videoFormat);
+        }
+        else
+        {            
+            delete pExternalIFDemodulator;
+            pExternalIFDemodulator = NULL;
+        }
+    }
+ 
+                
+    // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
+    BOOL bFoundTuner = FALSE;
+    
+    int kk = strlen(m_TunerType);
+    for (BYTE test = 0xC0; test < 0xCF; test +=2)
+    {
+        if (m_I2CBus->Write(&test, sizeof(test)))
+        {
+            m_Tuner->Attach(m_I2CBus, test>>1);
+            sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
+            bFoundTuner = TRUE;
+            LOG(1,"Tuner: Found at I2C address 0x%02x",test);
+            break;
+        }
+    }
+
+    if (pExternalIFDemodulator != NULL)
+    {
+        //End initialization
+        pExternalIFDemodulator->Init(FALSE, videoFormat);
+    }
+
+    if (!bFoundTuner)
+    {
+        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
+        
+        delete m_Tuner; 
+        m_Tuner = new CNoTuner();
+        strcpy(m_TunerType, "None ");           
+    }
+    return bFoundTuner;
 }
 
 ITuner* CBT848Card::GetTuner() const

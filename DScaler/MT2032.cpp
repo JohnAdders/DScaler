@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.9 2002-10-11 13:38:14 kooiman Exp $
+// $Id: MT2032.cpp,v 1.10 2002-10-16 21:42:36 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/11 13:38:14  kooiman
+// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
+//
 // Revision 1.8  2002/10/08 20:43:16  kooiman
 // Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -52,20 +55,18 @@
 
 #include "stdafx.h"
 #include "MT2032.h"
+#include "DebugLog.h"
 
 #define OPTIMIZE_VCO 1   // perform VCO optimizations
-#define I2C_TDA9887_0				0x86 // Used by newer pinnacle cards
 
 
-CMT2032::CMT2032(CBT848Card *pBT848Card, eVideoFormat DefaultVideoFormat, eTVCardId TVCardId) :
+CMT2032::CMT2032(eVideoFormat DefaultVideoFormat) :
     m_XOGC(0),
     m_Initialized(false),
     m_Frequency (0),
-    m_Locked(false)  
+    m_Locked(false)      
 {
-    m_pBT848Card = pBT848Card;
-    m_DefaultVideoFormat = DefaultVideoFormat;
-    m_TVCardId = TVCardId;
+    m_DefaultVideoFormat = DefaultVideoFormat;    
 }
 
 BYTE CMT2032::GetDefaultAddress() const
@@ -119,33 +120,20 @@ void CMT2032::Initialize()
 {
     int             xogc, xok = 0;
 
-    m_HasTDA9887 = false;
-
-	switch (m_TVCardId)
+    if (m_ExternalIFDemodulator != NULL)
     {
-      case TVCARD_MIRO:
-      case TVCARD_MIROPRO:
-      case TVCARD_PINNACLERAVE:
-      case TVCARD_PINNACLEPRO:            
-		  {						
-			  BYTE tda9887set[] = {I2C_TDA9887_0, 0x00, 0x54, 0x70, 0x44};
-			  if (m_I2CBus->Write(tda9887set,5))
-			  {
-				  m_HasTDA9887 = true;
-			  }
-		  }
-          break;
-      case TVCARD_VOODOOTV_FM:
-      case TVCARD_VOODOOTV_200:
-          PrepareVoodooTV(true, m_DefaultVideoFormat);
-      default:
-          break;      
-    }	
+        m_ExternalIFDemodulator->Init(TRUE, m_DefaultVideoFormat);
+    }
 
-	if (m_HasTDA9887)
-	{
-		PrepareTDA9887(true, m_DefaultVideoFormat);
-	}
+    // Get chip info
+    BYTE rdbuf[22];
+    BYTE wrbuf[] = { (BYTE)(m_DeviceAddress << 1), 0 };    
+    
+    if (m_I2CBus->Read(wrbuf,2,rdbuf,21))
+    {
+        LOG(1,"MT2032: Companycode=%02x%02x Part=%02x Revision=%02x\n",
+                    rdbuf[0x11],rdbuf[0x12],rdbuf[0x13],rdbuf[0x14]);
+    }
 
     /* Initialize Registers per spec. */
     SetRegister(2, 0xff);
@@ -178,14 +166,10 @@ void CMT2032::Initialize()
     } while (xok != 1);
 
 
-    if ((m_TVCardId == TVCARD_VOODOOTV_FM) || (m_TVCardId == TVCARD_VOODOOTV_200))
-    {    
-        PrepareVoodooTV(false, m_DefaultVideoFormat);     
-    }	
-    if (m_HasTDA9887)
-	{
-		PrepareTDA9887(false, m_DefaultVideoFormat);
-	}
+    if (m_ExternalIFDemodulator != NULL)
+    {
+        m_ExternalIFDemodulator->Init(FALSE, m_DefaultVideoFormat);
+    }
     
     m_XOGC = xogc;
     m_Initialized = true;
@@ -429,14 +413,10 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
         return;
     }
 
-    if ((m_TVCardId == TVCARD_VOODOOTV_FM) || (m_TVCardId == TVCARD_VOODOOTV_200))
-    {    
-        PrepareVoodooTV(true, videoFormat);     
+    if (m_ExternalIFDemodulator != NULL)
+    {
+        m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
     }
-    if (m_HasTDA9887)
-	{
-		PrepareTDA9887(true, videoFormat);
-	}
 
     /* send only the relevant registers per Rev. 1.2 */
     SetRegister(0, buf[0x00]);
@@ -475,14 +455,10 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
 
     m_Locked = (lock==6)?true:false;
 
-    if ((m_TVCardId == TVCARD_VOODOOTV_FM) || (m_TVCardId == TVCARD_VOODOOTV_200))
-    {    
-        PrepareVoodooTV(false, videoFormat);     
+    if (m_ExternalIFDemodulator != NULL)
+    {
+        m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
     }
-    if (m_HasTDA9887)
-	{
-		PrepareTDA9887(false, videoFormat);
-	}
 }
 
 bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
@@ -546,137 +522,36 @@ long CMT2032::GetFrequency()
 
 eTunerLocked CMT2032::IsLocked()
 {
-    return (m_Locked ? TUNER_LOCK_ON : TUNER_LOCK_OFF);
+    return TUNER_LOCK_ON;
 }
 
 eTunerAFCStatus CMT2032::GetAFCStatus(long &nFreqDeviation)
 {
-    if (m_HasTDA9887)
+    eTunerAFCStatus AFCStatus = TUNER_AFC_NOTSUPPORTED;
+    if (m_ExternalIFDemodulator != NULL)
     {
-        /**
-        bit 0: power on reset
-        bit 1-4: AFC
-        bit 5: FM carrier detection
-        bit 6: VIF input level
-        bit 7: 1=VCO in +-1.6MHz AFC window
-        */
-        BYTE addr[] = { I2C_TDA9887_0 };
-        BYTE result;        
-        if (m_I2CBus->Read(addr, 1, &result, 1))
-        {
-            nFreqDeviation = ((result>>1) & 0xF);
-            if ((nFreqDeviation == 0x7) || (nFreqDeviation == 0x8))
-            {
-                // <= -187.5 kHz or >= 187.5 hKz
-                //return TUNER_AFC_NOCARRIER;
-            }
-            if (nFreqDeviation&8)
-            {
-                nFreqDeviation |= (-8);
-            }
-            
-            nFreqDeviation = -1 * ((nFreqDeviation *  25000) + 12500);
-            return TUNER_AFC_CARRIER;
-        }
-        return TUNER_AFC_NOTSUPPORTED;
+        AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
     }
-    else
+
+    if (AFCStatus == TUNER_AFC_NOTSUPPORTED)
     {
         //Use internal AFC
-        BYTE addr[] = { (BYTE)(m_DeviceAddress << 1), 0x0E };
-        BYTE result;        
-        if (m_I2CBus->Read(addr, 2, &result, 1))
+        if (!m_Locked)
         {
-            result = (result>>4) & 7;
-            nFreqDeviation = 100000 * ((int)result - 2);
-            return TUNER_AFC_CARRIER;
+            AFCStatus = TUNER_AFC_NOCARRIER;
         }
-        return TUNER_AFC_NOTSUPPORTED;
-    }
-}
-
-void CMT2032::PrepareTDA9887(bool bPrepare, eVideoFormat VideoFormat)
-{
-   BYTE tda9887set[] = {I2C_TDA9887_0, 0x00, 0x54, 0x70, 0x44};
-   
-   switch (VideoFormat)
-   {
-	case VIDEOFORMAT_PAL_B:    
-    case VIDEOFORMAT_PAL_G:
-    case VIDEOFORMAT_PAL_H:        
-    case VIDEOFORMAT_PAL_N:
-	case VIDEOFORMAT_SECAM_B:
-    case VIDEOFORMAT_SECAM_G:
-    case VIDEOFORMAT_SECAM_H:
-		tda9887set[4] = 0x49;
-		break;
-
-	case VIDEOFORMAT_PAL_I:
-		tda9887set[4] = 0x4a;
-		break;
-
-	case VIDEOFORMAT_PAL_D:
-	case VIDEOFORMAT_SECAM_D:	
-    case VIDEOFORMAT_SECAM_K:
-    case VIDEOFORMAT_SECAM_K1:
-		tda9887set[4] = 0x4b;
-		break;
-	
-	case VIDEOFORMAT_SECAM_L:
-    case VIDEOFORMAT_SECAM_L1:
-		tda9887set[2] = 0x46;
-		tda9887set[3] = 0x50;
-		tda9887set[4] = 0x4b;
-		break;
-
-    case VIDEOFORMAT_PAL_60:    
-		///\todo Video bandwidth of PAL-60?
-		break;
-
-	case VIDEOFORMAT_PAL_M:
-	case VIDEOFORMAT_PAL_N_COMBO:
-	case VIDEOFORMAT_NTSC_M:
-    case VIDEOFORMAT_NTSC_M_Japan:
-    case VIDEOFORMAT_NTSC_50:
-		tda9887set[4] = 0x44;
-		break;
-	case (VIDEOFORMAT_LASTONE+1):
-		//radio
-		tda9887set[2] = 0xce;
-		tda9887set[3] = 0x0d;
-		tda9887set[4] = 0x77;
-		break;
-   }
-   
-   if (bPrepare)
-   {
-      tda9887set[2] |= 0x80;
-   }
-   m_I2CBus->Write(tda9887set, 5);   
-}
-
-void CMT2032::PrepareVoodooTV(bool bPrepare, eVideoFormat VideoFormat)
-{
-    if (bPrepare && (m_pBT848Card!=NULL))
-    {
-        //Set the demodulator using the GPIO port
-        
-        ULONG Val;
-        m_pBT848Card->SetGPOE( m_pBT848Card->GetGPOE() | (1<<16));
-        Val = m_pBT848Card->GetGPDATA();
-            
-        switch (VideoFormat)
-        {
-            case VIDEOFORMAT_PAL_N_COMBO:
-	        case VIDEOFORMAT_NTSC_M:
-            case VIDEOFORMAT_NTSC_M_Japan:
-            case VIDEOFORMAT_NTSC_50:
-                Val |= (1<<16);
-                break;
-            default:
-                Val &= ~(1<<16);
+        else
+        {            
+            BYTE addr[] = { (BYTE)(m_DeviceAddress << 1), 0x0E };
+            BYTE result;        
+            if (m_I2CBus->Read(addr, 2, &result, 1))
+            {
+                result = (result>>4) & 7;
+                nFreqDeviation = 100000 * ((int)result - 2);
+                AFCStatus = TUNER_AFC_CARRIER;
+            }
+            AFCStatus = TUNER_AFC_NOTSUPPORTED;
         }
-
-        m_pBT848Card->SetGPDATA(Val);
     }
+    return AFCStatus;
 }

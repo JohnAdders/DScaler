@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.h,v 1.3 2002-10-08 20:43:16 kooiman Exp $
+// $Id: ITuner.h,v 1.4 2002-10-16 21:42:36 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/08 20:43:16  kooiman
+// Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.2  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -60,11 +63,15 @@ enum eTunerAFCStatus
     TUNER_AFC_CARRIER = 1
 };
 
+class IExternalIFDemodulator;
+
 /** Interface for control of analogue tuners
 */
 class ITuner: public CI2CDevice
 {
 public:
+    ITuner();
+    ~ITuner();
     virtual eTunerId GetTunerId() = 0;
     virtual eVideoFormat GetDefaultVideoFormat() = 0;
     virtual bool HasRadio() const = 0;
@@ -73,8 +80,24 @@ public:
     virtual long GetFrequency() = 0;
     virtual eTunerLocked IsLocked() = 0;
     //Automatic Frequency Control status  
-      //Sets frequency deviation if there is a carrier (e.g. -62500 or 125000 Hz)
-    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0;         
+      //Sets frequency deviation from optimum if there is a carrier (e.g. -62500 or 125000 Hz)
+    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0; 
+
+    virtual void AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, bool bFreeOnDestruction = FALSE);
+protected:
+    IExternalIFDemodulator* m_ExternalIFDemodulator;
+    bool m_bFreeIFDemodulatorOnDestruction;
+};
+
+class IExternalIFDemodulator : public CI2CDevice
+{
+public:    
+    virtual void Init(bool bPreInit, eVideoFormat videoFormat) = 0;
+    virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat) = 0;
+
+    virtual bool Detect() = 0;
+        
+    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0;
 };
 
 #endif // !defined(__ITUNER_H__)

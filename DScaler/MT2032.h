@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.7 2002-10-11 13:38:14 kooiman Exp $
+// $Id: MT2032.h,v 1.8 2002-10-16 21:42:36 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/11 13:38:14  kooiman
+// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
+//
 // Revision 1.6  2002/10/08 20:43:16  kooiman
 // Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -58,7 +61,7 @@
 class CMT2032: public ITuner  
 {
 public:
-    CMT2032(CBT848Card *pBT848Card, eVideoFormat DefaultVideoFormat, eTVCardId TVCardId);
+    CMT2032(eVideoFormat DefaultVideoFormat);
     WORD GetVersion();
     WORD GetVendor();
     
@@ -94,12 +97,9 @@ private:
 private:
     int  m_XOGC;    // holds the value of XOGC register after init
     bool m_Initialized;
-    eTVCardId m_TVCardId;
     eVideoFormat m_DefaultVideoFormat;
     long m_Frequency;
     bool m_Locked;
-	bool m_HasTDA9887;
-    CBT848Card *m_pBT848Card;
 };
 
 #endif // !defined(__MT2032_H__)

@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.4 2002-09-04 11:58:45 kooiman Exp $
+// $Id: ITuner.cpp,v 1.5 2002-10-16 21:42:36 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.3  2002/08/03 17:57:52  kooiman
 // Added new cards & tuners. Changed the tuner combobox into a sorted list.
 //
@@ -41,8 +44,8 @@ extern "C" {
 
 const char *TunerNames[TUNER_LASTONE] =
 {
-    "*No Tuner/Unknown*",                        // TUNER_ABSENT = 0
-    "Philips [PAL_I]",	                        // TUNER_PHILIPS_PAL_I		
+        "*No Tuner/Unknown*",                        // TUNER_ABSENT = 0
+        "Philips [PAL_I]",	                        // TUNER_PHILIPS_PAL_I		
 		"Philips [NTSC]",	                          // TUNER_PHILIPS_NTSC		
 		"Philips [SECAM]",	                        // TUNER_PHILIPS_SECAM		
 		"Philips [PAL]",		                        // TUNER_PHILIPS_PAL
@@ -50,7 +53,7 @@ const char *TunerNames[TUNER_LASTONE] =
 		"Temic 4032 FY5 [NTSC]",		                // TUNER_TEMIC_4032FY5_NTSC
 		"Temic 4062 FY5 [PAL I]",	                  // TUNER_TEMIC_4062FY5_PAL_I
 		"Temic 4036 FY5 [NTSC]",                    // TUNER_TEMIC_4036FY5_NTSC		
-    "Alps TSBH1 [NTSC]",	                      // TUNER_ALPS_TSBH1_NTSC                             
+        "Alps TSBH1 [NTSC]",	                      // TUNER_ALPS_TSBH1_NTSC                             
 		"Alps TSBE1 [PAL]",	                        // TUNER_ALPS_TSBE1_PAL                                    
 		"Alps TSBB5 [PAL I]",                       // TUNER_ALPS_TSBB5_PAL_I                                  
 		"Alps TSBE5 [PAL]",	                        // TUNER_ALPS_TSBE5_PAL                                    
@@ -81,10 +84,32 @@ const char *TunerNames[TUNER_LASTONE] =
 		"Temic 4106 FH5 [PAL B/G]", 				        // TUNER_TEMIC_4106FH5  
 		"Temic 4012 FY5 [PAL D/K/L]",				        // TUNER_TEMIC_4012FY5		
 		"Temic 4136 FY5 [NTSC]",				            // TUNER_TEMIC_4136FY5
-    "LG TAPC-new   [PAL]", 		  	            	// TUNER_LG_TAPCNEW_PAL		
-    "Philips FQ1216ME MK3  [PAL/SECAM multi]",
-	  "LG TAPC-new   [NTSC]",
-    "MT2032 universal [PAL default]"
+        "LG TAPC-new   [PAL]", 		  	            	// TUNER_LG_TAPCNEW_PAL		
+        "Philips FQ1216ME MK3  [PAL/SECAM multi]",
+	    "LG TAPC-new   [NTSC]",
+        "MT2032 universal [PAL default]"
 };
 
+}
+
+
+
+ITuner::ITuner()
+{
+    m_ExternalIFDemodulator = NULL;
+    m_bFreeIFDemodulatorOnDestruction = FALSE;
+}
+
+ITuner::~ITuner()
+{
+    if (m_bFreeIFDemodulatorOnDestruction && (m_ExternalIFDemodulator != NULL))
+    {
+        delete m_ExternalIFDemodulator;
+    }
+}
+
+void ITuner::AttachIFDem(IExternalIFDemodulator* pExternalIFDemodulator, bool bFreeOnDestruction)
+{
+    m_ExternalIFDemodulator = pExternalIFDemodulator;
+    m_bFreeIFDemodulatorOnDestruction = bFreeOnDestruction;
 }

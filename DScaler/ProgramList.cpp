@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.52 2002-03-11 21:38:24 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.53 2002-03-13 15:32:45 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/03/11 21:38:24  robmuller
+// Enabled auto scroll to the program list box.
+// Insert icon from the program list is now visible before the channel has moved.
+// Moving channel up/down does not scroll the list box anymore.
+//
 // Revision 1.51  2002/03/10 23:14:45  robmuller
 // Added Clear List button.
 // Scan no longer clears the program list.
@@ -781,8 +786,11 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 long Freq = 0;
                 int Format = -1;
                 Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
-                Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Freq;
-                Format = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Format;
+                if(Channel != 0)
+                {
+                    Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Freq;
+                    Format = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Format;
+                }
                 sprintf(sbuf, "%10.4f", Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
                 ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);

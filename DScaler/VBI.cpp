@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.26 2003-01-17 14:39:38 adcockj Exp $
+// $Id: VBI.cpp,v 1.27 2003-01-26 14:30:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/01/17 14:39:38  adcockj
+// Grey new teletext menus when VBI is off
+//
 // Revision 1.25  2003/01/11 15:22:28  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -157,15 +160,10 @@ void VBI_Exit()
 
 void VBI_Init_data(double Frequency)
 {
-	static double VBI_Frequency = -1;
-	if (Frequency != VBI_Frequency)
-	{
-		VBI_Frequency = Frequency;
-		VT_Init_Data(VBI_Frequency);
-		CC_Init_Data(VBI_Frequency);
-		VPS_Init_Data(VBI_Frequency);
-		WSS_Init_Data(VBI_Frequency);
-	}
+	VT_Init_Data(Frequency);
+	CC_Init_Data(Frequency);
+	VPS_Init_Data(Frequency);
+	WSS_Init_Data(Frequency);
 }
 
 void VBI_ChannelChange()

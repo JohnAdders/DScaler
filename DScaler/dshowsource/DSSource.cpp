@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.15 2002-03-17 21:43:23 tobbej Exp $
+// $Id: DSSource.cpp,v 1.16 2002-03-17 21:55:10 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/03/17 21:43:23  tobbej
+// added input resolution submenu
+//
 // Revision 1.14  2002/03/15 23:03:51  tobbej
 // reset m_bProcessingFirstFiled when starting
 //
@@ -821,9 +824,6 @@ void CDSSource::SetMenu(HMENU hMenu)
 	bool resAdded=false;
 	CMenu resSubMenu;
 	resSubMenu.CreateMenu();
-	menu->GetMenuString(2,menuText,MF_BYPOSITION);
-	menu->ModifyMenu(2,MF_POPUP|MF_BYPOSITION,(UINT) resSubMenu.GetSafeHmenu(),menuText);
-	menu->EnableMenuItem(2,MF_BYPOSITION|MF_ENABLED);
 	while(res[i].x!=0 || res[i].y!=0)
 	{
 		if(m_pDSGraph->isValidRes(res[i].x,res[i].y))
@@ -836,10 +836,17 @@ void CDSSource::SetMenu(HMENU hMenu)
 		}
 		i++;
 	}
-	if(!resAdded)
+	if(resAdded)
+	{
+		menu->GetMenuString(2,menuText,MF_BYPOSITION);
+		menu->ModifyMenu(2,MF_POPUP|MF_BYPOSITION,(UINT) resSubMenu.GetSafeHmenu(),menuText);
+		menu->EnableMenuItem(2,MF_BYPOSITION|MF_ENABLED);
+	}
+	else
 	{
 		//no resolution was added, gray the menu item
-		menu->EnableMenuItem(2,MF_BYPOSITION|MF_DISABLED);
+		menu->EnableMenuItem(2,MF_BYPOSITION|MF_GRAYED);
+		resSubMenu.DestroyMenu();
 	}
 	
 	//filter properties submenu

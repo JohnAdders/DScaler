@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.42 2001-11-02 10:45:29 adcockj Exp $
+// $Id: DS_Control.h,v 1.43 2001-11-26 12:26:07 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2001/11/02 10:45:29  adcockj
+// Merge in code from Multiple card branch
+//
 // Revision 1.41  2001/10/18 16:20:39  adcockj
 // Made Color of blanking adjustable
 //
@@ -599,8 +602,16 @@ typedef enum
 typedef enum
 {
     GREEDYMAXCOMB = 0,
+    GREEDYUSETILTNWARP,
+    GREEDYSIZERATIO,
+    GREEDYLINEARSIZEPCNT,
+    GREEDYLINEARLOCIN,
+    GREEDYLINEARLOCOUT,
+    GREEDYTOPWARPFACTOR,
+    GREEDYBOTTOMWARPFACTOR,
     DI_GREEDY_SETTING_LASTONE,
 } DI_GREEDY_SETTING;
+
 #define WM_DI_GREEDY_GETVALUE       (WM_USER + 15)
 #define WM_DI_GREEDY_SETVALUE       (WM_USER + 115)
 #define WM_DI_GREEDY_CHANGEVALUE    (WM_USER + 215)
@@ -868,14 +879,15 @@ typedef enum
 	GR_MOTION_SENSE,
 	GR_GOOD_PULLDOWN_LVL,
 	GR_BAD_PULLDOWN_LVL,
-	GR_EDGE_ENH,			
+	GR_H_SHARPNESS,			
+	GR_V_SHARPNESS,			
 	GR_MEDIAN_FILTER,
 	GR_LOW_MOTION_PD_LVL,
 	GR_USE_PULLDOWN,
 	GR_USE_IN_BETWEEN,
 	GR_USE_MEDIAN_FILTER,
-	GR_USE_VERT_FILTER,
-	GR_USE_EDGE_ENH,
+	GR_USE_V_SHARPNESS,
+	GR_USE_H_SHARPNESS,
 //	GR_USE_LOW_MOTION_ONLY, 
 	DI_GREEDYH_SETTING_LASTONE,
 } DI_GREEDYH_SETTING;

@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.10 2003-08-10 09:41:59 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.11 2003-08-11 20:49:54 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/08/10 09:41:59  laurentg
+// New toolbar for media file player
+//
 // Revision 1.9  2003/08/10 00:34:24  laurentg
 // Restore volume toolbar whatever the source (to be enhanced later)
 //
@@ -98,6 +101,7 @@ Toolbar1Logo(NULL)
 	
 	BOOL bShowChannels = FALSE;
 	BOOL bShowVolume = FALSE;
+	BOOL bShowMediaPlayer = FALSE;
 
 	//Is there a tuner?
 	if (Providers_GetCurrentSource() != NULL)
@@ -106,6 +110,7 @@ Toolbar1Logo(NULL)
 		bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
 		bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
 		bShowVolume = TRUE;
+		bShowMediaPlayer = Providers_GetCurrentSource()->HasMediaControl();
 	}
 	
 	//Set proper bit
@@ -115,6 +120,9 @@ Toolbar1Logo(NULL)
 	Visible = HIWORD(m_Toolbar1Volume->GetValue());
 	Visible = (Visible&1) | (bShowVolume?2:0);
 	m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );				
+	Visible = HIWORD(m_Toolbar1MediaPlayer->GetValue());
+	Visible = (Visible&1) | (bShowMediaPlayer?2:0);
+	m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );				
 
 	MarginsDefault.l = 5;
 	MarginsDefault.t = 5;
@@ -456,7 +464,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
         if (Toolbar1MediaPlayer!=NULL)
         {
             Toolbar1->SetChildPosition(Toolbar1MediaPlayer, LOWORD(m_Toolbar1MediaPlayer->GetValue()), 0);
-			if (HIWORD(m_Toolbar1MediaPlayer->GetValue()))
+			if ((HIWORD(m_Toolbar1MediaPlayer->GetValue())&3)==3)
             {
                 Toolbar1->ShowChild(Toolbar1MediaPlayer);
             }
@@ -564,6 +572,7 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 			BOOL bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
 			BOOL bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
 			bShowVolume = TRUE;
+			BOOL bShowMediaPlayer = Providers_GetCurrentSource()->HasMediaControl();
 			
 			//Set proper bit
 			int Visible = HIWORD(m_Toolbar1Channels->GetValue());
@@ -572,6 +581,9 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 			Visible = HIWORD(m_Toolbar1Volume->GetValue());
 			Visible = (Visible&1) | (bShowVolume?2:0);
 			m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );				
+			Visible = HIWORD(m_Toolbar1MediaPlayer->GetValue());
+			Visible = (Visible&1) | (bShowMediaPlayer?2:0);
+			m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );				
 
 			if ((Toolbar1 != NULL) && Toolbar1->Visible())
 			{
@@ -681,7 +693,7 @@ void CToolbarControl::UpdateMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_Toolbar1Position->GetValue()==0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, ((HIWORD(m_Toolbar1Channels->GetValue())&1)!=0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, ((HIWORD(m_Toolbar1Volume->GetValue())&1)!=0));
-    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, (HIWORD(m_Toolbar1MediaPlayer->GetValue())!=0));
+    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, ((HIWORD(m_Toolbar1MediaPlayer->GetValue())&1)!=0));
     
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, (m_ShowToolbar1->GetValue()!=0));
@@ -751,10 +763,14 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 		}
         break;
     case IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER:
-		m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), HIWORD(m_Toolbar1MediaPlayer->GetValue())?0:1) );
-		CToolbarControl::Set(hWnd, NULL);
-		WorkoutOverlaySize(TRUE);
-		CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+		{
+			int Visible = HIWORD(m_Toolbar1MediaPlayer->GetValue());
+			Visible = (Visible&2) | ((Visible&1)?0:1);
+			m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), Visible) );
+			CToolbarControl::Set(hWnd, NULL);
+			WorkoutOverlaySize(TRUE);
+			CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
+		}
         break;
     default:
         return FALSE;

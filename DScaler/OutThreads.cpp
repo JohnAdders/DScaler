@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.35 2001-09-24 23:14:05 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.36 2001-11-01 11:35:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2001/09/24 23:14:05  laurentg
+// Draw rectangles around analysis zones
+// Correction regarding overscan
+//
 // Revision 1.34  2001/09/22 18:07:53  laurentg
 // Automatic calibration now done for odd and even fields
 //
@@ -520,7 +524,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         else
                         {
                             // we will need always need diff
-                            // comb is needed in film Mode orwhen we ask for it
+                            // comb is needed in film Mode or when we ask for it
                             PerformFilmDetectCalculations(&Info, 
                                                         IsFilmMode() ||
                                                             CurrentMethod->bNeedCombFactor,

@@ -319,7 +319,7 @@ END
 IDD_ABOUT DIALOGEX 22, 17, 374, 274
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
     CTEXT           "DScaler Version 3.x",IDC_VERSION,6,3,288,9
@@ -343,15 +343,15 @@ BEGIN
     GROUPBOX        "Support",IDC_STATIC,192,37,180,100
     LTEXT           "The best place to get support for DScaler is the Home Theater Computers foum at the AV Science Forums.",
                     IDC_STATIC,200,47,166,27
-    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb",IDC_STATIC,
-                    103,52,74,81
-    LTEXT           "Please read the FAQ and the appropriate release thread for the version you are using before posting",
+    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton",
+                    IDC_STATIC,103,52,74,81
+    LTEXT           "Please read the Support section in the help and the appropriate release thread for the version you are using before posting.",
                     IDC_STATIC,200,104,166,26
     CTEXT           "http://www.avsforum.com/",IDC_LINK,201,78,162,12,
                     SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "VirtualDub - Copyright (c) Avery Lee",IDC_STATIC,13,189,
                     187,9
-    LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nHermes Conrad\nTorbjörn Jansson",
+    LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nJochen Trenner\nTorbjörn Jansson",
                     IDC_STATIC,12,52,74,81
 END
 
@@ -1314,8 +1314,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,0,10,0
- PRODUCTVERSION 3,0,10,0
+ FILEVERSION 3,1,0,0
+ PRODUCTVERSION 3,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1333,14 +1333,14 @@ BEGIN
             VALUE "Comments", "John Adcock\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DScaler\0"
-            VALUE "FileVersion", "3, 0, 10, 0\0"
+            VALUE "FileVersion", "3, 1, 0, 0\0"
             VALUE "InternalName", "DScaler\0"
             VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScaler.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DScaler\0"
-            VALUE "ProductVersion", "3.0.10\0"
+            VALUE "ProductVersion", "3.1.0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

@@ -54,80 +54,53 @@ height="2"></td>
 
 <tr>
 <td colspan="3"><!-- #BeginEditable "Text" -->
-<p>(1) Download WinCVS from <a href=
-"http://www.cvsgui.org/">http://www.cvsgui.org</a>. Install
-it.</p>
-
-<p>(2) Download the windows setup program from <a href=
-"http://download.sourceforge.net/sfsetup/sfsetup-v1.2.zip">http://download.sourceforge.net/sfsetup/sfsetup-v1.2.zip</a>.
-Unzip into a directory such as C:\SSH. Then run sfsetup.exe... It
-may give you a WinCVS error. That`s OK. Have it set up ssh. Make
-sure you specify your sourceforge username.</p>
-
-<p>NOTICE TO WINDOWS 2000 USERS&#151;Before running make sure
-your C:AUTOEXEC.BAT exists and is writable (and not hidden, not
-system). It cannot be blank - it must have at least one line of
-text in it. If it is 0 bytes, add an "@echo off" line to it,
-followed by an Enter. WINDOWS 95/98/ME Reboot the computer, to
-load the new AUTOEXEC.BAT settings WINDOWS 2000 Quit all running
-applications first. You should go to Control
-Panel-&gt;System-&gt;Advanced-&gt;Environment Variables Add a NEW
-"HOME" variable with the value equalling the directory you
-specified in sfsetup.exe. Next, to the existing "PATH" variable,
-append the path where ssh.exe is located, to the end of the
-environment variable. (Keep semicolons between directories in the
-"PATH" variable)</p>
-
-<p>(3) Run WinCVS.</p>
-
-<p>(4) Choose Create-Checkout Module. If "Checkout Module" is
-grayed out, then click the Modules tab, and then click the
-topmost folder in the left pane. This should fix things.</p>
-
-<p>(5) You will be prompted for a directory to check out to.
-Select the desired folder. Click OK.</p>
-
-<p>(6) You will now be prompted for Checkout Settings. For the
-module name and path on server, it is "dTV", case sensitive. If
-you are going to be modifying the web site, the module name is
-"htdocs", case sensitive.</p>
-
-<p>(7) Next, click the General tab, in the "Enter the CVSROOT",
-type in:
-":ext:[your-sourceforge-username]@cvs.deinterlace.sourceforge.net:/cvsroot/deinterlace".
-Replace [your-sourceforge-username] with your username. For
-example:
-":ext:dschmelzer@cvs.deinterlace.sourceforge.net:/cvsroot/deinterlace"
-But don`t use dschmelzer`s SourceForge account. :) Select
-authentication as "SSH Server". RSA Identity can be left
-unchecked.</p>
-
-<p>(8) Next, click Globals tab. Make sure the only checkboxes
-that are checked are the following: Checkbox enabled: "Supply
-Control When Adding Files". Checkbox enabled: "Dirty Files
-Support". Checkbox enabled: "Prune (Remove) Empty
-Directories".</p>
-
-<p>(9) Click OK. After a couple of seconds a minimized ssh DOS
-window will appear. Maximize the window. It MAY be blank, it MAY
-say "Password:"; Enter your password even if the DOS window is
-completely blank without the "Password:" prompt. There will be no
-echo. Just type your password and then hit Enter.</p>
-
-<p>(10) WinCVS should now be checking out the code.</p>
-
-<p>(11) For those who will be making edits to the code, you can
-do so with impunity. Make your edits and submit them to the CVS
-by first selecting the file. Choose Modify-Update Selection from
-the menu. This merges your local changes with the CVS code. Next,
-choose Modify-Commit Selection. This will make the changes in the
-CVS.</p>
-
-<p><b>Note</b>: Sourceforge has recently changed its public keys
-for ssh access. Developers who checked out the code before this
-change may need to delete all instances of the file "known_hosts"
-before proceeding.</p>
-
+	    <ol> 
+      <li>Download WinCVS from <a target="_blank" href="http://www.cvsgui.org/">http://www.cvsgui.org</a>. 
+        Install it.</li>
+      <li>Download the windows setup program from <a href="http://download.sourceforge.net/sfsetup/sfsetup-v1.2.zip">http://download.sourceforge.net/sfsetup/sfsetup-v1.2.zip</a>. 
+        Unzip into a directory such as C:\SSH. Then run sfsetup.exe... It may 
+        give you a WinCVS error. That`s OK. Have it set up ssh. Make sure you 
+        specify your sourceforge username<br>
+				NOTICE TO WINDOWS 2000 USERS - Before running make sure your C:\AUTOEXEC.BAT 
+        exists and is writable (and not hidden, not system). It cannot be blank 
+        - it must have at least one line of text in it. If it is 0 bytes, add 
+        an "@echo off" line to it, followed by an Enter. WINDOWS 95/98/ME Reboot 
+        the computer, to load the new AUTOEXEC.BAT settings WINDOWS 2000 Quit 
+        all running applications first. You should go to Control Panel->System->Advanced->Environment 
+        Variables Add a NEW "HOME" variable with the value equalling the directory 
+        you specified in sfsetup.exe. Next, to the existing "PATH" variable, append 
+        the path where ssh.exe is located, to the end of the environment variable. 
+        (Keep semicolons between directories in the "PATH" variable)</li>
+      <li>Run WinCVS.</li>
+      <li>Choose Create-Checkout Module. If "Checkout Module" is grayed out, 
+        then click the Modules tab, and then click the topmost folder in the left 
+        pane. This should fix things.</li>
+      <li>You will be prompted for a directory to check out to. Select the 
+        desired folder. Click OK.</li>
+      <li>You will now be prompted for Checkout Settings. For the module name 
+        and path on server, it is "dTV", case sensitive. If you are going to be 
+        modifying the web site, the module name is &quot;htdocs&quot;, case sensitive.</li>
+      <li>Next, click the General tab, in the "Enter the CVSROOT", type in: 
+        ":ext:[your-sourceforge-username]@cvs.deinterlace.sourceforge.net:/cvsroot/deinterlace". 
+        Replace [your-sourceforge-username] with your username. For example: ":ext:dschmelzer@cvs.deinterlace.sourceforge.net:/cvsroot/deinterlace" 
+        But don`t use dschmelzer`s SourceForge account. :) Select authentication 
+        as "SSH Server". RSA Identity can be left unchecked.</li>
+      <li>Next, click Globals tab. Make sure the only checkboxes that are checked 
+        are the following: Checkbox enabled: "Supply Control When Adding Files". 
+        Checkbox enabled: "Dirty Files Support". Checkbox enabled: "Prune (Remove) 
+        Empty Directories".</li>
+      <li>Click OK. After a couple of seconds a minimized ssh DOS window will 
+        appear. Maximize the window. It MAY be blank, it MAY say "Password:"; 
+        Enter your password even if the DOS window is completely blank without 
+        the "Password:" prompt. There will be no echo. Just type your password 
+        and then hit Enter.</li>
+      <li>WinCVS should now be checking out the code.</li>
+      <li>For those who will be making edits to the code, you can do so with
+      impunity. Make your edits and submit them to the CVS by first selecting 
+        the file. Choose Modify-Update Selection from the menu. This merges your 
+        local changes with the CVS code. Next, choose Modify-Commit Selection. 
+        This will make the changes in the CVS.</li>
+			</ol>
 <!-- #EndEditable -->
 </td>
 </tr>

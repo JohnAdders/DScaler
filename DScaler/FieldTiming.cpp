@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.35 2003-03-09 19:46:25 laurentg Exp $
+// $Id: FieldTiming.cpp,v 1.36 2003-07-14 19:18:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/03/09 19:46:25  laurentg
+// Updated field statistics
+//
 // Revision 1.34  2003/03/08 20:01:26  laurentg
 // New setting "always sleep"
 //
@@ -230,17 +233,39 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
 {
     static long RepeatCount = 0;
 	static LARGE_INTEGER LastTenFieldTime = {LONGLONG(0)};
+    static long Counted = 0;
+    static long LastFrame = 0;
 
     if(bDoAutoFormatDetect == TRUE)
     {
-        if(pInfo->CurrentFrame == 0 && (((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0) || !(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)))
+        if(pInfo->bRunningLate)
+        {
+            return;
+        }
+        
+        if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+        {
+            Counted += ((pInfo->CurrentFrame * 2 - LastFrame * 2 + NumFields) % NumFields);
+        }
+        else if(!(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK))
+        {
+            Counted += (pInfo->CurrentFrame - LastFrame + NumFields) % NumFields;
+        }
+        else
+        {
+            return;
+        }
+        
+        LastFrame = pInfo->CurrentFrame;
+
+        if(Counted >= NumFields)
         {
             LARGE_INTEGER CurrentTime;
             QueryPerformanceCounter(&CurrentTime);
             if(LastTenFieldTime.QuadPart != 0)
             {
                 long TenFieldTime;
-                TenFieldTime = MulDiv((int)(CurrentTime.QuadPart - LastTenFieldTime.QuadPart), 10000, (int)(TimerFrequency.QuadPart) * NumFields);
+                TenFieldTime = MulDiv((int)(CurrentTime.QuadPart - LastTenFieldTime.QuadPart), 10000, (int)(TimerFrequency.QuadPart) * Counted);
 
                 // If we are not on a 50Hz Mode and we get 50hz timings then flip
                 // to 50hz Mode
@@ -293,6 +318,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
                 }
             }
             LastTenFieldTime.QuadPart = CurrentTime.QuadPart;
+            Counted = 0;
         }
     }
 }

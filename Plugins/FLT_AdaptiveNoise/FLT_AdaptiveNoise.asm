@@ -16,6 +16,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/02 01:30:18  lindsey
+// Added spatial averaging
+// Changed response curve to amount of change to more closely approximate the modelled ideal
+// Accounted for reduction of variance due to averaging when evaluating motion vs. noise
+// Added a readout of the noise level
+//
 // Revision 1.8  2002/09/29 10:14:15  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -146,6 +152,7 @@
     DOUBLE          VarianceReduction = 0.0;
 
     DWORD           DWordHighMultiplier = 0;
+    long            EffectiveStability = 0;
     static BOOLEAN  sDoShowDot = FALSE;
     char            tempString[16];
 
@@ -281,6 +288,7 @@
 
     // Variance in averaged areas is reduced by ~1.3 (determined empirically).  Note that complete reduction would be sqrt(2)
     VarianceReduction = 1.3;
+
     if( gShowReadout == TRUE )
     {
         sprintf(tempString, "%6.3f", (sCumDifferencePeak*(100.0-gDecayCoeff)*VarianceReduction)/(4.0*100.0));
@@ -293,15 +301,23 @@
     // Figure out the thresholds and multipliers for noise reduction.  The "...Move" terms represent the 
     // increase or decrease of the threshold due to motion
 
+    // This (and many of the other settings) are something of a fudge when the baseline is < 0.  It would be
+    // better to allow for negative baseline values.
+
     DoubleBaseline = sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction/12.5)*(gStability/100.0);
     LongBaseline = (LONG) (DoubleBaseline + 0.5);
     if( LongBaseline < 0 )
     {
         LongBaseline = 0;
+        EffectiveStability = ((2*CurveWidth - sCumDifferencePeak)*100.0*12.5 / (CurveWidth*gNoiseReduction)) + 0.5;
+    }
+    else
+    {
+        EffectiveStability = gStability;
     }
     qwNoiseBaseline = LongBaseline;
 
-    DoubleBaseline = (sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction/12.5)*(gStability/100.0))*(VarianceReduction-1.0);
+    DoubleBaseline = (sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction/12.5)*(EffectiveStability/100.0))*(VarianceReduction-1.0);
     LongBaseline = (LONG) (DoubleBaseline + 0.5);
     if( LongBaseline < 0 )
     {
@@ -310,7 +326,7 @@
     qwNoiseBaselineMove = LongBaseline;
 
 
-    DoubleNoiseThreshold = (CurveWidth*gNoiseReduction/12.5)*((100-gStability)/100.0);
+    DoubleNoiseThreshold = (CurveWidth*gNoiseReduction/12.5)*((100-EffectiveStability)/100.0);
     if( DoubleNoiseThreshold < 3.0 )
     {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply
         DoubleNoiseThreshold = 3.0;
@@ -318,7 +334,7 @@
     DWordNoiseMultiplier = (DWORD)((0x10000+(DoubleNoiseThreshold/2.0))/DoubleNoiseThreshold);
     qwNoiseMultiplier = DWordNoiseMultiplier;
 
-    HighNoiseThreshold = (CurveWidth*gNoiseReduction*VarianceReduction/12.5)*((100-gStability)/100.0);
+    HighNoiseThreshold = (CurveWidth*gNoiseReduction*VarianceReduction/12.5)*((100-EffectiveStability)/100.0);
     if( HighNoiseThreshold < 4.0 )
     {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply
         HighNoiseThreshold = 4.0;
@@ -329,14 +345,14 @@
 
 
 #if defined( USE_SPATIAL )
-    DoubleBaseline = (sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction*gSmoothing/1250.0)*(gStability/100.0))*0.433013;
+    DoubleBaseline = (sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction*gSmoothing/1250.0)*(EffectiveStability/100.0))*0.433013;
     LongBaseline = (LONG) (DoubleBaseline + 0.5);
     if( LongBaseline < 0 )
     {
         LongBaseline = 0;
     }
     qwSpatialBaseline = (LongBaseline*(100-gDecayCoeff))/100;
-    DoubleBaseline = (sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction*gSmoothing/1250.0)*(gStability/100.0))*0.791727;
+    DoubleBaseline = (sCumDifferencePeak - 2*CurveWidth + (CurveWidth*gNoiseReduction*gSmoothing/1250.0)*(EffectiveStability/100.0))*0.791727;
     LongBaseline = (LONG) (DoubleBaseline + 0.5);
     if( LongBaseline < 0 )
     {
@@ -345,7 +361,7 @@
     qwSpatialBaselineMove = (LongBaseline*(100-gDecayCoeff))/100;
 
 
-    DoubleNoiseThreshold = (CurveWidth*gNoiseReduction*gSmoothing*0.433013/1250.0)*((100-gStability)/100.0);
+    DoubleNoiseThreshold = (CurveWidth*gNoiseReduction*gSmoothing*0.433013/1250.0)*((100-EffectiveStability)/100.0);
     DoubleNoiseThreshold = DoubleNoiseThreshold*(100-gDecayCoeff)/100;
     if( DoubleNoiseThreshold < 3.0 )
     {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply
@@ -354,7 +370,7 @@
     DWordNoiseMultiplier = (DWORD)((0x10000+(DoubleNoiseThreshold/2.0))/DoubleNoiseThreshold);
     qwSpatialMult = DWordNoiseMultiplier;
 
-    HighNoiseThreshold = (CurveWidth*gNoiseReduction*gSmoothing*1.22474/1250.0)*((100-gStability)/100.0);
+    HighNoiseThreshold = (CurveWidth*gNoiseReduction*gSmoothing*1.22474/1250.0)*((100-EffectiveStability)/100.0);
     HighNoiseThreshold = HighNoiseThreshold*(100-gDecayCoeff)/100;
     if( HighNoiseThreshold < 4.0 )
     {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply

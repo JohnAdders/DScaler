@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/11/02 02:05:13  lindsey
+// Corrected the default motion memory value
+//
 // Revision 1.14  2002/11/02 01:30:19  lindsey
 // Added spatial averaging
 // Changed response curve to amount of change to more closely approximate the modelled ideal
@@ -78,7 +81,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-// #define ADAPTIVE_NOISE_DEBUG
+#define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>
@@ -291,7 +294,7 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 {
     {
         "Stability", SLIDER, 0, &gStability,
-        20, 0, 100, 1, 1,
+        20, -100, 100, 1, 1,
         NULL,
         "AdaptiveNoiseFilter", "AStability", NULL,
     },

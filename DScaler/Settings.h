@@ -42,8 +42,6 @@
 #include "DS_Control.h"
 #include "DS_ApiCommon.h"
 
-void DisplayUISubMenuAsDialog(UI_SUBMENU* pSubMenu);
-
 /////////////////////////////////////////////////////////////////////////////
 // Functions to manipulate settings structure
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +49,6 @@ long Setting_GetValue(SETTING* pSetting);
 BOOL Setting_SetValue(SETTING* pSetting, long Value);
 void Setting_SetDefault(SETTING* pSetting);
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider);
-HWND Setting_CreateControl(SETTING* pSetting, HWND hDlg, int* VertPos);
 void Setting_SetControlValue(SETTING* pSetting, HWND hControl);
 BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl);
 void Setting_ReadFromIni(SETTING* pSetting);

@@ -284,17 +284,6 @@ void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, 
 	WritePrivateProfileString(lpAppName,  lpKeyName,  szValue, lpFileName);
 }
 
-// Start of new UI code
-// Not to be used yet
-
-void SetControlVisibility(HWND hDlg, int ControlID, BOOL IsVisible)
-{
-	if(!IsVisible)
-	{
-		ShowWindow(GetDlgItem(hDlg, ControlID), SW_HIDE);
-	}
-}
-
 long Setting_GetValue(SETTING* pSetting)
 {
 	if(pSetting == NULL)
@@ -436,49 +425,6 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 	return Setting_SetValue(pSetting, nValue);
 }
 
-HWND Setting_CreateControl(SETTING* pSetting, HWND hDlg, int* VertPos)
-{
-	HWND hNewControl = NULL;
-	
-	switch(pSetting->Type)
-	{
-	case YESNO:
-	case ONOFF:
-		break;
-	case ITEMFROMLIST:
-		break;
-	case SLIDER:
-		break;
-	default:
-		break;
-	}
-	*VertPos += 20;
-	return hNewControl;
-}
-
-void Setting_SetupControl(SETTING* pSetting, HWND hControl)
-{
-	int i;
-
-	switch(pSetting->Type)
-	{
-	case ITEMFROMLIST:
-		i = 0;
-		while(pSetting->pszList[i] != NULL)
-		{
-			ComboBox_InsertString(hControl, -1, pSetting->pszList[i]);
-		}
-		break;
-
-	case SLIDER:
-		Setting_SetupSlider(pSetting, hControl);
-		break;
-	default:
-		break;
-	}
-	Setting_SetControlValue(pSetting, hControl);
-}
-
 void Setting_ReadFromIni(SETTING* pSetting)
 {
 	long nValue;
@@ -499,17 +445,7 @@ void Setting_WriteToIni(SETTING* pSetting)
 {
 	if(pSetting->szIniSection != NULL)
 	{
-//		if(pSetting->OriginalValue != *pSetting->pValue)
-		{
-//			if(pSetting->Default != *pSetting->pValue)
-			{
-				WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
-			}
-//			else
-//			{
-//				WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
-//			}
-		}
+		WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
 	}
 }
 
@@ -712,88 +648,5 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
 	default:
 		break;
 	}
-}
-
-BOOL APIENTRY UISubMenuProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-	static UI_SUBMENU* pSubMenu;
-	int i;
-	HWND Controls[8];
-	long PrevValues[8];
-	int VertPos = 0;
-
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		pSubMenu = (UI_SUBMENU*)lParam;
-		SetWindowText(hDlg, pSubMenu->szDisplayName);
-		for(i = 0;i < 8;i++)
-		{
-			Controls[i] = Setting_CreateControl(pSubMenu->Elements[i], hDlg, &VertPos);
-			Setting_SetupControl(pSubMenu->Elements[i], Controls[i]);
-			SetWindowText(GetDlgItem(hDlg, IDC_STATIC1 + i), pSubMenu->Elements[i]->szDisplayName);
-			PrevValues[i] = Setting_GetValue(pSubMenu->Elements[i]);
-		}
-		break;
-
-	case WM_COMMAND:
-		switch LOWORD(wParam)
-		{
-		case IDOK:
-			EndDialog(hDlg, TRUE);
-			break;
-
-		case IDCANCEL:
-			// revert to old value
-			for(i = 0;i < 8 && pSubMenu->Elements[i] != NULL;i++)
-			{
-				Setting_SetValue(pSubMenu->Elements[i], PrevValues[i]);
-			}
-			EndDialog(hDlg, FALSE);
-			break;
-
-		case IDDEFAULTS:
-			// revert to default values
-			for(i = 0;i < 8 && pSubMenu->Elements[i] != NULL;i++)
-			{
-				*pSubMenu->Elements[i]->pValue = pSubMenu->Elements[i]->Default;
-				Setting_SetControlValue(pSubMenu->Elements[i], Controls[i]);
-			}
-			break;
-
-		case IDC_CHECK1:
-		case IDC_CHECK2:
-		case IDC_CHECK3:
-		case IDC_CHECK4:
-		case IDC_CHECK5:
-		case IDC_CHECK6:
-		case IDC_CHECK7:
-		case IDC_CHECK8:
-			i = LOWORD(wParam) -  IDC_CHECK1;
-			Setting_SetFromControl(pSubMenu->Elements[i], Controls[i]);
-			break;
-		case WM_VSCROLL:
-		case WM_HSCROLL:
-			for(i = 0; i < 8; i++)
-			{
-				if((HWND)lParam == Controls[i])
-				{
-					Setting_SetFromControl(pSubMenu->Elements[i], Controls[i]);
-				}
-			}
-			break;
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-	return FALSE;
-}
-
-void DisplayUISubMenuAsDialog(UI_SUBMENU* pSubMenu)
-{
-	DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_UI_SUB_MENU), hWnd, UISubMenuProc, (LPARAM)pSubMenu);
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.12 2003-08-10 09:41:59 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.13 2003-08-11 22:50:50 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/08/10 09:41:59  laurentg
+// New toolbar for media file player
+//
 // Revision 1.11  2003/07/29 13:33:07  atnak
 // Overhauled mixer code
 //
@@ -81,6 +84,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "DScalerVersion.h"
+#include "dshowsource/DSFileSource.h"
 
 
 
@@ -726,6 +730,11 @@ m_hIconPlay(NULL),
 m_hIconPause(NULL),
 m_hIconStop(NULL)
 {
+	eEventType EventList[] = {EVENT_DURATION, EVENT_CURRENT_POSITION, EVENT_SOURCE_CHANGE, EVENT_ENDOFLIST};
+	EventCollector->Register(this, EventList);
+
+	m_Elapsed = 0;
+	m_Duration = 0;
 }
 
 CToolbarMediaPlayer::~CToolbarMediaPlayer()
@@ -750,24 +759,68 @@ CToolbarMediaPlayer::~CToolbarMediaPlayer()
 
 void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-	if ((hWnd != NULL) && Visible())
+	bool bDurationChanged = FALSE;
+	bool bDoUpdate = TRUE;
+	if (Event == EVENT_SOURCE_CHANGE)
+	{
+		m_Elapsed = 0;
+		m_Duration = 0;
+		bDurationChanged = TRUE;
+	}
+	else if (Event == EVENT_DURATION)
+    {
+		if (NewValue == m_Duration)
+		{
+			bDoUpdate = FALSE;
+		}
+		else
+		{
+			m_Duration = NewValue;
+			bDurationChanged = TRUE;
+		}
+    } 
+    else if (Event == EVENT_CURRENT_POSITION)
+    {
+		if (NewValue == m_Elapsed)
+		{
+			bDoUpdate = FALSE;
+		}
+		else
+		{
+	        m_Elapsed = NewValue;
+			if (m_Elapsed < 0)
+			{
+				m_Elapsed = 0;
+			}
+			else if (m_Elapsed > m_Duration)
+			{
+				m_Elapsed = m_Duration;
+			}
+		}
+    }
+	if ((hWnd != NULL) && Visible() && bDoUpdate)
 	{		
-		UpdateControls(NULL, FALSE);
+		UpdateControls(NULL, bDurationChanged);
 	}
 }
 
 void CToolbarMediaPlayer::UpdateControls(HWND hWnd, bool bInitDialog)
 {
-   if (hWnd == NULL)
-   {
-        hWnd = this->hWnd;
-   }
-   if (hWnd == NULL) return;
+	if (hWnd == NULL)
+	{
+		hWnd = this->hWnd;
+	}
+	if (hWnd == NULL) return;
 
-   if (bInitDialog)
-   {
-   }
+	if (bInitDialog)
+	{
+		LOG(1, "CToolbarMediaPlayer::UpdateControls Limit %ld", m_Duration);
+		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETRANGE, TRUE, (LPARAM)MAKELONG(0, m_Duration));
+	}
    
+	LOG(1, "CToolbarMediaPlayer::UpdateControls Pos %ld", m_Elapsed);
+    SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_SETPOS, TRUE, m_Elapsed);
+
 	SetFocus(m_pToolbar->GethWndParent());
 }
 
@@ -808,7 +861,23 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
         ::EndPaint(hDlg, &ps);
         return TRUE;
         break;    
-    case WM_COMMAND:
+    case WM_HSCROLL:
+        if((HWND)lParam == GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER))
+        {                                        
+            int Position = SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER), TBM_GETPOS, 0, 0);
+
+			if (Position != m_Elapsed)
+			{
+				if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
+				{
+					((CDSFileSource*)Providers_GetCurrentSource())->SetPos(Position);
+				}
+			}
+            SetFocus(m_pToolbar->GethWndParent());
+            return TRUE;
+        }
+        break;         
+     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
             case IDC_TOOLBAR_MEDIAPLAYER_PLAY:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.8 2002-12-02 17:06:33 adcockj Exp $
+// $Id: events.h,v 1.9 2003-08-11 22:50:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/12/02 17:06:33  adcockj
+// Changed Events to use messages instead of timer
+//
 // Revision 1.7  2002/10/11 21:49:11  ittarnavsky
 // added rcs/cvs log tag
 //
@@ -50,7 +53,9 @@ enum eEventType
 	EVENT_MIXERVOLUME,
 	EVENT_AUDIOSTANDARD_DETECTED,
 	EVENT_AUDIOCHANNELSUPPORT_DETECTED,
-	EVENT_SOUNDCHANNEL
+	EVENT_SOUNDCHANNEL,
+	EVENT_DURATION,
+	EVENT_CURRENT_POSITION
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 

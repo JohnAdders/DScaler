@@ -81,6 +81,9 @@ public:
 	void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 	void UpdateWindow() { UpdateControls(NULL, FALSE); }
 private:
+	int m_Elapsed;	// In 1/10 of seconds
+	int m_Duration;	// In 1/10 of seconds
+
 	HICON m_hIconPlay;
 	HICON m_hIconPause;
 	HICON m_hIconStop;

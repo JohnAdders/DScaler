@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.13 2003-07-22 22:30:20 laurentg Exp $
+// $Id: DSFileSource.h,v 1.14 2003-08-11 22:49:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/07/22 22:30:20  laurentg
+// Correct handling of pause (P key) for video file playing
+//
 // Revision 1.12  2003/01/18 13:54:31  laurentg
 // New methods GetHDelay and GetVDelay
 //
@@ -136,6 +139,12 @@ public:
 
     void Pause();
     void UnPause();
+
+	BOOL HasMediaControl() {return TRUE;};
+
+	int GetCurrentPos();
+	void SetPos(int pos);
+	int GetDuration();
 
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue) {};

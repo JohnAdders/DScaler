@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.10 2003-07-22 22:30:20 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.11 2003-08-11 22:49:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/07/22 22:30:20  laurentg
+// Correct handling of pause (P key) for video file playing
+//
 // Revision 1.9  2003/02/22 16:48:56  tobbej
 // added some comments about requierments for OpenFile (to avoid crashing)
 //
@@ -296,6 +299,45 @@ void CDSFileSource::UnPause()
 			ErrorBox(CString("Play failed\n\n")+e.getErrorText());
 		}
 	}
+}
+
+int CDSFileSource::GetCurrentPos()
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+		{
+			return pSeeking->GetCurrentPos() / 1000000;
+		}
+	}
+	return -1;
+}
+
+void CDSFileSource::SetPos(int pos)
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanSeekAbsolute)
+		{
+			LONGLONG RealPos = (LONGLONG)pos * 1000000;
+			pSeeking->SeekTo(RealPos);
+		}
+	}
+}
+
+int CDSFileSource::GetDuration()
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+		{
+			return pSeeking->GetDuration() / 1000000;
+		}
+	}
+	return -1;
 }
 
 #endif

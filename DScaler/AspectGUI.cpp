@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.42 2002-08-05 21:01:55 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.43 2002-08-05 22:33:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/08/05 21:01:55  laurentg
+// Square pixels mode updated
+//
 // Revision 1.41  2002/07/28 08:09:41  laurentg
 // "Defer Setting Overlay" removed from the menus
 //
@@ -271,6 +274,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
 BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 {
     char Text[32];
+    static BOOL WSSWasEnabled = FALSE;
 
     switch (wMenuID)
     {
@@ -370,12 +374,13 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     case IDM_SASPECT_AUTO_ON:
         AspectSettings.AutoDetectAspect = TRUE;
         ShowText(hWnd, "Auto Aspect Detect ON");
-        AspectSettings.SquarePixels = FALSE;
+        UpdateSquarePixelsMode(FALSE);
         if (AspectSettings.bUseWSS)
         {
             if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
             {
                 Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                WSSWasEnabled = TRUE;
             }
             if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
             {
@@ -386,6 +391,14 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     case IDM_SASPECT_AUTO_OFF:
         AspectSettings.AutoDetectAspect = FALSE;
         ShowText(hWnd, "Auto Aspect Detect OFF");
+        if (AspectSettings.bUseWSS && WSSWasEnabled)
+        {
+            if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+            {
+                Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+            }
+            WSSWasEnabled = FALSE;
+        }
         break;
     case IDM_SASPECT_AUTO_TOGGLE:
         AspectSettings.AutoDetectAspect = !AspectSettings.AutoDetectAspect;
@@ -397,17 +410,26 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             ShowText(hWnd, "Auto Aspect Detect OFF");
         }
-        AspectSettings.SquarePixels = FALSE;
+        UpdateSquarePixelsMode(FALSE);
         if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
         {
             if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
             {
                 Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+                WSSWasEnabled = TRUE;
             }
             if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
             {
                 SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
             }
+        }
+        else if (AspectSettings.bUseWSS && WSSWasEnabled)
+        {
+            if (Setting_GetValue(VBI_GetSetting(DOWSS)))
+            {
+                Setting_SetValue(VBI_GetSetting(DOWSS), FALSE);
+            }
+            WSSWasEnabled = FALSE;
         }
         break;
     case IDM_SASPECT_SQUARE:
@@ -462,7 +484,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     // Manually-triggered one-time automatic detect of aspect ratio
     case IDM_SASPECT_COMPUTE:
         AspectSettings.DetectAspectNow = TRUE;
-        AspectSettings.SquarePixels = FALSE;
+        UpdateSquarePixelsMode(FALSE);
         break;
 
     //------------------------------------------------------------------

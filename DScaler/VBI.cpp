@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.14 2002-06-20 20:00:37 robmuller Exp $
+// $Id: VBI.cpp,v 1.15 2002-08-05 22:33:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/06/20 20:00:37  robmuller
+// Implemented videotext search highlighting.
+//
 // Revision 1.13  2002/05/24 18:04:32  robmuller
 // Gray VideoText search items when necessary.
 //
@@ -80,6 +83,7 @@
 #include "VBI_WSSdecode.h"
 #include "Providers.h"
 #include "DebugLog.h"
+#include "AspectRatio.h"
 
 BOOL bStopVBI;
 HANDLE VBIThread;
@@ -256,10 +260,13 @@ void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 void VBI_SetMenu(HMENU hMenu)
 {
     int i;
+    BOOL LockWSS = Setting_GetValue(Aspect_GetSetting(AUTODETECTASPECT)) && Setting_GetValue(Aspect_GetSetting(USEWSS));
+
     EnableMenuItem(hMenu, IDM_PDC_OUT, MF_GRAYED);
     EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);
     EnableMenuItem(hMenu, IDM_VPS_OUT, MF_GRAYED);
 
+    EnableMenuItem(hMenu, IDM_VBI, LockWSS ? MF_GRAYED : MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_VBI, bCaptureVBI);
     if (bCaptureVBI == TRUE)
     {
@@ -273,7 +280,7 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);
-        EnableMenuItem(hMenu, IDM_VBI_WSS, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_VBI_WSS, LockWSS ? MF_GRAYED : MF_ENABLED);
         CheckMenuItemBool(hMenu, IDM_VBI_VT, DoTeletext);
         CheckMenuItemBool(hMenu, IDM_VBI_VPS, DoVPS);
         CheckMenuItemBool(hMenu, IDM_VBI_WSS, DoWSS);

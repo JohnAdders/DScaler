@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.66 2002-06-20 20:00:42 robmuller Exp $
+// $Id: DS_Control.h,v 1.67 2002-06-24 21:45:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/06/20 20:00:42  robmuller
+// Implemented videotext search highlighting.
+//
 // Revision 1.65  2002/06/18 19:46:05  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -376,6 +379,7 @@ typedef enum
     ALLOWGREATERTHANSCREEN,
     MASKGREYSHADE,
     USEONLYWSS,
+    USEWSS,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 

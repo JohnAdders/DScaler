@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.39 2002-06-13 12:10:21 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.40 2002-06-24 21:49:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/06/13 12:10:21  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.38  2002/04/28 16:43:37  laurentg
 // New setting for aspect ratio detect
 //
@@ -118,6 +121,8 @@
 #include "DebugLog.h"
 #include "Status.h"
 #include "DScaler.h"
+#include "VBI.h"
+#include "OutThreads.h"
 
 // From DScaler.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
@@ -361,6 +366,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         AspectSettings.AutoDetectAspect = TRUE;
         ShowText(hWnd, "Auto Aspect Detect ON");
         AspectSettings.SquarePixels = FALSE;
+        if (AspectSettings.bUseWSS)
+        {
+            if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+            {
+                Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+            }
+            if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+            }
+        }
         break;
     case IDM_SASPECT_AUTO_OFF:
         AspectSettings.AutoDetectAspect = FALSE;
@@ -377,6 +393,17 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd, "Auto Aspect Detect OFF");
         }
         AspectSettings.SquarePixels = FALSE;
+        if (AspectSettings.AutoDetectAspect && AspectSettings.bUseWSS)
+        {
+            if (!Setting_GetValue(VBI_GetSetting(DOWSS)))
+            {
+                Setting_SetValue(VBI_GetSetting(DOWSS), TRUE);
+            }
+            if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+            }
+        }
         break;
     case IDM_SASPECT_SQUARE:
         AspectSettings.AutoDetectAspect = FALSE;
@@ -1141,6 +1168,12 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT_DETECT", "UseOnlyWSS", NULL,
+    },
+    {
+        "Use WSS data", ONOFF, 0, (long*)&AspectSettings.bUseWSS,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "UseWSS", NULL,
     },
 };
 

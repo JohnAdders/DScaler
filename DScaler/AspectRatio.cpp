@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.33 2002-05-30 13:06:41 robmuller Exp $
+// $Id: AspectRatio.cpp,v 1.34 2002-06-24 21:49:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/05/30 13:06:41  robmuller
+// Removed variable bIgnoreMouse.
+//
 // Revision 1.32  2002/04/28 16:43:37  laurentg
 // New setting for aspect ratio detect
 //
@@ -162,6 +165,7 @@ TAspectSettings AspectSettings =
     FALSE,
     1000,
     0,
+    FALSE,
     FALSE,
     FALSE
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.31 2002-06-13 12:10:21 adcockj Exp $
+// $Id: AspectRatio.h,v 1.32 2002-06-24 21:49:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -222,8 +222,13 @@ typedef struct
     // if TRUE, the pixels in the overlay must be considered as squares
     BOOL SquarePixels;
 
+    // if TRUE, the WSS data included in the signal is used
+    // to determine the aspect ratio
+    BOOL bUseWSS;
+
     // if TRUE, only the WSS data included in the signal is used
     // to determine the aspect ratio
+    // This setting is relevant only when bUseWSS is TRUE
     BOOL bUseOnlyWSS;
 } TAspectSettings;
 

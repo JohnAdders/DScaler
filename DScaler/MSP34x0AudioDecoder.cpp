@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.cpp,v 1.1 2002-10-11 21:51:21 ittarnavsky Exp $
+// $Id: MSP34x0AudioDecoder.cpp,v 1.2 2002-10-16 21:59:47 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/11 21:51:21  ittarnavsky
+// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -861,7 +864,7 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
 
 	if (Interval > 0)
 	{				
-    m_DetectInterval10ms = (Interval/10);
+        m_DetectInterval10ms = (Interval/10);
 	}
 	else
 	{
@@ -875,60 +878,87 @@ void CMSP34x0AudioDecoder::DetectAudioStandard(long Interval, int SupportedSound
         m_TargetSoundChannel = TargetChannel;
     }
 
-    int AutoDetecting;
+    LOGD("MSP34xx: Detect %d\n",SupportedSoundChannels);
 
-    EnterCriticalSection(&MSP34xxCriticalSection);
-    AutoDetecting = m_AutoDetecting;
-	LeaveCriticalSection(&MSP34xxCriticalSection);
-
-	if (AutoDetecting == 1)
-    {
-		//Abort
-		StopThread();
-	}
-
-    EnterCriticalSection(&MSP34xxCriticalSection);
-	
-        m_DetectCounter = 0;
-        m_ThreadWait = true;
-
-        if (SupportedSoundChannels == 2)
-        {
-            m_AutoDetecting = 2;
-        }
-        else
-        {
-            m_AutoDetecting = 1;
-            m_DetectSupportedSoundChannels = (SupportedSoundChannels == 1);
-        }
+    EnterCriticalSection(&MSP34xxCriticalSection);    
+    int AutoDetecting = m_AutoDetecting;       
     LeaveCriticalSection(&MSP34xxCriticalSection);
 
-        if (SupportedSoundChannels == 2)
-        {
-            if (TargetChannel != SOUNDCHANNEL_MONO)
+    // Stop thread if detecting audio standard
+    // Suspend thread if detecting stereo
+    if (AutoDetecting == 1)
+    {
+        StopThread();	
+    }
+    else if (AutoDetecting == 2)
+    {
+        EnterCriticalSection(&MSP34xxCriticalSection);    
+        m_ThreadWait = TRUE;
+        LeaveCriticalSection(&MSP34xxCriticalSection);
+        Sleep(10);
+        
+        EnterCriticalSection(&MSP34xxCriticalSection);    
+        BOOL bSuspended = (m_AutoDetecting == 0);
+        LeaveCriticalSection(&MSP34xxCriticalSection);
+
+        if (!bSuspended)
+        {            
+            Sleep(50);
+            EnterCriticalSection(&MSP34xxCriticalSection);    
+            bSuspended = (m_AutoDetecting == 0);
+            LeaveCriticalSection(&MSP34xxCriticalSection);
+            
+            if (!bSuspended)
             {
-                if(m_MSPVersion == MSPVersionG)
-                {
-                    SetDEMRegister(DEM_WR_MODUS, 0x2003);
-                }
+                StopThread();
             }
         }
-        else
+        Sleep(1);   
+    }
+    
+    //Setup
+    if (SupportedSoundChannels == 2)
+    {
+        if (TargetChannel != SOUNDCHANNEL_MONO)
         {
             if(m_MSPVersion == MSPVersionG)
             {
-                SetStandardRevG(MSP34x0_STANDARD_AUTO, m_VideoFormat);
-            }
-            else
-            {
-                SetStandardRevA(MSP34x0_STANDARD_AUTO, m_VideoFormat, false, SOUNDCHANNEL_MONO);
+                SetDEMRegister(DEM_WR_MODUS, 0x2003);
             }
         }
-        EnterCriticalSection(&MSP34xxCriticalSection);
-        m_ThreadWait = false;
-        LeaveCriticalSection(&MSP34xxCriticalSection);
-        StartThread();
     }
+    else
+    {
+        if(m_MSPVersion == MSPVersionG)
+        {
+            SetStandardRevG(MSP34x0_STANDARD_AUTO, m_VideoFormat);
+        }
+        else
+        {
+            SetStandardRevA(MSP34x0_STANDARD_AUTO, m_VideoFormat, false, SOUNDCHANNEL_MONO);
+        }
+    }
+
+    //Set new state
+    EnterCriticalSection(&MSP34xxCriticalSection);        
+    m_DetectCounter = 0;
+
+    if (SupportedSoundChannels == 2)
+    {
+        m_AutoDetecting = 2;
+    }
+    else
+    {
+        m_AutoDetecting = 1;
+        m_DetectSupportedSoundChannels = (SupportedSoundChannels == 1);
+    }
+    m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_MONO;
+    m_ThreadWait = FALSE;
+    LeaveCriticalSection(&MSP34xxCriticalSection);
+    
+    //Start or resume thread
+    StartThread();
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -966,9 +996,12 @@ void CMSP34x0AudioDecoder::StartThread()
 
     if (m_MSP34xxThread != NULL)
     {
-        // Already started
+        // Already started, resume
+        LOGD("MSP34xx: StartThread: Resume thread\n");
+        ResumeThread(m_MSP34xxThread);
         return;
     }
+    LOGD("MSP34xx: StartThread: Create thread\n");
 
     m_bStopThread = false;
 
@@ -986,20 +1019,22 @@ void CMSP34x0AudioDecoder::StopThread()
     int i;
     bool Thread_Stopped = false;
 
+    LOGD("MSP34xx: StopThread: Try stop\n");
     if (m_MSP34xxThread != NULL)
     {
         i = 10;
         m_bStopThread = true;
+        ResumeThread(m_MSP34xxThread);
         while(i-- > 0 && !Thread_Stopped)
         {
             if (GetExitCodeThread(m_MSP34xxThread, &ExitCode) == TRUE)
             {
                 if (ExitCode != STILL_ACTIVE)
-                {
+                {                    
                     Thread_Stopped = true;
                 }
                 else
-                {
+                {                    
                     Sleep(50);
                 }
             }
@@ -1011,33 +1046,39 @@ void CMSP34x0AudioDecoder::StopThread()
 
         if (Thread_Stopped == false)
         {
+            LOGD("MSP34xx: StopThread: Terminate thread\n");
             TerminateThread(m_MSP34xxThread, 0);
             Sleep(50);
         }
         CloseHandle(m_MSP34xxThread);
         m_MSP34xxThread = NULL;
+        LOGD("MSP34xx: StopThread: Thread stopped\n");
     }
 }
 
 int CMSP34x0AudioDecoder::DetectThread()
 {
+    int AutoDetecting;
+    BOOL bWait;
+
     m_DetectCounter = 0;
     while (!m_bStopThread)
     {
-        int AutoDetecting;
-        BOOL bWait;
-
         EnterCriticalSection(&MSP34xxCriticalSection);
-        AutoDetecting = m_AutoDetecting;
         bWait = m_ThreadWait;
-        m_DetectSupportedSoundChannels;
         LeaveCriticalSection(&MSP34xxCriticalSection);
 
         if (bWait)
         {
-            Sleep(0);
-            continue;
+            LOGD("MSP34xx Thread: Suspended\n");
+            m_AutoDetecting = 0;
+            SuspendThread(m_MSP34xxThread);
+            LOGD("MSP34xx Thread: Resumed\n");
         }
+
+        EnterCriticalSection(&MSP34xxCriticalSection);
+        AutoDetecting = m_AutoDetecting;        
+        LeaveCriticalSection(&MSP34xxCriticalSection);
 
         if ( (AutoDetecting==1) //Detect standard
             && ((m_DetectCounter%m_DetectInterval10ms)==0))
@@ -1112,12 +1153,16 @@ int CMSP34x0AudioDecoder::DetectThread()
             }
             EnterCriticalSection(&MSP34xxCriticalSection);
             m_AutoDetecting = AutoDetecting;
-            m_DetectCounter = 1;
+            m_DetectCounter = 1;            
             LeaveCriticalSection(&MSP34xxCriticalSection);
         }
 
         EnterCriticalSection(&MSP34xxCriticalSection);
         AutoDetecting = m_AutoDetecting;
+        if (m_AutoDetecting == 0)
+        {
+            m_ThreadWait = TRUE;
+        }
         LeaveCriticalSection(&MSP34xxCriticalSection);
 
         if (AutoDetecting==2) //Detect mono/stereo/lang1/lang2
@@ -1152,15 +1197,30 @@ int CMSP34x0AudioDecoder::DetectThread()
                     {
                         //Finished
                         EnterCriticalSection(&MSP34xxCriticalSection);
-                        m_AutoDetecting = 0;
+                        m_AutoDetecting = 0;                        
+                        m_ThreadWait = TRUE;
+
+                        AutoDetecting = 0;
                         LeaveCriticalSection(&MSP34xxCriticalSection);
                     }
                 }
             }
         }
 
-        Sleep(10);
-        m_DetectCounter++;
+        //Check for suspend mode before and after the Sleep.
+        EnterCriticalSection(&MSP34xxCriticalSection);
+        bWait = m_ThreadWait;
+        if (bWait)
+        {
+            AutoDetecting = 0;
+        }
+        LeaveCriticalSection(&MSP34xxCriticalSection);
+
+        if (AutoDetecting != 0)
+        {
+            Sleep(10);
+            m_DetectCounter++;
+        }        
     }
     return 0;
 }

@@ -210,7 +210,7 @@ CAspectFilter* BuildFilterChain()
 	// This like is where image zooming would be implemented...
 	// Sample code zooms in 2x on the center of the image
 	// See comments in AspectFilters.hpp for PanAndZoomAspectFilter details.
-	if (aspectSettings.xZoomFactor > 1.0 || aspectSettings.yZoomFactor > 1.0)
+	if (aspectSettings.xZoomFactor != 100 && aspectSettings.yZoomFactor != 100)
 	{
 		cur->next = new CPanAndZoomAspectFilter(aspectSettings.xZoomCenter,
 											   aspectSettings.yZoomCenter,

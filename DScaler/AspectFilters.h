@@ -466,12 +466,31 @@ public:
 	
 	virtual BOOL adjustAspect(CAspectRectangles &ar)
 	{
-		int dx = (int)floor(ar.rCurrentOverlaySrc.width() * (1.0 - 1.0/xZoom));
-		int dy = (int)floor(ar.rCurrentOverlaySrc.height() * (1.0 - 1.0/yZoom));
+        if(xZoom > 1.0)
+        {
+    		int dx = (int)floor(ar.rCurrentOverlaySrc.width() * (1.0 - 1.0/xZoom));
+    		ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
+	    	ar.rCurrentOverlaySrc.shift((int)floor(dx*xPos), 0);
+        }
+        else
+        {
+    		int dx = (int)floor(ar.rCurrentOverlayDest.width() * (1.0 - 1.0/xZoom));
+    		ar.rCurrentOverlayDest.shrink(0,dx,0,0);
+	    	ar.rCurrentOverlayDest.shift((int)floor(dx*xPos), 0);
+        }
 
-		ar.rCurrentOverlaySrc.shrink(0,dx,0,dy);
-		ar.rCurrentOverlaySrc.shift((int)floor(dx*xPos),
-									(int)floor(dy*yPos));
+        if(yZoom > 1.0)
+        {
+    		int dy = (int)floor(ar.rCurrentOverlaySrc.height() * (1.0 - 1.0/yZoom));
+    		ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
+	    	ar.rCurrentOverlaySrc.shift(0, (int)floor(dy*yPos));
+        }
+        else
+        {
+    		int dy = (int)floor(ar.rCurrentOverlayDest.height() * (1.0 - 1.0/yZoom));
+    		ar.rCurrentOverlayDest.shrink(0,0,0,dy);
+	    	ar.rCurrentOverlayDest.shift(0, (int)floor(dy*yPos));
+        }
 
 		return FALSE;
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.30 2001-08-13 12:05:12 adcockj Exp $
+// $Id: Bt848.cpp,v 1.31 2001-08-13 18:05:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/08/13 12:05:12  adcockj
+// Updated range for contrast and saturation
+// Added more code for new driver interface
+//
 // Revision 1.29  2001/08/11 13:46:03  adcockj
 // Fix for driver problem
 //
@@ -846,7 +850,7 @@ BOOL BT848_SaturationU_OnChange(long SatU)
     InitialSaturationU = SatU;
     InitialSaturation = (InitialSaturationU + InitialSaturationV) / 2;
     BT848Settings[SATURATION].MinValue = abs(InitialSaturationU - InitialSaturationV) / 2;
-    BT848Settings[SATURATION].MaxValue = 255 - abs(InitialSaturationU - InitialSaturationV) / 2;
+    BT848Settings[SATURATION].MaxValue = 511 - abs(InitialSaturationU - InitialSaturationV) / 2;
     return TRUE;
 }
 
@@ -864,7 +868,7 @@ BOOL BT848_SaturationV_OnChange(long SatV)
     InitialSaturationV = SatV;
     InitialSaturation = (InitialSaturationU + InitialSaturationV) / 2;
     BT848Settings[SATURATION].MinValue = abs(InitialSaturationU - InitialSaturationV) / 2;
-    BT848Settings[SATURATION].MaxValue = 255 - abs(InitialSaturationU - InitialSaturationV) / 2;
+    BT848Settings[SATURATION].MaxValue = 511 - abs(InitialSaturationU - InitialSaturationV) / 2;
     return TRUE;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.21 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VTDrawer.cpp,v 1.22 2004-04-24 08:35:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.20  2003/01/24 01:55:17  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -578,7 +581,7 @@ WORD CVTDrawer::FindPageNumberAtPoint(TVTPage* pPage, LPRECT lpDisplayRect,
 
 WORD CVTDrawer::FindPageNumberAtRowCol(TVTPage* pPage, WORD wSearchRowCol)
 {
-    WORD wFlags = PARSE_HASDATAONLY | PARSE_FORCEHEADER | PARSE_REPEATDOUBLE;
+    WORD wFlags = PARSE_HASDATAONLY | PARSE_REPEATDOUBLE;
     WORD wPageHex = 0xFFFF;
 
     BYTE nRow = LOBYTE(wSearchRowCol);

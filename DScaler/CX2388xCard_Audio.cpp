@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.10 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.11 2004-01-14 20:01:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.9  2003/03/05 13:54:11  adcockj
 // Possible fixes for Asus sound
 //
@@ -150,17 +153,18 @@ void CCX2388xCard::SetAudioVolume(WORD nVolume)
 
 void CCX2388xCard::SetAudioBalance(WORD nBalance)
 {
-    DWORD dwval;
-    if(nBalance <=0)
+    short val = (short) nBalance;
+
+    if(val <=0)
     {
-        dwval = ((-nBalance) >> 1);
+        val = ((-val) >> 1);
     }
     else
     {
-        dwval = (nBalance >> 1);
-        dwval |= (1 << 6);
+        val = (val >> 1);
+        val |= (1 << 6);
     }
-    WriteDword(AUD_BAL_CTL,dwval);
+    WriteDword(AUD_BAL_CTL, val);
 }
 
 

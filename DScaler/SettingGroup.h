@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.6 2004-08-20 09:16:19 atnak Exp $
+// $Id: SettingGroup.h,v 1.7 2004-08-21 11:36:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/08/20 09:16:19  atnak
+// Fixed the anti-deadlock no-lock sanctuary for the notication callbacks.
+//
 // Revision 1.5  2004/08/20 07:30:32  atnak
 // Added title value to groups plus other changes.
 //
@@ -691,9 +694,6 @@ protected:
 	virtual void _SaveOptionalDependencies(IN LPCSTR, IN LPSTR, IN DWORD);
 	virtual void _LoadOptionalDependencies(IN LPCSTR, IN DBIT, IN LPSTR, IN DWORD);
 
-	// Treats the setting described by info as changed and performs any necessary
-	// changes to other settings.
-	virtual void JostleDependeeBit(IN PSETTINGINFOEX info);
 	// Checks and processes all setting in the group and subgroups for changes necessary
 	// because of another setting's change.
 	virtual void JostleEverySetting(IN OUT PBULKCHANGELIST bulklist, IN BYTE mode,

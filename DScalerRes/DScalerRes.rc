@@ -534,28 +534,28 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Setup Hardware"
 FONT 8, "MS Sans Serif"
 BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,7,209,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,209,50,14
+    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_PROCESSOR_SPEED,72,129,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_TRADEOFF,73,175,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
     LTEXT           "Use this dialog to select the card closest to your card type.\nSome tuners are autodetected and will be selected here.  Otherwise you must try and find out what tuner you have.",
                     IDC_STATIC,7,7,286,25
     LTEXT           "The easiest way is by looking at the documenation that came with the card otherwise you will have to see if there is any marking on the silver tuner box on the card.",
                     IDC_STATIC,7,34,286,22
     LTEXT           "Card",IDC_STATIC,14,58,34,9
-    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
-                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Tuner",IDC_STATIC,14,80,38,9
-    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
     LTEXT           "In order for DScaler to give the best results it needs to know how powerful your machine is.  Please select the nearest speed range to your machine.  If in doubt use the lower setting. (This setting is not detected)",
                     IDC_STATIC,7,101,277,26
     LTEXT           "Processor",IDC_STATIC,14,131,41,10
-    COMBOBOX        IDC_PROCESSOR_SPEED,72,129,178,190,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
     LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
                     IDC_STATIC,7,151,286,17
     LTEXT           "Defaults",IDC_STATIC,15,176,41,10
-    COMBOBOX        IDC_TRADEOFF,73,175,178,190,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,7,209,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,65,209,50,14
 END
 
 IDD_ADV_VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 208, 126

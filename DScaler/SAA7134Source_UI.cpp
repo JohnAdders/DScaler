@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.19 2002-10-31 05:02:54 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.20 2002-11-10 05:11:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/10/31 05:02:54  atnak
+// Settings cleanup and audio tweaks
+//
 // Revision 1.18  2002/10/29 03:07:18  atnak
 // Added SAA713x TreeSettings Page
 //
@@ -1843,6 +1846,8 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_HDelay);
     vSettingsList.push_back(m_VDelay);
     vSettingsList.push_back(m_ReversePolarity);
+    vSettingsList.push_back(m_AudioLine1Voltage);
+    vSettingsList.push_back(m_AudioLine2Voltage);
 
     pPage = new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
     

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.24 2002-11-08 06:15:34 atnak Exp $
+// $Id: SAA7134Card.h,v 1.25 2002-11-10 05:11:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/11/08 06:15:34  atnak
+// Added state saving
+//
 // Revision 1.23  2002/11/07 20:33:17  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -332,6 +335,9 @@ public:
 
     void SetAudioSampleRate(eAudioSampleRate SampleRate);
     void SetAutomaticVolume(eAutomaticVolume AVL);
+
+    void SetAudioLine1Voltage(eAudioLineVoltage LineVoltage);
+    void SetAudioLine2Voltage(eAudioLineVoltage LineVoltage);
 
     /** Miscellaneous audio
      */

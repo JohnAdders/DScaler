@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.17 2002-10-31 05:02:55 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.18 2002-11-10 05:11:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/31 05:02:55  atnak
+// Settings cleanup and audio tweaks
+//
 // Revision 1.16  2002/10/29 13:38:21  atnak
 // More saa7130 unsupported checks
 //
@@ -122,6 +125,7 @@ void CSAA7134Card::InitAudio()
 
     WriteByte(SAA7134_DSP_OUTPUT_SELECT,        0x80);
 
+    // input signal is less or equal 2.0Vrms
     OrDataByte(SAA7134_ANALOG_IO_SELECT,        SAA7134_ANALOG_IO_SELECT_VSEL1);
     OrDataByte(SAA7134_ANALOG_IO_SELECT,        SAA7134_ANALOG_IO_SELECT_VSEL2);
 
@@ -846,6 +850,36 @@ void CSAA7134Card::SetAutomaticVolume(eAutomaticVolume AVL)
 }
 
 
+void CSAA7134Card::SetAudioLine1Voltage(eAudioLineVoltage LineVoltage)
+{
+    switch (LineVoltage)
+    {
+    case AUDIOLINEVOLTAGE_1VRMS:
+        AndDataByte(SAA7134_ANALOG_IO_SELECT, ~SAA7134_ANALOG_IO_SELECT_VSEL1);
+        break;
+
+    case AUDIOLINEVOLTAGE_2VRMS:
+        OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_VSEL1);
+        break;
+    }
+}
+
+
+void CSAA7134Card::SetAudioLine2Voltage(eAudioLineVoltage LineVoltage)
+{
+    switch (LineVoltage)
+    {
+    case AUDIOLINEVOLTAGE_1VRMS:
+        AndDataByte(SAA7134_ANALOG_IO_SELECT, ~SAA7134_ANALOG_IO_SELECT_VSEL2);
+        break;
+
+    case AUDIOLINEVOLTAGE_2VRMS:
+        OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_VSEL2);
+        break;
+    }
+}
+
+
 void CSAA7134Card::SetAudioMute()
 {
     if (m_DeviceId == 0x7130)
@@ -917,7 +951,7 @@ void CSAA7134Card::SetAudioTreble(WORD nTreble)
 
 int CSAA7134Card::GetInputAudioLine(int nInput)
 {
-    if(nInput < m_SAA7134Cards[m_CardType].NumInputs && nInput >= 0)
+    if (nInput < m_SAA7134Cards[m_CardType].NumInputs && nInput >= 0)
     {
         return m_SAA7134Cards[m_CardType].Inputs[nInput].AudioLineSelect;
     }

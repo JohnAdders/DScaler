@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.8 2002-11-07 18:54:21 atnak Exp $
+// $Id: SAA7134Common.h,v 1.9 2002-11-10 05:11:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/11/07 18:54:21  atnak
+// Redid getting next field -- fixes some issues
+//
 // Revision 1.7  2002/10/29 03:07:19  atnak
 // Added SAA713x TreeSettings Page
 //
@@ -276,6 +279,12 @@ protected:
         AUTOMATICVOLUME_LONGDECAY,
     };
 
+    enum eAudioLineVoltage
+    {
+        AUDIOLINEVOLTAGE_1VRMS,
+        AUDIOLINEVOLTAGE_2VRMS,
+    };
+
 protected:
 
     typedef struct
@@ -342,6 +351,7 @@ protected:
     static const char*              m_AudioFMDeemphasisSzList[];
 
     static const char*              m_AutomaticVolumeSzList[];
+    static const char*              m_LineVoltageSzList[];
 
     // Video standards (TV Formats) table, uses eVideoFormat
     static TVideoStandardDefinition m_VideoStandards[];

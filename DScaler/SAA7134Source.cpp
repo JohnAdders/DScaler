@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.43 2002-11-08 12:16:12 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.44 2002-11-10 05:11:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/11/08 12:16:12  atnak
+// Fixed settings not being set at startup
+//
 // Revision 1.42  2002/11/07 20:33:17  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -415,11 +418,17 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VideoMirror = new CVideoMirrorSetting(this, "Mirroring", FALSE, IniSection);
     m_Settings.push_back(m_VideoMirror);
 
+    m_AudioLine1Voltage = new CAudioLine1VoltageSetting(this, "Audio Line 1 Input Signal", AUDIOLINEVOLTAGE_2VRMS, AUDIOLINEVOLTAGE_2VRMS, IniSection, m_LineVoltageSzList);
+    m_Settings.push_back(m_AudioLine1Voltage);
+
+    m_AudioLine2Voltage = new CAudioLine2VoltageSetting(this, "Audio Line 2 Input Signal", AUDIOLINEVOLTAGE_2VRMS, AUDIOLINEVOLTAGE_2VRMS, IniSection, m_LineVoltageSzList);
+    m_Settings.push_back(m_AudioLine2Voltage);
+
 #ifdef _DEBUG    
     if (SAA7134_SETTING_LASTONE != m_Settings.size())
     {
         LOGD("Number of settings in SAA7134 source is not equal to the number of settings in DS_Control.h");
-        LOGD("DS_Control.h or SAA7134Source.cpp are probably not in sync with eachother.");
+        LOGD("DS_Control.h and SAA7134Source.cpp are probably not in sync with eachother.");
     }
 #endif
 
@@ -447,6 +456,8 @@ void CSAA7134Source::SetupSettings()
         { m_AutomaticVolumeLevel,   SETUP_SINGLE },
         { m_VBIUpscaleDivisor,      SETUP_SINGLE },
         { m_VideoMirror,            SETUP_SINGLE },
+        { m_AudioLine1Voltage,      SETUP_SINGLE },
+        { m_AudioLine2Voltage,      SETUP_SINGLE },
         */
 
         { m_VideoSource,            SETUP_CHANGE_VIDEOINPUT },
@@ -522,6 +533,8 @@ void CSAA7134Source::Reset()
     m_pSAA7134Card->SetVideoMirror(m_VideoMirror->GetValue());
     m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
+    m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)m_AudioLine1Voltage->GetValue());
+    m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)m_AudioLine2Voltage->GetValue());
 }
 
 
@@ -788,6 +801,7 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* pPicture)
 void CSAA7134Source::GetFrameIndex(TFieldID FieldID, BYTE* pFrameIndex, BOOL* pIsFieldOdd)
 {
     *pFrameIndex = (FieldID >> FIELDID_FRAMESHIFT) % kMAX_FRAMEBUFFERS;
+    // The first field is the lower field (odd)
     *pIsFieldOdd = ((FieldID & FIELDID_SECONDFIELD) == 0);
 }
 
@@ -823,9 +837,9 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     else if (bTryToCatchUp && FieldDistance <= 2)
     {
         // Try to catch up
-        pInfo->bRunningLate = TRUE;
+        // pInfo->bRunningLate = TRUE;
         // Not sure why we need to do this
-        // Timing_AddDroppedFields(FieldDistance);
+        // Timing_AddDroppedFields(1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
@@ -1008,7 +1022,7 @@ void CSAA7134Source::PerformSmartSleep(ULONGLONG* pPerformanceTick, ULONGLONG* p
         // Get the current time
         QueryPerformanceCounter((PLARGE_INTEGER)&PerformanceCount);
 
-        // Calculate how much time has past since the last field
+        // Calculate how much time has passed since the last field
         WaitTimeSpent = PerformanceCount - m_LastFieldPerformanceCount;
 
         // If we've gone past the field delay time
@@ -1566,4 +1580,17 @@ void CSAA7134Source::VideoMirrorOnChange(long NewValue, long OldValue)
 {
     m_pSAA7134Card->SetVideoMirror(NewValue);
 }
+
+
+void CSAA7134Source::AudioLine1VoltageOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)NewValue);
+}
+
+
+void CSAA7134Source::AudioLine2VoltageOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)NewValue);
+}
+
 

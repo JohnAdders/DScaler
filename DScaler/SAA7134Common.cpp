@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.9 2002-11-07 18:54:21 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.10 2002-11-10 05:11:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/07 18:54:21  atnak
+// Redid getting next field -- fixes some issues
+//
 // Revision 1.8  2002/10/29 03:07:19  atnak
 // Added SAA713x TreeSettings Page
 //
@@ -339,6 +342,13 @@ const char* CSAA7134Common::m_AutomaticVolumeSzList[] =
     { "1: Short decay (2s)"    },
     { "2: Medium decay (4s)"   },
     { "3: Long decay (6s)"     },
+};
+
+
+const char* CSAA7134Common::m_LineVoltageSzList[] =
+{
+    { "1.0 Vrms or less" },
+    { "2.0 Vrms or less" },
 };
 
 

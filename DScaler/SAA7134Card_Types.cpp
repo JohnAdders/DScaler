@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.5 2002-10-04 13:24:46 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.6 2002-10-06 11:09:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/04 13:24:46  atnak
+// Audio mux select through GPIO added (for 7130 cards)
+//
 // Revision 1.4  2002/10/03 23:36:23  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -89,7 +92,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 1 - Proteus Pro [philips reference design]
     {
@@ -113,7 +115,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 2 - LifeView FlyVIDEO3000
     {
@@ -155,7 +156,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 3 - LifeView FlyVIDEO2000
     {
@@ -197,7 +197,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_24576Hz,
         NULL,
         FLYVIDEO2000CardInputSelect,
-        NULL,
     },
     // Card Number 4 - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
     {
@@ -233,7 +232,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 5 - SKNet Monster TV
     {
@@ -269,7 +267,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 6 - Tevion MD 9717
     {
@@ -305,7 +302,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 7 - KNC One TV-Station RDS  (needs tda9887)
     {
@@ -341,7 +337,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 8 - Terratec Cinergy 400 TV
     {
@@ -377,7 +372,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
-        NULL,
     },
     // Card Number 9 - Medion 5044
     {
@@ -419,7 +413,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         AUDIOCRYSTAL_24576Hz,
         NULL,
         MEDION5044CardInputSelect,
-        NULL,
     },
 };
 
@@ -452,11 +445,11 @@ int CSAA7134Card::GetNumInputs()
 
 LPCSTR CSAA7134Card::GetInputName(int nInput)
 {
-	if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
-	{
-		return m_TVCards[m_CardType].Inputs[nInput].szName;
-	}
-	return "Error";
+    if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+    {
+        return m_TVCards[m_CardType].Inputs[nInput].szName;
+    }
+    return "Error";
 }
 
 
@@ -468,13 +461,13 @@ BOOL CSAA7134Card::IsInputATuner(int nInput)
 
 BOOL CSAA7134Card::IsCCIRSource(int nInput)
 {
-	return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
+    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
 }
 
 
 LPCSTR CSAA7134Card::GetCardName(eTVCardId CardId)
 {
-	return m_TVCards[CardId].szName;
+    return m_TVCards[CardId].szName;
 }
 
 

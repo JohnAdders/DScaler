@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.27 2002-08-12 20:00:59 laurentg Exp $
+// $Id: Filter.cpp,v 1.28 2002-08-14 07:09:18 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/08/12 20:00:59  laurentg
+// no message
+//
 // Revision 1.26  2002/08/12 09:09:00  laurentg
 // Testing progressive field corrected
 //
@@ -239,10 +242,30 @@ void AddUIForFilterPlugin(HMENU hFilterMenu, FILTER_METHOD* FilterMethod, int Me
     }
 }
 
-// This is a first attempt to order the filters. Sorting is done on the HistoryRequired field.
-// Since filters with HistoryRequired == 1 can't be disturbed by the other filters we 
-// put them in front of the list.
-// This is by no means ideal but it does solve many of the current filter order problems.
+// Filters are ordered based on the HistoryRequired field.
+// This forces the filters that do not access any previous frames to be executed first.
+// Some filters receive a forced order rating.
+
+int GetFilterOrder(FILTER_METHOD* Filter_Method)
+{
+    if(strcmp(Filter_Method->szName, "Temporal Noise Filter") == 0)
+    {
+        return 35;
+    }
+    else if(strcmp(Filter_Method->szName, "Gradual Noise Filter") == 0)
+    {
+        return 35;
+    }
+    else if(strcmp(Filter_Method->szName, "Temporal Comb Filter") == 0)
+    {
+        return 45;
+    }
+    else if(strcmp(Filter_Method->szName, "Adaptive Noise Filter") == 0)
+    {
+        return 55;
+    }
+    else return Filter_Method->HistoryRequired*10;
+}
 
 void SortFilterPlugins()
 {
@@ -257,7 +280,7 @@ void SortFilterPlugins()
     {
         for(int i = 0; i < NumFilters - j; i++)
         {
-            if(Filters[i]->HistoryRequired > Filters[i+1]->HistoryRequired)
+            if(GetFilterOrder(Filters[i]) > GetFilterOrder(Filters[i+1]))
             {
                 temp = Filters[i];
                 Filters[i] = Filters[i+1];

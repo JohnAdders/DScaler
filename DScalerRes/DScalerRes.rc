@@ -496,7 +496,8 @@ BEGIN
                     IDC_STATIC,11,238,351,24
     LTEXT           "MultiDec (c) Espresso",IDC_STATIC,13,153,163,9
     GROUPBOX        "Authors",IDC_STATIC,6,37,180,100
-    CTEXT           "http://www.dscaler.org",IDC_LINK2,6,13,288,9,SS_SUNKEN
+    CTEXT           "http://www.dscaler.org",IDC_LINK2,6,13,288,9,SS_NOTIFY | 
+                    SS_SUNKEN
     LTEXT           "bttv - Copyright (c) Ralph Metzler && Marcus Metzler",
                     IDC_STATIC,13,165,165,11
     LTEXT           "I2C Interface Copyright (c) Gerd Knorr",IDC_STATIC,13,
@@ -509,7 +510,7 @@ BEGIN
     LTEXT           "Please read the Support section in the help and the FAQ before posting.",
                     IDC_STATIC,200,104,166,26
     CTEXT           "http://sourceforge.net/forum/?group_id=7420",IDC_LINK,
-                    201,81,162,12,SS_CENTERIMAGE | SS_SUNKEN
+                    201,81,162,12,SS_NOTIFY | SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "VirtualDub - Copyright (c) Avery Lee",IDC_STATIC,13,189,
                     161,9
     LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nJochen Trenner\nTorbjörn Jansson",

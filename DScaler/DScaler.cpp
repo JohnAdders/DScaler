@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.254 2002-10-26 16:36:41 atnak Exp $
+// $Id: DScaler.cpp,v 1.255 2002-10-26 17:51:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.254  2002/10/26 16:36:41  atnak
+// Made DisableScreensaver disable monitor sleeping
+//
 // Revision 1.253  2002/10/24 12:10:39  atnak
 // Fixed up Reverse Channel Scrolling in Other Settings
 //
@@ -881,7 +884,7 @@ int ChannelEnterTime = 0;
 int InitialChannel = -1;
 int InitialTextPage = -1;
 
-BOOL bInMenuOrDialogBox = FALSE;
+BOOL bInMenu = FALSE;
 BOOL bShowCrashDialog = FALSE;
 BOOL bIsRightButtonDown = FALSE;
 BOOL bIgnoreNextRightButtonUpMsg = FALSE;
@@ -2293,14 +2296,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 //Get searchstring dialog, search only if user pressed OK button/enter key
-                PreShowDialogOrMenu();
                 if(DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH), hWnd, 
                     (DLGPROC)VTSearchProc))
                 {
                     //Search all pages and act
                     SearchGotoVTPage(true);
                 }
-                PostShowDialogOrMenu();
             }
             break;
 
@@ -2361,9 +2362,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
             }
-            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
-            PostShowDialogOrMenu();
             Channels_UpdateMenu(hMenu);
             break;
 
@@ -2540,9 +2539,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_ABOUT:
-            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutProc);
-            PostShowDialogOrMenu();
             break;
 
         case IDM_BRIGHTNESS_PLUS:
@@ -2817,21 +2814,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VIDEOSETTINGS:
-            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VIDEOSETTINGS), hWnd, VideoSettingProc);
-            PostShowDialogOrMenu();
             break;
 
         case IDM_VPS_OUT:
-            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VPSSTATUS), hWnd, VPSInfoProc);
-            PostShowDialogOrMenu();
             break;
 
         case IDM_VT_OUT:
-            PreShowDialogOrMenu();
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSTATUS), hWnd, VTInfoProc);
-            PostShowDialogOrMenu();
             break;
 
         case IDM_VBI:
@@ -3177,7 +3168,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERLAYSETTINGS:
-            PreShowDialogOrMenu();
             if(!CanDoOverlayColorControl())
             {
                 MessageBox(hWnd, "Overlay color control is not supported by your video card.",
@@ -3187,7 +3177,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
             }
-            PostShowDialogOrMenu();
             break;
 
         case IDM_USE_DSCALER_OVERLAY:
@@ -3365,9 +3354,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_SETUPHARDWARE:
             // Stop and start capture because of possible pixel width chaange
             Stop_Capture();
-            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)1);
-            PostShowDialogOrMenu();
             Start_Capture();
             break;
 
@@ -3588,12 +3575,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_ENTERMENULOOP:
-        PreShowDialogOrMenu();
+        Cursor_UpdateVisibility();
+        bInMenu = TRUE;
         return 0;
         break;
 
     case WM_EXITMENULOOP:
-        PostShowDialogOrMenu();
+        Cursor_UpdateVisibility();
+        bInMenu = FALSE;
         return 0;
         break;
 
@@ -3618,7 +3607,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_SETFOCUS:
-        PostShowDialogOrMenu();
         return 0;
         break;
 
@@ -3739,7 +3727,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
         case TIMER_HIDECURSOR:
-            if (!bInMenuOrDialogBox)
+            if (GetForegroundWindow() == hWnd && bInMenu == FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
 				if (ToolbarControl != NULL) 
@@ -4072,9 +4060,7 @@ void MainWndOnInitBT(HWND hWnd)
 
     if (ShowHWSetupBox)
     {
-        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)0);
-        PostShowDialogOrMenu();
     }
 
     if (Providers_Load(hMenu) > 0)
@@ -5025,11 +5011,7 @@ void Cursor_UpdateVisibility()
 {
     KillTimer(hWnd, TIMER_HIDECURSOR);	
 
-    if (bInMenuOrDialogBox)
-    {
-        Cursor_SetVisibility(TRUE);
-    }
-    else if (!bAutoHideCursor)
+    if (!bAutoHideCursor)
     {
         if (bIsFullScreen)
         {
@@ -5302,18 +5284,6 @@ void GlobalEventTimer_Stop()
 		::KillTimer(NULL, m_EventTimerID);
 		m_EventTimerID = 0;
 	}
-}
-
-void PreShowDialogOrMenu()
-{
-    bInMenuOrDialogBox = TRUE;
-    Cursor_UpdateVisibility();
-}
-
-void PostShowDialogOrMenu()
-{
-    bInMenuOrDialogBox = FALSE;
-    Cursor_UpdateVisibility();
 }
 
 ////////////////////////////////////////////////////////////////////////////

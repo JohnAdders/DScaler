@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.7 2002-10-21 19:08:09 adcockj Exp $
+// $Id: CT2388xSource_UI.cpp,v 1.8 2002-10-26 17:51:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/21 19:08:09  adcockj
+// Added support for keyboard h/v delay
+//
 // Revision 1.6  2002/10/21 07:19:33  adcockj
 // Preliminary Support for PixelView XCapture
 //
@@ -216,9 +219,7 @@ BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     {
         case IDM_SETUPCARD:
             Stop_Capture();
-            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-            PostShowDialogOrMenu();
             m_pCard->SetCardType(m_CardType->GetValue());
             m_pCard->InitTuner((eTunerId)m_TunerType->GetValue());
             Start_Capture();

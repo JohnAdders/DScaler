@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.87 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: BT848Source.cpp,v 1.88 2002-10-26 17:51:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2002/10/22 04:08:50  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.86  2002/10/15 18:31:45  kooiman
 // Added stereo detect interval for continuous scanning for stereo mode.
 //
@@ -1453,9 +1457,7 @@ void CBT848Source::SetupCard()
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
-        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-        PostShowDialogOrMenu();
         EnableCancelButton = 1;
 
         if(m_TunerType->GetValue() != TUNER_ABSENT)

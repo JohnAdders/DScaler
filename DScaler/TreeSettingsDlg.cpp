@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.22 2002-10-19 15:15:42 tobbej Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.23 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/19 15:15:42  tobbej
+// Implemented new gradient header above active page.
+// Changed resizing a bit to minimize flashing when repainting window
+//
 // Revision 1.21  2002/10/15 15:03:24  kooiman
 // Resizable tree setting dialog
 //
@@ -532,8 +536,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 {
     int mask = iSettingsMask;
 
-    PreShowDialogOrMenu();
-
     if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK)) )
     {
         mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK;
@@ -716,6 +718,4 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 		delete *it;
 	}
 	pages.erase(pages.begin(),pages.end());
-
-    PostShowDialogOrMenu();
 }

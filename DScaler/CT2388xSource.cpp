@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.21 2002-10-24 16:04:47 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.22 2002-10-26 17:51:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/10/24 16:04:47  adcockj
+// Another attempt to get VBI working
+// Tidy up CMDS/Buffers code
+//
 // Revision 1.20  2002/10/23 20:26:53  adcockj
 // Bug fixes for cx2388x
 //
@@ -1050,9 +1054,7 @@ void CCT2388xSource::SetupCard()
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
-        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-        PostShowDialogOrMenu();
         EnableCancelButton = 1;
 
 		ChangeDefaultsForCard();

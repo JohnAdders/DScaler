@@ -1,5 +1,5 @@
 //
-// $Id: MSP34xx_revG.cpp,v 1.3 2002-10-11 21:53:56 ittarnavsky Exp $
+// $Id: MSP34xx_revG.cpp,v 1.4 2002-10-26 17:51:53 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/11 21:53:56  ittarnavsky
+// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
+// renamed 3400 to RevA and 34x1G to RevG
+//
 // Revision 1.2  2002/09/27 14:14:22  kooiman
 // MSP34xx fixes.
 //
@@ -238,6 +242,7 @@ void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat vide
         default:
             break;
         }
+        modus |= 0x2000;
     }
     SetDEMRegister(DEM_WR_MODUS, modus);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.32 2002-10-26 16:18:34 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.33 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/10/26 16:18:34  atnak
+// Added SAA7134_SETTING summing check
+//
 // Revision 1.31  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -1287,9 +1290,7 @@ void CSAA7134Source::SetupCard()
 
         // then display the hardware setup dialog
         m_bSelectCardCancelButton = FALSE;
-        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-        PostShowDialogOrMenu();
         m_bSelectCardCancelButton = TRUE;
 
         bCardChanged = TRUE;

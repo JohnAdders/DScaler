@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.48 2002-10-26 08:38:59 tobbej Exp $
+// $Id: DSSource.cpp,v 1.49 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/10/26 08:38:59  tobbej
+// fixed compile problems by reverting HasTuner and SetTunerFrequency
+//
 // Revision 1.47  2002/10/22 04:10:12  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -660,13 +663,9 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
 		CDSVideoFormatPage VidemFmt(CString("Video format"),m_VideoFmt,m_Resolution);
 
-		PreShowDialogOrMenu();
-
 		dlg.AddPage(&AudioDevice);
 		dlg.AddPage(&VidemFmt);
 		dlg.DoModal();
-
-		PostShowDialogOrMenu();
 
 		return TRUE;
 	}

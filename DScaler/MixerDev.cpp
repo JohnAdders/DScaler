@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.34 2002-10-18 03:33:00 flibuste2 Exp $
+// $Id: MixerDev.cpp,v 1.35 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/10/18 03:33:00  flibuste2
+// Added Mixer_IsMuted()
+// (need by Audio.Audio_IsMuted())
+// and factorized some code
+//
 // Revision 1.33  2002/10/08 20:17:48  laurentg
 // Calls to PreShowDialogOrMenu / PostShowDialogOrMenu added
 //
@@ -792,7 +797,6 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 void Mixer_SetupDlg(HWND hWndParent)
 {
-    PreShowDialogOrMenu();
     if(pSoundSystem == NULL || pSoundSystem->GetNumMixers() > 0)
     {
         DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
@@ -801,7 +805,6 @@ void Mixer_SetupDlg(HWND hWndParent)
     {
         MessageBox(hWnd, "No Mixer hardware found", "DScaler Error", MB_OK);
     }
-    PostShowDialogOrMenu();
 }
 
 CMixerLineDest* Mixer_GetDestLine()

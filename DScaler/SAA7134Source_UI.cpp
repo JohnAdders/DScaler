@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.14 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.15 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.13  2002/10/26 04:41:43  atnak
 // Clean up + added auto card detection
 //
@@ -1197,9 +1200,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         // "Custom Settings ..." menu
         if (m_hSAA7134ResourceInst != NULL)
         {
-            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_CUSTOM), hWnd, AudioStandardProc, (LPARAM)this);
-            PostShowDialogOrMenu();
         }
         else
         {
@@ -1214,9 +1215,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             {
                 long OrigCard = m_CardType->GetValue();
                 long OrigTuner = m_TunerType->GetValue();
-                PreShowDialogOrMenu();
                 DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-                PostShowDialogOrMenu();
                 if (m_CardType->GetValue() != OrigCard)
                 {
                     m_pSAA7134Card->SetCardType(m_CardType->GetValue());
@@ -1372,17 +1371,13 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HWINFO:
-            PreShowDialogOrMenu();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CSAA7134Card::ChipSettingProc, (LPARAM)m_pSAA7134Card);
-            PostShowDialogOrMenu();
             break;
 
         case IDM_ADV_VIDEOSETTINGS:
             if (m_hSAA7134ResourceInst != NULL)
             {
-                PreShowDialogOrMenu();
                 DialogBoxParam(m_hSAA7134ResourceInst, "REGISTEREDIT", hWnd, RegisterEditProc, (LPARAM)this);
-                PostShowDialogOrMenu();
             }
             else
             {
@@ -1393,9 +1388,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIOSETTINGS:
             if (m_hSAA7134ResourceInst != NULL)
             {
-                PreShowDialogOrMenu();
                 DialogBoxParam(m_hSAA7134ResourceInst, "OTHEREDIT", hWnd, OtherEditProc, (LPARAM)this);
-                PostShowDialogOrMenu();
             }
             else
             {

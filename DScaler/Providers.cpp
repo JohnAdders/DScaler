@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.50 2002-10-08 20:39:01 atnak Exp $
+// $Id: Providers.cpp,v 1.51 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/10/08 20:39:01  atnak
+// enabled saa7134 stuff
+//
 // Revision 1.49  2002/10/08 20:17:48  laurentg
 // Calls to PreShowDialogOrMenu / PostShowDialogOrMenu added
 //
@@ -616,7 +619,6 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         OpenFileInfo.lpstrTitle = NULL;
         OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
         OpenFileInfo.lpstrDefExt = NULL;
-        PreShowDialogOrMenu();
         if (GetOpenFileName(&OpenFileInfo))
         {
             Stop_Capture();
@@ -631,16 +633,13 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                     Providers_UpdateMenu(hMenu);
                     Start_Capture();
                     Providers_NotifySourceChange(0, Providers_GetCurrentSource());
-			        PostShowDialogOrMenu();
                     return TRUE;
                 }
             }
             Start_Capture();
             MessageBox(hWnd, "Unsupported File Type", "DScaler Warning", MB_OK);
-			PostShowDialogOrMenu();
             return TRUE;
         }
-        PostShowDialogOrMenu();
     }
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {

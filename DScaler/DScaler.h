@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.35 2002-09-29 13:56:30 adcockj Exp $
+// $Id: DScaler.h,v 1.36 2002-10-26 17:51:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -80,8 +80,6 @@ HMENU GetVideoDeinterlaceSubmenu();
 HMENU GetChannelsSubmenu();
 HMENU GetOSDSubmenu();
 HMENU GetPatternsSubmenu();
-void PreShowDialogOrMenu();
-void PostShowDialogOrMenu();
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

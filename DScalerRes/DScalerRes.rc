@@ -1674,8 +1674,8 @@ BEGIN
             MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
             MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
         END
-        MENUITEM "&Progressive Input\t Ctrl+Alt+P", IDM_PROGRESSIVE
-        MENUITEM "FLI &Film Detect\tCtrl+Alt+F", IDM_FLI_FILMDETECT
+        MENUITEM "Use Faroudja Chi&p\t Ctrl+Alt+P", IDM_PROGRESSIVE
+        MENUITEM "Faroudja &Film Detect\tCtrl+Alt+F", IDM_FLI_FILMDETECT
     END
 END
 

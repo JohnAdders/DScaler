@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.24 2001-07-13 18:13:24 adcockj Exp $
+// $Id: Bt848.cpp,v 1.25 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.23  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -1474,6 +1477,7 @@ BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         switch LOWORD(wParam)
         {
         case IDOK:                          // Is Done
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
 
@@ -2010,12 +2014,12 @@ void BT848_ReadSettingsFromIni()
     }
 }
 
-void BT848_WriteSettingsToIni()
+void BT848_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < BT848_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(BT848Settings[i]));
+        Setting_WriteToIni(&(BT848Settings[i]), bOptimizeFileAccess);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.5 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.6 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -337,15 +340,15 @@ void VideoSettings_Load()
 void VideoSettings_Save()
 {
     SetupSectionNames();
-    Setting_WriteToIni(BT848_GetSetting(BRIGHTNESS));
-    Setting_WriteToIni(BT848_GetSetting(CONTRAST));
-    Setting_WriteToIni(BT848_GetSetting(HUE));
-    Setting_WriteToIni(BT848_GetSetting(SATURATIONU));
-    Setting_WriteToIni(BT848_GetSetting(SATURATIONV));
-    Setting_WriteToIni(BT848_GetSetting(BDELAY));
-    Setting_WriteToIni(BT848_GetSetting(CURRENTX));
-    Setting_WriteToIni(BT848_GetSetting(BTFULLLUMARANGE));
-    Setting_WriteToIni(Aspect_GetSetting(OVERSCAN));
+    Setting_WriteToIni(BT848_GetSetting(BRIGHTNESS), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(CONTRAST), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(HUE), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(SATURATIONU), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(SATURATIONV), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(BDELAY), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(CURRENTX), FALSE);
+    Setting_WriteToIni(BT848_GetSetting(BTFULLLUMARANGE), FALSE);
+    Setting_WriteToIni(Aspect_GetSetting(OVERSCAN), FALSE);
 }
 
 void SetupSectionTVFormat()
@@ -377,7 +380,7 @@ void VideoSettings_LoadTVFormat()
 void VideoSettings_SaveTVFormat()
 {
     SetupSectionTVFormat();
-    Setting_WriteToIni(BT848_GetSetting(TVFORMAT));
+    Setting_WriteToIni(BT848_GetSetting(TVFORMAT), FALSE);
 }
 
 
@@ -452,12 +455,12 @@ void VideoSettings_ReadSettingsFromIni()
     VideoSettings_Load();
 }
 
-void VideoSettings_WriteSettingsToIni()
+void VideoSettings_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < VIDEOSETTINGS_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(VideoSettingsSettings[i]));
+        Setting_WriteToIni(&(VideoSettingsSettings[i]), bOptimizeFileAccess);
     }
     VideoSettings_SaveTVFormat();
     VideoSettings_Save();

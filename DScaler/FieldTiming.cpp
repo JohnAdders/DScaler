@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.13 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.11  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -509,12 +512,12 @@ void Timing_ReadSettingsFromIni()
     }
 }
 
-void Timing_WriteSettingsToIni()
+void Timing_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < TIMING_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(TimingSettings[i]));
+        Setting_WriteToIni(&(TimingSettings[i]), bOptimizeFileAccess);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.h,v 1.7 2001-07-13 16:14:55 adcockj Exp $
+// $Id: Audio.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@
 // Get Hold of the Audio.cpp file settings
 SETTING* Audio_GetSetting(AUDIO_SETTING Setting);
 void Audio_ReadSettingsFromIni();
-void Audio_WriteSettingsToIni();
+void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Audio_SetMenu(HMENU hMenu);
 
 

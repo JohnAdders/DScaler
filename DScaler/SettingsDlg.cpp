@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.10 2001-07-14 16:06:57 tobbej Exp $
+// $Id: SettingsDlg.cpp,v 1.11 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/14 16:06:57  tobbej
+// modified copyright notice to match coding standards
+//
 // Revision 1.9  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -80,7 +83,7 @@ BEGIN_MESSAGE_MAP(CSettingsDlg, CDialog)
     ON_BN_CLICKED(IDC_SETTINGS_CHECK, OnCheckClick)
     ON_CBN_SELCHANGE(IDC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
     ON_NOTIFY(UDN_DELTAPOS, IDC_SETTINGS_SPIN, OnDeltaposSettingsSpin)
-    //}}AFX_MSG_MAP
+	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -280,4 +283,10 @@ void CSettingsDlg::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult)
     *pResult = *m_Settings[m_CurrentSetting].pValue;
 
     UpdateControls();
+}
+
+void CSettingsDlg::OnOK() 
+{
+	CDialog::OnOK();
+	WriteSettingsToIni(TRUE);
 }

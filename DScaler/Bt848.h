@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.h,v 1.11 2001-07-13 16:14:55 adcockj Exp $
+// $Id: Bt848.h,v 1.12 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ typedef struct
 // Get Hold of the bt848.c file settings
 SETTING* BT848_GetSetting(BT848_SETTING Setting);
 void BT848_ReadSettingsFromIni();
-void BT848_WriteSettingsToIni();
+void BT848_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void BT848_SetMenu(HMENU hMenu);
 void BT848_ShowUI();
 

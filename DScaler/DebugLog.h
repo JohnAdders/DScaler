@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.h,v 1.7 2001-07-13 16:14:56 adcockj Exp $
+// $Id: DebugLog.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 // Get Hold of the DebugLog.cpp file settings
 SETTING* Debug_GetSetting(DEBUG_SETTING Setting);
 void Debug_ReadSettingsFromIni();
-void Debug_WriteSettingsToIni();
+void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Debug_ShowUI();
 
 #if !defined(NOLOGGING)

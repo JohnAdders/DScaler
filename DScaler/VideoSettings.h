@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.h,v 1.3 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VideoSettings.h,v 1.4 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@
 
 SETTING* VideoSettings_GetSetting(VIDEOSETTINGS_SETTING Setting);
 void VideoSettings_ReadSettingsFromIni();
-void VideoSettings_WriteSettingsToIni();
+void VideoSettings_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 
 BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 void VideoSettings_Load();

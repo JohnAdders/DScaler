@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.18 2001-07-13 16:14:56 adcockj Exp $
+// $Id: TVCards.cpp,v 1.19 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.17  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -1494,6 +1497,7 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 ChangeTVSettingsBasedOnTuner();
             }
+			WriteSettingsToIni(FALSE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -1580,12 +1584,12 @@ void TVCard_ReadSettingsFromIni()
     ChangeDefaultsBasedOnHardware();
 }
 
-void TVCard_WriteSettingsToIni()
+void TVCard_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < TVCARD_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(TVCardSettings[i]));
+        Setting_WriteToIni(&(TVCardSettings[i]), bOptimizeFileAccess);
     }
 }
 

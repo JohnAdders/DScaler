@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.6 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Other.h,v 1.7 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@
 // Get Hold of the Other.c file settings
 SETTING* Other_GetSetting(OTHER_SETTING Setting);
 void Other_ReadSettingsFromIni();
-void Other_WriteSettingsToIni();
+void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 
 #define DSCALER_MAX_WIDTH 768
 #define DSCALER_MAX_HEIGHT 576

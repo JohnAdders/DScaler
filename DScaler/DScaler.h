@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.5 2001-07-13 16:14:55 adcockj Exp $
+// $Id: DScaler.h,v 1.6 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@
 // Get Hold of the DScaler.c file settings
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting);
 void DScaler_ReadSettingsFromIni();
-void DScaler_WriteSettingsToIni();
+void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 
 void SetThreadProcessorAndPriority();
 

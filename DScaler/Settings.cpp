@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.20 2001-07-13 16:14:56 adcockj Exp $
+// $Id: Settings.cpp,v 1.21 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.19  2001/07/12 19:24:35  adcockj
 // Fixes for vertical sliders
 //
@@ -88,7 +91,7 @@
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
-typedef void (__cdecl GENERICWRITESETTINGS)();
+typedef void (__cdecl GENERICWRITESETTINGS)(BOOL);
 
 typedef struct
 {
@@ -269,15 +272,15 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 }
 
 
-void WriteSettingsToIni()
+void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     for(int i(0); i < NUMSETTINGS; ++i)
     {
-        Settings[i].pfnWriteSettings();
+        Settings[i].pfnWriteSettings(bOptimizeFileAccess);
     }
 
-    Deinterlace_WriteSettingsToIni();
-    Filter_WriteSettingsToIni();
+    Deinterlace_WriteSettingsToIni(bOptimizeFileAccess);
+    Filter_WriteSettingsToIni(bOptimizeFileAccess);
   
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
@@ -456,15 +459,19 @@ void Setting_ReadFromIni(SETTING* pSetting)
             nValue = pSetting->Default;
         }
         *pSetting->pValue = nValue;
-        pSetting->OriginalValue = *pSetting->pValue;
+        pSetting->LastSavedValue = *pSetting->pValue;
     }
 }
 
-void Setting_WriteToIni(SETTING* pSetting)
+void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)
 {
     if(pSetting->szIniSection != NULL)
     {
-        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
+		if(!bOptimizeFileAccess || pSetting->LastSavedValue != *pSetting->pValue)
+		{
+	        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
+	        pSetting->LastSavedValue = *pSetting->pValue;
+		}
     }
 }
 

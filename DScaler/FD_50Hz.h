@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.h,v 1.6 2001-07-13 16:14:56 adcockj Exp $
+// $Id: FD_50Hz.h,v 1.7 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 // Get Hold of the FD_50Hz.c file settings
 SETTING* FD50_GetSetting(FD50_SETTING Setting);
 void FD50_ReadSettingsFromIni();
-void FD50_WriteSettingsToIni();
+void FD50_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FD50_ShowUI();
 
 void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo);

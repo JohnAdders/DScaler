@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.h,v 1.7 2001-07-13 16:14:56 adcockj Exp $
+// $Id: FD_60Hz.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 // Get Hold of the FD_50Hz.c file settings
 SETTING* FD60_GetSetting(FD60_SETTING Setting);
 void FD60_ReadSettingsFromIni();
-void FD60_WriteSettingsToIni();
+void FD60_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FD60_SetMenu(HMENU hMenu);
 void FD60_ShowUI();
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.16 2001-07-13 16:14:56 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.17 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.15  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -684,14 +687,14 @@ void Deinterlace_ReadSettingsFromIni()
     }
 }
 
-void Deinterlace_WriteSettingsToIni()
+void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i,j;
     for(i = 0; i < NumVideoModes; i++)
     {
         for(j = 0; j < VideoDeintMethods[i]->nSettings; j++)
         {
-            Setting_WriteToIni(&(VideoDeintMethods[i]->pSettings[j]));
+            Setting_WriteToIni(&(VideoDeintMethods[i]->pSettings[j]), bOptimizeFileAccess);
         }
     }
 }

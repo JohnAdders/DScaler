@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.27 2001-07-13 18:13:24 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.28 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.26  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -734,6 +737,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDOK:
             Write_Program_List_ASCII();
             Unload_Country_Settings();
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -1262,11 +1266,11 @@ void Channels_ReadSettingsFromIni()
     }
 }
 
-void Channels_WriteSettingsToIni()
+void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < CHANNELS_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(ChannelsSettings[i]));
+        Setting_WriteToIni(&(ChannelsSettings[i]), bOptimizeFileAccess);
     }
 }

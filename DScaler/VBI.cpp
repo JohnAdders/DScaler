@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.8 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI.cpp,v 1.9 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.7  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -210,12 +213,12 @@ void VBI_ReadSettingsFromIni()
     }
 }
 
-void VBI_WriteSettingsToIni()
+void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < VBI_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(VBISettings[i]));
+        Setting_WriteToIni(&(VBISettings[i]), bOptimizeFileAccess);
     }
 }
 

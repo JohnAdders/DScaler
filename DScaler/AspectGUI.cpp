@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.19 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.20 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.18  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -1032,12 +1035,12 @@ void Aspect_ReadSettingsFromIni()
     }
 }
 
-void Aspect_WriteSettingsToIni()
+void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < ASPECT_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(AspectGUISettings[i]));
+        Setting_WriteToIni(&(AspectGUISettings[i]), bOptimizeFileAccess);
     }
 }
 

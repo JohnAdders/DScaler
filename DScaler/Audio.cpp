@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.12 2001-07-13 18:13:24 adcockj Exp $
+// $Id: Audio.cpp,v 1.13 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.11  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -284,6 +287,7 @@ BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             break;
 
         case IDOK:
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         
@@ -390,6 +394,7 @@ BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lPara
         switch(LOWORD(wParam))
         {
         case IDOK:
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
 
@@ -1401,12 +1406,12 @@ void Audio_ReadSettingsFromIni()
     }
 }
 
-void Audio_WriteSettingsToIni()
+void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < AUDIO_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(AudioSettings[i]));
+        Setting_WriteToIni(&(AudioSettings[i]), bOptimizeFileAccess);
     }
 }
 

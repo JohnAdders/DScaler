@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.13 2001-07-13 18:13:24 adcockj Exp $
+// $Id: OSD.cpp,v 1.14 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.12  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -105,7 +108,8 @@ BOOL bAutoHide = TRUE;
 // Global OSD Information structure
 TOsdInfo    grOSD[OSD_MAX_TEXT];
 static int  NbText = 0;
-static struct {
+static struct 
+{
     char    name[24];       // Name of the screen
     int     refresh_delay;  // Refresh period in ms (0 means no refresh)
     BOOL    active;         // Screen to take into account or not
@@ -1084,7 +1088,7 @@ void OSD_ReadSettingsFromIni()
     }
 }
 
-void OSD_WriteSettingsToIni()
+void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     char szIniKey[16];
@@ -1092,7 +1096,7 @@ void OSD_WriteSettingsToIni()
 
     for(i = 0; i < OSD_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(OSDSettings[i]));
+        Setting_WriteToIni(&(OSDSettings[i]), bOptimizeFileAccess);
     }
     WritePrivateProfileString("OSD", "FontName", szFontName, GetIniFileForSettings());
     for(i = 0; i < NbScreens; i++)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.5 2001-07-13 16:14:56 adcockj Exp $
+// $Id: OSD.h,v 1.6 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@
 // Get Hold of the OSD.c file settings
 SETTING* OSD_GetSetting(OSD_SETTING Setting);
 void OSD_ReadSettingsFromIni();
-void OSD_WriteSettingsToIni();
+void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void OSD_SetMenu(HMENU hMenu);
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.h,v 1.4 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI.h,v 1.5 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@
 // Get Hold of the FD_50Hz.c file settings
 SETTING* VBI_GetSetting(VBI_SETTING Setting);
 void VBI_ReadSettingsFromIni();
-void VBI_WriteSettingsToIni();
+void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void VBI_SetMenu(HMENU hMenu);
 
 #define VBI_VT  1

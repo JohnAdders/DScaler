@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.10 2001-07-13 18:13:24 adcockj Exp $
+// $Id: MixerDev.h,v 1.11 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@
 
 SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting);
 void MixerDev_ReadSettingsFromIni();
-void MixerDev_WriteSettingsToIni();
+void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void MixerDev_SetMenu(HMENU hMenu);
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.4 2001-07-13 16:14:56 adcockj Exp $
+// $Id: OutThreads.h,v 1.5 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@
 // Get Hold of the OutThreads.c file settings
 SETTING* OutThreads_GetSetting(OUTTHREADS_SETTING Setting);
 void OutThreads_ReadSettingsFromIni();
-void OutThreads_WriteSettingsToIni();
+void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void OutThreads_SetMenu(HMENU hMenu);
 
 void Start_Capture();

@@ -1,28 +1,5 @@
-/////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.rc,v 1.28 2001-07-12 19:24:35 adcockj Exp $
-/////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2000 John Adcock.  All rights reserved.
-/////////////////////////////////////////////////////////////////////////////
+//Microsoft Developer Studio generated resource script.
 //
-//  This file is subject to the terms of the GNU General Public License as
-//  published by the Free Software Foundation.  A copy of this license is
-//  included with this software distribution in the file COPYING.  If you
-//  do not have a copy, you may obtain a copy by writing to the Free
-//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-//
-//  This software is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details
-/////////////////////////////////////////////////////////////////////////////
-// CVS Log
-//
-// $Log: not supported by cvs2svn $
-// Revision 1.27  2001/07/12 16:26:59  adcockj
-// Added CVS id and log
-//
-//////////////////////////////////////////////////////////////////////////////
-
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -1175,8 +1152,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,4,0,0
- PRODUCTVERSION 2,4,0,0
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1194,14 +1171,14 @@ BEGIN
             VALUE "Comments", "John Adcock\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DScaler\0"
-            VALUE "FileVersion", "2, 4, 0, 0\0"
+            VALUE "FileVersion", "3, 0, 0, 0\0"
             VALUE "InternalName", "DScaler\0"
             VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScaler.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DScaler\0"
-            VALUE "ProductVersion", "2.4.0\0"
+            VALUE "ProductVersion", "3.0.0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

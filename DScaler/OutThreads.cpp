@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.23 2001-07-13 18:13:24 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.24 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.22  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -806,12 +809,12 @@ void OutThreads_ReadSettingsFromIni()
     }
 }
 
-void OutThreads_WriteSettingsToIni()
+void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < OUTTHREADS_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(OutThreadsSettings[i]));
+        Setting_WriteToIni(&(OutThreadsSettings[i]), bOptimizeFileAccess);
     }
 }
 

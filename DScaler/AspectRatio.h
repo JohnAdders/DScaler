@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.14 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectRatio.h,v 1.15 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@
 // Get Hold of the AspectRatio.c file settings
 SETTING* Aspect_GetSetting(ASPECT_SETTING Setting);
 void Aspect_ReadSettingsFromIni();
-void Aspect_WriteSettingsToIni();
+void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Aspect_FinalSetup();
 void Aspect_ShowUI();
 

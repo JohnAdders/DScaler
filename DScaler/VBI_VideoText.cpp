@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.10 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.11 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.9  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -1010,12 +1013,12 @@ void VT_ReadSettingsFromIni()
     }
 }
 
-void VT_WriteSettingsToIni()
+void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < VT_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(VTSettings[i]));
+        Setting_WriteToIni(&(VTSettings[i]), bOptimizeFileAccess);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.h,v 1.9 2001-07-13 16:14:56 adcockj Exp $
+// $Id: FD_Common.h,v 1.10 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@
 // Get Hold of the FD_50Hz.c file settings
 SETTING* FD_Common_GetSetting(FD_COMMON_SETTING Setting);
 void FD_Common_ReadSettingsFromIni();
-void FD_Common_WriteSettingsToIni();
+void FD_Common_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void FD_Common_SetMenu(HMENU hMenu);
 void FD_Common_ShowUI();
 

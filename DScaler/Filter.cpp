@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.7 2001-07-13 16:14:56 adcockj Exp $
+// $Id: Filter.cpp,v 1.8 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.6  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -292,14 +295,14 @@ void Filter_ReadSettingsFromIni()
 }
 
 
-void Filter_WriteSettingsToIni()
+void Filter_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i,j;
     for(i = 0; i < NumFilters; i++)
     {
         for(j = 0; j < Filters[i]->nSettings; j++)
         {
-            Setting_WriteToIni(&(Filters[i]->pSettings[j]));
+            Setting_WriteToIni(&(Filters[i]->pSettings[j]), bOptimizeFileAccess);
         }
     }
 }

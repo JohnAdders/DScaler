@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.10 2001-07-12 16:16:40 adcockj Exp $
+// $Id: ProgramList.h,v 1.11 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@
 // Get Hold of the OutThreads.c file settings
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting);
 void Channels_ReadSettingsFromIni();
-void Channels_WriteSettingsToIni();
+void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Channels_UpdateMenu(HMENU hMenu);
 void Channels_SetMenu(HMENU hMenu);
 

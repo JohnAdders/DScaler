@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.12 2001-07-13 16:14:56 adcockj Exp $
+// $Id: TVCards.h,v 1.13 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -36,7 +36,7 @@
 // Get Hold of the TVCard.c file settings
 SETTING* TVCard_GetSetting(TVCARD_SETTING Setting);
 void TVCard_ReadSettingsFromIni();
-void TVCard_WriteSettingsToIni();
+void TVCard_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void TVCard_SetMenu(HMENU hMenu);
 
 typedef void (AUDIOMODE_FUNC)(int StereoMode);

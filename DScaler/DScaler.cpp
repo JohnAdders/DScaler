@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.44 2001-07-13 18:13:24 adcockj Exp $
+// $Id: DScaler.cpp,v 1.45 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2001/07/13 18:13:24  adcockj
+// Changed Mute to not be persisted and to work properly
+//
 // Revision 1.43  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -1262,7 +1265,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAVE_SETTINGS_NOW:
-            WriteSettingsToIni();
+            WriteSettingsToIni(FALSE);
             break;
 
         case IDM_OSD_CC_TEXT:
@@ -1585,7 +1588,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // JA 21/12/00 Added KillTimer so that settings are not
             // written repeatedly
             KillTimer(hWnd, TIMER_AUTOSAVE);
-            WriteSettingsToIni();
+            WriteSettingsToIni(TRUE);
             break;
         //-------------------------------
         case OSD_TIMER_ID:
@@ -2068,7 +2071,7 @@ void MainWndOnDestroy()
     {
         // save settings
         LOG("WriteSettingsToIni");
-        WriteSettingsToIni();
+        WriteSettingsToIni(FALSE);
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error WriteSettingsToIni");}
 
@@ -2566,12 +2569,12 @@ void DScaler_ReadSettingsFromIni()
     }
 }
 
-void DScaler_WriteSettingsToIni()
+void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(DScalerSettings[i]));
+        Setting_WriteToIni(&(DScalerSettings[i]), bOptimizeFileAccess);
     }
 }
 

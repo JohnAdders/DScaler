@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.13 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.11  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -802,12 +805,12 @@ void FD_Common_ReadSettingsFromIni()
     }
 }
 
-void FD_Common_WriteSettingsToIni()
+void FD_Common_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < FD_COMMON_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(FD_CommonSettings[i]));
+        Setting_WriteToIni(&(FD_CommonSettings[i]), bOptimizeFileAccess);
     }
 }
 

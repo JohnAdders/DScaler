@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.7 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.8 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@
 
 SETTING* VT_GetSetting(VT_SETTING Setting);
 void VT_ReadSettingsFromIni();
-void VT_WriteSettingsToIni();
+void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void VT_SetMenu(HMENU hMenu);
 
 

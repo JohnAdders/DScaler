@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.h,v 1.7 2001-07-14 16:06:57 tobbej Exp $
+// $Id: SettingsDlg.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,8 @@ protected:
     afx_msg void OnCheckClick();
     afx_msg void OnSelchangeChoosefromlist();
     afx_msg void OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult);
-    //}}AFX_MSG
+	virtual void OnOK();
+	//}}AFX_MSG
     DECLARE_MESSAGE_MAP()
 private:
     void UpdateControls();

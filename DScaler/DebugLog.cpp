@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.9 2001-07-13 16:14:56 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.10 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.8  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -121,14 +124,17 @@ void Debug_ReadSettingsFromIni()
     GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
 }
 
-void Debug_WriteSettingsToIni()
+void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(DebugSettings[i]));
+        Setting_WriteToIni(&(DebugSettings[i]), bOptimizeFileAccess);
     }
-    WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
+	if(bOptimizeFileAccess == FALSE)
+	{
+	    WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
+	}
 }
 
 void Debug_ShowUI()

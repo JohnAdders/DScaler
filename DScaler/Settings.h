@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.8 2001-07-13 16:14:56 adcockj Exp $
+// $Id: Settings.h,v 1.9 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ void Setting_SetupSlider(SETTING* pSetting, HWND hSlider);
 void Setting_SetControlValue(SETTING* pSetting, HWND hControl);
 BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl);
 void Setting_ReadFromIni(SETTING* pSetting);
-void Setting_WriteToIni(SETTING* pSetting);
+void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess);
 void Setting_OSDShow(SETTING* pSetting, HWND hWnd);
 void Setting_Up(SETTING* pSetting);
 void Setting_Down(SETTING* pSetting);
@@ -64,7 +64,7 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 void SetIniFileForSettings(LPSTR Name);
 LPCSTR GetIniFileForSettings();
 void LoadSettingsFromIni();
-void WriteSettingsToIni();
+void WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName);
 
 //---------------------------------------------------------------------------

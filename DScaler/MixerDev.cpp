@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.13 2001-07-15 13:24:05 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.14 2001-07-16 18:07:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/07/15 13:24:05  adcockj
+// Fixed crashing after overlay failure with mixer on
+//
 // Revision 1.12  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -533,6 +536,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 pSoundSystem->SetMixer(-1);
             }
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, 0);
             break;
 
@@ -856,12 +860,12 @@ void MixerDev_ReadSettingsFromIni()
     }
 }
 
-void MixerDev_WriteSettingsToIni()
+void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
     for(i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(MixerDevSettings[i]));
+        Setting_WriteToIni(&(MixerDevSettings[i]), bOptimizeFileAccess);
     }
 }
 

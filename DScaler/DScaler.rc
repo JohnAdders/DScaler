@@ -815,6 +815,21 @@ BEGIN
         END
         MENUITEM "Reset Capture Card",          IDM_RESET
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
+        MENUITEM SEPARATOR
+        POPUP "Test &Pattern Select"
+        BEGIN
+            MENUITEM "___Test Patterns___",         IDM_PATTERN_SELECT
+            , GRAYED
+            MENUITEM SEPARATOR
+        END
+        POPUP "St&art Card Calibration"
+        BEGIN
+            MENUITEM "&Automatic",                  IDM_START_AUTO_CALIBRATION
+
+            MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
+
+        END
+        MENUITEM "St&op Card Calibration",      IDM_STOP_CALIBRATION
     END
     POPUP "&Datacasting"
     BEGIN

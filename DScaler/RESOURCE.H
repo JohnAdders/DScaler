@@ -892,13 +892,17 @@
 #define IDM_TSRWND                      2036
 #define IDM_TSPREV                      2037
 #define IDM_TSNEXT                      2038
+#define IDM_STOP_CALIBRATION            2039
+#define IDM_START_AUTO_CALIBRATION      2040
+#define IDM_START_MANUAL_CALIBRATION    2041
+#define IDM_PATTERN_SELECT              2042
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        186
-#define _APS_NEXT_COMMAND_VALUE         2040
+#define _APS_NEXT_COMMAND_VALUE         2063
 #define _APS_NEXT_CONTROL_VALUE         1902
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

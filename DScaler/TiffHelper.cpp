@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.10 2002-02-23 00:30:47 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.11 2002-02-26 21:24:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/02/23 00:30:47  laurentg
+// NotifySizeChange
+//
 // Revision 1.9  2002/02/22 09:07:13  tobbej
 // fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
 //
@@ -62,7 +65,6 @@
 #include <stdio.h>
 #include "stdafx.h"
 #include "TiffHelper.h"
-#include "Other.h"
 #include "Deinterlace.h"
 #include "DebugLog.h"
 #include "Dialogs.h"
@@ -106,12 +108,6 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         !TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h) ||
         !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
         !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
-    {
-        TIFFClose(tif);
-        return FALSE;
-    }
-
-    if ( (w > DSCALER_MAX_WIDTH) || (h > DSCALER_MAX_HEIGHT) )
     {
         TIFFClose(tif);
         return FALSE;

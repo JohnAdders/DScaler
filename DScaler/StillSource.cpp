@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.36 2002-02-23 00:30:47 laurentg Exp $
+// $Id: StillSource.cpp,v 1.37 2002-02-26 21:24:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/02/23 00:30:47  laurentg
+// NotifySizeChange
+//
 // Revision 1.35  2002/02/22 23:32:12  laurentg
 // Reset width and height when still source is stopped to be sure to have a notification of size change when coming back to this still source
 //
@@ -160,6 +163,7 @@
 #include "Calibration.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
+#include "Other.h"
 
 
 #define TIMER_SLIDESHOW 50
@@ -323,6 +327,14 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     {
         CPatternHelper CPatternHelper(this);
         FileRead = CPatternHelper.OpenMediaFile(FileName);
+    }
+
+    if (FileRead && ((m_Width > DSCALER_MAX_WIDTH) || (m_Height > DSCALER_MAX_HEIGHT)) )
+    {
+        // The file can be read by DScaler but its size is too high for DScaler
+        // TODO : resize the file to a size compatible with DScaler
+        free(m_OriginalFrame.pData);
+        FileRead = FALSE;
     }
 
     if (!FileRead)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.52 2002-02-24 19:04:16 laurentg Exp $
+// $Id: Calibration.cpp,v 1.53 2002-02-26 21:24:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/02/24 19:04:16  laurentg
+// Draw borders with specific size in pixels
+//
 // Revision 1.51  2002/02/23 00:30:47  laurentg
 // NotifySizeChange
 //
@@ -113,7 +116,6 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "OutThreads.h"
-#include "Other.h"
 #include "SettingsDlg.h"
 
 
@@ -2317,11 +2319,6 @@ CPatternHelper::CPatternHelper(CStillSource* pParent) :
 BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 {
     CTestPattern pattern(FileName);
-
-    if ( (pattern.GetWidth() > DSCALER_MAX_WIDTH) || (pattern.GetHeight() > DSCALER_MAX_HEIGHT) )
-    {
-        return FALSE;
-    }
 
     // Allocate memory buffer to store the YUYV values
     m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.84 2003-01-20 02:42:16 robmuller Exp $
+// $Id: StillSource.cpp,v 1.85 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2003/01/20 02:42:16  robmuller
+// Fixed crashing in resizing code.
+//
 // Revision 1.83  2003/01/19 21:02:03  laurentg
 // New feature added to save in files in one action all the stills in memory
 //
@@ -913,7 +916,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 		}
 	}
 
-	OSD_ShowText(hWnd, strrchr(FilePath, '\\') + 1, 0);
+	OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
 
     m_SquarePixels = AspectSettings.SquarePixels;
 
@@ -1044,7 +1047,7 @@ void CStillSource::SaveInFile(int pos)
 		return;
 	}
 
-	OSD_ShowText(hWnd, strrchr(FilePath, '\\') + 1, 0);
+	OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
 
 	m_PlayList[pos]->SetFileName(FilePath);
     UpdateMenu();

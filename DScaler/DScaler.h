@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.41 2003-01-05 16:09:45 atnak Exp $
+// $Id: DScaler.h,v 1.42 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -122,6 +122,7 @@ enum eSMState
     SM_ChangeMode,
     SM_UpdateMode
 };
+
 typedef struct
 {
     eSMState State;
@@ -130,14 +131,18 @@ typedef struct
     time_t SleepAt;
 } TSMState;
 
-#define WM_VIDEOTEXT           WM_APP + 0x1000
-#define UWM_INPUTSIZE_CHANGE   WM_APP + 0x1001
-#define UWM_SQUAREPIXELS_CHECK WM_APP + 0x1002
-#define UWM_EVENTADDEDTOQUEUE  WM_APP + 0x1003
-#define VTM_VTHEADERUPDATE     0x0001
-#define VTM_VTPAGEUPDATE       0x0002
-#define VTM_VTPAGEREFRESH      0x0003
-#define VTM_VTCOMMENTUPDATE    0x0004
+#define UWM_VIDEOTEXT           WM_APP + 0x1000
+#define UWM_INPUTSIZE_CHANGE    WM_APP + 0x1001
+#define UWM_SQUAREPIXELS_CHECK  WM_APP + 0x1002
+#define UWM_EVENTADDEDTOQUEUE   WM_APP + 0x1003
+#define UWM_OSD                 WM_APP + 0x1004
+
+#define VTM_VTHEADERUPDATE      0x0001
+#define VTM_VTPAGEUPDATE        0x0002
+#define VTM_VTPAGEREFRESH       0x0003
+#define VTM_VTCOMMENTUPDATE     0x0004
+
+#define OSDM_DISPLAYUPDATE      0x0001
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PaintingHDC.cpp,v 1.2 2001-11-23 10:49:17 adcockj Exp $
+// $Id: PaintingHDC.cpp,v 1.3 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.1  2001/11/22 13:19:37  temperton
 // Added CPaintingHDC class for double buffering painting
 //
@@ -25,84 +28,132 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "..\DScalerRes\resource.h"
-#include "resource.h"
 #include "PaintingHDC.h"
 
+
 CPaintingHDC::CPaintingHDC()
-    :
-    m_hBufferDC(0),
-    m_hOriginalDC(0),
-    m_hSave(0),
-    m_hBmp(0),
-    m_bEnabled(true)
 {
-    ;
+    m_hBufferDC = NULL;
+    m_hOriginalDC = NULL;
+    m_hSaveBmp = NULL;
+    m_hBmp = NULL;
 }
+
 
 CPaintingHDC::~CPaintingHDC()
 {
-    if(m_hBufferDC)
+    if (m_hBufferDC != NULL)
     {
-        DeleteObject(SelectObject(m_hBufferDC, m_hSave));
+        DeleteObject(SelectObject(m_hBufferDC, m_hSaveBmp));
         DeleteDC(m_hBufferDC);
     }
 }
+
 
 HDC CPaintingHDC::BeginPaint(HDC hDC, LPRECT pRect)
 {
-    if(!m_bEnabled)
-    {
-        return hDC;
-    }
-
-    if(memcmp(pRect, &m_Rect, sizeof(RECT)) || !m_hBufferDC)
-    {
-        if(m_hBufferDC)
-        {
-            DeleteObject(SelectObject(m_hBufferDC, m_hSave));
-            DeleteDC(m_hBufferDC);
-        }
-
-        m_hBufferDC = CreateCompatibleDC(hDC);
-        m_hBmp = CreateCompatibleBitmap(hDC, pRect->right, pRect->bottom);
-        m_hSave = SelectObject(m_hBufferDC, m_hBmp);
-        
-        m_Rect = *pRect;
-    }
-
-    m_hOriginalDC = hDC;
-        
+    UpdateGeometry(hDC, pRect);
     return m_hBufferDC;
 }
 
-CPaintingHDC::EndPaint(void)
+
+void CPaintingHDC::EndPaint()
 {
-    if(m_hBufferDC && m_hOriginalDC)
-    {        
-        BitBlt(m_hOriginalDC, 
-            m_Rect.left, 
-            m_Rect.top,
-            m_Rect.right - m_Rect.left,
-            m_Rect.bottom - m_Rect.top,
-            m_hBufferDC,
-            m_Rect.left,
-            m_Rect.top,
-            SRCCOPY);
-        
-        m_hOriginalDC = NULL;
-    }
+    BitBltRects(&m_Rect, 1);
+    m_hOriginalDC = NULL;
 }
 
-void CPaintingHDC::SetEnabled(BOOL bEnabled)
-{
-    m_bEnabled = bEnabled;
 
-    if(!m_bEnabled && m_hBufferDC)
+HDC CPaintingHDC::GetBufferDC()
+{
+    return m_hBufferDC;
+}
+
+
+BOOL CPaintingHDC::UpdateGeometry(HDC hDC, LPRECT pRect, BOOL bBufferTrim)
+{
+    BOOL bRecreated = FALSE;
+
+    if (m_hBufferDC != NULL)
     {
-        DeleteObject(SelectObject(m_hBufferDC, m_hSave));
-        DeleteDC(m_hBufferDC);
+        if ((bBufferTrim != FALSE && (m_Rect.right != pRect->right ||
+            m_Rect.bottom != pRect->bottom)) || (bBufferTrim == FALSE &&
+            (m_Rect.right < pRect->right || m_Rect.bottom < pRect->bottom)))
+        {
+            DeleteObject(SelectObject(m_hBufferDC, m_hSaveBmp));
+            DeleteDC(m_hBufferDC);
+            m_hBufferDC = NULL;
+        }
+    }
 
-        m_hBufferDC = NULL;
+    if (m_hBufferDC == NULL)
+    {
+        m_hBufferDC = CreateCompatibleDC(hDC);
+
+        if (m_hBufferDC != NULL)
+        {
+            m_hBmp = CreateCompatibleBitmap(hDC, pRect->right, pRect->bottom);
+
+            if (m_hBmp != NULL)
+            {
+                m_hSaveBmp = SelectObject(m_hBufferDC, m_hBmp);
+
+                if (m_hSaveBmp == NULL)
+                {
+                    DeleteObject(m_hBmp);
+                    m_hBmp = NULL;
+                }
+            }
+
+            if (m_hBmp == NULL)
+            {
+                DeleteDC(m_hBufferDC);
+                m_hBufferDC = NULL;
+            }
+            else
+            {
+                m_Rect.right = pRect->right;
+                m_Rect.bottom = pRect->bottom;
+                bRecreated = TRUE;
+            }
+        }
+    }
+
+    if (m_hBufferDC != NULL)
+    {
+        m_hOriginalDC = hDC;
+
+        m_Rect.left = pRect->left;
+        m_Rect.top = pRect->top;
+    }
+
+    return bRecreated;
+}
+
+
+void CPaintingHDC::BitBltRects(LPRECT pRectList, LONG nRectCount, HDC hDstDC)
+{
+    if (m_hBufferDC == NULL)
+    {
+        return;
+    }
+
+    if (hDstDC == NULL)
+    {
+        hDstDC = m_hOriginalDC;
+    }
+
+    if (hDstDC == NULL)
+    {
+        return;
+    }
+
+    for (int i = 0; i < nRectCount; i++)
+    {
+        BitBlt(hDstDC, pRectList[i].left, pRectList[i].top,
+            pRectList[i].right - pRectList[i].left,
+            pRectList[i].bottom - pRectList[i].top,
+            m_hBufferDC, pRectList[i].left, pRectList[i].top, SRCCOPY);
     }
 }
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.11 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTDrawer.h,v 1.12 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.10  2003/01/01 20:43:13  atnak
 // New drawer for new videotext layout
 //
@@ -108,7 +111,8 @@ public:
 
     /// Draws the page to the given rect and device context
     void DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, WORD uFlags,
-                  TVTLeftRight* pHilightList[25], BYTE pDoubleProfile[25]);
+                  TVTLeftRight* pHilightList[25], BYTE pDoubleProfile[25] = NULL,
+                  RECT pRefreshProfile[25] = NULL, BYTE* pRefreshCount = NULL);
 
     /// Works out the row and column given a display point
     WORD GetRowColAtPoint(LPRECT lpDisplayRect, LPPOINT DisplayPoint);
@@ -201,12 +205,14 @@ private:
  *  - DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, BYTE uFlags,
  *            LPPOINT lpStartRowCol = NULL, LPPOINT lpStopRowCol = NULL);
  *
- *    hDC            - Device context in which to draw
- *    lpRect         - The rect in which the page is drawn in
- *    pPage          - The page to be drawn.
- *    uFlags         - Various flags for DrawPage (see: enum { VTDF_* })
- *    pHilightList   - List of Left-Right spans that should be hilighted.
- *    pDoubleProfile - Used to receive the list of double heights lines.
+ *    hDC             - Device context in which to draw
+ *    lpRect          - The rect in which the page is drawn in
+ *    pPage           - The page to be drawn.
+ *    uFlags          - Various flags for DrawPage (see: enum { VTDF_* })
+ *    pHilightList    - List of Left-Right spans that should be hilighted.
+ *    pDoubleProfile  - Used to receive the list of double heights lines.
+ *    pRefreshProfile - Receives all the RECTs that were painted to.
+ *    pRefreshCount   - Receives the number of RECTs that were used.
  *
  *
  *  Utility:

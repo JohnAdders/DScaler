@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.13 2003-01-19 10:39:56 laurentg Exp $
+// $Id: BT848Source_UI.cpp,v 1.14 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/01/19 10:39:56  laurentg
+// Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
+//
 // Revision 1.12  2003/01/18 12:10:47  laurentg
 // Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
 //
@@ -1462,7 +1465,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 {
                     m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 1, (eSoundChannel)m_AudioChannel->GetValue());
                 }
-                OSD_ShowText(hWnd, "Detect Audio Standard", 0);
+                OSD_ShowText("Detect Audio Standard", 0);
             }
             break;
 

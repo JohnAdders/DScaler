@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.19 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.20 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.18  2003/01/02 21:25:41  atnak
 // Fixes for row24 find page number
 //
@@ -192,7 +195,8 @@ void CVTDrawer::SetTransparencyColour(COLORREF ColorRef)
 
 
 void CVTDrawer::DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, WORD uFlags,
-                         TVTLeftRight* pHilightList[25], BYTE pDoubleProfile[25])
+                         TVTLeftRight* pHilightList[25], BYTE pDoubleProfile[25],
+                         RECT pRefreshProfile[25], BYTE* pRefreshCount)
 {
     WORD wParsePageFlags = PARSE_REPEATDOUBLE;
 
@@ -209,12 +213,22 @@ void CVTDrawer::DrawPage(HDC hDC, LPRECT lpRect, TVTPage* pPage, WORD uFlags,
         uFlags |= VTDF_HEADERONLY;
     }
 
+    if (pRefreshCount != NULL)
+    {
+        *pRefreshCount = 0;
+    }
+    else
+    {
+        pRefreshProfile = NULL;
+    }
+
     SetBounds(hDC, lpRect);
 
     HFONT hSelectedFont = m_hNormalFont;
 
-    LPVOID lpParams[7] = { hDC, lpRect, (LPVOID)uFlags, &hSelectedFont,
-                           pHilightList, pDoubleProfile, this };
+    LPVOID lpParams[9] = { hDC, lpRect, (LPVOID)uFlags, &hSelectedFont,
+                           pHilightList, pDoubleProfile, pRefreshProfile,
+                           pRefreshCount, this };
 
     HGDIOBJ hSaveFont = SelectObject(hDC, hSelectedFont);
     HGDIOBJ hSaveBrush = SelectObject(hDC, GetColourBrush(VTCOLOR_BLACK));
@@ -237,9 +251,11 @@ BYTE CVTDrawer::DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags, WORD wColour
     WORD    uVTDFlags       = (WORD)    ((LPVOID*)lpParam)[2];
     HFONT*  hSelectedFont   = (HFONT*)  ((LPVOID*)lpParam)[3];
 
-    TVTLeftRight** pHilightList   = (TVTLeftRight**)((LPVOID*)lpParam)[4];
-    BYTE*          pDoubleProfile = (BYTE*)         ((LPVOID*)lpParam)[5];
-    CVTDrawer*     pThis          = (CVTDrawer*)    ((LPVOID*)lpParam)[6];
+    TVTLeftRight** pHilightList    = (TVTLeftRight**)((LPVOID*)lpParam)[4];
+    BYTE*          pDoubleProfile  = (BYTE*)         ((LPVOID*)lpParam)[5];
+    RECT*          pRefreshProfile = (RECT*)         ((LPVOID*)lpParam)[6];
+    BYTE*          pRefreshCount   = (BYTE*)         ((LPVOID*)lpParam)[7];
+    CVTDrawer*     pThis           = (CVTDrawer*)    ((LPVOID*)lpParam)[8];
 
     if ((uVTDFlags & VTDF_CLOCKONLY) && HIBYTE(wPoint) < 32)
     {
@@ -334,6 +350,20 @@ BYTE CVTDrawer::DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags, WORD wColour
     }
 
     FillRect(hDC, &DrawRect, pThis->GetColourBrush(Background));
+
+    if (pRefreshProfile != NULL)
+    {
+        if (*pRefreshCount == 0 ||
+            pRefreshProfile[*pRefreshCount-1].top != DrawRect.top)
+        {
+            (*pRefreshCount)++;
+            pRefreshProfile[*pRefreshCount-1].top = DrawRect.top;
+            pRefreshProfile[*pRefreshCount-1].left = DrawRect.left;
+        }
+
+        pRefreshProfile[*pRefreshCount-1].right = DrawRect.right;
+        pRefreshProfile[*pRefreshCount-1].bottom = DrawRect.bottom;
+    }
 
     if (*lpFlags & PARSE_DOUBLEREPEAT)
     {

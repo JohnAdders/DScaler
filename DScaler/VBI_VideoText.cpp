@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.64 2003-01-12 17:12:45 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.65 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2003/01/12 17:12:45  atnak
+// Added hex pages display and goto dialog
+//
 // Revision 1.63  2003/01/07 18:40:18  adcockj
 // Fixed silly bug in new teletext code
 //
@@ -311,6 +314,9 @@ TVTLeftRight**      VTHilightListPtr = NULL;
 TVTLeftRight*       VTHilightListArray[25];
 
 BYTE                VTDoubleProfile[25];
+
+RECT                VTRefreshProfile[25];
+BYTE                VTRefreshCount;
 
 WORD                VTCursorRowCol = 0xFFFF;
 WORD                VTCursorPageHex = 0;
@@ -1082,8 +1088,30 @@ void VT_Redraw(HDC hDC, LPRECT lpRect, WORD uVTDFFlags)
     }
 
     VTDrawer.SetCodepage(VTCodepage);
-    VTDrawer.DrawPage(hDC, lpRect, &VTVisiblePage,
-        uFlags, VTHilightListPtr, VTDoubleProfile);
+    VTDrawer.DrawPage(hDC, lpRect, &VTVisiblePage, uFlags,
+        VTHilightListPtr, VTDoubleProfile, VTRefreshProfile,
+        &VTRefreshCount);
+}
+
+
+LONG VT_GetPaintedRects(RECT* pRectBuffer, LONG nBufferSize)
+{
+    LONG nCopyCount;
+
+    nCopyCount = (nBufferSize < VTRefreshCount) ? nBufferSize : VTRefreshCount;
+
+    if (nCopyCount > 0)
+    {
+        memcpy(pRectBuffer, VTRefreshProfile, sizeof(RECT) * nCopyCount);
+    }
+
+    return nCopyCount;
+}
+
+
+void VT_ResetPaintedRects()
+{
+    VTRefreshCount = 0;
 }
 
 
@@ -1092,11 +1120,11 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
     switch (uMsg)
     {
     case DECODEREVENT_HEADERUPDATE:
-        PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTHEADERUPDATE, NULL);
+        PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTHEADERUPDATE, NULL);
         break;
 
     case DECODEREVENT_COMMENTUPDATE:
-        PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTCOMMENTUPDATE, dwParam);
+        PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTCOMMENTUPDATE, dwParam);
         break;
 
     case DECODEREVENT_PAGEUPDATE:
@@ -1114,7 +1142,7 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
         }
         else*/
         {
-            PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwParam);
+            PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwParam);
         }
         break;
 
@@ -1133,7 +1161,7 @@ void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam)
         }
         else*/
         {
-            PostMessage(hWnd, WM_VIDEOTEXT, VTM_VTPAGEREFRESH, dwParam);
+            PostMessage(hWnd, UWM_VIDEOTEXT, VTM_VTPAGEREFRESH, dwParam);
         }
         break;
     }
@@ -1215,7 +1243,7 @@ BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
     if (VTGotoProcDlg != NULL)
     {
         // Update the goto dialog
-        SendMessage(VTGotoProcDlg, WM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwPageCode);
+        SendMessage(VTGotoProcDlg, UWM_VIDEOTEXT, VTM_VTPAGEUPDATE, dwPageCode);
     }
 
     if (VTState == VT_OFF)
@@ -1790,7 +1818,7 @@ BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
-    case WM_VIDEOTEXT:
+    case UWM_VIDEOTEXT:
         if (wParam == VTM_VTPAGEUPDATE)
         {
             WORD wPageHex = lParam & 0xFFF;

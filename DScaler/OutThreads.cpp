@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.108 2003-01-19 20:24:10 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.109 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2003/01/19 20:24:10  tobbej
+// moved Start() call from output thread to Start_Capture()
+//
 // Revision 1.107  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -1337,7 +1340,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				{
 					if (RequestStillInMemory)
 					{
-						OSD_ShowText(hWnd, "Still(s) in memory", 0);
+						OSD_ShowText("Still(s) in memory", 0);
 					}
 					RequestStillType = STILL_NONE;
 				}

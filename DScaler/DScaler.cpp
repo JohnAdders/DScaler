@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.290 2003-01-18 12:10:48 laurentg Exp $
+// $Id: DScaler.cpp,v 1.291 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.290  2003/01/18 12:10:48  laurentg
+// Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
+//
 // Revision 1.289  2003/01/17 17:26:52  adcockj
 // reverted writesettings change
 //
@@ -930,6 +933,8 @@
 #include "SettingsMaster.h"
 #include "Credits.h"
 #include "SizeSettings.h"
+#include "PaintingHDC.h"
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1034,6 +1039,7 @@ CEventCollector* EventCollector = NULL;
 CWindowBorder* WindowBorder = NULL;
 CToolbarControl* ToolbarControl = NULL;
 
+CPaintingHDC OffscreenHDC;
 
 BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
@@ -1592,8 +1598,13 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     BOOL bHandled = FALSE;
     BOOL bPageChanged = FALSE;
 
+    HDC hWndDC = GetDC(hWnd);
     GetDestRect(&Rect);
-    HDC hDC = GetDC(hWnd);
+
+    OffscreenHDC.UpdateGeometry(hWndDC, &Rect);
+    HDC hDC = OffscreenHDC.GetBufferDC();
+
+    VT_ResetPaintedRects();
 
     switch (uMsg)
     {
@@ -1743,7 +1754,7 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
 
-    case WM_VIDEOTEXT:
+    case UWM_VIDEOTEXT:
         {
             switch(LOWORD(wParam))
             {
@@ -1771,7 +1782,17 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
-    ReleaseDC(hWnd, hDC);
+    RECT PaintedRects[25];
+
+    LONG nPaintedRects = VT_GetPaintedRects(PaintedRects, 25);
+
+    if (nPaintedRects != 0)
+    {
+        OSD_Redraw(hDC, &Rect);
+        OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+    }
+
+    ReleaseDC(hWnd, hWndDC);
 
     if (bPageChanged != FALSE)
     {
@@ -1779,6 +1800,80 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 
     return bHandled;
+}
+
+
+BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    RECT Rect;
+    BOOL bHandled = FALSE;
+    HDC hDC;
+
+    HDC hWndDC = GetDC(hWnd);
+    GetDestRect(&Rect);
+
+    if (OffscreenHDC.UpdateGeometry(hWndDC, &Rect))
+    {
+        // We should not use the offscreen buffer
+        // until it is filled in WM_PAINT.
+        hDC = hWndDC;
+    }
+    else
+    {
+        hDC = OffscreenHDC.GetBufferDC();
+    }
+
+    OSD_ResetPaintedRects();
+
+    switch (uMsg)
+    {
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDM_CLEAROSD)
+        {
+            OSD_Clear(hDC, &Rect);
+            bHandled = TRUE;
+        }
+        break;
+
+    case WM_TIMER:
+        switch (LOWORD(wParam))
+        {
+        case OSD_TIMER_ID:
+            OSD_Clear(hDC, &Rect);
+            bHandled = TRUE;
+            break;
+
+        case OSD_TIMER_REFRESH_ID:
+            OSD_RefreshInfosScreen(hDC, &Rect, 0);
+            bHandled = TRUE;
+            break;
+        }
+        break;
+
+    case UWM_OSD:
+        if (LOWORD(wParam) == OSDM_DISPLAYUPDATE)
+        {
+            OSD_ProcessDisplayUpdate(hDC, &Rect);
+            bHandled = TRUE;
+        }
+        break;
+    }
+
+    if (hDC != hWndDC)
+    {
+        RECT PaintedRects[OSD_MAX_TEXT];
+
+        LONG nPaintedRects = OSD_GetPaintedRects(PaintedRects, OSD_MAX_TEXT);
+
+        if (nPaintedRects != 0)
+        {
+            OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+        }
+    }
+
+    ReleaseDC(hWnd, hWndDC);
+
+    return bHandled;            
 }
 
 
@@ -2362,7 +2457,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
             sprintf(msg, "Error processing incoming message. (#%i 0x%x)", lParam, wParam);
             LOG(0, msg);
-            OSD_ShowTextPersistent(hWnd, msg, 5);
+            OSD_ShowTextPersistent(msg, 5);
         }
         else
         {
@@ -2397,11 +2492,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             
             if(wParam == 0 && hMapFile != NULL && lpMsg != NULL)
             {
-                OSD_ShowText(hWnd, msg, 5);
+                OSD_ShowText(msg, 5);
             }
             else
             {
-                OSD_ShowTextPersistent(hWnd, msg, 5);
+                OSD_ShowTextPersistent(msg, 5);
             }
             
             if(lpMsg != NULL)
@@ -2976,7 +3071,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				{
 					sprintf(&Text[strlen(Text)], "\nRight %u", pSetting->GetValue());
 				}
-				OSD_ShowText(hWnd, Text, 0);
+				OSD_ShowText(Text, 0);
             }
             break;
 
@@ -3060,7 +3155,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 if (NewState == VT_OFF)
                 {
-                    OSD_ShowText(hWnd, "VideoText OFF", 0);
+                    OSD_ShowText("VideoText OFF", 0);
+                }
+                else
+                {
+                    OSD_Clear();
                 }
             }
             *ChannelString = '\0';
@@ -3188,11 +3287,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             SetKeyboardLock(bKeyboardLock);
             if(bKeyboardLock)
             {
-                OSD_ShowText(hWnd, "Keyboard lock on", 0);
+                OSD_ShowText("Keyboard lock on", 0);
             }
             else
             {
-                OSD_ShowText(hWnd, "Keyboard lock off", 0);
+                OSD_ShowText("Keyboard lock off", 0);
             }
             
             break;
@@ -3375,7 +3474,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SHOW_INFOS:
-            OSD_ShowComments(hWnd);
+            OSD_ShowSourceComments();
             break;
 
         case IDM_SET_OSD_TEXT:
@@ -3385,12 +3484,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 lstrcpy(Text, "");
                 GlobalGetAtomName((ATOM) lParam, Text, sizeof(Text));
-                OSD_ShowTextOverride(hWnd, Text, 0);
+                OSD_ShowTextOverride(Text, 0);
                 GlobalDeleteAtom((ATOM) lParam);
             }
             else
             {
-                OSD_ShowTextOverride(hWnd, "", 0);
+                OSD_ShowTextOverride("", 0);
             }
             break;
 
@@ -3587,7 +3686,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         
         case IDM_CLEAROSD:
-            OSD_Clear(hWnd);
+            ProcessOSDMessage(hWnd, message, wParam, lParam);
             break;
 
         case IDM_SETUPHARDWARE:
@@ -3941,11 +4040,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
         case OSD_TIMER_ID:
-            OSD_Clear(hWnd);
+            ProcessOSDMessage(hWnd, message, wParam, lParam);
             break;
         //-------------------------------
         case OSD_TIMER_REFRESH_ID:
-            OSD_RefreshInfosScreen(hWnd, 0, OSD_REFRESH_DATA);
+            ProcessOSDMessage(hWnd, message, wParam, lParam);
             break;
         //-------------------------------
         case TIMER_BOUNCE:
@@ -4120,30 +4219,47 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT sPaint;
+            RECT Rect;
+
             BeginPaint(hWnd, &sPaint);
-            if(VT_GetState() != VT_OFF)
+
+            GetDisplayAreaRect(hWnd, &Rect);
+
+            HDC hDC = OffscreenHDC.BeginPaint(sPaint.hdc, &Rect);
+
+            GetDestRect(&Rect);
+
+            if (VT_GetState() != VT_OFF)
             {
-                RECT Rect;
-                GetDestRect(&Rect);
-                PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint, true);
-                VT_Redraw(sPaint.hdc, &Rect);
+                PaintColorkey(hWnd, TRUE, hDC, &sPaint.rcPaint, TRUE);
+                VT_Redraw(hDC, &Rect);
             }
             else
             {
-                PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
-                OSD_Redraw(hWnd, sPaint.hdc);
+                PaintColorkey(hWnd, TRUE, hDC, &sPaint.rcPaint);
             }
+
+            OSD_Redraw(hDC, &Rect);
+
             if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
             {
-                WindowBorder->Paint(hWnd, sPaint.hdc, &sPaint.rcPaint);
+                WindowBorder->Paint(hWnd, hDC, &sPaint.rcPaint);
             }
+
+            OffscreenHDC.EndPaint();
+
             EndPaint(hWnd, &sPaint);
         }
         return 0;
         break;
 
-    case WM_VIDEOTEXT:
+    case UWM_VIDEOTEXT:
         ProcessVTMessage(hWnd, message, wParam, lParam);
+        return FALSE;
+        break;
+
+    case UWM_OSD:
+        ProcessOSDMessage(hWnd, message, wParam, lParam);
         return FALSE;
         break;
 
@@ -4446,6 +4562,7 @@ void MainWndOnCreate(HWND hWnd)
     AddSplashTextLine("VideoText");
 
     VBI_Init(); 
+    OSD_Init();
     
     Load_Program_List_ASCII();
 
@@ -4695,11 +4812,11 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if(VideoInput < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT))
                 {
-                    OSD_ShowText(hWnd, Providers_GetCurrentSource()->GetInputName(VIDEOINPUT, VideoInput), 0);
+                    OSD_ShowText(Providers_GetCurrentSource()->GetInputName(VIDEOINPUT, VideoInput), 0);
                 }
                 else
                 {
-                    OSD_ShowText(hWnd, ChannelString, 0);
+                    OSD_ShowText(ChannelString, 0);
                 }
 
                 if (strlen(ChannelString) >= 7)
@@ -4713,13 +4830,13 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                OSD_ShowText(hWnd, "No Source", 0);
+                OSD_ShowText("No Source", 0);
             }
         }
         // if in tuner mode or videotext mode
         else if (Providers_GetCurrentSource()->IsInTunerMode())
         {
-            OSD_ShowText(hWnd, ChannelString, 0);
+            OSD_ShowText(ChannelString, 0);
 
             if(strlen(ChannelString) >= 3)
             {
@@ -5091,6 +5208,7 @@ void CleanUpMemory()
 {
     Mixer_Exit();
     VBI_Exit();
+    OSD_Exit();
     if ((hMenu != NULL) && (GetMenu(hWnd) == NULL))
     {
         DestroyMenu(hMenu);
@@ -5139,7 +5257,7 @@ void Overlay_Start(HWND hWnd)
 void ShowText(HWND hWnd, LPCTSTR szText)
 {
     StatusBar_ShowText(STATUS_TEXT, szText);
-    OSD_ShowText(hWnd, szText, 0);
+    OSD_ShowText(szText, 0);
 }
 
 //----------------------------------------------------------------------------

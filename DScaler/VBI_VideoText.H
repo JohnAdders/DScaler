@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.33 2003-01-12 17:12:45 atnak Exp $
+// $Id: VBI_VideoText.H,v 1.34 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -96,6 +96,9 @@ void VT_OnInputTimer(HDC hDC, LPRECT lpRect);
 
 void VT_RedrawFlash(HDC hDC, LPRECT lpRect);
 void VT_Redraw(HDC hDC, LPRECT lpRect, WORD uVTDFFlags = 0);
+
+LONG VT_GetPaintedRects(RECT* pRectBuffer, LONG nBufferSize);
+void VT_ResetPaintedRects();
 
 void VT_ProcessHeaderUpdate(HDC hDC, LPRECT lpRect);
 BOOL VT_ProcessCommentUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.97 2003-01-16 18:50:34 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.98 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2003/01/16 18:50:34  adcockj
+// Added code to get channel name from teletext during scan
+//
 // Revision 1.96  2003/01/15 15:38:08  adcockj
 // Fixed crash on exit
 //
@@ -1728,7 +1731,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 VT_ChannelChange();                                
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-                OSD_ShowText(hWnd,MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+                OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
 				
             }
         }
@@ -1776,12 +1779,12 @@ void Channel_Increment()
         Channel_Change(CurrentProg);
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannelName(CurrentProgram));
-        OSD_ShowText(hWnd,MyChannels.GetChannelName(CurrentProgram), 0);
+        OSD_ShowText(MyChannels.GetChannelName(CurrentProgram), 0);
     }
     else
     {
         StatusBar_ShowText(STATUS_TEXT, "No Channels");
-        OSD_ShowText(hWnd, "No Channels", 0);
+        OSD_ShowText("No Channels", 0);
     }
 }
 
@@ -1821,12 +1824,12 @@ void Channel_Decrement()
         Channel_Change(CurrentProg);
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-        OSD_ShowText(hWnd,MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+        OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
     }
     else
     {
         StatusBar_ShowText(STATUS_TEXT, "No Channels");
-        OSD_ShowText(hWnd, "No Channels", 0);
+        OSD_ShowText("No Channels", 0);
     }
 }
 
@@ -1838,12 +1841,12 @@ void Channel_Previous()
             Channel_Change(PreviousProgram);
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-        OSD_ShowText(hWnd,MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+        OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
     }
     else
     {
         StatusBar_ShowText(STATUS_TEXT, "No Channels");
-        OSD_ShowText(hWnd, "No Channels", 0);
+        OSD_ShowText("No Channels", 0);
     }
 
 }
@@ -1880,12 +1883,12 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
     if (found && CurrentProgram>=0 && CurrentProgram<MyChannels.GetSize())
     {
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-        OSD_ShowText(hWnd, MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
+        OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
     }
     else
     {
         StatusBar_ShowText(STATUS_TEXT, "Not Found");
-        OSD_ShowText(hWnd, "Not Found", 0);
+        OSD_ShowText("Not Found", 0);
     }
 }
 

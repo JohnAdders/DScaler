@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.45 2003-01-13 19:22:51 adcockj Exp $
+// $Id: Settings.cpp,v 1.46 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2003/01/13 19:22:51  adcockj
+// Setttings bug fixes
+//
 // Revision 1.44  2003/01/11 12:53:58  adcockj
 // Interim Check in of settings changes
 //  - bug fixes for overlay settings changes
@@ -795,11 +798,11 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
         default:
             break;
         }
-        OSD_ShowText(hWnd, szBuffer, 0);
+        OSD_ShowText(szBuffer, 0);
     }
     else
     {
-        OSD_ShowText(hWnd, "Not Supported", 0);
+        OSD_ShowText("Not Supported", 0);
     }
 }
 //---------------------------------------------------------------------------

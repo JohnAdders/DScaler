@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.77 2003-01-18 10:52:11 laurentg Exp $
+// $Id: Calibration.cpp,v 1.78 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.76  2003/01/08 19:59:36  laurentg
 // Analogue Blanking setting by source
 //
@@ -1079,7 +1084,7 @@ void CCalibration::Start(eTypeCalibration type)
         first_calc = TRUE;
 
         // Display the specific OSD screen
-        OSD_ShowInfosScreen(hWnd, 0, 0);
+        OSD_ShowInfosScreen(0, 0);
 
         m_IsRunning = TRUE;
     }
@@ -1090,7 +1095,7 @@ void CCalibration::Stop()
     if ( (m_TypeCalibration != CAL_MANUAL)
       && (m_TypeCalibration != CAL_CHECK_YUV_RANGE) )
     {
-        OSD_ShowInfosScreen(hWnd, 0, 0);
+        OSD_ShowInfosScreen(0, 0);
         if ( (current_step != -1)
           || (MessageBox(hWnd, "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
         {
@@ -1108,7 +1113,7 @@ void CCalibration::Stop()
     }
 
     // Erase the OSD screen
-    OSD_Clear(hWnd);
+    OSD_Clear();
 
     if (m_TypeCalibration == CAL_CHECK_YUV_RANGE)
     {

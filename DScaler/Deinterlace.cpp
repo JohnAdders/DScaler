@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.44 2003-01-10 17:38:05 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.45 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/01/10 17:38:05  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.43  2002/10/30 12:56:44  robmuller
 // Do not load plugins with extensions other than .dll
 //
@@ -777,7 +784,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
         bFound = TRUE;
         nDeinterlaceIndex = wMenuID - IDM_FIRST_DEINTMETHOD;
         SetVideoDeinterlaceIndex(wMenuID - IDM_FIRST_DEINTMETHOD);
-        OSD_ShowText(hWnd, GetDeinterlaceModeName(), 0);
+        OSD_ShowText(GetDeinterlaceModeName(), 0);
     }
     else
     {
@@ -791,7 +798,7 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
                 if(!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == FALSE))
                 {
                     SetVideoDeinterlaceMode(i);
-                    OSD_ShowText(hWnd, GetDeinterlaceModeName(), 0);
+                    OSD_ShowText(GetDeinterlaceModeName(), 0);
                 }
                 else
                 {

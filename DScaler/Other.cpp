@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.54 2003-01-11 15:22:26 adcockj Exp $
+// $Id: Other.cpp,v 1.55 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/01/11 15:22:26  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.53  2003/01/10 17:38:10  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -386,31 +392,15 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         {
             dwFlags |= DDOVER_KEYDESTOVERRIDE;
 
-            // if we are doing teletext the override the
-            // background to pink so that we can do transparent
-            // with the PAL RGB colours
-            if (VT_GetState() == VT_OFF)
+            PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
+            if (PhysicalOverlayColor == 0 && OverlayColor != 0)      // sometimes we glitch and can't get the Value
             {
+                LOG(3, "Physical overlay color is zero!  Retrying.");
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
-                if (PhysicalOverlayColor == 0 && OverlayColor != 0)      // sometimes we glitch and can't get the Value
-                {
-                    LOG(3, "Physical overlay color is zero!  Retrying.");
-                    PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
-                }
-                LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
             }
-            else
-            {
-                PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
-                if (PhysicalOverlayColor == 0 && OverlayColor != 0)      // sometimes we glitch and can't get the Value
-                {
-                    LOG(1, "Physical overlay color is zero!  Retrying.");
-                    PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, RGB(255, 0, 255));
-                }
-                LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
-            }
+            LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
 
-            VT_SetOverlayColour(PhysicalOverlayColor);
+            VT_SetOverlayColour(OverlayColor);
 
             DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;
             DDOverlayFX.dckDestColorkey.dwColorSpaceLowValue = PhysicalOverlayColor;

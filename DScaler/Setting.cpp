@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.25 2003-01-23 15:03:08 adcockj Exp $
+// $Id: Setting.cpp,v 1.26 2003-01-24 01:55:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/01/23 15:03:08  adcockj
+// Fix for slow channel changing
+//
 // Revision 1.24  2003/01/19 20:07:14  adcockj
 // Setting optimization fixes
 //
@@ -547,7 +550,7 @@ void CSimpleSetting::OSDShow()
     // call to virtual get display string function
     GetDisplayText(szBuffer);
 
-    OSD_ShowText(hWnd, szBuffer, 0);
+    OSD_ShowText(szBuffer, 0);
     
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.12 2002-06-13 12:10:22 adcockj Exp $
+// $Id: OSD.h,v 1.13 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -38,61 +38,54 @@
 
 #include "settings.h"
 
+// Make sure that the timer ID does not conflict with those in DTV.H
+#define OSD_TIMER_ID                42
+#define OSD_TIMER_DELAY             4000
+#define OSD_TIMER_REFRESH_ID        41
+#define OSD_TIMER_REFRESH_DELAY     750
+
+#define OSD_MAX_TEXT                64
+
+void OSD_Init();
+void OSD_Exit();
+
+// General use functions
+void OSD_ShowText(LPCTSTR szText, double dSize, BOOL bPersistent = FALSE, BOOL bOverride = FALSE);
+void OSD_ShowTextPersistent(LPCTSTR szText, double dSize);
+void OSD_ShowTextOverride(LPCTSTR szText, double dSize);
+void OSD_ShowSourceComments();
+void OSD_Clear();
+
+void OSD_ActivateInfosScreen(INT IdxScreen, DOUBLE Size);
+void OSD_ShowInfosScreen(INT IdxScreen, DOUBLE dSize);
+void OSD_ShowNextInfosScreen(DOUBLE dSize);
+
+// Reserved functions
+void OSD_ShowText(HDC, LPRECT, LPCTSTR szText, double dSize, BOOL bPersistent = FALSE);
+void OSD_ShowInfosScreen(HDC, LPRECT, INT IdxScreen, DOUBLE Size);
+void OSD_ShowNextInfosScreen(HDC, LPRECT, DOUBLE Size);
+void OSD_Clear(HDC, LPRECT);
+
+void OSD_InvalidateTextsArea();
+
+void OSD_ProcessDisplayUpdate(HDC hDC, LPRECT lpRect);
+void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size);
+void OSD_Redraw(HDC hDC, LPRECT lpRect);
+
+LONG OSD_GetPaintedRects(RECT* pRectBuffer, LONG nBufferSize);
+void OSD_ResetPaintedRects();
+
+
 // Get Hold of the OSD.c file settings
 SETTING* OSD_GetSetting(OSD_SETTING Setting);
 void OSD_ReadSettingsFromIni();
 void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* OSD_GetTreeSettingsPage();
+
+void OSD_UpdateMenu(HMENU hMenu);
+void OSD_SetMenu(HMENU hMenu);
 BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID);
 
 
-// Make sure that the timer ID does not conflict with those in DTV.H
-#define OSD_TIMER_ID            42
-#define OSD_TIMER_DELAY         4000
-#define OSD_TIMER_REFRESH_ID    41
-#define OSD_TIMER_REFRESH_DELAY 750
-
-#define OSD_MAX_TEXT            64
-
-// Values for "ShowType" parameter in functions OSD_Show and OSD_RefreshInfosScreen
-#define OSD_PERSISTENT      1
-#define OSD_AUTOHIDE        2
-#define OSD_REFRESH_DATA    3
-
-enum eOSDTextXPos
-{
-    OSD_XPOS_LEFT = 0,
-    OSD_XPOS_RIGHT,
-    OSD_XPOS_CENTER,
-};
-
-typedef struct
-{
-    char            szText[512];        // Text of OSD
-    double          Size;               // Size of OSD as percentage of screen height
-    long            TextColor;          // Text color (RGB)
-    long            BackgroundColor;    // Background color (RGB)
-    eOSDBackground  BackgroundMode;     // Background mode
-    eOSDTextXPos    TextXPos;           // Text position / Xpos
-    double          XPos;               // X position (0 = left, 1 = right)
-    double          YPos;               // Y position (0 = top, 1 = bottom)
-    RECT            CurrentRect;        // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
-} TOsdInfo;
-
-void OSD_ClearAllTexts();
-void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos);
-void OSD_Show(HWND hWnd, int ShowType, int refresh_delay);
-void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size);
-void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size);
-void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double Size);
-void OSD_ShowComments(HWND hWnd);
-void OSD_Redraw(HWND hWnd, HDC hDC);
-void OSD_Clear(HWND hWnd);
-void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType);
-void OSD_ShowNextInfosScreen(HWND hWnd, double Size);
-void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double Size);
-void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double Size);
-void OSD_UpdateMenu(HMENU hMenu);
-void OSD_SetMenu(HMENU hMenu);
-
 #endif
+

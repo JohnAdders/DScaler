@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.34 2003-01-11 15:22:26 adcockj Exp $
+// $Id: Filter.cpp,v 1.35 2003-01-24 01:55:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/11 15:22:26  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.33  2003/01/10 17:38:07  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -427,7 +433,7 @@ BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
             {
                 sprintf(szText, "%s OFF", Filters[i]->szName);
             }
-            OSD_ShowText(hWnd, szText, 0);
+            OSD_ShowText(szText, 0);
             return TRUE;
         }
     }

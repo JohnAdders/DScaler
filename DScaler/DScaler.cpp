@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.235 2002-09-30 16:23:44 adcockj Exp $
+// $Id: DScaler.cpp,v 1.236 2002-10-02 18:39:23 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.235  2002/09/30 16:23:44  adcockj
+// Moved number handling code out to a routine
+//
 // Revision 1.234  2002/09/29 17:52:04  adcockj
 // Try again with cursor fix
 //
@@ -4372,7 +4375,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             // first get the right name for the chosen input
             hSubMenu = GetSubMenu(hMenu, 1);
-            hSubMenu = GetSubMenuWithName(hSubMenu, 0, "Video &Input");
+            hSubMenu = GetSubMenuWithName(hSubMenu, 0, "&Video Input");
             if(hSubMenu != NULL)
             {
                 if(GetMenuString(hSubMenu, strlen(ChannelString) -1, string,

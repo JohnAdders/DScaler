@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.54 2002-02-23 13:56:12 laurentg Exp $
+// $Id: OSD.cpp,v 1.55 2002-02-23 15:43:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/02/23 13:56:12  laurentg
+// Big switch in OSD_RefreshInfosScreen replaced by a call to one function for each screen
+// AR statistics moved in the the statistics screen and AR screen disabled
+// New screen added with our statistics regarding the time spent in each part of the DScaler code
+//
 // Revision 1.53  2002/02/23 12:02:40  laurentg
 // % of time used by each AR added in the AR statistics
 //
@@ -790,6 +795,9 @@ static void OSD_RefreshGeneralScreen(double Size)
     int     i;
     CSource* pSource = Providers_GetCurrentSource();
     ISetting* pSetting = NULL;
+    int     OverlaySetting;
+    BOOL    UseOverlayCtrl;
+    BOOL    DisplayTitle;
 
     if (Size == 0)
     {
@@ -797,10 +805,12 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
 
     // DScaler version
-    OSD_AddText(GetProductNameAndVersion(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size));
+    OSD_AddText(GetProductNameAndVersion(), Size*1.5, OSD_COLOR_TITLE, -1, OSDBACK_LASTONE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
     // Channel
-    nLine = 2;
+    nLine = 3;
+
+    OSD_AddText("Source", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Video input
     OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
@@ -812,11 +822,11 @@ static void OSD_RefreshGeneralScreen(double Size)
     }
 
     // Source size
-    sprintf (szInfo, "Source size : %ux%u", pSource->GetWidth(), pSource->GetHeight());
+    sprintf (szInfo, "Size %ux%u", pSource->GetWidth(), pSource->GetHeight());
     OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Source ratio
-    sprintf(szInfo, "Source %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
+    sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
     if ( (Setting_GetValue(Aspect_GetSetting(ASPECT_MODE)) == 1)
       && (Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) != 1333) )
     {
@@ -833,53 +843,152 @@ static void OSD_RefreshGeneralScreen(double Size)
     OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     // Display ratio
+    nLine++;
+    OSD_AddText("Display", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     if (Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) == 0)
     {
-        strcpy(szInfo, "Display ratio from current resolution");
+        strcpy(szInfo, "Ratio from current resolution");
     }
     else
     {
-        sprintf(szInfo, "Display %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
+        sprintf(szInfo, "Ratio %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
     }
     OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-    // Video settings
-    nLine = 2;
+    // Video and overlay settings
+    nLine = 4;
+    DisplayTitle = FALSE;
+    UseOverlayCtrl = Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS));
     pSetting = pSource->GetBrightness();
-    if(pSetting != NULL)
+    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYBRIGHTNESS));
+    if(pSetting != NULL || UseOverlayCtrl)
     {
-        sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("Brightness", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (pSetting != NULL)
+    {
+        sprintf (szInfo, "%d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (UseOverlayCtrl)
+    {
+        sprintf (szInfo, "%d", OverlaySetting);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if(pSetting != NULL || UseOverlayCtrl)
+    {
+        DisplayTitle = TRUE;
+        nLine++;
     }
     pSetting = pSource->GetContrast();
-    if(pSetting != NULL)
+    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYCONTRAST));
+    if(pSetting != NULL || UseOverlayCtrl)
     {
-        sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("Contrast", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (pSetting != NULL)
+    {
+        sprintf (szInfo, "%d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (UseOverlayCtrl)
+    {
+        sprintf (szInfo, "%d", OverlaySetting);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if(pSetting != NULL || UseOverlayCtrl)
+    {
+        DisplayTitle = TRUE;
+        nLine++;
     }
     pSetting = pSource->GetHue();
-    if(pSetting != NULL)
+    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYHUE));
+    if(pSetting != NULL || UseOverlayCtrl)
     {
-        sprintf (szInfo, "Hue : %03d", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("Hue", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (pSetting != NULL)
+    {
+        sprintf (szInfo, "%d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (UseOverlayCtrl)
+    {
+        sprintf (szInfo, "%d", OverlaySetting);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if(pSetting != NULL || UseOverlayCtrl)
+    {
+        DisplayTitle = TRUE;
+        nLine++;
     }
     pSetting = pSource->GetSaturation();
-    if(pSetting != NULL)
+    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYSATURATION));
+    if(pSetting != NULL || UseOverlayCtrl)
     {
-        sprintf (szInfo, "Color : %03u", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("Color", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (pSetting != NULL)
+    {
+        sprintf (szInfo, "%d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if (UseOverlayCtrl)
+    {
+        sprintf (szInfo, "%d", OverlaySetting);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+    }
+    if(pSetting != NULL || UseOverlayCtrl)
+    {
+        DisplayTitle = TRUE;
+        nLine++;
     }
     pSetting = pSource->GetSaturationU();
     if(pSetting != NULL)
     {
-        sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("Color U", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        sprintf (szInfo, "%d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        DisplayTitle = TRUE;
+        nLine++;
     }
     pSetting = pSource->GetSaturationV();
     if(pSetting != NULL)
     {
-        sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText("Color V", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        sprintf (szInfo, "%d", pSetting->GetValue());
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        DisplayTitle = TRUE;
+        nLine++;
+    }
+    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYGAMMA));
+    if(UseOverlayCtrl)
+    {
+        OSD_AddText("Gamma", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        sprintf (szInfo, "%d", OverlaySetting);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        DisplayTitle = TRUE;
+        nLine++;
+    }
+    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYSHARPNESS));
+    if(UseOverlayCtrl)
+    {
+        OSD_AddText("Sharpness", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        sprintf (szInfo, "%d", OverlaySetting);
+        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+        DisplayTitle = TRUE;
+        nLine++;
+    }
+    if (DisplayTitle)
+    {
+        if(UseOverlayCtrl)
+        {
+            OSD_AddText("Video & Overlay settings", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+        }
+        else
+        {
+            OSD_AddText("Video settings", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 0.9 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+        }
     }
 
     // Deinterlace Mode
@@ -888,25 +997,35 @@ static void OSD_RefreshGeneralScreen(double Size)
     {
         OSD_AddText("Judder Terminator", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
     }
-    if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
+    if (!IsProgressiveMode())
     {
-        OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
-    }
-    if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
-    {
-        OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
+        {
+            OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        }
+        if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
+        {
+            OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        }
     }
     OSD_AddText(GetDeinterlaceModeName(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+    OSD_AddText("Deinterlacing", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
 
     // Filters
     nLine = -1;
+    DisplayTitle = FALSE;
     for (i = 0 ; i < NumFilters ; i++)
     {
         strcpy(szInfo, Filters[i]->szName);
         if (Filters[i]->bActive)
         {
             OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+            DisplayTitle = TRUE;
         }
+    }
+    if (DisplayTitle)
+    {
+        OSD_AddText("Filters", Size, OSD_COLOR_SECTION, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
     }
 }
 
@@ -1076,7 +1195,7 @@ static void OSD_RefreshStatisticsScreen(double Size)
                         Color = -1;
                         ticks = RatioStatistics[i].ticks;
                     }
-                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "L");
+                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "");
                     OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
                     nLine++;
                 }
@@ -1241,7 +1360,7 @@ static void OSD_RefreshARScreen(double Size)
                         Color = -1;
                         ticks = RatioStatistics[i].ticks;
                     }
-                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "L");
+                    sprintf (szInfo, "%03d - %05.1f %% - %.3f:1 %s", RatioStatistics[i].switch_count, ticks * 100 / (double)(CurrentTicks - nARInitialTicks), RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "A" : "");
                     OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
                     nLine++;
                 }

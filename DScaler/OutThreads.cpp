@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.96 2002-10-29 11:05:28 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.97 2002-10-29 20:51:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.95  2002/10/28 22:50:42  laurentg
 // Little updates regarding stills
 //
@@ -506,7 +509,7 @@ void RequestStreamSnap()
 
 void RequestStill(int nb)
 {
-	if (RequestStillType == STILL_NONE && nb > 0)
+	if ((RequestStillType == STILL_NONE) && (nb > 0) && (Providers_GetSnapshotsSource() != NULL))
 	{
 		RequestStillType = STILL_TIFF;
 		RequestStillNb = nb;
@@ -1058,6 +1061,37 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #endif
                         }
 
+						if(bFlipNow && bTakeStill)
+						{
+							// We take the still while the overlay is locked
+							if (RequestStillInMemory)
+							{
+								((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch, pAllocBuf);
+							}
+							else
+							{
+								((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
+							}
+							RequestStillNb--;
+							if (RequestStillNb <= 0)
+							{
+								if (RequestStillInMemory)
+								{
+									OSD_ShowText(hWnd, "Still(s) stored in memory", 0);
+								}
+								else
+								{
+									OSD_ShowText(hWnd, "Still saved in file", 0);
+								}
+								RequestStillType = STILL_NONE;
+							}
+
+							// There is now no need to flip the overlay because :
+							// - either we work in memory and the overlay has not been updated
+							// - or we work with the overlay but it is certainly too late to flip it
+							bFlipNow = FALSE;
+						}
+
 #ifdef _DEBUG
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
@@ -1085,73 +1119,52 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // flip if required
                         if (bFlipNow)
                         {
-							if(!bTakeStill || !RequestStillInMemory)
-							{
 #ifdef _DEBUG
-	                            pPerf->StartCount(PERF_FLIP_OVERLAY);
+	                        pPerf->StartCount(PERF_FLIP_OVERLAY);
 #endif
 
-								// setup flip flag
-								// the odd and even flags may help the scaled bob
-								// on some cards
-								DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
-								if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
+							// setup flip flag
+							// the odd and even flags may help the scaled bob
+							// on some cards
+							DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
+							if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
+							{
+								if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
 								{
-									if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
-									{
-										FlipFlag |= DDFLIP_ODD;
-									}
-									else if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
-									{
-										FlipFlag |= DDFLIP_EVEN;
-									}
+									FlipFlag |= DDFLIP_ODD;
 								}
+								else if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
+								{
+									FlipFlag |= DDFLIP_EVEN;
+								}
+							}
 
-								// JudderTerminator
-								// Here we space out the flips by waiting for a fixed time between
-								// flip calls.
-								// We need to go in if:
-								// - JudderTerminator is On
-								// - We are in film mode or we want JT on Video
-								// - the deinterlace method is the same as last time
-								if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo) && PrevDeintMethod == CurrentMethod)
-								{
-									Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
-								}
+							// JudderTerminator
+							// Here we space out the flips by waiting for a fixed time between
+							// flip calls.
+							// We need to go in if:
+							// - JudderTerminator is On
+							// - We are in film mode or we want JT on Video
+							// - the deinterlace method is the same as last time
+							if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo) && PrevDeintMethod == CurrentMethod)
+							{
+								Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
+							}
 
-								if(!Overlay_Flip(FlipFlag))
-								{
-									Providers_GetCurrentSource()->Stop();
-									LOG(1, "Falling out after Overlay_Flip");
-									PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
-									PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-									DScalerDeinitializeThread();
-									ExitThread(1);
-									return 0;
-								}
+							if(!Overlay_Flip(FlipFlag))
+							{
+								Providers_GetCurrentSource()->Stop();
+								LOG(1, "Falling out after Overlay_Flip");
+								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
+								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+								DScalerDeinitializeThread();
+								ExitThread(1);
+								return 0;
+							}
 
 #ifdef _DEBUG
-	                            pPerf->StopCount(PERF_FLIP_OVERLAY);
+	                        pPerf->StopCount(PERF_FLIP_OVERLAY);
 #endif
-							}
-
-							if(bTakeStill)
-							{
-								StillProvider_SaveSnapshot(&Info, pAllocBuf, RequestStillInMemory);
-								RequestStillNb--;
-								if (RequestStillNb <= 0)
-								{
-									if (RequestStillInMemory)
-									{
-										OSD_ShowText(hWnd, "Still(s) stored in memory", 0);
-									}
-									else
-									{
-										OSD_ShowText(hWnd, "Still saved in file", 0);
-									}
-									RequestStillType = STILL_NONE;
-								}
-							}
 						}
                     }
                 }                   

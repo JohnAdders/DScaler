@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.59 2005-03-23 14:21:00 adcockj Exp $
+// $Id: Settings.cpp,v 1.60 2005-03-27 20:22:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2005/03/23 14:21:00  adcockj
+// Test fix for threading issues
+//
 // Revision 1.58  2004/04/06 12:20:48  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -233,6 +236,7 @@
 #include "StillSource.h"
 #include "SettingsPerChannel.h"
 #include "TimeShift.h"
+#include "EPG.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -396,6 +400,13 @@ TFileWithSettings Settings[] =
         TimeShift_ReadSettingsFromIni,
         TimeShift_WriteSettingsToIni,
 		TimeShift_FreeSettings,
+    },
+    {
+        WM_EPG_GETVALUE,
+        (GENERICGETSETTING*)EPG_GetSetting,
+        EPG_ReadSettingsFromIni,
+        EPG_WriteSettingsToIni,
+		EPG_FreeSettings,
     },
 };
 

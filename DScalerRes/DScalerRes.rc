@@ -88,6 +88,11 @@ BEGIN
                                                     NOINVERT
     "F",            IDM_VT_SEARCH,          VIRTKEY, CONTROL, NOINVERT
     "F",            IDM_FLI_FILMDETECT,     VIRTKEY, CONTROL, ALT, NOINVERT
+    "G",            IDM_DISPLAY_EPG_NOW,    VIRTKEY, NOINVERT
+    "G",            IDM_DISPLAY_EPG_EARLIER, VIRTKEY, CONTROL, NOINVERT
+    "G",            IDM_DISPLAY_EPG_LATER,  VIRTKEY, SHIFT, NOINVERT
+    "G",            IDM_DISPLAY_EPG,        VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
     "H",            IDM_HUE_MINUS,          VIRTKEY, NOINVERT
     "H",            IDM_HUE_PLUS,           VIRTKEY, SHIFT, NOINVERT
     "H",            IDM_HUE_CURRENT,        VIRTKEY, SHIFT, CONTROL, 
@@ -1424,17 +1429,18 @@ BEGIN
         BEGIN
             MENUITEM "&Import XMLTV File",          IDM_SCAN_EPG
             MENUITEM "&Load EPG Data",              IDM_LOAD_EPG
-            MENUITEM "&View Program Info",          IDM_DISPLAY_EPG
-            POPUP "&Browse Programs"
-            BEGIN
-                MENUITEM "No&w",                        IDM_DISPLAY_EPG_NOW
-                MENUITEM "&Earlier",                    IDM_DISPLAY_EPG_EARLIER
-
-                MENUITEM "&Later",                      IDM_DISPLAY_EPG_LATER
-
-                MENUITEM "&Previous Page",              IDM_DISPLAY_EPG_PREV
-                MENUITEM "&Next Page",                  IDM_DISPLAY_EPG_NEXT
-            END
+            MENUITEM SEPARATOR
+            MENUITEM "View Program &Details\tCtrl+Shift+G", IDM_DISPLAY_EPG
+            MENUITEM "View &Current Programs\tG",   IDM_DISPLAY_EPG_NOW
+            MENUITEM "Shift Time Frame &Earlier\tCtrl+G", 
+                                                    IDM_DISPLAY_EPG_EARLIER
+            MENUITEM "Shift Time Frame &Later\tShift+G", 
+                                                    IDM_DISPLAY_EPG_LATER
+            MENUITEM SEPARATOR
+            MENUITEM "&Previous Page",              IDM_DISPLAY_EPG_PREV
+            , GRAYED
+            MENUITEM "&Next Page",                  IDM_DISPLAY_EPG_NEXT
+            , GRAYED
         END
     END
     POPUP "&Datacasting"

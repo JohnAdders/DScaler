@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.34 2004-02-06 21:01:40 to_see Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.35 2005-03-27 20:22:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2004/02/06 21:01:40  to_see
+// -added an gripper
+// -fixed some sizing problems
+//
 // Revision 1.33  2003/08/02 12:04:13  laurentg
 // Two new settings to define how many channels to display in preview mode
 //
@@ -159,6 +163,7 @@
 #include "..\help\helpids.h"
 #include "SettingsMaster.h"
 #include "TimeShift.h"
+#include "EPG.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
 
@@ -698,6 +703,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
         pPage = DScaler_GetTreeSettingsPage2();
 	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = EPG_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_EPG);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
     }

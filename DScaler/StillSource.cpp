@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.45 2002-04-13 21:52:40 laurentg Exp $
+// $Id: StillSource.cpp,v 1.46 2002-04-14 00:46:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/04/13 21:52:40  laurentg
+// Management of no current source
+//
 // Revision 1.44  2002/04/13 18:47:53  laurentg
 // Management of still files improved
 //
@@ -549,7 +552,6 @@ void CStillSource::Start()
         // If no file of the playlist is readable
         if (!m_IsPictureRead)
         {
-            LOG(1, "CStillSource::Start - PostMessage");
             PostMessage(hWnd, WM_COMMAND, IDM_CLOSE_ALL, 0);
         }
 
@@ -945,7 +947,6 @@ BOOL CStillSource::ReadNextFrameInFile()
     }
     else
     {
-        LOG(1, "m_IsPictureRead FALSE");
         return FALSE;
     }
 }
@@ -1278,7 +1279,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     unsigned char* srcp1;
     unsigned char* srcp2;
 
-    LOG(2, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
+    LOG(3, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
 
     // Allocate memory for the new YUYV buffer
     BYTE* NewBuf = (BYTE*)malloc(NewWidth * 2 * NewHeight * sizeof(BYTE));

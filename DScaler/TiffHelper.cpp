@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.14 2002-04-13 23:51:30 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.15 2002-04-14 00:46:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/04/13 23:51:30  laurentg
+// Table of compatibility (class, compression) added
+//
 // Revision 1.13  2002/04/13 18:47:53  laurentg
 // Management of still files improved
 //
@@ -110,7 +113,7 @@ static struct {
     { PHOTOMETRIC_SEPARATED  , COMPRESSION_PACKBITS  },
     { PHOTOMETRIC_YCBCR      , COMPRESSION_NONE      },
     { PHOTOMETRIC_YCBCR      , COMPRESSION_LZW       },
-    { PHOTOMETRIC_YCBCR      , COMPRESSION_JPEG      },
+    { PHOTOMETRIC_YCBCR      , COMPRESSION_PACKBITS  },
 };
 
 CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
@@ -159,7 +162,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
           && (tTiffTagClassCompress[i].tag_compression == Compression) )
         {
             Found = TRUE;
-            LOG(1, "File %s supported (class %d compression %d)", FileName, Class, Compression);
+            LOG(3, "File %s supported (class %d compression %d)", FileName, Class, Compression);
             break;
         }
     }

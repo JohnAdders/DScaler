@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.62 2002-05-27 20:14:54 laurentg Exp $
+// $Id: Calibration.cpp,v 1.63 2002-05-27 22:28:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/05/27 20:14:54  laurentg
+// Possibility to define the pattern size in the pattern description
+//
 // Revision 1.61  2002/05/10 20:34:38  laurentg
 // Formula for conversion RGB <=> YCbCr updated
 //
@@ -161,7 +164,9 @@
 #define MAX_VALUE               1000000000
 
 // Macro to restrict range to [0,255]
-#define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
+#define LIMIT_RGB(x)    (((x)<0)?0:((x)>255)?255:(x))
+#define LIMIT_Y(x)      (((x)<16)?16:((x)>235)?235:(x))
+#define LIMIT_CbCr(x)   (((x)<16)?16:((x)>240)?240:(x))
 
 // Macro to return the absolute value
 #define ABSOLUTE_VALUE(x) ((x) < 0) ? -(x) : (x)
@@ -676,9 +681,9 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
     cb = ( ( -9714*R - 19071*G + 28784*B + 32768 ) >> 16 ) + 128;
     cr = ( ( 28784*R - 24103*G -  4681*B + 32768 ) >> 16 ) + 128;
 
-    *pY = LIMIT(y);
-    *pU = LIMIT(cb);
-    *pV = LIMIT(cr);
+    *pY = LIMIT_Y(y);
+    *pU = LIMIT_CbCr(cb);
+    *pV = LIMIT_CbCr(cr);
 }
 
 // Convert YUV to RGB
@@ -698,9 +703,9 @@ void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsig
     g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
     b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
 
-    *pR = LIMIT(r);
-    *pG = LIMIT(g);
-    *pB = LIMIT(b);
+    *pR = LIMIT_RGB(r);
+    *pG = LIMIT_RGB(g);
+    *pB = LIMIT_RGB(b);
 }
 
 

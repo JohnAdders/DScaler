@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.41 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: ProgramList.cpp,v 1.42 2001-12-18 14:45:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.40  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -1018,7 +1021,7 @@ void Channel_Change(int NewChannel)
                 }
                 Sleep(20);
                 VT_ChannelChange();
-                StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+                StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgramm]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
 				Audio_Unmute();
             }
@@ -1061,12 +1064,12 @@ void Channel_Increment()
     
         Channel_Change(CurrentProg);
 
-        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgramm]->GetName());
         OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
     }
     else
     {
-        StatusBar_ShowText(STATUS_KEY, "No Channels");
+        StatusBar_ShowText(STATUS_TEXT, "No Channels");
         OSD_ShowText(hWnd, "No Channels", 0);
     }
 }
@@ -1106,12 +1109,12 @@ void Channel_Decrement()
     
         Channel_Change(CurrentProg);
 
-        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgramm]->GetName());
         OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
     }
     else
     {
-        StatusBar_ShowText(STATUS_KEY, "No Channels");
+        StatusBar_ShowText(STATUS_TEXT, "No Channels");
         OSD_ShowText(hWnd, "No Channels", 0);
     }
 }
@@ -1123,12 +1126,12 @@ void Channel_Previous()
         if (MyChannels[PreviousProgramm]->GetFrequency() != 0)
             Channel_Change(PreviousProgramm);
 
-        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgramm]->GetName());
         OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
     }
     else
     {
-        StatusBar_ShowText(STATUS_KEY, "No Channels");
+        StatusBar_ShowText(STATUS_TEXT, "No Channels");
         OSD_ShowText(hWnd, "No Channels", 0);
     }
 
@@ -1165,12 +1168,12 @@ void Channel_ChangeToNumber(int ChannelNumber)
 
     if (found)
     {
-        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgramm]->GetName());
         OSD_ShowText(hWnd, MyChannels[CurrentProgramm]->GetName(), 0);
     }
     else
     {
-        StatusBar_ShowText(STATUS_KEY, "Not Found");
+        StatusBar_ShowText(STATUS_TEXT, "Not Found");
         OSD_ShowText(hWnd, "Not Found", 0);
     }
 }

@@ -365,7 +365,6 @@
 #define IDC_EDIT7                       1529
 #define IDC_EDIT8                       1530
 #define IDC_EDIT9                       1531
-#define IDM_NEU                         1532
 #define IDC_EDIT10                      1533
 #define IDC_EDIT11                      1534
 #define IDC_EDIT12                      1535
@@ -722,6 +721,7 @@
 #define IDC_Y                           1891
 #define IDC_VBI_FPS                     1892
 #define IDC_INPUT6                      1893
+#define IDC_STATUSBAR                   1894
 #define IDM_TAKESTREAMSNAP              1899
 #define IDM_FIRST_DEINTMETHOD           1900
 #define IDM_LAST_DEINTMETHOD            1999
@@ -806,8 +806,8 @@
 #define IDM_PLAYLIST_FIRST              2212
 #define IDM_PLAYLIST_LAST               2213
 #define IDM_PLAYLIST_SLIDESHOW          2214
-#define IDM_DSHOW_VIDEOINPUT             2220
-#define IDM_DSHOW_AUDIOINPUT             2221
+#define IDM_DSHOW_VIDEOINPUT            2220
+#define IDM_DSHOW_AUDIOINPUT            2221
 #define IDM_CROSSBAR_INPUT0             2222
 #define IDM_CROSSBAR_INPUT1             2223
 #define IDM_CROSSBAR_INPUT2             2224
@@ -853,7 +853,7 @@
 #define _APS_3D_CONTROLS                1
 #define _APS_NEXT_RESOURCE_VALUE        188
 #define _APS_NEXT_COMMAND_VALUE         2243
-#define _APS_NEXT_CONTROL_VALUE         1894
+#define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           2213
 #endif
 #endif

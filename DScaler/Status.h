@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.h,v 1.6 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Status.h,v 1.7 2001-12-18 14:45:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,24 +36,21 @@
 
 enum eStatusBarBox
 {
-    STATUS_TEXT,
-    STATUS_PAL,
-    STATUS_FPS,
-    STATUS_KEY,
+    STATUS_TEXT = 0,
+    STATUS_MODE,
     STATUS_AUDIO,
-    STATUS_BAR
+    STATUS_FPS,
+    STATUS_LASTONE,
 };
 
 BOOL StatusBar_Init();
 BOOL StatusBar_IsVisible();
 BOOL StatusBar_Adjust(HWND hWnd);
-HWND StatusBar_AddField(int iId, int iMin, int iMax, BOOL bNewGroup);
 void StatusBar_Destroy();
 void StatusBar_ShowText(eStatusBarBox Field, LPCTSTR  szText);
 void StatusBar_ShowWindow(BOOL bShow);
 void StatusBar_Repaint();
 int StatusBar_Height();
-HWND StatusBar_GetHWnd(eStatusBarBox Box);
 
 
 #endif

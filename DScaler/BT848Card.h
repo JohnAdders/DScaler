@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.10 2001-12-18 13:12:11 adcockj Exp $
+// $Id: BT848Card.h,v 1.11 2001-12-18 14:45:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/18 13:12:11  adcockj
+// Interim check-in for redesign of card specific settings
+//
 // Revision 1.9  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -84,7 +87,9 @@ private:
     {
         /// Name of the input
         LPCSTR szName;
+        /// Type of the input
         eInputType InputType;
+        /// Which mux on the card is to be used
         BYTE MuxSelect;
     } TInputType;
 
@@ -97,13 +102,28 @@ private:
         ePLLFreq PLLFreq;
         eTunerId TunerId;
         eSoundChip SoundChip;
+        /// Any card specific initialization - may be NULL
         void (CBT848Card::*pInitCardFunction)(void);
+        /** Function used to switch between sources
+            Cannot be NULL
+            Default is StandardBT848InputSelect
+        */
         void (CBT848Card::*pInputSwitchFunction)(int);
+        /// Any card specific method used to select stereo - may be NULL
         void (CBT848Card::*pSoundChannelFunction)(eSoundChannel);
+        /// Bit Mask for audio GPIO operations
         DWORD GPIOMask;
-        DWORD AudioMuxSelect[8];
+        /** GPIO Flags for the various inputs
+            We seem to use 
+            AUDIOINPUT_TUNER to be selected when tuner is selected and no MSP
+            AUDIOINPUT_RADIO to be selected when tuner is selected and ther is a MSP
+            AUDIOINPUT_EXTERNAL to be selected when anything but the tuner is required
+            AUDIOINPUT_MUTE for muting
+        */
+        DWORD AudioMuxSelect[6];
     } TCardType;
 
+    /// used to store the ID for autodection
     typedef struct
     {
         DWORD ID;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.29 2001-12-16 13:13:34 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.30 2001-12-18 14:45:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/12/16 13:13:34  laurentg
+// New statistics
+//
 // Revision 1.28  2001/12/15 17:41:55  adcockj
 // Fix for crash in greedy when in pulldown comb mode
 //
@@ -309,7 +312,7 @@ void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
         gFilmPulldownMode = Mode;
         bIsFilmMode = TRUE;
         nLastTicks = CurrentTickCount;
-        StatusBar_ShowText(STATUS_PAL, GetDeinterlaceModeName());
+        StatusBar_ShowText(STATUS_MODE, GetDeinterlaceModeName());
         nTotalDeintModeChanges++;
         FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
         if(WereInHalfHeight != InHalfHeightMode())
@@ -345,7 +348,7 @@ void SetVideoDeinterlaceMode(int Mode)
         gVideoPulldownMode = Mode;
         bIsFilmMode = FALSE;
         nLastTicks = CurrentTickCount;
-        StatusBar_ShowText(STATUS_PAL, GetDeinterlaceModeName());
+        StatusBar_ShowText(STATUS_MODE, GetDeinterlaceModeName());
         nTotalDeintModeChanges++;
         VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
         if(WereInHalfHeight != InHalfHeightMode())
@@ -604,7 +607,7 @@ void AddUIForDeintPlugin(HMENU hMenu, DEINTERLACE_METHOD* DeintMethod)
 
 void Deinterlace_SetStatus(LPCSTR StatusText)
 {
-    PostMessage(StatusBar_GetHWnd(STATUS_BAR), WM_USER + 10, 0, (LPARAM)StatusText);
+    StatusBar_ShowText(STATUS_MODE, StatusText);
 }
 
 BOOL LoadDeinterlacePlugins()

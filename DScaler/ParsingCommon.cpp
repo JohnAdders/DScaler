@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.3 2004-11-27 19:23:39 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.4 2004-11-27 19:26:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/11/27 19:23:39  atnak
+// Changed more constant names.
+//
 // Revision 1.2  2004/11/27 19:07:43  atnak
 // Changed constant to more correct name.
 //
@@ -132,7 +135,7 @@ const ParseConstant k_parseYesNoConstants[] =
 	{ NULL }
 };
 
-const ParseConstant k_parseTakeOverPointConstants[] =
+const ParseConstant k_parseTakeoverPointConstants[] =
 {
 	{ "min",						PC_VALUE(0x00) },
 	{ "max",						PC_VALUE(0x1f) },
@@ -148,7 +151,7 @@ const ParseTag k_parseUseTDA9887SetOverride[] =
 	{ "Carrier",		PARSE_CONSTANT,					0, 16, NULL, k_parseCarrierConstants, PASS_TO_PARENT },
 	{ "OutputPort1",	PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
 	{ "OutputPort2",	PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
-	{ "TakeOverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0, 8, NULL, k_parseTakeOverPointConstants, PASS_TO_PARENT },
+	{ "TakeoverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0, 8, NULL, k_parseTakeoverPointConstants, PASS_TO_PARENT },
 	{ NULL }
 };
 
@@ -288,7 +291,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 				TDA9887_SM_OUTPUTPORT2_INACTIVE, reinterpret_cast<int>(value) != 0);
 		}
 	}
-	// TakeOverPoint
+	// TakeoverPoint
 	else if (tag == k_parseUseTDA9887SetOverride + 6)
 	{
 		if (report == REPORT_VALUE)
@@ -298,7 +301,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 
 			if (point & ~TDA9887_SM_TAKEOVERPOINT_MASK)
 			{
-				throw string("Invalid value of TakeOverPoint");
+				throw string("Invalid value of TakeoverPoint");
 			}
 
 			useTDA9887Info->_readingModes.mask |= TDA9887_SM_TAKEOVERPOINT_MASK;

@@ -509,6 +509,7 @@ memcpyBOBSSE_Loop2:
 	loop memcpyBOBSSE_Loop2
 
 memcpyBOBSSE_End:
+	
 	pop	ebx
 	pop	esi
 	pop	edi
@@ -564,10 +565,9 @@ Memcpy_Loop:
 
 	mov		ecx, nBytes
 	and     ecx, 63
-	shr     ecx, 2
 	cmp     ecx, 0
 	je Memcpy_End
-	rep movsd
+	rep movsb
 
 Memcpy_End:
 	pop	esi
@@ -623,17 +623,14 @@ MemcpySSE_Loop:
 
 	mov		ecx, nBytes
 	and     ecx, 127
-	shr     ecx, 2
 	cmp     ecx, 0
 	je MemcpySSE_End
-	rep movsd
+	rep movsb
 
 MemcpySSE_End:
 	pop	esi
 	pop	edi
 	ret	
-
-	end
 
 ;////////////////////////////////////////////////////////////////////
 ; void memcpyAMD(void *Dest, void *Src, size_t nBytes);
@@ -656,7 +653,7 @@ _memcpyAMD:
 	mov		ecx, nBytes
 	shr     ecx, 6                      ; nBytes / 64
 align 8
-Memcpy_Loop:
+MemcpyAMD_Loop:
 	movq mm0,[esi+0]
 	movq mm1,[esi+8]
 	movq [edi+0],mm0
@@ -675,13 +672,13 @@ Memcpy_Loop:
 	movq [edi+56],mm3
 	add		esi, 64
 	add		edi, 64
-	loop Memcpy_Loop
+	loop MemcpyAMD_Loop
 
 	mov ecx, nBytes
 	shr ecx,2               ; dword count
 	and ecx,1111b
 	neg ecx
-	add ecx, Memcpy_End
+	add ecx, MemcpyAMD_End
 	jmp ecx
 
 align 4
@@ -702,7 +699,7 @@ align 4
 	movsd
 	movsd
 
-Memcpy_End:
+MemcpyAMD_End:
 	pop	esi
 	pop	edi
 	ret	

@@ -166,12 +166,6 @@ typedef struct
 	BOOL bMissedFrame;
 	// Do we want to flip accuratly
 	BOOL bDoAccurateFlips;
-	// How long should we sleep for if we get the chance
-	long SleepInterval;
-	// How many fields to skip before doing sleep interval
-	long SleepSkipFields;
-	// How many fields to skip before doing sleep interval, when late
-	long SleepSkipFieldsLate;
 	// How big the source will end up
 	RECT DestRect;
 } DEINTERLACE_INFO;

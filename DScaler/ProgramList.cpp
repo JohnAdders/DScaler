@@ -188,57 +188,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 	UNREFERENCED_PARAMETER(lParam);
 }
 
-
-void Write_Program_List()
-{
-	int i, j;
-	int fd;
-
-	if ((fd = open("program.set", _O_WRONLY | _O_TRUNC | _O_CREAT | _O_BINARY, _S_IWRITE | _S_IREAD)) == -1)
-	{
-		ErrorBox("Can't create program list \"program.set\"");
-		return;
-	}
-
-	i = 0;
-	while (i < MAXPROGS)
-	{
-		if (Programm[i].Name[0] != 0x00)
-		{
-			j = write(fd, &Programm[i], sizeof(TProgramm));
-		}
-		i++;
-	}
-	close(fd);
-}
-
-
-void Load_Program_List()
-{
-	int i;
-	int fd;
-
-	i = 0;
-
-	for (i = 0; i < MAXPROGS; i++)
-	{
-		memset(&Programm[i].Name[0], 0x00, sizeof(TProgramm));
-	}
-
-	i = 0;
-
-	if ((fd = open("program.set", _O_RDONLY | _O_BINARY)) == -1)
-	{
-		return;
-	}
-
-	while (sizeof(Programm[i]) == read(fd, &Programm[i], sizeof(Programm[i])))
-	{
-		i++;
-	}
-	close(fd);
-}
-
 // 
 // Save ascii formatted program list
 //

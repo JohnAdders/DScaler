@@ -52,6 +52,10 @@ BOOL bDoAutoFormatDetect = TRUE;
 long FiftyHzFormat = FORMAT_PAL_BDGHI;
 long SixtyHzFormat = FORMAT_NTSC;
 long FormatChangeThreshold = 2;
+BOOL bJudderTerminatorOnVideo = TRUE;
+long Sleep_Interval = 0;         // " , default=0, how long to wait for BT chip
+long Sleep_SkipFields = 0;       // Number of fields to skip before doing sleep interval
+long Sleep_SkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 
 void Timing_Setup()
 {
@@ -117,15 +121,15 @@ void Timing_SmartSleep(DEINTERLACE_INFO* pInfo)
     {
         // Sleep skipping whenever we're running on time
         nSleepSkipFieldsLate = 0;
-		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
-    	Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
+		nSleepSkipFields = (nSleepSkipFields + 1) % (Sleep_SkipFields + 1);
+    	Sleep(nSleepSkipFields ? 0 : Sleep_Interval);
     }
     else
     {
         // Sleep skipping whenever we're running late
         nSleepSkipFields = 0;
-        nSleepSkipFieldsLate = (nSleepSkipFieldsLate + 1) % (pInfo->SleepSkipFieldsLate + 1);
-    	Sleep(nSleepSkipFieldsLate ? 0 : pInfo->SleepInterval);
+        nSleepSkipFieldsLate = (nSleepSkipFieldsLate + 1) % (Sleep_SkipFieldsLate + 1);
+    	Sleep(nSleepSkipFieldsLate ? 0 : Sleep_Interval);
     }
 	pInfo->bRunningLate = FALSE;
 }
@@ -162,7 +166,10 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 
 	while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
 	{
-        if (! bSlept)
+		// need to sleep more often
+		// so that we don't take total control of machine
+		// in normal operation
+        if (!bSlept || Sleep_SkipFields == 0)
         {
 		    Timing_SmartSleep(pInfo);
             bSlept = TRUE;
@@ -287,7 +294,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
 	LARGE_INTEGER CurrentTime;
 	static long RepeatCount = 0;
 
-	if(pInfo->bDoAccurateFlips && IsFilmMode())
+	if(pInfo->bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo))
 	{
 		Timing_WaitForNextFieldAccurate(pInfo);
 	}
@@ -452,6 +459,30 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
 		2, 0, 50, 1, 1,
 		NULL,
 		"Timing", "FormatChangeThreshold", NULL,
+	},
+	{
+		"Do JudderTerminator On Video Modes", ONOFF, 0, (long*)&bJudderTerminatorOnVideo,
+		TRUE, 0, 1, 1, 1,
+		NULL,
+		"Timing", "DoJudderTerminatorOnVideo", NULL,
+	},
+	{
+		"Sleep Interval", SLIDER, 0, (long*)&Sleep_Interval,
+		0, 0, 100, 1, 1,
+		NULL,
+		"Threads", "Sleep_Interval", NULL,
+	},
+	{
+		"Sleep Skip Fields", SLIDER, 0, (long*)&Sleep_SkipFields,
+		0, 0, 60, 1, 1,
+		NULL,
+		"Threads", "Sleep_SkipFields", NULL,
+	},
+	{
+		"Sleep Skip Fields Late", SLIDER, 0, (long*)&Sleep_SkipFieldsLate,
+		0, 0, 60, 1, 1,
+		NULL,
+		"Threads", "Sleep_SkipFieldsLate", NULL,
 	},
 };
 

@@ -92,9 +92,7 @@ typedef struct
 } TProgramm;
 
 
-void Write_Program_List();
 void Write_Program_List_ASCII();
-void Load_Program_List();
 void Load_Program_List_ASCII();
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

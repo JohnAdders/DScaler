@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/11/03 00:26:28  lindsey
+// Changed the names of the comb mode option list items
+//
 // Revision 1.7  2002/11/02 01:33:34  lindsey
 // Corrected comb filter to work with PAL video
 // Changed color of histogram outside the CCIR-601 range
@@ -199,7 +202,7 @@ LPCSTR CombModeList[] =
 {
     "Composite NTSC",
     "Composite PAL",
-    "S-Video or SECAM"
+    "Disable"
 };
 
 

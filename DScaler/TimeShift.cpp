@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.18 2002-12-06 08:20:21 atnak Exp $
+// $Id: TimeShift.cpp,v 1.19 2003-01-20 15:18:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/12/06 08:20:21  atnak
+// Fixes audio settings corrupting if user Cancels audio options.
+//
 // Revision 1.17  2002/06/05 22:03:40  adcockj
 // Hopefully fixed some timeshift issues and some bracketing changes
 //
@@ -113,6 +116,8 @@
 #include "OutThreads.h"
 
 #include "Providers.h"
+
+BOOL ShownWarning = FALSE;
 
 bool CTimeShift::OnDestroy(void)
 {
@@ -1032,7 +1037,26 @@ CTimeShift::~CTimeShift()
 bool CTimeShift::AssureCreated(void)
 {
     if (!m_pTimeShift)
+    {
+        if(ShownWarning == FALSE)
+        {
+            int Result  = MessageBox(
+                                        hWnd, 
+                                        "TimeShift is an experimental feature.\n" 
+                                        "We have had reports of this feature crashing and "
+                                        "causing serious problems including disk corruption.\n"
+                                        "Are you sure you want to continue?",
+                                        "TimeShift Warning", 
+                                        MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2
+                                     );
+            if(Result != IDYES)
+            {
+                return FALSE;
+            }
+            ShownWarning = TRUE;
+        }
         m_pTimeShift = new CTimeShift();
+    }
 
     return m_pTimeShift != NULL;
 }
@@ -2165,6 +2189,9 @@ bool CTimeShift::ReadFromIni(void)
     m_recHeight = GetPrivateProfileInt(
         "TimeShift", "RecHeight", m_recHeight, szIniFile);
 
+    ShownWarning = (GetPrivateProfileInt(
+        "TimeShift", "ShownWarning", FALSE, szIniFile) != 0);
+
     return true;
 }
 
@@ -2195,6 +2222,8 @@ bool CTimeShift::WriteToIni(void)
 
     sprintf(temp, "%u", m_recHeight);
     WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
+
+    WritePrivateProfileString("TimeShift", "ShownWarning", ShownWarning?"1":"0", szIniFile);
 
     return true;
 }

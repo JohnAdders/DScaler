@@ -1553,8 +1553,13 @@ BEGIN
         END
         POPUP "Miscellaneous Settings"
         BEGIN
-            MENUITEM "Non-Standard Signal (VCR)",   IDM_SAA7134CARD_NONSTANDARDSIGNAL
+            MENUITEM "HPLL: TV Mode",               IDM_SAA7134CARD_HPLLMODE0
 
+            MENUITEM "HPLL: VCR Mode",              IDM_SAA7134CARD_HPLLMODE1
+
+            MENUITEM "HPLL: Fast Tracking Mode",    IDM_SAA7134CARD_HPLLMODE2
+
+            MENUITEM SEPARATOR
             MENUITEM "Other Test Settings ...",     IDM_AUDIOSETTINGS
             MENUITEM "Edit Register ...",           IDM_ADV_VIDEOSETTINGS
         END

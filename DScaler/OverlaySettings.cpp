@@ -19,31 +19,28 @@
 #include "resource.h"
 #include "Other.h"
 #include "OverlaySettings.h"
+#include "Slider.h"
 
 
 BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-    static long TUse;
     static long THue;
     static long TBrightness;
     static long TContrast;
     static long TSaturation;
     static long TGamma;
     static long TSharpness;
+    BOOL bUseDscalerSettings;
 
     switch (message)
     {
     case WM_INITDIALOG:
-
-        TUse = Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS));
         TBrightness = Setting_GetValue(Other_GetSetting(OVERLAYBRIGHTNESS));
         TContrast = Setting_GetValue(Other_GetSetting(OVERLAYCONTRAST));
         THue = Setting_GetValue(Other_GetSetting(OVERLAYHUE));
         TSaturation = Setting_GetValue(Other_GetSetting(OVERLAYSATURATION));
         TGamma = Setting_GetValue(Other_GetSetting(OVERLAYGAMMA));
         TSharpness = Setting_GetValue(Other_GetSetting(OVERLAYSHARPNESS));
-
-        Button_SetCheck(GetDlgItem(hDlg, IDC_CHECK1), Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_CHECKED:MF_UNCHECKED);
 
         SetDlgItemInt(hDlg, IDC_D1, TBrightness, TRUE);
         SetDlgItemInt(hDlg, IDC_D2, TContrast, FALSE);
@@ -69,7 +66,6 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
             break;
 
         case IDCANCEL:
-            Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), TUse);
             Setting_SetValue(Other_GetSetting(OVERLAYBRIGHTNESS), TBrightness);
             Setting_SetValue(Other_GetSetting(OVERLAYCONTRAST), TContrast);
             Setting_SetValue(Other_GetSetting(OVERLAYHUE),THue);
@@ -151,21 +147,8 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
 }
 
 
-void OverlaySettings_Load()
-{
-    Setting_ReadFromIni(Other_GetSetting(USEOVERLAYCONTROLS));
-    Setting_ReadFromIni(Other_GetSetting(OVERLAYBRIGHTNESS));
-    Setting_ReadFromIni(Other_GetSetting(OVERLAYCONTRAST));
-    Setting_ReadFromIni(Other_GetSetting(OVERLAYHUE));
-    Setting_ReadFromIni(Other_GetSetting(OVERLAYSATURATION));
-    Setting_ReadFromIni(Other_GetSetting(OVERLAYGAMMA));
-    Setting_ReadFromIni(Other_GetSetting(OVERLAYSHARPNESS));
-}
-
-
 void OverlaySettings_Save()
 {
-    Setting_WriteToIni(Other_GetSetting(USEOVERLAYCONTROLS), FALSE);
     Setting_WriteToIni(Other_GetSetting(OVERLAYBRIGHTNESS), FALSE);
     Setting_WriteToIni(Other_GetSetting(OVERLAYCONTRAST), FALSE);
     Setting_WriteToIni(Other_GetSetting(OVERLAYHUE), FALSE);

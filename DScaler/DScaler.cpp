@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.131 2002-02-18 20:51:51 laurentg Exp $
+// $Id: DScaler.cpp,v 1.132 2002-02-18 23:28:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.131  2002/02/18 20:51:51  laurentg
+// Statistics regarding deinterlace modes now takes into account the progressive mode
+// Reset of the deinterlace statistics at each start of the decoding thread
+// Reset action now resets the deinterlace statistics too
+//
 // Revision 1.130  2002/02/17 21:41:03  laurentg
 // Action "Find and Lock Film mode" added
 //
@@ -1836,6 +1841,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
             break;
 
+        case IDM_USE_DSCALER_OVERLAY:
+            Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), !Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
+            break;
+
         case IDM_FAST_REPAINT:
             {
                 RECT winRect;
@@ -2843,6 +2852,9 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
     CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
 
+    CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
+    EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
+
     AspectRatio_SetMenu(hMenu);
     FD60_SetMenu(hMenu);
     OutThreads_SetMenu(hMenu);
@@ -2976,7 +2988,7 @@ HMENU GetOSDSubmenu2()
 
 HMENU GetPatternsSubmenu()
 {
-    return GetOrCreateSubSubSubMenu(4, 7, 0, "Test &Patterns");
+    return GetOrCreateSubSubSubMenu(4, 8, 0, "Test &Patterns");
 }
 
 //---------------------------------------------------------------------------

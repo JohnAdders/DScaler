@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.46 2004-12-06 09:03:23 atnak Exp $
+// $Id: SAA7134Card.h,v 1.47 2004-12-08 21:26:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2004/12/06 09:03:23  atnak
+// Added some SAA7133 audio related functions.
+//
 // Revision 1.45  2004/12/01 22:01:18  atnak
 // Fix the VC++ 6 incompatibility introduced by last change.
 //
@@ -566,16 +569,15 @@ private:
     static const TCardType          m_SAA7134UnknownCard;
     static std::vector<CCardTypeEx> m_SAA713xCards;
 
-    static const HCParser::CParseConstant k_parseSAA713xInputAudioPinConstants[];
-    static const HCParser::CParseConstant k_parseSAA713xInputTypeConstants[];
-    static const HCParser::CParseConstant k_parseSAA713xAudioCrystalConstants[];
-    static const HCParser::CParseConstant k_parseSAA713xDefaultTunerConstants[];
+    static const HCParser::CParseConstant k_parseAudioPinConstants[];
+    static const HCParser::CParseConstant k_parseInputTypeConstants[];
+    static const HCParser::CParseConstant k_parseAudioCrystalConstants[];
 
-    static const HCParser::CParseTag k_parseSAA713xCardInputGPIOSet[];
-    static const HCParser::CParseTag k_parseSAA713xCardInput[];
-    static const HCParser::CParseTag k_parseSAA713xCardAutoDetectID[];
-    static const HCParser::CParseTag k_parseSAA713xCard[];
-    static const HCParser::CParseTag k_parseSAA713xCardList[];
+    static const HCParser::CParseTag k_parseInputGPIOSet[];
+    static const HCParser::CParseTag k_parseCardInput[];
+    static const HCParser::CParseTag k_parseAutoDetectID[];
+    static const HCParser::CParseTag k_parseCard[];
+    static const HCParser::CParseTag k_parseCardList[];
 
     eSAA7134CardId      m_CardType;
     char                m_TunerType[32];

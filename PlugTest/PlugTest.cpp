@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.8 2001-07-16 18:27:28 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.9 2001-08-03 12:28:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,12 +25,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/16 18:27:28  adcockj
+// Fixed Typos and made menus more friendly
+//
 // Revision 1.7  2001/07/13 16:15:44  adcockj
 // Changed lots of variables to match Coding standards
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "../DScaler/CPU.h"
 
 char szIniFile[MAX_PATH];
 void ReadFromIni(SETTING* pSetting, char* szIniFile);
@@ -148,7 +152,7 @@ BOOL FillInfoStruct(DEINTERLACE_INFO* info, char* SnapshotFile)
     }
 
     info->Overlay = (BYTE*)malloc(info->OverlayPitch * info->FrameHeight);
-    info->CpuFeatureFlags = 0;
+    info->CpuFeatureFlags = CpuFeatureFlags;
     info->pMemcpy = memcpyMMX;
     fclose(file);      
     return TRUE;
@@ -202,7 +206,7 @@ BOOL LoadFilterPlugin(LPCSTR szFileName, FILTER_METHOD** FilterMethod)
         return FALSE;
     }
 
-    pMethod = pfnGetFilterPluginInfo(0);
+    pMethod = pfnGetFilterPluginInfo(CpuFeatureFlags);
     if(pMethod != NULL)
     {
         *FilterMethod = pMethod;
@@ -246,7 +250,7 @@ BOOL LoadDeintPlugin(LPCSTR szFileName, DEINTERLACE_METHOD** DeintMethod)
         return FALSE;
     }
 
-    pMethod = pfnGetDeinterlacePluginInfo(0);
+    pMethod = pfnGetDeinterlacePluginInfo(CpuFeatureFlags);
     if(pMethod != NULL)
     {
         *DeintMethod = pMethod;
@@ -700,6 +704,7 @@ int main(int argc, char* argv[])
         printf("    - oddeven1|oddeven2|oddeven3|oddeven4|oddeven5 to save odd+even fields\n");
         return 1;
     }
+    CPU_SetupFeatureFlag();
     if(argc == 4)
     {
         return ProcessSnapShot(argv[1], NULL, argv[2], argv[3]);

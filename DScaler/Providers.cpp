@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.10 2001-11-28 16:04:50 adcockj Exp $
+// $Id: Providers.cpp,v 1.11 2001-12-08 12:01:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.9  2001/11/25 21:29:50  laurentg
 // Take still, Open file, Close file callbacks updated
 //
@@ -115,7 +118,14 @@ int Providers_Load(HMENU hMenu)
     {
         if(Sources.size() < 100)
         {
-            sprintf(Text, "Still %d", i + 1);
+            if (StillProvider->GetNumberOfSources() == 1)
+            {
+                strcpy(Text, "Still");
+            }
+            else
+            {
+                sprintf(Text, "Still %d", i + 1);
+            }
             AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
         }
         Sources.push_back(StillProvider->GetSource(i));
@@ -157,82 +167,6 @@ CSource* Providers_GetCurrentSource()
     {
         return NULL;
     }
-}
-
-BOOL Providers_AddSource(CSource* pSource, HMENU hMenu, BOOL GoToNewSource)
-{
-    HMENU           hSubMenu = GetSubMenu(hMenu, 5);
-
-    AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), pSource->GetMenuLabel());
-    Sources.push_back(pSource);
-    if (GoToNewSource)
-    {
-        Stop_Capture();
-        CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, FALSE);
-        CurrentSource = Sources.size() - 1;
-        CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, TRUE);
-        Providers_UpdateMenu(hMenu);
-        Start_Capture();
-    }
-    return TRUE;
-}
-
-BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu)
-{
-    HMENU           hSubMenu = GetSubMenu(hMenu, 5);
-    BOOL            Removed = FALSE;
-    MENUITEMINFO    MenuInfo;
-    int             i, j;
-    CSource*        pCurrentSource = Providers_GetCurrentSource();
-
-    if (pSource == pCurrentSource)
-    {
-        Stop_Capture();
-    }
-
-    i = 0;
-    for(vector<CSource*>::iterator it = Sources.begin();
-        it != Sources.end();
-        ++it, ++i)
-    {
-        if (*it == pSource)
-        {
-            Removed = RemoveMenu(hSubMenu, IDM_SOURCE_FIRST + i, MF_BYCOMMAND);
-            if (Removed)
-            {
-                Sources.erase(it);
-                break;
-            }
-        }
-    }
-
-    if (Removed)
-    {
-        if (pSource == pCurrentSource)
-        {
-            if (CurrentSource >= Sources.size())
-            {
-                CurrentSource--;
-            }
-            Providers_UpdateMenu(hMenu);
-        }
-
-        MenuInfo.cbSize = sizeof(MenuInfo);
-        MenuInfo.fMask = MIIM_ID;
-        for(j = i; j < Sources.size(); ++j)
-        {
-            MenuInfo.wID = IDM_SOURCE_FIRST + j;
-            SetMenuItemInfo(hSubMenu, IDM_SOURCE_FIRST + j + 1, FALSE, &MenuInfo);
-            CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + j + 1, j == CurrentSource);
-        }
-    }
-
-    if (pSource == pCurrentSource)
-    {
-        Start_Capture();
-    }
-
-    return Removed;
 }
 
 void Providers_SetMenu(HMENU hMenu)

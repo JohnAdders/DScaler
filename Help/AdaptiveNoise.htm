@@ -251,6 +251,61 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <HR>
           <P>
+            <B><FONT FACE="Arial" SIZE="4">
+              About Adaptive Noise
+            </FONT></B>
+          </P>
+          <P>
+            <B><FONT FACE="Arial">
+              How much noise reduction should I use?
+            </FONT></B>
+          </P>
+          <P>
+            Let your eyes be the judge. I like to keep the
+            settings pretty low&nbsp;&mdash; Blurred
+            faces look worse than a little static.
+          </P>
+          <P>
+            Surprisingly, small amounts of color variation can
+            sometimes improve an image. By switching back
+            and forth between colors, the picture is able to give
+            the impression of a color somewhere in
+            between them. Also, noise can break up artifactual
+            patterns in the picture, making it easier for you to
+            ignore the errors.
+          </P>
+          <P>
+            With that in mind, the Adaptive and Gradual Noise
+            filters and the Greedy (High Motion) median filter all
+            try to preserve a small amount of color variation.
+            As a result, they will never give you a completely
+            stable picture.
+          </P>
+          <P>
+            <B><FONT FACE="Arial">
+              This filter seems to blur too much.  No, wait!  Now it seems to be
+							okay.  What the heck just happened?
+            </FONT></B>
+          </P>
+					<P>
+					  This filter works by estimating noise in the picture.  If it has only seen
+						moving or very dark scenes, it won&rsquo;t be able to get that estimate.
+					</P>
+					<P>
+					  You can see this effect with the <FONT COLOR="#993300">Lock Dot</FONT>
+						option.  The dot will show up during still scenes only if the filter has
+						a good estimate of the noise.
+					</P>
+          <P>
+            <B><FONT FACE="Arial">
+              The picture looks a little soft.  Is there anything I can do about that?
+            </FONT></B>
+          </P>
+					<P>
+					  Try reducing the <FONT COLOR="#993300">Stability</FONT> setting.
+					</P>
+          <HR>
+          <P>
             <B><A NAME="Fun With Noise"><FONT FACE="Arial" SIZE="4">
               Fun with Noise
             </FONT></A></B>
@@ -302,32 +357,6 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             running.
           </P>
           <P>
-            <B><FONT FACE="Arial">
-              How much noise reduction should I use?
-            </FONT></B>
-          </P>
-          <P>
-            Let your eyes be the judge. I like to keep the
-            settings pretty low&nbsp;&mdash; Blurred
-            faces look worse than a little static.
-          </P>
-          <P>
-            Surprisingly, small amounts of color variation can
-            sometimes improve an image. By switching back
-            and forth between colors, the picture is able to give
-            the impression of a color somewhere in
-            between them. Also, noise can break up artifactual
-            patterns in the picture, making it easier for you to
-            ignore the errors.
-          </P>
-          <P>
-            With that in mind, the Adaptive and Gradual Noise
-            filters and the Greedy (High Motion) median filter all
-            try to preserve a small amount of color variation.
-            As a result, they will never give you a completely
-            stable picture.
-          </P>
-          <P>
             <B><FONT FACE="Arial">Which noise filter should I
             use?</FONT></B>
           </P>
@@ -376,7 +405,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           <P>
             In general, the more noise filters you run at once, the
             <EM>worse</EM> the picture will get.  The combination of noise filters
-						will usually cause posterization and banding, in addition to any artifacts
+						will usually cause posterization, speckling, and banding, in addition to any artifacts
 						caused by each of the individual noise filters.
           </P>
           <P>
@@ -385,7 +414,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             </FONT></B>
           </P>
           <P>
-            If you are using a Bt8x8 card, there are a couple options in the Advanced Video Flags dialog
+            If you are using a Bt8x8 card, there are a couple input card options
             which can help.  &ldquo;Horizontal Filter&rdquo; will smooth
             the picture, cutting down on noise.  You can also reduce noise quite
             a bit (at the cost of some sharpness) by turning off &ldquo;Even Luma

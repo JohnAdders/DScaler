@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.9 2002-10-08 11:22:40 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.10 2002-10-18 16:12:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/08 11:22:40  adcockj
+// Changed some defines for consistency
+//
 // Revision 1.8  2002/09/29 16:16:21  adcockj
 // Holo3d imrprovements
 //
@@ -287,7 +290,6 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     int VertDelay;
     int HorzScale;
 
-    CurrentX = 720;
     CurrentY = GetTVFormat(TVFormat)->wCropHeight;
 
     if(IsCCIRSource(nInput))
@@ -295,8 +297,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentX = 720;
 		WriteByte(CT2388X_PINMUX_IO, 0x02);
 
-        SetPLL( 27e6, 2, FALSE );
-        SetSampleRateConverter(27e6);
+        SetPLL(27.0);
+        SetSampleRateConverter(27.0);
 
         // Since we are digital here we don't really care which
         // format we choose as long as it has the right number of lines
@@ -336,20 +338,48 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         WriteDword(CT2388X_VIP_CONFIG, 1);
         WriteDword(CT2388X_VDELAYCCIR_EVEN, VertDelay);
         WriteDword(CT2388X_VDELAYCCIR_ODD, VertDelay);
+
+        if(HDelayOverride != 0)
+        {
+            HorzDelay = HDelayOverride;
+        }
+        else
+        {
+            if (CurrentY == 576)
+            {
+                HorzDelay = 0x94;
+            }
+            else
+            {
+                HorzDelay = 0x7E;
+            }
+        }
+
+
+        if (CurrentY == 576)
+        {
+            HorzScale = 0x0504;
+        }
+        else
+        {
+            HorzScale = 0x00F8;
+        }
+    
     }
-    else
+    // Test to see how to get best analogue picture
+    // try using the sample rate convertor
+    else if(true)
     {
         DWORD HTotal(0);
+        DWORD Format2HComb(0x183f0008);
 
         CurrentX = 720;
 
-        SetPLL( 27e6, 2, FALSE );
-        SetSampleRateConverter(27e6);
+        SetPLL(27.0);
+        SetSampleRateConverter(27.0);
 
         // Setup correct format
-        // \todo work out correct way of storing this with format info
 		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
-		VideoInput &= 0xfffffff0;
 
         switch(TVFormat)
         {
@@ -360,22 +390,27 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
             HTotal = HLNotchFilter135PAL | 864;
+            Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
             HTotal = HLNotchFilter135PAL | 864;
+            Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_M:
             VideoInput |= VideoFormatPALM;
             HTotal = HLNotchFilter135NTSC | 858;
+            Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_60:
             VideoInput |= VideoFormatPAL60;
             HTotal = HLNotchFilter135NTSC | 858;
+            Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             VideoInput |= VideoFormatPALNC;
             HTotal = HLNotchFilter135PAL | 864;
+            Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_SECAM_B:
         case VIDEOFORMAT_SECAM_D:
@@ -408,10 +443,15 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
         WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
+        WriteDword(CT2388X_FORMAT_2HCOMB, HTotal);
 
         // set up subcarrier frequency
-        DWORD reg_value = (DWORD)( ((8 * GetTVFormat(TVFormat)->Fsc) / 27) * (double)(1<<22) + 0.5 );
-        WriteDword( CT2388X_SUBCARRIERSTEP, reg_value & 0x7FFFFF );
+        DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 27.0) * (double)(1<<22));
+        WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+        // Subcarrier frequency Dr, for SECAM only but lets
+        // set it anyway
+        RegValue = (DWORD)((8.0 * 4.406250 / 27.0) * (double)(1<<22));
+        WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
 
         if(VDelayOverride != 0)
         {
@@ -431,33 +471,156 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CT2388X_VERT_DELAY_EVEN, VertDelay);
         WriteDword(CT2388X_VERT_DELAY_ODD, VertDelay);
-    }
 
-    if(HDelayOverride != 0)
-    {
-        HorzDelay = HDelayOverride;
-    }
-    else
-    {
-        if (CurrentY == 576)
+        if(HDelayOverride != 0)
         {
-            HorzDelay = 0x94;
+            HorzDelay = HDelayOverride;
         }
         else
         {
-            HorzDelay = 0x7E;
+            if (CurrentY == 576)
+            {
+                HorzDelay = 0x8A;
+            }
+            else
+            {
+                HorzDelay = 0x7E;
+            }
         }
-    }
 
-    if (CurrentY == 576)
-    {
-        HorzScale = 0x0504;
+        HorzScale = 0x00;
     }
+    // compare to method using old style 8*Fsc capture
     else
     {
-        HorzScale = 0x00F8;
-    }
+        DWORD HTotal(0);
+        DWORD Format2HComb(0x183f0008);
 
+        CurrentX = 720;
+
+        if (CurrentY == 576)
+        {
+            SetPLL(35.46895);
+            SetSampleRateConverter(35.46895);
+            HorzScale = 0x0504;
+        }
+        else
+        {
+            SetPLL(28.636363);
+            SetSampleRateConverter(28.636363);
+            HorzScale = 0x00F8;
+        }
+
+        // Setup correct format
+		DWORD VideoInput = ReadDword(CT2388X_VIDEO_INPUT);
+
+        switch(TVFormat)
+        {
+        case VIDEOFORMAT_PAL_B:
+        case VIDEOFORMAT_PAL_D:
+        case VIDEOFORMAT_PAL_G:
+        case VIDEOFORMAT_PAL_H:
+        case VIDEOFORMAT_PAL_I:
+            VideoInput |= VideoFormatPALBDGHI;
+            HTotal = HLNotchFilter135PAL | 864;
+            Format2HComb |= (1 << 26);
+            break;
+        case VIDEOFORMAT_PAL_N:
+            VideoInput |= VideoFormatPALN;
+            HTotal = HLNotchFilter135PAL | 864;
+            Format2HComb |= (1 << 26);
+            break;
+        case VIDEOFORMAT_PAL_M:
+            VideoInput |= VideoFormatPALM;
+            HTotal = HLNotchFilter135NTSC | 858;
+            Format2HComb |= (1 << 26);
+            break;
+        case VIDEOFORMAT_PAL_60:
+            VideoInput |= VideoFormatPAL60;
+            HTotal = HLNotchFilter135NTSC | 858;
+            Format2HComb |= (1 << 26);
+            break;
+        case VIDEOFORMAT_PAL_N_COMBO:
+            VideoInput |= VideoFormatPALNC;
+            HTotal = HLNotchFilter135PAL | 864;
+            Format2HComb |= (1 << 26);
+            break;
+        case VIDEOFORMAT_SECAM_B:
+        case VIDEOFORMAT_SECAM_D:
+        case VIDEOFORMAT_SECAM_G:
+        case VIDEOFORMAT_SECAM_H:
+        case VIDEOFORMAT_SECAM_K:
+        case VIDEOFORMAT_SECAM_K1:
+        case VIDEOFORMAT_SECAM_L:
+        case VIDEOFORMAT_SECAM_L1:
+            VideoInput |= VideoFormatSECAM;
+            HTotal = HLNotchFilter135PAL | 864;
+            break;
+        case VIDEOFORMAT_NTSC_M:
+            VideoInput |= VideoFormatNTSC;
+            HTotal = HLNotchFilter135NTSC | 858;
+            break;
+        case VIDEOFORMAT_NTSC_M_Japan:
+            VideoInput |= VideoFormatNTSCJapan;
+            HTotal = HLNotchFilter135NTSC | 858;
+            break;
+        case VIDEOFORMAT_NTSC_50:
+            VideoInput |= VideoFormatNTSC443;
+            HTotal = HLNotchFilter135PAL | 864;
+            break;
+        default:
+            VideoInput |= VideoFormatAuto;
+            HTotal = HLNotchFilter135NTSC | 858;
+            break;
+        }
+
+        WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
+        WriteDword(CT2388X_PIXEL_CNT_NOTCH, HTotal);
+        WriteDword(CT2388X_FORMAT_2HCOMB, HTotal);
+
+        // set up subcarrier frequency
+        DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 27.0) * (double)(1<<22));
+        WriteDword( CT2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
+        // Subcarrier frequency Dr, for SECAM only but lets
+        // set it anyway
+        RegValue = (DWORD)((8.0 * 4.406250 / 27.0) * (double)(1<<22));
+        WriteDword( CT2388X_SUBCARRIERSTEPDR, RegValue);
+
+        if(VDelayOverride != 0)
+        {
+            VertDelay = VDelayOverride;
+        }
+        else
+        {
+            if (CurrentY == 576)
+            {
+                VertDelay = 0x26;
+            }
+            else
+            {
+                VertDelay = 0x14;
+            }
+        }
+
+        WriteDword(CT2388X_VERT_DELAY_EVEN, VertDelay);
+        WriteDword(CT2388X_VERT_DELAY_ODD, VertDelay);
+
+        if(HDelayOverride != 0)
+        {
+            HorzDelay = HDelayOverride;
+        }
+        else
+        {
+            if (CurrentY == 576)
+            {
+                HorzDelay = 0x8A;
+            }
+            else
+            {
+                HorzDelay = 0x7E;
+            }
+        }
+    }
 
     WriteDword(CT2388X_HACTIVE_EVEN, CurrentX);
     WriteDword(CT2388X_HACTIVE_ODD, CurrentX);
@@ -691,63 +854,64 @@ bool CCT2388xCard::GetSCL()
 
 /*******************************************************************************
     Program the PLL to a specific output frequency.
+    Assume that we have a PLL pre dividor of 2
 *******************************************************************************/
-void CCT2388xCard::SetPLL( double output_freq, int pre_scaler, BOOL integer_only )
+void CCT2388xCard::SetPLL(double PLLFreq)
 {
-    DWORD reg_value;
-    double pll_value;
-    int pll_int;
-    int pll_frac;
+    DWORD RegValue = 0;
+    int Prescaler = 2;
+    double PLLValue;
+    int PLLInt = 0;
+    int PLLFraction;
 
-    // Set Pre scaler bits
-    if( pre_scaler <= 2 )
-    {
-        reg_value = 0;
-        pre_scaler = 2;
-    }
-    else if( pre_scaler == 3 )
-    {
-        reg_value = 3<<26;
-    }
-    else if( pre_scaler == 4 )
-    {
-        reg_value = 2<<26;
-    }
-    else
-    {
-        reg_value = 1<<26;
-        pre_scaler = 5;
-    }
-    
-    pll_value = output_freq * 8.0 * (double)pre_scaler / 28.63636E6;
+    PLLValue = PLLFreq * 8.0 * (double)Prescaler / 28.63636;
 
-    // Handle integer only bits
-    if( integer_only )
+    while(PLLValue < 14.0 && Prescaler < 5)
     {
-        reg_value |= 1 << 28;
-        pll_value = (int)(pll_value + 0.5);
+        ++Prescaler;
+        PLLValue = PLLFreq * 8.0 * (double)Prescaler / 28.63636;
     }
 
-    pll_int = (int)pll_value;
-    pll_frac = (int)((pll_value - (double)pll_int) * (double)(1<<20) + 0.5);
+    switch(Prescaler)
+    {
+    case 2:
+        RegValue = 0 << 26;
+        break;
+    case 3:
+        RegValue = 3 << 26;
+        break;
+    case 4:
+        RegValue = 2 << 26;
+        break;
+    case 5:
+        RegValue = 1 << 26;
+        break;
+    default:
+        LOG(0, "Invalid PLL Pre Scaler value %d", Prescaler);
+        break;
+    }
+
+    PLLInt = (int)PLLValue;
+    PLLFraction = (int)((PLLValue - (double)PLLInt) * (double)(1<<20) + 0.5);
 
     // Check for illegal PLL values
-    if( pll_int < 14 || pll_int > 63 )
+    if( PLLInt < 14 || PLLInt > 63)
     {
+        LOG(0, "Invalid PLL value %f MHz", PLLFreq);
         return;
     }
     
-    // Set register int and frac values
-    reg_value |= pll_int << 20;
-    reg_value |= pll_frac & 0xFFFFF;
+    // Set register int and fraction values
+    RegValue |= PLLInt << 20;
+    RegValue |= PLLFraction & 0xFFFFF;
     
-    WriteDword(CT2388X_PLL , reg_value );
+    WriteDword(CT2388X_PLL , RegValue );
 }
 
 void CCT2388xCard::SetSampleRateConverter(double PLLFreq)
 {
-    DWORD reg_value = (int)(28.63636E6 / PLLFreq * (double)(1<<17) + 0.5);
-    WriteDword( CT2388X_SAMPLERATECONV, reg_value & 0x7FFFF );
+    DWORD RegValue = (DWORD)((28.636363 / PLLFreq) * (double)(1<<17));
+    WriteDword( CT2388X_SAMPLERATECONV, RegValue & 0x7FFFF );
 }
 
 eTunerId CCT2388xCard::AutoDetectTuner(eCT2388xCardId CardId)

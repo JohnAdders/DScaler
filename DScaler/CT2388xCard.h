@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.h,v 1.5 2002-10-17 13:31:37 adcockj Exp $
+// $Id: CT2388xCard.h,v 1.6 2002-10-18 16:12:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/17 13:31:37  adcockj
+// Give Holo3d different menu and updated settings
+//
 // Revision 1.4  2002/10/08 11:22:40  adcockj
 // Changed some defines for consistency
 //
@@ -176,8 +179,10 @@ private:
 private:
     BOOL IsCCIRSource(int nInput);
     const TCardType* GetCardSetup();
-    void SetPLL(double output_freq, int pre_scaler, BOOL integer_only);
+    /// Sets up Sample rate converter (Freq in MHz)
     void SetSampleRateConverter(double PLLFreq);
+    /// Sets up PLL (Freq in MHz)
+    void SetPLL(double PLLFreq);
 
     void StandardInputSelect(int nInput);
 

@@ -1,3 +1,34 @@
+;-------------------------------------------------------------------------------------------
+; This is Frequency definition file for DScaler
+;-------------------------------------------------------------------------------------------
+; DScaler is released under the terms of the GPL
+;
+; if you have new information for this file please post it to
+; deinterlace-discuss@lists.sourceforge.net
+;-------------------------------------------------------------------------------------------
+; Possible formats
+;    "PAL-B",
+;    "PAL-D",
+;    "PAL-G",
+;    "PAL-H",
+;    "PAL-I",
+;    "PAL-M",
+;    "PAL-N",
+;    "PAL-60",
+;    "PAL-N-COMBO"
+;    "SECAM-B",
+;    "SECAM-D",
+;    "SECAM-G",
+;    "SECAM-H",
+;    "SECAM-K",
+;    "SECAM-K1",
+;    "SECAM-L",
+;    "SECAM-L1",
+;    "NTSC-M",
+;    "NTSC-M-Japan",
+;    "NTSC-50",
+;-------------------------------------------------------------------------------------------
+
 [Australian Air Frequency]
 ChannelLow=1
 ChannelHigh=53
@@ -942,6 +973,7 @@ ChannelHigh=68
 [Japanese Cable Frequency]
 ChannelLow=13
 ChannelHigh=63
+Format=NTSC-M-Japan
    109250000
    115250000
    121250000
@@ -997,6 +1029,7 @@ ChannelHigh=63
 [Japanese Air Frequency]
 ChannelLow=1
 ChannelHigh=62
+Format=NTSC-M-Japan
     91250000
     97250000
    103250000
@@ -1173,6 +1206,7 @@ ChannelHigh=80
 [USA Cable Frequency]
 ChannelLow=1
 ChannelHigh=158
+Format=NTSC-M
    73250000
    55250000
    61250000
@@ -1335,6 +1369,7 @@ ChannelHigh=158
 [USA Cable HRC Frequency]
 ChannelLow=1
 ChannelHigh=116
+Format=NTSC-M
    72000000
    54000000
    60000000
@@ -1455,6 +1490,7 @@ ChannelHigh=116
 [USA Air Frequency]
 ChannelLow=2
 ChannelHigh=69
+Format=NTSC-M
    55250000
    61250000
    67250000
@@ -1527,6 +1563,7 @@ ChannelHigh=69
 [UK Cable Frequency]
 ChannelLow=1
 ChannelHigh=107
+Format=PAL-I
         48250000      ; 1    E2 
         49750000      ; 2    E2A
         55250000      ; 3    E3
@@ -1638,6 +1675,7 @@ ChannelHigh=107
 [UK Air Frequency]
 ChannelLow=1
 ChannelHigh=69
+Format=PAL-I
         45750000      ; 1
         53750000      ; 2
         61750000      ; 3

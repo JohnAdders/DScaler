@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.6 2001-12-08 13:48:40 laurentg Exp $
+// $Id: Source.h,v 1.7 2001-12-08 20:00:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -97,6 +97,8 @@ public:
     virtual BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) = 0;
     /// Returns the Source specific menu to display when this source is selected
     HMENU GetSourceMenu();
+    // Is access to this source allowed
+    virtual BOOL IsAccessAllowed() = 0;
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.12 2001-12-08 13:48:40 laurentg Exp $
+// $Id: Providers.cpp,v 1.13 2001-12-08 20:00:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/08 13:48:40  laurentg
+// New StillSource for snapshots done during the DScaler session
+//
 // Revision 1.11  2001/12/08 12:01:26  laurentg
 // Providers_AddSource and Providers_RemoveSource deleted
 //
@@ -194,6 +197,7 @@ void Providers_SetMenu(HMENU hMenu)
     for(int i(0); i < Sources.size(); ++i)
     {
         CheckMenuItemBool(hMenu, IDM_SOURCE_FIRST + i, (CurrentSource == i));
+        EnableMenuItem(hMenu, IDM_SOURCE_FIRST + i, Sources[i]->IsAccessAllowed() ? MF_ENABLED : MF_GRAYED);
     }
 
     if(CurrentSource >= 0 && CurrentSource < Sources.size())

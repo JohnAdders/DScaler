@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.13 2001-12-08 17:39:14 laurentg Exp $
+// $Id: StillSource.h,v 1.14 2001-12-08 20:00:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -90,12 +90,13 @@ public:
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
-    BOOL IsVideoPresent() {return TRUE;};
+    BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
     LPCSTR GetMenuLabel();
     BOOL ReadNextFrameInFile();
     void SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
+    BOOL IsAccessAllowed();
 
     friend class CTiffHelper;
 

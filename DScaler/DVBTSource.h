@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.5 2001-11-29 14:04:07 adcockj Exp $
+// $Id: DVBTSource.h,v 1.6 2001-12-08 20:00:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ public:
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
     LPCSTR GetMenuLabel() {return NULL;};
+    BOOL IsAccessAllowed() {return TRUE;};
 
 private:
     std::string  m_Section;

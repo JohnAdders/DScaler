@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.19 2001-12-08 17:39:14 laurentg Exp $
+// $Id: StillSource.cpp,v 1.20 2001-12-08 20:00:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/12/08 17:39:14  laurentg
+// Slide show feature added
+//
 // Revision 1.18  2001/12/08 14:23:33  laurentg
 // Debug traces deleted
 //
@@ -557,4 +560,14 @@ void CStillSource::HandleTimerMessages(int TimerId)
 LPCSTR CStillSource::GetMenuLabel()
 {
     return m_Section.c_str();
+}
+
+BOOL CStillSource::IsVideoPresent()
+{
+    return m_IsPictureRead;
+}
+
+BOOL CStillSource::IsAccessAllowed()
+{
+    return (m_Position != -1 && m_PlayList.size() > 0);
 }

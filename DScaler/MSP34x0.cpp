@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.8 2001-12-20 23:46:20 ittarnavsky Exp $
+// $Id: MSP34x0.cpp,v 1.9 2001-12-21 11:07:31 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/12/20 23:46:20  ittarnavsky
+// further RevA programming changes
+//
 // Revision 1.7  2001/12/20 12:55:54  adcockj
 // First stab at supporting older MSP chips
 //
@@ -747,23 +750,40 @@ void CMSP34x0Decoder::ReconfigureRevA()
     /// Step 0: AD_CV
     if(m_MSPStandards[MSPStandards].StereoType == STEREO_SAT)
     {
-        SetDEMRegister(DEM_WR_AD_CV, 0x47);
+        // set up for AGC bit 7
+        // and bits 6..1  100011 for SAT
+        SetDEMRegister(DEM_WR_AD_CV, 0xC6);
     }
     else if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM && 
                 m_MSPStandards[MSPStandards].MonoType == MONO_AM)
     {
-        SetDEMRegister(DEM_WR_AD_CV, 0xC6);///FIXME 0x47);
+        // set up for AGC bit 7
+        // and bits 6..1  100011 AM and NICAM
+        SetDEMRegister(DEM_WR_AD_CV, 0xC6);
     }
     else
     {
-        SetDEMRegister(DEM_WR_AD_CV, 0xD0);///FIXME 0x51);
+        // set up for AGC bit 7
+        // and bits 6..1  101000 FM and NICAM
+        // or Dual FM
+        SetDEMRegister(DEM_WR_AD_CV, 0xD0);
     }
 
     /// Step 1: AUDIO_PLL
+    // FIXME what should this be may need to be 0 for NICAM
+    SetDEMRegister(DEM_WR_AUDIO_PLL, 1);
 
-    /// Step 2: FAW_CT_SOLL
+    /// Step 2: FAWCT_SOLL
+    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
+    {
+        SetDEMRegister(DEM_WR_FAWCT_SOLL, 12);
+    }
     
-    /// Step 3: FAW_CT_TOL
+    /// Step 3: FAW_ER_TOL
+    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
+    {
+        SetDEMRegister(DEM_WR_FAW_ER_TOL, 2);
+    }
 
     /// Step 4: FIR_REG_1
     int FIRType = m_MSPStandards[MSPStandards].FIRType;
@@ -772,7 +792,6 @@ void CMSP34x0Decoder::ReconfigureRevA()
         SetDEMRegister(DEM_WR_FIR1, m_FIRTypes[FIRType].FIR1[i]);
     }
     
-
     /// Step 5: FIR_REG_2
     SetDEMRegister(DEM_WR_FIR2, 0x0004);
     SetDEMRegister(DEM_WR_FIR2, 0x0040);
@@ -784,17 +803,37 @@ void CMSP34x0Decoder::ReconfigureRevA()
     }
 
     /// Step 6: MODE_REG
-    WORD ModeReg = 0x0480;
-/* \todo FIXME
-    if(FIRType == FIR_BG_DK_DUAL_FM)
-    {
-        ModeReg |= 1 << 13;
-    }
+    WORD ModeReg = 0x0000;
     if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
     {
+        // set NICAM mode
         ModeReg |= 1 << 6;
+        if(m_MSPStandards[MSPStandards].MonoType == MONO_AM)
+        {
+            // set MSP 1/2 to AM
+            ModeReg |= 1 << 8;
+        }
     }
-*/
+    else
+    {
+        if(m_MSPStandards[MSPStandards].StereoType != STEREO_NONE)
+        {
+            // set Two carrier FM mode
+            ModeReg |= 1 << 10;
+        }
+        if(m_MSPStandards[MSPStandards].MonoType == MONO_FM)
+        {
+            // set MSP channel1 to FM
+            ModeReg |= 1 << 7;
+        }
+        else
+        {
+            // set MSP 1/2 to AM
+            ModeReg |= 1 << 8;
+        }
+
+    }
+
     SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
 
     /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI
@@ -806,12 +845,11 @@ void CMSP34x0Decoder::ReconfigureRevA()
     /// Step 11: start LOAD_REG_12 process
     SetDEMRegister(DEM_WR_LOAD_REG_12, 0);
 
-
-    /// \todo FIXME add all steps from the datasheet
-
-    // set up so that we fall back to AM/FM if there is no NICAM
-    // required on D series chips
-    ///SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
+    /// Step 12 NICAM_START
+    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
+    {
+        SetDEMRegister(DEM_WR_SEARCH_NICAM, 0);
+    }
 
     WORD source = 0x0030;
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.8 2001-12-20 23:46:21 ittarnavsky Exp $
+// $Id: MSP34x0.h,v 1.9 2001-12-21 11:07:31 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/12/20 23:46:21  ittarnavsky
+// further RevA programming changes
+//
 // Revision 1.7  2001/12/20 12:55:54  adcockj
 // First stab at supporting older MSP chips
 //
@@ -109,7 +112,7 @@ protected:
         DEM_WR_LOAD_REG_1 = 0x0060,
         DEM_WR_SEARCH_NICAM = 0x0078,
         DEM_WR_SELF_TEST = 0x0792,
-        DEM_WR_FAW_CT_SOLL = 0x0107,
+        DEM_WR_FAWCT_SOLL = 0x0107,
         DEM_WR_FAW_ER_TOL = 0x010F,
         DEM_WR_AUDIO_PLL = 0x02D7,
     };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.9 2001-12-19 19:24:44 ittarnavsky Exp $
+// $Id: BT848Card_Types.cpp,v 1.10 2001-12-21 11:07:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/19 19:24:44  ittarnavsky
+// prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
+//
 // Revision 1.8  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -2714,7 +2717,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		0x7,
 		{0, 0x2, 0x1, 0x3, 0x4, 0, }
 	},
-	// Card Number 76 - 3dfx VoodooTV 200 (USA)
+	// Card Number 76 - 3dfx `TV 200 (USA)
 	{
 		"3dfx VoodooTV 200 (USA)",
 		4,

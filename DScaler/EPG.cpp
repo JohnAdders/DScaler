@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.7 2005-03-27 20:22:07 laurentg Exp $
+// $Id: EPG.cpp,v 1.8 2005-03-28 12:53:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/03/27 20:22:07  laurentg
+// EPG: new improvements
+//
 // Revision 1.6  2005/03/26 19:55:33  laurentg
 // Bug fixed when shifting time frame to the next or previous day
 //
@@ -68,9 +71,6 @@
 #define	DEFAULT_OUTPUT_XML_FILE	"DScalerEPG.xml"
 #define	DEFAULT_OUTPUT_TXT_FILE	"DScalerEPG.txt"
 #define	DEFAULT_TMP_FILE		"DScalerEPG_tmp.txt"
-
-
-extern BOOL OSD_bOverride;
 
 
 CEPG MyEPG;
@@ -178,6 +178,8 @@ CEPG::CEPG()
 	m_SearchChannel = NULL;
 	m_SearchTimeMin = 0;
 	m_SearchTimeMax = 0;
+
+	SetDisplayIndexes(-1, -1);
 }
 
 
@@ -237,7 +239,7 @@ int CEPG::ExecuteCommand(string command)
 //
 int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 {
-	string XMLTVExe = (char*)Setting_GetValue(EPG_GetSetting(XMLTVPATH));
+	string XMLTVExe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
 
 	// If file not provided, try with "epg.xml"
 	string XMLFile;
@@ -747,6 +749,22 @@ int CEPG::SearchForPrograms(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
 			m_ProgramsSelection.push_back(*it);
 		}
     }
+	SetDisplayIndexes(1, m_ProgramsSelection.size());
+	return m_ProgramsSelection.size();
+}
+
+
+void CEPG::SetDisplayIndexes(int IdxMin, int IdxMax)
+{
+	m_IdxShowSelectMin = IdxMin;
+	m_IdxShowSelectMax = IdxMax;
+}
+
+
+int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax)
+{
+	*IdxMin = m_IdxShowSelectMin;
+	*IdxMax = m_IdxShowSelectMax;
 	return m_ProgramsSelection.size();
 }
 
@@ -826,7 +844,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		time(&TimeNow);
 		LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
 		// Display the OSD screen
-		OSD_ShowInfosScreen(2, 0);
+		OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
         return TRUE;
 		break;
 
@@ -838,7 +856,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		// Select the corresponding programs
 		SearchForPrograms(NULL, TimeMin, TimeMax);
 		// Display the OSD screen
-		OSD_ShowInfosScreen(3, 0);
+		OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
         return TRUE;
         break;
 
@@ -866,7 +884,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			// Select the corresponding programs
 			SearchForPrograms(NULL, TimeMin, TimeMax);
 			// Display the OSD screen
-			OSD_ShowInfosScreen(3, 0);
+			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 		}
         return TRUE;
         break;
@@ -896,18 +914,26 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			// Select the corresponding programs
 			SearchForPrograms(NULL, TimeMin, TimeMax);
 			// Display the OSD screen
-			OSD_ShowInfosScreen(3, 0);
+			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 		}
         return TRUE;
         break;
 
 	case IDM_DISPLAY_EPG_NEXT:
-    case IDM_VT_PAGE_DOWN:			// Down key
+		if (   (m_IdxShowSelectMax != -1)
+			&& (m_IdxShowSelectMax < m_ProgramsSelection.size()) )
+		{
+			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1);
+		}
         return TRUE;
         break;
 
 	case IDM_DISPLAY_EPG_PREV:
-    case IDM_VT_PAGE_UP:			// Up key
+		if (   (m_IdxShowSelectMin != -1)
+			&& (m_IdxShowSelectMin > 1) )
+		{
+			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1);
+		}
         return TRUE;
         break;
 
@@ -928,7 +954,7 @@ void CEPG::ShowOSD()
 	if (m_Programs.size() > 0)
 	{
 		// Display the OSD screen
-		OSD_ShowInfosScreen(1, 0);
+		OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 	}
 }
 
@@ -1010,8 +1036,9 @@ BOOL CEPG::GetFileLine(FILE *Stream, char *Buffer, int MaxLen)
 // ---------------------- Settings ---------------------
 
 
-static char ExePath[MAX_PATH] = {0};
-static char* XMLTVExePath = NULL;
+static char		ExePath[MAX_PATH] = {0};
+static char*	XMLTVExePath = NULL;
+static long		EPG_DefaultSizePerc = 5;
 
 
 SETTING EPGSettings[EPG_SETTING_LASTONE] =
@@ -1021,6 +1048,12 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
          (long)ExePath, 0, 0, 0, 0,
          NULL,
         "EPG", "xmltv.exe", NULL,
+    },
+    {
+        "Text Size", SLIDER, 0, (long*)&EPG_DefaultSizePerc,
+         5, 2, 7, 1, 1,
+         NULL,
+        "EPG", "DefaultSizePerc", NULL,
     },
 };
 
@@ -1054,7 +1087,7 @@ void EPG_ReadSettingsFromIni()
     if ((XMLTVExePath == NULL) || stat(XMLTVExePath, &st))
     {
         LOG(1, "Incorrect path for xmltv.exe; using %s", ExePath);
-		Setting_SetValue(EPG_GetSetting(XMLTVPATH), (long)ExePath);
+		Setting_SetValue(EPG_GetSetting(EPG_XMLTVPATH), (long)ExePath);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.5 2005-03-27 20:22:20 laurentg Exp $
+// $Id: EPG.h,v 1.6 2005-03-28 12:53:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/27 20:22:20  laurentg
+// EPG: new improvements
+//
 // Revision 1.4  2005/03/26 18:53:23  laurentg
 // EPG code improved
 // => possibility to set the EPG channel name in the channel setup dialog box
@@ -102,6 +105,9 @@ public:
 	int SearchForPrograms(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
 	int GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
 
+	void SetDisplayIndexes(int IdxMin, int IdxMax);
+	int GetDisplayIndexes(int *IdxMin, int *IdxMax);
+
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
 	void ShowOSD();
@@ -144,6 +150,8 @@ private:
 	LPCSTR		m_SearchChannel;
 	time_t		m_SearchTimeMin;
 	time_t		m_SearchTimeMax;
+	int			m_IdxShowSelectMin;
+	int			m_IdxShowSelectMax;
 };
 
 

@@ -147,6 +147,7 @@ BEGIN
     VK_DELETE,      IDM_SLEEPMODE,          VIRTKEY, NOINVERT
     VK_DOWN,        IDM_VT_PAGE_DOWN,       VIRTKEY, NOINVERT
     VK_DOWN,        IDM_PREVIEW_PAGE_NEXT,  VIRTKEY, CONTROL, NOINVERT
+    VK_DOWN,        IDM_DISPLAY_EPG_NEXT,   VIRTKEY, SHIFT, NOINVERT
     VK_END,         IDM_PLAYLIST_LAST,      VIRTKEY, CONTROL, NOINVERT
     VK_ESCAPE,      IDM_RETURN_TO_WINDOW,   VIRTKEY, NOINVERT
     VK_F1,          IDM_HELP_README,        VIRTKEY, NOINVERT
@@ -215,6 +216,7 @@ BEGIN
     VK_TAB,         IDM_TOGGLE_MENU,        VIRTKEY, NOINVERT
     VK_UP,          IDM_VT_PAGE_UP,         VIRTKEY, NOINVERT
     VK_UP,          IDM_PREVIEW_PAGE_PREV,  VIRTKEY, CONTROL, NOINVERT
+    VK_UP,          IDM_DISPLAY_EPG_PREV,   VIRTKEY, SHIFT, NOINVERT
     "W",            IDM_PIXELWIDTH_MINUS,   VIRTKEY, NOINVERT
     "W",            IDM_PIXELWIDTH_PLUS,    VIRTKEY, SHIFT, NOINVERT
     "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL, 
@@ -1437,10 +1439,8 @@ BEGIN
             MENUITEM "Shift Time Frame &Later\tShift+G", 
                                                     IDM_DISPLAY_EPG_LATER
             MENUITEM SEPARATOR
-            MENUITEM "&Previous Page",              IDM_DISPLAY_EPG_PREV
-            , GRAYED
-            MENUITEM "&Next Page",                  IDM_DISPLAY_EPG_NEXT
-            , GRAYED
+            MENUITEM "&Previous Page\tShift+Up",    IDM_DISPLAY_EPG_PREV
+            MENUITEM "&Next Page\tShift+Down",      IDM_DISPLAY_EPG_NEXT
         END
     END
     POPUP "&Datacasting"

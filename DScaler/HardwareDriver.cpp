@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.15 2002-07-20 11:43:32 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.16 2002-08-10 10:25:41 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/07/20 11:43:32  robmuller
+// Suppress error in log file when DoesThisPCICardExist() probes for a non-existing card.
+//
 // Revision 1.14  2002/07/02 19:59:02  adcockj
 // Made a bit less strict with driver versions - should be happy with newer drivers
 //
@@ -596,6 +599,8 @@ BOOL CHardwareDriver::UnInstallNTDriver()
     }
     else
     {
+        UnloadDriver();
+
         // get handle of the Service Control Manager
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
         if(hSCManager == NULL)

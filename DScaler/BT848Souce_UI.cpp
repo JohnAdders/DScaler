@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.43 2002-09-07 20:54:50 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.44 2002-09-12 21:54:12 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/09/07 20:54:50  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.42  2002/09/04 21:13:55  robmuller
 // Added Auto-Detect buttton to the Setup Card/Tuner dialog.
 //
@@ -182,6 +185,8 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 	static int TEqualizerVal[6];
     static CBT848Source* pThis;
 
+    // \todo: enable/disable controls based on the AudioControls capabilities
+
     switch (message)
     {
     case WM_INITDIALOG:
@@ -203,6 +208,8 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 		TEqualizerVal[4] = pThis->m_EqualizerBand4->GetValue();
 		TEqualizerVal[5] = pThis->m_EqualizerBand5->GetValue();
 
+        // \todo: check if the differenct controls are supported
+
         SetDlgItemInt(hDlg, IDC_VOLUME_VAL, TVolume, FALSE);        
         SetDlgItemInt(hDlg, IDC_BALANCE_VAL, TBalance, TRUE);
 
@@ -211,15 +218,20 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
 
         pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_VOLUME_SLIDER));       
         pThis->m_Balance->SetupControl(GetDlgItem(hDlg, IDC_BALANCE_SLIDER));
-		//pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_SLIDER4));
-        //pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
 
-		CheckDlgButton(hDlg, IDC_SUPERBASS, TSuperBass);
+        if (!pThis->m_pBT848Card->HasAudioBassBoost())
+        {
+			SendMessage(GetDlgItem(hDlg, IDC_SUPERBASS), WM_ENABLE, FALSE, 0);				
+        }
+        else
+        {
+		    CheckDlgButton(hDlg, IDC_SUPERBASS, TSuperBass);
+        }
 
 		pThis->m_AudioLoudness->SetControlValue(GetDlgItem(hDlg, IDC_LOUDNESS_SLIDER));
 		pThis->m_AudioSpatialEffect->SetupControl(GetDlgItem(hDlg, IDC_SPATIALEFFECT_SLIDER));
 
-		if (!pThis->m_pBT848Card->AudioSupportsEqualizer())
+		if (!pThis->m_pBT848Card->HasAudioEqualizers())
 		{
 			SendMessage(GetDlgItem(hDlg,IDC_USEEQUALIZER),WM_ENABLE,FALSE,0);				
 			TUseEqualizer = FALSE;
@@ -601,10 +613,17 @@ void CBT848Source::SetMenu(HMENU hMenu)
     BOOL DoneWidth = FALSE;
 
 
-    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, m_pBT848Card->HasMSP());
-    // Grayed "Equalize" because not yet implemented
-//    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->AudioSupportsEqualizer());
-    //EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, FALSE);
+    // \todo: check for additional controls
+
+    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, 
+        m_pBT848Card->HasAudioBalance() 
+        || m_pBT848Card->HasAudioBass()
+        || m_pBT848Card->HasAudioBassBoost()
+        || m_pBT848Card->HasAudioEqualizers() 
+        || m_pBT848Card->HasAudioLoudness()
+        || m_pBT848Card->HasAudioTreble()
+        || m_pBT848Card->HasAudioVolume()
+        );
 
     EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
 
@@ -974,10 +993,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUDIOSETTINGS:
-            if (m_pBT848Card->HasMSP() == TRUE)
-            {
-               DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
-            }
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
             break;
         
         case IDM_ADV_VIDEOSETTINGS:

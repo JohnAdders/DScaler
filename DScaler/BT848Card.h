@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.5 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Card.h,v 1.6 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -176,6 +176,8 @@ public:
     bool GetSDA();
     bool GetSCL();
     void Sleep();
+    ITuner* GetTuner() const;
+
 private:
     ULONG GetTickCount();
     DWORD m_I2CSleepCycle;
@@ -209,11 +211,7 @@ private:
     CI2CBus *m_I2CBus;
     CMSP34x0 *m_MSP34x0;
     ITuner *m_Tuner;
-public:
-    ITuner *GetTuner()const
-    {
-        return m_Tuner;
-    }
+    eAudioMuxType m_LastAudioSource;
 };
 
 

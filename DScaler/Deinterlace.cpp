@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.26 2001-11-23 10:49:16 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.27 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.25  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -300,7 +303,7 @@ void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
         FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
         if(WereInHalfHeight != InHalfHeightMode())
         {
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(TRUE);
         }
     }
 }
@@ -336,7 +339,7 @@ void SetVideoDeinterlaceMode(int Mode)
         VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
         if(WereInHalfHeight != InHalfHeightMode())
         {
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(TRUE);
         }
     }
 }

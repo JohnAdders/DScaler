@@ -1,5 +1,5 @@
 //
-// $Id: I2CBusForLineInterface.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CBusForLineInterface.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +32,20 @@
 #include "I2CBusForLineInterface.h"
 
 #include "DebugLog.h"
+
+
+CI2CBusForLineInterface::CI2CBusForLineInterface(II2CLineInterface* lineInterface)
+{
+    ASSERT(lineInterface != 0);
+    this->m_LineInterface = lineInterface;
+}
+
+void CI2CBusForLineInterface::Sleep()
+{
+    ASSERT(m_LineInterface != 0);
+    m_LineInterface->Sleep();
+}
+
 
 void CI2CBusForLineInterface::SetSDALo()
 {
@@ -52,7 +69,8 @@ void CI2CBusForLineInterface::SetSCLHi()
 {
     m_LineInterface->SetSCL(true);
     Sleep();
-    while (!m_LineInterface->GetSCL()) {    
+    while (!m_LineInterface->GetSCL()) 
+    {    
         /* the hw knows how to read the clock line,
          * so we wait until it actually gets high.
          * This is safer as some chips may hold it low
@@ -142,7 +160,9 @@ unsigned char CI2CBusForLineInterface::Read(bool last)
         SetSCLLo();
         SetSCLHi();
         if (m_LineInterface->GetSDA())
+        {
             result |= mask;
+        }
     }
     LOG(1, ".%02X", result);
     if (last)

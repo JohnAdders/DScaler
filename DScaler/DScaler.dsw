@@ -275,6 +275,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name DScalerRes
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_GreedyH
+    End Project Dependency
 }}}
 
 ###############################################################################

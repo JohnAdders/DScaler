@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.32 2001-11-23 10:49:16 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.33 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.31  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -291,14 +294,14 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     case IDM_WINPOS_VERT_TOP:
     case IDM_WINPOS_VERT_BOTTOM:
         AspectSettings.VerticalPos = (eVertPos)(wMenuID - IDM_WINPOS_VERT_BOTTOM); 
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(TRUE);
         break;
 
     case IDM_WINPOS_HORZ_CENTRE:
     case IDM_WINPOS_HORZ_LEFT:
     case IDM_WINPOS_HORZ_RIGHT:
         AspectSettings.HorizontalPos = (eHorzPos)(wMenuID - IDM_WINPOS_HORZ_RIGHT);
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(TRUE);
         break;
 
     case IDM_SASPECT_CLIP:
@@ -589,7 +592,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
     }
 
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     if (GetMenu(hWnd) != NULL)
         AspectRatio_SetMenu(GetMenu(hWnd));
 
@@ -721,21 +724,21 @@ const char* VertPosString[3] =
 BOOL Aspect_Overscan_OnChange(long Overscan)
 {
     AspectSettings.InitialOverscan = Overscan;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL AspectMode_OnChange(long NewValue)
 {
     AspectSettings.AspectMode = NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL TargetAspect_OnChange(long NewValue)
 {
     AspectSettings.TargetAspect = NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
@@ -743,7 +746,7 @@ BOOL CustomTargetAspect_OnChange(long NewValue)
 {
     AspectSettings.TargetAspect = NewValue;
     AspectSettings.custom_target_aspect = NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
@@ -751,7 +754,7 @@ BOOL SourceAspect_OnChange(long NewValue)
 {
     AspectSettings.AutoDetectAspect = FALSE;
     AspectSettings.SourceAspect = NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
@@ -760,21 +763,21 @@ BOOL CustomSourceAspect_OnChange(long NewValue)
     AspectSettings.AutoDetectAspect = FALSE;
     AspectSettings.CustomSourceAspect = NewValue;
     AspectSettings.SourceAspect = NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL HorizPos_OnChange(long NewValue)
 {
     AspectSettings.HorizontalPos = (eHorzPos)NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL VertPos_OnChange(long NewValue)
 {
     AspectSettings.VerticalPos = (eVertPos)NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
@@ -809,42 +812,42 @@ BOOL Orbit_OnChange(long NewValue)
 BOOL Clipping_OnChange(long NewValue)
 {
     AspectSettings.AspectImageClipped = (BOOL)NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL XZoom_Factor_OnChange(long NewValue)
 {
     AspectSettings.ZoomFactorX = NewValue;  
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL YZoom_Factor_OnChange(long NewValue)
 {
     AspectSettings.ZoomFactorY = NewValue;  
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL XZoom_Center_OnChange(long NewValue)
 {
     AspectSettings.ZoomCenterX = NewValue;  
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL YZoom_Center_OnChange(long NewValue)
 {
     AspectSettings.ZoomCenterY = NewValue;  
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 
 BOOL ChromaRange_OnChange(long NewValue)
 {
     AspectSettings.ChromaRange = NewValue;  
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.37 2001-11-09 12:42:07 adcockj Exp $
+// $Id: Bt848.cpp,v 1.38 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.36  2001/11/02 17:03:59  adcockj
 // Merge in PAL_NC change again
 //
@@ -1625,7 +1628,7 @@ BOOL VideoSource_OnChange(long NewValue)
     case SOURCE_TUNER:
         BT848_ResetHardware();
         BT848_SetGeoSize();
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(FALSE);
         if(Audio_MSP_IsPresent())
         {
             AudioSource = AUDIOMUX_MSP_RADIO;
@@ -1649,7 +1652,7 @@ BOOL VideoSource_OnChange(long NewValue)
     case SOURCE_COMPVIASVIDEO:
         BT848_ResetHardware();
         BT848_SetGeoSize();
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(FALSE);
         AudioSource = AUDIOMUX_EXTERNAL;
         break;
     default:
@@ -1674,7 +1677,7 @@ BOOL TVFormat_OnChange(long NewValue)
     VideoSettings_Load();
     BT848_ResetHardware();
     BT848_SetGeoSize();
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(FALSE);
     Start_Capture();
     return FALSE;
 }
@@ -1694,7 +1697,7 @@ BOOL CurrentX_OnChange(long NewValue)
     }
     Stop_Capture();
     BT848_SetGeoSize();
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(FALSE);
     Start_Capture();
     return FALSE;
 }

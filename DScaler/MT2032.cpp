@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: MT2032.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +32,38 @@
 #include "MT2032.h"
 
 #define OPTIMIZE_VCO 1   // perform VCO optimizations
+
+
+CMT2032::CMT2032() :
+    m_XOGC(0),
+    m_Initialized(false)
+{
+}
+
+BYTE CMT2032::GetDefaultAddress() const
+{
+    return 0xC0>>1;
+}
+    
+eTunerId CMT2032::GetTunerId()
+{
+    return TUNER_MT2032;
+}
+
+eVideoFormat CMT2032::GetDefaultVideoFormat()
+{
+    return FORMAT_NTSC; // FIXME
+}
+
+bool CMT2032::HasRadio() const
+{
+    return true;
+}
+
+bool CMT2032::SetRadioFrequency(long nFrequency)
+{
+    return true;
+}
 
 BYTE CMT2032::GetRegister(BYTE reg)
 {
@@ -45,14 +80,14 @@ void CMT2032::SetRegister(BYTE reg, BYTE value)
 WORD CMT2032::GetVersion()
 {
     WORD result = 0;
-    ReadFromSubAddress(0x13, (BYTE *)&result, sizeof(result));
+    ReadFromSubAddress(0x13, (BYTE*)&result, sizeof(result));
     return result;
 }
 
 WORD CMT2032::GetVendor()
 {
     WORD result = 0;
-    ReadFromSubAddress(0x11, (BYTE *)&result, sizeof(result));
+    ReadFromSubAddress(0x11, (BYTE*)&result, sizeof(result));
     return result;
 }
 
@@ -96,6 +131,7 @@ void CMT2032::Initialize()
         SetRegister(7, 0x88 + xogc);
     } while (xok != 1);
     m_XOGC = xogc;
+    m_Initialized = true;
 }
 
 int CMT2032::SpurCheck(int f1, int f2, int spectrum_from, int spectrum_to)
@@ -126,17 +162,16 @@ int CMT2032::SpurCheck(int f1, int f2, int spectrum_from, int spectrum_to)
     return 0;
 }
 
-int CMT2032::ComputeFreq
-(
-    int             rfin,
-    int             if1,
-    int             if2,
-    int             spectrum_from,
-    int             spectrum_to,
-    unsigned char   *buf,
-    int             *ret_sel,
-    int             xogc
-)   /* all in Hz */
+int CMT2032::ComputeFreq(
+                            int             rfin,
+                            int             if1,
+                            int             if2,
+                            int             spectrum_from,
+                            int             spectrum_to,
+                            unsigned char   *buf,
+                            int             *ret_sel,
+                            int             xogc
+                        )   /* all in Hz */
 {
     int fref, lo1, lo1n, lo1a, s, sel, lo1freq, desired_lo1, desired_lo2, lo2, lo2n, lo2a, lo2num,
         lo2freq;

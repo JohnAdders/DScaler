@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.94 2001-11-26 12:48:01 temperton Exp $
+// $Id: DScaler.cpp,v 1.95 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2001/11/26 12:48:01  temperton
+// Teletext corrections
+//
 // Revision 1.93  2001/11/25 21:29:50  laurentg
 // Take still, Open file, Close file callbacks updated
 //
@@ -867,7 +870,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_TOGGLE_MENU:
             bShowMenu = !bShowMenu;
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(TRUE);
             break;
 
         case IDM_AUTODETECT:
@@ -1171,7 +1174,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             
             SetVTPage(VTPage, VTSubPage, true, false);
 
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(TRUE);
 
             InvalidateRect(hWnd,NULL,FALSE);
             break;
@@ -1213,12 +1216,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_ON_TOP:
             bAlwaysOnTop = !bAlwaysOnTop;
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(FALSE);
             break;
 
         case IDM_ALWAYONTOPFULLSCREEN:
             bAlwaysOnTopFull = !bAlwaysOnTopFull;
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(FALSE);
             break;
 
         case IDM_SPLASH_ON_STARTUP:
@@ -1891,7 +1894,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_BOUNCE:
         case TIMER_ORBIT:
             // MRS 2-20-01 - Resetup the display for bounce and orbiting
-            WorkoutOverlaySize(); // Takes care of everything...
+            WorkoutOverlaySize(FALSE); // Takes care of everything...
             break;
         //-------------------------------
         case TIMER_HIDECURSOR:
@@ -1946,7 +1949,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     bIsFullScreen = TRUE;
                     Cursor_UpdateVisibility();
-                    WorkoutOverlaySize();
+                    WorkoutOverlaySize(FALSE);
                 }
                 break;
             case SIZE_MINIMIZED:
@@ -1954,7 +1957,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 break;
             case SIZE_RESTORED:
                 InvalidateRect(hWnd, NULL, FALSE);
-                WorkoutOverlaySize();
+                WorkoutOverlaySize(FALSE);
                 SetMenuAnalog();
                 break;
             default:
@@ -1967,7 +1970,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         StatusBar_Adjust(hWnd);
         if (bDoResize == TRUE && !IsIconic(hWnd) && !IsZoomed(hWnd))
         {
-            WorkoutOverlaySize();
+            WorkoutOverlaySize(FALSE);
         }
         break;
 
@@ -2164,7 +2167,7 @@ void MainWndOnInitBT(HWND hWnd)
         Aspect_FinalSetup();
 
         // OK we're ready to go
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(FALSE);
         
         AddSplashTextLine("Update Menu");
         OSD_UpdateMenu(hMenu);
@@ -2331,6 +2334,15 @@ void MainWndOnDestroy()
     
     __try
     {
+        // save settings
+        // must be done before providers are unloaded
+        LOG(1, "WriteSettingsToIni");
+        WriteSettingsToIni(FALSE);
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
+
+    __try
+    {
         LOG(1, "Try Providers_Unload");
         Providers_Unload();
     }
@@ -2349,14 +2361,6 @@ void MainWndOnDestroy()
         ExitDD();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error ExitDD");}
-
-    __try
-    {
-        // save settings
-        LOG(1, "WriteSettingsToIni");
-        WriteSettingsToIni(FALSE);
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 
     __try
     {
@@ -2820,7 +2824,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         Cursor_UpdateVisibility();
         InvalidateRect(hWnd, NULL, FALSE);
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(FALSE);
     }
     bDoResize = TRUE;
     return FALSE;
@@ -2829,14 +2833,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
 BOOL AlwaysOnTop_OnChange(long NewValue)
 {
     bAlwaysOnTop = (BOOL)NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(FALSE);
     return FALSE;
 }
 
 BOOL AlwaysOnTopFull_OnChange(long NewValue)
 {
     bAlwaysOnTopFull = (BOOL)NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(FALSE);
     return FALSE;
 }
 
@@ -2853,7 +2857,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         {
             KillTimer(hWnd, TIMER_STATUS);
         }
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(TRUE);
     }
     return FALSE;
 }
@@ -2863,7 +2867,7 @@ BOOL ShowMenu_OnChange(long NewValue)
     bShowMenu = (BOOL)NewValue;
     if(bIsFullScreen == FALSE)
     {
-        WorkoutOverlaySize();
+        WorkoutOverlaySize(TRUE);
     }
     return FALSE;
 }

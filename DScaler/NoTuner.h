@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: NoTuner.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -36,13 +39,10 @@
 
 class CNoTuner : public ITuner  
 {
-protected:
-    virtual BYTE GetDefaultAddress()const
-    {
-        return 0;
-    }
-
 public:
+    CNoTuner()
+    {
+    }
     eTunerId GetTunerId()
     {
         return TUNER_ABSENT;
@@ -51,7 +51,7 @@ public:
     {
         return FORMAT_NTSC;
     }
-    bool HasRadio()const
+    bool HasRadio() const
     {
         return false;
     }
@@ -63,6 +63,13 @@ public:
     {
         return true;
     }
+
+protected:
+    virtual BYTE GetDefaultAddress()const
+    {
+        return 0;
+    }
+
 };
 
 #endif // !defined(__NOTUNER_H__)

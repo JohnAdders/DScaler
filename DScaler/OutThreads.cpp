@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.45 2001-11-24 18:05:23 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.46 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2001/11/24 18:05:23  laurentg
+// Managing of progressive source
+//
 // Revision 1.44  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -408,7 +411,7 @@ void Start_Capture()
     // ame sure half height Modes are set correctly
     Overlay_Clean();
     PrepareDeinterlaceMode();
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(FALSE);
     Start_Thread();
 }
 
@@ -431,7 +434,7 @@ void Reset_Capture()
     Overlay_Clean();
     PrepareDeinterlaceMode();
     Providers_GetCurrentSource()->Reset();
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     Start_Capture();
 }
 

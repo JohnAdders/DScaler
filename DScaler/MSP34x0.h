@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: MSP34x0.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -46,31 +49,8 @@
 
 class CMSP34x0 : public CI2CDevice  
 {
-private:
-    bool m_bNicam;
-    int m_nMode, m_nMajorMode, m_nMinorMode;
-    eSoundChannel m_eSoundChannel;
-
-    void SetCarrier(int cdo1, int cdo2);
-
-    WORD GetRegister(BYTE subAddress, WORD reg)
-    {
-        BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF};
-        BYTE result[2] = {0, 0};
-        ReadFromSubAddress(subAddress, write, sizeof(write), result, sizeof(result));
-        return ((WORD)result[0]) << 8 | result[1];
-    }
-    void SetRegister(BYTE subAddress, WORD reg, WORD value)
-    {
-        BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF, (value >> 8) & 0xFF, value & 0xFF};
-        WriteToSubAddress(subAddress, write, sizeof(write));
-    }
-protected:
-    virtual BYTE GetDefaultAddress()const
-    {
-        return 0x80>>1;
-    }
 public:
+    CMSP34x0();
     void Reset();
     WORD GetVersion();
     WORD GetProductCode();
@@ -87,6 +67,22 @@ public:
     void SetMajorMinorMode(int MajorMode, int MinorMode);
     void GetPrintMode(LPSTR Text);
     eSoundChannel GetWatchMode(eSoundChannel desiredSoundChannel);
+
+protected:
+    virtual BYTE GetDefaultAddress() const;
+
+private:
+    void SetCarrier(int cdo1, int cdo2);
+
+    WORD GetRegister(BYTE subAddress, WORD reg);
+    void SetRegister(BYTE subAddress, WORD reg, WORD value);
+
+private:
+    bool m_bNicam;
+    int m_nMode;
+    int m_nMajorMode;
+    int m_nMinorMode;
+    eSoundChannel m_eSoundChannel;
 };
 
 #endif // !defined(__MSP34X0_H__)

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: GenericTuner.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +39,20 @@
 
 class CGenericTuner : public ITuner  
 {
+public:
+    CGenericTuner(eTunerId tunerId);
+    
+    // from ITuner
+    eTunerId GetTunerId();
+    eVideoFormat GetDefaultVideoFormat();
+    bool HasRadio() const;
+    bool SetRadioFrequency(long nFrequency);
+    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+
+protected:
+    // from CI2CDevice
+    virtual BYTE GetDefaultAddress() const;
+
 private:
     eTunerId m_TunerId;
     eVideoFormat m_VideoFormat;
@@ -46,35 +63,6 @@ private:
     BYTE m_UHF;
     BYTE m_Config; 
     WORD m_IFPCoff;
-    
-protected:
-    // from CI2CDevice
-    virtual BYTE GetDefaultAddress()const
-    {
-        return 0xC0>>1;
-    }
-    
-public:
-    CGenericTuner(eTunerId tunerId);
-    
-    // from ITuner
-    eTunerId GetTunerId()
-    {
-        return TUNER_MT2032;
-    }
-    eVideoFormat GetDefaultVideoFormat()
-    {
-        return FORMAT_NTSC; // FIXME
-    }
-    bool HasRadio()const
-    {
-        return true;
-    }
-    bool SetRadioFrequency(long nFrequency)
-    {
-        return true;
-    }
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
 };
 
 

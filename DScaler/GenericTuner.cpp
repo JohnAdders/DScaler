@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: GenericTuner.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -291,4 +294,29 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
 
     bool result = m_I2CBus->Write(buffer, sizeof(buffer));
     return result;
+}
+
+eTunerId CGenericTuner::GetTunerId()
+{
+    return TUNER_MT2032;
+}
+
+eVideoFormat CGenericTuner::GetDefaultVideoFormat()
+{
+    return FORMAT_NTSC; // FIXME
+}
+
+bool CGenericTuner::HasRadio() const
+{
+    return true;
+}
+
+bool CGenericTuner::SetRadioFrequency(long nFrequency)
+{
+    return true;
+}
+
+BYTE CGenericTuner::GetDefaultAddress()const
+{
+    return 0xC0>>1;
 }

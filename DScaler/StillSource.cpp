@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.10 2001-11-25 21:29:50 laurentg Exp $
+// $Id: StillSource.cpp,v 1.11 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/25 21:29:50  laurentg
+// Take still, Open file, Close file callbacks updated
+//
 // Revision 1.9  2001/11/25 10:41:26  laurentg
 // TIFF code moved from Other.cpp to TiffSource.c + still capture updated
 //
@@ -206,7 +209,6 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FieldHeight = m_Height;
     pInfo->InputPitch = pInfo->LineLength;
     pInfo->PictureHistory[0] = &m_StillFrame;
-    pInfo->PictureHistory[1] = &m_StillFrame;
 }
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)

@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: MT2032.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +39,23 @@
 
 class CMT2032: public ITuner  
 {
+public:
+    CMT2032();
+    WORD GetVersion();
+    WORD GetVendor();
+    
+    // from ITuner
+    eTunerId GetTunerId();
+    eVideoFormat GetDefaultVideoFormat();
+    bool HasRadio() const;
+    bool SetRadioFrequency(long nFrequency);
+    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+
+protected:
+    // from CI2CDevice
+    virtual BYTE GetDefaultAddress() const;
+
 private:
-    int m_XOGC;    // holds the value of XOGC register after init
-    bool m_Initialized;
     void Initialize();
     BYTE GetRegister(BYTE reg);
     void SetRegister(BYTE reg, BYTE value);
@@ -48,43 +65,10 @@ private:
     int CheckLOLock();
     int OptimizeVCO(int sel, int lock);
     void SetIFFreq(int rfin, int if1, int if2, int from, int to);
-    
-protected:
-    // from CI2CDevice
-    virtual BYTE GetDefaultAddress()const
-    {
-        return 0xC0>>1;
-    }
-    
-public:
-    WORD GetVersion();
-    WORD GetVendor();
-    
-    // from CI2CDevice
-    void Attach(CI2CBus *i2cBus, BYTE address=0)
-    {
-        CI2CDevice::Attach(i2cBus, address);
-        m_Initialized = false;
-    }
-    
-    // from ITuner
-    eTunerId GetTunerId()
-    {
-        return TUNER_MT2032;
-    }
-    eVideoFormat GetDefaultVideoFormat()
-    {
-        return FORMAT_NTSC; // FIXME
-    }
-    bool HasRadio()const
-    {
-        return true;
-    }
-    bool SetRadioFrequency(long nFrequency)
-    {
-        return true;
-    }
-    bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+
+private:
+    int m_XOGC;    // holds the value of XOGC register after init
+    bool m_Initialized;
 };
 
 #endif // !defined(__MT2032_H__)

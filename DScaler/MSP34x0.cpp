@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: MSP34x0.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -135,6 +138,35 @@ static int m_CarrierDetectMinor[8] =
     MSP_CARRIER(7.20),      //7.20  PAL SAT FM-stereo s
     MSP_CARRIER(7.38),      //7.38  PAL SAT FM-stereo b
 };
+
+CMSP34x0::CMSP34x0() :
+    m_bNicam(FALSE),
+    m_nMode(0),
+    m_nMajorMode(0), 
+    m_nMinorMode(0),
+    m_eSoundChannel(MONO)
+
+{
+}
+
+BYTE CMSP34x0::GetDefaultAddress()const
+{
+    return 0x80>>1;
+}
+
+WORD CMSP34x0::GetRegister(BYTE subAddress, WORD reg)
+{
+    BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF};
+    BYTE result[2] = {0, 0};
+    ReadFromSubAddress(subAddress, write, sizeof(write), result, sizeof(result));
+    return ((WORD)result[0]) << 8 | result[1];
+}
+void CMSP34x0::SetRegister(BYTE subAddress, WORD reg, WORD value)
+{
+    BYTE write[] = {(reg >> 8) & 0xFF, reg & 0xFF, (value >> 8) & 0xFF, value & 0xFF};
+    WriteToSubAddress(subAddress, write, sizeof(write));
+}
+
 
 void CMSP34x0::Reset()
 {

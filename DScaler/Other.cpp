@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.27 2001-11-25 21:29:50 laurentg Exp $
+// $Id: Other.cpp,v 1.28 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/11/25 21:29:50  laurentg
+// Take still, Open file, Close file callbacks updated
+//
 // Revision 1.26  2001/11/25 10:41:26  laurentg
 // TIFF code moved from Other.cpp to TiffSource.c + still capture updated
 //
@@ -235,6 +238,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
 {
     HRESULT     ddrval;
     DDOVERLAYFX DDOverlayFX;
+    int i(0);
 
     if ((lpDD == NULL) || (lpDDSurface == NULL) || (lpDDOverlay == NULL))
     {
@@ -355,6 +359,16 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             DDOverlayFX.dwSize = sizeof(DDOverlayFX);
             ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
         }
+        // on some cards the driver returns DDERR_OUTOFCAPS, if the wrong original
+        // is not at the fron, so flip round until it is
+        // but check that we don't go into an infinite loop
+        while(ddrval == DDERR_OUTOFCAPS && i < 5)
+        {
+            ddrval = lpDDOverlay->Flip(NULL, 0); 
+            ddrval = lpDDOverlay->UpdateOverlay(pSrcRect, lpDDSurface, pDestRect, dwFlags, &DDOverlayFX);
+            ++i;
+        }
+
         if (FAILED(ddrval))
         {
             if ((pDestRect->top < pDestRect->bottom) && (pDestRect->left < pDestRect->right))
@@ -763,13 +777,21 @@ DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
     hres = pdds->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
     if (SUCCEEDED(hres))
     {
-        dw = *(DWORD*)SurfaceDesc.lpSurface;                 // Get DWORD
-        if (SurfaceDesc.ddpfPixelFormat.dwRGBBitCount < 32)
+        if(SurfaceDesc.ddpfPixelFormat.dwRGBBitCount <= 8)
         {
-            dw &= (1 << SurfaceDesc.ddpfPixelFormat.dwRGBBitCount) - 1;  // Mask it to bpp
+            dw = *(BYTE*)SurfaceDesc.lpSurface;
+        }
+        else
+        {
+            dw = *(DWORD*)SurfaceDesc.lpSurface;                 // Get DWORD
+            if (SurfaceDesc.ddpfPixelFormat.dwRGBBitCount < 32)
+            {
+                dw &= (1 << SurfaceDesc.ddpfPixelFormat.dwRGBBitCount) - 1;  // Mask it to bpp
+            }
         }
         pdds->Unlock(NULL);
     }
+
     //
     //  Now put the color that was there back.
     //
@@ -1124,7 +1146,7 @@ CTiffSource* SaveStill()
 BOOL Overlay_ColorKey_OnChange(long NewValue)
 {
     OverlayColor = (COLORREF)NewValue;
-    WorkoutOverlaySize();
+    WorkoutOverlaySize(TRUE);
     return FALSE;
 }
 

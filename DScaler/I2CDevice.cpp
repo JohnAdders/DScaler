@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.cpp,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CDevice.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -34,22 +37,33 @@ CI2CDevice::CI2CDevice()
     this->m_DeviceAddress = 0;
 }
 
-void CI2CDevice::Attach(CI2CBus *i2cBus, BYTE address)
+CI2CBus* CI2CDevice::GetI2CBus()const
+{
+    return m_I2CBus;
+}
+BYTE CI2CDevice::GetDeviceAddress()const
+{
+    return m_DeviceAddress;
+}
+
+void CI2CDevice::Attach(CI2CBus* i2cBus, BYTE address)
 {
     ASSERT(i2cBus != 0);
 
     if (address == 0)
+    {
         address = GetDefaultAddress();
+    }
 
     this->m_I2CBus = i2cBus;
     this->m_DeviceAddress = address;
 }
 
-bool CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE *writeBuffer, size_t writeBufferSize)
+bool CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize)
 {
     ASSERT(m_I2CBus != 0);
 
-    BYTE *buffer = (BYTE *)malloc(writeBufferSize + 2);
+    BYTE* buffer = (BYTE*)malloc(writeBufferSize + 2);
     buffer[0] = m_DeviceAddress << 1;
     buffer[1] = subAddress;
     memcpy(&buffer[2], writeBuffer, writeBufferSize);
@@ -59,12 +73,12 @@ bool CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE *writeBuffer, siz
     return result;
 }
 
-bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, BYTE *readBuffer, size_t readBufferSize)
+bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize)
 {
     return this->ReadFromSubAddress(subAddress, NULL, 0, readBuffer, readBufferSize);
 }
 
-bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE *writeBuffer, size_t writeBufferSize, BYTE *readBuffer, size_t readBufferSize)
+bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize)
 {
     ASSERT(m_I2CBus != 0);
 
@@ -72,7 +86,7 @@ bool CI2CDevice::ReadFromSubAddress(BYTE subAddress, const BYTE *writeBuffer, si
     {
         writeBufferSize = 0;
     }
-    BYTE *buffer = (BYTE *)malloc(writeBufferSize + 2);
+    BYTE* buffer = (BYTE*)malloc(writeBufferSize + 2);
     buffer[0] = m_DeviceAddress << 1;
     buffer[1] = subAddress;
     if (writeBufferSize != 0)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.7 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Card.cpp,v 1.8 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.6  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -132,7 +135,9 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 	CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
     m_BtCardType(BT878),
-    m_bHasMSP(false)
+    m_bHasMSP(false),
+    m_LastAudioSource(AUDIOMUX_MUTE),
+    m_Tuner(NULL)
 {
     strcpy(m_TunerStatus,"No Tuner");
     strcpy(m_MSPVersion,"No MSP");
@@ -144,6 +149,9 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 
 CBT848Card::~CBT848Card()
 {
+    delete m_Tuner;
+    delete m_I2CBus;
+    delete m_MSP34x0;
     ClosePCICard();
 }
 
@@ -1007,8 +1015,10 @@ void CBT848Card::SetAudioSource(eCardType BtCardType, eAudioMuxType nChannel)
         {
             MuxSelect = GetCardSetup(BtCardType)->AudioMuxSelect[nChannel];
         }
+        m_LastAudioSource = nChannel;
         break;
     }
+
 
     // select direct input 
     //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.5 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.6 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.4  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -68,19 +71,26 @@
 
 BOOL CBT848Card::InitTuner(eTunerId tunerId)
 {
+    // clean up if we get called twice
+    if(m_Tuner != NULL)
+    {
+        delete m_Tuner; 
+        m_Tuner = NULL;
+    }
+
     switch (tunerId)
     {
     case TUNER_MT2032:
-            m_Tuner = new CMT2032();
-            break;
+        m_Tuner = new CMT2032();
+        break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
-            m_Tuner = new CNoTuner();
-            break;
+        m_Tuner = new CNoTuner();
+        break;
     default:
-            m_Tuner = new CGenericTuner(tunerId);
-            break;
+        m_Tuner = new CGenericTuner(tunerId);
+        break;
     }
     if (tunerId != TUNER_ABSENT) 
     {
@@ -95,4 +105,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         }
     }
     return TRUE;
+}
+
+ITuner* CBT848Card::GetTuner() const
+{
+    return m_Tuner;
 }

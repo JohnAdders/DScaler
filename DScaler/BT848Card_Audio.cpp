@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.4 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.5 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.3  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -70,6 +73,10 @@ void CBT848Card::Mute()
     {
         m_MSP34x0->SetMute();
     }
+    else
+    {
+        SetAudioSource(m_BtCardType, AUDIOMUX_MUTE);
+    }
 }
 
 void CBT848Card::UnMute(long nVolume)
@@ -78,6 +85,10 @@ void CBT848Card::UnMute(long nVolume)
     {
         // go back from mute to same volume as before
         m_MSP34x0->SetVolume(nVolume);
+    }
+    else
+    {
+        SetAudioSource(m_BtCardType, m_LastAudioSource);
     }
 }
 

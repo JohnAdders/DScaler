@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CDevice.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -36,28 +39,21 @@
 
 class CI2CDevice
 {
-protected:
-    CI2CBus *m_I2CBus;
-    BYTE m_DeviceAddress;
-    
-protected:
-    virtual BYTE GetDefaultAddress()const=0;
-    
 public:
     CI2CDevice();
     
-    virtual void Attach(CI2CBus *i2cBus, BYTE address=0);
-    CI2CBus *GetI2CBus()const
-    {
-        return m_I2CBus;
-    }
-    BYTE GetDeviceAddress()const
-    {
-        return m_DeviceAddress;
-    }
-    bool WriteToSubAddress(BYTE subAddress, const BYTE *writeBuffer, size_t writeBufferSize);
-    bool ReadFromSubAddress(BYTE subAddress, BYTE *readBuffer, size_t readBufferSize);
-    bool ReadFromSubAddress(BYTE subAddress, const BYTE *writeBuffer, size_t writeBufferSize, BYTE *readBuffer, size_t readBufferSize);
+    virtual void Attach(CI2CBus* i2cBus, BYTE address=0);
+    CI2CBus* GetI2CBus() const;
+    BYTE GetDeviceAddress() const;
+    bool WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize);
+    bool ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize);
+    bool ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize);
+protected:
+    virtual BYTE GetDefaultAddress()const = 0;
+
+protected:
+    CI2CBus *m_I2CBus;
+    BYTE m_DeviceAddress;
 };
 
 #endif // !defined(__I2CDEVICE_H__)

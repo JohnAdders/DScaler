@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.6 2001-11-25 21:19:40 laurentg Exp $
+// $Id: BT848Source.h,v 1.7 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -83,6 +83,7 @@ private:
     void LoadInputSettings();
     void SaveInputSettings();
 
+private:
     CBT848Card*  m_pBT848Card;
     BYTE*        m_pDisplay[5];
     BYTE*        m_pVBILines[5];

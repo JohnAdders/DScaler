@@ -1,5 +1,5 @@
 //
-// $Id: I2CBusForLineInterface.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CBusForLineInterface.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -37,12 +40,8 @@
 
 class CI2CBusForLineInterface :public CI2CBus
 {
-private:
-    II2CLineInterface *m_LineInterface;
-    void SetSDALo();
-    void SetSDAHi();
-    void SetSCLLo();
-    void SetSCLHi();
+public:
+    CI2CBusForLineInterface(II2CLineInterface *lineInterface);
 
 protected:
     void Start();
@@ -52,19 +51,16 @@ protected:
     bool GetAcknowledge();
     void SendACK();
     void SendNAK();
+    void Sleep();
 
-    void Sleep()
-    {
-        ASSERT(m_LineInterface != 0);
-        m_LineInterface->Sleep();
-    }
+private:
+    void SetSDALo();
+    void SetSDAHi();
+    void SetSCLLo();
+    void SetSCLHi();
 
-public:
-    CI2CBusForLineInterface(II2CLineInterface *lineInterface)
-    {
-        ASSERT(lineInterface != 0);
-        this->m_LineInterface = lineInterface;
-    }
+private:
+    II2CLineInterface *m_LineInterface;
 };
 
 #endif // !defined(__I2CBUSFORLINEINTERFACE_H__)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.23 2001-11-23 10:49:16 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.24 2001-11-26 13:02:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.22  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -159,7 +162,7 @@ double GetActualSourceFrameAspect()
 //----------------------------------------------------------------------------
 // Calculate size and position coordinates for video overlay
 // Takes into account of aspect ratio control.
-void WorkoutOverlaySize(BOOL allowResize)
+void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 {
     CFilterChain FilterChain;
     bIgnoreMouse = TRUE;
@@ -211,7 +214,7 @@ void WorkoutOverlaySize(BOOL allowResize)
     if (FilterChain.ApplyFilters(ar, allowResize))
     {
         InFunction = FALSE;
-        WorkoutOverlaySize(FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
+        WorkoutOverlaySize(FALSE, FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
         return;
     }
 
@@ -252,8 +255,7 @@ void WorkoutOverlaySize(BOOL allowResize)
     }
     */
 
-    // Set the overlay
-    if (!AspectSettings.DeferedSetOverlay) // MRS 2-22-01 - Defered overlay set
+    if(ForceRedraw)
     {
         // if we have changed source recatangle then we seem to need
         // to do a hide first
@@ -265,27 +267,12 @@ void WorkoutOverlaySize(BOOL allowResize)
 
         Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
 
-        // repaint if needed
-        if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
-        { 
-            // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-            RECT invalidate;
-            UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
-            InvalidateRect(hWnd,&invalidate,FALSE);
-        }
+        InvalidateRect(hWnd, NULL, FALSE);
     }
     else
     {
-        // repaint now and set off overlay setting for later
-        if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
-        { 
-            // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-            RECT invalidate;
-            UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
-            InvalidateRect(hWnd,&invalidate,FALSE);
-            AspectSettings.OverlayNeedsSetting = TRUE;
-        }
-        else
+        // Set the overlay
+        if (!AspectSettings.DeferedSetOverlay) // MRS 2-22-01 - Defered overlay set
         {
             // if we have changed source recatangle then we seem to need
             // to do a hide first
@@ -294,9 +281,42 @@ void WorkoutOverlaySize(BOOL allowResize)
             {
                 Overlay_Update(NULL, NULL, DDOVER_HIDE);
             }
-            // If not invalidating, we need to update the overlay now...
+
             Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
-            AspectSettings.OverlayNeedsSetting = FALSE;
+
+            // repaint if needed
+            if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
+            { 
+                // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+                RECT invalidate;
+                UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
+                InvalidateRect(hWnd,&invalidate,FALSE);
+            }
+        }
+        else
+        {
+            // repaint now and set off overlay setting for later
+            if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
+            { 
+                // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+                RECT invalidate;
+                UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
+                InvalidateRect(hWnd,&invalidate,FALSE);
+                AspectSettings.OverlayNeedsSetting = TRUE;
+            }
+            else
+            {
+                // if we have changed source recatangle then we seem to need
+                // to do a hide first
+                // at least on nVidia cards
+                if (memcmp(&ar.m_PrevSrcRect,&AspectSettings.SourceRect,sizeof(ar.m_PrevSrcRect)))
+                {
+                    Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                }
+                // If not invalidating, we need to update the overlay now...
+                Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+                AspectSettings.OverlayNeedsSetting = FALSE;
+            }
         }
     }
 

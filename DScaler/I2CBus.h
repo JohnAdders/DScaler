@@ -1,5 +1,5 @@
 //
-// $Id: I2CBus.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CBus.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +37,19 @@
 
 class CI2CBus  
 {
+public:
+    /**
+    @return true if sucessful
+    */
+    virtual bool Read(
+                        const BYTE *writeBuffer,
+                        size_t writeBufferSize,
+                        BYTE *readBuffer,
+                        size_t readBufferSize
+                     );
+    
+    virtual bool Write(const BYTE *writeBuffer, size_t writeBufferSize);
+
 protected:
     virtual void Start()=0;
     virtual void Stop()=0;
@@ -43,17 +59,6 @@ protected:
     virtual void Sleep()=0;
     virtual void SendACK()=0;
     virtual void SendNAK()=0;
-
-public:
-    /**
-    @return true if sucessful
-    */
-    virtual bool Read(const BYTE *writeBuffer,
-        size_t writeBufferSize,
-        BYTE *readBuffer,
-        size_t readBufferSize);
-    
-    virtual bool Write(const BYTE *writeBuffer, size_t writeBufferSize);
 };
 
 #endif // !defined(__I2CBUS_H__)

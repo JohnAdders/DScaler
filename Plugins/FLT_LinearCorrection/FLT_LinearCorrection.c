@@ -499,7 +499,7 @@ SETTING FLT_LinearCorrSettings[FLT_LINEAR_CORR_SETTING_LASTONE] =
 	},
 	{
 		"Mask Type", NUMBER, 0, &MaskType,
-		0, 0, 2, 1, 1,
+		0, 0, 3, 1, 1,
 		NULL,
 		"LinearCorrectionFilter", "MaskType", NULL,
 	},

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.66 2002-05-26 06:32:25 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.67 2002-06-05 20:53:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/05/26 06:32:25  robmuller
+// Stop pull down, deinterlacing and output when in full VideoText mode.
+//
 // Revision 1.65  2002/05/01 20:35:26  tobbej
 // fixed log message
 //
@@ -300,7 +303,6 @@ BOOL                bAutoDetectMode = TRUE;
 BOOL                WaitForFlip = TRUE;       // User parm, default=TRUE
 BOOL                DoAccurateFlips = TRUE;     // User parm, default=TRUE
 BOOL                bHurryWhenLate = FALSE;    // " , default=FALSE, skip processing if behind
-long                RefreshRate = 0;
 BOOL                bIsOddField = FALSE;
 BOOL                bWaitForVsync = FALSE;
 BOOL                bReversePolarity = FALSE;
@@ -918,7 +920,7 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 {
     {
         "Hurry When Late", ONOFF, 0, (long*)&bHurryWhenLate,
-        FALSE, 0, 1, 1, 1,
+        TRUE, 0, 1, 1, 1,
         NULL,
         "Threads", "bHurryWhenLate", NULL,
     },
@@ -941,12 +943,6 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
         "Pulldown", "bAutoDetectMode", NULL,
     },
     {
-        "Refresh Rate", SLIDER, 0, (long*)&RefreshRate,
-        0, 0, 120, 1, 1,
-        NULL,
-        "Pulldown", "RefreshRate", NULL,
-    },
-    {
         "Wait For VSync", ONOFF, 0, (long*)&bWaitForVsync,
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -954,7 +950,7 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
     },
     {
         "Do JudderTerminator On Video Modes", ONOFF, 0, (long*)&bJudderTerminatorOnVideo,
-        TRUE, 0, 1, 1, 1,
+        FALSE, 0, 1, 1, 1,
         NULL,
         "Timing", "DoJudderTerminatorOnVideo", NULL,
     },

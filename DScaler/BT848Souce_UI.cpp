@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.24 2002-05-19 01:19:23 dschmelzer Exp $
+// $Id: BT848Souce_UI.cpp,v 1.25 2002-06-05 20:53:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/05/19 01:19:23  dschmelzer
+// Added a seventh input
+//
 // Revision 1.23  2002/05/09 12:47:07  adcockj
 // Fixed keyboard shortcut bug on Hdelay
 //
@@ -560,7 +563,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_VDELAY_CURRENT:
-            m_HDelay->OSDShow();
+            m_VDelay->OSDShow();
             break;
 
         case IDM_PIXELWIDTH_PLUS:

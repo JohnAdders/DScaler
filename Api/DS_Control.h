@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.60 2002-05-29 18:44:56 robmuller Exp $
+// $Id: DS_Control.h,v 1.61 2002-06-05 20:53:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/05/29 18:44:56  robmuller
+// Added option to disable font anti-aliasing in Teletext.
+//
 // Revision 1.59  2002/05/27 20:17:05  robmuller
 // Patch #561180  by PietOO:
 // Autodetection of teletext code page.
@@ -487,7 +490,6 @@ typedef enum
     WAITFORFLIP,
     DOACCURATEFLIPS,
     AUTODETECT,
-    REFRESHRATE,
     WAITFORVSYNC,
     DOJUDDERTERMINATORONVIDEO,
     OUTTHREADS_SETTING_LASTONE,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.13 2002-03-24 19:40:14 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.14 2002-06-05 20:53:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -518,15 +518,15 @@ enum eSoundChannel
 // 10/19/2000 Mark Rejhon
 // Better NTSC defaults
 #define DEFAULT_HUE_NTSC 0
-#define DEFAULT_BRIGHTNESS_NTSC 20
-#define DEFAULT_CONTRAST_NTSC 207
+#define DEFAULT_BRIGHTNESS_NTSC 0
+#define DEFAULT_CONTRAST_NTSC 0x7F
 #define DEFAULT_SAT_U_NTSC 254
 #define DEFAULT_SAT_V_NTSC 219
 
 // These are the original defaults, likely optimized for PAL (could use refinement).
 #define DEFAULT_HUE_PAL 0
-#define DEFAULT_BRIGHTNESS_PAL 30
-#define DEFAULT_CONTRAST_PAL 0xd8
+#define DEFAULT_BRIGHTNESS_PAL 0
+#define DEFAULT_CONTRAST_PAL 0x7F
 #define DEFAULT_SAT_U_PAL 0xfe
 #define DEFAULT_SAT_V_PAL 0xb4
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.39 2002-04-15 22:50:08 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.40 2002-06-05 20:53:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/04/15 22:50:08  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.38  2002/04/10 07:14:50  adcockj
 // Fixed crash on saving settings
 //
@@ -1148,7 +1152,6 @@ void CBT848Source::ChangeDefaultsBasedOnHardware()
     if(m_ProcessorSpeed->GetValue() == 1 && m_TradeOff->GetValue() == 0)
     {
         // User has selected 300-500 MHz and low judder
-        Setting_ChangeDefault(OutThreads_GetSetting(HURRYWHENLATE), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
@@ -1159,7 +1162,6 @@ void CBT848Source::ChangeDefaultsBasedOnHardware()
     else if(m_ProcessorSpeed->GetValue() == 1 && m_TradeOff->GetValue() == 1)
     {
         // User has selected 300-500 MHz and best picture
-        Setting_ChangeDefault(OutThreads_GetSetting(HURRYWHENLATE), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
@@ -1170,7 +1172,6 @@ void CBT848Source::ChangeDefaultsBasedOnHardware()
     else if(m_ProcessorSpeed->GetValue() == 2 && m_TradeOff->GetValue() == 0)
     {
         // User has selected below 300 MHz and low judder
-        Setting_ChangeDefault(OutThreads_GetSetting(HURRYWHENLATE), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), FALSE);
@@ -1181,7 +1182,6 @@ void CBT848Source::ChangeDefaultsBasedOnHardware()
     else if(m_ProcessorSpeed->GetValue() == 2 && m_TradeOff->GetValue() == 1)
     {
         // User has selected below 300 MHz and best picture
-        Setting_ChangeDefault(OutThreads_GetSetting(HURRYWHENLATE), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), FALSE);
@@ -1192,12 +1192,11 @@ void CBT848Source::ChangeDefaultsBasedOnHardware()
     else
     {
         // user has fast processor use best defaults
-        Setting_ChangeDefault(OutThreads_GetSetting(HURRYWHENLATE), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_ADAPTIVE);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY2FRAME);
+        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
+        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
         m_PixelWidth->ChangeDefault(720);
     }
 

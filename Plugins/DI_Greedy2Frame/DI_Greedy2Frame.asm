@@ -249,6 +249,7 @@ MAINLOOP_LABEL:
 		    add edx, 8
 		    mov dword ptr[Dest], edi
 		    add esi, 8
+		    add esp, 8
 		    dec ecx
 		    jne near MAINLOOP_LABEL
 

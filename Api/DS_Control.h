@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.97 2002-10-26 16:17:24 atnak Exp $
+// $Id: DS_Control.h,v 1.98 2002-10-26 17:46:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2002/10/26 16:17:24  atnak
+// Updated SAA7134_SETTING
+//
 // Revision 1.96  2002/10/26 15:48:59  adcockj
 // Updated format enum to be consistent with DScaler
 //
@@ -1305,6 +1308,7 @@ typedef enum
     PATTERNWIDTH,
     DELAYBETWEENSTILLS,
     SAVEINSAMEFILE,
+    STILLSINMEMORY,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.96 2005-03-23 14:21:00 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.97 2005-03-29 13:07:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2005/03/23 14:21:00  adcockj
+// Test fix for threading issues
+//
 // Revision 1.95  2005/03/06 15:53:03  atnak
 // Fixed card name not saved by initial card  setup dialog if auto-detected.
 //
@@ -1119,6 +1122,8 @@ BOOL CSAA7134Source::PollForNextField(TFieldID* pNextFieldID, int* pFieldDistanc
         NextFieldID = GetNextFieldID(m_CurrentFieldID);
     }
 
+    DWORD StartTime = GetTickCount();
+
     if (bSmartSleep)
     {
         ULONGLONG   PerformanceTick;
@@ -1131,6 +1136,11 @@ BOOL CSAA7134Source::PollForNextField(TFieldID* pNextFieldID, int* pFieldDistanc
                 // Check if the field is finished
                 if (ProcessingFieldID != NextFieldID ||
                     ProcessingFieldID != m_ProcessingFieldID)
+                {
+                    break;
+                }
+                // check that we are not in a tight loop
+                if(GetTickCount() > StartTime + 200)
                 {
                     break;
                 }
@@ -1152,6 +1162,11 @@ BOOL CSAA7134Source::PollForNextField(TFieldID* pNextFieldID, int* pFieldDistanc
                 // Check if the field is finished
                 if (ProcessingFieldID != NextFieldID ||
                     ProcessingFieldID != m_ProcessingFieldID)
+                {
+                    break;
+                }
+                // check that we are not in a tight loop
+                if(GetTickCount() > StartTime + 200)
                 {
                     break;
                 }

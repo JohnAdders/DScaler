@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.73 2005-03-23 14:20:36 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.74 2005-03-29 13:07:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2005/03/23 14:20:36  adcockj
+// Test fix for threading issues
+//
 // Revision 1.72  2005/03/11 14:54:39  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -1292,6 +1295,7 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
+    DWORD StartTime = GetTickCount();
 
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
@@ -1301,6 +1305,11 @@ void CCX2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
+        // check that we are not in a tight loop
+        if(GetTickCount() > StartTime + 200)
+        {
+            break;
+        }
     }
 	if (bLate)
 	{
@@ -1385,6 +1394,7 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
+    DWORD StartTime = GetTickCount();
 
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
@@ -1394,6 +1404,11 @@ void CCX2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
+        // check that we are not in a tight loop
+        if(GetTickCount() > StartTime + 200)
+        {
+            break;
+        }
     }
 	if (bLate)
 	{
@@ -1444,11 +1459,17 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     static int FieldCount(-1);
+    DWORD StartTime = GetTickCount();
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
+        // check that we are not in a tight loop
+        if(GetTickCount() > StartTime + 200)
+        {
+            break;
+        }
     }
 	if (bLate)
 	{
@@ -1529,11 +1550,17 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
     static int FieldCount(-1);
+    DWORD StartTime = GetTickCount();
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
+        // check that we are not in a tight loop
+        if(GetTickCount() > StartTime + 200)
+        {
+            break;
+        }
     }
 	if (bLate)
 	{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.135 2005-03-23 14:20:36 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.136 2005-03-29 13:06:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.135  2005/03/23 14:20:36  adcockj
+// Test fix for threading issues
+//
 // Revision 1.134  2005/03/11 14:54:39  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -1409,10 +1412,7 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
-    int Counter(0);
-    LARGE_INTEGER StartOfWait;
-
-    QueryPerformanceCounter(&StartOfWait);
+    DWORD StartOfWait = GetTickCount();
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
@@ -1423,20 +1423,14 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
 
-        if(++Counter == 1000)
+        //check we're not in a tight loop here for too long
+        //sometimes boards with external chips seem to hang and need
+        //resetting, for other boards this won't do any harm (hopefully)
+        if(GetTickCount() > StartOfWait + 200)
         {
-            //check we're not in a tight loop here for too long
-            //sometimes boards with external chips seem to hang and need
-            //resetting, for other boards this won't do any harm (hopefully)
-            LARGE_INTEGER EndOfWait;
-            QueryPerformanceCounter(&EndOfWait);
-            if(EndOfWait.QuadPart -  StartOfWait.QuadPart > 150000)
-            {
-                PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
-                //  after tell the card to reset just exit out and we will probably show garbage here
-                break;      
-            }
-            Counter = 0;
+            PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
+            //  after tell the card to reset just exit out and we will probably show garbage here
+            break;      
         }
     }
 	if (bLate)
@@ -1501,9 +1495,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     static int FieldCount(-1);
     int Counter(0);
-    LARGE_INTEGER StartOfWait;
-
-    QueryPerformanceCounter(&StartOfWait);
+    DWORD StartOfWait = GetTickCount();
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
@@ -1514,9 +1506,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             //check we're not in a tight loop here for too long
             //sometimes boards with external chips seem to hang and need
             //resetting, for other boards this won't do any harm (hopefully)
-            LARGE_INTEGER EndOfWait;
-            QueryPerformanceCounter(&EndOfWait);
-            if(EndOfWait.QuadPart -  StartOfWait.QuadPart > 150000)
+            if(GetTickCount() >  StartOfWait + 200)
             {
                 PostMessageToMainWindow(WM_COMMAND, IDM_RESET, 0);
                 //  after tell the card to reset just exit out and we will probably show garbage here

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.13 2002-09-02 19:07:21 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.14 2002-09-06 15:12:31 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/09/02 19:07:21  kooiman
+// Added BT848 advanced settings to advanced settings dialog
+//
 // Revision 1.12  2002/09/01 15:15:56  kooiman
 // Fixed bug introduced by bug fix.
 //
@@ -1480,7 +1483,7 @@ void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource)
          }
          LOG(3,"SPC: Change source: save channel settings");
          SettingsPerChannel_SaveChannelSettings(NULL, iSpcCurrentVideoInput, iSpcCurrentChannel);         
-         iSpcLastLoadedChannel = NO_CHANNEL; // force read of new channel values
+         iSpcLastLoadedChannel = NO_CHANNEL; // force read of new channel values         
     }
     else
     {        
@@ -1531,8 +1534,10 @@ void SettingsPerChannel_SourceChange(void *pThis, int Flags, CSource *pSource)
         {
             LOG(3,"SPC: Source change: setup settings per channel (3).");
             iSpcCurrentVideoInput = NO_VIDEOINPUT;
-            iSpcCurrentChannel = NO_CHANNEL;
+            iSpcCurrentChannel = NO_CHANNEL;            
             iSpcLastLoadedChannel = NO_CHANNEL;
+
+            iSpcCurrentVideoInput = pSource->GetInput(VIDEOINPUT);
 
             bSpcLoadedNewDefaults = FALSE;
             SettingsPerChannel_Setup(3);            
@@ -1623,6 +1628,7 @@ void SettingsPerChannel_Setup(int Start)
             {
                 sSpcCurrentSource = "";
             }
+            iSpcCurrentVideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
         }
         Providers_Register_SourceChangeNotification(NULL, SettingsPerChannel_SourceChange);
     }

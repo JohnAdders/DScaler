@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.5 2001-08-08 10:53:30 adcockj Exp $
+// $Id: DSDrv.H,v 1.6 2001-08-08 16:38:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,20 +29,30 @@
 // 24 Jul 2000   John Adcock           Original dTV Release
 //                                     Added Memory Alloc functions
 //
+// 08 Aug 2001   John Adcock           Changed functionms to support multiple cards
+//                                     Added driver version
+//                                     Changed meaning of memory access parameters
+//                                     (see note in header)
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if ! defined (__DSDRVDEF_H)
 #define __DSDRVDEF_H
 
+// define version number to be compiled into both files
+// we use this to make sure that we are atlingh the same language in both the 
+// drivers and the dll
+#define DSDRV_VERSION 0x3030
+
 #define ALLOC_MEMORY_CONTIG 1
 
-typedef struct _PageStruct
+typedef struct
 {
 	DWORD dwSize;
 	DWORD dwPhysical;
 } TPageStruct, * PPageStruct;
 
-typedef struct _MemStruct
+typedef struct
 {
 	DWORD dwTotalSize;
 	DWORD dwPages;
@@ -51,6 +61,15 @@ typedef struct _MemStruct
 	void* dwUser;
 } TMemStruct, * PMemStruct;
 
+
+typedef struct
+{
+    DWORD  dwMemoryAddress;
+    DWORD  dwMemoryLength;
+    DWORD  dwSubSystemId;
+    DWORD  dwBusNumber;
+    DWORD  dwSlotNumber;
+} TPCICARDINFO;
 
 #if defined (WIN32) && !defined (_NTKERNEL_)
 
@@ -139,6 +158,8 @@ extern "C" {
 #define DSDRV_READ_MEMORY_BYTE (DSDRV_BASE + 16)
 #define DSDRV_WRITE_MEMORY_BYTE (DSDRV_BASE + 17)
 
+#define DSDRV_GETVERSION (DSDRV_BASE + 18)
+
 
 
 //
@@ -165,6 +186,7 @@ extern "C" {
 #define ioctlWriteMemoryWORD DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_WORD, METHOD_IN_DIRECT)
 #define ioctlReadMemoryBYTE DSDRV_CTL_CODE( DSDRV_READ_MEMORY_BYTE, METHOD_OUT_DIRECT)
 #define ioctlWriteMemoryBYTE DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_BYTE, METHOD_IN_DIRECT)
+#define ioctlGetVersion DSDRV_CTL_CODE( DSDRV_GETVERSION, METHOD_OUT_DIRECT)
 
 
 typedef struct tagDSDrvParam
@@ -238,12 +260,17 @@ DWORD WINAPI memoryFree(PMemStruct pMemStruct);
 DWORD WINAPI pciGetHardwareResources(DWORD    dwVendorID,
                                       DWORD   dwDeviceID,
                                       DWORD   dwCardIndex,
-                                      PDWORD  pdwMemoryAddress,
-                                      PDWORD  pdwMemoryLength,
-                                      PDWORD  pdwSubSystemId);
+                                      TPCICARDINFO* pPCICardInfo);
 
-DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength);
+DWORD WINAPI memoryMap(DWORD dwBusNumber, DWORD dwAddress, DWORD dwLength);
 void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength);
+
+// John Adcock 2001/08/08 
+// note that the addresses used below are no longer the offsets
+// as of this version we are passing the dwMemoryBase + offset
+// This will cause old code to fail in a nasty way
+// but is required as we move to support for multiple cards
+
 void WINAPI memoryWriteDWORD(DWORD dwAddress, DWORD dwValue);
 DWORD WINAPI memoryReadDWORD(DWORD dwAddress);
 void WINAPI memoryWriteWORD(DWORD dwAddress, WORD wValue);

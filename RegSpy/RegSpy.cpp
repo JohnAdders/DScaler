@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.4 2002-12-05 08:06:11 atnak Exp $
+// $Id: RegSpy.cpp,v 1.5 2002-12-05 08:38:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/12/05 08:06:11  atnak
+// Various changes
+//
 // Revision 1.3  2002/12/04 14:15:06  adcockj
 // Fixed RegSpy Problems
 //
@@ -418,6 +421,7 @@ typedef struct _REGDISPLAYINFO
     LPCRITICAL_SECTION  pRegisterListMutex;
     BYTE*               pLogState;
     LONG                nScrollPos;
+	BOOL				bRedrawAll;
 } TREGDISPLAYINFO;
 
 BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam);
@@ -905,7 +909,7 @@ LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
                 SelectObject(hOffscreenDC, hDisplayFont);
             }
 
-            bRedrawAll = FALSE;
+            bRedrawAll = gRegDisplayInfo.bRedrawAll;
 
             // Create the bitmap for the offscreen buffer
             if(hOffscreenBitmap == NULL)
@@ -1049,6 +1053,8 @@ LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
             // Release the mutex
             LeaveCriticalSection(gRegDisplayInfo.pRegisterListMutex);
+
+			gRegDisplayInfo.bRedrawAll = FALSE;
 
             // Blit the offscreen buffer onto the main display
             BitBlt(hDC, 0, 0, nDisplayWidth, nDisplayHeight, hOffscreenDC, 0, 0, SRCCOPY);
@@ -1467,6 +1473,9 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 nLogState = 0;
                 EnableWindow(hLogState, FALSE);
                 SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
+
+				gRegDisplayInfo.bRedrawAll = TRUE;
+				InvalidateRect(hRegDisplay, NULL, FALSE);
             }
             else if(nLogState != MAX_LOG_STATES)
             {
@@ -1505,6 +1514,9 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                     nLogState = 0;
                     SetDlgItemText(hDlg, IDC_LOGSTATE, "Log State");
                     SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
+
+					gRegDisplayInfo.bRedrawAll = TRUE;
+					InvalidateRect(hRegDisplay, NULL, FALSE);
                 }
             }
 

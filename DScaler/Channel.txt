@@ -373,6 +373,54 @@ ChannelHigh=69
      847250000
      855250000
 
+[European Cable Frequency (S-channels)]
+ ChannelLow=1
+ ChannelHigh=41
+ ; Used in Czech Republic, Finland, Germany and UK (and probably many
+ ; others). S-channels should be identical in those countries, but there
+ ; might be non-S-channels too (or S0-channels, like in UK).
+      105250000  ; S1
+      112250000  ; S2
+      119250000  ; S3
+      126250000  ; S4
+      133250000  ; S5
+      140250000  ; S6
+      147250000  ; S7
+      154250000  ; S8
+      161250000  ; S9
+      168250000  ; S10
+      231250000  ; S11
+      238250000  ; S12
+      245250000  ; S13
+      252250000  ; S14
+      259250000  ; S15
+      266250000  ; S16
+      273250000  ; S17
+      280250000  ; S18
+      287250000  ; S19
+      294250000  ; S20
+      303250000  ; S21
+      311250000  ; S22
+      319250000  ; S23
+      327250000  ; S24
+      335250000  ; S25
+      343250000  ; S26
+      351250000  ; S27
+      359250000  ; S28
+      367250000  ; S29
+      375250000  ; S30
+      383250000  ; S31
+      391250000  ; S32
+      399250000  ; S33
+      407250000  ; S34
+      415250000  ; S35
+      423250000  ; S36
+      431250000  ; S37
+      439250000  ; S38
+      447250000  ; S39
+      455250000  ; S40
+      463250000  ; S41
+
 [Finnish Air Frequency]
 ChannelLow=2
 ChannelHigh=69
@@ -402,7 +450,7 @@ ChannelHigh=69
              0
              0
              0
-; Alue IV - channels 21-34, digital broadcasts too
+; Alue IV - channels 21-37, digital broadcasts too
      471250000
      479250000
      487250000  ; 23, MTV3 in Fiskars
@@ -417,10 +465,10 @@ ChannelHigh=69
      559250000
      567250000  ; 33, MTV3 in Oulu
      575250000
-; Alue V - channels 35-60, digital broadcasts too
      583250000  ; 35, MTV3 in Jyvaskyla; SVT in Espoo
      591250000  ; 36, YLE2 in Kuopio
      599250000  ; 37, Nelonen in Oulu
+; Alue V - channels 38-60, digital broadcasts too
      607250000
      615250000
      623250000  ; 40, YLE2 in Lahti
@@ -444,7 +492,7 @@ ChannelHigh=69
      767250000
      775250000  ; 59, MTV3 in Tampere
      783250000  ; 60, Nelonen in Turku
-; Alue VI - channels 61-69
+; Alue V - channels 61-69 (seperated because these are used differently)
      791250000
      799250000
      807250000

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.11 2001-12-18 14:45:05 adcockj Exp $
+// $Id: BT848Card.h,v 1.12 2001-12-18 15:28:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/12/18 14:45:05  adcockj
+// Moved to Common Controls status bar
+//
 // Revision 1.10  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -60,9 +63,9 @@ private:
         INPUTTYPE_SVIDEO,
         /// standard analogue tuner input composite
         INPUTTYPE_TUNER,
-        // Digital CCIR656 input on the GPIO pins
+        /// Digital CCIR656 input on the GPIO pins
         INPUTTYPE_CCIR,
-        // Radio input so no video
+        /// Radio input so no video
         INPUTTYPE_RADIO,
     };
 
@@ -276,6 +279,7 @@ private:
     char m_MSPVersion[16];
     char m_TunerStatus[32];
 
+private:
     eTVCardId m_CardType;
     bool m_bHasMSP;
 
@@ -284,6 +288,8 @@ private:
     CAudioDecoder*  m_AudioDecoder;
     IAudioControls* m_AudioControls;
     eAudioInput     m_LastAudioSource;
+
+private:
     static const TCardType m_TVCards[TVCARD_LASTONE];
     static const TAutoDectect878 m_AutoDectect878[];
 };

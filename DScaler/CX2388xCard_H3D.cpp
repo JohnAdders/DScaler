@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.7 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.8 2003-11-14 13:24:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.6  2003/07/18 09:41:23  adcockj
 // Added PDI input to holo3d (doesn't yet work)
 //
@@ -102,7 +105,7 @@ void CCX2388xCard::InitH3D()
 
     if(m_SAA7118->GetVersion() > 0)
     {
-        m_SAA7118->DumpSettings();
+        m_SAA7118->DumpSettings("SAA7118_H3D.txt");
     }
 
     FILE* hFile = fopen("FPGA.txt", "w");
@@ -123,12 +126,12 @@ void CCX2388xCard::InitH3D()
     fclose(hFile);
 
     m_SAA7118->SetRegister(0x01, 0x47);
-    m_SAA7118->SetRegister(0x03, 0x10);
+    m_SAA7118->SetRegister(0x03, 0x20);
     m_SAA7118->SetRegister(0x04, 0x90);
     m_SAA7118->SetRegister(0x05, 0x90);
     m_SAA7118->SetRegister(0x06, 0xeb);
     m_SAA7118->SetRegister(0x07, 0xe0);
-    m_SAA7118->SetRegister(0x08, 0x98);
+    m_SAA7118->SetRegister(0x08, 0xb8);
     m_SAA7118->SetRegister(0x11, 0x00);
     m_SAA7118->SetRegister(0x12, 0x00);
     m_SAA7118->SetRegister(0x13, 0x00);
@@ -153,9 +156,9 @@ void CCX2388xCard::InitH3D()
         m_SAA7118->SetRegister(j, 0xFF);
     }
     m_SAA7118->SetRegister(0x58, 0x00);
-    m_SAA7118->SetRegister(0x59, 0x47);
+    m_SAA7118->SetRegister(0x59, 0x00);
     m_SAA7118->SetRegister(0x5C, 0x00);
-    m_SAA7118->SetRegister(0x5D, 0x3E);
+    m_SAA7118->SetRegister(0x5D, 0x00);
     m_SAA7118->SetRegister(0x5E, 0x00);
     m_SAA7118->SetRegister(0x5F, 0x00);
 

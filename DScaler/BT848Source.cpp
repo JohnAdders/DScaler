@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.130 2003-11-06 19:36:56 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.131 2003-11-14 13:24:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.130  2003/11/06 19:36:56  adcockj
+// Increase size of vertical delay
+//
 // Revision 1.129  2003/10/27 16:22:56  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -536,6 +539,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     ReadFromIni();
     
     SetupCard();
+
+    InitializeUI();
 }
 
 CBT848Source::~CBT848Source()
@@ -1364,7 +1369,11 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
+    int Counter(0);
+    LARGE_INTEGER StartOfWait;
 
+    QueryPerformanceCounter(&StartOfWait);
+    
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
         // need to sleep more often
@@ -1373,6 +1382,22 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         Timing_SmartSleep(pInfo, FALSE, bSlept);
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
+
+        if(++Counter == 1000)
+        {
+            //check we're not in a tight loop here for too long
+            //sometimes boards with external chips seem to hang and need
+            //resetting, for other boards this won't do any harm (hopefully)
+            LARGE_INTEGER EndOfWait;
+            QueryPerformanceCounter(&EndOfWait);
+            if(EndOfWait.QuadPart -  StartOfWait.QuadPart > 150000)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_RESET, 0);
+                //  after tell the card to reset just exit out and we will probably show garbage here
+                break;      
+            }
+            Counter = 0;
+        }
     }
 	if (bLate)
 	{
@@ -1435,11 +1460,30 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
     static int FieldCount(-1);
+    int Counter(0);
+    LARGE_INTEGER StartOfWait;
+
+    QueryPerformanceCounter(&StartOfWait);
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
         bLate = FALSE;							// if we waited then we are not late
+        if(++Counter == 1000)
+        {
+            //check we're not in a tight loop here for too long
+            //sometimes boards with external chips seem to hang and need
+            //resetting, for other boards this won't do any harm (hopefully)
+            LARGE_INTEGER EndOfWait;
+            QueryPerformanceCounter(&EndOfWait);
+            if(EndOfWait.QuadPart -  StartOfWait.QuadPart > 150000)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_RESET, 0);
+                //  after tell the card to reset just exit out and we will probably show garbage here
+                break;      
+            }
+            Counter = 0;
+        }
     }
 	if (bLate)
 	{

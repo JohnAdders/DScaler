@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.22 2003-11-13 17:32:49 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.23 2003-11-14 13:24:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/11/13 17:32:49  adcockj
+// Added BT8x8 register debugger
+//
 // Revision 1.21  2003/11/03 17:29:47  adcockj
 // Fixes for new PMS deluxe
 //
@@ -1659,6 +1662,6 @@ void CBT848Source::InitializeUI()
         MenuItemInfo.dwTypeData = pMenuName;
         MenuItemInfo.cch = strlen(pMenuName);
         MenuItemInfo.wID = IDM_DSVIDEO_STANDARD_0;
-        InsertMenuItem(hSubMenu, 5, TRUE, &MenuItemInfo);
+        InsertMenuItem(hSubMenu, 3, TRUE, &MenuItemInfo);
     }
 }

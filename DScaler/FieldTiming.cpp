@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.39 2003-10-27 10:39:51 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.40 2003-11-14 13:24:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.38  2003/09/27 13:39:14  adcockj
 // Changed default to off for auto format
 //
@@ -206,7 +209,7 @@ void Timing_CleanUp()
 
 
 void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields)
-{
+    {
     if(!(pInfo->bRunningLate))
     {
         LARGE_INTEGER CurrentFieldTime;

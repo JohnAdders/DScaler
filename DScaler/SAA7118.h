@@ -1,5 +1,5 @@
 //
-// $Id: SAA7118.h,v 1.3 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7118.h,v 1.4 2003-11-14 13:24:56 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -42,7 +42,7 @@ public:
 	void SetComponentSaturation(BYTE Saturation);
 
 	BYTE GetVersion();
-	void DumpSettings();
+	void DumpSettings(LPCSTR Filename);
 
     void SetRegister(BYTE Register, BYTE Value);
     BYTE GetRegister(BYTE Register);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.4 2003-11-13 17:32:48 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.5 2003-11-14 13:24:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/11/13 17:32:48  adcockj
+// Added BT8x8 register debugger
+//
 // Revision 1.3  2003/11/03 17:29:47  adcockj
 // Fixes for new PMS deluxe
 //
@@ -79,7 +82,7 @@ enum ePMSInputs
 
 void CBT848Card::InitPMSDeluxe()
 {
-    InitRSBT();
+    //InitRSBT();
 
     m_SAA7118 = new CSAA7118();
 
@@ -88,7 +91,7 @@ void CBT848Card::InitPMSDeluxe()
     #ifdef _DEBUG
     if(m_SAA7118->GetVersion() > 0)
     {
-        m_SAA7118->DumpSettings();
+        m_SAA7118->DumpSettings("SAA7118_PMS.txt");
     }
     #endif
 
@@ -102,12 +105,12 @@ void CBT848Card::InitPMSDeluxe()
 
     m_SAA7118->SetRegister(0x01,0x47);
     //0x02 is input selection
-    m_SAA7118->SetRegister(0x03,0x10);
+    m_SAA7118->SetRegister(0x03,0x20);
     m_SAA7118->SetRegister(0x04,0x90); //not on datasheet
     m_SAA7118->SetRegister(0x05,0x90); //not on datasheet
     m_SAA7118->SetRegister(0x06,0xeb);
     m_SAA7118->SetRegister(0x07,0xe0);
-    m_SAA7118->SetRegister(0x08,0xb8); //enforce even/odd toggle even if non-interlaced detected //0x98); 
+    m_SAA7118->SetRegister(0x08,0xe8);  //enforce even/odd toggle even if non-interlaced detected //0x98); 
 
     /* Decoder Brightness(Lumin), Contrast(Lumin), Saturation(Chromin) & Hue(Chromin) */
     m_SAA7118->SetRegister(0x0a,dBrightness);
@@ -139,39 +142,40 @@ void CBT848Card::InitPMSDeluxe()
     m_SAA7118->SetRegister(0x2f,0x00);
     
     //0x30-0x3A = default
-    m_SAA7118->SetRegister(0x40,0x40);
+    m_SAA7118->SetRegister(0x40,0x22);
     for (i=0x41; i<=0x57; i++)
     {
         m_SAA7118->SetRegister(i,0xff);
     }
 
     m_SAA7118->SetRegister(0x58,0x00);
-    m_SAA7118->SetRegister(0x59,0x47);
+    m_SAA7118->SetRegister(0x59,0x00);
+    m_SAA7118->SetRegister(0x5a,0x07);
+    m_SAA7118->SetRegister(0x5b,0x00);
     m_SAA7118->SetRegister(0x5c,0x00);
-    m_SAA7118->SetRegister(0x5d,0x3e);
+    m_SAA7118->SetRegister(0x5d,0x00);
     m_SAA7118->SetRegister(0x5e,0x00);
     m_SAA7118->SetRegister(0x5f,0x00);
 
     // 2
-    m_SAA7118->SetRegister(0x83, 0x0); // Xport Output Disable (i.e. Enable Input)
+    // stop the scaler
+    m_SAA7118->SetRegister(0x88,0x00);
+    m_SAA7118->SetRegister(0x83,0x00); // Xport Output Disable (i.e. Enable Input)
 
-    m_SAA7118->SetRegister(0x84,0xf0);
+    m_SAA7118->SetRegister(0x84,0x00);
     m_SAA7118->SetRegister(0x85,0x00);
-    m_SAA7118->SetRegister(0x86,0x45);
+    m_SAA7118->SetRegister(0x86,0x40);
     m_SAA7118->SetRegister(0x87,0x01);
-    m_SAA7118->SetRegister(0x88,0xf0);//can try 0xf8
 
     m_SAA7118->SetRegister(0x90,0x00);
 
     m_SAA7118->SetRegister(0x93,0x80);
 
     /* Acquisition Window Settings */
-    m_SAA7118->SetRegister(0x94,0x02); // horizontal input offset, min >= 2
+    m_SAA7118->SetRegister(0x94,0x00); // horizontal input offset, min >= 2
     m_SAA7118->SetRegister(0x95,0x00);
     m_SAA7118->SetRegister(0x96,0xd0); // horizontal input window length = 720
     m_SAA7118->SetRegister(0x97,0x02);
-    m_SAA7118->SetRegister(0x98,0x00); // vertical input offset
-    m_SAA7118->SetRegister(0x99,0x00);
 
     m_SAA7118->SetRegister(0x9c,0xd0); // horizontal output window length = 720
     m_SAA7118->SetRegister(0x9d,0x02);
@@ -188,7 +192,7 @@ void CBT848Card::InitPMSDeluxe()
     m_SAA7118->SetRegister(0xa6,ASat);//0x40);//Register A Saturation(Chromin)
     m_SAA7118->SetRegister(0xa8,0x00);
     m_SAA7118->SetRegister(0xa9,0x04);
-    m_SAA7118->SetRegister(0xaa,0x00);
+    m_SAA7118->SetRegister(0xaa,0x20);
     m_SAA7118->SetRegister(0xac,0x00);
     m_SAA7118->SetRegister(0xad,0x02);
     m_SAA7118->SetRegister(0xae,0x00);
@@ -198,10 +202,10 @@ void CBT848Card::InitPMSDeluxe()
     m_SAA7118->SetRegister(0xb3,0x04);
     m_SAA7118->SetRegister(0xb4,0x00);
 
-    m_SAA7118->SetRegister(0xaa,horizontalLumaPhaseOffset);
-    m_SAA7118->SetRegister(0xae,horizontalChromaPhaseOffset);
-    m_SAA7118->SetRegister(0xb8,verticalChromaPhaseOffset);
-    m_SAA7118->SetRegister(0xbc,verticalLumaPhaseOffset);
+    //m_SAA7118->SetRegister(0xaa,horizontalLumaPhaseOffset);
+    //m_SAA7118->SetRegister(0xae,horizontalChromaPhaseOffset);
+    m_SAA7118->SetRegister(0xb8,0x00);
+    m_SAA7118->SetRegister(0xbc,0x00);
 
     //m_SAA7118->SetRegister(0x0E, 137); Problem! can't set D7 here, but only in PMSDeluxeInputSelect()
 }
@@ -267,18 +271,26 @@ void CBT848Card::SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat)
 
     if(GetTVFormat(TVFormat)->wCropHeight == 576)
     {
+        m_SAA7118->SetRegister(0x08, 0x28);
         m_SAA7118->SetRegister(0x5A, 0x03);
-        m_SAA7118->SetRegister(0x5B, 0x03);
+        m_SAA7118->SetRegister(0x5B, 0x00);
+
+        m_SAA7118->SetRegister(0x98,0x0d); // vertical input offset
+        m_SAA7118->SetRegister(0x99,0x00);
 
         m_SAA7118->SetRegister(0x9A, 0x38);
         m_SAA7118->SetRegister(0x9B, 0x01);
-        m_SAA7118->SetRegister(0x9E, 0x40 - 2);
+        m_SAA7118->SetRegister(0x9E, 0x40-2);
         m_SAA7118->SetRegister(0x9F, 0x02);
     }
     else
     {
+        m_SAA7118->SetRegister(0x08, 0x68);
         m_SAA7118->SetRegister(0x5A, 0x06);
         m_SAA7118->SetRegister(0x5B, 0x83);
+
+        m_SAA7118->SetRegister(0x98,0x0a); // vertical input offset
+        m_SAA7118->SetRegister(0x99,0x00);
 
         m_SAA7118->SetRegister(0x9A, 0x06);
         m_SAA7118->SetRegister(0x9B, 0x01);
@@ -296,7 +308,7 @@ void CBT848Card::SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat)
     {
         m_SAA7118->SetRegister(0x80, 0x10);
         m_SAA7118->SetRegister(0x91, 0x08);
-        m_SAA7118->SetRegister(0x92, 0x11);
+        m_SAA7118->SetRegister(0x92, 0x10);
     }
 
 
@@ -386,6 +398,11 @@ void CBT848Card::SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat)
     m_SAA7118->SetRegister(0x0E, ChrominanceControl);
     m_SAA7118->SetRegister(0x0F, ChrominanceGainControl);
     m_SAA7118->SetRegister(0x10, ChrominanceControl2);
+
+    // reset the scaler
+    m_SAA7118->SetRegister(0x88,0x00);
+    m_SAA7118->SetRegister(0x88,0x20);
+
 }
 
 
@@ -479,7 +496,7 @@ void CBT848Card::SetPMSDeluxeHue(BYTE Hue)
     case PMS_COMPOSITE_SV_2: // Composite over S-Video
     case PMS_COMPOSITE_SV_3: // Composite over S-Video
     case PMS_COMPOSITE_SV_4: // Composite over S-Video
-        m_SAA7118->SetHue(Hue);
+        m_SAA7118->SetHue(Hue + 0x80);
         break;
     case PMS_XPORT:
     case PMS_SDI:

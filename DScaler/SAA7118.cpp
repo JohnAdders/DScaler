@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SAA7118.cpp,v 1.5 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7118.cpp,v 1.6 2003-11-14 13:24:55 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.4  2002/10/31 14:47:20  adcockj
 // Added Sharpness
 //
@@ -109,11 +112,11 @@ BYTE CSAA7118::GetRegister(BYTE Register)
     return Result;
 }
 
-void CSAA7118::DumpSettings()
+void CSAA7118::DumpSettings(LPCSTR Filename)
 {
     FILE* hFile;
 
-    hFile = fopen("SAA7118.txt", "w");
+    hFile = fopen(Filename, "w");
     if(!hFile)
     {
         return;

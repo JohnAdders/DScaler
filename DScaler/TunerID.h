@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.1 2003-02-06 19:40:00 ittarnavsky Exp $
+// $Id: TunerID.h,v 1.2 2003-02-06 21:27:05 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/02/06 19:40:00  ittarnavsky
+// contains definition of eTunerId
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(__TUNERID_H__)
@@ -79,7 +82,10 @@ enum eTunerId
     TUNER_PHILIPS_FM1216ME_MK3,
     TUNER_LG_TAPCNEW_NTSC,
     TUNER_MT2032_PAL,
+    TUNER_PHILIPS_FI1286_NTSC_M_J,
     TUNER_LASTONE,
 };
+
+extern const char *TunerNames[TUNER_LASTONE];
 
 #endif // !defined(__TUNERID_H__)

@@ -917,17 +917,18 @@ BEGIN
                     197,129,56,14
 END
 
-IDD_TOOLBAR_CHANNELS DIALOG DISCARDABLE  0, 0, 117, 13
+IDD_TOOLBAR_CHANNELS DIALOG DISCARDABLE  0, 0, 111, 16
 STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "",IDC_TOOLBAR_CHANNELS_SPINUP,0,0,13,6,BS_BITMAP | NOT 
-                    WS_TABSTOP
-    PUSHBUTTON      "",IDC_TOOLBAR_CHANNELS_SPINDOWN,0,6,13,6,BS_BITMAP | 
-                    NOT WS_TABSTOP
-    COMBOBOX        IDC_TOOLBAR_CHANNELS_LIST,18,0,75,495,CBS_DROPDOWNLIST | 
+    CONTROL         "",IDC_TOOLBAR_CHANNELS_SPINUP,"Button",BS_OWNERDRAW | 
+                    BS_ICON | BS_FLAT,0,0,10,7
+    CONTROL         "",IDC_TOOLBAR_CHANNELS_SPINDOWN,"Button",BS_OWNERDRAW | 
+                    BS_ICON | BS_FLAT,0,7,10,7
+    COMBOBOX        IDC_TOOLBAR_CHANNELS_LIST,13,0,80,495,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "",IDC_TOOLBAR_CHANNELS_PREVIOUS,100,0,13,13,BS_BITMAP
+    CONTROL         "",IDC_TOOLBAR_CHANNELS_PREVIOUS,"Button",BS_OWNERDRAW | 
+                    BS_ICON | WS_TABSTOP,95,0,16,14
 END
 
 
@@ -1697,9 +1698,9 @@ BEGIN
     IDD_TOOLBAR_CHANNELS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 110
+        RIGHTMARGIN, 109
         TOPMARGIN, 7
-        BOTTOMMARGIN, 6
+        BOTTOMMARGIN, 4
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -1707,12 +1708,27 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_TOOLBAR_CHANNELS_DOWN ICON    DISCARDABLE     "toolbar_channels_down.ico"
+IDI_TOOLBAR_CHANNELS_PREVIOUS ICON    DISCARDABLE     "toolbar_channels_previous.ico"
+IDI_TOOLBAR_CHANNELS_UP ICON    DISCARDABLE     "toolbar_channels_up.ico"
+IDI_TOOLBAR_VOLUME_UNMUTE ICON    DISCARDABLE     "toolbar_volume_mute.ico"
+IDI_TOOLBAR_VOLUME_MUTE ICON    DISCARDABLE     "toolbar_volume_mute1.ico"
+IDI_TOOLBAR_VOLUME_MONO ICON    DISCARDABLE     "toolbar_volume_mono.ico"
+IDI_TOOLBAR_VOLUME_STEREO ICON    DISCARDABLE     "toolbar_volume_stereo.ico"
+IDI_TOOLBAR_VOLUME_LANG1 ICON    DISCARDABLE     "toolbar_volume_lang1.ico"
+IDI_TOOLBAR_VOLUME_LANG2 ICON    DISCARDABLE     "toolbar_volume_lang2.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Bitmap
 //
 
-IDB_TOOLBAR_CHANNELS_UP BITMAP  DISCARDABLE     "toolbar_channels_up.bmp"
-IDB_TOOLBAR_CHANNELS_DOWN BITMAP  DISCARDABLE     "toolbar_channels_down.bmp"
-IDB_TOOLBAR_CHANNELS_PREVIOUS BITMAP  DISCARDABLE     "toolbar_channels_previous.bmp"
+IDB_TOOLBAR_BAR_BAR     BITMAP  DISCARDABLE     "toolbar_bar_bar.bmp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1731,13 +1747,16 @@ LANGUAGE LANG_DUTCH, SUBLANG_DUTCH
 // Dialog
 //
 
-IDD_TOOLBAR_VOLUME DIALOG DISCARDABLE  0, 0, 100, 13
+IDD_TOOLBAR_VOLUME DIALOG DISCARDABLE  0, 0, 134, 16
 STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Sans Serif"
 BEGIN
-    CHECKBOX        "",IDC_TOOLBAR_VOLUME_MUTE,3,1,8,9,BS_BITMAP
     CONTROL         "Slider1",IDC_TOOLBAR_VOLUME_SLIDER,"msctls_trackbar32",
-                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,16,0,84,13
+                    WS_TABSTOP,17,0,86,13
+    CONTROL         "",IDC_TOOLBAR_VOLUME_MUTE,"Button",BS_OWNERDRAW | 
+                    BS_ICON,0,0,16,16
+    CONTROL         "",IDC_TOOLBAR_VOLUME_CHANNEL,"Button",BS_OWNERDRAW | 
+                    BS_ICON | WS_TABSTOP,104,0,30,16
 END
 
 IDD_TOOLBAR_LOGO DIALOG DISCARDABLE  0, 0, 62, 8
@@ -1746,6 +1765,14 @@ FONT 14, "MS Sans Serif"
 BEGIN
     CONTROL         "DScaler version 4.0",IDC_TOOLBAR_LOGO_LOGO,"Static",
                     SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,1,0,61,8
+END
+
+IDD_TOOLBAR_VIDEOINPUT DIALOG DISCARDABLE  0, 0, 84, 12
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_TOOLBAR_VIDEOINPUT_LIST,0,0,83,12,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
 END
 
 
@@ -1760,9 +1787,9 @@ BEGIN
     IDD_TOOLBAR_VOLUME, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 93
+        RIGHTMARGIN, 126
         TOPMARGIN, 7
-        BOTTOMMARGIN, 6
+        BOTTOMMARGIN, 5
     END
 
     IDD_TOOLBAR_LOGO, DIALOG
@@ -1771,6 +1798,14 @@ BEGIN
         RIGHTMARGIN, 55
         TOPMARGIN, 7
         BOTTOMMARGIN, 1
+    END
+
+    IDD_TOOLBAR_VIDEOINPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 77
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 5
     END
 END
 #endif    // APSTUDIO_INVOKED

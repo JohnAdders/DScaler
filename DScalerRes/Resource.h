@@ -51,9 +51,23 @@
 #define IDB_TOOLBAR_CHANNELS_UP         219
 #define IDB_TOOLBAR_CHANNELS_DOWN       220
 #define IDB_TOOLBAR_CHANNELS_PREVIOUS   221
+#define IDB_TOOLBAR_VOLUME_UNMUTE       224
+#define IDB_TOOLBAR_VOLUME_MUTE         225
+#define IDD_TOOLBAR_BAR                 226
 #define IDM_VBI                         231
+#define IDB_TOOLBAR_BAR_BAR             231
 #define IDM_CAPTURE_PAUSE               232
+#define IDI_TOOLBAR_CHANNELS_DOWN       232
+#define IDI_TOOLBAR_CHANNELS_PREVIOUS   233
+#define IDI_TOOLBAR_CHANNELS_UP         234
+#define IDI_TOOLBAR_VOLUME_UNMUTE       236
+#define IDI_TOOLBAR_VOLUME_MUTE         237
+#define IDI_TOOLBAR_VOLUME_MONO         238
+#define IDI_TOOLBAR_VOLUME_STEREO       239
+#define IDI_TOOLBAR_VOLUME_LANG1        241
 #define IDM_CHANNEL_LIST                242
+#define IDI_TOOLBAR_VOLUME_LANG2        242
+#define IDD_TOOLBAR_VIDEOINPUT          243
 #define IDM_CALL_VIDEOTEXT              245
 #define IDM_VT_RESET                    261
 #define IDM_AUDIOSETTINGS               264
@@ -281,6 +295,8 @@
 #define IDC_BUTTON1                     1415
 #define IDC_SETFREQ                     1415
 #define IDC_TOOLBAR_CHANNELS_SPINUP     1415
+#define IDC_TOOLBAR_BAR_BAR             1415
+#define IDC_TOOLBAR_VOLUME_CHANNEL      1415
 #define IDC_BUTTON2                     1416
 #define IDC_TOOLBAR_CHANNELS_SPINDOWN   1416
 #define IDC_AUDIOSTANDARD_MANUAL_DETECTSTEREO 1416
@@ -326,6 +342,7 @@
 #define IDC_COMBO1                      1449
 #define IDC_COMBO2                      1450
 #define IDC_AUDIOSTANDARD_MINORCARRIER  1450
+#define IDC_TOOLBAR_VIDEOINPUT_LIST     1450
 #define IDC_COMBO3                      1451
 #define IDC_COMBO4                      1452
 #define IDC_COMBO5                      1453
@@ -1034,6 +1051,7 @@
 #define IDC_TREESETTINGS_GENERIC_SETTINGINFO 8060
 #define IDC_TREESETTINGS_GENERIC_TOPBOX 8061
 #define IDC_TREESETTINGS_GENERIC_SAVEPER_AUDIOINPUT 8062
+#define IDC_TOOLBAR_VOLUME_MUTE2        8063
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1110,9 +1128,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        222
+#define _APS_NEXT_RESOURCE_VALUE        244
 #define _APS_NEXT_COMMAND_VALUE         32835
-#define _APS_NEXT_CONTROL_VALUE         8063
+#define _APS_NEXT_CONTROL_VALUE         8064
 #define _APS_NEXT_SYMED_VALUE           2491
 #endif
 #endif

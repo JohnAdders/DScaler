@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.22 2001-07-28 13:24:40 adcockj Exp $
+// $Id: Settings.cpp,v 1.23 2001-08-03 09:52:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/07/28 13:24:40  adcockj
+// Added UI for Overlay Controls and fixed issues with SettingsDlg
+//
 // Revision 1.21  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -458,9 +461,19 @@ void Setting_ReadFromIni(SETTING* pSetting)
     if(pSetting->szIniSection != NULL)
     {
         nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
-        if(nValue < pSetting->MinValue)
+        if(nValue == pSetting->MinValue - 100)
         {
             nValue = pSetting->Default;
+        }
+        if(nValue < pSetting->MinValue)
+        {
+            LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+            nValue = pSetting->MinValue;
+        }
+        if(nValue > pSetting->MaxValue)
+        {
+            LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+            nValue = pSetting->MaxValue;
         }
         *pSetting->pValue = nValue;
         pSetting->LastSavedValue = *pSetting->pValue;

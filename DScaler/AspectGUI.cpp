@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.20 2001-07-16 18:07:50 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.21 2001-08-03 09:52:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.19  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -911,8 +914,8 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "ASPECT", "Bounce", Bounce_OnChange,
     },
     {
-        "Bounce Period", SLIDER, 0, (long*)&AspectSettings.BouncePeriod,
-        60*30, 0, 2, 1, 1,
+        "Bounce Period (Secs)", SLIDER, 0, (long*)&AspectSettings.BouncePeriod,
+        60*30, 60, 60*600, 1, 1,
         NULL,
         "ASPECT", "BouncePeriod", NULL,
     },
@@ -924,7 +927,7 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
     },
     {
         "Bounce Timer Period (ms)", SLIDER, 0, (long*)&AspectSettings.TimerBounceMS,
-        1000, 0, 2, 1, 1,
+        1000, 100, 5000, 1, 1,
         NULL,
         "ASPECT", "BounceTimerPeriod", NULL,
     },
@@ -942,25 +945,25 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
     },
     {
         "Orbit Period X", SLIDER, 0, (long*)&AspectSettings.OrbitPeriodX,
-        60*45, 0, 2, 1, 1,
+        60*45, 60, 60*600, 1, 1,
         NULL,
         "ASPECT", "OrbitPeriodX", NULL,
     },
     {
         "Orbit Period Y", SLIDER, 0, (long*)&AspectSettings.OrbitPeriodY,
-        60*60, 0, 2, 1, 1,
+        60*60, 60, 60*600, 1, 1,
         NULL,
         "ASPECT", "OrbitPeriodY", NULL,
     },
     {
         "Orbit Size", SLIDER, 0, (long*)&AspectSettings.OrbitSize,
-        8, 0, 2, 1, 1,
+        8, 0, 200, 1, 1,
         NULL,
         "ASPECT", "OrbitSize", NULL,
     },
     {
         "Orbit Timer Period (ms)", SLIDER, 0, (long*)&AspectSettings.TimerOrbitMS,
-        60000, 0, 2, 1, 1,
+        60*1000, 1000, 600 * 1000, 1, 1,
         NULL,
         "ASPECT", "OrbitTimerPeriod", NULL,
     },

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.2 2001-11-21 15:21:39 adcockj Exp $
+// $Id: Source.h,v 1.3 2001-11-25 21:19:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,8 +53,9 @@ public:
     virtual BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) = 0;
     virtual BOOL IsVideoPresent() = 0;
     virtual void DecodeVBI(TDeinterlaceInfo* pInfo) = 0;
+    virtual LPCSTR GetMenuLabel() = 0;
 
-    HMENU GetMenu();
+    HMENU GetSourceMenu();
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.2 2001-11-23 10:49:17 adcockj Exp $
+// $Id: Source.cpp,v 1.3 2001-11-25 21:19:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.1  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -61,7 +64,7 @@ double CSource::GetFieldFrequency()
     return m_FieldFrequency;
 }
 
-HMENU CSource::GetMenu()
+HMENU CSource::GetSourceMenu()
 {
     return m_hMenu;
 

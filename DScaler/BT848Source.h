@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.5 2001-11-22 13:32:03 adcockj Exp $
+// $Id: BT848Source.h,v 1.6 2001-11-25 21:19:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,7 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
+    LPCSTR GetMenuLabel() {return NULL;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

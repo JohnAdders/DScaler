@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.191 2002-07-19 12:04:51 laurentg Exp $
+// $Id: DScaler.cpp,v 1.192 2002-07-19 13:02:32 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.191  2002/07/19 12:04:51  laurentg
+// Auto hide (OSD) menu deleted
+//
 // Revision 1.190  2002/07/05 20:52:54  laurentg
 // Thread priority settings
 //
@@ -2263,45 +2266,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             OSD_ShowComments(hWnd);
             break;
 
-        case IDM_SHOW_OSD:
-            if (pCalibration->IsRunning())
-            {
-                OSD_ShowInfosScreen(hWnd, 4, 0);
-            }
-            else
-            {
-                OSD_ShowNextInfosScreen(hWnd, 0);
-            }
-            break;
-
-        case IDM_OSDSCREEN_SHOW:
-            if (!pCalibration->IsRunning())
-            {
-                OSD_ShowInfosScreen(hWnd, lParam, 0);
-            }
-            break;
-
-        case IDM_OSDSCREEN_ACTIVATE:
-            OSD_ActivateInfosScreen(hWnd, lParam, 0);
-            break;
-
-        case IDM_HIDE_OSD:
-            OSD_Clear(hWnd);
-            break;
-
-        case IDM_AUTOHIDE_OSD:
-            if (Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)))
-            {
-                OSD_ShowText(hWnd, "Persistent OSD screens", 0);
-                Setting_SetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN), FALSE);
-            }
-            else
-            {
-                OSD_ShowText(hWnd, "Autohide OSD screens", 0);
-                Setting_SetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN), TRUE);
-            }
-            break;
-
         case IDM_SET_OSD_TEXT:
             // Useful for external programs for custom control of dTV's OSD display
             // Such as macros in software such as Girder, etc.
@@ -3780,17 +3744,9 @@ HMENU GetOSDSubmenu()
 }
 
 
-HMENU GetOSDSubmenu1()
-{
-    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 9, 2, "&Show Screen");
-    ASSERT(hmenu != NULL);
-
-    return hmenu;
-}
-
 HMENU GetOSDSubmenu2()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 9, 3, "A&ctivate Screen");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 9, 2, "A&ctivate Screen");
     ASSERT(hmenu != NULL);
 
     return hmenu;

@@ -841,8 +841,8 @@ BEGIN
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
             MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
-            MENUITEM "&Show Screen",                65535
             MENUITEM "A&ctivate Screens",           65535
+            MENUITEM SEPARATOR
         END
         MENUITEM SEPARATOR
         MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE

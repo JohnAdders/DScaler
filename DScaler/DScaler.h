@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.27 2002-07-03 00:45:41 laurentg Exp $
+// $Id: DScaler.h,v 1.28 2002-07-19 13:02:32 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,6 @@ HMENU GetFiltersSubmenu();
 HMENU GetVideoDeinterlaceSubmenu();
 HMENU GetChannelsSubmenu();
 HMENU GetOSDSubmenu();
-HMENU GetOSDSubmenu1();
 HMENU GetOSDSubmenu2();
 HMENU GetPatternsSubmenu();
 

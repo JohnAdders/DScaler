@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.64 2002-07-19 11:59:12 laurentg Exp $
+// $Id: OSD.cpp,v 1.65 2002-07-19 13:02:32 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/07/19 11:59:12  laurentg
+// OSD settings added in the tree settings
+//
 // Revision 1.63  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -1961,7 +1964,7 @@ void OSD_UpdateMenu(HMENU hMenu)
     int             i;
     int             NbScreens;
 
-    hMenuOSD1 = GetOSDSubmenu1();
+    hMenuOSD1 = GetOSDSubmenu();
     hMenuOSD2 = GetOSDSubmenu2();
     if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL))
     {
@@ -1969,7 +1972,7 @@ void OSD_UpdateMenu(HMENU hMenu)
     }
 
     i = GetMenuItemCount(hMenuOSD1);
-    while (i)
+    while (i > 4)
     {
         i--;
         RemoveMenu(hMenuOSD1, i, MF_BYPOSITION);
@@ -2001,7 +2004,7 @@ void OSD_SetMenu(HMENU hMenu)
     int     i;
     int     NbScreens;
 
-    hMenuOSD1 = GetOSDSubmenu1();
+    hMenuOSD1 = GetOSDSubmenu();
     hMenuOSD2 = GetOSDSubmenu2();
     if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL))
     {
@@ -2013,7 +2016,7 @@ void OSD_SetMenu(HMENU hMenu)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            EnableMenuItem(hMenuOSD1, i, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
+            EnableMenuItem(hMenuOSD1, i+4, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
             CheckMenuItem(hMenuOSD2, i, ActiveScreens[i].active ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
         }
     }
@@ -2024,6 +2027,28 @@ BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID)
     if ( (wMenuID >= IDM_OSDSCREEN_ACTIVATE) && (wMenuID < (IDM_OSDSCREEN_ACTIVATE+10)) )
     {
         OSD_ActivateInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_ACTIVATE, 0);
+        return TRUE;
+    }
+    else if ( !pCalibration->IsRunning() && (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )
+    {
+        OSD_ShowInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_SHOW, 0);
+        return TRUE;
+    }
+    else if ( wMenuID == IDM_SHOW_OSD )
+    {
+        if (pCalibration->IsRunning())
+        {
+            OSD_ShowInfosScreen(hWnd, 4, 0);
+        }
+        else
+        {
+            OSD_ShowNextInfosScreen(hWnd, 0);
+        }
+        return TRUE;
+    }
+    else if ( wMenuID == IDM_HIDE_OSD )
+    {
+        OSD_Clear(hWnd);
         return TRUE;
     }
     return FALSE;

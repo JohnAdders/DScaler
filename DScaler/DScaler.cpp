@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.316 2003-03-22 18:58:38 laurentg Exp $
+// $Id: DScaler.cpp,v 1.317 2003-03-23 09:24:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.316  2003/03/22 18:58:38  laurentg
+// New key to switch to or from preview mode
+// Spped up initial display of channels in preview mode
+//
 // Revision 1.315  2003/03/21 22:48:06  laurentg
 // Preview mode (multiple frames) improved
 //
@@ -2759,12 +2763,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			{
 				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
 			}
-			else
+			else if (!ProcessVTMessage(hWnd, message, wParam, lParam))
 			{
-				if (!ProcessVTMessage(hWnd, message, wParam, lParam))
-				{
-					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-				}
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
 			}
             break;
 
@@ -2773,12 +2774,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			{
 				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
 			}
-			else
+			else if (!ProcessVTMessage(hWnd, message, wParam, lParam))
 			{
-				if (!ProcessVTMessage(hWnd, message, wParam, lParam))
-				{
-					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-				}
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
 			}
             break;
 
@@ -2787,12 +2785,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			{
 				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
 			}
-			else
+			else if(!ProcessVTMessage(hWnd, message, wParam, lParam))
 			{
-				if(!ProcessVTMessage(hWnd, message, wParam, lParam))
-				{
-					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-				}
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
 			}
             break;
 
@@ -2801,22 +2796,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			{
 				pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
 			}
-			else
+			else if(!ProcessVTMessage(hWnd, message, wParam, lParam))
 			{
-				if(!ProcessVTMessage(hWnd, message, wParam, lParam))
-				{
-					ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-				}
+				ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
 			}
             break;
 
         case IDM_CHANNEL_LIST:
-            if(!Providers_GetCurrentSource()->IsInTunerMode())
+            if(Providers_GetCurrentSource() && Providers_GetCurrentSource()->HasTuner())
             {
-                SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
-            }
-            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
-            Channels_UpdateMenu(hMenu);
+				if(!Providers_GetCurrentSource()->IsInTunerMode())
+				{
+					SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+				}
+				if (pMultiFrames && pMultiFrames->IsActive())
+				{
+					pMultiFrames->RequestSwitch();
+				}
+				DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
+				Channels_UpdateMenu(hMenu);
+			}
             break;
 
         case IDM_CHANNELPLUS:
@@ -2873,9 +2872,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			{
 				pMultiFrames->RequestSwitch();
 			}
-			else if (Providers_GetCurrentSource()->IsInTunerMode())
+			else if (Providers_GetCurrentSource() && Providers_GetCurrentSource()->IsInTunerMode())
             {
-				pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, 4, 4);
+				pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, 4, 4, Providers_GetCurrentSource());
 				pMultiFrames->RequestSwitch();
             }
 			else

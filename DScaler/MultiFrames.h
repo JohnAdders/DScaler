@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.6 2003-03-22 18:58:40 laurentg Exp $
+// $Id: MultiFrames.h,v 1.7 2003-03-23 09:24:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/03/22 18:58:40  laurentg
+// New key to switch to or from preview mode
+// Spped up initial display of channels in preview mode
+//
 // Revision 1.5  2003/03/22 15:41:58  laurentg
 // Half height deinterlace modes correctly handled in previow mode
 // Center of the image in its frame with black borders
@@ -42,6 +46,9 @@
 #define __MULTIFRAMES_H___
 
 
+#include "Source.h"
+
+
 // Different possible modes
 enum eMultiFramesMode {
     PREVIEW_CHANNELS = 0,
@@ -55,10 +62,11 @@ enum eMultiFramesMode {
 class CMultiFrames
 {
 public:
-    CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows);
+    CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, CSource* pSource);
     ~CMultiFrames();
 
 	eMultiFramesMode GetMode();
+	CSource* GetSource();
 	int GetWidth();
 	int GetHeight();
 	BOOL IsActive();
@@ -126,9 +134,10 @@ private:
 	BOOL m_Active;
 
 	BOOL bSwitchRequested;
-	int *bFrameFilled;
+	int* bFrameFilled;
 	BOOL bNavigAllowed;
 	int iDeltaNewFrame;
+	CSource* m_Source;
 };
 
 

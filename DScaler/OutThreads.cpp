@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.114 2003-03-16 18:29:20 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.115 2003-03-23 09:24:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.114  2003/03/16 18:29:20  laurentg
+// New multiple frames feature
+//
 // Revision 1.113  2003/03/05 22:08:44  laurentg
 // Updated management of 16 bytes aligned buffer for stills
 //
@@ -760,7 +763,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	BYTE* pAllocBuf = NULL;
 	BOOL bTakeStill = FALSE;
 	BOOL bUseOverlay = TRUE;
-    BOOL bUseExtraBuffer = Filter_WillWeDoOutput() || (pMultiFrames && pMultiFrames->IsActive());
+    BOOL bUseExtraBuffer;
 	BOOL bIsPresent;
 	int nMissing = 0;
 	BYTE* lpMultiBuffer = NULL;
@@ -799,8 +802,26 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     __try
     {
         VDCHECKPOINT;
-        pSource->SetAspectRatioData();
-		WorkoutOverlaySize(TRUE);
+
+		if (pMultiFrames && pMultiFrames->IsActive())
+		{
+			// Check whether preview mode must be switched to OFF
+			if ( (pSource != pMultiFrames->GetSource())
+			  || ( (pMultiFrames->GetMode() == PREVIEW_CHANNELS)
+			    && !pSource->IsInTunerMode() ) )
+			{
+				delete pMultiFrames;
+				pMultiFrames = NULL;
+			}
+		}
+
+	    bUseExtraBuffer = Filter_WillWeDoOutput() || (pMultiFrames && pMultiFrames->IsActive());
+
+		if (!pMultiFrames || !pMultiFrames->IsActive())
+		{
+			pSource->SetAspectRatioData();
+			WorkoutOverlaySize(TRUE);
+		}
 
         // Anti-plop and update screen delay timers may have been cancelled.
         // Reset to default values

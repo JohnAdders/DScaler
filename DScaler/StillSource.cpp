@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.93 2003-03-22 18:58:40 laurentg Exp $
+// $Id: StillSource.cpp,v 1.94 2003-03-23 09:24:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2003/03/22 18:58:40  laurentg
+// New key to switch to or from preview mode
+// Spped up initial display of channels in preview mode
+//
 // Revision 1.92  2003/03/21 22:48:07  laurentg
 // Preview mode (multiple frames) improved
 //
@@ -1192,11 +1196,6 @@ void CStillSource::Start()
 
 void CStillSource::Stop()
 {
-	if (pMultiFrames)
-	{
-		delete pMultiFrames;
-		pMultiFrames = NULL;
-	}
     if (m_SlideShowActive)
     {
         m_SlideShowActive = FALSE;
@@ -1537,7 +1536,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_PREVIEW:
         if (pMultiFrames == NULL)
 		{
-			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, 4, 4);
+			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, 4, 4, this);
 		}
 		pMultiFrames->RequestSwitch();
         return TRUE;

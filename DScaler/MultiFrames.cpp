@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.7 2003-03-22 18:58:40 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.8 2003-03-23 09:24:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/03/22 18:58:40  laurentg
+// New key to switch to or from preview mode
+// Spped up initial display of channels in preview mode
+//
 // Revision 1.6  2003/03/22 15:41:58  laurentg
 // Half height deinterlace modes correctly handled in previow mode
 // Center of the image in its frame with black borders
@@ -50,7 +54,6 @@
 #include "Other.h"
 #include "StillSource.h"
 #include "DebugLog.h"
-#include "Providers.h"
 #include "AspectRatio.h"
 #include "ProgramList.h"
 #include "DScaler.h"
@@ -70,7 +73,7 @@
 CMultiFrames* pMultiFrames = NULL;
 
 
-CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows)
+CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, CSource* pSource)
 {
 	m_Mode = eMode;
 	m_NbRows = iNbRows;
@@ -87,6 +90,7 @@ CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows)
 	m_MemoryBuffer = NULL;
 	bFrameFilled = NULL;
 	bNavigAllowed = FALSE;
+	m_Source = pSource;
 }
 
 CMultiFrames::~CMultiFrames()
@@ -101,6 +105,11 @@ CMultiFrames::~CMultiFrames()
 eMultiFramesMode CMultiFrames::GetMode()
 {
 	return m_Mode;
+}
+
+CSource* CMultiFrames::GetSource()
+{
+	return m_Source;
 }
 
 int CMultiFrames::GetWidth()
@@ -138,8 +147,6 @@ void CMultiFrames::Enable()
 
 void CMultiFrames::Disable()
 {
-	CSource* pSource = Providers_GetCurrentSource();
-
 	FreeMemoryBuffer();
 	if (bFrameFilled)
 	{
@@ -148,12 +155,9 @@ void CMultiFrames::Disable()
 	}
 	m_Active = FALSE;
 	bNavigAllowed = FALSE;
-    if (pSource)
-    {
-        UpdateSquarePixelsMode(pSource->HasSquarePixels());
-	    pSource->SetAspectRatioData();
-		WorkoutOverlaySize(TRUE);
-    }
+    UpdateSquarePixelsMode(m_Source->HasSquarePixels());
+	m_Source->SetAspectRatioData();
+	WorkoutOverlaySize(TRUE);
 }
 
 BOOL CMultiFrames::IsSwitchRequested()
@@ -309,13 +313,12 @@ void CMultiFrames::SelectFrame()
 
 void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, BYTE** lpBuffer, int* Pitch)
 {
-	CSource* pSource = Providers_GetCurrentSource();
 	BYTE* lpFrameBuffer;
 	int iFrameWidth;
 	int iFrameHeight;
 	int iFramePitch;
 
-	if (!m_Active || !pSource)
+	if (!m_Active)
 	{
 		*lpBuffer = NULL;
 		*Pitch = 0;
@@ -327,7 +330,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 
 	// Copy (with resize) the input picture into its frame
     Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer);
-	if (pSource->HasSquarePixels())
+	if (m_Source->HasSquarePixels())
 	{
 		// Keep the original ratio
 		int iUpdWidth;
@@ -378,7 +381,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	}
 	else if (m_Mode == PREVIEW_STILLS)
 	{
-		bFrameFilled[m_CurrentFrame] = ((CStillSource*)pSource)->GetPlaylistPosition();
+		bFrameFilled[m_CurrentFrame] = ((CStillSource*)m_Source)->GetPlaylistPosition();
 	}
 
 	// The input picture is replaced by the full multiple frames picture

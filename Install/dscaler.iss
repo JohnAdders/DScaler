@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.3 2002-06-12 18:01:45 robmuller Exp $
+;// $Id: dscaler.iss,v 1.4 2002-06-13 08:16:08 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.3  2002/06/12 18:01:45  robmuller
+;// (un)register dsrend.dll when (un)installing.
+;// New name of debug log file.
+;//
 ;// Revision 1.2  2002/06/06 18:15:52  robmuller
 ;// Added new files. Added AppMutex. Remove dscaler.ini and program.txt on uninstall.
 ;//
@@ -48,16 +52,43 @@ AdminPrivilegesRequired=yes
 [Messages]
 BeveledLabel=DScaler
 
+[Components]
+Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed
+Name: "extra"; Description: "Rarely used or Historical Plug-ins"; Types: full
+Name: "beta"; Description: "Plug-ins in Development"; Types:
+
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4
 Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4; Flags: unchecked
 
 [Files]
 Source: "..\Release\DScaler.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\DI_*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\FLT_*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DI_BlendedClip.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_Bob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_EvenOnly.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_Greedy.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;
+Source: "..\Release\DI_Greedy2Frame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_GreedyH.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;
+Source: "..\Release\DI_OddOnly.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_OldGame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DI_ScalerBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DI_TwoFrame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_VideoBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\DI_Weave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_AdaptiveNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_Gamma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_GradualNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_Histogram.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_LogoKill.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_Mirror.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_Sharpness.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_TemporalComb.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_TNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: regserver
+;Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: regserver
 Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DScaler.dbg"; DestDir: "{app}"; CopyMode: alwaysoverwrite

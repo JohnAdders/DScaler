@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/03/11 01:47:32  lindsey
+// Corrected for use with progressive source
+// Changed to use Tom's aligned memory allocation
+//
 // Revision 1.5  2002/01/26 01:03:11  lindsey
 // Fixed some comments
 // Effect of coefficient of varience on reliability scaled to the sample size
@@ -56,6 +60,8 @@
 
 #if defined( IS_DEBUG_FLAG )
 long FilterAdaptiveNoise_DEBUG( TDeinterlaceInfo* pInfo )
+#elif defined( USE_PREFETCH )
+long FilterAdaptiveNoise_PREFETCH( TDeinterlaceInfo* pInfo )
 #else   // Normal version
 long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 #endif  // Name of core routine
@@ -299,8 +305,12 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     for( ; ThisLine < BottomLine; ++ThisLine )
     {
 
+
+#undef MAINLOOP_LABEL
 #if defined( IS_DEBUG_FLAG )
 #define MAINLOOP_LABEL DoNext8Bytes_DEBUG
+#elif defined( USE_PREFETCH )
+#define MAINLOOP_LABEL DoNext8Bytes_PREFETCH
 #else   // Normal version
 #define MAINLOOP_LABEL DoNext8Bytes
 #endif  // Assembly jump target
@@ -336,7 +346,9 @@ MAINLOOP_LABEL:
 
             movq    mm2, mm0                // mm2 = NewPixel
             psadbw  mm2, mm1                // mm2 = Sum(|byte differences Old,New|)
+#if defined( USE_PREFETCH )
             prefetchnta[ebx + PREFETCH_STRIDE]
+#endif
             paddusw mm2, mm3                // mm2 = Cumulative weighted sum of differences ("N")
             pminsw  mm2, qwMaxNoise         // * mm2 = N limited to reasonable range
 
@@ -352,7 +364,9 @@ MAINLOOP_LABEL:
             movq    mm5, qword ptr[eax + 8] // get next map
             movq    mm7, mm2                // mm7 = Cumulative weights
             pmulhuw mm7, qwHorizontalDecay  // mm7 = weight to apply to next horizontal block
+#if defined( USE_PREFETCH )
             prefetchnta[eax + 2*edx + PREFETCH_STRIDE]
+#endif
             paddusw mm5, mm7                // mm5 = sum(right map value, decayed value at this pixel)
             movq    qword ptr[eax + 8], mm5 // store updated rightMap
 
@@ -405,7 +419,9 @@ MAINLOOP_LABEL:
             pand    mm4, qwPositive         // mm4 limited to positive values (rarely necessary)
             pminsw  mm4, qwHistogramMax     // mm4 limited to fit in histogram array
             movd    esp, mm4                // esp = (limited) cumulative weighted sum
+#if defined( USE_PREFETCH )
             prefetchnta[edi + PREFETCH_STRIDE]
+#endif
             shl     esp, 2                  // esp = corresponding jump from pHistogram
             pmaddwd mm2, qwNoiseMultiplier  // mm2 (low Dword) = Multiplier to move toward new pixel value
             mov     esi, dword ptr[pLocalHistogram]
@@ -419,7 +435,9 @@ MAINLOOP_LABEL:
 
             // Determine the proper muliplier to use:
             // NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
+#if defined( USE_PREFETCH )
             prefetchnta[eax + edx + PREFETCH_STRIDE]
+#endif
             pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
             psrlq   mm2, 16                 // mm2 (low word) = FFFF if ignoring old pixel value (else 0)
@@ -447,7 +465,9 @@ MAINLOOP_LABEL:
             movq    mm7, mm4                // mm7 = bytewise |new - old|
             pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
+#if defined( USE_PREFETCH )
             prefetchnta[eax + PREFETCH_STRIDE]
+#endif
             pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
             pmulhuw mm3, mm2                // mm3 = amount of luma to add/subtract from old
@@ -481,8 +501,6 @@ MAINLOOP_LABEL:
             mov     esi, OldSI              // Restore si register
             mov     esp, OldSP              // Restore sp register
         }
-
-#undef MAINLOOP_LABEL
 
         pSource += pInfo->InputPitch;
         pLast += pInfo->InputPitch;

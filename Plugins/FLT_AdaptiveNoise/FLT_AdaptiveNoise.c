@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/06/18 19:46:08  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.11  2002/06/13 12:10:25  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -66,7 +69,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-// #define ADAPTIVE_NOISE_DEBUG
+//#define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>
@@ -162,6 +165,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 long            FilterAdaptiveNoise( TDeinterlaceInfo* pInfo );
+long            FilterAdaptiveNoise_PREFETCH( TDeinterlaceInfo* pInfo );
 long            FilterAdaptiveNoise_DEBUG( TDeinterlaceInfo* pInfo );
 
 void            AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBaseline,
@@ -177,6 +181,8 @@ BYTE*           DumbAlignedFree(BYTE* x);
 /////////////////////////////////////////////////////////////////////////////
 // Begin plugin globals
 /////////////////////////////////////////////////////////////////////////////
+
+long            gUsePrefetching = TRUE;
 
 // Map of the N statistic (see the explanation of the algorithm, above)
 
@@ -265,6 +271,12 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
         "AdaptiveNoiseFilter", "AStability", NULL,
     },
     {
+        "Fast Memory Access", ONOFF, 0, &gUsePrefetching,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "AdaptiveNoiseFilter", "UsePrefetching", NULL,
+    },
+    {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
         55, 0, 200, 1, 1,
         NULL,
@@ -278,9 +290,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
     {
 #ifdef ADAPTIVE_NOISE_DEBUG
-        "Use Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
+        "Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
 #else
-        "Use Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
+        "Adaptive Noise Filter", ONOFF, 0, &AdaptiveNoiseMethod.bActive,
 #endif // Show "activate" flag when testing
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -289,9 +301,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     {
 #ifdef ADAPTIVE_NOISE_DEBUG
         // Okay, so they're not pink
-        "Pink dots", ONOFF, 0, &gIndicator,
+        "Pink Dots", ONOFF, 0, &gIndicator,
 #else
-        "Pink dots", NOT_PRESENT, 0, &gIndicator,
+        "Pink Dots", NOT_PRESENT, 0, &gIndicator,
 #endif // Hide histogram option (but keep it in the .ini file) for users
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -299,9 +311,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
     },
         {
 #ifdef ADAPTIVE_NOISE_DEBUG
-        "Motion memory (percent)", SLIDER, 0, &gDecayCoefficient,
+        "Motion Memory (Percent)", SLIDER, 0, &gDecayCoefficient,
 #else
-        "Motion memory (percent)", NOT_PRESENT, 0, &gDecayCoefficient,
+        "Motion Memory (Percent)", NOT_PRESENT, 0, &gDecayCoefficient,
 #endif // Show motion memory slider when testing
         83, 0, 99, 1, 1,
         NULL,
@@ -362,14 +374,20 @@ FILTER_METHOD AdaptiveNoiseMethod =
 // Main code (included from FLT_AdaptiveNoise.asm)
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef ADAPTIVE_NOISE_DEBUG
 long DispatchAdaptiveNoise( TDeinterlaceInfo *pInfo )
 {
     long    FilterResult = 1000;
 
+#ifdef ADAPTIVE_NOISE_DEBUG
     if( gTestingFlag == TRUE )
     {
         FilterResult = FilterAdaptiveNoise_DEBUG( pInfo );
+    }
+    else
+#endif // Function for the debug version
+    if( gUsePrefetching == TRUE )
+    {
+        FilterResult = FilterAdaptiveNoise_PREFETCH( pInfo );
     }
     else
     {
@@ -377,21 +395,23 @@ long DispatchAdaptiveNoise( TDeinterlaceInfo *pInfo )
     }
     return FilterResult;
 }
-#endif // Function dispatcher for the debug version
 
 
 // Include the main code from a different file to allow for easy comparisons of
-// different algorithms -- or different versions for different processors, if that
-// becomes a good idea.
+// different algorithms, versions for different processors or as a workaround
+// for PCI bus problems
 
+#undef USE_PREFETCH
 #include "FLT_AdaptiveNoise.asm"
+#define USE_PREFETCH
+#include "FLT_AdaptiveNoise.asm"
+#undef USE_PREFETCH
 
 #ifdef ADAPTIVE_NOISE_DEBUG
 #define IS_DEBUG_FLAG
 #include "FLT_AdaptiveNoise.asm"
 #undef IS_DEBUG_FLAG
 #endif  // Debug switch version of code
-
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of utility code
@@ -452,11 +472,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
     // MMXEXT is required.
     if( CpuFeatureFlags & (FEATURE_SSE | FEATURE_MMXEXT) )
     {
-#ifdef ADAPTIVE_NOISE_DEBUG
         AdaptiveNoiseMethod.pfnAlgorithm = DispatchAdaptiveNoise;
-#else
-        AdaptiveNoiseMethod.pfnAlgorithm = FilterAdaptiveNoise;
-#endif // Debug switch version of code
     }
     else
     {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.153 2002-05-20 16:32:12 robmuller Exp $
+// $Id: DScaler.cpp,v 1.154 2002-05-20 16:41:16 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.153  2002/05/20 16:32:12  robmuller
+// Instantaneous channel switching when entering digits.
+//
 // Revision 1.152  2002/05/19 22:19:20  robmuller
 // Pause capture when minimized.
 //
@@ -1150,21 +1153,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHANNELPLUS:
-            if (Providers_GetCurrentSource()->IsInTunerMode())
+            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
             {
                 Channel_Increment();
             }
             break;
 
         case IDM_CHANNELMINUS:
-            if (Providers_GetCurrentSource()->IsInTunerMode())
+            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
             {
                 Channel_Decrement();
             }
             break;
 
         case IDM_CHANNEL_PREVIOUS:
-            if (Providers_GetCurrentSource()->IsInTunerMode())
+            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
             {
                 Channel_Previous();
             }

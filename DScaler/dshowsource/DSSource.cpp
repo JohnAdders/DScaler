@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.7 2002-02-05 17:27:17 tobbej Exp $
+// $Id: DSSource.cpp,v 1.8 2002-02-05 17:52:27 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/05 17:27:17  tobbej
+// fixed alignment problems
+// update dropped/drawn fields stats
+//
 // Revision 1.6  2002/02/03 20:05:58  tobbej
 // made video format menu work
 // fixed color controls
@@ -682,8 +686,8 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 					m_unalignedBuffers[i]=NULL;
 				}
 				m_unalignedBuffers[i]=new BYTE[fieldSize+16];
-				
-				m_pictureHistory[i].pData=m_unalignedBuffers[i]+(16-(unsigned long)m_unalignedBuffers[i]%16);
+
+				m_pictureHistory[i].pData=m_unalignedBuffers[i]+(0x10-LOBYTE(m_unalignedBuffers[i])&0xf);
 			}
 			m_cbFieldSize=fieldSize;
 			m_pictureHistory[0].IsFirstInSeries=TRUE;

@@ -237,7 +237,8 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
         BYTE   bOutPort1    = TDA9887_OutputPort1Inactive;
         BYTE   bOutPort2    = 0; //TDA9887_OutputPort2Inactive
         BYTE   bVideoTrap   = TDA9887_VideoTrapBypassOFF;
-        BYTE   bTopAdjust   = 0; //mbAGC;
+        // Noise fix supplied by anonymous
+        BYTE   bTopAdjust   = 0x0e; //mbAGC;
 
         //if (mParams.fVideoTrap)
         //{

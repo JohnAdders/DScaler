@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887TesterDlg.cpp,v 1.2 2004-11-28 21:33:29 to_see Exp $
+// $Id: TDA9887TesterDlg.cpp,v 1.3 2004-12-12 19:47:09 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Torsten Seeboth. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/11/28 21:33:29  to_see
+// Update to be in sync to main source
+//
 // Revision 1.1  2004/10/30 19:30:22  to_see
 // initial checkin
 //
@@ -538,7 +541,7 @@ void CTDA9887TesterDlg::ParseAndWrite(UINT nID)
 	if(m_b_C5	== TRUE ) bData[1] |= TDA9887_DeemphasisON;			// bit c5
 	bData[1] |= GetComboSelItemData(&m_ctrlComboTakeOverPoint);		// bit c0:4
 
-	if(m_b_E7	== TRUE ) bData[2] |= TDA9887_AgcOutOFF;			// bit e7
+	if(m_b_E7	== TRUE ) bData[2] |= TDA9887_AgcOutON;				// bit e7
 	if(m_b_E6	== TRUE ) bData[2] |= TDA9887_Gating_36;			// bit e6
 	if(m_b_E5	== TRUE ) bData[2] |= TDA9887_TunerGainLow;			// bit e5
 	bData[2] |= GetComboSelItemData(&m_ctrlComboVideoIF);			// bit e2:4

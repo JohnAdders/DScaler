@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.148 2003-07-18 09:39:53 adcockj Exp $
+// $Id: DS_Control.h,v 1.149 2003-07-30 03:24:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.148  2003/07/18 09:39:53  adcockj
+// Added option to release processor during JT
+//
 // Revision 1.147  2003/07/02 21:43:16  laurentg
 // TimeShift settings
 //
@@ -1135,6 +1138,7 @@ typedef enum
     INPUT5INDEX,
     INPUT6INDEX,    
 	MIXERNAME,
+    NOHARDWAREMUTE,
     MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
 

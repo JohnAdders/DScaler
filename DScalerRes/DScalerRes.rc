@@ -134,6 +134,7 @@ BEGIN
     VK_F1,          IDM_SOURCE_INPUT1,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
+    VK_F11,         IDM_CHARSET_TEST,       VIRTKEY, NOINVERT
     VK_F2,          IDM_SOURCE_INPUT2,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT

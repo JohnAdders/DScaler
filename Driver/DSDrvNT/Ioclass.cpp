@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.6 2001-08-11 12:47:12 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.7 2001-08-11 13:46:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/08/11 12:47:12  adcockj
+// Driver fixes
+//
 // Revision 1.5  2001/08/08 16:37:50  adcockj
 // Made drivers stateless to support multiple cards
 // Added version check
@@ -533,11 +536,11 @@ DWORD CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD dwPhysicalAddress, DWO
 
     KeRaiseIrql(PASSIVE_LEVEL, &irql);
 
-    busAddress.LowPart          = dwPhysicalAddress | 8;
+    busAddress.LowPart          = dwPhysicalAddress;
     busAddress.HighPart         = 0;
     translatedAddress.LowPart   = 0;
     translatedAddress.HighPart  = 0;
-    addressSpace                = 0xFF;
+    addressSpace                = 0x00;
 
     bTranslate = HalTranslateBusAddress(PCIBus,
                                    dwBusNumber,
@@ -550,15 +553,13 @@ DWORD CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD dwPhysicalAddress, DWO
         debugOut(dbError,"HalTranslateBusAddress() failed, addressSpace %X",addressSpace);
         translatedAddress.LowPart = dwPhysicalAddress;
     }
-    //else
-    {
-        //
-        // memory space
-        //
-        dwMemoryBase = (DWORD) MmMapIoSpace(translatedAddress, dwLength, MmNonCached);
 
-        debugOut(dbTrace,"map pysical address %X to memory base %X,length %d",translatedAddress.LowPart, dwMemoryBase,dwLength);
-    }
+    //
+    // memory space
+    //
+    dwMemoryBase = (DWORD) MmMapIoSpace(translatedAddress, dwLength, MmNonCached);
+
+    debugOut(dbTrace,"MmMapIoSpace physical address %X to memory base %X, length %d",translatedAddress.LowPart, dwMemoryBase, dwLength);
 
     KeLowerIrql(irql);
 
@@ -577,7 +578,7 @@ CIOAccessDevice::unmapMemory(DWORD dwMemoryBase, DWORD dwMappedMemoryLength)
         KIRQL irql;
         KeRaiseIrql(PASSIVE_LEVEL, &irql);
 
-        debugOut(dbTrace,"MMUnmapIoSpace() %X",dwMemoryBase);
+        debugOut(dbTrace,"MMUnmapIoSpace() %X, length %d",dwMemoryBase, dwMappedMemoryLength);
         MmUnmapIoSpace( (PVOID) dwMemoryBase, dwMappedMemoryLength);
 
         KeLowerIrql(irql);

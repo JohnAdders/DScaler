@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.28 2001-08-09 22:18:23 laurentg Exp $
+// $Id: Bt848.cpp,v 1.29 2001-08-11 13:46:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/08/09 22:18:23  laurentg
+// Improvments in relation with calibration
+//
 // Revision 1.27  2001/08/08 16:39:17  adcockj
 // Changed to reflect changes in driver code as we move to multiple card support
 //
@@ -1114,7 +1117,7 @@ void BT848_Close()
     {
         BT848_WriteByte(BT848_SRESET, 0);
     
-        memoryUnmap(hBT8X8->PCICardInfo.dwMemoryAddress, hBT8X8->PCICardInfo.dwMemoryLength);
+        memoryUnmap(hBT8X8->dwMemoryBase, hBT8X8->PCICardInfo.dwMemoryLength);
 
         free(hBT8X8);
         hBT8X8 = NULL;

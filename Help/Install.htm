@@ -52,96 +52,77 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 </tr>
 
 <tr>
-<td colspan="3"><!-- #BeginEditable "Text" -->
-<h2>Hardware Prerequisites</h2>
-
-<p>See the <a target="_blank" href="http://www.dscaler.org/card-support/index.htm">supported cards
-page</a> to find out if your video capture card is supported.
-Please note that currently, your performance may degrade
-significantly if your CPU is slower than 400 MHz or your video
-card is not AGP. In addition, when using a system that is
-borderline fast enough, DScaler is sensitive to system tray
-applications and active services.</p>
-
-<h2><br>
- Installation</h2>
-
-<p>Unzip all the files into a directory.</p>
-
-<h2><br>
- Getting It Working</h2>
-
-<p>1. Delete any previous copy of DScaler.ini</p>
-
-<p>2. Run DScaler.exe</p>
-
-<p>3. Select specify your tuner card, tuner type, processor
-speed, and preferred default from the dialog box that appears on
-startup. If your exact card type is not listed then try Standard
-Card (bt878). The make of tuner should be on the silver box on
-the card, choose the correct type depending on your region.</p>
-
-<h3><img src="images/setup_opening_screen.jpg" width="641" height=
-"542"></h3>
-
-<p><br>
- 4. Select required input from Settings/Video Input</p>
-
-<h3><img src="images/setup_settings_video_input.jpg" border="2"></h3>
-
-<p><br>
- 5. Select video format standard from Settings/Video Format
-menu</p>
-
-<h3><img src="images/setup_settings_video_format.jpg" border="2"></h3>
-
-<p><br>
- 6. Select audio input from Settings/Audio Input (if applicable
-for your setup).</p>
-
-<h3><img src="images/setup_settings_audio_input.jpg" border="2"></h3>
-
-<p><br>
- 7. Select MSP/Radio Options (If your card has a sound chip
-onboard)</p>
-
-<h3><img src="images/setup_hardware_msp_radio.jpg" border="2"></h3>
-
-<p><br>
- 8. Choose Channel Scan (if you are using the internal tuner of
-your capture card)</p>
-
-<h3><img src="images/setup_settings_channels_menu.jpg" border="2"></h3>
-
-<p><br>
- 9. You will be presented with a dialog box. Choose the
-appropriate source from the frequency range drop-down menu and
-the press "Start"; when the channel scan is done, press "OK" and
-use the Page-Up and Page-Down buttons to navigate through
-channels.</p>
-
-<h3><img src="images/setup_channels_channel_list.jpg" width="533"
-height="260" border="2"></h3>
-
-<p><br>
- 10. Choose the preferred aspect ratio for your source, or let
-DScaler autodetect the proper aspect ratio.</p>
-
-<h3><img src="images/setup_ar_advanced_ratios.jpg" border="2"></h3>
-
-<p><br>
- For more information about the advanced features available via
-the DScaler.ini file, please see the <a href=
+    <td colspan="3"><!-- #BeginEditable "Text" --> 
+      <h2>Hardware Prerequisites</h2>
+      <p>See the <a target="_blank" href="http://www.dscaler.org/card-support/index.htm">supported 
+        cards page</a> to find out if your video capture card is supported. Please 
+        note that currently, your performance may degrade significantly if your 
+        CPU is slower than 400 MHz or your video card is not AGP. In addition, 
+        when using a system that is borderline fast enough, DScaler is sensitive 
+        to system tray applications and active services.</p>
+      <h2><br>
+        Installation</h2>
+      <p>Remove any previously installed version of DScaler. For versions greater 
+        than 4.0, you must uninstall the program using the control panel. For 
+        versions less than 4.0, delete the entire directory in which DScaler is 
+        located.</p>
+      <p>Download the latest installation file. Double-click on the file to launch 
+        it, and then follow the wizard prompts to install DScaler in your preferred 
+        location.</p>
+      <h2><br>
+        Getting It Working</h2>
+      <p>1. Double-click the DScaler icon that has been placed on your desktop 
+        during the installation process.</p>
+      <p><br>
+        2. You will be presented with a screen requesting general hardware configuration 
+        information. Specify the processor speed, and preferred default from the 
+        dialog box. Then choose whether or not you would prefer to use the full 
+        CPU while DScaler is running. Using the full CPU helps ensure that the 
+        whole processing procedure runs as smoothly as possible and is entirely 
+        normal. When necessary, DScaler will give up control to other applications 
+        that are running.</p>
+      <p>Press &quot;OK&quot;.</p>
+      <h3><img src="images/setup_general_hardware_setu.jpg" width="453" height=
+"413" border="2"></h3>
+      <p><br>
+        3. Choose the make and model number of the capture card that you have 
+        in your computer system and the tuner that your card uses. DScaler attempts 
+        to autodetect both pieces of information, but many capture cards do not 
+        provide for autodetection. If this is the case with your card, you may 
+        need to look at the markings on the capture card for the make and model 
+        number and the silver tuner box on the card for tuner make and model number.</p>
+      <p>DScaler provides for use of multiple capture cards in one system. You 
+        will be prompted to specify the capture card and tuner for each suitable 
+        capture card in your system.</p>
+      <h3><img src="images/setup_setup_card.jpg" width="467" height="296" border="2"></h3>
+      <p><br>
+        4. Select the input source that you would like to use. Please note that 
+        each input source can be chosen by using a corresponding hotkey. For instance, 
+        in the screen below, you can see that the hotkey for Composite input is 
+        Ctrl+Alt+F2.</p>
+      <h3><img src="images/setup_video_input.jpg" border="2" width="382" height="212"></h3>
+      <p><br>
+        5. Select video format standard that applies for your source. Unless configured 
+        otherwise, DScaler will attempt to autodetect the format that is used 
+        by the connected source.</p>
+      <h3><img src="images/setup_video_format.jpg" border="2" width="262" height="203"></h3>
+      <p><br>
+        6. Select the audio source that accompanies your video source.</p>
+      <h3><img src="images/setup_audio_input.jpg" border="2" width="349" height="233"></h3>
+      <p><br>
+        7. Select the audio standard that applies to the audio source chosen above.</p>
+      <p><img src="images/setup_audio_standard.jpg" width="319" height="240" border="2"><br>
+      </p>
+      <p><br>
+        For more information about the advanced features available via the DScaler.ini 
+        file, please see the <a href=
 "IniFile.HTM">.ini documentation</a>.</p>
+      <h2><br>
+        What if That Doesn't Work?</h2>
+      <p><a href=
+"user_support.htm">See the support page</a></p>
+      <!-- #EndEditable --></td>
 
-<h2><br>
- What if That Doesn't Work?</h2>
-
-<p><a href=
-"user_support.htm">See the support page here.</a></p>
-
-<!-- #EndEditable --></td>
-</td>
 </tr>
 
 <tr>
@@ -164,7 +145,7 @@ the DScaler.ini file, please see the <a href=
 </tr>
 </table>
 
-<!-- #EndTemplate -->
-</body>
+</body><!-- #EndTemplate -->
+
 </html>
 

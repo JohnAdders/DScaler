@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.98 2003-01-05 18:35:45 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.99 2003-01-05 19:01:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.97  2003/01/05 16:54:53  laurentg
 // Updated parameters for VBI_DecodeLine
 //
@@ -753,8 +756,16 @@ void CBT848Source::Start()
     //Channel_Reset();
     //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);    
     //m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
-
-	VBI_Init_data(8*GetTVFormat(GetFormat())->Fsc);
+    
+    // bt848 uses only two different sampling rates which are based off the pal and ntsc fsc values
+    if(m_CurrentY == 576)
+    {
+    	VBI_Init_data(8*GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc);
+    }
+    else
+    {
+       	VBI_Init_data(28.636363);
+    }
 }
 
 void CBT848Source::Reset()

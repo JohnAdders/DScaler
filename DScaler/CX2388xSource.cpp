@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.23 2003-01-05 18:35:45 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.24 2003-01-05 19:01:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.22  2003/01/05 16:54:54  laurentg
 // Updated parameters for VBI_DecodeLine
 //
@@ -583,7 +586,22 @@ void CCX2388xSource::Start()
     NotifySizeChange();
     NotifySquarePixelsCheck();
 
-	VBI_Init_data((GetWidth() == 720) ? 27.0 : 8*GetTVFormat(GetFormat())->Fsc);
+    if(m_CurrentX == 720)
+    {
+    	VBI_Init_data(27.0);
+    }
+    else
+    {
+        // we use  only two different sampling rates which are based off the pal and ntsc fsc values
+        if(m_CurrentY == 576)
+        {
+    	    VBI_Init_data(8*GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc);
+        }
+        else
+        {
+       	    VBI_Init_data(28.636363);
+        }
+    }
 }
 
 void CCX2388xSource::Reset()
@@ -809,6 +827,11 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
             }
 
             *(pRiscCode++) = Instruction;
+
+            // skip the first line
+            // so that the line numbers tie up with those for
+            // the bt848
+            *(pRiscCode++) = RISC_SKIP | RISC_SOL | RISC_EOL | VBI_SPL;
 
             pUser = m_pVBILines[nField / 2];
             if((nField & 1) == 1)
@@ -1441,7 +1464,6 @@ void CCX2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
     {
         pVBI += m_CurrentVBILines * 2048;
     }
-    pVBI += 2048;	// There is a shift of one line compared to BT8x8 we have to compensate
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
 		VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);

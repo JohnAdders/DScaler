@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.16 2003-04-15 13:05:36 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.17 2003-04-17 07:13:25 adcockj Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.16  2003/04/15 13:05:36  adcockj
+; Unused test code for comb and diff
+;
 ; Revision 1.15  2002/06/03 17:50:06  tobbej
 ; added missing emms instruction
 ;
@@ -277,9 +280,9 @@ CombChroma_Loop:
 
 
 ;////////////////////////////////////////////////////////////////////
-; WORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31, 
+; DWORD CalcCombAndDiffLine(BYTE* YVal11, BYTE* YVal21, BYTE* YVal31, 
 ;                               BYTE* YVal12, BYTE* YVal22, BYTE* YVal32,
-;       long BytesToProcess, long* DiffFactor);
+;       long BytesToProcess, DWORD* CombFactor);
 ;////////////////////////////////////////////////////////////////////
 
 public _CalcCombAndDiffLine
@@ -291,7 +294,7 @@ public _CalcCombAndDiffLine
     YVal22   equ [esp+20+16]
     YVal32   equ [esp+24+16]
     BytesToProcess  equ [esp+28+16]
-    DiffFactor  equ [esp+32+16]
+    CombFactor  equ [esp+32+16]
 
 _CalcCombAndDiffLine:
     push    ebp
@@ -309,8 +312,8 @@ _CalcCombAndDiffLine:
     mov ebp, dword ptr [YVal32]
 
     shr ecx, 3                  ; there are BytesToProcess / 8 qwords
-    pxor mm5, mm7               ; mm0 = 0
-    pxor mm6, mm7               ; mm0 = 0
+    pxor mm5, mm5               ; mm0 = 0
+    pxor mm6, mm6               ; mm0 = 0
     pxor mm7, mm7               ; mm0 = 0
 align 4
 CombAndDiff_Loop:
@@ -321,10 +324,10 @@ CombAndDiff_Loop:
     psubusb mm2, mm1
     psubusb mm1, mm0
     por     mm2, mm1
-    psrlw   mm2, 4
     pand    mm2, _qwYMask
+    psrlw   mm2, 4
 
-    pcmpeqb mm2, mm7            ; FF if abs diff < 16
+    pcmpeqw mm2, mm7            ; FF if abs diff < 16
 
     movq mm0, qword ptr[edx]    ; mm0 = O21
     movq mm1, qword ptr[ebp]    ; mm1 = O22
@@ -332,10 +335,10 @@ CombAndDiff_Loop:
     psubusb mm3, mm1
     psubusb mm1, mm0
     por     mm3, mm1
-    psrlw   mm3, 4
     pand    mm3, _qwYMask
+    psrlw   mm3, 4
 
-    pcmpeqb mm3, mm7            ; FF if abs diff < 16
+    pcmpeqw mm3, mm7            ; FF if abs diff < 16
     pand    mm2, mm3
 
     movq mm0, qword ptr[ebx]    ; mm0 = E1
@@ -352,10 +355,10 @@ CombAndDiff_Loop:
     por     mm3, mm1
     psrlw   mm3, 4
 
-    pcmpeqb mm3, mm7            ; FF if abs diff < 16
-    pandn mm3, mm2              ; FF if middle is moving but outer two are stationary
-    pand  mm3, _qwOnes          ; 1 if middle is we have a comb
-    paddusw mm5, mm3
+    pcmpeqw mm3, mm7            ; FF if abs diff < 16
+    pandn mm2, mm3              ; FF if middle is moving but outer two are stationary
+    pand  mm2, _qwOnes          ; 1 if middle is we have a comb
+    paddusw mm5, mm2
 
     pmaddwd mm4, mm4            ; mm4 = (Y1 - Y2) ^ 2
     psrld mm4, _qwBitShift      ; divide mm4 by 2 ^ Bitshift
@@ -374,23 +377,23 @@ CombAndDiff_Loop:
     dec ecx
     jne CombAndDiff_Loop
 
-    movd ecx, mm0
-    psrlq mm0,32
-    movd eax, mm0
-    add eax, ecx
-    mov Dword Ptr [DiffFactor], eax
-
-
-    ; return mm5 as return value
-    ; this is the comb count
-    movd eax, mm5
-    psrlq mm5,32
     movd ecx, mm5
+    psrlq mm5,32
+    movd eax, mm5
     add ecx, eax
+	xor eax, eax
     mov ax, cx
     shr ecx, 16
     add ax, cx
     shr ax, 1
+    mov Dword Ptr [CombFactor], eax
+
+    ; return mm6 as return value
+    ; this is the diff factor
+    movd ecx, mm6
+    psrlq mm6,32
+    movd eax, mm6
+    add eax, ecx
 
     pop ebx
     pop esi

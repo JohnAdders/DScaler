@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.13 2002-10-12 20:01:52 atnak Exp $
+// $Id: SAA7134Card.h,v 1.14 2002-10-16 11:40:10 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/10/12 20:01:52  atnak
+// added some automatic error recovery
+//
 // Revision 1.12  2002/10/08 20:35:39  atnak
 // whitepeak, colorpeak, comb filter UI options
 //
@@ -116,7 +119,8 @@ private:
     // Possible clock crystals a card could have
     enum eAudioCrystal
     {
-        AUDIOCRYSTAL_32110Hz = 0,
+        AUDIOCRYSTAL_NONE = 0,          // only on saa7130
+        AUDIOCRYSTAL_32110Hz,
         AUDIOCRYSTAL_24576Hz,
     };
 
@@ -219,7 +223,7 @@ public:
     void SetAudioLockToVideo(BOOL bLockAudio);
 
     void SetAudioMute();
-    void SetAudioUnMute(long nVolume, eAudioInputSource InputSource);
+    void SetAudioUnMute(long nVolume);
     void SetAudioVolume(BYTE nVolume);
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);
@@ -326,8 +330,10 @@ private:
     const TCardType* GetCardSetup();
 
     void StandardSAA7134InputSelect(int nInput);
+
     void FLYVIDEO2000CardInputSelect(int nInput);
     void MEDION5044CardInputSelect(int nInput);
+    void KWTV713XRFCardInputSelect(int nInput);
 
     void SetAudioFMDematrix(eAudioFMDematrix FMDematrix);
     void SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth);

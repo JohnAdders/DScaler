@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.6 2002-10-06 11:09:48 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.7 2002-10-16 11:40:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/06 11:09:48  atnak
+// SoundChannel function from TCardType
+//
 // Revision 1.5  2002/10/04 13:24:46  atnak
 // Audio mux select through GPIO added (for 7130 cards)
 //
@@ -157,7 +160,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // Card Number 3 - LifeView FlyVIDEO2000
+    // Card Number 3 - LifeView FlyVIDEO2000 (saa7130)
     {
         "LifeView FlyVIDEO2000",
         4,
@@ -186,15 +189,9 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 8,
                 AUDIOINPUTSOURCE_LINE2,
             },
-/*          {
-                "Mute",
-                INPUTTYPE_MUTE,
-                0,
-                AUDIOINPUTSOURCE_LINE1,
-            },*/
         },
         TUNER_LG_TAPCNEW_PAL,
-        AUDIOCRYSTAL_24576Hz,
+        AUDIOCRYSTAL_NONE,
         NULL,
         FLYVIDEO2000CardInputSelect,
     },
@@ -414,6 +411,36 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         MEDION5044CardInputSelect,
     },
+    // Card Number 10 - KWORLD KW-TV713XRF (saa7130)
+    // Thanks to "b" <b@ki...>
+    {
+        "KWORLD KW-TV713XRF / KUROUTO SHIKOU",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                1,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                3,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                8,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_PHILIPS_NTSC,
+        AUDIOCRYSTAL_NONE,
+        NULL,
+        KWTV713XRFCardInputSelect,
+    },
 };
 
 
@@ -527,6 +554,15 @@ void CSAA7134Card::MEDION5044CardInputSelect(int nInput)
     default:
         break;
     }
+}
+
+
+void CSAA7134Card::KWTV713XRFCardInputSelect(int nInput)
+{
+    StandardSAA7134InputSelect(nInput);
+
+    // this card probably needs GPIO changes but I don't
+    // know what to do
 }
 
 

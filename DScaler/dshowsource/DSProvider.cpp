@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.3 2001-12-17 19:36:45 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.4 2002-02-07 22:06:26 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/17 19:36:45  tobbej
+// renamed a few classes
+//
 // Revision 1.2  2001/12/14 14:11:13  adcockj
 // Added #ifdef to allow compilation without SDK
 //
@@ -65,6 +68,11 @@ CDSProvider::CDSProvider()
 		m_DSSources.push_back(tmpsrc);
 		m_SourceNames[m_DSSources.size()-1]=deviceName;
 	}
+
+	//add one file source
+	CDSSource *src=new CDSSource();
+	m_DSSources.push_back(src);
+	m_SourceNames[m_DSSources.size()-1]="Movie File";
 }
 
 CDSProvider::~CDSProvider()

@@ -1173,7 +1173,7 @@ void Load_Country_Settings()
                 {
                     // convert frequency in KHz to Units that the tuner wants
                     long Freq = atol(Pos);
-                    Freq = MulDiv(Freq, 16, 1000);
+                    Freq = MulDiv(Freq, 16, 1000000);
                     NewCountry->m_Frequencies.push_back(Freq);
                     break;
                 }

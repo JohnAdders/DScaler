@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.27 2002-02-19 16:03:36 tobbej Exp $
+// $Id: Providers.cpp,v 1.28 2002-03-02 18:33:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.26  2002/02/18 23:25:01  laurentg
 // At startup, go to the first source having a content
 // Order of still sources changed (Patterns before Snapshots)
@@ -129,6 +133,7 @@
 #include "HardwareDriver.h"
 #include "OutThreads.h"
 #include "DScaler.h"
+#include "Audio.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource\DSProvider.h"
@@ -174,6 +179,10 @@ int Providers_Load(HMENU hMenu)
                 AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
             }
             Sources.push_back(BT848Provider->GetSource(i));
+            // Mute the audio of this source
+            CurrentSource = i;
+            Audio_Mute();
+            CurrentSource = 0;
         }
     }
     else

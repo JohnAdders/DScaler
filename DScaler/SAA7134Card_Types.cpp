@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.37 2004-02-14 04:33:48 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.38 2004-02-15 04:07:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2004/02/14 04:33:48  atnak
+// Updated card Medion MD-2819 PC-TV-radio card
+//
 // Revision 1.36  2004/02/14 04:03:44  atnak
 // Put GPIO settings and AutoDetect IDs into the main card definition
 // to remove the need for extra tables and custom functions.
@@ -160,7 +163,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // SAA7134CARDID_UNKNOWN - Unknown Card
     {
         "*Unknown Card*",
-		0x0000,
+        0x0000,
         4,
         {
             {
@@ -190,14 +193,14 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_ABSENT,
         AUDIOCRYSTAL_32110Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_PROTEUSPRO - Proteus Pro [philips reference design]
     {
         "Proteus Pro [philips reference design]",
-		0x7134,
+        0x7134,
         2,
         {
             {
@@ -215,15 +218,15 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_32110Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x20011131,
+        0x20011131,
     },
     // SAA7134CARDID_FLYVIDEO3000 - LifeView FlyVIDEO3000
     {
         "LifeView FlyVIDEO3000",
-		0x7134,
+        0x7134,
         6,
         {
             {
@@ -231,7 +234,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
-				0xE000, 0x8000,
+                0xE000, 0x8000,
 
             },
             {
@@ -239,47 +242,47 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x0000,
+                0xE000, 0x0000,
             },
             {
                 NULL,
                 INPUTTYPE_FINAL,
                 VIDEOINPUTSOURCE_NONE,
-				AUDIOINPUTSOURCE_NONE,
-				0xE000, 0x8000,
+                AUDIOINPUTSOURCE_NONE,
+                0xE000, 0x8000,
             },
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_24576Hz,
-		0x0018e700,
+        0x0018e700,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_FLYVIDEO2000 - LifeView FlyVIDEO2000 (saa7130)
     {
-        "LifeView FlyVIDEO2000",
-		0x7130,
+        "LifeView FlyVIDEO2000 / Chronos Video Shuttle II FM",
+        0x7130,
         6,
         {
             {
@@ -287,55 +290,55 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x0000,
+                0xE000, 0x0000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
-				0xE000, 0x2000,
+                0xE000, 0x2000,
             },
             {
                 NULL,
                 INPUTTYPE_FINAL,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_NONE,
-				0xE000, 0x8000,
+                0xE000, 0x8000,
             },
         },
         TUNER_LG_TAPCNEW_PAL,
         AUDIOCRYSTAL_NONE,
-		0x0018e700,
+        0x0018e700,
         NULL,
         StandardSAA7134InputSelect,
-		0x01385168,
+        0x01385168,
     },
     // SAA7134CARDID_EMPRESS - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
     {
         "EMPRESS",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -365,15 +368,15 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_32110Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x67521131,
+        0x67521131,
     },
     // SAA7134CARDID_MONSTERTV - SKNet Monster TV
     {
         "SKNet Monster TV",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -403,15 +406,15 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_MK2_NTSC,
         AUDIOCRYSTAL_32110Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x4E851131,
+        0x4E851131,
     },
     // SAA7134CARDID_TEVIONMD9717 - Tevion MD 9717
     {
         "Tevion MD 9717",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -441,14 +444,14 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_24576Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_KNC1RDS - KNC One TV-Station RDS
     {
         "KNC One TV-Station RDS",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -478,14 +481,14 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_24576Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_CINERGY400 - Terratec Cinergy 400 TV
     {
         "Terratec Cinergy 400 TV",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -515,15 +518,15 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_24576Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x1142153B,
+        0x1142153B,
     },
     // SAA7134CARDID_MEDION5044 - Medion 5044
     {
         "Medion 5044",
-		0x7134,
+        0x7134,
         5,
         {
             {
@@ -531,49 +534,49 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
-				0x6000, 0x4000,
+                0x6000, 0x4000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE2,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
         },
         TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_24576Hz,
-		0x00006000,
+        0x00006000,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_KWTV713XRF - KWORLD KW-TV713XRF (saa7130)
     // Thanks "b" <b@ki...>
- 	// this card probably needs GPIO changes but I don't know what they are
+    // this card probably needs GPIO changes but I don't know what they are
    {
         "KWORLD KW-TV713XRF / KUROUTO SHIKOU",
-		0x7130,
+        0x7130,
         3,
         {
             {
@@ -597,7 +600,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_NTSC,
         AUDIOCRYSTAL_NONE,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
     },
@@ -605,7 +608,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Thanks "Bedo" Bedo@dscaler.forums
     {
         "Manli M-TV001",
-		0x7130,
+        0x7130,
         3,
         {
             {
@@ -613,26 +616,26 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE2,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_LINE1,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
-				0x6000, 0x0000,
+                0x6000, 0x0000,
             },
         },
         TUNER_LG_B11D_PAL,  // Should be LG TPI8PSB12P PAL B/G
         AUDIOCRYSTAL_NONE,
-		0x00006000,
+        0x00006000,
         NULL,
         StandardSAA7134InputSelect,
     },
@@ -640,7 +643,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Thanks "Shin'ya Yamaguchi" <yamaguchi@no...>
     {
         "PrimeTV 7133",
-		0x7133,
+        0x7133,
         4,
         {
             {
@@ -648,42 +651,42 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_LINE1,
-				0xE000, 0x2000,
+                0xE000, 0x2000,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
-				0xE000, 0x4000,
+                0xE000, 0x4000,
             },
             {
                 NULL,
                 INPUTTYPE_FINAL,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_NONE,
-				0xE000, 0x8000,
+                0xE000, 0x8000,
             },
         },
         TUNER_PHILIPS_FI1286_NTSC_M_J,  // Should be TCL2002NJ or Philips FI1286 (NTSC M-J)
         AUDIOCRYSTAL_24576Hz,
-		0x0018e700,
+        0x0018e700,
         NULL,
         StandardSAA7134InputSelect,
-		0x01385168,
+        0x01385168,
     },
     // SAA7134CARDID_CINERGY600 - Terratec Cinergy 600 TV
     // Thanks "Michel de Glace" <mglace@my...>
     {
         "Terratec Cinergy 600 TV",
-		0x7134,
+        0x7134,
         5,
         {
             {
@@ -719,17 +722,17 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_24576Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x1143153b,
+        0x1143153b,
     },
     // SAA7134CARDID_MEDION7134 - Medion TV-Tuner 7134 MK2/3
     // Thanks "DavidbowiE" Guest@dscaler.forums
     // Thanks "Josef Schneider" <josef@ne...>
     {
         "Medion TV-Tuner 7134 MK2/3",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -759,16 +762,16 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_32110Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x000316be,
+        0x000316be,
     },
     // SAA7134CARDID_TYPHOON90031 - Typhoon TV+Radio (Art.Nr. 90031)
     // Thanks "Tom Zoerner" <tomzo@ne...>
     {
         "Typhoon TV-Radio 90031",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -798,7 +801,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_24576Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
     },
@@ -806,7 +809,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Thanks "Patrik Gloncak" <gloncak@ho...>
     {
         "Manli M-TV002",
-		0x7130,
+        0x7130,
         4,
         {
             {
@@ -836,15 +839,15 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_LG_B11D_PAL,  // Should be LG TPI8PSB02P PAL B/G
         AUDIOCRYSTAL_NONE,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_VGEAR_MYTV_SAP - V-Gear MyTV SAP PK
-	// Thanks "Ken Chung" <kenchunghk2000@ya...>
+    // Thanks "Ken Chung" <kenchunghk2000@ya...>
     {
         "V-Gear MyTV SAP PK",
-		0x7134,
+        0x7134,
         3,
         {
             {
@@ -852,34 +855,34 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
-				0x4400, 0x0400,
+                0x4400, 0x0400,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
-				0x4400, 0x0400,
+                0x4400, 0x0400,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
-				0x4400, 0x0400,
+                0x4400, 0x0400,
             },
         },
         TUNER_PHILIPS_PAL_I,
         AUDIOCRYSTAL_32110Hz,
-		0x00004400,
+        0x00004400,
         NULL,
         StandardSAA7134InputSelect,
     },
     // SAA7134CARDID_ASUS_TVFM - ASUS TV/FM
-	// Thanks "Wolfgang Scholz" <wolfgang.scholz@ka...>
+    // Thanks "Wolfgang Scholz" <wolfgang.scholz@ka...>
     {
         "ASUS TV/FM",
-		0x7134,
+        0x7134,
         4,
         {
             {
@@ -902,23 +905,23 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
             },
             {
                 "Radio",
-                INPUTTYPE_SVIDEO,
+                INPUTTYPE_RADIO,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_PHILIPS_PAL,
         AUDIOCRYSTAL_32110Hz,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x48421043,
+        0x48421043,
     },
     // SAA7134CARDID_AOPEN_VA1000_L2 - Aopen VA1000 Lite2 (saa7130)
-	// Thanks "stu" <ausstu@ho...>
+    // Thanks "stu" <ausstu@ho...>
     {
         "Aopen VA1000 Lite2",
-		0x7130,
+        0x7130,
         3,
         {
             {
@@ -926,26 +929,26 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
-				0x40, 0x70,
+                0x40, 0x70,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
-				0x20, 0x70,
+                0x20, 0x70,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,
                 AUDIOINPUTSOURCE_LINE1,
-				0x20, 0x70,
+                0x20, 0x70,
             },
         },
         TUNER_LG_TAPCNEW_PAL,
         AUDIOCRYSTAL_NONE,
-		0x00000060,
+        0x00000060,
         NULL,
         StandardSAA7134InputSelect,
     },
@@ -955,7 +958,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     //  - may have Transport Stream
     {
         "ASK SELECT AS-VCV300/PCI",
-		0x7130,
+        0x7130,
         2,
         {
             {
@@ -973,17 +976,17 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         },
         TUNER_ABSENT,
         AUDIOCRYSTAL_NONE,
-		0,
+        0,
         NULL,
         StandardSAA7134InputSelect,
-		0x226e1048,
+        0x226e1048,
     },
     // Medion MD-2819 PC-TV-radio card
-	// Thanks "Sanel.B" <vlasenica@ya...>
-	// Thanks "Mc" <michel.heusinkveld2@wa...>
+    // Thanks "Sanel.B" <vlasenica@ya...>
+    // Thanks "Mc" <michel.heusinkveld2@wa...>
     {
         "Medion MD-2819 PC-TV-radio card",
-		0x7134,
+        0x7134,
         5,
         {
             {
@@ -991,43 +994,171 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 INPUTTYPE_TUNER,
                 VIDEOINPUTSOURCE_PIN1,
                 AUDIOINPUTSOURCE_DAC,
-				0x00040007, 0x00000006,
+                0x00040007, 0x00000006,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 VIDEOINPUTSOURCE_PIN3,
                 AUDIOINPUTSOURCE_LINE1,
-				0x00040007, 0x00000006,
+                0x00040007, 0x00000006,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
                 AUDIOINPUTSOURCE_LINE1,
-				0x00040007, 0x00000006,
+                0x00040007, 0x00000006,
             },
             {
                 "Radio",
-                INPUTTYPE_SVIDEO,
+                INPUTTYPE_RADIO,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_LINE1,
-				0x00040007, 0x00000005,
+                0x00040007, 0x00000005,
             },
             {
                 NULL,
                 INPUTTYPE_FINAL,
                 VIDEOINPUTSOURCE_NONE,
                 AUDIOINPUTSOURCE_NONE,
-				0x00040007, 0x00000004,
+                0x00040007, 0x00000004,
             },
         },
         TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_32110Hz,
-		00040007,
+        0x00040007,
         NULL,
         StandardSAA7134InputSelect,
-		0xa70b1461,
+        0xa70b1461,
+    },
+    // FlyVideo FlyView 3100 (NTSC Version - United States)
+    // Thanks "Ryan N. Datsko" <MysticWhiteDragon@ho...>
+    // SAA7133 -- not supported
+    {
+        "FlyVideo FlyView 3100 (no audio)",
+        0x7133,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x0000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x4000,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x0000,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_NONE,
+                0xE000, 0x8000,
+            },
+        },
+        TUNER_PHILIPS_NTSC,
+        AUDIOCRYSTAL_NONE,
+        0x018e700,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x01385168,
+    },
+    // Pinnacle PCTV Stereo
+    // Thanks "Fabio Maione" <maione@ma...>
+    // Thanks "Dr. Uwe Zettl" <uwe.zettl@t...>
+    {
+        "Pinnacle PCTV Stereo",
+        0x7134,
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_MT2032,
+        AUDIOCRYSTAL_32110Hz,
+        0,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x002b11bd,
+    },
+    // AverMedia AverTV Studio 305
+    // Thanks "Oeoeeia Aieodee" <sid16@ya...>
+    {
+        "AverMedia AverTV Studio 305",
+        0x7130,
+        5,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+                0x00040007, 0x00000005,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+                0x00040007, 0x00000006,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
+                0x00040007, 0x00000006,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE1,
+                0x00040007, 0x00000005,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_DAC,
+                0x00040007, 0x00000004,
+            },
+        },
+        TUNER_PHILIPS_FM1216ME_MK3,
+        AUDIOCRYSTAL_NONE,
+        0x00040007,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x21151461,
     },
 };
 
@@ -1043,18 +1174,18 @@ CSAA7134Card::eSAA7134CardId CSAA7134Card::AutoDetectCardType()
     WORD DeviceId           = GetDeviceId();
     DWORD SubSystemId        = GetSubSystemId();
 
-	if (SubSystemId == 0x00001131)
-	{
+    if (SubSystemId == 0x00001131)
+    {
        LOG(0, "SAA713x: Autodetect found [0x00001131] *Unknown Card*.");
-		return SAA7134CARDID_UNKNOWN;
-	}
+        return SAA7134CARDID_UNKNOWN;
+    }
 
     int ListSize = GetMaxCards();
 
     for (int i = 0; i < ListSize; i++)
     {
         if (m_SAA7134Cards[i].DeviceId == DeviceId &&
-			m_SAA7134Cards[i].dwAutoDetectId == SubSystemId)
+            m_SAA7134Cards[i].dwAutoDetectId == SubSystemId)
         {
             LOG(0, "SAA713x: Autodetect found %s.", m_SAA7134Cards[i].szName);
             return (eSAA7134CardId)i;
@@ -1066,7 +1197,7 @@ CSAA7134Card::eSAA7134CardId CSAA7134Card::AutoDetectCardType()
     LOG(0, "SAA713x: following numbers, as well as which card you have,");
     LOG(0, "SAA713x: so it can be added to the list:");
     LOG(0, "SAA713x: DeviceId: 0x%04x, AutoDetectId: 0x%08x",
-		DeviceId, SubSystemId);
+        DeviceId, SubSystemId);
 
     return SAA7134CARDID_UNKNOWN;
 }
@@ -1080,15 +1211,15 @@ eTunerId CSAA7134Card::AutoDetectTuner(eSAA7134CardId CardId)
 
 int CSAA7134Card::GetNumInputs()
 {
-	int iInvalidInputs = 0;
+    int iInvalidInputs = 0;
 
-	for (int i = 0; i < m_SAA7134Cards[m_CardType].NumInputs; i++)
-	{
-		if (m_SAA7134Cards[m_CardType].Inputs[i].szName == NULL)
-		{
-			iInvalidInputs++;
-		}
-	}
+    for (int i = 0; i < m_SAA7134Cards[m_CardType].NumInputs; i++)
+    {
+        if (m_SAA7134Cards[m_CardType].Inputs[i].szName == NULL)
+        {
+            iInvalidInputs++;
+        }
+    }
 
     return m_SAA7134Cards[m_CardType].NumInputs - iInvalidInputs;
 }
@@ -1098,10 +1229,10 @@ LPCSTR CSAA7134Card::GetInputName(int nInput)
 {
     if(nInput < m_SAA7134Cards[m_CardType].NumInputs && nInput >= 0)
     {
-		if (m_SAA7134Cards[m_CardType].Inputs[nInput].szName == NULL)
-		{
-			return "";
-		}
+        if (m_SAA7134Cards[m_CardType].Inputs[nInput].szName == NULL)
+        {
+            return "";
+        }
         return m_SAA7134Cards[m_CardType].Inputs[nInput].szName;
     }
     return "Error";
@@ -1110,15 +1241,15 @@ LPCSTR CSAA7134Card::GetInputName(int nInput)
 
 int CSAA7134Card::GetFinalInputNumber()
 {
-	for (int i = 0; i < m_SAA7134Cards[m_CardType].NumInputs; i++)
-	{
-		if (m_SAA7134Cards[m_CardType].Inputs[i].InputType == INPUTTYPE_FINAL)
-		{
-			return i;
-		}
-	}
+    for (int i = 0; i < m_SAA7134Cards[m_CardType].NumInputs; i++)
+    {
+        if (m_SAA7134Cards[m_CardType].Inputs[i].InputType == INPUTTYPE_FINAL)
+        {
+            return i;
+        }
+    }
 
-	return -1;
+    return -1;
 }
 
 
@@ -1205,12 +1336,12 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
     // -1 for finishing clean up
     if (nInput == -1)
     {
-		nInput = GetFinalInputNumber();
-		if (nInput == -1)
-		{
-			// There are no cleanup specific changes
-			return;
-		}
+        nInput = GetFinalInputNumber();
+        if (nInput == -1)
+        {
+            // There are no cleanup specific changes
+            return;
+        }
     }
 
     if (nInput >= m_SAA7134Cards[m_CardType].NumInputs)
@@ -1257,13 +1388,13 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
 
     MaskDataByte(SAA7134_ANALOG_IN_CTRL1, Mode, 0x0F);
 
-	// GPIO settings
-	if (m_SAA7134Cards[m_CardType].dwGPIOMode != 0)
-	{
-		MaskDataDword(SAA7134_GPIO_GPMODE, m_SAA7134Cards[m_CardType].dwGPIOMode, 0x0EFFFFFF);
-		MaskDataDword(SAA7134_GPIO_GPSTATUS,
-			m_SAA7134Cards[m_CardType].Inputs[nInput].dwGPIOStatusBits,
-			m_SAA7134Cards[m_CardType].Inputs[nInput].dwGPIOStatusMask);
-	}
+    // GPIO settings
+    if (m_SAA7134Cards[m_CardType].dwGPIOMode != 0)
+    {
+        MaskDataDword(SAA7134_GPIO_GPMODE, m_SAA7134Cards[m_CardType].dwGPIOMode, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS,
+            m_SAA7134Cards[m_CardType].Inputs[nInput].dwGPIOStatusBits,
+            m_SAA7134Cards[m_CardType].Inputs[nInput].dwGPIOStatusMask);
+    }
 }
 

@@ -2254,6 +2254,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ParsingCommon.cpp">
+			</File>
+			<File
 				RelativePath="Pattern.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3921,6 +3924,9 @@
 			</File>
 			<File
 				RelativePath="PaintingHDC.h">
+			</File>
+			<File
+				RelativePath=".\ParsingCommon.h">
 			</File>
 			<File
 				RelativePath="Pattern.h">

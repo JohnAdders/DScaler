@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.108 2002-10-31 14:47:19 adcockj Exp $
+// $Id: DS_Control.h,v 1.109 2002-11-01 16:17:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2002/10/31 14:47:19  adcockj
+// Added Sharpness
+//
 // Revision 1.107  2002/10/31 14:03:32  adcockj
 // Added Analogue blanking option to aspect code
 //
@@ -1343,6 +1346,7 @@ typedef enum
     SAVEINSAMEFILE,
     STILLSINMEMORY,
     NBCONSECUTIVESTILLS,
+	KEEPORIGINALRATIO,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.77 2002-11-01 13:09:19 laurentg Exp $
+// $Id: StillSource.cpp,v 1.78 2002-11-01 16:19:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2002/11/01 13:09:19  laurentg
+// Management of the still capture context slightly updated - works now even with stills in memory
+//
 // Revision 1.76  2002/11/01 11:09:49  laurentg
 // Possibility to take still when pause is on restored
 // Problem of memory leak when taking consecutive stills probably solved
@@ -294,7 +297,7 @@
 #define TIMER_SLIDESHOW 50
 
 int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets, 
-		unsigned int* vWeights, int m_Width, int m_Height, int NewWidth, int NewHeight);
+		unsigned int* vWeights, int OldWidth, int OldHeight, int NewWidth, int NewHeight);
 
 static eStillFormat FormatSaving = STILL_TIFF_RGB;
 static int SlideShowDelay = 5;
@@ -304,6 +307,7 @@ static int PatternWidth = 720;
 static int DelayBetweenStills = 60;
 static BOOL SaveInSameFile = FALSE;
 static BOOL StillsInMemory = FALSE;
+static BOOL KeepOriginalRatio = FALSE;
 static int NbConsecutiveStills = 20;
 
 static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
@@ -597,6 +601,9 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     {
         int NewWidth;
         int NewHeight;
+		int NewPitch;
+		BYTE* NewBuf;
+		BYTE* NewStart;
 
         NewHeight = m_Height;
 		NewWidth = m_Width;
@@ -614,11 +621,28 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
         }
 		NewWidth = NewWidth & 0xfffffffe;       // even wid 
 
-        if (!ResizeOriginalFrame(NewWidth, NewHeight))
+		// Allocate memory for the new YUYV buffer
+		NewPitch = (NewWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+		NewBuf = MallocStillBuf(NewPitch * NewHeight, &NewStart);
+		if (NewBuf == NULL)
+		{
+			;
+		}
+		else if (!ResizeFrame(m_OriginalFrame.pData, m_LinePitch, m_Width, m_Height, NewStart, NewPitch, NewWidth, NewHeight))
         {
-            m_Height = NewHeight;
-		    m_Width = NewWidth;
+			free(NewBuf);
+			NewBuf = NULL;
         }
+		else
+		{
+			// Replace the old YUYV buffer by the new one
+			free(m_OriginalFrameBuffer);
+			m_OriginalFrameBuffer = NewBuf;
+			m_OriginalFrame.pData = NewStart;
+			m_LinePitch = NewPitch;
+		}
+		m_Width = NewWidth;
+		m_Height = NewHeight;
     }
 
     if (FileRead)
@@ -830,9 +854,13 @@ BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
 
 void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch)
 {
-    BOOL NewToAdd;
 	char FilePath[MAX_PATH];
 	char Context[1024];
+	BYTE* pNewFrameBuffer = pFrameBuffer;
+	int NewLinePitch = LinePitch;
+	int NewFrameHeight = FrameHeight;
+	int NewFrameWidth = FrameWidth;
+	BYTE* NewBuf = NULL;
 
 	if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
 	{
@@ -864,7 +892,38 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 	OSD_ShowText(hWnd, strrchr(FilePath, '\\') + 1, 0);
 
     m_SquarePixels = AspectSettings.SquarePixels;
+
+    if (!m_SquarePixels && Setting_GetValue(Still_GetSetting(KEEPORIGINALRATIO)))
+    {
+		float Width;
+
+		// if source is 16/9 anamorphic
+		if (AspectSettings.AspectMode == 2)
+		{
+			Width = (float)NewFrameHeight * 1.7777;
+		}
+		// else source is 4/3 non anamorphic
+		else
+		{
+			Width = (float)NewFrameHeight * 1.3333;
+		}
+		NewFrameWidth = (int)floor(Width / 2.0 + 0.5) * 2;
+
+		// Allocate memory for the new YUYV buffer
+		NewLinePitch = (NewFrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+		NewBuf = MallocStillBuf(NewLinePitch * NewFrameHeight, &pNewFrameBuffer);
+		if ((NewBuf == NULL) || !ResizeFrame(pFrameBuffer, LinePitch, FrameWidth, FrameHeight, pNewFrameBuffer, NewLinePitch, NewFrameWidth, NewFrameHeight))
+		{
+			// If resize fails, we use the non resized still
+			pNewFrameBuffer = pFrameBuffer;
+			NewLinePitch = LinePitch;
+			NewFrameHeight = FrameHeight;
+			NewFrameWidth = FrameWidth;
+		}
+    }
+
 	BuildDScalerContext(Context);
+
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
     case STILL_TIFF_RGB:
@@ -874,8 +933,7 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 				strcat(Context, SQUARE_MARK);
 			}
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pFrameBuffer, LinePitch, Context);
-            NewToAdd = TRUE;
+            TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
             break;
         }
     case STILL_TIFF_YCbCr:
@@ -885,22 +943,20 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 				strcat(Context, SQUARE_MARK);
 			}
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pFrameBuffer, LinePitch, Context);
-            NewToAdd = TRUE;
+            TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
             break;
         }
     case STILL_JPEG:
         {
             CJpegHelper JpegHelper(this);
-            JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pFrameBuffer, LinePitch, Context);
-            NewToAdd = TRUE;
+            JpegHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
             break;
         }
     default:
-        NewToAdd = FALSE;
         break;
     }
-    if (NewToAdd & !IsItemInList(FilePath))
+
+    if (!IsItemInList(FilePath))
     {
         CPlayListItem* Item = new CPlayListItem(FilePath);
         m_PlayList.push_back(Item);
@@ -910,6 +966,11 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
         }
         UpdateMenu();
     }
+
+	if (NewBuf != NULL)
+	{
+		free(NewBuf);
+	}
 }
 
 void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pFrameBuffer, LONG LinePitch, BYTE* pAllocBuffer)
@@ -932,8 +993,8 @@ void CStillSource::SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* p
 
 void CStillSource::SaveInFile()
 {
-	BYTE* FrameBuffer;
-	BYTE* StartFrame;
+	BYTE* pFrameBuffer;
+	BYTE* pStartFrame;
 	int FrameHeight;
 	int FrameWidth;
 	int LinePitch;
@@ -941,10 +1002,15 @@ void CStillSource::SaveInFile()
 	const char* Context2;
 	char Context[1024];
 	char FilePath[MAX_PATH];
+	BYTE* pNewFrameBuffer;
+	int NewLinePitch;
+	int NewFrameHeight;
+	int NewFrameWidth;
+	BYTE* NewBuf;
 
     if ((m_Position == -1)
 	 || (m_PlayList.size() == 0)
-	 || !m_PlayList[m_Position]->GetMemoryInfo(&FrameBuffer, &StartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
+	 || !m_PlayList[m_Position]->GetMemoryInfo(&pFrameBuffer, &pStartFrame, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context2))
 	{
 		return;
 	}
@@ -954,8 +1020,45 @@ void CStillSource::SaveInFile()
 		return;
 	}
 
+	OSD_ShowText(hWnd, strrchr(FilePath, '\\') + 1, 0);
+
 	m_PlayList[m_Position]->SetFileName(FilePath);
     UpdateMenu();
+
+	pNewFrameBuffer = pStartFrame;
+	NewLinePitch = LinePitch;
+	NewFrameHeight = FrameHeight;
+	NewFrameWidth = FrameWidth;
+	NewBuf = NULL;
+
+    if (!m_SquarePixels && Setting_GetValue(Still_GetSetting(KEEPORIGINALRATIO)))
+    {
+		float Width;
+
+		// if source is 16/9 anamorphic
+		if (AspectSettings.AspectMode == 2)
+		{
+			Width = (float)NewFrameHeight * 1.7777;
+		}
+		// else source is 4/3 non anamorphic
+		else
+		{
+			Width = (float)NewFrameHeight * 1.3333;
+		}
+		NewFrameWidth = (int)floor(Width / 2.0 + 0.5) * 2;
+
+		// Allocate memory for the new YUYV buffer
+		NewLinePitch = (NewFrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+		NewBuf = MallocStillBuf(NewLinePitch * NewFrameHeight, &pNewFrameBuffer);
+		if ((NewBuf == NULL) || !ResizeFrame(pStartFrame, LinePitch, FrameWidth, FrameHeight, pNewFrameBuffer, NewLinePitch, NewFrameWidth, NewFrameHeight))
+		{
+			// If resize fails, we use the non resized still
+			pNewFrameBuffer = pStartFrame;
+			NewLinePitch = LinePitch;
+			NewFrameHeight = FrameHeight;
+			NewFrameWidth = FrameWidth;
+		}
+    }
 
 	strcpy(Context, Context2);
 
@@ -968,7 +1071,7 @@ void CStillSource::SaveInFile()
 				strcat(Context, SQUARE_MARK);
 			}
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, StartFrame, LinePitch, Context);
+            TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
             break;
         }
     case STILL_TIFF_YCbCr:
@@ -978,18 +1081,23 @@ void CStillSource::SaveInFile()
 				strcat(Context, SQUARE_MARK);
 			}
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, StartFrame, LinePitch, Context);
+            TiffHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
             break;
         }
     case STILL_JPEG:
         {
             CJpegHelper JpegHelper(this);
-            JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, StartFrame, LinePitch, Context);
+            JpegHelper.SaveSnapshot(FilePath, NewFrameHeight, NewFrameWidth, pNewFrameBuffer, NewLinePitch, Context);
             break;
         }
     default:
         break;
     }
+
+	if (NewBuf != NULL)
+	{
+		free(NewBuf);
+	}
 }
 
 void CStillSource::CreateSettings(LPCSTR IniSection)
@@ -1291,7 +1399,6 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		if (m_PlayList[m_Position]->IsInMemory())
 		{
 			SaveInFile();
-			OSD_ShowText(hWnd, strrchr(m_PlayList[m_Position]->GetFileName(), '\\') + 1, 0);
 		}
         return TRUE;
         break;
@@ -1827,6 +1934,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          NULL,
         "Still", "NbConsecutiveStills", NULL,
     },
+    {
+        "Keep original ratio", ONOFF, 0, (long*)&KeepOriginalRatio,
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "Still", "KeepOriginalRatio", NULL,
+    },
 };
 
 
@@ -1879,10 +1992,8 @@ CTreeSettingsGeneric* Still_GetTreeSettingsPage()
 }
 
 
-BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
+BOOL CStillSource::ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight)
 {
-	int OldPitch = m_LinePitch;
-	int NewPitch;
 	unsigned int* hControl;		// weighting masks, alternating dwords for Y & UV
 								// 1 qword for mask, 1 dword for src offset, 1 unused dword
 	unsigned int* vOffsets;		// Vertical offsets of the source lines we will use
@@ -1902,23 +2013,19 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     unsigned char* srcp1;
     unsigned char* srcp2;
 
-    LOG(3, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
+    LOG(3, "OldWidth %d, NewWidth %d, OldHeight %d, NewHeight %d", OldWidth, NewWidth, OldHeight, NewHeight);
 
-    // Allocate memory for the new YUYV buffer
-    NewPitch = (NewWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    BYTE* NewStart;
-    BYTE* NewBuf = MallocStillBuf(NewPitch * NewHeight, &NewStart);
-	dstp = NewStart;
+	dstp = NewBuf;
 
 	// SimpleResize Init code
 	hControl = (unsigned int*) malloc(NewWidth*12+128);  
 	vOffsets = (unsigned int*) malloc(NewHeight*4);  
 	vWeights = (unsigned int*) malloc(NewHeight*4);  
-	vWorkY =   (unsigned int*) malloc(2*m_Width+128);   
-	vWorkUV =  (unsigned int*) malloc(m_Width+128);   
+	vWorkY =   (unsigned int*) malloc(2*OldWidth+128);   
+	vWorkUV =  (unsigned int*) malloc(OldWidth+128);   
 
 	SimpleResize_InitTables(hControl, vOffsets, vWeights,
-		m_Width, m_Height, NewWidth, NewHeight);
+		OldWidth, OldHeight, NewWidth, NewHeight);
 
 
 	// SimpleResize resize code
@@ -1937,7 +2044,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 		vWeight2[0] = vWeight2[1] = vWeight2[2] = vWeight2[3] = 
 			vWeights[y] << 16 | vWeights[y];
 
-		srcp1 = m_OriginalFrame.pData + vOffsets[y] * OldPitch;
+		srcp1 = OldBuf + vOffsets[y] * OldPitch;
 		
 		srcp2 = (y < NewHeight-1)
 			? srcp1 + OldPitch
@@ -2047,14 +2154,6 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 	free(vWorkY);
 	free(vWorkUV);
 
-    // Replace the old YUYV buffer by the new one
-    free(m_OriginalFrameBuffer);
-    m_OriginalFrameBuffer = NewBuf;
-    m_OriginalFrame.pData = NewStart;
-    m_LinePitch = NewPitch;
-    m_Width = NewWidth;
-    m_Height = NewHeight;
-
     return TRUE;
 }
 
@@ -2082,7 +2181,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 // Horizontal weights are scaled 0-128, Vertical weights are scaled 0-256.
 
 int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets, 
-		unsigned int* vWeights, int m_Width, int m_Height, int NewWidth, int NewHeight)
+		unsigned int* vWeights, int OldWidth, int OldHeight, int NewWidth, int NewHeight)
 {
 	int i;
 	int j;
@@ -2091,11 +2190,11 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 	int wY2;
 	int wUV1;
 	int wUV2;
-	int m_WidthW = m_Width & 0xfffffffe;		// odd width is invalid YUY2
+	int OldWidthW = OldWidth & 0xfffffffe;		// odd width is invalid YUY2
 	// First set up horizontal table
 	for(i=0; i < NewWidth; i+=2)
 	{
-		j = i * 256 * (m_WidthW-1) / (NewWidth-1);
+		j = i * 256 * (OldWidthW-1) / (NewWidth-1);
 
 		k = j>>8;
 		wY2 = j - (k << 8);				// luma weight of right pixel
@@ -2108,9 +2207,9 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 // the right hand edge luma will be off by one pixel currently to handle edge conditions.
 // I should figure a better way aound this without a performance hit. But I can't see 
 // the difference so it is lower prority.
-		if (k > m_WidthW - 3)
+		if (k > OldWidthW - 3)
 		{
-			hControl[i*3+4] = m_WidthW - 3;	 //	point to last byte
+			hControl[i*3+4] = OldWidthW - 3;	 //	point to last byte
 			hControl[i*3] =   0x01000000;    // use 100% of rightmost Y
 			hControl[i*3+2] = 0x01000000;    // use 100% of rightmost U
 		}
@@ -2121,7 +2220,7 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 			hControl[i*3+2] = wUV2 << 16 | wUV1; // chroma weights
 		}
 
-		j = (i+1) * 256 * (m_WidthW-1) / (NewWidth-1);
+		j = (i+1) * 256 * (OldWidthW-1) / (NewWidth-1);
 
 		k = j>>8;
 		wY2 = j - (k << 8);				// luma weight of right pixel
@@ -2131,9 +2230,9 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 			: wY2 >> 1;
 		wUV1 = 256 - wUV2;
 
-		if (k > m_WidthW - 3)
+		if (k > OldWidthW - 3)
 		{
-			hControl[i*3+5] = m_WidthW - 3;	 //	point to last byte
+			hControl[i*3+5] = OldWidthW - 3;	 //	point to last byte
 			hControl[i*3+1] = 0x01000000;    // use 100% of rightmost Y
 			hControl[i*3+3] = 0x01000000;    // use 100% of rightmost V
 		}
@@ -2145,14 +2244,14 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 		}
 	}
 
-	hControl[NewWidth*3+4] =  2 * (m_WidthW-1);		// give it something to prefetch at end
-	hControl[NewWidth*3+5] =  2 * (m_WidthW-1);		// "
+	hControl[NewWidth*3+4] =  2 * (OldWidthW-1);		// give it something to prefetch at end
+	hControl[NewWidth*3+5] =  2 * (OldWidthW-1);		// "
 
 	// Next set up vertical table. The offsets are measured in lines and will be mult
 	// by the source pitch later 
 	for(i=0; i< NewHeight; ++i)
 	{
-		j = i * 256 * (m_Height-1) / (NewHeight-1);
+		j = i * 256 * (OldHeight-1) / (NewHeight-1);
 		k = j >> 8;
 		vOffsets[i] = k;
 		wY2 = j - (k << 8); 

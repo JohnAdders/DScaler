@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.51 2002-11-01 13:09:19 laurentg Exp $
+// $Id: StillSource.h,v 1.52 2002-11-01 16:19:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ private:
     BOOL OpenPictureFile(LPCSTR FileName);
 	BOOL OpenPictureMemory(BYTE* FrameBuffer, BYTE* StartFrame, int FrameHeight, int FrameWidth, int LinePitch, BOOL SquarePixels, const char* Context);
     BOOL SavePlayList(LPCSTR FileName);
-    BOOL ResizeOriginalFrame(int NewWidth, int NewHeight);
+	BOOL ResizeFrame(BYTE* OldBuf, int OldPitch, int OldWidth, int OldHeight, BYTE* NewBuf, int NewPitch, int NewWidth, int NewHeight);
     BOOL IsItemInList(LPCSTR FileName);
 	BOOL FindFileName(time_t TimeStamp, char* FileName);
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.210 2002-08-08 10:31:21 robmuller Exp $
+// $Id: DScaler.cpp,v 1.211 2002-08-08 10:34:23 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.210  2002/08/08 10:31:21  robmuller
+// Fixed problem when command line OSD message contains quotes.
+//
 // Revision 1.209  2002/08/07 13:13:27  robmuller
 // Press x to clear OSD.
 //
@@ -846,9 +849,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
             // If DScaler is not running this copy exits silently.
             //
             // example:
-            // dscaler /m "This is a message.\nSecond line."
-            //
-            // Don't forget the quotes if you want to show more than one word.
+            // dscaler /m This is a message.\nSecond line.
             //
             if((ArgValues[0][0] == '/' || ArgValues[0][0] == '-') && tolower(ArgValues[0][1]) == 'm')
             {

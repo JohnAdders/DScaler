@@ -40,9 +40,8 @@ public:
 
     LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
     
-    CSettingGroup *GetSettingsGroup(CSettingObject *pObject, LPCSTR szGroupName, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
-    CSettingGroup *GetSettingsGroup(LPCSTR szGroupName, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
-    CSettingGroup *FindGroup(char **pszGroupList);
+    CSettingGroup *GetSettingsGroup(CSettingObject *pObject, LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
+    CSettingGroup *GetSettingsGroup(LPCSTR szDisplayName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
     void SetLocation(vector<string>* pvSubLocations);
     string GetLocation(ISetting *pSetting);
 

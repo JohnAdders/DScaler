@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.33 2003-01-10 17:38:07 adcockj Exp $
+// $Id: Filter.cpp,v 1.34 2003-01-11 15:22:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/10 17:38:07  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.32  2003/01/02 16:22:07  adcockj
 // Preliminary code to support output plugins properly
 //
@@ -131,7 +138,6 @@ FILTER_METHOD* Filters[100] = {NULL,};
 void RegisterSettings(FILTER_METHOD* Filter);
 
 CSettingsHolderStandAlone FilterSettingsHolder;
-CSettingGroup* pFiltersGroup = NULL;
 
 long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
 {
@@ -516,21 +522,17 @@ void Filter_SetMenu(HMENU hMenu)
 
 void RegisterSettings(FILTER_METHOD* Filter)
 {
-    if(pFiltersGroup == NULL)
-    {
-        pFiltersGroup = FilterSettingsHolder.GetSettingsGroup("Filters", "Filters", "Filter Settings");
-    }
     char szDescription[100];
         
     sprintf(szDescription,"Flt On Off - %s",Filter->szName);
 
     int iOnOffSetting = -1;
 
-    CSettingGroup* pOnOffGroup = pFiltersGroup->GetGroup(szDescription, szDescription);
+    CSettingGroup* pOnOffGroup = FilterSettingsHolder.GetSettingsGroup(szDescription);
 
     sprintf(szDescription,"Flt Settings - %s",Filter->szName);
 
-    CSettingGroup* pSettingsGroup = pFiltersGroup->GetGroup(szDescription, szDescription);
+    CSettingGroup* pSettingsGroup = FilterSettingsHolder.GetSettingsGroup(szDescription);
 
     int i;
 

@@ -347,18 +347,18 @@ void CSettingsHolder::DisableOnChange()
     Get/Create a root group from the settingsmaster.
     The SettingObject the group belongs to is the SettingHolder itself.
 */
-CSettingGroup* CSettingsHolder::GetSettingsGroup(LPCSTR szGroupName, LPCSTR szDisplayName, LPCSTR szTooltip)
+CSettingGroup* CSettingsHolder::GetSettingsGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 {
-    return GetSettingsGroup(this, szGroupName, szDisplayName, szTooltip);
+    return GetSettingsGroup(this, szName, Flags, IsActiveByDefault);
 }
 
 /**
     Get/Create a root group from the settingsmaster.  
 */
-CSettingGroup* CSettingsHolder::GetSettingsGroup(CSettingObject *pObject, LPCSTR szGroupName, LPCSTR szDisplayName, LPCSTR szTooltip)
+CSettingGroup* CSettingsHolder::GetSettingsGroup(CSettingObject *pObject, LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 {
     RegisterMe();
-    return SettingsMaster->Groups()->GetRootGroup(pObject, szGroupName, szDisplayName, szTooltip);
+    return SettingsMaster->GetGroup(pObject, szName, Flags, IsActiveByDefault);
 }
 
 /** Read settings from the right ini section.

@@ -65,9 +65,6 @@ class CSettingObject
     virtual IamNowVirtual(){;};
 };
 
-
-
-class CSettingGroupList;
 /**
     Setting group class.
     Contains info like name & description
@@ -78,68 +75,33 @@ class CSettingGroupList;
 class CSettingGroup
 {
 public:
-    CSettingGroup(CSettingGroupList *pGroupList, LPCSTR szGroupName, LPCSTR szLongName, LPCSTR szInfoText = NULL, CSettingObject* pObject = NULL);
+    enum eGroupSettingsFlags
+    {
+        SETTING_BY_CHANNEL = 1,
+        SETTING_BY_FORMAT = 2,
+        SETTING_BY_INPUT = 4,
+        SETTING_BY_AUDIOINPUT = 8,
+    };
+
+    CSettingGroup(LPCSTR szName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
     ~CSettingGroup();
 
-    void SetLongName(LPCSTR szLongName);
-    void SetInfoText(LPCSTR szInfoText);
     LPCSTR GetName();
-    LPCSTR GetLongName();
-    LPCSTR GetInfoText();
 
-    CSettingObject* GetObject() { return m_pObject; }
+    BOOL IsSetByChannel() { return ((m_Flags & SETTING_BY_CHANNEL) == SETTING_BY_CHANNEL);};
+    BOOL IsSetByFormat() { return ((m_Flags & SETTING_BY_FORMAT) == SETTING_BY_FORMAT);};
+    BOOL IsSetByInput() { return ((m_Flags & SETTING_BY_INPUT) == SETTING_BY_INPUT);};
+    BOOL IsSetByAudioInput() { return ((m_Flags & SETTING_BY_AUDIOINPUT) == SETTING_BY_AUDIOINPUT);};
+
+    BOOL IsGroupActive() {return m_IsActive;};
 
     void AddSetting(ISetting *pSetting);
-    
-    CSettingGroup *GetGroup(LPCSTR szGroupName, LPCSTR szLongName = NULL, LPCSTR szInfoText = NULL);        
+
 protected:
-    /// Pointer to the list the group is in. NULL for no list.
-    CSettingGroupList *m_pGroupList;
-    /// Object the current group belongs too. Can be NULL
-    CSettingObject* m_pObject;
     /// Name of the group
-    std::string m_sGroupName;
-    /// Display name of the group
-    std::string m_sDisplayName;
-    /// Info
-    std::string m_sInfoText;      
+    std::string m_Name;
+    DWORD m_Flags;
+    BOOL m_IsActive;
 };
-
-/** 
-    Setting group list
-    Tree like structure with subgroups
-*/
-class CSettingGroupList
-{
-protected:
-    struct TSubGroupInfo
-    {
-        CSettingGroup* pGroup;
-        vector<struct TSubGroupInfo> vSubGroups;
-    };
-    /// Internal group list. Start of tree.
-    TSubGroupInfo m_GroupList;
-
-    TSubGroupInfo* FindGroupRecursive(TSubGroupInfo* GroupList, CSettingGroup* pGroup);
-    TSubGroupInfo* FindGroupRecursive(TSubGroupInfo* pGroupList, CSettingObject* pObject, char** pszGroupNames);
-    
-    TSubGroupInfo* FindAndCreateRecursive(TSubGroupInfo *pGroupList, CSettingObject* pObject, char** pszGroupList, char** pszDisplayNameList, char** pszTooltip);
-    void DeleteGroupsRecursive(TSubGroupInfo* pGroupList);
-public:    
-    CSettingGroupList();
-    ~CSettingGroupList();
-
-    CSettingGroup* GetGroup(CSettingObject* pObject, char** pszGroupList, char** pszDisplayNameList = NULL, char** pszTooltip = NULL);         
-    CSettingGroup* GetRootGroup(CSettingObject* pObject, LPCSTR szGroupName, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
-    CSettingGroup* GetSubGroup(CSettingGroup* pGroup, LPCSTR szSubGroup, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
-
-    CSettingGroup* FindGroup(CSettingObject* pObject, char** pszGroupList);    
-    CSettingGroup* Find(int* Index);
-    int NumGroups(int* Index);  
-    
-    void Clear();
-};
-
-
 
 #endif

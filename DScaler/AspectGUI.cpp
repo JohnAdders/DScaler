@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.53 2003-01-10 17:37:41 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.54 2003-01-11 15:22:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/01/10 17:37:41  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.52  2003/01/08 19:59:33  laurentg
 // Analogue Blanking setting by source
 //
@@ -1389,17 +1396,16 @@ void Aspect_ReadSettingsFromIni()
 {
     if(AspectSettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pAspectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect", "Aspect", "Aspect Ratio");
-        CSettingGroup *pRatioGroup = pAspectGroup->GetGroup("AspectRatio","View - Aspect Ratio");
-        CSettingGroup *pBounceGroup = pAspectGroup->GetGroup("Bounce","View - Bounce");
-        CSettingGroup *pAutoSizeGroup = pAspectGroup->GetGroup("AutoSize","View - AutoSize");
-        CSettingGroup *pOrbitGroup = pAspectGroup->GetGroup("Orbit","View - Orbit");
-        CSettingGroup *pImagePositionGroup = pAspectGroup->GetGroup("ImagePosition","View - Image position");
-        CSettingGroup *pZoomGroup = pAspectGroup->GetGroup("Zoom","View - Zoom");
-        CSettingGroup *pMiscGroup = pAspectGroup->GetGroup("AspectRatio","View - Misc");
+        CSettingGroup *pRatioGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Aspect Ratio");
+        CSettingGroup *pBounceGroup = AspectSettingsHolder.GetSettingsGroup("View - Bounce");
+        CSettingGroup *pAutoSizeGroup = AspectSettingsHolder.GetSettingsGroup("View - AutoSize");
+        CSettingGroup *pOrbitGroup = AspectSettingsHolder.GetSettingsGroup("View - Orbit");
+        CSettingGroup *pImagePositionGroup = AspectSettingsHolder.GetSettingsGroup("View - Image position");
+        CSettingGroup *pZoomGroup = AspectSettingsHolder.GetSettingsGroup("View - Zoom");
+        CSettingGroup *pMiscGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Misc");
 
-        CSettingGroup *pAspectDetectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect", "Aspect", "Aspect Ratio");
-        CSettingGroup *pAspectDetectSettingsGroup = pAspectDetectGroup->GetGroup("ARDetectSettings","View - AR Detect Settings");
+        CSettingGroup *pAspectDetectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect On Off");
+        CSettingGroup *pAspectDetectSettingsGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect Settings");
 
         AspectSettingsHolder.AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_SOURCE_ASPECT], pRatioGroup);

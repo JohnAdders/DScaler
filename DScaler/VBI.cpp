@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.24 2003-01-10 17:38:40 adcockj Exp $
+// $Id: VBI.cpp,v 1.25 2003-01-11 15:22:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/01/10 17:38:40  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.23  2003/01/07 16:49:09  adcockj
 // Changes to allow variable sampling rates for VBI
 //
@@ -293,17 +300,16 @@ void VBI_ReadSettingsFromIni()
 {
     if(VBISettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pVBIGroup = VBISettingsHolder.GetSettingsGroup("VBI", "VBI", "VBI Decoder");
-        CSettingGroup *pCaptureGroup = pVBIGroup->GetGroup("VBICapture","VBI - Capture");
-        CSettingGroup *pVBISettingsGroup = pVBIGroup->GetGroup("VBISettings","VBI - Settings");
+        CSettingGroup *pCaptureGroup = VBISettingsHolder.GetSettingsGroup("VBI - Capture");
+        CSettingGroup *pVBISettingsGroup = VBISettingsHolder.GetSettingsGroup("VBI - Settings");
 
         VBISettingsHolder.AddSetting(&VBISettings[CAPTURE_VBI], pCaptureGroup);
 
-        VBISettingsHolder.AddSetting(&VBISettings[CLOSEDCAPTIONMODE], pCaptureGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[DOTELETEXT], pCaptureGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[DOVPS], pCaptureGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[DOWSS], pCaptureGroup);
-        VBISettingsHolder.AddSetting(&VBISettings[SEARCHHIGHLIGHT], pCaptureGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[CLOSEDCAPTIONMODE], pVBISettingsGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[DOTELETEXT], pVBISettingsGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[DOVPS], pVBISettingsGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[DOWSS], pVBISettingsGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[SEARCHHIGHLIGHT], pVBISettingsGroup);
 
 #ifdef _DEBUG
         if (VBI_SETTING_LASTONE != VBISettingsHolder.GetNumSettings())

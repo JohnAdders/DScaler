@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.59 2003-01-11 12:53:58 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.60 2003-01-11 15:22:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2003/01/11 12:53:58  adcockj
+// Interim Check in of settings changes
+//  - bug fixes for overlay settings changes
+//  - Bug fixes for new settings changes
+//  - disables settings per channel completely
+//
 // Revision 1.58  2003/01/10 17:38:15  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -1391,6 +1397,8 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
+    int OldFormat = m_VideoFormat->GetValue();
+
     Reset();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
@@ -1403,6 +1411,11 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
+
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        VideoFormatOnChange(m_VideoFormat->GetValue(), OldValue);
+    }
 }
 
 

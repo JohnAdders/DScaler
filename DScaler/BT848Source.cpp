@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.105 2003-01-11 12:53:57 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.106 2003-01-11 15:22:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.105  2003/01/11 12:53:57  adcockj
+// Interim Check in of settings changes
+//  - bug fixes for overlay settings changes
+//  - Bug fixes for new settings changes
+//  - disables settings per channel completely
+//
 // Revision 1.104  2003/01/10 17:51:45  adcockj
 // Removed SettingFlags
 //
@@ -514,18 +520,17 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pBT8x8Group = GetSettingsGroup("BT8x8","BT8x8","BT8x8 Card");
-    CSettingGroup *pVideoGroup = pBT8x8Group->GetGroup("Video","Video");
-    CSettingGroup *pAudioGroup = pBT8x8Group->GetGroup("Audio","Audio");
-    CSettingGroup *pAudioStandard = pAudioGroup->GetGroup("Standard","Standard");
-    CSettingGroup *pAudioSource = pAudioGroup->GetGroup("Source","Source");
-    CSettingGroup *pAudioChannel = pAudioGroup->GetGroup("Channel","Channel");
-    CSettingGroup *pAudioControl = pAudioGroup->GetGroup("Control","Control");
-    CSettingGroup *pAudioOther  = pAudioGroup->GetGroup("Other","Other");
-    CSettingGroup *pAudioEqualizerGroup = pAudioControl->GetGroup("Equalizer","Equalizer");
+    CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video");
+    CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio");
+    CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard");
+    CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source");
+    CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel");
+    CSettingGroup *pAudioControl = GetSettingsGroup("BT848 - Audio Control");
+    CSettingGroup *pAudioOther  = GetSettingsGroup("BT848 - Audio Other");
+    CSettingGroup *pAudioEqualizerGroup = GetSettingsGroup("BT848 - Audio Equalizer");
     
-    CSettingGroup *pAdvancedGroup = pBT8x8Group->GetGroup("AdvFlags","Advanced Flags");
-    CSettingGroup *pAdvancedTimingGroup = pBT8x8Group->GetGroup("AdvTiming","Advanced Timing");
+    CSettingGroup *pAdvancedGroup = GetSettingsGroup("BT848 - Advanced Flags");
+    CSettingGroup *pAdvancedTimingGroup = GetSettingsGroup("BT848 - Advanced Timing");
     
 
     //eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
@@ -1331,6 +1336,8 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     Stop_Capture();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
+
+    int OldFormat = m_VideoFormat->GetValue();
     
     Reset();
 
@@ -1341,9 +1348,14 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     {
         Channel_SetCurrent();
     }
-
+    
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
+
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        VideoFormatOnChange(m_VideoFormat->GetValue(), OldValue);
+    }
 }
 
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)

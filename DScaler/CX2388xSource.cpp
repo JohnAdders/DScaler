@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.30 2003-01-11 12:53:57 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.31 2003-01-11 15:22:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/01/11 12:53:57  adcockj
+// Interim Check in of settings changes
+//  - bug fixes for overlay settings changes
+//  - Bug fixes for new settings changes
+//  - disables settings per channel completely
+//
 // Revision 1.29  2003/01/10 17:51:59  adcockj
 // Removed SettingFlags
 //
@@ -353,10 +359,9 @@ void CCX2388xSource::SetupPictureStructures()
 
 void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pCX2388xGroup = GetSettingsGroup("CX2388x","CX2388x","CX Card");
-    CSettingGroup *pVideoGroup = pCX2388xGroup->GetGroup("Video","Video");
-    CSettingGroup *pH3DGroup = pCX2388xGroup->GetGroup("H3D","H3D");
-    CSettingGroup *pAudioGroup = pCX2388xGroup->GetGroup("Audio","Audio");
+    CSettingGroup *pVideoGroup = GetSettingsGroup("CX2388x - Video");
+    CSettingGroup *pH3DGroup = GetSettingsGroup("CX2388x - H3D");
+    CSettingGroup *pAudioGroup = GetSettingsGroup("CX2388x - Audio");
 
     //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
 
@@ -424,66 +429,66 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup);
     m_Settings.push_back(m_Sharpness);
 
-    m_LumaAGC = new CLumaAGCSetting(this, "Luma AGC", FALSE, IniSection, pCX2388xGroup);
+    m_LumaAGC = new CLumaAGCSetting(this, "Luma AGC", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_LumaAGC);
 
-    m_ChromaAGC = new CChromaAGCSetting(this, "Chroma AGC", FALSE, IniSection, pCX2388xGroup);
+    m_ChromaAGC = new CChromaAGCSetting(this, "Chroma AGC", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_ChromaAGC);
 
-    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pCX2388xGroup);
+    m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_FastSubcarrierLock);
 
-    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", FALSE, IniSection, pCX2388xGroup);
+    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrush);
 
-    m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pCX2388xGroup);
+    m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_LowColorRemoval);
 
-    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pCX2388xGroup);
+    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pVideoGroup);
     m_Settings.push_back(m_CombFilter);
 
-    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pCX2388xGroup);
+    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_FullLumaRange);
 
-    m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
+    m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_Remodulation);
 
-    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
+    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_Chroma2HComb);
 
-    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
+    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_ForceRemodExcessChroma);
 
-    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
+    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_IFXInterpolation);
 
     m_CombRange = new CCombRangeSetting(this, "Adaptative Comb Filter Threshold", 0x01f, 0, 0x3ff, IniSection, pVideoGroup);
     m_Settings.push_back(m_CombRange);
 
-    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
+    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_SecondChromaDemod);
 
-    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup);
+    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);
     m_Settings.push_back(m_ThirdChromaDemod);
 
-    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pCX2388xGroup);
+    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
     m_Settings.push_back(m_PixelWidth);
 
-    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pCX2388xGroup);
+    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pVideoGroup);
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
-    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, "White Crush Up", 15, 0, 63, IniSection, pCX2388xGroup);
+    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, "White Crush Up", 15, 0, 63, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushUp);
 
-    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, "White Crush Down", 63, 0, 63, IniSection, pCX2388xGroup);
+    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, "White Crush Down", 63, 0, 63, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushDown);
 
-    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, "White Crush Majority Point", CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pCX2388xGroup);
+    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, "White Crush Majority Point", CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushMajorityPoint);
 
-    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pCX2388xGroup);
+    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrushPerFrame);
 
     m_Volume = new CVolumeSetting(this, "Volume", 900, 0, 1000, IniSection, pAudioGroup);
@@ -1240,6 +1245,8 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
+    int OldFormat = m_VideoFormat->GetValue();
+
     Reset();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
@@ -1252,6 +1259,12 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
+
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        VideoFormatOnChange(m_VideoFormat->GetValue(), OldValue);
+    }
+
 }
 
 void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)

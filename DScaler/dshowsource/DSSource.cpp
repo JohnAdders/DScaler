@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.62 2003-01-10 17:52:19 adcockj Exp $
+// $Id: DSSource.cpp,v 1.63 2003-01-11 15:22:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/01/10 17:52:19  adcockj
+// Removed SettingFlags
+//
 // Revision 1.61  2003/01/10 17:38:44  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -602,9 +605,8 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 {
 	CDSSourceBase::CreateSettings(IniSection);
 
-    CSettingGroup *pDSGroup = GetSettingsGroup("DS Capture","DS Capture","DS Capture");
-    CSettingGroup *pVideoGroup = pDSGroup->GetGroup("Video","Video");
-    CSettingGroup *pOverscanGroup = pDSGroup->GetGroup("Overscan","Overscan");
+    CSettingGroup *pVideoGroup = GetSettingsGroup("DS - Video");
+    CSettingGroup *pOverscanGroup = GetSettingsGroup("DS - Overscan");
 
     //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.53 2003-01-10 17:38:10 adcockj Exp $
+// $Id: Other.cpp,v 1.54 2003-01-11 15:22:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/01/10 17:38:10  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.52  2003/01/02 20:41:46  adcockj
 // Fixed very silly problem with new code
 //
@@ -1485,8 +1492,7 @@ void Other_ReadSettingsFromIni()
 {
     if(OverlaySettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay", "Overlay", "Overlay Controls");
-        CSettingGroup *pOtherGroup = OverlaySettingsHolder.GetSettingsGroup("Other", "Other", "Other Overlay Settings");
+        CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay");
 
         OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYBRIGHTNESS], pOverlayGroup);
         OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYCONTRAST], pOverlayGroup);
@@ -1495,9 +1501,9 @@ void Other_ReadSettingsFromIni()
         OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYGAMMA], pOverlayGroup);
         OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYSHARPNESS], pOverlayGroup);
 
-        OverlaySettingsHolder.AddSetting(&OtherSettings[BACKBUFFERS], pOtherGroup);
-        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYCOLOR], pOtherGroup);
-        OverlaySettingsHolder.AddSetting(&OtherSettings[USEOVERLAYCONTROLS], pOtherGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[BACKBUFFERS]);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYCOLOR]);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[USEOVERLAYCONTROLS]);
 #ifdef _DEBUG
         if (OTHER_SETTING_LASTONE != OverlaySettingsHolder.GetNumSettings())
         {

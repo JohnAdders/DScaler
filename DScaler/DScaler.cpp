@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.281 2003-01-10 17:37:56 adcockj Exp $
+// $Id: DScaler.cpp,v 1.282 2003-01-11 15:22:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.281  2003/01/10 17:37:56  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.280  2003/01/09 21:43:14  laurentg
 // Menu AspectRatio restored
 //
@@ -3514,11 +3521,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_SETTINGS_DEINTERLACESETTINGS:
             CTreeSettingsDlg::ShowTreeSettingsDlg(DEINTERLACE_SETTINGS_MASK);
             break;
-
-		/*case IDM_SETTINGS_CHANGEALLSETTINGS:
-            CTreeSettingsDlg::ShowTreeSettingsDlg(ALL_SETTINGS_MASK);
-            break;*/
-
 
         case ID_SETTINGS_SAVESETTINGSPERCHANNEL:
             Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYCHANNEL), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYCHANNEL)));

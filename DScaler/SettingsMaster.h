@@ -33,8 +33,6 @@ protected:
     /// List of setting holders
     vector<TSettingsHolderInfo> m_Holders;
 
-    /// The global group list
-    CSettingGroupList* m_SettingGroupList;
     /// Name of the ini file
     string m_sIniFile;
     
@@ -57,10 +55,6 @@ public:
 
     void GetSubLocations(CSource *Source, int VideoInput, int AudioInput, eVideoFormat VideoFormat, int Channel, vector<string> *vSubLocations);
 
-    CSettingGroupList* Groups();
-
-    CTreeSettingsGeneric* GroupTreeSettings(CSettingGroup* pGroup);
-    
     void SetSource(CSource* pSource);
     void SetChannelName(long NewValue);
     void SetVideoInput(long NewValue);
@@ -70,8 +64,9 @@ public:
     void SaveSettings();
     void LoadSettings();
 
-    
-public:    
+    CSettingGroup* GetGroup(CSettingObject *pObject, LPCSTR szDisplayName, DWORD Flags, BOOL IsActiveByDefault);
+private:    
+    vector<CSettingGroup*> m_SettingsGroups;
 };
 
 extern CSettingsMaster* SettingsMaster;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.29 2003-01-10 17:38:37 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.30 2003-01-11 15:22:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/01/10 17:38:37  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.28  2003/01/02 14:48:50  atnak
 // Added Teletext Settings page
 //
@@ -482,82 +489,13 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 
 }
 
-
-void CTreeSettingsDlg::AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsPage*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList)
-{
-	CTreeSettingsPage *pRootPage;
-	CTreeSettingsGeneric *pPage;
-
-	if (pGroupList != NULL)
-	{
-		IndexList[Depth] = -1;
-		SubIndexList[Depth] = -1;
-		SubIndexList[Depth+1] = -1;
-		for (int i = 0; i < pGroupList->NumGroups(IndexList); i++)
-		{
-			SubIndexList[Depth] = i;
-			CSettingGroup *pGroup = pGroupList->Find(SubIndexList);
-
-            if((pGroup != NULL) && (pGroup->GetObject()!=NULL))
-            {
-                try
-                {
-                    CSource *pSource = dynamic_cast<CSource*>(pGroup->GetObject());
-                    if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
-                    {
-                        //Don't show settings from other sources then the current
-                        pGroup = NULL;
-                    }
-                }
-                catch (...)
-                {
-                    //No source
-                }
-            }
-
-			if (pGroup != NULL)
-			{
-				char *szName = (char*)pGroup->GetLongName();
-				if ((szName == NULL) || (szName[0]==0))
-				{
-					szName = (char*)pGroup->GetName();
-				}
-                int ImageIndex = 0;
-                int ImageIndexSelected = 0;
-                int SubNr;
-
-				pPage = SettingsMaster->GroupTreeSettings(pGroup);
-				if (pPage != NULL)
-				{
-					pages->push_back(pPage);
-                    SubNr = dlg->AddPage(pPage, Nr, ImageIndex, ImageIndexSelected);
-				}
-				else
-				{
-					pRootPage = new CTreeSettingsPage(CString(szName), IDD_TREESETTINGS_EMPTY);
-					//pPage->SetHelpID();
-					pages->push_back(pRootPage);
-					SubNr = dlg->AddPage(pRootPage, Nr, ImageIndex, ImageIndexSelected);
-				}
-				if (Depth<10)
-				{
-					IndexList[Depth] = i;
-					AddMasterSettingSubTree(dlg,pages,Depth+1,IndexList,SubIndexList,SubNr,pGroupList);
-					IndexList[Depth] = -1;
-					SubIndexList[Depth] = -1;
-				}
-			}
-		}
-	}
-}
-
 void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 {
     int mask = iSettingsMask;
 
-    if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK)) )
+    if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK)) )
     {
-        mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK | ALL_SETTINGS_MASK;
+        mask = FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK;
     }
 
 	vector<CTreeSettingsPage*> pages;
@@ -714,22 +652,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
     }
-	//Add SettingMaster tree:
-
-
-	CSettingGroupList *pGroupList = SettingsMaster->Groups();
-
-	if ((mask & ALL_SETTINGS_MASK) && (pGroupList != NULL))
-	{
-		int IndexList[12];
-		int SubIndexList[12];
-		int Depth = 0;
-		IndexList[Depth] = -1;
-		SubIndexList[Depth] = -1;
-		SubIndexList[Depth+1] = -1;
-		AddMasterSettingSubTree(&dlg, &pages, Depth,IndexList,SubIndexList,-1,pGroupList);
-	}
-
 
     dlg.DoModal();
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.8 2002-10-19 15:15:42 tobbej Exp $
+// $Id: TreeSettingsDlg.h,v 1.9 2003-01-11 15:22:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/19 15:15:42  tobbej
+// Implemented new gradient header above active page.
+// Changed resizing a bit to minimize flashing when repainting window
+//
 // Revision 1.7  2002/10/15 15:03:24  kooiman
 // Resizable tree setting dialog
 //
@@ -93,8 +97,6 @@ public:
 	 */
 	void SetStartPage(int iStartPage) {m_iStartPage=iStartPage;};
     static void ShowTreeSettingsDlg(int iSettingsMask);
-
-	static void AddMasterSettingSubTree(CTreeSettingsDlg *dlg, vector<CTreeSettingsPage*> *pages, int Depth, int *IndexList, int *SubIndexList, int Nr, CSettingGroupList *pGroupList);
 
 // Dialog Data
 	//{{AFX_DATA(CTreeSettingsDlg)

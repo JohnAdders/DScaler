@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.8 2002-08-27 22:02:32 kooiman Exp $
+// $Id: Source.cpp,v 1.9 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/08/27 22:02:32  kooiman
+// Added Get/Set input for video and audio for all sources. Added source input change notification.
+//
 // Revision 1.7  2002/05/06 15:38:50  laurentg
 // Comments for a source
 //
@@ -61,10 +64,10 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
+#include "Events.h"
 #include "Source.h"
 #include "DScaler.h"
 #include "Providers.h"
-
 
 CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
@@ -115,54 +118,28 @@ void CSource::NotifySquarePixelsCheck()
 }
 
 
-void CSource::NotifyInputChange(int Prechange, eSourceInputType InputType, int OldValue, int NewValue)
+void CSource::NotifyInputChange(int PreChange, eSourceInputType InputType, int OldInput, int NewInput)
 {
-    for(vector<TInputChangeNotification>::iterator it = m_InputChangeNotificationList.begin();
-                it != m_InputChangeNotificationList.end(); ++it)
-     {
-        if ( (*it).pfnNotify != NULL )
-        {
-            (*it).pfnNotify((*it).pThis, Prechange, InputType, OldValue, NewValue);
-        }     
-    }    
-}
-
-void CSource::Register_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange)
-{
-    for(vector<TInputChangeNotification>::iterator it = m_InputChangeNotificationList.begin();
-                it != m_InputChangeNotificationList.end(); ++it)
+    if (EventCollector != NULL)
     {
-        if ( ((*it).pThis == pThis) && ((*it).pfnNotify == pfnChange) )
+        eEventType Event;
+        if (InputType==AUDIOINPUT)
         {
-            return;
-        }
-    }
-    // add new
-    TInputChangeNotification ccn;
-    ccn.pThis = pThis;
-    ccn.pfnNotify = pfnChange;
-    m_InputChangeNotificationList.push_back(ccn);
-}
-
-
-
-
-
-void CSource::Unregister_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange)
-{
-    std::vector<TInputChangeNotification> NewList;
-    for(vector<TInputChangeNotification>::iterator it = m_InputChangeNotificationList.begin();
-                it != m_InputChangeNotificationList.end(); ++it)
-    {
-        if ( ((*it).pThis == pThis) && ((*it).pfnNotify == pfnChange) )
-        {
-            // don't copy
+            Event = (PreChange?EVENT_AUDIOINPUT_PRECHANGE:EVENT_AUDIOINPUT_CHANGE);
         }
         else
         {
-            NewList.push_back((*it));
+            Event = (PreChange?EVENT_VIDEOINPUT_PRECHANGE:EVENT_VIDEOINPUT_CHANGE);
         }
+        EventCollector->RaiseEvent(Event, (long)OldInput, (long)NewInput, NULL);        
     }
-    m_InputChangeNotificationList = NewList;
 }
 
+
+void CSource::NotifyVideoFormatChange(int PreChange, eVideoFormat OldFormat, eVideoFormat NewFormat)
+{
+    if (EventCollector != NULL)
+    {
+        EventCollector->RaiseEvent((PreChange?EVENT_VIDEOFORMAT_PRECHANGE:EVENT_VIDEOFORMAT_CHANGE), (long)OldFormat, (long)NewFormat, NULL);
+    }
+}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.72 2002-09-25 15:11:12 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.73 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.71  2002/09/22 17:47:04  adcockj
 // Fixes for holo3d
 //
@@ -324,9 +327,12 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     {
         m_pBT848Card->SetACPIStatus(0);
     }
-
+    
     SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
-    Channel_Register_Change_Notification(this, CBT848Source::StaticChannelChange);
+    
+    eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
+    EventCollector->Register(this, EventList);
+
 
     ReadFromIni();
     ChangeSectionNamesForInput();
@@ -354,7 +360,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
         m_EvenFields[j].IsFirstInSeries = FALSE;
     }
     SetupCard();
-    Reset();
+    Reset();    
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
     NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
@@ -362,7 +368,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
 CBT848Source::~CBT848Source()
 {
-    Channel_UnRegister_Change_Notification(this, CBT848Source::StaticChannelChange);
+    
+    EventCollector->Unregister(this);
     BT848_OnSetup(this, 0);
     // if the BT878 was not in D0 state we restore the original ACPI power state
     if(m_InitialACPIStatus != 0)
@@ -374,6 +381,17 @@ CBT848Source::~CBT848Source()
     delete m_pBT848Card;
 }
 
+void CBT848Source::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+    if (Event == EVENT_CHANNEL_PRECHANGE)
+    {
+        ChannelChange(1, OldValue, NewValue);
+    }
+    else if (Event == EVENT_CHANNEL_CHANGE)
+    {
+        ChannelChange(0, OldValue, NewValue);
+    }
+}
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
@@ -579,6 +597,8 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 	m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection);
     m_Settings.push_back(m_AudioStandardMinorCarrier);
 
+    //SettingsMaster->Register(BT848_SETTINGID, this);
+
     ReadFromIni();
 }
 
@@ -597,6 +617,10 @@ void CBT848Source::Start()
         SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
     }
     NotifySquarePixelsCheck();
+    NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
+    //NotifyInputChange(0, AUDIOINPUT, -1, m_VideoSource->GetValue());
+    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());    
+    Channel_Reset();
 }
 
 void CBT848Source::Reset()
@@ -1439,14 +1463,6 @@ void CBT848Source::SetOverscan()
     AspectSettings.InitialOverscan = m_Overscan->GetValue();
 }
 
-
-void CBT848Source::StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel)
-{
-    if (pThis != NULL)
-    {
-        ((CBT848Source*)pThis)->ChannelChange(PreChange, OldChannel, NewChannel);
-    }
-}
 
 void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.22 2002-09-25 15:11:12 adcockj Exp $
+// $Id: Source.h,v 1.23 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,19 +20,21 @@
 #define __SOURCE_H___
 
 #include "DS_ApiCommon.h"
+#include "Events.h"
 #include "Setting.h"
 #include "TVFormats.h"
 #include "Bt848_Defines.h"
 
 
 enum eSourceInputType
-    {
-        VIDEOINPUT = 0,
-        AUDIOINPUT,
-        VIDEOFORMAT
-    };
+{
+    VIDEOINPUT = 0,
+    AUDIOINPUT,
+    VIDEOFORMAT
+};
 
-typedef void (__cdecl INPUTCHANGE_NOTIFICATION)(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput);
+
+class ISetting;
 
 /** Abstract interface for Source.
     This class abstracts a thing that produces images.
@@ -41,7 +43,7 @@ typedef void (__cdecl INPUTCHANGE_NOTIFICATION)(void *pThis, int PreChange, eSou
     The key function is GetNextField which fills the info structure with
     the most recent data
 */
-class CSource : public CSettingsHolder
+class CSource : public CSettingsHolder, public CEventObject
 {
 public:
     /// start capturing.  Perform any initilization here
@@ -135,9 +137,6 @@ public:
     virtual const char* GetInputName(eSourceInputType InputType, int Nr) = 0;
     virtual BOOL InputHasTuner(eSourceInputType InputType, int Nr) = 0;
 
-    
-    void Register_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange);
-    void Unregister_InputChangeNotification(void *pThis, INPUTCHANGE_NOTIFICATION *pfnChange);
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
@@ -151,18 +150,11 @@ protected:
     void NotifySquarePixelsCheck();
 
     void NotifyInputChange(int Prechange, eSourceInputType InputType, int OldValue, int NewValue);
+    void NotifyVideoFormatChange(int Prechange, eVideoFormat OldValue, eVideoFormat NewValue);
 
     double m_FieldFrequency;
     HMENU m_hMenu;
     std::string m_Comments;
-
-    typedef struct 
-    {
-      void *pThis;
-      INPUTCHANGE_NOTIFICATION *pfnNotify;
-    } TInputChangeNotification;
-    
-    std::vector<TInputChangeNotification> m_InputChangeNotificationList;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.3 2002-09-25 15:11:12 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.4 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,6 @@ public:
     void SetOverscan();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
-    void ChannelChange(int PreChange,int OldChannel,int NewChannel);
     void SavePerChannelSetup(int Start);
     LPCSTR IDString() { return m_IDString.c_str(); }
 
@@ -82,7 +81,7 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
-    static void StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel);
+    virtual void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

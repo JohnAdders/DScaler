@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.17 2002-09-26 06:10:48 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.18 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -379,7 +379,7 @@ void TChannelSetting::SetValue(long NewValue, BOOL bNoOnChange)
     {
         try 
         {
-            CSSetting->SetValue(NewValue, bNoOnChange?ONCHANGE_SET_FORCE:ONCHANGE_NONE);
+            CSSetting->SetValue(NewValue, bNoOnChange?ONCHANGE_NONE:ONCHANGE_SET_FORCE);
         } 
         catch (...)
         {
@@ -747,12 +747,12 @@ BOOL SettingsPerChannel_SourceSpecific_Change(long NewValue)
     }
 
     // Save settings    
-    SettingsPerChannel_SourceChange(NULL, SOURCECHANGE_PROVIDER | SOURCECHANGE_PRECHANGE, Providers_GetCurrentSource());
+    SettingsPerChannel_SourceChange(NULL, 1, Providers_GetCurrentSource());
 
     bSpcSourceSpecific = NewValue;
 
     // Load settings
-    SettingsPerChannel_SourceChange(NULL, SOURCECHANGE_PROVIDER, Providers_GetCurrentSource());
+    SettingsPerChannel_SourceChange(NULL, 0, Providers_GetCurrentSource());
     return FALSE;
 }
 
@@ -1556,8 +1556,8 @@ void SettingsPerChannel_InputAndChannelChange(int PreChange, CSource* pSource, i
 
 void SettingsPerChannel_SourceChange(void* pThis, int Flags, CSource* pSource)
 {    
-    LOG(2,"SPC: Source (%s)change (%i): %s",(Flags&SOURCECHANGE_PRECHANGE)?"pre":"",Flags,(pSource==NULL)?"NULL":pSource->IDString());
-    if (Flags&SOURCECHANGE_PRECHANGE)
+    LOG(2,"SPC: Source (%s)change (%i): %s",(Flags&1)?"pre":"",Flags,(pSource==NULL)?"NULL":pSource->IDString());
+    if (Flags&1)
     {
          SettingsPerChannel_Setup(2);
 
@@ -1575,7 +1575,7 @@ void SettingsPerChannel_SourceChange(void* pThis, int Flags, CSource* pSource)
         // after change
         std::string sLastSource = sSpcCurrentSource;
         BOOL bChanged = FALSE;
-        if (Flags & SOURCECHANGE_PROVIDER)
+        if (1)
         {            
             if (pSource == NULL)
             {
@@ -1641,42 +1641,34 @@ void SettingsPerChannel_SourceChange(void* pThis, int Flags, CSource* pSource)
 }
 
 
-void SettingsPerChannel_ChannelChange(void* pThis, int PreChange, int OldChannel, int NewChannel)
+void SettingsPerChannel_EventHandler(void *pThis, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
    try 
    {
-      SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, NewChannel, iSpcCurrentVideoFormat);
+       if (Event == EVENT_SOURCE_PRECHANGE) 
+       {
+            SettingsPerChannel_SourceChange(pThis, 1, (CSource*)OldValue);
+       } 
+       else if (Event == EVENT_SOURCE_CHANGE) 
+       {
+            SettingsPerChannel_SourceChange(pThis, 0, (CSource*)NewValue);
+       } 
+       else if ((Event == EVENT_VIDEOINPUT_PRECHANGE) || (Event == EVENT_VIDEOINPUT_CHANGE))
+       {
+           SettingsPerChannel_InputAndChannelChange((Event == EVENT_VIDEOINPUT_PRECHANGE), Providers_GetCurrentSource(), ((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue), 
+                Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,((Event == EVENT_VIDEOINPUT_PRECHANGE)?OldValue:NewValue)), NO_CHANNEL, iSpcCurrentVideoFormat);
+       } 
+       else if ((Event == EVENT_CHANNEL_PRECHANGE) || (Event == EVENT_CHANNEL_CHANGE))
+       {
+           SettingsPerChannel_InputAndChannelChange((Event == EVENT_CHANNEL_PRECHANGE), Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, NewValue, iSpcCurrentVideoFormat);
+       } 
    } 
    catch (...)
    {
-      LOG(1,"Crash in SettingsPerChannel_ChannelChange");
+      LOG(1,"Crash in SettingsPerChannel Event handler (Event id = %d)",Event);
    }
 }
 
-void SettingsPerChannel_VideoInputChange(void* pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput)
-{  
-   if(NewInput < -1)
-   {
-       return;
-   }
-   try 
-   {
-       if (InputType == VIDEOINPUT)
-       {
-          SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), (PreChange?OldInput:NewInput), 
-              Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,(PreChange?OldInput:NewInput)), NO_CHANNEL, iSpcCurrentVideoFormat);
-       }
-       else if (InputType == VIDEOFORMAT)
-       {
-          SettingsPerChannel_InputAndChannelChange(PreChange, Providers_GetCurrentSource(), iSpcCurrentVideoInput, 
-              Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,iSpcCurrentVideoInput), NO_CHANNEL, (eVideoFormat)(PreChange?OldInput:NewInput));
-       }
-   } 
-   catch (...)
-   {
-      LOG(1,"Crash in SettingsPerChannel_VideoInputChange");
-   }
-}
 
 /////////////////////////////////////////////////////////////////////////////////
 // Setup ////////////////////////////////////////////////////////////////////////
@@ -1723,7 +1715,20 @@ void SettingsPerChannel_Setup(int Start)
             }
             iSpcCurrentVideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
         }
-        Providers_Register_SourceChangeNotification(NULL, SettingsPerChannel_SourceChange);
+        //Providers_Register_SourceChangeNotification(NULL, SettingsPerChannel_SourceChange);
+        eEventType EventList[] = {  EVENT_SOURCE_PRECHANGE,
+                                    EVENT_SOURCE_CHANGE,
+                                    EVENT_VIDEOINPUT_PRECHANGE,
+                                    EVENT_VIDEOINPUT_CHANGE,
+                                    EVENT_AUDIOINPUT_PRECHANGE,
+                                    EVENT_AUDIOINPUT_CHANGE,
+                                    EVENT_VIDEOFORMAT_PRECHANGE,
+                                    EVENT_VIDEOFORMAT_CHANGE,
+                                    EVENT_CHANNEL_PRECHANGE,
+                                    EVENT_CHANNEL_CHANGE,
+                                    EVENT_ENDOFLIST};
+
+        EventCollector->Register(SettingsPerChannel_EventHandler,NULL, EventList);
     }
     
     for (i = 0; i < vSpcOnSetupList.size(); i++)
@@ -1732,31 +1737,14 @@ void SettingsPerChannel_Setup(int Start)
     }
     if (Start==1)
     {
-       Channel_Register_Change_Notification(NULL, SettingsPerChannel_ChannelChange);              
        SettingsPerChannel_InputAndChannelChange(0,Providers_GetCurrentSource(), iSpcCurrentVideoInput, -1, iSpcCurrentChannel, iSpcCurrentVideoFormat);        
     }
-    if (Start&1)
-    {
-        if (Providers_GetCurrentSource() != NULL)
-        {
-            Providers_GetCurrentSource()->Register_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
-        }
-    }
     
-    if ((Start==2) || (Start==0))
-    {
-        if (Providers_GetCurrentSource() != NULL)
-        {
-            Providers_GetCurrentSource()->Unregister_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
-        }
-    }
-
     if (Start==0)
     {
        SettingsPerChannel_WriteSettingsToIni(TRUE);
-       Providers_Unregister_SourceChangeNotification(NULL, SettingsPerChannel_SourceChange);
 
-       Channel_UnRegister_Change_Notification(NULL, SettingsPerChannel_ChannelChange);
+       EventCollector->Unregister(SettingsPerChannel_EventHandler,NULL);
        SettingsPerChannel_ClearAll();
 
        bSetupStarted = FALSE;

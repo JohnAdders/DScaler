@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.37 2002-09-16 14:37:34 kooiman Exp $
+// $Id: BT848Source.h,v 1.38 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,7 @@ class CBT848Source : public CSource
 public:
     CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CBT848Source();
+    virtual void OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
     void Start();
     void Stop();
     void Reset();

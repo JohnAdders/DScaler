@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.73 2002-09-25 15:11:12 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.74 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.72  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
 //
@@ -275,13 +278,6 @@ static int PostSwitchMuteTimer = 0;
 static int TunerSwitchScreenUpdateDelayTimer = 0;
 
 static int InitialNbMenuItems = -1;
-
-typedef struct {
-  void *pThis;
-  CHANNELCHANGE_NOTIFICATION *pfnNotify;
-} TChannelChangeNotification;
-
-std::vector<TChannelChangeNotification*> vccnChannelChangeNotificationList;
 
 
 CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active)
@@ -1014,7 +1010,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDOK:
             Write_Program_List_ASCII();
             Unload_Country_Settings();
-            WriteSettingsToIni(TRUE);
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:
@@ -1294,10 +1290,13 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
         {
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
-                        int OldChannel = CurrentProgram;
+				int OldChannel = CurrentProgram;
                 Audio_Mute();
-                Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.
-                Channel_Change_Notify(1, OldChannel, NewChannel);
+                Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.                
+                if (EventCollector != NULL)
+                {
+                    EventCollector->RaiseEvent(EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
+                }
                 if (!DontStorePrevious)
                 {
                     PreviousProgram = CurrentProgram;
@@ -1347,13 +1346,16 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                     Audio_Unmute(); 
                 }
 
-                Channel_Change_Notify(0, OldChannel, NewChannel);
+                if (EventCollector != NULL)
+                {
+                    EventCollector->RaiseEvent(EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
+                }
                 //Sleep(PostSwitchMuteDelay); //now timer controlled
                 VT_ChannelChange();                                
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
-                
+				
             }
         }
     }
@@ -1866,44 +1868,4 @@ CTreeSettingsGeneric* AntiPlop_GetTreeSettingsPage()
     return new CTreeSettingsGeneric("Anti Plop Settings", AntiPlopSettings, ANTIPLOP_SETTING_LASTONE);
 }
 
-// Add new function to the channel change notification list
-void Channel_Register_Change_Notification(void *pThis,CHANNELCHANGE_NOTIFICATION *pfnChange)
-{
-    TChannelChangeNotification *ccn = new TChannelChangeNotification;
-    ccn->pThis = pThis;
-    ccn->pfnNotify = pfnChange;
-    vccnChannelChangeNotificationList.push_back(ccn);
-}
-
-// Remove function from the channel change notification list
-void Channel_UnRegister_Change_Notification(void *pThis,CHANNELCHANGE_NOTIFICATION *pfnChange)
-{
-    std::vector<TChannelChangeNotification*> NewList;
-    for(vector<TChannelChangeNotification*>::iterator it = vccnChannelChangeNotificationList.begin();
-                it != vccnChannelChangeNotificationList.end(); ++it)
-    {
-        if ( ((*it)->pThis == pThis) && ((*it)->pfnNotify == pfnChange) )
-        {
-            delete (*it);
-        }
-        else
-        {
-            NewList.push_back((*it));
-        }
-    }
-    vccnChannelChangeNotificationList = NewList;
-}
-
-// Call all functions from the channel change notification list
-void Channel_Change_Notify(int PreChange, int OldChannel, int NewChannel)
-{
-   for(vector<TChannelChangeNotification*>::iterator it = vccnChannelChangeNotificationList.begin();
-                it != vccnChannelChangeNotificationList.end(); ++it)
-    {
-        if ( ((*it) != NULL) && ((*it)->pfnNotify!=NULL) )
-        {
-            (*it)->pfnNotify((*it)->pThis,PreChange,OldChannel,NewChannel);
-        }
-    }
-}
 

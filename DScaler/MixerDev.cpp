@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.27 2002-09-06 15:08:10 kooiman Exp $
+// $Id: MixerDev.cpp,v 1.28 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/09/06 15:08:10  kooiman
+// Mixer lines now source dependent.
+//
 // Revision 1.26  2002/08/27 22:05:21  kooiman
 // Fixed wave mute. Finished mixer channel change per video input. Use video input names for mixer lines.
 //
@@ -1000,9 +1003,9 @@ void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
 {
     if (pSource == NULL) return;
 
-    if (Flags&SOURCECHANGE_PRECHANGE)
+    if (Flags&1)
     {
-        pSource->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
+        //pSource->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
         
         // Save settings        
         int Num = pSource->NumInputs(VIDEOINPUT);
@@ -1032,9 +1035,18 @@ void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
         Setting_ReadFromIni(&(MixerDevSettings[INPUT5INDEX]));
         Setting_ReadFromIni(&(MixerDevSettings[INPUT6INDEX]));
         
-        pSource->Register_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
-        Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,pSource->GetInput(VIDEOINPUT));
+        //pSource->Register_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);        
+        //EventCollector->Register(Mixer_EventOnChangeNotification,NULL, (EVENT_SOURCE_PRECHANGE,EVENT_SOURCE_CHANGE,EVENT_VIDEOINPUT_PRECHANGE,EVENT_VIDEOINPUT_CHANGE,0));
+        Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,pSource->GetInput(VIDEOINPUT));        
     }
+}
+
+void Mixer_EventOnChangeNotification(void *pThis, eEventType EventType, long OldValue, long NewValue, eEventType *ComingUp)
+{
+    if (EventType == EVENT_SOURCE_PRECHANGE) { Mixer_OnSourceChange(pThis, 1, (CSource*)OldValue); }
+    else if (EventType == EVENT_SOURCE_CHANGE) { Mixer_OnSourceChange(pThis, 0, (CSource*)NewValue); }
+    else if (EventType == EVENT_VIDEOINPUT_PRECHANGE) { Mixer_OnInputChangeNotification(pThis, 1, VIDEOINPUT, OldValue, NewValue); }
+    else if (EventType == EVENT_VIDEOINPUT_CHANGE) { Mixer_OnInputChangeNotification(pThis, 0, VIDEOINPUT, OldValue, NewValue); }    
 }
 
 
@@ -1046,9 +1058,10 @@ void Mixer_Exit()
         if (Providers_GetCurrentSource() != NULL)
         {
             Providers_GetCurrentSource()->Mute();
-            Mixer_OnSourceChange(NULL,SOURCECHANGE_PROVIDER|SOURCECHANGE_PRECHANGE,Providers_GetCurrentSource());            
+            Mixer_OnSourceChange(NULL,1,Providers_GetCurrentSource());                        
         }        
-        Providers_Unregister_SourceChangeNotification(NULL,Mixer_OnSourceChange);
+        //Providers_Unregister_SourceChangeNotification(NULL,Mixer_OnSourceChange);
+        EventCollector->Unregister(Mixer_EventOnChangeNotification,NULL);
 
 		    if(bUseMixer)
 		    {
@@ -1067,7 +1080,9 @@ void Mixer_Init()
 {
     pSoundSystem = new CSoundSystem();
 
-    Providers_Register_SourceChangeNotification(NULL,Mixer_OnSourceChange);                        
+    //Providers_Register_SourceChangeNotification(NULL,Mixer_OnSourceChange);                        
+    eEventType EventList[] = {EVENT_SOURCE_PRECHANGE,EVENT_SOURCE_CHANGE,EVENT_VIDEOINPUT_PRECHANGE,EVENT_VIDEOINPUT_CHANGE,EVENT_NONE};
+    EventCollector->Register(Mixer_EventOnChangeNotification,NULL, EventList);
     if(bUseMixer)
     {
         pSoundSystem->SetMixer(MixerIndex);
@@ -1087,7 +1102,7 @@ void Mixer_Init()
 
     if (Providers_GetCurrentSource())
     {
-        Mixer_OnSourceChange(NULL,SOURCECHANGE_PROVIDER,Providers_GetCurrentSource());                                
+        Mixer_OnSourceChange(NULL,2,Providers_GetCurrentSource());                                
     }    
 }
 

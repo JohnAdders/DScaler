@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.6 2002-09-25 15:11:12 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.7 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.5  2002/09/22 17:47:04  adcockj
 // Fixes for holo3d
 //
@@ -83,9 +86,11 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     CreateSettings(IniSection);
 
     SettingsPerChannel_RegisterOnSetup(this, CT2388x_OnSetup);
-    Channel_Register_Change_Notification(this, CCT2388xSource::StaticChannelChange);
-
-
+    
+    eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
+    EventCollector->Register(this, EventList);
+    
+    
     ReadFromIni();
     ChangeSectionNamesForInput();
     ChangeDefaultsForInput();
@@ -103,13 +108,20 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
     Reset();
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
-    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
+    NotifyVideoFormatChange(0, VIDEOFORMAT_LASTONE, (eVideoFormat)m_VideoFormat->GetValue());
 }
 
 CCT2388xSource::~CCT2388xSource()
 {
-    Channel_UnRegister_Change_Notification(this, CCT2388xSource::StaticChannelChange);
+    EventCollector->Unregister(this);
     delete m_pCard;
+}
+
+void CCT2388xSource::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+    if (Event == EVENT_CHANNEL_CHANGE)
+    {
+    }
 }
 
 void CCT2388xSource::SetupPictureStructures()
@@ -187,6 +199,8 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_Settings.push_back(m_IsVideoProgressive);
 
     ReadFromIni();
+
+    //MasterSetting.Register(this);
 }
 
 
@@ -1034,18 +1048,5 @@ BOOL CCT2388xSource::InputHasTuner(eSourceInputType InputType, int Nr)
     }
   }
   return FALSE;
-}
-
-void CCT2388xSource::StaticChannelChange(void *pThis, int PreChange,int OldChannel,int NewChannel)
-{
-    if (pThis != NULL)
-    {
-        ((CCT2388xSource*)pThis)->ChannelChange(PreChange, OldChannel, NewChannel);
-    }
-}
-
-void CCT2388xSource::ChannelChange(int PreChange,int OldChannel,int NewChannel)
-{
-    ;
 }
 

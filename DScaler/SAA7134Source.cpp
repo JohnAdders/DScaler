@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.10 2002-09-25 15:11:12 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.11 2002-09-26 11:33:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.9  2002/09/16 20:08:21  adcockj
 // fixed format detect for cx2388x
 //
@@ -105,7 +108,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_LastFieldIndex(0),
     m_hSAA7134ResourceInst(NULL)
 {
-    m_IDString = IniSection;
+    m_IDString = IniSection;    
     CreateSettings(IniSection);
 
     m_InitialACPIStatus = m_pSAA7134Card->GetACPIStatus();
@@ -280,6 +283,10 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     ReadFromIni();
 }
 
+void CSAA7134Source::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+
+}
 
 void CSAA7134Source::Start()
 {

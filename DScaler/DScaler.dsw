@@ -290,6 +290,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name DI_OldGame
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Sharpness
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -319,6 +322,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_LogoKill"=..\Plugins\FLT_LogoKill\FLT_LogoKill.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_Sharpness"=..\Plugins\FLT_Sharpness\FLT_Sharpness.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -415,6 +430,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name DI_OldGame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Sharpness
     End Project Dependency
 }}}
 

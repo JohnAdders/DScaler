@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.30 2001-08-02 16:43:05 adcockj Exp $
+// $Id: DS_Control.h,v 1.31 2001-08-03 12:27:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.29  2001/07/30 12:18:14  adcockj
 // Added new OldGame plug-in
 //
@@ -868,5 +871,19 @@ typedef enum
 #define WM_DI_OLDGAME_GETVALUE     (WM_USER + 33)
 #define WM_DI_OLDGAME_SETVALUE     (WM_USER + 133)
 #define WM_DI_OLDGAME_CHANGEVALUE  (WM_USER + 233)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_Sharpness.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    SHARPNESS = 0,
+    FLT_SHARPNESS_SETTING_LASTONE,
+} FLT_SHARPNESS_SETTING;
+
+#define WM_FLT_SHARPNESS_GETVALUE     (WM_USER + 34)
+#define WM_FLT_SHARPNESS_SETVALUE     (WM_USER + 134)
+#define WM_FLT_SHARPNESS_CHANGEVALUE  (WM_USER + 234)
 
 #endif

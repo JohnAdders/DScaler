@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.4 2002-06-13 08:16:08 adcockj Exp $
+;// $Id: dscaler.iss,v 1.5 2002-06-19 18:51:05 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.4  2002/06/13 08:16:08  adcockj
+;// Added Component groups and removed DSRend.dll temporarily
+;//
 ;// Revision 1.3  2002/06/12 18:01:45  robmuller
 ;// (un)register dsrend.dll when (un)installing.
 ;// New name of debug log file.
@@ -36,8 +39,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler
-AppVerName=DScaler 4.0
+AppName=DScaler Alpha
+AppVerName=DScaler 4.0 Alpha 2
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org

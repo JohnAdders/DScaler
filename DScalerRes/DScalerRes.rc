@@ -201,6 +201,7 @@ BEGIN
     "W",            IDM_PIXELWIDTH_PLUS,    VIRTKEY, SHIFT, NOINVERT
     "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
+    "X",            IDM_CLEAROSD,           VIRTKEY, NOINVERT
     "Z",            IDM_ZOOM_MINUS,         VIRTKEY, NOINVERT
     "Z",            IDM_ZOOM_PLUS,          VIRTKEY, SHIFT, NOINVERT
     "_",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.208 2002-08-07 12:43:40 robmuller Exp $
+// $Id: DScaler.cpp,v 1.209 2002-08-07 13:13:27 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.208  2002/08/07 12:43:40  robmuller
+// Send messages to the OSD with the command line.
+//
 // Revision 1.207  2002/08/05 21:01:56  laurentg
 // Square pixels mode updated
 //
@@ -2679,6 +2682,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
             ShowVideoModeUI();
+            break;
+        
+        case IDM_CLEAROSD:
+            OSD_Clear(hWnd);
             break;
 
         default:

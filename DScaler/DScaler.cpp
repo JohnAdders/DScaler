@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.336 2003-08-09 20:18:37 laurentg Exp $
+// $Id: DScaler.cpp,v 1.337 2003-08-11 23:03:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.336  2003/08/09 20:18:37  laurentg
+// Automatic show/hide the toolbar when in full screen mode
+//
 // Revision 1.335  2003/08/09 15:53:39  laurentg
 // Bad refresh of the toolbar when in full screen mode corrected
 //
@@ -1075,6 +1078,7 @@
 #include "PaintingHDC.h"
 #include "OutReso.h"
 #include "MultiFrames.h"
+#include "dshowsource/DSFileSource.h"
 
 
 #ifdef _DEBUG
@@ -2809,7 +2813,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             break;
-	case IDC_TOOLBAR_VOLUME_SLIDER:
+
+		case IDC_TOOLBAR_VOLUME_SLIDER:
             if (Audio_GetUserMute() == TRUE)
             {
                 Audio_SetUserMute(FALSE);
@@ -4350,6 +4355,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
         //-------------------------------
+		case TIMER_TOOLBAR:
+            if ((Providers_GetCurrentSource() != NULL) && Providers_GetCurrentSource()->HasMediaControl())
+            {
+				EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSFileSource*)Providers_GetCurrentSource())->GetDuration());
+				EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSFileSource*)Providers_GetCurrentSource())->GetCurrentPos());
+			}
+            break;
+        //-------------------------------
         case TIMER_KEYNUMBER:
             KillTimer(hWnd, TIMER_KEYNUMBER);
     		i = atoi(ChannelString);
@@ -4899,6 +4912,9 @@ void MainWndOnInitBT(HWND hWnd)
             SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
         }
 
+		// todo : enable the timer only when the media player toolbar is visible
+        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
+
         // do final setup routines for any files
         // basically where we need the hWnd to be set
         AddSplashTextLine("Setup Aspect Ratio");
@@ -5051,6 +5067,7 @@ void KillTimers()
     KillTimer(hWnd, TIMER_FINDPULL);
     KillTimer(hWnd, TIMER_SLEEPMODE);
     KillTimer(hWnd, TIMER_TAKESTILL);
+    KillTimer(hWnd, TIMER_TOOLBAR);
 }
 
 

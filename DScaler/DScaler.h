@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.51 2003-08-09 15:53:39 laurentg Exp $
+// $Id: DScaler.h,v 1.52 2003-08-11 23:03:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -125,6 +125,9 @@ void SetTrayTip(const char* ChannelName);
 #define TIMER_SLEEPMODE_MS  2000
 
 #define TIMER_TAKESTILL     51
+
+#define TIMER_TOOLBAR       52
+#define TIMER_TOOLBAR_MS    500
 
 enum eSMState
 {

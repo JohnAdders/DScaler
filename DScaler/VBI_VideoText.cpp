@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.51 2002-10-23 16:57:13 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.52 2002-10-30 13:37:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/10/23 16:57:13  atnak
+// Added TOP-Text support
+//
 // Revision 1.50  2002/10/15 11:53:38  atnak
 // Added UI feedback for some videotext stuff
 //
@@ -210,7 +213,9 @@ int VTPageOSD = -1;
 
 int VTSearchPage = -1;
 int VTSearchSubPage = -1;
-char VTSearchString[41] = "\0";
+char VTSearchString[41] = "";
+
+bool VTMixedModeMenuHidden = false;
 
 CRITICAL_SECTION VTUpdateAccess;
 TVTRedrawCache VTRedrawCache;
@@ -1917,8 +1922,70 @@ BOOL VT_SearchAllPages()
     return VT_SearchFrom(100, -1);
 }
 
+void VT_AdjustMixedModeMenu(HMENU hMenu)
+{
+    static char     MixedModeMenu[64] = "";
+    MENUITEMINFO    MenuItem;
+    char            Buffer[64];
+
+    MenuItem.cbSize     = sizeof(MENUITEMINFO);
+    MenuItem.fMask      = MIIM_TYPE;
+    MenuItem.dwTypeData = Buffer;
+    MenuItem.cch        = sizeof(Buffer);
+
+    // Get the Mixed Mode menu item name
+    if (GetMenuItemInfo(hMenu, IDM_VT_MIXEDMODE, FALSE, &MenuItem))
+    {
+        // The menu item exists, delete it if necessary
+        if (bVTSingleKeyToggle)
+        {
+            if (MenuItem.fType == MFT_STRING)
+            {
+                // Save the name so we can be put back
+                strcpy(MixedModeMenu, Buffer);
+            }
+
+            DeleteMenu(hMenu, IDM_VT_MIXEDMODE, MF_BYCOMMAND);
+            VTMixedModeMenuHidden = TRUE;
+        }
+    }
+    else
+    {
+        // The menu does not exists, add it if necessary
+        if (bVTSingleKeyToggle == FALSE)
+        {
+            // To insert after, I insert before and delete the
+            // previous then insert the previous before again
+            GetMenuItemInfo(hMenu, IDM_CALL_VIDEOTEXT, FALSE, &MenuItem);
+
+            MenuItem.fMask      = MIIM_TYPE | MIIM_ID;
+            MenuItem.fType      = MFT_STRING;
+            MenuItem.wID        = IDM_VT_MIXEDMODE;
+            MenuItem.dwTypeData = MixedModeMenu;
+            MenuItem.cch        = strlen(MixedModeMenu);
+
+            // Put the mixed mode menu item back
+            InsertMenuItem(hMenu, IDM_CALL_VIDEOTEXT, FALSE, &MenuItem);
+
+            DeleteMenu(hMenu, IDM_CALL_VIDEOTEXT, MF_BYCOMMAND);
+
+            MenuItem.wID        = IDM_CALL_VIDEOTEXT;
+            MenuItem.dwTypeData = Buffer;
+            MenuItem.cch        = strlen(Buffer);
+
+            InsertMenuItem(hMenu, IDM_VT_MIXEDMODE, FALSE, &MenuItem);
+            VTMixedModeMenuHidden = FALSE;
+        }
+    }
+}
+
 void VT_SetMenu(HMENU hMenu)
 {
+    if (((BOOL)bVTSingleKeyToggle) != ((BOOL)VTMixedModeMenuHidden))
+    {
+        VT_AdjustMixedModeMenu(hMenu);
+    }
+
     for(int iMenuItem = 0; iMenuItem < VT_CODE_PAGE_LASTONE; iMenuItem++)
     {
         EnableMenuItem(hMenu, VTCodePageMenuItems[iMenuItem], 

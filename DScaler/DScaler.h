@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.36 2002-10-26 17:51:53 adcockj Exp $
+// $Id: DScaler.h,v 1.37 2002-10-30 13:37:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -140,6 +140,7 @@ extern BOOL bShowCrashDialog;
 
 extern BOOL bInMenuOrDialogBox;
 
+extern BOOL bVTSingleKeyToggle;
 extern BOOL bVTAutoCodePage;
 
 extern BOOL bMinimized;

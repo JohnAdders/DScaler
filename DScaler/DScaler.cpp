@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.259 2002-10-29 11:05:28 adcockj Exp $
+// $Id: DScaler.cpp,v 1.260 2002-10-30 13:37:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.259  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.258  2002/10/27 12:18:51  laurentg
 // New setting to define the number of consecutive stills
 //
@@ -878,6 +881,7 @@ BOOL bAlwaysOnTop = FALSE;
 BOOL bAlwaysOnTopFull = TRUE;
 BOOL bDisplayStatusBar = TRUE;
 BOOL bDisplaySplashScreen = TRUE;
+BOOL bVTSingleKeyToggle = TRUE;
 BOOL bIsFullScreen = FALSE;
 BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
@@ -1480,7 +1484,9 @@ void ShowVTHeader()
 void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
 {
     if ((Page < 100) || (Page > 899))
+    {
         return;
+    }
 
     VTPage = Page;
     VTShowHidden = false;
@@ -2790,13 +2796,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CALL_VIDEOTEXT:
-            switch(VTState)
+            switch (VTState)
             {
             case VT_OFF:
                 VTState = VT_BLACK;
                 break;
             case VT_BLACK:
-                VTState = VT_MIX;
+                VTState = (bVTSingleKeyToggle ? VT_MIX : VT_OFF);
                 break;
             case VT_MIX:
             default:
@@ -2804,11 +2810,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 break;
             }
             
-            if(VTState == VT_OFF)
+            if (VTState == VT_OFF)
             {
                 ;
             }
-            else if(!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)) || !Setting_GetValue(VBI_GetSetting(DOTELETEXT)) )
+            else if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)) || !Setting_GetValue(VBI_GetSetting(DOTELETEXT)) )
             {
                 Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
                 Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
@@ -2819,6 +2825,30 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             WorkoutOverlaySize(TRUE);
 
             InvalidateDisplayAreaRect(hWnd,NULL,FALSE);
+            break;
+
+        case IDM_VT_MIXEDMODE:
+            if (VTState == VT_MIX)
+            {
+                VTState = VT_BLACK;
+            }
+            else
+            {
+                VTState = VT_MIX;
+            }
+            
+            if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)) == FALSE)
+            {
+                Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
+            }
+            if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)) == FALSE)
+            {
+                Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
+            }
+            
+            SetVTPage(VTPage, VTSubPage, true, false);
+            WorkoutOverlaySize(TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             break;
 
         case IDM_VT_RESET:
@@ -5490,6 +5520,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         NULL,
         "MainWindow", "ReverseChannelScroll", NULL,
     },
+    {
+        "Single key teletext toggle", ONOFF, 0, (long*)&bVTSingleKeyToggle,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "SingleKeyTeletextToggle", NULL,
+    },
 };
 
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)
@@ -5543,13 +5579,14 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 {
     // Other Settings
-    SETTING* OtherSettings[5] =
+    SETTING* OtherSettings[6] =
     {
         &DScalerSettings[DISPLAYSPLASHSCREEN    ],
         &DScalerSettings[AUTOHIDECURSOR         ],
         &DScalerSettings[LOCKKEYBOARD           ],
         &DScalerSettings[SCREENSAVEROFF         ],
-        &DScalerSettings[REVERSECHANNELSCROLLING]
+        &DScalerSettings[REVERSECHANNELSCROLLING],
+        &DScalerSettings[SINGLEKEYTELETEXTTOGGLE]
     };
-    return new CTreeSettingsGeneric("Other Settings", OtherSettings, 5);
+    return new CTreeSettingsGeneric("Other Settings", OtherSettings, 6);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.17 2002-08-15 14:16:18 kooiman Exp $
+// $Id: VBI.cpp,v 1.18 2002-10-30 13:37:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/08/15 14:16:18  kooiman
+// Cleaner settings per channel implementation
+//
 // Revision 1.16  2002/08/08 12:57:03  kooiman
 // Added VBI settings to settings per channel.
 //
@@ -283,6 +286,7 @@ void VBI_SetMenu(HMENU hMenu)
     {
         // set vt dialog menu items up
         EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_MIXEDMODE, (DoTeletext)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_RESET, (DoTeletext)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_OUT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCH, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
@@ -308,6 +312,7 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_WSS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_MIXEDMODE, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_RESET, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_SEARCH, MF_GRAYED);

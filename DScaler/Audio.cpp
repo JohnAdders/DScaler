@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.34 2002-12-14 01:46:15 atnak Exp $
+// $Id: Audio.cpp,v 1.35 2003-01-29 18:24:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/12/14 01:46:15  atnak
+// Added thread id check so that SetTimer isn't called on YUVOutThread
+//
 // Revision 1.33  2002/12/13 20:35:12  tobbej
 // added new asssert to audio_unmute (SetTimer shoud not be called from output thread)
 //
@@ -133,6 +136,7 @@
 #include "Status.h"
 #include "MixerDev.h"
 #include "Providers.h"
+#include "DebugLog.h"
 
 CRITICAL_SECTION AudioMuteCriticalSection;
 DWORD dwTimerProcThreadId = 0;
@@ -195,6 +199,8 @@ void Audio_Mute(DWORD PostMuteDelay)
     }
 
     LeaveCriticalSection(&AudioMuteCriticalSection);
+
+    LOG(1, " Mute Called Status on Exit %d", AudioMuteStatus);
 }
 
 
@@ -237,6 +243,7 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
     }
 
     LeaveCriticalSection(&AudioMuteCriticalSection);
+    LOG(1, " UnMute Called Status on Exit %d", AudioMuteStatus);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.9 2001-07-13 16:13:33 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.10 2001-08-30 11:58:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -30,11 +33,16 @@
 #define Y_BLACK     16
 #define UV_BLACK    128
 
-#define MASK_NONE 0
-#define MASK_TRAPEZOID 1
-#define MASK_COMPLEX 2
-#define MASK_STRETCH 3
+#define MASK_TRAPEZOID 0
+#define MASK_COMPLEX 1
+#define MASK_STRETCH 2
 
+LPCSTR ModeList[] =
+{
+    "Trapeziod",
+    "Complex",
+    "Non Linear Stretch",
+};
 
 FILTER_METHOD LinearCorrMethod;
 
@@ -509,9 +517,9 @@ SETTING FLT_LinearCorrSettings[FLT_LINEAR_CORR_SETTING_LASTONE] =
         "LinearCorrectionFilter", "DoOnlyMasking", NULL,
     },
     {
-        "Mask Type", SLIDER, 0, &MaskType,
-        0, 0, 3, 1, 1,
-        NULL,
+        "Mask Type", ITEMFROMLIST, 0, &MaskType,
+        0, 0, 2, 1, 1,
+        ModeList,
         "LinearCorrectionFilter", "MaskType", NULL,
     },
     {

@@ -1061,7 +1061,6 @@ BEGIN
             MENUITEM "NTSC Japan   \tShift+Alt+F6", IDM_TYPEFORMAT_5
             MENUITEM "PAL&60   \tShift+Alt+F7",     IDM_TYPEFORMAT_6
             MENUITEM "NTSC &50\tShift+Alt+F8",      IDM_TYPEFORMAT_7
-            MENUITEM SEPARATOR
         END
         POPUP "Pixel &Width"
         BEGIN

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.3 2001-11-13 17:06:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.1  2001/08/20 16:14:19  adcockj
 // Massive tidy up of code to new structure
 //
@@ -859,7 +862,7 @@ void CBT848Card::HauppaugeBootMSP34xx()
     // reset/enable the MSP on some Hauppauge cards 
     // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
 
-    AndOrDataDword(BT848_GPIO_DATA, 32, ~32);
+    AndOrDataDword(BT848_GPIO_OUT_EN, 32, ~32);
     AndOrDataDword(BT848_GPIO_DATA, 0, ~32);
     Sleep(10);
     AndOrDataDword(BT848_GPIO_DATA, 32, ~32);

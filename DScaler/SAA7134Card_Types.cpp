@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.38 2004-02-15 04:07:54 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.39 2004-02-17 06:29:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2004/02/15 04:07:54  atnak
+// Added new card FlyVideo FlyView 3100
+// Added new card Pinnacle PCTV Stereo
+// Added new card AverMedia AverTV Studio 305
+// Added new card Chronos Video Shuttle II FM
+//
 // Revision 1.37  2004/02/14 04:33:48  atnak
 // Updated card Medion MD-2819 PC-TV-radio card
 //
@@ -984,6 +990,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Medion MD-2819 PC-TV-radio card
     // Thanks "Sanel.B" <vlasenica@ya...>
     // Thanks "Mc" <michel.heusinkveld2@wa...>
+    // Thanks "Ing. Arno Pucher" <eolruin@ch...>
     {
         "Medion MD-2819 PC-TV-radio card",
         0x7134,
@@ -1079,6 +1086,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Pinnacle PCTV Stereo
     // Thanks "Fabio Maione" <maione@ma...>
     // Thanks "Dr. Uwe Zettl" <uwe.zettl@t...>
+    // Thanks "Aristarco" <aristarco@ar...>
+    // I2S audio may need to be enabled for this card to work.
     {
         "Pinnacle PCTV Stereo",
         0x7134,
@@ -1159,6 +1168,175 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
         0x21151461,
+    },
+    // Elitegroup EZ-TV
+    // Thanks "Arturo Garcia" <argabulk@ho...>
+    {
+        "Elitegroup EZ-TV",
+        0x7134,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_32110Hz,
+        0,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x4cb41019,
+    },
+    // ST Lab PCI-TV7130
+    // Thanks "Aidan Gill" <schmookoo@ho...>
+    {
+        "ST Lab PCI-TV7130",
+        0x7130,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE2,
+                0x7000, 0x0000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+                0x7000, 0x2000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
+                0x7000, 0x2000,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_DAC,
+                0x7000, 0x3000,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_NONE,
+        0x00007000,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x20011131,
+    },
+    // Lifeview FlyTV Platinum
+    // Thanks "Chousw" <chousw@ms...>
+    // SAA7133 -- not supported
+    {
+        "Lifeview FlyTV Platinum (no audio)",
+        0x7133,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x0000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x4000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
+                0xE000, 0x4000,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_NONE,
+                0xE000, 0x8000,
+            },
+        },
+        TUNER_PHILIPS_NTSC,
+        AUDIOCRYSTAL_NONE,
+        0x018e700,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x02145168,
+    },
+    // Compro VideoMate TV Gold Plus
+    // Thanks "Stephen McCormick" <sdmcc@pa...>
+    {
+        "Compro VideoMate TV Gold Plus",
+        0x7134,
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+                0x1ce780, 0x008080,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+                0x1ce780, 0x008080,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
+                0x1ce780, 0x008080,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_NONE,
+                0x1ce780, 0x0c8000,
+            },
+        },
+        TUNER_PHILIPS_NTSC,
+        AUDIOCRYSTAL_32110Hz,
+        0x001ce780,
+        NULL,
+        StandardSAA7134InputSelect,
+        0xc200185b,
     },
 };
 

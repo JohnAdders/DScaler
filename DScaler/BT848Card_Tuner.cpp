@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.16 2004-04-19 15:13:20 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.17 2004-04-19 20:38:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/04/19 15:13:20  adcockj
+// Fix failing to find tda9887 at alternate addresses
+//
 // Revision 1.15  2004/02/11 20:33:59  adcockj
 // Support multiple locations of TDA9887 (thanks to Pityu)
 //
@@ -238,11 +241,13 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
                 pExternalIFDemodulator->Init(TRUE, videoFormat);
                 break;
             }
-            else
-            {            
-                delete pExternalIFDemodulator;
-                pExternalIFDemodulator = NULL;
-            }
+        }
+        // if didn't find anything then
+        // need to delete the instance
+        if(i == NumAddressesToSearch)
+        {            
+            delete pExternalIFDemodulator;
+            pExternalIFDemodulator = NULL;
         }
     }
  

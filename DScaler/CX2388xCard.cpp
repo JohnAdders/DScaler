@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.58 2004-04-19 15:13:20 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.59 2004-04-19 20:38:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2004/04/19 15:13:20  adcockj
+// Fix failing to find tda9887 at alternate addresses
+//
 // Revision 1.57  2004/04/18 12:01:03  adcockj
 // Fixes for eeprom corruption
 //
@@ -1949,11 +1952,13 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
                 pExternalIFDemodulator->Init(TRUE, videoFormat);
                 break;
             }
-            else
-            {            
-                delete pExternalIFDemodulator;
-                pExternalIFDemodulator = NULL;
-            }
+        }
+        // if didn't find anything then
+        // need to delete the instance
+        if(i == NumAddressesToSearch)
+        {            
+            delete pExternalIFDemodulator;
+            pExternalIFDemodulator = NULL;
         }
     }
  

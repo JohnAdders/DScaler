@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.170 2002-06-01 22:24:36 laurentg Exp $
+// $Id: DScaler.cpp,v 1.171 2002-06-06 18:17:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.170  2002/06/01 22:24:36  laurentg
+// New calibration mode to compute YUV range
+//
 // Revision 1.169  2002/05/30 21:47:21  robmuller
 // Unmute sound on volume plus/minus.
 //
@@ -654,6 +657,9 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     WNDCLASS wc;
     MSG msg;
     HWND hPrevWindow;
+
+    // used by the InnoSetup installer to prevent (un)installation when DScaler is running.
+    CreateMutex(NULL, FALSE, "DScaler"); 
 
     hDScalerInst = hInstance;
 

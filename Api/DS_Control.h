@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.133 2003-01-18 10:53:57 laurentg Exp $
+// $Id: DS_Control.h,v 1.134 2003-01-24 08:08:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.133  2003/01/18 10:53:57  laurentg
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.132  2003/01/16 13:30:48  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -950,10 +953,11 @@ typedef enum
 /////////////////////////////////////////////////////////////////////////////
 typedef enum
 {
-    OSDB_TRANSPARENT = 0,
+    OSDB_USERDEFINED    = -1,
+    OSDB_TRANSPARENT    = 0,
     OSDB_BLOCK,
     OSDB_SHADED,
-    OSDBACK_LASTONE,
+    OSDB_LASTONE,
 } eOSDBackground;
 
 typedef enum

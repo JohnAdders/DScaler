@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.15 2001-12-16 17:04:37 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.16 2002-03-26 13:07:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/12/16 17:04:37  adcockj
+// Debug Log improvements
+//
 // Revision 1.14  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -123,6 +126,15 @@ void LOGD(LPCSTR Format, ...)
 }
 #endif
 
+BOOL FlushAfterEachWrite_OnChange(long NewValue)
+{
+    FlushAfterEachWrite = (BOOL)NewValue;
+    if(FlushAfterEachWrite && (debugLog != NULL))
+	{
+	    fflush(debugLog);
+	}
+    return FALSE;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -145,7 +157,7 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
         "Flush After Each Write", ONOFF, 0, (long*)&FlushAfterEachWrite,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "Files", "FlushAfterEachWrite", NULL,
+        "Files", "FlushAfterEachWrite", FlushAfterEachWrite_OnChange,
     },
 };
 

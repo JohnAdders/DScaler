@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.11 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.12 2004-11-19 23:47:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.10  2003/01/07 23:00:00  atnak
 // Removed variable upscale devisor and locked in at 0x200 scaling
 // for 27Mhz VBI stepping
@@ -202,11 +205,11 @@ void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines
     VBILines = m_VideoStandards[VideoStandard].wVBIStopLine -
         m_VideoStandards[VideoStandard].wVBIStartLine + 1;
 
-    SetVBIGeometry(VBIUpscaleDivisor);
+    SetVBIGeometry((WORD)VBIUpscaleDivisor);
 
     VideoHeight = m_VideoStandards[VideoStandard].wFieldHeight * 2;
 
-    SetGeometry(VideoWidth, VideoHeight, HDelayShift, VDelayShift);
+    SetGeometry((WORD)VideoWidth, (WORD)VideoHeight, HDelayShift, VDelayShift);
 }
 
 
@@ -230,7 +233,7 @@ void CSAA7134Card::SetTaskVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop,
 {
     BYTE TaskMask = TaskID2TaskMask(TaskID);
 
-    WORD SampleBytes = (double) 0x400 / UpscaleDivisor * (HStop - HStart + 1);
+    WORD SampleBytes = (WORD)((double) 0x400 / UpscaleDivisor * (HStop - HStart + 1));
 
     WriteWord(SAA7134_VBI_H_START(TaskMask), HStart);
     WriteWord(SAA7134_VBI_H_STOP(TaskMask), HStop);
@@ -278,7 +281,7 @@ void CSAA7134Card::SetGeometry(WORD ScaleWidth, WORD ScaleHeight,
         {
             HDelayShift = -HDelay;
         }
-        HDelay += HDelayShift;
+        HDelay += (WORD)HDelayShift;
     }
 
     if (VDelayShift != 0)
@@ -295,7 +298,7 @@ void CSAA7134Card::SetGeometry(WORD ScaleWidth, WORD ScaleHeight,
         {
             VDelayShift = -VDelay * 2;
         }
-        VDelay += (VDelayShift / 2);
+        VDelay += (WORD)(VDelayShift / 2);
     }
 
     SetTaskGeometry(TASKID_A, FieldWidth, FieldHeight, HDelay, VDelay,

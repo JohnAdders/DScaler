@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.11 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Provider.cpp,v 1.12 2004-11-19 23:45:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.10  2002/12/24 08:22:14  atnak
 // Added Prime 7133 card
 //
@@ -75,8 +78,8 @@ static char THIS_FILE[]=__FILE__;
 
 typedef struct
 {
-    DWORD VendorId;
-    DWORD DeviceId;
+    WORD VendorId;
+    WORD DeviceId;
     char* szName;
 } TSAA7134Chip;
 
@@ -194,7 +197,7 @@ int CSAA7134Provider::GetNumberOfSources()
 
 CSource* CSAA7134Provider::GetSource(int SourceIndex)
 {
-    if(SourceIndex >= 0 && SourceIndex < m_SAA7134Sources.size())
+    if (SourceIndex >= 0 && SourceIndex < (int)m_SAA7134Sources.size())
     {
         return m_SAA7134Sources[SourceIndex];
     }

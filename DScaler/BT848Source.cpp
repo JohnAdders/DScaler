@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.44 2002-08-05 12:05:28 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.45 2002-08-05 13:25:17 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/08/05 12:05:28  kooiman
+// Added support for per channel settings.
+//
 // Revision 1.43  2002/07/02 20:00:07  adcockj
 // New setting for MSP input pin selection
 //
@@ -1384,6 +1387,10 @@ void CBT848Source::ChannelPreChange(int OldChannel, int NewChannel)
             ChannelSettingChanged(m_AudioChannel, 1);
             ChannelSettingChanged(m_UseInputPin1, 1);
             ChannelSettingChanged(m_AutoStereoSelect, 1);
+            if (GetVolume()!=NULL)
+            {                
+                ChannelSettingChanged(m_Volume, 1);
+            }
         } 
         else
         {

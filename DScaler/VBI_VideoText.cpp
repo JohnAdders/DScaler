@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.29 2002-01-12 16:56:21 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.30 2002-01-15 11:16:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/01/12 16:56:21  adcockj
+// Series of fixes to bring 4.0.0 into line with 3.1.1
+//
 // Revision 1.28  2001/11/26 12:48:01  temperton
 // Teletext corrections
 //
@@ -121,6 +124,7 @@
 #include "Other.h"
 #include "DebugLog.h"
 #include "Crash.h"
+#include "VTDrawer.h"
 
 TPacket30 Packet30;
 
@@ -195,7 +199,9 @@ unsigned char UnhamTab[256] =
     0x0f, 0x0e, 0x0f, 0x0f, 0x0e, 0x0e, 0x0f, 0x0e,
 };
 
-BYTE VTHeaderLine[40];
+TVTHeaderLine VTHeaderLine;
+CVTDrawer VTDrawer;
+TVTPage VisiblePage;
 
 #define GetBit(val,bit,mask) (BYTE)(((val)>>(bit))&(mask))
 
@@ -216,20 +222,6 @@ typedef struct
 
 TMagState MagazineStates[NUM_MAGAZINES];
 
-/// VideoText
-unsigned short VTColourTable[9] =
-{
-    0,      //Black
-    31744,  //Red
-    992,    //Green
-    32736,  //Yellow
-    31,     //Blue
-    31774,  //Magenta
-    1023,   //Cyan
-    32767,  //White
-    31775,  //Transparent
-};
-
 TVTPage* VT_PageGet(int Page, int SubPage)
 {
     TVTPage* pPage;
@@ -243,6 +235,7 @@ TVTPage* VT_PageGet(int Page, int SubPage)
         if ((!pPage->Fill) || (pPage->SubPage == SubPage))
         {
             pPage->SubPage = SubPage;
+            pPage->Page = Page;
             pTemp = pPage;
             break;
         }
@@ -252,6 +245,7 @@ TVTPage* VT_PageGet(int Page, int SubPage)
             pPage->Next = new TVTPage;
             memset(pPage->Next, NULL, sizeof(TVTPage));
             pPage->Next->SubPage = SubPage;
+            pPage->Next->Page = Page;
             pTemp = pPage->Next;
             break;
         }
@@ -465,7 +459,7 @@ void VBI_decode_vt(unsigned char* dat)
                         // we need to make sure that we get out of it
                         __try
                         {
-                            VT_Redraw(hWnd, hDC, TRUE);
+                            VT_Redraw(hWnd, hDC, TRUE, FALSE);
                         }
                         __except(CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
                         {
@@ -529,6 +523,7 @@ void VBI_decode_vt(unsigned char* dat)
             memcpy(&VTHeaderLine[0], dat + 5, 40);
             pPage->bUpdated = 1;
             pPage->Fill = TRUE;
+            PostMessage(::hWnd, WM_REDRAWCLOCK, NULL, NULL);
         }
         break;
     case 1:
@@ -716,251 +711,9 @@ int VT_GetPage(int nPage)
 
 void VT_DoUpdate_Page(int Page, int SubPage)
 {
+    TVTPage *pPage = VT_PageGet(Page, SubPage);
 
-    BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal, bHasDouble;
-    BYTE nLastGraph;
-    unsigned short CurrentFg, CurrentBkg, DefaultBkg;
-    BYTE c, ch;
-    int endrow;
-    int n, row, x, y;
-    char tmp[41];
-    TVTPage* pPage;
-
-    BYTE* src;
-    BYTE* dest;
-    unsigned short* dest1;
-
-
-    bHasDouble = FALSE;
-    pPage = VT_PageGet(Page, SubPage);
-
-    // if we havent got the full page just show the header
-    if (pPage->bUpdated == FALSE)
-    {
-        endrow = 1;
-    }
-    else
-    {
-        endrow = 25;
-    }
-
-    for (row = 0; row < 25/*endrow*/; row++) 
-    {
-        // if the last row has a double height character then skip to next line
-        if (bHasDouble)
-        {
-            bHasDouble = FALSE;
-            continue;
-        }
-
-        // reset all status flags
-        bGraph = bHoldGraph = bSepGraph = bBox = bFlash = bDouble = bConceal = bHasDouble = FALSE;
-        nLastGraph = 32;
-
-        if(row == 0)
-        {
-            sprintf(tmp, "  P%-3d \x7", Page + 100);
-
-            if (pPage->bUpdated == FALSE)
-            {
-                // if the current page hasn't yet been filled
-                // show the last header
-                for (n = 8; n < 40; n++)
-                {
-                    tmp[n] = VTHeaderLine[n] & 0x7f;
-                }
-                
-                DefaultBkg = VTColourTable[0];
-            }
-            else
-            {
-                // if the current page has been filled
-                // show the original header
-                for (n = 8; n < 30; n++)
-                {
-                    tmp[n] = pPage->Frame[row][n] & 0x7f;
-                }
-                // but the time from the most recent
-                for (n = 30; n < 40; n++)
-                {
-                    tmp[n] = VTHeaderLine[n] & 0x7f;
-                }
-
-                if(!(pPage->wCtrl & (3 << 4)) && VTState != VT_MIX)
-                {
-                    DefaultBkg = VTColourTable[0];
-                }
-                else
-                {
-                    DefaultBkg = VTColourTable[8];
-                }
-
-                if (pPage->wCtrl & (3 << 4))
-                {
-                    memset(tmp, 32, 40);
-                }
-            }
-        }
-        else
-        {
-            for (n = 0; n < 40; n++)
-            {
-                if (row < endrow) 
-                    tmp[n] = pPage->Frame[row][n] & 0x7f;
-                else
-                    tmp[n] = 0x20;
-                if(tmp[n] == 0x0d)
-                {
-                    bHasDouble = TRUE;
-                }
-            }
-
-            if ((pPage->wCtrl & (3 << 4)) || VTState == VT_MIX)
-            {
-                DefaultBkg = VTColourTable[8];
-            }
-            else
-            {
-                DefaultBkg = VTColourTable[0];
-            }
-        }
-        tmp[40] = '\0';
-
-        CurrentFg = VTColourTable[7];
-        CurrentBkg = DefaultBkg;
-
-        for (n = 0; n < 40; ++n)
-        {
-            c = tmp[n];
-            ch = c;
-            if (c < 0x20)
-            {
-                switch(c)
-                {
-                case 0x00:
-                case 0x01:
-                case 0x02:
-                case 0x03:
-                case 0x04:
-                case 0x05:
-                case 0x06:
-                case 0x07:
-                    CurrentFg = VTColourTable[c];
-                    bGraph = FALSE;
-                    bConceal = false;
-                    break;
-                case 0x08:
-                    bFlash = TRUE;
-                    break;
-                case 0x09:
-                    bFlash = FALSE;
-                    break;
-                case 0x0a:
-                    CurrentBkg = DefaultBkg;
-                    bBox = FALSE;
-                    break;
-                case 0x0b:
-                    CurrentBkg = VTColourTable[0];
-                    bBox = TRUE;
-                    break;
-                case 0x0c:
-                    bDouble = FALSE;
-                    break;
-                case 0x0d:
-                    bDouble = TRUE;
-                    break;
-                case 0x10:
-                case 0x11:
-                case 0x12:
-                case 0x13:
-                case 0x14:
-                case 0x15:
-                case 0x16:
-                case 0x17:
-                    bGraph = TRUE;
-                    CurrentFg = VTColourTable[c - 0x10];
-                    break;
-                case 0x18:
-                    bConceal = TRUE;
-                    break;
-                case 0x19:
-                    bSepGraph = FALSE;
-                    break;
-                case 0x1a:
-                    bSepGraph = TRUE;
-                    break;
-                case 0x1c:
-                    CurrentBkg = bBox ? VTColourTable[0] : DefaultBkg;
-                    break;
-                case 0x1d:
-                    if(VTState != VT_MIX)
-                    {
-                        CurrentBkg = CurrentFg;
-                    }
-                    break;
-                case 0x1e:
-                    bHoldGraph = TRUE;
-                    break;
-                case 0x1f:
-                    bHoldGraph = FALSE;
-                    break;
-                default:
-                    break;
-                }
-                ch = bHoldGraph ? nLastGraph : 32;
-            }
-            nLastGraph = 32;
-            if (bGraph && (ch & 0x20))
-            {
-                nLastGraph = ch;
-                ch = (ch & 0x1f) | ((ch & 0x40) >> 1);
-                ch += 96;
-                if (bSepGraph)
-                {
-                    ch += 64;
-                }
-            }
-            else
-            {
-                ch -= 32;
-            }
-
-            src = _BitmapLargeChar(VTCharSet, (bConceal && !VTShowHidden)?0:ch);
-            dest = _BitmapDataP(VTScreen);
-            dest += VTScreen->bmiHeader.biSizeImage;
-            dest -= ((40 - n) * (LARGE_WIDTH * 2));// + ((LARGE_WIDTH / 2) * 2);
-            dest -= (row * VT_LARGE_BITMAP_WIDTH * LARGE_HEIGHT * 2);
-
-            for (y = 0; y < ((bDouble && (row < 24)) ? LARGE_HEIGHT * 2 : LARGE_HEIGHT); y++)
-            {
-                if (!bDouble || (bDouble && (!(y & 1))))
-                {
-                    src -= ROUNDUP(VTCharSet->bmiHeader.biWidth);
-                }
-
-                for (x = 0; x < LARGE_WIDTH; x++)
-                {
-                     dest1 = (WORD*)(dest + x * 2);
-                    *(dest1) = (unsigned short) (*(src + x) ? CurrentFg : CurrentBkg);
-                }
-                dest -= VT_LARGE_BITMAP_WIDTH * 2;
-
-            }
-            if (!bDouble && bHasDouble && row < 24)
-            {
-                for (y = 0; y < LARGE_HEIGHT; y++)
-                {
-                    for (x = 0; x < LARGE_WIDTH; x++)
-                    {
-                        dest1 = (WORD*)(dest + x * 2);
-                        *(dest1) = CurrentBkg;
-                    }
-                    dest -= VT_LARGE_BITMAP_WIDTH * 2;
-                }
-
-            }
-        }
-    }
+    memcpy(&VisiblePage, pPage, sizeof(TVTPage));
 }
 
 void VT_ChannelChange()
@@ -983,7 +736,7 @@ void VT_ChannelChange()
 }
 
 
-void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC)
+void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed)
 {
     RECT Rect;
     GetDestRect(&Rect);
@@ -993,19 +746,56 @@ void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC)
         ClientToScreen(hWnd, (LPPOINT)&Rect.right);
     }
 
-    StretchDIBits(hDC,                              // handle to DC
-                    Rect.left,                      // x-coord of destination upper-left corner
-                    Rect.top,                       // y-coord of destination upper-left corner
-                    Rect.right - Rect.left,         // width of destination rectangle
-                    Rect.bottom - Rect.top,         // height of destination rectangle
-                    0,                              // x-coord of source upper-left corner
-                    0,                              // y-coord of source upper-left corner
-                    VT_LARGE_BITMAP_WIDTH,          // width of source rectangle
-                    VT_LARGE_BITMAP_HEIGHT,         // height of source rectangle
-                    _BitmapDataP(VTScreen),         // bitmap bits
-                    VTScreen,                       // bitmap data
-                    DIB_PAL_COLORS,                 // usage options
-                    SRCCOPY);                       // raster operation code       
+    VTDrawer.SetBounds(hDC, &Rect);
+    VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL,
+        (VTShowHidden ? VTDF_HIDDEN : 0) |
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage);
+}
+
+void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
+{
+    RECT Rect;
+    GetDestRect(&Rect);
+
+    VTDrawer.SetBounds(hDC, &Rect);
+    VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
+        (ShowFlashed ? VTDF_FLASHONLY : VTDF_CLEARFLASH) |
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage);
+}
+
+void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
+{
+    RECT Rect;
+    GetDestRect(&Rect);
+
+    VTDrawer.SetBounds(hDC, &Rect);
+    VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
+        (RedrawHeader ? VTDF_HEADERONLY : VTDF_CLOCKONLY) |
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage);
+}
+
+bool VT_ContainsUpdatedPage()
+{
+    return (VisiblePage.bUpdated==TRUE);
+}
+
+void VT_CreateTestPage()
+{
+    memset(&VisiblePage, NULL, sizeof(VisiblePage));
+    memset(&VisiblePage.Frame, 32, sizeof(VisiblePage.Frame));
+    
+    VisiblePage.Page = 800;
+    memcpy(&VisiblePage.Frame[0][8], "DScaler Charset Test", 20);
+
+    for(int row = 0; row < 3; row++)
+    {
+        for(int col = 0; col < 32; col++)
+        {
+            VisiblePage.Frame[row+10][col+3] = 32 + row * 32 + col;
+        }
+    }
+
+    VisiblePage.bUpdated = true;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1195,12 +985,6 @@ void VT_SetCodePage(eVTCodePage Codepage)
         break;
     case VT_HEBREW_CODE_PAGE:
         VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_HEBREW_VTCHARS), RT_BITMAP));
-        break;
-    case VT_SWEDISH_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_SWEDISH_VTCHARS), RT_BITMAP));
-        break;
-    case VT_ITALIAN_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_ITALIAN_VTCHARS), RT_BITMAP));
         break;
     case VT_UK_CODE_PAGE:
     default:

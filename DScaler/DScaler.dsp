@@ -505,6 +505,18 @@ InputName=verstub
 
 SOURCE=.\VideoSettings.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\VTConvTables.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VTDrawer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VTMosaicGraphics.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -836,6 +848,18 @@ SOURCE=.\VBI_WSSdecode.h
 # Begin Source File
 
 SOURCE=.\VideoSettings.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VTConvTables.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VTDrawer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VTMosaicGraphics.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

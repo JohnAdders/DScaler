@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.17 2002-01-12 16:56:21 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.18 2002-01-15 11:16:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -128,9 +128,9 @@ typedef struct tagVTPage
     int FlofSubPage[NUM_FLOF];
     unsigned short SubPage;
     int MostRecentSubPage;
+    unsigned short Page;
     tagVTPage *Next;
 } TVTPage;
-
 
 #define LARGE_WIDTH 15
 #define LARGE_HEIGHT 18
@@ -184,8 +184,13 @@ void VT_DoUpdate_Page(int Page, int SubPage);
 int VT_MostRecentSubPage(int Page);
 int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle);
 int VT_CompleteSubPages(int Page);
+TVTPage* VT_PageGet(int Page, int SubPage);
 
-void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC);
+bool VT_ContainsUpdatedPage();
+void VT_CreateTestPage();
+void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed);
+void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader);
+void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed);
 void VT_ResetStation();
 LPCSTR VT_GetStation();
 void VT_SetCodePage(eVTCodePage Codepage);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.108 2002-01-12 16:56:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.109 2002-01-15 11:16:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2002/01/12 16:56:21  adcockj
+// Series of fixes to bring 4.0.0 into line with 3.1.1
+//
 // Revision 1.107  2001/12/22 13:18:04  adcockj
 // Tuner bugfixes
 //
@@ -578,6 +581,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         ErrorBox("Accelerators not Loaded");
     }
+
+    SetTimer(hWnd, TIMER_VTFLASHER, TIMER_VTFLASHER_MS, NULL);
 
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
@@ -1359,63 +1364,53 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VT_UK:
-            Stop_Capture();
             VT_SetCodePage(VT_UK_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_FRENCH:
-            Stop_Capture();
             VT_SetCodePage(VT_FRENCH_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);            
             break;
 
         case IDM_VT_CZECH:
-            Stop_Capture();
             VT_SetCodePage(VT_CZECH_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);            
             break;
 
         case IDM_VT_GREEK:
-            Stop_Capture();
             VT_SetCodePage(VT_GREEK_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_RUSSIAN:
-            Stop_Capture();
             VT_SetCodePage(VT_RUSSIAN_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_GERMAN:
-            Stop_Capture();
             VT_SetCodePage(VT_GERMAN_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);
             break;
         
         case IDM_VT_HUNGARIAN:
-            Stop_Capture();
             VT_SetCodePage(VT_HUNGARIAN_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);            
             break;
 
         case IDM_VT_HEBREW:
-            Stop_Capture();
             VT_SetCodePage(VT_HEBREW_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);           
             break;
 
         case IDM_VT_SWEDISH:
-            Stop_Capture();
             VT_SetCodePage(VT_SWEDISH_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_ITALIAN:
-            Stop_Capture();
             VT_SetCodePage(VT_ITALIAN_CODE_PAGE);
-            Start_Capture();
+            InvalidateRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_USECHROMA:
@@ -1644,7 +1639,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 else
                 {
-                    VT_Redraw(hWnd, sPaint.hdc, FALSE);
+                    VT_Redraw(hWnd, sPaint.hdc, FALSE, FALSE);
                 }
                 EndPaint(hWnd, &sPaint);
                 ValidateRect(hWnd, &sPaint.rcPaint);
@@ -1782,6 +1777,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
               && (pCalibration->GetType() == CAL_MANUAL) )
             {
                 Setting_OSDShow(Calibr_GetSetting(RIGHT_SOURCE_CROPPING), hWnd);
+            }
+            break;
+
+        case IDM_CHARSET_TEST:
+            if(VTState != VT_OFF)
+            {
+                VT_CreateTestPage();
+                InvalidateRect(hWnd, NULL, TRUE);
             }
             break;
 
@@ -2021,6 +2024,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (!bInMenuOrDialogBox)
                 Cursor_SetVisibility(FALSE);
             break;
+        //-------------------------------
+        case TIMER_VTFLASHER:
+            {
+                static bool Show = true;
+                Show=!Show;
+                if(VTState!=VT_OFF)
+                {
+                    HDC hDC = GetDC(hWnd);
+                    //VT_Redraw(hWnd, hDC, FALSE, Show);
+                    VT_RedrawFlash(hWnd, hDC, Show);
+                    ReleaseDC(hWnd, hDC);
+                }
+            }
+            break;
         default:
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
@@ -2123,7 +2140,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint, true);
-                VT_Redraw(hWnd, sPaint.hdc, FALSE);
+                VT_Redraw(hWnd, sPaint.hdc, FALSE, FALSE);
             }
             else
             {
@@ -2131,6 +2148,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 OSD_Redraw(hWnd, sPaint.hdc);
             }
             EndPaint(hWnd, &sPaint);
+        }
+        break;
+
+    case WM_REDRAWCLOCK:
+        {
+            if(VTState != VT_OFF)
+            {
+                HDC hDC = GetDC(hWnd);
+                VT_RedrawClock(hWnd, hDC, !VT_ContainsUpdatedPage());
+                ReleaseDC(hWnd, hDC);
+            }
         }
         break;
     
@@ -2188,15 +2216,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //---------------------------------------------------------------------------
 void SaveWindowPos(HWND hWnd)
 {
-	if(hWnd != NULL)
-	{
-		RECT Rect;
-        GetWindowRect(hWnd, &Rect);
-        MainWndTop = Rect.top;
-        MainWndHeight = Rect.bottom - Rect.top;
-        MainWndLeft = Rect.left;
-        MainWndWidth = Rect.right - Rect.left;
-	}
+    WINDOWPLACEMENT WndPlace;
+    if(hWnd != NULL)
+    {
+        // MRS 2-20-01 - length must be set in WindowPlacement structure
+        memset(&WndPlace,0,sizeof(WndPlace));
+        WndPlace.length = sizeof(WndPlace);
+        // End 2-20-01
+        GetWindowPlacement(hWnd, &WndPlace);
+        MainWndTop = WndPlace.rcNormalPosition.top;
+        MainWndHeight = WndPlace.rcNormalPosition.bottom - WndPlace.rcNormalPosition.top;
+        MainWndLeft = WndPlace.rcNormalPosition.left;
+        MainWndWidth = WndPlace.rcNormalPosition.right - WndPlace.rcNormalPosition.left;
+    }
 }
 
 
@@ -2376,6 +2408,7 @@ void KillTimers()
     KillTimer(hWnd, OSD_TIMER_ID);
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     KillTimer(hWnd, TIMER_HIDECURSOR);
+    KillTimer(hWnd, TIMER_VTFLASHER);
 }
 
 
@@ -2769,7 +2802,7 @@ void UpdateWindowState()
         }
         else
         {
-            SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_CHILD | WS_VISIBLE);
+            SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_CHILD | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX);
             SetMenu(hWnd, NULL);
         }
         StatusBar_ShowWindow(bDisplayStatusBar);

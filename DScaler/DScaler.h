@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.12 2001-11-09 12:42:07 adcockj Exp $
+// $Id: DScaler.h,v 1.13 2002-01-15 11:16:03 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -88,6 +88,11 @@ HMENU GetPatternsSubmenu();
 
 #define TIMER_HIDECURSOR    45
 #define TIMER_HIDECURSOR_MS 5000
+
+#define TIMER_VTFLASHER     67
+#define TIMER_VTFLASHER_MS  500
+
+#define WM_REDRAWCLOCK      0x3001
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;

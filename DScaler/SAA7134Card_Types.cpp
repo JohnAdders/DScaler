@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.48 2004-05-11 08:11:52 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.49 2004-06-21 06:08:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2004/05/11 08:11:52  atnak
+// added new card "Genius Video Wonder PRO III"
+//
 // Revision 1.47  2004/05/07 17:24:24  atnak
 // added new card "Dazzle My TV"
 //
@@ -1215,6 +1218,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     },
     // Elitegroup EZ-TV
     // Thanks "Arturo Garcia" <argabulk@ho...>
+    // + Card "Grandmars PV951P4TF" is same except ID and Tuner chip(?)
+    //   Thanks Kwok Kelvin <kelvin002@ho...>
     {
         "Elitegroup EZ-TV",
         0x7134,
@@ -1560,6 +1565,57 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         StandardSAA7134InputSelect,
         0x01385168,
     },
+    // V-Gear MyTV2 Radio (saa7130)
+    // Thanks "Daniel Kutin" <daniel.kutin@os...>
+    // Another card by vendor 0x0138.
+    {
+        "V-Gear MyTV2 Radio",
+        0x7130,
+        5,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x0000,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x4000,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+                0xE000, 0x2000,
+            },
+            {
+                NULL,
+                INPUTTYPE_FINAL,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_DAC,
+                0xE000, 0x8000,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_NONE,
+        0x0000e000,
+        NULL,
+        StandardSAA7134InputSelect,
+        0x013819d0,
+    },
 };
 
 
@@ -1576,7 +1632,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
 //
 
 //
-// LifeView Clones:  (Actually, I don't know who cloned who)
+// LifeView Clones:  (Actually, I don't know who supplies who)
 //
 //              0x7130                      0x7134                          0x7133
 //
@@ -1585,6 +1641,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
 //
 // 0x01385168   LifeView FlyVideo2000       Genius Video Wonder PRO III     PrimeTV 7133
 //              Chronos Video Shuttle II
+//
+// 0x013819d0   V-Gear MyTV2 Radio
 //
 //
 // Notes:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.30 2002-08-15 14:20:12 kooiman Exp $
+// $Id: DSSource.cpp,v 1.31 2002-08-16 09:38:30 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/08/15 14:20:12  kooiman
+// Improved tuner support. Added setting for video input.
+//
 // Revision 1.29  2002/08/14 22:03:23  kooiman
 // Added TV tuner support for DirectShow capture devices
 //
@@ -261,7 +264,7 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_dwRendStartTime(0)
 
 {
-	m_IDString = std::string("DS_") + deviceName;
+	m_IDString = std::string("DS_") + device;
   InitializeCriticalSection(&m_hOutThreadSync);
 	CreateSettings(device.c_str());  
 
@@ -837,7 +840,6 @@ eVideoFormat CDSSource::GetFormat()
 
 BOOL CDSSource::IsInTunerMode()
 {
-  LOG(2,"DSSource: IsInTunerMode start");
   if(m_pDSGraph==NULL)
 	{
 		return FALSE;
@@ -853,14 +855,20 @@ BOOL CDSSource::IsInTunerMode()
 		  CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 		  if(pCrossbar!=NULL)
       {
-	        LOG(2,"DSSource: IsInTunerMode?");
-          long CurrentInput = pCrossbar->GetInputIndex();
-          if (pCrossbar->GetInputType(CurrentInput) == PhysConn_Video_Tuner)
+	        try
           {
-             LOG(2,"DSSource: IsInTunerMode: Yes");
-             return TRUE;              
+              long CurrentInput = pCrossbar->GetInputIndex();
+              if (pCrossbar->GetInputType(CurrentInput) == PhysConn_Video_Tuner)
+              {
+                LOG(2,"DSSource: IsInTunerMode: Yes");
+                return TRUE;              
+              }
+              LOG(2,"DSSource: IsInTunerMode: No");
           }
-          LOG(2,"DSSource: IsInTunerMode: No");
+          catch(CDShowException e)
+		      {
+              LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+          }
       }
   }
   return FALSE;
@@ -917,7 +925,8 @@ BOOL CDSSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
       return FALSE;
     
     LOG(2,"DSSource: SetTunerFrequency: Found TVTuner");
-
+    try
+    {
       //Choose a country with a unicable frequency table
       int CountryCode = 31; 
         
@@ -957,6 +966,11 @@ BOOL CDSSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
       }
       LOG(2,"DSSource: SetTunerFrequency: Set Frequency %d",FrequencyId);
       return pTvTuner->setTunerFrequency(FrequencyId);
+    }
+    catch(CDShowException e)
+		{
+       LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+    }
   }
   return FALSE;
 }
@@ -1349,26 +1363,32 @@ void CDSSource::VideoInputOnChange(long input, long OldValue)
 				    CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 				    if(pCrossbar!=NULL)
 				    {
-					      //if changing a video input, set the related pin too
-					      long CurrentInputIndex = pCrossbar->GetInputIndex();
-                long CurrentInputType = pCrossbar->GetInputType(CurrentInputIndex);
-                SettingsPerChannel_VideoInputChange(this, 1, CurrentInputIndex, CurrentInputType == PhysConn_Video_Tuner);          
-          
-                long NewInputType = pCrossbar->GetInputType(input);
-					      pCrossbar->SetInputIndex(input,(NewInputType<4096));          
-
-                if (NewInputType == PhysConn_Video_Tuner)
+					      try
                 {
-                    if (pCap->getTVTuner()!=NULL)
-                    {
-                        pCap->getTVTuner()->setInputPin(input);
-                        LastTunerChannelOnChange(m_LastTunerChannel->GetValue(), m_LastTunerChannel->GetValue());
-                    }
-                }
+                    //if changing a video input, set the related pin too
+					          long CurrentInputIndex = pCrossbar->GetInputIndex();
+                    long CurrentInputType = pCrossbar->GetInputType(CurrentInputIndex);
+                    SettingsPerChannel_VideoInputChange(this, 1, CurrentInputIndex, CurrentInputType == PhysConn_Video_Tuner);
           
-                SettingsPerChannel_VideoInputChange(this, 0, input, NewInputType == PhysConn_Video_Tuner);
-				      }
-         }
+                    long NewInputType = pCrossbar->GetInputType(input);
+					          pCrossbar->SetInputIndex(input,(NewInputType<4096));          
+
+                    if (NewInputType == PhysConn_Video_Tuner)
+                    {
+                        if (pCap->getTVTuner()!=NULL)
+                        {
+                            //pCap->getTVTuner()->setInputPin(input);                            
+                            LastTunerChannelOnChange(m_LastTunerChannel->GetValue(), m_LastTunerChannel->GetValue());
+                        }
+                    }          
+                    SettingsPerChannel_VideoInputChange(this, 0, input, NewInputType == PhysConn_Video_Tuner);
+                }
+                catch(CDShowException e)
+		            {
+                    LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+                }
+				    }
+        }
 	  }
     catch(CDShowException &e)
 		{

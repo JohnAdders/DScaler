@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.26 2002-09-07 20:54:49 kooiman Exp $
+// $Id: BT848Card.h,v 1.27 2002-09-12 22:00:57 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/09/07 20:54:49  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.25  2002/08/27 22:02:32  kooiman
 // Added Get/Set input for video and audio for all sources. Added source input change notification.
 //
@@ -74,8 +77,7 @@
 #include "I2CBusForLineInterface.h"
 #include "ITuner.h"
 #include "AudioDecoder.h"
-#include "IAudioControls.h"
-#include "NoAudioControls.h"
+#include "AudioControls.h"
 
 #define INPUTS_PER_CARD 7
 
@@ -130,6 +132,21 @@ private:
         BYTE MuxSelect;
     } TInputType;
 
+    enum eAudioDecoderType
+    {
+        AUDIODECODERTYPE_DETECT = -1,
+        AUDIODECODERTYPE_NONE,
+        AUDIODECODERTYPE_MSP34x0,
+        AUDIODECODERTYPE_TERRATV,
+        AUDIODECODERTYPE_WINFAST2000,
+        AUDIODECODERTYPE_GVBCTV3,
+        AUDIODECODERTYPE_LT9415,
+        AUDIODECODERTYPE_WINDVR,
+        AUDIODECODERTYPE_AVER_TVPHONE_NEW,
+        AUDIODECODERTYPE_AVER_TVPHONE_OLD,
+        AUDIODECODERTYPE_LASTONE
+    };
+
     /// Defines the specific settings for a given card
     typedef struct
     {
@@ -147,7 +164,7 @@ private:
         */
         void (CBT848Card::*pInputSwitchFunction)(int);
         /// Any card specific method used to select stereo - may be NULL
-        void (CBT848Card::*pSoundChannelFunction)(eSoundChannel);
+        eAudioDecoderType AudioDecoderType;
         /// Bit Mask for audio GPIO operations
         DWORD GPIOMask;
         /** GPIO Flags for the various inputs
@@ -167,18 +184,18 @@ private:
         eTVCardId CardId;
         char* szName;
     } TAutoDectect878;
-	
-public:
-	BOOL Is878Family();
-	void SetACPIStatus(int ACPIStatus);
-	int GetACPIStatus();
-	void HandleTimerMessages(int TimerId);
-    CBT848Card(CHardwareDriver* pDriver);
-	~CBT848Card();
 
-	//BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
-	void CloseCard();
-    
+public:
+    BOOL Is878Family();
+    void SetACPIStatus(int ACPIStatus);
+    int GetACPIStatus();
+    void HandleTimerMessages(int TimerId);
+    CBT848Card(CHardwareDriver* pDriver);
+    ~CBT848Card();
+
+    //BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
+    void CloseCard();
+
     void SetCardType(int CardType);
     eTVCardId GetCardType();
     
@@ -251,31 +268,36 @@ public:
     void StopCapture();
     void StartCapture(BOOL bCaptureVBI);
 
-    BOOL HasMSP();
-
     void InitAudio();
 
+    // AudioControls facade
     void SetAudioMute();
-    void SetAudioUnMute(long nVolume, eAudioInput Input);
+    void SetAudioUnMute(WORD nVolume, eAudioInput Input);
+    bool HasAudioVolume();
     void SetAudioVolume(WORD nVolume);
+    bool HasAudioBalance();
     void SetAudioBalance(WORD nBalance);
+    bool HasAudioBass();
     void SetAudioBass(WORD nBass);
+    bool HasAudioTreble();
     void SetAudioTreble(WORD nTreble);
+    bool HasAudioEqualizers();
+    void SetAudioEqualizerLevel(WORD nIndex, WORD nLevel);
+    bool HasAudioBassBoost();
+    void SetAudioBassBoost(bool bBoost);
+    bool HasAudioLoudness();
+    void SetAudioLoudness(WORD nLevel);
+    bool HasAudioSpatialEffect();
+    void SetAudioSpatialEffect(WORD nLevel);
+    bool HasAudioDolby();
+    void SetAudioDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);
 
-	void SetAudioLoudnessAndSuperBass(long nLoudness, bool bSuperBass);
-	void SetAudioEqualizer(long EqIndex, long nLevel);
-	void SetAudioSpatialEffect(long nEffect);
-	void SetAudioDolbyMode(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);
-	BOOL AudioSupportsEqualizer();
-	BOOL AudioSupportsSpatialEffect();
-	BOOL AudioSupportsDolby();
-
+    // AudioDecoder facade
     void SetAudioStandard(eVideoFormat videoFormat);
-    void SetAudioSource(eAudioInput nChannel);
-    void SetAudioChannel(eSoundChannel audioChannel, bool UseInputPin1);
-    void GetMSPPrintMode(LPSTR Text);
+    void SetAudioSource(eAudioInput audioInput);
+    void SetAudioChannel(eSoundChannel audioChannel);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
-    
+
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
 
@@ -323,13 +345,6 @@ private:
     void InitSasem();
     void InitRSBT();
 
-    void SetAudioGVBCTV3PCI(eSoundChannel soundChannel);
-    void SetAudioLT9415(eSoundChannel soundChannel);
-    void SetAudioTERRATV(eSoundChannel soundChannel);
-    void SetAudioAVER_TVPHONE(eSoundChannel soundChannel);
-    void SetAudioWINFAST2000(eSoundChannel soundChannel);
-    void SetAudioWINDVR(eSoundChannel soundChannel);
-
     void BootMSP34xx(int pin);
     void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);
     void CtrlSilkSDISwitch(BYTE SLV, BYTE IEN);
@@ -339,12 +354,11 @@ private:
 
 private:
     eTVCardId m_CardType;
-    bool m_bHasMSP;
 
     CI2CBus*        m_I2CBus;
     ITuner*         m_Tuner;
     CAudioDecoder*  m_AudioDecoder;
-    IAudioControls* m_AudioControls;
+    CAudioControls* m_AudioControls;
 
 private:
     static const TCardType m_TVCards[TVCARD_LASTONE];
@@ -355,7 +369,7 @@ private:
     static const eTunerId m_Tuners_avermedia_0[];
     static const eTunerId m_Tuners_avermedia_0_fm[];
     static const eTunerId m_Tuners_avermedia_1[];
-    
+
 };
 
 

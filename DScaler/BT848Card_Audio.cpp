@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.18 2002-09-07 20:54:49 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.19 2002-09-12 21:59:52 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/09/07 20:54:49  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.17  2002/08/27 22:02:32  kooiman
 // Added Get/Set input for video and audio for all sources. Added source input change notification.
 //
@@ -81,52 +84,116 @@
 #include "BT848_Defines.h"
 
 #include "MSP34x0.h"
+#include "MSP34x0AudioControls.h"
 
-BOOL CBT848Card::HasMSP()
-{
-    return m_bHasMSP;
-}
+#include "Bt8x8GPIOAudioDecoderAverTVPhoneNew.h"
+#include "Bt8x8GPIOAudioDecoderAverTVPhoneOld.h"
+#include "Bt8x8GPIOAudioDecoderGVBCTV3.h"
+#include "Bt8x8GPIOAudioDecoderLT9415.h"
+#include "Bt8x8GPIOAudioDecoderPVBt878P9B.h"
+#include "Bt8x8GPIOAudioDecoderTerraTV.h"
+#include "Bt8x8GPIOAudioDecoderWinDVR.h"
+#include "Bt8x8GPIOAudioDecoderWinFast2000.h"
 
 void CBT848Card::InitAudio()
 {
-    CMSP34x0Controls* MSPControls = new CMSP34x0Controls();
-
-    MSPControls->Attach(m_I2CBus);
-    MSPControls->Reset();
-    ::Sleep(4);
-
-    // setup version information
-    int rev1 = MSPControls->GetVersion();
-    int rev2 = MSPControls->GetProductCode();
-
-    if (0 == rev1 && 0 == rev2)
+    // Initialize  m_AudioDecoder and m_AudioControls
+    if (m_AudioControls != NULL)
     {
-        delete MSPControls;
-        m_bHasMSP = false;
-        return;
+        delete m_AudioControls;
     }
-    m_bHasMSP = true;
+    if (m_AudioDecoder != NULL)
+    {
+        delete m_AudioDecoder;
+    }
 
-	delete m_AudioControls;
-    m_AudioControls = MSPControls;
+
+    if (GetCardSetup()->AudioDecoderType == AUDIODECODERTYPE_DETECT
+        || GetCardSetup()->AudioDecoderType == AUDIODECODERTYPE_MSP34x0)
+    {
+        CMSP34x0AudioControls* MSPControls = new CMSP34x0AudioControls();
+
+        MSPControls->Attach(m_I2CBus);
+        MSPControls->Reset();
+        ::Sleep(4);
+
+        // setup version information
+        int rev1 = MSPControls->GetVersion();
+        int rev2 = MSPControls->GetProductCode();
+
+        if (0 == rev1 && 0 == rev2)
+        {
+            delete MSPControls;
+            m_AudioDecoder = new CAudioDecoder();
+            m_AudioControls = new CAudioControls();
+            return;
+        }
+
+        m_AudioControls = MSPControls;
     
-	// need to create two so that we can delete all objects properly
-	CMSP34x0Decoder* MSPDecoder = new CMSP34x0Decoder();
-	MSPDecoder->Attach(m_I2CBus);
-    
-	delete m_AudioDecoder;
-	m_AudioDecoder =  MSPDecoder;
+        // need to create two so that we can delete all objects properly
+        CMSP34x0Decoder* MSPDecoder = new CMSP34x0Decoder();
+        MSPDecoder->Attach(m_I2CBus);
+
+        m_AudioDecoder =  MSPDecoder;
+
+        sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
+    }
+    else
+    {
+        switch (GetCardSetup()->AudioDecoderType)
+        {
+        case AUDIODECODERTYPE_NONE:
+            m_AudioDecoder = new CAudioDecoder();
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "None");
+            break;
+        case AUDIODECODERTYPE_TERRATV:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderTerraTV(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "TerraTV");
+            break;
+        case AUDIODECODERTYPE_WINFAST2000:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderWinFast2000(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "WinFast2000");
+            break;
+        case AUDIODECODERTYPE_GVBCTV3:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderGVBCTV3(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "GVBCTV3");
+            break;
+        case AUDIODECODERTYPE_LT9415:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderLT9415(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "LT9415");
+            break;
+        case AUDIODECODERTYPE_WINDVR:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderWinDVR(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "WinDVR");
+            break;
+        case AUDIODECODERTYPE_AVER_TVPHONE_NEW:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderAverTVPhoneNew(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "AverTVPhoneNew");
+            break;
+        case AUDIODECODERTYPE_AVER_TVPHONE_OLD:
+            m_AudioDecoder = new CBt8x8GPIOAudioDecoderAverTVPhoneOld(this);
+            m_AudioControls = new CAudioControls();
+            sprintf(m_AudioDecoderType, "AverTVPhoneOld");
+            break;
+        }
+    }
 
     // set volume to Mute level
     m_AudioControls->SetMute();
-
-    sprintf(m_AudioDecoderType, "MSP34%02d%c-%c%d", (rev2 >> 8) & 0xff, (rev1 & 0xff) + '@', ((rev1 >> 8) & 0xff) + '@', rev2 & 0x1f);
 }
 
 
 void CBT848Card::SetAudioMute()
 {
-    if(m_bHasMSP)
+    if (m_AudioControls->HasMute())
     {
         m_AudioControls->SetMute();
     }
@@ -136,9 +203,9 @@ void CBT848Card::SetAudioMute()
     }
 }
 
-void CBT848Card::SetAudioUnMute(long nVolume, eAudioInput Input)
+void CBT848Card::SetAudioUnMute(WORD nVolume, eAudioInput Input)
 {
-    if(m_bHasMSP)
+    if (m_AudioControls->HasMute())
     {
         // go back from mute to same volume as before
         m_AudioControls->SetVolume(nVolume);
@@ -171,74 +238,13 @@ void CBT848Card::SetAudioTreble(WORD nTreble)
     m_AudioControls->SetTreble(nTreble);
 }
 
-void CBT848Card::SetAudioChannel(eSoundChannel soundChannel, bool UseInputPin1)
+void CBT848Card::SetAudioChannel(eSoundChannel soundChannel)
 {
-    if(m_bHasMSP)
-    {
-        m_AudioDecoder->SetSoundChannel(soundChannel, UseInputPin1);
-    }
-    else
-    {
-        if(m_TVCards[m_CardType].pSoundChannelFunction != NULL)
-        {
-            // call correct function
-            // this funny syntax is the only one that works
-            // if you want help understanding what is going on
-            // I suggest you read http://www.newty.de/
-            (*this.*m_TVCards[m_CardType].pSoundChannelFunction)(soundChannel);
-        }
-    }
-}
-
-void CBT848Card::GetMSPPrintMode(LPSTR Text)
-{
-    if (m_bHasMSP == FALSE)
-    {
-        strcpy(Text, "No Audio Decoder");
-    }
-    else
-    {
-        std::string sInputText;
-        eAudioInput audioInput = m_AudioDecoder->GetAudioInput();
-        char *audioInputName = (char*)m_AudioDecoder->GetAudioInputName(audioInput);
-
-        if (audioInputName == NULL)
-        {
-            sInputText = "Input ";
-            sInputText += (int)audioInput;
-        }
-        else
-        {
-            sInputText = audioInputName;
-            sInputText += ": ";
-        }
-        eVideoFormat videoFormat = m_AudioDecoder->GetVideoFormat();
-        sInputText+=VideoFormatNames[videoFormat];
-        switch (m_AudioDecoder->GetSoundChannel())
-        {
-        case SOUNDCHANNEL_MONO:
-            sInputText+=" (Mono)";
-            break;
-        case SOUNDCHANNEL_STEREO:
-            sInputText+=" (Stereo)";
-            break;
-        case SOUNDCHANNEL_LANGUAGE1:
-            sInputText+=" (Language 1)";
-            break;
-        case SOUNDCHANNEL_LANGUAGE2:
-            sInputText+=" (Language 2)";
-            break;
-        }
-        strcpy(Text,sInputText.c_str());
-    }
+    m_AudioDecoder->SetSoundChannel(soundChannel);
 }
 
 eSoundChannel CBT848Card::IsAudioChannelDetected(eSoundChannel desiredSoundChannel)
 {
-    if(!m_bHasMSP)
-    {
-        return desiredSoundChannel;
-    }
     return m_AudioDecoder->IsAudioChannelDetected(desiredSoundChannel); 
 }
 
@@ -287,103 +293,104 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
 
 eAudioInput CBT848Card::GetAudioInput()
 {
-    if (m_bHasMSP == FALSE)
-    {
-        return (eAudioInput)-1;
-    }    
     return m_AudioDecoder->GetAudioInput();
 }
 
 LPCSTR CBT848Card::GetAudioInputName(eAudioInput nInput)
 {
-    if (m_bHasMSP == FALSE)
-    {
-        return NULL;
-    }    
     return m_AudioDecoder->GetAudioInputName(nInput);
 }
 
 
 int CBT848Card::GetNumAudioInputs()
 {
-    if (m_bHasMSP == FALSE)
-    {
-        return 0;
-    }    
     return m_AudioDecoder->GetNumAudioInputs();
 }
 
 
-void CBT848Card::SetAudioLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
+void CBT848Card::SetAudioLoudness(WORD nLevel)
 {
-	if ((m_bHasMSP == FALSE) || (m_AudioControls == NULL))
-	{
-		return;
-	}
-	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
-	MSPControls->SetLoudnessAndSuperBass(nLoudness, bSuperBass);
+    m_AudioControls->SetLoudness(nLevel);
 }
 
-void CBT848Card::SetAudioEqualizer(long EqIndex, long nLevel)
+void CBT848Card::SetAudioBassBoost(bool bBoost)
 {
-	if (!AudioSupportsEqualizer())
-	{
-		return;
-	}
-	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
-	MSPControls->SetEqualizer(EqIndex,nLevel);
+    m_AudioControls->SetBassBoost(bBoost);
 }
 
-void CBT848Card::SetAudioSpatialEffect(long nEffect)
+void CBT848Card::SetAudioEqualizerLevel(WORD nIndex, WORD nLevel)
 {
-	if ((m_bHasMSP == FALSE) || (m_AudioControls == NULL))
-	{
-		return;
-	}
-	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
-	MSPControls->SetSpatialEffects(nEffect);
+    if (!m_AudioControls->HasEqualizers() 
+        && nIndex >= 0 && nIndex < m_AudioControls->GetEqualizerCount())
+    {
+        return;
+    }
+    m_AudioControls->SetEqualizerLevel(nIndex, nLevel);
 }
 
-
-void CBT848Card::SetAudioDolbyMode(long DolbyMode, long nNoise, long nSpatial, long nPan, long Panorama)
+void CBT848Card::SetAudioSpatialEffect(WORD nLevel)
 {
-	if (!AudioSupportsDolby())
-	{
-		return;
-	}
-	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
-	MSPControls->SetDolby(DolbyMode, nNoise, nSpatial, nPan, Panorama);
+    if (!m_AudioControls->HasSpatialEffect())
+    {
+        return;
+    }
+    m_AudioControls->SetSpatialEffect(nLevel);
 }
 
 
-BOOL CBT848Card::AudioSupportsEqualizer()
+void CBT848Card::SetAudioDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama)
 {
-	if ((m_bHasMSP == FALSE) || (m_AudioDecoder == NULL))
-	{
-		return FALSE;
-	}
-	CMSP34x0Decoder* MSPDecoder = (CMSP34x0Decoder*)m_AudioDecoder;
-	return MSPDecoder->HasEqualizer();	
+    if (!m_AudioControls->HasDolby())
+    {
+        return;
+    }
+    m_AudioControls->SetDolby(nMode, nNoise, nSpatial, nPan, nPanorama);
 }
 
 
-BOOL CBT848Card::AudioSupportsSpatialEffect()
+bool CBT848Card::HasAudioEqualizers()
 {
-	if ((m_bHasMSP == FALSE) || (m_AudioControls == NULL))
-	{
-		return FALSE;
-	}
-	return TRUE;
+    return m_AudioControls->HasEqualizers();
 }
 
 
-BOOL CBT848Card::AudioSupportsDolby()
+bool CBT848Card::HasAudioSpatialEffect()
 {
-	if ((m_bHasMSP == FALSE) || (m_AudioDecoder == NULL))
-	{
-		return FALSE;
-	}
-	CMSP34x0Decoder* MSPDecoder = (CMSP34x0Decoder*)m_AudioDecoder;
-	return MSPDecoder->HasDolby();	
+    return m_AudioControls->HasSpatialEffect();
 }
 
+
+bool CBT848Card::HasAudioDolby()
+{
+    return m_AudioControls->HasDolby();
+}
+
+bool CBT848Card::HasAudioBassBoost()
+{
+    return m_AudioControls->HasBassBoost();
+}
+
+bool CBT848Card::HasAudioVolume()
+{
+    return m_AudioControls->HasVolume();
+}
+
+bool CBT848Card::HasAudioTreble()
+{
+    return m_AudioControls->HasTreble();
+}
+
+bool CBT848Card::HasAudioLoudness()
+{
+    return m_AudioControls->HasLoudness();
+}
+
+bool CBT848Card::HasAudioBass()
+{
+    return m_AudioControls->HasBass();
+}
+
+bool CBT848Card::HasAudioBalance()
+{
+    return m_AudioControls->HasBalance();
+}

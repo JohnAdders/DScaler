@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: DSSource.h,v 1.2 2001-12-17 19:39:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -39,10 +43,12 @@
 #endif // _MSC_VER > 1000
 
 #include "Source.h"
+#include "DSGraph.h"
 
 /**
- * This source controls a wdm based video capture card
+ * This source controls a Direct show filter graph.
  * @see CDSProvider
+ * @see CDShowGraph
  */
 class CDSSource : public CSource
 {
@@ -60,6 +66,8 @@ public:
 
 	void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+	void HandleTimerMessages(int TimerId);
+
 	LPCSTR GetStatus();
 
 	void Mute(){};
@@ -84,22 +92,31 @@ public:
 	BOOL IsVideoPresent();
 
 	void SetMenu(HMENU hMenu);
-	void HandleTimerMessages(int TimerId);
-	
-	LPCSTR GetMenuLabel();
-	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
-
-	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 	BOOL IsAccessAllowed() {return TRUE;};
-private:
-	CComPtr<IBaseFilter> m_vidDev;
-	CComPtr<IGraphBuilder> m_pGraph;
-	CComPtr<ICaptureGraphBuilder2> m_pBuilder;
-	CComPtr<IMediaControl> m_pControl;
+	LPCSTR GetMenuLabel();
+	
+	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
+	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 
-#ifdef _DEBUG
-	DWORD m_hROT;
-#endif
+private:
+	int FindMenuID(CMenu *menu,UINT menuID);
+
+	CDShowGraph *m_pDSGraph;
+	string m_device;
+	string m_deviceName;
+	long m_currentX;
+	long m_currentY;
+
+	///Array for picture history, implemented as a circular queue
+	TPicture m_pictureHistory[MAX_PICTURE_HISTORY];
+	///Index of next position in m_pictureHistory to be used
+	int m_pictureHistoryPos;
+	///size allocated for each field in the history
+	long m_cbFieldSize;
+	
+	int m_bytePerPixel;
+	
+	bool m_bProcessingFirstField;
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

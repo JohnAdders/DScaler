@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.25 2002-10-11 13:38:13 kooiman Exp $
+// $Id: BT848Card.cpp,v 1.26 2002-10-11 21:36:11 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/10/11 13:38:13  kooiman
+// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
+//
 // Revision 1.24  2002/09/12 22:01:26  ittarnavsky
 // Removed Reference to HasMSP
 // Changes due to the IAudioControls to CAudioControls transition
@@ -433,11 +436,6 @@ LPCSTR CBT848Card::GetTunerType()
     return m_TunerType;
 }
 
-LPCSTR CBT848Card::GetAudioDecoderType()
-{
-    return m_AudioDecoderType;
-}
-
 void CBT848Card::RestartRISCCode(DWORD RiscBasePhysical)
 {
     BYTE CapCtl = ReadByte(BT848_CAP_CTL);
@@ -446,8 +444,6 @@ void CBT848Card::RestartRISCCode(DWORD RiscBasePhysical)
     WriteDword(BT848_RISC_STRT_ADD, RiscBasePhysical);
     WriteByte(BT848_CAP_CTL, CapCtl);
 }
-
-
 
 void CBT848Card::SetEvenLumaDec(BOOL EvenLumaDec)
 {
@@ -1043,7 +1039,7 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
         sprintf(szDeviceId,"%04X", pThis->GetDeviceId());
         SetDlgItemText(hDlg, IDC_BT_DEVICE_ID, szDeviceId);
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
-        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, pThis->GetAudioDecoderType());
+        SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, ""); // FIXME pThis->GetAudioDecoderType());
         dwCardId = pThis->GetSubSystemId();
         if(dwCardId != 0 && dwCardId != 0xffffffff)
         {

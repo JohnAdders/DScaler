@@ -495,7 +495,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				{
                     if(bAutoDetectMode == TRUE)
                     {
-
 					    if(bIsPAL)
 					    {
 							// we will need always need both comb and diff
@@ -606,13 +605,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					{
 						bFlipNow = Bob(&info);
 					}
-					// When we first detect film mode we will be on the right flip mode in PAL
-					// and at the end of a three series in NTSC this will be the starting point for
-					// our 2.5 field timings
-					//else if(PrevDeintMethod != CurrentMethod && IsFilmMode())
-					//{
-					//	bFlipNow = Weave(&info);
-					//}
 					else
 					{
 						bFlipNow = CurrentMethod->pfnAlgorithm(&info);

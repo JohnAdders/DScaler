@@ -806,3 +806,4 @@ void FD_Common_SetMenu(HMENU hMenu)
 {
 	CheckMenuItem(hMenu, IDM_USECHROMA, UseChromaInDetect?MF_CHECKED:MF_UNCHECKED);
 }
+

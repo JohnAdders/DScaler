@@ -8,11 +8,15 @@ SETTING* Debug_GetSetting(DEBUG_SETTING Setting);
 void Debug_ReadSettingsFromIni();
 void Debug_WriteSettingsToIni();
 
-
-extern char DebugLogFilename[];
-extern boolean DebugLogEnabled;
-
+#if !defined(NOLOGGING)
 void LOG(LPCSTR format, ...);
 void LOGD(LPCSTR format, ...);
+
+#else
+
+#define LOG 
+#define LOGD
+
+#endif
 
 #endif

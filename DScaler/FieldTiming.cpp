@@ -110,28 +110,24 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
 	LastFieldTime.QuadPart = pNewFieldTime->QuadPart;
 }
 
-void Timing_SmartSleep(DEINTERLACE_INFO* pInfo)
+void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate)
 {
 	static int nSleepSkipFields = 0;
-	static int nSleepSkipFieldsLate = 0;
     // Sleep less often if we're running late.
 
     // Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
-    if (pInfo->bRunningLate)
+    if (bRunningLate)
     {
-        // Sleep skipping whenever we're running on time
-        nSleepSkipFieldsLate = 0;
-		nSleepSkipFields = (nSleepSkipFields + 1) % (Sleep_SkipFields + 1);
-    	Sleep(nSleepSkipFields ? 0 : Sleep_Interval);
+        // Sleep skipping whenever we're running late
+        ++nSleepSkipFields;
+    	Sleep((nSleepSkipFields % (Sleep_SkipFieldsLate + 1)) ? 0 : Sleep_Interval);
     }
     else
     {
-        // Sleep skipping whenever we're running late
-        nSleepSkipFields = 0;
-        nSleepSkipFieldsLate = (nSleepSkipFieldsLate + 1) % (Sleep_SkipFieldsLate + 1);
-    	Sleep(nSleepSkipFieldsLate ? 0 : Sleep_Interval);
+        // Sleep skipping whenever we're running on time
+        ++nSleepSkipFields;
+    	Sleep((nSleepSkipFields % (Sleep_SkipFields + 1)) ? 0 : Sleep_Interval);
     }
-	pInfo->bRunningLate = FALSE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +167,7 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 		// in normal operation
         if (!bSlept || Sleep_SkipFields == 0)
         {
-		    Timing_SmartSleep(pInfo);
+		    Timing_SmartSleep(pInfo, FALSE);
             bSlept = TRUE;
         }
 		pInfo->bRunningLate = FALSE;			// if we waited then we are not late
@@ -218,9 +214,6 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 	int Diff;
 	int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
 	
-	// accuarate time is incompatible with hurry when late
-	pInfo->bRunningLate = TRUE;
-
 	while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
 	{
 		pInfo->bRunningLate = FALSE;			// if we waited then we are not late
@@ -286,7 +279,7 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 		}
 	}
 
-    Timing_SmartSleep(pInfo);
+    Timing_SmartSleep(pInfo, pInfo->bRunningLate);
 }
 
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)

@@ -555,7 +555,7 @@ BOOL LoadDeinterlacePlugins()
 		{
 			if(VideoDeintMethods[i]->pfnPluginStart != NULL)
 			{
-				VideoDeintMethods[i]->pfnPluginStart(NumVideoModes, VideoDeintMethods, StatusBar_GetHWnd(STATUS_PAL));
+		        VideoDeintMethods[i]->pfnPluginStart(NumVideoModes, VideoDeintMethods, StatusBar_GetHWnd(STATUS_PAL));
 			}
 			AddUIForDeintPlugin(hMenu, VideoDeintMethods[i]);
 		}

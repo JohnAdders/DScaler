@@ -78,7 +78,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /MT /W3 /Gi /Ot /I "..\driver\include\\" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /YX /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ox /Ot /Ow /Og /Oi /Ob2 /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /D "NDEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
@@ -336,6 +336,10 @@ SOURCE=.\FD_Common.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\FD_CommonFunctions.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\FieldTiming.h
 # End Source File
 # Begin Source File
@@ -428,51 +432,7 @@ SOURCE=.\RES\DScaler.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\RES\dTV.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\Res\greenbulb.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Res\redbulb.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\sizex.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\SLIDER.BMP
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\SLIDER1.BMP
-# End Source File
-# Begin Source File
-
 SOURCE=.\Res\Startup.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\VTBack.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\VTHome.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\VTNext.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\VTUpDown.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\VTx10x12.bmp
 # End Source File
 # Begin Source File
 

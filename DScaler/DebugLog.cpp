@@ -9,8 +9,9 @@ static FILE *debugLog = NULL;
 char DebugLogFilename[MAX_PATH] = "DScaler.txt";
 boolean DebugLogEnabled = FALSE;
 
-void
-LOG(LPCSTR format, ...)
+#if !defined(NOLOGGING)
+
+void LOG(LPCSTR format, ...)
 {
 	DWORD systime;
 	struct _timeb tb;
@@ -42,8 +43,7 @@ LOG(LPCSTR format, ...)
 	fflush(debugLog);
 }
 
-void
-LOGD(LPCSTR format, ...)
+void LOGD(LPCSTR format, ...)
 {
 	char szMessage[2048];
 	va_list args;
@@ -54,6 +54,7 @@ LOGD(LPCSTR format, ...)
 	OutputDebugString(szMessage);
 }
 
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

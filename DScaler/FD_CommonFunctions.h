@@ -38,6 +38,7 @@ extern "C"
     void memcpyMMX(void *Dest, void *Src, size_t nBytes);
     void memcpySSE(void *Dest, void *Src, size_t nBytes);
 	void memcpyAMD(void *Dest, void *Src, size_t nBytes);
+    void memcpySimple(void *Dest, void *Src, size_t nBytes);
 }
 
 #endif

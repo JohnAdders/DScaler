@@ -34,7 +34,6 @@ long		HighMotionMode = INDEX_VIDEO_2FRAME;
 long		AdaptiveThres32Pulldown = 15;
 long		AdaptiveThresPulldownMismatch = 900;
 
-
 long NumVideoModes = 0;
 long CurrentIndex = -1;
 DEINTERLACE_METHOD** DeintMethods = NULL;
@@ -49,15 +48,17 @@ HWND ghwndStatus = NULL;
 void UpdateAdaptiveMode(long Index)
 {
 	int i;
+    BOOL bFound = FALSE;
 
-	if (CurrentIndex == Index)
+	if (CurrentIndex == Index && CurrentMethod != NULL)
 		return;
 
-	for(i = 0; i < NumVideoModes; i++)
+	for(i = 0; i < NumVideoModes && bFound == FALSE; i++)
 	{
 		if(DeintMethods[i]->nMethodIndex == Index)
 		{
 			CurrentMethod = DeintMethods[i];
+            bFound = TRUE;
 			if(ghwndStatus != NULL)
 			{
 				char AdaptiveName[200];
@@ -74,6 +75,15 @@ void UpdateAdaptiveMode(long Index)
 			CurrentIndex = Index;
 		}
 	}
+
+    if(bFound == FALSE)
+    {
+		CurrentMethod = DeintMethods[0];
+		if(ghwndStatus != NULL)
+		{
+    		SendMessage(ghwndStatus, WM_SETTEXT, 0, (LPARAM)"Adaptive - Error Finding Index");
+        }
+    }
 }
 
 
@@ -100,7 +110,7 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 
 	// If this is our first time, update the current adaptive mode to whatever
 	// the ini file said our high-motion mode should be.
-	if (CurrentIndex == -1)
+	if (CurrentIndex == -1 || CurrentMethod == NULL)
     {
 		UpdateAdaptiveMode(HighMotionMode);
         StaticMatchCount = 0;

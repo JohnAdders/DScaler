@@ -27,7 +27,7 @@
 ;
 ;////////////////////////////////////////////////////////////////////////////
 
-	.586
+	.386p
 	.mmx
 	.xmm
 	.model	flat
@@ -65,7 +65,7 @@ _CalcCombFactorLine:
 	movq mm1, _qwYMask
 	movq mm2, _qwOnes
 	pxor mm7, mm7    ; mm0 = 0
-align 8
+align 4
 Comb_Loop:
 	movq mm3, qword ptr[eax]  ; mm3 = O1
 	movq mm4, qword ptr[ebx]  ; mm4 = E
@@ -153,7 +153,7 @@ _CalcCombFactorLineChroma:
 	mov edx, dword ptr [YVal3]
 	shr ecx, 3       ; there are BytesToProcess / 8 qwords
 	pxor mm7, mm7    ; mm0 = 0
-align 8
+align 4
 CombChroma_Loop:
 	movq mm0, qword ptr[eax]   ; mm0 = O1
 	movq mm1, qword ptr[ebx]   ; mm1 = E
@@ -273,7 +273,7 @@ _CalcDiffFactorLine:
 	movq mm1, _qwYMask
 	movq mm7, _qwBitShift
 	pxor mm0, mm0    ; mm0 = 0  this is running total
-align 8
+align 4
 Diff_Loop:
 	movq mm4, qword ptr[eax] 
 	movq mm5, qword ptr[ebx] 
@@ -326,7 +326,7 @@ _CalcDiffFactorLineChroma:
 	movq mm0, _qwBitShift
 	pxor mm6, mm6    ; mm0 = 0  this is running total
 	pxor mm7, mm7    ; mm0 = 0  this is running total
-align 8
+align 4
 DiffChroma_Loop:
 	movq mm2, qword ptr[eax] 
 	movq mm3, qword ptr[ebx] 
@@ -386,7 +386,7 @@ _memcpyBOBMMX:
 	mov     ebx, dword ptr[Dest2]
 	mov		ecx, nBytes
 	shr     ecx, 6                      ; nBytes / 64
-align 8
+align 4
 memcpyBOB_Loop:
 	movq	mm0, qword ptr[esi]
 	movq	mm1, qword ptr[esi+8*1]
@@ -423,7 +423,7 @@ memcpyBOB_Loop:
 	cmp     ecx, 0
 	je memcpyBOB_End
 
-align 8
+align 4
 memcpyBOB_Loop2:
 	mov edx, [esi] 
 	mov [edi], edx
@@ -462,7 +462,7 @@ _memcpyBOBSSE:
 	mov     ebx, dword ptr[Dest2]
 	mov		ecx, nBytes
 	shr     ecx, 7                      ; nBytes / 128
-align 8
+align 4
 memcpyBOBSSE_Loop:
 	movaps	xmm0, [esi]
 	movaps	xmm1, [esi+16*1]
@@ -498,7 +498,7 @@ memcpyBOBSSE_Loop:
 	shr     ecx, 2
 	cmp     ecx, 0
 	je memcpyBOBSSE_End
-align 8
+align 4
 memcpyBOBSSE_Loop2:
 	mov edx, [esi] 
 	mov [edi], edx
@@ -541,7 +541,7 @@ _memcpyMMX:
 	mov		edi, dword ptr[Dest]
 	mov		ecx, nBytes
 	shr     ecx, 6                      ; nBytes / 64
-align 8
+align 4
 Memcpy_Loop:
 	movq	mm0, qword ptr[esi]
 	movq	mm1, qword ptr[esi+8*1]
@@ -585,7 +585,7 @@ Memcpy_End:
 public _memcpySSE
 
 	Dest	equ	[esp+12]
-	Src	    equ	[esp+16]
+	Src	equ	[esp+16]
 	nBytes	equ	[esp+20]
 
 _memcpySSE:
@@ -641,7 +641,7 @@ MemcpySSE_End:
 public _memcpyAMD
 
 	Dest	equ	[esp+12]
-	Src	    equ	[esp+16]
+	Src	equ	[esp+16]
 	nBytes	equ	[esp+20]
 
 _memcpyAMD:
@@ -652,7 +652,7 @@ _memcpyAMD:
 	mov		edi, dword ptr[Dest]
 	mov		ecx, nBytes
 	shr     ecx, 6                      ; nBytes / 64
-align 8
+align 4
 MemcpyAMD_Loop:
 	movq mm0,[esi+0]
 	movq mm1,[esi+8]
@@ -703,5 +703,32 @@ MemcpyAMD_End:
 	pop	esi
 	pop	edi
 	ret	
+
+;////////////////////////////////////////////////////////////////////
+; void memcpySimple(void *Dest, void *Src, size_t nBytes);
+;
+; On SSE machines we use the 
+; bypass write caching to copy a bit faster.  The destination has to be
+; 16-byte aligned.  
+;////////////////////////////////////////////////////////////////////
+public _memcpySimple
+
+	Dest	equ	[esp+12]
+	Src	equ	[esp+16]
+	nBytes	equ	[esp+20]
+
+_memcpySimple:
+	push	edi
+	push	esi
+
+	mov		esi, dword ptr[Src]
+	mov		edi, dword ptr[Dest]
+	mov		ecx, nBytes
+	rep movsb
+
+	pop	esi
+	pop	edi
+	ret	
 	
 	end
+

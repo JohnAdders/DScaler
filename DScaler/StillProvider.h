@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.h,v 1.6 2001-11-29 14:04:07 adcockj Exp $
+// $Id: StillProvider.h,v 1.7 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class CStillProvider : public ISourceProvider
 {
 public:
     CStillProvider();
-    ~CStillProvider();
+    virtual ~CStillProvider();
     int GetNumberOfSources();
     CSource* GetSource(int SourceIndex);
     BOOL AddStillSource(CStillSource* pStillSource);

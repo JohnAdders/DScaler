@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.10 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Source.h,v 1.11 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,6 @@ private:
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;
     CSliderSetting* m_CardType;
-    CSliderSetting* m_TunerType;
     CSliderSetting* m_ProcessorSpeed;
     CSliderSetting* m_TradeOff;
     CYesNoSetting* m_bSavePerInput;
@@ -130,6 +129,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, PixelWidth);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, VideoSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, VideoFormat);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, TunerType);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, BtAgcDisable);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, BtCrush);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, BtEvenChromaAGC);

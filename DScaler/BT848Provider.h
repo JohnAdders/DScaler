@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.h,v 1.5 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Provider.h,v 1.6 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class CBT848Provider : public ISourceProvider
 {
 public:
     CBT848Provider(CHardwareDriver* pHardwareDriver);
-    ~CBT848Provider();
+    virtual ~CBT848Provider();
     int GetNumberOfSources();
     CSource* GetSource(int SourceIndex);
 private:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.cpp,v 1.6 2001-11-23 10:49:17 adcockj Exp $
+// $Id: HardwareMemory.cpp,v 1.7 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.5  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -126,13 +129,13 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
     DWORD status;
     DWORD nPages = 0;
 
-    m_AllocatedBlock = (DWORD)malloc(Bytes + 0xFFF);
+    m_AllocatedBlock = malloc(Bytes + 0xFFF);
     if(m_AllocatedBlock == NULL)
     {
         throw std::runtime_error("Out of memory");
     }
 
-    memset((void*)m_AllocatedBlock, 0, Bytes + 0xFFF);
+    memset(m_AllocatedBlock, 0, Bytes + 0xFFF);
 
     nPages = Bytes / 0xFFF + 1;
     
@@ -140,22 +143,24 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
     m_pMemStruct = (TMemStruct*) malloc(dwOutParamLength);
     if(m_pMemStruct == NULL)
     {
-        free((void*)m_AllocatedBlock);
+        free(m_AllocatedBlock);
         m_AllocatedBlock = NULL;
         throw std::runtime_error("Out of memory");
     }
+	
+	memset(m_pMemStruct, 0, dwOutParamLength);
 
     paramIn.dwValue = Bytes;
     paramIn.dwFlags = 0;
 
     // align memory to page boundary
-    if((m_AllocatedBlock & 0xFFFFF000) < m_AllocatedBlock)
+    if(((DWORD)m_AllocatedBlock & 0xFFFFF000) < (DWORD)m_AllocatedBlock)
     {
-        paramIn.dwAddress = (DWORD)((m_AllocatedBlock + 0xFFF) & 0xFFFFF000);
+        paramIn.dwAddress = (((DWORD)m_AllocatedBlock + 0xFFF) & 0xFFFFF000);
     }
     else
     {
-        paramIn.dwAddress = (DWORD) m_AllocatedBlock;
+        paramIn.dwAddress = (DWORD)m_AllocatedBlock;
     }
 
     status = m_pDriver->SendCommand(ioctlAllocMemory,
@@ -167,7 +172,6 @@ CUserMemory::CUserMemory(CHardwareDriver* pDriver, size_t Bytes) :
 
     if(status != ERROR_SUCCESS || m_pMemStruct->dwUser == 0)
     {
-        free((void*)paramIn.dwAddress);
         free(m_pMemStruct);
         free((void*)m_AllocatedBlock);
         m_AllocatedBlock = NULL;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.12 2001-12-03 17:27:56 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.13 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/03 17:27:56  adcockj
+// SECAM NICAM patch from Quenotte
+//
 // Revision 1.11  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -266,7 +269,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_CardType = new CSliderSetting("Card Type", TVCARD_UNKNOWN, TVCARD_UNKNOWN, TVCARD_LASTONE - 1, IniSection, "CardType");
     m_Settings.push_back(m_CardType);
 
-    m_TunerType = new CSliderSetting("Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection, "TunerType");
+    m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
     m_ProcessorSpeed = new CSliderSetting("Processor Speed", 1, 0, 2, IniSection, "ProcessorSpeed");
@@ -1031,6 +1034,12 @@ void CBT848Source::SaturationOnChange(long Sat, long OldValue)
         m_Saturation->SetMax(511 - abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
     }
 }
+
+void CBT848Source::TunerTypeOnChange(long TunerId, long OldValue)
+{
+	m_pBT848Card->InitTuner((eTunerId)TunerId);
+}
+
 
 BOOL CBT848Source::IsInTunerMode()
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.h,v 1.6 2001-11-29 17:30:52 adcockj Exp $
+// $Id: HardwareMemory.h,v 1.7 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,9 +29,12 @@ public:
     void* GetUserPointer();
     DWORD TranslateToPhysical(void* pUser, DWORD dwSizeWanted, DWORD* pdwSizeAvailable);
     BOOL IsValid();
+
 protected:
     CHardwareMemory(CHardwareDriver* m_pDriver);
-    ~CHardwareMemory();
+    virtual ~CHardwareMemory();
+
+protected:
     TMemStruct* m_pMemStruct;
     CHardwareDriver* m_pDriver;
 };
@@ -42,9 +45,10 @@ class CUserMemory : public CHardwareMemory
 {
 public:
     CUserMemory(CHardwareDriver* pDriver, size_t Bytes);
-    ~CUserMemory();
+    virtual ~CUserMemory();
+
 private:
-    DWORD m_AllocatedBlock;
+    void* m_AllocatedBlock;
 };
 
 /** Memory that is contiguous in both driver and user space
@@ -53,7 +57,7 @@ class CContigMemory : public CHardwareMemory
 {
 public:
     CContigMemory(CHardwareDriver* pDriver, size_t Bytes);
-    ~CContigMemory();
+    virtual ~CContigMemory();
 };
 
 #endif

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.99 2001-12-03 17:14:42 adcockj Exp $
+// $Id: DScaler.cpp,v 1.100 2001-12-03 19:33:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2001/12/03 17:14:42  adcockj
+// Added command line patch from Arie van Wijngaarden
+//
 // Revision 1.98  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -425,7 +428,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // Required to use slider control
     InitCommonControls();
 
-    // Process the command line arguments.
+
+    // setup default ini file
+	SetIniFileForSettings("");
+    
+	// Process the command line arguments.
     // The following arguments are supported
     // -i<inifile>     specification of the ini file.
     // -c<channel>     the starting channel (0-x).
@@ -2630,7 +2637,6 @@ void CleanUpMemory()
 {
     Mixer_Exit();
     VBI_Exit();
-    Providers_Unload();
     if ((hMenu != NULL) && (GetMenu(hWnd) == NULL))
     {
         DestroyMenu(hMenu);

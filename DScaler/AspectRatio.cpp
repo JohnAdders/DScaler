@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.37 2002-09-18 11:38:05 kooiman Exp $
+// $Id: AspectRatio.cpp,v 1.38 2002-10-31 14:03:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/09/18 11:38:05  kooiman
+// Preparations for skinned dscaler look.
+//
 // Revision 1.36  2002/08/12 21:29:58  laurentg
 // Disable AR autodetection when switching to square pixel mode but restore it when exiting square pixel mode
 //
@@ -175,7 +178,8 @@ TAspectSettings AspectSettings =
     0,
     FALSE,
     FALSE,
-    FALSE
+    FALSE,
+    FALSE,
 };
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...

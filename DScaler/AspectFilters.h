@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.h,v 1.14 2002-02-23 12:00:13 laurentg Exp $
+// $Id: AspectFilters.h,v 1.15 2002-10-31 14:03:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -123,6 +123,23 @@ public:
 protected:
     int m_Overscan;
 };
+
+/// This filter adjusts for Analogue blanking
+class CAnalogueBlankingFilter : public CAspectFilter
+{
+public:
+    CAnalogueBlankingFilter(int SourceWidth, int SourceHeight);
+    virtual BOOL adjustAspect(CAspectRectangles &ar);
+    virtual LPCSTR getFilterName();
+    virtual void DebugDump();
+
+protected:
+    int m_TopShift;
+    int m_BottomShift;
+    int m_LeftShift;
+    int m_RightShift;
+};
+
 
 /** This filter orbits the source image using independent X and Y timers.
     It is assumed that bouncing is enabled if this filter is in the chain.

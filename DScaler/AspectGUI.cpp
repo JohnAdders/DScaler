@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.48 2002-10-15 18:56:20 kooiman Exp $
+// $Id: AspectGUI.cpp,v 1.49 2002-10-31 14:03:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/10/15 18:56:20  kooiman
+// Fixed zooming bug. Zooming out and in brings you back to 1.00 (Zoom off) again.
+//
 // Revision 1.47  2002/09/18 11:38:05  kooiman
 // Preparations for skinned dscaler look.
 //
@@ -297,6 +300,7 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_WINPOS_BOUNCE, (AspectSettings.BounceEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_ORBIT, (AspectSettings.OrbitEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_AUTOSIZE, (AspectSettings.AutoResizeWindow));
+    CheckMenuItemBool(hMenu, IDM_ANALOGUE_BLANKING, (AspectSettings.bAnalogueBlanking));
 
     // Zoom
     CheckMenuItemBool(hMenu, IDM_ZOOM_10, (AspectSettings.ZoomFactorX == 100 && AspectSettings.ZoomFactorY == 100));
@@ -385,6 +389,12 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         AspectSettings.HorizontalPos = (eHorzPos)(wMenuID - IDM_WINPOS_HORZ_RIGHT);
         WorkoutOverlaySize(TRUE);
         break;
+
+    case IDM_ANALOGUE_BLANKING:
+        AspectSettings.bAnalogueBlanking = !AspectSettings.bAnalogueBlanking;
+        ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
+        break;
+
 
     case IDM_SASPECT_CLIP:
         AspectSettings.AspectImageClipped = !AspectSettings.AspectImageClipped;
@@ -1033,6 +1043,14 @@ BOOL MaskGreyShade_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL AnalogueBlanking_OnChange(long NewValue)
+{
+    AspectSettings.bAnalogueBlanking = NewValue;  
+    InvalidateRect(hWnd, NULL, FALSE);
+    return FALSE;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -1260,6 +1278,12 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT_DETECT", "UseWSS", NULL,
+    },
+    {
+        "Analogue Blanking", ONOFF, 0, (long*)&AspectSettings.bAnalogueBlanking,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "AnalogueBlanking", AnalogueBlanking_OnChange,
     },
 };
 

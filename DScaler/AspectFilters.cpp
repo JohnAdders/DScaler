@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.25 2002-10-11 13:40:52 kooiman Exp $
+// $Id: AspectFilters.cpp,v 1.26 2002-10-31 14:03:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/10/11 13:40:52  kooiman
+// Changed bounding screen rectangle to virtual screen. Maybe the overlay doesn't get clipped on multi-monitor setups.
+//
 // Revision 1.24  2002/09/18 11:38:05  kooiman
 // Preparations for skinned dscaler look.
 //
@@ -204,6 +207,45 @@ void COverscanAspectFilter::DebugDump()
 { 
     LOG(2,"Overscan = %i",m_Overscan);
 }
+
+CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeight)
+{
+    if(SourceHeight == 480)
+    {
+        m_TopShift = 1;
+        m_BottomShift = 1;
+        m_LeftShift = SourceWidth * 3 / 720;
+        m_LeftShift = SourceWidth * 3 / 720;
+    }
+    else if(SourceHeight == 576)
+    {
+        m_TopShift = 1;
+        m_BottomShift = 1;
+        m_LeftShift = SourceWidth * 9 / 720;
+        m_RightShift = SourceWidth * 9 / 720;
+    }
+    else
+    {
+        ; // do nothing
+    }
+}
+
+BOOL CAnalogueBlankingFilter::adjustAspect(CAspectRectangles &ar)
+{
+    ar.m_CurrentOverlaySrcRect.shrink(m_LeftShift, m_RightShift, m_TopShift, m_BottomShift);
+    return FALSE;
+}
+
+LPCSTR CAnalogueBlankingFilter::getFilterName()
+{
+    return "CAnalogueBlankingFilter";
+}
+
+void CAnalogueBlankingFilter::DebugDump()
+{ 
+    LOG(2,"AnalogueBlanking %d %d %d %d", m_TopShift, m_BottomShift, m_LeftShift, m_RightShift);
+}
+
 
 // This filter orbits the source image using independent X and Y timers.
 // It is assumed that bouncing is enabled if this filter is in the chain.
@@ -708,6 +750,11 @@ CFilterChain::CFilterChain()
 
 void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 {
+    if (AspectSettings.bAnalogueBlanking)
+    { 
+        m_FilterChain.push_back(new CAnalogueBlankingFilter(SrcWidth, SrcHeight)); 
+    }
+
     if (AspectSettings.OrbitEnabled)
     { 
         int m_Overscan = AspectSettings.InitialOverscan;

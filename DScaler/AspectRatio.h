@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.33 2002-08-05 21:01:55 laurentg Exp $
+// $Id: AspectRatio.h,v 1.34 2002-10-31 14:03:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -99,138 +99,168 @@ int     UpdateSquarePixelsMode(BOOL set);
 */
 typedef struct 
 {
-    // Added variable in dTV.c to track which aspect Mode we are currently in
-    // Use aspect * 1000 (1.66 = 1660, 2.35 = 2350, etc)
-    // Use negative values for SourceAspect to imply anamorphic sources
-    // Note: TargetAspect is the aspect ratio of the screen.
+    /** Added variable in dTV.c to track which aspect Mode we are currently in
+        Use aspect * 1000 (1.66 = 1660, 2.35 = 2350, etc)
+        Use negative values for SourceAspect to imply anamorphic sources
+        Note: TargetAspect is the aspect ratio of the screen.
+    */
     int SourceAspect;
     int TargetAspect;
 
-    // Mode 0 = do nothing, 1 = Letterboxed, 2 = 16:9 anamorphic
+    /// Mode 0 = do nothing, 1 = Letterboxed, 2 = 16:9 anamorphic
     int AspectMode;
 
     int CustomSourceAspect;
     int custom_target_aspect;
 
-    // Luminance cutoff for a black pixel for letterbox detection.  0-127.
+    /// Luminance cutoff for a black pixel for letterbox detection.  0-127.
     long LuminanceThreshold;
 
-    // Range of chroma values (centered around 128) we'll consider black for
-    // letterbox detection.  0-255.
+    /** Range of chroma values (centered around 128) we'll consider black for
+        letterbox detection.  0-255.
+    */
     long ChromaRange;
 
-    // Nonzero to allow automatic switch to ratio greater than the screen
-    // ratio when in fullscreen mode and ratio autodetection mode
+    /** Nonzero to allow automatic switch to ratio greater than the screen
+        ratio when in fullscreen mode and ratio autodetection mode
+    */
     BOOL bAllowGreaterThanScreen;
 
-    // Ignore this many non-black pixels when detecting letterbox.  Setting
-    // this too high may cause problems with dark scenes.
+    /** Ignore this many non-black pixels when detecting letterbox.  Setting
+        this too high may cause problems with dark scenes.
+    */
     long IgnoreNonBlackPixels;
 
-    // Skip over this percentage of pixels on each side (left and right) when
-    // detecting letterbox.  If zero, no pixels are skipped.
+    /** Skip over this percentage of pixels on each side (left and right) when
+        detecting letterbox.  If zero, no pixels are skipped.
+    */
     long SkipPercent;
 
-    // Nonzero to continuously scan for aspect ratio changes.
+    /// Nonzero to continuously scan for aspect ratio changes.
     BOOL AutoDetectAspect;
 
-    // For aspect autodetect, require the same aspect ratio for this number of
-    // frames before zooming in.
+    /** For aspect autodetect, require the same aspect ratio for this number of
+        frames before zooming in.
+    */
     long ZoomInFrameCount;
 
-    // For aspect autodetect, require a lower aspect ratio for this number of
-    // frames before zooming out.
-    // This value must be low, only few frames to avoid cutting the image off
-    // for a long time
+    /** For aspect autodetect, require a lower aspect ratio for this number of
+        frames before zooming out.
+        This value must be low, only few frames to avoid cutting the image off
+        for a long time
+    */
     long ZoomOutFrameCount;
 
-    // For aspect autodetect, zoom in quickly if we've used this ratio in the
-    // last N seconds.
+    /** For aspect autodetect, zoom in quickly if we've used this ratio in the
+        last N seconds.
+    */
     long AspectHistoryTime;
 
-    // For aspect autodetect, only zoom in if we haven't detected a smaller
-    // ratio in some amount of time.
+    /** For aspect autodetect, only zoom in if we haven't detected a smaller
+        ratio in some amount of time.
+    */
     long AspectConsistencyTime;
 
-    // For aspect autodetect, consider two ratios to be equal if they're within
-    // this amount of each other.  This is not in pixels, but in aspect*1000
-    // units.
+    /** For aspect autodetect, consider two ratios to be equal if they're within
+        this amount of each other.  This is not in pixels, but in aspect*1000
+        units.
+    */
     long AspectEqualFudgeFactor;
 
-    // Don't remember aspect ratios that lasted less than this many milliseconds.
+    /// Don't remember aspect ratios that lasted less than this many milliseconds.
     long ShortRatioIgnoreMs;
 
-    // Where does the window sit on the screen
-    // defaults to bang in the middle
+    /** Where does the window sit on the screen
+        defaults to bang in the middle
+    */
     eVertPos VerticalPos;
     eHorzPos HorizontalPos;
 
     RECT DestinationRect;
     RECT SourceRect;
     RECT DestinationRectWindow; // MRS 2-22-01 
-    BOOL DeferedSetOverlay; // MRS 2-22-01 - Wait until middle of WM_PAINT to set overlay (between drawing of black bars and drawing of overlay color)
+    /// Wait until middle of WM_PAINT to set overlay (between drawing of black bars and drawing of overlay color)
+    BOOL DeferedSetOverlay; 
     BOOL OverlayNeedsSetting; // MRS 2-22-01
 
     int InitialOverscan;
 
-    // If TRUE, black bars are drawn.  If FALSE, we leave any leftover image on the screen
-    // For advanced use - typically used FALSE with top-aligned for viewing captions
+    /** If TRUE, black bars are drawn.  If FALSE, we leave any leftover image on the screen
+        For advanced use - typically used FALSE with top-aligned for viewing captions
+    */
     BOOL AspectImageClipped;
 
-    // If TRUE, the WorkoutOverlaySize function will gradually bounce the image
-    // across any black space, starting at the middle, working to the right/bottom
-    // then bouncing to the right/top.
-    // NOTE: SOMETHING ELSE must take responsibility for calling WorkoutOverlaySize
-    // to ensure the bouncing takes place.
+    /** If TRUE, the WorkoutOverlaySize function will gradually bounce the image
+        across any black space, starting at the middle, working to the right/bottom
+        then bouncing to the right/top.
+        NOTE: SOMETHING ELSE must take responsibility for calling WorkoutOverlaySize
+        to ensure the bouncing takes place.
+    */
     BOOL BounceEnabled;
-    // Time to consider bouncing as started - once set it is not reset
-    // until dTV is restarted.
-
+    
+    /** Time to consider bouncing as started - once set it is not reset
+        until dTV is restarted.
+    */
     time_t BounceStartTime;
-    // Number of minutes for a complete cycle of bounce to occur (default is half hour)
+    /// Number of minutes for a complete cycle of bounce to occur (default is half hour)
     time_t BouncePeriod;
-    long TimerBounceMS; // # of miliseconds between aspect updates
-    long BounceAmplitude; // percentage of window over which the overlay bounces
+    /// # of miliseconds between aspect updates
+    long TimerBounceMS; 
+    /// percentage of window over which the overlay bounces
+    long BounceAmplitude; 
 
-    // Orbit - shifts the source image around on a regular basis
-    // Shares the BounceStartTime for calculations
-    // PeriodX and PeriodY should be different for ideal results
+    /** Orbit - shifts the source image around on a regular basis
+        Shares the BounceStartTime for calculations
+        PeriodX and PeriodY should be different for ideal results
+    */
     BOOL OrbitEnabled;
-    int OrbitSize; // # of pixels of variation (both X and Y axis)
-    time_t OrbitPeriodX; // Time to move across the entire orbit area on X axis (seconds)
-    time_t OrbitPeriodY; // Time to move across the entire orbit area on Y axis (seconds)
-    long TimerOrbitMS; // # of miliseconds between aspect updates for orbiting (miliseconds)
-    BOOL AutoResizeWindow; // If TRUE, resize non-fullscreen window to fit image exactly
+    /// # of pixels of variation (both X and Y axis)
+    int OrbitSize; 
+    /// Time to move across the entire orbit area on X axis (seconds)
+    time_t OrbitPeriodX; 
+    /// Time to move across the entire orbit area on Y axis (seconds)
+    time_t OrbitPeriodY; 
+    /// # of miliseconds between aspect updates for orbiting (miliseconds)
+    long TimerOrbitMS; 
+    /// If TRUE, resize non-fullscreen window to fit image exactly
+    BOOL AutoResizeWindow; 
 
-    // True if we want to use whatever ratio is present on the next frame.
+    /// True if we want to use whatever ratio is present on the next frame.
     BOOL DetectAspectNow;
 
-    // Zoom
+    /// Zoom
     long ZoomFactorX;
     long ZoomFactorY;
     long ZoomCenterX;
     long ZoomCenterY;
 
-    // WaitForVerticalBlank
+    /// WaitForVerticalBlank
     BOOL bWaitForVerticalBlank;
 
-    // this is used by filters to adjust the aspect ratio
+    /// this is used by filters to adjust the aspect ratio
     int SourceAspectAdjust;
 
-    // which shade of grey to use for mask
+    /// which shade of grey to use for mask
     int MaskGreyShade;
 
-    // if TRUE, the pixels in the overlay must be considered as squares
+    /// if TRUE, the pixels in the overlay must be considered as squares
     BOOL SquarePixels;
 
-    // if TRUE, the WSS data included in the signal is used
-    // to determine the aspect ratio
+    /** if TRUE, the WSS data included in the signal is used
+        to determine the aspect ratio
+    */
     BOOL bUseWSS;
 
-    // if TRUE, only the WSS data included in the signal is used
-    // to determine the aspect ratio
-    // This setting is relevant only when bUseWSS is TRUE
+    /** if TRUE, only the WSS data included in the signal is used
+        to determine the aspect ratio
+        This setting is relevant only when bUseWSS is TRUE
+    */
     BOOL bUseOnlyWSS;
+
+    // Assume analogue blanking
+    BOOL bAnalogueBlanking;
+
+
 } TAspectSettings;
 
 extern TAspectSettings AspectSettings;

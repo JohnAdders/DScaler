@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.106 2002-10-30 13:41:02 atnak Exp $
+// $Id: DS_Control.h,v 1.107 2002-10-31 14:03:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2002/10/30 13:41:02  atnak
+// Added SINGLEKEYTELETEXTTOGGLE to DSCALER_SETTING
+//
 // Revision 1.105  2002/10/29 22:00:30  adcockj
 // Added EatlLinesAtTop setting for SDI on holo3d
 //
@@ -556,6 +559,7 @@ typedef enum
     MASKGREYSHADE,
     USEONLYWSS,
     USEWSS,
+    ANALOGUEBLANKING,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 

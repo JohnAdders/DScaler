@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.51 2002-10-29 19:32:22 tobbej Exp $
+// $Id: DSSource.cpp,v 1.52 2002-11-10 20:57:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/10/29 19:32:22  tobbej
+// new tuner class for direct tuning to a frequency
+// implemented IsVideoPresent, channel scaning shoud work now
+//
 // Revision 1.50  2002/10/27 12:17:29  tobbej
 // implemented ITuner
 //
@@ -928,14 +932,16 @@ BOOL CDSCaptureSource::IsVideoPresent()
 	}
 
 	pCap=(CDShowCaptureDevice*)pSrc;
-	CDShowDirectTuner *pTuner = pCap->GetTuner();
+	/*CDShowDirectTuner *pTuner = pCap->GetTuner();
 	if(pTuner==NULL)
 	{
 		return FALSE;
-	}
+	}*/
 	try
 	{
-		CDShowDirectTuner::eSignalType type;
+		//this is comented out for now since it looks like it doesn't work
+		//hopefully IsHorizontalLocked will work properly most of the time
+		/*CDShowDirectTuner::eSignalType type;
 
 		long signal=pTuner->GetSignalStrength(type);
 		switch(type)
@@ -958,7 +964,8 @@ BOOL CDSCaptureSource::IsVideoPresent()
 			LOG(2,"CDSCaptureSource::IsVideoPresent: Using IsHorizontalLocked() to determine signal present");
 			return pCap->IsHorizontalLocked();
 			break;
-		}
+		}*/
+		return pCap->IsHorizontalLocked();
 	}
 	catch(CDShowException e)
 	{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.123 2003-01-02 16:24:14 adcockj Exp $
+// $Id: DS_Control.h,v 1.124 2003-01-04 13:34:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.123  2003/01/02 16:24:14  adcockj
+// Corrected MoComp2 settings
+//
 // Revision 1.122  2003/01/02 13:14:59  adcockj
 // Added new plug-ins ready for developement by copying TomsMoComp and Gamma
 //
@@ -609,9 +612,10 @@ typedef enum
     ZOOMOUTFRAMECOUNT,
     ALLOWGREATERTHANSCREEN,
     MASKGREYSHADE,
-    USEONLYWSS,
     USEWSS,
     ANALOGUEBLANKING,
+    DEFAULTSOURCEASPECT,
+	DEFAULTASPECTMODE,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.20 2003-04-10 11:18:55 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.21 2003-04-10 23:31:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/04/10 11:18:55  robmuller
+// Added comment.
+//
 // Revision 1.19  2002/12/04 14:15:06  adcockj
 // Fixed RegSpy Problems
 //
@@ -93,7 +96,7 @@
 #include "resource.h"
 #include "HardwareDriver.h"
 #include "DebugLog.h"
-#include "aclapi.h"
+#include <aclapi.h>
 #include "ErrorBox.h"
 
 // define this to force uninstallation of the NT driver on every destruction of the class.
@@ -569,15 +572,38 @@ BOOL CHardwareDriver::AdjustAccessRights()
     // Build the ACE.
     if(!bError)
     {
-        BuildExplicitAccessWithName(&ea, "EVERYONE", DRIVER_ACCESS_RIGHTS, SET_ACCESS, 
-            NO_INHERITANCE);
-        
-        dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
-        if(dwError != ERROR_SUCCESS)
+        SID_IDENTIFIER_AUTHORITY SIDAuthWorld = SECURITY_WORLD_SID_AUTHORITY;
+        PSID pSIDEveryone;
+
+        // Create a SID for the Everyone group.
+        if (!AllocateAndInitializeSid(&SIDAuthWorld, 1,
+                     SECURITY_WORLD_RID,
+                     0,
+                     0, 0, 0, 0, 0, 0,
+                     &pSIDEveryone))
         {
-            LOG(0,"SetEntriesInAcl failed. 0x%X", GetLastError());
+            LOG(0,"AllocateAndInitializeSid() failed. 0x%X",GetLastError());
             bError = TRUE;
         }
+        else
+        {
+            ea.grfAccessMode = SET_ACCESS;
+            ea.grfAccessPermissions = DRIVER_ACCESS_RIGHTS;
+            ea.grfInheritance = NO_INHERITANCE;
+            ea.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
+            ea.Trustee.pMultipleTrustee = NULL;
+            ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+            ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+            ea.Trustee.ptstrName = (char *)pSIDEveryone;
+    
+            dwError = SetEntriesInAcl(1, &ea, pacl, &pNewAcl);
+            if(dwError != ERROR_SUCCESS)
+            {
+                LOG(0,"SetEntriesInAcl failed. %d", dwError);
+                bError = TRUE;
+            }
+        }
+        FreeSid(pSIDEveryone);
     }
     
     // Initialize a new Security Descriptor.

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.2 2002-10-29 16:20:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -744,6 +744,8 @@ enum eCX2388xCardId
     CX2388xCARD_CONEXANT_EVK_PAL,
     CX2388xCARD_HOLO3D,
     CX2388xCARD_PIXELVIEW_XCAPTURE,
+    CX2388xCARD_MSI_TV_ANYWHERE_NTSC,
+    CX2388xCARD_MSI_TV_ANYWHERE_PAL,
     CX2388xCARD_LASTONE,
 };
 #define SRAM_CMDS_21                0x180040 // 48 DWORDS

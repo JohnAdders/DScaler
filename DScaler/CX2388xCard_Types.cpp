@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.2 2002-10-29 16:20:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // 
 // CVS Log while file was called CT2388xCard_Types.cpp
 //
@@ -260,6 +263,78 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         SetAnalogSaturationV,
         StandardSetFormat,
         TUNER_ABSENT,
+        IDC_CX2388X,
+    },
+    {
+        "MSI TV@nywhere (NTSC)",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+        },
+        NULL,
+        StandardInputSelect,
+        SetAnalogBrightness,
+        SetAnalogContrast,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_MT2032,
+        IDC_CX2388X,
+    },
+    {
+        "MSI TV@nywhere (PAL)",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+        },
+        NULL,
+        StandardInputSelect,
+        SetAnalogBrightness,
+        SetAnalogContrast,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_MT2032_PAL,
         IDC_CX2388X,
     },
 };

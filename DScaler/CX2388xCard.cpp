@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.2 2002-10-29 16:20:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // 
 // CVS Log while file was called CT2388xCard.cpp
 //
@@ -1159,9 +1162,12 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     switch (tunerId)
     {
     case TUNER_MT2032:
-        // \todo fix this
-        //m_Tuner = new CMT2032();
-        //strcpy(m_TunerType, "MT2032 ");
+        m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
+        strcpy(m_TunerType, "MT2032 ");
+        break;
+    case TUNER_MT2032_PAL:
+        m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
+        strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:

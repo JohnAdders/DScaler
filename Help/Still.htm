@@ -94,10 +94,10 @@ height="2"></td>
         select it again.<br>
         Finally, there is another mode that allows you to take &lt;n&gt; consecutive 
         stills. The number of stills to take is defined in the still settings. 
-        With this mode of use, the stills are stored in memory and are not saved 
-        in a file. That is necessary to avoid dropped fields and really have the 
-        consecutive pictures of a video stream. To do that, select the item &quot;Take 
-        Consecutive Still Pictures&quot; in the the menu &quot;Actions&quot;.<br>
+        With this mode, the stills are stored in memory and are not saved directly 
+        in a file. That is necessary to avoid dropped fields and to have really 
+        the consecutive pictures of a video stream. To do that, select the item 
+        &quot;Take Consecutive Still Pictures&quot; in the the menu &quot;Actions&quot;.<br>
       </p>
       <p>When you take a still, depending on a setting you can adjust, either 
         the still is stored in memory and you can save it in a file later, or 
@@ -114,9 +114,9 @@ height="2"></td>
         same second<br>
         &lt;ext&gt; is tif or jpg<br>
         The same rule is applied when saving a still that is currently only stored 
-        in memory (the date and time used will be those when the still is taken 
+        in memory (the date and time used will be those when the still was taken 
         and not those when you save the file).<br>
-        A particular setting allows to use a different file naming, and always 
+        A particular setting allows you to use a different file naming, and always 
         override the same file when taking stills : TV.&lt;ext&gt; where &lt;ext&gt; 
         is tif or jpg.</p>
       <p>You have a direct access to all the stills taken during the current DScaler 
@@ -149,55 +149,67 @@ height="2"></td>
           <th>Description</th>
         </tr>
         <tr> 
-          <td>FormatSaving</td>
+          <td>Format of saving</td>
           <td>0 (TIFF RGB)</td>
           <td>Format of saving: defines the file format used when taking stills. 
             The possible values are 0 (TIFF RGB), 1 (TIFF YCbCr) or 2 (JPEG)..</td>
         </tr>
         <tr> 
-          <td>JPEGQuality</td>
+          <td>JPEG quality compression</td>
           <td>95</td>
           <td>JPEG quality compression: defines the quality factor used when creating 
             a JPEG file. It must be a value between 0 and 100. Higher is the value, 
             higher is the picture quality and bigger is the file size.</td>
         </tr>
         <tr> 
-          <td>SavingPath</td>
+          <td>Saving path for stills</td>
           <td>DScaler directory</td>
           <td>This string defines in which directory are saved the produced still 
             files.</td>
         </tr>
         <tr> 
-          <td>SaveInSameFile</td>
+          <td>Save in the same file</td>
           <td>OFF</td>
           <td>Set it to 1 (ON) to bypass the normal file naming and use always 
             the same file name when taking stills, or set it to 0 (OFF) to have 
             the normal file naming.</td>
         </tr>
         <tr> 
-          <td>DelayBetweenStills</td>
+          <td>Delay between stills</td>
           <td>60 seconds</td>
           <td>Time in seconds to wait between each still when using the mode &quot;take 
             cyclic still pictures&quot;.</td>
         </tr>
         <tr> 
-          <td>NbConsecutiveStills</td>
+          <td>Number of consecutive stills</td>
           <td>20</td>
           <td>Number of stills taken when using the mode &quot;take consecutive 
             still pictures&quot;.</td>
         </tr>
         <tr> 
-          <td>KeepOriginalRatio</td>
+          <td>Maximum memory usage for stills</td>
+          <td>64 Mo</td>
+          <td>Maximum quantity of memory in megaoctets used by the software to 
+            store stills.</td>
+        </tr>
+        <tr> 
+          <td>Keep original ratio</td>
           <td>OFF</td>
           <td>Set it to 1 (ON) to keep the original ratio of the video source 
             for the still, or set it to 0 (OFF) to do no resizing and take exactly 
             what is in the video card overlay.</td>
         </tr>
         <tr> 
-          <td>StillsInMemory</td>
+          <td>Stills in memory</td>
           <td>OFF</td>
           <td>Set it to 1 (ON) to take the stills in memory and defer the creation 
             of the file, or set it to 0 (OFF) to immediately create the file.</td>
+        </tr>
+        <tr> 
+          <td>OSD when taking a still</td>
+          <td>ON</td>
+          <td>Set it to 1 (ON) to have OSD information when a still is taken, 
+            or set it to 0 (OFF) to have no OSD information.</td>
         </tr>
       </table>
       <p></p>
@@ -222,6 +234,10 @@ height="2"></td>
         the next, the first or the last file in the playlist. The sub-menu &quot;Files&quot; 
         gives a direct access to all the files in the playlist. Items which are 
         greyed in this sub-menu are files that DScaler is not able to read.</p>
+      <p>When the current still is only saved in memory and not yet saved in a 
+        file, it is possible to save it in a file using the menu item &quot;Save&quot;. 
+        &quot;Saved All&quot; does the same thing but for all the files in the 
+        current virtual playlist.</p>
       <p>The menu &quot;Playlist&quot; allows to change the order of files in 
         the virtual playlist : &quot;Up&quot; and &quot;Down&quot; allows to shift 
         up or down in the playlist the current displayed file.</p>
@@ -245,7 +261,7 @@ height="2"></td>
           <th>Description</th>
         </tr>
         <tr> 
-          <td>SlideShowDelay</td>
+          <td>Slide Show Delay</td>
           <td>5</td>
           <td>Slide Show Delay: defines the duration of display of each slide. 
             It must be a value between 1 and 60 seconds.</td>
@@ -283,13 +299,13 @@ height="2"></td>
           <th>Description</th>
         </tr>
         <tr> 
-          <td>PatternHeight</td>
+          <td>Pattern height</td>
           <td>576</td>
           <td>Pattern height: defines the height in pixels of the patterns. It 
             must be a value betweeen 480 and 576.</td>
         </tr>
         <tr> 
-          <td>PatternWidth</td>
+          <td>Pattern width</td>
           <td>720</td>
           <td>Pattern width: defines the width in pixels of the patterns. It must 
             be a value betweeen 240 and 768.</td>

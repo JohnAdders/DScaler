@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.18 2001-09-05 16:22:34 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.19 2001-09-21 15:39:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/09/05 16:22:34  adcockj
+// Fix for new teletext painting overwritting other apps
+//
 // Revision 1.17  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -1033,6 +1036,12 @@ void VT_SetCodePage(eVTCodePage Codepage)
     case VT_FRENCH_CODE_PAGE:
         VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_FRENCH_VTCHARS), RT_BITMAP));
         break;
+    case VT_RUSSIAN_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_RUSSIAN_VTCHARS), RT_BITMAP));
+        break;
+    case VT_GERMAN_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_GERMAN_VTCHARS), RT_BITMAP));
+        break;
     case VT_UK_CODE_PAGE:
     default:
         VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
@@ -1086,4 +1095,6 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_FRENCH, (VTCodePage == VT_FRENCH_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_CZECH, (VTCodePage == VT_CZECH_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_GREEK, (VTCodePage == VT_GREEK_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_RUSSIAN, (VTCodePage == VT_RUSSIAN_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_GERMAN, (VTCodePage == VT_GERMAN_CODE_PAGE));
 }

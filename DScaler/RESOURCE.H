@@ -50,6 +50,8 @@
 #define IDB_CZECH_VTCHARS               186
 #define IDD_OVERLAYSETTINGS             186
 #define IDB_GREEK_VTCHARS               187
+#define IDB_RUSSIAN_VTCHARS             188
+#define IDB_GERMAN_VTCHARS              190
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -910,13 +912,15 @@
 #define IDM_START_AUTO_CALIBRATION3     2067
 #define IDM_VT_GREEK                    2068
 #define IDM_OVERLAYSETTINGS             2070
+#define IDM_VT_RUSSIAN                  2071
+#define IDM_VT_GERMAN                   2072
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2071
+#define _APS_NEXT_RESOURCE_VALUE        191
+#define _APS_NEXT_COMMAND_VALUE         2073
 #define _APS_NEXT_CONTROL_VALUE         1904
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.72 2001-09-11 12:03:52 adcockj Exp $
+// $Id: DScaler.cpp,v 1.73 2001-09-21 15:39:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2001/09/11 12:03:52  adcockj
+// Updated Help menu to go to help page
+//
 // Revision 1.71  2001/09/08 19:18:46  laurentg
 // Added new specific dialog box to set the overlay settings
 //
@@ -1302,6 +1305,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_GREEK:
             Stop_Capture();
             VT_SetCodePage(VT_GREEK_CODE_PAGE);
+            Start_Capture();
+            break;
+
+        case IDM_VT_RUSSIAN:
+            Stop_Capture();
+            VT_SetCodePage(VT_RUSSIAN_CODE_PAGE);
+            Start_Capture();
+            break;
+
+        case IDM_VT_GERMAN:
+            Stop_Capture();
+            VT_SetCodePage(VT_GERMAN_CODE_PAGE);
             Start_Capture();
             break;
 

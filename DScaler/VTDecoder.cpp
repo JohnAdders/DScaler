@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.12 2004-10-11 21:57:12 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.13 2004-10-11 22:21:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/10/11 21:57:12  atnak
+// Corrected parsing offset error in 8/30 packets.  (Thanks Rani Feldman)
+//
 // Revision 1.11  2004/05/16 19:54:54  atnak
 // changed to not accept duplicate lines for same page in one reception
 //
@@ -182,6 +185,8 @@ void CVTDecoder::DecodeLine(BYTE* data)
     WORD wControlBits;
     DWORD dwPageCode;
 
+    // Caution: Remember that these offsets are zero based while indexes
+    // in the ETS Teletext specification (ETS 300 706) are one based.
     packetNumber = UnhamTwo84_LSBF(data + 3, &bError);
 
     if (bError != FALSE)
@@ -234,6 +239,8 @@ void CVTDecoder::DecodeLine(BYTE* data)
         wPageHex = UnhamTwo84_LSBF(data + 5, &bError);
         wPageHex |= (magazine == 0 ? 0x800 : magazine * 0x100);
 
+        // Caution: Remember that these offsets are zero based while indexes
+        // in the ETS Teletext specification (ETS 300 706) are one based.
         s1 = Unham84(data + 7, &bError);
         s2 = Unham84(data + 8, &bError);
         s3 = Unham84(data + 9, &bError);
@@ -477,6 +484,8 @@ void CVTDecoder::DecodeLine(BYTE* data)
         // 8/30/2,3 is Format 2 Broadcast Service Data
         if (magazine == 0 && (designationCode & 0xC) == 0x0)
         {
+            // Caution: Remember that these offsets are zero based while indexes
+            // in the ETS Teletext specification (ETS 300 706) are one based.
             s1 = Unham84(data + 8, &bError);
             s2 = Unham84(data + 9, &bError);
             s3 = Unham84(data + 10, &bError);
@@ -497,7 +506,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
                 m_BroadcastServiceData.InitialPage = dwPageCode;
             }
 
-            // Format 1 and Format 2 are differerent from here
+            // Format 1 and Format 2 are different from here
             if ((designationCode & 0x2) == 0)
             {
                 // The Network Identification Code has bits in reverse

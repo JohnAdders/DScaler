@@ -1200,6 +1200,18 @@
 #define IDM_PREVIEW_PAGE_NEXT           32964
 #define IDM_PREVIEW_PAGE_PREV           32965
 #define IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER 32966
+#define IDM_DSHOW_BACKWARD_5S           32967
+#define IDM_DSHOW_BACKWARD_10S          32968
+#define IDM_DSHOW_BACKWARD_30S          32969
+#define IDM_DSHOW_BACKWARD_300S         32970
+#define IDM_DSHOW_BACKWARD_600S         32971
+#define IDM_DSHOW_BACKWARD_1800S        32972
+#define IDM_DSHOW_FORWARD_5S            32973
+#define IDM_DSHOW_FORWARD_10S           32974
+#define IDM_DSHOW_FORWARD_30S           32975
+#define IDM_DSHOW_FORWARD_300S          32976
+#define IDM_DSHOW_FORWARD_600S          32977
+#define IDM_DSHOW_FORWARD_1800S         32978
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1220,7 +1232,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        266
-#define _APS_NEXT_COMMAND_VALUE         32967
+#define _APS_NEXT_COMMAND_VALUE         32979
 #define _APS_NEXT_CONTROL_VALUE         8089
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

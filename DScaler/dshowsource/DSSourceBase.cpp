@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.20 2003-08-12 08:56:56 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.21 2003-08-12 19:02:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/08/12 08:56:56  laurentg
+// OSD texts attached to media player actions
+//
 // Revision 1.19  2003/08/10 11:55:01  tobbej
 // implemented the base for seeking in files
 //
@@ -407,6 +410,54 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		OSD_ShowText("Stop", 0);
 		return TRUE;
 		break;
+	case IDM_DSHOW_BACKWARD_5S:
+		ChangePos(-5);
+		return TRUE;
+		break;
+	case IDM_DSHOW_BACKWARD_10S:
+		ChangePos(-10);
+		return TRUE;
+		break;
+	case IDM_DSHOW_BACKWARD_30S:
+		ChangePos(-30);
+		return TRUE;
+		break;
+	case IDM_DSHOW_BACKWARD_300S:
+		ChangePos(-300);
+		return TRUE;
+		break;
+	case IDM_DSHOW_BACKWARD_600S:
+		ChangePos(-600);
+		return TRUE;
+		break;
+	case IDM_DSHOW_BACKWARD_1800S:
+		ChangePos(-1800);
+		return TRUE;
+		break;
+	case IDM_DSHOW_FORWARD_5S:
+		ChangePos(5);
+		return TRUE;
+		break;
+	case IDM_DSHOW_FORWARD_10S:
+		ChangePos(10);
+		return TRUE;
+		break;
+	case IDM_DSHOW_FORWARD_30S:
+		ChangePos(30);
+		return TRUE;
+		break;
+	case IDM_DSHOW_FORWARD_300S:
+		ChangePos(300);
+		return TRUE;
+		break;
+	case IDM_DSHOW_FORWARD_600S:
+		ChangePos(600);
+		return TRUE;
+		break;
+	case IDM_DSHOW_FORWARD_1800S:
+		ChangePos(1800);
+		return TRUE;
+		break;
 	case IDM_DSHOW_FILTERS:
 		{
 			CTreeSettingsDlg dlg("Filter properties");
@@ -629,4 +680,35 @@ LPCSTR CDSSourceBase::IDString()
 {
 	return m_IDString.c_str();
 }
+
+void CDSSourceBase::ChangePos(int delta_sec)
+{
+	CDShowSeeking *pSeeking=m_pDSGraph->GetSeeking();
+	if(pSeeking!=NULL)
+	{
+		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
+		{
+			LONGLONG pos=pSeeking->GetCurrentPos();
+			LONGLONG duration=pSeeking->GetDuration();
+			LONGLONG newpos = pos + 10000000 * (LONGLONG)delta_sec;
+			if (newpos < 0)
+			{
+				newpos = 0;
+			}
+			else if (newpos > duration)
+			{
+				newpos = duration;
+			}
+			if( (delta_sec < 0) && (pSeeking->GetCaps()&(AM_SEEKING_CanSeekBackwards|AM_SEEKING_CanSeekAbsolute)) )
+			{
+				pSeeking->SeekTo(newpos);
+			}
+			else if( (delta_sec > 0) && (pSeeking->GetCaps()&(AM_SEEKING_CanSeekForwards|AM_SEEKING_CanSeekAbsolute)) )
+			{
+				pSeeking->SeekTo(newpos);
+			}
+		}
+	}
+}
+
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.17 2003-08-11 20:46:52 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.18 2003-08-12 19:02:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/08/11 20:46:52  laurentg
+// Method to know if the source can be controled through a media player
+//
 // Revision 1.16  2003/07/22 22:30:20  laurentg
 // Correct handling of pause (P key) for video file playing
 //
@@ -137,6 +140,8 @@ public:
     void UnPause() {return;};
 
 	BOOL HasMediaControl() {return FALSE;};
+
+	void ChangePos(int delta_sec);
 
 protected:
 	CDShowGraph *m_pDSGraph;

@@ -1598,6 +1598,24 @@ BEGIN
         MENUITEM "&Play",                       IDM_DSHOW_PLAY
         MENUITEM "Pa&use",                      IDM_DSHOW_PAUSE
         MENUITEM "&Stop",                       IDM_DSHOW_STOP
+        POPUP "&Backward"
+        BEGIN
+            MENUITEM "5 seconds",                   IDM_DSHOW_BACKWARD_5S
+            MENUITEM "10 seconds",                  IDM_DSHOW_BACKWARD_10S
+            MENUITEM "30 seconds",                  IDM_DSHOW_BACKWARD_30S
+            MENUITEM "5 minutes",                   IDM_DSHOW_BACKWARD_300S
+            MENUITEM "10 minutes",                  IDM_DSHOW_BACKWARD_600S
+            MENUITEM "30 minutes",                  IDM_DSHOW_BACKWARD_1800S
+        END
+        POPUP "&Forward"
+        BEGIN
+            MENUITEM "5 seconds",                   IDM_DSHOW_FORWARD_5S
+            MENUITEM "10 seconds",                  IDM_DSHOW_FORWARD_10S
+            MENUITEM "30 seconds",                  IDM_DSHOW_FORWARD_30S
+            MENUITEM "5 minutes",                   IDM_DSHOW_FORWARD_300S
+            MENUITEM "10 minutes",                  IDM_DSHOW_FORWARD_600S
+            MENUITEM "30 minutes",                  IDM_DSHOW_FORWARD_1800S
+        END
         MENUITEM SEPARATOR
         MENUITEM "Se&ttings...",                IDM_DSHOW_SETTINGS
         MENUITEM "Filter properties...",        IDM_DSHOW_FILTERS

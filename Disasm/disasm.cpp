@@ -1,5 +1,8 @@
-//  disasm - Disassembly module compiler for VirtualDub
-//  Copyright (C) 2002 Avery Lee, All Rights Reserved
+/////////////////////////////////////////////////////////////////////////////
+// $Id: disasm.cpp,v 1.2 2002-09-17 17:36:46 tobbej Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 2002 Avery Lee, All Rights Reserved.
+/////////////////////////////////////////////////////////////////////////////
 //
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -14,6 +17,17 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+/////////////////////////////////////////////////////////////////////////////
+// This file was taken from VirtualDub
+// disasm - Disassembly module compiler for VirtualDub
+// Copyright (C) 2002 Avery Lee, All Rights Reserved
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
+
 
 #pragma warning(disable: 4786)
 

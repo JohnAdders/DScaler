@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.77 2001-10-04 12:39:16 adcockj Exp $
+// $Id: DScaler.cpp,v 1.78 2001-10-06 12:36:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2001/10/04 12:39:16  adcockj
+// Added Teletext colour buttons to UI and switch to using accelerator rather than keyup message
+//
 // Revision 1.76  2001/09/29 10:51:09  laurentg
 // O and Shift+O to adjust specific overscan when in calibration mode
 // Enter and Backspace to show and hide calibration OSD when in calibration mode
@@ -1702,6 +1705,58 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                         InvalidateRect(hWnd,NULL,FALSE);
                     }
                 }
+            }
+            break;
+
+        case IDM_LEFT_CROP_PLUS:
+            if ( pCalibration->IsRunning()
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                Setting_Up(Calibr_GetSetting(LEFT_SOURCE_CROPPING));
+                SendMessage(hWnd, WM_COMMAND, IDM_LEFT_CROP_CURRENT, 0);
+            }
+            break;
+
+        case IDM_LEFT_CROP_MINUS:
+            if ( pCalibration->IsRunning()
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                Setting_Down(Calibr_GetSetting(LEFT_SOURCE_CROPPING));
+                SendMessage(hWnd, WM_COMMAND, IDM_LEFT_CROP_CURRENT, 0);
+            }
+            break;
+
+        case IDM_LEFT_CROP_CURRENT:
+            if ( pCalibration->IsRunning()
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                Setting_OSDShow(Calibr_GetSetting(LEFT_SOURCE_CROPPING), hWnd);
+            }
+            break;
+
+        case IDM_RIGHT_CROP_PLUS:
+            if ( pCalibration->IsRunning()
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                Setting_Up(Calibr_GetSetting(RIGHT_SOURCE_CROPPING));
+                SendMessage(hWnd, WM_COMMAND, IDM_RIGHT_CROP_CURRENT, 0);
+            }
+            break;
+
+        case IDM_RIGHT_CROP_MINUS:
+            if ( pCalibration->IsRunning()
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                Setting_Down(Calibr_GetSetting(RIGHT_SOURCE_CROPPING));
+                SendMessage(hWnd, WM_COMMAND, IDM_RIGHT_CROP_CURRENT, 0);
+            }
+            break;
+
+        case IDM_RIGHT_CROP_CURRENT:
+            if ( pCalibration->IsRunning()
+              && (pCalibration->GetType() == CAL_MANUAL) )
+            {
+                Setting_OSDShow(Calibr_GetSetting(RIGHT_SOURCE_CROPPING), hWnd);
             }
             break;
 

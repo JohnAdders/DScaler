@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.45 2002-10-02 10:53:40 kooiman Exp $
+// $Id: DSSource.cpp,v 1.46 2002-10-07 20:35:17 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/10/02 10:53:40  kooiman
+// Fix C++ casting for eventobject.
+//
 // Revision 1.44  2002/09/28 14:32:47  kooiman
 // Base class this pointer apparently not equal to this of main class. fixed comparison.
 //
@@ -650,9 +653,13 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
 		CDSVideoFormatPage VidemFmt(CString("Video format"),m_VideoFmt,m_Resolution);
 
+		PreShowDialogOrMenu();
+
 		dlg.AddPage(&AudioDevice);
 		dlg.AddPage(&VidemFmt);
 		dlg.DoModal();
+
+		PostShowDialogOrMenu();
 
 		return TRUE;
 	}

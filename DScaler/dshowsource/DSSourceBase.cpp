@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.11 2002-09-29 10:14:15 adcockj Exp $
+// $Id: DSSourceBase.cpp,v 1.12 2002-10-07 20:35:17 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/09/29 10:14:15  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.10  2002/09/29 09:14:36  tobbej
 // fixed mute/unmute
 // added some checks to volume and balance controls
@@ -519,6 +522,7 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
 	{
 		LOG(3,"Exception in VolumeOnChange, Error: %s",(LPCSTR)e.getErrorText());
 		m_Volume->SetValue(OldValue,ONCHANGE_NONE);
+		EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, OldValue);
 	}
 }
 

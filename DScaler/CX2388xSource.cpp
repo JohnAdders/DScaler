@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.29 2003-01-10 17:51:59 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.30 2003-01-11 12:53:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/01/10 17:51:59  adcockj
+// Removed SettingFlags
+//
 // Revision 1.28  2003/01/10 17:37:52  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -294,8 +297,6 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     InitializeUI();
 
     Reset();
-
-    EnableOnChange();
 }
 
 
@@ -310,8 +311,6 @@ void CCX2388xSource::SetSourceAsCurrent()
     // need to call up to parent to run register settings functions
     CSource::SetSourceAsCurrent();
 
-    DisableOnChange();
-
     // tell the rest of DScaler what the setup is
     // A side effect of the Raise events is to load up the settings by section
     // loads up other settings which are prossible stored
@@ -319,8 +318,6 @@ void CCX2388xSource::SetSourceAsCurrent()
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
-
-    EnableOnChange();
 }
 
 void CCX2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
@@ -386,15 +383,6 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 
     m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
-
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_BottomOverscan);
-
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LeftOverscan);
-
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_RightOverscan);
 
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
     m_Settings.push_back(m_VideoSource);
@@ -511,6 +499,15 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_StereoType = new CStereoTypeSetting(this, "Stereo Type", CCX2388xCard::STEREOTYPE_AUTO, CCX2388xCard::STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
     m_Settings.push_back(m_StereoType);
 
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_Settings.push_back(m_BottomOverscan);
+
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_Settings.push_back(m_LeftOverscan);
+
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_Settings.push_back(m_RightOverscan);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -539,6 +536,7 @@ void CCX2388xSource::Start()
         // we use  only two different sampling rates which are based off the pal and ntsc fsc values
         VBI_Init_data(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->Bt848VBISamplingFrequency);
     }
+    EnableOnChange();
 }
 
 void CCX2388xSource::Reset()
@@ -800,6 +798,7 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
 void CCX2388xSource::Stop()
 {
     // stop capture
+    DisableOnChange();
     m_pCard->StopCapture();
 }
 
@@ -1239,13 +1238,11 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
-    DisableOnChange();
-
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
+    Reset();
 
-    EnableOnChange();
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     // set up sound
     if(m_pCard->IsInputATuner(NewValue))
@@ -1259,15 +1256,14 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    DisableOnChange();
     Stop_Capture();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+
+    Reset();
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
-    EnableOnChange();
-    Reset();
     Start_Capture();
 }
 

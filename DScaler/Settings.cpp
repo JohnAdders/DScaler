@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.43 2003-01-10 17:38:28 adcockj Exp $
+// $Id: Settings.cpp,v 1.44 2003-01-11 12:53:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2003/01/10 17:38:28  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.42  2003/01/03 12:38:13  adcockj
 // Fixed API bugs
 //
@@ -435,11 +442,11 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
     FILE* IniFile = NULL;
     FILE* TempFile = NULL;
     char szTempFile[MAX_PATH] = "";
-    char buf[256] = "";
-    char lastline[256] = "";
+    char buf[2560] = "";
+    char lastline[2560] = "";
     BOOL IOError = FALSE;
 
-    buf[255] = '\0';
+    buf[2550] = '\0';
 
     GetCurrentDirectory(MAX_PATH, szTempFile);
     strcat(szTempFile, "\\");
@@ -465,7 +472,7 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
         {
             while(!feof(IniFile))
             {
-                if(fgets(buf, 255, IniFile) == NULL)
+                if(fgets(buf, 2550, IniFile) == NULL)
                 {
                     if(feof(IniFile))
                     {

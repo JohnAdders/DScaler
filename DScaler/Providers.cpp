@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.56 2003-01-10 17:38:13 adcockj Exp $
+// $Id: Providers.cpp,v 1.57 2003-01-11 12:53:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/01/10 17:38:13  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.55  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -222,6 +229,7 @@
 #include "DScaler.h"
 #include "Audio.h"
 #include "VBI_WSSdecode.h"
+#include "SettingsMaster.h"
 
 
 #ifdef WANT_DSHOW_SUPPORT
@@ -240,7 +248,8 @@ typedef vector<TSource*> SOURCELIST;
 
 extern HMENU hMenu;
 
-void Providers_NotifySourceChange(int Flags, CSource *pSource);
+void Providers_NotifySourceChange(int OldSource);
+void Providers_NotifySourcePreChange();
 
 static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
@@ -407,7 +416,7 @@ int Providers_Load(HMENU hMenu)
         CurrentSource = Providers_FindSource();
     }
 
-    Providers_NotifySourceChange(0, Providers_GetCurrentSource());
+    Providers_NotifySourceChange(-1);
 
     for(i = 0; i < Sources.size() && i < 100 ; ++i)
     {
@@ -585,11 +594,12 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         int NewSource(LOWORD(wParam) - IDM_SOURCE_FIRST);
         if(NewSource >= 0 && NewSource < Sources.size())
         {
-            Providers_NotifySourceChange(1, Providers_GetCurrentSource());
+            Providers_NotifySourcePreChange();
             Stop_Capture();
             WSS_init();
+            int OldSource = CurrentSource;
             CurrentSource = NewSource;
-            Providers_NotifySourceChange(0, Providers_GetCurrentSource());
+            Providers_NotifySourceChange(OldSource);
             Providers_UpdateMenu(hMenu);
             Start_Capture();
             return TRUE;
@@ -642,13 +652,14 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             {
                 if(Sources[i]->Object->OpenMediaFile(FilePath, FALSE))
                 {                    
-                    Providers_NotifySourceChange(1, Providers_GetCurrentSource());
+                    Providers_NotifySourcePreChange();
                     
+                    int OldSource = CurrentSource;
                     CurrentSource = i;
                     WSS_init();
                     Providers_UpdateMenu(hMenu);
                     Start_Capture();
-                    Providers_NotifySourceChange(0, Providers_GetCurrentSource());
+                    Providers_NotifySourceChange(OldSource);
                     return TRUE;
                 }
             }
@@ -659,10 +670,11 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {
-        Providers_NotifySourceChange(1, Providers_GetCurrentSource());            
+        Providers_NotifySourcePreChange();            
         
         Stop_Capture();
         WSS_init();
+        int OldSource = CurrentSource;
         if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
         {
             CurrentSource = DefSourceIdx;
@@ -674,7 +686,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         Providers_UpdateMenu(hMenu);
         Start_Capture();
         
-        Providers_NotifySourceChange(0, Providers_GetCurrentSource());
+        Providers_NotifySourceChange(OldSource);
         return TRUE;
     }
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
@@ -729,10 +741,35 @@ void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 }
 
 
-void Providers_NotifySourceChange(int Flags, CSource *pSource)
+void Providers_NotifySourcePreChange()
 {
     if (EventCollector != NULL)
     {
-        EventCollector->RaiseEvent(NULL, (Flags&1)?EVENT_SOURCE_PRECHANGE : EVENT_SOURCE_CHANGE, (long)pSource, (long)pSource, NULL);
+        EventCollector->RaiseEvent(NULL, EVENT_SOURCE_PRECHANGE, (long)Providers_GetCurrentSource(), (long)Providers_GetCurrentSource(), NULL);
+    }
+    if(Providers_GetCurrentSource() != NULL)
+    {
+        Providers_GetCurrentSource()->UnsetSourceAsCurrent();
+    }
+    // good time to save the current settings
+    SettingsMaster->SaveSettings();
+}
+
+void Providers_NotifySourceChange(int OldSource)
+{
+    CSource* pOldSource = NULL;
+
+    if(OldSource >= 0 && OldSource < Sources.size())
+    {
+        pOldSource = Sources[OldSource]->Object;
+    }
+    if (EventCollector != NULL)
+    {
+        EventCollector->RaiseEvent(NULL, EVENT_SOURCE_CHANGE, (long)pOldSource, (long)Providers_GetCurrentSource(), NULL);
+    }
+
+    if(Providers_GetCurrentSource() != NULL)
+    {
+        Providers_GetCurrentSource()->SetSourceAsCurrent();
     }
 }

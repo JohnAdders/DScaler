@@ -67,7 +67,7 @@ void CSettingsMaster::ParseAllSettings(bool IsLoad)
 			}
 		}
         
-        m_Holders[i].pHolder->SetLocation(&vSubLocations);
+        //m_Holders[i].pHolder->SetLocation(&vSubLocations);
 
 		int Num = m_Holders[i].pHolder->GetNumSettings();
         CSimpleSetting* pSetting;
@@ -168,7 +168,6 @@ void CSettingsMaster::SetSource(CSource* pSource)
     if (pSource != NULL)
     {
         m_SourceName = pSource->IDString();
-        LoadSettings();
     }
     else
     {
@@ -182,7 +181,6 @@ void CSettingsMaster::SetChannelName(long NewValue)
     {        
         char szBuffer[33];
         m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
-        LoadSettings();
     }
     else
     {
@@ -196,7 +194,6 @@ void CSettingsMaster::SetVideoInput(long NewValue)
     {
         char szBuffer[33];
         m_VideoInputName = string("VideoInput") +  itoa(NewValue, szBuffer, 10);
-        LoadSettings();
     }
     else
     {
@@ -223,7 +220,6 @@ void CSettingsMaster::SetVideoFormat(long NewValue)
     {
         char szBuffer[33];
         m_VideoFormatName = string("VideoFormat") +  itoa(NewValue, szBuffer, 10);            
-        LoadSettings();
     }
     else
     {

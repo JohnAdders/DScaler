@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.58 2003-01-10 17:38:15 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.59 2003-01-11 12:53:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/01/10 17:38:15  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.57  2003/01/08 19:59:38  laurentg
 // Analogue Blanking setting by source
 //
@@ -293,8 +300,6 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     InitializeUI();
 
     Reset();
-
-    EnableOnChange();
 }
 
 
@@ -314,16 +319,12 @@ void CSAA7134Source::SetSourceAsCurrent()
     // need to call up to parent to run register settings functions
     CSource::SetSourceAsCurrent();
 
-    DisableOnChange();
-
     // tell the rest of DScaler what the setup is
     // A side effect of the Raise events is to load up the settings by section
     // loads up other settings which are prossible stored
     // as settings per input/channel
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
-
-    EnableOnChange();
 }
 
 void CSAA7134Source::CreateSettings(LPCSTR IniSection)
@@ -342,15 +343,6 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 
     m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
     m_Settings.push_back(m_TopOverscan);
-
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
-    m_Settings.push_back(m_BottomOverscan);
-
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
-    m_Settings.push_back(m_LeftOverscan);
-
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
-    m_Settings.push_back(m_RightOverscan);
 
     m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection);
     m_PixelWidth->SetStepValue(2);
@@ -478,6 +470,15 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_AudioLine2Voltage = new CAudioLine2VoltageSetting(this, "Audio Line 2 Input Signal", AUDIOLINEVOLTAGE_2VRMS, AUDIOLINEVOLTAGE_2VRMS, IniSection, m_LineVoltageSzList);
     m_Settings.push_back(m_AudioLine2Voltage);
 
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_BottomOverscan);
+
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_LeftOverscan);
+
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_RightOverscan);
+
 #ifdef _DEBUG    
     if (SAA7134_SETTING_LASTONE != m_Settings.size())
     {
@@ -574,12 +575,15 @@ void CSAA7134Source::Start()
     m_ProcessingFieldID = -1;
 
     VBI_Init_data(27.0 * 0x200 / m_VBIUpscaleDivisor->GetValue());
+
+    EnableOnChange();
 }
 
 
 void CSAA7134Source::Stop()
 {
     // stop capture
+    DisableOnChange();
     m_pSAA7134Card->StopCapture();    
     KillTimer(hWnd, TIMER_MSP);
 }
@@ -1385,13 +1389,11 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
-    DisableOnChange();
-
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
+    Reset();
 
-    EnableOnChange();
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     // set up sound
     if(m_pSAA7134Card->IsInputATuner(NewValue))
@@ -1406,15 +1408,14 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    DisableOnChange();
     Stop_Capture();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+
+    Reset();
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
-    EnableOnChange();
-    Reset();
     Start_Capture();
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.104 2003-01-10 17:51:45 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.105 2003-01-11 12:53:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2003/01/10 17:51:45  adcockj
+// Removed SettingFlags
+//
 // Revision 1.103  2003/01/10 17:37:43  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -445,8 +448,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     SetupCard();
 
     Reset();
-
-    EnableOnChange();
 }
 
 CBT848Source::~CBT848Source()
@@ -462,8 +463,6 @@ void CBT848Source::SetSourceAsCurrent()
     // need to call up to parent to run register settings functions
     CSource::SetSourceAsCurrent();
 
-    DisableOnChange();
-
     // tell the rest of DScaler what the setup is
     // A side effect of the Raise events is to load up the settings by section
     // loads up other settings which are prossible stored
@@ -471,8 +470,6 @@ void CBT848Source::SetSourceAsCurrent()
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
-
-    EnableOnChange();
 }
 
 void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
@@ -557,15 +554,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 
     m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_TopOverscan);
-
-    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_BottomOverscan);
-
-    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_LeftOverscan);
-
-    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
-    m_Settings.push_back(m_RightOverscan);
 
     m_BDelay = new CBDelaySetting(this, "Macrovision Timing", 0, 0, 255, IniSection, pAdvancedTimingGroup);
     m_Settings.push_back(m_BDelay);
@@ -758,6 +746,15 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AutoStereoDetectInterval = new CAutoStereoDetectIntervalSetting(this, "Auto Stereo Detect Interval", 0, 0, 24*60*1000, IniSection, pAudioChannel);
     m_Settings.push_back(m_AutoStereoDetectInterval);
 
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_Settings.push_back(m_BottomOverscan);
+
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_Settings.push_back(m_LeftOverscan);
+
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
+    m_Settings.push_back(m_RightOverscan);
+
 #ifdef _DEBUG    
     if (BT848_SETTING_LASTONE != m_Settings.size())
     {
@@ -775,17 +772,22 @@ void CBT848Source::Start()
     m_pBT848Card->SetDMA(TRUE);
     Timing_Reset();
     NotifySizeChange();
-    // \todo: FIXME check to see if we need this timer
-    {
-        SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
-    }
     NotifySquarePixelsCheck();
 
-    //Channel_Reset();
-    //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);    
-    //m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
-    
     VBI_Init_data(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->Bt848VBISamplingFrequency);
+    EnableOnChange();
+    
+    // seems to be required
+    // otherwise I get no sound on startup
+    if(IsInTunerMode())
+    {
+        Channel_Reset();
+        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());    
+        m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
+
+        SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
+    }
+    
 }
 
 void CBT848Source::Reset()
@@ -931,9 +933,10 @@ void CBT848Source::CreateRiscCode(BOOL bCaptureVBI)
 
 void CBT848Source::Stop()
 {
+    DisableOnChange();
     // stop capture
     m_pBT848Card->StopCapture();
-    // \todo: FIXME check to see if we need this timer
+    if(IsInTunerMode())
     {
         KillTimer(hWnd, TIMER_MSP);
     }
@@ -1327,13 +1330,11 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
-    DisableOnChange();
-
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
+    
+    Reset();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
-
-    EnableOnChange();
 
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
@@ -1347,15 +1348,14 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    DisableOnChange();
     Stop_Capture();
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+
+    Reset();
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
-    EnableOnChange();
-    Reset();
     Start_Capture();
 }
 

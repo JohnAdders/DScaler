@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.17 2002-10-24 16:04:47 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.18 2002-10-24 17:17:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/24 16:04:47  adcockj
+// Another attempt to get VBI working
+// Tidy up CMDS/Buffers code
+//
 // Revision 1.16  2002/10/23 20:26:52  adcockj
 // Bug fixes for cx2388x
 //
@@ -840,7 +844,7 @@ void CCT2388xCard::ResetHardware()
     {
         WriteDword(
                     SRAM_CLUSTER_TABLE_VIDEO + (i * 0x10), 
-                    SRAM_FIFO_VIDEO_BUFFERS * (i * SRAM_FIFO_VIDEO_BUFFER_SIZE)
+                    SRAM_FIFO_VIDEO_BUFFERS + (i * SRAM_FIFO_VIDEO_BUFFER_SIZE)
                   );
     }
     
@@ -876,7 +880,7 @@ void CCT2388xCard::ResetHardware()
     {
         WriteDword(
                     SRAM_CLUSTER_TABLE_VBI + (i * 0x10), 
-                    SRAM_FIFO_VBI_BUFFERS * (i * SRAM_FIFO_VBI_BUFFER_SIZE)
+                    SRAM_FIFO_VBI_BUFFERS + (i * SRAM_FIFO_VBI_BUFFER_SIZE)
                   );
     }
     

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.51 2002-02-16 00:20:20 lindsey Exp $
+// $Id: DS_Control.h,v 1.52 2002-02-27 20:41:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/02/16 00:20:20  lindsey
+// Added constants for FLT_Histogram
+//
 // Revision 1.50  2002/02/09 02:48:14  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -1055,6 +1058,22 @@ typedef enum
 #define WM_FLT_HISTOGRAM_GETVALUE      (WM_USER + 40)
 #define WM_FLT_HISTOGRAM_SETVALUE      (WM_USER + 140)
 #define WM_FLT_HISTOGRAM_CHANGEVALUE   (WM_USER + 240)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in StillSource.cpp
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    FORMATSAVING = 0,
+    SLIDESHOWDELAY,
+    STILL_SETTING_LASTONE,
+} STILL_SETTING;
+
+#define WM_STILL_GETVALUE     (WM_USER + 41)
+#define WM_STILL_SETVALUE     (WM_USER + 141)
+#define WM_STILL_CHANGEVALUE  (WM_USER + 241)
 
 
 #endif

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.137 2002-02-24 19:08:37 laurentg Exp $
+// $Id: DScaler.cpp,v 1.138 2002-02-27 20:47:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.137  2002/02/24 19:08:37  laurentg
+// OSD text when resetting statistics
+//
 // Revision 1.136  2002/02/24 08:18:03  temperton
 // TIMER_VTFLASHER set only when displayed page contains flashed elements and only in teletext modes.
 //
@@ -443,6 +446,7 @@
 #include "OverlaySettings.h"
 #include "Perf.h"
 #include "hardwaredriver.h"
+#include "StillSource.h"
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -1926,6 +1930,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_OSD_SETTINGS:
             OSD_ShowUI();
+            break;
+
+        case IDM_STILL_SETTINGS:
+            Still_ShowUI();
             break;
 
         case IDM_HELP_HOMEPAGE:

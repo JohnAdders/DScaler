@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.37 2002-02-26 21:24:25 laurentg Exp $
+// $Id: StillSource.cpp,v 1.38 2002-02-27 20:47:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/02/26 21:24:25  laurentg
+// Move the test on the still file size in order to have a global treatment later
+//
 // Revision 1.36  2002/02/23 00:30:47  laurentg
 // NotifySizeChange
 //
@@ -164,9 +167,14 @@
 #include "OutThreads.h"
 #include "AspectRatio.h"
 #include "Other.h"
+#include "SettingsDlg.h"
 
 
 #define TIMER_SLIDESHOW 50
+
+
+static eStillFormat FormatSaving = STILL_TIFF_RGB;
+static int SlideShowDelay = 5;
 
 
 CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
@@ -426,7 +434,7 @@ BOOL CStillSource::ShowPreviousInPlayList()
 
 void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
-    switch ((eStillFormat)m_StillFormat->GetValue())
+    switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
     case STILL_TIFF_RGB:
         {
@@ -449,13 +457,6 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
 
 void CStillSource::CreateSettings(LPCSTR IniSection)
 {
-    m_StillFormat = new CSliderSetting("Format of Still Pictures", STILL_TIFF_RGB, STILL_TIFF_RGB, STILL_FORMAT_LASTONE - 1, IniSection, "StillFormat");
-    m_Settings.push_back(m_StillFormat);
-
-    m_SlideShowDelay = new CSliderSetting("Slide Show Delay", 5, 1, 60, IniSection, "SlideShowDelay");
-    m_Settings.push_back(m_SlideShowDelay);
-
-    ReadFromIni();
 }
 
 void CStillSource::Start()
@@ -659,7 +660,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         m_SlideShowActive = !m_SlideShowActive;
         if (m_SlideShowActive)
         {
-            SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
+            SetTimer(hWnd, TIMER_SLIDESHOW, Setting_GetValue(Still_GetSetting(SLIDESHOWDELAY)) * 1000, NULL);
         }
         else
         {
@@ -994,7 +995,7 @@ void CStillSource::HandleTimerMessages(int TimerId)
         m_NewFileRequested = STILL_REQ_NEXT_CIRC;
         m_NewFileReqPos = m_Position + 1;
         m_SlideShowActive = TRUE;
-        SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
+        SetTimer(hWnd, TIMER_SLIDESHOW, Setting_GetValue(Still_GetSetting(SLIDESHOWDELAY)) * 1000, NULL);
     }
 }
 
@@ -1016,4 +1017,60 @@ BOOL CStillSource::IsAccessAllowed()
 void CStillSource::SetOverscan()
 {
     AspectSettings.InitialOverscan = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Start of Settings related code
+/////////////////////////////////////////////////////////////////////////////
+
+SETTING StillSettings[STILL_SETTING_LASTONE] =
+{
+    {
+        "Format of saving", SLIDER, 0, (long*)&FormatSaving,
+         STILL_TIFF_RGB, STILL_TIFF_RGB, STILL_FORMAT_LASTONE - 1, 1, 1,
+         NULL,
+        "Still", "FormatSaving", NULL,
+    },
+    {
+        "Slide Show Delay", SLIDER, 0, (long*)&SlideShowDelay,
+         5, 1, 60, 1, 1,
+         NULL,
+        "Still", "SlideShowDelay", NULL,
+    },
+};
+
+
+SETTING* Still_GetSetting(STILL_SETTING Setting)
+{
+    if(Setting > -1 && Setting < STILL_SETTING_LASTONE)
+    {
+        return &(StillSettings[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void Still_ReadSettingsFromIni()
+{
+    int i;
+    for(i = 0; i < STILL_SETTING_LASTONE; i++)
+    {
+        Setting_ReadFromIni(&(StillSettings[i]));
+    }
+}
+
+void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+{
+    int i;
+    for(i = 0; i < STILL_SETTING_LASTONE; i++)
+    {
+        Setting_WriteToIni(&(StillSettings[i]), bOptimizeFileAccess);
+    }
+}
+
+void Still_ShowUI()
+{
+    CSettingsDlg::ShowSettingsDlg("Still Settings",StillSettings, STILL_SETTING_LASTONE);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.21 2002-02-14 23:16:59 laurentg Exp $
+// $Id: StillSource.h,v 1.22 2002-02-27 20:47:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -147,9 +147,12 @@ private:
     MEMCPY_FUNC*    m_pMemcpy;
 
     std::string m_Section;
-
-    CSliderSetting* m_StillFormat;
-    CSliderSetting* m_SlideShowDelay;
 };
+
+
+SETTING* Still_GetSetting(STILL_SETTING Setting);
+void Still_ReadSettingsFromIni();
+void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void Still_ShowUI();
 
 #endif

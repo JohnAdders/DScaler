@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.29 2002-01-24 00:00:13 robmuller Exp $
+// $Id: Settings.cpp,v 1.30 2002-02-27 20:47:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/01/24 00:00:13  robmuller
+// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
+//
 // Revision 1.28  2002/01/18 15:39:46  robmuller
 // Prevent unnecessary actions taken when Setting_SetValue() is called with an unchanged value.
 //
@@ -127,6 +130,7 @@
 #include "VBI_VideoText.h"
 #include "Providers.h"
 #include "Calibration.h"
+#include "StillSource.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -237,6 +241,12 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Calibr_GetSetting,
         Calibr_ReadSettingsFromIni,
         Calibr_WriteSettingsToIni,
+    },
+    {
+        WM_STILL_GETVALUE,
+        (GENERICGETSETTING*)Still_GetSetting,
+        Still_ReadSettingsFromIni,
+        Still_WriteSettingsToIni,
     },
 };
 

@@ -1002,6 +1002,7 @@ BEGIN
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
             MENUITEM "Calibration",                 IDM_CALIBR_SETTINGS
             MENUITEM "OSD",                         IDM_OSD_SETTINGS
+            MENUITEM "Still settings",              IDM_STILL_SETTINGS
         END
         POPUP "Video &Overlay"
         BEGIN

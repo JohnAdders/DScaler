@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.14 2003-01-10 17:38:33 adcockj Exp $
+// $Id: Source.cpp,v 1.15 2003-01-12 16:19:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/10 17:38:33  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.13  2002/12/10 12:58:07  adcockj
 // Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
 //  calls to EventCollector->RaiseEvent
@@ -86,6 +93,7 @@
 #include "DScaler.h"
 #include "Providers.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 
 CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
@@ -174,6 +182,5 @@ void CSource::SetSourceAsCurrent()
 
 void CSource::UnsetSourceAsCurrent()
 {
-    // may need to unregister settings in here
-    // not sure yet
+    SettingsMaster->SaveSettings();
 }

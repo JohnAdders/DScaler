@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.20 2003-01-10 17:52:08 adcockj Exp $
+// $Id: Setting.cpp,v 1.21 2003-01-12 16:19:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/01/10 17:52:08  adcockj
+// Removed SettingFlags
+//
 // Revision 1.19  2003/01/10 17:38:21  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -292,7 +295,6 @@ LPCSTR CSimpleSetting::GetEntry()
 
 /** Read value from sub section in .ini file
     @param szSubSection Set to NULL to read from the default location
-    @param Value If not NULL, this value is set instead of the Setting's value
     @param bSetDefaultOnFailure If the setting was not in the .ini file, set the setting's value to the default value
     @param  Call type for OnChange function. (ONCHANGE_NONE for no call)
     @param pSettingFlags Override setting flags of current setting if not NULL
@@ -400,9 +402,17 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection)
 
 		long Val = *m_pSetting->pValue; 
 
-		WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
+        // hopefully stops noise in ini file
+        if(Val != m_pSetting->Default || Val != m_pSetting->LastSavedValue)
+        {
+		    WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
+            LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, Val);
+        }
+        else
+        {
+            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d Was ", szSubSection, szIniEntry, Val, m_pSetting->LastSavedValue);
+        }
 
-        LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, Val);
 
         m_pSetting->LastSavedValue = Val;
 		

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.106 2003-01-11 15:22:24 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.107 2003-01-12 16:19:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2003/01/11 15:22:24  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.105  2003/01/11 12:53:57  adcockj
 // Interim Check in of settings changes
 //  - bug fixes for overlay settings changes
@@ -402,6 +408,7 @@
 #include "SettingsPerChannel.h"
 #include "Providers.h"
 #include "Setting.h"
+#include "SettingsMaster.h"
 
 extern long EnableCancelButton;
 
@@ -421,6 +428,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 {
     CreateSettings(IniSection);
 
+    // stop on change messages from coming through
     DisableOnChange();
 
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_AUDIOSTANDARD_DETECTED,EVENT_AUDIOCHANNELSUPPORT_DETECTED,EVENT_ENDOFLIST};
@@ -452,8 +460,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY);
 
     SetupCard();
-
-    Reset();
 }
 
 CBT848Source::~CBT848Source()
@@ -470,12 +476,24 @@ void CBT848Source::SetSourceAsCurrent()
     CSource::SetSourceAsCurrent();
 
     // tell the rest of DScaler what the setup is
-    // A side effect of the Raise events is to load up the settings by section
-    // loads up other settings which are prossible stored
-    // as settings per input/channel
+    // A side effect of the Raise events is to tell the settings master
+    // what our current setup is
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
+
+    // reset the tuner
+    // this will kick of the change channel event
+    // which must happen after the video input event
+    if(IsInTunerMode())
+    {
+        Channel_Reset();
+    }
+
+    // load up any channel/input/format specifc settings
+    SettingsMaster->LoadSettings();
+
+    Reset();
 }
 
 void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
@@ -520,24 +538,17 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
-    CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video");
-    CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio");
-    CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard");
-    CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source");
-    CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel");
-    CSettingGroup *pAudioControl = GetSettingsGroup("BT848 - Audio Control");
-    CSettingGroup *pAudioOther  = GetSettingsGroup("BT848 - Audio Other");
-    CSettingGroup *pAudioEqualizerGroup = GetSettingsGroup("BT848 - Audio Equalizer");
+    CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioControl = GetSettingsGroup("BT848 - Audio Control", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioOther  = GetSettingsGroup("BT848 - Audio Other", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioEqualizerGroup = GetSettingsGroup("BT848 - Audio Equalizer", SETTING_BY_CHANNEL);
     
-    CSettingGroup *pAdvancedGroup = GetSettingsGroup("BT848 - Advanced Flags");
-    CSettingGroup *pAdvancedTimingGroup = GetSettingsGroup("BT848 - Advanced Timing");
-    
-
-    //eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
-    //eSettingFlags FlagsInput = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
-    //eSettingFlags FlagsInputFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
-    //eSettingFlags FlagsFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ONCHANGE_ALL);
-    //eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    CSettingGroup *pAdvancedGroup = GetSettingsGroup("BT848 - Advanced Flags", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
+    CSettingGroup *pAdvancedTimingGroup = GetSettingsGroup("BT848 - Advanced Timing", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT);
     
     m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup);
     m_Settings.push_back(m_Brightness);
@@ -780,13 +791,14 @@ void CBT848Source::Start()
     NotifySquarePixelsCheck();
 
     VBI_Init_data(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->Bt848VBISamplingFrequency);
+
+    // Just before we start allow change messages again
     EnableOnChange();
     
     // seems to be required
     // otherwise I get no sound on startup
     if(IsInTunerMode())
     {
-        Channel_Reset();
         m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());    
         m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 
@@ -938,6 +950,7 @@ void CBT848Source::CreateRiscCode(BOOL bCaptureVBI)
 
 void CBT848Source::Stop()
 {
+    // disable OnChange messages while video is stopped
     DisableOnChange();
     // stop capture
     m_pBT848Card->StopCapture();
@@ -1335,32 +1348,52 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
+    SettingsMaster->SaveSettings();
+
+    // Capture is stopped so other onchange messages are
+    // disabled so if anything that happens in those needs to be triggered
+    // we have to manage that ourselves
+
+    // here we have to watch for a format switch
+
+
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     int OldFormat = m_VideoFormat->GetValue();
     
-    Reset();
-
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
-
-    // set up sound
+    // set up channel
+    // this must happen after the VideoInput change is sent
     if(m_pBT848Card->IsInputATuner(NewValue))
     {
         Channel_SetCurrent();
     }
+
+    // tell the world if the format has changed
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
+    }
+
+    SettingsMaster->LoadSettings();
+
+    // reset here when we have all the settings
+    Reset();
     
     Audio_Unmute(PostSwitchMuteDelay);
     Start_Capture();
-
-    if(OldFormat != m_VideoFormat->GetValue())
-    {
-        VideoFormatOnChange(m_VideoFormat->GetValue(), OldValue);
-    }
 }
 
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
+
+    SettingsMaster->SaveSettings();
+
+    // OK Capture is stopped so other onchange messages are
+    // disabled so if anything that happens in those needs to be triggered
+    // we have to manage that ourselves
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
 
@@ -1368,6 +1401,8 @@ void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
+    SettingsMaster->LoadSettings();
+
     Start_Capture();
 }
 
@@ -1613,7 +1648,6 @@ void CBT848Source::ChangeTVSettingsBasedOnTuner()
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-    
     //Doesn't work yet
     if(VideoFormat == (VIDEOFORMAT_LASTONE+1))
     {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.282 2003-01-11 15:22:25 adcockj Exp $
+// $Id: DScaler.cpp,v 1.283 2003-01-12 16:19:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.282  2003/01/11 15:22:25  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.281  2003/01/10 17:37:56  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -4537,11 +4543,22 @@ void MainWndOnDestroy()
         }        
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free toolbars");}    
+
+    __try
+    {
+        // save settings per cahnnel/input ets
+        // must be done before providers are unloaded
+        LOG(1, "SettingsMaster->SaveSettings");
+        SettingsMaster->SaveSettings();
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SettingsMaster->SaveSettings");}
     
     __try
     {
         // save settings
         // must be done before providers are unloaded
+        LOG(1, "WriteSettingsToIni");
+        SettingsMaster->SaveSettings();
         LOG(1, "WriteSettingsToIni");
         WriteSettingsToIni(TRUE);        
     }

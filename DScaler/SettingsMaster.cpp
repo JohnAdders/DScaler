@@ -4,6 +4,9 @@
 #include "Providers.h"
 #include "TreeSettingsGeneric.h"
 #include "SettingsMaster.h"
+#include "SettingsPerChannel.h"
+#include "TVFormats.h"
+#include "ProgramList.h"
 
 CSettingsMaster::CSettingsMaster() 
 {
@@ -24,15 +27,6 @@ CSettingsMaster::~CSettingsMaster()
 */
 void CSettingsMaster::ParseAllSettings(bool IsLoad)
 {
-    vector<string> vSubLocations;
-
-    vSubLocations.push_back("");
-    vSubLocations.push_back(m_SourceName);
-    vSubLocations.push_back(m_VideoInputName);
-    vSubLocations.push_back(m_AudioInputName);
-    vSubLocations.push_back(m_VideoFormatName);
-    vSubLocations.push_back(m_ChannelName);
-    
     for (int i = 0; i < m_Holders.size(); i++)
     {
         if ((m_Holders[i].bIsSource) && (m_Holders[i].pHolder!=NULL))  //only save/load setting of its own 
@@ -53,32 +47,119 @@ void CSettingsMaster::ParseAllSettings(bool IsLoad)
 			}
 		}
         
-        //m_Holders[i].pHolder->SetLocation(&vSubLocations);
-
 		int Num = m_Holders[i].pHolder->GetNumSettings();
         CSimpleSetting* pSetting;
-        string sSection;
         
 		BOOL bAction = FALSE;
+        
+        string SubSection("");
 
         for (int n = 0; n < Num; n++)
         {
             pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
             if (pSetting != NULL)
             {
-                if (IsLoad)
+                CSettingGroup* pGroup = pSetting->GetGroup();
+                if(pGroup != NULL)
                 {
-                    m_Holders[i].pHolder->ReadSettingFromIni(pSetting);
+                    if(pGroup->IsGroupActive())
+                    {
+                        MakeSubSection(SubSection, pGroup);
+                        if(SubSection.length() > 0)
+                        {
+                            if (IsLoad)
+                            {
+                                pSetting->ReadFromIniSubSection(SubSection.c_str(), TRUE);
+                            }
+                            else
+                            {
+                                pSetting->WriteToIniSubSection(SubSection.c_str());
+                            }
+                        }
+                    }
                 }
-                else
-                {
-                    m_Holders[i].pHolder->WriteSettingToIni(pSetting, TRUE);
-                }                    
             }
         }
     }
 }
 
+void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
+{
+    static CSettingGroup* LastGroup = NULL;
+    static DWORD LastFlags = -1;
+    if(LastGroup == pGroup)
+    {
+        return;
+    }
+
+    SubSection = "";
+
+    // if we are doing have an audio input check to see if
+    // we have any settings by that
+    if(m_AudioInputName.length() > 0)
+    {
+        if(pGroup->IsSetByAudioInput() && (SettingsPerChannel_IsPerInput() || SettingsPerChannel_IsPerChannel() || SettingsPerChannel_IsPerFormat()))
+        {
+            SubSection = m_SourceName;
+            SubSection += "_";
+            SubSection += m_AudioInputName;
+        }
+        return;
+    }
+
+    // if we are doing a channel
+    // then we only want the channel name
+    // if we are doing by channels
+    if(m_ChannelName.length() > 0)
+    {
+        if(pGroup->IsSetByChannel() && SettingsPerChannel_IsPerChannel())
+        {
+            SubSection = m_SourceName;
+            SubSection += "_";
+            SubSection += m_ChannelName;
+            return;
+        }
+        if(pGroup->IsSetByInput() && SettingsPerChannel_IsPerInput())
+        {
+            SubSection = m_SourceName;
+            SubSection += "_";
+            SubSection += "Tuner";
+        }
+        if(pGroup->IsSetByFormat() && SettingsPerChannel_IsPerFormat())
+        {
+            if(SubSection.length() == 0)
+            {
+                SubSection = m_SourceName;
+            }
+            SubSection += "_";
+            SubSection += m_VideoFormatName;
+        }
+        return;
+    }
+
+    if(m_VideoInputName.length() > 0)
+    {
+        if(pGroup->IsSetByInput() && SettingsPerChannel_IsPerInput())
+        {
+            SubSection = m_SourceName;
+            SubSection += "_";
+            SubSection += m_VideoInputName;
+        }
+    }
+
+    if(m_VideoFormatName.length() > 0)
+    {
+        if(pGroup->IsSetByFormat() && SettingsPerChannel_IsPerFormat())
+        {
+            if(SubSection.length() == 0)
+            {
+                SubSection = m_SourceName;
+            }
+            SubSection += "_";
+            SubSection += m_VideoFormatName;
+        }
+    }
+}
 
 void CSettingsMaster::LoadSettings()
 {
@@ -157,10 +238,9 @@ void CSettingsMaster::SetSource(CSource* pSource)
 
 void CSettingsMaster::SetChannelName(long NewValue)
 {
-    if (NewValue>=0)
+    if (NewValue >= 0)
     {        
-        char szBuffer[33];
-        m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
+        m_ChannelName = Channel_GetName();
     }
     else
     {
@@ -196,10 +276,9 @@ void CSettingsMaster::SetAudioInput(long NewValue)
 
 void CSettingsMaster::SetVideoFormat(long NewValue)
 {
-    if (NewValue>=0)
+    if (NewValue >= 0 && NewValue < VIDEOFORMAT_LASTONE)
     {
-        char szBuffer[33];
-        m_VideoFormatName = string("VideoFormat") +  itoa(NewValue, szBuffer, 10);            
+        m_VideoFormatName = VideoFormatNames[NewValue];
     }
     else
     {
@@ -207,7 +286,7 @@ void CSettingsMaster::SetVideoFormat(long NewValue)
     }
 }
 
-CSettingGroup* CSettingsMaster::GetGroup(CSettingObject *pObject, LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
+CSettingGroup* CSettingsMaster::GetGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 {
     for (int i = 0; i < m_SettingsGroups.size(); i++)
     {
@@ -219,4 +298,15 @@ CSettingGroup* CSettingsMaster::GetGroup(CSettingObject *pObject, LPCSTR szName,
     CSettingGroup* pNewGroup = new CSettingGroup(szName, Flags, IsActiveByDefault);
     m_SettingsGroups.push_back(pNewGroup);
     return pNewGroup;
+}
+
+CTreeSettingsGeneric* CSettingsMaster::GetTreeSettingsPage()
+{
+    vector <CSimpleSetting*>vSettingsList;
+
+    for (int i = 0; i < m_SettingsGroups.size(); i++)
+    {
+        vSettingsList.push_back(m_SettingsGroups[i]->GetIsActiveSetting());
+    }
+    return new CTreeSettingsGeneric("Activate Setting's Saving",vSettingsList);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.12 2003-01-11 12:53:58 adcockj Exp $
+// $Id: events.cpp,v 1.13 2003-01-12 16:19:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/01/11 12:53:58  adcockj
+// Interim Check in of settings changes
+//  - bug fixes for overlay settings changes
+//  - Bug fixes for new settings changes
+//  - disables settings per channel completely
+//
 // Revision 1.11  2003/01/10 17:38:40  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -409,6 +415,10 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
     {
     case EVENT_SOURCE_CHANGE:    
         SettingsMaster->SetSource((CSource*)NewValue);
+        SettingsMaster->SetChannelName(-1);
+        SettingsMaster->SetVideoInput(-1);
+        SettingsMaster->SetAudioInput(-1);
+        SettingsMaster->SetVideoFormat(-1);
         break;
 
     case EVENT_CHANNEL_CHANGE:
@@ -417,6 +427,7 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
  
     case EVENT_VIDEOINPUT_CHANGE:
         SettingsMaster->SetVideoInput(NewValue);
+        SettingsMaster->SetChannelName(-1);
         break;    
     
     case EVENT_AUDIOINPUT_CHANGE:

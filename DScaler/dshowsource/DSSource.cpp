@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.63 2003-01-11 15:22:28 adcockj Exp $
+// $Id: DSSource.cpp,v 1.64 2003-01-12 16:19:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2003/01/11 15:22:28  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.62  2003/01/10 17:52:19  adcockj
 // Removed SettingFlags
 //
@@ -1410,6 +1416,8 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 
 				if(NewInputType == PhysConn_Video_Tuner)
 				{
+                    // set up channel
+                    // this must happen after the VideoInput change is sent
 					if(pCap->GetTuner()!=NULL)
 					{
 						Channel_SetCurrent();

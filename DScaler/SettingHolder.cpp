@@ -126,91 +126,6 @@ void CSettingsHolder::RemoveSetting(ISetting* pSetting)
 }
 
 /**
-    Sets the sublocations for the SETTINGFLAG_PER_xxx flags.
-    Used by SettingsMaster to set the right location
-    based on the current state of the source, inputs, format
-    and channel.
-*/
-void CSettingsHolder::SetLocation(vector<string>* pvSubLocations)
-{
-    m_NewSubLocations = TRUE;
-    
-    if (pvSubLocations == NULL)
-    {
-        m_SubLocations.clear();
-    }
-    else
-    {
-        m_SubLocations = *pvSubLocations;
-    }
-}
-
-/**
-    Concatenates the sublocations of the settingflags 
-    that are enabled in pSetting.
-*/
-string CSettingsHolder::GetLocation(ISetting *pSetting)
-{
-    if (pSetting == NULL)
-    {
-        return "";
-    }
-    if (m_NewSubLocations)
-    {
-        m_NewSubLocations = FALSE;
-        m_Location = "";
-
-        for (int i = 0; i < m_SubLocations.size(); i++)
-        {
-            m_Location += m_SubLocations[i]+"_";
-        }
-        int Len = m_Location.length();        
-        if ((Len>0) && (m_Location[Len-1] == '_')) 
-        { 
-            m_Location = m_Location.substr(0,Len-1); 
-        }
-    }
-    return m_Location;
-}
-
-/**
-    Reads a setting value & flag from the .ini file.
-    The location in the .ini file depends on the sublocation and enabled flags.
-*/    
-void CSettingsHolder::ReadSettingFromIni(ISetting *pSetting)
-{
-    string sLocation = GetLocation(pSetting);
-        
-    // Read from ini file.
-    if (sLocation.length() == 0)
-    {
-        pSetting->ReadFromIni(TRUE);
-    }
-    else
-    {
-        pSetting->ReadFromIniSubSection(sLocation.c_str(), TRUE);
-    }
-}
-
-/**
-    Writes a setting value & flag to the .ini file.
-    The location in the .ini file depends on the sublocation and enabled flags.
-*/    
-void CSettingsHolder::WriteSettingToIni(ISetting *pSetting, BOOL bOptimizeFileAccess)
-{
-    string sLocation = GetLocation(pSetting);
-        
-    if (sLocation.length() == 0)
-    {
-        pSetting->WriteToIni(bOptimizeFileAccess);
-    }
-    else
-    {
-         pSetting->WriteToIniSubSection(sLocation.c_str());
-    }
-}
-
-/**
     Reads alls settings of the list from the .ini file.
 */    
 void CSettingsHolder::ReadFromIni()
@@ -220,7 +135,7 @@ void CSettingsHolder::ReadFromIni()
         it != m_Settings.end();
         ++it)
     {
-        ReadSettingFromIni((*it));
+        (*it)->ReadFromIni();
     }
 }
 
@@ -234,7 +149,7 @@ void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
         it != m_Settings.end();
         ++it)
     {
-        WriteSettingToIni((*it), bOptimizeFileAccess);
+        (*it)->WriteToIni(bOptimizeFileAccess);
     }
 }
 
@@ -349,36 +264,9 @@ void CSettingsHolder::DisableOnChange()
 */
 CSettingGroup* CSettingsHolder::GetSettingsGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 {
-    return GetSettingsGroup(this, szName, Flags, IsActiveByDefault);
-}
-
-/**
-    Get/Create a root group from the settingsmaster.  
-*/
-CSettingGroup* CSettingsHolder::GetSettingsGroup(CSettingObject *pObject, LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
-{
     RegisterMe();
-    return SettingsMaster->GetGroup(pObject, szName, Flags, IsActiveByDefault);
+    return SettingsMaster->GetGroup(szName, Flags, IsActiveByDefault);
 }
-
-/** Read settings from the right ini section.
-    It takes care of dependencies.
-    (Like videoformat dependent of video input)
-
-    ///\todo: finish
-*/
-void CSettingsHolder::ReadFromIni(CSource *pSource, ISetting *pSettingVideoInput, ISetting *pSettingAudioInput, ISetting *pVideoFormat, ISetting *pChannel,
-                     int &VideoInput, int &AudioInput, eVideoFormat &VideoFormat, int &Channel)
-{    
-    RegisterMe();
-    for(vector<ISetting*>::iterator it = m_Settings.begin();
-        it != m_Settings.end();
-        ++it)
-    {
-        ReadSettingFromIni((*it));    
-    }
-}
-
 
 /**
     A standalone SettingsHolder

@@ -45,6 +45,8 @@ protected:
 
 protected:        
     void ParseAllSettings(bool IsLoad);
+    void MakeSubSection(string& SubSection, CSettingGroup* pGroup);
+
 public:
     CSettingsMaster();
     ~CSettingsMaster();
@@ -52,8 +54,6 @@ public:
     void IniFile(LPCSTR szIniFile) { m_sIniFile = szIniFile; }
     void Register(CSettingsHolder* pHolder);
     void Unregister(CSettingsHolder* pHolder);        
-
-    void GetSubLocations(CSource *Source, int VideoInput, int AudioInput, eVideoFormat VideoFormat, int Channel, vector<string> *vSubLocations);
 
     void SetSource(CSource* pSource);
     void SetChannelName(long NewValue);
@@ -64,11 +64,15 @@ public:
     void SaveSettings();
     void LoadSettings();
 
-    CSettingGroup* GetGroup(CSettingObject *pObject, LPCSTR szDisplayName, DWORD Flags, BOOL IsActiveByDefault);
+    CSettingGroup* GetGroup(LPCSTR szDisplayName, DWORD Flags, BOOL IsActiveByDefault);
+
+    CTreeSettingsGeneric* GetTreeSettingsPage();
+
 private:    
     vector<CSettingGroup*> m_SettingsGroups;
 };
 
 extern CSettingsMaster* SettingsMaster;
+
 
 #endif

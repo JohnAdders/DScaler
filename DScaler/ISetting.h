@@ -55,15 +55,17 @@ public:
     virtual CSettingGroup* GetGroup() = 0;
 };
 
-/**
-    The groups can be part of a settingobject.
-    Like a settingsholder.
-*/    
-class CSettingObject
+class CSimpleSetting;
+class CYesNoSetting;
+
+enum eGroupSettingsFlags
 {
-    //At least one virtual function is required to store type information for dynamic casts
-    virtual IamNowVirtual(){;};
+    SETTING_BY_CHANNEL = 1,
+    SETTING_BY_FORMAT = 2,
+    SETTING_BY_INPUT = 4,
+    SETTING_BY_AUDIOINPUT = 8,
 };
+
 
 /**
     Setting group class.
@@ -75,13 +77,6 @@ class CSettingObject
 class CSettingGroup
 {
 public:
-    enum eGroupSettingsFlags
-    {
-        SETTING_BY_CHANNEL = 1,
-        SETTING_BY_FORMAT = 2,
-        SETTING_BY_INPUT = 4,
-        SETTING_BY_AUDIOINPUT = 8,
-    };
 
     CSettingGroup(LPCSTR szName, DWORD Flags = 0, BOOL IsActiveByDefault = FALSE);
     ~CSettingGroup();
@@ -93,15 +88,17 @@ public:
     BOOL IsSetByInput() { return ((m_Flags & SETTING_BY_INPUT) == SETTING_BY_INPUT);};
     BOOL IsSetByAudioInput() { return ((m_Flags & SETTING_BY_AUDIOINPUT) == SETTING_BY_AUDIOINPUT);};
 
-    BOOL IsGroupActive() {return m_IsActive;};
+    BOOL IsGroupActive();
 
     void AddSetting(ISetting *pSetting);
+    CSimpleSetting* GetIsActiveSetting();
 
 protected:
     /// Name of the group
     std::string m_Name;
     DWORD m_Flags;
-    BOOL m_IsActive;
+
+    CYesNoSetting* m_IsActive;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.30 2003-01-11 15:22:27 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.31 2003-01-12 16:19:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/01/11 15:22:27  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.29  2003/01/10 17:38:37  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -624,6 +630,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
         pPage = DScaler_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = SettingsMaster->GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_SETTINGSBYCHANNEL);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.60 2003-01-11 15:22:27 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.61 2003-01-12 16:19:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2003/01/11 15:22:27  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.59  2003/01/11 12:53:58  adcockj
 // Interim Check in of settings changes
 //  - bug fixes for overlay settings changes
@@ -235,6 +241,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 
 
 #ifdef _DEBUG
@@ -326,11 +333,21 @@ void CSAA7134Source::SetSourceAsCurrent()
     CSource::SetSourceAsCurrent();
 
     // tell the rest of DScaler what the setup is
-    // A side effect of the Raise events is to load up the settings by section
-    // loads up other settings which are prossible stored
-    // as settings per input/channel
+    // A side effect of the Raise events is to tell the settings master
+    // what our current setup is
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_AUDIOINPUT_CHANGE, -1, m_AudioSource->GetValue());
+
+    // reset the tuner
+    // this will kick of the change channel event
+    // which must happen after the video input event
+    if(IsInTunerMode())
+    {
+        Channel_Reset();
+    }
+
+    SettingsMaster->LoadSettings();
 }
 
 void CSAA7134Source::CreateSettings(LPCSTR IniSection)
@@ -497,7 +514,6 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 
 void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-
 }
 
 
@@ -582,14 +598,16 @@ void CSAA7134Source::Start()
 
     VBI_Init_data(27.0 * 0x200 / m_VBIUpscaleDivisor->GetValue());
 
+    // Just before we start allow change messages again
     EnableOnChange();
 }
 
 
 void CSAA7134Source::Stop()
 {
-    // stop capture
+    // disable OnChange messages while video is stopped
     DisableOnChange();
+    // stop capture
     m_pSAA7134Card->StopCapture();    
     KillTimer(hWnd, TIMER_MSP);
 }
@@ -1395,27 +1413,41 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
     Stop_Capture();
 
+    SettingsMaster->SaveSettings();
+
+    // OK Capture is stopped so other onchange messages are
+    // disabled so if anything that happens in those needs to be triggered
+    // we have to manage that ourselves
+
+    // here we have to watch for a format switch
+
+
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
-
-    int OldFormat = m_VideoFormat->GetValue();
-
-    Reset();
-
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
-    // set up sound
+    int OldFormat = m_VideoFormat->GetValue();
+    
+    // set up channel
+    // this must happen after the VideoInput change is sent
     if(m_pSAA7134Card->IsInputATuner(NewValue))
     {
         Channel_SetCurrent();
     }
 
-    Audio_Unmute(PostSwitchMuteDelay);
-    Start_Capture();
-
+    // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
-        VideoFormatOnChange(m_VideoFormat->GetValue(), OldValue);
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, m_VideoFormat->GetValue());
     }
+
+    SettingsMaster->LoadSettings();
+
+    // reset here when we have all the settings
+    Reset();
+    
+    Audio_Unmute(PostSwitchMuteDelay);
+    Start_Capture();
 }
 
 
@@ -1423,12 +1455,20 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
 
+    SettingsMaster->SaveSettings();
+
+    // OK Capture is stopped so other onchange messages are
+    // disabled so if anything that happens in those needs to be triggered
+    // we have to manage that ourselves
+
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
 
     Reset();
    
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
     
+    SettingsMaster->LoadSettings();
+
     Start_Capture();
 }
 

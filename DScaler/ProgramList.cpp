@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.94 2002-12-10 12:33:16 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.95 2003-01-12 16:19:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2002/12/10 12:33:16  adcockj
+// Fixed problem with resetting last channel when cancel is pressed
+//
 // Revision 1.93  2002/12/09 00:32:13  atnak
 // Added new muting stuff
 //
@@ -316,6 +319,7 @@
 #include "MixerDev.h"
 #include "OSD.h"
 #include "Providers.h"
+#include "SettingsMaster.h"
 
 #define MAX_CHANNELS 255
 
@@ -1618,6 +1622,15 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 				int OldChannel = CurrentProgram;                
 
                 Audio_Mute(PreSwitchMuteDelay);
+
+                // save any channel specific settings
+                // do this only when there is a real change
+                // this avoids saving before the channel has been set properly on
+                // the settings master when the input is changed to tuner
+                if(OldChannel != NewChannel)
+                {
+                    SettingsMaster->SaveSettings();
+                }
                 
                 if (EventCollector != NULL)
                 {
@@ -1664,6 +1677,14 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 if (EventCollector != NULL)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_CHANGE, OldChannel, NewChannel);
+                }
+                // load any channel specific settings
+                // do this only when there is a real change
+                // must be done after the event is fired as this sets the
+                // channel name on the settings master
+                if(OldChannel != NewChannel)
+                {
+                    SettingsMaster->LoadSettings();
                 }
 
                 VT_ChannelChange();                                

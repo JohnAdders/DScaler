@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.7 2001-08-15 17:50:11 laurentg Exp $
+// $Id: OSD.h,v 1.8 2001-09-29 16:33:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,17 +67,19 @@ enum eOSDTextXPos
 
 typedef struct
 {
-    char            szText[512];       // Text of OSD
-    double          Size;            // Size of OSD as percentage of screen height
-    long            TextColor;         // Text color (RGB)
-    eOSDTextXPos   TextXPos;          // Text position / Xpos
-    double          XPos;            // X position (0 = left, 1 = right)
-    double          YPos;            // Y position (0 = top, 1 = bottom)
-    RECT            CurrentRect;       // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
+    char            szText[512];        // Text of OSD
+    double          Size;               // Size of OSD as percentage of screen height
+    long            TextColor;          // Text color (RGB)
+    long            BackgroundColor;    // Background color (RGB)
+    eOSDBackground  BackgroundMode;     // Background mode
+    eOSDTextXPos    TextXPos;           // Text position / Xpos
+    double          XPos;               // X position (0 = left, 1 = right)
+    double          YPos;               // Y position (0 = top, 1 = bottom)
+    RECT            CurrentRect;        // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
 } TOsdInfo;
 
 void OSD_ClearAllTexts();
-void OSD_AddText(LPCTSTR szText, double Size, long TextColor, eOSDTextXPos TextXPos, double XPos, double YPos);
+void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos);
 void OSD_Show(HWND hWnd, int ShowType, int refresh_delay);
 void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size);
 void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size);

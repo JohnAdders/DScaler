@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.125 2003-01-07 23:01:26 atnak Exp $
+// $Id: DS_Control.h,v 1.126 2003-01-07 23:23:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.125  2003/01/07 23:01:26  atnak
+// Removed an element from SAA7134_SETTINGS
+//
 // Revision 1.124  2003/01/04 13:34:27  laurentg
 // Settings for AR detection updated
 //
@@ -638,7 +641,7 @@ typedef enum
     SATURATION,
     SATURATIONU,
     SATURATIONV,
-    OVERSCAN,
+    TOPOVERSCAN,
     BDELAY,
     BTAGCDISABLE,
     BTCRUSH,
@@ -701,6 +704,9 @@ typedef enum
     AUDIOSTANDARDINSTATUSBAR,
     MSP34XXFLAGS,
     AUTOSTEREODETECTINTERVAL,
+    BOTTOMOVERSCAN,
+    LEFTOVERSCAN,
+    RIGHTOVERSCAN,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 
@@ -1507,7 +1513,7 @@ typedef enum
     CX2388XSATURATION,
     CX2388XSATURATIONU,
     CX2388XSATURATIONV,
-    CX2388XOVERSCAN,
+    CX2388XTOPOVERSCAN,
     CX2388XVIDEOSOURCE,
     CX2388XTVFORMAT,
     CX2388XCARDTYPE,
@@ -1545,6 +1551,9 @@ typedef enum
     CX2388XBALANCE,
     CX2388XAUDIOTYPE,
     CX2388XSTEREOTYPE,
+    CX2388XBOTTOMOVERSCAN,
+    CX2388XLEFTOVERSCAN,
+    CX2388XRIGHTOVERSCAN,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 
@@ -1578,7 +1587,7 @@ typedef enum
     SAA7134CONTRAST,
     SAA7134HUE,
     SAA7134SATURATION,
-    SAA7134OVERSCAN,
+    SAA7134TOPOVERSCAN,
     SAA7134PIXELWIDTH,
     SAA7134CUSTOMPIXELWIDTH,
     SAA7134VIDEOSOURCE,
@@ -1617,6 +1626,9 @@ typedef enum
     SAA7134VIDEOMIRROR,
     SAA7134AUDIOLINE1VOLTAGE,
     SAA7134AUDIOLINE2VOLTAGE,
+    SAA7134BOTTOMOVERSCAN,
+    SAA7134LEFTOVERSCAN,
+    SAA7134RIGHTOVERSCAN,
     SAA7134_SETTING_LASTONE,
 } SAA7134_SETTING;
 

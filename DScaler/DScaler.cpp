@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.275 2003-01-07 13:40:59 robmuller Exp $
+// $Id: DScaler.cpp,v 1.276 2003-01-07 23:27:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.275  2003/01/07 13:40:59  robmuller
+// Added Help menu entry to the popup menu.
+//
 // Revision 1.274  2003/01/05 16:09:45  atnak
 // Updated TopText for new teletext
 //
@@ -2845,7 +2848,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_PLUS:
-            if((pSetting = Providers_GetCurrentSource()->GetOverscan()) != NULL)
+            if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
+            if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
+            if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
+            if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
             {
                 pSetting->ChangeValue(ADJUSTUP);
             }
@@ -2853,7 +2868,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_MINUS:
-            if((pSetting = Providers_GetCurrentSource()->GetOverscan()) != NULL)
+            if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
+            if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
+            if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
+            if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
             {
                 pSetting->ChangeValue(ADJUSTDOWN);
             }
@@ -2861,13 +2888,29 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_CURRENT:
-            if((pSetting = Providers_GetCurrentSource()->GetOverscan()) != NULL)
+            if(Providers_GetCurrentSource()->GetTopOverscan() == NULL
+            && Providers_GetCurrentSource()->GetBottomOverscan() == NULL
+            && Providers_GetCurrentSource()->GetLeftOverscan() == NULL
+            && Providers_GetCurrentSource()->GetRightOverscan() == NULL)
+            {
+                ShowText(hWnd, "No Overscan Control");
+            }
+			// TO BE CHANGED (LG) : show the value of all overscans
+            else if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
             {
                 pSetting->OSDShow();
             }
-            else
+            else if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
             {
-                ShowText(hWnd, "No Overscan Control");
+                pSetting->OSDShow();
+            }
+            else if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
+            {
+                pSetting->OSDShow();
             }
             break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.cpp,v 1.7 2002-04-15 22:50:09 laurentg Exp $
+// $Id: DVBTSource.cpp,v 1.8 2003-01-07 23:27:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/04/15 22:50:09  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.6  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -121,7 +125,22 @@ ISetting* CDVBTSource::GetSaturationV()
     return NULL;
 }
 
-ISetting* CDVBTSource::GetOverscan()
+ISetting* CDVBTSource::GetTopOverscan()
+{
+    return NULL;
+}
+
+ISetting* CDVBTSource::GetBottomOverscan()
+{
+    return NULL;
+}
+
+ISetting* CDVBTSource::GetLeftOverscan()
+{
+    return NULL;
+}
+
+ISetting* CDVBTSource::GetRightOverscan()
 {
     return NULL;
 }
@@ -138,5 +157,8 @@ BOOL CDVBTSource::IsVideoPresent()
 
 void CDVBTSource::SetOverscan()
 {
-    AspectSettings.InitialOverscan = 0;
+    AspectSettings.InitialTopOverscan = 0;
+    AspectSettings.InitialBottomOverscan = 0;
+    AspectSettings.InitialLeftOverscan = 0;
+    AspectSettings.InitialRightOverscan = 0;
 }

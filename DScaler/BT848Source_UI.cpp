@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.7 2003-01-04 16:54:38 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.8 2003-01-07 23:27:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/01/04 16:54:38  adcockj
+// Disabled format menu when in tuner mode
+//
 // Revision 1.6  2002/12/23 17:22:10  adcockj
 // Settings fixes
 //
@@ -1497,7 +1500,10 @@ void CBT848Source::ChangeSectionNamesForInput()
         m_Saturation->SetSection(m_Section.c_str());
         m_SaturationU->SetSection(m_Section.c_str());
         m_SaturationV->SetSection(m_Section.c_str());
-        m_Overscan->SetSection(m_Section.c_str());
+        m_TopOverscan->SetSection(m_Section.c_str());
+        m_BottomOverscan->SetSection(m_Section.c_str());
+        m_LeftOverscan->SetSection(m_Section.c_str());
+        m_RightOverscan->SetSection(m_Section.c_str());
         m_BDelay->SetSection(m_Section.c_str());
     }
     else
@@ -1510,7 +1516,10 @@ void CBT848Source::ChangeSectionNamesForInput()
         m_Saturation->SetSection(szSection);
         m_SaturationU->SetSection(szSection);
         m_SaturationV->SetSection(szSection);
-        m_Overscan->SetSection(szSection);
+        m_TopOverscan->SetSection(szSection);
+        m_BottomOverscan->SetSection(szSection);
+        m_LeftOverscan->SetSection(szSection);
+        m_RightOverscan->SetSection(szSection);
         m_BDelay->SetSection(szSection);
     }
 
@@ -1528,7 +1537,10 @@ void CBT848Source::ChangeDefaultsForInput()
         m_Saturation->ChangeDefault((DEFAULT_SAT_U_NTSC + DEFAULT_SAT_V_NTSC) / 2);
         m_SaturationU->ChangeDefault(DEFAULT_SAT_U_NTSC);
         m_SaturationV->ChangeDefault(DEFAULT_SAT_V_NTSC);
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC);
     }
     else
     {
@@ -1538,7 +1550,10 @@ void CBT848Source::ChangeDefaultsForInput()
         m_Saturation->ChangeDefault((DEFAULT_SAT_U_PAL + DEFAULT_SAT_V_PAL) / 2);
         m_SaturationU->ChangeDefault(DEFAULT_SAT_U_PAL);
         m_SaturationV->ChangeDefault(DEFAULT_SAT_V_PAL);
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
     }
 
     // set up defaults fro position parameters
@@ -1567,7 +1582,10 @@ void CBT848Source::LoadInputSettings()
         m_Saturation->ReadFromIni();
         m_SaturationU->ReadFromIni();
         m_SaturationV->ReadFromIni();
-        m_Overscan->ReadFromIni();
+        m_TopOverscan->ReadFromIni();
+        m_BottomOverscan->ReadFromIni();
+        m_LeftOverscan->ReadFromIni();
+        m_RightOverscan->ReadFromIni();
         m_BDelay->ReadFromIni();
     }
 
@@ -1585,7 +1603,10 @@ void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
         m_Saturation->WriteToIni(bOptimizeFileAccess);
         m_SaturationU->WriteToIni(bOptimizeFileAccess);
         m_SaturationV->WriteToIni(bOptimizeFileAccess);
-        m_Overscan->WriteToIni(bOptimizeFileAccess);
+        m_TopOverscan->WriteToIni(bOptimizeFileAccess);
+        m_BottomOverscan->WriteToIni(bOptimizeFileAccess);
+        m_LeftOverscan->WriteToIni(bOptimizeFileAccess);
+        m_RightOverscan->WriteToIni(bOptimizeFileAccess);
         m_BDelay->WriteToIni(bOptimizeFileAccess);
     }
 }
@@ -1654,7 +1675,10 @@ void CBT848Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_SaturationU);
         SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_SaturationV);
     
-        SettingsPerChannel_RegisterSetting("Overscan", "BT8x8 - Overscan", FALSE, m_Overscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Top", "BT8x8 - Overscan at Top", FALSE, m_TopOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Bottom", "BT8x8 - OverscanBottom", FALSE, m_BottomOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Left", "BT8x8 - Overscan at Left", FALSE, m_LeftOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Right", "BT8x8 - Overscan at Right", FALSE, m_RightOverscan);
         
         SettingsPerChannel_RegisterSetting("AudioChannel", "BT8x8 - Audio Channel", TRUE, m_AudioChannel);
         

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.36 2003-01-04 13:36:42 laurentg Exp $
+// $Id: AspectRatio.h,v 1.37 2003-01-07 23:27:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -183,7 +183,10 @@ typedef struct
     BOOL DeferedSetOverlay; 
     BOOL OverlayNeedsSetting; // MRS 2-22-01
 
-    int InitialOverscan;
+    int InitialTopOverscan;
+    int InitialBottomOverscan;
+    int InitialLeftOverscan;
+    int InitialRightOverscan;
 
     /** If TRUE, black bars are drawn.  If FALSE, we leave any leftover image on the screen
         For advanced use - typically used FALSE with top-aligned for viewing captions

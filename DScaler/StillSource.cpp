@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.78 2002-11-01 16:19:34 laurentg Exp $
+// $Id: StillSource.cpp,v 1.79 2003-01-07 23:27:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2002/11/01 16:19:34  laurentg
+// New option to keep ratio when taking a still and saving it in a file
+//
 // Revision 1.77  2002/11/01 13:09:19  laurentg
 // Management of the still capture context slightly updated - works now even with stills in memory
 //
@@ -1857,7 +1860,10 @@ BOOL CStillSource::IsNavigOnly()
 
 void CStillSource::SetOverscan()
 {
-    AspectSettings.InitialOverscan = 0;
+    AspectSettings.InitialTopOverscan = 0;
+    AspectSettings.InitialBottomOverscan = 0;
+    AspectSettings.InitialLeftOverscan = 0;
+    AspectSettings.InitialRightOverscan = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////

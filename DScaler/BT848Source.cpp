@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.100 2003-01-07 16:49:05 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.101 2003-01-07 23:27:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2003/01/07 16:49:05  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.99  2003/01/05 19:01:12  adcockj
 // Made some changes to Laurent's last set of VBI fixes
 //
@@ -536,8 +539,17 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_SaturationV = new CSaturationVSetting(this, "Red Saturation", DEFAULT_SAT_V_NTSC, 0, 511, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_SaturationV);
 
-    m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
-    m_Settings.push_back(m_Overscan);
+    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_TopOverscan);
+
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_BottomOverscan);
+
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_LeftOverscan);
+
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_RightOverscan);
 
     m_BDelay = new CBDelaySetting(this, "Macrovision Timing", 0, 0, 255, IniSection, pAdvancedTimingGroup, FlagsAll);
     m_Settings.push_back(m_BDelay);
@@ -1065,9 +1077,24 @@ ISetting* CBT848Source::GetSaturationV()
     return m_SaturationV;
 }
 
-ISetting* CBT848Source::GetOverscan()
+ISetting* CBT848Source::GetTopOverscan()
 {
-    return m_Overscan;
+    return m_TopOverscan;
+}
+
+ISetting* CBT848Source::GetBottomOverscan()
+{
+    return m_BottomOverscan;
+}
+
+ISetting* CBT848Source::GetLeftOverscan()
+{
+    return m_LeftOverscan;
+}
+
+ISetting* CBT848Source::GetRightOverscan()
+{
+    return m_RightOverscan;
 }
 
 void CBT848Source::BtAgcDisableOnChange(long NewValue, long OldValue)
@@ -1455,9 +1482,27 @@ void CBT848Source::SaturationOnChange(long Sat, long OldValue)
     }
 }
 
-void CBT848Source::OverscanOnChange(long Overscan, long OldValue)
+void CBT848Source::TopOverscanOnChange(long Overscan, long OldValue)
 {
-    AspectSettings.InitialOverscan = Overscan;
+    AspectSettings.InitialTopOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CBT848Source::BottomOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialBottomOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CBT848Source::LeftOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialLeftOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CBT848Source::RightOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialRightOverscan = Overscan;
     WorkoutOverlaySize(TRUE);
 }
 
@@ -1584,9 +1629,11 @@ LPCSTR CBT848Source::GetMenuLabel()
 
 void CBT848Source::SetOverscan()
 {
-    AspectSettings.InitialOverscan = m_Overscan->GetValue();
+    AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
+    AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
+    AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
+    AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
 }
-
 
 void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
 {    

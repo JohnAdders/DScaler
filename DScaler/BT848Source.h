@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.48 2002-11-07 20:33:16 adcockj Exp $
+// $Id: BT848Source.h,v 1.49 2003-01-07 23:27:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/11/07 20:33:16  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.47  2002/11/05 14:36:22  adcockj
 // Remove bt848 advanced flags dialog, now replaced by generic one
 //
@@ -75,7 +78,10 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
-    ISetting* GetOverscan();
+    ISetting* GetTopOverscan();
+    ISetting* GetBottomOverscan();
+    ISetting* GetLeftOverscan();
+    ISetting* GetRightOverscan();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
 	
@@ -184,7 +190,10 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Saturation);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, SaturationU);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, SaturationV);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Overscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, TopOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, BottomOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, LeftOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, RightOverscan);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, BDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, HDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, VDelay);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.58 2003-01-06 21:34:31 tobbej Exp $
+// $Id: DSSource.cpp,v 1.59 2003-01-07 23:31:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/01/06 21:34:31  tobbej
+// implemented GetFormat (not working yet)
+// implemented fm radio support
+//
 // Revision 1.57  2002/12/31 13:21:22  adcockj
 // Fixes for SetDefault Problems (needs testing)
 //
@@ -599,8 +603,17 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Saturation);
 
-	m_Overscan = new COverscanSetting(this, "Overscan", 0, 0, 150, IniSection);
-	m_Settings.push_back(m_Overscan);
+	m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", 0, 0, 150, IniSection);
+	m_Settings.push_back(m_TopOverscan);
+
+	m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", 0, 0, 150, IniSection);
+	m_Settings.push_back(m_BottomOverscan);
+
+	m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", 0, 0, 150, IniSection);
+	m_Settings.push_back(m_LeftOverscan);
+
+	m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", 0, 0, 150, IniSection);
+	m_Settings.push_back(m_RightOverscan);
 
 	m_VideoInput = new CVideoInputSetting(this, "VideoInput", 0, 0, LONG_MAX, IniSection);
 	m_Settings.push_back(m_VideoInput);
@@ -1278,19 +1291,55 @@ LPCSTR CDSCaptureSource::GetMenuLabel()
 	return NULL;
 }
 
-ISetting* CDSCaptureSource::GetOverscan()
+ISetting* CDSCaptureSource::GetTopOverscan()
 {
-	return m_Overscan;
+	return m_TopOverscan;
+}
+
+ISetting* CDSCaptureSource::GetBottomOverscan()
+{
+	return m_BottomOverscan;
+}
+
+ISetting* CDSCaptureSource::GetLeftOverscan()
+{
+	return m_LeftOverscan;
+}
+
+ISetting* CDSCaptureSource::GetRightOverscan()
+{
+	return m_RightOverscan;
 }
 
 void CDSCaptureSource::SetOverscan()
 {
-	AspectSettings.InitialOverscan = m_Overscan->GetValue();
+	AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
+	AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
+	AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
+	AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
 }
 
-void CDSCaptureSource::OverscanOnChange(long Overscan, long OldValue)
+void CDSCaptureSource::TopOverscanOnChange(long Overscan, long OldValue)
 {
-	AspectSettings.InitialOverscan = Overscan;
+	AspectSettings.InitialTopOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CDSCaptureSource::BottomOverscanOnChange(long Overscan, long OldValue)
+{
+	AspectSettings.InitialBottomOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CDSCaptureSource::LeftOverscanOnChange(long Overscan, long OldValue)
+{
+	AspectSettings.InitialLeftOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CDSCaptureSource::RightOverscanOnChange(long Overscan, long OldValue)
+{
+	AspectSettings.InitialRightOverscan = Overscan;
     WorkoutOverlaySize(TRUE);
 }
 
@@ -1317,7 +1366,10 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 		SettingsPerChannel_RegisterSetting("DSContrast","DShow - Contrast",TRUE, m_Contrast);
 		SettingsPerChannel_RegisterSetting("DSSaturation","DShow - Saturation",TRUE, m_Saturation);
 
-		SettingsPerChannel_RegisterSetting("DSOverscan","DShow - Overscan",TRUE, m_Overscan);
+		SettingsPerChannel_RegisterSetting("DSOverscan at Top","DShow - Overscan at Top",TRUE, m_TopOverscan);
+		SettingsPerChannel_RegisterSetting("DSOverscan at Bottom","DShow - Overscan at Bottom",TRUE, m_BottomOverscan);
+		SettingsPerChannel_RegisterSetting("DSOverscan at Left","DShow - Overscan at Left",TRUE, m_LeftOverscan);
+		SettingsPerChannel_RegisterSetting("DSOverscan at Right","DShow - Overscan at Right",TRUE, m_RightOverscan);
 
         SettingsPerChannel_NewDefaults(m_IDString.c_str(), FALSE);
 	}
@@ -1468,7 +1520,10 @@ void CDSCaptureSource::Start()
 		GetBrightness();
 		GetContrast();
 		GetSaturation();
-		GetOverscan();
+		GetTopOverscan();
+		GetBottomOverscan();
+		GetLeftOverscan();
+		GetRightOverscan();
 
 		// Notify settings per channel with correct default values
 		SettingsPerChannel_NewDefaults(m_IDString.c_str(),FALSE);

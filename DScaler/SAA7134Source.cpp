@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.54 2003-01-07 22:59:59 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.55 2003-01-07 23:27:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/01/07 22:59:59  atnak
+// Removed variable upscale devisor and locked in at 0x200 scaling
+// for 27Mhz VBI stepping
+//
 // Revision 1.53  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -329,8 +333,17 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_Hue = new CHueSetting(this, "Hue", SAA7134_DEFAULT_HUE, 0, 255, IniSection);
     m_Settings.push_back(m_Hue);
 
-    m_Overscan = new COverscanSetting(this, "Overscan", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
-    m_Settings.push_back(m_Overscan);
+    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_TopOverscan);
+
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_BottomOverscan);
+
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_LeftOverscan);
+
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
+    m_Settings.push_back(m_RightOverscan);
 
     m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection);
     m_PixelWidth->SetStepValue(2);
@@ -502,7 +515,10 @@ void CSAA7134Source::SetupSettings()
         { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_Overscan,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_TopOverscan,            PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_BottomOverscan,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_LeftOverscan,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_RightOverscan,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_PixelWidth,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_AdaptiveCombFilter,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_AudioStandard,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
@@ -1270,7 +1286,10 @@ int CSAA7134Source::GetHeight()
 
 void CSAA7134Source::SetOverscan()
 {
-    AspectSettings.InitialOverscan = m_Overscan->GetValue();
+    AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
+    AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
+    AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
+    AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
 }
 
 
@@ -1402,9 +1421,24 @@ ISetting* CSAA7134Source::GetSaturationV()
     return NULL;
 }
 
-ISetting* CSAA7134Source::GetOverscan()
+ISetting* CSAA7134Source::GetTopOverscan()
 {
-    return m_Overscan;
+    return m_TopOverscan;
+}
+
+ISetting* CSAA7134Source::GetBottomOverscan()
+{
+    return m_BottomOverscan;
+}
+
+ISetting* CSAA7134Source::GetLeftOverscan()
+{
+    return m_LeftOverscan;
+}
+
+ISetting* CSAA7134Source::GetRightOverscan()
+{
+    return m_RightOverscan;
 }
 
 
@@ -1534,9 +1568,27 @@ void CSAA7134Source::SaturationOnChange(long Sat, long OldValue)
 }
 
 
-void CSAA7134Source::OverscanOnChange(long Overscan, long OldValue)
+void CSAA7134Source::TopOverscanOnChange(long Overscan, long OldValue)
 {
-    AspectSettings.InitialOverscan = Overscan;
+    AspectSettings.InitialTopOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CSAA7134Source::BottomOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialBottomOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CSAA7134Source::LeftOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialLeftOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CSAA7134Source::RightOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialRightOverscan = Overscan;
     WorkoutOverlaySize(TRUE);
 }
 

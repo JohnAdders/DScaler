@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.74 2002-10-29 23:38:35 laurentg Exp $
+// $Id: Calibration.cpp,v 1.75 2003-01-07 23:27:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/10/29 23:38:35  laurentg
+// Display of the calibration OSD
+//
 // Revision 1.73  2002/10/29 20:58:09  laurentg
 // Calibration source cut in Calibration + Pattern
 //
@@ -1073,7 +1076,10 @@ void CCalibration::Start(eTypeCalibration type)
         OSD_ShowInfosScreen(hWnd, 0, 0);
 
         // Set the overscan to a value specific to calibration
-        AspectSettings.InitialOverscan = SourceOverscan;
+        AspectSettings.InitialTopOverscan = SourceOverscan;
+        AspectSettings.InitialBottomOverscan = SourceOverscan;
+        AspectSettings.InitialLeftOverscan = SourceOverscan;
+        AspectSettings.InitialRightOverscan = SourceOverscan;
         WorkoutOverlaySize(TRUE);
 
         m_IsRunning = TRUE;
@@ -1671,7 +1677,10 @@ CCalibration* pCalibration = NULL;
 BOOL Calibr_Overscan_OnChange(long Overscan)
 {
     SourceOverscan = Overscan;
-    AspectSettings.InitialOverscan = SourceOverscan;
+    AspectSettings.InitialTopOverscan = SourceOverscan;
+    AspectSettings.InitialBottomOverscan = SourceOverscan;
+    AspectSettings.InitialLeftOverscan = SourceOverscan;
+    AspectSettings.InitialRightOverscan = SourceOverscan;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.25 2003-01-07 16:49:07 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.26 2003-01-07 23:27:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/01/07 16:49:07  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.24  2003/01/05 19:01:13  adcockj
 // Made some changes to Laurent's last set of VBI fixes
 //
@@ -372,8 +375,17 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_SaturationV);
 
-    m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
-    m_Settings.push_back(m_Overscan);
+    m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_TopOverscan);
+
+    m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_BottomOverscan);
+
+    m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_LeftOverscan);
+
+    m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_RightOverscan);
 
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
     m_Settings.push_back(m_VideoSource);
@@ -516,7 +528,10 @@ void CCX2388xSource::SetupSettings()
         { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_Overscan,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_TopOverscan,            PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_BottomOverscan,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_LeftOverscan,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_RightOverscan,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_FLIFilmDetect,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Sharpness,              PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_IsVideoProgressive,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
@@ -531,7 +546,10 @@ void CCX2388xSource::SetupSettings()
         { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_Overscan,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_TopOverscan,            PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_BottomOverscan,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_LeftOverscan,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_RightOverscan,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_LumaAGC,                PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_ChromaAGC,              PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_FastSubcarrierLock,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
@@ -1006,9 +1024,24 @@ ISetting* CCX2388xSource::GetSaturationV()
     }
 }
 
-ISetting* CCX2388xSource::GetOverscan()
+ISetting* CCX2388xSource::GetTopOverscan()
 {
-    return m_Overscan;
+    return m_TopOverscan;
+}
+
+ISetting* CCX2388xSource::GetBottomOverscan()
+{
+    return m_BottomOverscan;
+}
+
+ISetting* CCX2388xSource::GetLeftOverscan()
+{
+    return m_LeftOverscan;
+}
+
+ISetting* CCX2388xSource::GetRightOverscan()
+{
+    return m_RightOverscan;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1356,9 +1389,27 @@ void CCX2388xSource::SaturationOnChange(long Sat, long OldValue)
     }
 }
 
-void CCX2388xSource::OverscanOnChange(long Overscan, long OldValue)
+void CCX2388xSource::TopOverscanOnChange(long Overscan, long OldValue)
 {
-    AspectSettings.InitialOverscan = Overscan;
+    AspectSettings.InitialTopOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CCX2388xSource::BottomOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialBottomOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CCX2388xSource::LeftOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialLeftOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+void CCX2388xSource::RightOverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialRightOverscan = Overscan;
     WorkoutOverlaySize(TRUE);
 }
 
@@ -1474,7 +1525,10 @@ LPCSTR CCX2388xSource::GetMenuLabel()
 
 void CCX2388xSource::SetOverscan()
 {
-    AspectSettings.InitialOverscan = m_Overscan->GetValue();
+    AspectSettings.InitialTopOverscan = m_TopOverscan->GetValue();
+    AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
+    AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
+    AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
 }
 
 void CCX2388xSource::SavePerChannelSetup(int Start)

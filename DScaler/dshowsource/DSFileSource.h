@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.6 2002-10-26 08:38:59 tobbej Exp $
+// $Id: DSFileSource.h,v 1.7 2003-01-07 23:31:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/26 08:38:59  tobbej
+// fixed compile problems by reverting HasTuner and SetTunerFrequency
+//
 // Revision 1.5  2002/10/22 04:09:49  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -75,7 +78,10 @@ public:
 	ISetting* GetSaturation(){return NULL;};
 	ISetting* GetSaturationU() {return NULL;};
 	ISetting* GetSaturationV() {return NULL;};
-	ISetting* GetOverscan() {return NULL;};
+	ISetting* GetTopOverscan() {return NULL;};
+	ISetting* GetBottomOverscan() {return NULL;};
+	ISetting* GetLeftOverscan() {return NULL;};
+	ISetting* GetRightOverscan() {return NULL;};
 	void SetOverscan();
 
 	LPCSTR GetStatus();

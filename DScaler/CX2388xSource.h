@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.15 2002-12-23 17:22:10 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.16 2003-01-07 23:27:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,10 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
-    ISetting* GetOverscan();
+    ISetting* GetTopOverscan();
+    ISetting* GetBottomOverscan();
+    ISetting* GetLeftOverscan();
+    ISetting* GetRightOverscan();
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -160,7 +163,10 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Saturation);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, SaturationU);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, SaturationV);
-    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Overscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, TopOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, BottomOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, LeftOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, RightOverscan);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, TunerType);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VideoSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VideoFormat);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.33 2003-01-06 21:34:35 tobbej Exp $
+// $Id: DSSource.h,v 1.34 2003-01-07 23:31:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/06 21:34:35  tobbej
+// implemented GetFormat (not working yet)
+// implemented fm radio support
+//
 // Revision 1.32  2002/12/05 21:02:55  tobbej
 // fixed initial channel change so it tunes properly to the last used channel.
 // renamed video format to resolution in settings dialog.
@@ -184,7 +188,10 @@ public:
 	ISetting* GetSaturationU() {return NULL;};
 	ISetting* GetSaturationV() {return NULL;};
 
-	ISetting* GetOverscan();
+	ISetting* GetTopOverscan();
+	ISetting* GetBottomOverscan();
+	ISetting* GetLeftOverscan();
+	ISetting* GetRightOverscan();
 
 	eVideoFormat GetFormat();
 	BOOL IsInTunerMode();
@@ -267,7 +274,10 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Contrast);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Hue);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Saturation);
-	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Overscan);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, TopOverscan);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, BottomOverscan);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, LeftOverscan);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, RightOverscan);
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, VideoInput);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);

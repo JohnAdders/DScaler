@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.29 2003-01-07 22:59:57 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.30 2003-01-07 23:27:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/01/07 22:59:57  atnak
+// Removed variable upscale devisor and locked in at 0x200 scaling
+// for 27Mhz VBI stepping
+//
 // Revision 1.28  2003/01/04 16:54:39  adcockj
 // Disabled format menu when in tuner mode
 //
@@ -1755,17 +1759,26 @@ void CSAA7134Source::ChangeDefaultsForVideoFormat()
     if (IsPALVideoFormat(VideoFormat))
     {
         m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION, TRUE);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
+        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
+        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
+        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
+        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN, TRUE);
     }
     else if (IsNTSCVideoFormat(VideoFormat))
     {
         m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION, TRUE);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
+        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
+        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
+        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
+        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN, TRUE);
     }
     else
     {
         m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION, TRUE);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
+        m_TopOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
+        m_BottomOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
+        m_LeftOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
+        m_RightOverscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN, TRUE);
     }
 
     if (IsSECAMVideoFormat(VideoFormat))
@@ -1864,7 +1877,10 @@ void CSAA7134Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Contrast", "SAA713x - Contrast", TRUE, m_Contrast);
         SettingsPerChannel_RegisterSetting("Saturation","SAA713x - Saturation",TRUE, m_Saturation);
 
-        SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", FALSE, m_Overscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Top", "SAA713x - Overscan at Top", FALSE, m_TopOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Bottom", "SAA713x - Overscan at Bottom", FALSE, m_BottomOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Left", "SAA713x - Overscan at Left", FALSE, m_LeftOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Right", "SAA713x - Overscan at Right", FALSE, m_RightOverscan);
 
         SettingsPerChannel_RegisterSetting("Volume", "SAA713x - Volume", TRUE, m_Volume);
         SettingsPerChannel_RegisterSetting("Balance", "SAA713x - Balance", TRUE, m_Balance);

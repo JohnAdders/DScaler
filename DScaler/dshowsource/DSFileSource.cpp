@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.5 2002-10-22 04:09:49 flibuste2 Exp $
+// $Id: DSFileSource.cpp,v 1.6 2003-01-07 23:31:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/22 04:09:49  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.4  2002/09/29 09:16:25  tobbej
 // changed GetStatus to return filename only
 //
@@ -138,7 +142,10 @@ BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 
 void CDSFileSource::SetOverscan()
 {
-	AspectSettings.InitialOverscan = 0;
+	AspectSettings.InitialTopOverscan = 0;
+	AspectSettings.InitialBottomOverscan = 0;
+	AspectSettings.InitialLeftOverscan = 0;
+	AspectSettings.InitialRightOverscan = 0;
 }
 
 LPCSTR CDSFileSource::GetStatus()

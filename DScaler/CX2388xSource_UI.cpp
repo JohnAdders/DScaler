@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.24 2003-01-04 16:54:39 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.25 2003-01-07 23:27:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/01/04 16:54:39  adcockj
+// Disabled format menu when in tuner mode
+//
 // Revision 1.23  2002/12/31 13:21:22  adcockj
 // Fixes for SetDefault Problems (needs testing)
 //
@@ -548,11 +551,17 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat()
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, TRUE);
     }
     else
     {
-        m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
     }
 }
 
@@ -717,7 +726,10 @@ void CCX2388xSource::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation", TRUE, m_SaturationU);
         SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation", TRUE, m_SaturationV);
     
-        SettingsPerChannel_RegisterSetting("Overscan","CX2388x - Overscan",TRUE, m_Overscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Top","CX2388x - Overscan at Top",TRUE, m_TopOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Bottom","CX2388x - Overscan at Bottom",TRUE, m_BottomOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Left","CX2388x - Overscan at Left",TRUE, m_LeftOverscan);
+        SettingsPerChannel_RegisterSetting("Overscan at Right","CX2388x - Overscan at Right",TRUE, m_RightOverscan);
 
         if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.28 2002-11-06 20:02:19 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.29 2003-01-07 23:27:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/11/06 20:02:19  adcockj
+// Ananlogue blanking fixed to work with my STB
+//
 // Revision 1.27  2002/11/03 18:38:32  adcockj
 // Fixes for cx2388x and PAL & NTSC
 //
@@ -769,17 +772,20 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 
     if (AspectSettings.OrbitEnabled)
     { 
-        int m_Overscan = AspectSettings.InitialOverscan;
+		// TO BE CHANGED (LG) : 4 different overscans
+        int m_Overscan = AspectSettings.InitialTopOverscan;
         if (AspectSettings.OrbitEnabled && m_Overscan*2 < AspectSettings.OrbitSize)
         {
             m_Overscan = (AspectSettings.OrbitSize+1)/2;
         }
-        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialOverscan));
+		// TO BE CHANGED (LG) : 4 different overscans
+        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan));
         m_FilterChain.push_back(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize)); 
     }
     else 
     {
-        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialOverscan));
+		// TO BE CHANGED (LG) : 4 different overscans
+        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan));
     }
     if (AspectSettings.AspectMode)
     { 

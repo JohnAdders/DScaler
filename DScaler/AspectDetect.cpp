@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.34 2003-01-04 13:36:41 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.35 2003-01-07 23:27:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/04 13:36:41  laurentg
+// Two modes for AR autodetection
+//
 // Revision 1.33  2003/01/03 00:54:19  laurentg
 // New mode for AR autodetection using only WSS
 //
@@ -398,17 +401,17 @@ int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
     int pixelCount;
 
     skipCount = (pInfo->FrameWidth * AspectSettings.SkipPercent / 100) +
-                AspectSettings.InitialOverscan;
+                AspectSettings.InitialLeftOverscan;
 
     // Decide whether we're scanning from the top or bottom
     if (direction < 0)
     {
-        y = pInfo->FrameHeight - 1 - AspectSettings.InitialOverscan;  // from bottom
+        y = pInfo->FrameHeight - 1 - AspectSettings.InitialBottomOverscan;  // from bottom
         ylimit = pInfo->FrameHeight / 2 - 1;
     }
     else
     {
-        y = AspectSettings.InitialOverscan; // from top
+        y = AspectSettings.InitialTopOverscan; // from top
         ylimit = pInfo->FrameHeight / 2;
     }
 
@@ -435,7 +438,7 @@ int FindEdgeOfImage(TDeinterlaceInfo* pInfo, int direction)
         if (y < 0 || y >= pInfo->FrameHeight)
         {
             LOG(2, "Sanity check failed; scanned past edge of screen");
-            y = (direction > 0) ? AspectSettings.InitialOverscan : pInfo->FrameHeight - 1 - AspectSettings.InitialOverscan;
+            y = (direction > 0) ? AspectSettings.InitialTopOverscan : pInfo->FrameHeight - 1 - AspectSettings.InitialBottomOverscan;
             break;
         }
     }
@@ -450,7 +453,7 @@ int FindAspectRatio(TDeinterlaceInfo* pInfo)
 {
     int ratio;
     int topBorder, bottomBorder, border;
-    int imageHeight = pInfo->FrameHeight - AspectSettings.InitialOverscan * 2;
+    int imageHeight = pInfo->FrameHeight - AspectSettings.InitialTopOverscan - AspectSettings.InitialBottomOverscan;
 
     // If the aspect Mode is set to "use source", revert to assuming that the
     // source frame is 4:3.  We have to assume *some* source-frame aspect ratio
@@ -461,16 +464,16 @@ int FindAspectRatio(TDeinterlaceInfo* pInfo)
     // Find the top of the image relative to the m_Overscan area.  Overscan has to
     // be discarded from the computations since it can't really be regarded as
     // part of the picture.
-    topBorder = FindEdgeOfImage(pInfo, 1) - AspectSettings.InitialOverscan;
+    topBorder = FindEdgeOfImage(pInfo, 1) - AspectSettings.InitialTopOverscan;
 
     // Now find the size of the border at the bottom of the image.
-    bottomBorder = pInfo->FrameHeight - 1 - FindEdgeOfImage(pInfo, -1) - AspectSettings.InitialOverscan;
+    bottomBorder = pInfo->FrameHeight - 1 - FindEdgeOfImage(pInfo, -1) - AspectSettings.InitialBottomOverscan;
 
     // The border size is the smaller of the two.
     border = (topBorder < bottomBorder) ? topBorder : bottomBorder;
 
     // Test to check if all the frame is detected as a big black bar
-    if ((imageHeight - border * 2) <= (2 * AspectSettings.InitialOverscan))
+    if ((imageHeight - border * 2) <= (AspectSettings.InitialTopOverscan + AspectSettings.InitialBottomOverscan))
 	{
         ratio = AspectSettings.SourceAspect;
 	}

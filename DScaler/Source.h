@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.27 2002-12-10 12:58:07 adcockj Exp $
+// $Id: Source.h,v 1.28 2003-01-07 23:27:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,13 @@ public:
     /// returns NULL if there is no control over this value
     virtual ISetting* GetSaturationV() = 0;
     /// returns NULL if there is no control over this value
-    virtual ISetting* GetOverscan() = 0;
+    virtual ISetting* GetTopOverscan() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetBottomOverscan() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetLeftOverscan() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetRightOverscan() = 0;
 	/// Get the tuner Id - this method may (and should) be overriden
     virtual eTunerId GetTunerId() 
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.28 2003-01-07 22:59:58 atnak Exp $
+// $Id: SAA7134Source.h,v 1.29 2003-01-07 23:27:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/01/07 22:59:58  atnak
+// Removed variable upscale devisor and locked in at 0x200 scaling
+// for 27Mhz VBI stepping
+//
 // Revision 1.27  2002/11/10 09:30:57  atnak
 // Added Chroma only comb filter mode for SECAM
 //
@@ -175,7 +179,10 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
-    ISetting* GetOverscan();
+    ISetting* GetTopOverscan();
+    ISetting* GetBottomOverscan();
+    ISetting* GetLeftOverscan();
+    ISetting* GetRightOverscan();
 
     LPCSTR GetMenuLabel();
     void SetMenu(HMENU hMenu);
@@ -325,7 +332,10 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Contrast);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Hue);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Saturation);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Overscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, TopOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, BottomOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, LeftOverscan);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, RightOverscan);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, PixelWidth);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VideoSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VideoFormat);

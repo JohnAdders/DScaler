@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.40 2003-01-04 13:36:42 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.41 2003-01-07 23:27:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/01/04 13:36:42  laurentg
+// Two modes for AR autodetection
+//
 // Revision 1.39  2003/01/03 00:54:19  laurentg
 // New mode for AR autodetection using only WSS
 //
@@ -176,7 +179,7 @@ TAspectSettings AspectSettings =
     {0,0,0,0},
     {0,0,0,0},
     {0,0,0,0},
-    TRUE,FALSE,4,TRUE,FALSE,
+    TRUE,FALSE,4,4,4,4,TRUE,FALSE,
     0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
     100,100,50,50,
     FALSE,

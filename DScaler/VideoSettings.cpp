@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.16 2003-01-06 20:46:02 laurentg Exp $
+// $Id: VideoSettings.cpp,v 1.17 2003-01-07 23:27:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/01/06 20:46:02  laurentg
+// Purge unused data + Add a missing break at end of case WM_INITDIALOG
+//
 // Revision 1.15  2002/03/13 13:36:45  tobbej
 // fixed video settings dialog so it doesnt crash if SaturationU or SaturationV is NULL
 //
@@ -115,7 +118,8 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
         Saturation = Providers_GetCurrentSource()->GetSaturation();    
         SaturationU = Providers_GetCurrentSource()->GetSaturationU();    
         SaturationV = Providers_GetCurrentSource()->GetSaturationV();    
-        Overscan = Providers_GetCurrentSource()->GetOverscan();    
+		// TO BE REMOVED LATER (LG) : overscan must be adjustable in another dialog box
+        Overscan = Providers_GetCurrentSource()->GetTopOverscan();    
 
         if(Brightness != NULL)
         {

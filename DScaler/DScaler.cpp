@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.295 2003-01-27 16:40:13 adcockj Exp $
+// $Id: DScaler.cpp,v 1.296 2003-01-27 22:06:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.295  2003/01/27 16:40:13  adcockj
+// Fixed maximize bug spotted by Atsushi
+//
 // Revision 1.294  2003/01/26 10:34:57  tobbej
 // changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
 //
@@ -2428,6 +2431,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     int i;
     BOOL bDone;
     ISetting* pSetting = NULL;
+    ISetting* pSetting2 = NULL;
+    ISetting* pSetting3 = NULL;
+    ISetting* pSetting4 = NULL;
 
     if (message == MsgWheel)
     {
@@ -3024,42 +3030,62 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERSCAN_PLUS:
-            if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTUP_SILENT);
-            }
-            if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTUP_SILENT);
-            }
-            if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTUP_SILENT);
-            }
-            if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTUP_SILENT);
-            }
+			pSetting = Providers_GetCurrentSource()->GetTopOverscan();
+			pSetting2 = Providers_GetCurrentSource()->GetBottomOverscan();
+			pSetting3 = Providers_GetCurrentSource()->GetLeftOverscan();
+			pSetting4 = Providers_GetCurrentSource()->GetRightOverscan();
+			if ( ( (pSetting == NULL) || (pSetting->GetValue() != pSetting->GetMax()) )
+			  && ( (pSetting2 == NULL) || (pSetting2->GetValue() != pSetting2->GetMax()) )
+			  && ( (pSetting3 == NULL) || (pSetting3->GetValue() != pSetting3->GetMax()) )
+			  && ( (pSetting4 == NULL) || (pSetting4->GetValue() != pSetting4->GetMax()) ) )
+			{
+				if(pSetting != NULL)
+				{
+					pSetting->ChangeValue(ADJUSTUP_SILENT);
+				}
+				if(pSetting2 != NULL)
+				{
+					pSetting2->ChangeValue(ADJUSTUP_SILENT);
+				}
+				if(pSetting3 != NULL)
+				{
+					pSetting3->ChangeValue(ADJUSTUP_SILENT);
+				}
+				if(pSetting4 != NULL)
+				{
+					pSetting4->ChangeValue(ADJUSTUP_SILENT);
+				}
+			}
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
         case IDM_OVERSCAN_MINUS:
-            if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
-            }
-            if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
-            }
-            if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
-            }
-            if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
-            {
-                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
-            }
+			pSetting = Providers_GetCurrentSource()->GetTopOverscan();
+			pSetting2 = Providers_GetCurrentSource()->GetBottomOverscan();
+			pSetting3 = Providers_GetCurrentSource()->GetLeftOverscan();
+			pSetting4 = Providers_GetCurrentSource()->GetRightOverscan();
+			if ( ( (pSetting == NULL) || (pSetting->GetValue() != pSetting->GetMin()) )
+			  && ( (pSetting2 == NULL) || (pSetting2->GetValue() != pSetting2->GetMin()) )
+			  && ( (pSetting3 == NULL) || (pSetting3->GetValue() != pSetting3->GetMin()) )
+			  && ( (pSetting4 == NULL) || (pSetting4->GetValue() != pSetting4->GetMin()) ) )
+			{
+				if(pSetting != NULL)
+				{
+					pSetting->ChangeValue(ADJUSTDOWN_SILENT);
+				}
+				if(pSetting2 != NULL)
+				{
+					pSetting2->ChangeValue(ADJUSTDOWN_SILENT);
+				}
+				if(pSetting3 != NULL)
+				{
+					pSetting3->ChangeValue(ADJUSTDOWN_SILENT);
+				}
+				if(pSetting4 != NULL)
+				{
+					pSetting4->ChangeValue(ADJUSTDOWN_SILENT);
+				}
+			}
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
